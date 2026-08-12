@@ -201,7 +201,7 @@ legacy:legacy_ggen_lsp_a2a_bridge a ggen:LegacyCapability ;
 
 legacy:legacy_genesis_schema_v2_crate a ggen:LegacyCapability ;
   ggen:capabilityId "legacy_genesis_schema_v2_crate" ;
-  ggen:historicalSourceCommit "(deletion commit for crates/genesis-schema-v2/{Cargo.toml,src/lib.rs}, found via `git log --diff-filter=D --summary` for that path in the 2026-07 consolidation range)" ;
+  ggen:historicalSourceCommit "5b8dd6407b6dd1f11d572e9768499c534c59aec9 (chore(consolidation): phase 3b - fold genesis-schema-v2 into genesis-types-v2 -- real deletion commit for crates/genesis-schema-v2/, resolved 2026-08-12 via `git log --oneline --diff-filter=D --all -- crates/genesis-schema-v2` against the actual repository; the field this replaces described the search procedure rather than its result)" ;
   ggen:legacySourcePath "crates/genesis-schema-v2/ (deleted whole crate: OpenAPI specs, RDF ontology, 43 YAWL pattern definitions, workflow schema validation)" ;
   ggen:owningSubsystem "system" ;
   ggen:historicalSemanticOwner "genesis-schema-v2 crate (standalone)" ;
@@ -328,7 +328,7 @@ legacy:legacy_sync_audit_flag a ggen:LegacyCapability ;
 
 legacy:legacy_sync_dry_run_value_flag a ggen:LegacyCapability ;
   ggen:capabilityId "legacy_sync_dry_run_value_flag" ;
-  ggen:historicalSourceCommit "UNKNOWN -- same status as legacy_sync_audit_flag; the justfile's `sync-dry:` recipe calls `ggen sync --dry_run true`" ;
+  ggen:historicalSourceCommit "baca724b9 (real commit confirmed 2026-08-12 to still carry justfile's broken `sync-dry: {{GGEN}} sync --dry_run true` form, via `git log --all -- justfile` scanned for the literal string; superseded by 7e4dfb621 per ggen:migrationPath below, which documents the resolution but never itself changed the broken justfile line -- the actual code fix landed earlier)" ;
   ggen:legacySourcePath "justfile (`sync-dry:` recipe) vs. crates/ggen-engine/src/verbs/sync.rs (--dry-run is a bare switch, not value-taking)" ;
   ggen:owningSubsystem "products" ;
   ggen:historicalSemanticOwner "justfile author's assumption about the sync verb's flag surface" ;
@@ -352,7 +352,7 @@ legacy:legacy_sync_dry_run_value_flag a ggen:LegacyCapability ;
 
 legacy:legacy_ggen_toml_dual_schema a ggen:LegacyCapability ;
   ggen:capabilityId "legacy_ggen_toml_dual_schema" ;
-  ggen:historicalSourceCommit "UNKNOWN -- divergence documented in .claude/rules/architecture.md ('ggen.toml has two schemas'); this script found no single commit that introduced the split as a deliberate decision" ;
+  ggen:historicalSourceCommit "627f84c59 (fix: disable broken commands, fix policy/doctor/init bugs, archive examples, add canonical clap-noun-verb-cli example (#265) -- real commit confirmed 2026-08-12 via `git ls-tree -r 627f84c59^` to have both pre-classifier files at its parent: crates/ggen-config/src/manifest/types.rs and crates/ggen-engine/src/config.rs. No single commit introduced the two-schema split itself as a deliberate decision (per this field's original text), but this is the real commit that replaced the ad-hoc raw-text dispatch with the shared classifier -- the disposition-relevant event -- per ggen:migrationPath below)" ;
   ggen:legacySourcePath "crates/ggen-config/src/manifest/types.rs (GgenManifest, declarative-rules schema) vs. crates/ggen-engine/src/config.rs (GgenConfig, frontmatter schema)" ;
   ggen:owningSubsystem "engine" ;
   ggen:historicalSemanticOwner "Two independently-defined struct hierarchies, dispatched by a raw-text pre-parse in crates/ggen-engine/src/generation_rules.rs:108 (has_generation_rules) and crates/ggen-engine/src/sync.rs:155" ;
@@ -587,7 +587,7 @@ legacy:legacy_ext_template_mode_append a ggen:LegacyCapability ;
 legacy:legacy_ext_template_mode_update a ggen:LegacyCapability ;
   ggen:capabilityId "legacy_ext_template_mode_update" ;
   ggen:historicalSourceCommit "fca98756f (refactor(daemon): replace custom generator with SyncExecutor from ggen-core) / 6af9ba404 (feat(specs): add universal domain, cron schedule ontology, and 8 spec bundles)" ;
-  ggen:legacySourcePath "template frontmatter mode field, pre-SyncExecutor generator (ggen-daemon's custom generator, replaced by fca98756f)" ;
+  ggen:legacySourcePath "crates/ggen-daemon/src/generator.rs (resolved 2026-08-12: fca98756f's own commit message reads \"Delete generator.rs and its tests\", confirmed via `git show fca98756f --stat` and `git ls-tree -r fca98756f^`; the field this replaces described the mode's function rather than its source file)" ;
   ggen:owningSubsystem "engine" ;
   ggen:historicalSemanticOwner "ggen-daemon's own custom generator (pre-SyncExecutor)" ;
   ggen:inputContract "`mode = \"Update\"` in template frontmatter" ;
