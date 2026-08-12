@@ -96,7 +96,11 @@ jobs:
         uses: ./.github/actions/setup-ggen-build
         with:
           components: ${{ matrix.lane == 'quality_deep' && 'rustfmt,clippy' || '' }}
-          cache-key-suffix: errc-${{ matrix.lane }}
+          # Exact-head binding is standing-bearing. A prior Deep run executed a
+          # dspy integration-test function that does not exist in the checked-out
+          # candidate source, proving cross-commit target-cache contamination can
+          # manufacture false evidence when only the lane names the cache key.
+          cache-key-suffix: errc-${{ matrix.lane }}-${{ needs.admission.outputs.head }}
       - name: Install security verifier
         if: matrix.lane == 'security_deep'
         uses: taiki-e/install-action@6c6fd71fe4fb72c3697d269963d0e15df8adedad # v2.85.10
