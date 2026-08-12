@@ -13,10 +13,19 @@ Full public API surface derived from LSP `documentSymbol` sweep of all workspace
 
 Use LSP for navigation -- this file is orientation, not a substitute for `LSP workspaceSymbol`.
 
-## Crate Map (18 workspace crates)
+## Crate Map (14 workspace crates)
 
-Re-verified against `Cargo.toml` `members = [...]` on 2026-08-03 (17 array entries + the root
-`ggen` package = 18 total; `grep -c '^  "crates/' Cargo.toml` → 17). This 18-total count supersedes the
+**Correction (2026-08-12, ERRC elimination pass, verified live):** this 14-total count supersedes
+the prior 18-total count below. Four crates confirmed to have zero real reverse dependencies
+(`cargo tree -i <crate> --workspace`) were deleted: `cpmp` (standalone tool crate, no `[[bin]]`,
+no consumer), `openapi-cnv-reflect` (same — a real, documented tool with no live call site), and
+the self-contained `genesis-types-v2`/`genesis-core-v2` pair (genesis-core-v2 depends on
+genesis-types-v2; nothing outside the pair reaches either). See the "Removed" section below for
+the full record. `grep -c '^  "crates/' Cargo.toml` → 13 array entries + the root `ggen` package =
+14 total.
+
+The prior 18-total count (also dated 2026-08-03) was itself re-verified against `Cargo.toml`
+`members = [...]` (17 array entries + the root `ggen` package = 18 total; `grep -c '^  "crates/' Cargo.toml` → 17). That 18-total count supersedes the
 prior 19-total count (also dated 2026-08-03, earlier that day): `chicago-tdd-tools`, vendored under
 PR #255 (2026-07-17) because its `cli-proof` feature wasn't yet published, was removed the same day
 once chicago-tdd-tools 26.8.3 (including `cli-proof`) was published to crates.io — every consumer
@@ -67,7 +76,6 @@ is the sole live half of this split.
 | `ggen-config` | Defines and validates ONE of `ggen.toml`'s two schemas — the "declarative-rules" `GgenManifest` (depends on the published `star-toml` crate, not an embedded copy). Not sole authority over `ggen.toml` parsing; see "ggen.toml has two schemas" below |
 | `ggen-marketplace` | Marketplace / package management system for ggen |
 | `ggen-graph` | Deterministic RDF graph module — Oxigraph wrapper with deterministic hashing, state-change deltas, validation hooks, and cryptographic transition receipts |
-| `openapi-cnv-reflect` | Reflects an OpenAPI 3.x document into a cnv:Cli RDF ontology consumable by the zero-code clap-noun-verb compiler. `publish = false` (dev/codegen-tooling crate, not shipped standalone). |
 
 ### ggen.toml has two schemas
 
@@ -127,20 +135,39 @@ reaches outside `/Users/sac/ggen` anymore. Verify via `grep -rn 'path.*=.*"/User
 
 ### Genesis / KNHK V2 kernel
 
+**No live members as of 2026-08-12** — `genesis-types-v2` and `genesis-core-v2` were deleted (zero
+reverse dependencies from anywhere in the workspace; confirmed a self-contained, mutually-isolated
+pair via `cargo tree -i`, not two independently-orphaned crates). See the "Removed" section below.
+
 | Crate | Purpose (from Cargo.toml / lib.rs) |
 |-------|-------------------------------------|
-| `genesis-types-v2` | KNHK V2 type system — foundational data structures (workflow/pattern definitions, execution state/events, error and config types). Absorbed `genesis-schema-v2` as its `schema` module (OpenAPI specs, RDF ontology, 43 YAWL pattern definitions, workflow schema validation) |
-| `genesis-core-v2` | KNHK V2 core — `Pattern` trait system, pattern registry, composition, zero-copy/zero-alloc execution paths |
 
 ### Mapping & stewardship
 
+**No live members as of 2026-08-12** — `cpmp` was this group's sole member and was deleted (zero
+reverse dependencies, no `[[bin]]` target despite its README describing CLI usage). See the
+"Removed" section below.
+
 | Crate | Purpose (from Cargo.toml / lib.rs) |
 |-------|-------------------------------------|
-| `cpmp` | Computer Project Mapping Protocol (Open Ontologies Catalog) — scanner, capability classification, projection, receipts, symbol/db modules |
+
+### Removed in the 2026-08-12 ERRC elimination pass
+
+`cpmp`, `openapi-cnv-reflect`, `genesis-types-v2`, `genesis-core-v2` — all four confirmed via
+`cargo tree -i <crate> --workspace` to have zero real reverse dependencies from anywhere in the
+workspace, and confirmed via a real, clean `cargo build --workspace` immediately after deletion
+(not merely a grep-based survey claim). A fifth candidate from the same pass, `ggen-graph`'s
+`delta`/`receipt` submodules, was investigated and explicitly NOT deleted: they are load-bearing
+via `graph::dataset::DeterministicGraph::apply_delta()` (a facade method, re-exported through
+`prelude`), and `DeterministicGraph` is used externally by `ggen-lsp`/`ggen-mcp` — a real near-miss, root-caused as
+"an external-reference grep cannot see facade-pattern internal usage": whole-crate elimination
+candidates need `cargo tree -i` (as used here); submodule-level candidates within a still-reachable
+crate additionally need an internal `mod`/`pub use`/facade-method check that this pass had been
+skipping.
 
 ### Removed in the 2026-07 consolidation pass
 
-`ggen-a2a-mcp`, `ggen-lsp-mcp`, `ggen-lsp-a2a` (absorbed into `ggen-lsp`), `genesis-schema-v2` (absorbed into `genesis-types-v2`), `star-toml` (removed from the workspace — now an external published dependency), `stpnt` and `genesis-core` (dead code, zero dependents). The prior dormant non-member directories (`genesis-construct8`, `genesis-lockchain`, `genesis-wasm-shell`, `ggen-daemon`, `ggen-membrane`, `ggen-projection`, `ggen-pack-clap-noun-verb`, `ggen-pack-lsp-max`) were deleted earlier in the same pass. See `CRATE_CONSOLIDATION_ANALYSIS_2026-07-01.md` and git history for the removed code.
+`ggen-a2a-mcp`, `ggen-lsp-mcp`, `ggen-lsp-a2a` (absorbed into `ggen-lsp`), `genesis-schema-v2` (absorbed into `genesis-types-v2`, which was itself later deleted 2026-08-12 — see above), `star-toml` (removed from the workspace — now an external published dependency), `stpnt` and `genesis-core` (dead code, zero dependents). The prior dormant non-member directories (`genesis-construct8`, `genesis-lockchain`, `genesis-wasm-shell`, `ggen-daemon`, `ggen-membrane`, `ggen-projection`, `ggen-pack-clap-noun-verb`, `ggen-pack-lsp-max`) were deleted earlier in the same pass. See `CRATE_CONSOLIDATION_ANALYSIS_2026-07-01.md` and git history for the removed code.
 
 ## Pack Inventory
 
@@ -245,8 +272,6 @@ evidence evaluation, receipts, and replay. A density unit is one… |
 | `vision-2030-phase-change-pack` | 26.8.3 | Executable Vision 2030 capability-program semantics, Blue Ocean ERRC analysis,
 DX/QoL/Doctor diagnostic lenses, horizon gates, authority boundaries, external
 acceptance, 1000x SBB distribution measurement, receipts, and … |
-| `wasm4pm-interview-site-pack` | 0.1.0 | SUPERSEDED PROTOTYPE — retained only for historical review of the earlier private site: vocabulary and generated Next.js sandbox experiment. It is not the canonical InterviewAssist application pack and must not drive TIC… |
-| `wasm4pm-sandbox-pack` | 0.1.0 | SUPERSEDED PROTOTYPE — retained only for historical review of the earlier private sbx: vocabulary and Rust catalog/actuator experiment. It is not a canonical InterviewAssist specification source and must not drive TICKET… |
 
 ## Cross-Cutting Patterns
 
@@ -260,8 +285,7 @@ acceptance, 1000x SBB distribution measurement, receipts, and … |
 | RDF/SPARQL foundation | `ggen-graph`, `ggen-marketplace`, `ggen-engine` (via `praxis-graphlaw`/`oxigraph`) | Built on `oxigraph` triplestores (or `praxis-graphlaw`'s N3/Datalog/SHACL/ShEx engine, `ggen-engine`'s default) |
 | Pipeline architecture | `ggen-engine` (Resolve → Enrich → Extract → Render → Write, live) | Multi-stage deterministic transformation — see `ggen-engine/src/sync.rs` module doc for the current pipeline |
 | Deterministic hashing + transition receipts | `ggen-graph`; `ggen-engine` (via `praxis-core::ReceiptRecord`, chained BLAKE3 over `{graph_hash, outputs}`) | State-change detection (deltas) and cryptographic receipts |
-| Feature-gated module absorption | `ggen-lsp` (`mcp`/`a2a` features), `genesis-types-v2` (`schema` module) | Former sibling crates folded in behind Cargo features/modules, cycle-free |
-| Pattern trait / registry | `genesis-core-v2`, `genesis-types-v2::schema` | 43 YAWL workflow patterns, zero-copy execution |
+| Feature-gated module absorption | `ggen-lsp` (`mcp`/`a2a` features) | Former sibling crates folded in behind Cargo features/modules, cycle-free |
 
 ## Navigation
 
