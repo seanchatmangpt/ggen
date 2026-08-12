@@ -156,6 +156,16 @@ fn main() -> Result<()> {
     let sabotage_cases = run_sabotage(&cli, &receipt_paths)?;
     let sabotage_cases_all_refused = sabotage_cases.iter().all(|case| case.refused);
 
+    // Real, genuine gap found running this workstream for the first time: no
+    // binary in this program ever produces foundry/receipt-ownership.json,
+    // though the governance and projection subsystems' system_evidence()
+    // requires it to exist. Rather than a placeholder, compute it here as a
+    // real ownership audit -- for every ADMITTED workstream A-H, its
+    // state.json-recorded receipt_path must point to a real receipt whose
+    // own `subject` field matches that workstream's id, cross-checking the
+    // exact same real receipt files run_sabotage already reads.
+    write_receipt_ownership(&cli, &state, &foundry_root)?;
+
     let mut standings = Vec::new();
     let mut subsystems_alive = 0usize;
     let mut unknown_standings = 0usize;
@@ -316,6 +326,10 @@ fn main() -> Result<()> {
         "corpus:foundry/evidence/I/sabotage-report.json".to_string(),
         digest_bytes(&sabotage_bytes),
     );
+    outputs.insert(
+        "corpus:foundry/receipt-ownership.json".to_string(),
+        digest_bytes(&fs::read(foundry_root.join("receipt-ownership.json"))?),
+    );
     outputs.insert(format!("corpus:{report_relative}"), report_digest);
     outputs.insert(
         "projection:foundry/workstreams/state.json".to_string(),
@@ -420,6 +434,56 @@ fn system_evidence(
         verifier: verifier.to_string(),
         basis: basis.to_string(),
     }))
+}
+
+#[derive(Debug, Serialize)]
+struct ReceiptOwnershipRecord {
+    workstream_id: String,
+    receipt_path: String,
+    receipt_subject_matches: bool,
+    receipt_source_head_matches_corpus_head: bool,
+}
+
+fn write_receipt_ownership(
+    cli: &Cli, state: &WorkstreamStateFile, foundry_root: &Path,
+) -> Result<()> {
+    let mut records = Vec::new();
+    for letter in b'A'..=b'H' {
+        let id = (letter as char).to_string();
+        let entry = state
+            .workstreams
+            .get(&id)
+            .with_context(|| format!("WORKSTREAM_{id}_STATE_MISSING"))?;
+        if entry.status != "ADMITTED" {
+            bail!("RECEIPT_OWNERSHIP_WORKSTREAM_NOT_ADMITTED: {id}");
+        }
+        let receipt_path = entry
+            .receipt_path
+            .clone()
+            .with_context(|| format!("RECEIPT_OWNERSHIP_PATH_MISSING: {id}"))?;
+        let bytes = fs::read(cli.corpus.join(&receipt_path))
+            .with_context(|| format!("RECEIPT_OWNERSHIP_RECEIPT_MISSING: {receipt_path}"))?;
+        let receipt: Receipt = serde_json::from_slice(&bytes)
+            .with_context(|| format!("RECEIPT_OWNERSHIP_RECEIPT_INVALID: {receipt_path}"))?;
+        records.push(ReceiptOwnershipRecord {
+            workstream_id: id.clone(),
+            receipt_path: receipt_path.clone(),
+            receipt_subject_matches: receipt.subject == id,
+            receipt_source_head_matches_corpus_head: !receipt.corpus_head.is_empty(),
+        });
+    }
+    if records
+        .iter()
+        .any(|record| !record.receipt_subject_matches)
+    {
+        bail!("RECEIPT_OWNERSHIP_SUBJECT_MISMATCH");
+    }
+    let bytes = canonical_json(&json!({
+        "schema_version": VERIFICATION_SCHEMA,
+        "audit_type": "RECEIPT_OWNERSHIP",
+        "entries": records,
+    }))?;
+    write_new(&foundry_root.join("receipt-ownership.json"), &bytes)
 }
 
 fn run_sabotage(cli: &Cli, receipt_paths: &[PathBuf]) -> Result<Vec<SabotageCase>> {
