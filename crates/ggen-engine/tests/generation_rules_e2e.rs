@@ -396,11 +396,16 @@ fn overwrite_mode_replaces_content_and_skips_when_unchanged() {
 /// doc comment's documented scope cut) — it must fail with a named,
 /// specific error, never a silent skip or a decorative empty output.
 #[test]
-fn unimplemented_query_source_pack_is_a_typed_refusal_not_a_silent_skip() {
+fn query_source_pack_with_no_local_path_is_a_typed_refusal_not_a_silent_skip() {
+    // `QuerySource::Pack` is now implemented for locally-pathed packs (see
+    // `generation_rules::resolve_pack_root`/`resolve_pack_file`) -- the
+    // remaining, still-real refusal case is a pack declared with a
+    // non-local registry (no `path`), which this crate's lightweight
+    // `package.toml`-keyed lookup has no on-disk root to resolve against.
     let dir = TempDir::new().expect("tempdir");
     write_manifest(
         dir.path(),
-        "[[packs]]\nname = \"some-pack\"\nregistry = \"local\"\npath = \".\"\n\n[[generation.rules]]\nname = \"needs_pack\"\nquery = { pack = \"some-pack\", output = \"queries\", file = \"x.rq\" }\ntemplate = { inline = \"unreachable\" }\noutput_file = \"out/x.txt\"\n",
+        "[[packs]]\nname = \"some-pack\"\nregistry = \"marketplace\"\n\n[[generation.rules]]\nname = \"needs_pack\"\nquery = { pack = \"some-pack\", output = \"queries\", file = \"x.rq\" }\ntemplate = { inline = \"unreachable\" }\noutput_file = \"out/x.txt\"\n",
     );
     write_ontology(dir.path(), ONTOLOGY_ALICE_BOB);
 
@@ -408,8 +413,75 @@ fn unimplemented_query_source_pack_is_a_typed_refusal_not_a_silent_skip() {
     let msg = err.to_string();
     assert!(msg.contains("FM-GEN-006"), "{msg}");
     assert!(msg.contains("some-pack"), "{msg}");
-    assert!(msg.contains("not implemented"), "{msg}");
+    assert!(msg.contains("no local"), "{msg}");
     assert!(!dir.path().join("out/x.txt").exists());
+}
+
+/// A locally-pathed pack with no `package.toml` (or one missing the
+/// referenced `output` key) fails OPEN in `PackageToml::resolve_output_key`
+/// (falls back to treating `output` as a literal directory name, per that
+/// function's own doc comment) -- if the fallback-resolved file genuinely
+/// doesn't exist, this must still be a loud, named refusal (`FM-GEN-005`),
+/// not a silent skip, even though the pack itself resolved successfully.
+#[test]
+fn query_source_pack_with_local_path_but_no_package_toml_is_a_typed_refusal_on_missing_file() {
+    let dir = TempDir::new().expect("tempdir");
+    write_manifest(
+        dir.path(),
+        "[[packs]]\nname = \"some-pack\"\nregistry = \"local\"\npath = \".\"\n\n[[generation.rules]]\nname = \"needs_pack\"\nquery = { pack = \"some-pack\", output = \"queries\", file = \"x.rq\" }\ntemplate = { inline = \"unreachable\" }\noutput_file = \"out/x.txt\"\n",
+    );
+    write_ontology(dir.path(), ONTOLOGY_ALICE_BOB);
+    // Deliberately no package.toml and no queries/x.rq anywhere under the
+    // pack root (which is the project root here, path = ".").
+
+    let err = sync(dir.path(), SyncOptions::default()).expect_err("must refuse, not silently skip");
+    let msg = err.to_string();
+    assert!(msg.contains("FM-GEN-005"), "{msg}");
+    assert!(msg.contains("some-pack"), "{msg}");
+    assert!(msg.contains("unreadable"), "{msg}");
+    assert!(!dir.path().join("out/x.txt").exists());
+}
+
+/// The real positive path: a pack with a genuine `package.toml`
+/// `[pack.outputs]` table resolves `output` through that table (not by
+/// literal-string coincidence) to find its real query/template files, and
+/// the rule executes against real query results end to end -- proving this
+/// isn't just "no longer errors," it produces the real, correct file.
+#[test]
+fn query_and_template_source_pack_resolves_through_package_toml_outputs_table() {
+    let dir = TempDir::new().expect("tempdir");
+    let pack_root = dir.path().join("vendor").join("some-pack");
+    std::fs::create_dir_all(pack_root.join("real-queries-dir")).expect("mkdir queries dir");
+    std::fs::create_dir_all(pack_root.join("real-templates-dir")).expect("mkdir templates dir");
+    // The `output` key ("queries"/"templates") deliberately does NOT match
+    // either real directory name -- only resolves via [pack.outputs].
+    std::fs::write(
+        pack_root.join("package.toml"),
+        "[pack.outputs]\nqueries = \"real-queries-dir\"\ntemplates = \"real-templates-dir\"\n",
+    )
+    .expect("write package.toml");
+    std::fs::write(
+        pack_root.join("real-queries-dir").join("names.rq"),
+        "SELECT ?name WHERE { ?s <http://example.org/name> ?name } ORDER BY ?name",
+    )
+    .expect("write query");
+    std::fs::write(
+        pack_root.join("real-templates-dir").join("names.tmpl"),
+        "{% for row in results %}{{ row.name }}\n{% endfor %}",
+    )
+    .expect("write template");
+
+    write_manifest(
+        dir.path(),
+        "[[packs]]\nname = \"some-pack\"\nregistry = \"local\"\npath = \"vendor/some-pack\"\n\n[[generation.rules]]\nname = \"names_via_pack\"\nquery = { pack = \"some-pack\", output = \"queries\", file = \"names.rq\" }\ntemplate = { pack = \"some-pack\", output = \"templates\", file = \"names.tmpl\" }\noutput_file = \"out/names.txt\"\n",
+    );
+    write_ontology(dir.path(), ONTOLOGY_ALICE_BOB);
+
+    sync(dir.path(), SyncOptions::default()).expect("sync must succeed via real [pack.outputs] resolution");
+
+    let body = std::fs::read_to_string(dir.path().join("out/names.txt")).expect("read output");
+    assert!(body.contains("alice"), "{body}");
+    assert!(body.contains("bob"), "{body}");
 }
 
 /// `TemplateSource::Git` — same typed-refusal contract as `QuerySource::Pack`.
