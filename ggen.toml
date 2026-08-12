@@ -13,7 +13,6 @@ imports = [
   ".specify/cli-commands.ttl",
   ".specify/cli-proof-tests.ttl",
   ".specify/repo-facts.ttl",
-  ".specify/repo-facts-interview-assist.ttl",
   ".specify/maturity.ttl",
   ".specify/pack-l5-promotion.ttl",
   ".specify/ggen-product.ttl",
