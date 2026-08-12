@@ -637,7 +637,23 @@ fn git_text(repo: &Path, args: &[&str]) -> Result<String> {
 }
 
 fn glob_matches(pattern: &str, value: &str) -> bool {
+    // Real bug found running workstream E: a genuine `**` (globstar) pattern
+    // like "crates/ggen-marketplace/src/**/metadata.rs" could never match a
+    // real file with zero intervening directory levels
+    // ("crates/ggen-marketplace/src/metadata.rs"), because treating `**` as
+    // two independent single-char `*` wildcards still requires the literal
+    // `/` right after them to appear somewhere in the value -- which it
+    // never does when there's no subdirectory. Standard globstar semantics
+    // (as used by gitignore, bash's globstar, etc.) treat `**/` as
+    // "zero or more path segments," making the following `/` optional too.
     fn inner(pattern: &[u8], value: &[u8]) -> bool {
+        if pattern.starts_with(b"**/") {
+            return inner(&pattern[3..], value)
+                || (!value.is_empty() && inner(pattern, &value[1..]));
+        }
+        if pattern == b"**" {
+            return true;
+        }
         match pattern.split_first() {
             None => value.is_empty(),
             Some((&b'*', rest)) => {
