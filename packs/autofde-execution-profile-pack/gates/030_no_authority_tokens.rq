@@ -1,0 +1,15 @@
+# MESSAGE: ggen may manufacture powerless execution profiles, never authority-bearing tokens. Any row is a refusal.
+PREFIX afxp: <http://seanchatmangpt.github.io/packs/autofde-execution-profile#>
+SELECT ?subject ?violation WHERE {
+  ?subject ?predicate ?value .
+  FILTER(?predicate IN (
+    afxp:principal,
+    afxp:delegatedPrincipal,
+    afxp:nonce,
+    afxp:expiresAt,
+    afxp:executionGrant,
+    afxp:permissionToken
+  ))
+  BIND(CONCAT("authority-bearing predicate forbidden: ", STR(?predicate)) AS ?violation)
+}
+ORDER BY ?subject ?violation
