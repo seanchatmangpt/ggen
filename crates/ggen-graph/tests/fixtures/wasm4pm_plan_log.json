@@ -1,0 +1,119 @@
+{
+  "attributes": [],
+  "traces": [
+    {
+      "attributes": [
+        {
+          "key": "concept:name",
+          "value": {
+            "type": "String",
+            "content": "fortune5-k8s-state-space-plan"
+          },
+          "own_attributes": null
+        }
+      ],
+      "events": [
+        {
+          "attributes": [
+            {
+              "key": "concept:name",
+              "value": {
+                "type": "String",
+                "content": "(loosen-dspy-pack-nesting-gate)"
+              },
+              "own_attributes": null
+            }
+          ]
+        },
+        {
+          "attributes": [
+            {
+              "key": "concept:name",
+              "value": {
+                "type": "String",
+                "content": "(build-typed-k8s-object-schema)"
+              },
+              "own_attributes": null
+            }
+          ]
+        },
+        {
+          "attributes": [
+            {
+              "key": "concept:name",
+              "value": {
+                "type": "String",
+                "content": "(index-hearsay-blackboard)"
+              },
+              "own_attributes": null
+            }
+          ]
+        },
+        {
+          "attributes": [
+            {
+              "key": "concept:name",
+              "value": {
+                "type": "String",
+                "content": "(build-schema-to-ontology-generator)"
+              },
+              "own_attributes": null
+            }
+          ]
+        },
+        {
+          "attributes": [
+            {
+              "key": "concept:name",
+              "value": {
+                "type": "String",
+                "content": "(author-k8s-pack)"
+              },
+              "own_attributes": null
+            }
+          ]
+        },
+        {
+          "attributes": [
+            {
+              "key": "concept:name",
+              "value": {
+                "type": "String",
+                "content": "(rescale-firing-budget)"
+              },
+              "own_attributes": null
+            }
+          ]
+        },
+        {
+          "attributes": [
+            {
+              "key": "concept:name",
+              "value": {
+                "type": "String",
+                "content": "(build-k8s-state-encoder)"
+              },
+              "own_attributes": null
+            }
+          ]
+        },
+        {
+          "attributes": [
+            {
+              "key": "concept:name",
+              "value": {
+                "type": "String",
+                "content": "(integrate-with-autofde-cognition)"
+              },
+              "own_attributes": null
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "extensions": null,
+  "classifiers": null,
+  "global_trace_attrs": null,
+  "global_event_attrs": null
+}

@@ -5832,6 +5832,7 @@ dependencies = [
  "bcinr-powl-receipt",
  "blake3",
  "chrono",
+ "ed25519-dalek",
  "hex",
  "praxis-graphlaw",
  "proptest",
