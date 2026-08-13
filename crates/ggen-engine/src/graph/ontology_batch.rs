@@ -10,9 +10,11 @@
 //! `TurtleDocument` keeps its historical name for API compatibility, but it
 //! is now an RDF-source document rather than a Turtle-only document. Existing
 //! callers continue to use `TurtleDocument::new(label, content)`; the format is
-//! inferred deterministically from `label`'s file extension using Oxigraph's
-//! own `RdfFormat` registry. `with_format` exists for sources whose filename
-//! cannot carry a trustworthy format signal.
+//! inferred deterministically from a fail-closed set of canonical RDF file
+//! extensions. Plain `.json` is deliberately excluded even though Oxigraph aliases
+//! it to JSON-LD: arbitrary JSON must cross an explicit projector boundary.
+//! `with_format` exists for sources whose filename cannot carry a trustworthy
+//! format signal.
 
 use std::path::Path;
 
@@ -26,8 +28,8 @@ use super::{AppError, DeterministicGraph, Result};
 /// One RDF document admitted as part of an ontology batch.
 ///
 /// Historical name retained to avoid a flag-day API break. A document may be
-/// Turtle, RDF/XML, JSON-LD, N-Triples, N-Quads, TriG, N3, or any future
-/// syntax Oxigraph can resolve from an extension. Dataset formats are parsed
+/// Turtle, RDF/XML, JSON-LD, N-Triples, N-Quads, TriG, or N3 when the
+/// label uses an admitted RDF extension. Dataset formats are parsed
 /// faithfully and then flattened into the engine's existing union/default-
 /// graph model; source-level named-graph provenance is a separate admission
 /// concern and must not be faked here.
@@ -80,14 +82,34 @@ impl<'a> TurtleDocument<'a> {
             return Ok(RdfFormat::Turtle);
         };
 
-        RdfFormat::from_extension(extension).ok_or_else(|| {
+        // Do not delegate extension admission wholesale to
+        // `RdfFormat::from_extension`: Oxigraph deliberately treats plain
+        // `.json` as a JSON-LD alias. In ggen, `.json` is an ambiguous
+        // external-schema carrier (OpenAPI, Kubernetes discovery, Terraform
+        // provider schemas, STIX bundles, etc.) and therefore MUST cross an
+        // explicit projector boundary before it acquires RDF authority.
+        // Canonical `.jsonld` remains admitted. `.xml` is retained as the
+        // standard RDF/XML alias.
+        let format = match extension.to_ascii_lowercase().as_str() {
+            "ttl" => Some(RdfFormat::Turtle),
+            "rdf" | "xml" => Some(RdfFormat::RdfXml),
+            "jsonld" => RdfFormat::from_extension("jsonld"),
+            "nt" => Some(RdfFormat::NTriples),
+            "nq" => Some(RdfFormat::NQuads),
+            "trig" => Some(RdfFormat::TriG),
+            "n3" => Some(RdfFormat::N3),
+            _ => None,
+        };
+
+        format.ok_or_else(|| {
             AppError::fm_graph(
                 10,
                 format!(
-                    "RDF document `{}` has unsupported extension `.{extension}`. \
-                     Remediation: vendor the authority with a standard RDF extension \
-                     (.ttl, .rdf/.xml, .jsonld, .nt, .nq, .trig, .n3) or construct \
-                     the document with an explicit RdfFormat.",
+                    "RDF document `{}` has unsupported or ambiguous extension `.{extension}`. \
+                     Remediation: vendor RDF authorities with a canonical RDF extension \
+                     (.ttl, .rdf/.xml, .jsonld, .nt, .nq, .trig, .n3). Arbitrary \
+                     .json must be normalized by an explicit projector before RDF admission, \
+                     or construct a content-addressed RDF document with an explicit RdfFormat.",
                     self.label
                 ),
             )
