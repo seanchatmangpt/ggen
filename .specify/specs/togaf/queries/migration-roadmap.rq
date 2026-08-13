@@ -1,0 +1,32 @@
+PREFIX rdfs:  <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX togaf: <https://ggen.dev/ontology/togaf#>
+
+# Baseline → work-package DAG → target projection. Sequence is an admitted
+# deterministic presentation key; dependency edges remain the ordering authority.
+SELECT DISTINCT
+  ?transition
+  ?transitionLabel
+  ?baseline
+  ?target
+  ?workPackage
+  ?workPackageLabel
+  ?sequence
+  ?dependsOn
+  ?delivers
+  ?retires
+WHERE {
+  ?transition a togaf:TransitionArchitecture ;
+              rdfs:label ?transitionLabel ;
+              togaf:containsWorkPackage ?workPackage .
+
+  OPTIONAL { ?transition togaf:baselineElement ?baseline . }
+  OPTIONAL { ?transition togaf:targetElement ?target . }
+
+  ?workPackage a togaf:WorkPackage ;
+               rdfs:label ?workPackageLabel .
+  OPTIONAL { ?workPackage togaf:sequence ?sequence . }
+  OPTIONAL { ?workPackage togaf:dependsOn ?dependsOn . }
+  OPTIONAL { ?workPackage togaf:delivers ?delivers . }
+  OPTIONAL { ?workPackage togaf:retires ?retires . }
+}
+ORDER BY ?transitionLabel ?sequence ?workPackageLabel ?workPackage
