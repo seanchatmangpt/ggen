@@ -1,9 +1,10 @@
 //! Executable enterprise architecture machinery for the ggen ecosystem.
 //!
 //! This package is now a CLI and compatibility facade. Generic ggen Building
-//! Block law and the Fortune 5 runtime kernel are owned by the canonical
-//! `ggen-architecture` dependency. The facade deliberately stops at bounded
-//! intent generation and performs no direct actuation.
+//! Block law, enterprise graph calculus, and the Fortune 5 runtime kernel are
+//! owned by the canonical `ggen-architecture` dependency. The facade deliberately
+//! stops at deterministic construction and bounded intent generation and performs
+//! no direct actuation.
 
 pub mod autonomic;
 pub mod capacity;
@@ -37,11 +38,17 @@ pub use fortune5::{
     Fortune5IntentKind, Fortune5Policy, Fortune5Program, ProofKind, ProofObligation,
 };
 pub use ggen_architecture_kernel::{
-    profiles, ArchitectureFacet, Authority, BuildingBlock, BuildingBlockContract, BuildingBlockId,
-    BuildingBlockRegistry, BuildingBlockViolation, CompositionReceipt, EvidenceKind,
-    EvidenceObligation, EvidenceReceipt, ObligationId, Port, PortDirection, PortId, PortKind,
-    ProfileId, RealizationBinding, RealizationId, ResourceCeiling, ResourceClaim,
-    Standing as BuildingBlockStanding, SubstitutionAssessment,
+    profiles, public_vocabulary, ArchitectureFacet, ArchitectureLayer, ArchitectureView,
+    ArchitectureViewpoint, Authority, BuildingBlock, BuildingBlockContract, BuildingBlockId,
+    BuildingBlockRegistry, BuildingBlockViolation, CompositionReceipt, ElementId,
+    EnterpriseArchitectureError, EnterpriseArchitectureModel, EnterpriseArchitectureReceipt,
+    EnterpriseArchitectureViolation, EnterpriseElement, EnterpriseElementKind,
+    EnterpriseImpactReport, EnterpriseRelation, EnterpriseRelationKind, EnterpriseTransition,
+    EnterpriseWorkPackage, EvidenceKind, EvidenceObligation, EvidenceReceipt,
+    GovernanceAssessment, GovernanceFinding, GovernanceSeverity, ObligationId, Port,
+    PortDirection, PortId, PortKind, ProfileId, RealizationBinding, RealizationId, RelationId,
+    ResourceCeiling, ResourceClaim, Standing as BuildingBlockStanding, SubstitutionAssessment,
+    TraceHop, TransitionId, WorkPackageId, ENTERPRISE_ARCHITECTURE_RECEIPT_SCHEMA,
 };
 pub use level5_crown::{
     CrownEvidence, CrownFinding, LevelFiveCrownAssessment, LevelFiveCrownProgram,
