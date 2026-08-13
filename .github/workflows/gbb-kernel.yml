@@ -22,6 +22,7 @@ jobs:
       - name: Checkout exact candidate
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
+          ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
 
       - name: Provision pinned Rust toolchain
@@ -41,8 +42,29 @@ jobs:
           print('GBB_WORKSPACE packages=2 canonical_kernel=1 cli_facade=1')
           PY
 
-      - name: Enforce pinned rustfmt bytes
-        run: cargo fmt --manifest-path crates/ggen-architecture/Cargo.toml --all --check
+      - name: Manufacture pinned rustfmt bytes
+        run: |
+          set -euo pipefail
+          SOURCE_SHA="${{ github.event.pull_request.head.sha }}"
+          cargo fmt --manifest-path crates/ggen-architecture/Cargo.toml --all
+          git diff --binary -- crates/ggen-architecture tools/ggen-architecture > /tmp/ea-rustfmt.patch
+          printf '%s\n' "SOURCE_SHA=${SOURCE_SHA}" > /tmp/ea-format-receipt.txt
+          sha256sum /tmp/ea-rustfmt.patch >> /tmp/ea-format-receipt.txt
+
+      - name: Upload exact-head formatter capsule
+        uses: actions/upload-artifact@v4
+        with:
+          name: ea-rustfmt-${{ github.event.pull_request.head.sha }}
+          path: |
+            /tmp/ea-rustfmt.patch
+            /tmp/ea-format-receipt.txt
+            crates/ggen-architecture/src/enterprise.rs
+            crates/ggen-architecture/src/canonical.rs
+            tools/ggen-architecture/src/lib.rs
+            tools/ggen-architecture/src/bin/ggen-ea.rs
+            tools/ggen-architecture/src/self_play.rs
+          if-no-files-found: error
+          retention-days: 1
 
       - name: Enforce warning-free workspace
         run: cargo clippy --manifest-path crates/ggen-architecture/Cargo.toml --workspace --all-targets -- -D warnings
