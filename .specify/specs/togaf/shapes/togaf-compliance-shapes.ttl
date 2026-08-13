@@ -4,16 +4,14 @@
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
 
 # =============================================================================
-# TOGAF ADM Compliance — SHACL Shapes
+# TOGAF ADM Compliance — Enterprise Architecture SHACL Shapes
 # =============================================================================
-# These shapes are the mechanical equivalent of TOGAF Architecture Compliance
-# Review. They run as proof gates inside ggen sync — violations block artifact
-# generation with a GGEN-RULE or SHACL diagnostic.
-#
-# ANDON rule: any sh:Violation = stop. Do not run ggen sync until resolved.
+# These shapes are static graph admission gates. They validate architecture
+# integrity and governance obligations; they do NOT prove runtime execution and
+# therefore cannot manufacture ALIVE standing.
 # =============================================================================
 
-# ─── ApplicationComponent must declare a capability ──────────────────────────
+# ─── Application portfolio traceability ──────────────────────────────────────
 togaf:AppComponentCapabilityShape
     a sh:NodeShape ;
     sh:targetClass togaf:ApplicationComponent ;
@@ -24,7 +22,158 @@ togaf:AppComponentCapabilityShape
         sh:class togaf:BusinessCapability ;
     ] .
 
-# ─── ApplicationComponent handling PCI/HIPAA data must declare conformance ───
+togaf:ComponentOwnerShape
+    a sh:NodeShape ;
+    sh:targetClass togaf:ApplicationComponent ;
+    sh:message "ApplicationComponent must declare togaf:owner for Phase G governance" ;
+    sh:property [
+        sh:path togaf:owner ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+    ] .
+
+togaf:ComponentStatusShape
+    a sh:NodeShape ;
+    sh:targetClass togaf:ApplicationComponent ;
+    sh:message "ApplicationComponent must declare an admitted lifecycle status" ;
+    sh:property [
+        sh:path togaf:status ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:in ( "draft" "planned" "approved" "active" "deprecated" "retired" ) ;
+    ] .
+
+togaf:ComponentNodeShape
+    a sh:NodeShape ;
+    sh:targetClass togaf:ApplicationComponent ;
+    sh:message "ApplicationComponent must declare togaf:realizedBy a technology Node (Phase D traceability)" ;
+    sh:property [
+        sh:path togaf:realizedBy ;
+        sh:minCount 1 ;
+        sh:class togaf:Node ;
+    ] .
+
+# ─── Capability portfolio closure ────────────────────────────────────────────
+togaf:CapabilityOwnerShape
+    a sh:NodeShape ;
+    sh:targetClass togaf:BusinessCapability ;
+    sh:message "BusinessCapability must declare togaf:owner for Phase B governance" ;
+    sh:property [
+        sh:path togaf:owner ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+    ] ;
+    sh:property [
+        sh:path [ sh:inversePath togaf:implementsCapability ] ;
+        sh:minCount 1 ;
+        sh:class togaf:ApplicationComponent ;
+        sh:message "BusinessCapability must have at least one admitted application realization" ;
+    ] .
+
+# ─── Requirement → realization closure ───────────────────────────────────────
+togaf:RequirementGovernanceShape
+    a sh:NodeShape ;
+    sh:targetClass togaf:Requirement ;
+    sh:message "Governed Requirement requires accountability and a satisfying realization" ;
+    sh:property [
+        sh:path togaf:owner ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+    ] ;
+    sh:property [
+        sh:path [ sh:inversePath togaf:satisfies ] ;
+        sh:minCount 1 ;
+        sh:message "Requirement must be satisfied by at least one admitted architecture element" ;
+    ] .
+
+# ─── Risk → control closure ──────────────────────────────────────────────────
+togaf:RiskMitigationShape
+    a sh:NodeShape ;
+    sh:targetClass togaf:Risk ;
+    sh:message "Governed Risk must have accountable ownership and an admitted mitigation" ;
+    sh:property [
+        sh:path togaf:owner ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+    ] ;
+    sh:property [
+        sh:path [ sh:inversePath togaf:mitigates ] ;
+        sh:minCount 1 ;
+        sh:class togaf:Control ;
+    ] .
+
+# ─── Evidence obligations ────────────────────────────────────────────────────
+togaf:ClaimEvidenceShape
+    a sh:NodeShape ;
+    sh:targetClass togaf:Claim ;
+    sh:message "Claim must be bound to evidence" ;
+    sh:property [
+        sh:path togaf:evidencedBy ;
+        sh:minCount 1 ;
+    ] .
+
+togaf:ExceptionEvidenceShape
+    a sh:NodeShape ;
+    sh:targetClass togaf:Exception ;
+    sh:message "Governance Exception must carry approval/evidence" ;
+    sh:property [
+        sh:path togaf:evidencedBy ;
+        sh:minCount 1 ;
+    ] .
+
+# An RDF assertion that something is ALIVE is only admissible when a receipt is
+# explicitly linked. SHACL validates the graph assertion; it does not execute the
+# represented system or independently establish runtime standing.
+togaf:AliveStandingEvidenceShape
+    a sh:NodeShape ;
+    sh:targetSubjectsOf togaf:standing ;
+    sh:sparql [
+        sh:message "ALIVE standing requires an explicit togaf:evidencedBy togaf:Receipt edge" ;
+        sh:select """
+            PREFIX togaf: <https://ggen.dev/ontology/togaf#>
+            SELECT $this
+            WHERE {
+                $this togaf:standing "ALIVE" .
+                FILTER NOT EXISTS {
+                    $this togaf:evidencedBy ?receipt .
+                    ?receipt a togaf:Receipt .
+                }
+            }
+        """ ;
+    ] .
+
+# ─── Migration architecture closure ──────────────────────────────────────────
+togaf:TransitionArchitectureShape
+    a sh:NodeShape ;
+    sh:targetClass togaf:TransitionArchitecture ;
+    sh:message "TransitionArchitecture requires owner, baseline, target, and work packages" ;
+    sh:property [ sh:path togaf:owner ; sh:minCount 1 ; sh:datatype xsd:string ] ;
+    sh:property [ sh:path togaf:baselineElement ; sh:minCount 1 ] ;
+    sh:property [ sh:path togaf:targetElement ; sh:minCount 1 ] ;
+    sh:property [
+        sh:path togaf:containsWorkPackage ;
+        sh:minCount 1 ;
+        sh:class togaf:WorkPackage ;
+    ] .
+
+togaf:WorkPackageShape
+    a sh:NodeShape ;
+    sh:targetClass togaf:WorkPackage ;
+    sh:message "WorkPackage requires owner, status, and deterministic sequence" ;
+    sh:property [ sh:path togaf:owner ; sh:minCount 1 ; sh:datatype xsd:string ] ;
+    sh:property [
+        sh:path togaf:status ;
+        sh:minCount 1 ;
+        sh:in ( "draft" "planned" "approved" "active" "deprecated" "retired" ) ;
+    ] ;
+    sh:property [
+        sh:path togaf:sequence ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:nonNegativeInteger ;
+    ] .
+
+# ─── Data governance ─────────────────────────────────────────────────────────
 togaf:PaymentDataComplianceShape
     a sh:NodeShape ;
     sh:targetClass togaf:ApplicationComponent ;
@@ -42,7 +191,6 @@ togaf:PaymentDataComplianceShape
         """ ;
     ] .
 
-# ─── DataObject must have a classification ───────────────────────────────────
 togaf:DataObjectClassificationShape
     a sh:NodeShape ;
     sh:targetClass togaf:DataObject ;
@@ -54,56 +202,10 @@ togaf:DataObjectClassificationShape
         sh:in ( "public" "internal" "confidential" "restricted" ) ;
     ] .
 
-# ─── DataObject must have an owner ───────────────────────────────────────────
 togaf:DataObjectOwnerShape
     a sh:NodeShape ;
     sh:targetClass togaf:DataObject ;
-    sh:message "DataObject must declare togaf:owner (data steward email) for Phase C-Data governance" ;
-    sh:property [
-        sh:path togaf:owner ;
-        sh:minCount 1 ;
-        sh:datatype xsd:string ;
-    ] .
-
-# ─── ApplicationComponent must declare owner ─────────────────────────────────
-togaf:ComponentOwnerShape
-    a sh:NodeShape ;
-    sh:targetClass togaf:ApplicationComponent ;
-    sh:message "ApplicationComponent must declare togaf:owner (team email) for Phase G governance" ;
-    sh:property [
-        sh:path togaf:owner ;
-        sh:minCount 1 ;
-        sh:datatype xsd:string ;
-    ] .
-
-# ─── ApplicationComponent must declare a status ──────────────────────────────
-togaf:ComponentStatusShape
-    a sh:NodeShape ;
-    sh:targetClass togaf:ApplicationComponent ;
-    sh:message "ApplicationComponent must declare togaf:status (draft | approved | deprecated | retired)" ;
-    sh:property [
-        sh:path togaf:status ;
-        sh:minCount 1 ;
-        sh:datatype xsd:string ;
-        sh:in ( "draft" "approved" "deprecated" "retired" ) ;
-    ] .
-
-# ─── ApplicationComponent must be realized by a Node ─────────────────────────
-togaf:ComponentNodeShape
-    a sh:NodeShape ;
-    sh:targetClass togaf:ApplicationComponent ;
-    sh:message "ApplicationComponent must declare togaf:realizedBy a technology Node (Phase D traceability)" ;
-    sh:property [
-        sh:path togaf:realizedBy ;
-        sh:minCount 1 ;
-        sh:class togaf:Node ;
-    ] .
-
-# ─── BusinessCapability must have an owner ───────────────────────────────────
-togaf:CapabilityOwnerShape
-    a sh:NodeShape ;
-    sh:targetClass togaf:BusinessCapability ;
-    sh:message "BusinessCapability must declare togaf:owner for Phase B governance" ;
+    sh:message "DataObject must declare togaf:owner for Phase C-Data governance" ;
     sh:property [
         sh:path togaf:owner ;
         sh:minCount 1 ;
