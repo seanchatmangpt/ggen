@@ -10,7 +10,12 @@
 # MESSAGE: finding, not yet in the derivation model, and is gated by 010's ceiling
 # MESSAGE: requirement instead; (3) mutable third-party action refs — every gha:usesAction
 # MESSAGE: value naming a remote action (contains "@", not a repo-local ./ path) must be
-# MESSAGE: pinned to a 40-hex commit SHA; (4) pull_request_target triggers require an
+# MESSAGE: pinned to a 40-hex commit SHA (an optional trailing "# v1.2.3"-style comment is
+# MESSAGE: allowed and does not defeat pinning -- real-world confirmed: this branch was dead
+# MESSAGE: in the prior revision (no individual ever populated gha:usesAction) and its first
+# MESSAGE: real exercise, against ggen's own real ci.yml step facts, found the regex without
+# MESSAGE: this allowance false-positived on every correctly-pinned ref carrying one);
+# MESSAGE: (4) pull_request_target triggers require an
 # MESSAGE: explicit gha:prTargetJustification on the workflow; (5) every gha:requiredSecret
 # MESSAGE: on a workflow requires a declared gha:secretReason. Branches (3)-(5) are
 # MESSAGE: namespace-scoped to gha: subjects so this gate composes with other packs.
@@ -47,7 +52,7 @@ SELECT ?s ?why WHERE {
     FILTER(STRSTARTS(STR(?s), "http://seanchatmangpt.github.io/packs/github-actions#"))
     FILTER(CONTAINS(STR(?action), "@"))
     FILTER(!STRSTARTS(STR(?action), "./"))
-    FILTER(!REGEX(STR(?action), "@[0-9a-f]{40}$"))
+    FILTER(!REGEX(STR(?action), "@[0-9a-f]{40}(\\s*#.*)?$"))
     BIND(CONCAT("mutable third-party action ref `", STR(?action), "` refused: pin to a 40-hex commit SHA") AS ?why)
   } UNION {
     ?s a gha:Workflow .

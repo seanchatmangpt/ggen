@@ -1,0 +1,190 @@
+# ci-workflows.ttl — ggen's own real CI workflow, as typed individuals
+# against packs/github-actions-pack's gha: vocabulary.
+#
+# This is ggen's own consumer-side instance data (github-actions-pack
+# ships zero individuals — see that pack's pack.toml/README for the
+# schema-only contract). Facts transcribed 2026-08-12 directly from the
+# real, current .github/workflows/ci.yml (149 lines, read in full, not
+# from any prior survey/transcription) — action refs, SHAs, run commands,
+# and job structure below are copied verbatim from that file.
+@prefix gha: <http://seanchatmangpt.github.io/packs/github-actions#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+gha:WfCi a gha:Workflow ;
+    gha:fileName "ci.yml" ;
+    gha:purpose "CI" ;
+    gha:trigger gha:EventPullRequest, gha:EventPush, gha:EventMergeGroup, gha:EventWorkflowDispatch ;
+    gha:onBlock """pull_request:
+push:
+  branches: [main]
+merge_group:
+workflow_dispatch:""" ;
+    gha:concurrencyPolicy """group: ci-errc-${{ github.event.pull_request.number || github.ref }}
+cancel-in-progress: true""" ;
+    gha:permissionCeiling "contents: read" ;
+    gha:workflowEnv "CARGO_TERM_COLOR: always" ;
+    gha:workflowEnv "RUST_BACKTRACE: 1" ;
+    gha:performsOperation gha:OpReadSource ;
+    gha:evidenceObligation "ci-status job's aggregate assertion (ADMISSION == success and DEEP in success|skipped)" ;
+    gha:standingEffect "confers merge admissibility on the tested ref" .
+
+# --- admission job ---
+
+gha:JobAdmission a gha:Job ;
+    gha:inWorkflow gha:WfCi ;
+    gha:jobName "admission" ;
+    gha:runner "ubuntu-24.04" ;
+    gha:timeoutMinutes 5 ;
+    gha:jobExtra """name: Fast Admission
+outputs:
+  deep_matrix_json: ${{ steps.admit.outputs.deep_matrix_json }}
+  base: ${{ steps.identity.outputs.base }}
+  head: ${{ steps.identity.outputs.head }}""" ;
+    gha:evidenceEmitted "exact-head receipt + routing report artifact" ;
+    gha:failureClassification "gate refusal: the candidate cannot be admitted to deep evidence" .
+
+gha:StepAdmissionCheckout a gha:Step ;
+    gha:inJob gha:JobAdmission ; gha:stepOrder 1 ;
+    gha:stepName "Checkout exact candidate" ;
+    gha:usesAction "actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2" ;
+    gha:withParam "ref: ${{ github.event.pull_request.head.sha || github.event.merge_group.head_sha || github.sha }}" ;
+    gha:withParam "fetch-depth: 0" ;
+    gha:withParam "persist-credentials: false" .
+
+gha:StepAdmissionIdentity a gha:Step ;
+    gha:inJob gha:JobAdmission ; gha:stepOrder 2 ;
+    gha:stepName "Resolve admitted identities" ;
+    gha:stepId "identity" ;
+    gha:envVar "EVENT_BASE: ${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha || github.event.before }}" ;
+    gha:envVar "EVENT_HEAD: ${{ github.event.pull_request.head.sha || github.event.merge_group.head_sha || github.sha }}" ;
+    gha:runCommand """set -euo pipefail
+base="$EVENT_BASE"
+[[ -n "$base" && ! "$base" =~ ^0+$ ]] || base="$(git rev-parse HEAD^)"
+echo "base=$base" >> "$GITHUB_OUTPUT"
+echo "head=$EVENT_HEAD" >> "$GITHUB_OUTPUT\"""" .
+
+gha:StepAdmissionAdmit a gha:Step ;
+    gha:inJob gha:JobAdmission ; gha:stepOrder 3 ;
+    gha:stepName "Manufacture exact-head receipt and routing" ;
+    gha:stepId "admit" ;
+    gha:continueOnError true ;
+    gha:runCommand """python3 scripts/ci/fast_admission.py \\
+  --repository '${{ github.repository }}' \\
+  --base '${{ steps.identity.outputs.base }}' \\
+  --head '${{ steps.identity.outputs.head }}' \\
+  --workflow '${{ github.workflow }}' \\
+  --run-id '${{ github.run_id }}' \\
+  --receipt ci-receipts/errc-receipt.json \\
+  --routing-report ci-receipts/routing.json \\
+  --github-output "$GITHUB_OUTPUT\"""" .
+
+gha:StepAdmissionUploadReceipt a gha:Step ;
+    gha:inJob gha:JobAdmission ; gha:stepOrder 4 ;
+    gha:stepName "Upload exact-head receipt" ;
+    gha:condition "always()" ;
+    gha:usesAction "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2" ;
+    gha:withParam "name: ggen-ci-errc-${{ steps.identity.outputs.head }}" ;
+    gha:withParam "path: ci-receipts/" ;
+    gha:withParam "if-no-files-found: error" ;
+    gha:withParam "retention-days: 14" .
+
+gha:StepAdmissionEnforce a gha:Step ;
+    gha:inJob gha:JobAdmission ; gha:stepOrder 5 ;
+    gha:stepName "Enforce fast admission" ;
+    gha:condition "always()" ;
+    gha:runCommand "test '${{ steps.admit.outcome }}' = success" .
+
+# --- deep job ---
+
+gha:JobDeep a gha:Job ;
+    gha:inWorkflow gha:WfCi ;
+    gha:jobName "deep" ;
+    gha:runner "ubuntu-24.04" ;
+    gha:timeoutMinutes 60 ;
+    gha:dependsOn gha:JobAdmission ;
+    gha:condition "needs.admission.result == 'success'" ;
+    gha:jobExtra """name: Deep / ${{ matrix.lane }}
+strategy:
+  fail-fast: false
+  matrix: ${{ fromJSON(needs.admission.outputs.deep_matrix_json) }}""" ;
+    gha:evidenceEmitted "per-lane evidence per scripts/ci/fast_admission.py's routing report" ;
+    gha:failureClassification "production defect scoped to one evidence lane" .
+
+gha:StepDeepCheckout a gha:Step ;
+    gha:inJob gha:JobDeep ; gha:stepOrder 1 ;
+    gha:usesAction "actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683" ;
+    gha:withParam "ref: ${{ needs.admission.outputs.head }}" ;
+    gha:withParam "fetch-depth: 0" ;
+    gha:withParam "persist-credentials: false" .
+
+gha:StepDeepReclaimSpace a gha:Step ;
+    gha:inJob gha:JobDeep ; gha:stepOrder 2 ;
+    gha:stepName "Reclaim runner space" ;
+    gha:condition "matrix.lane == 'integration_deep'" ;
+    gha:runCommand "sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc || true" .
+
+gha:StepDeepSetupRust a gha:Step ;
+    gha:inJob gha:JobDeep ; gha:stepOrder 3 ;
+    gha:stepName "Set up Rust evidence lane" ;
+    gha:condition "contains(fromJSON('[\"core_deep\",\"integration_deep\",\"quality_deep\",\"security_deep\",\"lsp_deep\"]'), matrix.lane)" ;
+    gha:usesAction "./.github/actions/setup-ggen-build" ;
+    gha:withParam "components: ${{ matrix.lane == 'quality_deep' && 'rustfmt,clippy' || '' }}" ;
+    gha:withParam "cache-key-suffix: errc-${{ matrix.lane }}" .
+
+gha:StepDeepInstallCargoAudit a gha:Step ;
+    gha:inJob gha:JobDeep ; gha:stepOrder 4 ;
+    gha:stepName "Install security verifier" ;
+    gha:condition "matrix.lane == 'security_deep'" ;
+    gha:usesAction "taiki-e/install-action@6c6fd71fe4fb72c3697d269963d0e15df8adedad # v2.85.10" ;
+    gha:withParam "tool: cargo-audit" .
+
+gha:StepDeepExecute a gha:Step ;
+    gha:inJob gha:JobDeep ; gha:stepOrder 5 ;
+    gha:stepName "Execute owned evidence" ;
+    gha:envVar "BASE: ${{ needs.admission.outputs.base }}" ;
+    gha:envVar "LANE: ${{ matrix.lane }}" ;
+    gha:runCommand """set -euo pipefail
+case "$LANE" in
+  fast_only) echo 'No deep evidence is applicable.' ;;
+  ci_deep)
+    python3 scripts/ci/test_errc_router.py
+    python3 scripts/ci/test-g0-workflow-inventory.py
+    ;;
+  core_deep)
+    cargo check --workspace --exclude ggen-lsp
+    cargo build --workspace --exclude ggen-lsp
+    cargo test --workspace --lib --exclude ggen-lsp
+    cargo test --doc --workspace --exclude ggen-lsp
+    ;;
+  integration_deep) cargo test --workspace --exclude ggen-lsp ;;
+  quality_deep)
+    just fmt-check
+    ./scripts/ci/guard-process-intelligence-boundary.sh
+    cargo clippy --workspace --all-targets --exclude ggen-lsp || echo '::warning::clippy debt remains advisory'
+    ;;
+  security_deep) cargo audit || echo '::warning::pre-existing RUSTSEC debt remains advisory' ;;
+  docs_deep) git diff --check "$BASE"...HEAD ;;
+  lsp_deep) cargo check -p ggen-lsp --all-features ;;
+  *) echo "REFUSED:UNKNOWN_EVIDENCE_LANE:$LANE" >&2; exit 2 ;;
+esac""" .
+
+# --- ci-status job ---
+
+gha:JobCiStatusReal a gha:Job ;
+    gha:inWorkflow gha:WfCi ;
+    gha:jobName "ci-status" ;
+    gha:runner "ubuntu-24.04" ;
+    gha:timeoutMinutes 2 ;
+    gha:condition "always()" ;
+    gha:dependsOn gha:JobAdmission, gha:JobDeep ;
+    gha:jobExtra "name: CI Status" ;
+    gha:evidenceEmitted "aggregate required-check conclusion" ;
+    gha:failureClassification "gate refusal: the ref is inadmissible; nothing downstream may treat it as green" .
+
+gha:StepCiStatusAssert a gha:Step ;
+    gha:inJob gha:JobCiStatusReal ; gha:stepOrder 1 ;
+    gha:stepName "Assert applicable evidence succeeded" ;
+    gha:envVar "ADMISSION: ${{ needs.admission.result }}" ;
+    gha:envVar "DEEP: ${{ needs.deep.result }}" ;
+    gha:runCommand """test "$ADMISSION" = success || { echo 'BUILD_BROKEN:FAST_GATE_FAILED' >&2; exit 1; }
+case "$DEEP" in success|skipped) ;; *) echo 'BUILD_BROKEN:DEEP_LANE_FAILED' >&2; exit 1;; esac""" .
