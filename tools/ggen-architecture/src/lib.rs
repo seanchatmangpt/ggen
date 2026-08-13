@@ -44,11 +44,11 @@ pub use ggen_architecture_kernel::{
     EnterpriseArchitectureError, EnterpriseArchitectureModel, EnterpriseArchitectureReceipt,
     EnterpriseArchitectureViolation, EnterpriseElement, EnterpriseElementKind,
     EnterpriseImpactReport, EnterpriseRelation, EnterpriseRelationKind, EnterpriseTransition,
-    EnterpriseWorkPackage, EvidenceKind, EvidenceObligation, EvidenceReceipt,
-    GovernanceAssessment, GovernanceFinding, GovernanceSeverity, ObligationId, Port,
-    PortDirection, PortId, PortKind, ProfileId, RealizationBinding, RealizationId, RelationId,
-    ResourceCeiling, ResourceClaim, Standing as BuildingBlockStanding, SubstitutionAssessment,
-    TraceHop, TransitionId, WorkPackageId, ENTERPRISE_ARCHITECTURE_RECEIPT_SCHEMA,
+    EnterpriseWorkPackage, EvidenceKind, EvidenceObligation, EvidenceReceipt, GovernanceAssessment,
+    GovernanceFinding, GovernanceSeverity, ObligationId, Port, PortDirection, PortId, PortKind,
+    ProfileId, RealizationBinding, RealizationId, RelationId, ResourceCeiling, ResourceClaim,
+    Standing as BuildingBlockStanding, SubstitutionAssessment, TraceHop, TransitionId,
+    WorkPackageId, ENTERPRISE_ARCHITECTURE_RECEIPT_SCHEMA,
 };
 pub use level5_crown::{
     CrownEvidence, CrownFinding, LevelFiveCrownAssessment, LevelFiveCrownProgram,

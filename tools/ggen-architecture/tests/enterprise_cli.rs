@@ -42,7 +42,10 @@ fn enterprise_cli_executes_governed_graph_paths() -> Result<(), Box<dyn Error>> 
     let validation = execute(&["validate", "--model", &model, "--json"])?;
     require_success(&validation, "validate")?;
     let violations: Value = serde_json::from_slice(&validation.stdout)?;
-    if violations.as_array().is_none_or(|values| !values.is_empty()) {
+    if violations
+        .as_array()
+        .is_none_or(|values| !values.is_empty())
+    {
         return Err("the governed fixture must have zero structural violations".into());
     }
 
@@ -109,8 +112,7 @@ fn enterprise_cli_executes_governed_graph_paths() -> Result<(), Box<dyn Error>> 
     ])?;
     require_success(&view, "view")?;
     let application_view: Value = serde_json::from_slice(&view.stdout)?;
-    if application_view["elements"]["app:new"]["kind"] != Value::String("application".to_owned())
-    {
+    if application_view["elements"]["app:new"]["kind"] != Value::String("application".to_owned()) {
         return Err("application viewpoint must contain the target application".into());
     }
 

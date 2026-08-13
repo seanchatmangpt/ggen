@@ -12,8 +12,7 @@ use std::collections::{BTreeMap, BTreeSet, VecDeque};
 use thiserror::Error;
 
 /// Receipt schema for deterministic enterprise-architecture snapshots.
-pub const ENTERPRISE_ARCHITECTURE_RECEIPT_SCHEMA: &str =
-    "ggen.enterprise-architecture.receipt.v1";
+pub const ENTERPRISE_ARCHITECTURE_RECEIPT_SCHEMA: &str = "ggen.enterprise-architecture.receipt.v1";
 
 /// Stable architecture element identity.
 pub type ElementId = String;
@@ -44,14 +43,11 @@ pub mod public_vocabulary {
     /// ODRL Policy.
     pub const ODRL_POLICY: &str = "http://www.w3.org/ns/odrl/2/Policy";
     /// SOSA ObservableProperty.
-    pub const SOSA_OBSERVABLE_PROPERTY: &str =
-        "http://www.w3.org/ns/sosa/ObservableProperty";
+    pub const SOSA_OBSERVABLE_PROPERTY: &str = "http://www.w3.org/ns/sosa/ObservableProperty";
 }
 
 /// Enterprise-architecture layer.
-#[derive(
-    Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize,
-)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
 pub enum ArchitectureLayer {
     Enterprise,
@@ -67,9 +63,7 @@ pub enum ArchitectureLayer {
 }
 
 /// Canonical enterprise-architecture element taxonomy.
-#[derive(
-    Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize,
-)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
 pub enum EnterpriseElementKind {
     Enterprise,
@@ -163,10 +157,9 @@ impl EnterpriseElementKind {
             Self::Principle | Self::Requirement | Self::Standard | Self::Control => {
                 Some(ODRL_POLICY)
             }
-            Self::Plan
-            | Self::WorkPackage
-            | Self::TransitionArchitecture
-            | Self::Migration => Some(PROV_ACTIVITY),
+            Self::Plan | Self::WorkPackage | Self::TransitionArchitecture | Self::Migration => {
+                Some(PROV_ACTIVITY)
+            }
             Self::Claim | Self::Evidence | Self::Receipt => Some(PROV_ENTITY),
             Self::Metric => Some(SOSA_OBSERVABLE_PROPERTY),
             _ => None,
@@ -205,9 +198,7 @@ impl EnterpriseElement {
     /// alignment, when the element kind has one.
     #[must_use]
     pub fn new(
-        id: impl Into<String>,
-        name: impl Into<String>,
-        kind: EnterpriseElementKind,
+        id: impl Into<String>, name: impl Into<String>, kind: EnterpriseElementKind,
         layer: ArchitectureLayer,
     ) -> Self {
         let mut semantic_types = BTreeSet::new();
@@ -241,9 +232,7 @@ impl EnterpriseElement {
 }
 
 /// Directional relationship.  Names read naturally from source to target.
-#[derive(
-    Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize,
-)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
 pub enum EnterpriseRelationKind {
     Contains,
@@ -324,9 +313,7 @@ pub struct EnterpriseRelation {
 
 /// Architecture viewpoint.  A view is disposable projection; the graph remains
 /// the editing authority.
-#[derive(
-    Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize,
-)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
 pub enum ArchitectureViewpoint {
     Motivation,
@@ -359,19 +346,21 @@ impl ArchitectureViewpoint {
             Self::ImplementationMigration => {
                 element.layer == ArchitectureLayer::ImplementationMigration
             }
-            Self::Governance => matches!(
-                element.layer,
-                ArchitectureLayer::Motivation | ArchitectureLayer::Governance
-            ) || matches!(
-                element.kind,
-                EnterpriseElementKind::Principle
-                    | EnterpriseElementKind::Requirement
-                    | EnterpriseElementKind::Standard
-                    | EnterpriseElementKind::Risk
-                    | EnterpriseElementKind::Control
-                    | EnterpriseElementKind::Exception
-                    | EnterpriseElementKind::Decision
-            ),
+            Self::Governance => {
+                matches!(
+                    element.layer,
+                    ArchitectureLayer::Motivation | ArchitectureLayer::Governance
+                ) || matches!(
+                    element.kind,
+                    EnterpriseElementKind::Principle
+                        | EnterpriseElementKind::Requirement
+                        | EnterpriseElementKind::Standard
+                        | EnterpriseElementKind::Risk
+                        | EnterpriseElementKind::Control
+                        | EnterpriseElementKind::Exception
+                        | EnterpriseElementKind::Decision
+                )
+            }
             Self::Evidence => element.layer == ArchitectureLayer::Evidence,
         }
     }
@@ -433,9 +422,7 @@ pub struct EnterpriseTransition {
 }
 
 /// Severity of a static enterprise governance finding.
-#[derive(
-    Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize,
-)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum GovernanceSeverity {
     Advisory,
@@ -536,8 +523,7 @@ impl EnterpriseArchitectureModel {
 
     /// Admit an element without overwriting an existing identity.
     pub fn admit_element(
-        &mut self,
-        element: EnterpriseElement,
+        &mut self, element: EnterpriseElement,
     ) -> Result<(), EnterpriseArchitectureError> {
         if element.id.trim().is_empty() {
             return Err(EnterpriseArchitectureError::EmptyId { kind: "element" });
@@ -554,8 +540,7 @@ impl EnterpriseArchitectureModel {
 
     /// Admit a relationship only when both endpoints already exist.
     pub fn admit_relation(
-        &mut self,
-        relation: EnterpriseRelation,
+        &mut self, relation: EnterpriseRelation,
     ) -> Result<(), EnterpriseArchitectureError> {
         if relation.id.trim().is_empty() {
             return Err(EnterpriseArchitectureError::EmptyId { kind: "relation" });
@@ -578,8 +563,7 @@ impl EnterpriseArchitectureModel {
 
     /// Admit a transition architecture without replacing one with the same identity.
     pub fn admit_transition(
-        &mut self,
-        transition: EnterpriseTransition,
+        &mut self, transition: EnterpriseTransition,
     ) -> Result<(), EnterpriseArchitectureError> {
         if transition.id.trim().is_empty() {
             return Err(EnterpriseArchitectureError::EmptyId { kind: "transition" });
@@ -717,9 +701,12 @@ impl EnterpriseArchitectureModel {
                 .baseline
                 .iter()
                 .chain(transition.target.iter())
-                .chain(transition.work_packages.values().flat_map(|work| {
-                    work.delivers.iter().chain(work.retires.iter())
-                }))
+                .chain(
+                    transition
+                        .work_packages
+                        .values()
+                        .flat_map(|work| work.delivers.iter().chain(work.retires.iter())),
+                )
             {
                 if !self.elements.contains_key(element_id) {
                     violations.push(EnterpriseArchitectureViolation {
@@ -777,7 +764,11 @@ impl EnterpriseArchitectureModel {
         let structural = self.validate();
         let mut findings = Vec::new();
 
-        for element in self.elements.values().filter(|element| element.is_governed()) {
+        for element in self
+            .elements
+            .values()
+            .filter(|element| element.is_governed())
+        {
             if element.kind == EnterpriseElementKind::Capability
                 && !self.has_outgoing(element.id.as_str(), EnterpriseRelationKind::RealizedBy)
             {
@@ -860,9 +851,7 @@ impl EnterpriseArchitectureModel {
 
     /// Deterministic outgoing cross-layer traceability traversal.
     pub fn traceability(
-        &self,
-        subject: &str,
-        max_depth: usize,
+        &self, subject: &str, max_depth: usize,
     ) -> Result<Vec<TraceHop>, EnterpriseArchitectureError> {
         if !self.elements.contains_key(subject) {
             return Err(EnterpriseArchitectureError::UnknownElement(
@@ -880,9 +869,7 @@ impl EnterpriseArchitectureModel {
             let mut outgoing: Vec<&EnterpriseRelation> = self
                 .relations
                 .values()
-                .filter(|relation| {
-                    relation.from == current && relation.kind.is_traceability_edge()
-                })
+                .filter(|relation| relation.from == current && relation.kind.is_traceability_edge())
                 .collect();
             outgoing.sort_by(|left, right| {
                 (&left.kind, &left.to, &left.id).cmp(&(&right.kind, &right.to, &right.id))
@@ -906,8 +893,7 @@ impl EnterpriseArchitectureModel {
     /// Compute bidirectional transitive impact across relationships whose
     /// semantics propagate architecture change.
     pub fn impact(
-        &self,
-        subject: &str,
+        &self, subject: &str,
     ) -> Result<EnterpriseImpactReport, EnterpriseArchitectureError> {
         if !self.elements.contains_key(subject) {
             return Err(EnterpriseArchitectureError::UnknownElement(
@@ -995,8 +981,7 @@ impl EnterpriseArchitectureModel {
 
     /// Deterministically topologically order a transition's work packages.
     pub fn transition_order(
-        &self,
-        transition_id: &str,
+        &self, transition_id: &str,
     ) -> Result<Vec<WorkPackageId>, EnterpriseArchitectureError> {
         let transition = self.transitions.get(transition_id).ok_or_else(|| {
             EnterpriseArchitectureError::UnknownTransition(transition_id.to_owned())
@@ -1067,15 +1052,16 @@ impl EnterpriseArchitectureModel {
     /// The receipt proves model identity/replay only; it is not proof that any
     /// represented workload or transition executed.
     pub fn receipt(
-        &self,
-        operation: impl Into<String>,
-        predecessor_digest: Option<String>,
+        &self, operation: impl Into<String>, predecessor_digest: Option<String>,
     ) -> Result<EnterpriseArchitectureReceipt, EnterpriseArchitectureError> {
         let operation = operation.into();
         let subject_digest = self.digest()?;
-        let consequence_material =
-            serde_json::to_vec(&(subject_digest.as_str(), operation.as_str(), &predecessor_digest))
-                .map_err(|error| EnterpriseArchitectureError::Serialization(error.to_string()))?;
+        let consequence_material = serde_json::to_vec(&(
+            subject_digest.as_str(),
+            operation.as_str(),
+            &predecessor_digest,
+        ))
+        .map_err(|error| EnterpriseArchitectureError::Serialization(error.to_string()))?;
         let consequence_digest = blake3::hash(&consequence_material).to_hex().to_string();
         Ok(EnterpriseArchitectureReceipt {
             schema: ENTERPRISE_ARCHITECTURE_RECEIPT_SCHEMA.to_owned(),
@@ -1117,9 +1103,7 @@ mod tests {
     use super::*;
 
     fn element(
-        id: &str,
-        kind: EnterpriseElementKind,
-        layer: ArchitectureLayer,
+        id: &str, kind: EnterpriseElementKind, layer: ArchitectureLayer,
     ) -> EnterpriseElement {
         let mut element = EnterpriseElement::new(id, id, kind, layer);
         element.lifecycle = LifecycleState::Admitted;
@@ -1127,9 +1111,7 @@ mod tests {
     }
 
     fn accountable(
-        id: &str,
-        kind: EnterpriseElementKind,
-        layer: ArchitectureLayer,
+        id: &str, kind: EnterpriseElementKind, layer: ArchitectureLayer,
     ) -> EnterpriseElement {
         let mut element = element(id, kind, layer);
         element.owner = Some("org:architecture".to_owned());
@@ -1163,11 +1145,8 @@ mod tests {
     }
 
     fn add_relation(
-        model: &mut EnterpriseArchitectureModel,
-        id: &str,
-        from: &str,
-        kind: EnterpriseRelationKind,
-        to: &str,
+        model: &mut EnterpriseArchitectureModel, id: &str, from: &str,
+        kind: EnterpriseRelationKind, to: &str,
     ) {
         model
             .admit_relation(EnterpriseRelation {
@@ -1296,8 +1275,12 @@ mod tests {
         );
 
         let violations = model.validate();
-        assert!(violations.iter().any(|violation| violation.code == "EA-STRUCT-005"));
-        assert!(violations.iter().any(|violation| violation.code == "EA-STRUCT-009"));
+        assert!(violations
+            .iter()
+            .any(|violation| violation.code == "EA-STRUCT-005"));
+        assert!(violations
+            .iter()
+            .any(|violation| violation.code == "EA-STRUCT-009"));
     }
 
     #[test]
@@ -1522,6 +1505,8 @@ mod tests {
             EnterpriseElementKind::Dataset,
             ArchitectureLayer::Information,
         );
-        assert!(dataset.semantic_types.contains(public_vocabulary::DCAT_DATASET));
+        assert!(dataset
+            .semantic_types
+            .contains(public_vocabulary::DCAT_DATASET));
     }
 }

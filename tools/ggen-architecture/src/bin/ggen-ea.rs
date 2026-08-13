@@ -206,11 +206,13 @@ fn run() -> Result<u8, Box<dyn Error>> {
                     );
                 }
             }
-            Ok(if assessment.structurally_valid && assessment.statically_complete {
-                0
-            } else {
-                2
-            })
+            Ok(
+                if assessment.structurally_valid && assessment.statically_complete {
+                    0
+                } else {
+                    2
+                },
+            )
         }
         Command::Impact {
             model,
