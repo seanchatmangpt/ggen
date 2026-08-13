@@ -17,8 +17,20 @@
 # MESSAGE: this allowance false-positived on every correctly-pinned ref carrying one);
 # MESSAGE: (4) pull_request_target triggers require an
 # MESSAGE: explicit gha:prTargetJustification on the workflow; (5) every gha:requiredSecret
-# MESSAGE: on a workflow requires a declared gha:secretReason. Branches (3)-(5) are
-# MESSAGE: namespace-scoped to gha: subjects so this gate composes with other packs.
+# MESSAGE: on a workflow requires a declared gha:secretReason. All branches match on the
+# MESSAGE: gha:-prefixed PREDICATE (gha:usesAction, gha:trigger, gha:requiredSecret, etc.),
+# MESSAGE: which is already namespace-exact -- that is what lets this gate compose with other
+# MESSAGE: packs' graphs without cross-firing. Branch (3) previously ALSO required the
+# MESSAGE: SUBJECT's own IRI to start with this pack's namespace -- a leftover from when this
+# MESSAGE: pack shipped its own gha:Wf*/gha:Step* individuals under that namespace. Since v0.2
+# MESSAGE: the pack ships zero individuals (every real gha:Step is consumer-minted, under the
+# MESSAGE: CONSUMER's own namespace) -- that subject-IRI constraint meant this branch could
+# MESSAGE: structurally never fire against any real consumer's data, defeating its purpose
+# MESSAGE: entirely. Found and fixed the same day as the first two real multi-consumer
+# MESSAGE: validations (ggen, then wasm4pm) -- wasm4pm's real, unpinned actions/checkout@v4 etc.
+# MESSAGE: refs produced zero gate rows until this fix, confirmed both by direct inspection of
+# MESSAGE: this file and by an in-graph probe triple that only fired once minted under this
+# MESSAGE: pack's own namespace.
 PREFIX gha:  <http://seanchatmangpt.github.io/packs/github-actions#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 SELECT ?s ?why WHERE {
@@ -49,7 +61,6 @@ SELECT ?s ?why WHERE {
     BIND(CONCAT("permission ceiling grant `", ?grant, "` is not justified by any declared gha:performsOperation -> gha:requiresPermission mapping") AS ?why)
   } UNION {
     ?s gha:usesAction ?action .
-    FILTER(STRSTARTS(STR(?s), "http://seanchatmangpt.github.io/packs/github-actions#"))
     FILTER(CONTAINS(STR(?action), "@"))
     FILTER(!STRSTARTS(STR(?action), "./"))
     FILTER(!REGEX(STR(?action), "@[0-9a-f]{40}(\\s*#.*)?$"))
