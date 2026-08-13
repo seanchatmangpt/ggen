@@ -1,3 +1,8 @@
+//! Process-level acceptance for the canonical enterprise architecture CLI.
+//!
+//! These tests execute the real `ggen-ea` binary against a governed model and
+//! therefore verify the CLI boundary rather than substituting unit-level proof.
+
 use std::{
     error::Error,
     path::PathBuf,
