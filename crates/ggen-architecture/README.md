@@ -112,3 +112,7 @@ cargo test --manifest-path crates/ggen-architecture/Cargo.toml --workspace --doc
 ```
 
 The suite includes positive witnesses and negative falsifiers for enterprise traceability, structural admission, governance closure, impact propagation, transition cycles, viewpoint projection, receipt determinism/tampering, and the existing operational lifecycle, capacity, regional, SLO, key, identity, and autonomic boundaries. `tools/ggen-architecture/tests/enterprise_cli.rs` executes the real `ggen-ea` process against `examples/enterprise-model.json`.
+
+## Acceptance witness
+
+The enterprise-architecture implementation is accepted only when the repository's pinned architecture workflow executes the commands above against the candidate revision and the process-level CLI test succeeds. A successful static governance assessment proves closure of declared architecture obligations only; it is not evidence that an application, cloud environment, migration, or other represented runtime subject has executed. Runtime `ALIVE` standing requires a separate receipt for that exact admitted subject.
