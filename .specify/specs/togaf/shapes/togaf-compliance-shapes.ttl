@@ -43,14 +43,25 @@ togaf:ComponentStatusShape
         sh:in ( "draft" "planned" "approved" "active" "deprecated" "retired" ) ;
     ] .
 
+# Approved/active components require a concrete technology realization. Planned
+# target-state components may remain reversible until their transition is admitted.
 togaf:ComponentNodeShape
     a sh:NodeShape ;
     sh:targetClass togaf:ApplicationComponent ;
-    sh:message "ApplicationComponent must declare togaf:realizedBy a technology Node (Phase D traceability)" ;
-    sh:property [
-        sh:path togaf:realizedBy ;
-        sh:minCount 1 ;
-        sh:class togaf:Node ;
+    sh:sparql [
+        sh:message "Approved or active ApplicationComponent must be realized by a technology Node" ;
+        sh:select """
+            PREFIX togaf: <https://ggen.dev/ontology/togaf#>
+            SELECT $this
+            WHERE {
+                $this togaf:status ?status .
+                FILTER (?status IN ("approved", "active"))
+                FILTER NOT EXISTS {
+                    $this togaf:realizedBy ?node .
+                    ?node a togaf:Node .
+                }
+            }
+        """ ;
     ] .
 
 # ─── Capability portfolio closure ────────────────────────────────────────────
@@ -170,7 +181,8 @@ togaf:WorkPackageShape
         sh:path togaf:sequence ;
         sh:minCount 1 ;
         sh:maxCount 1 ;
-        sh:datatype xsd:nonNegativeInteger ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 0 ;
     ] .
 
 # ─── Data governance ─────────────────────────────────────────────────────────
