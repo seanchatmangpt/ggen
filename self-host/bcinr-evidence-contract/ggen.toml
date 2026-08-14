@@ -1,0 +1,28 @@
+[project]
+name = "bcinr-evidence-contract"
+version = "26.8.14-r1"
+description = "ggen manufactures the BCINR claim/evidence contract consumed independently by ggen-legacy and later by BCINR"
+
+[ontology]
+source = "ontology.ttl"
+base_iri = "https://ggen.dev/ontology/bcinr-evidence-contract#"
+
+[ontology.prefixes]
+bec = "https://ggen.dev/ontology/bcinr-evidence-contract#"
+dcterms = "http://purl.org/dc/terms/"
+prov = "http://www.w3.org/ns/prov#"
+odrl = "http://www.w3.org/ns/odrl/2/"
+
+[generation]
+output_dir = "../.."
+
+[[generation.rules]]
+name = "bcinr-evidence-contract-json"
+query = { inline = """
+PREFIX bec: <https://ggen.dev/ontology/bcinr-evidence-contract#>
+SELECT ?version WHERE { bec:ContractV1 bec:contractVersion ?version . } ORDER BY ?version
+""" }
+template = { file = "templates/contract.json.tera" }
+output_file = "generated/bcinr-evidence-contract.json"
+skip_empty = false
+mode = "Overwrite"
