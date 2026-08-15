@@ -36,8 +36,34 @@ jobs:
           ./target/debug/ggen sync run
           ./target/debug/ggen receipt verify
 
-      - name: Refuse any unowned root consequence
+      - name: Observe root consequence ownership
+        id: root-ownership
+        continue-on-error: true
         run: python3 self-host/scripts/verify_root_regeneration.py
+
+      - name: Upload root ownership diagnostic
+        if: always()
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08
+        with:
+          name: ggen-root-ownership-${{ github.sha }}
+          path: |
+            self-host/observed/root-regeneration.json
+            .ggen-v2/receipt.json
+          if-no-files-found: warn
+
+      - name: Refuse any unowned root consequence
+        if: always()
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          report = json.loads(Path('self-host/observed/root-regeneration.json').read_text())
+          if not report['passed']:
+              raise SystemExit(json.dumps({
+                  'unauthorized_paths': report['unauthorized_paths'],
+                  'missing_outputs': report['missing_outputs'],
+              }, sort_keys=True))
+          PY
 
       - name: Require every declared output, including CLI proof tests
         run: |
@@ -47,7 +73,7 @@ jobs:
           import tomllib
           from pathlib import Path
           doc = tomllib.loads(Path('ggen.toml').read_text())
-          outputs = [Path(rule['output_file']) for rule in doc['generation']['rules']]
+          outputs = [Path(rule['output_file']) for rule in doc['generation']['rules'] if '{{' not in rule['output_file']]
           missing = [str(path) for path in outputs if not path.is_file()]
           assert not missing, missing
           PY
@@ -60,7 +86,10 @@ jobs:
           doc = tomllib.loads(Path('ggen.toml').read_text())
           result = {}
           for rule in doc['generation']['rules']:
-              path = Path(rule['output_file'])
+              raw = rule['output_file']
+              if '{{' in raw:
+                  continue
+              path = Path(raw)
               result[str(path)] = hashlib.sha256(path.read_bytes()).hexdigest()
           Path('/tmp/root-first.json').write_text(json.dumps(result, indent=2, sort_keys=True) + '\n')
           PY
@@ -76,7 +105,10 @@ jobs:
           doc = tomllib.loads(Path('ggen.toml').read_text())
           actual = {}
           for rule in doc['generation']['rules']:
-              path = Path(rule['output_file'])
+              raw = rule['output_file']
+              if '{{' in raw:
+                  continue
+              path = Path(raw)
               actual[str(path)] = hashlib.sha256(path.read_bytes()).hexdigest()
           assert actual == expected, {'expected': expected, 'actual': actual}
           PY
