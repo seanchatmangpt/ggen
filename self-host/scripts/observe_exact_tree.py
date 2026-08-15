@@ -2,18 +2,20 @@
 """Canonical exact-tree executor for the ggen repository observer.
 
 The model implementation lives in observe_repository.py. This executor replaces its
-filesystem byte reader with Git semantics before invoking it: symlinks are observed as
-their tracked link target bytes, and gitlinks/submodule directories as empty content.
-It also projects the observed repository and every finding into the existing Gall
-program/checkpoint/work-item vocabulary so Jira, LLM work orders, scheduling,
-receipts, replay, and crown machinery remain single-source consequences.
+filesystem byte reader with Git HEAD object semantics before invoking it: regular
+files and symlinks are read from the recorded tree, while gitlinks/submodules are
+represented as empty content. Mutable working-tree projections therefore cannot
+contaminate an exact-revision observation.
 """
 from __future__ import annotations
 
 import argparse
 import importlib.util
+import io
 import os
 from pathlib import Path
+import subprocess
+import tarfile
 
 MODULE_PATH = Path(__file__).with_name("observe_repository.py")
 SPEC = importlib.util.spec_from_file_location("ggen_self_observer_model", MODULE_PATH)
@@ -23,17 +25,54 @@ MODEL = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(MODEL)
 BASE_EMIT_TURTLE = MODEL.emit_turtle
 
+_HEAD_SNAPSHOTS: dict[tuple[str, str], dict[str, bytes]] = {}
+
+
+def git(root: Path, *args: str) -> bytes:
+    return subprocess.run(
+        ["git", "-C", str(root), *args],
+        check=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    ).stdout
+
+
+def head_snapshot(root: Path) -> dict[str, bytes]:
+    """Return tracked HEAD bytes without consulting mutable worktree contents."""
+    revision = git(root, "rev-parse", "HEAD").decode("ascii").strip()
+    key = (str(root.resolve()), revision)
+    cached = _HEAD_SNAPSHOTS.get(key)
+    if cached is not None:
+        return cached
+
+    archive = git(root, "archive", "--format=tar", revision)
+    snapshot: dict[str, bytes] = {}
+    with tarfile.open(fileobj=io.BytesIO(archive), mode="r:") as stream:
+        for member in stream.getmembers():
+            if member.isfile():
+                handle = stream.extractfile(member)
+                if handle is None:
+                    raise ValueError(f"archive member unreadable: {member.name}")
+                snapshot[member.name] = handle.read()
+            elif member.issym():
+                snapshot[member.name] = member.linkname.encode("utf-8")
+
+    index = git(root, "ls-files", "-s", "-z")
+    for record in index.split(b"\0"):
+        if not record:
+            continue
+        metadata, path_raw = record.split(b"\t", 1)
+        mode, _blob, _stage = metadata.decode("ascii").split()
+        if mode == "160000":
+            snapshot[path_raw.decode("utf-8")] = b""
+
+    _HEAD_SNAPSHOTS[key] = snapshot
+    return snapshot
+
 
 def git_semantic_bytes(root: Path, rel: str) -> bytes:
-    path = root / rel
-    try:
-        if path.is_symlink():
-            return os.readlink(path).encode("utf-8")
-        if path.is_dir():
-            return b""
-        return path.read_bytes()
-    except OSError:
-        return b""
+    """Read admitted bytes from HEAD; untracked or absent paths have no standing."""
+    return head_snapshot(root).get(rel, b"")
 
 
 def safe_text(value: object) -> str:
