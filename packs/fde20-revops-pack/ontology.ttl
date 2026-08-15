@@ -1,0 +1,168 @@
+@prefix fde20: <http://seanchatmangpt.github.io/packs/fde20-revops#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# $20/hr FDE RevOps is a deterministic commercial operating system, not an
+# autonomous agent persona.  The graph is the editing authority; generated
+# Markdown/JSON are projections.
+
+fde20:Offer a <http://www.w3.org/2000/01/rdf-schema#Class> .
+fde20:RevOpsStage a <http://www.w3.org/2000/01/rdf-schema#Class> .
+fde20:ChallengerMotion a <http://www.w3.org/2000/01/rdf-schema#Class> .
+
+fde20:hourlyRate a <http://www.w3.org/1999/02/22-rdf-syntax-ns#Property> .
+fde20:currency a <http://www.w3.org/1999/02/22-rdf-syntax-ns#Property> .
+fde20:billingUnit a <http://www.w3.org/1999/02/22-rdf-syntax-ns#Property> .
+fde20:deterministicFirst a <http://www.w3.org/1999/02/22-rdf-syntax-ns#Property> .
+fde20:llmRole a <http://www.w3.org/1999/02/22-rdf-syntax-ns#Property> .
+fde20:brceRequired a <http://www.w3.org/1999/02/22-rdf-syntax-ns#Property> .
+fde20:receiptRequired a <http://www.w3.org/1999/02/22-rdf-syntax-ns#Property> .
+fde20:hasStage a <http://www.w3.org/1999/02/22-rdf-syntax-ns#Property> .
+fde20:hasChallengerMotion a <http://www.w3.org/1999/02/22-rdf-syntax-ns#Property> .
+
+fde20:stageOrder a <http://www.w3.org/1999/02/22-rdf-syntax-ns#Property> .
+fde20:stageSlug a <http://www.w3.org/1999/02/22-rdf-syntax-ns#Property> .
+fde20:operationKind a <http://www.w3.org/1999/02/22-rdf-syntax-ns#Property> .
+fde20:objective a <http://www.w3.org/1999/02/22-rdf-syntax-ns#Property> .
+fde20:entryCriterion a <http://www.w3.org/1999/02/22-rdf-syntax-ns#Property> .
+fde20:exitCriterion a <http://www.w3.org/1999/02/22-rdf-syntax-ns#Property> .
+fde20:standingCeiling a <http://www.w3.org/1999/02/22-rdf-syntax-ns#Property> .
+fde20:nextStage a <http://www.w3.org/1999/02/22-rdf-syntax-ns#Property> .
+fde20:requiresReceipt a <http://www.w3.org/1999/02/22-rdf-syntax-ns#Property> .
+fde20:authorityBoundary a <http://www.w3.org/1999/02/22-rdf-syntax-ns#Property> .
+fde20:receiptType a <http://www.w3.org/1999/02/22-rdf-syntax-ns#Property> .
+
+fde20:teachingThesis a <http://www.w3.org/1999/02/22-rdf-syntax-ns#Property> .
+fde20:commercialInsight a <http://www.w3.org/1999/02/22-rdf-syntax-ns#Property> .
+fde20:newWay a <http://www.w3.org/1999/02/22-rdf-syntax-ns#Property> .
+fde20:proofStandard a <http://www.w3.org/1999/02/22-rdf-syntax-ns#Property> .
+fde20:callToAction a <http://www.w3.org/1999/02/22-rdf-syntax-ns#Property> .
+
+fde20:TwentyDollarFDE a fde20:Offer, prov:Entity ;
+    dcterms:title "$20/hr FDE RevOps" ;
+    dcterms:description "A deterministic-first Forward Deployed Engineer revenue operating system priced at exactly USD 20 per hour. LLM output has no ambient execution authority and is reserved for exception handling; BRCE receipts bind every DO consequence." ;
+    fde20:hourlyRate "20.00"^^xsd:decimal ;
+    fde20:currency "USD" ;
+    fde20:billingUnit "hour" ;
+    fde20:deterministicFirst true ;
+    fde20:llmRole "exception-handling-only" ;
+    fde20:brceRequired true ;
+    fde20:receiptRequired true ;
+    fde20:hasChallengerMotion fde20:DefaultChallengerMotion ;
+    fde20:hasStage fde20:SignalSelect,
+                   fde20:AccountAdmit,
+                   fde20:ChallengerReframe,
+                   fde20:Qualify,
+                   fde20:ConstructOffer,
+                   fde20:Commit,
+                   fde20:Deliver,
+                   fde20:Expand .
+
+fde20:DefaultChallengerMotion a fde20:ChallengerMotion ;
+    skos:prefLabel "$20/hr FDE Challenger motion" ;
+    fde20:teachingThesis "The expensive part of an FDE is not typing code; it is unresolved variation, handoffs, waiting, rework, and unbounded decision authority." ;
+    fde20:commercialInsight "If repeatable FDE work is compiled from admitted enterprise facts into deterministic capabilities, the marginal labor component can collapse without collapsing governance." ;
+    fde20:newWay "Buy a receipted business-to-capability manufacturing path at $20/hr, with humans and LLMs handling only bounded exceptions rather than sitting in every transition." ;
+    fde20:proofStandard "No claim of automation without exact-subject execution, consequence evidence, receipt identity, and replay." ;
+    fde20:callToAction "Start with one revenue workflow, admit its graph, manufacture the deterministic path, and price the operating capacity at $20/hr." .
+
+fde20:SignalSelect a fde20:RevOpsStage ;
+    skos:prefLabel "Signal select" ;
+    fde20:stageOrder 1 ;
+    fde20:stageSlug "signal-select" ;
+    fde20:operationKind "SELECT" ;
+    fde20:objective "Choose a bounded market signal without actuating customer state." ;
+    fde20:entryCriterion "A source signal is observed with provenance." ;
+    fde20:exitCriterion "The signal is admitted or refused with a typed reason." ;
+    fde20:standingCeiling "OBSERVED" ;
+    fde20:requiresReceipt false ;
+    fde20:nextStage fde20:AccountAdmit .
+
+fde20:AccountAdmit a fde20:RevOpsStage ;
+    skos:prefLabel "Account admit" ;
+    fde20:stageOrder 2 ;
+    fde20:stageSlug "account-admit" ;
+    fde20:operationKind "SELECT" ;
+    fde20:objective "Resolve ICP, account identity, authority, and exclusions before constructing work." ;
+    fde20:entryCriterion "The candidate account is identity-resolved." ;
+    fde20:exitCriterion "The account is admitted into the commercial graph or refused." ;
+    fde20:standingCeiling "ADMITTED" ;
+    fde20:requiresReceipt false ;
+    fde20:nextStage fde20:ChallengerReframe .
+
+fde20:ChallengerReframe a fde20:RevOpsStage ;
+    skos:prefLabel "Challenger reframe" ;
+    fde20:stageOrder 3 ;
+    fde20:stageSlug "challenger-reframe" ;
+    fde20:operationKind "CONSTRUCT" ;
+    fde20:objective "Manufacture a teach-tailor-take-control commercial insight from admitted facts." ;
+    fde20:entryCriterion "Account facts and operating constraints are admitted." ;
+    fde20:exitCriterion "A reversible Challenger brief is constructed and provenance-bound." ;
+    fde20:standingCeiling "CANDIDATE" ;
+    fde20:requiresReceipt false ;
+    fde20:nextStage fde20:Qualify .
+
+fde20:Qualify a fde20:RevOpsStage ;
+    skos:prefLabel "Qualify" ;
+    fde20:stageOrder 4 ;
+    fde20:stageSlug "qualify" ;
+    fde20:operationKind "CONSTRUCT" ;
+    fde20:objective "Determine whether the customer workflow can be bounded, measured, and manufactured at the offer economics." ;
+    fde20:entryCriterion "The Challenger reframe is tied to a concrete workflow and measurable consequence." ;
+    fde20:exitCriterion "The opportunity has explicit scope, authority, acceptance evidence, and a go/refuse outcome." ;
+    fde20:standingCeiling "ADMITTED" ;
+    fde20:requiresReceipt false ;
+    fde20:nextStage fde20:ConstructOffer .
+
+fde20:ConstructOffer a fde20:RevOpsStage ;
+    skos:prefLabel "Construct offer" ;
+    fde20:stageOrder 5 ;
+    fde20:stageSlug "construct-offer" ;
+    fde20:operationKind "CONSTRUCT" ;
+    fde20:objective "Compile scope, price, acceptance, exclusions, and deterministic delivery path into a reversible offer artifact." ;
+    fde20:entryCriterion "Qualification is ADMITTED." ;
+    fde20:exitCriterion "A $20/hr offer exists with explicit proof and authority boundaries." ;
+    fde20:standingCeiling "CANDIDATE" ;
+    fde20:requiresReceipt false ;
+    fde20:nextStage fde20:Commit .
+
+fde20:Commit a fde20:RevOpsStage ;
+    skos:prefLabel "Commit" ;
+    fde20:stageOrder 6 ;
+    fde20:stageSlug "commit" ;
+    fde20:operationKind "DO" ;
+    fde20:objective "Actuate the commercial commitment only through an authorized receipted boundary." ;
+    fde20:entryCriterion "The offer is accepted and the acting authority is resolved." ;
+    fde20:exitCriterion "The commitment consequence has an immutable receipt and replay identity." ;
+    fde20:standingCeiling "ALIVE" ;
+    fde20:requiresReceipt true ;
+    fde20:authorityBoundary "BRCE" ;
+    fde20:receiptType "commercial-commitment-receipt" ;
+    fde20:nextStage fde20:Deliver .
+
+fde20:Deliver a fde20:RevOpsStage ;
+    skos:prefLabel "Deliver" ;
+    fde20:stageOrder 7 ;
+    fde20:stageSlug "deliver" ;
+    fde20:operationKind "DO" ;
+    fde20:objective "Manufacture and actuate the admitted customer capability with zero unreceipted actuation." ;
+    fde20:entryCriterion "A committed scope and executable acceptance boundary exist." ;
+    fde20:exitCriterion "The exact admitted subject executed and produced receipted acceptance evidence." ;
+    fde20:standingCeiling "ALIVE" ;
+    fde20:requiresReceipt true ;
+    fde20:authorityBoundary "BRCE" ;
+    fde20:receiptType "delivery-receipt" ;
+    fde20:nextStage fde20:Expand .
+
+fde20:Expand a fde20:RevOpsStage ;
+    skos:prefLabel "Expand" ;
+    fde20:stageOrder 8 ;
+    fde20:stageSlug "expand" ;
+    fde20:operationKind "SELECT" ;
+    fde20:objective "Use delivery evidence to select the next reversible revenue opportunity without ambient actuation." ;
+    fde20:entryCriterion "Delivery has an ALIVE receipt and replay identity." ;
+    fde20:exitCriterion "A new bounded signal is selected or expansion is refused." ;
+    fde20:standingCeiling "OBSERVED" ;
+    fde20:requiresReceipt false .

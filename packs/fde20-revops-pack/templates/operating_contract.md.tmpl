@@ -1,0 +1,49 @@
+---
+to: "revops/fde20/OPERATING_CONTRACT.md"
+sparql:
+  offer: |
+    PREFIX fde20: <http://seanchatmangpt.github.io/packs/fde20-revops#>
+    PREFIX dcterms: <http://purl.org/dc/terms/>
+    SELECT ?title ?description ?rate ?currency ?unit ?llmRole ?deterministic ?brce ?receipt WHERE {
+      ?o a fde20:Offer ; dcterms:title ?title ; dcterms:description ?description ;
+         fde20:hourlyRate ?rate ; fde20:currency ?currency ; fde20:billingUnit ?unit ;
+         fde20:llmRole ?llmRole ; fde20:deterministicFirst ?deterministic ;
+         fde20:brceRequired ?brce ; fde20:receiptRequired ?receipt .
+    }
+  stages: |
+    PREFIX fde20: <http://seanchatmangpt.github.io/packs/fde20-revops#>
+    PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+    SELECT ?order ?label ?slug ?kind ?objective ?entry ?exit ?ceiling ?receipt WHERE {
+      ?s a fde20:RevOpsStage ; skos:prefLabel ?label ; fde20:stageOrder ?order ;
+         fde20:stageSlug ?slug ; fde20:operationKind ?kind ; fde20:objective ?objective ;
+         fde20:entryCriterion ?entry ; fde20:exitCriterion ?exit ;
+         fde20:standingCeiling ?ceiling ; fde20:requiresReceipt ?receipt .
+    } ORDER BY ?order
+---
+# {% for o in offer %}{{ o.title }}{% endfor %} — Operating Contract
+
+{% for o in offer %}{{ o.description }}
+
+## Economic invariant
+
+- Price: **{{ o.currency }} {{ o.rate }}/{{ o.unit }}**
+- Deterministic first: `{{ o.deterministic }}`
+- LLM role: `{{ o.llmRole }}`
+- BRCE required for actuation: `{{ o.brce }}`
+- Consequence receipt required: `{{ o.receipt }}`
+{% endfor %}
+
+## Authority calculus
+
+`SELECT` chooses an admitted route. `CONSTRUCT` manufactures reversible artifacts and intents. `DO` changes external state and has no ambient authority: every DO transition must pass BRCE and emit a receipt binding identity, authority, consequence, replay, and standing.
+
+## Revenue pipeline
+
+| # | Stage | Kind | Entry | Exit | Ceiling | Receipt |
+|---:|---|---|---|---|---|---|
+{% for s in stages %}| {{ s.order }} | `{{ s.slug }}` — {{ s.label }} | **{{ s.kind }}** | {{ s.entry }} | {{ s.exit }} | `{{ s.ceiling }}` | {{ s.receipt }} |
+{% endfor %}
+
+## Definition of success
+
+Revenue activity is not successful because a message, proposal, deployment, or workflow exists. A crown claim is `ALIVE` only when the exact admitted subject executes and the claimed consequence is observed with a replayable receipt.

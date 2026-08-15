@@ -1,0 +1,26 @@
+# MESSAGE: DO is legal only through BRCE with an explicit receipt type; non-DO stages may not claim actuation authority. Any row is a refusal.
+PREFIX fde20: <http://seanchatmangpt.github.io/packs/fde20-revops#>
+SELECT ?subject ?violation WHERE {
+  {
+    ?subject a fde20:RevOpsStage ; fde20:operationKind "DO" .
+    FILTER NOT EXISTS { ?subject fde20:requiresReceipt true }
+    BIND("DO stage must require a receipt" AS ?violation)
+  } UNION {
+    ?subject a fde20:RevOpsStage ; fde20:operationKind "DO" .
+    FILTER NOT EXISTS { ?subject fde20:authorityBoundary "BRCE" }
+    BIND("DO stage authorityBoundary must be BRCE" AS ?violation)
+  } UNION {
+    ?subject a fde20:RevOpsStage ; fde20:operationKind "DO" .
+    FILTER NOT EXISTS { ?subject fde20:receiptType ?receiptType . FILTER(STRLEN(STR(?receiptType)) > 0) }
+    BIND("DO stage must declare a non-empty receiptType" AS ?violation)
+  } UNION {
+    ?subject a fde20:RevOpsStage ; fde20:operationKind ?kind ; fde20:authorityBoundary ?boundary .
+    FILTER(STR(?kind) != "DO")
+    BIND("non-DO stage may not declare an authorityBoundary" AS ?violation)
+  } UNION {
+    ?subject a fde20:RevOpsStage ; fde20:operationKind ?kind ; fde20:receiptType ?receiptType .
+    FILTER(STR(?kind) != "DO")
+    BIND("non-DO stage may not declare an actuation receiptType" AS ?violation)
+  }
+}
+ORDER BY ?subject ?violation
