@@ -10,8 +10,6 @@ default-theme = "light"
 preferred-dark-theme = "navy"
 git-repository-url = "https://github.com/seanchatmangpt/ggen"
 edit-url-template = "https://github.com/seanchatmangpt/ggen/edit/main/book/{path}"
-additional-css = ["theme/custom.css"]
-additional-js = ["theme/custom.js"]
 no-section-label = false
 
 [output.html.print]
