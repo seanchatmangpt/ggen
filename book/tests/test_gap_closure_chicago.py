@@ -10,6 +10,7 @@ import hashlib
 import importlib.util
 import os
 import subprocess
+import sys
 import unittest
 from pathlib import Path
 
@@ -19,6 +20,10 @@ TTL_VALIDATOR_PATH = ROOT / "book/scripts/validate_ttl_corpus.py"
 spec = importlib.util.spec_from_file_location("validate_ttl_corpus", TTL_VALIDATOR_PATH)
 assert spec and spec.loader
 validate_ttl = importlib.util.module_from_spec(spec)
+# importlib.util.module_from_spec() does not register the module. Dataclasses
+# resolve annotations through sys.modules while the module body executes, so
+# mirror normal import semantics before exec_module().
+sys.modules[spec.name] = validate_ttl
 spec.loader.exec_module(validate_ttl)
 
 

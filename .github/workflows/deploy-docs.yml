@@ -1,91 +1,119 @@
-# TWO BUGS FOUND AND FIXED (2026-07-23):
-#
-# (1) Bespoke toolchain setup, same class already found and fixed in 5 other
-#     workflows this session (retrofit:BespokeToolchainSetupBypassesSccache):
-#     `dtolnay/rust-toolchain@... toolchain: nightly` ignores rust-toolchain.toml's
-#     pinned nightly, never provisions the [patch.crates-io] sibling repos, never
-#     installs sccache. Real failure, every run: `error: could not execute process
-#     'sccache ... rustc -vV' (never executed) ... No such file or directory`,
-#     exit 101, at the very first cargo invocation. This file was missed by that
-#     sweep's own "closed" claim -- fixed here by swapping in the same proven
-#     ./.github/actions/setup-ggen-build composite action every other job uses.
-#
-# (2) The mdBook build/deploy half is removed, not fixed: `cd docs && mdbook build`
-#     has been broken since docs/src/ was deleted 2026-03-31 (1,892 stale files,
-#     a deliberate cleanup pass) and never restored. Because this was the SECOND
-#     step in one sequential job, its failure aborted the whole job before the
-#     Deploy step ever ran -- meaning `cargo doc`'s real, correctly-buildable API
-#     reference was ALSO never deployed, even though nothing was wrong with it.
-#     Rather than paper over the mdbook gap with continue-on-error (which would
-#     silently and permanently mask a real, open question -- this repo's own
-#     coding-agent-mistakes.md names exactly this as Fail-Open Behavior), the
-#     mdbook step is removed outright: what should back a public docs guide here
-#     (book/'s existing, narrower-scoped content; a restored docs/src/; or
-#     retiring the guide half entirely) is a real product-scope decision, not a
-#     mechanical bug -- see retrofit:GithubPagesEnvironmentStaleMasterPolicy in
-#     .tcps/retrofit/ggen/load-path.ttl and AP-008 in
-#     docs/retrofit/ggen/authorization-packets.md. This job now deploys only the
-#     part that's unambiguously real today (the Rust API reference); restoring a
-#     guide deploy is a follow-on once that decision lands, not blocked by
-#     anything in this fix.
-name: Deploy Documentation
+name: Build and publish the ggen Book
 
 on:
-  push:
-    branches: [main]
+  pull_request:
     paths:
-      - "docs/**"
+      - "book/**"
       - "src/**"
       - "crates/**"
       - ".github/workflows/deploy-docs.yml"
+      - ".github/workflows/publish-registry.yml"
+  push:
+    branches: [main]
+    paths:
+      - "book/**"
+      - "src/**"
+      - "crates/**"
+      - ".github/workflows/deploy-docs.yml"
+      - ".github/workflows/publish-registry.yml"
   workflow_dispatch:
 
-# Least privilege: peaceiris/actions-gh-pages pushes to the gh-pages branch,
-# which requires write access to repository contents.
+# The build is read-only. Only the final main-branch publication step writes the
+# gh-pages branch. The generated site never acquires product/runtime authority.
 permissions:
   contents: write
 
-# Deploy job: do not cancel an in-progress publish mid-write.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ggen-book-pages-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
-  deploy-docs:
+  book:
+    name: Exact-subject mdBook and API publication court
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
     steps:
-      - name: Checkout
+      - name: Checkout exact subject
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+
+      - name: Assert exact subject
+        env:
+          EXPECTED_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -euo pipefail
+          actual="$(git rev-parse HEAD)"
+          test "$actual" = "$EXPECTED_SHA"
+          printf 'subject_sha=%s\n' "$actual"
 
       - name: Setup ggen build
         uses: ./.github/actions/setup-ggen-build
         with:
           components: rust-docs,rustfmt
-          cache-key-suffix: deploy-docs
+          cache-key-suffix: ggen-book-pages
 
-      - name: Build API documentation
+      - name: Install pinned mdBook
+        run: cargo install mdbook --locked --version 0.4.52
+
+      - name: Validate executable book inventory
+        run: |
+          set -euo pipefail
+          python3 book/scripts/check_book.py
+          python3 book/scripts/check_level_five.py
+          python3 book/scripts/audit_claim_coverage.py
+          python3 book/scripts/validate_gap_closure.py
+
+      - name: Build the ggen Book
+        run: |
+          set -euo pipefail
+          mdbook build book
+          test -f book/book/index.html
+          test -f book/book/404.html
+
+      - name: Build Rust API reference
         run: |
           set -euo pipefail
           cargo doc --no-deps
-          echo "✅ API documentation built successfully"
+          test -f target/doc/ggen/index.html || test -f target/doc/ggen_cli_lib/index.html
 
-      - name: Deploy to GitHub Pages
+      - name: Compose one GitHub Pages site
+        run: |
+          set -euo pipefail
+          rm -rf book/book/api
+          mkdir -p book/book/api
+          cp -a target/doc/. book/book/api/
+          touch book/book/.nojekyll
+          test -f book/book/index.html
+          test -f book/book/api/index.html
+          printf 'BOOK_PAGES_READY subject=%s root=book/book api=book/book/api\n' "$(git rev-parse HEAD)"
+
+      - name: Refuse authored-source drift
+        run: |
+          set -euo pipefail
+          drift="$(git status --porcelain=v1 --untracked-files=no -- book src crates .github/workflows)"
+          if [ -n "$drift" ]; then
+            printf '%s\n' "$drift"
+            echo '::error::Book publication changed tracked authored source.'
+            exit 1
+          fi
+
+      - name: Upload exact-subject site artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: ggen-book-site-${{ github.sha }}
+          path: book/book
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Publish exact bytes to gh-pages
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: peaceiris/actions-gh-pages@4f9cc6602d3f66b9c108549d475ec49e8ef4d45e # v4.0.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: target/doc
+          publish_dir: book/book
           publish_branch: gh-pages
           keep_files: false
           user_name: "github-actions[bot]"
           user_email: "github-actions[bot]@users.noreply.github.com"
-          commit_message: "Deploy documentation to GitHub Pages"
-
-      - name: Deployment Summary
-        run: |
-          set -euo pipefail
-          echo "📚 Documentation deployed successfully!"
-          echo ""
-          echo "📍 API Docs: https://seanchatmangpt.github.io/ggen/"
-          echo ""
-          echo "✅ Deployment complete!"
+          commit_message: "docs(book): publish ${{ github.sha }}"
