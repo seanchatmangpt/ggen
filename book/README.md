@@ -4,6 +4,14 @@
 
 This repository is the complete source for a 336-chapter mdBook and its companion Level Five pack laboratory. Its objective is mechanical: by the end of the book, a reader should be able to create a ggen pack that generates, verifies, safely regenerates, receipts, and evolves a complete subsystem for a zero-knowledge consumer.
 
+## Hosted book
+
+The canonical rendered edition is published with GitHub Pages at:
+
+**https://seanchatmangpt.github.io/ggen/**
+
+`book/` is the publication source. Pull requests that change the book run the structural and Level Five checks and render the complete mdBook. A successful push to `main` publishes the rendered `book/book/` tree as the repository's GitHub Pages site through `.github/workflows/marketplace-docs.yml`.
+
 ## Canonical equation
 
 ```text
@@ -40,15 +48,24 @@ pack + ggen
 
 The original authoring environment did not contain `cargo`, `rustc`, `ggen`, or `mdbook`; the repository was structurally verified (every `SUMMARY.md` link resolves, all chapters contain code and acceptance gates, pack/reference inventories checked, manifests generated, ZIP tested). The book now lives inside the ggen repository, and the headline case-study results have since been independently rerun there — see `SOURCE_NOTES.md` for the 2026-07-19 rerun record. mdBook rendering and full-product synchronization must still be executed in an approved toolchain before assigning binary or generator standing to any artifact not covered by that rerun.
 
+The Pages workflow does not relax that standing model: it publishes only after the repository's structural checks and an observed mdBook render succeed. Publication standing is distinct from generator or binary standing.
+
 ## Build
+
+From `book/`:
 
 ```bash
 python3 scripts/check_book.py
 python3 scripts/check_level_five.py
 python3 scripts/assemble_book.py
-
-# In a machine with mdBook and the target toolchain:
 mdbook build
+
+test -s book/index.html
+```
+
+For the canonical Level Five consumer, continue with the target toolchain:
+
+```bash
 cd code/examples/canonical-level-five-consumer
 ggen sync run
 cargo test --all-targets

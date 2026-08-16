@@ -1,15 +1,25 @@
 [book]
-title = "ggen: Manufacturing Level Five Packs"
+title = "ggen: Ontology-Driven Code Generation for Rust"
 authors = ["Sean Chatman"]
 language = "en"
 multilingual = false
 src = "src"
 
-[build]
-build-dir = "book"
-create-missing = false
-
 [output.html]
 default-theme = "light"
 preferred-dark-theme = "navy"
 git-repository-url = "https://github.com/seanchatmangpt/ggen"
+edit-url-template = "https://github.com/seanchatmangpt/ggen/edit/main/book/{path}"
+additional-css = ["theme/custom.css"]
+additional-js = ["theme/custom.js"]
+no-section-label = false
+
+[output.html.print]
+enable = true
+
+[output.html.fold]
+enable = true
+level = 0
+
+[metadata]
+version = "1.0.0"
