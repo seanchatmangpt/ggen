@@ -1,0 +1,74 @@
+name: Live examples
+
+on:
+  pull_request:
+    paths:
+      - 'examples/**'
+      - 'packs/**'
+      - 'crates/ggen-cli/**'
+      - 'scripts/validate-examples.sh'
+      - 'scripts/regenerate-examples.sh'
+      - 'Cargo.toml'
+      - 'Cargo.lock'
+      - 'rust-toolchain.toml'
+      - '.github/workflows/live-examples.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'examples/**'
+      - 'packs/**'
+      - 'crates/ggen-cli/**'
+      - 'scripts/validate-examples.sh'
+      - 'scripts/regenerate-examples.sh'
+      - 'Cargo.toml'
+      - 'Cargo.lock'
+      - 'rust-toolchain.toml'
+      - '.github/workflows/live-examples.yml'
+  merge_group:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Execute every live ggen manifest
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      CARGO_TERM_COLOR: always
+      RUST_BACKTRACE: 1
+      RUSTC_WRAPPER: ""
+      CARGO_INCREMENTAL: 0
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Install pinned Rust toolchain
+        uses: dtolnay/rust-toolchain@b3b07ba8b418998c39fb20f53e8b695cdcc8de1b
+        with:
+          toolchain: nightly-2026-06-22
+
+      - name: Build canonical ggen CLI
+        run: cargo build --locked -p ggen-cli-lib --bin ggen
+
+      - name: Execute live example corpus
+        shell: bash
+        env:
+          GGEN_BIN: ${{ github.workspace }}/target/debug/ggen
+          GGEN_EXAMPLE_TIMEOUT_SECONDS: 120
+        run: |
+          set -o pipefail
+          scripts/validate-examples.sh 2>&1 | tee live-examples.log
+
+      - name: Preserve validation receipt
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: live-examples-validation
+          path: live-examples.log
+          if-no-files-found: error
+          retention-days: 7
