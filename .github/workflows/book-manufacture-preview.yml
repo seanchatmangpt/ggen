@@ -1,0 +1,81 @@
+name: Book Manufacture Preview
+
+on:
+  pull_request:
+    paths:
+      - 'book/**'
+      - 'packs/level-five-book-pack/**'
+      - 'packs/affidavit-pack/**'
+      - 'examples/affidavit-verify/**'
+      - '.github/workflows/book-manufacture-preview.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+
+jobs:
+  manufacture:
+    name: Exact generator-owned book consequences
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+
+      - name: Admit exact subject
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha }}"
+          printf 'subject_sha=%s\n' "$(git rev-parse HEAD)"
+
+      - name: Provision siblings and pinned Rust toolchain
+        uses: ./.github/actions/setup-ggen-build
+        with:
+          cache-key-suffix: book-manufacture-preview
+
+      - name: Build real ggen manufacturer
+        run: cargo build -p ggen-cli-lib --bin ggen
+
+      - name: Manufacture Level Five book projection twice
+        run: |
+          set -euo pipefail
+          cd book
+          ../target/debug/ggen sync run
+          first="$(sha256sum src/CAPABILITY_MAP.md | cut -d' ' -f1)"
+          ../target/debug/ggen sync run
+          second="$(sha256sum src/CAPABILITY_MAP.md | cut -d' ' -f1)"
+          test "$first" = "$second"
+          ! grep -q '337' src/CAPABILITY_MAP.md
+          printf 'capability_map_sha256=%s\n' "$second"
+
+      - name: Intentionally re-lock Affidavit consumer and prove fixed point
+        run: |
+          set -euo pipefail
+          cd examples/affidavit-verify
+          rm -f ggen.lock
+          ../../target/debug/ggen sync run
+          first="$(sha256sum ggen.lock | cut -d' ' -f1)"
+          ../../target/debug/ggen sync run
+          second="$(sha256sum ggen.lock | cut -d' ' -f1)"
+          test "$first" = "$second"
+          grep -q 'blake3:2ccd29e23c0d316a6768e7deb7d9f739c8856a1babfaccb1c064ac88d4a7a924' ggen.lock
+          printf 'affidavit_lock_sha256=%s\n' "$second"
+
+      - name: Preserve exact generator bytes
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: book-manufactured-${{ github.event.pull_request.head.sha }}
+          path: |
+            book/src/CAPABILITY_MAP.md
+            examples/affidavit-verify/ggen.lock
+          if-no-files-found: error
+          retention-days: 7
