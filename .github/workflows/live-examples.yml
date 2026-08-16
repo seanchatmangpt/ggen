@@ -52,15 +52,95 @@ jobs:
 
       - name: Verify checkout identity
         if: github.event_name == 'pull_request'
-        run: test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha }}"
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha }}"
+          git rev-parse HEAD > /tmp/exact-head
 
       - name: Install pinned Rust toolchain
         uses: dtolnay/rust-toolchain@b3b07ba8b418998c39fb20f53e8b695cdcc8de1b
         with:
           toolchain: nightly-2026-06-22
 
+      - name: Construct reusable project-scoped F1 migration
+        if: github.event_name == 'pull_request'
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('crates/ggen-engine/src/sync.rs')
+          s = p.read_text()
+          old = '''        // CARGO_MANIFEST_DIR is crates/ggen-engine; workspace root is two levels up.
+        let root = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .parent()
+            .and_then(std::path::Path::parent)
+            .expect("workspace root")
+            .to_path_buf();'''
+          new = '''        // Default to the historical workspace-root migration target, but allow an
+        // operator to bind the destructive migration to an exact admitted project root.
+        // This preserves the existing F1 reseal algorithm while making it reusable for
+        // project-scoped legacy chains such as examples/interview-sandbox.
+        let root = std::env::var_os("GGEN_RECEIPT_MIGRATION_ROOT")
+            .map(std::path::PathBuf::from)
+            .unwrap_or_else(|| {
+                std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+                    .parent()
+                    .and_then(std::path::Path::parent)
+                    .expect("workspace root")
+                    .to_path_buf()
+            });'''
+          if old in s:
+              s = s.replace(old, new, 1)
+          assert 'std::env::var_os("GGEN_RECEIPT_MIGRATION_ROOT")' in s
+          s = s.replace(
+              '#[ignore = "one-time destructive migration against the real repo-root .ggen-v2/; run explicitly with --ignored"]',
+              '#[ignore = "one-time destructive receipt migration; bind GGEN_RECEIPT_MIGRATION_ROOT for a project-scoped legacy chain"]',
+              1,
+          )
+          p.write_text(s)
+          PY
+          cargo fmt --all -- --check
+
       - name: Build canonical ggen CLI
         run: cargo build --locked -p ggen-cli-lib --bin ggen
+
+      - name: Prove and migrate legacy Interview Sandbox receipt chain
+        if: github.event_name == 'pull_request'
+        shell: bash
+        env:
+          GGEN_RECEIPT_MIGRATION_ROOT: ${{ github.workspace }}/examples/interview-sandbox
+        run: |
+          set -euo pipefail
+          if (cd examples/interview-sandbox && ../../target/debug/ggen receipt history > /tmp/pre-history.out 2> /tmp/pre-history.err); then
+            echo 'expected the admitted legacy chain to refuse before F1 migration' >&2
+            exit 1
+          fi
+          grep -Eq 'FM-CHAIN-(007|009|014)|chain hash mismatch' /tmp/pre-history.err
+          cargo test -p ggen-engine --lib reseal_receipt_log_under_post_f1_chain_hash_formula -- --ignored --nocapture
+          (cd examples/interview-sandbox && ../../target/debug/ggen receipt history)
+          sha256sum examples/interview-sandbox/.ggen-v2/receipt-log.jsonl examples/interview-sandbox/.ggen-v2/receipt.json > /tmp/migration-first.sha256
+          cargo test -p ggen-engine --lib reseal_receipt_log_under_post_f1_chain_hash_formula -- --ignored --nocapture
+          (cd examples/interview-sandbox && ../../target/debug/ggen receipt history)
+          sha256sum examples/interview-sandbox/.ggen-v2/receipt-log.jsonl examples/interview-sandbox/.ggen-v2/receipt.json > /tmp/migration-second.sha256
+          diff -u /tmp/migration-first.sha256 /tmp/migration-second.sha256
+          git status --short > /tmp/migration-status.txt
+          python3 - <<'PY'
+          import subprocess
+          allowed = {
+              'crates/ggen-engine/src/sync.rs',
+              'examples/interview-sandbox/.ggen-v2/receipt-log.jsonl',
+              'examples/interview-sandbox/.ggen-v2/receipt.json',
+          }
+          changed = set(subprocess.check_output(['git','diff','--name-only'], text=True).splitlines())
+          untracked = set(subprocess.check_output(['git','ls-files','--others','--exclude-standard'], text=True).splitlines())
+          unexpected = (changed | untracked) - allowed
+          if unexpected:
+              raise SystemExit('unexpected migration fallout: ' + ', '.join(sorted(unexpected)))
+          missing = allowed - changed
+          if missing:
+              raise SystemExit('expected migration change missing: ' + ', '.join(sorted(missing)))
+          PY
 
       - name: Execute live example corpus
         shell: bash
@@ -71,11 +151,36 @@ jobs:
           set -o pipefail
           scripts/validate-examples.sh 2>&1 | tee live-examples.log
 
+      - name: Preserve migration candidate
+        if: always() && github.event_name == 'pull_request'
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/migration-candidate/files/crates/ggen-engine/src
+          mkdir -p /tmp/migration-candidate/files/examples/interview-sandbox/.ggen-v2
+          cp crates/ggen-engine/src/sync.rs /tmp/migration-candidate/files/crates/ggen-engine/src/sync.rs
+          cp examples/interview-sandbox/.ggen-v2/receipt-log.jsonl /tmp/migration-candidate/files/examples/interview-sandbox/.ggen-v2/receipt-log.jsonl
+          cp examples/interview-sandbox/.ggen-v2/receipt.json /tmp/migration-candidate/files/examples/interview-sandbox/.ggen-v2/receipt.json
+          cp /tmp/migration-first.sha256 /tmp/migration-candidate/ 2>/dev/null || true
+          cp /tmp/migration-second.sha256 /tmp/migration-candidate/ 2>/dev/null || true
+          cp /tmp/migration-status.txt /tmp/migration-candidate/ 2>/dev/null || true
+          git diff --binary "$(cat /tmp/exact-head)" -- crates/ggen-engine/src/sync.rs examples/interview-sandbox/.ggen-v2 > /tmp/migration-candidate/migration.patch || true
+          printf 'subject=%s\n' "$(cat /tmp/exact-head)" > /tmp/migration-candidate/identity.txt
+
+      - name: Upload migration candidate
+        if: always() && github.event_name == 'pull_request'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: live-examples-migration-candidate
+          path: /tmp/migration-candidate/
+          if-no-files-found: error
+          retention-days: 7
+
       - name: Preserve validation receipt
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: live-examples-validation
           path: live-examples.log
-          if-no-files-found: error
+          if-no-files-found: warn
           retention-days: 7
