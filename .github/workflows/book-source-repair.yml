@@ -72,6 +72,10 @@ jobs:
       - name: Manufacture the book projection with ggen
         run: |
           set -euo pipefail
+          # The source pack changed intentionally above. The existing lock must
+          # refuse that drift; remove it rather than hand-writing the new pack
+          # digest so the real ggen manufacturer re-locks the exact source.
+          rm -f book/ggen.lock
           (
             cd book
             ../target/debug/ggen sync run
@@ -92,7 +96,6 @@ jobs:
       - name: Admit only the bounded manufacture consequence
         run: |
           python3 - <<'PY'
-          from pathlib import Path
           import subprocess
 
           allowed = {
@@ -122,6 +125,7 @@ jobs:
           required = {
               'packs/level-five-book-pack/ontology.ttl',
               'book/src/CAPABILITY_MAP.md',
+              'book/ggen.lock',
           }
           if not required.issubset(changed):
               raise SystemExit('REFUSED:BOOK_MANUFACTURE_INCOMPLETE ' + ','.join(sorted(required - set(changed))))
