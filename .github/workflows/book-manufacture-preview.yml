@@ -46,17 +46,22 @@ jobs:
       - name: Build real ggen manufacturer
         run: cargo build -p ggen-cli-lib --bin ggen
 
-      - name: Manufacture Level Five book projection twice
+      - name: Intentionally re-lock and manufacture Level Five book twice
         run: |
           set -euo pipefail
           cd book
+          rm -f ggen.lock
           ../target/debug/ggen sync run
-          first="$(sha256sum src/CAPABILITY_MAP.md | cut -d' ' -f1)"
+          first_map="$(sha256sum src/CAPABILITY_MAP.md | cut -d' ' -f1)"
+          first_lock="$(sha256sum ggen.lock | cut -d' ' -f1)"
           ../target/debug/ggen sync run
-          second="$(sha256sum src/CAPABILITY_MAP.md | cut -d' ' -f1)"
-          test "$first" = "$second"
+          second_map="$(sha256sum src/CAPABILITY_MAP.md | cut -d' ' -f1)"
+          second_lock="$(sha256sum ggen.lock | cut -d' ' -f1)"
+          test "$first_map" = "$second_map"
+          test "$first_lock" = "$second_lock"
           ! grep -q '337' src/CAPABILITY_MAP.md
-          printf 'capability_map_sha256=%s\n' "$second"
+          grep -q 'blake3:fb2e8ce29e835ef751ca1b4ef5b1bdb500907d16d52437fea9af9050fc3a3160' ggen.lock
+          printf 'capability_map_sha256=%s\nbook_lock_sha256=%s\n' "$second_map" "$second_lock"
 
       - name: Intentionally re-lock Affidavit consumer and prove fixed point
         run: |
@@ -77,6 +82,7 @@ jobs:
           name: book-manufactured-${{ github.event.pull_request.head.sha }}
           path: |
             book/src/CAPABILITY_MAP.md
+            book/ggen.lock
             examples/affidavit-verify/ggen.lock
           if-no-files-found: error
           retention-days: 7
