@@ -48,7 +48,7 @@ SELECT ?subject ?property ?value WHERE {
   } UNION {
     ?subject a cnv:Argument ; cnv:valueDelimiter ?value .
     BIND(cnv:valueDelimiter AS ?property)
-    # clap-noun-verb 26.7.4 does not admit value_delimiter in #[arg].
+    # clap-noun-verb 26.8.8 does not admit value_delimiter in #[arg].
     FILTER(true)
   } UNION {
     ?subject a cnv:ExpressionBehavior ; cnv:operator ?value .
