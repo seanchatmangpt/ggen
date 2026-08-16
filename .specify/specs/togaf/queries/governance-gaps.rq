@@ -1,0 +1,71 @@
+PREFIX rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs:  <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX togaf: <https://ggen.dev/ontology/togaf#>
+
+# Static governance diagnostics only. A zero-row result means the declared
+# graph obligations are closed; it does not assert runtime ALIVE standing.
+SELECT DISTINCT ?subject ?subjectLabel ?kind ?gap
+WHERE {
+  {
+    ?subject a ?kind ; rdfs:label ?subjectLabel .
+    VALUES ?kind {
+      togaf:BusinessCapability
+      togaf:ApplicationComponent
+      togaf:Requirement
+      togaf:Risk
+      togaf:Control
+      togaf:TransitionArchitecture
+      togaf:WorkPackage
+    }
+    FILTER NOT EXISTS { ?subject togaf:owner ?owner . }
+    BIND("missing-owner" AS ?gap)
+  }
+  UNION
+  {
+    ?subject a togaf:BusinessCapability ; rdfs:label ?subjectLabel .
+    BIND(togaf:BusinessCapability AS ?kind)
+    FILTER NOT EXISTS {
+      ?subject (togaf:realizedBy|^togaf:implementsCapability) ?realization .
+    }
+    BIND("missing-realization" AS ?gap)
+  }
+  UNION
+  {
+    ?subject a togaf:Requirement ; rdfs:label ?subjectLabel .
+    BIND(togaf:Requirement AS ?kind)
+    FILTER NOT EXISTS { ?realization togaf:satisfies ?subject . }
+    BIND("unsatisfied-requirement" AS ?gap)
+  }
+  UNION
+  {
+    ?subject a togaf:Risk ; rdfs:label ?subjectLabel .
+    BIND(togaf:Risk AS ?kind)
+    FILTER NOT EXISTS { ?control togaf:mitigates ?subject . }
+    BIND("unmitigated-risk" AS ?gap)
+  }
+  UNION
+  {
+    ?subject a togaf:Claim ; rdfs:label ?subjectLabel .
+    BIND(togaf:Claim AS ?kind)
+    FILTER NOT EXISTS { ?subject togaf:evidencedBy ?evidence . }
+    BIND("claim-without-evidence" AS ?gap)
+  }
+  UNION
+  {
+    ?subject a togaf:Exception ; rdfs:label ?subjectLabel .
+    BIND(togaf:Exception AS ?kind)
+    FILTER NOT EXISTS { ?subject togaf:evidencedBy ?evidence . }
+    BIND("exception-without-evidence" AS ?gap)
+  }
+  UNION
+  {
+    ?subject togaf:standing "ALIVE" ; rdfs:label ?subjectLabel .
+    BIND(togaf:Receipt AS ?kind)
+    FILTER NOT EXISTS {
+      ?subject togaf:evidencedBy ?receipt .
+      ?receipt a togaf:Receipt .
+    }
+    BIND("alive-without-receipt" AS ?gap)
+  }
+}
+ORDER BY ?gap ?subjectLabel ?subject

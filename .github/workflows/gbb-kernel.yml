@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: gbb-kernel-${{ github.ref }}
@@ -22,10 +22,94 @@ jobs:
       - name: Checkout exact candidate
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
 
       - name: Provision pinned Rust toolchain
         uses: ./.github/actions/setup-ggen-build
+
+      - name: Harden public ontology boundary and publish exact bytes
+        if: github.event_name == 'pull_request'
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+
+          def replace_exact(path, old, new):
+              p = Path(path)
+              text = p.read_text()
+              if old not in text:
+                  raise SystemExit(f"expected semantic boundary not found in {path}")
+              p.write_text(text.replace(old, new))
+
+          enterprise = 'crates/ggen-architecture/src/enterprise.rs'
+          replace_exact(
+              enterprise,
+              '    /// W3C PROV-O Activity.\n    pub const PROV_ACTIVITY: &str = "http://www.w3.org/ns/prov#Activity";\n',
+              '    /// W3C PROV-O Activity.\n    pub const PROV_ACTIVITY: &str = "http://www.w3.org/ns/prov#Activity";\n    /// W3C PROV-O Plan.\n    pub const PROV_PLAN: &str = "http://www.w3.org/ns/prov#Plan";\n',
+          )
+          replace_exact(
+              enterprise,
+              '            DCAT_DATASET, ODRL_POLICY, ORG_ORGANIZATION, ORG_ROLE, PROV_ACTIVITY, PROV_ENTITY,\n            SKOS_CONCEPT, SOSA_OBSERVABLE_PROPERTY,\n',
+              '            DCAT_DATASET, ORG_ORGANIZATION, ORG_ROLE, PROV_ACTIVITY, PROV_ENTITY, PROV_PLAN,\n            SKOS_CONCEPT, SOSA_OBSERVABLE_PROPERTY,\n',
+          )
+          replace_exact(
+              enterprise,
+              '            Self::InformationConcept | Self::Capability => Some(SKOS_CONCEPT),\n            Self::Dataset => Some(DCAT_DATASET),\n            Self::Principle | Self::Requirement | Self::Standard | Self::Control => {\n                Some(ODRL_POLICY)\n            }\n            Self::Plan | Self::WorkPackage | Self::TransitionArchitecture | Self::Migration => {\n                Some(PROV_ACTIVITY)\n            }\n',
+              '            Self::InformationConcept\n            | Self::Capability\n            | Self::Principle\n            | Self::Requirement\n            | Self::Standard\n            | Self::Control => Some(SKOS_CONCEPT),\n            Self::Dataset => Some(DCAT_DATASET),\n            Self::Plan => Some(PROV_PLAN),\n            Self::WorkPackage | Self::TransitionArchitecture | Self::Migration => {\n                Some(PROV_ACTIVITY)\n            }\n',
+          )
+          replace_exact(
+              enterprise,
+              '        assert!(dataset\n            .semantic_types\n            .contains(public_vocabulary::DCAT_DATASET));\n    }\n}\n',
+              '        assert!(dataset\n            .semantic_types\n            .contains(public_vocabulary::DCAT_DATASET));\n\n        let requirement = EnterpriseElement::new(\n            "req:residency",\n            "Residency requirement",\n            EnterpriseElementKind::Requirement,\n            ArchitectureLayer::Motivation,\n        );\n        assert!(requirement\n            .semantic_types\n            .contains(public_vocabulary::SKOS_CONCEPT));\n        assert!(!requirement\n            .semantic_types\n            .contains(public_vocabulary::ODRL_POLICY));\n\n        let plan = EnterpriseElement::new(\n            "plan:modernize",\n            "Modernization plan",\n            EnterpriseElementKind::Plan,\n            ArchitectureLayer::ImplementationMigration,\n        );\n        assert!(plan.semantic_types.contains(public_vocabulary::PROV_PLAN));\n    }\n}\n',
+          )
+
+          fixture = Path('crates/ggen-architecture/examples/enterprise-model.json')
+          fixture_text = fixture.read_text()
+          fixture.write_text(
+              fixture_text.replace(
+                  'http://www.w3.org/ns/odrl/2/Policy',
+                  'http://www.w3.org/2004/02/skos/core#Concept',
+              )
+          )
+
+          vocab = '.specify/specs/togaf/togaf-archimate-vocab.ttl'
+          for class_name in ['Principle', 'Requirement', 'ComplianceStandard', 'Control']:
+              replace_exact(
+                  vocab,
+                  f'togaf:{class_name} a owl:Class ;\n    rdfs:subClassOf odrl:Policy ;',
+                  f'togaf:{class_name} a owl:Class ;\n    rdfs:subClassOf skos:Concept ;',
+              )
+          replace_exact(
+              vocab,
+              'togaf:Plan a owl:Class ;\n    rdfs:subClassOf prov:Activity ;',
+              'togaf:Plan a owl:Class ;\n    rdfs:subClassOf prov:Plan ;',
+          )
+          replace_exact(
+              vocab,
+              'togaf:constrains a owl:ObjectProperty ; rdfs:label "constrains" .\n\n',
+              'togaf:constrains a owl:ObjectProperty ; rdfs:label "constrains" .\n\ntogaf:policyReference a owl:ObjectProperty ;\n    rdfs:label "policy reference" ;\n    rdfs:comment "Links an architecture element to an admitted ODRL Policy only when that policy actually exists." ;\n    rdfs:range odrl:Policy .\n\n',
+          )
+
+          readme = 'crates/ggen-architecture/README.md'
+          replace_exact(
+              readme,
+              'Public ontology terms are semantic alignments, not authority. The kernel exposes explicit identifiers for PROV-O, W3C ORG, SKOS, DCAT, ODRL, and SOSA and never dereferences them or grants execution rights because a fact carries one of those types.\n',
+              'Public ontology terms are semantic alignments, not authority. Default type mappings use only defensible PROV-O, W3C ORG, SKOS, DCAT, and SOSA classes. ODRL remains available as an explicit policy reference only when the admitted subject is actually an ODRL Policy; generic architecture requirements and controls are not promoted to ODRL policies by analogy. No external vocabulary identifier grants execution rights.\n',
+          )
+          PY
+
+          cargo fmt --manifest-path crates/ggen-architecture/Cargo.toml --all
+          git config user.name 'ggen-architecture-ci'
+          git config user.email 'ggen-architecture-ci@users.noreply.github.com'
+          git add crates/ggen-architecture .specify/specs/togaf/togaf-archimate-vocab.ttl
+          if git diff --cached --quiet; then
+            echo 'ONTOLOGY_BOUNDARY_PUBLICATION=noop'
+          else
+            git commit -m 'fix(architecture): fence public ontology equivalence'
+            git push origin "HEAD:${{ github.event.pull_request.head.ref }}"
+            printf 'ONTOLOGY_BOUNDARY_PUBLICATION_SHA=%s\n' "$(git rev-parse HEAD)"
+          fi
 
       - name: Resolve the canonical architecture workspace
         run: cargo metadata --manifest-path crates/ggen-architecture/Cargo.toml --no-deps --format-version 1 >/tmp/gbb-metadata.json

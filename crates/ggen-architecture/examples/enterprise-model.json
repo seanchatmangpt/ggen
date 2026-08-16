@@ -1,0 +1,290 @@
+{
+  "enterprise_id": "enterprise:acme",
+  "boundary_id": "boundary:acme",
+  "elements": {
+    "app:new": {
+      "id": "app:new",
+      "name": "Modern Data Platform",
+      "kind": "application",
+      "layer": "application",
+      "lifecycle": "admitted",
+      "standing": "UNKNOWN",
+      "owner": "org:architecture",
+      "steward": null,
+      "semantic_types": [],
+      "source_refs": ["architecture-decision:modernize-data"],
+      "tags": {"portfolio": "data"}
+    },
+    "app:old": {
+      "id": "app:old",
+      "name": "Legacy Data Platform",
+      "kind": "application",
+      "layer": "application",
+      "lifecycle": "deprecated",
+      "standing": "UNKNOWN",
+      "owner": "org:architecture",
+      "steward": null,
+      "semantic_types": [],
+      "source_refs": ["cmdb:legacy-data"],
+      "tags": {"portfolio": "data"}
+    },
+    "boundary:acme": {
+      "id": "boundary:acme",
+      "name": "ACME Enterprise Boundary",
+      "kind": "boundary",
+      "layer": "enterprise",
+      "lifecycle": "admitted",
+      "standing": "UNKNOWN",
+      "owner": null,
+      "steward": null,
+      "semantic_types": [],
+      "source_refs": ["charter:enterprise-boundary"],
+      "tags": {}
+    },
+    "cap:data": {
+      "id": "cap:data",
+      "name": "Governed Data Delivery",
+      "kind": "capability",
+      "layer": "strategy",
+      "lifecycle": "admitted",
+      "standing": "UNKNOWN",
+      "owner": "org:architecture",
+      "steward": null,
+      "semantic_types": ["http://www.w3.org/2004/02/skos/core#Concept"],
+      "source_refs": ["strategy:data"],
+      "tags": {"tier": "enterprise"}
+    },
+    "cmp:data": {
+      "id": "cmp:data",
+      "name": "Data Control Plane",
+      "kind": "component",
+      "layer": "application",
+      "lifecycle": "admitted",
+      "standing": "UNKNOWN",
+      "owner": "org:architecture",
+      "steward": null,
+      "semantic_types": [],
+      "source_refs": ["repo:data-control-plane"],
+      "tags": {}
+    },
+    "control:residency": {
+      "id": "control:residency",
+      "name": "Residency Enforcement Control",
+      "kind": "control",
+      "layer": "governance",
+      "lifecycle": "admitted",
+      "standing": "UNKNOWN",
+      "owner": "org:architecture",
+      "steward": null,
+      "semantic_types": ["http://www.w3.org/ns/odrl/2/Policy"],
+      "source_refs": ["control:residency-v1"],
+      "tags": {}
+    },
+    "enterprise:acme": {
+      "id": "enterprise:acme",
+      "name": "ACME",
+      "kind": "enterprise",
+      "layer": "enterprise",
+      "lifecycle": "admitted",
+      "standing": "UNKNOWN",
+      "owner": null,
+      "steward": null,
+      "semantic_types": ["http://www.w3.org/ns/org#Organization"],
+      "source_refs": ["charter:acme"],
+      "tags": {}
+    },
+    "env:prod": {
+      "id": "env:prod",
+      "name": "Production Data Environment",
+      "kind": "environment",
+      "layer": "technology",
+      "lifecycle": "active",
+      "standing": "UNKNOWN",
+      "owner": "org:architecture",
+      "steward": null,
+      "semantic_types": [],
+      "source_refs": ["inventory:prod-data"],
+      "tags": {"criticality": "tier-0"}
+    },
+    "metric:residency": {
+      "id": "metric:residency",
+      "name": "Residency Conformance Metric",
+      "kind": "metric",
+      "layer": "evidence",
+      "lifecycle": "active",
+      "standing": "UNKNOWN",
+      "owner": null,
+      "steward": null,
+      "semantic_types": ["http://www.w3.org/ns/sosa/ObservableProperty"],
+      "source_refs": ["telemetry:residency"],
+      "tags": {}
+    },
+    "org:architecture": {
+      "id": "org:architecture",
+      "name": "Enterprise Architecture",
+      "kind": "organization-unit",
+      "layer": "business",
+      "lifecycle": "active",
+      "standing": "UNKNOWN",
+      "owner": null,
+      "steward": null,
+      "semantic_types": ["http://www.w3.org/ns/org#Organization"],
+      "source_refs": ["org:enterprise-architecture"],
+      "tags": {}
+    },
+    "receipt:deployment": {
+      "id": "receipt:deployment",
+      "name": "Exact Deployment Evidence",
+      "kind": "receipt",
+      "layer": "evidence",
+      "lifecycle": "active",
+      "standing": "UNKNOWN",
+      "owner": null,
+      "steward": null,
+      "semantic_types": ["http://www.w3.org/ns/prov#Entity"],
+      "source_refs": ["receipt:sha256:example"],
+      "tags": {}
+    },
+    "req:residency": {
+      "id": "req:residency",
+      "name": "Data Residency Requirement",
+      "kind": "requirement",
+      "layer": "motivation",
+      "lifecycle": "admitted",
+      "standing": "UNKNOWN",
+      "owner": "org:architecture",
+      "steward": null,
+      "semantic_types": ["http://www.w3.org/ns/odrl/2/Policy"],
+      "source_refs": ["requirement:data-residency"],
+      "tags": {}
+    },
+    "risk:residency": {
+      "id": "risk:residency",
+      "name": "Residency Breach Risk",
+      "kind": "risk",
+      "layer": "governance",
+      "lifecycle": "admitted",
+      "standing": "UNKNOWN",
+      "owner": "org:architecture",
+      "steward": null,
+      "semantic_types": [],
+      "source_refs": ["risk-register:R-001"],
+      "tags": {}
+    },
+    "svc:data": {
+      "id": "svc:data",
+      "name": "Governed Data Service",
+      "kind": "service",
+      "layer": "business",
+      "lifecycle": "active",
+      "standing": "UNKNOWN",
+      "owner": "org:architecture",
+      "steward": null,
+      "semantic_types": [],
+      "source_refs": ["service-catalog:data"],
+      "tags": {}
+    }
+  },
+  "relations": {
+    "r:capability-realization": {
+      "id": "r:capability-realization",
+      "from": "cap:data",
+      "to": "svc:data",
+      "kind": "realized-by",
+      "rationale": "Business service realizes the governed data capability.",
+      "evidence": ["catalog:data-capability"]
+    },
+    "r:component-deployment": {
+      "id": "r:component-deployment",
+      "from": "cmp:data",
+      "to": "env:prod",
+      "kind": "deployed-to",
+      "rationale": "Production deployment boundary.",
+      "evidence": ["inventory:prod-data"]
+    },
+    "r:control-mitigates-risk": {
+      "id": "r:control-mitigates-risk",
+      "from": "control:residency",
+      "to": "risk:residency",
+      "kind": "mitigates",
+      "rationale": "Residency enforcement reduces the registered risk.",
+      "evidence": ["control-test:residency"]
+    },
+    "r:environment-observed": {
+      "id": "r:environment-observed",
+      "from": "env:prod",
+      "to": "metric:residency",
+      "kind": "observed-by",
+      "rationale": "Production residency is measured continuously.",
+      "evidence": ["telemetry:residency"]
+    },
+    "r:metric-evidence": {
+      "id": "r:metric-evidence",
+      "from": "metric:residency",
+      "to": "receipt:deployment",
+      "kind": "evidenced-by",
+      "rationale": "Metric observation is bound to immutable evidence.",
+      "evidence": ["receipt:sha256:example"]
+    },
+    "r:requirement-capability": {
+      "id": "r:requirement-capability",
+      "from": "req:residency",
+      "to": "cap:data",
+      "kind": "constrains",
+      "rationale": "Residency constrains the enterprise data capability.",
+      "evidence": ["requirement:data-residency"]
+    },
+    "r:requirement-satisfied": {
+      "id": "r:requirement-satisfied",
+      "from": "cmp:data",
+      "to": "req:residency",
+      "kind": "satisfies",
+      "rationale": "The data control plane implements the residency requirement.",
+      "evidence": ["control-test:residency"]
+    },
+    "r:service-implementation": {
+      "id": "r:service-implementation",
+      "from": "svc:data",
+      "to": "cmp:data",
+      "kind": "implemented-by",
+      "rationale": "The service is implemented by the data control plane.",
+      "evidence": ["repo:data-control-plane"]
+    },
+    "r:service-observed": {
+      "id": "r:service-observed",
+      "from": "svc:data",
+      "to": "metric:residency",
+      "kind": "observed-by",
+      "rationale": "Service governance includes residency telemetry.",
+      "evidence": ["telemetry:residency"]
+    }
+  },
+  "transitions": {
+    "transition:modernize-data": {
+      "id": "transition:modernize-data",
+      "name": "Modernize Enterprise Data Platform",
+      "baseline": ["app:old"],
+      "target": ["app:new"],
+      "work_packages": {
+        "wp:build": {
+          "id": "wp:build",
+          "name": "Build Modern Platform",
+          "owner": "org:architecture",
+          "depends_on": [],
+          "delivers": ["app:new"],
+          "retires": [],
+          "evidence_obligations": ["test:architecture-conformance"]
+        },
+        "wp:cutover": {
+          "id": "wp:cutover",
+          "name": "Cut Over and Retire Legacy",
+          "owner": "org:architecture",
+          "depends_on": ["wp:build"],
+          "delivers": [],
+          "retires": ["app:old"],
+          "evidence_obligations": ["receipt:production-cutover", "receipt:legacy-retirement"]
+        }
+      }
+    }
+  }
+}
