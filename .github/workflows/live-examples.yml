@@ -152,7 +152,7 @@ jobs:
           scripts/validate-examples.sh 2>&1 | tee live-examples.log
 
       - name: Preserve migration candidate
-        if: always() && github.event_name == 'pull_request'
+        if: always()
         shell: bash
         run: |
           set -euo pipefail
@@ -164,11 +164,13 @@ jobs:
           cp /tmp/migration-first.sha256 /tmp/migration-candidate/ 2>/dev/null || true
           cp /tmp/migration-second.sha256 /tmp/migration-candidate/ 2>/dev/null || true
           cp /tmp/migration-status.txt /tmp/migration-candidate/ 2>/dev/null || true
-          git diff --binary "$(cat /tmp/exact-head)" -- crates/ggen-engine/src/sync.rs examples/interview-sandbox/.ggen-v2 > /tmp/migration-candidate/migration.patch || true
-          printf 'subject=%s\n' "$(cat /tmp/exact-head)" > /tmp/migration-candidate/identity.txt
+          if [ -f /tmp/exact-head ]; then
+            git diff --binary "$(cat /tmp/exact-head)" -- crates/ggen-engine/src/sync.rs examples/interview-sandbox/.ggen-v2 > /tmp/migration-candidate/migration.patch || true
+            printf 'subject=%s\n' "$(cat /tmp/exact-head)" > /tmp/migration-candidate/identity.txt
+          fi
 
       - name: Upload migration candidate
-        if: always() && github.event_name == 'pull_request'
+        if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: live-examples-migration-candidate
