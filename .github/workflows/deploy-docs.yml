@@ -36,6 +36,7 @@ jobs:
       - name: Checkout exact subject
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
 
       - name: Assert exact subject
@@ -75,7 +76,7 @@ jobs:
         run: |
           set -euo pipefail
           cargo doc --no-deps
-          test -f target/doc/ggen/index.html || test -f target/doc/ggen_cli_lib/index.html
+          test -f target/doc/index.html
 
       - name: Compose one GitHub Pages site
         run: |
