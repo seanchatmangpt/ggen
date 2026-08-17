@@ -213,6 +213,12 @@ lib/
 # examples/interview-assist/lib/wasm/wasm4pm-cognition/ still has its own local
 # wasm-pack-generated .gitignore (a real build artifact, correctly excluded).
 !examples/interview-assist/lib/
+# Same blanket `lib/` collision: marketplace/packages/io.ggen.nextjs.ontology-crud/lib/
+# holds utils.ts (the shadcn/ui `cn()` helper), real hand-authored TypeScript source that
+# five components/ui/*.tsx import via the "@/*" tsconfig path. Being swallowed by the
+# venv rule is why it was missing from the package and why `next build` failed to resolve
+# "@/lib/utils". Un-ignore it.
+!marketplace/packages/io.ggen.nextjs.ontology-crud/lib/
 lib64/
 parts/
 sdist/
