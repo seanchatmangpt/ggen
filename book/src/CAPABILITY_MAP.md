@@ -23,7 +23,7 @@ A chapter may cite multiple states. For example, deterministic RDF deltas can be
 | `ggen-marketplace` | Discovery, composition, lifecycle, passports, isolation and substitution | `crates/ggen-marketplace/src/lib.rs`, `crates/ggen-marketplace/src/packs_registry/` |
 | `ggen-lsp` | Live diagnostics, admissibility-pack emission, repair routes and OCEL evidence | `crates/ggen-lsp/src/lib.rs`, `crates/ggen-lsp/src/pack/mod.rs` |
 | `ggen-cli-lib` | User-facing command routing into engine capabilities | `crates/ggen-cli/src/` |
-| `chicago-tdd-tools` | Independent state-based test support | `crates/chicago-tdd-tools/` |
+| `chicago-tdd-tools-pack` | Pack-generated Chicago-style independent state and boundary test support | `packs/chicago-tdd-tools-pack/`, `book/tests/test_gap_closure_chicago.py` |
 | `ggen-cheat-scanner` | Detection of vacuous or suspicious generated proof surfaces | `crates/ggen-cheat-scanner/` |
 | `cargo-cicd` / `cargo-cicd-pack` | Release-law execution and generated delivery surfaces | `packs/cargo-cicd-pack/` |
 

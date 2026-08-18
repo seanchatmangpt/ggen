@@ -1,0 +1,107 @@
+name: Book Manufacture Preview
+
+on:
+  pull_request:
+    paths:
+      - 'book/**'
+      - 'packs/level-five-book-pack/**'
+      - 'packs/affidavit-pack/**'
+      - 'examples/affidavit-verify/**'
+      - '.github/workflows/book-manufacture-preview.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+
+jobs:
+  manufacture:
+    name: Exact generator-owned book consequences
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+
+      - name: Admit exact subject
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha }}"
+          printf 'subject_sha=%s\n' "$(git rev-parse HEAD)"
+
+      - name: Provision siblings and pinned Rust toolchain
+        uses: ./.github/actions/setup-ggen-build
+        with:
+          cache-key-suffix: book-manufacture-preview
+
+      - name: Build real ggen manufacturer
+        run: cargo build -p ggen-cli-lib --bin ggen
+
+      - name: Manufacture Level Five book from fresh receipt genesis twice
+        run: |
+          set -euo pipefail
+          scratch="$RUNNER_TEMP/ggen-book-manufacture"
+          rm -rf "$scratch"
+          mkdir -p "$scratch/packs"
+          cp -a book "$scratch/book"
+          cp -a packs/level-five-book-pack "$scratch/packs/level-five-book-pack"
+          rm -rf "$scratch/book/.ggen-v2"
+          rm -f "$scratch/book/ggen.lock"
+          cd "$scratch/book"
+          "$GITHUB_WORKSPACE/target/debug/ggen" sync run
+          first_map="$(sha256sum src/CAPABILITY_MAP.md | cut -d' ' -f1)"
+          first_lock="$(sha256sum ggen.lock | cut -d' ' -f1)"
+          test -s .ggen-v2/receipt.json
+          test -s .ggen-v2/receipt-log.jsonl
+          "$GITHUB_WORKSPACE/target/debug/ggen" sync run
+          second_map="$(sha256sum src/CAPABILITY_MAP.md | cut -d' ' -f1)"
+          second_lock="$(sha256sum ggen.lock | cut -d' ' -f1)"
+          test "$first_map" = "$second_map"
+          test "$first_lock" = "$second_lock"
+          ! grep -q '337' src/CAPABILITY_MAP.md
+          grep -q 'blake3:fb2e8ce29e835ef751ca1b4ef5b1bdb500907d16d52437fea9af9050fc3a3160' ggen.lock
+          cp src/CAPABILITY_MAP.md "$GITHUB_WORKSPACE/book/src/CAPABILITY_MAP.md"
+          cp ggen.lock "$GITHUB_WORKSPACE/book/ggen.lock"
+          printf 'capability_map_sha256=%s\nbook_lock_sha256=%s\n' "$second_map" "$second_lock"
+
+      - name: Manufacture Affidavit consumer from fresh receipt genesis twice
+        run: |
+          set -euo pipefail
+          scratch="$RUNNER_TEMP/ggen-affidavit-manufacture"
+          rm -rf "$scratch"
+          mkdir -p "$scratch/examples" "$scratch/packs"
+          cp -a examples/affidavit-verify "$scratch/examples/affidavit-verify"
+          cp -a packs/affidavit-pack "$scratch/packs/affidavit-pack"
+          rm -rf "$scratch/examples/affidavit-verify/.ggen-v2"
+          rm -f "$scratch/examples/affidavit-verify/ggen.lock"
+          cd "$scratch/examples/affidavit-verify"
+          "$GITHUB_WORKSPACE/target/debug/ggen" sync run
+          first="$(sha256sum ggen.lock | cut -d' ' -f1)"
+          test -s .ggen-v2/receipt.json
+          test -s .ggen-v2/receipt-log.jsonl
+          "$GITHUB_WORKSPACE/target/debug/ggen" sync run
+          second="$(sha256sum ggen.lock | cut -d' ' -f1)"
+          test "$first" = "$second"
+          grep -q 'blake3:2ccd29e23c0d316a6768e7deb7d9f739c8856a1babfaccb1c064ac88d4a7a924' ggen.lock
+          cp ggen.lock "$GITHUB_WORKSPACE/examples/affidavit-verify/ggen.lock"
+          printf 'affidavit_lock_sha256=%s\n' "$second"
+
+      - name: Preserve exact generator bytes
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: book-manufactured-${{ github.event.pull_request.head.sha }}
+          path: |
+            book/src/CAPABILITY_MAP.md
+            book/ggen.lock
+            examples/affidavit-verify/ggen.lock
+          if-no-files-found: error
+          retention-days: 7

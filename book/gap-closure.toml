@@ -153,11 +153,11 @@ evidence = ["book-360", "turtle-independent-oracle", "consumer-replay", "gap-pac
 
 [evidence."book-360"]
 path = "book/scripts/validate_transcription_360.py"
-marker = "validate_transcription_360.py --sabotage"
+marker = "OK sabotage: TTL, Tera, and generated-byte mutations all refused"
 
 [evidence."turtle-independent-oracle"]
 path = "book/scripts/validate_ttl_corpus.py"
-marker = "Validate bounded Turtle state"
+marker = "TTL_CORPUS "
 
 [evidence."consumer-replay"]
 path = "book/tests/test_gap_closure_chicago.py"
@@ -189,7 +189,7 @@ marker = "FM-PACK-013"
 
 [evidence."reasoner-independence"]
 path = "crates/ggen-engine/tests/reasoner_independence_e2e.rs"
-marker = "reasoner"
+marker = "both_engines_sync_a_gated_pack_to_identical_outputs"
 
 [evidence."named-capability-suites"]
 path = ".github/workflows/book-chicago-tdd.yml"
@@ -200,20 +200,20 @@ path = ".github/workflows/book-chicago-tdd.yml"
 marker = "cargo test -p ggen-cheat-scanner"
 
 [evidence."receipt-verification"]
-path = ".github/workflows/book-chicago-tdd.yml"
-marker = "receipt verify"
+path = "book/tests/test_gap_closure_chicago.py"
+marker = "self.run_checked(consumer, \"receipt\", \"verify\")"
 
 [evidence."lock-content-hashes"]
 path = "crates/ggen-engine/tests/book_gap_closure_e2e.rs"
-marker = "content_hash = \"blake3:"
+marker = "lock must bind pack content hashes"
 
 [evidence."book-two-sync"]
-path = ".github/workflows/docs.yml"
-marker = "Second manufacture proves content idempotency"
+path = "book/tests/test_gap_closure_chicago.py"
+marker = "test_discoverable_current_consumers_are_two_sync_idempotent"
 
 [evidence."level-five-inventory"]
 path = "book/scripts/check_level_five.py"
-marker = "check_level_five.py"
+marker = "OK: TCPS reference=132"
 
 [evidence."tcps-generated-suite"]
 path = "examples/tcps-generated/Cargo.toml"
