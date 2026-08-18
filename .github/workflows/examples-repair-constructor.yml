@@ -1,0 +1,283 @@
+name: Examples repair constructor
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/examples-repair-constructor.yml'
+      - 'examples/**'
+      - 'packs/**'
+      - 'scripts/validate-examples.sh'
+      - 'scripts/regenerate-examples.sh'
+      - 'crates/ggen-cli/**'
+      - 'Cargo.toml'
+      - 'Cargo.lock'
+      - 'rust-toolchain.toml'
+
+permissions:
+  contents: read
+
+jobs:
+  construct:
+    name: Construct and verify repair candidate
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      CARGO_TERM_COLOR: always
+      RUST_BACKTRACE: 1
+      RUSTC_WRAPPER: ""
+      CARGO_INCREMENTAL: 0
+    steps:
+      - name: Checkout exact PR head
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+
+      - name: Record admitted subject
+        run: |
+          set -euo pipefail
+          echo "EXPECTED=${{ github.event.pull_request.head.sha }}"
+          echo "OBSERVED=$(git rev-parse HEAD)"
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha }}"
+          echo "${{ github.event.pull_request.head.sha }}" > /tmp/original-head
+
+      - name: Apply source/config repairs
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+
+          empty_template_roots = [
+              'all-modules-coverage',
+              'dspy-basic-qa',
+              'dspy-chain-of-thought-math',
+              'dspy-classification',
+              'dspy-summarization',
+              'gepa-facility-support-analyzer',
+              'gepa-trusted-monitor',
+              'gh-enterprise-repository-factory',
+              'interview-assist',
+              'interview-sandbox',
+              'knn-parallel-ensemble-family',
+              'multi-hop-qa',
+              'optimizers-bootstrap-family',
+              'optimizers-misc-family',
+              'optimizers-prompt-family',
+              'pcq-marketplace',
+              'pydantic-model-fields',
+              'rag-pipeline',
+          ]
+          for root in empty_template_roots:
+              p = Path('examples') / root / 'templates' / '.gitkeep'
+              p.parent.mkdir(parents=True, exist_ok=True)
+              p.write_text('')
+
+          p = Path('examples/interview-assist/ggen.toml')
+          s = p.read_text()
+          old = 'wasm4pm-interview-assist-pack = { path = "/Users/sac/ggen/packs/wasm4pm-interview-assist-pack" }'
+          new = 'wasm4pm-interview-assist-pack = { path = "../../packs/wasm4pm-interview-assist-pack" }'
+          assert old in s
+          p.write_text(s.replace(old, new))
+
+          p = Path('examples/tai-enterprise-rebuild/ggen.toml')
+          s = p.read_text()
+          for line in [
+              'version = "26.7.31"\n',
+              'description = "Generate and simulate the roadmap for rebuilding Technology Applications, Inc."\n',
+              'authors = ["Sean Chatman"]\n',
+              'license = "MIT"\n',
+              'base_iri = "https://chatmangpt.com/ontology/tai-rebuild#"\n',
+              'imports = ["cmd.ttl", "options.ttl"]\n',
+          ]:
+              assert line in s, line
+              s = s.replace(line, '')
+          old = 'tai-enterprise-rebuild-pack = { path = "../../packs/tai-enterprise-rebuild-pack" }'
+          new = 'tai-enterprise-rebuild-pack = { path = "../../packs/tai-enterprise-rebuild-pack", extra_ontologies = ["cmd.ttl", "options.ttl"] }'
+          assert old in s
+          p.write_text(s.replace(old, new))
+
+          p = Path('examples/tpot2-wasm4pm-autoconfig/ggen.toml')
+          s = p.read_text()
+          old = 'shacl = ["ontology/tpot-shapes.ttl"]'
+          new = 'gates = ["gates/010_tpot_invariants.rq"]'
+          assert old in s
+          p.write_text(s.replace(old, new))
+
+          p = Path('.github/workflows/live-examples.yml')
+          s = p.read_text()
+          old = '      - name: Checkout\n        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2\n'
+          new = '      - name: Checkout exact subject\n        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2\n        with:\n          ref: ${{ github.event.pull_request.head.sha || github.sha }}\n          fetch-depth: 0\n\n      - name: Verify checkout identity\n        if: github.event_name == \'pull_request\'\n        run: test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha }}"\n'
+          assert old in s
+          p.write_text(s.replace(old, new))
+          PY
+
+          mkdir -p examples/tpot2-wasm4pm-autoconfig/gates
+          cat > examples/tpot2-wasm4pm-autoconfig/gates/010_tpot_invariants.rq <<'RQ'
+          # MESSAGE: TPOT2 search-space invariants translated from ontology/tpot-shapes.ttl
+          PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+          PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+          PREFIX pi:   <https://wasm4pm.dev/pi#>
+          PREFIX tpot: <https://wasm4pm.dev/tpot#>
+
+          SELECT ?node ?violation WHERE {
+            {
+              ?node a tpot:PipelineStage .
+              FILTER NOT EXISTS { ?node tpot:stageId ?v . FILTER(datatype(?v) = xsd:string) }
+              BIND("PipelineStage.stageId" AS ?violation)
+            } UNION {
+              ?node a tpot:PipelineStage .
+              FILTER NOT EXISTS { ?node tpot:stageOrder ?v . FILTER(datatype(?v) = xsd:integer) }
+              BIND("PipelineStage.stageOrder" AS ?violation)
+            } UNION {
+              ?node a tpot:PipelineStage .
+              FILTER NOT EXISTS {
+                ?node tpot:forCategory ?v .
+                FILTER(datatype(?v) = xsd:string && ?v IN ("import_export", "discovery", "object_centric", "discovery_analytics", "conformance", "ml_analytics", "prediction", "simulation", "agentic"))
+              }
+              BIND("PipelineStage.forCategory" AS ?violation)
+            } UNION {
+              ?node a tpot:Operator .
+              FILTER NOT EXISTS { ?node tpot:operatorId ?v . FILTER(datatype(?v) = xsd:string) }
+              BIND("Operator.operatorId" AS ?violation)
+            } UNION {
+              ?node a tpot:Operator .
+              FILTER NOT EXISTS { ?node tpot:wrapsAlgorithm ?v . FILTER(isIRI(?v)) ?v a pi:ProcessIntelligenceAlgorithm . }
+              BIND("Operator.wrapsAlgorithm" AS ?violation)
+            } UNION {
+              ?node a tpot:Operator .
+              FILTER NOT EXISTS { ?node tpot:atStage ?v . FILTER(isIRI(?v)) ?v a tpot:PipelineStage . }
+              BIND("Operator.atStage" AS ?violation)
+            } UNION {
+              ?node a tpot:Operator .
+              FILTER NOT EXISTS { ?node tpot:fitnessScore ?v . FILTER(datatype(?v) = xsd:decimal) }
+              BIND("Operator.fitnessScore" AS ?violation)
+            } UNION {
+              ?node a tpot:Operator .
+              FILTER NOT EXISTS { ?node tpot:opSpeedTier ?v . FILTER(datatype(?v) = xsd:integer) }
+              BIND("Operator.opSpeedTier" AS ?violation)
+            } UNION {
+              ?node a tpot:Operator .
+              FILTER NOT EXISTS { ?node tpot:opQualityTier ?v . FILTER(datatype(?v) = xsd:integer) }
+              BIND("Operator.opQualityTier" AS ?violation)
+            } UNION {
+              ?node a tpot:Operator .
+              FILTER NOT EXISTS { ?node tpot:opCategory ?v . FILTER(datatype(?v) = xsd:string) }
+              BIND("Operator.opCategory" AS ?violation)
+            } UNION {
+              ?node a tpot:Operator .
+              FILTER NOT EXISTS { ?node tpot:wasmExport ?v . FILTER(datatype(?v) = xsd:string) }
+              BIND("Operator.wasmExport" AS ?violation)
+            } UNION {
+              ?node a tpot:FitnessObjective .
+              FILTER NOT EXISTS { ?node tpot:metric ?v . FILTER(datatype(?v) = xsd:string && ?v IN ("qualityTier", "speedTier")) }
+              BIND("FitnessObjective.metric" AS ?violation)
+            } UNION {
+              ?node a tpot:FitnessObjective .
+              FILTER NOT EXISTS { ?node tpot:direction ?v . FILTER(datatype(?v) = xsd:string && ?v IN ("maximize", "minimize")) }
+              BIND("FitnessObjective.direction" AS ?violation)
+            }
+          }
+          ORDER BY ?node ?violation
+          RQ
+
+          mkdir -p packs/wasm4pm-interview-assist-pack/templates
+          cat > packs/wasm4pm-interview-assist-pack/templates/interview_assist_product.md.tmpl <<'TMPL'
+          ---
+          to: docs/interview_assist_product.md
+          freeze_policy: checksum
+          freeze_slots_dir: .ggen/freeze/wasm4pm-interview-assist-pack
+          sparql:
+            products: |
+              PREFIX schema: <https://schema.org/>
+              SELECT ?name WHERE {
+                <https://github.com/seanchatmangpt/ggen/blob/main/packs/wasm4pm-interview-assist-pack/product/interview-assist> schema:name ?name .
+              } ORDER BY ?name
+          ---
+          # Interview Assist product projection
+
+          GENERATED by `ggen sync run` from the admitted Interview Assist ontology.
+
+          {% for product in products %}- **{{ product.name }}**
+          {% endfor %}
+          TMPL
+
+          git add .github/workflows/live-examples.yml examples packs/wasm4pm-interview-assist-pack/templates
+          git -c user.name='ggen repair constructor' -c user.email='actions@users.noreply.github.com' commit -m 'construct: source repairs'
+
+      - name: Install pinned Rust toolchain
+        uses: dtolnay/rust-toolchain@b3b07ba8b418998c39fb20f53e8b695cdcc8de1b
+        with:
+          toolchain: nightly-2026-06-22
+
+      - name: Build canonical ggen CLI
+        run: cargo build --locked -p ggen-cli-lib --bin ggen
+
+      - name: Manufacture generated repairs
+        shell: bash
+        env:
+          GGEN_BIN: ${{ github.workspace }}/target/debug/ggen
+          GGEN_EXAMPLE_TIMEOUT_SECONDS: 120
+        run: |
+          set -uo pipefail
+          for root in affidavit-verify crown-conjecture-verify lsp-max-verify tcps-generated wasm4pm-verify interview-assist tai-enterprise-rebuild; do
+            rm -f "examples/$root/ggen.lock"
+          done
+          rm -f examples/nextjs-ai-sdk/tsconfig.json
+          rm -f examples/rmcp-verify/tests/rmcp_stub_handler_proof.rs
+
+          scripts/regenerate-examples.sh 2>&1 | tee constructor-regenerate.log
+          status=${PIPESTATUS[0]}
+          git status --short -- examples/ packs/ | tee constructor-status.log
+          exit "$status"
+
+      - name: Commit manufactured projections locally
+        if: success()
+        run: |
+          set -euo pipefail
+          git add examples packs
+          if ! git diff --cached --quiet; then
+            git -c user.name='ggen repair constructor' -c user.email='actions@users.noreply.github.com' commit -m 'construct: regenerated example projections'
+          fi
+
+      - name: Verify byte-identical replay
+        if: success()
+        shell: bash
+        env:
+          GGEN_BIN: ${{ github.workspace }}/target/debug/ggen
+          GGEN_EXAMPLE_TIMEOUT_SECONDS: 120
+        run: |
+          set -o pipefail
+          scripts/validate-examples.sh 2>&1 | tee constructor-replay.log
+
+      - name: Package candidate bytes and receipt
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          original="$(cat /tmp/original-head)"
+          mkdir -p /tmp/candidate/files
+          if git rev-parse HEAD >/dev/null 2>&1; then
+            git diff --binary "$original"..HEAD > /tmp/candidate/repair.patch || true
+            git diff --name-only "$original"..HEAD > /tmp/candidate/changed-files.txt || true
+            while IFS= read -r f; do
+              [ -z "$f" ] && continue
+              if [ -f "$f" ]; then
+                mkdir -p "/tmp/candidate/files/$(dirname "$f")"
+                cp "$f" "/tmp/candidate/files/$f"
+              fi
+            done < /tmp/candidate/changed-files.txt
+          fi
+          cp constructor-regenerate.log /tmp/candidate/ 2>/dev/null || true
+          cp constructor-replay.log /tmp/candidate/ 2>/dev/null || true
+          cp constructor-status.log /tmp/candidate/ 2>/dev/null || true
+          printf 'original=%s\nobserved=%s\n' "$original" "$(git rev-parse HEAD)" > /tmp/candidate/identity.txt
+
+      - name: Upload repair candidate
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: examples-repair-candidate
+          path: /tmp/candidate/
+          if-no-files-found: error
+          retention-days: 7
