@@ -35,6 +35,7 @@ ggenspec:Frontmatter
         ggenspec:Frontmatter-at_line ,
         ggenspec:Frontmatter-skip_if ,
         ggenspec:Frontmatter-unless_exists ,
+        ggenspec:Frontmatter-unattended_write_eligible ,
         ggenspec:Frontmatter-force ,
         ggenspec:Frontmatter-when ,
         ggenspec:Frontmatter-skip_empty ,
@@ -100,6 +101,11 @@ ggenspec:Frontmatter-unless_exists
     a ggenspec:Field ; ggenspec:name "unless_exists" ; ggenspec:type xsd:boolean ;
     ggenspec:required false ;
     rdfs:comment "Skip the write entirely when the target file already exists. Defaults to false." .
+
+ggenspec:Frontmatter-unattended_write_eligible
+    a ggenspec:Field ; ggenspec:name "unattended_write_eligible" ; ggenspec:type xsd:boolean ;
+    ggenspec:required false ;
+    rdfs:comment "Declares this rule eligible for ggen-mcp's bounded unattended-write dispatcher (Gall CP31-CP33): a write may be applied with no human/LLM decision step, because unless_exists already guarantees it can only ever create a file that does not exist. Requires unless_exists: true in the same frontmatter block; setting this without unless_exists is a real config error (FM-TPL-027), not silently coerced. Defaults to false." .
 
 ggenspec:Frontmatter-force
     a ggenspec:Field ; ggenspec:name "force" ; ggenspec:type xsd:boolean ;
