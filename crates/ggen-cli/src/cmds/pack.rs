@@ -11,6 +11,7 @@ use std::path::{Path, PathBuf};
 use ggen_marketplace::marketplace::install::{install_pack_by_id, InstallByIdInput};
 use ggen_marketplace::packs::lockfile::PackLockfile;
 use ggen_marketplace::packs_registry::metadata::{list_packs, load_pack_metadata, show_pack};
+use ggen_marketplace::packs_registry::sparql_executor::run_pack_query;
 
 // ============================================================================
 // Output Types
@@ -77,6 +78,17 @@ pub struct SearchResult {
     pub description: String,
     pub score: f64,
     pub registry_type: String,
+}
+
+#[derive(Serialize)]
+pub struct QueryOutput {
+    /// "pack:<id>" when `pack_id` was given, else "all-packs".
+    pub scope: String,
+    pub packs_queried: usize,
+    pub columns: Vec<String>,
+    pub rows: Vec<Vec<ggen_marketplace::packs_registry::sparql_executor::Value>>,
+    pub row_count: usize,
+    pub execution_time_ms: u128,
 }
 
 #[derive(Serialize)]
@@ -310,6 +322,36 @@ pub fn search(#[arg(index = 1)] query: String, limit: Option<usize>) -> Result<S
         query,
         results,
         total,
+    })
+}
+
+/// Run a raw SPARQL query over pack RDF facts
+//
+// Machine-facing surface, not a human browsing aid: executes a real SPARQL SELECT/ASK query
+// against one pack's RDF facts (`pack_id` given) or against the union of every pack in the
+// local registry (`pack_id` omitted) -- so an agent or script can query "the marketplace"
+// structurally (by RDF class/property, not by grepping pack.toml/ontology.ttl files across
+// ~/ggen-marketplace by hand). Facts are generated from the same Pack metadata `ggen pack
+// show`/`ggen pack list` already read; see ggen_marketplace::packs_registry::sparql_executor
+// for the exact predicates emitted (rdf:type, rdfs:label, and https://ggen.io/marketplace/
+// name/version/description/category/author/license/productionReady/hasPackage/hasTemplate/
+// hasDependency/tag/keyword).
+//
+// Kept as plain `//` past the first line (not `///`), matching `pack doctor`'s convention in
+// this same file: the clap-noun-verb macro derives `--help` text from the doc comment, and a
+// long `///` block here leaked this whole rationale into `ggen pack --help`'s one-line listing.
+#[verb]
+pub fn query(#[arg(index = 1)] sparql: String, pack_id: Option<String>) -> Result<QueryOutput> {
+    let outcome = run_pack_query(&sparql, pack_id.as_deref())
+        .map_err(|e| NounVerbError::execution_error(format!("{}", e)))?;
+
+    Ok(QueryOutput {
+        scope: outcome.scope,
+        packs_queried: outcome.packs_queried,
+        columns: outcome.result.columns,
+        row_count: outcome.result.rows.len(),
+        rows: outcome.result.rows,
+        execution_time_ms: outcome.result.execution_time.as_millis(),
     })
 }
 

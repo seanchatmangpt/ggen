@@ -3070,6 +3070,7 @@ dependencies = [
  "ggen-engine",
  "ggen-graph",
  "ggen-lsp",
+ "ggen-marketplace",
  "lsp-max",
  "notify 7.0.0",
  "notify-debouncer-full 0.4.0",

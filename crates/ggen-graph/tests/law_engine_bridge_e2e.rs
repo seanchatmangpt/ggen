@@ -34,8 +34,7 @@ const DOG_TTL: &str = "@prefix ex: <http://example.org/> . ex:rex a ex:Dog .";
 const RULE_N3: &str = "@prefix ex: <http://example.org/>. {?s a ex:Dog} => {?s a ex:Animal}.";
 
 /// SPARQL, evaluated by oxigraph against this crate's own store.
-const ASK_REX_IS_ANIMAL: &str =
-    "ASK { <http://example.org/rex> a <http://example.org/Animal> }";
+const ASK_REX_IS_ANIMAL: &str = "ASK { <http://example.org/rex> a <http://example.org/Animal> }";
 
 /// Load Turtle into a fresh oxigraph-backed store.
 fn store_with(ttl: &str) -> DeterministicGraph {
@@ -119,7 +118,10 @@ fn materialize_across_seam_lands_derived_fact_in_oxigraph_store() {
 
     // Back across the seam: caller-owned re-ingestion into this crate's own store.
     let folded = fold_back(&graph, &outcome.derived);
-    assert!(folded > 0, "fold-back must insert at least one derived quad");
+    assert!(
+        folded > 0,
+        "fold-back must insert at least one derived quad"
+    );
 
     assert!(
         ask(&graph, ASK_REX_IS_ANIMAL),
@@ -168,8 +170,7 @@ fn materialize_across_seam_with_no_rules_changes_nothing_in_the_store() {
 fn check_denials_across_seam_reports_violation_from_store_facts() {
     let clean = store_with(DOG_TTL);
     let engine = GraphLawEngine::new();
-    const DENIAL_N3: &str =
-        "@prefix ex: <http://example.org/>. {?s a ex:Forbidden} => false.";
+    const DENIAL_N3: &str = "@prefix ex: <http://example.org/>. {?s a ex:Forbidden} => false.";
 
     // Negative control: the same rule over a store with no Forbidden individual.
     let none = engine

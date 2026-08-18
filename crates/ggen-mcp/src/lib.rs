@@ -172,6 +172,14 @@ tool_defs! {
          generically by predicate local name, never by hardcoding one pack's namespace -- \
          most packs will report none found, which is expected, not an error)."
     ),
+    "ggen_pack_query" => (
+        tools::pack_query::PackQueryParams,
+        read_only("Query the local pack registry via SPARQL"),
+        "Execute an ad-hoc SPARQL query against the LOCAL PACK REGISTRY: either one \
+         pack's RDF facts (pack_id given) or the union of every pack currently \
+         installed (pack_id omitted). Distinct from ggen_query_preview, which queries \
+         a project's own graph, not the marketplace."
+    ),
     "ggen_receipt_verify" => (
         tools::receipt_verify::ReceiptVerifyParams,
         read_only("Verify a sync receipt's chain hash and signature"),
@@ -531,6 +539,7 @@ impl ServerHandler for GgenMcpServer {
                 arguments,
                 tools::pack_capabilities::pack_capabilities,
             )),
+            "ggen_pack_query" => Ok(dispatch(arguments, tools::pack_query::pack_query)),
             "ggen_receipt_verify" => Ok(dispatch(arguments, tools::receipt_verify::receipt_verify)),
             "ggen_write_apply" => Ok(dispatch(arguments, tools::write_apply::write_apply)),
             other => Err(McpError::invalid_params(
