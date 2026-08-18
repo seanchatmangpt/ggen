@@ -26,7 +26,7 @@ jobs:
         with:
           components: rustfmt,clippy
           cache-key-suffix: quality-manual-replay
-      - uses: taiki-e/install-action@6c6fd71fe4fb72c3697d269963d0e15df8adedad
+      - uses: taiki-e/install-action@82cd3e7658a6f96c86c0234aeeda1748937cb0a1
         with:
           tool: cargo-audit
       - name: Replay retained quality evidence
