@@ -15,7 +15,18 @@ SELECT ?subject ?violation WHERE {
   {
     ?subject a dspy:Signature .
     FILTER(STRSTARTS(STR(?subject), "http://seanchatmangpt.github.io/packs/dspy#"))
-    VALUES ?property { dspy:className dspy:hasInput dspy:hasOutput dcterms:title dcterms:description }
+    VALUES ?property { dspy:className dcterms:title dcterms:description }
+    FILTER NOT EXISTS { ?subject ?property ?value }
+    BIND(CONCAT("missing ", STR(?property)) AS ?violation)
+  } UNION {
+    # hasInput/hasOutput are required UNLESS the signature is dspy:derivedFromShaclShape
+    # (2026-08-11) -- a SHACL-derived signature's fields come from its shape's real
+    # sh:property facts instead, validated separately by
+    # gates/020_shacl_signature_admission.rq, not by this hand-declared-individual path.
+    ?subject a dspy:Signature .
+    FILTER(STRSTARTS(STR(?subject), "http://seanchatmangpt.github.io/packs/dspy#"))
+    FILTER NOT EXISTS { ?subject dspy:derivedFromShaclShape ?anyShape }
+    VALUES ?property { dspy:hasInput dspy:hasOutput }
     FILTER NOT EXISTS { ?subject ?property ?value }
     BIND(CONCAT("missing ", STR(?property)) AS ?violation)
   } UNION {

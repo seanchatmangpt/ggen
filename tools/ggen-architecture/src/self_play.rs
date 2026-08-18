@@ -29,11 +29,7 @@ use std::{
 
 use serde::{Deserialize, Serialize};
 
-use crate::{
-    error::Result,
-    model::Severity,
-    receipt::deterministic_hash,
-};
+use crate::{error::Result, model::Severity, receipt::deterministic_hash};
 
 pub use ggen_architecture_kernel::{
     run_scenario, run_suite, verify_report, verify_suite, ActionSpec, ActorPolicy, ActorRole,
@@ -57,11 +53,19 @@ pub fn demo_scenario() -> SelfPlayScenario {
             threshold: 1,
         }],
         effects: vec![
-            MetricEffect { metric: Metric::Integration, delta: 3 },
-            MetricEffect { metric: Metric::ArchitectureRunway, delta: -1 },
+            MetricEffect {
+                metric: Metric::Integration,
+                delta: 3,
+            },
+            MetricEffect {
+                metric: Metric::ArchitectureRunway,
+                delta: -1,
+            },
         ],
         required_authorities: BTreeSet::default(),
-        evidence: ["integration_delta_receipt".to_string()].into_iter().collect(),
+        evidence: ["integration_delta_receipt".to_string()]
+            .into_iter()
+            .collect(),
         broker_intent: false,
     };
 
@@ -74,9 +78,14 @@ pub fn demo_scenario() -> SelfPlayScenario {
             comparison: Comparison::AtLeast,
             threshold: 3,
         }],
-        effects: vec![MetricEffect { metric: Metric::EvidenceCoverage, delta: 5 }],
+        effects: vec![MetricEffect {
+            metric: Metric::EvidenceCoverage,
+            delta: 5,
+        }],
         required_authorities: BTreeSet::default(),
-        evidence: ["evidence_coverage_receipt".to_string()].into_iter().collect(),
+        evidence: ["evidence_coverage_receipt".to_string()]
+            .into_iter()
+            .collect(),
         broker_intent: false,
     };
 
@@ -303,7 +312,10 @@ impl SelfPlayDoctorReport {
             let _ = writeln!(
                 output,
                 "- [{:?}] {} {}: {}\n  remediation: {}",
-                finding.severity, finding.code, finding.subject, finding.message,
+                finding.severity,
+                finding.code,
+                finding.subject,
+                finding.message,
                 finding.remediation
             );
         }

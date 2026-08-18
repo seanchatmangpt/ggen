@@ -1,6 +1,6 @@
 [project]
 name = "ggen"
-version = "26.8.11"
+version = "26.8.16"
 description = "Specification-driven code generation from RDF ontologies — A = μ(O)"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 license = "MIT"
@@ -13,7 +13,6 @@ imports = [
   ".specify/cli-commands.ttl",
   ".specify/cli-proof-tests.ttl",
   ".specify/repo-facts.ttl",
-  ".specify/repo-facts-interview-assist.ttl",
   ".specify/maturity.ttl",
   ".specify/pack-l5-promotion.ttl",
   ".specify/ggen-product.ttl",
@@ -25,6 +24,7 @@ imports = [
   "packs/ggen-verify-pack/ontology.ttl",
   "packs/claude-code-pack/ontology.ttl",
   "packs/gh-actions-errc-pack/ontology.ttl",
+  ".specify/ci-workflows.ttl",
   "evidence/ontology.ttl",
   "evidence/l5-template-derivation.ttl",
   "evidence/producers/docs-manifest.ttl",
@@ -79,6 +79,42 @@ ORDER BY ?label
 
 [generation]
 output_dir = "."
+
+[[generation.rules]]
+name         = "github-actions-workflows"
+query        = { inline = """
+PREFIX gha:  <http://seanchatmangpt.github.io/packs/github-actions#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT ?wf ?fileName ?purpose ?onBlock ?concurrencyPolicy ?permissionCeiling
+       (GROUP_CONCAT(DISTINCT ?triggerLabel; separator=",") AS ?triggers)
+       (GROUP_CONCAT(DISTINCT ?envKv; separator=",") AS ?workflowEnv)
+WHERE {
+  ?wf a gha:Workflow ; gha:fileName ?fileName .
+  FILTER NOT EXISTS { ?wf gha:ownedBy ?owner }
+  OPTIONAL { ?wf gha:purpose ?purpose . }
+  OPTIONAL { ?wf gha:onBlock ?onBlock . }
+  OPTIONAL { ?wf gha:concurrencyPolicy ?concurrencyPolicy . }
+  OPTIONAL { ?wf gha:permissionCeiling ?permissionCeiling . }
+  OPTIONAL { ?wf gha:trigger ?t . ?t rdfs:label ?triggerLabel . }
+  OPTIONAL { ?wf gha:workflowEnv ?envKv . }
+}
+GROUP BY ?wf ?fileName ?purpose ?onBlock ?concurrencyPolicy ?permissionCeiling
+ORDER BY ?fileName
+""" }
+template     = { file = "packs/github-actions-pack/templates/workflow.yml.tmpl" }
+# Scratch path, deliberately not ".github/workflows/{{ fileName }}" yet:
+# this repo's own CI actually executes `ggen sync run` as part of its
+# self-host/dogfood verification (self-host/scripts/verify_root_regeneration.py),
+# so pointing this at the real workflow path would make CI regenerate the
+# live ci.yml for real on every run -- confirmed the hard way: the first
+# version of this rule targeted the real path and tripped
+# manufacture-own-repository's unauthorized-write refusal
+# (`.github/workflows/ci.yml` had no declared output owner). Switching to
+# the real path is a deliberate follow-up decision (needs an owner
+# declaration for that output, or a receipt-authorized regeneration path),
+# not an automatic consequence of this rule existing.
+output_file  = ".specify/ci-workflows-rendered/{{ fileName }}"
+mode         = "Overwrite"
 
 [[generation.rules]]
 name = "cli-commands-reference"

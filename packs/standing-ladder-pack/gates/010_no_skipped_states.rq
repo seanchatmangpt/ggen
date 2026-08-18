@@ -1,0 +1,51 @@
+# MESSAGE: every stl:StandingClaim's stl:hasStanding must be backed by a real,
+# unbroken, evidenced stl:StandingTransition chain reaching it from stl:UNKNOWN,
+# one rung at a time -- no skipped rungs, no empty stl:evidenceRef, no missing
+# link. Any row below names a claim and the ladder index of the FIRST rung on
+# its required chain that has no valid supporting transition -- a claim with
+# ANY row here is refused. This is the same "a fact should not be trusted for
+# a stronger purpose than the evidence backing it actually supports" principle
+# packs/process-intelligence-rag-pack's gates/020_strategic_grounding_required.rq
+# applies to one pair of tiers, generalized here to all 10 rungs of one fixed
+# ladder: gates/010_grounded_or_refused.rq/gates/020_strategic_grounding_
+# required.rq refuse a query with no real grounding; this gate refuses a
+# STANDING CLAIM with no real, unbroken, evidenced promotion history.
+#
+# A transition only fills required rung k (fromState index = k-1, toState
+# index = k) if it is bound to the SAME claim, is EXACTLY one rung (no
+# skipping), and carries a non-empty stl:evidenceRef. A transition that skips
+# rungs (e.g. fromState=OBSERVED toState=ADMITTED) never satisfies any
+# required-rung slot, so every rung it would have needed to cover shows up as
+# a missing row. A transition with an empty stl:evidenceRef is likewise
+# invisible to this check, so its rung shows up as missing too.
+PREFIX stl: <http://seanchatmangpt.github.io/packs/standing-ladder#>
+SELECT ?claim ?missingRungIndex WHERE {
+  {
+    ?claim a stl:StandingClaim ; stl:hasStanding ?curState .
+    ?curState stl:stateIndex ?curIndex .
+    VALUES ?missingRungIndex { 1 2 3 4 5 6 7 8 9 }
+    FILTER(?missingRungIndex <= ?curIndex)
+    FILTER NOT EXISTS {
+      ?t a stl:StandingTransition ;
+         stl:aboutClaim ?claim ;
+         stl:fromState ?fs ; stl:toState ?ts ; stl:evidenceRef ?ev .
+      ?fs stl:stateIndex ?fi .
+      ?ts stl:stateIndex ?ti .
+      FILTER(?fi = ?missingRungIndex - 1 && ?ti = ?missingRungIndex)
+      FILTER(STRLEN(?ev) > 0)
+    }
+  }
+  UNION {
+    # MESSAGE (same file, second check, 2026-08-11 gap closure): stl:aboutFact must
+    # resolve to a real, typed individual in the union graph -- a claim "pinning" a
+    # standing to a fact that doesn't even exist (renamed, removed, or never real to
+    # begin with) is not itself a lawful claim, regardless of how complete its
+    # transition chain looks. ?missingRungIndex is bound to 0 (below the real 1..9
+    # rung range) so this check's rows are distinguishable from a skipped-rung row
+    # without changing this gate's two-column shape.
+    ?claim a stl:StandingClaim ; stl:aboutFact ?fact .
+    FILTER NOT EXISTS { ?fact a ?anyType }
+    BIND(0 AS ?missingRungIndex)
+  }
+}
+ORDER BY ?claim ?missingRungIndex

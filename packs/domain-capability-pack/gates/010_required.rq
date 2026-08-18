@@ -1,0 +1,34 @@
+# MESSAGE: every dcp:Capability must have a non-empty dcp:order/slug/rdfs:label/
+# consequence/worldBinding/sourceRepo/sourceFile; every dcp:LabAllowlist must have a
+# non-empty dcp:ownerRepo; every dcp:CapabilitySourceManifest must have a non-empty
+# manifestSourceRepo/manifestSourceFile/expectedCapabilityCount. Any row = a subject
+# missing its required property.
+PREFIX dcp: <http://seanchatmangpt.github.io/packs/domain-capability#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT ?s ?missing WHERE {
+  {
+    VALUES (?type ?missing) {
+      (dcp:Capability dcp:order)
+      (dcp:Capability dcp:slug)
+      (dcp:Capability rdfs:label)
+      (dcp:Capability dcp:consequence)
+      (dcp:Capability dcp:worldBinding)
+      (dcp:Capability dcp:sourceRepo)
+      (dcp:Capability dcp:sourceFile)
+      (dcp:LabAllowlist dcp:ownerRepo)
+      (dcp:CapabilitySourceManifest dcp:manifestSourceRepo)
+      (dcp:CapabilitySourceManifest dcp:manifestSourceFile)
+      (dcp:CapabilitySourceManifest dcp:expectedCapabilityCount)
+    }
+    ?s a ?type .
+    FILTER NOT EXISTS { ?s ?missing ?any }
+  }
+  UNION {
+    # MESSAGE (same file, second check): dcp:consequence is closed to "READ"|"DO"
+    # (mirrors gymact.models.Consequence). Any row = an out-of-enum value.
+    ?s a dcp:Capability ; dcp:consequence ?value .
+    FILTER (?value != "READ" && ?value != "DO")
+    BIND(dcp:consequence AS ?missing)
+  }
+}
+ORDER BY ?s ?missing

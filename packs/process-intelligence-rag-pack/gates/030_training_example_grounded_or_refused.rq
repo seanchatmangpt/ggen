@@ -1,0 +1,18 @@
+# MESSAGE: every dspy:Module bound to dspy:GenerateTrainingExampleSignature must carry
+# pirag:grounds -> a real pirag:GroundingSource individual. Any row = a training-example
+# generator declared with no real process-intelligence grounding -- the same "No AI Without
+# PI" (arXiv:2508.00116) admission-control pattern as gates/010_grounded_or_refused.rq,
+# applied to Figure 4 connection 1 (systematic training-example generation) instead of
+# connection 4 (grounded question-answering). Mirrors 010's shape exactly; kept as a
+# separate gate file (not merged into 010) because the two signatures are structurally
+# independent and this file's own name documents which connection it enforces.
+PREFIX dspy:  <http://seanchatmangpt.github.io/packs/dspy#>
+PREFIX pirag: <http://seanchatmangpt.github.io/packs/process-intelligence-rag#>
+SELECT ?module WHERE {
+  ?module a dspy:Module ; dspy:signature dspy:GenerateTrainingExampleSignature .
+  FILTER NOT EXISTS {
+    ?module pirag:grounds ?src .
+    ?src a pirag:GroundingSource .
+  }
+}
+ORDER BY ?module

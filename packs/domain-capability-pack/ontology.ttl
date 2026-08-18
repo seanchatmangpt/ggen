@@ -1,0 +1,224 @@
+@prefix dcp:  <http://seanchatmangpt.github.io/packs/domain-capability#> .
+@prefix errc: <http://seanchatmangpt.github.io/packs/gh-actions-errc#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+#################################################################
+# Vocabulary
+#################################################################
+
+dcp:Capability a rdfs:Class ;
+    rdfs:label "One real capability exposed by an executable world (e.g. gymact), transcribed verbatim from its real source -- never a hand-summarized or invented capability." .
+
+dcp:order a rdf:Property ; rdfs:domain dcp:Capability .
+dcp:slug a rdf:Property ; rdfs:domain dcp:Capability .
+# dcp:consequence: closed "READ" | "DO", mirroring gymact.models.Consequence.
+dcp:consequence a rdf:Property ; rdfs:domain dcp:Capability .
+dcp:worldBinding a rdf:Property ; rdfs:domain dcp:Capability ;
+    rdfs:comment "The real callable/binding name in the owning world-projection repo (gymact.models.Capability.binding)." .
+dcp:sourceRepo a rdf:Property ; rdfs:domain dcp:Capability ;
+    rdfs:comment "The real repo this capability's facts were transcribed from." .
+dcp:sourceFile a rdf:Property ; rdfs:domain dcp:Capability ;
+    rdfs:comment "The real file path within sourceRepo this capability's facts were transcribed from." .
+dcp:sourceIri a rdf:Property ; rdfs:domain dcp:Capability ;
+    rdfs:comment "The real urn: IRI the source uses for this capability, when one exists (gymact.models.Capability.iri) -- provenance, not a new identifier scheme." .
+
+dcp:LabAllowlist a rdfs:Class ;
+    rdfs:label "A consuming repo's own admitted subset of a domain's full dcp:Capability set (the lab-projection). dcp:allows must be a strict subset of real dcp:Capability individuals -- enforced by gates/030_allowlist_subset.rq, not merely documented." .
+
+dcp:ownerRepo a rdf:Property ; rdfs:domain dcp:LabAllowlist .
+dcp:allows a rdf:Property ; rdfs:domain dcp:LabAllowlist ; rdfs:range dcp:Capability .
+
+dcp:CapabilitySourceManifest a rdfs:Class ;
+    rdfs:label "Declares how many real dcp:Capability individuals SHOULD exist for one (sourceRepo, sourceFile) pair -- the count gate (gates/020_exact_count_per_source.rq) checks the real count against this, per source, so a second domain's capability set is an additive fact, not a rewrite of a hardcoded global number (the constraint packs/automatic-autonomic-operations-pack accepted for its own single-domain scope, deliberately not repeated here)." .
+
+dcp:manifestSourceRepo a rdf:Property ; rdfs:domain dcp:CapabilitySourceManifest .
+dcp:manifestSourceFile a rdf:Property ; rdfs:domain dcp:CapabilitySourceManifest .
+dcp:expectedCapabilityCount a rdf:Property ; rdfs:domain dcp:CapabilitySourceManifest .
+
+#################################################################
+# Worked instance: SREGym's real capability surface (2026-08-11)
+#
+# Transcribed verbatim from ~/gymact/src/gymact/gyms/sregym.py::SREGYM_CAPABILITIES
+# (14 entries, all Consequence.DO -- confirmed by direct read of the real file this
+# session, not from memory or docs). order follows the tuple's real declaration order.
+#################################################################
+
+dcp:GymactSregymManifest a dcp:CapabilitySourceManifest ;
+    dcp:manifestSourceRepo "gymact" ;
+    dcp:manifestSourceFile "src/gymact/gyms/sregym.py" ;
+    dcp:expectedCapabilityCount 14 .
+
+dcp:sregym-observe-cluster-state a dcp:Capability ;
+    dcp:order 1 ; dcp:slug "observe_cluster_state" ;
+    rdfs:label "Read SREGym's real conductor /status endpoint" ;
+    dcp:consequence "DO" ; dcp:worldBinding "observe_cluster_state" ;
+    dcp:sourceRepo "gymact" ; dcp:sourceFile "src/gymact/gyms/sregym.py" ;
+    dcp:sourceIri "urn:gymact:sregym:capability:observe_cluster_state" .
+
+dcp:sregym-run-kubectl a dcp:Capability ;
+    dcp:order 2 ; dcp:slug "run_kubectl" ;
+    rdfs:label "Execute a real kubectl command through sregym's real kubectl-mcp server" ;
+    dcp:consequence "DO" ; dcp:worldBinding "run_kubectl" ;
+    dcp:sourceRepo "gymact" ; dcp:sourceFile "src/gymact/gyms/sregym.py" ;
+    dcp:sourceIri "urn:gymact:sregym:capability:run_kubectl" .
+
+dcp:sregym-submit-diagnosis a dcp:Capability ;
+    dcp:order 3 ; dcp:slug "submit_diagnosis" ;
+    rdfs:label "Submit a real diagnosis to sregym's real conductor via its submit MCP surface" ;
+    dcp:consequence "DO" ; dcp:worldBinding "submit_diagnosis" ;
+    dcp:sourceRepo "gymact" ; dcp:sourceFile "src/gymact/gyms/sregym.py" ;
+    dcp:sourceIri "urn:gymact:sregym:capability:submit_diagnosis" .
+
+dcp:sregym-submit-mitigation a dcp:Capability ;
+    dcp:order 4 ; dcp:slug "submit_mitigation" ;
+    rdfs:label "Submit a real mitigation to sregym's real conductor via its submit MCP surface" ;
+    dcp:consequence "DO" ; dcp:worldBinding "submit_mitigation" ;
+    dcp:sourceRepo "gymact" ; dcp:sourceFile "src/gymact/gyms/sregym.py" ;
+    dcp:sourceIri "urn:gymact:sregym:capability:submit_mitigation" .
+
+dcp:sregym-get-benchmark-status a dcp:Capability ;
+    dcp:order 5 ; dcp:slug "get_benchmark_status" ;
+    rdfs:label "Read sregym's real conductor /status endpoint (benchmark-stage view)" ;
+    dcp:consequence "DO" ; dcp:worldBinding "get_benchmark_status" ;
+    dcp:sourceRepo "gymact" ; dcp:sourceFile "src/gymact/gyms/sregym.py" ;
+    dcp:sourceIri "urn:gymact:sregym:capability:get_benchmark_status" .
+
+dcp:sregym-jaeger-get-services a dcp:Capability ;
+    dcp:order 6 ; dcp:slug "jaeger_get_services" ;
+    rdfs:label "Real Jaeger MCP get_services -- list real service names" ;
+    dcp:consequence "DO" ; dcp:worldBinding "jaeger_get_services" ;
+    dcp:sourceRepo "gymact" ; dcp:sourceFile "src/gymact/gyms/sregym.py" ;
+    dcp:sourceIri "urn:gymact:sregym:capability:jaeger_get_services" .
+
+dcp:sregym-jaeger-get-operations a dcp:Capability ;
+    dcp:order 7 ; dcp:slug "jaeger_get_operations" ;
+    rdfs:label "Real Jaeger MCP get_operations -- real operations for one service" ;
+    dcp:consequence "DO" ; dcp:worldBinding "jaeger_get_operations" ;
+    dcp:sourceRepo "gymact" ; dcp:sourceFile "src/gymact/gyms/sregym.py" ;
+    dcp:sourceIri "urn:gymact:sregym:capability:jaeger_get_operations" .
+
+dcp:sregym-jaeger-get-traces a dcp:Capability ;
+    dcp:order 8 ; dcp:slug "jaeger_get_traces" ;
+    rdfs:label "Real Jaeger MCP get_traces -- real traces for one service in a real time window" ;
+    dcp:consequence "DO" ; dcp:worldBinding "jaeger_get_traces" ;
+    dcp:sourceRepo "gymact" ; dcp:sourceFile "src/gymact/gyms/sregym.py" ;
+    dcp:sourceIri "urn:gymact:sregym:capability:jaeger_get_traces" .
+
+dcp:sregym-jaeger-get-dependency-graph a dcp:Capability ;
+    dcp:order 9 ; dcp:slug "jaeger_get_dependency_graph" ;
+    rdfs:label "Real Jaeger MCP get_dependency_graph -- real service dependency graph" ;
+    dcp:consequence "DO" ; dcp:worldBinding "jaeger_get_dependency_graph" ;
+    dcp:sourceRepo "gymact" ; dcp:sourceFile "src/gymact/gyms/sregym.py" ;
+    dcp:sourceIri "urn:gymact:sregym:capability:jaeger_get_dependency_graph" .
+
+dcp:sregym-loki-get-logs a dcp:Capability ;
+    dcp:order 10 ; dcp:slug "loki_get_logs" ;
+    rdfs:label "Real Loki MCP get_logs -- real logs matching a real LogQL query" ;
+    dcp:consequence "DO" ; dcp:worldBinding "loki_get_logs" ;
+    dcp:sourceRepo "gymact" ; dcp:sourceFile "src/gymact/gyms/sregym.py" ;
+    dcp:sourceIri "urn:gymact:sregym:capability:loki_get_logs" .
+
+dcp:sregym-loki-get-labels a dcp:Capability ;
+    dcp:order 11 ; dcp:slug "loki_get_labels" ;
+    rdfs:label "Real Loki MCP get_labels -- real available label names" ;
+    dcp:consequence "DO" ; dcp:worldBinding "loki_get_labels" ;
+    dcp:sourceRepo "gymact" ; dcp:sourceFile "src/gymact/gyms/sregym.py" ;
+    dcp:sourceIri "urn:gymact:sregym:capability:loki_get_labels" .
+
+dcp:sregym-loki-get-label-values a dcp:Capability ;
+    dcp:order 12 ; dcp:slug "loki_get_label_values" ;
+    rdfs:label "Real Loki MCP get_label_values -- real values for one label" ;
+    dcp:consequence "DO" ; dcp:worldBinding "loki_get_label_values" ;
+    dcp:sourceRepo "gymact" ; dcp:sourceFile "src/gymact/gyms/sregym.py" ;
+    dcp:sourceIri "urn:gymact:sregym:capability:loki_get_label_values" .
+
+dcp:sregym-prometheus-get-metrics a dcp:Capability ;
+    dcp:order 13 ; dcp:slug "prometheus_get_metrics" ;
+    rdfs:label "Real Prometheus MCP get_metrics -- real metric values for a real PromQL query" ;
+    dcp:consequence "DO" ; dcp:worldBinding "prometheus_get_metrics" ;
+    dcp:sourceRepo "gymact" ; dcp:sourceFile "src/gymact/gyms/sregym.py" ;
+    dcp:sourceIri "urn:gymact:sregym:capability:prometheus_get_metrics" .
+
+dcp:sregym-prometheus-get-alerts a dcp:Capability ;
+    dcp:order 14 ; dcp:slug "prometheus_get_alerts" ;
+    rdfs:label "Real Prometheus MCP get_alerts -- real currently-firing alerts" ;
+    dcp:consequence "DO" ; dcp:worldBinding "prometheus_get_alerts" ;
+    dcp:sourceRepo "gymact" ; dcp:sourceFile "src/gymact/gyms/sregym.py" ;
+    dcp:sourceIri "urn:gymact:sregym:capability:prometheus_get_alerts" .
+
+# --- Lab-projection: autofde-lab's real, current allowlist -------------
+#
+# Transcribed verbatim from ~/autofde-lab/src/autofde_lab/fabric/gymact_capabilities.toml
+# (confirmed by direct read this session): 5 entries, a strict subset of the 14 above.
+# NOTE the real, already-happened drift this pack's gates would have caught: that TOML
+# file's own header comment currently asserts "5 entries; there is no jaeger/loki/
+# prometheus capability in the real gymact source -- only these 5 exist" -- true when
+# written, false now that the real source has grown to 14. This pack does not fix that
+# file (different repo, named follow-up); admitting the real facts here is what proves
+# gates/030_allowlist_subset.rq would catch a REGRESSION (an allowlist entry that isn't
+# a real Capability), even though it cannot retroactively catch a manifest going STALE
+# by omission (the toml's comment describing "only 5 exist" isn't itself a graph fact
+# this pack can check) -- a real, honestly-stated limit of this pack's current gates,
+# not glossed over.
+
+dcp:autofde-lab-sregym-allowlist a dcp:LabAllowlist ;
+    dcp:ownerRepo "autofde-lab" ;
+    dcp:allows dcp:sregym-observe-cluster-state, dcp:sregym-run-kubectl,
+        dcp:sregym-get-benchmark-status, dcp:sregym-submit-diagnosis,
+        dcp:sregym-submit-mitigation .
+
+#################################################################
+# ERRC grid — reuses errc:Finding verbatim from packs/gh-actions-errc-pack (same
+# class/predicate IRIs; not reinvented). 80/20 analysis of the autonomic/automation gap
+# this pack answers.
+#################################################################
+
+errc:EliminateHandMaintainedCapabilityCopy a errc:Finding ;
+    rdfs:label "Eliminate: autofde-lab's hand-typed capability allowlist as a manual transcription with no generated link back to gymact" ;
+    errc:category "Eliminate" ;
+    errc:statement "src/autofde_lab/fabric/gymact_capabilities.toml is a hand-typed subset of gymact/gyms/sregym.py::SREGYM_CAPABILITIES with no generated/checked link -- confirmed this session: the TOML's own comment claims the real source has only 5 capabilities; the real source now has 14. The allowlist is not wrong (its 5 admitted entries are all real), but its own justifying comment is already false, undetected until read by hand." ;
+    errc:evidence "Direct read, 2026-08-11: ~/gymact/src/gymact/gyms/sregym.py SREGYM_CAPABILITIES tuple has 14 entries; ~/autofde-lab/src/autofde_lab/fabric/gymact_capabilities.toml's header comment states 5." ;
+    errc:impact "Eliminable once gymact_capabilities.toml is generated from this pack's admitted facts instead of hand-copied -- named follow-up, not done in this pack version." .
+
+errc:EliminateThirdErrcVocabulary a errc:Finding ;
+    rdfs:label "Eliminate: inventing a third ERRC RDF shape when two already exist and one is reusable" ;
+    errc:category "Eliminate" ;
+    errc:statement "packs/gh-actions-errc-pack and packs/pack-authoring-pack independently invented two incompatible ERRC representations (per-cell RDF individuals vs. one markdown-blob-per-doc). This pack reuses gh-actions-errc-pack's errc:Finding verbatim." ;
+    errc:evidence "packs/gh-actions-errc-pack/ontology.ttl errc:Finding class; packs/pack-authoring-pack/ontology.ttl pat:ErrcDoc markdown-blob shape." ;
+    errc:impact "One queryable ERRC vocabulary across packs instead of three." .
+
+errc:ReduceScopeToLoadBearingThree a errc:Finding ;
+    rdfs:label "Reduce: build the 3 load-bearing folders of the proposed 13-folder domain-pack architecture, not all 13" ;
+    errc:category "Reduce" ;
+    errc:statement "Of ontology/source-provenance/taxonomy/state-model/desired-state-rules/violation-modes/observation-contracts/authority-contracts/planner-compatibility/remediation-patterns/verification-rules/world-projection/lab-projection/production-projection, only authority-contracts, observation-contracts, and the world/lab projection split have a real, grounded instance today (SREGym's capability surface). The other 10 have no current instance to ground them." ;
+    errc:evidence "This session's own automatic-autonomic-operations-pack precedent: closed-by-construction, but only because its scope (15 capabilities, one repo) stayed small." ;
+    errc:impact "Avoids building 10 empty/aspirational folders whose shape can't yet be validated against real data." .
+
+errc:ReduceProductionProjectionToNonGoal a errc:Finding ;
+    rdfs:label "Reduce: production-projection to a documented non-goal for this pack version" ;
+    errc:category "Reduce" ;
+    errc:statement "autofde (governed production execution) is not a reachable repo this session; a prod: projection slot is named but not built." ;
+    errc:evidence "No autofde checkout present in this session's reachable repos." ;
+    errc:impact "Keeps this version's scope to what could actually be verified against real files." .
+
+errc:RaiseDriftGuardedProjection a errc:Finding ;
+    rdfs:label "Raise: capability-list fidelity from hand-copied subset to generated, drift-guarded projection" ;
+    errc:category "Raise" ;
+    errc:statement "gates/020_exact_count_per_source.rq and gates/030_allowlist_subset.rq make it structurally impossible for an admitted LabAllowlist to reference a Capability that isn't real, and impossible for a source's capability count to silently drift undetected within THIS graph." ;
+    errc:evidence "gates/020_exact_count_per_source.rq, gates/030_allowlist_subset.rq (this pack)." ;
+    errc:impact "The concrete mechanism a generated gymact_capabilities.toml (follow-up) would rely on to stay honest." .
+
+errc:RaiseProofSurfaceToDomainGeneral a errc:Finding ;
+    rdfs:label "Raise: automatic-autonomic-operations-pack's proof-surface discipline from ggen-kernel-local to domain-general" ;
+    errc:category "Raise" ;
+    errc:statement "aa:ProofSurface (positive execution / negative refusal / receipt-replay) is a real, reusable idea currently trapped in one pack's ggen-kernel scope. This pack's count/uniqueness gates are that same discipline, generalized to an arbitrary external domain's capability list." ;
+    errc:evidence "packs/automatic-autonomic-operations-pack/ontology.ttl aa:ProofSurface." ;
+    errc:impact "Same discipline now applies to any future domain instance admitted into this pack, not only ggen's own kernel." .
+
+errc:CreateDomainCapabilityPack a errc:Finding ;
+    rdfs:label "Create: packs/domain-capability-pack itself, with one real worked instance, not an empty template" ;
+    errc:category "Create" ;
+    errc:statement "dcp:Capability / dcp:LabAllowlist / dcp:CapabilitySourceManifest, admitting SREGym's real 14 capabilities and autofde-lab's real 5-entry allowlist, with 2 gates that would catch the exact drift already found while authoring this pack." ;
+    errc:evidence "This pack's own ontology.ttl (14 dcp:Capability + 1 dcp:LabAllowlist individuals) and gates/." ;
+    errc:impact "The 80/20 answer to the autonomic/automation gap: proves the vocabulary against real, already-existing data instead of shipping a schema no one has tried yet." .

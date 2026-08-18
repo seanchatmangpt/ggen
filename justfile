@@ -477,7 +477,7 @@ slo-check:
 # Full pre-commit gate, in sequence, fail fast. The dependency list on the recipe line below
 # IS the canonical gate list and count -- do not restate a number in a comment here or in any
 # doc; every prior count has gone stale within days of a gate being added or removed.
-pre-commit: fmt-check check lint test-lib coherence-check guard-process-intelligence-boundary guard-cheat-scan guard-short-test-timeout guard-fail-open-subprocess guard-claims-schema guard-pack-proofs guard-generation-hash-pin guard-pack-count guard-gate-count guard-pack-e2e-coverage self-play
+pre-commit: fmt-check check lint test-lib coherence-check guard-process-intelligence-boundary guard-cheat-scan guard-short-test-timeout guard-fail-open-subprocess guard-claims-schema guard-pack-proofs guard-generation-hash-pin guard-pack-count guard-gate-count guard-pack-e2e-coverage guard-ggen-toml-schema-parity self-play
     #!/usr/bin/env bash
     set -euo pipefail
     echo "✅ Pre-commit gate complete (fmt, check, lint, tests, coherence, boundary guard, cheat scan, claims schema, pack proofs, generation hash-pin, pack e2e coverage report)"
@@ -488,6 +488,15 @@ pre-commit: fmt-check check lint test-lib coherence-check guard-process-intellig
 # hard-fail gate is a documented future step, not yet wired in.
 guard-pack-e2e-coverage:
     bash scripts/ci/guard-pack-e2e-coverage.sh
+
+# Ratchet gate: fails if a real field-name/type mismatch is introduced between
+# ggen.toml's two independently-defined schemas (ggen-config's declarative-rules
+# GgenManifest vs ggen-engine's frontmatter GgenConfig) for a field name they both
+# happen to declare under the same table ([project]/[ontology]/[templates]/[law]).
+# See the script's own header for why this checks shared-name TYPE agreement, not
+# full field-set parity (the two schemas are deliberately different in field count).
+guard-ggen-toml-schema-parity:
+    python3 scripts/ci/guard-ggen-toml-schema-parity.py
 
 # Pack-proof gate: re-sync each committed pack consumer (examples/receiptctl,
 # the multi-pack consumer; examples/praxis-core-verify, the praxis-core-pack

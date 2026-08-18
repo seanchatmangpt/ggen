@@ -581,3 +581,28 @@ dcterms:title a rdf:Property .
 dcterms:description a rdf:Property .
 prov:wasDerivedFrom a rdf:Property ;
     rdfs:comment "Optional provenance link, e.g. a Module back to the Signature it renders from." .
+
+# ── SHACL-shape-driven Signature derivation (2026-08-11) ────────────────────────
+#
+# Ported, as a ggen-native SPARQL+Tera capability rather than a standalone script, from
+# the real ttl2dspy.py lineage (9 distinct implementations found across ~/cns/~/bytestar/
+# ~/ggen-mcp this session; baseline read in full, MD5 1dd6341b..., 460 lines). The
+# baseline's real algorithm: discover SHACL property shapes for a class via both real
+# patterns (direct sh:path+sh:targetClass, and node-shape sh:property links), classify
+# each as input/output, map sh:datatype to a Python type, emit one dspy.Signature per
+# SHACL-shaped class. Two deliberate improvements over the baseline, both matching this
+# pack's and this session's own established discipline:
+#   1. Explicit dspy:isOutputField boolean, not the baseline's fragile heuristic
+#      (an rdfs:comment string containing the word "output").
+#   2. Zero output fields is a REFUSED admission error (gates/020_shacl_signature_
+#      admission.rq), not the baseline's silent default `result` field; multiple output
+#      fields are genuinely supported, not truncated to one.
+# Reuses this pack's existing dspy:pythonType closed enum (str/int/float/bool) as the
+# emission target, and standard SHACL vocabulary (sh:NodeShape/sh:PropertyShape/
+# sh:targetClass/sh:property/sh:path/sh:datatype) -- not reinvented.
+
+dspy:derivedFromShaclShape a rdf:Property ; rdfs:domain dspy:Signature ;
+    rdfs:comment "Points a dspy:Signature at a real sh:NodeShape whose sh:property shapes supply its InputField/OutputField set, instead of (or in addition to) hand-declared dspy:hasInput/dspy:hasOutput. When present, gates/020_shacl_signature_admission.rq validates the shape's real property shapes are renderable (valid unique Python identifiers, admitted datatype, >=1 output field)." .
+
+dspy:isOutputField a rdf:Property ;
+    rdfs:comment "Boolean, on a sh:PropertyShape reachable from a dspy:derivedFromShaclShape-linked sh:NodeShape. Explicit classification -- replaces the ttl2dspy.py baseline's fragile 'does the rdfs:comment string contain the word output' heuristic. Absent or false means InputField; true means OutputField." .

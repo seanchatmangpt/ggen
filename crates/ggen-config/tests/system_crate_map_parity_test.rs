@@ -110,8 +110,8 @@ fn cargo_toml_finds_real_workspace_crate_members() {
         "parser did not find ggen-config in Cargo.toml workspace members: {dirs:?}"
     );
     assert!(
-        dirs.contains("openapi-cnv-reflect"),
-        "parser did not find openapi-cnv-reflect in Cargo.toml workspace members: {dirs:?}"
+        dirs.contains("ggen-graph"),
+        "parser did not find ggen-graph in Cargo.toml workspace members: {dirs:?}"
     );
     assert!(
         !dirs.is_empty(),

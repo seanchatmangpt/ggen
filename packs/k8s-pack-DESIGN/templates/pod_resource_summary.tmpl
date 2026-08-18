@@ -1,0 +1,23 @@
+---
+to: "docs/k8s-design-sketch/pod-resource-summary.md"
+sparql:
+  rows: |
+    PREFIX k8s: <http://seanchatmangpt.github.io/packs/k8s#>
+    SELECT ?podName ?containerIndex ?containerName ?image ?cpuLimit ?memoryLimit WHERE {
+      ?pod a k8s:PodSpec ; k8s:podName ?podName ; k8s:hasContainer ?c .
+      ?c k8s:containerIndex ?containerIndex ; k8s:containerName ?containerName ; k8s:image ?image .
+      OPTIONAL {
+        ?c k8s:hasResourceRequirements ?rr .
+        ?rr k8s:cpuLimit ?cpuLimit ; k8s:memoryLimit ?memoryLimit .
+      }
+    } ORDER BY ?podName ?containerIndex
+---
+# Pod resource summary (design-sketch echo, not a real k8s manifest)
+
+Every row below echoes literals already stored in this consumer's own facts against
+`k8s-pack-DESIGN`'s vocabulary -- nothing here is synthesized, per
+`docs/pack-authoring/explanation.md`'s "templates echo, they never synthesize" rule.
+
+{% for row in rows %}
+- **{{ row.podName }}** / container[{{ row.containerIndex }}] `{{ row.containerName }}` (`{{ row.image }}`){% if row.cpuLimit %} -- cpu limit `{{ row.cpuLimit }}`, memory limit `{{ row.memoryLimit }}`{% endif %}
+{% endfor %}

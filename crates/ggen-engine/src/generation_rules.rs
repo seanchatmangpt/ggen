@@ -85,12 +85,14 @@
 //!   Previously parsed but never read — see git history for the pre-fix silent-inert state.
 //!   Load-bearing proof: `tests/generation_rules_e2e.rs`'s
 //!   `output_dir_is_joined_onto_rendered_output_file`.
+//! - `QuerySource::Pack` / `TemplateSource::Pack` — resolves `pack`'s `[[packs]]`-declared
+//!   local `path`, then `output`/`file` through that pack's `package.toml` `[pack.outputs]`
+//!   table ([`resolve_pack_root`]/[`resolve_pack_file`]) — NOT `crate::pack::Pack`'s heavier
+//!   marketplace/git-fetch model (see those functions' doc comments for why this is a
+//!   deliberately separate, lighter-weight convention).
 //!
 //! Deliberately deferred (a typed, loud [`AppError::fm_gen`] refusal naming the rule and the
 //! unimplemented variant — never a silent skip or a decorative success):
-//! - `QuerySource::Pack` / `TemplateSource::Pack` — no destination in `crate::pack::Pack`'s
-//!   model for a named-output-directory lookup yet (the exact gap tasks.md's T028 note
-//!   already flagged as unresolved).
 //! - `TemplateSource::{Git, Package}` — a future implementation should reuse
 //!   `crate::pack`'s existing git-clone-and-cache convention (`.ggen-v2/git-packs/<name>/` +
 //!   `.ggen-git-pin`), not re-derive ggen-core's original one-shot clone.
@@ -116,7 +118,8 @@ use std::{
 };
 
 use ggen_config::manifest::{
-    GenerationMode, GenerationRule, GgenManifest, QuerySource, TemplateSource, ValidationSeverity,
+    GenerationMode, GenerationRule, GgenManifest, PackRef, PackageToml, QuerySource,
+    TemplateSource, ValidationSeverity,
 };
 use tera::Value;
 
@@ -478,7 +481,8 @@ pub(crate) fn run(root: &Path, manifest: &GgenManifest, opts: SyncOptions) -> Re
             }
         }
 
-        let query_text = resolve_query_source(root, rule, &rule.query, &mut closure)?;
+        let query_text =
+            resolve_query_source(root, &manifest.packs, rule, &rule.query, &mut closure)?;
         let rows = match graph.query(&query_text)? {
             EngineQueryResults::Solutions(rows) => rows,
             EngineQueryResults::Boolean(_) => {
@@ -511,7 +515,8 @@ pub(crate) fn run(root: &Path, manifest: &GgenManifest, opts: SyncOptions) -> Re
         }
 
         let row_values = solutions_to_values(rows);
-        let template_text = resolve_template_source(root, rule, &rule.template, &mut closure)?;
+        let template_text =
+            resolve_template_source(root, &manifest.packs, rule, &rule.template, &mut closure)?;
         let template_descriptor = template_source_descriptor(&rule.template);
 
         // Cluster B structural guard: a YAML file-tree meta-spec
@@ -741,14 +746,86 @@ fn join_output_dir(output_dir: &Path, rel_to: &str) -> String {
     output_dir.join(rel_to).to_string_lossy().into_owned()
 }
 
+/// Resolve `pack_name` (as referenced by a rule's `QuerySource::Pack` /
+/// `TemplateSource::Pack`) against the manifest's declared `[[packs]]`, to
+/// that pack's root directory on disk.
+///
+/// Only `PackRef`s with a local `path` are supported here — a pack declared
+/// with `registry != "local"` (no `path`) has no on-disk root to resolve
+/// query/template files against in this path (it would need the full
+/// marketplace/git pack-fetch machinery in [`crate::pack`], a separate,
+/// heavier convention — see that module's doc comment — not this
+/// lightweight `[pack.outputs]`-keyed file lookup).
+///
+/// A pack name absent from `packs` is defensive-only: `[E0014]` in
+/// `ggen-config`'s manifest validation already refuses an undeclared pack
+/// before the sync pipeline ever reaches this function.
+fn resolve_pack_root(root: &Path, packs: &[PackRef], pack_name: &str) -> Result<PathBuf> {
+    let pack_ref = packs.iter().find(|p| p.name == pack_name).ok_or_else(|| {
+        AppError::fm_gen(
+            6,
+            format!(
+                "pack `{pack_name}` is not declared in [[packs]]. \
+                 Remediation: add a `[[packs]]` entry with this `name`."
+            ),
+        )
+    })?;
+    let pack_path = pack_ref.path.as_ref().ok_or_else(|| {
+        AppError::fm_gen(
+            6,
+            format!(
+                "pack `{pack_name}` has registry `{}` with no local `path` — only local packs \
+                 are resolvable for QuerySource::Pack/TemplateSource::Pack. \
+                 Remediation: vendor the pack locally (a `[[packs]]` entry with `path = ...`), \
+                 or use QuerySource::File/TemplateSource::File pointing at an already-fetched copy.",
+                pack_ref.registry
+            ),
+        )
+    })?;
+    Ok(root.join(pack_path))
+}
+
+/// Resolve a pack-relative `(output, file)` pair (as used by
+/// `QuerySource::Pack`/`TemplateSource::Pack`) to the file's real path on
+/// disk, via that pack's `package.toml` `[pack.outputs]` table.
+///
+/// [`PackageToml::load`]/[`PackageToml::resolve_output_key`] fail OPEN by
+/// design (missing/unparseable `package.toml`, or no matching `output` key,
+/// both silently fall back to treating `output` as a literal directory
+/// name) — that fallback is real and can resolve to the WRONG file if the
+/// literal `output` string happens to also be a real subdirectory of the
+/// pack that isn't what the pack author intended via `[pack.outputs]`.
+/// `[FM-GEN-006]`'s prior state was a loud hard error for this whole path;
+/// silently swallowing that fallback here would be a real regression from
+/// loud-refusal to silent-wrong-output, so it's logged at `warn` level
+/// (rule-name-attributed) whenever the pack's `package.toml` doesn't
+/// resolve `output` through its `[pack.outputs]` table — a human auditing
+/// a sync's logs sees exactly when a rule is relying on the fallback.
+fn resolve_pack_file(rule_name: &str, pack_root: &Path, output: &str, file: &Path) -> PathBuf {
+    let package = PackageToml::load(pack_root);
+    let output_dir = package.resolve_output_key(output);
+    if output_dir == output {
+        tracing::warn!(
+            rule = rule_name,
+            pack_root = %pack_root.display(),
+            output,
+            "no `[pack.outputs]` entry for `{output}` in this pack's package.toml (or none \
+             found) — falling back to treating `{output}` as a literal subdirectory name; \
+             verify that's actually correct, not a coincidental directory-name match"
+        );
+    }
+    pack_root.join(output_dir).join(file)
+}
+
 /// Resolve a [`QuerySource`] to its SPARQL query text, binding any file it
 /// reads into `closure`.
 ///
 /// # Errors
-/// `[FM-GEN-005]` on an unreadable query file; `[FM-GEN-006]` for the
-/// not-yet-implemented `Pack` variant (see the module doc comment).
+/// `[FM-GEN-005]` on an unreadable query file; `[FM-GEN-006]` if the
+/// referenced pack is undeclared or has no local `path` (see
+/// [`resolve_pack_root`]).
 fn resolve_query_source(
-    root: &Path, rule: &GenerationRule, source: &QuerySource,
+    root: &Path, packs: &[PackRef], rule: &GenerationRule, source: &QuerySource,
     closure: &mut BTreeMap<String, String>,
 ) -> Result<String> {
     match source {
@@ -768,16 +845,22 @@ fn resolve_query_source(
             Ok(text)
         }
         QuerySource::Inline { inline } => Ok(inline.clone()),
-        QuerySource::Pack { pack, .. } => Err(AppError::fm_gen(
-            6,
-            format!(
-                "rule `{}`: QuerySource::Pack (pack `{pack}`) is not implemented yet in \
-                 ggen-engine's declarative-rules sync path. \
-                 Remediation: use QuerySource::File or QuerySource::Inline for now; \
-                 see specs/014-ggen-core-replacement/tasks.md for the tracked follow-up.",
-                rule.name
-            ),
-        )),
+        QuerySource::Pack { pack, output, file } => {
+            let pack_root = resolve_pack_root(root, packs, pack)?;
+            let path = resolve_pack_file(&rule.name, &pack_root, output, file);
+            let text = std::fs::read_to_string(&path).map_err(|e| {
+                AppError::fm_gen(
+                    5,
+                    format!(
+                        "rule `{}`: query file `{}` (pack `{pack}`, output `{output}`) unreadable: {e}",
+                        rule.name,
+                        path.display()
+                    ),
+                )
+            })?;
+            closure.insert(rel_display(root, &path), hash_file_or_missing(&path));
+            Ok(text)
+        }
     }
 }
 
@@ -785,11 +868,12 @@ fn resolve_query_source(
 /// it reads into `closure`.
 ///
 /// # Errors
-/// `[FM-GEN-005]` on an unreadable template file; `[FM-GEN-007]` for the
-/// not-yet-implemented `Pack`/`Git`/`Package` variants (see the module doc
-/// comment).
+/// `[FM-GEN-005]` on an unreadable template file; `[FM-GEN-006]` if a
+/// referenced pack is undeclared or has no local `path` (see
+/// [`resolve_pack_root`]); `[FM-GEN-007]` for the still-not-implemented
+/// `Git`/`Package` variants (see the module doc comment).
 fn resolve_template_source(
-    root: &Path, rule: &GenerationRule, source: &TemplateSource,
+    root: &Path, packs: &[PackRef], rule: &GenerationRule, source: &TemplateSource,
     closure: &mut BTreeMap<String, String>,
 ) -> Result<String> {
     match source {
@@ -809,15 +893,22 @@ fn resolve_template_source(
             Ok(text)
         }
         TemplateSource::Inline { inline } => Ok(inline.clone()),
-        TemplateSource::Pack { pack, .. } => Err(AppError::fm_gen(
-            7,
-            format!(
-                "rule `{}`: TemplateSource::Pack (pack `{pack}`) is not implemented yet. \
-                 Remediation: use TemplateSource::File or TemplateSource::Inline for now; \
-                 see specs/014-ggen-core-replacement/tasks.md for the tracked follow-up.",
-                rule.name
-            ),
-        )),
+        TemplateSource::Pack { pack, output, file } => {
+            let pack_root = resolve_pack_root(root, packs, pack)?;
+            let path = resolve_pack_file(&rule.name, &pack_root, output, file);
+            let text = std::fs::read_to_string(&path).map_err(|e| {
+                AppError::fm_gen(
+                    5,
+                    format!(
+                        "rule `{}`: template file `{}` (pack `{pack}`, output `{output}`) unreadable: {e}",
+                        rule.name,
+                        path.display()
+                    ),
+                )
+            })?;
+            closure.insert(rel_display(root, &path), hash_file_or_missing(&path));
+            Ok(text)
+        }
         TemplateSource::Git { git, .. } => Err(AppError::fm_gen(
             7,
             format!(

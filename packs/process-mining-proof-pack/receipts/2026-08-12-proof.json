@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "instruction_id": 1,
+  "activity_idx": 0,
+  "node_kind": 0,
+  "ts_ns": 1755000000000000000,
+  "payload_hash_hex": "31e96e65ddf53998d596b0d490bd5b6131512d5d4340de46163bca8f25bc2879",
+  "prev_chain_hash_hex": "0000000000000000000000000000000000000000000000000000000000000000",
+  "chain_hash_hex": "25a611e7965dd4b8ecff76631487893d88b289b0f0a6b15056066b2589739aa0",
+  "andon": "Green",
+  "obligation_count": 0,
+  "object_ids": [
+    "law:31e96e65ddf53998"
+  ],
+  "signature_hex": "3907fad7751ca2246404d9401ca1e693ef0ba03bbaa9af46055faa1ea00e2b6d764bd7a7d3980c5881e9ae70aace4ceb774bc0441b4f1413855b0d01e634270f",
+  "schema": "ggen-receipt/v1"
+}

@@ -1,0 +1,17 @@
+# MESSAGE: every dspy:Module bound to pirag:GroundedProcessQuerySignature must carry
+# pirag:grounds -> a real pirag:GroundingSource individual. Any row = a grounded-process
+# query declared with no real process-intelligence grounding -- the literal, structural
+# enactment of van der Aalst's "No AI Without PI" (arXiv:2508.00116): a query with no real
+# process-mining grounding is inadmissible, not merely discouraged. The paper's own words:
+# "just sending textually encoded process variants or DFGs to the GenAI is enough to
+# generate answers, but these are not very reliable."
+PREFIX dspy:  <http://seanchatmangpt.github.io/packs/dspy#>
+PREFIX pirag: <http://seanchatmangpt.github.io/packs/process-intelligence-rag#>
+SELECT ?module WHERE {
+  ?module a dspy:Module ; dspy:signature pirag:GroundedProcessQuerySignature .
+  FILTER NOT EXISTS {
+    ?module pirag:grounds ?src .
+    ?src a pirag:GroundingSource .
+  }
+}
+ORDER BY ?module

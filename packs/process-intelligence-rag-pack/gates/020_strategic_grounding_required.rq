@@ -1,0 +1,22 @@
+# MESSAGE: every dspy:Module bound to dspy:OriginateArchitectureVisionSignature must carry
+# pirag:grounds -> a pirag:GroundingSource whose pirag:producedBy is covered by an admitted
+# pirag:StrategicGroundingAuthority grant. Any row = a vision-originating query grounded in
+# a source that is real (may even satisfy the ordinary 010_grounded_or_refused check) but
+# has NOT been explicitly authorized to found strategy on -- a strictly higher bar than
+# ordinary operational grounding, because treating any real fact as sufficient to originate
+# a vision would silently smuggle back in the exact ungrounded-authority failure "No AI
+# Without PI" (arXiv:2508.00116) warns against.
+PREFIX dspy:  <http://seanchatmangpt.github.io/packs/dspy#>
+PREFIX pirag: <http://seanchatmangpt.github.io/packs/process-intelligence-rag#>
+SELECT ?module ?producedBy WHERE {
+  ?module a dspy:Module ; dspy:signature dspy:OriginateArchitectureVisionSignature .
+  OPTIONAL {
+    ?module pirag:grounds ?src .
+    ?src a pirag:GroundingSource ; pirag:producedBy ?producedByRaw .
+  }
+  BIND(COALESCE(?producedByRaw, "<none>") AS ?producedBy)
+  FILTER NOT EXISTS {
+    ?grant a pirag:StrategicGroundingAuthority ; pirag:authorizedProducedBy ?producedBy .
+  }
+}
+ORDER BY ?module

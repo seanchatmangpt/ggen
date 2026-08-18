@@ -1,0 +1,12 @@
+# MESSAGE: every dcp:LabAllowlist dcp:allows value must be a real dcp:Capability
+# individual present in this same graph. Any row = an allowlist admits a binding that
+# isn't a real, admitted capability -- the concrete drift guard this pack exists for:
+# a hand-authored allowlist (e.g. a consuming repo's own capability_gate.py manifest)
+# can only diverge from reality if it references something outside the admitted set,
+# and that is exactly what this gate refuses.
+PREFIX dcp: <http://seanchatmangpt.github.io/packs/domain-capability#>
+SELECT ?allowlist ?bogusCapability WHERE {
+  ?allowlist a dcp:LabAllowlist ; dcp:allows ?bogusCapability .
+  FILTER NOT EXISTS { ?bogusCapability a dcp:Capability }
+}
+ORDER BY ?allowlist ?bogusCapability

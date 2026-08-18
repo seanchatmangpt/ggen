@@ -1,0 +1,26 @@
+# MESSAGE: every k8s:PodSpec/k8s:Container/k8s:ResourceRequirements individual is missing
+# a required property. Any row = a subject missing its required property.
+#
+# DESIGN SKETCH NOTE: this gate uses the VALUES-table consolidation pattern
+# (docs/pack-authoring/advanced-practices.md #3, proven in packs/dspy-pack/gates/
+# 010_admission.rq after a real, measured praxis-graphlaw engine limit -- stack overflow
+# between ~139-158 UNION branches in one gate file) from the START, deliberately, even
+# though this sketch's own branch count (7) is nowhere near that limit. The point of this
+# sketch is to demonstrate the practice on a small, readable example a real k8s-pack
+# (whose per-kind x per-property branch count would grow fast across the full k8s object
+# surface) can copy the shape of, not to prove it was necessary here.
+PREFIX k8s: <http://seanchatmangpt.github.io/packs/k8s#>
+SELECT ?s ?missing WHERE {
+  VALUES (?type ?missing) {
+    (k8s:PodSpec k8s:podName)
+    (k8s:PodSpec k8s:hasContainer)
+    (k8s:Container k8s:containerIndex)
+    (k8s:Container k8s:containerName)
+    (k8s:Container k8s:image)
+    (k8s:ResourceRequirements k8s:cpuLimit)
+    (k8s:ResourceRequirements k8s:memoryLimit)
+  }
+  ?s a ?type .
+  FILTER NOT EXISTS { ?s ?missing ?any }
+}
+ORDER BY ?s ?missing

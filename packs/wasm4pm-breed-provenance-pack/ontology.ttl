@@ -1,0 +1,330 @@
+@prefix wbp:  <http://seanchatmangpt.github.io/packs/wasm4pm-breed-provenance#> .
+@prefix errc: <http://seanchatmangpt.github.io/packs/gh-actions-errc#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+#################################################################
+# Vocabulary — the generalized domain-capability-pack shape, applied to a
+# SECOND real duplication case: wasm4pm's 55-entry cognition-breed catalog
+# (~/wasm4pm/ggen/ontology/breeds.ttl) is independently, fully re-admitted
+# under the IDENTICAL subject IRIs and predicate vocabulary (compat:*) by
+# TWO separate ggen packs -- packs/wasm4pm-facts-pack and
+# packs/wasm4pm-cognition-pack -- confirmed 2026-08-11 by direct grep of
+# both packs' real ontology.ttl: both declare exactly 55
+# `a compat:CognitionBreed` individuals, and their 55 `compat:breedId`
+# values are set-identical (diff of sorted extracted ids -> empty).
+#
+# wasm4pm-facts-pack DOES already drift-check ITSELF against the live
+# ~/wasm4pm upstream checkout (scripts/check_upstream_drift.sh) -- that is
+# a real, existing guard and is NOT this pack's target. What has NO guard
+# anywhere in the workspace is pack-to-pack consistency: nothing checks
+# that wasm4pm-cognition-pack's independently-typed 55-breed copy still
+# matches wasm4pm-facts-pack's (or upstream's) 55-breed copy. If one pack's
+# ontology.ttl is hand-edited (a breed added/removed/renamed) without the
+# other being updated in lockstep, no gate in this workspace catches it --
+# confirmed by reading both packs' gates/ directories: wasm4pm-facts-pack's
+# gates/{010_required,020_single_valued,030_value_constraints}.rq validate
+# its OWN graph shape only; wasm4pm-cognition-pack has no gates/ directory
+# at all (`find packs/wasm4pm-cognition-pack -iname 'gates' -o -iname
+# '*.rq'` -> empty).
+#################################################################
+
+wbp:Breed a rdfs:Class ;
+    rdfs:label "One real wasm4pm cognition-breed identity, transcribed verbatim from the canonical upstream source (~/wasm4pm/ggen/ontology/breeds.ttl) -- never hand-summarized or invented." .
+
+wbp:order a rdf:Property ; rdfs:domain wbp:Breed .
+wbp:breedId a rdf:Property ; rdfs:domain wbp:Breed ;
+    rdfs:comment "The real compat:breedId value from the canonical source -- the join key both consuming packs (wasm4pm-facts-pack, wasm4pm-cognition-pack) key their own copies on." .
+wbp:sourceRepo a rdf:Property ; rdfs:domain wbp:Breed ;
+    rdfs:comment "The real repo this breed identity's facts were transcribed from." .
+wbp:sourceFile a rdf:Property ; rdfs:domain wbp:Breed ;
+    rdfs:comment "The real file path within sourceRepo this breed identity's facts were transcribed from." .
+
+wbp:PackAdoption a rdfs:Class ;
+    rdfs:label "One consuming ggen pack's own admitted copy of the canonical breed set (the pack-projection). wbp:admits must be a strict subset of real wbp:Breed individuals -- enforced by gates/030_admits_subset.rq, not merely documented." .
+
+wbp:ownerPack a rdf:Property ; rdfs:domain wbp:PackAdoption ;
+    rdfs:comment "The real packs/<name> directory that independently re-admits this breed set." .
+wbp:admits a rdf:Property ; rdfs:domain wbp:PackAdoption ; rdfs:range wbp:Breed .
+
+wbp:BreedSourceManifest a rdfs:Class ;
+    rdfs:label "Declares how many real wbp:Breed individuals SHOULD exist for one (sourceRepo, sourceFile) pair -- the count gate (gates/020_exact_count_per_source.rq) checks the real count against this, per source, mirroring domain-capability-pack's dcp:CapabilitySourceManifest so a second upstream source (a different wasm4pm ontology file, or a different platform's catalog) is an additive fact, not a rewrite of this pack's gates." .
+
+wbp:manifestSourceRepo a rdf:Property ; rdfs:domain wbp:BreedSourceManifest .
+wbp:manifestSourceFile a rdf:Property ; rdfs:domain wbp:BreedSourceManifest .
+wbp:expectedBreedCount a rdf:Property ; rdfs:domain wbp:BreedSourceManifest .
+
+#################################################################
+# Worked instance: wasm4pm's real 55-breed catalog (2026-08-11)
+#
+# breedId values transcribed verbatim, in real declaration order, from
+# packs/wasm4pm-cognition-pack/ontology.ttl (itself transcribed verbatim
+# from ~/wasm4pm/ggen/ontology/breeds.ttl -- see that pack's own ontology.ttl
+# header comment). Order follows the real declaration order in that file.
+#################################################################
+
+wbp:WasmBreedsManifest a wbp:BreedSourceManifest ;
+    wbp:manifestSourceRepo "wasm4pm" ;
+    wbp:manifestSourceFile "ggen/ontology/breeds.ttl" ;
+    wbp:expectedBreedCount 55 .
+
+wbp:Breed_strips a wbp:Breed ;
+    wbp:order 1 ; wbp:breedId "strips" ;
+    wbp:sourceRepo "wasm4pm" ; wbp:sourceFile "ggen/ontology/breeds.ttl" .
+
+wbp:Breed_gps a wbp:Breed ;
+    wbp:order 2 ; wbp:breedId "gps" ;
+    wbp:sourceRepo "wasm4pm" ; wbp:sourceFile "ggen/ontology/breeds.ttl" .
+
+wbp:Breed_htn_planning a wbp:Breed ;
+    wbp:order 3 ; wbp:breedId "htn_planning" ;
+    wbp:sourceRepo "wasm4pm" ; wbp:sourceFile "ggen/ontology/breeds.ttl" .
+
+wbp:Breed_partial_order_plan a wbp:Breed ;
+    wbp:order 4 ; wbp:breedId "partial_order_plan" ;
+    wbp:sourceRepo "wasm4pm" ; wbp:sourceFile "ggen/ontology/breeds.ttl" .
+
+wbp:Breed_prolog a wbp:Breed ;
+    wbp:order 5 ; wbp:breedId "prolog" ;
+    wbp:sourceRepo "wasm4pm" ; wbp:sourceFile "ggen/ontology/breeds.ttl" .
+
+wbp:Breed_default_logic a wbp:Breed ;
+    wbp:order 6 ; wbp:breedId "default_logic" ;
+    wbp:sourceRepo "wasm4pm" ; wbp:sourceFile "ggen/ontology/breeds.ttl" .
+
+wbp:Breed_circumscription a wbp:Breed ;
+    wbp:order 7 ; wbp:breedId "circumscription" ;
+    wbp:sourceRepo "wasm4pm" ; wbp:sourceFile "ggen/ontology/breeds.ttl" .
+
+wbp:Breed_description_logic a wbp:Breed ;
+    wbp:order 8 ; wbp:breedId "description_logic" ;
+    wbp:sourceRepo "wasm4pm" ; wbp:sourceFile "ggen/ontology/breeds.ttl" .
+
+wbp:Breed_bayesian_network a wbp:Breed ;
+    wbp:order 9 ; wbp:breedId "bayesian_network" ;
+    wbp:sourceRepo "wasm4pm" ; wbp:sourceFile "ggen/ontology/breeds.ttl" .
+
+wbp:Breed_dempster_shafer a wbp:Breed ;
+    wbp:order 10 ; wbp:breedId "dempster_shafer" ;
+    wbp:sourceRepo "wasm4pm" ; wbp:sourceFile "ggen/ontology/breeds.ttl" .
+
+wbp:Breed_fuzzy_logic a wbp:Breed ;
+    wbp:order 11 ; wbp:breedId "fuzzy_logic" ;
+    wbp:sourceRepo "wasm4pm" ; wbp:sourceFile "ggen/ontology/breeds.ttl" .
+
+wbp:Breed_mycin a wbp:Breed ;
+    wbp:order 12 ; wbp:breedId "mycin" ;
+    wbp:sourceRepo "wasm4pm" ; wbp:sourceFile "ggen/ontology/breeds.ttl" .
+
+wbp:Breed_eliza a wbp:Breed ;
+    wbp:order 13 ; wbp:breedId "eliza" ;
+    wbp:sourceRepo "wasm4pm" ; wbp:sourceFile "ggen/ontology/breeds.ttl" .
+
+wbp:Breed_soar a wbp:Breed ;
+    wbp:order 14 ; wbp:breedId "soar" ;
+    wbp:sourceRepo "wasm4pm" ; wbp:sourceFile "ggen/ontology/breeds.ttl" .
+
+wbp:Breed_act_r a wbp:Breed ;
+    wbp:order 15 ; wbp:breedId "act_r" ;
+    wbp:sourceRepo "wasm4pm" ; wbp:sourceFile "ggen/ontology/breeds.ttl" .
+
+wbp:Breed_hearsay a wbp:Breed ;
+    wbp:order 16 ; wbp:breedId "hearsay" ;
+    wbp:sourceRepo "wasm4pm" ; wbp:sourceFile "ggen/ontology/breeds.ttl" .
+
+wbp:Breed_abductive_ibe a wbp:Breed ;
+    wbp:order 17 ; wbp:breedId "abductive_ibe" ;
+    wbp:sourceRepo "wasm4pm" ; wbp:sourceFile "ggen/ontology/breeds.ttl" .
+
+wbp:Breed_abductive_lp a wbp:Breed ;
+    wbp:order 18 ; wbp:breedId "abductive_lp" ;
+    wbp:sourceRepo "wasm4pm" ; wbp:sourceFile "ggen/ontology/breeds.ttl" .
+
+wbp:Breed_allen_temporal a wbp:Breed ;
+    wbp:order 19 ; wbp:breedId "allen_temporal" ;
+    wbp:sourceRepo "wasm4pm" ; wbp:sourceFile "ggen/ontology/breeds.ttl" .
+
+wbp:Breed_event_calculus a wbp:Breed ;
+    wbp:order 20 ; wbp:breedId "event_calculus" ;
+    wbp:sourceRepo "wasm4pm" ; wbp:sourceFile "ggen/ontology/breeds.ttl" .
+
+wbp:Breed_situation_calculus a wbp:Breed ;
+    wbp:order 21 ; wbp:breedId "situation_calculus" ;
+    wbp:sourceRepo "wasm4pm" ; wbp:sourceFile "ggen/ontology/breeds.ttl" .
+
+wbp:Breed_ltl_monitor a wbp:Breed ;
+    wbp:order 22 ; wbp:breedId "ltl_monitor" ;
+    wbp:sourceRepo "wasm4pm" ; wbp:sourceFile "ggen/ontology/breeds.ttl" .
+
+wbp:Breed_ctl_check a wbp:Breed ;
+    wbp:order 23 ; wbp:breedId "ctl_check" ;
+    wbp:sourceRepo "wasm4pm" ; wbp:sourceFile "ggen/ontology/breeds.ttl" .
+
+wbp:Breed_analogy_sme a wbp:Breed ;
+    wbp:order 24 ; wbp:breedId "analogy_sme" ;
+    wbp:sourceRepo "wasm4pm" ; wbp:sourceFile "ggen/ontology/breeds.ttl" .
+
+wbp:Breed_cbr a wbp:Breed ;
+    wbp:order 25 ; wbp:breedId "cbr" ;
+    wbp:sourceRepo "wasm4pm" ; wbp:sourceFile "ggen/ontology/breeds.ttl" .
+
+wbp:Breed_episodic_memory a wbp:Breed ;
+    wbp:order 26 ; wbp:breedId "episodic_memory" ;
+    wbp:sourceRepo "wasm4pm" ; wbp:sourceFile "ggen/ontology/breeds.ttl" .
+
+wbp:Breed_frames_inheritance a wbp:Breed ;
+    wbp:order 27 ; wbp:breedId "frames_inheritance" ;
+    wbp:sourceRepo "wasm4pm" ; wbp:sourceFile "ggen/ontology/breeds.ttl" .
+
+wbp:Breed_script_sam a wbp:Breed ;
+    wbp:order 28 ; wbp:breedId "script_sam" ;
+    wbp:sourceRepo "wasm4pm" ; wbp:sourceFile "ggen/ontology/breeds.ttl" .
+
+wbp:Breed_construction_grammar a wbp:Breed ;
+    wbp:order 29 ; wbp:breedId "construction_grammar" ;
+    wbp:sourceRepo "wasm4pm" ; wbp:sourceFile "ggen/ontology/breeds.ttl" .
+
+wbp:Breed_autoinstinct_learning a wbp:Breed ;
+    wbp:order 30 ; wbp:breedId "autoinstinct_learning" ;
+    wbp:sourceRepo "wasm4pm" ; wbp:sourceFile "ggen/ontology/breeds.ttl" .
+
+wbp:Breed_autoinstinct_neurosis a wbp:Breed ;
+    wbp:order 31 ; wbp:breedId "autoinstinct_neurosis" ;
+    wbp:sourceRepo "wasm4pm" ; wbp:sourceFile "ggen/ontology/breeds.ttl" .
+
+wbp:Breed_autoinstinct_semantics a wbp:Breed ;
+    wbp:order 32 ; wbp:breedId "autoinstinct_semantics" ;
+    wbp:sourceRepo "wasm4pm" ; wbp:sourceFile "ggen/ontology/breeds.ttl" .
+
+wbp:Breed_autoinstinct_vision a wbp:Breed ;
+    wbp:order 33 ; wbp:breedId "autoinstinct_vision" ;
+    wbp:sourceRepo "wasm4pm" ; wbp:sourceFile "ggen/ontology/breeds.ttl" .
+
+wbp:Breed_belief_merging a wbp:Breed ;
+    wbp:order 34 ; wbp:breedId "belief_merging" ;
+    wbp:sourceRepo "wasm4pm" ; wbp:sourceFile "ggen/ontology/breeds.ttl" .
+
+wbp:Breed_markov_logic a wbp:Breed ;
+    wbp:order 35 ; wbp:breedId "markov_logic" ;
+    wbp:sourceRepo "wasm4pm" ; wbp:sourceFile "ggen/ontology/breeds.ttl" .
+
+wbp:Breed_problog a wbp:Breed ;
+    wbp:order 36 ; wbp:breedId "problog" ;
+    wbp:sourceRepo "wasm4pm" ; wbp:sourceFile "ggen/ontology/breeds.ttl" .
+
+wbp:Breed_csp_ac3 a wbp:Breed ;
+    wbp:order 37 ; wbp:breedId "csp_ac3" ;
+    wbp:sourceRepo "wasm4pm" ; wbp:sourceFile "ggen/ontology/breeds.ttl" .
+
+wbp:Breed_clp a wbp:Breed ;
+    wbp:order 38 ; wbp:breedId "clp" ;
+    wbp:sourceRepo "wasm4pm" ; wbp:sourceFile "ggen/ontology/breeds.ttl" .
+
+wbp:Breed_asp a wbp:Breed ;
+    wbp:order 39 ; wbp:breedId "asp" ;
+    wbp:sourceRepo "wasm4pm" ; wbp:sourceFile "ggen/ontology/breeds.ttl" .
+
+wbp:Breed_sat_cdcl a wbp:Breed ;
+    wbp:order 40 ; wbp:breedId "sat_cdcl" ;
+    wbp:sourceRepo "wasm4pm" ; wbp:sourceFile "ggen/ontology/breeds.ttl" .
+
+wbp:Breed_tableaux a wbp:Breed ;
+    wbp:order 41 ; wbp:breedId "tableaux" ;
+    wbp:sourceRepo "wasm4pm" ; wbp:sourceFile "ggen/ontology/breeds.ttl" .
+
+wbp:Breed_contingent_plan a wbp:Breed ;
+    wbp:order 42 ; wbp:breedId "contingent_plan" ;
+    wbp:sourceRepo "wasm4pm" ; wbp:sourceFile "ggen/ontology/breeds.ttl" .
+
+wbp:Breed_mdp a wbp:Breed ;
+    wbp:order 43 ; wbp:breedId "mdp" ;
+    wbp:sourceRepo "wasm4pm" ; wbp:sourceFile "ggen/ontology/breeds.ttl" .
+
+wbp:Breed_pomdp a wbp:Breed ;
+    wbp:order 44 ; wbp:breedId "pomdp" ;
+    wbp:sourceRepo "wasm4pm" ; wbp:sourceFile "ggen/ontology/breeds.ttl" .
+
+wbp:Breed_ebl a wbp:Breed ;
+    wbp:order 45 ; wbp:breedId "ebl" ;
+    wbp:sourceRepo "wasm4pm" ; wbp:sourceFile "ggen/ontology/breeds.ttl" .
+
+wbp:Breed_ilp a wbp:Breed ;
+    wbp:order 46 ; wbp:breedId "ilp" ;
+    wbp:sourceRepo "wasm4pm" ; wbp:sourceFile "ggen/ontology/breeds.ttl" .
+
+wbp:Breed_rl_symbolic a wbp:Breed ;
+    wbp:order 47 ; wbp:breedId "rl_symbolic" ;
+    wbp:sourceRepo "wasm4pm" ; wbp:sourceFile "ggen/ontology/breeds.ttl" .
+
+wbp:Breed_version_space a wbp:Breed ;
+    wbp:order 48 ; wbp:breedId "version_space" ;
+    wbp:sourceRepo "wasm4pm" ; wbp:sourceFile "ggen/ontology/breeds.ttl" .
+
+wbp:Breed_dendral a wbp:Breed ;
+    wbp:order 49 ; wbp:breedId "dendral" ;
+    wbp:sourceRepo "wasm4pm" ; wbp:sourceFile "ggen/ontology/breeds.ttl" .
+
+wbp:Breed_naive_physics a wbp:Breed ;
+    wbp:order 50 ; wbp:breedId "naive_physics" ;
+    wbp:sourceRepo "wasm4pm" ; wbp:sourceFile "ggen/ontology/breeds.ttl" .
+
+wbp:Breed_qualitative_reason a wbp:Breed ;
+    wbp:order 51 ; wbp:breedId "qualitative_reason" ;
+    wbp:sourceRepo "wasm4pm" ; wbp:sourceFile "ggen/ontology/breeds.ttl" .
+
+wbp:Breed_morphological a wbp:Breed ;
+    wbp:order 52 ; wbp:breedId "morphological" ;
+    wbp:sourceRepo "wasm4pm" ; wbp:sourceFile "ggen/ontology/breeds.ttl" .
+
+wbp:Breed_triz a wbp:Breed ;
+    wbp:order 53 ; wbp:breedId "triz" ;
+    wbp:sourceRepo "wasm4pm" ; wbp:sourceFile "ggen/ontology/breeds.ttl" .
+
+wbp:Breed_meta_reasoning a wbp:Breed ;
+    wbp:order 54 ; wbp:breedId "meta_reasoning" ;
+    wbp:sourceRepo "wasm4pm" ; wbp:sourceFile "ggen/ontology/breeds.ttl" .
+
+wbp:Breed_ocpm_route_discoverer a wbp:Breed ;
+    wbp:order 55 ; wbp:breedId "ocpm_route_discoverer" ;
+    wbp:sourceRepo "wasm4pm" ; wbp:sourceFile "ggen/ontology/breeds.ttl" .
+
+#################################################################
+# Pack-projections: the two REAL, currently-shipping ggen packs that each
+# independently re-admit this same 55-breed set under identical subject
+# IRIs (packs/wasm4pm-facts-pack/ontology.ttl, packs/wasm4pm-cognition-pack/
+# ontology.ttl) -- confirmed 2026-08-11 by direct grep: both declare all 55
+# breedId values above, with zero divergence today. This is the drift risk
+# this pack's gates exist to catch THE NEXT TIME one of those two packs is
+# hand-edited without the other -- not a hypothetical, since domain-
+# capability-pack's own SREGym instance already demonstrated exactly this
+# failure mode (a hand-maintained copy silently going stale) in a sibling
+# case.
+#################################################################
+
+wbp:WasmFactsPackAdoption a wbp:PackAdoption ;
+    wbp:ownerPack "wasm4pm-facts-pack" ;
+    wbp:admits wbp:Breed_strips, wbp:Breed_gps, wbp:Breed_htn_planning, wbp:Breed_partial_order_plan, wbp:Breed_prolog, wbp:Breed_default_logic, wbp:Breed_circumscription, wbp:Breed_description_logic, wbp:Breed_bayesian_network, wbp:Breed_dempster_shafer, wbp:Breed_fuzzy_logic, wbp:Breed_mycin, wbp:Breed_eliza, wbp:Breed_soar, wbp:Breed_act_r, wbp:Breed_hearsay, wbp:Breed_abductive_ibe, wbp:Breed_abductive_lp, wbp:Breed_allen_temporal, wbp:Breed_event_calculus, wbp:Breed_situation_calculus, wbp:Breed_ltl_monitor, wbp:Breed_ctl_check, wbp:Breed_analogy_sme, wbp:Breed_cbr, wbp:Breed_episodic_memory, wbp:Breed_frames_inheritance, wbp:Breed_script_sam, wbp:Breed_construction_grammar, wbp:Breed_autoinstinct_learning, wbp:Breed_autoinstinct_neurosis, wbp:Breed_autoinstinct_semantics, wbp:Breed_autoinstinct_vision, wbp:Breed_belief_merging, wbp:Breed_markov_logic, wbp:Breed_problog, wbp:Breed_csp_ac3, wbp:Breed_clp, wbp:Breed_asp, wbp:Breed_sat_cdcl, wbp:Breed_tableaux, wbp:Breed_contingent_plan, wbp:Breed_mdp, wbp:Breed_pomdp, wbp:Breed_ebl, wbp:Breed_ilp, wbp:Breed_rl_symbolic, wbp:Breed_version_space, wbp:Breed_dendral, wbp:Breed_naive_physics, wbp:Breed_qualitative_reason, wbp:Breed_morphological, wbp:Breed_triz, wbp:Breed_meta_reasoning, wbp:Breed_ocpm_route_discoverer .
+
+wbp:WasmCognitionPackAdoption a wbp:PackAdoption ;
+    wbp:ownerPack "wasm4pm-cognition-pack" ;
+    wbp:admits wbp:Breed_strips, wbp:Breed_gps, wbp:Breed_htn_planning, wbp:Breed_partial_order_plan, wbp:Breed_prolog, wbp:Breed_default_logic, wbp:Breed_circumscription, wbp:Breed_description_logic, wbp:Breed_bayesian_network, wbp:Breed_dempster_shafer, wbp:Breed_fuzzy_logic, wbp:Breed_mycin, wbp:Breed_eliza, wbp:Breed_soar, wbp:Breed_act_r, wbp:Breed_hearsay, wbp:Breed_abductive_ibe, wbp:Breed_abductive_lp, wbp:Breed_allen_temporal, wbp:Breed_event_calculus, wbp:Breed_situation_calculus, wbp:Breed_ltl_monitor, wbp:Breed_ctl_check, wbp:Breed_analogy_sme, wbp:Breed_cbr, wbp:Breed_episodic_memory, wbp:Breed_frames_inheritance, wbp:Breed_script_sam, wbp:Breed_construction_grammar, wbp:Breed_autoinstinct_learning, wbp:Breed_autoinstinct_neurosis, wbp:Breed_autoinstinct_semantics, wbp:Breed_autoinstinct_vision, wbp:Breed_belief_merging, wbp:Breed_markov_logic, wbp:Breed_problog, wbp:Breed_csp_ac3, wbp:Breed_clp, wbp:Breed_asp, wbp:Breed_sat_cdcl, wbp:Breed_tableaux, wbp:Breed_contingent_plan, wbp:Breed_mdp, wbp:Breed_pomdp, wbp:Breed_ebl, wbp:Breed_ilp, wbp:Breed_rl_symbolic, wbp:Breed_version_space, wbp:Breed_dendral, wbp:Breed_naive_physics, wbp:Breed_qualitative_reason, wbp:Breed_morphological, wbp:Breed_triz, wbp:Breed_meta_reasoning, wbp:Breed_ocpm_route_discoverer .
+
+#################################################################
+# ERRC grid — reuses errc:Finding verbatim from packs/gh-actions-errc-pack
+# (same class/predicate IRIs as domain-capability-pack, not reinvented a
+# third/fourth time).
+#################################################################
+
+errc:EliminateDuplicatedBreedCatalog a errc:Finding ;
+    rdfs:label "Eliminate: two independently-typed full copies of wasm4pm's 55-breed catalog with no cross-pack drift guard" ;
+    errc:category "Eliminate" ;
+    errc:statement "packs/wasm4pm-facts-pack/ontology.ttl and packs/wasm4pm-cognition-pack/ontology.ttl each independently declare all 55 compat:CognitionBreed individuals under identical subject IRIs, transcribed by two separate hand-authoring passes from the same upstream ~/wasm4pm/ggen/ontology/breeds.ttl. wasm4pm-facts-pack checks itself against upstream (scripts/check_upstream_drift.sh); nothing checks the two packs against EACH OTHER." ;
+    errc:evidence "Direct grep, 2026-08-11: both files' `a compat:CognitionBreed` count is 55; sorted compat:breedId value sets are identical (diff -> empty). wasm4pm-cognition-pack has no gates/ directory at all." ;
+    errc:impact "Eliminable once one pack imports/generates from the other instead of hand-duplicating -- named follow-up, out of scope for this pack version (matches domain-capability-pack's own precedent of admitting the fact, not fixing the upstream duplication, in its first version)." .
+
+errc:CreateWasmBreedProvenancePack a errc:Finding ;
+    rdfs:label "Create: packs/wasm4pm-breed-provenance-pack itself, generalizing domain-capability-pack's Capability/CapabilitySourceManifest/LabAllowlist shape to a SECOND real case" ;
+    errc:category "Create" ;
+    errc:statement "wbp:Breed / wbp:BreedSourceManifest / wbp:PackAdoption, admitting wasm4pm's real 55-breed catalog and both consuming packs' real (currently set-identical) adoption, with the same two gate shapes (exact-count-per-source, admits-subset) domain-capability-pack proved." ;
+    errc:evidence "This pack's own ontology.ttl (55 wbp:Breed + 1 wbp:BreedSourceManifest + 2 wbp:PackAdoption individuals) and gates/." ;
+    errc:impact "Proves the domain-capability-pack shape generalizes past its one original case (an external domain vs. one lab allowlist) to a different topology (one upstream source vs. two sibling-pack re-admissions of the SAME full set), without rewriting the pattern." .

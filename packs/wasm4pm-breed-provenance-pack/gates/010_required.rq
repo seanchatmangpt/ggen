@@ -1,0 +1,21 @@
+# MESSAGE: every wbp:Breed must have a non-empty wbp:order/breedId/sourceRepo/
+# sourceFile; every wbp:PackAdoption must have a non-empty wbp:ownerPack; every
+# wbp:BreedSourceManifest must have a non-empty manifestSourceRepo/
+# manifestSourceFile/expectedBreedCount. Any row = a subject missing its
+# required property.
+PREFIX wbp: <http://seanchatmangpt.github.io/packs/wasm4pm-breed-provenance#>
+SELECT ?s ?missing WHERE {
+  VALUES (?type ?missing) {
+    (wbp:Breed wbp:order)
+    (wbp:Breed wbp:breedId)
+    (wbp:Breed wbp:sourceRepo)
+    (wbp:Breed wbp:sourceFile)
+    (wbp:PackAdoption wbp:ownerPack)
+    (wbp:BreedSourceManifest wbp:manifestSourceRepo)
+    (wbp:BreedSourceManifest wbp:manifestSourceFile)
+    (wbp:BreedSourceManifest wbp:expectedBreedCount)
+  }
+  ?s a ?type .
+  FILTER NOT EXISTS { ?s ?missing ?any }
+}
+ORDER BY ?s ?missing

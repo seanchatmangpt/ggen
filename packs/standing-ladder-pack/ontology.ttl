@@ -1,0 +1,112 @@
+@prefix stl:   <http://seanchatmangpt.github.io/packs/standing-ladder#> .
+@prefix dcp:   <http://seanchatmangpt.github.io/packs/domain-capability#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+
+#################################################################
+# The fixed 10-state ladder itself. Fixed as 10 individuals with an explicit
+# integer stl:stateIndex so "next state" / "is this a skip" can be computed
+# in SPARQL by integer arithmetic instead of hardcoded string comparisons
+# scattered across gates -- the same explicit-ordering-index pattern
+# packs/dspy-pack's dspy:PipelineStep/dspy:stepIndex and
+# packs/domain-capability-pack's dcp:Capability/dcp:order already use in
+# this workspace.
+#################################################################
+
+stl:StandingState a rdfs:Class ;
+    rdfs:label "One of the 10 fixed rungs of the evidentiary standing ladder. Closed set -- exactly the 10 individuals below, never extended ad hoc." .
+
+stl:stateIndex a rdf:Property ; rdfs:domain stl:StandingState ;
+    rdfs:comment "0-based position in the fixed ladder order. UNKNOWN=0 .. VERIFIED=9." .
+stl:stateName a rdf:Property ; rdfs:domain stl:StandingState ;
+    rdfs:comment "The state's canonical name, verbatim from the fixed ladder order." .
+
+stl:UNKNOWN a stl:StandingState ; stl:stateIndex 0 ; stl:stateName "UNKNOWN" .
+stl:OBSERVED a stl:StandingState ; stl:stateIndex 1 ; stl:stateName "OBSERVED" .
+stl:VALIDATED a stl:StandingState ; stl:stateIndex 2 ; stl:stateName "VALIDATED" .
+stl:DERIVED a stl:StandingState ; stl:stateIndex 3 ; stl:stateName "DERIVED" .
+stl:CANDIDATE a stl:StandingState ; stl:stateIndex 4 ; stl:stateName "CANDIDATE" .
+stl:EXPERIMENTALLY_SUPPORTED a stl:StandingState ; stl:stateIndex 5 ; stl:stateName "EXPERIMENTALLY_SUPPORTED" .
+stl:ADMITTED a stl:StandingState ; stl:stateIndex 6 ; stl:stateName "ADMITTED" .
+stl:MANUFACTURED a stl:StandingState ; stl:stateIndex 7 ; stl:stateName "MANUFACTURED" .
+stl:ACTUATED a stl:StandingState ; stl:stateIndex 8 ; stl:stateName "ACTUATED" .
+stl:VERIFIED a stl:StandingState ; stl:stateIndex 9 ; stl:stateName "VERIFIED" .
+
+#################################################################
+# stl:StandingClaim -- one fact's CURRENT standing. Not self-certifying:
+# gates/010_no_skipped_states.rq refuses any claim whose stl:hasStanding
+# lacks a real, unbroken, evidenced stl:StandingTransition chain reaching it
+# from UNKNOWN.
+#################################################################
+
+stl:StandingClaim a rdfs:Class ;
+    rdfs:label "One real fact's current position on the evidentiary standing ladder. stl:hasStanding is only admissible if gates/010_no_skipped_states.rq confirms a real, unbroken, evidenced stl:StandingTransition chain reaches it from stl:UNKNOWN -- never trusted on its own say-so." .
+
+stl:aboutFact a rdf:Property ; rdfs:domain stl:StandingClaim ;
+    rdfs:comment "The IRI of the real fact (from this pack or another, reused by IRI with no formal cross-pack dependency) this claim tracks the standing of." .
+stl:hasStanding a rdf:Property ; rdfs:domain stl:StandingClaim ; rdfs:range stl:StandingState ;
+    rdfs:comment "REQUIRED. The claim's current, gate-checked rung on the ladder." .
+
+#################################################################
+# stl:StandingTransition -- one real, evidenced single-rung step. Each
+# transition must be EXACTLY one step (toState's stateIndex = fromState's
+# stateIndex + 1) with a non-empty stl:evidenceRef -- a transition claiming
+# to skip a rung, or citing no real evidence, does not count toward any
+# claim's admission chain (enforced by gates/010_no_skipped_states.rq).
+#################################################################
+
+stl:StandingTransition a rdfs:Class ;
+    rdfs:label "One real, evidenced single-rung step in a stl:StandingClaim's promotion history. Must be exactly one ladder rung (no skipping) and must carry a real, non-empty stl:evidenceRef -- never a placeholder." .
+
+stl:aboutClaim a rdf:Property ; rdfs:domain stl:StandingTransition ; rdfs:range stl:StandingClaim ;
+    rdfs:comment "Which stl:StandingClaim this transition is one step of the promotion history for." .
+stl:fromState a rdf:Property ; rdfs:domain stl:StandingTransition ; rdfs:range stl:StandingState .
+stl:toState a rdf:Property ; rdfs:domain stl:StandingTransition ; rdfs:range stl:StandingState .
+stl:evidenceRef a rdf:Property ; rdfs:domain stl:StandingTransition ;
+    rdfs:comment "REQUIRED, non-empty. A real, specific, checkable citation of what evidence justified THIS ONE transition -- a file actually read, a gate that actually ran green, a test that actually passed. Never empty; never generic ('looks fine')." .
+stl:transitionOrder a rdf:Property ; rdfs:domain stl:StandingTransition ;
+    rdfs:comment "1-based position of this transition within its claim's own chain -- redundant with fromState/toState's stateIndex arithmetic, but kept as an explicit, independently-checkable ordering fact (same discipline as stl:stateIndex itself, and dcp:order/dspy:stepIndex elsewhere in this workspace)." .
+
+#################################################################
+# Worked instance (2026-08-11): dcp:sregym-run-kubectl, reused by IRI from
+# packs/domain-capability-pack/ontology.ttl (no formal cross-pack
+# dependency -- the same reuse-without-import pattern that pack itself used
+# for gh-actions-errc-pack's errc: vocabulary), pinned to real standing
+# ADMITTED via a real, evidenced 6-transition chain.
+#################################################################
+
+stl:sregym-run-kubectl-claim a stl:StandingClaim ;
+    stl:aboutFact dcp:sregym-run-kubectl ;
+    stl:hasStanding stl:ADMITTED ;
+    dcterms:description "The real, current standing of packs/domain-capability-pack's dcp:sregym-run-kubectl capability fact, as gated by this pack -- not a hypothetical placeholder claim." .
+
+stl:sregym-run-kubectl-t1 a stl:StandingTransition ;
+    stl:aboutClaim stl:sregym-run-kubectl-claim ;
+    stl:fromState stl:UNKNOWN ; stl:toState stl:OBSERVED ; stl:transitionOrder 1 ;
+    stl:evidenceRef "OBSERVED: directly read from ~/gymact/src/gymact/gyms/sregym.py's SREGYM_CAPABILITIES tuple -- the run_kubectl entry (Consequence.DO), transcribed verbatim into packs/domain-capability-pack/ontology.ttl as dcp:sregym-run-kubectl, confirmed by direct read, 2026-08-11." .
+
+stl:sregym-run-kubectl-t2 a stl:StandingTransition ;
+    stl:aboutClaim stl:sregym-run-kubectl-claim ;
+    stl:fromState stl:OBSERVED ; stl:toState stl:VALIDATED ; stl:transitionOrder 2 ;
+    stl:evidenceRef "VALIDATED: packs/domain-capability-pack/gates/020_exact_count_per_source.rq confirmed, via a real ggen sync run in crates/ggen-engine/tests/domain_capability_pack_e2e.rs, that the real count of dcp:Capability individuals sourced from (gymact, src/gymact/gyms/sregym.py) equals dcp:GymactSregymManifest's dcp:expectedCapabilityCount=14 -- run_kubectl is one of those 14, confirmed by a real, passing gate, not by eyeballing the ontology." .
+
+stl:sregym-run-kubectl-t3 a stl:StandingTransition ;
+    stl:aboutClaim stl:sregym-run-kubectl-claim ;
+    stl:fromState stl:VALIDATED ; stl:toState stl:DERIVED ; stl:transitionOrder 3 ;
+    stl:evidenceRef "DERIVED: packs/domain-capability-pack/ontology.ttl's dcp:autofde-lab-sregym-allowlist derives a second real fact from the raw observation -- that ~/autofde-lab/src/autofde_lab/fabric/gymact_capabilities.toml's real, current allowlist includes dcp:sregym-run-kubectl, confirmed by direct read, 2026-08-11 -- a fact computed FROM the observed capability (which allowlists admit it), not merely restating the observation." .
+
+stl:sregym-run-kubectl-t4 a stl:StandingTransition ;
+    stl:aboutClaim stl:sregym-run-kubectl-claim ;
+    stl:fromState stl:DERIVED ; stl:toState stl:CANDIDATE ; stl:transitionOrder 4 ;
+    stl:evidenceRef "CANDIDATE: this pack (standing-ladder-pack, 2026-08-11) proposes dcp:sregym-run-kubectl as its real worked instance for the standing ladder -- a specific, recorded choice in this pack's own ontology.ttl and pack.toml description, not a hypothetical placeholder fact." .
+
+stl:sregym-run-kubectl-t5 a stl:StandingTransition ;
+    stl:aboutClaim stl:sregym-run-kubectl-claim ;
+    stl:fromState stl:CANDIDATE ; stl:toState stl:EXPERIMENTALLY_SUPPORTED ; stl:transitionOrder 5 ;
+    stl:evidenceRef "EXPERIMENTALLY_SUPPORTED: crates/ggen-engine/tests/standing_ladder_pack_e2e.rs's positive test exercises this exact claim/transition chain through a real `ggen sync run` against a real, scaffolded consumer project and asserts the generated audit-trail doc echoes the real chain -- a real, repeatable experiment, not an unverified assertion." .
+
+stl:sregym-run-kubectl-t6 a stl:StandingTransition ;
+    stl:aboutClaim stl:sregym-run-kubectl-claim ;
+    stl:fromState stl:EXPERIMENTALLY_SUPPORTED ; stl:toState stl:ADMITTED ; stl:transitionOrder 6 ;
+    stl:evidenceRef "ADMITTED: gates/010_no_skipped_states.rq (this pack) ran clean against the full 6-transition chain above via the real `ggen sync run` in the e2e test cited in the prior transition -- the claim is admitted into this pack's own ontology.ttl as dcp:sregym-run-kubectl's current, gate-checked standing, 2026-08-11." .

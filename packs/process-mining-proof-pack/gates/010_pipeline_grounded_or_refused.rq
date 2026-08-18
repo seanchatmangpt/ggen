@@ -1,0 +1,18 @@
+# MESSAGE: every pmp:ProofPipeline must carry all five required stage properties
+# (pmp:pipelineName, pmp:planner, pmp:domain, pmp:powlProjector, pmp:ocelReplayEngine,
+# pmp:conformanceChecker). Any row = a pipeline description missing at least one real
+# stage -- the generated test would import a function that was never declared, so this
+# pipeline is structurally inadmissible, not merely incomplete.
+PREFIX pmp: <http://seanchatmangpt.github.io/packs/process-mining-proof#>
+SELECT ?pipeline WHERE {
+  ?pipeline a pmp:ProofPipeline .
+  FILTER (
+    NOT EXISTS { ?pipeline pmp:pipelineName ?v1 } ||
+    NOT EXISTS { ?pipeline pmp:planner ?v2 } ||
+    NOT EXISTS { ?pipeline pmp:domain ?v3 } ||
+    NOT EXISTS { ?pipeline pmp:powlProjector ?v4 } ||
+    NOT EXISTS { ?pipeline pmp:ocelReplayEngine ?v5 } ||
+    NOT EXISTS { ?pipeline pmp:conformanceChecker ?v6 }
+  )
+}
+ORDER BY ?pipeline

@@ -1,0 +1,30 @@
+---
+to: "docs/process-intelligence-rag/training-examples.md"
+sparql:
+  rows: |
+    PREFIX dspy: <http://seanchatmangpt.github.io/packs/dspy#>
+    PREFIX pirag: <http://seanchatmangpt.github.io/packs/process-intelligence-rag#>
+    PREFIX dcterms: <http://purl.org/dc/terms/>
+    SELECT ?module ?name ?description ?producedBy ?factsSummary WHERE {
+      ?module a dspy:Module ; dspy:signature dspy:GenerateTrainingExampleSignature ;
+          dspy:name ?name ; dcterms:description ?description ;
+          pirag:grounds ?src .
+      ?src pirag:producedBy ?producedBy ; pirag:factsSummary ?factsSummary .
+    } ORDER BY ?name
+---
+# Training-example generators (design-sketch echo, not hand-maintained prose)
+
+Every row below echoes literals already stored in this consumer's own facts against
+`process-intelligence-rag-pack`'s vocabulary — nothing here is synthesized, per
+`pack-authoring-pack`'s "templates echo, they never synthesize" rule. Every row is
+admitted only because `gates/030_training_example_grounded_or_refused.rq` confirmed it
+carries a real, linked `pirag:GroundingSource` — an ungrounded generator cannot reach
+this document at all.
+
+{% for row in rows %}## `{{ row.name }}`
+
+{{ row.description }}
+
+**Grounded by:** `{{ row.producedBy }}` — {{ row.factsSummary }}
+
+{% endfor %}

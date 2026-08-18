@@ -1,0 +1,40 @@
+# Shared, target-agnostic SHACL-shape-driven projection vocabulary.
+#
+# This graph defines law only. It ships zero individuals -- composing this pack cannot inject
+# any shape, projection, or field into a consumer's generated output. A consumer supplies its
+# own sh:NodeShape / sh:PropertyShape / sp:derivedFromShape individuals in its own .ttl.
+#
+# Reuses standard SHACL vocabulary directly (sh:NodeShape, sh:PropertyShape, sh:targetClass,
+# sh:property, sh:path, sh:datatype) -- not reinvented here. Adds exactly two new predicates
+# generalizing the pattern first built as a one-off inside packs/dspy-pack's SHACL-shape-driven
+# Signature derivation (dspy:derivedFromShaclShape / dspy:isOutputField): sp:derivedFromShape
+# and sp:isPrimaryOutput. dspy-pack's own vocabulary/gate/template are untouched by this pack --
+# this is the generalized sibling a NEW projection target can reuse without composing dspy-pack.
+
+@prefix sp:      <http://seanchatmangpt.github.io/packs/shacl-projection#> .
+@prefix sh:      <http://www.w3.org/ns/shacl#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+
+# ── Core predicates ─────────────────────────────────────────────────────────
+
+sp:derivedFromShape a rdf:Property ;
+    rdfs:label "derived from shape" ;
+    rdfs:comment "Links a projected artifact (a dspy:Signature, a sp:PydanticModel, a future Rust struct/TypeScript interface projection, ...) to the real sh:NodeShape whose sh:property list supplies its fields. Generalizes dspy-pack's dspy:derivedFromShaclShape past dspy specifically -- the same predicate is meant to be reused by IRI from any second projection-target pack, not re-declared per target." ;
+    rdfs:domain rdfs:Resource ;
+    rdfs:range sh:NodeShape .
+
+sp:isPrimaryOutput a rdf:Property ;
+    rdfs:label "is primary output" ;
+    rdfs:comment "Marks an sh:PropertyShape as a real, rendered field of the target artifact -- not a fabricated default. Generalizes dspy-pack's dspy:isOutputField: for a dspy:Signature this distinguishes InputField from OutputField; for a projection target with no input/output distinction (e.g. a plain Pydantic model, where every field IS the model's own real field) the fixture marks every field sp:isPrimaryOutput true, which is honest (a real assertion the fixture author makes), not a fabrication -- gates/010_shape_validity.rq's >=1-real-field requirement is target-agnostic on purpose." ;
+    rdfs:domain sh:PropertyShape ;
+    rdfs:range xsd:boolean .
+
+# ── Admitted datatype enum (reused by IRI from dspy-pack's own 4-type mapping, not redeclared) ──
+
+# gates/010_shape_validity.rq enforces sh:datatype must be one of: xsd:string, xsd:boolean,
+# xsd:integer, xsd:long, xsd:decimal, xsd:float, xsd:double -- the same admitted set dspy-pack's
+# gates/020_shacl_signature_admission.rq already checks, so a shape valid for one projection
+# target is valid input for any other target built against this shared gate.

@@ -36,3 +36,10 @@ praxis-graphlaw = { path = "../praxis-graphlaw", version = "26.7.9" }
 [dev-dependencies]
 tempfile = "3"
 proptest = "1"
+# For tests/proof_receipt.rs: signs a ReceiptRecord's chain_hash_hex the same
+# way crates/ggen-engine/src/sync.rs does (raw ed25519_dalek::Signer::sign
+# over the UTF-8 chain-hash-hex bytes) -- ggen-engine's own key-resolution
+# helper (crate::keys::resolve_signing_key) is pub(crate) and unreachable
+# from an external test, so this reuses the exact signing OPERATION with a
+# real, fixed test seed rather than the private resolver.
+ed25519-dalek = { workspace = true }

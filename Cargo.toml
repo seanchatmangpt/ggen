@@ -1,5 +1,5 @@
 [workspace.package]
-version = "26.8.11"
+version = "26.8.16"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 edition = "2021"
 repository = "https://github.com/seanchatmangpt/ggen"
@@ -75,16 +75,7 @@ members = [
   "crates/powl2-decompose",
   "crates/bcinr-pddl",
   "crates/bcinr-mfw-ir",
-  # Genesis kernel crates (pure Rust, IO-free)
-  "crates/genesis-types-v2",
-  "crates/genesis-core-v2",
-  "crates/cpmp",
   "crates/ggen-cheat-scanner",
-  # Lever 1 (docs/how-to/clap-noun-verb/zero-code-cli.md phase-change analysis):
-  # reflects an OpenAPI 3.x document into a cnv:Cli ontology.ttl consumable
-  # unchanged by the zero-code clap-noun-verb compiler, so N endpoints cost one
-  # reflection pass instead of N hand-authored RDF fact blocks.
-  "crates/openapi-cnv-reflect",
   "crates/ggen-mcp",
   # ARCHIVED out of the v26.5.29 build boundary (SETTLEMENT-CHECK-1): this example
   # drifted from its own types in a prior release (ValidationAgent missing the
@@ -201,10 +192,6 @@ ggen-graph = { path = "crates/ggen-graph", version = "26.7.2" }
 ggen-config = { path = "crates/ggen-config", version = "26.7.2" }
 ggen-marketplace = { path = "crates/ggen-marketplace", version = "26.7.2" }
 ggen-engine = { path = "crates/ggen-engine", version = "26.7.13" }
-
-# Genesis kernel crates (pure Rust, IO-free — A = μ(O) foundation)
-genesis-types = { path = "crates/genesis-types-v2", version = "26.7.2" }
-genesis-core-v2 = { path = "crates/genesis-core-v2", version = "26.7.2" }
 
 # A2A Protocol Integration (Agent-to-Agent protocol) - using local a2a-generated
 # The vendor a2a-rs is for reference only - we use our generated types
