@@ -1,0 +1,149 @@
+name: Repair book semantic source
+
+on:
+  push:
+    branches:
+      - fix/ggen-book-github-pages-20260815
+    paths:
+      - '.github/workflows/book-source-repair.yml'
+      - 'packs/level-five-book-pack/**'
+      - 'book/**'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: book-source-repair-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout purpose branch
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: fix/ggen-book-github-pages-20260815
+          fetch-depth: 0
+
+      - name: Assert branch identity
+        run: |
+          set -euo pipefail
+          test "$(git branch --show-current)" = 'fix/ggen-book-github-pages-20260815'
+          git status --short
+
+      - name: Setup ggen build
+        uses: ./.github/actions/setup-ggen-build
+        with:
+          cache-key-suffix: book-source-repair
+
+      - name: Build the real ggen CLI
+        run: cargo build -p ggen-cli-lib --bin ggen
+
+      - name: Repair only the admitted ontology source facts
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          path = Path('packs/level-five-book-pack/ontology.ttl')
+          text = path.read_text(encoding='utf-8')
+          replacements = {
+              '| `chicago-tdd-tools` | Independent state-based test support | `crates/chicago-tdd-tools/` |':
+                  '| `chicago-tdd-tools-pack` | Independent state-based test support | `packs/chicago-tdd-tools-pack/` |',
+              '| **XVII. TCPS Complete Pattern** — 225–302, 337 |':
+                  '| **XVII. TCPS Complete Pattern** — 225–302 |',
+          }
+          for old, new in replacements.items():
+              old_count = text.count(old)
+              new_count = text.count(new)
+              if old_count == 1 and new_count == 0:
+                  text = text.replace(old, new, 1)
+              elif old_count == 0 and new_count == 1:
+                  pass
+              else:
+                  raise SystemExit(
+                      f'REFUSED:BOOK_SOURCE_CARDINALITY old={old!r} old_count={old_count} new_count={new_count}'
+                  )
+          path.write_text(text, encoding='utf-8')
+          print('BOOK_SOURCE_REPAIR admitted=2')
+          PY
+
+      - name: Manufacture the book projection with ggen
+        run: |
+          set -euo pipefail
+          # The source pack changed intentionally above. The existing lock must
+          # refuse that drift; remove it rather than hand-writing the new pack
+          # digest so the real ggen manufacturer re-locks the exact source.
+          rm -f book/ggen.lock
+          (
+            cd book
+            ../target/debug/ggen sync run
+            ../target/debug/ggen receipt verify
+          )
+
+      - name: Verify repaired semantic and generated state
+        run: |
+          set -euo pipefail
+          python3 book/scripts/check_book.py
+          python3 book/scripts/check_level_five.py
+          python3 book/scripts/audit_claim_coverage.py
+          python3 book/scripts/validate_gap_closure.py
+          python3 -m unittest -v \
+            book.tests.test_gap_closure_chicago.TurtleCorpusStateTests \
+            book.tests.test_gap_closure_chicago.CapabilityLedgerStateTests
+
+      - name: Admit only the bounded manufacture consequence
+        run: |
+          python3 - <<'PY'
+          import subprocess
+
+          allowed = {
+              'packs/level-five-book-pack/ontology.ttl',
+              'book/src/CAPABILITY_MAP.md',
+              'book/ggen.lock',
+              'book/.ggen-v2/receipt.json',
+          }
+          rows = subprocess.check_output(
+              ['git', 'status', '--porcelain=v1', '--untracked-files=all'],
+              text=True,
+          ).splitlines()
+          changed = []
+          refused = []
+          for row in rows:
+              path = row[3:]
+              if ' -> ' in path:
+                  path = path.split(' -> ', 1)[1]
+              if path.startswith('book/.ggen-v2/') and path != 'book/.ggen-v2/receipt.json':
+                  continue
+              changed.append(path)
+              if path not in allowed:
+                  refused.append(path)
+          print('BOOK_MANUFACTURE_CHANGED', *changed, sep='\n')
+          if refused:
+              raise SystemExit('REFUSED:BOOK_MANUFACTURE_PATH_ESCAPE ' + ','.join(refused))
+          required = {
+              'packs/level-five-book-pack/ontology.ttl',
+              'book/src/CAPABILITY_MAP.md',
+              'book/ggen.lock',
+          }
+          if not required.issubset(changed):
+              raise SystemExit('REFUSED:BOOK_MANUFACTURE_INCOMPLETE ' + ','.join(sorted(required - set(changed))))
+          PY
+
+      - name: Commit admitted source and generated consequence
+        run: |
+          set -euo pipefail
+          git config user.name 'ggen-book-repair[bot]'
+          git config user.email 'ggen-book-repair[bot]@users.noreply.github.com'
+          git add \
+            packs/level-five-book-pack/ontology.ttl \
+            book/src/CAPABILITY_MAP.md \
+            book/ggen.lock \
+            book/.ggen-v2/receipt.json
+          if git diff --cached --quiet; then
+            echo 'Book semantic source already repaired; no commit required.'
+            exit 0
+          fi
+          git commit -m 'docs(book): repair capability ledger at semantic source'
+          git push origin HEAD:fix/ggen-book-github-pages-20260815

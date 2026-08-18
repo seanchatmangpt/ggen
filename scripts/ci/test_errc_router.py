@@ -8,6 +8,7 @@ import unittest
 from pathlib import Path
 
 import errc_router
+import fast_admission
 
 
 class RouterTests(unittest.TestCase):
@@ -81,6 +82,22 @@ class RouterTests(unittest.TestCase):
             errc_router.write_github_outputs(output, report)
             values = dict(line.split("=", 1) for line in output.read_text().splitlines())
         self.assertEqual(json.loads(values["deep_matrix_json"]), {"include": [{"lane": "fast_only"}]})
+
+    def test_deleted_workflow_is_not_reopened_for_yaml_parse(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            repo = Path(raw)
+            current = repo / ".github/workflows/current.yml"
+            current.parent.mkdir(parents=True)
+            current.write_text("name: current\non: push\n", encoding="utf-8")
+            paths = (
+                ".github/workflows/current.yml",
+                ".github/workflows/deleted.yml",
+                "README.md",
+            )
+            self.assertEqual(
+                fast_admission.existing_changed_workflows(paths, repo),
+                [".github/workflows/current.yml"],
+            )
 
     def test_real_two_commit_git_replay(self) -> None:
         with tempfile.TemporaryDirectory() as raw:

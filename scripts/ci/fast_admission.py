@@ -34,6 +34,23 @@ def run_check(check_id: str, command: Sequence[str], cwd: Path) -> dict[str, obj
     }
 
 
+def existing_changed_workflows(paths: Sequence[str], repo: Path) -> list[str]:
+    """Return changed workflow definitions that still exist at the admitted head.
+
+    Git's name-only diff deliberately reports deleted paths. A deleted workflow
+    is an elimination consequence, not YAML that can still be parsed, so the
+    fast court must parse every surviving changed workflow without trying to
+    reopen a path whose exact-head state is absence.
+    """
+    return [
+        path
+        for path in paths
+        if path.startswith(".github/workflows/")
+        and path.endswith((".yml", ".yaml"))
+        and (repo / path).is_file()
+    ]
+
+
 def parser() -> argparse.ArgumentParser:
     result = argparse.ArgumentParser(description=__doc__)
     result.add_argument("--repository", required=True)
@@ -73,11 +90,7 @@ def main(argv: Sequence[str] | None = None) -> int:
 
         paths = errc_router.discover_changed_files(args.base, args.head, repo)
         routing = errc_router.route(paths)
-        changed_workflows = [
-            path
-            for path in routing.changed_files
-            if path.startswith(".github/workflows/") and path.endswith((".yml", ".yaml"))
-        ]
+        changed_workflows = existing_changed_workflows(routing.changed_files, repo)
 
         commands = [
             ("python-compile", [sys.executable, "-m", "py_compile", "scripts/ci/errc_router.py", "scripts/ci/fast_admission.py", "scripts/ci/test_errc_router.py"]),
