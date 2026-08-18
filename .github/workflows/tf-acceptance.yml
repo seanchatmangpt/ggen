@@ -45,7 +45,7 @@ jobs:
         if: env.HAS_TF_ACC_TOKEN == 'true'
 
       - name: Install just
-        uses: extractions/setup-just@v2
+        uses: extractions/setup-just@v4
         if: env.HAS_TF_ACC_TOKEN == 'true'
 
       - name: Setup Terraform
