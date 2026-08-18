@@ -105,27 +105,22 @@ pub struct InstallOutput {
 
 /// Add (install) a pack by name
 #[verb]
-pub fn add(#[arg(index = 1)] pack_name: String, force: Option<bool>) -> Result<AddOutput> {
+pub fn add(#[arg(index = 1)] pack_name: String, force: bool) -> Result<AddOutput> {
     validate_pack_name(&pack_name)?;
     // Verify the pack exists before attempting installation
     if let Err(e) = load_pack_metadata(&pack_name) {
-        return Ok(AddOutput {
-            pack_id: pack_name.clone(),
-            pack_name: pack_name.clone(),
-            status: "not_found".to_string(),
-            message: format!(
-                "Pack '{}' not found in local registry: {}. \
-                 Ensure marketplace/packs/{}.toml exists.",
-                pack_name, e, pack_name
-            ),
-        });
+        return Err(NounVerbError::execution_error(format!(
+            "Pack '{}' not found in local registry: {}. \
+             Ensure marketplace/packs/{}.toml exists.",
+            pack_name, e, pack_name
+        )));
     }
 
     // Run the real installation via the marketplace layer
     let input = InstallByIdInput {
         pack_id: pack_name.clone(),
         target_dir: None,
-        force: force.unwrap_or(false),
+        force,
         dry_run: false,
     };
 
@@ -241,11 +236,11 @@ pub fn remove(#[arg(index = 1)] pack_name: String) -> Result<RemoveOutput> {
 
 /// List all available packs
 #[verb]
-pub fn list(verbose: Option<bool>, category: Option<String>) -> Result<ListOutput> {
+pub fn list(verbose: bool, category: Option<String>) -> Result<ListOutput> {
     let packages = list_packs(None)
         .map_err(|e| NounVerbError::execution_error(format!("Failed to list packs: {}", e)))?;
 
-    let is_verbose = verbose.unwrap_or(false);
+    let is_verbose = verbose;
     let filtered_packages: Vec<_> = if let Some(cat) = category.as_ref() {
         packages
             .into_iter()
@@ -314,6 +309,11 @@ pub fn show(#[arg(index = 1)] pack_id: String) -> Result<ShowOutput> {
 /// Search for packs
 #[verb]
 pub fn search(#[arg(index = 1)] query: String, limit: Option<usize>) -> Result<SearchOutput> {
+    if let Some(0) = limit {
+        return Err(NounVerbError::argument_error(
+            "--limit must be greater than 0",
+        ));
+    }
     let results = perform_search(&query, limit)?;
     let total = results.len();
     log::info!("Found {} result(s) for '{}'", total, query);

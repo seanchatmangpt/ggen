@@ -7,7 +7,7 @@ use crate::marketplace::error::{Error, Result};
 use crate::packs_registry::types::Pack;
 use oxigraph::io::RdfFormat;
 use oxigraph::model::*;
-use oxigraph::sparql::QueryResults;
+use oxigraph::sparql::{Query, QueryResults};
 use oxigraph::store::Store;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -133,6 +133,11 @@ impl SparqlExecutor {
     pub fn execute_query(&mut self, pack: &Pack, query: &str) -> Result<SparqlResult> {
         let start = Instant::now();
 
+        // Validate SPARQL syntax before touching pack RDF -- a syntactically invalid query
+        // must fail fast without loading any pack data.
+        Query::parse(query, None)
+            .map_err(|e| Error::Other(format!("SPARQL query failed: {e}")))?;
+
         // Check cache first
         let cache_key = format!("{}:{}", pack.id, query);
         if let Some(cached) = self.cache.get(&cache_key) {
@@ -176,6 +181,12 @@ impl SparqlExecutor {
         &mut self, packs: &[Pack], query: &str,
     ) -> Result<SparqlResult> {
         let start = Instant::now();
+
+        // Validate SPARQL syntax before loading any pack RDF -- a syntactically invalid
+        // query must fail fast without paying the I/O/parse cost of the whole registry.
+        Query::parse(query, None)
+            .map_err(|e| Error::Other(format!("SPARQL query failed: {e}")))?;
+
         for pack in packs {
             self.load_pack_rdf(pack)?;
         }

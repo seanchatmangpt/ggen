@@ -63,14 +63,30 @@ pub fn get_packs_dir() -> Result<PathBuf> {
 
 /// Load pack from TOML file
 pub fn load_pack_metadata(pack_id: &str) -> Result<Pack> {
+    if pack_id.is_empty() {
+        return Err(crate::marketplace::error::Error::Other(
+            "Pack id must not be empty".to_string(),
+        ));
+    }
+
     let packs_dir = get_packs_dir()?;
     let pack_path = packs_dir.join(format!("{}.toml", pack_id));
 
     if !pack_path.exists() {
+        // Report the resolved absolute path (matching what `pack doctor`/`pack
+        // add` report) rather than a possibly-relative dev-checkout path, so
+        // the error points somewhere the user can actually find on disk.
+        let resolved_display = pack_path
+            .canonicalize()
+            .unwrap_or_else(|_| {
+                std::env::current_dir()
+                    .map(|cwd| cwd.join(&pack_path))
+                    .unwrap_or_else(|_| pack_path.clone())
+            });
         return Err(crate::marketplace::error::Error::Other(format!(
             "Pack '{}' not found at {}",
             pack_id,
-            pack_path.display()
+            resolved_display.display()
         )));
     }
 
