@@ -1,0 +1,4 @@
+[pack]
+name = "autofde-execution-profile-pack"
+version = "26.8.9"
+description = "Manufactures deterministic, provenance-bound GymAct execution-profile data from admitted RDF. Profiles are powerless CONSTRUCT artifacts: they bind benchmark revision, provider, capability selector, payload, non-vacuous verification oracle, input schema, and source provenance. The pack cannot manufacture ExecutionGrant, principals, nonces, expiry, or any other authority token; DO remains external behind GymAct/BRCE."

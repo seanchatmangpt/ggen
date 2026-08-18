@@ -96,7 +96,12 @@ jobs:
         uses: ./.github/actions/setup-ggen-build
         with:
           components: ${{ matrix.lane == 'quality_deep' && 'rustfmt,clippy' || '' }}
-          cache-key-suffix: errc-${{ matrix.lane }}
+          # This branch's previous Deep run executed a dspy integration-test
+          # function absent from this exact checkout, proving the lane-only
+          # target cache could surface a stale binary from another source head.
+          # Bind target artifacts to the exact candidate before using this run
+          # as evidence for the AutoFDE profile subject.
+          cache-key-suffix: errc-${{ matrix.lane }}-${{ needs.admission.outputs.head }}
       - name: Install security verifier
         if: matrix.lane == 'security_deep'
         uses: taiki-e/install-action@82cd3e7658a6f96c86c0234aeeda1748937cb0a1 # v2.85.13
