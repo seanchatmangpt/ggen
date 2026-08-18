@@ -175,7 +175,7 @@ impl<T: Clone> ValidationRule<T> for OrRule<T> {
                 Ok(validated) => Ok(validated),
                 Err(right_err) => Err(InputValidationError::CompositeViolation {
                     reason: format!("OR failed: {} AND {}", left_err, right_err),
-                }),
+                }.into()),
             },
         }
     }
@@ -191,7 +191,7 @@ impl<T: Clone> ValidationRule<T> for NotRule<T> {
         match self.inner.validate(input, field_name) {
             Ok(_) => Err(InputValidationError::CompositeViolation {
                 reason: "NOT validation failed: inner validation succeeded".to_string(),
-            }).into(),
+            }.into()),
             Err(_) => Ok(input.clone()),
         }
     }
@@ -295,7 +295,7 @@ impl ValidationRule<String> for PatternRule {
             return Err(InputValidationError::PatternViolation {
                 field: field_name.to_string(),
                 pattern: self.pattern.clone(),
-            }).into();
+            }.into());
         }
 
         Ok(input.clone())
@@ -306,6 +306,7 @@ impl ValidationRule<String> for PatternRule {
 #[derive(Clone)]
 pub struct CharsetRule {
     allowed_chars: fn(char) -> bool,
+    #[allow(dead_code)]
     description: String,
 }
 
@@ -352,7 +353,7 @@ impl ValidationRule<String> for CharsetRule {
         if !input.chars().all(self.allowed_chars) {
             return Err(InputValidationError::CharsetViolation {
                 field: field_name.to_string(),
-            }).into();
+            }.into());
         }
 
         Ok(input.clone())
@@ -433,7 +434,7 @@ impl ValidationRule<String> for WhitelistRule {
             return Err(InputValidationError::WhitelistViolation {
                 field: field_name.to_string(),
                 value: input.clone(),
-            }).into();
+            }.into());
         }
 
         Ok(input.clone())
@@ -458,7 +459,7 @@ impl ValidationRule<String> for BlacklistRule {
             return Err(InputValidationError::BlacklistViolation {
                 field: field_name.to_string(),
                 value: input.clone(),
-            }).into();
+            }.into());
         }
 
         Ok(input.clone())
@@ -599,7 +600,7 @@ impl PathValidatorRule {
                 if component_str == ".." {
                     return Err(InputValidationError::PathViolation {
                         reason: "Path traversal detected (..)".to_string(),
-                    }).into();
+                    }.into());
                 }
             }
         }
@@ -616,7 +617,7 @@ impl PathValidatorRule {
             } else {
                 return Err(InputValidationError::PathViolation {
                     reason: "No file extension found".to_string(),
-                }).into();
+                }.into());
             }
         }
 
@@ -693,7 +694,7 @@ impl UrlValidator {
         if self.require_https && url.scheme() != "https" {
             return Err(InputValidationError::UrlViolation {
                 reason: "HTTPS required".to_string(),
-            }).into();
+            }.into());
         }
 
         if let Some(ref allowed_schemes) = self.allowed_schemes {
@@ -715,7 +716,7 @@ impl UrlValidator {
             } else {
                 return Err(InputValidationError::UrlViolation {
                     reason: "No host found in URL".to_string(),
-                }).into();
+                }.into());
             }
         }
 
@@ -767,7 +768,7 @@ impl<T: PartialOrd + fmt::Display + Clone> RangeRule<T> {
     }
 }
 
-impl<T: PartialOrd + fmt::Display + Clone> ValidationRule<T> for RangeRule<T> {
+impl<T: PartialOrd + fmt::Display + Clone + Send + Sync> ValidationRule<T> for RangeRule<T> {
     fn validate(&self, input: &T, field_name: &str) -> Result<T> {
         if let Some(ref min) = self.min {
             if input < min {
@@ -804,7 +805,7 @@ impl ValidationRule<i64> for PositiveRule {
                 field: field_name.to_string(),
                 actual: input.to_string(),
                 constraint: "> 0".to_string(),
-            }).into();
+            }.into());
         }
         Ok(*input)
     }
@@ -817,7 +818,7 @@ impl ValidationRule<f64> for PositiveRule {
                 field: field_name.to_string(),
                 actual: input.to_string(),
                 constraint: "> 0".to_string(),
-            }).into();
+            }.into());
         }
         Ok(*input)
     }
@@ -834,7 +835,7 @@ impl ValidationRule<i64> for NegativeRule {
                 field: field_name.to_string(),
                 actual: input.to_string(),
                 constraint: "< 0".to_string(),
-            }).into();
+            }.into());
         }
         Ok(*input)
     }
@@ -847,7 +848,7 @@ impl ValidationRule<f64> for NegativeRule {
                 field: field_name.to_string(),
                 actual: input.to_string(),
                 constraint: "< 0".to_string(),
-            }).into();
+            }.into());
         }
         Ok(*input)
     }

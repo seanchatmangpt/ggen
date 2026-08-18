@@ -22,7 +22,7 @@
 use ggen_utils::error::{Error, Result};
 use notify::event::{ModifyKind, RenameMode};
 use notify::{Event, EventKind, RecommendedWatcher, RecursiveMode};
-use notify_debouncer_full::{new_debouncer, DebounceEventResult, Debouncer, NoCache};
+use notify_debouncer_full::{new_debouncer, DebounceEventResult, Debouncer, FileIdMap};
 use std::path::{Path, PathBuf};
 use std::sync::mpsc::{channel, Receiver, Sender};
 use std::sync::Arc;
@@ -132,7 +132,7 @@ impl FileWatcher {
         let tx_clone = tx.clone();
 
         // Create debounced watcher
-        let mut debouncer: Debouncer<RecommendedWatcher, NoCache> = new_debouncer(
+        let mut debouncer: Debouncer<RecommendedWatcher, FileIdMap> = new_debouncer(
             debounce_duration,
             None,
             move |result: DebounceEventResult| {
