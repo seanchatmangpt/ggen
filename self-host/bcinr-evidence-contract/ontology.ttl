@@ -1,0 +1,82 @@
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix odrl: <http://www.w3.org/ns/odrl/2/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix bec: <https://ggen.dev/ontology/bcinr-evidence-contract#> .
+
+bec:ContractV1 a bec:EvidenceContract, prov:Entity ;
+    dcterms:identifier "bcinr.evidence.contract/1" ;
+    dcterms:title "BCINR claim and evidence contract" ;
+    dcterms:description "Generated contract separating bounded-work, target-indexed branchlessness, semantic-equivalence, proof, runtime-receipt, authority-fence, and standing claims." ;
+    bec:authorityPath "self-host/bcinr-evidence-contract/ontology.ttl" ;
+    bec:generatorConfig "self-host/bcinr-evidence-contract/ggen.toml" ;
+    bec:producerRepository "seanchatmangpt/ggen" ;
+    bec:receiverRepository "seanchatmangpt/ggen-legacy" ;
+    bec:consumerRepository "seanchatmangpt/bcinr" ;
+    bec:contractVersion "26.8.14-r1" .
+
+bec:Unknown a bec:Standing ; bec:code "UNKNOWN" ; bec:order 1 .
+bec:PartialAlive a bec:Standing ; bec:code "PARTIAL_ALIVE" ; bec:order 2 .
+bec:Alive a bec:Standing ; bec:code "ALIVE" ; bec:order 3 .
+bec:Blocked a bec:Standing ; bec:code "BLOCKED" ; bec:order 4 .
+bec:BuildBroken a bec:Standing ; bec:code "BUILD_BROKEN" ; bec:order 5 .
+bec:Unsupported a bec:Standing ; bec:code "UNSUPPORTED" ; bec:order 6 .
+bec:Refused a bec:Standing ; bec:code "REFUSED" ; bec:order 7 .
+
+bec:BoundedWorkClaim a bec:ClaimKind ;
+    bec:code "BOUNDED_WORK" ; bec:order 1 ;
+    dcterms:description "Execution work is bounded by a declared finite subject-specific bound; this is not an asymptotic or side-channel claim." .
+
+bec:TargetBranchlessClaim a bec:ClaimKind ;
+    bec:code "TARGET_BRANCHLESS" ; bec:order 2 ;
+    dcterms:description "The audited authoritative symbol graph has no admitted input-dependent conditional branch for one exact target/toolchain subject." .
+
+bec:SemanticEquivalenceClaim a bec:ClaimKind ;
+    bec:code "SEMANTIC_EQUIVALENCE" ; bec:order 3 ;
+    dcterms:description "Two admitted implementations or target projections produce equivalent semantics over the declared domain or theorem-backed partition." .
+
+bec:ProofClaim a bec:ClaimKind ;
+    bec:code "PROOF" ; bec:order 4 ;
+    dcterms:description "A theorem claim whose authority requires a machine-bound proof receipt rather than a hand-curated citation." .
+
+bec:RuntimeReceiptClaim a bec:ClaimKind ;
+    bec:code "RUNTIME_RECEIPT" ; bec:order 5 ;
+    dcterms:description "Observed execution is bound to exact subject, admitted observation, manufacture identity, authority, consequence, verifier, and replay data." .
+
+bec:AuthorityFenceClaim a bec:ClaimKind ;
+    bec:code "AUTHORITY_FENCE" ; bec:order 6 ;
+    dcterms:description "A capability boundary is enforced by construction; documentation visibility alone is insufficient." .
+
+bec:ScopedStandingClaim a bec:ClaimKind ;
+    bec:code "SCOPED_STANDING" ; bec:order 7 ;
+    dcterms:description "Standing applies only to the exact admitted subject and claim boundary named by its evidence." .
+
+bec:InspectionEvidence a bec:EvidenceKind ; bec:code "INSPECTION" ; bec:order 1 ; bec:maxStanding "PARTIAL_ALIVE" .
+bec:SourceCourtEvidence a bec:EvidenceKind ; bec:code "SOURCE_COURT" ; bec:order 2 ; bec:maxStanding "PARTIAL_ALIVE" .
+bec:ObjectCodeCourtEvidence a bec:EvidenceKind ; bec:code "OBJECT_CODE_COURT" ; bec:order 3 ; bec:maxStanding "ALIVE" .
+bec:ExhaustiveDomainEvidence a bec:EvidenceKind ; bec:code "EXHAUSTIVE_DOMAIN" ; bec:order 4 ; bec:maxStanding "ALIVE" .
+bec:TheoremPartitionEvidence a bec:EvidenceKind ; bec:code "THEOREM_PARTITION" ; bec:order 5 ; bec:maxStanding "ALIVE" .
+bec:FormalCitationEvidence a bec:EvidenceKind ; bec:code "FORMAL_CITATION" ; bec:order 6 ; bec:maxStanding "PARTIAL_ALIVE" .
+bec:ProofReceiptEvidence a bec:EvidenceKind ; bec:code "PROOF_RECEIPT" ; bec:order 7 ; bec:maxStanding "ALIVE" .
+bec:ExecutionReceiptEvidence a bec:EvidenceKind ; bec:code "EXECUTION_RECEIPT" ; bec:order 8 ; bec:maxStanding "ALIVE" .
+bec:AuthorityReachabilityEvidence a bec:EvidenceKind ; bec:code "AUTHORITY_REACHABILITY" ; bec:order 9 ; bec:maxStanding "ALIVE" .
+
+bec:Rule001 a bec:AdmissionRule ; bec:order 1 ; bec:code "INSPECTION_NOT_EXECUTION" ; dcterms:description "Inspection alone cannot establish execution standing." .
+bec:Rule002 a bec:AdmissionRule ; bec:order 2 ; bec:code "CITATION_NOT_PROOF_RECEIPT" ; dcterms:description "A formal citation without pinned source commit, proof artifact digest, toolchain identity, and successful replay is not a proof receipt." .
+bec:Rule003 a bec:AdmissionRule ; bec:order 3 ; bec:code "BRANCHLESS_IS_TARGET_INDEXED" ; dcterms:description "Branchlessness standing is indexed by exact target and compiler/toolchain identity." .
+bec:Rule004 a bec:AdmissionRule ; bec:order 4 ; bec:code "BOUNDED_NOT_BIG_O" ; dcterms:description "A fixed admitted bound and an asymptotic complexity statement are distinct claims." .
+bec:Rule005 a bec:AdmissionRule ; bec:order 5 ; bec:code "DOC_HIDDEN_NOT_AUTHORITY_FENCE" ; dcterms:description "Documentation hiding does not remove reachability or capability authority." .
+bec:Rule006 a bec:AdmissionRule ; bec:order 6 ; bec:code "NO_AMBIENT_DO" ; dcterms:description "Generated contracts, proofs, hooks, and planner outputs grant no ambient consequential actuation authority." .
+bec:Rule007 a bec:AdmissionRule ; bec:order 7 ; bec:code "EXACT_SUBJECT_STANDING" ; dcterms:description "ALIVE standing requires observed execution against the exact admitted subject named by the claim." .
+
+bec:ProofReceiptShape a bec:ReceiptShape ;
+    bec:code "PROOF_RECEIPT_V1" ;
+    bec:requiredField "repository", "commit", "module", "declaration", "source_digest", "proof_artifact_digest", "toolchain", "dependency_lock_digest", "verification_command", "exit_code" .
+
+bec:ExecutionReceiptShape a bec:ReceiptShape ;
+    bec:code "EXECUTION_RECEIPT_V1" ;
+    bec:requiredField "subject", "observation", "manufacture", "authority", "consequence", "execution", "verifier", "replay", "standing", "binding_digest" .
+
+bec:NoAmbientActuation a odrl:Prohibition ;
+    odrl:action <https://ggen.dev/action/consequential-do> ;
+    dcterms:description "This evidence contract grants no shell, network, deployment, cloud, or world-actuation authority." .

@@ -4,11 +4,16 @@ sparql:
   files: |
     PREFIX gsh: <http://seanchatmangpt.github.io/packs/ggen-self-host#>
     PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
-    SELECT ?path ?label ?load ?generated WHERE {
-      ?file a gsh:RepositoryFile ; gsh:path ?path ; gsh:authorityClass ?class ;
-            gsh:loadBearing ?load ; gsh:generatedMarker ?generated .
-      ?class skos:prefLabel ?label .
-    } ORDER BY ?label ?path
+    SELECT (GROUP_CONCAT(?line; separator="\n") AS ?rows) WHERE {
+      {
+        SELECT ?path ?label ?load ?generated WHERE {
+          ?file a gsh:RepositoryFile ; gsh:path ?path ; gsh:authorityClass ?class ;
+                gsh:loadBearing ?load ; gsh:generatedMarker ?generated .
+          ?class skos:prefLabel ?label .
+        } ORDER BY ?label ?path
+      }
+      BIND(CONCAT("| `", STR(?path), "` | ", STR(?label), " | ", STR(?load), " | ", STR(?generated), " |") AS ?line)
+    }
 ---
 # ggen Repository Authority Map
 
@@ -16,7 +21,7 @@ GENERATED from the observed Git tree. This is the live answer to “what may be 
 
 | Path | Authority class | Load-bearing | Generated marker |
 |---|---|---:|---:|
-{% for row in files %}| `{{ row.path }}` | {{ row.label }} | {{ row.load }} | {{ row.generated }} |
+{% for row in files %}{{ row.rows }}
 {% endfor %}
 
 ## Editing law

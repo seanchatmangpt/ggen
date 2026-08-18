@@ -36,32 +36,72 @@ jobs:
           ./target/debug/ggen sync run
           ./target/debug/ggen receipt verify
 
-      - name: Refuse any unowned root consequence
+      - name: Observe root consequence ownership
+        id: root-ownership
+        continue-on-error: true
         run: python3 self-host/scripts/verify_root_regeneration.py
+
+      - name: Upload root ownership diagnostic
+        if: always()
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08
+        with:
+          name: ggen-root-ownership-${{ github.sha }}
+          path: |
+            self-host/observed/root-regeneration.json
+            .ggen-v2/receipt.json
+          if-no-files-found: warn
+
+      - name: Refuse any unowned root consequence
+        if: always()
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          report = json.loads(Path('self-host/observed/root-regeneration.json').read_text())
+          if not report['passed']:
+              raise SystemExit(json.dumps({
+                  'unauthorized_paths': report['unauthorized_paths'],
+                  'missing_outputs': report['missing_outputs'],
+              }, sort_keys=True))
+          PY
 
       - name: Require every declared output, including CLI proof tests
         run: |
           test -s crates/ggen-cli/src/generated_commands.rs
           test -s crates/ggen-cli/tests/generated/cli_proof_tests.rs
           python3 - <<'PY'
-          import tomllib
+          import importlib.util, tomllib
           from pathlib import Path
-          doc = tomllib.loads(Path('ggen.toml').read_text())
-          outputs = [Path(rule['output_file']) for rule in doc['generation']['rules']]
-          missing = [str(path) for path in outputs if not path.is_file()]
+          root = Path.cwd()
+          script = root / 'self-host/scripts/verify_root_regeneration.py'
+          spec = importlib.util.spec_from_file_location('root_verify', script)
+          module = importlib.util.module_from_spec(spec)
+          spec.loader.exec_module(module)
+          doc = tomllib.loads((root / 'ggen.toml').read_text())
+          missing = []
+          for rule in doc['generation']['rules']:
+              raw = rule['output_file']
+              if not module.existing_output_matches(root, raw):
+                  missing.append(raw)
           assert not missing, missing
           PY
 
       - name: Snapshot all declared consequence bytes
         run: |
           python3 - <<'PY'
-          import hashlib, json, tomllib
+          import hashlib, importlib.util, json, tomllib
           from pathlib import Path
-          doc = tomllib.loads(Path('ggen.toml').read_text())
+          root = Path.cwd()
+          script = root / 'self-host/scripts/verify_root_regeneration.py'
+          spec = importlib.util.spec_from_file_location('root_verify', script)
+          module = importlib.util.module_from_spec(spec)
+          spec.loader.exec_module(module)
+          doc = tomllib.loads((root / 'ggen.toml').read_text())
           result = {}
           for rule in doc['generation']['rules']:
-              path = Path(rule['output_file'])
-              result[str(path)] = hashlib.sha256(path.read_bytes()).hexdigest()
+              for raw in module.existing_output_matches(root, rule['output_file']):
+                  path = root / raw
+                  result[raw] = hashlib.sha256(path.read_bytes()).hexdigest()
           Path('/tmp/root-first.json').write_text(json.dumps(result, indent=2, sort_keys=True) + '\n')
           PY
 
@@ -70,14 +110,20 @@ jobs:
           ./target/debug/ggen sync run
           ./target/debug/ggen receipt verify
           python3 - <<'PY'
-          import hashlib, json, tomllib
+          import hashlib, importlib.util, json, tomllib
           from pathlib import Path
+          root = Path.cwd()
+          script = root / 'self-host/scripts/verify_root_regeneration.py'
+          spec = importlib.util.spec_from_file_location('root_verify', script)
+          module = importlib.util.module_from_spec(spec)
+          spec.loader.exec_module(module)
           expected = json.loads(Path('/tmp/root-first.json').read_text())
-          doc = tomllib.loads(Path('ggen.toml').read_text())
+          doc = tomllib.loads((root / 'ggen.toml').read_text())
           actual = {}
           for rule in doc['generation']['rules']:
-              path = Path(rule['output_file'])
-              actual[str(path)] = hashlib.sha256(path.read_bytes()).hexdigest()
+              for raw in module.existing_output_matches(root, rule['output_file']):
+                  path = root / raw
+                  actual[raw] = hashlib.sha256(path.read_bytes()).hexdigest()
           assert actual == expected, {'expected': expected, 'actual': actual}
           PY
 
