@@ -47,7 +47,7 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
-          fetch-depth: 0
+          fetch-depth: 1
 
       - name: Bind exact candidate identity
         shell: bash
@@ -78,8 +78,12 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          cargo build --release -p ggen-cli-lib --bin ggen
-          target/release/ggen --version
+          cargo build -p ggen-cli-lib --bin ggen
+          target/debug/ggen --version
+          # Stable staging path for the manufacturer only; this does not confer
+          # release-profile standing on the debug binary.
+          mkdir -p target/release
+          ln -sfn ../debug/ggen target/release/ggen
 
       - name: Compile and execute the DfCM crown
         id: dfcm
