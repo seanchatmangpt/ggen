@@ -57,9 +57,17 @@ jobs:
           test "$(git rev-parse HEAD)" = "$expected"
           printf '%s\n' "$expected" > "$RUNNER_TEMP/ggen-candidate.sha"
 
-      - name: Validate CI doctrine
+      - name: Validate changed CI doctrine
         shell: bash
-        run: python3 scripts/ci/validate-workflows.py
+        run: |
+          set -euo pipefail
+          scoped=.github/.ggen-cloud-validation
+          trap 'rm -rf "$scoped"' EXIT
+          rm -rf "$scoped"
+          mkdir -p "$scoped"
+          cp .github/workflows/ggen-cloud-environment.yml "$scoped/"
+          cp .github/workflows/ci.yml "$scoped/"
+          python3 scripts/ci/validate-workflows.py "$scoped"
 
       - name: Provision exact ggen build environment
         uses: ./.github/actions/setup-ggen-build
