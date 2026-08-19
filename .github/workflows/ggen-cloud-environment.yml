@@ -80,10 +80,6 @@ jobs:
           set -euo pipefail
           cargo build -p ggen-cli-lib --bin ggen
           target/debug/ggen --version
-          # Stable staging path for the manufacturer only; this does not confer
-          # release-profile standing on the debug binary.
-          mkdir -p target/release
-          ln -sfn ../debug/ggen target/release/ggen
 
       - name: Compile and execute the DfCM crown
         id: dfcm
@@ -117,34 +113,106 @@ jobs:
           "$dfcm_binary" --exact dfcm_crown_suite_completes_under_5_seconds --nocapture
           printf 'binary=%s\n' "$dfcm_binary" >> "$GITHUB_OUTPUT"
 
-      - name: Manufacture portable exact-source capsule
+      - name: Manufacture connector-bounded capsules
         shell: bash
         env:
           DFCM_TEST_BINARY: ${{ steps.dfcm.outputs.binary }}
+          GGEN_BINARY: ${{ github.workspace }}/target/debug/ggen
         run: |
           set -euo pipefail
           bash scripts/ci/manufacture-ggen-cloud-environment.sh \
             "$RUNNER_TEMP/ggen-cloud-capsule"
 
-      - name: Replay capsule from transport boundary
+      - name: Replay runtime transport boundary
         shell: bash
         run: |
           set -euo pipefail
-          cd "$RUNNER_TEMP/ggen-cloud-capsule"
-          sha256sum -c ggen-cloud-environment.tar.gz.sha256
+          root="$RUNNER_TEMP/ggen-cloud-capsule"
+          cd "$root"
+          sha256sum -c ggen-cloud-runtime.tar.gz.sha256
+          rm -rf replay
           mkdir replay
-          tar -xzf ggen-cloud-environment.tar.gz -C replay
-          replay/ggen-cloud-environment/verify.sh
-          cmp environment.json replay/ggen-cloud-environment/receipts/environment.json
+          tar -xzf ggen-cloud-runtime.tar.gz -C replay
+          replay/ggen-cloud-runtime/verify.sh
 
-      - name: Upload ggen cloud environment
+      - name: Replay exact source closure
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="$RUNNER_TEMP/ggen-cloud-capsule"
+          runtime="$root/replay/ggen-cloud-runtime"
+          cd "$root"
+          for repo in ggen-marketplace ggen-legacy ggen-create ggen-mcp ggen-spec-kit; do
+            sha256sum -c "ggen-source-$repo.tar.gz.sha256"
+            tar -xzf "ggen-source-$repo.tar.gz" -C "$runtime/workspace"
+          done
+          "$runtime/verify-closure.sh"
+          cmp environment.json "$runtime/receipts/environment.json"
+
+      - name: Upload ggen runtime capsule
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: ggen-cloud-environment-${{ github.event.pull_request.head.sha || github.sha }}
+          name: ggen-cloud-runtime-${{ github.event.pull_request.head.sha || github.sha }}
           path: |
-            ${{ runner.temp }}/ggen-cloud-capsule/ggen-cloud-environment.tar.gz
-            ${{ runner.temp }}/ggen-cloud-capsule/ggen-cloud-environment.tar.gz.sha256
+            ${{ runner.temp }}/ggen-cloud-capsule/ggen-cloud-runtime.tar.gz
+            ${{ runner.temp }}/ggen-cloud-capsule/ggen-cloud-runtime.tar.gz.sha256
             ${{ runner.temp }}/ggen-cloud-capsule/environment.json
+            ${{ runner.temp }}/ggen-cloud-capsule/transport-index.json
+          if-no-files-found: error
+          retention-days: 7
+          compression-level: 0
+
+      - name: Upload ggen-marketplace source capsule
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: ggen-source-ggen-marketplace-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            ${{ runner.temp }}/ggen-cloud-capsule/ggen-source-ggen-marketplace.tar.gz
+            ${{ runner.temp }}/ggen-cloud-capsule/ggen-source-ggen-marketplace.tar.gz.sha256
+          if-no-files-found: error
+          retention-days: 7
+          compression-level: 0
+
+      - name: Upload ggen-legacy source capsule
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: ggen-source-ggen-legacy-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            ${{ runner.temp }}/ggen-cloud-capsule/ggen-source-ggen-legacy.tar.gz
+            ${{ runner.temp }}/ggen-cloud-capsule/ggen-source-ggen-legacy.tar.gz.sha256
+          if-no-files-found: error
+          retention-days: 7
+          compression-level: 0
+
+      - name: Upload ggen-create source capsule
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: ggen-source-ggen-create-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            ${{ runner.temp }}/ggen-cloud-capsule/ggen-source-ggen-create.tar.gz
+            ${{ runner.temp }}/ggen-cloud-capsule/ggen-source-ggen-create.tar.gz.sha256
+          if-no-files-found: error
+          retention-days: 7
+          compression-level: 0
+
+      - name: Upload ggen-mcp source capsule
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: ggen-source-ggen-mcp-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            ${{ runner.temp }}/ggen-cloud-capsule/ggen-source-ggen-mcp.tar.gz
+            ${{ runner.temp }}/ggen-cloud-capsule/ggen-source-ggen-mcp.tar.gz.sha256
+          if-no-files-found: error
+          retention-days: 7
+          compression-level: 0
+
+      - name: Upload ggen-spec-kit source capsule
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: ggen-source-ggen-spec-kit-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            ${{ runner.temp }}/ggen-cloud-capsule/ggen-source-ggen-spec-kit.tar.gz
+            ${{ runner.temp }}/ggen-cloud-capsule/ggen-source-ggen-spec-kit.tar.gz.sha256
           if-no-files-found: error
           retention-days: 7
           compression-level: 0
