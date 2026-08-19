@@ -46,7 +46,17 @@ jobs:
       - name: Setup Rust and cache
         uses: ./.github/actions/setup-rust-cached
         with:
-          toolchain: stable
+          # Mirrors rust-toolchain.toml (nightly-2026-06-22) -- stable cannot
+          # compile this workspace (wasm4pm-compat's nightly-only feature
+          # gates, see rust-toolchain.toml's own header). This job's later
+          # `cargo cicd test changed` step compiles/tests changed workspace
+          # crates, so it hits the same nightly requirement as every other
+          # job in this repo that touches ggen's own source -- this was the
+          # one remaining live instance of the toolchain-mismatch bug class
+          # already fixed elsewhere in this file and across ~15 other
+          # workflows in this repo (see the job below, and
+          # setup-ggen-build/action.yml's own STEP 2 comment).
+          toolchain: nightly-2026-06-22
           cache-key-suffix: cicd-release-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Install cargo-cicd and wpm oracle
