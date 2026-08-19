@@ -1,0 +1,8 @@
+@prefix pcp: <urn:portable-consequence:> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+pcp:profile a dcterms:Standard ;
+  dcterms:identifier "portable-consequence/1" ;
+  pcp:ambientAuthority false ;
+  pcp:receiptabilityPrecedesDo true .
