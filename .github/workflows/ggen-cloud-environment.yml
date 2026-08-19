@@ -6,6 +6,7 @@ on:
       - '.github/workflows/ggen-cloud-environment.yml'
       - '.github/actions/setup-ggen-build/**'
       - 'cloud/ggen-ecosystem.lock.toml'
+      - 'cloud/CHATGPT_CLOUD_BOOTSTRAP.md'
       - 'scripts/ci/manufacture-ggen-cloud-environment.sh'
       - 'rust-toolchain.toml'
       - 'Cargo.toml'
@@ -18,6 +19,7 @@ on:
       - '.github/workflows/ggen-cloud-environment.yml'
       - '.github/actions/setup-ggen-build/**'
       - 'cloud/ggen-ecosystem.lock.toml'
+      - 'cloud/CHATGPT_CLOUD_BOOTSTRAP.md'
       - 'scripts/ci/manufacture-ggen-cloud-environment.sh'
       - 'rust-toolchain.toml'
       - 'Cargo.toml'
@@ -25,6 +27,12 @@ on:
       - 'crates/ggen-cli/**'
       - 'crates/bcinr-pddl/**'
   workflow_dispatch:
+    inputs:
+      publish:
+        description: Publish an immutable ChatGPT bootstrap prerelease
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: read
@@ -42,6 +50,9 @@ jobs:
     name: Cloud DfCM Capsule
     runs-on: ubuntu-24.04
     timeout-minutes: 30
+    outputs:
+      head_sha: ${{ steps.identity.outputs.head_sha }}
+      publish: ${{ steps.identity.outputs.publish }}
     steps:
       - name: Checkout exact candidate
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -50,12 +61,22 @@ jobs:
           fetch-depth: 1
 
       - name: Bind exact candidate identity
+        id: identity
         shell: bash
         run: |
           set -euo pipefail
           expected='${{ github.event.pull_request.head.sha || github.sha }}'
           test "$(git rev-parse HEAD)" = "$expected"
           printf '%s\n' "$expected" > "$RUNNER_TEMP/ggen-candidate.sha"
+          printf 'head_sha=%s\n' "$expected" >> "$GITHUB_OUTPUT"
+
+          publish=false
+          message="$(git log -1 --pretty=%B)"
+          requested='${{ inputs.publish }}'
+          if [[ "$message" == *'[publish-chatgpt-bootstrap]'* || "$requested" == 'true' ]]; then
+            publish=true
+          fi
+          printf 'publish=%s\n' "$publish" >> "$GITHUB_OUTPUT"
 
       - name: Validate changed CI doctrine
         shell: bash
@@ -216,3 +237,167 @@ jobs:
           if-no-files-found: error
           retention-days: 7
           compression-level: 0
+
+  publish-chatgpt-bootstrap:
+    name: Publish ChatGPT Cloud Bootstrap
+    needs: manufacture
+    if: needs.manufacture.outputs.publish == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      actions: read
+      contents: write
+    steps:
+      - name: Publish immutable prerelease from exact successful run
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          RUN_ID: ${{ github.run_id }}
+          HEAD_SHA: ${{ needs.manufacture.outputs.head_sha }}
+        run: |
+          set -euo pipefail
+          api="https://api.github.com/repos/$REPO"
+          tag="chatgpt-cloud-$HEAD_SHA"
+          work="$RUNNER_TEMP/ggen-chatgpt-release"
+          mkdir -p "$work"
+
+          auth=(-H "Authorization: Bearer $GH_TOKEN" -H 'Accept: application/vnd.github+json' -H 'X-GitHub-Api-Version: 2022-11-28')
+          curl -fsSL "${auth[@]}" "$api/actions/runs/$RUN_ID/artifacts?per_page=100" > "$work/artifacts.json"
+
+          python3 - "$work/artifacts.json" "$HEAD_SHA" > "$work/downloads.tsv" <<'PY'
+          import json, sys
+          path, sha = sys.argv[1:]
+          data = json.load(open(path))
+          expected = [
+              f"ggen-cloud-runtime-{sha}",
+              f"ggen-source-ggen-marketplace-{sha}",
+              f"ggen-source-ggen-legacy-{sha}",
+              f"ggen-source-ggen-create-{sha}",
+              f"ggen-source-ggen-mcp-{sha}",
+              f"ggen-source-ggen-spec-kit-{sha}",
+          ]
+          found = {a["name"]: a for a in data.get("artifacts", [])}
+          missing = [name for name in expected if name not in found]
+          if missing:
+              raise SystemExit("REFUSED[MISSING_BOOTSTRAP_ARTIFACT]: " + ",".join(missing))
+          for name in expected:
+              a = found[name]
+              if a.get("expired"):
+                  raise SystemExit(f"REFUSED[EXPIRED_BOOTSTRAP_ARTIFACT]: {name}")
+              print(name, a["archive_download_url"], sep="\t")
+          PY
+
+          while IFS=$'\t' read -r name url; do
+            curl -fL --retry 3 "${auth[@]}" "$url" -o "$work/$name.zip"
+          done < "$work/downloads.tsv"
+
+          python3 - "$work" "$REPO" "$HEAD_SHA" "$RUN_ID" "$tag" > "$work/ggen-chatgpt-bootstrap.json" <<'PY'
+          import hashlib, json, os, sys
+          from pathlib import Path
+          root, repo, sha, run_id, tag = sys.argv[1:]
+          root = Path(root)
+          names = [
+              f"ggen-cloud-runtime-{sha}",
+              f"ggen-source-ggen-marketplace-{sha}",
+              f"ggen-source-ggen-legacy-{sha}",
+              f"ggen-source-ggen-create-{sha}",
+              f"ggen-source-ggen-mcp-{sha}",
+              f"ggen-source-ggen-spec-kit-{sha}",
+          ]
+          assets = []
+          for name in names:
+              p = root / f"{name}.zip"
+              digest = hashlib.sha256(p.read_bytes()).hexdigest()
+              assets.append({
+                  "name": f"{name}.zip",
+                  "sha256": digest,
+                  "size_bytes": p.stat().st_size,
+                  "url": f"https://github.com/{repo}/releases/download/{tag}/{name}.zip",
+              })
+          doc = {
+              "schema": "ggen.chatgpt-cloud-bootstrap.v1",
+              "standing": "ALIVE",
+              "repository": repo,
+              "head_sha": sha,
+              "release_tag": tag,
+              "workflow_run_id": int(run_id),
+              "workflow_run_url": f"https://github.com/{repo}/actions/runs/{run_id}",
+              "runtime_asset": assets[0]["name"],
+              "source_closure_standing": "PARTIAL_ALIVE",
+              "assets": assets,
+              "replay": [
+                  "verify outer release asset SHA-256",
+                  "extract runtime ZIP",
+                  "sha256sum -c ggen-cloud-runtime.tar.gz.sha256",
+                  "extract ggen-cloud-runtime.tar.gz",
+                  "execute ggen-cloud-runtime/verify.sh",
+              ],
+              "authority": {
+                  "select": "exact release tag + exact head SHA + asset digests",
+                  "construct": "fresh-instance extraction only",
+                  "do": "bounded verifier execution",
+                  "prior_instance_authority": False,
+              },
+          }
+          print(json.dumps(doc, indent=2, sort_keys=True))
+          PY
+          (cd "$work" && sha256sum ggen-chatgpt-bootstrap.json > ggen-chatgpt-bootstrap.json.sha256)
+
+          status="$(curl -sS -o "$work/release.json" -w '%{http_code}' "${auth[@]}" "$api/releases/tags/$tag")"
+          if [[ "$status" == 404 ]]; then
+            python3 - "$HEAD_SHA" "$tag" > "$work/create-release.json" <<'PY'
+          import json, sys
+          sha, tag = sys.argv[1:]
+          print(json.dumps({
+              "tag_name": tag,
+              "target_commitish": sha,
+              "name": f"ggen ChatGPT Cloud {sha[:12]}",
+              "body": "Immutable cross-instance ChatGPT cloud bootstrap. ALIVE is bounded to the executed ggen/DfCM runtime; source closure remains PARTIAL_ALIVE until individual repository runtimes execute.",
+              "draft": False,
+              "prerelease": True,
+              "make_latest": "false",
+          }))
+          PY
+            curl -fsSL -X POST "${auth[@]}" -H 'Content-Type: application/json' \
+              "$api/releases" --data-binary @"$work/create-release.json" > "$work/release.json"
+          elif [[ "$status" != 200 ]]; then
+            echo "REFUSED[RELEASE_LOOKUP]: HTTP $status" >&2
+            exit 2
+          fi
+
+          release_id="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["id"])' "$work/release.json")"
+          target="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1])).get("target_commitish", ""))' "$work/release.json")"
+          [[ "$target" == "$HEAD_SHA" ]] || {
+            echo "REFUSED[RELEASE_IDENTITY]: expected=$HEAD_SHA actual=$target" >&2
+            exit 2
+          }
+
+          curl -fsSL "${auth[@]}" "$api/releases/$release_id/assets?per_page=100" > "$work/existing-assets.json"
+          upload_asset() {
+            local path="$1" content_type="$2" name
+            name="$(basename "$path")"
+            existing_id="$(python3 - "$work/existing-assets.json" "$name" <<'PY'
+          import json, sys
+          data, name = sys.argv[1:]
+          for asset in json.load(open(data)):
+              if asset.get("name") == name:
+                  print(asset["id"])
+                  break
+          PY
+          )"
+            if [[ -n "$existing_id" ]]; then
+              curl -fsSL -X DELETE "${auth[@]}" "$api/releases/assets/$existing_id" >/dev/null
+            fi
+            curl -fsSL -X POST "${auth[@]}" -H "Content-Type: $content_type" \
+              --data-binary @"$path" \
+              "https://uploads.github.com/repos/$REPO/releases/$release_id/assets?name=$name" >/dev/null
+          }
+
+          while IFS=$'\t' read -r name _url; do
+            upload_asset "$work/$name.zip" application/zip
+          done < "$work/downloads.tsv"
+          upload_asset "$work/ggen-chatgpt-bootstrap.json" application/json
+          upload_asset "$work/ggen-chatgpt-bootstrap.json.sha256" text/plain
+
+          printf 'ALIVE chatgpt-bootstrap release=%s head=%s\n' "$tag" "$HEAD_SHA"
