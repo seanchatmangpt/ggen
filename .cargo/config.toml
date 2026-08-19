@@ -28,3 +28,14 @@ color = "always"
 # through literally.
 [env]
 SCCACHE_CACHE_SIZE = "20G"
+
+# Size-optimized distribution profile used by the ChatGPT/cloud capsule.
+# Development and test profiles remain unchanged.
+[profile.cloud]
+inherits = "release"
+opt-level = "z"
+lto = "thin"
+codegen-units = 1
+panic = "abort"
+strip = "symbols"
+incremental = false
