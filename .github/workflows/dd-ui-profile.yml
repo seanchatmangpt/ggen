@@ -1,0 +1,67 @@
+name: DDUI ecosystem profile
+on:
+  pull_request:
+    paths:
+      - "dd-ui/**"
+      - ".github/workflows/dd-ui-profile.yml"
+  push:
+    branches: [main]
+    paths:
+      - "dd-ui/**"
+      - ".github/workflows/dd-ui-profile.yml"
+permissions:
+  contents: read
+jobs:
+  verify-dd-ui-profile:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout exact subject
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - name: Admit exact subject
+        shell: bash
+        env:
+          EXPECTED_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$EXPECTED_SHA"
+      - name: Checkout exact DDUI engine
+        uses: actions/checkout@v4
+        with:
+          repository: seanchatmangpt/wasm4pm
+          ref: 8d48e784a4215857c8428c09bb09a91c05a8be97
+          path: .dd-ui-engine
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Project and replay all admitted avatar/context views
+        shell: bash
+        env:
+          SUBJECT_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -euo pipefail
+          node --input-type=module <<'NODE'
+          import fs from "node:fs";
+          import { manufactureUiReceipt, replayUi } from "./.dd-ui-engine/prototypes/dd-ui/dd-ui.mjs";
+          const input = JSON.parse(fs.readFileSync("dd-ui/world.json", "utf8"));
+          const avatars = ["CEO", "CFO", "CTO", "ENGINEER", "AUDITOR"];
+          const contexts = ["normal", "incident", "board", "audit"];
+          const receipts = [];
+          for (const avatar of avatars) for (const context of contexts) {
+            const bundle = await manufactureUiReceipt({ ...input, avatar, context, authority: [] });
+            const replay = await replayUi(bundle);
+            if (!replay.match) throw new Error(`replay mismatch ${avatar}/${context}: ${replay.mismatches.join(",")}`);
+            if (bundle.screen.runtimeAiRenderAuthority !== false) throw new Error("runtime AI render authority widened");
+            if (bundle.screen.directActuation !== false) throw new Error("render acquired direct actuation");
+            if (bundle.screen.dfcm.irreversibleSelections !== 0) throw new Error("presentation became irreversible selection");
+            for (const component of bundle.screen.components) for (const action of component.actions) {
+              if (action.selected !== false || action.intentOnly !== true) throw new Error(`action authority drift: ${component.id}/${action.id}`);
+            }
+            receipts.push({ avatar, context, screenDigest: bundle.receipt.screenDigest, frontierDigest: bundle.receipt.frontierDigest });
+          }
+          if (receipts.length !== 20) throw new Error(`expected 20 projections, got ${receipts.length}`);
+          console.log(JSON.stringify({ subject: process.env.SUBJECT_SHA, engine: "8d48e784a4215857c8428c09bb09a91c05a8be97", projections: receipts.length, receipts }, null, 2));
+          NODE
