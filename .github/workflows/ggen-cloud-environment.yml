@@ -95,12 +95,19 @@ jobs:
         with:
           cache-key-suffix: cloud-dfcm
 
-      - name: Build exact ggen runtime
+      - name: Build size-bounded ggen runtime
         shell: bash
         run: |
           set -euo pipefail
-          cargo build -p ggen-cli-lib --bin ggen
-          target/debug/ggen --version
+          cargo build --profile cloud -p ggen-cli-lib --bin ggen
+          bytes="$(stat -c %s target/cloud/ggen)"
+          max_bytes=$((64 * 1024 * 1024))
+          printf 'ggen cloud binary: %s bytes (budget %s)\n' "$bytes" "$max_bytes"
+          if (( bytes > max_bytes )); then
+            printf 'REFUSED[GGEN_BINARY_TOO_LARGE]: %s > %s bytes\n' "$bytes" "$max_bytes" >&2
+            exit 2
+          fi
+          target/cloud/ggen --version
 
       - name: Compile and execute the DfCM crown
         id: dfcm
@@ -138,7 +145,8 @@ jobs:
         shell: bash
         env:
           DFCM_TEST_BINARY: ${{ steps.dfcm.outputs.binary }}
-          GGEN_BINARY: ${{ github.workspace }}/target/debug/ggen
+          GGEN_BINARY: ${{ github.workspace }}/target/cloud/ggen
+          GGEN_MAX_BINARY_BYTES: "67108864"
         run: |
           set -euo pipefail
           bash scripts/ci/manufacture-ggen-cloud-environment.sh \
