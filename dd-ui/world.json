@@ -1,0 +1,52 @@
+{
+  "grammarVersion": "dd-ui/2",
+  "avatar": "CEO",
+  "context": "normal",
+  "authority": [],
+  "asOf": "2026-08-18T22:06:00-07:00",
+  "events": [
+    {
+      "id": "ggen-e1",
+      "at": "2026-08-18T22:06:00-07:00",
+      "type": "claim.observed",
+      "claim": {
+        "id": "lawful-manufacture",
+        "title": "Lawful deterministic manufacture",
+        "domain": "GGEN",
+        "standing": "OBSERVED",
+        "systemStanding": "UNKNOWN",
+        "kind": "TechnologyStanding",
+        "materiality": 100,
+        "owner": "ggen",
+        "businessImpact": "The UI presents ggen as the manufacture layer: admitted observations may be projected into artifacts, while generated projections remain non-authoritative editing surfaces.",
+        "evidence": [
+          "repo:seanchatmangpt/ggen@4c43154ed122c3c1e3d65467bec5138ffea41f27",
+          "path:AGENTS.md"
+        ],
+        "metrics": [],
+        "actions": [
+          {"id": "inspect-manufacture", "label": "Inspect manufacture evidence", "consequence": "SELECT"}
+        ]
+      }
+    },
+    {
+      "id": "ggen-e2",
+      "at": "2026-08-18T22:06:01-07:00",
+      "type": "claim.observed",
+      "claim": {
+        "id": "authority-separation",
+        "title": "SELECT, CONSTRUCT, and DO remain separate",
+        "domain": "GOVERNANCE",
+        "standing": "OBSERVED",
+        "systemStanding": "UNKNOWN",
+        "kind": "Evidence",
+        "materiality": 95,
+        "owner": "ggen",
+        "businessImpact": "A rendered control can manufacture an intent, but it cannot acquire ambient execution authority from ggen output.",
+        "evidence": ["path:AGENTS.md#manufacture-and-authority"],
+        "metrics": [],
+        "actions": []
+      }
+    }
+  ]
+}
