@@ -1,0 +1,138 @@
+name: ggen Cloud DfCM Environment
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/ggen-cloud-environment.yml'
+      - '.github/actions/setup-ggen-build/**'
+      - 'cloud/ggen-ecosystem.lock.toml'
+      - 'scripts/ci/manufacture-ggen-cloud-environment.sh'
+      - 'rust-toolchain.toml'
+      - 'Cargo.toml'
+      - 'Cargo.lock'
+      - 'crates/ggen-cli/**'
+      - 'crates/bcinr-pddl/**'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ggen-cloud-environment.yml'
+      - '.github/actions/setup-ggen-build/**'
+      - 'cloud/ggen-ecosystem.lock.toml'
+      - 'scripts/ci/manufacture-ggen-cloud-environment.sh'
+      - 'rust-toolchain.toml'
+      - 'Cargo.toml'
+      - 'Cargo.lock'
+      - 'crates/ggen-cli/**'
+      - 'crates/bcinr-pddl/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ggen-cloud-dfcm-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  RUSTC_WRAPPER: ""
+  CARGO_INCREMENTAL: "0"
+
+jobs:
+  manufacture:
+    name: Cloud DfCM Capsule
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+
+      - name: Bind exact candidate identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          expected='${{ github.event.pull_request.head.sha || github.sha }}'
+          test "$(git rev-parse HEAD)" = "$expected"
+          printf '%s\n' "$expected" > "$RUNNER_TEMP/ggen-candidate.sha"
+
+      - name: Validate CI doctrine
+        shell: bash
+        run: python3 scripts/ci/validate-workflows.py
+
+      - name: Provision exact ggen build environment
+        uses: ./.github/actions/setup-ggen-build
+        with:
+          cache-key-suffix: cloud-dfcm
+
+      - name: Build exact ggen runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          cargo build --release -p ggen-cli-lib --bin ggen
+          target/release/ggen --version
+
+      - name: Compile and execute the DfCM crown
+        id: dfcm
+        shell: bash
+        run: |
+          set -euo pipefail
+          cargo test -p bcinr-pddl --test dfcm_crown_suite --no-run \
+            --message-format=json > "$RUNNER_TEMP/dfcm-build.json"
+          python3 - "$RUNNER_TEMP/dfcm-build.json" "$RUNNER_TEMP/dfcm-binary.txt" <<'PY'
+          import json, sys
+          source, out = sys.argv[1:]
+          executable = None
+          with open(source) as f:
+              for line in f:
+                  try:
+                      event = json.loads(line)
+                  except json.JSONDecodeError:
+                      continue
+                  target = event.get("target", {})
+                  if (event.get("reason") == "compiler-artifact"
+                      and target.get("name") == "dfcm_crown_suite"
+                      and event.get("executable")):
+                      executable = event["executable"]
+          if not executable:
+              raise SystemExit("REFUSED[DFCM_EXECUTABLE_NOT_FOUND]")
+          with open(out, "w") as f:
+              f.write(executable + "\n")
+          PY
+          dfcm_binary="$(cat "$RUNNER_TEMP/dfcm-binary.txt")"
+          test -x "$dfcm_binary"
+          "$dfcm_binary" --exact dfcm_crown_suite_completes_under_5_seconds --nocapture
+          printf 'binary=%s\n' "$dfcm_binary" >> "$GITHUB_OUTPUT"
+
+      - name: Manufacture portable exact-source capsule
+        shell: bash
+        env:
+          DFCM_TEST_BINARY: ${{ steps.dfcm.outputs.binary }}
+        run: |
+          set -euo pipefail
+          bash scripts/ci/manufacture-ggen-cloud-environment.sh \
+            "$RUNNER_TEMP/ggen-cloud-capsule"
+
+      - name: Replay capsule from transport boundary
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$RUNNER_TEMP/ggen-cloud-capsule"
+          sha256sum -c ggen-cloud-environment.tar.gz.sha256
+          mkdir replay
+          tar -xzf ggen-cloud-environment.tar.gz -C replay
+          replay/ggen-cloud-environment/verify.sh
+          cmp environment.json replay/ggen-cloud-environment/receipts/environment.json
+
+      - name: Upload ggen cloud environment
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: ggen-cloud-environment-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            ${{ runner.temp }}/ggen-cloud-capsule/ggen-cloud-environment.tar.gz
+            ${{ runner.temp }}/ggen-cloud-capsule/ggen-cloud-environment.tar.gz.sha256
+            ${{ runner.temp }}/ggen-cloud-capsule/environment.json
+          if-no-files-found: error
+          retention-days: 7
+          compression-level: 0
