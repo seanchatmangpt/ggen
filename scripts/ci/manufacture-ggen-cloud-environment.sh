@@ -242,12 +242,18 @@ pack_dir() {
 
 runtime_archive="$out_dir/ggen-cloud-runtime.tar.gz"
 pack_dir "$out_dir" ggen-cloud-runtime "$runtime_archive"
-sha256sum "$runtime_archive" > "$runtime_archive.sha256"
+(
+  cd "$out_dir"
+  sha256sum "$(basename "$runtime_archive")" > "$(basename "$runtime_archive").sha256"
+)
 
 for name in "${source_repos[@]}"; do
   archive="$out_dir/ggen-source-$name.tar.gz"
   pack_dir "$stage/workspace" "$name" "$archive"
-  sha256sum "$archive" > "$archive.sha256"
+  (
+    cd "$out_dir"
+    sha256sum "$(basename "$archive")" > "$(basename "$archive").sha256"
+  )
 done
 
 python3 - "$out_dir" "$max_transport_bytes" <<'PY'
