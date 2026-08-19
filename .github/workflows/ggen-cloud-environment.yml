@@ -99,12 +99,20 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          cargo build --profile cloud -p ggen-cli-lib --bin ggen
-          bytes="$(stat -c %s target/cloud/ggen)"
+          cargo build -p ggen-cli-lib --bin ggen
+          command -v strip >/dev/null || {
+            echo 'REFUSED[MISSING_STRIP]: binutils strip is required' >&2
+            exit 2
+          }
+          mkdir -p target/cloud
+          cp target/debug/ggen target/cloud/ggen
+          before="$(stat -c %s target/cloud/ggen)"
+          strip --strip-all target/cloud/ggen
+          after="$(stat -c %s target/cloud/ggen)"
           max_bytes=$((64 * 1024 * 1024))
-          printf 'ggen cloud binary: %s bytes (budget %s)\n' "$bytes" "$max_bytes"
-          if (( bytes > max_bytes )); then
-            printf 'REFUSED[GGEN_BINARY_TOO_LARGE]: %s > %s bytes\n' "$bytes" "$max_bytes" >&2
+          printf 'ggen cloud binary: before=%s after=%s budget=%s\n' "$before" "$after" "$max_bytes"
+          if (( after > max_bytes )); then
+            printf 'REFUSED[GGEN_BINARY_TOO_LARGE]: %s > %s bytes\n' "$after" "$max_bytes" >&2
             exit 2
           fi
           target/cloud/ggen --version
