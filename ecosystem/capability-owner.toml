@@ -3,11 +3,16 @@ version = "26.9.1"
 repository = "seanchatmangpt/ggen"
 owner_id = "repository:ggen"
 control_plane_repository = "seanchatmangpt/chatman-ecosystem"
-control_plane_subject = "git:475d36e9c716fbedb33db6b74b55b0edf6f73c71"
+control_plane_subject = "git:7430dfc9b3ca138e703430d25de7c6f48a8d6ade"
 base_sha = "4c43154ed122c3c1e3d65467bec5138ffea41f27"
+release_component = "ggen"
+release_role = "manufacture"
+release_dependencies = []
 allowed_authorities = ["persist_control_plane"]
 simulation_only = false
+do_mode = "none"
 ambient_do = false
+automatic_irreversible_do = false
 
 [[capability]]
 id = "capability:manufacture-with-ggen"
