@@ -1,0 +1,30 @@
+[project]
+name = "portable-consequence-reference"
+version = "1.0.0"
+description = "ggen reference projection for portable-consequence/1; generated Rust is a replaceable witness, never protocol authority."
+
+[ontology]
+source = "ontology.ttl"
+standard_only = false
+base_iri = "urn:portable-consequence:"
+
+[ontology.prefixes]
+pcp = "urn:portable-consequence:"
+dcterms = "http://purl.org/dc/terms/"
+xsd = "http://www.w3.org/2001/XMLSchema#"
+
+[generation]
+output_dir = "."
+
+[sync]
+enabled = true
+on_change = "manual"
+validate_after = true
+conflict_mode = "fail"
+
+[[generation.rules]]
+name = "portable-consequence-rust"
+query = { file = "queries/profile.rq" }
+template = { file = "templates/protocol.rs.tera" }
+output_file = "target/portable-consequence/protocol.rs"
+mode = "Overwrite"
