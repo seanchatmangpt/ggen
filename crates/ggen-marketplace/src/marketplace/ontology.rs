@@ -160,9 +160,24 @@ impl Properties {
         format!("{}keywords", Namespaces::GGEN)
     }
 
-    /// Category (primary category/domain of a package)
+    /// Category (primary category/domain of a package) -- the predicate. The
+    /// object of this triple is always a category *node* URI minted by
+    /// [`Self::category_node_uri`], never a bare string literal, so it can be
+    /// the subject of SKOS `related`/`broader`/`narrower` edges elsewhere in
+    /// the graph (see [`Queries::related_by_category`]).
     pub fn category() -> String {
         Self::uri("category")
+    }
+
+    /// Mint the category-node URI for one category slug (e.g. `"web"` ->
+    /// `https://ggen.io/marketplace/categories/web`). This is the single
+    /// source of truth for that URI shape -- both the RDF write path
+    /// (`RdfMapper::package_to_rdf`) and the SKOS-expansion query
+    /// ([`Queries::related_by_category`]) must mint the identical URI for the
+    /// same slug, or a package's real `category` triple and a query seeded
+    /// from that same slug silently fail to join.
+    pub fn category_node_uri(category_slug: &str) -> String {
+        format!("{}categories/{}", Namespaces::GGEN, category_slug)
     }
 
     /// Quality score
@@ -480,21 +495,30 @@ impl Queries {
     /// property paths to related categories, then finds packages in any of
     /// those categories. A real SPARQL property-path query, not
     /// application-code graph walking.
+    ///
+    /// `category` is a category *slug* (e.g. `"web"`), minted to the same
+    /// category-node URI [`Properties::category_node_uri`] uses on the write
+    /// path, not a raw literal -- category slugs are not attacker-controlled
+    /// free text in this crate's own callers, but are still escaped the same
+    /// way `related_by_keyword_overlap`'s VALUES literals are, since the slug
+    /// is embedded directly into the query text.
     pub fn related_by_category(category: &str, limit: usize) -> String {
-        let escaped = category.replace('\\', "\\\\").replace('"', "\\\"");
+        let escaped = category
+            .replace('\\', "\\\\")
+            .replace('>', "\\>")
+            .replace('"', "\\\"");
         format!(
             r#"
-            SELECT DISTINCT ?package ?relatedCategory WHERE {{
-                <{ggen}categories/{category}> ({skos}related|{skos}broader|{skos}narrower)* ?relatedCategory .
+            SELECT DISTINCT ?package WHERE {{
+                <{seed_category}> (<{skos}related>|<{skos}broader>|<{skos}narrower>)* ?relatedCategory .
                 ?package <{rdf_type}> <{package_class}> .
                 ?package <{category_prop}> ?relatedCategory .
             }}
             LIMIT {limit}
             "#,
-            ggen = Namespaces::GGEN,
-            category = escaped,
+            seed_category = Properties::category_node_uri(&escaped),
             skos = Namespaces::SKOS,
-            rdf_type = Namespaces::RDF,
+            rdf_type = format!("{}type", Namespaces::RDF),
             package_class = Classes::package(),
             category_prop = Properties::category(),
             limit = limit
