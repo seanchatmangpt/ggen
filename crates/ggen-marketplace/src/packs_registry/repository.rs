@@ -85,7 +85,9 @@ impl FileSystemRepository {
     /// Validate pack ID for safety
     fn validate_pack_id(&self, pack_id: &str) -> Result<()> {
         if pack_id.is_empty() {
-            return Err(Error::Other("Invalid pack ID: must not be empty".to_string()));
+            return Err(Error::Other(
+                "Invalid pack ID: must not be empty".to_string(),
+            ));
         }
 
         // Prevent path traversal

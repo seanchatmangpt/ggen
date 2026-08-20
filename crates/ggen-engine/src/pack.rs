@@ -1083,8 +1083,7 @@ version = "v2"
         git(&["init", "--quiet"], dir);
         git(&["config", "user.email", "test@example.com"], dir);
         git(&["config", "user.name", "Test"], dir);
-        std::fs::write(dir.join("README.md"), "monorepo root, not a pack\n")
-            .expect("write README");
+        std::fs::write(dir.join("README.md"), "monorepo root, not a pack\n").expect("write README");
 
         let pack_dir = dir.join("packs/widget-pack");
         std::fs::create_dir_all(pack_dir.join("templates")).expect("mkdir pack templates");
@@ -1113,7 +1112,9 @@ version = "v2"
     /// `PackRef::Git` entry (`GgenConfig` has no `Default` impl, and several
     /// of its fields are meaningfully required, so this is the real
     /// construction every test below needs, not a shortcut around it).
-    fn git_pack_config(url: &str, version: &str, subdir: Option<&str>) -> crate::config::GgenConfig {
+    fn git_pack_config(
+        url: &str, version: &str, subdir: Option<&str>,
+    ) -> crate::config::GgenConfig {
         crate::config::GgenConfig {
             project: crate::config::Project {
                 name: "fixture".to_string(),

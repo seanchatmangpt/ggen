@@ -160,6 +160,11 @@ impl Properties {
         format!("{}keywords", Namespaces::GGEN)
     }
 
+    /// Category (primary category/domain of a package)
+    pub fn category() -> String {
+        Self::uri("category")
+    }
+
     /// Quality score
     pub fn quality_score() -> String {
         Self::uri("qualityScore")
@@ -433,6 +438,66 @@ impl Queries {
             Classes::package(),
             Properties::created_at(),
             limit
+        )
+    }
+
+    /// Query to find other packages related by keyword overlap.
+    ///
+    /// For a given set of keyword literal strings, finds OTHER packages
+    /// sharing at least one of those keywords via the existing `keywords`
+    /// predicate, groups by package, and counts the number of shared
+    /// keywords as `?overlap`. Pure graph-relation ranking over the RDF
+    /// store -- no vectors, no embeddings, no external HTTP calls.
+    pub fn related_by_keyword_overlap(package_keywords: &[String], limit: usize) -> String {
+        let values = package_keywords
+            .iter()
+            .map(|kw| format!("\"{}\"", kw.replace('\\', "\\\\").replace('"', "\\\"")))
+            .collect::<Vec<_>>()
+            .join(" ");
+
+        format!(
+            r"
+            SELECT ?package (COUNT(DISTINCT ?kw) AS ?overlap) WHERE {{
+                ?package <{rdf_type}> <{package_class}> .
+                ?package <{keywords}> ?kw .
+                VALUES ?kw {{ {values} }}
+            }}
+            GROUP BY ?package
+            ORDER BY DESC(?overlap)
+            LIMIT {limit}
+            ",
+            rdf_type = format!("{}type", Namespaces::RDF),
+            package_class = Classes::package(),
+            keywords = Properties::keywords(),
+            values = values,
+            limit = limit
+        )
+    }
+
+    /// Query to find packages related by category via SKOS relations.
+    ///
+    /// Expands from a seed category through `skos:related|skos:broader|skos:narrower`
+    /// property paths to related categories, then finds packages in any of
+    /// those categories. A real SPARQL property-path query, not
+    /// application-code graph walking.
+    pub fn related_by_category(category: &str, limit: usize) -> String {
+        let escaped = category.replace('\\', "\\\\").replace('"', "\\\"");
+        format!(
+            r#"
+            SELECT DISTINCT ?package ?relatedCategory WHERE {{
+                <{ggen}categories/{category}> ({skos}related|{skos}broader|{skos}narrower)* ?relatedCategory .
+                ?package <{rdf_type}> <{package_class}> .
+                ?package <{category_prop}> ?relatedCategory .
+            }}
+            LIMIT {limit}
+            "#,
+            ggen = Namespaces::GGEN,
+            category = escaped,
+            skos = Namespaces::SKOS,
+            rdf_type = Namespaces::RDF,
+            package_class = Classes::package(),
+            category_prop = Properties::category(),
+            limit = limit
         )
     }
 }

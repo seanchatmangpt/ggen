@@ -471,8 +471,11 @@ mod tests {
     #[test]
     #[ignore = "FM-CHAIN-014, not yet fixed -- see docs/jira/2026-08-11-GGEN-RECEIPT-CHAIN-VERIFY-MISMATCH.md"]
     fn reproduce_the_real_autofde_lab_fm_chain_014_failure() {
-        let record: ReceiptRecord = serde_json::from_str(RECORD_JSON).expect("deserialize real record");
-        let recomputed = record.recompute_chain_hash().expect("recompute real record");
+        let record: ReceiptRecord =
+            serde_json::from_str(RECORD_JSON).expect("deserialize real record");
+        let recomputed = record
+            .recompute_chain_hash()
+            .expect("recompute real record");
         assert_eq!(
             hex::encode(recomputed),
             record.chain_hash_hex,
@@ -517,13 +520,16 @@ mod tests {
         let mut record = sample();
         record.schema = SCHEMA_V2.to_string();
         record.v2 = Some(epoch);
-        let chain = record.recompute_chain_hash().expect("recompute at write time");
+        let chain = record
+            .recompute_chain_hash()
+            .expect("recompute at write time");
         record.chain_hash_hex = hex::encode(chain);
 
         // Simulate the real JSONL persist/reload boundary `write_receipt`
         // and `read_prev_head`/`receipt verify` actually cross.
         let serialized = serde_json::to_string(&record).expect("serialize record");
-        let reloaded: ReceiptRecord = serde_json::from_str(&serialized).expect("deserialize record");
+        let reloaded: ReceiptRecord =
+            serde_json::from_str(&serialized).expect("deserialize record");
 
         let recomputed_after_round_trip = reloaded
             .recompute_chain_hash()

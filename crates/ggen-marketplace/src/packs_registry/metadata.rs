@@ -76,13 +76,11 @@ pub fn load_pack_metadata(pack_id: &str) -> Result<Pack> {
         // Report the resolved absolute path (matching what `pack doctor`/`pack
         // add` report) rather than a possibly-relative dev-checkout path, so
         // the error points somewhere the user can actually find on disk.
-        let resolved_display = pack_path
-            .canonicalize()
-            .unwrap_or_else(|_| {
-                std::env::current_dir()
-                    .map(|cwd| cwd.join(&pack_path))
-                    .unwrap_or_else(|_| pack_path.clone())
-            });
+        let resolved_display = pack_path.canonicalize().unwrap_or_else(|_| {
+            std::env::current_dir()
+                .map(|cwd| cwd.join(&pack_path))
+                .unwrap_or_else(|_| pack_path.clone())
+        });
         return Err(crate::marketplace::error::Error::Other(format!(
             "Pack '{}' not found at {}",
             pack_id,
