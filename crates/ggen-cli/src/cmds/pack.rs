@@ -9,6 +9,8 @@ use serde::Serialize;
 use std::path::{Path, PathBuf};
 
 use ggen_marketplace::marketplace::install::{install_pack_by_id, InstallByIdInput};
+use ggen_marketplace::marketplace::local_pack_bridge::local_pack_to_marketplace_package;
+use ggen_marketplace::marketplace::registry_rdf::RdfRegistry;
 use ggen_marketplace::packs::lockfile::PackLockfile;
 use ggen_marketplace::packs_registry::metadata::{list_packs, load_pack_metadata, show_pack};
 use ggen_marketplace::packs_registry::sparql_executor::run_pack_query;
@@ -89,6 +91,22 @@ pub struct QueryOutput {
     pub rows: Vec<Vec<ggen_marketplace::packs_registry::sparql_executor::Value>>,
     pub row_count: usize,
     pub execution_time_ms: u128,
+}
+
+#[derive(Serialize)]
+pub struct RelatedOutput {
+    /// The keyword or category slug the search was seeded from.
+    pub seed: String,
+    /// `"keyword"` or `"category"`, echoing which real SPARQL query ran.
+    pub mode: String,
+    pub packs_considered: usize,
+    pub results: Vec<RelatedResult>,
+    pub total: usize,
+}
+
+#[derive(Serialize)]
+pub struct RelatedResult {
+    pub pack_id: String,
 }
 
 #[derive(Serialize)]
@@ -325,6 +343,37 @@ pub fn search(#[arg(index = 1)] query: String, limit: Option<usize>) -> Result<S
     })
 }
 
+/// Find packs related to a keyword (default) or category, via real SPARQL
+/// graph-relation search over the local pack registry
+//
+// Machine-facing surface distinct from `pack search`: `pack search` scores
+// pack name/id/description by plain substring matching in application code
+// (see `perform_search` below). This instead ingests every locally-installed
+// pack (the same set `pack list` reads, via `local_pack_to_marketplace_package`)
+// into a real, ephemeral `RdfRegistry`, then runs one of two real SPARQL
+// queries -- `SparqlSearchEngine::search_semantic` (keyword-overlap ranking,
+// `COUNT(DISTINCT ?kw)`/`ORDER BY DESC`) by default, or, with `--by-category`,
+// `search_related_by_category` (SKOS `related|broader|narrower` property-path
+// taxonomy expansion). Before this verb existed, that entire real, tested
+// search stack (`RdfRegistry`/`RdfMapper`/`SparqlSearchEngine`) had zero
+// production callers anywhere in this workspace -- confirmed by grep -- so
+// this is the closure of that reachability gap, not a rename of `pack
+// search`. A pack whose local metadata fails to convert (e.g. a non-semver
+// version) is skipped with a warning, not treated as a fatal error for the
+// whole batch -- see `local_pack_to_marketplace_package`'s own doc comment.
+#[verb]
+pub fn related(
+    #[arg(index = 1)] seed: String, by_category: bool, limit: Option<usize>,
+) -> Result<RelatedOutput> {
+    if let Some(0) = limit {
+        return Err(NounVerbError::argument_error(
+            "--limit must be greater than 0",
+        ));
+    }
+    perform_related_search(seed, by_category, limit.unwrap_or(20))
+        .map_err(|e| NounVerbError::execution_error(format!("{}", e)))
+}
+
 /// Run a raw SPARQL query over pack RDF facts
 //
 // Machine-facing surface, not a human browsing aid: executes a real SPARQL SELECT/ASK query
@@ -539,6 +588,76 @@ fn perform_search(query: &str, limit: Option<usize>) -> Result<Vec<SearchResult>
     });
     scored.truncate(max);
     Ok(scored)
+}
+
+/// Domain logic behind `ggen pack related`: ingest every locally-installed
+/// pack into a fresh, ephemeral `RdfRegistry`, then run the real SPARQL
+/// keyword-overlap or SKOS category-relation search over it. Factored out of
+/// the `#[verb]` fn to satisfy the CLI layer's Poka-Yoke verb-complexity
+/// guard (same convention as `perform_search`/`pack_doctor_report` in this
+/// file).
+fn perform_related_search(
+    seed: String, by_category: bool, max: usize,
+) -> ggen_marketplace::marketplace::error::Result<RelatedOutput> {
+    let local_packs = list_packs(None).map_err(|e| {
+        ggen_marketplace::marketplace::error::Error::SearchError(format!(
+            "Failed to list packages: {}",
+            e
+        ))
+    })?;
+
+    let registry = RdfRegistry::new();
+    let mut considered = 0usize;
+    for pack in &local_packs {
+        match local_pack_to_marketplace_package(pack) {
+            Ok(package) => match registry.insert_package_rdf(&package) {
+                Ok(()) => considered += 1,
+                Err(e) => log::warn!("Skipping pack '{}': failed to ingest into RDF: {}", pack.id, e),
+            },
+            Err(e) => log::warn!(
+                "Skipping pack '{}': not representable in the marketplace model: {}",
+                pack.id,
+                e
+            ),
+        }
+    }
+
+    let (mode, pack_uris) = if by_category {
+        ("category", registry.search_related_by_category(&seed, max)?)
+    } else {
+        (
+            "keyword",
+            registry.search_related_by_keywords(std::slice::from_ref(&seed), max)?,
+        )
+    };
+
+    // Results are package URIs (https://ggen.io/marketplace/package/<id>);
+    // extract the trailing id segment for a human/script-friendly pack_id.
+    let results: Vec<RelatedResult> = pack_uris
+        .into_iter()
+        .filter_map(|uri| {
+            uri.rsplit('/')
+                .next()
+                .map(|id| RelatedResult { pack_id: id.to_string() })
+        })
+        .collect();
+    let total = results.len();
+
+    log::info!(
+        "Found {} pack(s) related to '{}' by {} (considered {} local packs)",
+        total,
+        seed,
+        mode,
+        considered
+    );
+
+    Ok(RelatedOutput {
+        seed,
+        mode: mode.to_string(),
+        packs_considered: considered,
+        results,
+        total,
+    })
 }
 
 fn calculate_relevance(name: &str, desc: &str, id: &str, query: &str) -> Option<f64> {
