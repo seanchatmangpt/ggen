@@ -1,151 +1,62 @@
-# ggen Repository Operating Contract
+# ggen Agent Operating Contract
 
-This file governs the repository unless a deeper `AGENTS.md` narrows a subtree. A nested contract may add constraints, but it may not silently weaken repository safety, evidence, or publication rules.
+This contract governs the repository unless a deeper `AGENTS.md` narrows a subtree. Live repository evidence outranks stale prose. Nested contracts may add constraints but may not silently weaken safety, evidence, authority, replay, or publication rules.
 
-## 1. Preserve before changing
+## Preserve → Fence → Calculus
 
-1. Resolve the requested repository and base to an exact commit SHA.
-2. Read this file, every applicable nested `AGENTS.md`, `CLAUDE.md`, relevant architecture documents, manifests, task runners, and verifier entrypoints.
-3. Preserve public interfaces, generated/manual boundaries, receipts, replay semantics, typed refusals, and compatibility unless the task explicitly requires a change.
-4. Prefer the smallest coherent repair of the existing path over a parallel implementation.
-5. Do not hand-edit generated projections when an authoritative graph, template, schema, or generator owns them.
+Before changing anything, resolve the repository/ref/base to an exact commit and read the applicable root+nested doctrine, README/architecture material, manifests, task runners, CI, generation policy, and release policy. Preserve public interfaces, canonical/generated boundaries, authority, receipts/replay, compatibility, and reversible options. Apply Chesterton's fence: understand why a rule or boundary exists before deleting it; replace stale doctrine with a narrower executable rule and an explicit falsifier.
 
-When a rule appears obsolete or contradictory, inspect why it existed before removing it. Replace stale doctrine with a narrower executable rule and record the falsifier.
+Treat work as objects and morphisms with explicit admission, closure, authority, actuation, receipt, replay, and standing. Preserve maximal reversible lawful possibilities before irreversible selection. One failed edge is topology information, not graph failure.
 
-## 2. Evidence vocabulary
+## Evidence and standing
 
-Use these standings precisely:
+Use `UNKNOWN | PARTIAL_ALIVE | ALIVE | BLOCKED | BUILD_BROKEN | UNSUPPORTED` plus typed `REFUSED_*` precisely. `UNKNOWN` is not admitted; `UNSUPPORTED` is not refused; a checkpoint is not the crown. `ALIVE` requires observed execution against the exact admitted subject.
 
-- `UNKNOWN`: the relevant subject was not observed, or the evidence is stale or contradictory.
-- `PARTIAL_ALIVE`: a bounded checkpoint executed successfully; the crown claim remains open.
-- `ALIVE`: the exact admitted subject executed and produced the claimed consequence.
-- `BLOCKED`: an admitted dependency or authority boundary prevents execution.
-- `BUILD_BROKEN`: the requested verifier cannot be reached because the build path is broken.
-- `UNSUPPORTED`: the capability is outside the admitted boundary.
-- `REFUSED_<TYPE>`: a typed policy, safety, authority, or admission refusal.
+Track `observed`, `admitted`, `executed`, `changed`, `verified`, `inferred`, `refused`, `blocked`, and `unsupported` separately. Inspection is not execution; source presence is not behavior; a workflow is not a successful run; a connector object is not a mounted tree; a receipt-shaped value is not a replay-verified receipt.
 
-Never promote inspection, source presence, a workflow definition, a connector object, or historical output to `ALIVE`. Track observed, admitted, executed, changed, verified, inferred, blocked, unsupported, and refused claims separately.
+## Manufacture and authority
 
-## 3. Manufacture and authority
-
-The repository follows:
+The operating equation is:
 
 ```text
 A = μ(O*)
 R = receipt(A)
 ```
 
-`O*` is admitted, aligned, grounded, and bounded observation. `μ` is lawful manufacture. A receipt binds subject identity, authority, consequence, replay, and standing.
+`O*` is admitted, aligned, grounded, and bounded observation. `μ` is lawful manufacture. `R` binds subject identity, authority, consequence, replay, and standing.
 
-Separate operations into:
+Separate `SELECT`, `CONSTRUCT`, and `DO`. Raw input, model/planner output, generated code, proof text, hooks, and semantic derivations have no ambient execution authority. Hooks manufacture intents; they never actuate. Where consequential actuation exists, use the repository's authorized receipt-bearing boundary; zero unreceipted actuation.
 
-- `SELECT`: choose an admitted subject or route.
-- `CONSTRUCT`: build reversible artifacts, plans, edits, graphs, or intents.
-- `DO`: actuate machine state through the authorized boundary.
-
-BRCE is the exclusive `DO` path where a BRCE boundary exists. Raw input, model output, generated code, proof text, hooks, and semantic derivations have no ambient execution authority. Hooks manufacture intents; they do not directly actuate.
-
-## 4. Repository orientation
-
-Before implementation, establish:
-
-- repository, ref, exact base SHA, tree identity, branch, and PR state;
-- available transports, credentials, mounts, Git implementation, network, archives, runtimes, compilers, package caches, and test tools;
-- root and nested doctrine;
-- workspace members, feature flags, generated surfaces, dependency policy, and release policy;
-- the exact acceptance command or the narrowest documented equivalent.
-
-Use this materialization ladder until one path succeeds or each failure is typed:
-
-1. verified local checkout;
-2. exact-SHA source archive;
-3. clone or fetch;
-4. bundle or workflow artifact supplied by the user;
-5. connector-backed tree/blob reconstruction;
-6. dependency-closed sparse tree;
-7. classified remote execution explicitly permitted by the user.
-
-A connector-visible repository is not a mounted tree. Record transport failures without collapsing the whole task into failure.
-
-## 5. Implementation law
-
-Follow the live path:
+## Required workflow
 
 ```text
-parse → route → admit/refuse → diagnose/repair → construct → actuate → receipt → replay → standing
+parse → orient → resolve → materialize → read doctrine → inspect
+→ admit/refuse → diagnose/repair → construct → actuate
+→ receipt → replay/hook → standing
 ```
 
-Requirements:
+Orient transports, permissions, mounts/checkouts, Git, connectors/auth/network, archives/artifacts, runtimes, compilers, packages, and tests. Never treat connector visibility as local materialization. Resolve the base once and never silently move it.
 
-- Keep diffs bounded and cohesive. Default to no more than 12 files unless closure requires more.
-- Preserve deterministic behavior, portability, failure transparency, receipt/replay identity, and existing authority boundaries.
-- Do not fabricate evidence, weaken tests, replace requested integration proof with unit proof, or make unrelated refactors.
-- Test doubles may isolate deterministic internal logic, but they cannot prove an external process, filesystem, network, compiler, editor, protocol, database, or service boundary.
-- Unit tests are valid for pure functions and local invariants. Integration and end-to-end claims require the real boundary named by the claim.
-- Do not add unresolved placeholders to a changed production path. Existing unrelated debt is not automatically in scope.
-- Prefer typed errors or refusals over silent fallback.
-- Treat one failed edge as topology information, not proof that every route failed.
+Prefer the existing lawful path and the smallest coherent bounded diff. Preserve interfaces, portability, failure transparency, authority, receipts/replay, and generated/manual ownership. Do not create parallel architecture when the existing path can be repaired. Do not fabricate evidence, weaken tests, substitute a unit proof for requested integration/e2e proof, add unrelated refactors, or leave unresolved placeholders on a changed production path.
 
-## 6. Verification ladder
+Generated artifacts are projections. Find the owning ontology, graph, query, schema, template, or generator and edit that authority. Regenerate through the documented path when executable. Never claim source/generated equivalence without executing the relevant generator or identity verifier.
 
-Run the cheapest high-information verifier first, then expand only after success:
+## Verification
 
-1. format or syntax check;
-2. narrow package check;
-3. focused unit tests;
-4. package test suite;
-5. integration or protocol tests;
-6. end-to-end execution;
-7. workspace or release gates when materially affected.
+Acceptance precedence is: exact user command/behavior → documented repository command → narrowest existing verifier that proves the same claim. Run cheapest high-information gates first, then expand as affected: syntax/format → narrow check → unit → package → integration/protocol → e2e → release/qualification.
 
-On failure:
+On failure, preserve the command, exit, and diagnostic; locate the failed transition; form a new hypothesis; repair the narrowest cause; encode a permanent guard/test/refusal/fixture/schema/theorem; rerun the failed boundary before expanding. Never rerun an unchanged failure without a new hypothesis. Hosted CI supplements local proof; it is not truth and does not replace available local execution.
 
-1. preserve the exact command, exit code, and diagnostic;
-2. locate the failed transition;
-3. form a new hypothesis;
-4. repair the narrowest cause;
-5. encode a permanent guard, test, refusal, fixture, schema, or theorem;
-6. rerun the failed boundary before expanding.
+## GitHub publication
 
-Do not rerun an unchanged failure without a new hypothesis. Do not use hosted CI as a substitute for available local validation.
+Unless the user explicitly requests otherwise: branch from the exact admitted base, use a purpose branch, make intentional commits, never force-push, publish a draft PR, and do not merge. Inspect the exact published head and its CI. Status metadata is not logs.
 
-## 7. Generated artifacts
+## Final receipt
 
-A generated artifact is a projection, not automatically the editing authority.
+Expose repository/base/tree identity; O/O*; transports and typed failures; μ/changes and generated status; commands/exits; verification ladder; receipt/replay; branch/SHA/draft PR; scoped standing; and falsifiers. Another operator must be able to reproduce the standing without trusting prose.
 
-- Find the owning ontology, query, template, generator, or schema.
-- Regenerate through the documented command when the generator is in scope and executable.
-- Preserve merge markers and generated/manual regions.
-- Report generated artifacts as changed, unchanged, skipped, blocked, or unsupported.
-- Never claim source/generated equivalence without executing the relevant generator or byte-identity verifier.
+## Repository-local law — ggen
 
-## 8. GitHub publication
+`ggen` renders projections from admitted semantic sources. Ontologies, canonical graphs, queries, templates, schemas, and generator code outrank emitted files. Do not hand-edit a generated projection when its owning source is available. Preserve graph → query → generation → formal admission/runtime → receipt/replay correspondence. Selection must retain maximal lawful alternatives until an admitted boundary requires commitment.
 
-Unless the user explicitly asks otherwise:
-
-- branch from the exact admitted base;
-- use a purpose-specific branch name;
-- create intentional commits without force-pushing;
-- open a draft pull request;
-- do not merge;
-- do not silently move the base;
-- inspect the exact published head and compare it with the admitted base.
-
-GitHub metadata supplements execution evidence. A green status label is not a log, and a workflow definition is not a successful run.
-
-## 9. Final receipt
-
-Every implementation result must expose:
-
-- repository, exact base, branch, commit, and PR identity;
-- admitted scope and exclusions;
-- materialization transports attempted and typed failures;
-- files and behavior changed;
-- generated-artifact status;
-- commands executed with exits;
-- verification ladder reached;
-- standing for each material claim;
-- replay command or next exact verifier;
-- unresolved falsifiers or blockers.
-
-The receipt must make it possible for another operator to reproduce the standing without trusting prose.
+Discover the live workspace, feature flags, release rules, and exact verification commands from the checked-out tree rather than freezing them into this contract. When release or marketplace behavior is affected, prove the actual published/generated path rather than substituting source inspection.
