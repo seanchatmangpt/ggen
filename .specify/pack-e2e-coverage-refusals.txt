@@ -1,0 +1,12 @@
+# Explicit bounded refusals for the 2026-08-10 E2E coverage regression.
+# These names are not standing claims and do not count as covered. They exist
+# only to prevent a weakened numeric baseline from hiding which executable
+# subjects still lack exact-path E2E evidence.
+#
+# The executable inventory guard must reconcile this file against the live
+# uncovered-pack list before crown standing can be raised.
+tai-enterprise-rebuild-pack
+pack-authoring-pack
+# Two additional uncovered subjects remain intentionally unresolved until the
+# live inventory guard identifies their exact canonical pack IDs. A placeholder
+# is forbidden: the crown PR must stay PARTIAL until those identities are bound.

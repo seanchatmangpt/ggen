@@ -1,0 +1,33 @@
+name: AutoFDE execution profile contract
+
+on:
+  pull_request:
+    paths:
+      - "packs/autofde-execution-profile-pack/**"
+      - "crates/ggen-engine/tests/autofde_execution_profile_pack_e2e.rs"
+      - "scripts/autofde_validate_execution_profiles.py"
+      - "scripts/test_autofde_validate_execution_profiles.py"
+      - ".github/workflows/autofde-execution-profile-contract.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  json-admission:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact head
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Refuse subject drift
+        run: test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile court
+        run: python -m py_compile scripts/autofde_validate_execution_profiles.py scripts/test_autofde_validate_execution_profiles.py
+      - name: Execute adversarial JSON court
+        run: python -m unittest -v scripts/test_autofde_validate_execution_profiles.py
+      - run: echo AUTOFDE_EXECUTION_PROFILE_JSON_COURT=ALIVE

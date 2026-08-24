@@ -6,9 +6,12 @@
 # MESSAGE: on the gha:Workflow it is gha:inWorkflow of. Every gha:Workflow that carries a
 # MESSAGE: generated body (gha:artifactBody) must declare >=1 gha:evidenceObligation or an
 # MESSAGE: explicit gha:noEvidenceReason — a green run whose evidence nobody declared cannot
-# MESSAGE: reach evidenceAdmitted (see gha:executionStates). Any row = a subject missing the
-# MESSAGE: bound property. All patterns are typed with gha: classes, so this gate is
-# MESSAGE: namespace-scoped and composes with other packs' graphs without cross-firing.
+# MESSAGE: reach evidenceAdmitted (see gha:executionStates). Every gha:Step must declare
+# MESSAGE: gha:inJob, gha:stepOrder, and at least one of gha:usesAction/gha:runCommand — a step
+# MESSAGE: with neither renders no real YAML line, so a template can only ever echo an empty
+# MESSAGE: entry for it. Any row = a subject missing the bound property. All patterns are typed
+# MESSAGE: with gha: classes, so this gate is namespace-scoped and composes with other packs'
+# MESSAGE: graphs without cross-firing.
 PREFIX gha:  <http://seanchatmangpt.github.io/packs/github-actions#>
 SELECT ?s ?missing WHERE {
   {
@@ -28,6 +31,13 @@ SELECT ?s ?missing WHERE {
   } UNION {
     ?s a gha:Workflow . ?s gha:artifactBody ?body . BIND(gha:evidenceObligation AS ?missing)
     FILTER NOT EXISTS { ?s gha:noEvidenceReason ?reason }
+  } UNION {
+    ?s a gha:Step . BIND(gha:inJob AS ?missing)
+  } UNION {
+    ?s a gha:Step . BIND(gha:stepOrder AS ?missing)
+  } UNION {
+    ?s a gha:Step . BIND(gha:usesAction AS ?missing)
+    FILTER NOT EXISTS { ?s gha:runCommand ?cmd }
   }
   FILTER NOT EXISTS { ?s ?missing ?any }
 }

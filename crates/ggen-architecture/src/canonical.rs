@@ -2,11 +2,14 @@
 //! Canonical, deterministic, IO-free architecture kernel for ggen.
 //!
 //! The generic ggen Building Block calculus is the semantic authority. The
-//! existing Fortune 5 runtime law is preserved as a profile module. This crate
-//! may manufacture bounded intents, but it cannot actuate external systems.
+//! enterprise graph calculus layers strategy, portfolio, governance, impact,
+//! migration, and evidence traceability over it. The existing Fortune 5 runtime
+//! law is preserved as a profile module. This crate may manufacture bounded
+//! intents, but it cannot actuate external systems.
 
 pub mod building_block;
 pub mod certification;
+pub mod enterprise;
 pub mod self_play;
 
 #[path = "lib.rs"]
@@ -38,6 +41,14 @@ pub use certification::{
     TAI_CASE_STUDY_BROKER, TAI_CASE_STUDY_EXAMPLE, TAI_CASE_STUDY_ID, TAI_CASE_STUDY_PACK,
     TAI_CASE_STUDY_VERSION, TAI_REBUILD_RECEIPT_SCHEMA, TESTING_BBLOCK_PROTOCOL_ID,
     TESTING_BBLOCK_PROTOCOL_VERSION,
+};
+pub use enterprise::{
+    public_vocabulary, ArchitectureLayer, ArchitectureView, ArchitectureViewpoint, ElementId,
+    EnterpriseArchitectureError, EnterpriseArchitectureModel, EnterpriseArchitectureReceipt,
+    EnterpriseArchitectureViolation, EnterpriseElement, EnterpriseElementKind,
+    EnterpriseImpactReport, EnterpriseRelation, EnterpriseRelationKind, EnterpriseTransition,
+    EnterpriseWorkPackage, GovernanceAssessment, GovernanceFinding, GovernanceSeverity, RelationId,
+    TraceHop, TransitionId, WorkPackageId, ENTERPRISE_ARCHITECTURE_RECEIPT_SCHEMA,
 };
 pub use self_play::{
     run_scenario, run_suite, verify_report, verify_suite, ActionSpec, ActorPolicy, ActorRole,

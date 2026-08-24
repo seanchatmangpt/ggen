@@ -3430,16 +3430,23 @@ mod tests {
     /// for every record from here on, not retroactively proving history
     /// that cannot be proven.
     #[test]
-    #[ignore = "one-time destructive migration against the real repo-root .ggen-v2/; run explicitly with --ignored"]
+    #[ignore = "one-time destructive receipt migration; bind GGEN_RECEIPT_MIGRATION_ROOT for a project-scoped legacy chain"]
     fn reseal_receipt_log_under_post_f1_chain_hash_formula() {
         use ed25519_dalek::Signer as _;
 
-        // CARGO_MANIFEST_DIR is crates/ggen-engine; workspace root is two levels up.
-        let root = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-            .parent()
-            .and_then(std::path::Path::parent)
-            .expect("workspace root")
-            .to_path_buf();
+        // Default to the historical workspace-root migration target, but allow an
+        // operator to bind the destructive migration to an exact admitted project root.
+        // This preserves the existing F1 reseal algorithm while making it reusable for
+        // project-scoped legacy chains such as examples/interview-sandbox.
+        let root = std::env::var_os("GGEN_RECEIPT_MIGRATION_ROOT")
+            .map(std::path::PathBuf::from)
+            .unwrap_or_else(|| {
+                std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+                    .parent()
+                    .and_then(std::path::Path::parent)
+                    .expect("workspace root")
+                    .to_path_buf()
+            });
         let log_path = root.join(RECEIPT_LOG_REL_PATH);
         let head_path = root.join(RECEIPT_REL_PATH);
 

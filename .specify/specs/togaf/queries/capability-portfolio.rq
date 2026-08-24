@@ -1,0 +1,28 @@
+PREFIX rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs:  <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX togaf: <https://ggen.dev/ontology/togaf#>
+
+# Capability portfolio is derived from the canonical graph. It accepts both the
+# legacy application→capability edge and the canonical capability→realization
+# direction without manufacturing duplicate architecture facts.
+SELECT DISTINCT
+  ?capability
+  ?capabilityLabel
+  ?owner
+  ?status
+  ?realization
+  ?realizationLabel
+  ?realizationType
+WHERE {
+  ?capability a togaf:BusinessCapability ;
+              rdfs:label ?capabilityLabel .
+  OPTIONAL { ?capability togaf:owner ?owner . }
+  OPTIONAL { ?capability togaf:status ?status . }
+
+  OPTIONAL {
+    ?capability (togaf:realizedBy|^togaf:implementsCapability) ?realization .
+    OPTIONAL { ?realization rdfs:label ?realizationLabel . }
+    OPTIONAL { ?realization a ?realizationType . }
+  }
+}
+ORDER BY ?capabilityLabel ?realizationLabel ?realization

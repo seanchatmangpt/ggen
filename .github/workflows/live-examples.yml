@@ -1,0 +1,84 @@
+name: Live examples
+
+on:
+  pull_request:
+    paths:
+      - 'examples/**'
+      - 'packs/**'
+      - 'crates/ggen-engine/**'
+      - 'crates/ggen-cli/**'
+      - 'scripts/construct-receipt-migration.sh'
+      - 'scripts/validate-examples.sh'
+      - 'scripts/regenerate-examples.sh'
+      - 'Cargo.toml'
+      - 'Cargo.lock'
+      - 'rust-toolchain.toml'
+      - '.github/workflows/live-examples.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Execute and persist receipt migration
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      CARGO_TERM_COLOR: always
+      RUST_BACKTRACE: 1
+      RUSTC_WRAPPER: ""
+      CARGO_INCREMENTAL: 0
+    steps:
+      - name: Checkout exact subject
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+
+      - name: Verify checkout identity
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha }}"
+
+      - name: Install pinned Rust toolchain
+        uses: dtolnay/rust-toolchain@b3b07ba8b418998c39fb20f53e8b695cdcc8de1b
+        with:
+          toolchain: nightly-2026-06-22
+          components: rustfmt
+
+      - name: Construct and verify project-scoped F1 migration
+        env:
+          MIGRATION_SUBJECT: ${{ github.event.pull_request.head.sha }}
+        run: bash scripts/construct-receipt-migration.sh
+
+      - name: Persist verified migration bytes
+        if: github.event_name == 'pull_request'
+        run: |
+          set -euo pipefail
+          git add \
+            crates/ggen-engine/src/sync.rs \
+            examples/interview-sandbox/.ggen-v2/receipt-log.jsonl \
+            examples/interview-sandbox/.ggen-v2/receipt.json
+          if git diff --cached --quiet; then
+            echo 'No migration bytes to persist.'
+            exit 0
+          fi
+          git config user.name 'ggen migration constructor'
+          git config user.email 'actions@users.noreply.github.com'
+          git commit -m 'fix(receipt): persist verified interview-sandbox F1 migration'
+          git push origin "HEAD:${{ github.head_ref }}"
+
+      - name: Upload verified migration candidate
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: live-examples-migration-candidate
+          path: /tmp/live-examples-migration-candidate/
+          if-no-files-found: error
+          include-hidden-files: true
+          retention-days: 7

@@ -6,21 +6,26 @@
 @prefix togaf:  <https://ggen.dev/ontology/togaf#> .
 @prefix arch:   <https://ggen.dev/ontology/arch#> .
 @prefix skos:   <http://www.w3.org/2004/02/skos/core#> .
+@prefix prov:   <http://www.w3.org/ns/prov#> .
+@prefix org:    <http://www.w3.org/ns/org#> .
+@prefix dcat:   <http://www.w3.org/ns/dcat#> .
+@prefix odrl:   <http://www.w3.org/ns/odrl/2/> .
+@prefix sosa:   <http://www.w3.org/ns/sosa/> .
 
 # =============================================================================
-# TOGAF / ArchiMate Vocabulary — ggen enterprise ontology seed
+# TOGAF / ArchiMate Vocabulary — ggen canonical enterprise architecture graph
 # =============================================================================
-# This ontology encodes the TOGAF ADM metamodel and ArchiMate 3.1 core element
-# taxonomy as RDF classes and properties. It is the single source of truth from
-# which all four architecture views (Business, Data, Application, Technology)
-# are generated via SPARQL SELECT + Tera templates.
+# The graph is the editing authority. Business/Data/Application/Technology,
+# governance, portfolio, evidence, and migration artifacts are projections.
+# Public vocabularies provide semantic alignment only; their identifiers grant
+# no ambient execution authority.
 #
-# Formula: A = μ(O)  — each VIEW is a SPARQL projection of this graph.
+# Formula: A = μ(O*) — projections are manufactured from admitted graph facts.
 # =============================================================================
 
 togaf:Ontology a owl:Ontology ;
     rdfs:label "TOGAF/ArchiMate Enterprise Vocabulary" ;
-    owl:versionInfo "3.1.0" .
+    owl:versionInfo "4.0.0" .
 
 # ─── ADM Phases ──────────────────────────────────────────────────────────────
 
@@ -43,27 +48,72 @@ togaf:phaseCode a owl:DatatypeProperty ;
     rdfs:domain togaf:ADMPhase ;
     rdfs:range  xsd:string .
 
-# ─── Architecture Layers (ArchiMate 3.1) ─────────────────────────────────────
+# ─── Architecture Layers ─────────────────────────────────────────────────────
 
 togaf:ArchitectureLayer a owl:Class ;
     rdfs:label "Architecture Layer" .
 
-togaf:BusinessLayer     a togaf:ArchitectureLayer ; rdfs:label "Business" .
-togaf:ApplicationLayer  a togaf:ArchitectureLayer ; rdfs:label "Application" .
-togaf:TechnologyLayer   a togaf:ArchitectureLayer ; rdfs:label "Technology" .
-togaf:MotivationLayer   a togaf:ArchitectureLayer ; rdfs:label "Motivation" .
-togaf:StrategyLayer     a togaf:ArchitectureLayer ; rdfs:label "Strategy" .
-togaf:PhysicalLayer     a togaf:ArchitectureLayer ; rdfs:label "Physical" .
+togaf:EnterpriseLayer               a togaf:ArchitectureLayer ; rdfs:label "Enterprise" .
+togaf:MotivationLayer               a togaf:ArchitectureLayer ; rdfs:label "Motivation" .
+togaf:StrategyLayer                 a togaf:ArchitectureLayer ; rdfs:label "Strategy" .
+togaf:BusinessLayer                 a togaf:ArchitectureLayer ; rdfs:label "Business" .
+togaf:InformationLayer              a togaf:ArchitectureLayer ; rdfs:label "Information" .
+togaf:ApplicationLayer              a togaf:ArchitectureLayer ; rdfs:label "Application" .
+togaf:TechnologyLayer               a togaf:ArchitectureLayer ; rdfs:label "Technology" .
+togaf:PhysicalLayer                 a togaf:ArchitectureLayer ; rdfs:label "Physical" .
+togaf:ImplementationMigrationLayer  a togaf:ArchitectureLayer ; rdfs:label "Implementation & Migration" .
+togaf:GovernanceLayer               a togaf:ArchitectureLayer ; rdfs:label "Governance" .
+togaf:EvidenceLayer                 a togaf:ArchitectureLayer ; rdfs:label "Evidence" .
 
-# ─── Core Element Classes ────────────────────────────────────────────────────
+# ─── Enterprise / Motivation / Strategy ──────────────────────────────────────
 
-# Business Layer
+togaf:Enterprise a owl:Class ;
+    rdfs:subClassOf org:Organization ;
+    rdfs:label "Enterprise" ;
+    togaf:layer togaf:EnterpriseLayer .
+
+togaf:ArchitectureBoundary a owl:Class ;
+    rdfs:label "Architecture Boundary" ;
+    togaf:layer togaf:EnterpriseLayer .
+
+togaf:Principle a owl:Class ;
+    rdfs:subClassOf odrl:Policy ;
+    rdfs:label "Architecture Principle" ;
+    togaf:layer togaf:MotivationLayer .
+
+togaf:Requirement a owl:Class ;
+    rdfs:subClassOf odrl:Policy ;
+    rdfs:label "Architecture Requirement" ;
+    togaf:layer togaf:MotivationLayer .
+
+togaf:BusinessCapability a owl:Class ;
+    rdfs:subClassOf skos:Concept ;
+    rdfs:label "Business Capability" ;
+    rdfs:comment "An ability owned by the enterprise." ;
+    togaf:layer togaf:StrategyLayer .
+
+togaf:ValueStream a owl:Class ;
+    rdfs:label "Value Stream" ;
+    togaf:layer togaf:StrategyLayer .
+
+togaf:Product a owl:Class ;
+    rdfs:label "Product" ;
+    togaf:layer togaf:StrategyLayer .
+
+# ─── Business Layer ──────────────────────────────────────────────────────────
+
+togaf:OrganizationUnit a owl:Class ;
+    rdfs:subClassOf org:Organization ;
+    rdfs:label "Organization Unit" ;
+    togaf:layer togaf:BusinessLayer .
+
 togaf:BusinessActor a owl:Class ;
     rdfs:label "Business Actor" ;
     rdfs:comment "An organizational entity capable of performing behavior." ;
     togaf:layer togaf:BusinessLayer .
 
 togaf:BusinessRole a owl:Class ;
+    rdfs:subClassOf org:Role ;
     rdfs:label "Business Role" ;
     rdfs:comment "The responsibility for performing specific behavior." ;
     togaf:layer togaf:BusinessLayer .
@@ -73,22 +123,35 @@ togaf:BusinessProcess a owl:Class ;
     rdfs:comment "A sequence of behaviors producing a result." ;
     togaf:layer togaf:BusinessLayer .
 
-togaf:BusinessCapability a owl:Class ;
-    rdfs:label "Business Capability" ;
-    rdfs:comment "An ability owned by the enterprise." ;
-    togaf:layer togaf:BusinessLayer .
-
 togaf:BusinessService a owl:Class ;
     rdfs:label "Business Service" ;
     rdfs:comment "Explicitly defined exposed behavior." ;
     togaf:layer togaf:BusinessLayer .
 
+# ─── Information Layer ───────────────────────────────────────────────────────
+
+togaf:InformationConcept a owl:Class ;
+    rdfs:subClassOf skos:Concept ;
+    rdfs:label "Information Concept" ;
+    togaf:layer togaf:InformationLayer .
+
 togaf:DataObject a owl:Class ;
     rdfs:label "Data Object" ;
     rdfs:comment "A passive element that holds data." ;
-    togaf:layer togaf:BusinessLayer .
+    togaf:layer togaf:InformationLayer .
 
-# Application Layer
+togaf:Dataset a owl:Class ;
+    rdfs:subClassOf dcat:Dataset ;
+    rdfs:label "Dataset" ;
+    togaf:layer togaf:InformationLayer .
+
+togaf:OntologyAsset a owl:Class ;
+    rdfs:subClassOf prov:Entity ;
+    rdfs:label "Ontology" ;
+    togaf:layer togaf:InformationLayer .
+
+# ─── Application Layer ───────────────────────────────────────────────────────
+
 togaf:ApplicationComponent a owl:Class ;
     rdfs:label "Application Component" ;
     rdfs:comment "A modular, deployable, replaceable part of a software system." ;
@@ -104,7 +167,8 @@ togaf:ApplicationInterface a owl:Class ;
     rdfs:comment "A point of access to application functionality." ;
     togaf:layer togaf:ApplicationLayer .
 
-# Technology Layer
+# ─── Technology / Manufacturing Layer ────────────────────────────────────────
+
 togaf:TechnologyService a owl:Class ;
     rdfs:label "Technology Service" ;
     rdfs:comment "Infrastructure capabilities exposed to higher layers." ;
@@ -116,11 +180,63 @@ togaf:Node a owl:Class ;
     togaf:layer togaf:TechnologyLayer .
 
 togaf:Artifact a owl:Class ;
+    rdfs:subClassOf prov:Entity ;
     rdfs:label "Artifact" ;
-    rdfs:comment "A physical piece of data used or produced by a technical element." ;
+    rdfs:comment "A physical or digital architecture realization artifact." ;
     togaf:layer togaf:TechnologyLayer .
 
-# ─── Relationships ────────────────────────────────────────────────────────────
+togaf:Platform a owl:Class ; rdfs:label "Platform" ; togaf:layer togaf:TechnologyLayer .
+togaf:Environment a owl:Class ; rdfs:label "Environment" ; togaf:layer togaf:TechnologyLayer .
+togaf:Repository a owl:Class ; rdfs:label "Repository" ; togaf:layer togaf:TechnologyLayer .
+togaf:Pack a owl:Class ; rdfs:label "ggen Pack" ; togaf:layer togaf:TechnologyLayer .
+togaf:Query a owl:Class ; rdfs:label "Query" ; togaf:layer togaf:TechnologyLayer .
+togaf:Template a owl:Class ; rdfs:label "Template" ; togaf:layer togaf:TechnologyLayer .
+togaf:Projection a owl:Class ; rdfs:label "Generated Projection" ; togaf:layer togaf:TechnologyLayer .
+
+# ─── Implementation & Migration ──────────────────────────────────────────────
+
+togaf:Plan a owl:Class ;
+    rdfs:subClassOf prov:Activity ;
+    rdfs:label "Architecture Plan" ;
+    togaf:layer togaf:ImplementationMigrationLayer .
+
+togaf:WorkPackage a owl:Class ;
+    rdfs:subClassOf prov:Activity ;
+    rdfs:label "Work Package" ;
+    togaf:layer togaf:ImplementationMigrationLayer .
+
+togaf:TransitionArchitecture a owl:Class ;
+    rdfs:subClassOf prov:Activity ;
+    rdfs:label "Transition Architecture" ;
+    togaf:layer togaf:ImplementationMigrationLayer .
+
+togaf:Migration a owl:Class ;
+    rdfs:subClassOf prov:Activity ;
+    rdfs:label "Migration" ;
+    togaf:layer togaf:ImplementationMigrationLayer .
+
+# ─── Governance / Evidence ───────────────────────────────────────────────────
+
+togaf:ComplianceStandard a owl:Class ;
+    rdfs:subClassOf odrl:Policy ;
+    rdfs:label "Compliance Standard" .
+
+togaf:Decision a owl:Class ; rdfs:label "Architecture Decision" ; togaf:layer togaf:GovernanceLayer .
+togaf:Risk a owl:Class ; rdfs:label "Architecture Risk" ; togaf:layer togaf:GovernanceLayer .
+togaf:Control a owl:Class ; rdfs:subClassOf odrl:Policy ; rdfs:label "Control" ; togaf:layer togaf:GovernanceLayer .
+togaf:Exception a owl:Class ; rdfs:label "Governance Exception" ; togaf:layer togaf:GovernanceLayer .
+
+togaf:Claim a owl:Class ; rdfs:subClassOf prov:Entity ; rdfs:label "Claim" ; togaf:layer togaf:EvidenceLayer .
+togaf:Evidence a owl:Class ; rdfs:subClassOf prov:Entity ; rdfs:label "Evidence" ; togaf:layer togaf:EvidenceLayer .
+togaf:Receipt a owl:Class ; rdfs:subClassOf prov:Entity ; rdfs:label "Receipt" ; togaf:layer togaf:EvidenceLayer .
+togaf:Metric a owl:Class ; rdfs:subClassOf sosa:ObservableProperty ; rdfs:label "Metric" ; togaf:layer togaf:EvidenceLayer .
+
+# ─── Relationships ───────────────────────────────────────────────────────────
+
+togaf:contains a owl:ObjectProperty ; rdfs:label "contains" .
+togaf:owns a owl:ObjectProperty ; rdfs:label "owns" .
+togaf:stewards a owl:ObjectProperty ; rdfs:label "stewards" .
+togaf:constrains a owl:ObjectProperty ; rdfs:label "constrains" .
 
 togaf:implementsCapability a owl:ObjectProperty ;
     rdfs:label "implements capability" ;
@@ -129,7 +245,34 @@ togaf:implementsCapability a owl:ObjectProperty ;
 
 togaf:realizedBy a owl:ObjectProperty ;
     rdfs:label "realized by" ;
-    rdfs:comment "The element is realized by the target infrastructure node." .
+    rdfs:comment "Cross-layer realization relation from architecture intent to realization." .
+
+togaf:implementedBy a owl:ObjectProperty ; rdfs:label "implemented by" .
+togaf:uses a owl:ObjectProperty ; rdfs:label "uses" .
+togaf:dependsOn a owl:ObjectProperty ; rdfs:label "depends on" .
+togaf:flowsTo a owl:ObjectProperty ; rdfs:label "flows to" .
+togaf:hostedBy a owl:ObjectProperty ; rdfs:label "hosted by" .
+togaf:manufacturedBy a owl:ObjectProperty ; rdfs:label "manufactured by" .
+togaf:imports a owl:ObjectProperty ; rdfs:label "imports" .
+togaf:deployedTo a owl:ObjectProperty ; rdfs:label "deployed to" .
+togaf:observedBy a owl:ObjectProperty ; rdfs:label "observed by" .
+togaf:evidencedBy a owl:ObjectProperty ; rdfs:label "evidenced by" .
+togaf:satisfies a owl:ObjectProperty ; rdfs:label "satisfies" .
+togaf:mitigates a owl:ObjectProperty ; rdfs:label "mitigates" .
+togaf:governs a owl:ObjectProperty ; rdfs:label "governs" .
+togaf:supersedes a owl:ObjectProperty ; rdfs:label "supersedes" .
+togaf:migratesTo a owl:ObjectProperty ; rdfs:label "migrates to" .
+togaf:delivers a owl:ObjectProperty ; rdfs:label "delivers" .
+togaf:retires a owl:ObjectProperty ; rdfs:label "retires" .
+togaf:enables a owl:ObjectProperty ; rdfs:label "enables" .
+togaf:impacts a owl:ObjectProperty ; rdfs:label "impacts" .
+togaf:baselineElement a owl:ObjectProperty ; rdfs:label "baseline element" .
+togaf:targetElement a owl:ObjectProperty ; rdfs:label "target element" .
+togaf:containsWorkPackage a owl:ObjectProperty ;
+    rdfs:subPropertyOf togaf:contains ;
+    rdfs:label "contains work package" ;
+    rdfs:domain togaf:TransitionArchitecture ;
+    rdfs:range togaf:WorkPackage .
 
 togaf:handlesDataObject a owl:ObjectProperty ;
     rdfs:label "handles data object" ;
@@ -153,6 +296,8 @@ togaf:layer a owl:ObjectProperty ;
     rdfs:label "architecture layer" ;
     rdfs:range togaf:ArchitectureLayer .
 
+# ─── Governance Attributes ───────────────────────────────────────────────────
+
 togaf:dataClassification a owl:DatatypeProperty ;
     rdfs:label "data classification" ;
     rdfs:comment "Sensitivity classification: public | internal | confidential | restricted" ;
@@ -160,22 +305,33 @@ togaf:dataClassification a owl:DatatypeProperty ;
 
 togaf:owner a owl:DatatypeProperty ;
     rdfs:label "owner" ;
-    rdfs:comment "Email or identifier of the architecture owner." ;
+    rdfs:comment "Stable identifier of the accountable architecture owner." ;
+    rdfs:range xsd:string .
+
+togaf:steward a owl:DatatypeProperty ;
+    rdfs:label "steward" ;
+    rdfs:comment "Stable identifier of the day-to-day architecture steward." ;
     rdfs:range xsd:string .
 
 togaf:status a owl:DatatypeProperty ;
     rdfs:label "status" ;
-    rdfs:comment "Lifecycle status: draft | approved | deprecated | retired" ;
+    rdfs:comment "Lifecycle status: draft | planned | approved | active | deprecated | retired" ;
+    rdfs:range xsd:string .
+
+togaf:standing a owl:DatatypeProperty ;
+    rdfs:label "standing" ;
+    rdfs:comment "Evidence standing. Static architecture admission does not manufacture ALIVE." ;
     rdfs:range xsd:string .
 
 togaf:version a owl:DatatypeProperty ;
     rdfs:label "version" ;
     rdfs:range xsd:string .
 
-# ─── Compliance Standards ─────────────────────────────────────────────────────
+togaf:sequence a owl:DatatypeProperty ;
+    rdfs:label "deterministic sequence" ;
+    rdfs:range xsd:nonNegativeInteger .
 
-togaf:ComplianceStandard a owl:Class ;
-    rdfs:label "Compliance Standard" .
+# ─── Compliance Standards ────────────────────────────────────────────────────
 
 togaf:PCI_DSS  a togaf:ComplianceStandard ; rdfs:label "PCI DSS" .
 togaf:SOC2     a togaf:ComplianceStandard ; rdfs:label "SOC 2" .
@@ -187,6 +343,14 @@ togaf:FedRAMP  a togaf:ComplianceStandard ; rdfs:label "FedRAMP" .
 # =============================================================================
 # Example Enterprise Architecture — Fortune 5 Payment Domain
 # =============================================================================
+
+arch:PaymentEnterprise a togaf:Enterprise ;
+    rdfs:label "Payment Enterprise" ;
+    togaf:status "approved" .
+
+arch:PaymentBoundary a togaf:ArchitectureBoundary ;
+    rdfs:label "Global Payment Architecture Boundary" ;
+    togaf:status "approved" .
 
 arch:PaymentProcessingCapability a togaf:BusinessCapability ;
     rdfs:label "Payment Processing" ;
@@ -256,3 +420,66 @@ arch:AuthCluster a togaf:Node ;
     rdfs:label "Auth Kubernetes Cluster" ;
     togaf:owner "platform-team@corp.example" ;
     togaf:status "approved" .
+
+# Requirement → capability → application → technology → metric → receipt
+arch:PaymentResidencyRequirement a togaf:Requirement ;
+    rdfs:label "Payment data remains in admitted residency zones" ;
+    togaf:owner "privacy-officer@corp.example" ;
+    togaf:status "approved" ;
+    togaf:constrains arch:PaymentProcessingCapability .
+
+arch:PaymentService togaf:satisfies arch:PaymentResidencyRequirement .
+
+arch:PaymentResidencyMetric a togaf:Metric ;
+    rdfs:label "Payment Residency Conformance" ;
+    togaf:status "active" .
+
+arch:PaymentDeploymentReceipt a togaf:Receipt ;
+    rdfs:label "Exact Payment Deployment Receipt" ;
+    togaf:standing "UNKNOWN" .
+
+arch:PaymentService togaf:observedBy arch:PaymentResidencyMetric .
+arch:PaymentResidencyMetric togaf:evidencedBy arch:PaymentDeploymentReceipt .
+
+# Risk → control governance
+arch:PaymentResidencyRisk a togaf:Risk ;
+    rdfs:label "Payment Residency Breach Risk" ;
+    togaf:owner "risk@corp.example" ;
+    togaf:status "approved" .
+
+arch:PaymentResidencyControl a togaf:Control ;
+    rdfs:label "Payment Residency Enforcement" ;
+    togaf:owner "security@corp.example" ;
+    togaf:status "approved" ;
+    togaf:mitigates arch:PaymentResidencyRisk ;
+    togaf:governs arch:PaymentService .
+
+# Baseline → work packages → target transition graph
+arch:PaymentPlatformV5 a togaf:ApplicationComponent ;
+    rdfs:label "Payment Platform v5" ;
+    togaf:owner "payment-team@corp.example" ;
+    togaf:status "planned" ;
+    togaf:implementsCapability arch:PaymentProcessingCapability .
+
+arch:PaymentModernization a togaf:TransitionArchitecture ;
+    rdfs:label "Payment Platform Modernization" ;
+    togaf:owner "arch-board@corp.example" ;
+    togaf:status "approved" ;
+    togaf:baselineElement arch:PaymentService ;
+    togaf:targetElement arch:PaymentPlatformV5 ;
+    togaf:containsWorkPackage arch:BuildPaymentV5, arch:CutoverPaymentV5 .
+
+arch:BuildPaymentV5 a togaf:WorkPackage ;
+    rdfs:label "Build Payment Platform v5" ;
+    togaf:owner "payment-team@corp.example" ;
+    togaf:status "planned" ;
+    togaf:sequence 1 ;
+    togaf:delivers arch:PaymentPlatformV5 .
+
+arch:CutoverPaymentV5 a togaf:WorkPackage ;
+    rdfs:label "Cut over Payment Platform v5" ;
+    togaf:owner "payment-team@corp.example" ;
+    togaf:status "planned" ;
+    togaf:sequence 2 ;
+    togaf:dependsOn arch:BuildPaymentV5 ;
+    togaf:retires arch:PaymentService .
