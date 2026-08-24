@@ -1,0 +1,16 @@
+[project]
+name = "goat-capabilities-verify"
+
+[ontology]
+source = "schema/domain.ttl"
+
+[ontology.prefixes]
+gc   = "http://seanchatmangpt.github.io/packs/goat-capabilities#"
+rdf  = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+rdfs = "http://www.w3.org/2000/01/rdf-schema#"
+
+[packs]
+goat-capabilities-pack = { path = "../../packs/goat-capabilities-pack" }
+
+[templates]
+dir = "templates"
