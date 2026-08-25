@@ -29,9 +29,7 @@ jobs:
           RUSTC_WRAPPER: ''
         run: cargo check -p ggen-cli-lib --bin ggen --locked
       - name: Prove zero ambient consequential actuation
-        run: python3 - <<'PY'
-          import json
-          p=json.load(open('.ggen/epistemic-replication/r52-subject.json'))
-          assert p['consequential_do'] is False
-          print('CONSEQUENTIAL_DO=false')
-          PY
+        run: |
+          set -euo pipefail
+          test "$(jq -r '.consequential_do' .ggen/epistemic-replication/r52-subject.json)" = "false"
+          echo 'CONSEQUENTIAL_DO=false'
