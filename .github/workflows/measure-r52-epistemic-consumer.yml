@@ -1,0 +1,35 @@
+name: MEASURE R52 Epistemic Consumer Receipt
+
+on:
+  pull_request:
+    paths:
+      - '.ggen/epistemic-replication/**'
+      - 'scripts/verify-epistemic-consumer-r52.py'
+      - '.github/workflows/measure-r52-epistemic-consumer.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Checkout exact consumer subject
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - name: Admit exact PR head
+        run: test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha }}"
+      - name: Verify consumer contract
+        run: python3 scripts/verify-epistemic-consumer-r52.py
+      - name: Verify canonical ggen CLI substrate
+        env:
+          RUSTC_WRAPPER: ''
+        run: cargo check -p ggen-cli-lib --bin ggen --locked
+      - name: Prove zero ambient consequential actuation
+        run: |
+          set -euo pipefail
+          test "$(jq -r '.consequential_do' .ggen/epistemic-replication/r52-subject.json)" = "false"
+          echo 'CONSEQUENTIAL_DO=false'
