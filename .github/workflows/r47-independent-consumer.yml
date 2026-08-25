@@ -1,4 +1,4 @@
-name: R47 Independent Consumer Court
+name: R48 Independent Consumer Court
 
 on:
   pull_request:
@@ -9,7 +9,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: r47-consumer-${{ github.workflow }}-${{ github.ref }}
+  group: r48-consumer-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -27,26 +27,38 @@ jobs:
         run: |
           set -euo pipefail
           test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
-      - name: Checkout exact producer evidence
+      - name: Checkout reusable producer court
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           repository: seanchatmangpt/ggen-marketplace
-          ref: b942ff54f7d00e376dd2f28beb930390f4feb97b
-          path: _r47_producer
+          ref: 4715c562c3dd2c073c0ca119edbc013647978cae
+          path: _r48_producer
           persist-credentials: false
-      - name: Run consumer falsifiers
-        run: python3 verification/r47-consumer/test_verify.py
-      - name: Qualify independent consumer
+      - name: Qualify with producer-owned reusable court
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p "$RUNNER_TEMP/r47"
-          python3 verification/r47-consumer/verify.py \
+          mkdir -p "$RUNNER_TEMP/r48"
+          python3 _r48_producer/packs/epistemic-sensor-factory-pack/tools/consumer_court.py \
+            --consumer-root . \
+            --contract verification/r47-consumer/consumer.json \
             --repo "$GITHUB_REPOSITORY" \
             --candidate-sha "$GITHUB_SHA" \
-            --producer-fixture "_r47_producer/packs/epistemic-sensor-factory-pack/fixtures/r46-live-replication.ttl" \
-            --receipt "$RUNNER_TEMP/r47/receipt.json"
-          python3 -m json.tool "$RUNNER_TEMP/r47/receipt.json" >/dev/null
+            --producer-fixture _r48_producer/packs/epistemic-sensor-factory-pack/fixtures/r46-live-replication.ttl \
+            --receipt "$RUNNER_TEMP/r48/receipt.json"
+          python3 -m json.tool "$RUNNER_TEMP/r48/receipt.json" >/dev/null
+      - name: Refuse wrong repository identity
+        shell: bash
+        run: |
+          set +e
+          out=$(python3 _r48_producer/packs/epistemic-sensor-factory-pack/tools/consumer_court.py \
+            --consumer-root . --contract verification/r47-consumer/consumer.json \
+            --repo example/wrong --candidate-sha "$GITHUB_SHA" \
+            --producer-fixture _r48_producer/packs/epistemic-sensor-factory-pack/fixtures/r46-live-replication.ttl 2>&1)
+          code=$?
+          set -e
+          test "$code" -eq 2
+          grep -q 'REFUSED\[REPO_IDENTITY\]' <<<"$out"
       - name: Refuse source mutation
         shell: bash
         run: |
@@ -55,6 +67,6 @@ jobs:
       - name: Preserve qualification receipt
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
-          name: r47-ggen-consumer-receipt
-          path: ${{ runner.temp }}/r47/receipt.json
+          name: r48-ggen-consumer-receipt
+          path: ${{ runner.temp }}/r48/receipt.json
           retention-days: 14
