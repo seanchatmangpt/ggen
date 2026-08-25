@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "consumer_repo": "seanchatmangpt/ggen",
+  "admitted_target_base": "f4e1bce1efdcdc4f6c2531be9f66070950f7ec93",
+  "producer_repo": "seanchatmangpt/ggen-marketplace",
+  "producer_sha": "b942ff54f7d00e376dd2f28beb930390f4feb97b",
+  "producer_fixture": "packs/epistemic-sensor-factory-pack/fixtures/r46-live-replication.ttl",
+  "producer_fixture_blob_sha": "834fa9775c54d28ef5d3812037a3d3c85efbaf6f",
+  "sensor_spec": "replicationCoverageSpec",
+  "authority": "VERIFY_ONLY",
+  "consequential_do": false
+}
