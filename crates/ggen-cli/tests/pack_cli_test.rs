@@ -40,7 +40,9 @@ fn pack_list_returns_real_packs() {
         "expected at least one real pack in the local registry, got zero"
     );
 
-    let total = parsed["total"].as_u64().expect("response must have `total`");
+    let total = parsed["total"]
+        .as_u64()
+        .expect("response must have `total`");
     assert_eq!(
         total as usize,
         packs.len(),
@@ -50,7 +52,10 @@ fn pack_list_returns_real_packs() {
     // Every entry must carry the real fields the CLI's ListOutput/PackSummary type emits.
     for pack in packs {
         assert!(pack["id"].is_string(), "pack entry missing `id`: {pack}");
-        assert!(pack["name"].is_string(), "pack entry missing `name`: {pack}");
+        assert!(
+            pack["name"].is_string(),
+            "pack entry missing `name`: {pack}"
+        );
         assert!(
             pack["registry_type"].is_string(),
             "pack entry missing `registry_type`: {pack}"
@@ -75,8 +80,14 @@ fn pack_search_finds_a_real_match() {
         serde_json::from_str(&String::from_utf8_lossy(&list_output.stdout))
             .expect("ggen pack list must emit valid JSON");
     let packs = list_json["packs"].as_array().expect("`packs` array");
-    assert!(!packs.is_empty(), "need at least one real pack to search for");
-    let seed_id = packs[0]["id"].as_str().expect("pack id is a string").to_string();
+    assert!(
+        !packs.is_empty(),
+        "need at least one real pack to search for"
+    );
+    let seed_id = packs[0]["id"]
+        .as_str()
+        .expect("pack id is a string")
+        .to_string();
     // Pack ids in this registry are kebab-case; the first token is a real search term.
     let query = seed_id.split('-').next().unwrap_or(&seed_id).to_string();
 
@@ -112,9 +123,9 @@ fn pack_search_with_no_match_returns_honest_zero() {
         .arg("zzz-no-such-pack-should-ever-match-zzz")
         .assert();
 
-    assert
-        .success()
-        .stdout(predicate::str::contains("\"total\": 0").or(predicate::str::contains("\"total\":0")));
+    assert.success().stdout(
+        predicate::str::contains("\"total\": 0").or(predicate::str::contains("\"total\":0")),
+    );
 }
 
 /// `ggen pack show <id>` on a pack id taken from real `pack list` output — the detail
@@ -132,7 +143,10 @@ fn pack_show_resolves_a_real_pack() {
             .expect("ggen pack list must emit valid JSON");
     let packs = list_json["packs"].as_array().expect("`packs` array");
     assert!(!packs.is_empty(), "need at least one real pack to show");
-    let seed_id = packs[0]["id"].as_str().expect("pack id is a string").to_string();
+    let seed_id = packs[0]["id"]
+        .as_str()
+        .expect("pack id is a string")
+        .to_string();
 
     let mut cmd = Command::cargo_bin("ggen").expect("ggen binary must be built for tests");
     let output = cmd

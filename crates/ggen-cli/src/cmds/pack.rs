@@ -612,7 +612,11 @@ fn perform_related_search(
         match local_pack_to_marketplace_package(pack) {
             Ok(package) => match registry.insert_package_rdf(&package) {
                 Ok(()) => considered += 1,
-                Err(e) => log::warn!("Skipping pack '{}': failed to ingest into RDF: {}", pack.id, e),
+                Err(e) => log::warn!(
+                    "Skipping pack '{}': failed to ingest into RDF: {}",
+                    pack.id,
+                    e
+                ),
             },
             Err(e) => log::warn!(
                 "Skipping pack '{}': not representable in the marketplace model: {}",
@@ -636,9 +640,9 @@ fn perform_related_search(
     let results: Vec<RelatedResult> = pack_uris
         .into_iter()
         .filter_map(|uri| {
-            uri.rsplit('/')
-                .next()
-                .map(|id| RelatedResult { pack_id: id.to_string() })
+            uri.rsplit('/').next().map(|id| RelatedResult {
+                pack_id: id.to_string(),
+            })
         })
         .collect();
     let total = results.len();

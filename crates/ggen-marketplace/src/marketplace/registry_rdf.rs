@@ -82,10 +82,11 @@ impl RdfRegistry {
     ///   (e.g. permissions, corruption, or another process holding an
     ///   exclusive lock on it)
     pub fn open(path: impl AsRef<std::path::Path>) -> Result<Self> {
-        let store = Store::open(path).map_err(|e| crate::marketplace::error::Error::RdfStoreError {
-            operation: "open".to_string(),
-            reason: e.to_string(),
-        })?;
+        let store =
+            Store::open(path).map_err(|e| crate::marketplace::error::Error::RdfStoreError {
+                operation: "open".to_string(),
+                reason: e.to_string(),
+            })?;
         Ok(Self::from_store(store))
     }
 
@@ -1031,8 +1032,8 @@ mod tests {
             // `registry` (and its `Store` handle) is dropped here.
         }
 
-        let reopened =
-            RdfRegistry::open(&store_path).expect("real on-disk store must reopen from the same path");
+        let reopened = RdfRegistry::open(&store_path)
+            .expect("real on-disk store must reopen from the same path");
         let exists = reopened
             .package_exists(&package_id)
             .await

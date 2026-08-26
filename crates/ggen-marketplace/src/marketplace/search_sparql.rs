@@ -327,7 +327,8 @@ mod tests {
     fn insert_package(store: &Store, id: &str, name: &str, keywords: &[&str]) {
         let package_iri = format!("{}package/{}", Namespaces::GGEN, id);
         let package_node = NamedNode::new(&package_iri).expect("valid package IRI");
-        let rdf_type = NamedNode::new(format!("{}type", Namespaces::RDF)).expect("valid rdf:type IRI");
+        let rdf_type =
+            NamedNode::new(format!("{}type", Namespaces::RDF)).expect("valid rdf:type IRI");
         let package_class = NamedNode::new(Classes::package()).expect("valid Package class IRI");
         let name_prop = NamedNode::new(Properties::name()).expect("valid name property IRI");
         let keywords_prop =
@@ -507,11 +508,16 @@ mod tests {
             .expect("valid category node IRI");
         let pred = NamedNode::new(format!("{}{}", Namespaces::SKOS, skos_predicate))
             .expect("valid skos predicate IRI");
-        let to_node =
-            NamedNode::new(Properties::category_node_uri(to_slug)).expect("valid category node IRI");
+        let to_node = NamedNode::new(Properties::category_node_uri(to_slug))
+            .expect("valid category node IRI");
 
         store
-            .insert(QuadRef::new(&from_node, &pred, &to_node, GraphNameRef::DefaultGraph))
+            .insert(QuadRef::new(
+                &from_node,
+                &pred,
+                &to_node,
+                GraphNameRef::DefaultGraph,
+            ))
             .expect("real triple insert must succeed against the in-memory store");
     }
 
@@ -627,4 +633,3 @@ mod tests {
         );
     }
 }
-

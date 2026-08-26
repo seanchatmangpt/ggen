@@ -34,7 +34,9 @@ use crate::marketplace::models::{Package, PackageId, PackageMetadata, PackageVer
 ///   packs at once (see `ggen pack related`) should treat one pack's
 ///   conversion failure as a per-pack skip-and-warn, not a fatal error for
 ///   the whole batch.
-pub fn local_pack_to_marketplace_package(pack: &crate::packs_registry::types::Pack) -> Result<Package> {
+pub fn local_pack_to_marketplace_package(
+    pack: &crate::packs_registry::types::Pack,
+) -> Result<Package> {
     let id = PackageId::new(&pack.id)?;
     let version = PackageVersion::new(&pack.version)?;
 
@@ -42,7 +44,9 @@ pub fn local_pack_to_marketplace_package(pack: &crate::packs_registry::types::Pa
         id,
         pack.name.clone(),
         pack.description.clone(),
-        pack.license.clone().unwrap_or_else(|| "UNKNOWN".to_string()),
+        pack.license
+            .clone()
+            .unwrap_or_else(|| "UNKNOWN".to_string()),
     );
     metadata.authors = pack.author.clone().into_iter().collect();
     metadata.repository = pack.repository.clone();
@@ -117,7 +121,10 @@ mod tests {
 
         assert_eq!(package.metadata.id.to_string(), "web-starter-pack");
         assert_eq!(package.metadata.name, "Web Starter Pack");
-        assert_eq!(package.metadata.description, "A starter pack for web projects");
+        assert_eq!(
+            package.metadata.description,
+            "A starter pack for web projects"
+        );
         assert_eq!(package.metadata.license, "MIT");
         assert_eq!(package.metadata.authors, vec!["Jane Dev".to_string()]);
         assert_eq!(
@@ -191,8 +198,8 @@ mod tests {
         use crate::marketplace::registry_rdf::RdfRegistry;
 
         let registry = RdfRegistry::new();
-        let package = local_pack_to_marketplace_package(&sample_pack())
-            .expect("sample pack must convert");
+        let package =
+            local_pack_to_marketplace_package(&sample_pack()).expect("sample pack must convert");
         registry
             .create_package(package)
             .await
