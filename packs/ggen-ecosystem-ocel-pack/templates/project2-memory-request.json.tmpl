@@ -1,0 +1,40 @@
+---
+to: "generated/project2-ggen-ecosystem-ocel-request.json"
+sparql:
+  run: |
+    PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+    SELECT ?runId ?cell ?projectOwner ?projectNumber ?ocelDigest ?standing WHERE {
+      ?run a geocel:ManufacturingRun ;
+        geocel:runId ?runId ;
+        geocel:cell ?cell ;
+        geocel:projectOwner ?projectOwner ;
+        geocel:projectNumber ?projectNumber ;
+        geocel:projectMemoryKey "ggen/ecosystem/ocel/current" ;
+        geocel:ocelDigest ?ocelDigest ;
+        geocel:standing ?standing .
+    }
+---
+{% for row in run %}{
+  "request_id": "{{ row.runId }}-ggen-ecosystem-ocel",
+  "operation": "memory.upsert",
+  "project": {"owner": "{{ row.projectOwner }}", "number": {{ row.projectNumber }}},
+  "payload": {
+    "record": {
+      "key": "ggen/ecosystem/ocel/current",
+      "title": "GGEN Ecosystem OCEL current",
+      "kind": "ggen.ecosystem.ocel.current",
+      "cell": "{{ row.cell }}",
+      "standing": "{{ row.standing }}",
+      "tags": ["ggen", "ocel", "manufacturing", "project2"],
+      "body": "GGEN Ecosystem OCEL run {{ row.runId }}. Digest {{ row.ocelDigest }}. Project 2 stores current process state; Git and OCEL remain receipt evidence.",
+      "metadata": {
+        "run_id": "{{ row.runId }}",
+        "ocel_digest": "{{ row.ocelDigest }}",
+        "manufacturing_ladder": "U->G->O->Q->M",
+        "ggen_first": true,
+        "process_analysis_owner": "wasm4pm"
+      }
+    }
+  }
+}
+{% endfor %}

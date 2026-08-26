@@ -1,0 +1,4 @@
+[pack]
+name = "ggen-ecosystem-ocel-pack"
+version = "26.8.26"
+description = "Manufactures an OCEL 2.0 execution log and a bounded Project-memory upsert request for one GGEN ecosystem manufacturing run. RDF facts are the editing surface; GGEN emits deterministic projections; wasm4pm/wasm4pm-compat own process discovery, conformance, fitness, precision, and variants."
