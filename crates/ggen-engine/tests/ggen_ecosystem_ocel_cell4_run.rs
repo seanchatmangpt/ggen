@@ -24,7 +24,7 @@ fn sha256(path: &Path) -> String {
     let bytes = std::fs::read(path).unwrap_or_else(|error| {
         panic!("read {} for digest: {error}", path.display());
     });
-    format!("{:x}", Sha256::digest(bytes))
+    format!("sha256:{:x}", Sha256::digest(bytes))
 }
 
 fn scaffold_pack_with_ontology(pack: &Path, ontology: &str) -> (TempDir, PathBuf) {
