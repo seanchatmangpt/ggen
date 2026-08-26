@@ -131,7 +131,7 @@ fn dry_run_never_writes_or_mutates_lock_over_the_cli_boundary() {
 
     // Dry-run on a fresh project through the real CLI: no lock, no
     // receipt, no outputs.
-    CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::cargo_bin("ggen")
         .args(["sync", "run", "--dry-run"])
         .current_dir(&project)
         .run()
@@ -151,14 +151,14 @@ fn dry_run_never_writes_or_mutates_lock_over_the_cli_boundary() {
     );
 
     // After a real sync, a dry-run leaves the lock byte-identical.
-    CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::cargo_bin("ggen")
         .args(["sync", "run"])
         .current_dir(&project)
         .run()
         .expect("run real sync")
         .assert_success();
     let lock = std::fs::read(project.join("ggen.lock")).expect("lock");
-    CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::cargo_bin("ggen")
         .args(["sync", "run", "--dry-run"])
         .current_dir(&project)
         .run()
@@ -175,7 +175,7 @@ fn two_packs_colliding_output_aborts_sync_over_the_cli_boundary() {
     write_pack(dir.path(), "pack-b", "Beta", "src/collision.rs", "BBB");
     let project = write_two_pack_project(dir.path(), "pack-a", "pack-b");
 
-    CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::cargo_bin("ggen")
         .args(["sync", "run"])
         .current_dir(&project)
         .run()
@@ -222,7 +222,7 @@ fn git_resolved_pack_syncs_over_the_cli_boundary_and_caches_across_runs() {
 
     // (1) First sync clones the pack and generates from it through the
     // real CLI.
-    CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::cargo_bin("ggen")
         .args(["sync", "run"])
         .current_dir(&project)
         .run()
@@ -262,7 +262,7 @@ fn git_resolved_pack_syncs_over_the_cli_boundary_and_caches_across_runs() {
     let cache_dir = project.join(".ggen-v2/git-packs/widget");
     let sentinel = cache_dir.join(".git").join("sentinel.txt");
     std::fs::write(&sentinel, "still here").expect("write sentinel");
-    CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::cargo_bin("ggen")
         .args(["sync", "run"])
         .current_dir(&project)
         .run()

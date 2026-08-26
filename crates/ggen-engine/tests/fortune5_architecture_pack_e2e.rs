@@ -82,7 +82,7 @@ fn tier0_reference_fixture_generates_all_four_artifacts_and_is_idempotent() {
     let ontology = std::fs::read_to_string(reference_ontology()).expect("read reference fixture");
     let project = scaffold(dir.path(), &ontology);
 
-    run_sync(&project).assert_success();
+    let _ = run_sync(&project).assert_success();
 
     for relative in [
         "docs/FORTUNE5_ARCHITECTURE_CATALOG.md",
@@ -141,7 +141,7 @@ fn tier0_reference_fixture_generates_all_four_artifacts_and_is_idempotent() {
     );
 
     let second = run_sync(&project);
-    second.assert_success();
+    let _ = second.assert_success();
     assert!(
         second.stdout.contains(r#""written": []"#),
         "second sync over unchanged facts must be byte-identical (no new writes): {}",
@@ -170,9 +170,9 @@ fn single_region_replication_policy_is_refused() {
     let project = scaffold(dir.path(), &sabotaged);
 
     let output = run_sync(&project);
-    output.assert_failure();
-    output.assert_stderr_contains("040_reliability_and_promotion_contract.rq");
-    output.assert_stderr_contains("f5:replicatesTo");
+    let _ = output.assert_failure();
+    let _ = output.assert_stderr_contains("040_reliability_and_promotion_contract.rq");
+    let _ = output.assert_stderr_contains("f5:replicatesTo");
     assert!(
         !project
             .join("docs/FORTUNE5_ARCHITECTURE_CATALOG.md")
@@ -198,9 +198,9 @@ fn direct_actuation_autonomic_policy_is_refused() {
     let project = scaffold(dir.path(), &sabotaged);
 
     let output = run_sync(&project);
-    output.assert_failure();
-    output.assert_stderr_contains("050_broker_only_autonomics.rq");
-    output.assert_stderr_contains("f5:directActuation");
+    let _ = output.assert_failure();
+    let _ = output.assert_stderr_contains("050_broker_only_autonomics.rq");
+    let _ = output.assert_stderr_contains("f5:directActuation");
 }
 
 /// Workflow-pattern evidence law (gate `060_workflow_pattern_evidence.rq`):
@@ -227,6 +227,6 @@ fn missing_workflow_pattern_evidence_is_refused() {
     let project = scaffold(dir.path(), &sabotaged);
 
     let output = run_sync(&project);
-    output.assert_failure();
-    output.assert_stderr_contains("060_workflow_pattern_evidence.rq");
+    let _ = output.assert_failure();
+    let _ = output.assert_stderr_contains("060_workflow_pattern_evidence.rq");
 }

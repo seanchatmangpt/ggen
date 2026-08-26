@@ -3438,15 +3438,16 @@ mod tests {
         // operator to bind the destructive migration to an exact admitted project root.
         // This preserves the existing F1 reseal algorithm while making it reusable for
         // project-scoped legacy chains such as examples/interview-sandbox.
-        let root = std::env::var_os("GGEN_RECEIPT_MIGRATION_ROOT")
-            .map(std::path::PathBuf::from)
-            .unwrap_or_else(|| {
+        let root = std::env::var_os("GGEN_RECEIPT_MIGRATION_ROOT").map_or_else(
+            || {
                 std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
                     .parent()
                     .and_then(std::path::Path::parent)
                     .expect("workspace root")
                     .to_path_buf()
-            });
+            },
+            std::path::PathBuf::from,
+        );
         let log_path = root.join(RECEIPT_LOG_REL_PATH);
         let head_path = root.join(RECEIPT_REL_PATH);
 

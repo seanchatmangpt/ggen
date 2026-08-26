@@ -28,7 +28,7 @@ use super::{AppError, DeterministicGraph, Result};
 /// One RDF document admitted as part of an ontology batch.
 ///
 /// Historical name retained to avoid a flag-day API break. A document may be
-/// Turtle, RDF/XML, JSON-LD, N-Triples, N-Quads, TriG, or N3 when the
+/// Turtle, RDF/XML, JSON-LD, N-Triples, N-Quads, `TriG`, or N3 when the
 /// label uses an admitted RDF extension. Dataset formats are parsed
 /// faithfully and then flattened into the engine's existing union/default-
 /// graph model; source-level named-graph provenance is a separate admission
@@ -449,7 +449,9 @@ mod tests {
             TurtleDocument::new("authority.openapi.json", "{}"),
         ];
 
-        let error = insert_documents(&graph, &documents).expect_err("must refuse non-RDF syntax");
+        let Err(error) = insert_documents(&graph, &documents) else {
+            panic!("must refuse non-RDF syntax")
+        };
 
         assert!(error.to_string().contains("FM-GRAPH-010"), "{error}");
         assert!(

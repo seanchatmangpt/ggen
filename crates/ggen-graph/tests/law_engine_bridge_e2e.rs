@@ -63,10 +63,11 @@ fn facts_ntriples(graph: &DeterministicGraph) -> String {
 /// never reaches into this store. `MaterializeOutcome::derived` lines carry no terminating
 /// ` .`, so it is restored here before re-parsing.
 fn fold_back(graph: &DeterministicGraph, derived: &[String]) -> usize {
-    let doc = derived
-        .iter()
-        .map(|line| format!("{line} .\n"))
-        .collect::<String>();
+    let doc = derived.iter().fold(String::new(), |mut acc, line| {
+        acc.push_str(line);
+        acc.push_str(" .\n");
+        acc
+    });
     let quads = parse_ntriples(&doc).expect("derived N-Triples must re-parse");
     for quad in &quads {
         graph.insert_quad(quad).expect("insert derived quad");
@@ -202,14 +203,14 @@ fn check_denials_across_seam_reports_violation_from_store_facts() {
 /// diverge on the conforming case without this test noticing.
 #[test]
 fn validate_shacl_across_seam_flags_violation_from_store_facts() {
-    const SHAPES_TTL: &str = r#"
+    const SHAPES_TTL: &str = r"
 @prefix sh: <http://www.w3.org/ns/shacl#> .
 @prefix ex: <http://example.org/> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 ex:DogShape a sh:NodeShape ;
     sh:targetClass ex:Dog ;
     sh:property [ sh:path ex:name ; sh:minCount 1 ] .
-"#;
+";
 
     let engine = GraphLawEngine::new();
 

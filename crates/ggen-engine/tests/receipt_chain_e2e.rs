@@ -124,7 +124,7 @@ fn three_syncs_form_a_verifiable_chain() {
     assert_eq!(head.record.chain_hash_hex, log[2].record.chain_hash_hex);
 
     // Full-history verification passes at the CLI boundary.
-    CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::cargo_bin("ggen")
         .args(["receipt", "history"])
         .current_dir(dir.path())
         .run()
@@ -179,7 +179,7 @@ fn tampering_middle_line_payload_fails_naming_index_1() {
         .current_dir(dir.path())
         .run()
         .expect("history tampered");
-    output.assert_failure().assert_stderr_contains("index 1");
+    let _ = output.assert_failure().assert_stderr_contains("index 1");
 }
 
 /// Truncating the log (dropping the last line) breaks the head linkage
@@ -224,7 +224,7 @@ fn removing_or_reordering_lines_fails_history_verification() {
     // Drop the middle line: record 0's chain hash no longer matches
     // record 2's prev — broken link at index 0.
     std::fs::write(&log_path, format!("{}\n{}\n", lines[0], lines[2])).expect("truncate");
-    CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::cargo_bin("ggen")
         .args(["receipt", "history"])
         .current_dir(dir.path())
         .run()
@@ -237,7 +237,7 @@ fn removing_or_reordering_lines_fails_history_verification() {
         format!("{}\n{}\n{}\n", lines[1], lines[0], lines[2]),
     )
     .expect("reorder");
-    CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::cargo_bin("ggen")
         .args(["receipt", "history"])
         .current_dir(dir.path())
         .run()
@@ -257,7 +257,7 @@ fn missing_or_empty_log_fails_closed() {
         .current_dir(dir.path())
         .run()
         .expect("history missing");
-    output
+    let _ = output
         .assert_failure()
         .assert_stderr_contains("FM-CHAIN-005");
 
@@ -269,7 +269,7 @@ fn missing_or_empty_log_fails_closed() {
         .current_dir(dir.path())
         .run()
         .expect("history empty");
-    output
+    let _ = output
         .assert_failure()
         .assert_stderr_contains("FM-CHAIN-005");
 }
@@ -342,7 +342,7 @@ fn missing_receipt_json_chains_from_log_tail() {
         log[1].record.prev_chain_hash_hex,
         log[0].record.chain_hash_hex
     );
-    CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::cargo_bin("ggen")
         .args(["receipt", "history"])
         .current_dir(dir.path())
         .run()
@@ -399,7 +399,7 @@ fn legacy_payload_without_optional_fields_verifies() {
     std::fs::create_dir_all(dir.path().join(".ggen-v2")).expect("mkdir");
     std::fs::write(dir.path().join(RECEIPT_LOG_REL_PATH), line).expect("write log");
 
-    CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::cargo_bin("ggen")
         .args(["receipt", "history"])
         .current_dir(dir.path())
         .run()
@@ -544,7 +544,7 @@ fn sign_then_verify_reports_signed_and_signature_valid_true() {
     assert_eq!(signing_key_hex.trim().len(), 64);
     assert_eq!(verifying_key_hex.trim().len(), 64);
 
-    CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::cargo_bin("ggen")
         .args(["receipt", "verify"])
         .current_dir(dir.path())
         .run()
@@ -574,7 +574,7 @@ fn ggen_signing_key_env_var_takes_precedence_over_key_file() {
 
     let env_key_hex = "33".repeat(32);
 
-    CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::cargo_bin("ggen")
         .args(["sync", "run"])
         .current_dir(dir.path())
         .env("GGEN_SIGNING_KEY", &env_key_hex)
@@ -584,7 +584,7 @@ fn ggen_signing_key_env_var_takes_precedence_over_key_file() {
 
     // Verifying WITH the same env var (which the implementation must derive
     // the matching verifying key from) must succeed.
-    CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::cargo_bin("ggen")
         .args(["receipt", "verify"])
         .current_dir(dir.path())
         .env("GGEN_SIGNING_KEY", &env_key_hex)
@@ -597,7 +597,7 @@ fn ggen_signing_key_env_var_takes_precedence_over_key_file() {
     // Verifying WITHOUT the env var falls back to the (deliberately
     // mismatched) file verifying key and must fail closed -- proof the
     // receipt was actually signed by the env-var key, not the file key.
-    CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::cargo_bin("ggen")
         .args(["receipt", "verify"])
         .current_dir(dir.path())
         .run()
@@ -614,7 +614,7 @@ fn malformed_ggen_signing_key_env_var_errors_loudly() {
     let dir = TempDir::new().expect("tempdir");
     scaffold(dir.path(), &["alice"]);
 
-    CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::cargo_bin("ggen")
         .args(["sync", "run"])
         .current_dir(dir.path())
         .env("GGEN_SIGNING_KEY", "not-hex-and-also-the-wrong-length")
@@ -658,7 +658,7 @@ fn tampered_chain_hash_fails_closed_and_is_distinguished_from_signature_failure(
     assert_eq!(raw.matches(&orig_chain_hash).count(), 1);
     std::fs::write(&receipt_path, raw.replace(&orig_chain_hash, &flipped)).expect("tamper");
 
-    CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::cargo_bin("ggen")
         .args(["receipt", "verify"])
         .current_dir(dir.path())
         .run()
@@ -699,7 +699,7 @@ fn tampered_signature_fails_closed_and_is_distinguished_from_chain_failure() {
     assert_eq!(raw.matches(&orig_sig).count(), 1);
     std::fs::write(&receipt_path, raw.replace(&orig_sig, &flipped)).expect("tamper");
 
-    CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::cargo_bin("ggen")
         .args(["receipt", "verify"])
         .current_dir(dir.path())
         .run()
@@ -756,7 +756,7 @@ fn legacy_unsigned_receipt_still_chain_verifies_with_signed_false() {
     std::fs::create_dir_all(dir.path().join(".ggen-v2")).expect("mkdir");
     std::fs::write(dir.path().join(RECEIPT_REL_PATH), &doc).expect("write receipt");
 
-    CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::cargo_bin("ggen")
         .args(["receipt", "verify"])
         .current_dir(dir.path())
         .run()

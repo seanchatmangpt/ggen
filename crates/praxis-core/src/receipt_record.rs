@@ -450,7 +450,7 @@ mod tests {
     ///
     /// Narrowed root cause, this session: the `v2` epoch payload and
     /// `schema` string re-serialize **byte-identically** after a JSON
-    /// round trip (verified directly, printed and diffed) -- so
+    /// round trip (verified directly, printed and diffed) — so
     /// `fold_in_v2_epoch`'s own contribution is provably not the culprit
     /// here, correcting this bug's original filing, which had not yet
     /// isolated that. The divergence is therefore in the *base* (pre-v2)
@@ -460,13 +460,13 @@ mod tests {
     /// `object_ids`/`obligation_count` plus the decoded `payload_hash`/
     /// `prev_chain_hash`. All of those are plain scalars/strings that
     /// round-trip losslessly through JSON, which is what makes this
-    /// puzzling rather than obviously explained -- the leading remaining
+    /// puzzling rather than obviously explained — the leading remaining
     /// hypothesis is that `chain_from_frame`'s `OcelCausalReceipt::genesis`
-    /// + single-frame `.chain()` replay does not reproduce whatever
+    /// plus single-frame `.chain()` replay does not reproduce whatever
     /// internal state the *live*, multi-file `ggen sync run` accumulated
     /// across its real (transitively multi-object) emission path, even
     /// though both paths agree on the single scalar `prev_chain_hash`.
-    /// Not fixed -- `#[ignore]`d so `cargo test` stays green while this is
+    /// Not fixed — `#[ignore]`d so `cargo test` stays green while this is
     /// tracked; un-ignore once fixed, this must then pass.
     #[test]
     #[ignore = "FM-CHAIN-014, not yet fixed -- see docs/jira/2026-08-11-GGEN-RECEIPT-CHAIN-VERIFY-MISMATCH.md"]

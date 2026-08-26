@@ -8,6 +8,8 @@
 //! under `marketplace/packs/` in this repo. No mocks, no stubs — state-based assertions on
 //! actual stdout (JSON) from the actual process.
 
+#![allow(clippy::unwrap_used, clippy::expect_used)]
+
 use assert_cmd::Command;
 use predicates::prelude::*;
 

@@ -64,7 +64,7 @@ fn to_path_escaping_the_project_root_is_refused() {
     scaffold(dir.path());
     write_template(dir.path(), "f.tmpl", "---\nto: ../escape.txt\n---\nnope\n");
 
-    run_sync(dir.path())
+    let _ = run_sync(dir.path())
         .assert_failure()
         .assert_stderr_contains("FM-WRITE-002");
     assert!(!dir
@@ -88,7 +88,7 @@ fn unless_exists_skips_a_file_that_already_exists() {
         "---\nto: out.txt\nunless_exists: true\n---\ngenerated content\n",
     );
 
-    run_sync(dir.path()).assert_success();
+    let _ = run_sync(dir.path()).assert_success();
     assert_eq!(
         std::fs::read_to_string(dir.path().join("out.txt")).expect("out.txt"),
         "human content\n",
@@ -113,7 +113,7 @@ fn skip_if_skips_when_the_marker_is_already_present() {
         "---\nto: out.txt\nskip_if: \"DO-NOT-REGENERATE\"\n---\ngenerated content\n",
     );
 
-    run_sync(dir.path()).assert_success();
+    let _ = run_sync(dir.path()).assert_success();
     assert_eq!(
         std::fs::read_to_string(dir.path().join("out.txt")).expect("out.txt"),
         "// DO-NOT-REGENERATE\nhand code\n"
@@ -133,7 +133,7 @@ fn freeze_always_skips_once_the_target_exists() {
         "---\nto: out.txt\nfreeze_policy: always\n---\nnew scaffold\n",
     );
 
-    run_sync(dir.path()).assert_success();
+    let _ = run_sync(dir.path()).assert_success();
     assert_eq!(
         std::fs::read_to_string(dir.path().join("out.txt")).expect("out.txt"),
         "scaffolded once\n"
@@ -153,7 +153,7 @@ fn freeze_checksum_regenerates_until_a_human_edits_it_then_protects_it() {
     );
 
     // First sync: writes and records the checksum.
-    run_sync(dir.path()).assert_success();
+    let _ = run_sync(dir.path()).assert_success();
     assert_eq!(
         std::fs::read_to_string(dir.path().join("out.txt")).expect("v1"),
         "generated v1\n"
@@ -163,7 +163,7 @@ fn freeze_checksum_regenerates_until_a_human_edits_it_then_protects_it() {
     std::fs::write(dir.path().join("out.txt"), "hand-edited\n").expect("human edit");
 
     // Second sync must protect the human edit, not overwrite it.
-    run_sync(dir.path()).assert_success();
+    let _ = run_sync(dir.path()).assert_success();
     assert_eq!(
         std::fs::read_to_string(dir.path().join("out.txt")).expect("still hand-edited"),
         "hand-edited\n",
@@ -188,7 +188,7 @@ fn inject_before_marker_inserts_content_and_backs_up_first() {
         "---\nto: out.txt\ninject: true\nbefore: \"MARKER\"\nbackup: true\n---\ninjected line\n",
     );
 
-    run_sync(dir.path()).assert_success();
+    let _ = run_sync(dir.path()).assert_success();
     let after = std::fs::read_to_string(dir.path().join("out.txt")).expect("out.txt");
     assert_eq!(after, "line one\ninjected line\n// MARKER\nline two\n");
     let backup = std::fs::read_to_string(dir.path().join("out.txt.bak")).expect("backup");
@@ -208,7 +208,7 @@ fn inject_into_a_missing_target_is_refused() {
         "---\nto: out.txt\ninject: true\n---\ninjected\n",
     );
 
-    run_sync(dir.path())
+    let _ = run_sync(dir.path())
         .assert_failure()
         .assert_stderr_contains("FM-WRITE-003");
     assert!(!dir.path().join("out.txt").exists());
@@ -225,7 +225,7 @@ fn inject_with_a_missing_marker_is_refused() {
         "---\nto: out.txt\ninject: true\nbefore: \"NOPE\"\n---\ninjected\n",
     );
 
-    run_sync(dir.path())
+    let _ = run_sync(dir.path())
         .assert_failure()
         .assert_stderr_contains("FM-WRITE-004");
 }
@@ -243,7 +243,7 @@ fn force_overwrites_differing_content_and_backs_up_first() {
         "---\nto: out.txt\nforce: true\nbackup: true\n---\nnew content\n",
     );
 
-    run_sync(dir.path()).assert_success();
+    let _ = run_sync(dir.path()).assert_success();
     assert_eq!(
         std::fs::read_to_string(dir.path().join("out.txt")).expect("out.txt"),
         "new content\n"
@@ -267,14 +267,14 @@ fn default_semantics_write_then_skip_then_refuse_on_drift() {
     );
 
     // Absent → Written.
-    run_sync(dir.path()).assert_success();
+    let _ = run_sync(dir.path()).assert_success();
     assert_eq!(
         std::fs::read_to_string(dir.path().join("out.txt")).expect("first write"),
         "stable content\n"
     );
 
     // Identical → Skipped (still succeeds, content untouched).
-    run_sync(dir.path()).assert_success();
+    let _ = run_sync(dir.path()).assert_success();
     assert_eq!(
         std::fs::read_to_string(dir.path().join("out.txt")).expect("unchanged"),
         "stable content\n"
@@ -283,7 +283,7 @@ fn default_semantics_write_then_skip_then_refuse_on_drift() {
     // Someone edits the file by hand; the template's rendered output now
     // differs from what's on disk → refuse the silent clobber.
     std::fs::write(dir.path().join("out.txt"), "manually diverged\n").expect("manual edit");
-    run_sync(dir.path())
+    let _ = run_sync(dir.path())
         .assert_failure()
         .assert_stderr_contains("FM-WRITE-005");
     assert_eq!(
@@ -305,7 +305,7 @@ fn oversized_rendered_output_is_refused_over_the_cli_boundary() {
         "---\nto: out.txt\n---\n{% for i in range(end=200000) %}0123456789012345678901234567890123456789012345678901234567890123\n{% endfor %}",
     );
 
-    run_sync(dir.path())
+    let _ = run_sync(dir.path())
         .assert_failure()
         .assert_stderr_contains("byte cap");
     assert!(!dir.path().join("out.txt").exists());
@@ -324,7 +324,7 @@ fn a_render_failure_in_one_template_leaves_no_writes_from_others_over_the_cli_bo
         "---\nto: bad.txt\n---\n{{ row.nuon }}\n",
     );
 
-    run_sync(dir.path())
+    let _ = run_sync(dir.path())
         .assert_failure()
         .assert_stderr_contains("render failed");
     assert!(
