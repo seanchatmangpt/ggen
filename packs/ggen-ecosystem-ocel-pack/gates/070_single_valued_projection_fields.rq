@@ -1,0 +1,39 @@
+# MESSAGE: every field projected as a scalar JSON value must be single-valued; multiplicity would create duplicate rows or multiple JSON roots.
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+SELECT ?subject ?property ?valueCount WHERE {
+  {
+    SELECT ?subject ?property (COUNT(DISTINCT ?value) AS ?valueCount) WHERE {
+      ?subject a geocel:ManufacturingRun .
+      VALUES ?property {
+        geocel:runId geocel:cell geocel:projectOwner geocel:projectNumber
+        geocel:projectMemoryKey geocel:ocelDigest geocel:standing
+      }
+      ?subject ?property ?value .
+    }
+    GROUP BY ?subject ?property
+    HAVING(COUNT(DISTINCT ?value) != 1)
+  }
+  UNION
+  {
+    SELECT ?subject ?property (COUNT(DISTINCT ?value) AS ?valueCount) WHERE {
+      ?subject a geocel:ManufacturingEvent .
+      VALUES ?property {
+        geocel:eventId geocel:eventType geocel:eventTime geocel:sequence
+        geocel:inRun geocel:standing
+      }
+      ?subject ?property ?value .
+    }
+    GROUP BY ?subject ?property
+    HAVING(COUNT(DISTINCT ?value) != 1)
+  }
+  UNION
+  {
+    SELECT ?subject ?property (COUNT(DISTINCT ?value) AS ?valueCount) WHERE {
+      ?subject a geocel:ManufacturingObject .
+      BIND(geocel:objectId AS ?property)
+      ?subject geocel:objectId ?value .
+    }
+    GROUP BY ?subject ?property
+    HAVING(COUNT(DISTINCT ?value) != 1)
+  }
+}
