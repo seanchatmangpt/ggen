@@ -63,6 +63,10 @@ jobs:
           assert len(ocel['events']) >= 7
           print(f'OCEL_DIGEST={digest}')
           PY
+          echo 'PROJECT2_REQUEST_BEGIN'
+          cat target/cell4-ocel/project2-ggen-ecosystem-ocel-request.json
+          echo
+          echo 'PROJECT2_REQUEST_END'
 
       - name: Upload generated OCEL and canonical Project2 request
         uses: actions/upload-artifact@v4
