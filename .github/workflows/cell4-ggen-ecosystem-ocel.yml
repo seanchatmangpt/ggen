@@ -15,6 +15,9 @@ jobs:
   manufacture:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    env:
+      RUSTC_WRAPPER: ""
+      CARGO_INCREMENTAL: 0
     steps:
       - uses: actions/checkout@v4
         with:
