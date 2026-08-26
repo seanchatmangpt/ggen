@@ -1,0 +1,12 @@
+# MESSAGE: OCEL object identity is globally unique inside one generated run; duplicate objectId literals are refused.
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+SELECT ?objectId ?objectCount WHERE {
+  {
+    SELECT ?objectId (COUNT(DISTINCT ?object) AS ?objectCount) WHERE {
+      ?object a geocel:ManufacturingObject ;
+              geocel:objectId ?objectId .
+    }
+    GROUP BY ?objectId
+  }
+  FILTER(?objectCount != 1)
+}
