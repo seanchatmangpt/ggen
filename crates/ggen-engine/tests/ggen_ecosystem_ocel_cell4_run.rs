@@ -5,8 +5,7 @@ use tempfile::TempDir;
 const DIGEST_PLACEHOLDER: &str = "__OCEL_SHA256__";
 
 fn packs_dir() -> PathBuf {
-    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("../../ggen-marketplace/packs")
+    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../packs")
 }
 
 fn read(project: &Path, path: &str) -> String {
