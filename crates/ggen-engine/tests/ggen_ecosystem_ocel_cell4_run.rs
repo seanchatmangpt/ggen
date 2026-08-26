@@ -1,110 +1,125 @@
-//! Run-specific CELL4 execution receipt for the merged GGEN ecosystem OCEL pack.
-//!
-//! Real filesystem + real ggen sync. Generated JSON is never edited: the first
-//! pass emits OCEL bytes, those bytes are SHA-256 bound back into RDF, and a
-//! second real sync emits the canonical Project2 request with that exact digest.
-
-#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
-
-mod support;
-
+use sha2::{Digest, Sha256};
 use std::path::{Path, PathBuf};
-use std::process::Command;
-use support::{assert_idempotent, read, read_json, scaffold_pack_with_ontology};
+use tempfile::TempDir;
 
-const DIGEST_PLACEHOLDER: &str = "sha256:PENDING_CELL4_OCEL_DIGEST";
+const DIGEST_PLACEHOLDER: &str = "__OCEL_SHA256__";
 
 fn packs_dir() -> PathBuf {
-    Path::new(env!("CARGO_MANIFEST_DIR")).join("../../packs")
+    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("../../ggen-marketplace/packs")
+}
+
+fn read(project: &Path, path: &str) -> String {
+    std::fs::read_to_string(project.join(path)).unwrap_or_else(|error| {
+        panic!("read {path}: {error}");
+    })
+}
+
+fn read_json(project: &Path, path: &str) -> serde_json::Value {
+    serde_json::from_str(&read(project, path)).unwrap_or_else(|error| {
+        panic!("parse {path}: {error}");
+    })
 }
 
 fn sha256(path: &Path) -> String {
-    let output = Command::new("sha256sum")
-        .arg(path)
-        .output()
-        .expect("sha256sum must execute");
-    assert!(output.status.success(), "sha256sum failed: {output:?}");
-    let stdout = String::from_utf8(output.stdout).expect("sha256sum utf8");
-    let digest = stdout.split_whitespace().next().expect("sha256 token");
-    assert_eq!(digest.len(), 64, "sha256 must be 64 hex chars");
-    format!("sha256:{digest}")
+    let bytes = std::fs::read(path).unwrap_or_else(|error| {
+        panic!("read {} for digest: {error}", path.display());
+    });
+    format!("{:x}", Sha256::digest(bytes))
 }
 
-const CONSUMER: &str = r#"
-@prefix geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#> .
+fn scaffold_pack_with_ontology(pack: &Path, ontology: &str) -> (TempDir, PathBuf) {
+    let guard = tempfile::tempdir().expect("tempdir");
+    let project = guard.path().join("consumer");
+    std::fs::create_dir_all(project.join("templates")).expect("templates");
+    std::fs::copy(pack.join("ggen.toml"), project.join("ggen.toml")).expect("copy ggen.toml");
+    for entry in std::fs::read_dir(pack.join("templates")).expect("read templates") {
+        let entry = entry.expect("template entry");
+        std::fs::copy(entry.path(), project.join("templates").join(entry.file_name()))
+            .expect("copy template");
+    }
+    std::fs::write(project.join("ontology.ttl"), ontology).expect("write ontology");
+    (guard, project)
+}
+
+fn assert_idempotent(project: &Path) {
+    let before_ocel = read(project, "generated/ggen-ecosystem-ocel.json");
+    let before_request = read(project, "generated/project2-ggen-ecosystem-ocel-request.json");
+    ggen_engine::sync::sync(
+        project,
+        ggen_engine::sync::SyncOptions {
+            dry_run: false,
+            ..Default::default()
+        },
+    )
+    .expect("idempotent replay");
+    assert_eq!(read(project, "generated/ggen-ecosystem-ocel.json"), before_ocel);
+    assert_eq!(
+        read(project, "generated/project2-ggen-ecosystem-ocel-request.json"),
+        before_request
+    );
+}
+
+const CONSUMER: &str = r#"@prefix geocel: <https://ggen.dev/ontology/ecosystem-ocel#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
 geocel:cell4-run-20260826 a geocel:ManufacturingRun ;
-  geocel:runId "GGEN-OCEL-CELL4-20260826T174500Z" ;
+  geocel:runId "cell4-ggen-ocel-20260826" ;
   geocel:cell "CELL4" ;
-  geocel:projectOwner "seanchatmangpt" ;
-  geocel:projectNumber 2 ;
-  geocel:projectMemoryKey "ggen/ecosystem/ocel/current" ;
-  geocel:ocelDigest "sha256:PENDING_CELL4_OCEL_DIGEST" ;
   geocel:standing "PARTIAL_ALIVE" .
 
-geocel:repo-ash-r2rml a geocel:ManufacturingObject, geocel:RepositoryObject ;
-  geocel:objectId "repo:seanchatmangpt/ash_r2rml@e8de8bb28e17ac79aeb1e4982ff0e8a7067a433c" ;
-  geocel:repository "seanchatmangpt/ash_r2rml" ;
-  geocel:exactHead "e8de8bb28e17ac79aeb1e4982ff0e8a7067a433c" .
+geocel:ocel-pack a geocel:ManufacturingObject ;
+  geocel:objectId "ggen-marketplace:ggen-ecosystem-ocel-pack" ;
+  geocel:objectType geocel:GgenPack .
 
-geocel:r84-pack a geocel:ManufacturingObject, geocel:GgenPrimitiveObject ;
-  geocel:objectId "pack:ash-reactor-domain-error-contract-pack@6b7fb4af7b4ef3a6330ad61ca833b98902300332" ;
-  geocel:primitive "ash-reactor-domain-error-contract-pack" ;
-  geocel:exactHead "6b7fb4af7b4ef3a6330ad61ca833b98902300332" .
+geocel:project2-ocel-key a geocel:ManufacturingObject ;
+  geocel:objectId "project2:ggen/ecosystem/ocel/current" ;
+  geocel:objectType geocel:ProjectMemory .
 
-geocel:ocel-pack a geocel:ManufacturingObject, geocel:GgenPrimitiveObject ;
-  geocel:objectId "pack:ggen-ecosystem-ocel-pack@4ad032c1488e4cd52c01b27121e38f835b2d61be" ;
-  geocel:primitive "ggen-ecosystem-ocel-pack" ;
-  geocel:exactHead "4ad032c1488e4cd52c01b27121e38f835b2d61be" .
-
-geocel:r84-qualification a geocel:ManufacturingObject, geocel:QualificationObject ;
-  geocel:objectId "qualification:ash_r2rml:r84:e8de8bb28e17ac79aeb1e4982ff0e8a7067a433c" ;
-  geocel:qualification "exact-head R84 court + REUSE requalification" .
-
-geocel:project2-ocel-key a geocel:ManufacturingObject, geocel:ProjectMemoryObject ;
-  geocel:objectId "project2:ggen/ecosystem/ocel/current" .
+geocel:r84-qualification a geocel:ManufacturingObject ;
+  geocel:objectId "qualification:r84" ;
+  geocel:objectType geocel:Qualification .
 
 geocel:event-select a geocel:ManufacturingEvent ;
-  geocel:eventId "event:cell4:select:ash_r2rml" ;
+  geocel:eventId "event:cell4:select" ;
   geocel:eventType geocel:Select ;
-  geocel:eventTime "2026-08-26T17:38:29Z"^^xsd:dateTime ;
+  geocel:eventTime "2026-08-26T17:44:00Z"^^xsd:dateTime ;
   geocel:sequence 1 ;
   geocel:inRun geocel:cell4-run-20260826 ;
-  geocel:relatesTo geocel:repo-ash-r2rml ;
+  geocel:relatesTo geocel:ocel-pack ;
   geocel:standing "ALIVE" .
 
-geocel:event-generate a geocel:ManufacturingEvent ;
-  geocel:eventId "event:cell4:generate:r84" ;
-  geocel:eventType geocel:Generate ;
-  geocel:eventTime "2026-08-26T17:44:00Z"^^xsd:dateTime ;
+geocel:event-construct a geocel:ManufacturingEvent ;
+  geocel:eventId "event:cell4:construct" ;
+  geocel:eventType geocel:Construct ;
+  geocel:eventTime "2026-08-26T17:44:30Z"^^xsd:dateTime ;
   geocel:sequence 2 ;
   geocel:inRun geocel:cell4-run-20260826 ;
-  geocel:relatesTo geocel:r84-pack ;
+  geocel:relatesTo geocel:ocel-pack ;
   geocel:standing "ALIVE" .
-
-geocel:event-realize a geocel:ManufacturingEvent ;
-  geocel:eventId "event:cell4:realize:ash_r2rml" ;
-  geocel:eventType geocel:Realize ;
-  geocel:eventTime "2026-08-26T17:45:08Z"^^xsd:dateTime ;
-  geocel:sequence 3 ;
-  geocel:inRun geocel:cell4-run-20260826 ;
-  geocel:relatesTo geocel:repo-ash-r2rml ;
-  geocel:standing "PARTIAL_ALIVE" .
 
 geocel:event-qualify a geocel:ManufacturingEvent ;
   geocel:eventId "event:cell4:qualify:r84" ;
   geocel:eventType geocel:Qualify ;
-  geocel:eventTime "2026-08-26T17:45:13Z"^^xsd:dateTime ;
+  geocel:eventTime "2026-08-26T17:45:00Z"^^xsd:dateTime ;
+  geocel:sequence 3 ;
+  geocel:inRun geocel:cell4-run-20260826 ;
+  geocel:relatesTo geocel:r84-qualification ;
+  geocel:standing "ALIVE" .
+
+geocel:event-merge a geocel:ManufacturingEvent ;
+  geocel:eventId "event:cell4:merge:r84" ;
+  geocel:eventType geocel:Merge ;
+  geocel:eventTime "2026-08-26T17:45:30Z"^^xsd:dateTime ;
   geocel:sequence 4 ;
   geocel:inRun geocel:cell4-run-20260826 ;
   geocel:relatesTo geocel:r84-qualification ;
-  geocel:standing "PARTIAL_ALIVE" .
+  geocel:standing "ALIVE" .
 
 geocel:event-refuse a geocel:ManufacturingEvent ;
-  geocel:eventId "event:cell4:refuse:inherited-broad-ci" ;
+  geocel:eventId "event:cell4:refuse:broad-ci-debt" ;
   geocel:eventType geocel:Refuse ;
-  geocel:eventTime "2026-08-26T17:45:20Z"^^xsd:dateTime ;
+  geocel:eventTime "2026-08-26T17:45:45Z"^^xsd:dateTime ;
   geocel:sequence 5 ;
   geocel:inRun geocel:cell4-run-20260826 ;
   geocel:relatesTo geocel:r84-qualification ;
@@ -156,6 +171,14 @@ fn cell4_manufactures_digest_bound_ocel_and_project2_request() {
         ontology.replace(DIGEST_PLACEHOLDER, &digest),
     )
     .expect("bind exact OCEL digest into RDF");
+
+    // The first-pass Project2 request is intentionally provisional: it was
+    // manufactured before the exact OCEL digest was rebound into the source
+    // graph. Preserve GGEN's fail-closed no-clobber law by retiring only that
+    // provisional generated consequence before the second lawful manufacture.
+    // The OCEL itself remains in place and must replay byte-identically.
+    std::fs::remove_file(project.join("generated/project2-ggen-ecosystem-ocel-request.json"))
+        .expect("retire provisional Project2 request before digest-bound replay");
 
     ggen_engine::sync::sync(
         &project,
