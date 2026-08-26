@@ -31,6 +31,13 @@ geocel:projectOwner a rdf:Property ; rdfs:domain geocel:ManufacturingRun .
 geocel:projectNumber a rdf:Property ; rdfs:domain geocel:ManufacturingRun .
 geocel:projectMemoryKey a rdf:Property ; rdfs:domain geocel:ManufacturingRun .
 geocel:ocelDigest a rdf:Property ; rdfs:domain geocel:ManufacturingRun .
+geocel:uCompatible a rdf:Property ; rdfs:domain geocel:ManufacturingRun ; rdfs:range xsd:nonNegativeInteger .
+geocel:gRealized a rdf:Property ; rdfs:domain geocel:ManufacturingRun ; rdfs:range xsd:nonNegativeInteger .
+geocel:oObserved a rdf:Property ; rdfs:domain geocel:ManufacturingRun ; rdfs:range xsd:nonNegativeInteger .
+geocel:qQualified a rdf:Property ; rdfs:domain geocel:ManufacturingRun ; rdfs:range xsd:nonNegativeInteger .
+geocel:mMerged a rdf:Property ; rdfs:domain geocel:ManufacturingRun ; rdfs:range xsd:nonNegativeInteger .
+geocel:openFanoutObligations a rdf:Property ; rdfs:domain geocel:ManufacturingRun ; rdfs:range xsd:nonNegativeInteger .
+geocel:openObservationObligations a rdf:Property ; rdfs:domain geocel:ManufacturingRun ; rdfs:range xsd:nonNegativeInteger .
 geocel:standing a rdf:Property .
 geocel:eventId a rdf:Property ; rdfs:domain geocel:ManufacturingEvent .
 geocel:eventType a rdf:Property ; rdfs:domain geocel:ManufacturingEvent .
