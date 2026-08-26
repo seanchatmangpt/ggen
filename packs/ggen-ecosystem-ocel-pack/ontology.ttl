@@ -38,6 +38,10 @@ geocel:qQualified a rdf:Property ; rdfs:domain geocel:ManufacturingRun ; rdfs:ra
 geocel:mMerged a rdf:Property ; rdfs:domain geocel:ManufacturingRun ; rdfs:range xsd:nonNegativeInteger .
 geocel:openFanoutObligations a rdf:Property ; rdfs:domain geocel:ManufacturingRun ; rdfs:range xsd:nonNegativeInteger .
 geocel:openObservationObligations a rdf:Property ; rdfs:domain geocel:ManufacturingRun ; rdfs:range xsd:nonNegativeInteger .
+geocel:tcpsMuda a rdf:Property ; rdfs:domain geocel:ManufacturingRun .
+geocel:tcpsMura a rdf:Property ; rdfs:domain geocel:ManufacturingRun .
+geocel:tcpsMuri a rdf:Property ; rdfs:domain geocel:ManufacturingRun .
+geocel:nextReadyFrontier a rdf:Property ; rdfs:domain geocel:ManufacturingRun .
 geocel:standing a rdf:Property .
 geocel:eventId a rdf:Property ; rdfs:domain geocel:ManufacturingEvent .
 geocel:eventType a rdf:Property ; rdfs:domain geocel:ManufacturingEvent .
