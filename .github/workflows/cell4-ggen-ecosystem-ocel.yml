@@ -33,7 +33,9 @@ jobs:
           }
 
       - name: Install pinned Rust toolchain
-        uses: dtolnay/rust-toolchain@nightly-2026-06-22
+        uses: dtolnay/rust-toolchain@b3b07ba8b418998c39fb20f53e8b695cdcc8de1b
+        with:
+          toolchain: nightly-2026-06-22
 
       - name: Execute real GGEN OCEL manufacture twice with digest binding
         env:
