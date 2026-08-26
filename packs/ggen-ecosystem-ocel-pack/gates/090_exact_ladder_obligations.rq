@@ -1,0 +1,19 @@
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+
+ASK {
+  ?run a geocel:ManufacturingRun .
+  FILTER NOT EXISTS {
+    ?run geocel:uCompatible ?u ;
+         geocel:gRealized ?g ;
+         geocel:oObserved ?o ;
+         geocel:qQualified ?q ;
+         geocel:mMerged ?m ;
+         geocel:openFanoutObligations ?openFanout ;
+         geocel:openObservationObligations ?openObservation .
+    FILTER(
+      ?u >= ?g && ?g >= ?o && ?o >= ?q && ?q >= ?m &&
+      ?openFanout = (?u - ?m) &&
+      ?openObservation = (?g - ?o)
+    )
+  }
+}
