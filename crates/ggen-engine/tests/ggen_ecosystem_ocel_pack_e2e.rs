@@ -5,7 +5,7 @@
 
 mod support;
 use std::path::{Path, PathBuf};
-use support::{assert_gate_refuses, assert_idempotent, read_json, scaffold_pack_with_ontology};
+use support::{assert_gate_refuses, assert_idempotent, read, read_json, scaffold_pack_with_ontology};
 
 fn packs_dir() -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR")).join("../../packs")
@@ -95,6 +95,49 @@ fn ggen_ecosystem_ocel_pack_generates_real_ocel_and_project2_request() {
     );
 
     assert_idempotent(&project);
+}
+
+#[test]
+fn ggen_ecosystem_ocel_pack_regenerates_owned_project2_request_when_digest_changes() {
+    let (_dir, project) = scaffold_pack_with_ontology(
+        &packs_dir().join("ggen-ecosystem-ocel-pack"),
+        CONSUMER,
+    );
+
+    ggen_engine::sync::sync(
+        &project,
+        ggen_engine::sync::SyncOptions {
+            dry_run: false,
+            ..Default::default()
+        },
+    )
+    .expect("baseline sync");
+
+    let ontology = read(&project, "ontology.ttl");
+    assert!(ontology.contains("sha256:abc123"));
+    std::fs::write(
+        project.join("ontology.ttl"),
+        ontology.replace("sha256:abc123", "sha256:def456"),
+    )
+    .expect("change admitted digest input");
+
+    ggen_engine::sync::sync(
+        &project,
+        ggen_engine::sync::SyncOptions {
+            dry_run: false,
+            ..Default::default()
+        },
+    )
+    .expect("owned generated Project2 request must regenerate");
+
+    let request = read_json(
+        &project,
+        "generated/project2-ggen-ecosystem-ocel-request.json",
+    );
+    assert_eq!(
+        request["payload"]["record"]["metadata"]["ocel_digest"],
+        "sha256:def456"
+    );
 }
 
 #[test]
