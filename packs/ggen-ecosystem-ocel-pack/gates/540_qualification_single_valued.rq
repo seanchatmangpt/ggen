@@ -1,0 +1,5 @@
+# MESSAGE: QualificationObject must bind exactly one qualification identity so standing has one observed court.
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+SELECT ?object (COUNT(DISTINCT ?value) AS ?count) WHERE {
+  ?object a geocel:QualificationObject ; geocel:qualification ?value .
+} GROUP BY ?object HAVING(COUNT(DISTINCT ?value) != 1)
