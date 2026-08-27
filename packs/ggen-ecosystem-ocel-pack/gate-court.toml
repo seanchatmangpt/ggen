@@ -7,7 +7,7 @@ fail_dir = "witnesses/fail"
 gate_extensions = [".rq"]
 witness_extensions = [".ttl"]
 require_pass = true
-require_fail = false
+require_fail = true
 
 # Canonical reusable manufacturing capital. The court implementation is owned by
 # GGen Marketplace; this consumer owns only its gates and witnesses.
