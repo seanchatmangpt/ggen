@@ -1,0 +1,5 @@
+# MESSAGE: RepositoryObject must bind exactly one exactHead; multiple SHAs destroy exact-subject standing.
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+SELECT ?object (COUNT(DISTINCT ?value) AS ?count) WHERE {
+  ?object a geocel:RepositoryObject ; geocel:exactHead ?value .
+} GROUP BY ?object HAVING(COUNT(DISTINCT ?value) != 1)
