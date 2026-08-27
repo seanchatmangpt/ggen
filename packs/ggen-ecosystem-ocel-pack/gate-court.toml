@@ -1,0 +1,17 @@
+[court]
+schema = "ggen.semantic-gate-witness-court/1"
+case_key = "exact-stem"
+gate_dir = "gates"
+pass_dir = "witnesses/pass"
+fail_dir = "witnesses/fail"
+gate_extensions = [".rq"]
+witness_extensions = [".ttl"]
+require_pass = true
+require_fail = false
+
+# Canonical reusable manufacturing capital. The court implementation is owned by
+# GGen Marketplace; this consumer owns only its gates and witnesses.
+primitive = "semantic-gate-witness-court-pack"
+primitive_repository = "seanchatmangpt/ggen-marketplace"
+primitive_exact_head = "42560d9fce6eb61597286a1288018602c625b006"
+project2_lineage = "ggen/ecosystem/ocel/current"
