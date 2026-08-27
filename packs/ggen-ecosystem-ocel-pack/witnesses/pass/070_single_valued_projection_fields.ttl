@@ -1,0 +1,5 @@
+@prefix geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#> .
+@prefix ex: <urn:ggen:witness:> .
+ex:repo a geocel:RepositoryObject ; geocel:repository "seanchatmangpt/ggen" ; geocel:exactHead "0123456789abcdef0123456789abcdef01234567" .
+ex:primitive a geocel:GgenPrimitiveObject ; geocel:primitive "ggen/ecosystem/ocel/current" .
+ex:qualification a geocel:QualificationObject ; geocel:qualification "fast-admission" .
