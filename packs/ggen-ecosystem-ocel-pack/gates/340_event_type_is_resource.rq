@@ -1,0 +1,6 @@
+# MESSAGE: eventType must reference a semantic concept resource, never a free-floating literal.
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+SELECT ?event ?type WHERE {
+  ?event a geocel:ManufacturingEvent ; geocel:eventType ?type .
+  FILTER(!isIRI(?type) && !isBlank(?type))
+}
