@@ -1,0 +1,6 @@
+# MESSAGE: exactHead must remain a clean Git identity through deterministic JSON projection.
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+SELECT ?object ?value WHERE {
+  ?object a geocel:RepositoryObject ; geocel:exactHead ?value .
+  FILTER(REGEX(STR(?value), "[\\x00-\\x1F]"))
+}

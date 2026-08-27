@@ -1,0 +1,7 @@
+# MESSAGE: eventType must resolve to a declared SKOS concept before JSON projection.
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+SELECT ?event ?type WHERE {
+  ?event a geocel:ManufacturingEvent ; geocel:eventType ?type .
+  FILTER NOT EXISTS { ?type a skos:Concept }
+}

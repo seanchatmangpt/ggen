@@ -1,0 +1,6 @@
+# MESSAGE: qualification identity must remain stable through receipt and JSON projection.
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+SELECT ?object ?value WHERE {
+  ?object a geocel:QualificationObject ; geocel:qualification ?value .
+  FILTER(REGEX(STR(?value), "[\\x00-\\x1F]"))
+}

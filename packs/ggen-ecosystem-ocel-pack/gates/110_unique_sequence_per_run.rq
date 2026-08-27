@@ -1,0 +1,5 @@
+# MESSAGE: sequence orders replay inside a run; two events in one run cannot occupy the same sequence slot.
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+SELECT ?run ?sequence (COUNT(?event) AS ?count) WHERE {
+  ?event a geocel:ManufacturingEvent ; geocel:inRun ?run ; geocel:sequence ?sequence .
+} GROUP BY ?run ?sequence HAVING(COUNT(?event) > 1)
