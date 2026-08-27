@@ -1,0 +1,3 @@
+# MESSAGE: exactHead is a Git SHA evidence value and must be literal.
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+SELECT ?object ?value WHERE { ?object a geocel:RepositoryObject ; geocel:exactHead ?value . FILTER(!isLiteral(?value)) }
