@@ -1,0 +1,3 @@
+# MESSAGE: cell/workstation identity is projected as evidence text and must be literal.
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+SELECT ?run ?value WHERE { ?run a geocel:ManufacturingRun ; geocel:cell ?value . FILTER(!isLiteral(?value)) }
