@@ -1,0 +1,3 @@
+# MESSAGE: primitive identity is projected evidence and must be represented as a literal value.
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+SELECT ?object ?value WHERE { ?object a geocel:GgenPrimitiveObject ; geocel:primitive ?value . FILTER(!isLiteral(?value)) }
