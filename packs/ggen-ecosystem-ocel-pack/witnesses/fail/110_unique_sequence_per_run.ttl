@@ -1,0 +1,6 @@
+@prefix geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ex: <urn:ggen:witness:fail:110:> .
+ex:run a geocel:ManufacturingRun .
+ex:e1 a geocel:ManufacturingEvent ; geocel:inRun ex:run ; geocel:sequence "1"^^xsd:integer .
+ex:e2 a geocel:ManufacturingEvent ; geocel:inRun ex:run ; geocel:sequence "1"^^xsd:integer .
