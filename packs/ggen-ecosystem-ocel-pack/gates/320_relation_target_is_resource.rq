@@ -1,0 +1,6 @@
+# MESSAGE: relatesTo must reference an RDF resource; literal object links cannot replay as OCEL relationships.
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+SELECT ?event ?object WHERE {
+  ?event a geocel:ManufacturingEvent ; geocel:relatesTo ?object .
+  FILTER(!isIRI(?object) && !isBlank(?object))
+}
