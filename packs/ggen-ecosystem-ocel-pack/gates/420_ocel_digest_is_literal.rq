@@ -1,0 +1,3 @@
+# MESSAGE: ocelDigest is compared and serialized lexically; resource-valued digests are invalid.
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+SELECT ?run ?value WHERE { ?run a geocel:ManufacturingRun ; geocel:ocelDigest ?value . FILTER(!isLiteral(?value)) }
