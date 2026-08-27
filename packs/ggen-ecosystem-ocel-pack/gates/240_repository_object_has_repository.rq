@@ -1,0 +1,6 @@
+# MESSAGE: RepositoryObject must identify the repository it receipts.
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+SELECT ?object WHERE {
+  ?object a geocel:RepositoryObject .
+  FILTER NOT EXISTS { ?object geocel:repository ?repository }
+}
