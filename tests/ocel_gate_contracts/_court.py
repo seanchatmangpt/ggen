@@ -29,12 +29,17 @@ def run_gate(stem: str) -> str:
     gate = GATES / f"{stem}.rq"
     passed = WITNESSES / "pass" / f"{stem}.ttl"
     failed = WITNESSES / "fail" / f"{stem}.ttl"
-    for path in (gate, passed, failed):
-        if not path.is_file():
-            raise AssertionError(f"missing exact-stem court subject: {path.relative_to(ROOT)}")
-    query = gate.read_text(encoding="utf-8")
-    pass_rows = _rows(_graph(passed), query)
-    fail_rows = _rows(_graph(failed), query)
+    missing = [str(path.relative_to(ROOT)) for path in (gate, passed, failed) if not path.is_file()]
+    if missing:
+        print(f"LEARNING gate={stem} standing=MISSING_SUBJECT missing={'|'.join(missing)}")
+        return "MISSING_SUBJECT"
+    try:
+        query = gate.read_text(encoding="utf-8")
+        pass_rows = _rows(_graph(passed), query)
+        fail_rows = _rows(_graph(failed), query)
+    except Exception as exc:  # diagnostic court must census later gates after one malformed subject
+        print(f"LEARNING gate={stem} standing=EXECUTION_ERROR error={type(exc).__name__}:{exc}")
+        return "EXECUTION_ERROR"
     if not pass_rows and fail_rows:
         standing = "CROWN"
     elif pass_rows != fail_rows:
