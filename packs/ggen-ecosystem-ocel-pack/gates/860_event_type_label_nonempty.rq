@@ -1,0 +1,4 @@
+# MESSAGE: every event type concept must have a nonempty SKOS preferred label.
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+SELECT ?type WHERE { ?type a skos:Concept . FILTER EXISTS { ?event a geocel:ManufacturingEvent ; geocel:eventType ?type } FILTER NOT EXISTS { ?type skos:prefLabel ?label . FILTER(STRLEN(REPLACE(STR(?label), "\\s", "")) > 0) } }

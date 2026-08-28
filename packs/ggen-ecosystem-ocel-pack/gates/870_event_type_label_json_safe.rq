@@ -1,0 +1,4 @@
+# MESSAGE: event type labels must be JSON-safe single-line text.
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+SELECT ?type ?label WHERE { ?event a geocel:ManufacturingEvent ; geocel:eventType ?type . ?type skos:prefLabel ?label . FILTER(REGEX(STR(?label), "[\\x00-\\x1F]") || CONTAINS(STR(?label), "\\\"") || CONTAINS(STR(?label), "\\\\")) }
