@@ -5,6 +5,8 @@ on:
     paths:
       - .github/workflows/ggen-sync-run.yml
       - .github/workflows/ggen-sync-run-selftest.yml
+      - .specify/ci-workflows.ttl
+      - docs/how-to/github-actions-ggen-sync-run.md
       - tests/fixtures/github-sync-run/**
   workflow_dispatch:
 
