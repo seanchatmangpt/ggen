@@ -1,0 +1,22 @@
+@prefix gha: <http://seanchatmangpt.github.io/packs/github-actions#> .
+@prefix ex: <https://ggen.io/tests/github-sync-run#> .
+
+ex:workflow
+    a gha:Workflow ;
+    gha:fileName "ggen-sync-contract.yml" ;
+    gha:purpose "GitHub-native ggen sync contract fixture" ;
+    gha:permissionCeiling "contents: read" ;
+    gha:trigger gha:EventPush .
+
+ex:job
+    a gha:Job ;
+    gha:inWorkflow ex:workflow ;
+    gha:jobName "contract" ;
+    gha:runner "ubuntu-latest" .
+
+ex:step
+    a gha:Step ;
+    gha:inJob ex:job ;
+    gha:stepOrder 1 ;
+    gha:stepName "Prove generated workflow" ;
+    gha:runCommand "echo ggen-sync-contract" .
