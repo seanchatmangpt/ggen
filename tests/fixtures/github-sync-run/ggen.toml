@@ -1,11 +1,8 @@
 [project]
 name = "github-sync-run-contract"
-version = "1.0.0"
-description = "Executable contract fixture for the GitHub-native ggen sync rail"
 
 [ontology]
 source = "ontology.ttl"
-base_iri = "https://ggen.io/tests/github-sync-run#"
 
 [packs]
 github-actions = { git = "https://github.com/seanchatmangpt/ggen-marketplace.git", version = "4c4232515b43d40cef8288c43eacfab2c31ab485", subdir = "packs/github-actions-pack" }
