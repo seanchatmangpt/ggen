@@ -1,0 +1,2 @@
+@prefix geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#> .
+<urn:r> a geocel:ManufacturingRun ; geocel:projectMemoryKey "ggen/ecosystem/ocel/current" .
