@@ -23,8 +23,8 @@ def _graph(witness: Path) -> Graph:
 
 def run_gate(stem: str) -> None:
     gate = GATES / f"{stem}.rq"
-    passed = WITNESSES / f"{stem}_pass.ttl"
-    failed = WITNESSES / f"{stem}_fail.ttl"
+    passed = WITNESSES / "pass" / f"{stem}.ttl"
+    failed = WITNESSES / "fail" / f"{stem}.ttl"
     for path in (gate, passed, failed):
         if not path.is_file():
             raise AssertionError(f"missing exact-stem court subject: {path.relative_to(ROOT)}")
