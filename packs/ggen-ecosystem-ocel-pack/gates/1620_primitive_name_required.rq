@@ -1,0 +1,3 @@
+# MESSAGE: every GgenPrimitiveObject must carry a primitive binding.
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+SELECT ?object WHERE { ?object a geocel:GgenPrimitiveObject . FILTER NOT EXISTS { ?object geocel:primitive ?name } }
