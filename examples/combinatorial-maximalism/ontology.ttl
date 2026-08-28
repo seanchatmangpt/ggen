@@ -1,71 +1,126 @@
-@prefix cmd: <https://chatmangpt.com/ontology/cmd#> .
+@prefix cmd:     <https://chatmangpt.com/ontology/cmd#> .
 @prefix dcterms: <http://purl.org/dc/terms/> .
-@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
 
-<urn:ig:probe> a cmd:DesignSpace ;
-dcterms:title "Instrument gain existing-pack execution probe" ;
-cmd:crateName "cmd-cell" ; cmd:binaryName "cmdctl" ; cmd:version "26.8.27" ;
-cmd:coverageMode "exhaustive" ; cmd:expectedCandidateCount 32 ; cmd:maxCandidates 32 ;
-cmd:hasDimension <urn:ig:d:reach>, <urn:ig:d:aperture>, <urn:ig:d:ops>, <urn:ig:d:frontier>, <urn:ig:d:stored> ;
-cmd:hasCandidate <urn:ig:c:00000>, <urn:ig:c:00001>, <urn:ig:c:00010>, <urn:ig:c:00011>, <urn:ig:c:00100>, <urn:ig:c:00101>, <urn:ig:c:00110>, <urn:ig:c:00111>, <urn:ig:c:01000>, <urn:ig:c:01001>, <urn:ig:c:01010>, <urn:ig:c:01011>, <urn:ig:c:01100>, <urn:ig:c:01101>, <urn:ig:c:01110>, <urn:ig:c:01111>, <urn:ig:c:10000>, <urn:ig:c:10001>, <urn:ig:c:10010>, <urn:ig:c:10011>, <urn:ig:c:10100>, <urn:ig:c:10101>, <urn:ig:c:10110>, <urn:ig:c:10111>, <urn:ig:c:11000>, <urn:ig:c:11001>, <urn:ig:c:11010>, <urn:ig:c:11011>, <urn:ig:c:11100>, <urn:ig:c:11101>, <urn:ig:c:11110>, <urn:ig:c:11111> ; cmd:hasBroker <urn:ig:broker> .
+# Instrument-gain calibration uses the existing bounded CMD apparatus. The
+# historical candidate identifiers remain stable execution handles for the
+# verifier court; the ontology below is the authoritative experimental meaning.
+#
+# Axis 1 combines experimental reach + effective aperture.
+# Axis 2 combines operationalization + observational frontier + stored work.
+# Their Cartesian product yields four reversible calibration regimes. Only the
+# full-instrument regime is verified and authorized for receipted actuation.
 
-<urn:ig:d:reach> a cmd:Dimension ; cmd:name "experimental-reach" ; cmd:order 1 ; skos:definition "Whether the apparatus only recognizes recurring patterns or can manufacture controlled states that falsify hypotheses." ; cmd:hasOption <urn:ig:o:reach:0>, <urn:ig:o:reach:1> .
-<urn:ig:o:reach:0> a cmd:Option ; cmd:name "pattern-observation" ; cmd:belongsToDimension <urn:ig:d:reach> ; cmd:reversible true ; cmd:resourceCost 1.0 .
-<urn:ig:o:reach:1> a cmd:Option ; cmd:name "controlled-falsification" ; cmd:belongsToDimension <urn:ig:d:reach> ; cmd:reversible true ; cmd:resourceCost 1.5 .
+<urn:cmd:specimen> a cmd:DesignSpace ;
+    dcterms:title "Instrument gain no-handwriting calibration cell" ;
+    dcterms:description "Measure capability latent in the existing software instrument while new packs, new GGen capabilities, and handwritten implementation are excluded." ;
+    cmd:crateName "cmd-cell" ;
+    cmd:binaryName "cmdctl" ;
+    cmd:version "26.8.27" ;
+    cmd:coverageMode "exhaustive" ;
+    cmd:expectedCandidateCount 4 ;
+    cmd:maxCandidates 8 ;
+    cmd:hasDimension <urn:cmd:dimension:observation-regime>, <urn:cmd:dimension:capitalization-regime> ;
+    cmd:hasCandidate
+        <urn:cmd:candidate:native-json>,
+        <urn:cmd:candidate:native-turtle>,
+        <urn:cmd:candidate:wasm-json>,
+        <urn:cmd:candidate:wasm-turtle> ;
+    cmd:hasBroker <urn:cmd:broker:filesystem> .
 
-<urn:ig:d:aperture> a cmd:Dimension ; cmd:name "effective-aperture" ; cmd:order 2 ; skos:definition "Whether evidence is isolated to one repository or composed across independent repositories into one observational system." ; cmd:hasOption <urn:ig:o:aperture:0>, <urn:ig:o:aperture:1> .
-<urn:ig:o:aperture:0> a cmd:Option ; cmd:name "single-repository" ; cmd:belongsToDimension <urn:ig:d:aperture> ; cmd:reversible true ; cmd:resourceCost 1.0 .
-<urn:ig:o:aperture:1> a cmd:Option ; cmd:name "coordinated-repositories" ; cmd:belongsToDimension <urn:ig:d:aperture> ; cmd:reversible true ; cmd:resourceCost 1.5 .
+<urn:cmd:dimension:observation-regime> a cmd:Dimension ;
+    cmd:name "observation-regime" ;
+    cmd:order 1 ;
+    skos:definition "Experimental reach and effective aperture: from local pattern observation to coordinated controlled falsification." ;
+    cmd:hasOption <urn:cmd:option:pattern-local>, <urn:cmd:option:falsification-federated> .
 
-<urn:ig:d:ops> a cmd:Dimension ; cmd:name "operationalization" ; cmd:order 3 ; skos:definition "Whether discovered architectural law depends on human memory or is enforced by executable infrastructure." ; cmd:hasOption <urn:ig:o:ops:0>, <urn:ig:o:ops:1> .
-<urn:ig:o:ops:0> a cmd:Option ; cmd:name "human-remembrance" ; cmd:belongsToDimension <urn:ig:d:ops> ; cmd:reversible true ; cmd:resourceCost 1.0 .
-<urn:ig:o:ops:1> a cmd:Option ; cmd:name "enforced-law" ; cmd:belongsToDimension <urn:ig:d:ops> ; cmd:reversible true ; cmd:resourceCost 1.5 .
+<urn:cmd:dimension:capitalization-regime> a cmd:Dimension ;
+    cmd:name "capitalization-regime" ;
+    cmd:order 2 ;
+    skos:definition "Operationalization, observational frontier, and stored work: from human-remembrance of known states with fresh implementation to enforced law exposing new observables from the existing instrument." ;
+    cmd:hasOption <urn:cmd:option:human-known-fresh>, <urn:cmd:option:enforced-new-stored> .
 
-<urn:ig:d:frontier> a cmd:Dimension ; cmd:name "observational-frontier" ; cmd:order 4 ; skos:definition "Whether execution stays inside already inspectable states or exposes a previously inaccessible state." ; cmd:hasOption <urn:ig:o:frontier:0>, <urn:ig:o:frontier:1> .
-<urn:ig:o:frontier:0> a cmd:Option ; cmd:name "known-state" ; cmd:belongsToDimension <urn:ig:d:frontier> ; cmd:reversible true ; cmd:resourceCost 1.0 .
-<urn:ig:o:frontier:1> a cmd:Option ; cmd:name "new-observable" ; cmd:belongsToDimension <urn:ig:d:frontier> ; cmd:reversible true ; cmd:resourceCost 1.5 .
+<urn:cmd:option:pattern-local> a cmd:Option ;
+    cmd:name "pattern-observation+single-repository" ;
+    skos:definition "Baseline: recognize patterns inside one repository without manufacturing a coordinated falsification state." ;
+    cmd:belongsToDimension <urn:cmd:dimension:observation-regime> ;
+    cmd:reversible true ;
+    cmd:resourceCost 1.0 .
 
-<urn:ig:d:stored> a cmd:Dimension ; cmd:name "stored-work" ; cmd:order 5 ; skos:definition "Whether capability requires new implementation or is latent in the already-built executable instrument." ; cmd:hasOption <urn:ig:o:stored:0>, <urn:ig:o:stored:1> .
-<urn:ig:o:stored:0> a cmd:Option ; cmd:name "fresh-implementation" ; cmd:belongsToDimension <urn:ig:d:stored> ; cmd:reversible true ; cmd:resourceCost 1.0 .
-<urn:ig:o:stored:1> a cmd:Option ; cmd:name "existing-instrument" ; cmd:belongsToDimension <urn:ig:d:stored> ; cmd:reversible true ; cmd:resourceCost 1.5 .
+<urn:cmd:option:falsification-federated> a cmd:Option ;
+    cmd:name "controlled-falsification+coordinated-repositories" ;
+    skos:definition "Instrument regime: manufacture controlled falsification states and compose independent repository evidence into one effective aperture." ;
+    cmd:belongsToDimension <urn:cmd:dimension:observation-regime> ;
+    cmd:reversible true ;
+    cmd:resourceCost 1.5 .
 
-<urn:ig:c:00000> a cmd:Candidate ; cmd:name "wasm-turtle" ; cmd:standing "CANDIDATE" ; cmd:outputRelativePath "artifacts/wasm-turtle.json" ; cmd:selectsOption <urn:ig:o:reach:0>, <urn:ig:o:aperture:0>, <urn:ig:o:ops:0>, <urn:ig:o:frontier:0>, <urn:ig:o:stored:0> .
-<urn:ig:c:00001> a cmd:Candidate ; cmd:name "instrument-gain-00001" ; cmd:standing "CANDIDATE" ; cmd:outputRelativePath "artifacts/instrument-gain-00001.json" ; cmd:selectsOption <urn:ig:o:reach:0>, <urn:ig:o:aperture:0>, <urn:ig:o:ops:0>, <urn:ig:o:frontier:0>, <urn:ig:o:stored:1> .
-<urn:ig:c:00010> a cmd:Candidate ; cmd:name "instrument-gain-00010" ; cmd:standing "CANDIDATE" ; cmd:outputRelativePath "artifacts/instrument-gain-00010.json" ; cmd:selectsOption <urn:ig:o:reach:0>, <urn:ig:o:aperture:0>, <urn:ig:o:ops:0>, <urn:ig:o:frontier:1>, <urn:ig:o:stored:0> .
-<urn:ig:c:00011> a cmd:Candidate ; cmd:name "instrument-gain-00011" ; cmd:standing "CANDIDATE" ; cmd:outputRelativePath "artifacts/instrument-gain-00011.json" ; cmd:selectsOption <urn:ig:o:reach:0>, <urn:ig:o:aperture:0>, <urn:ig:o:ops:0>, <urn:ig:o:frontier:1>, <urn:ig:o:stored:1> .
-<urn:ig:c:00100> a cmd:Candidate ; cmd:name "instrument-gain-00100" ; cmd:standing "CANDIDATE" ; cmd:outputRelativePath "artifacts/instrument-gain-00100.json" ; cmd:selectsOption <urn:ig:o:reach:0>, <urn:ig:o:aperture:0>, <urn:ig:o:ops:1>, <urn:ig:o:frontier:0>, <urn:ig:o:stored:0> .
-<urn:ig:c:00101> a cmd:Candidate ; cmd:name "instrument-gain-00101" ; cmd:standing "CANDIDATE" ; cmd:outputRelativePath "artifacts/instrument-gain-00101.json" ; cmd:selectsOption <urn:ig:o:reach:0>, <urn:ig:o:aperture:0>, <urn:ig:o:ops:1>, <urn:ig:o:frontier:0>, <urn:ig:o:stored:1> .
-<urn:ig:c:00110> a cmd:Candidate ; cmd:name "instrument-gain-00110" ; cmd:standing "CANDIDATE" ; cmd:outputRelativePath "artifacts/instrument-gain-00110.json" ; cmd:selectsOption <urn:ig:o:reach:0>, <urn:ig:o:aperture:0>, <urn:ig:o:ops:1>, <urn:ig:o:frontier:1>, <urn:ig:o:stored:0> .
-<urn:ig:c:00111> a cmd:Candidate ; cmd:name "instrument-gain-00111" ; cmd:standing "CANDIDATE" ; cmd:outputRelativePath "artifacts/instrument-gain-00111.json" ; cmd:selectsOption <urn:ig:o:reach:0>, <urn:ig:o:aperture:0>, <urn:ig:o:ops:1>, <urn:ig:o:frontier:1>, <urn:ig:o:stored:1> .
-<urn:ig:c:01000> a cmd:Candidate ; cmd:name "instrument-gain-01000" ; cmd:standing "CANDIDATE" ; cmd:outputRelativePath "artifacts/instrument-gain-01000.json" ; cmd:selectsOption <urn:ig:o:reach:0>, <urn:ig:o:aperture:1>, <urn:ig:o:ops:0>, <urn:ig:o:frontier:0>, <urn:ig:o:stored:0> .
-<urn:ig:c:01001> a cmd:Candidate ; cmd:name "instrument-gain-01001" ; cmd:standing "CANDIDATE" ; cmd:outputRelativePath "artifacts/instrument-gain-01001.json" ; cmd:selectsOption <urn:ig:o:reach:0>, <urn:ig:o:aperture:1>, <urn:ig:o:ops:0>, <urn:ig:o:frontier:0>, <urn:ig:o:stored:1> .
-<urn:ig:c:01010> a cmd:Candidate ; cmd:name "instrument-gain-01010" ; cmd:standing "CANDIDATE" ; cmd:outputRelativePath "artifacts/instrument-gain-01010.json" ; cmd:selectsOption <urn:ig:o:reach:0>, <urn:ig:o:aperture:1>, <urn:ig:o:ops:0>, <urn:ig:o:frontier:1>, <urn:ig:o:stored:0> .
-<urn:ig:c:01011> a cmd:Candidate ; cmd:name "instrument-gain-01011" ; cmd:standing "CANDIDATE" ; cmd:outputRelativePath "artifacts/instrument-gain-01011.json" ; cmd:selectsOption <urn:ig:o:reach:0>, <urn:ig:o:aperture:1>, <urn:ig:o:ops:0>, <urn:ig:o:frontier:1>, <urn:ig:o:stored:1> .
-<urn:ig:c:01100> a cmd:Candidate ; cmd:name "instrument-gain-01100" ; cmd:standing "CANDIDATE" ; cmd:outputRelativePath "artifacts/instrument-gain-01100.json" ; cmd:selectsOption <urn:ig:o:reach:0>, <urn:ig:o:aperture:1>, <urn:ig:o:ops:1>, <urn:ig:o:frontier:0>, <urn:ig:o:stored:0> .
-<urn:ig:c:01101> a cmd:Candidate ; cmd:name "instrument-gain-01101" ; cmd:standing "CANDIDATE" ; cmd:outputRelativePath "artifacts/instrument-gain-01101.json" ; cmd:selectsOption <urn:ig:o:reach:0>, <urn:ig:o:aperture:1>, <urn:ig:o:ops:1>, <urn:ig:o:frontier:0>, <urn:ig:o:stored:1> .
-<urn:ig:c:01110> a cmd:Candidate ; cmd:name "instrument-gain-01110" ; cmd:standing "CANDIDATE" ; cmd:outputRelativePath "artifacts/instrument-gain-01110.json" ; cmd:selectsOption <urn:ig:o:reach:0>, <urn:ig:o:aperture:1>, <urn:ig:o:ops:1>, <urn:ig:o:frontier:1>, <urn:ig:o:stored:0> .
-<urn:ig:c:01111> a cmd:Candidate ; cmd:name "instrument-gain-01111" ; cmd:standing "CANDIDATE" ; cmd:outputRelativePath "artifacts/instrument-gain-01111.json" ; cmd:selectsOption <urn:ig:o:reach:0>, <urn:ig:o:aperture:1>, <urn:ig:o:ops:1>, <urn:ig:o:frontier:1>, <urn:ig:o:stored:1> .
-<urn:ig:c:10000> a cmd:Candidate ; cmd:name "instrument-gain-10000" ; cmd:standing "CANDIDATE" ; cmd:outputRelativePath "artifacts/instrument-gain-10000.json" ; cmd:selectsOption <urn:ig:o:reach:1>, <urn:ig:o:aperture:0>, <urn:ig:o:ops:0>, <urn:ig:o:frontier:0>, <urn:ig:o:stored:0> .
-<urn:ig:c:10001> a cmd:Candidate ; cmd:name "instrument-gain-10001" ; cmd:standing "CANDIDATE" ; cmd:outputRelativePath "artifacts/instrument-gain-10001.json" ; cmd:selectsOption <urn:ig:o:reach:1>, <urn:ig:o:aperture:0>, <urn:ig:o:ops:0>, <urn:ig:o:frontier:0>, <urn:ig:o:stored:1> .
-<urn:ig:c:10010> a cmd:Candidate ; cmd:name "instrument-gain-10010" ; cmd:standing "CANDIDATE" ; cmd:outputRelativePath "artifacts/instrument-gain-10010.json" ; cmd:selectsOption <urn:ig:o:reach:1>, <urn:ig:o:aperture:0>, <urn:ig:o:ops:0>, <urn:ig:o:frontier:1>, <urn:ig:o:stored:0> .
-<urn:ig:c:10011> a cmd:Candidate ; cmd:name "instrument-gain-10011" ; cmd:standing "CANDIDATE" ; cmd:outputRelativePath "artifacts/instrument-gain-10011.json" ; cmd:selectsOption <urn:ig:o:reach:1>, <urn:ig:o:aperture:0>, <urn:ig:o:ops:0>, <urn:ig:o:frontier:1>, <urn:ig:o:stored:1> .
-<urn:ig:c:10100> a cmd:Candidate ; cmd:name "instrument-gain-10100" ; cmd:standing "CANDIDATE" ; cmd:outputRelativePath "artifacts/instrument-gain-10100.json" ; cmd:selectsOption <urn:ig:o:reach:1>, <urn:ig:o:aperture:0>, <urn:ig:o:ops:1>, <urn:ig:o:frontier:0>, <urn:ig:o:stored:0> .
-<urn:ig:c:10101> a cmd:Candidate ; cmd:name "instrument-gain-10101" ; cmd:standing "CANDIDATE" ; cmd:outputRelativePath "artifacts/instrument-gain-10101.json" ; cmd:selectsOption <urn:ig:o:reach:1>, <urn:ig:o:aperture:0>, <urn:ig:o:ops:1>, <urn:ig:o:frontier:0>, <urn:ig:o:stored:1> .
-<urn:ig:c:10110> a cmd:Candidate ; cmd:name "instrument-gain-10110" ; cmd:standing "CANDIDATE" ; cmd:outputRelativePath "artifacts/instrument-gain-10110.json" ; cmd:selectsOption <urn:ig:o:reach:1>, <urn:ig:o:aperture:0>, <urn:ig:o:ops:1>, <urn:ig:o:frontier:1>, <urn:ig:o:stored:0> .
-<urn:ig:c:10111> a cmd:Candidate ; cmd:name "instrument-gain-10111" ; cmd:standing "CANDIDATE" ; cmd:outputRelativePath "artifacts/instrument-gain-10111.json" ; cmd:selectsOption <urn:ig:o:reach:1>, <urn:ig:o:aperture:0>, <urn:ig:o:ops:1>, <urn:ig:o:frontier:1>, <urn:ig:o:stored:1> .
-<urn:ig:c:11000> a cmd:Candidate ; cmd:name "instrument-gain-11000" ; cmd:standing "CANDIDATE" ; cmd:outputRelativePath "artifacts/instrument-gain-11000.json" ; cmd:selectsOption <urn:ig:o:reach:1>, <urn:ig:o:aperture:1>, <urn:ig:o:ops:0>, <urn:ig:o:frontier:0>, <urn:ig:o:stored:0> .
-<urn:ig:c:11001> a cmd:Candidate ; cmd:name "instrument-gain-11001" ; cmd:standing "CANDIDATE" ; cmd:outputRelativePath "artifacts/instrument-gain-11001.json" ; cmd:selectsOption <urn:ig:o:reach:1>, <urn:ig:o:aperture:1>, <urn:ig:o:ops:0>, <urn:ig:o:frontier:0>, <urn:ig:o:stored:1> .
-<urn:ig:c:11010> a cmd:Candidate ; cmd:name "instrument-gain-11010" ; cmd:standing "CANDIDATE" ; cmd:outputRelativePath "artifacts/instrument-gain-11010.json" ; cmd:selectsOption <urn:ig:o:reach:1>, <urn:ig:o:aperture:1>, <urn:ig:o:ops:0>, <urn:ig:o:frontier:1>, <urn:ig:o:stored:0> .
-<urn:ig:c:11011> a cmd:Candidate ; cmd:name "instrument-gain-11011" ; cmd:standing "CANDIDATE" ; cmd:outputRelativePath "artifacts/instrument-gain-11011.json" ; cmd:selectsOption <urn:ig:o:reach:1>, <urn:ig:o:aperture:1>, <urn:ig:o:ops:0>, <urn:ig:o:frontier:1>, <urn:ig:o:stored:1> .
-<urn:ig:c:11100> a cmd:Candidate ; cmd:name "instrument-gain-11100" ; cmd:standing "CANDIDATE" ; cmd:outputRelativePath "artifacts/instrument-gain-11100.json" ; cmd:selectsOption <urn:ig:o:reach:1>, <urn:ig:o:aperture:1>, <urn:ig:o:ops:1>, <urn:ig:o:frontier:0>, <urn:ig:o:stored:0> .
-<urn:ig:c:11101> a cmd:Candidate ; cmd:name "instrument-gain-11101" ; cmd:standing "CANDIDATE" ; cmd:outputRelativePath "artifacts/instrument-gain-11101.json" ; cmd:selectsOption <urn:ig:o:reach:1>, <urn:ig:o:aperture:1>, <urn:ig:o:ops:1>, <urn:ig:o:frontier:0>, <urn:ig:o:stored:1> .
-<urn:ig:c:11110> a cmd:Candidate ; cmd:name "instrument-gain-11110" ; cmd:standing "CANDIDATE" ; cmd:outputRelativePath "artifacts/instrument-gain-11110.json" ; cmd:selectsOption <urn:ig:o:reach:1>, <urn:ig:o:aperture:1>, <urn:ig:o:ops:1>, <urn:ig:o:frontier:1>, <urn:ig:o:stored:0> .
-<urn:ig:c:11111> a cmd:Candidate ; cmd:name "native-json" ; cmd:standing "VERIFIED" ; cmd:outputRelativePath "artifacts/native-json.json" ; cmd:selectsOption <urn:ig:o:reach:1>, <urn:ig:o:aperture:1>, <urn:ig:o:ops:1>, <urn:ig:o:frontier:1>, <urn:ig:o:stored:1> ; cmd:authorizedBy "instrument-gain-calibration-authority" ; cmd:requiresProof <urn:ig:p:closure>, <urn:ig:p:boundary> .
+<urn:cmd:option:human-known-fresh> a cmd:Option ;
+    cmd:name "human-remembrance+known-state+fresh-implementation" ;
+    skos:definition "Baseline: architectural law depends on human remembrance, remains inside already inspectable states, and requires fresh implementation." ;
+    cmd:belongsToDimension <urn:cmd:dimension:capitalization-regime> ;
+    cmd:reversible true ;
+    cmd:resourceCost 1.0 .
 
-<urn:ig:p:closure> a cmd:ProofObligation ; cmd:proofId "INSTRUMENT-GAIN-DESIGN-CLOSURE" ; cmd:proofStatus "SATISFIED" .
-<urn:ig:p:boundary> a cmd:ProofObligation ; cmd:proofId "INSTRUMENT-GAIN-NO-HANDWRITING-BOUNDARY" ; cmd:proofStatus "SATISFIED" .
-<urn:ig:broker> a cmd:Broker ; cmd:name "filesystem-broker" ; cmd:rootPath ".cmd/runtime" ; cmd:receiptAlgorithm "blake3" ; cmd:replayMode "exact-output" .
-<urn:ig:a:native-json> a cmd:ActuationContract ; cmd:name "native-json-actuation" ; cmd:fromCandidate <urn:ig:c:11111> ; cmd:throughBroker <urn:ig:broker> ; cmd:receiptRequired true ; cmd:producesReceipt <urn:ig:receipt> .
-<urn:ig:receipt> a cmd:Receipt .
-<urn:ig:intent> a cmd:Intent .
-<urn:ig:hook> a cmd:IntentHook ; cmd:emitsIntent <urn:ig:intent> .
+<urn:cmd:option:enforced-new-stored> a cmd:Option ;
+    cmd:name "enforced-law+new-observable+existing-instrument" ;
+    skos:definition "Instrument regime: discovered law is executable infrastructure, exposes a previously inaccessible observable, and manufactures capability from already-capitalized executable knowledge." ;
+    cmd:belongsToDimension <urn:cmd:dimension:capitalization-regime> ;
+    cmd:reversible true ;
+    cmd:resourceCost 1.5 .
+
+# Stable candidate names are acceptance handles retained by the existing court.
+<urn:cmd:candidate:native-json> a cmd:Candidate ;
+    cmd:name "native-json" ;
+    dcterms:description "Full instrument: federated falsification plus enforced/new/stored capitalization." ;
+    cmd:standing "VERIFIED" ;
+    cmd:authorizedBy "instrument-gain-calibration-authority" ;
+    cmd:selectsOption <urn:cmd:option:falsification-federated>, <urn:cmd:option:enforced-new-stored> ;
+    cmd:outputRelativePath "artifacts/native-json.json" ;
+    cmd:requiresProof <urn:cmd:proof:instrument-gain-closure>, <urn:cmd:proof:no-handwriting-boundary> .
+
+<urn:cmd:candidate:native-turtle> a cmd:Candidate ;
+    cmd:name "native-turtle" ;
+    dcterms:description "High observational aperture with fresh human implementation retained." ;
+    cmd:standing "CANDIDATE" ;
+    cmd:selectsOption <urn:cmd:option:falsification-federated>, <urn:cmd:option:human-known-fresh> ;
+    cmd:outputRelativePath "artifacts/native-turtle.ttl" .
+
+<urn:cmd:candidate:wasm-json> a cmd:Candidate ;
+    cmd:name "wasm-json" ;
+    dcterms:description "Stored executable capitalization while observation remains local and pattern-based." ;
+    cmd:standing "CANDIDATE" ;
+    cmd:selectsOption <urn:cmd:option:pattern-local>, <urn:cmd:option:enforced-new-stored> ;
+    cmd:outputRelativePath "artifacts/wasm-json.json" .
+
+<urn:cmd:candidate:wasm-turtle> a cmd:Candidate ;
+    cmd:name "wasm-turtle" ;
+    dcterms:description "Baseline regime: local pattern observation with human-known-fresh implementation." ;
+    cmd:standing "CANDIDATE" ;
+    cmd:selectsOption <urn:cmd:option:pattern-local>, <urn:cmd:option:human-known-fresh> ;
+    cmd:outputRelativePath "artifacts/wasm-turtle.ttl" .
+
+<urn:cmd:proof:instrument-gain-closure> a cmd:ProofObligation ;
+    cmd:proofId "INSTRUMENT-GAIN-DESIGN-CLOSURE" ;
+    cmd:proofStatus "SATISFIED" .
+
+<urn:cmd:proof:no-handwriting-boundary> a cmd:ProofObligation ;
+    cmd:proofId "INSTRUMENT-GAIN-NO-HANDWRITING-BOUNDARY" ;
+    cmd:proofStatus "SATISFIED" .
+
+<urn:cmd:broker:filesystem> a cmd:Broker ;
+    cmd:name "instrument-gain-filesystem-broker" ;
+    cmd:rootPath ".cmd/runtime" ;
+    cmd:receiptAlgorithm "blake3" ;
+    cmd:replayMode "exact-output" .
+
+<urn:cmd:actuation:native-json> a cmd:ActuationContract ;
+    cmd:name "instrument-gain-target-actuation" ;
+    cmd:fromCandidate <urn:cmd:candidate:native-json> ;
+    cmd:throughBroker <urn:cmd:broker:filesystem> ;
+    cmd:receiptRequired true ;
+    cmd:producesReceipt <urn:cmd:receipt:runtime> .
+
+<urn:cmd:receipt:runtime> a cmd:Receipt .
+<urn:cmd:intent:materialize-native-json> a cmd:Intent .
+<urn:cmd:hook:design-selection> a cmd:IntentHook ;
+    cmd:emitsIntent <urn:cmd:intent:materialize-native-json> .
