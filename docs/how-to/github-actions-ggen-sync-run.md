@@ -23,7 +23,7 @@ ggen sync run
         +--> GitHub execution receipt artifact
 ```
 
-The reusable workflow never commits or pushes. A separate authorized publication job may consume the replay artifact after verification. This keeps `CONSTRUCT` (`ggen sync run`) separate from repository `DO` authority.
+The reusable execution job never commits or pushes. Repository actuation belongs in a separate authorized publication job. This keeps `CONSTRUCT` (`ggen sync run`) separate from repository `DO` authority.
 
 ## Consumer manifest
 
@@ -32,18 +32,22 @@ A consumer declares existing marketplace packs directly through GGen's native Gi
 ```toml
 [project]
 name = "consumer"
-version = "1.0.0"
 
 [ontology]
 source = "ontology.ttl"
 
 [packs]
 castle = { git = "https://github.com/seanchatmangpt/ggen-marketplace.git", version = "4c4232515b43d40cef8288c43eacfab2c31ab485", subdir = "packs/castle-pack" }
+
+[templates]
+dir = "templates"
 ```
+
+Do not add declarative-schema-only fields such as `[project].version` to this frontmatter-schema shape. GGen deliberately refuses structurally ambiguous manifests.
 
 The workflow refuses path packs, mutable branch/tag pack pins, alternate Git hosts, and Git repositories other than `seanchatmangpt/ggen-marketplace`.
 
-`ggen sync run` remains the only GGen manufacturing command. GGen itself clones the exact pack commit, validates `pack.toml`/ontology/templates, computes the pack content hash, and records lock state.
+`ggen sync run` remains the only GGen manufacturing command. GGen itself resolves the exact pack commit, validates `pack.toml`/ontology/templates, computes the pack content hash, and records lock state.
 
 ## Caller workflow
 
@@ -76,14 +80,14 @@ The SHA-256 above is the GitHub Release asset digest for `ggen-x86_64-unknown-li
 
 Before execution, the workflow fails closed unless all of these are true:
 
-- `working_directory` stays inside the caller checkout and contains `ggen.toml`.
+- `working_directory` stays inside the caller checkout and contains `ggen.toml`;
 - the GGen release asset SHA-256 is explicitly supplied and matches the downloaded bytes;
 - at least one `[packs]` entry exists;
 - every pack uses `https://github.com/seanchatmangpt/ggen-marketplace.git`;
 - every pack `version` is an exact 40-hex Git commit SHA;
 - every pack `subdir` is a relative `packs/<name>` path.
 
-The checkout uses `persist-credentials: false`, and the reusable workflow has only `contents: read`. Pack resolution therefore does not inherit repository write authority.
+The checkout uses `persist-credentials: false`, and the reusable execution workflow has only `contents: read`. Pack resolution therefore does not inherit repository write authority.
 
 ## Evidence artifact
 
@@ -99,8 +103,14 @@ Every run uploads `ggen-sync-<run-id>-<attempt>` even when `ggen sync run` fails
 
 The workflow exposes `changed`, `sync_exit_code`, `ggen_binary_sha256`, and `receipt_sha256` as reusable-workflow outputs.
 
+## Semantic authority
+
+The reusable rail is also modeled in `.specify/ci-workflows.ttl` as GitHub Actions ontology instance data. That model separates a read-only `construct` job from an optional write-authorized `publish` job and includes artifact-attestation obligations. The semantic model is the intended long-term editing authority; committed workflow YAML is a projection.
+
 ## Executable contract
 
 `.github/workflows/ggen-sync-run-selftest.yml` calls the reusable workflow against `tests/fixtures/github-sync-run/`. That fixture uses the existing `github-actions-pack` from `ggen-marketplace` at an exact commit SHA and supplies RDF workflow facts as the consumer input.
 
 The contract is intentionally end-to-end: GitHub checks out the caller, downloads and hash-verifies the released GGen binary, admits the pinned marketplace reference, and then executes the real `ggen sync run` boundary. A static YAML parse is not accepted as proof of this path.
+
+The first successful exact-head contract run generated `.github/workflows/ggen-sync-contract.yml`, produced pack content hash `1ce72f06a115995a37b9416013d607d4898f3cd707819681a76f663d69c99da8`, and reached sync exit `0`.
