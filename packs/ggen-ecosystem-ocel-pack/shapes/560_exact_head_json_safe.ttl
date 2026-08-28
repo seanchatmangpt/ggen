@@ -1,0 +1,1 @@
+@prefix geocel:<https://ggen.dev/ontology/ggen-ecosystem-ocel#>. @prefix sh:<http://www.w3.org/ns/shacl#>. geocel:ShaclGate560 a sh:NodeShape; sh:targetClass geocel:RepositoryObject; sh:sparql[sh:message "exactHead must be control-character safe";sh:select "SELECT $this WHERE { $this geocel:exactHead ?v . FILTER(REGEX(STR(?v), '[\\x00-\\x1F]')) }"].
