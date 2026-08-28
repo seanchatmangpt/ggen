@@ -1,0 +1,19 @@
+{
+  "claim_id": "ws1-20260827T1924-ocel-metamorphic-court-v1",
+  "work_key": "seanchatmangpt/ggen|project2:2|edge:ocel-metamorphic-falsifier-matrix-v1",
+  "workstation": 1,
+  "cycle_id": "ws1-20260827T1924",
+  "repo": "seanchatmangpt/ggen",
+  "default": "main",
+  "base": "d345aff981bcdfadc9f9f04c8bfb4be6d99e641a",
+  "head": "d345aff981bcdfadc9f9f04c8bfb4be6d99e641a",
+  "branch": "tps/ws1-ocel-admission-matrix-20260827-19",
+  "pr": null,
+  "semantic_unit_ids": ["ocel-gate-590..1080", "reserve-1090..1330"],
+  "claimed_at": "2026-08-28T02:24:34Z",
+  "lease_until": "2026-08-28T03:00:00Z",
+  "status": "ACTIVE",
+  "canonical_lineage": "ggen/ecosystem/ocel/current",
+  "preferred_lane": 1,
+  "claim_transport": "repository-native deterministic CAS ref"
+}
