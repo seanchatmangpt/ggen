@@ -1,0 +1,16 @@
+{
+  "canonical_key": "ggen/ecosystem/ocel/current",
+  "cycle_id": "ws5-20260827T1950PDT",
+  "workstation": 5,
+  "claimed_at": "2026-08-28T02:50:58Z",
+  "lease_until": "2026-08-28T03:48:00Z",
+  "status": "ACTIVE",
+  "flight_plan": {"primary": 50, "reserve": 25, "semantic_mutations_before_plan": 0},
+  "claims": [
+    {"claim_id":"34999787443ea77a","work_key":"seanchatmangpt/live_vue@branch:project2/ws5-learning-20260828-27","repo":"seanchatmangpt/live_vue","default":"main","base":"92b1be3a505494cb2e683f8057c9314d5952f604","head":"92b1be3a505494cb2e683f8057c9314d5952f604","branch":"project2/ws5-learning-20260828-27","pr":null,"status":"ACTIVE"},
+    {"claim_id":"c56aa618dee695b1","work_key":"seanchatmangpt/ash_r2rml@branch:project2/ws5-learning-20260828-00","repo":"seanchatmangpt/ash_r2rml","default":"main","base":"06d8c7b6214f40dfb899979f7dbedc839a7b3b47","head":"06d8c7b6214f40dfb899979f7dbedc839a7b3b47","branch":"project2/ws5-learning-20260828-00","pr":null,"status":"ACTIVE"},
+    {"claim_id":"3c5203a06b23e206","work_key":"seanchatmangpt/ex4pm@branch:project2/ws5-learning-20260828-01","repo":"seanchatmangpt/ex4pm","default":"main","base":"45dbcbf23181433481034d4b8fdf06391e2d6536","head":"45dbcbf23181433481034d4b8fdf06391e2d6536","branch":"project2/ws5-learning-20260828-01","pr":null,"status":"ACTIVE"},
+    {"claim_id":"ef19e44f71c513be","work_key":"seanchatmangpt/ggen_igniter@branch:project2/ws5-learning-20260828-09","repo":"seanchatmangpt/ggen_igniter","default":"main","base":"195c9bcd53b49299a9426abb3f1610cbd471f5ae","head":"195c9bcd53b49299a9426abb3f1610cbd471f5ae","branch":"project2/ws5-learning-20260828-09","pr":null,"status":"ACTIVE"},
+    {"claim_id":"3f4e48d86d87467f","work_key":"seanchatmangpt/ggen-mcp@branch:project2/ws5-learning-20260828-04","repo":"seanchatmangpt/ggen-mcp","default":"main","base":"fb98afda3f5001d36aee74c1c8634157b0e028bf","head":"fb98afda3f5001d36aee74c1c8634157b0e028bf","branch":"project2/ws5-learning-20260828-04","pr":null,"status":"ACTIVE"}
+  ]
+}
