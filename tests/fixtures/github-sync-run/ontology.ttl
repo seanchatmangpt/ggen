@@ -142,6 +142,7 @@ ex:checkout
     gha:inJob ex:construct ; gha:stepOrder 1 ;
     gha:stepName "Checkout exact caller candidate" ;
     gha:usesAction "actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6" ;
+    gha:withParam "ref: ${{ github.event.pull_request.head.sha || github.event.merge_group.head_sha || github.sha }}" ;
     gha:withParam "fetch-depth: 0" ;
     gha:withParam "persist-credentials: false" .
 
@@ -150,11 +151,13 @@ ex:admit
     gha:inJob ex:construct ; gha:stepOrder 2 ;
     gha:stepName "Admit immutable producer and marketplace identities" ;
     gha:stepId "admit" ;
+    gha:envVar "CANDIDATE_SHA: ${{ github.event.pull_request.head.sha || github.event.merge_group.head_sha || github.sha }}" ;
     gha:envVar "GGEN_RELEASE: ${{ inputs.ggen_release }}" ;
     gha:envVar "GGEN_ASSET_SHA256: ${{ inputs.ggen_asset_sha256 }}" ;
     gha:envVar "MARKETPLACE_SHA: ${{ inputs.marketplace_sha }}" ;
     gha:envVar "GGEN_WORKING_DIRECTORY: ${{ inputs.working_directory }}" ;
     gha:runCommand """set -euo pipefail
+[[ "$(git rev-parse HEAD)" = "$CANDIDATE_SHA" ]] || { echo 'REFUSED[EXACT_HEAD_MISMATCH]' >&2; exit 2; }
 [[ "$GGEN_RELEASE" =~ ^v[0-9]+[.][0-9]+[.][0-9]+([.+-][0-9A-Za-z.-]+)?$ ]] || { echo 'REFUSED[INVALID_GGEN_RELEASE_TAG]' >&2; exit 2; }
 [[ "$GGEN_ASSET_SHA256" =~ ^[0-9a-f]{64}$ ]] || { echo 'REFUSED[INVALID_GGEN_ASSET_SHA256]' >&2; exit 2; }
 [[ "$MARKETPLACE_SHA" =~ ^[0-9a-f]{40}$ ]] || { echo 'REFUSED[INVALID_MARKETPLACE_SHA]' >&2; exit 2; }
@@ -317,6 +320,7 @@ ex:evidence
     gha:stepName "Bind exact generated consequence into replay receipt" ;
     gha:stepId "evidence" ;
     gha:condition "always()" ;
+    gha:envVar "CANDIDATE_SHA: ${{ github.event.pull_request.head.sha || github.event.merge_group.head_sha || github.sha }}" ;
     gha:envVar "GGEN_RELEASE: ${{ inputs.ggen_release }}" ;
     gha:envVar "GGEN_ASSET_SHA256: ${{ inputs.ggen_asset_sha256 }}" ;
     gha:envVar "MARKETPLACE_SHA: ${{ inputs.marketplace_sha }}" ;
@@ -359,7 +363,7 @@ lock = root / 'ggen.lock'
 receipt = {
   'schema': 'https://ggen.dev/receipts/github-sync/v1',
   'repository': os.environ['GITHUB_REPOSITORY'],
-  'source_sha': os.environ['GITHUB_SHA'],
+  'source_sha': os.environ['CANDIDATE_SHA'],
   'workflow_ref': os.environ.get('GITHUB_WORKFLOW_REF'),
   'run_id': os.environ['GITHUB_RUN_ID'],
   'run_attempt': os.environ['GITHUB_RUN_ATTEMPT'],
@@ -392,7 +396,8 @@ ex:upload
     gha:withParam "name: ggen-sync-${{ github.run_id }}-${{ github.run_attempt }}" ;
     gha:withParam "path: .ggen-github/" ;
     gha:withParam "if-no-files-found: error" ;
-    gha:withParam "retention-days: ${{ inputs.artifact_retention_days }}" .
+    gha:withParam "retention-days: ${{ inputs.artifact_retention_days }}" ;
+    gha:withParam "include-hidden-files: true" .
 
 ex:attest
     a gha:Step ;
@@ -430,7 +435,7 @@ ex:publishCheckout
     gha:inJob ex:publish ; gha:stepOrder 1 ;
     gha:stepName "Checkout exact candidate with bounded DO authority" ;
     gha:usesAction "actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6" ;
-    gha:withParam "ref: ${{ github.sha }}" ;
+    gha:withParam "ref: ${{ github.event.pull_request.head.sha || github.event.merge_group.head_sha || github.sha }}" ;
     gha:withParam "fetch-depth: 0" ;
     gha:withParam "persist-credentials: true" .
 
@@ -446,14 +451,15 @@ ex:actuate
     a gha:Step ;
     gha:inJob ex:publish ; gha:stepOrder 3 ;
     gha:stepName "Commit and push the exact manufactured patch" ;
+    gha:envVar "CANDIDATE_SHA: ${{ github.event.pull_request.head.sha || github.event.merge_group.head_sha || github.sha }}" ;
     gha:envVar "COMMIT_MESSAGE: ${{ inputs.commit_message }}" ;
     gha:runCommand """set -euo pipefail
 sha256sum --check --strict .ggen-github/SHA256SUMS
-[[ "$(git rev-parse HEAD)" = "$GITHUB_SHA" ]] || { echo 'REFUSED[EXACT_HEAD_DRIFT]' >&2; exit 2; }
+[[ "$(git rev-parse HEAD)" = "$CANDIDATE_SHA" ]] || { echo 'REFUSED[EXACT_HEAD_DRIFT]' >&2; exit 2; }
 [[ "$GITHUB_REF" == refs/heads/* ]] || { echo "REFUSED[PUBLISH_REQUIRES_BRANCH_REF]:$GITHUB_REF" >&2; exit 2; }
 branch="${GITHUB_REF#refs/heads/}"
 git fetch --no-tags origin "$branch"
-[[ "$(git rev-parse FETCH_HEAD)" = "$GITHUB_SHA" ]] || { echo 'REFUSED[REMOTE_HEAD_DRIFT]' >&2; exit 2; }
+[[ "$(git rev-parse FETCH_HEAD)" = "$CANDIDATE_SHA" ]] || { echo 'REFUSED[REMOTE_HEAD_DRIFT]' >&2; exit 2; }
 if [[ ! -s .ggen-github/ggen-sync.patch ]]; then echo 'ALIVE:NO_GENERATED_CHANGES'; exit 0; fi
 git apply --index --whitespace=error-all .ggen-github/ggen-sync.patch
 git diff --cached --check
@@ -461,4 +467,5 @@ if git diff --cached --quiet; then echo 'ALIVE:NO_GENERATED_CHANGES'; exit 0; fi
 git config user.name 'github-actions[bot]'
 git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
 git commit -m "$COMMIT_MESSAGE"
-git push origin "HEAD:$branch""" .
+git push origin HEAD:$branch
+""" .
