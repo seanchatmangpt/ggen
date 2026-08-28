@@ -1,0 +1,131 @@
+name: Setup released ggen
+description: Materialize an exact released ggen from GHCR with GitHub Release fallback; never builds from source.
+inputs:
+  tag:
+    description: Exact stable ggen release tag
+    required: true
+  token:
+    description: GitHub token for GHCR/release access; public release fallback works without it
+    required: false
+    default: ""
+outputs:
+  ggen-path:
+    description: Absolute path to the verified ggen executable
+    value: ${{ steps.expose.outputs.ggen_path }}
+  package-manifest:
+    description: Local package manifest path when the release has one
+    value: ${{ steps.expose.outputs.manifest }}
+  source:
+    description: ghcr or github-release
+    value: ${{ steps.expose.outputs.source }}
+runs:
+  using: composite
+  steps:
+    - name: Resolve immutable package identity
+      id: resolve
+      shell: bash
+      env:
+        TAG: ${{ inputs.tag }}
+      run: |
+        set -euo pipefail
+        root="$HOME/.cache/ggen/${TAG}"
+        mkdir -p "$root"
+        manifest="$root/upstream-package-manifest.json"
+        url="https://github.com/seanchatmangpt/ggen/releases/download/${TAG}/ggen-package-manifest.json"
+        if curl --fail --location --silent --show-error --connect-timeout 10 --max-time 30 "$url" -o "$manifest"; then
+          mapfile -t identity < <(python3 - "$manifest" <<'PY'
+        import json, sys
+        p=json.load(open(sys.argv[1], encoding='utf-8'))
+        print(p['manifest_sha256'])
+        print(p.get('oci',{}).get('ggen') or '')
+        PY
+          )
+          echo "cache_key=ggen-${{ runner.os }}-${{ runner.arch }}-${identity[0]}" >> "$GITHUB_OUTPUT"
+          echo "oci_ref=${identity[1]}" >> "$GITHUB_OUTPUT"
+          echo "manifest=$manifest" >> "$GITHUB_OUTPUT"
+        else
+          rm -f "$manifest"
+          echo "cache_key=ggen-${{ runner.os }}-${{ runner.arch }}-${TAG}" >> "$GITHUB_OUTPUT"
+          echo "oci_ref=ghcr.io/seanchatmangpt/ggen:${TAG}" >> "$GITHUB_OUTPUT"
+          echo "manifest=" >> "$GITHUB_OUTPUT"
+        fi
+        echo "root=$root" >> "$GITHUB_OUTPUT"
+
+    - name: Restore content-addressed ggen cache
+      uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+      with:
+        path: ~/.cache/ggen
+        key: ${{ steps.resolve.outputs.cache_key }}
+
+    - name: Materialize exact package
+      id: materialize
+      shell: bash
+      env:
+        ROOT: ${{ steps.resolve.outputs.root }}
+        OCI_REF: ${{ steps.resolve.outputs.oci_ref }}
+        TAG: ${{ inputs.tag }}
+        TOKEN: ${{ inputs.token }}
+      run: |
+        set -euo pipefail
+        if [[ -x "$ROOT/bin/ggen" ]]; then
+          echo "source=cache" >> "$GITHUB_OUTPUT"
+          exit 0
+        fi
+        rm -rf "$ROOT/bin" "$ROOT/ggen-package-manifest.json"
+        mkdir -p "$ROOT/bin"
+
+        if command -v docker >/dev/null 2>&1 && [[ -n "$OCI_REF" ]]; then
+          if [[ -n "$TOKEN" ]]; then
+            printf '%s' "$TOKEN" | docker login ghcr.io -u "${GITHUB_ACTOR:-github-actions}" --password-stdin >/dev/null
+          fi
+          if docker pull "$OCI_REF"; then
+            cid="$(docker create "$OCI_REF" /bin/true)"
+            trap 'docker rm -f "$cid" >/dev/null 2>&1 || true' EXIT
+            mkdir -p "$ROOT/oci"
+            docker cp "$cid:/ggen/." "$ROOT/oci/"
+            cp "$ROOT/oci/bin/ggen" "$ROOT/bin/ggen"
+            if [[ -f "$ROOT/oci/ggen-package-manifest.json" ]]; then
+              cp "$ROOT/oci/ggen-package-manifest.json" "$ROOT/ggen-package-manifest.json"
+            fi
+            chmod 0755 "$ROOT/bin/ggen"
+            echo "source=ghcr" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+        fi
+
+        case "$(uname -m)" in
+          x86_64) asset="ggen-x86_64-unknown-linux-gnu.tar.gz" ;;
+          aarch64|arm64) asset="ggen-aarch64-unknown-linux-gnu.tar.gz" ;;
+          *) echo "REFUSED:UNSUPPORTED_GGEN_PLATFORM:$(uname -m)" >&2; exit 3 ;;
+        esac
+        base="https://github.com/seanchatmangpt/ggen/releases/download/${TAG}"
+        curl --fail --location --retry 5 --retry-all-errors --silent --show-error "$base/$asset" -o "$ROOT/$asset"
+        curl --fail --location --retry 5 --retry-all-errors --silent --show-error "$base/$asset.sha256" -o "$ROOT/$asset.sha256"
+        (cd "$ROOT" && sha256sum -c "$asset.sha256")
+        tmp="$(mktemp -d)"
+        trap 'rm -rf "$tmp"' EXIT
+        tar -xzf "$ROOT/$asset" -C "$tmp"
+        found="$(find "$tmp" -type f -name ggen -print -quit)"
+        [[ -n "$found" ]] || { echo "REFUSED:GGEN_BINARY_NOT_FOUND" >&2; exit 4; }
+        cp "$found" "$ROOT/bin/ggen"
+        chmod 0755 "$ROOT/bin/ggen"
+        echo "source=github-release" >> "$GITHUB_OUTPUT"
+
+    - name: Verify and expose ggen
+      id: expose
+      shell: bash
+      env:
+        ROOT: ${{ steps.resolve.outputs.root }}
+        MATERIAL_SOURCE: ${{ steps.materialize.outputs.source }}
+        UPSTREAM_MANIFEST: ${{ steps.resolve.outputs.manifest }}
+      run: |
+        set -euo pipefail
+        "$ROOT/bin/ggen" --version
+        echo "$ROOT/bin" >> "$GITHUB_PATH"
+        echo "ggen_path=$ROOT/bin/ggen" >> "$GITHUB_OUTPUT"
+        if [[ -f "$ROOT/ggen-package-manifest.json" ]]; then
+          echo "manifest=$ROOT/ggen-package-manifest.json" >> "$GITHUB_OUTPUT"
+        else
+          echo "manifest=$UPSTREAM_MANIFEST" >> "$GITHUB_OUTPUT"
+        fi
+        echo "source=${MATERIAL_SOURCE:-cache}" >> "$GITHUB_OUTPUT"
