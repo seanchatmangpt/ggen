@@ -2,7 +2,7 @@
 name = "github-sync-run-contract"
 
 [ontology]
-source = "ontology.ttl"
+source = "ecosystem-rail.ttl"
 
 [packs]
 github-actions = { git = "https://github.com/seanchatmangpt/ggen-marketplace.git", version = "4c4232515b43d40cef8288c43eacfab2c31ab485", subdir = "packs/github-actions-pack" }
