@@ -1,0 +1,8 @@
+# syntax=docker/dockerfile:1
+FROM scratch
+ARG TARGETARCH
+COPY bin/${TARGETARCH}/ggen /ggen/bin/ggen
+COPY ggen-package-manifest.json /ggen/ggen-package-manifest.json
+LABEL io.ggen.package.kind="release-binary-payload"
+LABEL io.ggen.package.layout="/ggen"
+CMD ["/ggen/bin/ggen"]
