@@ -1,0 +1,3 @@
+# MESSAGE: runId must be an opaque token without whitespace.
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+SELECT ?run ?v WHERE { ?run a geocel:ManufacturingRun ; geocel:runId ?v . FILTER(REGEX(STR(?v), "\\s")) }
