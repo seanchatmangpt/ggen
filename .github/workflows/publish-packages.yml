@@ -1,0 +1,179 @@
+name: Publish GitHub Packages
+
+on:
+  workflow_run:
+    workflows: ["Release"]
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Stable ggen release tag to package (empty resolves latest stable)"
+        required: false
+        type: string
+
+permissions:
+  contents: write
+  packages: write
+  id-token: write
+  attestations: write
+
+concurrency:
+  group: ggen-packages-${{ github.event.inputs.tag || github.event.workflow_run.id || github.run_id }}
+  cancel-in-progress: false
+
+jobs:
+  package:
+    name: Package released ggen for GitHub-native bootstrap
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Checkout package machinery
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Resolve stable release and exact source commit
+        id: release
+        shell: bash
+        run: |
+          set -euo pipefail
+          tag="${{ github.event.inputs.tag }}"
+          if [[ -z "$tag" ]]; then
+            tag="$(gh release list --repo "${{ github.repository }}" --exclude-drafts --exclude-pre-releases --limit 1 --json tagName --jq '.[0].tagName')"
+          fi
+          [[ -n "$tag" ]] || { echo "REFUSED:NO_STABLE_RELEASE" >&2; exit 2; }
+          git fetch --force --tags origin "refs/tags/${tag}:refs/tags/${tag}"
+          commit="$(git rev-list -n 1 "${tag}^{commit}")"
+          [[ "$commit" =~ ^[0-9a-f]{40}$ ]] || { echo "REFUSED:RELEASE_COMMIT_INVALID:$commit" >&2; exit 2; }
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "commit=$commit" >> "$GITHUB_OUTPUT"
+
+      - name: Download canonical Linux release assets
+        shell: bash
+        env:
+          TAG: ${{ steps.release.outputs.tag }}
+        run: |
+          set -euo pipefail
+          mkdir -p dist/release
+          gh release download "$TAG" --repo "${{ github.repository }}" --dir dist/release \
+            --pattern 'ggen-x86_64-unknown-linux-gnu.tar.gz' \
+            --pattern 'ggen-x86_64-unknown-linux-gnu.tar.gz.sha256' \
+            --pattern 'ggen-aarch64-unknown-linux-gnu.tar.gz' \
+            --pattern 'ggen-aarch64-unknown-linux-gnu.tar.gz.sha256'
+          (
+            cd dist/release
+            sha256sum -c ggen-x86_64-unknown-linux-gnu.tar.gz.sha256
+            sha256sum -c ggen-aarch64-unknown-linux-gnu.tar.gz.sha256
+          )
+
+      - name: Materialize multi-arch package payload
+        shell: bash
+        env:
+          TAG: ${{ steps.release.outputs.tag }}
+          RELEASE_COMMIT: ${{ steps.release.outputs.commit }}
+        run: |
+          set -euo pipefail
+          mkdir -p dist/package/bin/amd64 dist/package/bin/arm64
+          tar -xzf dist/release/ggen-x86_64-unknown-linux-gnu.tar.gz -C dist/package/bin/amd64
+          tar -xzf dist/release/ggen-aarch64-unknown-linux-gnu.tar.gz -C dist/package/bin/arm64
+          test -f dist/package/bin/amd64/ggen
+          test -f dist/package/bin/arm64/ggen
+          chmod 0755 dist/package/bin/amd64/ggen dist/package/bin/arm64/ggen
+          python3 scripts/github-package-manifest.py \
+            --tag "$TAG" \
+            --release-commit "$RELEASE_COMMIT" \
+            --release-dir dist/release \
+            --output dist/package/ggen-package-manifest.json
+          cp packaging/github/bootstrap.sh dist/package/bootstrap.sh
+          chmod 0755 dist/package/bootstrap.sh
+
+      - name: Smoke-test host release binary before packaging
+        shell: bash
+        run: dist/package/bin/amd64/ggen --version
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
+
+      - name: Publish ggen multi-arch package
+        id: ggen
+        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6
+        with:
+          context: dist/package
+          file: packaging/github/Dockerfile.ggen
+          platforms: linux/amd64,linux/arm64
+          push: true
+          sbom: true
+          provenance: mode=max
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/ggen:${{ steps.release.outputs.tag }}
+            ghcr.io/${{ github.repository_owner }}/ggen:sha-${{ steps.release.outputs.commit }}
+            ghcr.io/${{ github.repository_owner }}/ggen:latest
+          labels: |
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.revision=${{ steps.release.outputs.commit }}
+            org.opencontainers.image.version=${{ steps.release.outputs.tag }}
+            io.ggen.package.kind=release-binary
+
+      - name: Publish bootstrap package
+        id: bootstrap
+        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6
+        with:
+          context: dist/package
+          file: packaging/github/Dockerfile.bootstrap
+          platforms: linux/amd64,linux/arm64
+          push: true
+          sbom: true
+          provenance: mode=max
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/ggen-bootstrap:${{ steps.release.outputs.tag }}
+            ghcr.io/${{ github.repository_owner }}/ggen-bootstrap:sha-${{ steps.release.outputs.commit }}
+            ghcr.io/${{ github.repository_owner }}/ggen-bootstrap:latest
+          labels: |
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.revision=${{ steps.release.outputs.commit }}
+            org.opencontainers.image.version=${{ steps.release.outputs.tag }}
+            io.ggen.package.kind=scheduled-task-bootstrap
+
+      - name: GitHub provenance for ggen package
+        uses: actions/attest-build-provenance@e8998f949152b193b063cb0ec769d69d929409be # v2
+        with:
+          subject-name: ghcr.io/${{ github.repository_owner }}/ggen
+          subject-digest: ${{ steps.ggen.outputs.digest }}
+          push-to-registry: true
+
+      - name: GitHub provenance for bootstrap package
+        uses: actions/attest-build-provenance@e8998f949152b193b063cb0ec769d69d929409be # v2
+        with:
+          subject-name: ghcr.io/${{ github.repository_owner }}/ggen-bootstrap
+          subject-digest: ${{ steps.bootstrap.outputs.digest }}
+          push-to-registry: true
+
+      - name: Seal exact OCI references into the GitHub Release
+        shell: bash
+        env:
+          GGEN_DIGEST: ${{ steps.ggen.outputs.digest }}
+          BOOTSTRAP_DIGEST: ${{ steps.bootstrap.outputs.digest }}
+          TAG: ${{ steps.release.outputs.tag }}
+          RELEASE_COMMIT: ${{ steps.release.outputs.commit }}
+        run: |
+          set -euo pipefail
+          python3 scripts/github-package-manifest.py \
+            --tag "$TAG" \
+            --release-commit "$RELEASE_COMMIT" \
+            --release-dir dist/release \
+            --ggen-oci-digest "$GGEN_DIGEST" \
+            --bootstrap-oci-digest "$BOOTSTRAP_DIGEST" \
+            --output dist/ggen-package-manifest.json
+          gh release upload "$TAG" dist/ggen-package-manifest.json \
+            --repo "${{ github.repository }}" --clobber
