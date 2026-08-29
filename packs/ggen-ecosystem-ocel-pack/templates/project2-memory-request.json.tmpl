@@ -4,38 +4,18 @@ force: true
 sparql:
   run: |
     PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
-    SELECT ?runId ?cell ?projectOwner ?projectNumber ?ocelDigest ?standing WHERE {
-      ?run a geocel:ManufacturingRun ;
-        geocel:runId ?runId ;
-        geocel:cell ?cell ;
-        geocel:projectOwner ?projectOwner ;
-        geocel:projectNumber ?projectNumber ;
-        geocel:projectMemoryKey "ggen/ecosystem/ocel/current" ;
-        geocel:ocelDigest ?ocelDigest ;
-        geocel:standing ?standing .
+    SELECT ?runId ?cell ?projectOwner ?projectNumber ?ocelDigest ?standing ?u ?g ?o ?q ?m ?openFanout ?openObservation ?muda ?mura ?muri ?nextFrontier WHERE {
+      ?run a geocel:ManufacturingRun ; geocel:runId ?runId ; geocel:cell ?cell ; geocel:projectOwner ?projectOwner ; geocel:projectNumber ?projectNumber ; geocel:projectMemoryKey "ggen/ecosystem/ocel/current" ; geocel:ocelDigest ?ocelDigest ; geocel:uCompatible ?u ; geocel:gRealized ?g ; geocel:oObserved ?o ; geocel:qQualified ?q ; geocel:mMerged ?m ; geocel:openFanoutObligations ?openFanout ; geocel:openObservationObligations ?openObservation ; geocel:tcpsMuda ?muda ; geocel:tcpsMura ?mura ; geocel:tcpsMuri ?muri ; geocel:nextReadyFrontier ?nextFrontier ; geocel:standing ?standing .
     }
+  repositories: |
+    PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+    SELECT ?repository ?exactHead WHERE { ?x a geocel:RepositoryObject ; geocel:repository ?repository ; geocel:exactHead ?exactHead . } ORDER BY ?repository
+  refusals: |
+    PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+    PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+    SELECT ?eventId ?standing ?objectId WHERE { ?e a geocel:ManufacturingEvent ; geocel:eventId ?eventId ; geocel:eventType ?t ; geocel:standing ?standing ; geocel:relatesTo ?x . ?t skos:prefLabel "refuse" . ?x geocel:objectId ?objectId . } ORDER BY ?eventId
 ---
 {% for row in run %}{
-  "request_id": "{{ row.runId }}-ggen-ecosystem-ocel",
-  "operation": "memory.upsert",
-  "project": {"owner": "{{ row.projectOwner }}", "number": {{ row.projectNumber }}},
-  "payload": {
-    "record": {
-      "key": "ggen/ecosystem/ocel/current",
-      "title": "GGEN Ecosystem OCEL current",
-      "kind": "ggen.ecosystem.ocel.current",
-      "cell": "{{ row.cell }}",
-      "standing": "{{ row.standing }}",
-      "tags": ["ggen", "ocel", "manufacturing", "project2"],
-      "body": "GGEN Ecosystem OCEL run {{ row.runId }}. Digest {{ row.ocelDigest }}. Project 2 stores current process state; Git and OCEL remain receipt evidence.",
-      "metadata": {
-        "run_id": "{{ row.runId }}",
-        "ocel_digest": "{{ row.ocelDigest }}",
-        "manufacturing_ladder": "U->G->O->Q->M",
-        "ggen_first": true,
-        "process_analysis_owner": "wasm4pm"
-      }
-    }
-  }
+  "request_id":"{{ row.runId }}-ggen-ecosystem-ocel","operation":"memory.upsert","project":{"owner":"{{ row.projectOwner }}","number":{{ row.projectNumber }}},"payload":{"record":{"key":"ggen/ecosystem/ocel/current","title":"GGEN Ecosystem OCEL current","kind":"ggen.ecosystem.ocel.current","cell":"{{ row.cell }}","standing":"{{ row.standing }}","tags":["ggen","ocel","manufacturing","project2"],"body":"Run {{ row.runId }} digest {{ row.ocelDigest }}. U={{ row.u }}, G={{ row.g }}, O={{ row.o }}, Q={{ row.q }}, M={{ row.m }}, openFanout={{ row.openFanout }}, openObservation={{ row.openObservation }}. Next={{ row.nextFrontier }}.","metadata":{"run_id":"{{ row.runId }}","ocel_digest":"{{ row.ocelDigest }}","manufacturing_ladder":"U->G->O->Q->M","U":{{ row.u }},"G":{{ row.g }},"O":{{ row.o }},"Q":{{ row.q }},"M":{{ row.m }},"open_fanout_obligations":{{ row.openFanout }},"open_observation_obligations":{{ row.openObservation }},"exact_heads":[{% for r in repositories %}{"repository":"{{ r.repository }}","head":"{{ r.exactHead }}"}{% if not loop.last %},{% endif %}{% endfor %}],"refusals":[{% for r in refusals %}{"event":"{{ r.eventId }}","standing":"{{ r.standing }}","object":"{{ r.objectId }}"}{% if not loop.last %},{% endif %}{% endfor %}],"tcps":{"muda":"{{ row.muda }}","mura":"{{ row.mura }}","muri":"{{ row.muri }}"},"next_ready_frontier":"{{ row.nextFrontier }}","causal_edges_in_ocel":true,"ggen_first":true,"process_analysis_owner":"wasm4pm"}}}}
 }
 {% endfor %}
