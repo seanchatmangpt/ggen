@@ -1,0 +1,79 @@
+# MESSAGE: Each offer's RevOps stages must form one contiguous deterministic SELECT/CONSTRUCT/DO pipeline with unique order and no skipped edge. Any row is a refusal.
+PREFIX fde20: <http://seanchatmangpt.github.io/packs/fde20-revops#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+SELECT ?subject ?violation WHERE {
+  {
+    ?offer a fde20:Offer ; fde20:hasStage ?subject .
+    ?subject a fde20:RevOpsStage .
+    VALUES ?property {
+      skos:prefLabel
+      fde20:stageOrder
+      fde20:stageSlug
+      fde20:operationKind
+      fde20:objective
+      fde20:entryCriterion
+      fde20:exitCriterion
+      fde20:standingCeiling
+      fde20:requiresReceipt
+    }
+    FILTER NOT EXISTS { ?subject ?property ?value }
+    BIND(CONCAT("missing ", STR(?property)) AS ?violation)
+  } UNION {
+    ?offer a fde20:Offer ; fde20:hasStage ?subject .
+    ?subject a fde20:RevOpsStage ; fde20:operationKind ?kind .
+    FILTER(STR(?kind) NOT IN ("SELECT", "CONSTRUCT", "DO"))
+    BIND("operationKind must be SELECT, CONSTRUCT, or DO" AS ?violation)
+  } UNION {
+    ?offer a fde20:Offer ; fde20:hasStage ?subject .
+    ?subject a fde20:RevOpsStage ; fde20:stageOrder ?order .
+    FILTER(?order < 1)
+    BIND("stageOrder must be positive" AS ?violation)
+  } UNION {
+    ?offer a fde20:Offer ; fde20:hasStage ?subject, ?other .
+    ?subject a fde20:RevOpsStage ; fde20:stageOrder ?order .
+    ?other a fde20:RevOpsStage ; fde20:stageOrder ?order .
+    FILTER(?subject != ?other)
+    BIND(CONCAT("duplicate stageOrder ", STR(?order)) AS ?violation)
+  } UNION {
+    ?offer a fde20:Offer ; fde20:hasStage ?subject, ?other .
+    ?subject a fde20:RevOpsStage ; fde20:stageSlug ?slug .
+    ?other a fde20:RevOpsStage ; fde20:stageSlug ?slug .
+    FILTER(?subject != ?other)
+    BIND(CONCAT("duplicate stageSlug ", STR(?slug)) AS ?violation)
+  } UNION {
+    ?offer a fde20:Offer ; fde20:hasStage ?subject .
+    ?subject a fde20:RevOpsStage ; fde20:nextStage ?next ; fde20:stageOrder ?order .
+    FILTER NOT EXISTS {
+      ?offer fde20:hasStage ?next .
+      ?next a fde20:RevOpsStage ; fde20:stageOrder ?nextOrder .
+    }
+    BIND("nextStage target is not an ordered stage in the same offer" AS ?violation)
+  } UNION {
+    ?offer a fde20:Offer ; fde20:hasStage ?subject, ?next .
+    ?subject a fde20:RevOpsStage ; fde20:nextStage ?next ; fde20:stageOrder ?order .
+    ?next a fde20:RevOpsStage ; fde20:stageOrder ?nextOrder .
+    FILTER(?nextOrder != (?order + 1))
+    BIND(CONCAT("nextStage skips or reverses order: ", STR(?order), " -> ", STR(?nextOrder)) AS ?violation)
+  } UNION {
+    ?offer a fde20:Offer ; fde20:hasStage ?subject, ?later .
+    ?subject a fde20:RevOpsStage ; fde20:stageOrder ?order .
+    ?later a fde20:RevOpsStage ; fde20:stageOrder ?laterOrder .
+    FILTER(?laterOrder > ?order)
+    FILTER NOT EXISTS { ?subject fde20:nextStage ?next }
+    BIND("non-terminal stage is missing nextStage" AS ?violation)
+  } UNION {
+    ?offer a fde20:Offer ; fde20:hasStage ?subject .
+    ?subject a fde20:RevOpsStage ; fde20:nextStage ?a, ?b .
+    FILTER(?a != ?b)
+    BIND("stage has multiple nextStage targets" AS ?violation)
+  } UNION {
+    ?offer a fde20:Offer .
+    FILTER NOT EXISTS {
+      ?offer fde20:hasStage ?first .
+      ?first a fde20:RevOpsStage ; fde20:stageOrder 1 .
+    }
+    BIND(?offer AS ?subject)
+    BIND("offer must contain a stageOrder 1 root" AS ?violation)
+  }
+}
+ORDER BY ?subject ?violation

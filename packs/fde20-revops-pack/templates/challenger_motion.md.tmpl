@@ -1,0 +1,34 @@
+---
+to: "revops/fde20/CHALLENGER_MOTION.md"
+sparql:
+  motion: |
+    PREFIX fde20: <http://seanchatmangpt.github.io/packs/fde20-revops#>
+    PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+    SELECT ?label ?teach ?insight ?newWay ?proof ?cta WHERE {
+      ?m a fde20:ChallengerMotion ; skos:prefLabel ?label ;
+         fde20:teachingThesis ?teach ; fde20:commercialInsight ?insight ;
+         fde20:newWay ?newWay ; fde20:proofStandard ?proof ; fde20:callToAction ?cta .
+    }
+---
+# {% for m in motion %}{{ m.label }}{% endfor %}
+
+{% for m in motion %}## Teach
+
+{{ m.teach }}
+
+## Reframe
+
+{{ m.insight }}
+
+## New way
+
+{{ m.newWay }}
+
+## Proof standard
+
+{{ m.proof }}
+
+## Take control
+
+{{ m.cta }}
+{% endfor %}

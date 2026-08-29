@@ -1,0 +1,61 @@
+# MESSAGE: $20/hr FDE offers must preserve the exact economic and deterministic operating contract. Any row is a refusal.
+PREFIX fde20: <http://seanchatmangpt.github.io/packs/fde20-revops#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+SELECT ?subject ?violation WHERE {
+  {
+    ?subject a fde20:Offer .
+    VALUES ?property {
+      dcterms:title
+      dcterms:description
+      fde20:hourlyRate
+      fde20:currency
+      fde20:billingUnit
+      fde20:deterministicFirst
+      fde20:llmRole
+      fde20:brceRequired
+      fde20:receiptRequired
+      fde20:hasStage
+      fde20:hasChallengerMotion
+    }
+    FILTER NOT EXISTS { ?subject ?property ?value }
+    BIND(CONCAT("missing ", STR(?property)) AS ?violation)
+  } UNION {
+    ?subject a fde20:Offer ; fde20:hourlyRate ?rate .
+    FILTER(xsd:decimal(?rate) != 20.0)
+    BIND("hourlyRate must equal 20.00" AS ?violation)
+  } UNION {
+    ?subject a fde20:Offer ; fde20:currency ?currency .
+    FILTER(STR(?currency) != "USD")
+    BIND("currency must be USD" AS ?violation)
+  } UNION {
+    ?subject a fde20:Offer ; fde20:billingUnit ?unit .
+    FILTER(STR(?unit) != "hour")
+    BIND("billingUnit must be hour" AS ?violation)
+  } UNION {
+    ?subject a fde20:Offer ; fde20:deterministicFirst ?value .
+    FILTER(?value != true)
+    BIND("deterministicFirst must be true" AS ?violation)
+  } UNION {
+    ?subject a fde20:Offer ; fde20:llmRole ?value .
+    FILTER(STR(?value) != "exception-handling-only")
+    BIND("llmRole must be exception-handling-only" AS ?violation)
+  } UNION {
+    ?subject a fde20:Offer ; fde20:brceRequired ?value .
+    FILTER(?value != true)
+    BIND("brceRequired must be true" AS ?violation)
+  } UNION {
+    ?subject a fde20:Offer ; fde20:receiptRequired ?value .
+    FILTER(?value != true)
+    BIND("receiptRequired must be true" AS ?violation)
+  } UNION {
+    ?subject a fde20:Offer ; fde20:hasStage ?stage .
+    FILTER NOT EXISTS { ?stage a fde20:RevOpsStage }
+    BIND("hasStage target is not a RevOpsStage" AS ?violation)
+  } UNION {
+    ?subject a fde20:Offer ; fde20:hasChallengerMotion ?motion .
+    FILTER NOT EXISTS { ?motion a fde20:ChallengerMotion }
+    BIND("hasChallengerMotion target is not a ChallengerMotion" AS ?violation)
+  }
+}
+ORDER BY ?subject ?violation

@@ -1,0 +1,50 @@
+---
+to: "revops/fde20/pipeline.json"
+sparql:
+  offer: |
+    PREFIX fde20: <http://seanchatmangpt.github.io/packs/fde20-revops#>
+    PREFIX dcterms: <http://purl.org/dc/terms/>
+    SELECT ?title ?rate ?currency ?unit ?llmRole WHERE {
+      ?o a fde20:Offer ; dcterms:title ?title ; fde20:hourlyRate ?rate ;
+         fde20:currency ?currency ; fde20:billingUnit ?unit ; fde20:llmRole ?llmRole .
+    }
+  stages: |
+    PREFIX fde20: <http://seanchatmangpt.github.io/packs/fde20-revops#>
+    SELECT ?order ?slug ?kind ?objective ?entry ?exit ?ceiling ?requiresReceipt ?boundary ?receiptType WHERE {
+      ?s a fde20:RevOpsStage ; fde20:stageOrder ?order ; fde20:stageSlug ?slug ;
+         fde20:operationKind ?kind ; fde20:objective ?objective ;
+         fde20:entryCriterion ?entry ; fde20:exitCriterion ?exit ;
+         fde20:standingCeiling ?ceiling ; fde20:requiresReceipt ?requiresReceipt .
+      OPTIONAL { ?s fde20:authorityBoundary ?boundary }
+      OPTIONAL { ?s fde20:receiptType ?receiptType }
+    } ORDER BY ?order
+---
+{
+  "schema": "fde20-revops-pipeline/v1",
+{% for o in offer %}  "offer": {
+    "title": {{ o.title | json_encode() }},
+    "rate": {{ o.rate }},
+    "currency": {{ o.currency | json_encode() }},
+    "billing_unit": {{ o.unit | json_encode() }},
+    "llm_role": {{ o.llmRole | json_encode() }}
+  },
+{% endfor %}  "authority": {
+    "construct_has_ambient_execution_authority": false,
+    "do_boundary": "BRCE",
+    "zero_unreceipted_actuation": true
+  },
+  "stages": [
+{% for s in stages %}    {
+      "order": {{ s.order }},
+      "slug": {{ s.slug | json_encode() }},
+      "operation": {{ s.kind | json_encode() }},
+      "objective": {{ s.objective | json_encode() }},
+      "entry": {{ s.entry | json_encode() }},
+      "exit": {{ s.exit | json_encode() }},
+      "standing_ceiling": {{ s.ceiling | json_encode() }},
+      "requires_receipt": {{ s.requiresReceipt }}{% if s.boundary %},
+      "authority_boundary": {{ s.boundary | json_encode() }}{% endif %}{% if s.receiptType %},
+      "receipt_type": {{ s.receiptType | json_encode() }}{% endif %}
+    }{% if not loop.last %},{% endif %}
+{% endfor %}  ]
+}
