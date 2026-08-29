@@ -246,11 +246,6 @@ mod tests {
 
     #[test]
     fn admit_succeeds_on_green_andon() {
-        // `receipt()` below signs the chain hash when `signed` is enabled,
-        // which needs a `PRAXIS_SIGNING_KEY`; see `signing::test_support`.
-        #[cfg(feature = "signed")]
-        let _guard = crate::signing::test_support::with_test_signing_key();
-
         let raw = no_obligations();
         let validated = match DefaultLaw::judge(raw) {
             Ok(v) => v,

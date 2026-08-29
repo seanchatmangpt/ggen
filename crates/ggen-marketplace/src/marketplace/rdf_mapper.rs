@@ -127,6 +127,22 @@ impl RdfMapper {
             self.insert_literal_triple(&package_uri, &Properties::keywords(), keyword)?;
         }
 
+        // Insert categories -- as URI objects pointing at minted category
+        // nodes (`Properties::category_node_uri`), not string literals, so
+        // `Queries::related_by_category`'s SKOS `related|broader|narrower`
+        // property-path expansion can treat each one as a real graph node.
+        // `metadata.categories` existed on the domain model before this
+        // change but was never written to or read from RDF at all -- this is
+        // the fix for that gap.
+        for category in &package.metadata.categories {
+            let category_node = Self::named_node(&Properties::category_node_uri(category))?;
+            self.insert_triple(
+                &package_uri,
+                &Self::named_node(&Properties::category())?,
+                &category_node,
+            )?;
+        }
+
         // Insert quality score
         if let Some(quality_score) = package.metadata.quality_score {
             let quality_pred = Self::named_node(&Properties::quality_score())?;
@@ -471,15 +487,17 @@ impl RdfMapper {
             }
         };
 
-        // Query authors and keywords (after results dropped)
+        // Query authors, keywords, and categories (after results dropped)
         let authors = self.query_authors(package_uri)?;
         let keywords = self.query_keywords(package_uri)?;
+        let categories = self.query_categories(package_uri)?;
 
         let mut metadata = PackageMetadata::new(package_id.clone(), name, description, license);
         metadata.authors = authors;
         metadata.repository = repository;
         metadata.homepage = homepage;
         metadata.keywords = keywords;
+        metadata.categories = categories;
         metadata.quality_score = quality_score;
         metadata.downloads = downloads;
         metadata.created_at = created_at;
@@ -704,6 +722,46 @@ impl RdfMapper {
         self.query_string_list(&query, "keyword")
     }
 
+    /// Query categories for a package.
+    ///
+    /// `ggen:category` objects are minted category-node URIs
+    /// (`Properties::category_node_uri`), not literals, so this extracts the
+    /// `NamedNode` IRI and strips it back down to the bare slug -- the
+    /// inverse of `Properties::category_node_uri` -- rather than reusing
+    /// `query_string_list` (which only extracts `Literal` terms and would
+    /// silently return nothing here).
+    fn query_categories(&self, package_uri: &NamedNode) -> Result<Vec<String>> {
+        let query = format!(
+            r"
+            SELECT ?category WHERE {{
+                <{}> <{}> ?category .
+            }}
+            ",
+            package_uri.as_str(),
+            Properties::category(),
+        );
+
+        let results = self
+            .store
+            .query(&query)
+            .map_err(|e| Error::SearchError(format!("Categories query failed: {}", e)))?;
+
+        let category_node_prefix = Properties::category_node_uri("");
+        let mut categories = Vec::new();
+        if let oxigraph::sparql::QueryResults::Solutions(solutions) = results {
+            for solution in solutions.flatten() {
+                if let Some(Term::NamedNode(node)) = solution.get("category") {
+                    let iri = node.as_str();
+                    if let Some(slug) = iri.strip_prefix(&category_node_prefix) {
+                        categories.push(slug.to_string());
+                    }
+                }
+            }
+        }
+
+        Ok(categories)
+    }
+
     /// Query dependencies for a version
     fn query_dependencies(
         &self, version_uri: &NamedNode,
@@ -921,6 +979,75 @@ mod tests {
 
         assert_eq!(reconstructed.metadata.registry_type, RegistryType::Npm);
         assert_eq!(reconstructed.metadata.id, id);
+    }
+
+    /// State-based regression coverage for the real gap this file had:
+    /// `PackageMetadata::categories` existed on the domain model but
+    /// `package_to_rdf`/`rdf_to_package` never wrote or read it -- every
+    /// package's categories were silently dropped on the RDF round trip.
+    /// Real store, real insert, real SPARQL query, real reconstructed
+    /// `Vec<String>` compared against the original.
+    #[tokio::test]
+    async fn test_rdf_mapping_round_trips_categories() {
+        let store = Arc::new(Store::new().unwrap());
+        let mapper = RdfMapper::new(store);
+
+        let id = PackageId::new("categorized-pkg").unwrap();
+        let mut metadata = PackageMetadata::new(id.clone(), "Categorized", "A test", "MIT");
+        metadata.categories = vec!["web".to_string(), "cli-tools".to_string()];
+
+        let package = Package {
+            metadata,
+            latest_version: PackageVersion::new("1.0.0").unwrap(),
+            versions: vec![PackageVersion::new("1.0.0").unwrap()],
+            releases: indexmap::IndexMap::new(),
+        };
+
+        mapper
+            .package_to_rdf(&package)
+            .expect("real RDF insert of categories must succeed");
+
+        let reconstructed = mapper
+            .rdf_to_package(&id)
+            .expect("real RDF reconstruction must succeed");
+
+        let mut got = reconstructed.metadata.categories.clone();
+        got.sort();
+        assert_eq!(
+            got,
+            vec!["cli-tools".to_string(), "web".to_string()],
+            "categories must round-trip through real RDF insert + real SPARQL read-back, got {:?}",
+            reconstructed.metadata.categories
+        );
+    }
+
+    /// A package with zero categories must round-trip to an empty Vec, not
+    /// error and not fabricate a category -- the same "honestly empty, not
+    /// silently wrong" bar as every other optional field on this model.
+    #[tokio::test]
+    async fn test_rdf_mapping_round_trips_empty_categories() {
+        let store = Arc::new(Store::new().unwrap());
+        let mapper = RdfMapper::new(store);
+
+        let id = PackageId::new("uncategorized-pkg").unwrap();
+        let metadata = PackageMetadata::new(id.clone(), "Uncategorized", "A test", "MIT");
+        assert!(metadata.categories.is_empty(), "fixture precondition");
+
+        let package = Package {
+            metadata,
+            latest_version: PackageVersion::new("1.0.0").unwrap(),
+            versions: vec![PackageVersion::new("1.0.0").unwrap()],
+            releases: indexmap::IndexMap::new(),
+        };
+
+        mapper.package_to_rdf(&package).expect("real RDF insert");
+        let reconstructed = mapper.rdf_to_package(&id).expect("real RDF reconstruction");
+
+        assert!(
+            reconstructed.metadata.categories.is_empty(),
+            "expected zero categories, got {:?}",
+            reconstructed.metadata.categories
+        );
     }
 
     #[tokio::test]
