@@ -1,0 +1,1 @@
+@prefix geocel:<https://ggen.dev/ontology/ggen-ecosystem-ocel#>. @prefix sh:<http://www.w3.org/ns/shacl#>. geocel:ShaclGate450 a sh:NodeShape; sh:targetSubjectsOf geocel:eventTime; sh:property[sh:path geocel:eventTime;sh:nodeKind sh:Literal].

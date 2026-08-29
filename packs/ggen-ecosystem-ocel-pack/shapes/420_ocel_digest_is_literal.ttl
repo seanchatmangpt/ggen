@@ -1,0 +1,1 @@
+@prefix geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#> . @prefix sh: <http://www.w3.org/ns/shacl#> . @prefix dcterms: <http://purl.org/dc/terms/> . geocel:ShaclGate420 a sh:NodeShape ; dcterms:source "gates/420_ocel_digest_is_literal.rq" ; sh:targetSubjectsOf geocel:ocelDigest ; sh:property [ sh:path geocel:ocelDigest ; sh:nodeKind sh:Literal ] .

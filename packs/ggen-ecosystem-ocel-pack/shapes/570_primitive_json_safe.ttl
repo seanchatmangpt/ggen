@@ -1,0 +1,1 @@
+@prefix geocel:<https://ggen.dev/ontology/ggen-ecosystem-ocel#>. @prefix sh:<http://www.w3.org/ns/shacl#>. geocel:ShaclGate570 a sh:NodeShape; sh:targetClass geocel:GgenPrimitiveObject; sh:sparql[sh:message "primitive must be control-character safe";sh:select "SELECT $this WHERE { $this geocel:primitive ?v . FILTER(REGEX(STR(?v), '[\\x00-\\x1F]')) }"].

@@ -1,0 +1,1 @@
+@prefix geocel:<https://ggen.dev/ontology/ggen-ecosystem-ocel#>. @prefix sh:<http://www.w3.org/ns/shacl#>. geocel:ShaclGate580 a sh:NodeShape; sh:targetClass geocel:QualificationObject; sh:sparql[sh:message "qualification must be control-character safe";sh:select "SELECT $this WHERE { $this geocel:qualification ?v . FILTER(REGEX(STR(?v), '[\\x00-\\x1F]')) }"].

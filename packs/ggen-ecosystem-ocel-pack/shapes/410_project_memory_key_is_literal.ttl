@@ -1,0 +1,1 @@
+@prefix geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#> . @prefix sh: <http://www.w3.org/ns/shacl#> . @prefix dcterms: <http://purl.org/dc/terms/> . geocel:ShaclGate410 a sh:NodeShape ; dcterms:source "gates/410_project_memory_key_is_literal.rq" ; sh:targetSubjectsOf geocel:projectMemoryKey ; sh:property [ sh:path geocel:projectMemoryKey ; sh:nodeKind sh:Literal ] .
