@@ -1,0 +1,5 @@
+# MESSAGE: description must remain aligned beneath DCTERMS description.
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+SELECT * WHERE { FILTER NOT EXISTS { geocel:description rdfs:subPropertyOf dcterms:description } }
