@@ -1,0 +1,3 @@
+# MESSAGE: projectNumber values must be RDF literals.
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+SELECT ?s ?v WHERE { ?s geocel:projectNumber ?v . FILTER(!isLiteral(?v)) }

@@ -1,0 +1,4 @@
+# MESSAGE: every eventType concept must carry a skos:prefLabel.
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+SELECT ?t WHERE { ?e geocel:eventType ?t . FILTER NOT EXISTS { ?t skos:prefLabel ?label } }

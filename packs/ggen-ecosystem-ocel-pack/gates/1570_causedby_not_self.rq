@@ -1,0 +1,3 @@
+# MESSAGE: causedBy edges must never self-reference.
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+SELECT ?e WHERE { ?e geocel:causedBy ?e . }
