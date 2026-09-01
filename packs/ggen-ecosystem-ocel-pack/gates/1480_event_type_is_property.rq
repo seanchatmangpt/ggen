@@ -1,0 +1,4 @@
+# MESSAGE: eventType must remain declared as an RDF property.
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+SELECT * WHERE { FILTER NOT EXISTS { geocel:eventType a rdf:Property } }
