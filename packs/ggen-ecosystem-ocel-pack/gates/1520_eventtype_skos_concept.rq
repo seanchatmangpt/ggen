@@ -1,0 +1,4 @@
+# MESSAGE: eventType targets must be typed skos:Concept.
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+SELECT ?e ?t WHERE { ?e geocel:eventType ?t . FILTER NOT EXISTS { ?t a skos:Concept } }
