@@ -21,87 +21,23 @@
     clippy::no_effect_underscore_binding,
     clippy::literal_string_with_formatting_args
 )]
-//! Comprehensive test suite for marketplace commands
+//! Marketplace test suite entry point (`crates/ggen-cli/tests/marketplace_registry_test.rs`
+//! and `crates/ggen-cli/tests/marketplace_comprehensive.rs` both `mod marketplace;` this
+//! file as their harness body).
 //!
-//! This test suite follows London School TDD principles:
-//! - **Unit Tests**: Test individual components in isolation
-//! - **Integration Tests**: Test complete workflows end-to-end
-//! - **Performance Tests**: Verify scalability and speed
-//! - **Security Tests**: Validate input handling and safety
+//! ## 2026-08-24: seven v1/v2-transitional modules archived, not repaired
 //!
-//! ## Test Organization
+//! `docs/jira/v26.8.16/04-MARKETPLACE-TEST-SUITE-DISABLED.md` — the seven modules this
+//! file used to `pub mod` in commented-out form (`install_tests`, `registry_tests`,
+//! `fixtures`, `integration`, `performance`, `security`, `unit`) targeted an architecture
+//! that no longer exists on disk: `ggen_core` (fully deleted), `ggen_cli_lib::domain::
+//! marketplace::registry` (no such module), `ggen_marketplace_v2` (never a workspace
+//! member), and the `ggen marketplace` CLI noun (renamed to `ggen pack`). Porting them
+//! would be a rewrite, not a repair — see `crates/ggen-cli/tests/archive/marketplace/
+//! README.md` for the per-file breakdown. They are preserved (non-deletion doctrine)
+//! under `tests/archive/marketplace/`, excluded from every build (no `mod` references
+//! them from anywhere reachable), and this module is intentionally empty of test code.
 //!
-//! ```text
-//! marketplace/
-//! ├── unit/               # Fast, isolated component tests
-//! │   ├── maturity_scoring_test.rs
-//! │   ├── search_ranking_test.rs
-//! │   └── package_filtering_test.rs
-//! ├── integration/        # CLI command integration tests
-//! │   ├── cli_commands_test.rs
-//! │   └── edge_cases_test.rs
-//! ├── performance/        # Benchmarks and load tests
-//! │   └── benchmark_test.rs
-//! ├── security/           # Security validation tests
-//! │   └── validation_test.rs
-//! └── fixtures/           # Test data and helpers
-//!     └── mod.rs
-//! ```
-//!
-//! ## Running Tests
-//!
-//! ```bash
-//! # Run all marketplace tests
-//! cargo test --test marketplace
-//!
-//! # Run only unit tests
-//! cargo test --test marketplace unit::
-//!
-//! # Run only integration tests
-//! cargo test --test marketplace integration::
-//!
-//! # Run specific test category
-//! cargo test --test marketplace performance::
-//! cargo test --test marketplace security::
-//! ```
-//!
-//! ## Test Coverage
-//!
-//! The test suite covers:
-//!
-//! ### Unit Tests (80+ tests)
-//! - Maturity scoring algorithm (6 dimensions)
-//! - Search ranking (relevance, popularity, quality, recency)
-//! - Package filtering (by level, score, dimensions, use case)
-//!
-//! ### Integration Tests (50+ tests)
-//! - All CLI commands (list, search, maturity, validate, export, compare, recommend)
-//! - Edge cases (empty input, special characters, extreme values)
-//! - Error handling and recovery
-//!
-//! ### Performance Tests (15+ tests)
-//! - Search performance with 100+ packages
-//! - Batch assessment benchmarks
-//! - Report generation speed
-//! - Memory efficiency
-//!
-//! ### Security Tests (20+ tests)
-//! - Input validation and sanitization
-//! - Injection prevention (SQL, XSS, path traversal)
-//! - Score overflow protection
-//! - Vulnerability impact assessment
-
-// NOTE: Marketplace tests have been disabled pending migration to ggen-marketplace-v2 only.
-// The v1 marketplace crate has been removed from the workspace.
-// These tests should be reimplemented to use v2 RDF-backed marketplace.
-
-// Existing Chicago TDD tests (v1 - DISABLED)
-// mod install_tests;
-// mod registry_tests;
-
-// New comprehensive test suite (v1 - DISABLED)
-// pub mod fixtures;
-// pub mod integration;
-// pub mod performance;
-// pub mod security;
-// pub mod unit;
+//! Real, new coverage against the live `ggen pack` surface lives in
+//! `crates/ggen-cli/tests/pack_cli_test.rs` instead (a standalone top-level harness, not
+//! wired through this file).

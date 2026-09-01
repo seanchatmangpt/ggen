@@ -122,7 +122,7 @@ fn receipt_verify_passes_on_genuine_untampered_receipt() {
     )
     .expect("sync");
 
-    CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::cargo_bin("ggen")
         .args(["receipt", "verify"])
         .current_dir(dir.path())
         .run()
@@ -165,7 +165,7 @@ fn receipt_verify_fails_closed_on_tampered_payload_hash() {
     );
     std::fs::write(&receipt_path, raw.replace(&orig, &flipped)).expect("tamper payload hash");
 
-    CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::cargo_bin("ggen")
         .args(["receipt", "verify"])
         .current_dir(dir.path())
         .run()
@@ -201,7 +201,7 @@ fn receipt_verify_refuses_unsupported_schema_version() {
     )
     .expect("write bumped-version receipt");
 
-    CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::cargo_bin("ggen")
         .args(["receipt", "verify"])
         .current_dir(dir.path())
         .run()

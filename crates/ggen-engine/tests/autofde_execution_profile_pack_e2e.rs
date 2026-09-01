@@ -13,7 +13,9 @@ mod support;
 use std::path::{Path, PathBuf};
 
 use ggen_engine::sync::{sync, SyncOptions};
-use support::{assert_gate_refuses, assert_idempotent, read, read_json, scaffold_pack_with_ontology};
+use support::{
+    assert_gate_refuses, assert_idempotent, read, read_json, scaffold_pack_with_ontology,
+};
 
 fn packs_dir() -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR")).join("../../packs")
@@ -52,10 +54,8 @@ fn parse_inner(profile: &serde_json::Value, key: &str) -> serde_json::Value {
 
 #[test]
 fn execution_profile_pack_generates_powerless_revision_bound_json_and_is_idempotent() {
-    let (_dir, project) = scaffold_pack_with_ontology(
-        &packs_dir().join("autofde-execution-profile-pack"),
-        PROFILE,
-    );
+    let (_dir, project) =
+        scaffold_pack_with_ontology(&packs_dir().join("autofde-execution-profile-pack"), PROFILE);
 
     sync(
         &project,
@@ -90,7 +90,12 @@ fn execution_profile_pack_generates_powerless_revision_bound_json_and_is_idempot
     assert!(profile["authority_ref"].is_null());
 
     let generated = read(&project, "generated/autofde/execution-profiles.json");
-    for forbidden in ["\"principal\"", "\"nonce\"", "\"expires_at\"", "\"execution_grant\""] {
+    for forbidden in [
+        "\"principal\"",
+        "\"nonce\"",
+        "\"expires_at\"",
+        "\"execution_grant\"",
+    ] {
         assert!(
             !generated.contains(forbidden),
             "powerless profile output must not contain authority token field {forbidden}: {generated}"
@@ -127,23 +132,25 @@ fn execution_profile_pack_escapes_malformed_inner_json_instead_of_injecting_oute
 
 #[test]
 fn execution_profile_pack_refuses_vacuous_verification_or_ambiguous_selector() {
-    let (_dir, project) = scaffold_pack_with_ontology(
-        &packs_dir().join("autofde-execution-profile-pack"),
-        PROFILE,
-    );
+    let (_dir, project) =
+        scaffold_pack_with_ontology(&packs_dir().join("autofde-execution-profile-pack"), PROFILE);
 
     let sabotage = PROFILE
-        .replace("afxp:capabilityRef \"\"", "afxp:capabilityRef \"urn:test:capability\"")
-        .replace("afxp:expectedJson \"{\\\"counter\\\":1}\"", "afxp:expectedJson \"{}\"");
+        .replace(
+            "afxp:capabilityRef \"\"",
+            "afxp:capabilityRef \"urn:test:capability\"",
+        )
+        .replace(
+            "afxp:expectedJson \"{\\\"counter\\\":1}\"",
+            "afxp:expectedJson \"{}\"",
+        );
     assert_gate_refuses(&project, &sabotage, "020_selector_and_verification");
 }
 
 #[test]
 fn execution_profile_pack_refuses_authority_token_facts() {
-    let (_dir, project) = scaffold_pack_with_ontology(
-        &packs_dir().join("autofde-execution-profile-pack"),
-        PROFILE,
-    );
+    let (_dir, project) =
+        scaffold_pack_with_ontology(&packs_dir().join("autofde-execution-profile-pack"), PROFILE);
 
     let sabotage = format!("{PROFILE}\n<urn:test:memory-counter> afxp:nonce \"forbidden\" .\n");
     assert_gate_refuses(&project, &sabotage, "030_no_authority_tokens");

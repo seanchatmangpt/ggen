@@ -35,7 +35,7 @@ fn assert_cli_success(project: &Path, args: &[&str]) {
         .current_dir(project)
         .run()
         .expect("run ggen");
-    output.assert_success();
+    let _ = output.assert_success();
 }
 
 fn run_cargo(project: &Path, args: &[&str]) -> std::process::Output {
