@@ -841,8 +841,11 @@ mod tests {
                 }
             ]
         }"#;
-        fs::write(catalog_dir.join("fortune5-bblocks.json"), wired_catalog_json)
-            .expect("write wired catalog");
+        fs::write(
+            catalog_dir.join("fortune5-bblocks.json"),
+            wired_catalog_json,
+        )
+        .expect("write wired catalog");
 
         let ggen_toml = format!(
             r#"[project]
