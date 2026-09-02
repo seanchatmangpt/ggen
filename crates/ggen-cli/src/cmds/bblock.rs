@@ -1,11 +1,26 @@
 //! Fortune 5 deployment building blocks (`ggen bblock <verb>`).
 //!
-//! The command is a generic compiler over the retained ontology-derived catalog
-//! at `packs/fortune5-deployment-blocks-pack/catalog/fortune5-bblocks.json`.
+//! The command is a generic compiler over an ontology-derived catalog shaped
+//! like `packs/fortune5-deployment-blocks-pack/catalog/fortune5-bblocks.json`.
 //! Provider aliases, group dependencies, package identities, and output
 //! directories come from that catalog; this module contains no provider-specific
 //! deployment branches and performs no cloud, Kubernetes, Terraform, or network
 //! actuation.
+//!
+//! ## Catalog resolution
+//!
+//! [`load_catalog_bytes`] first looks for the *current project's*
+//! `ggen.toml` `[packs]` table (via [`ggen_engine::config::GgenConfig`]) for
+//! any locally-pathed pack whose root contains a
+//! `catalog/fortune5-bblocks.json` file, and uses that pack's own on-disk
+//! catalog when found — this is what lets a consumer project override the
+//! block catalog by wiring `fortune5-deployment-blocks-pack` (or a fork of
+//! it) into `[packs]`, per
+//! `docs/jira/v26.9.1/07-FORTUNE5-DEPLOYMENT-BLOCKS-NOT-SYNC-PORTABLE.md`
+//! defect 2. When no project manifest is present, no pack is wired, or the
+//! manifest fails to load, it falls back to the catalog embedded in this
+//! binary at compile time (`CATALOG_BYTES`) — unchanged prior behavior for
+//! every project that has not wired the pack.
 
 use std::{
     collections::{BTreeMap, BTreeSet},
@@ -15,6 +30,7 @@ use std::{
 
 use clap_noun_verb::{NounVerbError, Result};
 use clap_noun_verb_macros::verb;
+use ggen_engine::config::{GgenConfig, PackRef};
 use ggen_marketplace::{
     marketplace::models::PackageId,
     packs::lockfile::{LockedPack, PackLockfile, PackSource},
@@ -26,6 +42,7 @@ const CATALOG_BYTES: &str = include_str!(concat!(
     env!("CARGO_MANIFEST_DIR"),
     "/../../packs/fortune5-deployment-blocks-pack/catalog/fortune5-bblocks.json"
 ));
+const CATALOG_RELATIVE_PATH: &str = "catalog/fortune5-bblocks.json";
 const CATALOG_SCHEMA: &str = "ggen.bblock.catalog.v1";
 const PLAN_SCHEMA: &str = "ggen.bblock.plan.v1";
 const RECEIPT_SCHEMA: &str = "ggen.bblock.receipt.v1";
@@ -129,16 +146,55 @@ impl Receipt {
     }
 }
 
-fn catalog() -> Result<Catalog> {
-    let catalog: Catalog = serde_json::from_str(CATALOG_BYTES).map_err(|error| {
-        NounVerbError::execution_error(format!("embedded bblock catalog is invalid: {error}"))
-    })?;
-    validate_catalog(&catalog)?;
-    Ok(catalog)
+/// Locate a `[packs]`-wired, locally-pathed pack in the current project's
+/// `ggen.toml` whose root ships its own `catalog/fortune5-bblocks.json`, and
+/// return that file's raw bytes. Returns `Ok(None)` — never an error — for
+/// every case that should fall back to the embedded catalog: no `ggen.toml`
+/// at `root`, a manifest that fails to load or parse, or a `[packs]` table
+/// with no pack shipping that catalog file. `ggen bblock` must stay usable
+/// (against the embedded catalog) even outside any project, and an
+/// unrelated project's manifest defect must never break `bblock`.
+fn wired_catalog_bytes(root: &Path) -> Option<String> {
+    let manifest_path = root.join("ggen.toml");
+    if !manifest_path.is_file() {
+        return None;
+    }
+    let config = GgenConfig::load(&manifest_path).ok()?;
+    for pack_ref in config.packs.values() {
+        let PackRef::Path { path, .. } = pack_ref else {
+            continue;
+        };
+        let candidate = root.join(path).join(CATALOG_RELATIVE_PATH);
+        if candidate.is_file() {
+            if let Ok(bytes) = fs::read_to_string(&candidate) {
+                return Some(bytes);
+            }
+        }
+    }
+    None
 }
 
-fn catalog_digest() -> String {
-    blake3::hash(CATALOG_BYTES.as_bytes()).to_hex().to_string()
+/// Load and validate the catalog: a `[packs]`-wired project pack's own
+/// `catalog/fortune5-bblocks.json` when one resolves (see
+/// [`wired_catalog_bytes`]), otherwise the catalog embedded in this binary.
+/// Returns the parsed [`Catalog`] together with its blake3 digest, computed
+/// over whichever bytes were actually used — a wired pack's catalog and the
+/// embedded fallback are never conflated in the returned digest.
+fn load_catalog(root: &Path) -> Result<(Catalog, String)> {
+    let owned;
+    let bytes: &str = match wired_catalog_bytes(root) {
+        Some(wired) => {
+            owned = wired;
+            &owned
+        }
+        None => CATALOG_BYTES,
+    };
+    let catalog: Catalog = serde_json::from_str(bytes).map_err(|error| {
+        NounVerbError::execution_error(format!("bblock catalog is invalid: {error}"))
+    })?;
+    validate_catalog(&catalog)?;
+    let digest = blake3::hash(bytes.as_bytes()).to_hex().to_string();
+    Ok((catalog, digest))
 }
 
 fn validate_catalog(catalog: &Catalog) -> Result<()> {
@@ -309,7 +365,9 @@ fn visit_group(
     Ok(())
 }
 
-fn resolve(catalog: &Catalog, group_id: &str, provider_raw: &str) -> Result<BlockPlan> {
+fn resolve(
+    catalog: &Catalog, catalog_digest: &str, group_id: &str, provider_raw: &str,
+) -> Result<BlockPlan> {
     let provider = normalize_provider(catalog, provider_raw)?;
     let mut ordered = Vec::new();
     visit_group(
@@ -336,7 +394,6 @@ fn resolve(catalog: &Catalog, group_id: &str, provider_raw: &str) -> Result<Bloc
         );
     }
 
-    let catalog_digest = catalog_digest();
     #[derive(Serialize)]
     struct DigestInput<'a> {
         schema: &'static str,
@@ -353,7 +410,7 @@ fn resolve(catalog: &Catalog, group_id: &str, provider_raw: &str) -> Result<Bloc
     let plan_digest = digest(&DigestInput {
         schema: PLAN_SCHEMA,
         catalog_version: &catalog.version,
-        catalog_digest: &catalog_digest,
+        catalog_digest,
         provider: &provider.id,
         requested_group: group_id,
         resolved_groups: &ordered,
@@ -363,7 +420,7 @@ fn resolve(catalog: &Catalog, group_id: &str, provider_raw: &str) -> Result<Bloc
     Ok(BlockPlan {
         schema: PLAN_SCHEMA,
         catalog_version: catalog.version.clone(),
-        catalog_digest,
+        catalog_digest: catalog_digest.to_string(),
         provider: provider.id.clone(),
         requested_group: group_id.to_string(),
         resolved_groups: ordered,
@@ -561,19 +618,21 @@ fn enable_plan(root: &Path, plan: &BlockPlan) -> Result<Value> {
 /// List supported globally available cloud providers and aliases.
 #[verb]
 pub fn providers() -> Result<Value> {
-    let catalog = catalog()?;
+    let root = project_root()?;
+    let (catalog, catalog_digest) = load_catalog(&root)?;
     Ok(json!({
         "schema": catalog.schema,
         "version": catalog.version,
         "providers": catalog.providers,
-        "catalog_digest": catalog_digest(),
+        "catalog_digest": catalog_digest,
     }))
 }
 
 /// List every atomic building block and composite pack group.
 #[verb]
 pub fn list() -> Result<Value> {
-    let catalog = catalog()?;
+    let root = project_root()?;
+    let (catalog, catalog_digest) = load_catalog(&root)?;
     Ok(json!({
         "schema": catalog.schema,
         "version": catalog.version,
@@ -584,15 +643,16 @@ pub fn list() -> Result<Value> {
             "directory": group.directory,
             "dependencies": group.dependencies,
         })).collect::<Vec<_>>(),
-        "catalog_digest": catalog_digest(),
+        "catalog_digest": catalog_digest,
     }))
 }
 
 /// Inspect one group after provider normalization and dependency expansion.
 #[verb]
 pub fn inspect(group_id: String, provider: String) -> Result<Value> {
-    let catalog = catalog()?;
-    let plan = resolve(&catalog, &group_id, &provider)?;
+    let root = project_root()?;
+    let (catalog, catalog_digest) = load_catalog(&root)?;
+    let plan = resolve(&catalog, &catalog_digest, &group_id, &provider)?;
     Ok(serde_json::to_value(plan).map_err(|error| {
         NounVerbError::execution_error(format!("cannot encode bblock plan: {error}"))
     })?)
@@ -607,25 +667,26 @@ pub fn group(group_id: String, provider: String) -> Result<Value> {
 /// Manufacture a deterministic local deployment plan and chained receipts.
 #[verb]
 pub fn plan(group_id: String, provider: String) -> Result<Value> {
-    let catalog = catalog()?;
-    let plan = resolve(&catalog, &group_id, &provider)?;
     let root = project_root()?;
+    let (catalog, catalog_digest) = load_catalog(&root)?;
+    let plan = resolve(&catalog, &catalog_digest, &group_id, &provider)?;
     write_plan_receipts(&root, &plan, "plan")
 }
 
 /// Enable a group by materializing directories, a plan, receipts, and lockfile entries.
 #[verb]
 pub fn enable(group_id: String, provider: String) -> Result<Value> {
-    let catalog = catalog()?;
-    let plan = resolve(&catalog, &group_id, &provider)?;
     let root = project_root()?;
+    let (catalog, catalog_digest) = load_catalog(&root)?;
+    let plan = resolve(&catalog, &catalog_digest, &group_id, &provider)?;
     enable_plan(&root, &plan)
 }
 
 /// Validate provider closure, pack identifiers, paths, and dependency acyclicity.
 #[verb]
 pub fn validate() -> Result<Value> {
-    let catalog = catalog()?;
+    let root = project_root()?;
+    let (catalog, catalog_digest) = load_catalog(&root)?;
     let mut pack_count = BTreeSet::new();
     for group in &catalog.groups {
         pack_count.extend(group.common_packs.iter().cloned());
@@ -640,7 +701,7 @@ pub fn validate() -> Result<Value> {
         "providers": catalog.providers.len(),
         "groups": catalog.groups.len(),
         "unique_packs": pack_count.len(),
-        "catalog_digest": catalog_digest(),
+        "catalog_digest": catalog_digest,
     }))
 }
 
@@ -648,9 +709,20 @@ pub fn validate() -> Result<Value> {
 mod tests {
     use super::*;
 
+    /// No `ggen.toml` at this synthetic root, so [`load_catalog`] always
+    /// falls back to the embedded catalog — matches every pre-existing test
+    /// in this module (none of them wire a project pack).
+    fn embedded_root() -> PathBuf {
+        std::env::temp_dir().join("ggen-bblock-test-no-such-project-root")
+    }
+
+    fn embedded_catalog() -> (Catalog, String) {
+        load_catalog(&embedded_root()).expect("catalog")
+    }
+
     #[test]
     fn catalog_is_closed_and_provider_complete() {
-        let catalog = catalog().expect("catalog");
+        let (catalog, _digest) = embedded_catalog();
         assert_eq!(catalog.providers.len(), 3);
         assert!(catalog.groups.len() >= 18);
         assert!(catalog.groups.iter().all(|group| {
@@ -671,17 +743,17 @@ mod tests {
 
     #[test]
     fn gpc_alias_resolves_to_gcp() {
-        let catalog = catalog().expect("catalog");
-        let plan = resolve(&catalog, "fortune5-complete", "gpc").expect("plan");
+        let (catalog, digest) = embedded_catalog();
+        let plan = resolve(&catalog, &digest, "fortune5-complete", "gpc").expect("plan");
         assert_eq!(plan.provider, "gcp");
         assert!(plan.packs.iter().any(|pack| pack.starts_with("gcp-")));
     }
 
     #[test]
     fn complete_plan_is_deterministic_and_duplicate_free() {
-        let catalog = catalog().expect("catalog");
-        let first = resolve(&catalog, "fortune5-complete", "aws").expect("first");
-        let second = resolve(&catalog, "fortune5-complete", "aws").expect("second");
+        let (catalog, digest) = embedded_catalog();
+        let first = resolve(&catalog, &digest, "fortune5-complete", "aws").expect("first");
+        let second = resolve(&catalog, &digest, "fortune5-complete", "aws").expect("second");
         assert_eq!(first, second);
         let unique: BTreeSet<_> = first.packs.iter().collect();
         assert_eq!(unique.len(), first.packs.len());
@@ -693,14 +765,14 @@ mod tests {
 
     #[test]
     fn unknown_provider_and_group_are_typed_refusals() {
-        let catalog = catalog().expect("catalog");
-        assert!(resolve(&catalog, "fortune5-complete", "oracle").is_err());
-        assert!(resolve(&catalog, "missing", "aws").is_err());
+        let (catalog, digest) = embedded_catalog();
+        assert!(resolve(&catalog, &digest, "fortune5-complete", "oracle").is_err());
+        assert!(resolve(&catalog, &digest, "missing", "aws").is_err());
     }
 
     #[test]
     fn dependency_cycle_is_refused() {
-        let mut catalog = catalog().expect("catalog");
+        let (mut catalog, _digest) = embedded_catalog();
         catalog
             .groups
             .iter_mut()
@@ -716,5 +788,92 @@ mod tests {
             &mut Vec::new(),
         );
         assert!(result.is_err());
+    }
+
+    /// The sharpest falsifying test for
+    /// `docs/jira/v26.9.1/07-FORTUNE5-DEPLOYMENT-BLOCKS-NOT-SYNC-PORTABLE.md`
+    /// defect 2: a real scratch project on disk wires
+    /// `fortune5-deployment-blocks-pack` via `[packs]` with a catalog whose
+    /// content (and therefore digest) genuinely differs from the embedded
+    /// one — `load_catalog` must return the WIRED pack's content, not the
+    /// embedded fixture's. Real files, a real `GgenConfig::load` parse, a
+    /// real state-based assertion on the returned catalog and digest — no
+    /// mock of any collaborator.
+    #[test]
+    fn wired_project_pack_catalog_overrides_embedded_catalog() {
+        let unique = format!(
+            "ggen-bblock-wired-catalog-test-{}-{:?}",
+            std::process::id(),
+            std::time::SystemTime::now()
+                .duration_since(std::time::SystemTime::UNIX_EPOCH)
+                .expect("time")
+        );
+        let root = std::env::temp_dir().join(unique);
+        let pack_dir = root.join("vendor").join("custom-deployment-blocks-pack");
+        let catalog_dir = pack_dir.join("catalog");
+        fs::create_dir_all(&catalog_dir).expect("create catalog dir");
+
+        // A minimal but structurally valid catalog, deliberately different
+        // from the embedded one (single group, distinct id/title/packs) so
+        // its digest cannot coincide with `catalog_digest()`'s embedded
+        // value.
+        let wired_catalog_json = r#"{
+            "schema": "ggen.bblock.catalog.v1",
+            "version": "wired-test-1.0.0",
+            "providers": [
+                {"id": "aws", "title": "Amazon Web Services", "aliases": []},
+                {"id": "azure", "title": "Microsoft Azure", "aliases": []},
+                {"id": "gcp", "title": "Google Cloud Platform", "aliases": ["gpc"]}
+            ],
+            "groups": [
+                {
+                    "id": "wired-only-group",
+                    "title": "Wired-Only Test Group",
+                    "description": "Exists only in the project-wired catalog, never embedded.",
+                    "directory": "infra/wired-only",
+                    "dependencies": [],
+                    "common_packs": [],
+                    "provider_packs": {
+                        "aws": ["aws-wired-test-pack"],
+                        "azure": ["azure-wired-test-pack"],
+                        "gcp": ["gcp-wired-test-pack"]
+                    }
+                }
+            ]
+        }"#;
+        fs::write(catalog_dir.join("fortune5-bblocks.json"), wired_catalog_json)
+            .expect("write wired catalog");
+
+        let ggen_toml = format!(
+            r#"[project]
+name = "wired-catalog-test-project"
+
+[ontology]
+source = "ontology.ttl"
+
+[templates]
+dir = "templates"
+
+[packs.fortune5-deployment-blocks]
+path = "{}"
+"#,
+            pack_dir.to_string_lossy().replace('\\', "/")
+        );
+        fs::write(root.join("ggen.toml"), ggen_toml).expect("write ggen.toml");
+
+        let (catalog, digest) = load_catalog(&root).expect("load wired catalog");
+        let (embedded, embedded_digest) = embedded_catalog();
+
+        assert_eq!(catalog.version, "wired-test-1.0.0");
+        assert_eq!(catalog.groups.len(), 1);
+        assert_eq!(catalog.groups[0].id, "wired-only-group");
+        assert!(catalog
+            .groups
+            .iter()
+            .all(|group| group.id != "fortune5-complete"));
+        assert_ne!(digest, embedded_digest);
+        assert_ne!(catalog.version, embedded.version);
+
+        fs::remove_dir_all(&root).ok();
     }
 }
