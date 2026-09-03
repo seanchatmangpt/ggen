@@ -121,7 +121,7 @@ fn thirty_packs_compose_into_one_consumer() {
         .current_dir(&project)
         .run()
         .expect("run sync");
-    output.assert_success();
+    let _ = output.assert_success();
 
     // (2) Volume: >= 900 generated files (ground-truth run: 1139 written;
     // 23-pack baseline was 915). Count real files on disk, excluding the
@@ -196,7 +196,7 @@ fn thirty_packs_compose_into_one_consumer() {
         .current_dir(&project)
         .run()
         .expect("run second sync");
-    output2.assert_success();
+    let _ = output2.assert_success();
     let after = tree_digest(&project);
     assert_eq!(
         before, after,
@@ -320,7 +320,7 @@ fn thirty_one_packs_compose_with_verify_gates_active() {
         .current_dir(&project)
         .run()
         .expect("run capstone sync");
-    output.assert_success();
+    let _ = output.assert_success();
 
     let generated_emitter = project.join("scripts/verify-evidence.sh");
     assert!(
@@ -346,7 +346,7 @@ fn thirty_one_packs_compose_with_verify_gates_active() {
         .current_dir(&project)
         .run()
         .expect("run resync");
-    output2.assert_success();
+    let _ = output2.assert_success();
 
     // ── Phase 4: sabotage — evidence facts gone => FM-PACK-013 refusal ───
     std::fs::write(
@@ -359,7 +359,7 @@ fn thirty_one_packs_compose_with_verify_gates_active() {
         .current_dir(&project)
         .run()
         .expect("run sabotage sync");
-    sabotage.assert_failure();
-    sabotage.assert_stderr_contains("FM-PACK-013");
-    sabotage.assert_stderr_contains("010_evidence_present");
+    let _ = sabotage.assert_failure();
+    let _ = sabotage.assert_stderr_contains("FM-PACK-013");
+    let _ = sabotage.assert_stderr_contains("010_evidence_present");
 }

@@ -24,24 +24,21 @@
 //! replace `project`'s body without touching any formal claim, because there
 //! isn't one to preserve.
 //!
-//! # `planner` submodule — feature-gated, not part of the default build
+//! # `planner` submodule — removed, not just feature-gated
 //!
-//! [`planner`] (only compiled with the `mfw-planner` Cargo feature) is the
-//! top-level `MfwPlanner` orchestrator wiring this crate's `consequence`/
-//! `mfw`/`search`/`causal`/`concurrency` modules together with `bcinr-powl`'s
-//! `PowlProjector` and `bcinr-powl-receipt`'s receipt sealing. It is
-//! feature-gated, not unconditionally compiled, because this crate's own
-//! `Cargo.toml` states a deliberate boundary predating this integration
-//! phase: "No path deps on bcinr-powl ... PDDL must not bleed into every
-//! consumer. Opt-in only via this crate." Adding `bcinr-powl`/
-//! `bcinr-powl-receipt` as unconditional dependencies would silently widen
-//! every existing consumer's (including `praxis`'s) transitive dependency
-//! graph. `mfw-planner` is off by default; enable it with `--features
-//! mfw-planner` (or `cargo test -p bcinr-pddl --features mfw-planner`) to
-//! build/exercise the orchestrator.
-
-#[cfg(feature = "mfw-planner")]
-pub mod planner;
+//! An earlier phase of this vendored copy carried a `planner` submodule (the
+//! `MfwPlanner` orchestrator wiring `consequence`/`mfw`/`search`/`causal`/
+//! `concurrency` together with `bcinr-powl`'s `PowlProjector` and
+//! `bcinr-powl-receipt`'s receipt sealing) behind a `mfw-planner` Cargo
+//! feature. That feature was never declared in this crate's `Cargo.toml` —
+//! `cargo build -p bcinr-pddl --features mfw-planner` errors with "the
+//! package 'bcinr-pddl' does not contain this feature" — and even if
+//! declared, the module could not compile: `bcinr-powl`/`bcinr-powl-receipt`
+//! are not dependencies of this vendored copy (see `Cargo.toml`'s own
+//! comment: "dropped from this vendored copy (2026-07-17, PR #255) ...
+//! nothing in this workspace enables it"). The module was permanently
+//! unreachable/unbuildable dead code, so it has been deleted rather than
+//! left as orphaned source behind a `#[cfg]` on a nonexistent feature.
 
 use std::collections::BTreeMap;
 

@@ -170,10 +170,14 @@ harness = false
 # Note: patches are not transitive — each workspace member that needs the
 # override must be covered by the same [patch] block (or the workspace root's).
 
-[profile.release]
-lto = true
-codegen-units = 1
-panic = "abort"
-# strip = false by default: wasm32 targets require wasm-opt for stripping (strip=true
-# corrupts WASM binaries). Native binaries are stripped by the linker or packaging step.
-# Override per-package in WASM crates: [profile.release.package."mycrate"] strip = false
+# NOTE (2026-08-24, docs/jira/v26.8.16/06-DOC-DRIFT-AND-MINOR.md item 2): a [profile.*]
+# block on a non-root workspace member is silently ignored by Cargo ("profiles for the
+# non root package will be ignored, specify profiles at the workspace root" on every
+# invocation). This block used to live here as vendored config residue from
+# ~/praxis/crates/ggen, where it was standalone. The root Cargo.toml already declares its
+# own [profile.release] (lto = "thin", codegen-units = 16, strip = true) that actually
+# governs this crate's release builds — this now-dead block has been removed rather than
+# merged, since the two settings differ (lto=true/codegen-units=1/panic="abort" here vs.
+# the root's lto="thin"/codegen-units=16/no panic override) and no one asked for the more
+# aggressive/panic-abort variant workspace-wide. Adjust the root's [profile.release]
+# directly if ggen-engine's release build needs different settings.

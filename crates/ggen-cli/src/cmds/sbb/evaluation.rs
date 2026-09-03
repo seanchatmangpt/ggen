@@ -18,13 +18,39 @@ fn repository_root(manifest: &Path, raw: &str) -> PathBuf {
     }
 }
 
+/// The `GIT_*` variables git itself sets when invoking a hook (pre-push,
+/// pre-commit, etc.) or during `receive-pack`, that override `-C`-based
+/// repository discovery for any `git` subprocess a hook spawns. Real,
+/// reproduced bug (not hypothetical): running this crate's own real `git
+/// push` (which invokes `scripts/hooks/pre-push.sh`, which runs `cargo
+/// test --workspace`, which runs `sbb`'s own tests) deterministically fails
+/// every test below, while every other invocation path (`cargo test`
+/// directly, `just test-lib`, the hook script run by hand outside a real
+/// push) passes cleanly -- reproduced standalone by exporting exactly
+/// `GIT_DIR`/`GIT_WORK_TREE` before a plain `cargo test`, confirming the
+/// leak. `-C <repository>` alone does not protect against this: `GIT_DIR`
+/// specifically overrides `-C`'s repository discovery per git's own
+/// documented precedence. Clearing the full set below (not just the two
+/// that reproduced the bug) covers the related vars a real `receive-pack`
+/// can also set.
+pub(crate) const GIT_ENV_LEAK_VARS: &[&str] = &[
+    "GIT_DIR",
+    "GIT_WORK_TREE",
+    "GIT_INDEX_FILE",
+    "GIT_OBJECT_DIRECTORY",
+    "GIT_ALTERNATE_OBJECT_DIRECTORIES",
+    "GIT_QUARANTINE_PATH",
+    "GIT_COMMON_DIR",
+    "GIT_PREFIX",
+];
+
 fn git(repository: &Path, args: &[String]) -> Option<Vec<u8>> {
-    let output = Command::new("git")
-        .arg("-C")
-        .arg(repository)
-        .args(args)
-        .output()
-        .ok()?;
+    let mut command = Command::new("git");
+    command.arg("-C").arg(repository).args(args);
+    for var in GIT_ENV_LEAK_VARS {
+        command.env_remove(var);
+    }
+    let output = command.output().ok()?;
     output.status.success().then_some(output.stdout)
 }
 
