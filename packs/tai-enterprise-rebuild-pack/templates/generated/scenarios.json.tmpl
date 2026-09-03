@@ -1,0 +1,24 @@
+---
+to: consumer/tai-enterprise-rebuild/generated/scenarios.json
+sparql:
+  scenarios: |
+    PREFIX tai: <https://chatmangpt.com/ontology/tai-rebuild#>
+    PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+    SELECT ?order ?identifier ?label ?trigger ?mutation ?standing WHERE {
+      ?scenario a tai:SimulationScenario ; tai:order ?order ; tai:identifier ?identifier ; skos:prefLabel ?label ;
+                tai:trigger ?trigger ; tai:mutation ?mutation ; tai:expectedStanding ?standing .
+    } ORDER BY ?order
+---
+{
+  "schema": "ggen.tai.scenarios.v1",
+  "scenarios": [
+{% for row in scenarios %}    {
+      "order": {{ row["order"] }},
+      "id": "{{ row["identifier"] }}",
+      "label": "{{ row["label"] }}",
+      "trigger": "{{ row["trigger"] }}",
+      "mutation": "{{ row["mutation"] }}",
+      "expectedStanding": "{{ row["standing"] }}"
+    }{% if not loop.last %},{% endif %}
+{% endfor %}  ]
+}

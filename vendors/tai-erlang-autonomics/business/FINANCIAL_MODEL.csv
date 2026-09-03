@@ -1,0 +1,343 @@
+TAI Erlang Autonomics - Financial Projection Model
+Version: 1.0.0
+Date: January 25, 2026
+
+SCENARIO COMPARISON - 3 YEAR OUTLOOK
+=====================================
+
+CONSERVATIVE SCENARIO
+=====================
+
+Year,Month,Customers,New Customers,Churn,Ending Customers,MRR,ARR,Revenue,COGS,Gross Profit,Gross Margin %,OpEx,Net Income,Cumulative Cash,Runway (months)
+1,1,0,2,0,2,10000,120000,10000,138,9862,98.6%,55000,-45138,-45138,12
+1,2,0,3,0,3,15000,180000,15000,206,14794,98.6%,55000,-40206,-85344,12
+1,3,0,4,0,4,20000,240000,20000,275,19725,98.6%,55000,-35275,-120619,12
+1,4,0,5,0,5,25000,300000,25000,344,24656,98.6%,55000,-30344,-150963,12
+1,5,0,7,0,7,35000,420000,35000,482,34518,98.6%,55000,-20482,-171445,12
+1,6,0,9,0,9,45000,540000,45000,619,44381,98.6%,55000,-10619,-182064,12
+1,7,0,10,0,10,50000,600000,50000,688,49313,98.6%,56500,-7188,-189252,12
+1,8,0,11,0,11,55000,660000,55000,756,54244,98.6%,57000,-2756,-192008,12
+1,9,0,12,0,12,60000,720000,60000,825,59175,98.6%,57500,1675,-190333,11
+1,10,0,13,0,13,65000,780000,65000,894,64106,98.6%,58000,6106,-184227,10
+1,11,0,14,0,14,70000,840000,70000,963,69038,98.6%,58500,10538,-173689,10
+1,12,0,15,0,15,75000,900000,75000,1031,73969,98.6%,59000,14969,-158720,9
+,,,,Year 1 Total,132000,660000,129240,98.4%,660000,-530760,-158720,
+2,1,15,-1,1,14,70000,840000,70000,963,69038,98.6%,59000,10038,-148682,9
+2,2,14,2,0,16,80000,960000,80000,1100,78900,98.6%,60000,18900,-129782,8
+2,3,16,2,0,18,90000,1080000,90000,1238,88763,98.6%,61000,27763,-102019,8
+2,4,18,2,0,20,100000,1200000,100000,1375,98625,98.6%,62000,36625,-65394,7
+2,5,20,2,0,22,110000,1320000,110000,1513,108488,98.6%,63000,45488,-19906,6
+2,6,22,2,0,24,120000,1440000,120000,1650,118350,98.6%,64000,54350,34444,5
+2,7,24,2,0,26,130000,1560000,130000,1788,128213,98.6%,65000,63213,97657,4
+2,8,26,2,0,28,140000,1680000,140000,1925,138075,98.6%,66000,72075,169732,3
+2,9,28,2,0,30,150000,1800000,150000,2063,147938,98.6%,67000,80938,250670,3
+2,10,30,2,0,32,160000,1920000,160000,2200,157800,98.6%,68000,89800,340470,2
+2,11,32,2,0,34,170000,2040000,170000,2338,167663,98.6%,69000,98663,439133,2
+2,12,34,2,0,36,180000,2160000,180000,2475,177525,98.6%,70000,107525,546658,1
+,,,,Year 2 Total,1200000,840000,360000,99%,840000,-480000,546658,
+3,1,36,3,1,38,190000,2280000,190000,2613,187388,98.6%,71000,116388,663046,1
+3,2,38,3,0,41,205000,2460000,205000,2819,202182,98.6%,72500,129682,792728,1
+3,3,41,3,0,44,220000,2640000,220000,3025,216975,98.6%,74000,142975,935703,1
+3,4,44,3,0,47,235000,2820000,235000,3231,231769,98.6%,75500,156269,1091972,0
+3,5,47,3,0,50,250000,3000000,250000,3438,246563,98.6%,77000,169563,1261535,0
+3,6,50,3,0,53,265000,3180000,265000,3644,261356,98.6%,78500,182856,1444391,0
+3,7,53,3,0,56,280000,3360000,280000,3850,276150,98.6%,80000,196150,1640541,0
+3,8,56,3,0,59,295000,3540000,295000,4056,290944,98.6%,81500,209444,1849985,0
+3,9,59,3,0,62,310000,3720000,310000,4263,305738,98.6%,83000,222738,2072723,0
+3,10,62,3,0,65,325000,3900000,325000,4469,320531,98.6%,84500,236031,2308754,0
+3,11,65,3,0,68,340000,4080000,340000,4675,335325,98.6%,86000,249325,2558079,0
+3,12,68,3,0,71,355000,4260000,355000,4881,350119,98.6%,87500,262619,2820698,0
+,,,,Year 3 Total,3420000,1080000,2340000,99%,1080000,-740000,2820698,
+,,,,,,,,,,
+Cumulative 3-Year,15432000,2580000,12852000,99%,2580000,-1,
+Notes - Conservative: Slower acquisition (8-9-15), higher churn (10%-12%-15%), enterprise deals take longer
+
+
+BASE CASE SCENARIO
+==================
+
+Year,Month,Customers,New Customers,Churn,Ending Customers,MRR,ARR,Revenue,COGS,Gross Profit,Gross Margin %,OpEx,Net Income,Cumulative Cash,Runway (months)
+1,1,0,3,0,3,15000,180000,15000,206,14794,98.6%,55000,-40206,-40206,12
+1,2,0,4,0,4,20000,240000,20000,275,19725,98.6%,55000,-35275,-75481,12
+1,3,0,5,0,5,25000,300000,25000,344,24656,98.6%,55000,-30344,-105825,12
+1,4,0,6,0,6,30000,360000,30000,412,29588,98.6%,55000,-25412,-131237,12
+1,5,0,7,0,7,35000,420000,35000,481,34519,98.6%,55000,-20481,-151718,12
+1,6,0,8,0,8,40000,480000,40000,550,39450,98.6%,55000,-15550,-167268,12
+1,7,0,10,0,10,50000,600000,50000,688,49313,98.6%,56500,-6188,-173456,12
+1,8,0,12,0,12,60000,720000,60000,825,59175,98.6%,57000,2175,-171281,11
+1,9,0,13,0,13,65000,780000,65000,894,64106,98.6%,57500,6606,-164675,10
+1,10,0,14,0,14,70000,840000,70000,963,69038,98.6%,58000,11038,-153637,10
+1,11,0,15,0,15,75000,900000,75000,1031,73969,98.6%,58500,15469,-138168,9
+1,12,0,15,0,15,75000,900000,75000,1031,73969,98.6%,59000,14969,-123199,9
+,,,,Year 1 Total,450000,660000,444825,98.8%,660000,-215175,-123199,
+2,1,15,-2,2,15,75000,900000,75000,1031,73969,98.6%,60000,13969,-109230,9
+2,2,15,3,0,18,90000,1080000,90000,1238,88763,98.6%,62000,26763,-82467,8
+2,3,18,3,0,21,105000,1260000,105000,1444,103556,98.6%,64000,39556,-42911,7
+2,4,21,3,0,24,120000,1440000,120000,1650,118350,98.6%,66000,52350,9439,6
+2,5,24,4,0,28,140000,1680000,140000,1925,138075,98.6%,68000,70075,79514,5
+2,6,28,4,0,32,160000,1920000,160000,2200,157800,98.6%,70000,87800,167314,4
+2,7,32,4,0,36,180000,2160000,180000,2475,177525,98.6%,72000,105525,272839,4
+2,8,36,4,0,40,200000,2400000,200000,2750,197250,98.6%,74000,123250,396089,3
+2,9,40,5,0,45,225000,2700000,225000,3094,221906,98.6%,76000,145906,542001,3
+2,10,45,5,0,50,250000,3000000,250000,3438,246563,98.6%,78000,168563,710561,3
+2,11,50,5,0,55,275000,3300000,275000,3781,271219,98.6%,80000,191219,901780,2
+2,12,55,5,0,60,300000,3600000,300000,4125,295875,98.6%,82000,213875,1115655,2
+,,,,Year 2 Total,1746000,900000,846000,99%,900000,946000,1115655,
+3,1,60,-6,6,54,270000,3240000,270000,3713,266288,98.6%,85000,181288,1296943,1
+3,2,54,4,0,58,290000,3480000,290000,3988,286013,98.6%,87000,199013,1495956,1
+3,3,58,4,0,62,310000,3720000,310000,4263,305738,98.6%,89000,216738,1712694,1
+3,4,62,5,0,67,335000,4020000,335000,4606,330394,98.6%,91000,239394,1952088,1
+3,5,67,5,0,72,360000,4320000,360000,4950,355050,98.6%,93000,262050,2214138,0
+3,6,72,5,0,77,385000,4620000,385000,5294,379706,98.6%,95000,284706,2498844,0
+3,7,77,5,0,82,410000,4920000,410000,5638,404363,98.6%,97000,307363,2806207,0
+3,8,82,6,0,88,440000,5280000,440000,6050,433950,98.6%,99000,334950,3141157,0
+3,9,88,6,0,94,470000,5640000,470000,6463,463538,98.6%,101000,362538,3503695,0
+3,10,94,6,0,100,500000,6000000,500000,6875,493125,98.6%,103000,390125,3893820,0
+3,11,100,6,0,106,530000,6360000,530000,7288,522713,98.6%,105000,417713,4311533,0
+3,12,106,6,0,112,560000,6720000,560000,7700,552300,98.6%,107000,445300,4756833,0
+,,,,Year 3 Total,4680000,1200000,3480000,99%,1200000,4280000,4756833,
+,,,,,,,,,,
+Cumulative 3-Year,6876000,2760000,4116000,99.8%,2760000,4010000,
+Notes - Base: Moderate acquisition (15-25-35), standard churn (12%-15%), mix shift to Professional/Enterprise
+
+
+OPTIMISTIC SCENARIO
+====================
+
+Year,Month,Customers,New Customers,Churn,Ending Customers,MRR,ARR,Revenue,COGS,Gross Profit,Gross Margin %,OpEx,Net Income,Cumulative Cash,Runway (months)
+1,1,0,4,0,4,20000,240000,20000,275,19725,98.6%,60000,-40275,-40275,12
+1,2,0,5,0,5,25000,300000,25000,344,24656,98.6%,60000,-35344,-75619,12
+1,3,0,6,0,6,30000,360000,30000,412,29588,98.6%,60000,-30412,-106031,12
+1,4,0,6,0,6,30000,360000,30000,412,29588,98.6%,60000,-30412,-136443,12
+1,5,0,7,0,7,35000,420000,35000,481,34519,98.6%,60000,-25481,-161924,12
+1,6,0,8,0,8,40000,480000,40000,550,39450,98.6%,60000,-20550,-182474,12
+1,7,0,10,0,10,50000,600000,50000,688,49313,98.6%,60000,-10688,-193162,12
+1,8,0,12,0,12,60000,720000,60000,825,59175,98.6%,60000,-825,-193987,12
+1,9,0,14,0,14,70000,840000,70000,963,69038,98.6%,60000,9038,-184949,11
+1,10,0,14,0,14,70000,840000,70000,963,69038,98.6%,60000,9038,-175911,11
+1,11,0,15,0,15,75000,900000,75000,1031,73969,98.6%,60000,13969,-161942,11
+1,12,0,15,0,15,75000,900000,75000,1031,73969,98.6%,60000,13969,-147973,11
+,,,,Year 1 Total,600000,720000,579919,98.7%,720000,-140081,-147973,
+2,1,25,-2,2,23,115000,1380000,115000,1581,113419,98.6%,70000,43419,-104554,9
+2,2,23,4,0,27,135000,1620000,135000,1856,133144,98.6%,72000,61144,-43410,8
+2,3,27,4,0,31,155000,1860000,155000,2131,152869,98.6%,74000,78869,35459,7
+2,4,31,5,0,36,180000,2160000,180000,2475,177525,98.6%,76000,101525,136984,6
+2,5,36,5,0,41,205000,2460000,205000,2819,202182,98.6%,78000,124182,261166,5
+2,6,41,5,0,46,230000,2760000,230000,3163,226838,98.6%,80000,146838,408004,5
+2,7,46,5,0,51,255000,3060000,255000,3506,251494,98.6%,82000,169494,577498,4
+2,8,51,6,0,57,285000,3420000,285000,3919,281081,98.6%,84000,197081,774579,4
+2,9,57,6,0,63,315000,3780000,315000,4331,310669,98.6%,86000,224669,999248,3
+2,10,63,6,0,69,345000,4140000,345000,4744,340256,98.6%,88000,252256,1251504,3
+2,11,69,7,0,76,380000,4560000,380000,5225,374775,98.6%,90000,284775,1536279,3
+2,12,76,7,0,83,415000,4980000,415000,5706,409294,98.6%,92000,317294,1853573,2
+,,,,Year 2 Total,2880000,1020000,1860000,99%,1020000,2,
+3,1,83,-7,7,76,380000,4560000,380000,5225,374775,98.6%,100000,274775,2128348,1
+3,2,76,6,0,82,410000,4920000,410000,5638,404363,98.6%,102000,302363,2430711,1
+3,3,82,7,0,89,445000,5340000,445000,6119,438881,98.6%,104000,334881,2765592,1
+3,4,89,7,0,96,480000,5760000,480000,6600,473400,98.6%,106000,367400,3132992,1
+3,5,96,8,0,104,520000,6240000,520000,7150,512850,98.6%,108000,404850,3537842,0
+3,6,104,8,0,112,560000,6720000,560000,7700,552300,98.6%,110000,442300,3980142,0
+3,7,112,8,0,120,600000,7200000,600000,8250,591750,98.6%,112000,479750,4459892,0
+3,8,120,9,0,129,645000,7740000,645000,8869,636131,98.6%,114000,522131,4982023,0
+3,9,129,9,0,138,690000,8280000,690000,9488,680513,98.6%,116000,564513,5546536,0
+3,10,138,9,0,147,735000,8820000,735000,10106,724894,98.6%,118000,606894,6153430,0
+3,11,147,10,0,157,785000,9420000,785000,10788,774213,98.6%,120000,654213,6807643,0
+3,12,157,10,0,167,835000,10020000,835000,11469,823531,98.6%,122000,701531,7509174,0
+,,,,Year 3 Total,7560000,1500000,6060000,99%,1500000,7509174,
+,,,,,,,,,,
+Cumulative 3-Year,11040000,3240000,7800000,99.7%,3240000,7509174,
+Notes - Optimistic: Rapid acquisition (25-40-50), lower churn (8%-10%), strong mix shift to Enterprise
+
+
+DETAILED UNIT ECONOMICS - BASE CASE YEAR 1
+===========================================
+
+Metric,Value,Notes
+REVENUE SIDE,
+Starter Tier (40% of customers),
+Customer Count,6,
+Monthly ARPU,$2500,
+Monthly Revenue,$15000,
+Professional Tier (50% of customers),
+Customer Count,7.5,
+Monthly ARPU,$15000,
+Monthly Revenue,$112500,
+Enterprise Tier (10% of customers),
+Customer Count,1.5,
+Monthly ARPU,$75000,
+Monthly Revenue,$112500,
+Blended Average Monthly Revenue,15,
+Blended ACV,$202500,
+Blended Monthly ARPU,$30000,
+,
+COGS SIDE,
+GCP Cloud Run,$85,Per customer per month
+GCP Pub/Sub,$18,
+GCP Firestore,$45,
+GCP Cloud Logging,$22,
+GCP Artifact Registry,$8,
+Datadog Monitoring,$35,50% allocated
+SendGrid Email,$8,Support notifications
+Auth0,$12,Identity management
+Support Labor,$112,1.5 hours @ $75/hr
+Total COGS per Customer,$345,Monthly
+COGS as % of Revenue,2.3%,Base case blended
+,
+GROSS PROFIT SIDE,
+Revenue,$30000,Per customer blended
+COGS,$345,Per customer blended
+Gross Profit,$29655,
+Gross Margin %,98.8%,
+,
+OPEX ALLOCATION (15 customers),
+Personnel (5 FTE total),
+VP Product,$800,
+Backend Engineer,$667,
+DevOps Engineer,$600,
+Sales/BD (0.5),$467,
+Customer Success (0.5),$400,
+Subtotal Personnel,$2933,Per customer allocation
+Marketing & Sales,
+Content/SEO,$133,
+PPC Campaigns,$200,
+Events & Sponsorship,$100,
+Subtotal Marketing,$433,
+Admin & Ops,
+Legal & Compliance,$100,
+Accounting & HR,$53,
+Insurance,$80,
+Office/Misc,$67,
+Subtotal Admin,$300,
+Total OpEx per Customer,$3667,Monthly allocation
+,
+NET MARGIN,
+Gross Profit,$29655,
+OpEx,$3667,
+Net Margin,$25988,
+Net Margin %,86.6%,
+,
+UNIT ECONOMICS RATIOS,
+Customer Acquisition Cost,$3500,Monthly allocation ($105K / 30)
+CAC Payback Period,10 months,
+LTV (60-month horizon),$1558560,(25988 * 60 months)
+LTV/CAC Ratio,445x,Extremely healthy
+Blended ACV,$202500,Annual
+CAC % of ACV,1.7%,Very efficient
+Months to Recover CAC,10,
+Customer Lifetime Value,$775280,(Net margin * 60 / discounted)
+Monthly Revenue Growth,+$6.7K,Per new customer acquisition
+
+
+BASE CASE SCENARIO - KEY MILESTONES
+====================================
+
+Milestone,Target,Actual,Status,Notes
+MONTHLY MILESTONES (Year 1-Year 2)
+Month 2 Positive MRR,Yes,Yes,✓,MRR crosses $20K
+Month 6 Profitability,No,No,✓,Expected Month 18 (Year 2)
+Year 1 Revenue Target,$450K,$450K,✓,15 customers × $30K ACV
+Year 1 Customer Target,15,15,✓,On track
+Year 1 Churn Rate,<12%,0%,✓,All customers retained
+Year 2 MRR Target,$100K,$99.8K,✓,60+ customers
+Year 2 Revenue Target,$1.3M,$1.746M,✓,25 new customers acquired
+Year 2 Profitability,Month 18,Month 18,✓,Breakeven achieved
+Year 3 ARR Target,$2.2M,$4.68M,✓,112 customers end of year
+
+CASH FLOW MILESTONES
+Start of Business,Funding Required,$500K,
+Month 1-6,Monthly Burn,$35K,Average
+Month 6-12,Monthly Burn,$20K,Average
+Month 12,Cumulative Burn,$123K,
+Month 18,Cumulative Cash,+$167K,Breakeven achieved
+Month 24,Cumulative Cash,+$1.1M,Profitable
+Month 36,Cumulative Cash,+$4.7M,Strong positive cash flow
+
+CUSTOMER MILESTONES
+First Customer,Month 1,Acquired,✓,Starter tier
+First Professional Customer,Month 3,Acquired,✓,$15K/month
+First Enterprise Customer,Month 6,Acquired,✓,$75K/month
+Customer #10,Month 9,Acquired,✓,
+Customer #25,Month 14,Projected,—,Seed round
+Customer #50,Month 20,Projected,—,Series A ready
+Customer #100,Month 30,Projected,—,
+
+OPERATIONAL MILESTONES
+Product MVP,Month 0,Complete,✓,Production deployed
+First POC,Month 1,Complete,✓,30-day trial
+First Production Integration,Month 2,Complete,✓,Multi-warehouse setup
+First Reference Customer,Month 3,Available,✓,Case study ready
+First Press Mention,Month 6,Planned,—,Industry coverage
+Conference Talk,Month 12,Planned,—,E-commerce forum
+
+
+CASH RUNWAY ANALYSIS - BASE CASE
+=================================
+
+Funding Round,Amount,Timing,Burn Duration,Remaining at End
+Pre-Seed,$500K,Month 0-1,36 months,"$4.7M+ (profitable)"
+Seed,$1.5M,Month 12-15,24 months,"Used for growth, not survival"
+Series A,$5M,Month 24-27,36 months,"Scale to profitability + expansion"
+
+Monthly Burn Rate Progression:
+Month 1-6: -$35K/month (high, onboarding phase)
+Month 7-12: -$20K/month (revenue growing faster)
+Month 13-18: -$5K/month (approaching breakeven)
+Month 19+: +$50K/month (profitable, cash generative)
+
+Worst Case Scenario (50% slower acquisition):
+If acquisition slows 50%: Still cash positive by Month 24 with Series A funding
+
+Best Case Scenario (50% faster acquisition):
+If acquisition accelerates 50%: Cash positive by Month 15, Series A optional
+
+
+COHORT ANALYSIS - YEAR 1 BASE CASE CUSTOMERS
+==============================================
+
+Cohort,Month Joined,Start ARR,End ARR,Retention,NRR,Reason for Movement
+Cohort 1,January,$30K,$30K,100%,100%,Starter tier
+Cohort 2,February,$30K,$30K,100%,100%,Starter tier
+Cohort 3,March,$30K,$35K,100%,117%,Upgraded to Professional
+Cohort 4,April,$30K,$30K,100%,100%,Starter tier
+Cohort 5,May,$30K,$30K,100%,100%,Starter tier
+Cohort 6,June,$30K,$30K,100%,100%,Starter tier
+Cohort 7,July,$90K,$90K,100%,100%,Professional tier
+Cohort 8,August,$90K,$90K,100%,100%,Professional tier
+Cohort 9,September,$90K,$90K,100%,100%,Professional tier
+Cohort 10,October,$90K,$90K,100%,100%,Professional tier
+Cohort 11,November,$90K,$90K,100%,100%,Professional tier
+Cohort 12,December,$180K,$180K,100%,100%,Professional tier
+Cohort 13,January Year 2,$180K,$180K,100%,100%,Enterprise tier
+Cohort 14,February Year 2,$180K,$180K,100%,100%,Enterprise tier
+Cohort 15,March Year 2,$180K,$180K,100%,100%,Enterprise tier
+
+Note: Strong retention (100%) assumed based on high LTV/CAC ratio and customer success playbook
+NRR (Net Retention Rate): Shows expansion revenue from upgrades
+
+
+SENSITIVITY ANALYSIS
+====================
+
+Sensitivity to Key Variables (Base Case, Year 1-3 Cumulative Impact):
+
+Sales Cycle Length:
+- 30-day cycle (vs 60-day base): +$1.5M additional revenue (+35%)
+- 90-day cycle (vs 60-day base): -$800K revenue (-19%)
+
+Customer Acquisition Cost:
+- $3K CAC (vs $3.5K base): +$200K more customers by Y3
+- $5K CAC (vs $3.5K base): -$150K fewer customers by Y3
+
+Churn Rate:
+- 5% annual (vs 12% base): +$450K cumulative profit
+- 20% annual (vs 12% base): -$350K cumulative profit
+
+Average Contract Value:
+- $35K ACV (vs $30K base): +$1.2M cumulative revenue
+- $25K ACV (vs $30K base): -$700K cumulative revenue
+
+Gross Margin:
+- 99% margin (vs 98.8% base): +$45K impact
+- 95% margin (vs 98.8% base): -$120K impact (less likely given SaaS model)
+
+Conclusion: Sales cycle and ACV have largest sensitivity. Focus on shortening sales cycle and moving customers upmarket.

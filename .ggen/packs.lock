@@ -1,0 +1,146 @@
+{
+  "packs": {
+    "core-ontology": {
+      "version": "1.0.0",
+      "source": {
+        "type": "Registry",
+        "url": "https://registry.ggen.io"
+      },
+      "integrity": "sha256-UNKNOWN-pack-not-found-locally",
+      "installed_at": "2026-04-02T08:17:47.243704Z",
+      "dependencies": []
+    },
+    "devops-automation": {
+      "version": "1.0.0",
+      "source": {
+        "type": "Local",
+        "path": "/Users/sac/.cache/tmp/.tmpKZplLu/.ggen-cache"
+      },
+      "integrity": "sha256-e67e90b85a479757123b4a9d62604f27cc7b3daac10e957819740ecfd6bf981b",
+      "installed_at": "2026-04-01T20:07:48.416504Z",
+      "dependencies": []
+    },
+    "enterprise-backend": {
+      "version": "1.0.0",
+      "source": {
+        "type": "Registry",
+        "url": "https://registry.ggen.io"
+      },
+      "integrity": "sha256-a1e61d252e7e1bf7bc824bc73e111a6f7a023c0933203a3b7f1f02f77d3b938d",
+      "installed_at": "2026-04-02T08:25:33.492507Z",
+      "dependencies": []
+    },
+    "payment-admission-discipline": {
+      "version": "1.0.0",
+      "source": {
+        "type": "Local",
+        "path": "/Users/sac/.ggen/packs"
+      },
+      "integrity": "sha256-e0f8da5daedfd003973bffc33443e708aa7215c461b26a607fc63a6165d05107",
+      "installed_at": "2026-05-03T07:29:30.611786Z",
+      "dependencies": []
+    },
+    "projection-rust": {
+      "version": "1.0.0",
+      "source": {
+        "type": "Registry",
+        "url": "https://registry.ggen.io"
+      },
+      "integrity": "sha256-UNKNOWN-pack-not-found-locally",
+      "installed_at": "2026-04-01T20:07:48.395326Z",
+      "dependencies": []
+    },
+    "startup-essentials": {
+      "version": "1.0.0",
+      "source": {
+        "type": "Local",
+        "path": "/Users/sac/.ggen/packs/startup-essentials"
+      },
+      "integrity": "sha256-d106b3bc9326a9dd3520c3d09865e51376598699d4e9efc9df9aa508adf02531",
+      "installed_at": "2026-06-11T20:34:16.483912Z",
+      "dependencies": []
+    },
+    "surface-compliance.soc2": {
+      "version": "1.0.0",
+      "source": {
+        "type": "Registry",
+        "url": "https://registry.ggen.io"
+      },
+      "integrity": "sha256-UNKNOWN-pack-not-found-locally",
+      "installed_at": "2026-04-02T08:17:47.243668Z",
+      "dependencies": []
+    },
+    "surface-mcp": {
+      "version": "1.0.0",
+      "source": {
+        "type": "Registry",
+        "url": "https://registry.ggen.io"
+      },
+      "integrity": "sha256-UNKNOWN-pack-not-found-locally",
+      "installed_at": "2026-04-01T20:07:48.395323Z",
+      "dependencies": []
+    },
+    "surface-nonexistent-surface": {
+      "version": "1.0.0",
+      "source": {
+        "type": "Registry",
+        "url": "https://registry.ggen.io"
+      },
+      "integrity": "sha256-UNKNOWN-pack-not-found-locally",
+      "installed_at": "2026-04-01T18:15:33.333054Z",
+      "dependencies": []
+    },
+    "surface-nonexistent-surface-xyz": {
+      "version": "1.0.0",
+      "source": {
+        "type": "Registry",
+        "url": "https://registry.ggen.io"
+      },
+      "integrity": "sha256-UNKNOWN-pack-not-found-locally",
+      "installed_at": "2026-04-01T20:07:48.366632Z",
+      "dependencies": []
+    },
+    "test-pack": {
+      "version": "1.0.0",
+      "source": {
+        "type": "Local",
+        "path": "/Users/sac/.ggen/packs"
+      },
+      "integrity": "sha256-UNKNOWN-pack-not-found-locally",
+      "installed_at": "2026-04-01T16:56:54.046529Z",
+      "dependencies": []
+    },
+    "test-pack-integration": {
+      "version": "0.1.0",
+      "source": {
+        "type": "Local",
+        "path": "/Users/sac/.ggen/packs/test-pack-integration"
+      },
+      "integrity": "sha256-UNKNOWN-pack-not-found-locally",
+      "installed_at": "2026-04-01T06:00:00Z",
+      "dependencies": []
+    },
+    "togaf-archimate-vocab": {
+      "version": "26.6.11",
+      "source": {
+        "type": "Local",
+        "path": "/Users/sac/.ggen/packs/togaf-archimate-vocab"
+      },
+      "integrity": "sha256-b3ea38ea2889091ac715f4b0a2fdfe6d8f1a5a16896597f4ddce4cc7dd915684",
+      "installed_at": "2026-06-12T19:30:51.215146Z",
+      "dependencies": []
+    },
+    "web-fullstack": {
+      "version": "1.0.0",
+      "source": {
+        "type": "Local",
+        "path": "/Users/sac/.ggen/packs"
+      },
+      "integrity": "sha256-583f9379a45354292e49850feb9e06f3e0c49424dd06eef702b869b5bf400d43",
+      "installed_at": "2026-04-26T01:50:57.125677Z",
+      "dependencies": []
+    }
+  },
+  "updated_at": "2026-06-12T19:30:51.215147Z",
+  "ggen_version": "0.2.0"
+}

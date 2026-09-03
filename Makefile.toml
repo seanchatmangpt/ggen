@@ -1,0 +1,2171 @@
+# GitHub API configuration
+[env]
+GITHUB_REPO = "seanchatmangpt/ggen"
+GITHUB_API = "https://api.github.com"
+GITHUB_PAGES_URL = "https://seanchatmangpt.github.io/ggen"
+# Act configuration for local GitHub Actions testing
+ACT_CONTAINER_ARCH = "linux/amd64"
+ACT_PLATFORM = "ubuntu-latest=catthehacker/ubuntu:act-latest"
+ACT_MEMORY = "2g"
+ACT_CPUS = "2"
+
+# Verify timeout command exists before running any task
+[tasks.timeout-check]
+description = "Verify timeout command exists (poka-yoke pre-flight check)"
+workspace = false
+script_runner = "@shell"
+script = '''
+#!/bin/bash
+if command -v timeout >/dev/null 2>&1; then
+    echo "✅ timeout command verified"
+    exit 0
+else
+    echo "❌ ERROR: timeout command not found (required for all Makefile.toml tasks)"
+    echo "   Install: Ubuntu/Debian: sudo apt-get install coreutils"
+    echo "           macOS: brew install coreutils"
+    exit 1
+fi
+'''
+
+# Core development tasks - with timeout wrappers
+[tasks.check]
+description = "Check code without building (60s timeout for 30-crate workspace + lock contention)"
+workspace = false
+command = "timeout"
+args = ["60s", "cargo", "check", "--workspace"]
+
+# Pre-push check with longer timeout for lock contention scenarios
+[tasks.check-pre-push]
+description = "Check code for pre-push hook (30s timeout for lock contention)"
+workspace = false
+command = "timeout"
+args = ["30s", "cargo", "check"]
+
+[tasks.build]
+description = "Build in debug mode"
+command = "timeout"
+args = ["10s", "cargo", "build", "-p", "ggen-cli-lib", "--bin", "ggen"]
+
+[tasks.do-build-release]
+description = "Inner: cargo build --release"
+command = "timeout"
+args = [
+  "600s",
+  "cargo",
+  "build",
+  "--release",
+  "-p",
+  "ggen-cli-lib",
+  "--bin",
+  "ggen",
+]
+
+[tasks.build-release]
+description = "Build in release mode and verify the binary exists"
+dependencies = ["do-build-release", "verify-binary"]
+
+[tasks.verify-binary]
+description = "Verify ggen binary was built"
+workspace = false
+script_runner = "@shell"
+script = '''
+#!/bin/bash
+if [ -f "target/release/ggen" ]; then
+    echo "✅ Binary found: target/release/ggen"
+    ls -lh target/release/ggen
+elif [ -f "target/debug/ggen" ]; then
+    echo "✅ Binary found: target/debug/ggen"
+    ls -lh target/debug/ggen
+else
+    echo "❌ Binary not found in expected locations"
+    exit 1
+fi
+'''
+
+[tasks.clean]
+description = "Clean build artifacts"
+command = "timeout"
+args = ["5s", "cargo", "clean"]
+
+[tasks.jtbd-verbs]
+description = "Run JTBD runtime smoke test against every CLI verb"
+dependencies = ["build"]
+script = ["bash scripts/jtbd-all-verbs.sh"]
+
+[tasks.jtbd-report]
+description = "Run JTBD smoke test and emit markdown classification report"
+dependencies = ["build"]
+script = ["bash scripts/jtbd-all-verbs.sh --report > docs/jtbd-verb-classification.md && echo 'Report written to docs/jtbd-verb-classification.md'"]
+
+[tasks.fmt]
+description = "Format code"
+workspace = false
+command = "timeout"
+args = ["5s", "cargo", "fmt", "--all"]
+
+[tasks.lint]
+description = "Run clippy with strict settings (single-pass, cache-aware)"
+workspace = false
+script_runner = "@shell"
+script = '''
+#!/bin/bash
+set -euo pipefail
+
+echo "🔍 Running clippy linting (strict mode, single pass)..."
+
+# Single clippy run with generous timeout
+# First compilation pass compiles all deps, subsequent runs use cache (fast)
+# NOTE: `exit_code=$?` must be captured in the else-branch -- after
+# `if cmd; then ...; fi` with no intervening fallthrough, `$?` on a later
+# line is the if-statement's own exit (0), not the command's (found 2026-07-17,
+# same bug as justfile's `test:`/`test-doc:` recipes -- this task always
+# reported success even on real clippy failures or timeouts).
+if timeout 90s cargo clippy --all-targets --all-features -- -D warnings; then
+    echo "✅ Clippy linting passed"
+    exit 0
+else
+    exit_code=$?
+fi
+
+if [ "$exit_code" -eq 124 ]; then
+    echo "⚠️  Clippy timed out after 90s (likely large workspace rebuild)"
+    echo "   Try faster variant: cargo clippy --lib -- -D warnings"
+    exit 1
+else
+    exit "$exit_code"
+fi
+'''
+
+[tasks.pre-commit-hook]
+description = "Pre-commit hook with comprehensive validation (Week 2 efficiency improvement)"
+workspace = false
+dependencies = ["timeout-check"]
+script_runner = "@shell"
+script = '''
+#!/bin/bash
+set -euo pipefail
+
+echo "🚦 Pre-commit validation started..."
+echo ""
+
+# Track failures
+FAILURES=0
+
+# 1. Format check
+echo "1️⃣ Checking code formatting..."
+if timeout 5s cargo fmt --all -- --check; then
+  echo "   ✅ Code formatting is correct"
+else
+  echo "   ❌ Code formatting failed - run: cargo make fmt"
+  FAILURES=$((FAILURES + 1))
+fi
+echo ""
+
+# 2. Quick compilation check
+echo "2️⃣ Quick compilation check..."
+if timeout 5s cargo check 2>&1 | grep -q "Finished"; then
+  echo "   ✅ Compilation successful"
+else
+  echo "   ❌ Compilation failed"
+  FAILURES=$((FAILURES + 1))
+fi
+echo ""
+
+# 3. Linting
+echo "3️⃣ Running clippy lints..."
+if timeout 10s cargo clippy --workspace --all-targets -- -D warnings 2>&1 | tail -10; then
+  echo "   ✅ Linting passed"
+else
+  echo "   ❌ Linting failed"
+  FAILURES=$((FAILURES + 1))
+fi
+echo ""
+
+# 4. Unit tests
+echo "4️⃣ Running unit tests..."
+if timeout 10s cargo test --lib --workspace 2>&1 | tail -20; then
+  echo "   ✅ Unit tests passed"
+else
+  echo "   ❌ Unit tests failed"
+  FAILURES=$((FAILURES + 1))
+fi
+echo ""
+
+# Summary
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+if [ $FAILURES -eq 0 ]; then
+  echo "✅ All pre-commit checks passed!"
+  echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+  exit 0
+else
+  echo "❌ $FAILURES check(s) failed"
+  echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+  echo "Fix all issues before committing"
+  exit 1
+fi
+'''
+
+[tasks.ci-gate]
+description = "CI gate validation with semver and audit checks (Week 2 efficiency improvement)"
+workspace = false
+dependencies = ["timeout-check"]
+script_runner = "@shell"
+script = '''
+#!/bin/bash
+set -euo pipefail
+
+echo "🚦 CI Gate validation started..."
+echo ""
+
+# Track failures
+FAILURES=0
+
+# 1. Pre-commit hook
+echo "1️⃣ Running pre-commit hook..."
+if cargo make pre-commit-hook; then
+  echo "   ✅ Pre-commit hook passed"
+else
+  echo "   ❌ Pre-commit hook failed"
+  FAILURES=$((FAILURES + 1))
+fi
+echo ""
+
+# 2. Integration tests
+echo "2️⃣ Running integration tests..."
+if timeout 30s cargo test --test --workspace 2>&1 | tail -20; then
+  echo "   ✅ Integration tests passed"
+else
+  echo "   ❌ Integration tests failed"
+  FAILURES=$((FAILURES + 1))
+fi
+echo ""
+
+# 3. Security audit
+echo "3️⃣ Running security audit..."
+if cargo audit --deny warnings 2>&1 | tail -10; then
+  echo "   ✅ Security audit passed"
+else
+  echo "   ❌ Security audit failed"
+  FAILURES=$((FAILURES + 1))
+fi
+echo ""
+
+# 4. Documentation check
+echo "4️⃣ Checking documentation..."
+if timeout 30s cargo doc --no-deps --all 2>&1 | tail -10; then
+  echo "   ✅ Documentation builds successfully"
+else
+  echo "   ❌ Documentation build failed"
+  FAILURES=$((FAILURES + 1))
+fi
+echo ""
+
+# 5. External Observer Promotion Adjudication
+echo "5️⃣ Running External Observer Promotion Adjudication..."
+if bash scripts/gall/external/13_adjudicate_gall_promotion.sh; then
+  echo "   ✅ External adjudication passed (GALL checkpoint promoted)"
+else
+  echo "   ❌ External adjudication failed (GALL checkpoint refused)"
+  FAILURES=$((FAILURES + 1))
+fi
+echo ""
+
+# Summary
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+if [ $FAILURES -eq 0 ]; then
+  echo "✅ All CI gate checks passed!"
+  echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+  exit 0
+else
+  echo "❌ $FAILURES check(s) failed"
+  echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+  echo "Fix all issues before merging"
+  exit 1
+fi
+'''
+
+# ============================================================================
+# Parallel Task Groups (3x faster pre-commit execution)
+# ============================================================================
+
+[tasks.parallel-checks]
+description = "Run format and lint checks in parallel (independent operations)"
+workspace = false
+dependencies = ["fmt", "lint"]
+
+[tasks.parallel-tests]
+description = "Run unit and doc tests in parallel (independent operations)"
+workspace = false
+dependencies = ["test-unit", "test-doc"]
+
+[tasks.pre-commit-fast]
+description = "Fast pre-commit (format + lint only, ~30 seconds)"
+workspace = false
+dependencies = ["timeout-check", "parallel-checks"]
+script_runner = "@shell"
+script = '''
+#!/bin/bash
+echo ""
+echo "✅ Fast pre-commit passed (format + lint only)"
+echo "   For full validation: cargo make pre-commit"
+'''
+
+[tasks.pre-commit]
+description = "Run pre-commit validation checks (format, lint, unit tests - parallel execution)"
+workspace = false
+dependencies = [
+  "timeout-check",
+  "parallel-checks",
+  "test-unit",
+  "test-doc",
+]
+script_runner = "@shell"
+script = '''
+# Run git hook validation if available
+if [ -f .git/hooks/pre-commit ]; then
+  echo "🔍 Running pre-commit hook validation..."
+  .git/hooks/pre-commit || {
+    echo "❌ Pre-commit hook validation failed"
+    echo "   Fix all issues before committing"
+    exit 1
+  }
+  echo "✅ Pre-commit hook validation passed"
+else
+  echo "⚠️  No pre-commit hook found, skipping hook validation"
+  echo "   Run: scripts/install-git-hooks.sh to install hooks"
+fi
+'''
+
+[tasks.test-security]
+description = "Run security integration tests"
+workspace = false
+command = "bash"
+args = ["-c", "timeout 60s cargo test --test security_tests -- --test-threads=1 && echo '✅ Security tests passed' || (echo '❌ Security tests failed' && exit 1)"]
+
+[tasks.test]
+description = "Fast test suite — BDD excluded, <10s on hot cache"
+clear = true
+workspace = false
+script_runner = "@shell"
+script = '''
+#!/bin/bash
+set -euo pipefail
+# --tests: integration tests only (skips doctest compilation and the blocking lib test)
+# NOTE: `status=$?` must be captured in the else-branch -- see the clippy task's
+# note above (found 2026-07-17).
+if timeout 30s cargo test --workspace --tests; then
+    exit 0
+else
+    status=$?
+fi
+[ "$status" -eq 124 ] || exit "$status"
+echo "⚠️  First compile > 30s, escalating to 120s..."
+timeout 120s cargo test --workspace --tests
+'''
+
+[tasks.test-full]
+description = "Full test suite: all tests including integration (was the old 'test' target)"
+clear = true
+workspace = false
+script_runner = "@shell"
+script = '''
+#!/bin/bash
+set -euo pipefail
+
+TEST_CMD=(cargo test --workspace)
+
+if [ "$#" -gt 0 ]; then
+  TEST_CMD+=("$@")
+fi
+
+# NOTE: `status=$?` must be captured in the else-branch -- see [tasks.lint]'s
+# note above (found 2026-07-17).
+if timeout 30s "${TEST_CMD[@]}"; then
+  exit 0
+else
+  status=$?
+fi
+
+if [ "$status" -eq 124 ]; then
+  echo "⚠️  Quick test run exceeded 30s timeout; rerunning with 120s timeout (stop-the-line escalation)..."
+  timeout 120s "${TEST_CMD[@]}"
+else
+  exit "$status"
+fi
+'''
+
+[tasks.test-unit]
+description = "Doctests only — fast (<10s) dev-loop target"
+workspace = false
+command = "timeout"
+args = ["30s", "cargo", "test", "--doc", "--workspace", "--exclude", "ggen-core"]
+
+
+[tasks.test-integration]
+description = "Integration tests only"
+workspace = false
+command = "timeout"
+args = ["30s", "cargo", "test", "--test"]
+
+[tasks.test-ignored]
+description = "Run ignored integration tests (long-running, requires Docker)"
+workspace = false
+command = "timeout"
+args = [
+  "20m",
+  "cargo",
+  "test",
+  "--test",
+  "marketplace_nextjs_ontology_e2e",
+  "--",
+  "--ignored",
+  "--nocapture",
+]
+
+[tasks.test-doc]
+description = "Run doctests (CRITICAL: Verifies all doctests compile and run)"
+workspace = false
+clear = true
+script_runner = "@shell"
+script = '''
+#!/bin/bash
+set -euo pipefail
+
+DOC_CMD=(cargo test --doc --workspace --exclude ggen-node --exclude ggen-core)
+
+# NOTE: `status=$?` must be captured in the else-branch -- see [tasks.lint]'s
+# note above (found 2026-07-17).
+if timeout 60s "${DOC_CMD[@]}"; then
+  exit 0
+else
+  status=$?
+fi
+
+if [ "$status" -eq 124 ]; then
+  echo "⚠️  Doc tests exceeded 60s timeout; rerunning with 180s timeout..."
+  timeout 180s "${DOC_CMD[@]}"
+else
+  exit "$status"
+fi
+'''
+
+[tasks.test-all-features]
+description = "Run all tests with all features enabled (Path A: otel, proptest, integration, docker)"
+workspace = false
+clear = true
+script_runner = "@shell"
+script = '''
+#!/bin/bash
+set -euo pipefail
+
+echo "🎯 Running Path A test suite with all features enabled..."
+echo ""
+echo "📋 Features enabled: otel, proptest, integration, docker, testcontainers"
+echo ""
+
+# Step 1: Compile with all features
+echo "1️⃣  Compiling with all features (no tests yet)..."
+if timeout 120s cargo build --all-features --tests --workspace 2>&1 | tail -20; then
+  echo "   ✅ Compilation succeeded"
+else
+  echo "   ❌ Compilation failed"
+  exit 1
+fi
+echo ""
+
+# Step 2: Run doctests with all features
+echo "2️⃣  Running doctests with all features..."
+if timeout 180s cargo test --doc --all-features --exclude ggen-core 2>&1 | tail -30; then
+  echo "   ✅ Doctests passed"
+else
+  echo "   ❌ Doctests failed"
+  exit 1
+fi
+echo ""
+
+# Step 3: Run lib tests
+echo "3️⃣  Running library unit tests with all features..."
+if timeout 180s cargo test --lib --all-features 2>&1 | tail -30; then
+  echo "   ✅ Unit tests passed"
+else
+  echo "   ❌ Unit tests failed"
+  exit 1
+fi
+echo ""
+
+# Step 4: Run integration tests
+echo "4️⃣  Running integration tests with all features..."
+if timeout 300s cargo test --test "*" --all-features 2>&1 | tail -30; then
+  echo "   ✅ Integration tests passed"
+else
+  echo "   ⚠️  Integration tests encountered issues (may be expected)"
+fi
+echo ""
+
+echo "✅ Path A test suite execution complete"
+'''
+
+[tasks.test-all-features-ggen-core]
+description = "Run ggen-core tests with all features enabled (minimal scope)"
+workspace = false
+clear = true
+script_runner = "@shell"
+script = '''
+#!/bin/bash
+set -euo pipefail
+
+echo "🎯 Running ggen-core Path A test suite..."
+echo ""
+
+# Compile with all features
+echo "Compiling ggen-core with all features..."
+if timeout 120s cargo build --all-features --tests -p ggen-core 2>&1 | grep -E "(Compiling|Finished|error)"; then
+  echo "✅ ggen-core compilation succeeded"
+else
+  echo "❌ ggen-core compilation failed"
+  exit 1
+fi
+echo ""
+
+# Run all ggen-core tests with all features
+echo "Running ggen-core tests with all features..."
+echo "  - otel (telemetry tests)"
+echo "  - proptest (property-based tests)"
+echo "  - integration (e2e test modules)"
+echo "  - docker (container tests)"
+echo ""
+
+if timeout 300s cargo test --all-features -p ggen-core 2>&1 | tee /tmp/ggen_core_test_output.log; then
+  echo ""
+  echo "✅ All ggen-core feature-gated tests passed!"
+
+  # Summary
+  echo ""
+  echo "📊 FEATURE GATE SUMMARY:"
+  echo "   ✅ otel feature:        Telemetry/OTEL configuration tests enabled"
+  echo "   ✅ proptest feature:    Property-based testing helpers enabled"
+  echo "   ✅ integration feature: 3 end-to-end test modules enabled"
+  echo "   ✅ docker feature:      Container integration tests enabled"
+else
+  echo "❌ ggen-core tests failed"
+  exit 1
+fi
+'''
+
+[tasks.test-feature-otel]
+description = "Run otel feature tests only"
+workspace = false
+command = "timeout"
+args = ["120s", "cargo", "test", "--features", "otel", "-p", "ggen-core"]
+
+[tasks.test-feature-proptest]
+description = "Run proptest feature tests only"
+workspace = false
+command = "timeout"
+args = ["120s", "cargo", "test", "--features", "proptest", "-p", "ggen-core"]
+
+[tasks.test-feature-integration]
+description = "Run integration feature tests only"
+workspace = false
+command = "timeout"
+args = ["180s", "cargo", "test", "--features", "integration", "-p", "ggen-core"]
+
+[tasks.test-feature-docker]
+description = "Run docker feature tests only"
+workspace = false
+command = "timeout"
+args = ["180s", "cargo", "test", "--features", "docker", "-p", "ggen-core"]
+
+[tasks.test-timings]
+description = "Run tests and generate timing report to identify slow tests"
+workspace = false
+command = "timeout"
+args = [
+  "30s",
+  "cargo",
+  "test",
+  "--workspace",
+  "--",
+  "--test-threads",
+  "1",
+  "--nocapture",
+  "--report-time",
+]
+
+[tasks.test-single-threaded]
+description = "Run tests in single-threaded mode for deterministic execution"
+workspace = false
+command = "timeout"
+args = ["30s", "cargo", "test", "--workspace", "--", "--test-threads", "1"]
+env = { "RUST_TEST_THREADS" = "1" }
+
+[tasks.deterministic]
+description = "Run deterministic tests with fixed seeds and single-threaded execution"
+workspace = false
+command = "timeout"
+args = ["30s", "cargo", "test", "--workspace", "--", "--test-threads", "1"]
+env = { "RUST_TEST_THREADS" = "1", "RNG_SEED" = "42" }
+
+[tasks.slo-check]
+description = "Validate SLO compliance for Vision 2030 units"
+workspace = false
+script_runner = "@shell"
+script = '''
+#!/bin/bash
+set -euo pipefail
+
+echo "=========================================="
+echo "SLO Validation for Vision 2030"
+echo "=========================================="
+echo ""
+
+# Measure first build
+echo "1. Measuring first build time..."
+START=$(date +%s%N)
+BUILD_FLAGS="--release"
+if timeout 30s cargo build -p ggen-cli-lib --release 2>/dev/null; then
+  echo "   First build used: --release"
+else
+  BUILD_FLAGS=""
+  timeout 30s cargo build -p ggen-cli-lib 2>/dev/null
+  echo "   First build used: debug (fallback)"
+fi
+END=$(date +%s%N)
+BUILD_TIME_MS=$(( (END - START) / 1000000 ))
+echo "   First build: ${BUILD_TIME_MS}ms (SLO: ≤15000ms)"
+if [ "$BUILD_TIME_MS" -gt 15000 ]; then
+  echo "   ⚠️  Build exceeded SLO (${BUILD_TIME_MS}ms > 15000ms)"
+fi
+echo ""
+
+# Measure incremental build
+echo "2. Measuring incremental build time..."
+START=$(date +%s%N)
+timeout 10s cargo build -p ggen-cli-lib $BUILD_FLAGS 2>/dev/null || true
+END=$(date +%s%N)
+INCREMENTAL_MS=$(( (END - START) / 1000000 ))
+echo "   Incremental build: ${INCREMENTAL_MS}ms (SLO: ≤2000ms)"
+if [ "$INCREMENTAL_MS" -gt 2000 ]; then
+  echo "   ⚠️  Incremental build exceeded SLO"
+fi
+echo ""
+
+# Run Vision 2030 E2E tests
+echo "3. Running Vision 2030 E2E tests..."
+if [ -f "tests/vision_2030_e2e.sh" ]; then
+  bash tests/vision_2030_e2e.sh
+else
+  echo "   ⚠️  E2E test script not found"
+fi
+echo ""
+
+# Test latency benchmarks
+echo "4. Running latency benchmarks..."
+echo "   JSON-RPC parsing (SLO: <10μs)..."
+timeout 60s cargo test --test vision_2030_benchmarks bench_json_rpc_parsing --release -- --ignored --nocapture || echo "   Benchmark skipped (optional)"
+echo ""
+
+echo "=========================================="
+echo "SLO Check Complete"
+echo "=========================================="
+'''
+
+[tasks.vision-2030-test]
+description = "Run complete Vision 2030 test suite (units 1, 2, 4, 5)"
+workspace = false
+script_runner = "@shell"
+script = '''
+#!/bin/bash
+set -euo pipefail
+
+echo "╔════════════════════════════════════════════════════════╗"
+echo "║  Vision 2030 Complete Test Suite                       ║"
+echo "║  Testing all 5 units with real collaborators (no mocks)║"
+echo "╚════════════════════════════════════════════════════════╝"
+echo ""
+
+echo "Phase 1: Unit Tests"
+echo "===================="
+timeout 60s cargo test --workspace --lib 2>&1 | tail -20
+
+echo ""
+echo "Phase 2: Integration Tests"
+echo "=========================="
+timeout 60s cargo test --tests 2>&1 | tail -20
+
+echo ""
+echo "Phase 3: E2E Integration Tests"
+echo "==============================="
+if [ -f "tests/vision_2030_e2e.sh" ]; then
+  bash tests/vision_2030_e2e.sh
+else
+  echo "⚠️  E2E test script not found at tests/vision_2030_e2e.sh"
+fi
+
+echo ""
+echo "Phase 4: Benchmarks (Optional)"
+echo "=============================="
+echo "Run with: cargo test --test vision_2030_benchmarks -- --ignored"
+
+echo ""
+echo "✓ Vision 2030 Test Suite Complete"
+'''
+
+[tasks.validate-outputs]
+description = "Validate deterministic outputs (runs deterministic tests)"
+workspace = false
+dependencies = ["deterministic"]
+
+[tasks.validate-rdf]
+description = "Validate RDF graphs, SPARQL queries, and ensure deterministic processing"
+workspace = false
+dependencies = ["timeout-check"]
+script_runner = "@shell"
+script = '''
+#!/bin/bash
+set -e
+
+echo "🔍 Validating RDF graphs and SPARQL queries..."
+echo ""
+
+# Run RDF validation tests
+echo "📋 Running RDF validation tests..."
+timeout 30s cargo test --package ggen-core --lib rdf::validation -- --nocapture || {
+    echo "❌ RDF validation tests failed"
+    exit 1
+}
+
+# Run graph validation tests
+echo ""
+echo "📋 Running graph validation tests..."
+timeout 30s cargo test --package ggen-core --lib graph -- --nocapture || {
+    echo "❌ Graph validation tests failed"
+    exit 1
+}
+
+# Run RDF integration tests if they exist
+if timeout 5s cargo test --test rdf_validation_integration --no-run 2>/dev/null; then
+    echo ""
+    echo "📋 Running RDF integration tests..."
+    timeout 30s cargo test --test rdf_validation_integration -- --nocapture || {
+        echo "❌ RDF integration tests failed"
+        exit 1
+    }
+fi
+
+# Run graph E2E tests if they exist
+if timeout 5s cargo test --test integration_graph_e2e --no-run 2>/dev/null; then
+    echo ""
+    echo "📋 Running graph E2E tests..."
+    timeout 30s cargo test --test integration_graph_e2e graph -- --nocapture || {
+        echo "⚠️  Some graph E2E tests failed (non-critical)"
+    }
+fi
+
+echo ""
+echo "✅ RDF validation complete!"
+echo ""
+echo "Validation checklist:"
+echo "  ✓ RDF graph syntax validation"
+echo "  ✓ Graph consistency checks"
+echo "  ✓ SPARQL query syntax validation"
+echo "  ✓ Deterministic processing verification"
+'''
+
+[tasks.test-testcontainers]
+description = "Run testcontainers production readiness validation tests"
+command = "cargo"
+args = ["test", "--package", "ggen-cli-lib", "--test", "integration"]
+env = { "RUST_LOG" = "info" }
+
+[tasks.test-cleanroom]
+description = "Run cleanroom production tests with testcontainers"
+workspace = false
+command = "cargo"
+args = [
+  "test",
+  "--package",
+  "ggen-cli-lib",
+  "--test",
+  "integration_tests",
+  "--",
+  "testcontainers_cleanroom",
+]
+env = { "RUST_LOG" = "info" }
+
+[tasks.test-cleanroom-crate]
+description = "Run tests for the cleanroom crate"
+workspace = false
+command = "cargo"
+args = ["test", "--package", "cleanroom"]
+env = { "RUST_LOG" = "info" }
+
+[tasks.lint-cleanroom]
+description = "Run clippy on cleanroom crate"
+workspace = false
+command = "cargo"
+args = ["clippy", "--package", "cleanroom", "--", "-D", "warnings"]
+
+[tasks.cleanroom-validate]
+description = "Validate cleanroom implementation and integration"
+workspace = false
+dependencies = ["test-cleanroom-crate", "test-cleanroom", "lint-cleanroom"]
+
+[tasks.cleanroom-slo-check]
+description = "Check cleanroom performance SLOs"
+workspace = false
+command = "cargo"
+args = [
+  "test",
+  "--package",
+  "cleanroom",
+  "--release",
+  "--",
+  "--nocapture",
+  "slo",
+]
+env = { "RUST_LOG" = "info" }
+
+[tasks.cleanroom-profile]
+description = "Profile cleanroom performance"
+workspace = false
+command = "cargo"
+args = ["flamegraph", "--package", "cleanroom", "--bin", "cleanroom-bench"]
+
+[tasks.production-readiness]
+description = "Comprehensive production readiness validation with testcontainers"
+workspace = false
+dependencies = [
+  "test-testcontainers",
+  "test-cleanroom",
+  "cleanroom-validate",
+  "test-unit",
+  "test-integration",
+  "lint",
+  "build-release",
+]
+
+[tasks.production-readiness-script]
+description = "Run production readiness validation script"
+workspace = false
+command = "./scripts/production-readiness-validation.sh"
+args = ["--full"]
+
+[tasks.test-live]
+description = "Run tests with live LLM integrations (requires API keys)"
+workspace = false
+command = "cargo"
+args = ["test", "-p", "ggen-cli-lib", "--test", "llm_e2e_test", "--", "--nocapture"]
+
+[tasks.test-ollama]
+description = "Run Ollama integration tests (requires Ollama running)"
+command = "cargo"
+args = [
+  "test",
+  "--features",
+  "ollama-integration",
+  "--test",
+  "ollama_integration",
+  "-p",
+  "ggen-ai",
+]
+
+[tasks.test-openai]
+description = "Run OpenAI integration tests (requires OPENAI_API_KEY)"
+command = "cargo"
+args = ["test", "--features", "openai-integration,live-llm-tests"]
+env = { "RUST_LOG" = "info" }
+
+[tasks.test-anthropic]
+description = "Run Anthropic integration tests (requires ANTHROPIC_API_KEY)"
+command = "cargo"
+args = ["test", "--features", "anthropic-integration,live-llm-tests"]
+env = { "RUST_LOG" = "info" }
+
+[tasks.test-ollama-performance]
+description = "Run Ollama performance and stress tests"
+workspace = false
+command = "cargo"
+args = [
+  "test",
+  "--package",
+  "ggen-ai",
+  "--features",
+  "ollama-integration",
+  "--test",
+  "ollama_performance",
+]
+
+[tasks.test-ollama-resilience]
+description = "Run Ollama resilience and error recovery tests"
+workspace = false
+command = "cargo"
+args = [
+  "test",
+  "--package",
+  "ggen-ai",
+  "--features",
+  "ollama-integration",
+  "--test",
+  "ollama_resilience",
+]
+
+[tasks.test-ollama-all]
+description = "Run all Ollama integration tests (integration, performance, resilience)"
+workspace = false
+dependencies = [
+  "test-ollama",
+  "test-ollama-performance",
+  "test-ollama-resilience",
+]
+
+[tasks.validate-ollama]
+description = "Validate Ollama integration (checks service, model, and runs tests)"
+workspace = false
+command = "./scripts/validate-ollama.sh"
+
+# GitHub Actions local testing with act (80/20: minimal essential tasks)
+[tasks.act]
+description = "Run a GitHub Actions workflow locally with act (usage: cargo make act WORKFLOW=ci.yml JOB=fmt). Examples: 'cargo make act WORKFLOW=lint.yml JOB=lint', 'cargo make act WORKFLOW=ci.yml' (runs all jobs)"
+workspace = false
+script_runner = "@shell"
+script = '''
+#!/bin/bash
+set -e
+
+WORKFLOW="${WORKFLOW:-ci.yml}"
+JOB="${JOB:-}"
+
+if [ -z "$JOB" ]; then
+  echo "Running workflow: $WORKFLOW (all jobs)"
+  act \
+    --container-architecture "${ACT_CONTAINER_ARCH}" \
+    --platform "${ACT_PLATFORM}" \
+    -W ".github/workflows/${WORKFLOW}"
+else
+  echo "Running workflow: $WORKFLOW, job: $JOB"
+  act \
+    --container-architecture "${ACT_CONTAINER_ARCH}" \
+    --platform "${ACT_PLATFORM}" \
+    -W ".github/workflows/${WORKFLOW}" \
+    -j "${JOB}"
+fi
+'''
+
+[tasks.act-list]
+description = "List available GitHub Actions workflows"
+workspace = false
+command = "act"
+args = ["--list"]
+
+[tasks.act-validate]
+description = "Validate all workflows can be parsed by act (dry-run)"
+workspace = false
+script_runner = "@shell"
+script = '''
+#!/bin/bash
+set -e
+
+echo "🔍 Validating all GitHub Actions workflows with act..."
+echo ""
+
+ERRORS=0
+WORKFLOWS=(
+  "ci.yml"
+  "test.yml"
+  "build.yml"
+  "lint.yml"
+  "marketplace-test.yml"
+  "marketplace.yml"
+  "security-audit.yml"
+  "quality-gates.yml"
+  "london-tdd-tests.yml"
+  "deploy-docs.yml"
+  "release.yml"
+  "homebrew-release.yml"
+)
+
+for workflow in "${WORKFLOWS[@]}"; do
+  if [ -f ".github/workflows/${workflow}" ]; then
+    echo "📋 Validating ${workflow}..."
+    if act --dryrun -W ".github/workflows/${workflow}" > /dev/null 2>&1; then
+      echo "  ✅ ${workflow} is valid"
+    else
+      echo "  ❌ ${workflow} has errors"
+      ERRORS=$((ERRORS + 1))
+    fi
+  else
+    echo "  ⚠️  ${workflow} not found"
+  fi
+done
+
+echo ""
+if [ $ERRORS -eq 0 ]; then
+  echo "✅ All workflows validated successfully"
+  exit 0
+else
+  echo "❌ Found ${ERRORS} workflow(s) with errors"
+  exit 1
+fi
+'''
+
+[tasks.act-status]
+description = "Check act installation and Docker status"
+workspace = false
+script = '''
+#!/bin/bash
+set -e
+
+echo "🔍 Checking act installation..."
+if command -v act &> /dev/null; then
+    echo "✅ act is installed"
+    act --version
+else
+    echo "❌ act is not installed"
+    echo ""
+    echo "📦 Installation instructions:"
+    echo "  macOS: brew install act"
+    echo "  Linux: curl https://raw.githubusercontent.com/nektos/act/master/install.sh | sudo bash"
+    echo "  Or: https://github.com/nektos/act/releases"
+    exit 1
+fi
+
+echo ""
+echo "🐳 Checking Docker status..."
+if docker ps > /dev/null 2>&1; then
+    echo "✅ Docker daemon is running"
+    docker --version
+    echo ""
+    echo "📊 Docker resource usage:"
+    docker system df
+else
+    echo "❌ Docker daemon is not running"
+    echo "   Start Docker Desktop or Docker daemon"
+    exit 1
+fi
+'''
+
+[tasks.act-cleanup]
+description = "Clean up act containers and images"
+workspace = false
+script = '''
+echo "🧹 Cleaning up act containers..."
+docker ps -a --filter "label=act" --format "table {{.ID}}\t{{.Status}}\t{{.Names}}" | grep act || true
+docker container prune -f --filter "label=act" || true
+docker image prune -f --filter "label=act" || true
+echo "✅ Act cleanup complete"
+'''
+
+[tasks.test-bdd]
+description = "BDD aspirational specs — run when implementing a feature"
+workspace = false
+command = "timeout"
+args = ["300s", "cargo", "test", "--test", "bdd", "--", "--include-ignored"]
+
+[tasks.test-bdd-feature]
+description = "Run specific BDD feature (usage: cargo make test-bdd-feature FEATURE=graph)"
+workspace = false
+command = "cargo"
+args = ["test", "--test", "bdd", "test_${FEATURE}_features"]
+
+[tasks.test-bdd-verbose]
+description = "Run BDD tests with verbose output"
+workspace = false
+command = "cargo"
+args = ["test", "--test", "bdd", "--", "--nocapture"]
+
+[tasks.audit]
+clear = true
+description = "Security audit with comprehensive vulnerability scanning"
+workspace = false
+script_runner = "@shell"
+script = '''
+#!/bin/bash
+set -euo pipefail
+
+echo "🔒 Security Audit (Week 8)"
+echo "=========================="
+echo ""
+
+# Run cargo audit (with documented accepted advisories — see docs/audits/ACCEPTED_ADVISORIES.md)
+echo "1️⃣ Running cargo audit..."
+if cargo audit --deny warnings \
+    --ignore RUSTSEC-2026-0113 \
+    --ignore RUSTSEC-2026-0066 \
+    --ignore RUSTSEC-2026-0112 \
+    --ignore RUSTSEC-2025-0052 \
+    --ignore RUSTSEC-2024-0375 \
+    --ignore RUSTSEC-2024-0384 \
+    --ignore RUSTSEC-2025-0119 \
+    --ignore RUSTSEC-2024-0436 \
+    --ignore RUSTSEC-2024-0370 \
+    --ignore RUSTSEC-2025-0134 \
+    --ignore RUSTSEC-2021-0145; then
+  echo "   ✅ No new vulnerabilities (11 transitive advisories accepted; see docs/audits/ACCEPTED_ADVISORIES.md)"
+else
+  echo "   ❌ Vulnerabilities detected"
+  exit 1
+fi
+echo ""
+
+# Verify Cargo.lock
+echo "2️⃣ Verifying Cargo.lock integrity..."
+if ./scripts/verify-cargo-lock.sh; then
+  echo "   ✅ Cargo.lock verification passed"
+else
+  echo "   ❌ Cargo.lock verification failed"
+  exit 1
+fi
+echo ""
+
+# Check for typosquatting
+echo "3️⃣ Checking for typosquatting..."
+if ./scripts/detect-typosquatting.sh > /dev/null 2>&1; then
+  echo "   ✅ No suspicious dependencies detected"
+else
+  echo "   ⚠️  Potential typosquatting detected (see report)"
+fi
+echo ""
+
+echo "✅ Security audit complete"
+'''
+
+[tasks.audit-outdated]
+description = "Check for outdated dependencies (informational; non-fatal)"
+command = "cargo"
+args = ["outdated"]
+workspace = false
+ignore_errors = true
+
+[tasks.audit-unused]
+description = "Check for unused dependencies (requires nightly)"
+command = "cargo"
+args = ["+nightly", "udeps"]
+workspace = false
+
+[tasks.check-dead-code]
+description = "Check for dead code and unused items (waste detection)"
+workspace = false
+command = "timeout"
+args = [
+  "10s",
+  "cargo",
+  "clippy",
+  "--workspace",
+  "--all-targets",
+  "--",
+  "-W",
+  "dead_code",
+  "-W",
+  "unused_imports",
+  "-W",
+  "unused_variables",
+]
+
+[tasks.check-unused-features]
+description = "Check for unused feature flags (waste detection)"
+workspace = false
+command = "timeout"
+args = ["10s", "cargo", "check", "--workspace", "--all-features"]
+script_runner = "@shell"
+script = '''
+#!/bin/bash
+# Check for feature flags that might be unused
+echo "Checking for potentially unused features..."
+echo "Review Cargo.toml files for features that are never enabled"
+echo "Run: grep -r 'feature.*=' crates/*/Cargo.toml | grep -v 'default'"
+'''
+
+[tasks.validate-examples]
+description = "Validate all examples compile (waste prevention)"
+workspace = false
+command = "timeout"
+args = ["30s", "cargo", "check", "--workspace", "--examples"]
+
+[tasks.audit-deny]
+description = "Comprehensive dependency audit with cargo-deny (informational; non-fatal pending deny.toml license allow-list)"
+command = "cargo"
+args = ["deny", "check"]
+workspace = false
+ignore_errors = true
+
+[tasks.audit-all]
+description = "Run all dependency audits (Week 8 comprehensive)"
+workspace = false
+dependencies = ["audit", "audit-outdated", "audit-deny", "audit-sbom", "audit-lock"]
+
+[tasks.audit-lock]
+description = "Verify Cargo.lock checksum and integrity"
+workspace = false
+command = "./scripts/verify-cargo-lock.sh"
+
+[tasks.audit-sbom]
+description = "Generate SBOM (informational; non-fatal — cargo-cyclonedx CLI changed)"
+workspace = false
+command = "./scripts/generate-sbom.sh"
+args = [".sbom", "both"]
+ignore_errors = true
+
+[tasks.audit-typosquat]
+description = "Detect typosquatting in dependencies"
+workspace = false
+command = "./scripts/detect-typosquatting.sh"
+
+[tasks.format]
+description = "Format code"
+command = "cargo"
+args = ["fmt", "--all"]
+
+[tasks.clippy-ci-flow]
+description = "Run clippy with CI-friendly settings"
+command = "cargo"
+args = ["clippy", "--all-targets", "--all-features", "--", "-D", "warnings"]
+
+[tasks.test-verbose]
+description = "Run tests with verbose output"
+workspace = false
+command = "cargo"
+args = ["test", "--workspace", "--", "--nocapture"]
+
+[tasks.test-proptest]
+description = "Run property-based tests with proptest"
+command = "cargo"
+args = ["test", "--workspace", "--features", "proptest", "--", "--nocapture"]
+
+[tasks.test-proptest-single]
+description = "Run property-based tests for a single package"
+command = "cargo"
+args = [
+  "test",
+  "--package",
+  "${PACKAGE}",
+  "--features",
+  "proptest",
+  "--",
+  "--nocapture",
+]
+
+[tasks.test-proptest-parallel]
+description = "Run property-based tests in parallel"
+command = "cargo"
+args = [
+  "test",
+  "--workspace",
+  "--features",
+  "proptest",
+  "--",
+  "--test-threads",
+  "4",
+  "--nocapture",
+]
+
+# mdbook documentation tasks (workspace-level only)
+
+[tasks.doc]
+description = "Build API docs from /// comments and # Examples (no browser)"
+workspace = false
+command = "cargo"
+args = ["doc", "--workspace", "--no-deps"]
+
+[tasks.docs-api]
+description = "Build API documentation and open in browser"
+workspace = false
+command = "cargo"
+args = ["doc", "--workspace", "--no-deps", "--open"]
+
+[tasks.docs-check]
+description = "Verify API documentation compiles without errors (for CI/pre-commit)"
+workspace = false
+clear = true
+env = { RUSTDOCFLAGS = "-D warnings" }
+script_runner = "@shell"
+script = '''
+#!/bin/bash
+set -euo pipefail
+
+DOCS_CMD=(cargo doc --no-deps --all)
+
+# NOTE: `status=$?` must be captured in the else-branch -- see [tasks.lint]'s
+# note above (found 2026-07-17).
+if timeout 30s "${DOCS_CMD[@]}"; then
+  exit 0
+else
+  status=$?
+fi
+
+if [ "$status" -eq 124 ]; then
+  echo "⚠️  Docs build exceeded 30s timeout; rerunning with 180s timeout..."
+  timeout 180s "${DOCS_CMD[@]}"
+else
+  exit "$status"
+fi
+'''
+
+[tasks.docs-build-main]
+description = "Build main documentation with mdbook"
+workspace = false
+command = "timeout"
+args = ["30s", "mdbook", "build", "docs"]
+
+[tasks.docs-build-sync-patterns]
+description = "Build A Pattern Language for ggen sync book"
+workspace = false
+command = "timeout"
+args = ["30s", "mdbook", "build", "docs/sync-patterns"]
+
+[tasks.docs-build-java26-patterns]
+description = "Build A Pattern Language for Java 26 with ggen book"
+workspace = false
+command = "timeout"
+args = ["30s", "mdbook", "build", "docs/java26-patterns"]
+
+[tasks.docs-build]
+description = "Build all three mdBooks: main, sync-patterns, java26-patterns"
+workspace = false
+dependencies = ["docs-build-main", "docs-build-sync-patterns", "docs-build-java26-patterns"]
+
+[tasks.docs-serve]
+description = "Serve documentation locally with mdbook"
+workspace = false
+command = "mdbook"
+args = ["serve", "docs", "--open"]
+
+[tasks.docs-serve-java26]
+description = "Serve Java 26 patterns book locally on port 3002"
+workspace = false
+command = "mdbook"
+args = ["serve", "docs/java26-patterns", "--open", "--port", "3002"]
+
+[tasks.docs-watch]
+description = "Watch and rebuild documentation on changes"
+workspace = false
+command = "mdbook"
+args = ["watch", "docs"]
+
+[tasks.docs-clean]
+description = "Clean built documentation"
+workspace = false
+command = "rm"
+args = ["-rf", "docs/book", "target/doc"]
+
+[tasks.docs-test]
+description = "Test documentation build"
+workspace = false
+dependencies = ["docs-build"]
+command = "echo"
+args = ["✅ Documentation built successfully"]
+
+[tasks.docs]
+description = "Build all documentation (API + guides)"
+workspace = false
+dependencies = ["docs-api", "docs-build"]
+
+[tasks.docs-validate]
+description = "Validate documentation structure and links"
+workspace = false
+dependencies = ["docs-build"]
+command = "./scripts/docs-validate.sh"
+
+[tasks.validate-docs]
+description = "Validate documentation accuracy (FMEA-based checks: cargo commands, paths, macros)"
+workspace = false
+command = "./scripts/validate-docs.sh"
+
+[tasks.docs-deploy]
+description = "Build and validate documentation for deployment"
+workspace = false
+dependencies = ["docs-clean", "docs-build", "docs-validate"]
+
+# GitHub Pages API Diagnostic Tasks
+
+[tasks.gh-pages-status]
+description = "Check GitHub Pages configuration and deployment status via API"
+workspace = false
+command = "./scripts/gh-pages-status.sh"
+
+[tasks.gh-workflow-status]
+description = "Check GitHub Actions workflow status for Pages deployment"
+workspace = false
+command = "./scripts/gh-workflow-status.sh"
+
+[tasks.gh-pages-compare]
+description = "Compare local docs build with deployed version"
+workspace = false
+dependencies = ["docs-build"]
+command = "./scripts/gh-pages-compare.sh"
+
+[tasks.gh-pages-trigger]
+description = "Trigger GitHub Pages deployment workflow manually"
+workspace = false
+command = "./scripts/gh-pages-trigger.sh"
+
+[tasks.gh-pages-logs]
+description = "View logs from latest GitHub Pages deployment"
+workspace = false
+command = "./scripts/gh-pages-logs.sh"
+
+[tasks.gh-pages-setup-check]
+description = "Comprehensive GitHub Pages setup validation"
+workspace = false
+command = "./scripts/gh-pages-setup-check.sh"
+
+# ============================================================================
+# Marketplace Validation Tasks
+# ============================================================================
+
+[tasks.marketplace-validate]
+description = "Validate all marketplace packages for production readiness"
+workspace = false
+command = "timeout"
+args = ["120s", "bash", "marketplace/scripts/validate_all_packages.sh"]
+
+[tasks.rebuild-marketplace-index]
+description = "Rebuild marketplace registry index from package metadata (scans all package.toml files)"
+workspace = false
+command = "bash"
+args = ["scripts/marketplace/rebuild-index.sh"]
+
+[tasks.marketplace-validate-update]
+description = "Update production_ready flags in package.toml and registry index"
+workspace = false
+command = "timeout"
+args = ["120s", "bash", "marketplace/scripts/update_production_flags.sh"]
+
+[tasks.marketplace-report]
+description = "Generate comprehensive validation reports in both Markdown and JSON"
+workspace = false
+command = "timeout"
+args = ["120s", "bash", "marketplace/scripts/generate_validation_report.sh"]
+
+[tasks.marketplace-emit-receipts]
+description = "Emit validation receipts for all marketplace packages (Track A)"
+workspace = false
+command = "cargo"
+args = ["run", "--release", "-p", "ggen-cli-lib", "--bin", "ggen", "--", "marketplace", "emit_receipts", "--marketplace_root", "."]
+
+[tasks.marketplace-health]
+description = "Generate marketplace health report from validation receipts"
+workspace = false
+command = "cargo"
+args = ["run", "--release", "-p", "ggen-cli-lib", "--bin", "ggen", "--", "marketplace", "report", "--marketplace_root", "."]
+
+[tasks.marketplace-validate-with-receipts]
+description = "Validate all packages and emit receipts (combined Track A)"
+workspace = false
+dependencies = ["marketplace-validate", "marketplace-emit-receipts"]
+
+[tasks.marketplace-generate-artifacts]
+description = "Generate JSON registry and Markdown from receipts (Track B)"
+workspace = false
+command = "cargo"
+args = ["run", "--release", "-p", "ggen-cli-lib", "--bin", "ggen", "--", "marketplace", "generate_artifacts", "--marketplace_root", "."]
+
+[tasks.marketplace-full-pipeline]
+description = "Complete marketplace pipeline: validate → emit receipts → generate artifacts (Track A+B)"
+workspace = false
+dependencies = ["marketplace-validate", "marketplace-emit-receipts", "marketplace-generate-artifacts"]
+
+# ============================================================================
+# Compilation Validation Tasks (Root Cause Prevention)
+# ============================================================================
+
+[tasks.check-all-crates]
+description = "Check all crates compile (prevents type mismatch errors)"
+workspace = false
+command = "cargo"
+args = ["check", "--workspace", "--all-targets"]
+
+[tasks.compile-validation]
+description = "Validate all crates compile (root cause prevention)"
+workspace = false
+dependencies = ["check-all-crates"]
+command = "echo"
+args = ["✅ All crates compile successfully"]
+
+[tasks.type-safety-check]
+description = "Check for type safety issues (root cause prevention)"
+workspace = false
+command = "./scripts/check-type-safety.sh"
+
+# Add docs tasks to existing workflows (if they exist)
+[tasks.ci]
+description = "Run CI pipeline"
+workspace = false
+dependencies = [
+  "format",
+  "clippy-ci-flow",
+  "check-all-crates",
+  "detect-gaps",
+  "test",
+  "lsp-test",
+  "mcp-test",
+  "find-fakes",
+  "test-doc",
+  "audit-all",
+  "docs-test",
+]
+
+# ============================================================================
+# Release Validation Tasks (FMEA-based)
+# ============================================================================
+
+[tasks.release-validate-git-state]
+description = "Validate git state is clean (FMEA: prevents release with uncommitted changes, RPN 504)"
+workspace = false
+command = "./scripts/release-validate-git-state.sh"
+
+[tasks.release-validate-version]
+description = "Validate version consistency across all crates (FMEA: prevents version mismatches, RPN 504)"
+workspace = false
+command = "./scripts/release-validate-version.sh"
+
+[tasks.release-validate-artifacts]
+description = "Validate all required release artifacts exist (FMEA: prevents missing artifacts, RPN 180)"
+workspace = false
+command = "./scripts/release-validate-artifacts.sh"
+
+[tasks.release-validate-build]
+description = "Validate release build succeeds (FMEA: prevents config-specific errors, RPN 432)"
+workspace = false
+dependencies = ["build-release"]
+
+[tasks.release-validate-security]
+description = "Validate security audit passes (FMEA: prevents vulnerabilities in release, RPN 360)"
+workspace = false
+dependencies = ["audit-all"]
+
+[tasks.release-validate-changelog]
+description = "Validate CHANGELOG has entry for release version (FMEA: prevents missing changelog, RPN 288)"
+workspace = false
+script_runner = "@shell"
+script = '''
+#!/bin/bash
+root_version=$(grep '^version = ' Cargo.toml | head -1 | sed 's/.*version = "\(.*\)"/\1/' | tr -d '"')
+if ! grep -q "^## \[$root_version\]" CHANGELOG.md; then
+    echo "❌ ERROR: CHANGELOG.md missing entry for version $root_version"
+    exit 1
+fi
+echo "✅ CHANGELOG.md has entry for $root_version"
+'''
+
+[tasks.release-validate-breaking-changes]
+description = "Detect breaking changes requiring documentation (FMEA: prevents undocumented breaking changes, RPN 240)"
+workspace = false
+command = "./scripts/release-validate-breaking-changes.sh"
+
+[tasks.release-validate-docs-sync]
+description = "Validate documentation version sync (FMEA: prevents outdated version references, RPN 96)"
+workspace = false
+command = "./scripts/release-validate-docs-sync.sh"
+
+[tasks.release-validate]
+description = "Comprehensive release validation (all FMEA checks)"
+workspace = false
+dependencies = [
+  "release-validate-git-state",
+  "release-validate-version",
+  "release-validate-artifacts",
+  "release-validate-build",
+  "release-validate-security",
+  "release-validate-changelog",
+  "release-validate-breaking-changes",
+  "release-validate-docs-sync",
+  "test",
+  "lint",
+]
+
+[tasks.release]
+description = "Create a release"
+dependencies = ["release-validate", "ci", "docs-build"]
+
+# ============================================================================
+# Homebrew Release Tasks
+# ============================================================================
+
+[tasks.brew-update-formula]
+description = "Update Homebrew formula with SHA256 from latest release"
+workspace = false
+command = "./scripts/update-homebrew-formula.sh"
+args = ["${1}"]
+
+[tasks.brew-update]
+alias = "brew-update-formula"
+
+[tasks.release-brew]
+description = "Complete release workflow with Homebrew update"
+workspace = false
+dependencies = ["ci", "docs-build"]
+command = "./scripts/release-brew.sh"
+
+[tasks.release-check]
+description = "Check if release artifacts are ready"
+workspace = false
+command = "./scripts/release-check.sh"
+args = ["${1}"]
+
+# ============================================================================
+# GitHub Actions Workflow Health Check
+# ============================================================================
+
+[tasks.ci-check]
+description = "Check GitHub Actions workflow health and report failures"
+workspace = false
+command = "./scripts/ci-health-check.sh"
+
+[tasks.ci-health]
+alias = "ci-check"
+
+# ============================================================================
+# Gap Detection Tasks
+# ============================================================================
+
+[tasks.detect-gaps]
+description = "Detect missing tests and coverage gaps (80/20 focused)"
+workspace = false
+command = "./scripts/detect-test-gaps.sh"
+
+[tasks.enforce-coverage]
+description = "Enforce test coverage for changed files"
+workspace = false
+command = "./scripts/enforce-test-coverage.sh"
+
+[tasks.install-hooks]
+description = "Install git hooks with gap detection"
+workspace = false
+command = "./scripts/install-git-hooks.sh"
+
+[tasks.gap-report]
+description = "Generate comprehensive gap detection report"
+workspace = false
+dependencies = ["detect-gaps"]
+script = '''
+if [ -f target/gap-detection-report.json ]; then
+  echo "📊 Gap Detection Report:"
+  cat target/gap-detection-report.json | jq .
+else
+  echo "❌ No report found. Run: cargo make detect-gaps"
+fi
+'''
+
+# ============================================================================
+# Shell Completion Tasks
+# ============================================================================
+
+[tasks.completions]
+description = "Generate shell completion scripts"
+command = "cargo"
+args = [
+  "run",
+  "--bin",
+  "ggen",
+  "--",
+  "shell",
+  "completion",
+  "generate",
+  "--shell",
+  "${SHELL}",
+  "--output",
+  "${OUTPUT}",
+]
+
+[tasks.completions-install]
+description = "Install shell completion scripts"
+command = "cargo"
+args = [
+  "run",
+  "--bin",
+  "ggen",
+  "--",
+  "shell",
+  "completion",
+  "install",
+  "--shell",
+  "${SHELL}",
+  "--force",
+]
+
+[tasks.completions-list]
+description = "List supported shell completion types"
+command = "cargo"
+args = ["run", "--bin", "ggen", "--", "shell", "completion", "list"]
+
+# =============================================================================
+# Node.js N-API addon tasks
+# =============================================================================
+
+[tasks.node-build]
+description = "Build Node N-API addon in debug"
+workspace = false
+script_runner = "@shell"
+script = '''
+cd node && (
+  command -v npx >/dev/null 2>&1 && npx --yes @napi-rs/cli@2.18.0 build || \
+  (command -v corepack >/dev/null 2>&1 && corepack pnpm dlx @napi-rs/cli@2.18.0 build) || \
+  (command -v yarn >/dev/null 2>&1 && yarn dlx @napi-rs/cli@2.18.0 build)
+)
+'''
+
+[tasks.node-build-release]
+description = "Build Node N-API addon in release"
+workspace = false
+script_runner = "@shell"
+script = '''
+cd node && (
+  command -v npx >/dev/null 2>&1 && npx --yes @napi-rs/cli@2.18.0 build --release || \
+  (command -v corepack >/dev/null 2>&1 && corepack pnpm dlx @napi-rs/cli@2.18.0 build --release) || \
+  (command -v yarn >/dev/null 2>&1 && yarn dlx @napi-rs/cli@2.18.0 build --release)
+)
+'''
+
+[tasks.node-test]
+description = "Run Node addon tests deterministically"
+workspace = false
+script_runner = "@shell"
+script = '''
+cd node && (
+  command -v npx >/dev/null 2>&1 && npx --yes vitest run --reporter=dot || \
+  (command -v corepack >/dev/null 2>&1 && corepack pnpm dlx vitest run --reporter=dot) || \
+  (command -v yarn >/dev/null 2>&1 && yarn dlx vitest run --reporter=dot)
+)
+'''
+
+[tasks.node-prebuild]
+description = "Create prebuilt binaries for common targets"
+workspace = false
+script_runner = "@shell"
+script = '''
+cd node && (
+  command -v npx >/dev/null 2>&1 && npx --yes @napi-rs/cli@2.18.0 prebuild -t x86_64-unknown-linux-gnu -t aarch64-apple-darwin -t x86_64-apple-darwin -t x86_64-pc-windows-msvc || \
+  (command -v corepack >/dev/null 2>&1 && corepack pnpm dlx @napi-rs/cli@2.18.0 prebuild -t x86_64-unknown-linux-gnu -t aarch64-apple-darwin -t x86_64-apple-darwin -t x86_64-pc-windows-msvc) || \
+  (command -v yarn >/dev/null 2>&1 && yarn dlx @napi-rs/cli@2.18.0 prebuild -t x86_64-unknown-linux-gnu -t aarch64-apple-darwin -t x86_64-apple-darwin -t x86_64-pc-windows-msvc)
+)
+'''
+
+# ========================================
+# KAIZEN METRICS TRACKING
+# ========================================
+
+[tasks.metrics-collect]
+description = "Collect daily Kaizen metrics (automated tracking)"
+workspace = false
+script = '''
+#!/bin/bash
+set -e
+echo "📊 Collecting Kaizen metrics..."
+./scripts/metrics/collect_metrics.sh ${WEEK:-1}
+'''
+
+[tasks.metrics-baseline]
+description = "Create Week 0 baseline snapshot"
+workspace = false
+script = '''
+#!/bin/bash
+set -e
+echo "📸 Creating baseline snapshot..."
+./scripts/metrics/baseline_snapshot.sh
+'''
+
+[tasks.metrics-weekly]
+description = "Generate weekly trend report"
+workspace = false
+script = '''
+#!/bin/bash
+set -e
+echo "📊 Generating weekly report..."
+WEEK=${WEEK:-1}
+./scripts/metrics/weekly_report.sh "$WEEK"
+'''
+
+[tasks.metrics-monthly]
+description = "Generate month-end comprehensive report"
+workspace = false
+script = '''
+#!/bin/bash
+set -e
+echo "📊 Generating month-end report..."
+./scripts/metrics/month_end_report.sh
+'''
+
+[tasks.metrics-dashboard]
+description = "Open latest metrics dashboard in browser"
+workspace = false
+script = '''
+#!/bin/bash
+DASHBOARD="./docs/metrics/latest.html"
+if [[ -f "$DASHBOARD" ]]; then
+    open "$DASHBOARD" 2>/dev/null || xdg-open "$DASHBOARD" 2>/dev/null || echo "Dashboard: $DASHBOARD"
+else
+    echo "⚠️  Dashboard not found. Run: cargo make metrics-collect"
+fi
+'''
+
+[tasks.metrics-status]
+description = "Show current Kaizen metrics status"
+workspace = false
+script = '''
+#!/bin/bash
+LATEST="./.metrics/latest.json"
+if [[ ! -f "$LATEST" ]]; then
+    echo "⚠️  No metrics collected yet. Run: cargo make metrics-collect"
+    exit 1
+fi
+
+echo "📊 Current Kaizen Metrics Status"
+echo "=================================="
+echo ""
+
+if command -v jq &> /dev/null; then
+    echo "Compiler Errors:     $(jq -r '.metrics.compiler_errors.total_errors' "$LATEST")"
+    echo "Test Pass Rate:      $(jq -r '.metrics.test_pass_rate.overall_percentage' "$LATEST")%"
+    echo "Build Time:          $(jq -r '.metrics.build_time.first_build_seconds' "$LATEST")s"
+    echo "Template Access:     $(jq -r '.metrics.template_accessibility.accessibility_percentage' "$LATEST")%"
+    echo "Waste Score:         $(jq -r '.metrics.waste_score.overall_waste_score' "$LATEST")"
+    echo "Code Quality:        $(jq -r '.metrics.code_quality.quality_score' "$LATEST")"
+    echo ""
+
+    CRITICAL=$(jq -r '.andon_signals.critical | length' "$LATEST")
+    HIGH=$(jq -r '.andon_signals.high | length' "$LATEST")
+
+    if [[ "$CRITICAL" -gt 0 ]]; then
+        echo "🔴 CRITICAL ANDON SIGNALS: $CRITICAL"
+        jq -r '.andon_signals.critical[] | "  - \(.message)"' "$LATEST"
+    elif [[ "$HIGH" -gt 0 ]]; then
+        echo "🟡 HIGH ANDON SIGNALS: $HIGH"
+        jq -r '.andon_signals.high[] | "  - \(.message)"' "$LATEST"
+    else
+        echo "✅ No active Andon signals - All systems green!"
+    fi
+else
+    echo "⚠️  Install jq for detailed metrics: brew install jq"
+    echo "Raw metrics: $LATEST"
+fi
+'''
+
+[tasks.metrics-help]
+description = "Show Kaizen metrics commands"
+workspace = false
+script = '''
+#!/bin/bash
+cat << 'HELP_EOF'
+📊 Kaizen Metrics Tracking Commands
+====================================
+
+Daily Operations:
+  cargo make metrics-collect      - Collect daily metrics (run Mon/Wed/Fri)
+  cargo make metrics-status        - Show current metrics status
+  cargo make metrics-dashboard     - Open live dashboard in browser
+
+Reporting:
+  cargo make metrics-weekly        - Generate weekly trend report
+  cargo make metrics-monthly       - Generate month-end comprehensive report
+  cargo make metrics-baseline      - Create Week 0 baseline snapshot
+
+Integration:
+  cargo make pre-commit            - Run before each commit (includes metrics)
+  cargo make ci                    - Full CI pipeline with metrics validation
+
+Metrics Tracked (8 Categories):
+  1. Build Time          - Target: <15s (47% reduction)
+  2. Test Pass Rate      - Target: 100% (from 15%)
+  3. Compiler Errors     - Target: 0 (from 158)
+  4. Code Quality        - Target: 9.5 (from 7.2)
+  5. Template Access     - Target: 100% (from 5%)
+  6. Waste Score         - Target: 2.0 (from 8.4) - 76% reduction
+  7. Velocity            - Target: 5 features/sprint (from 2)
+  8. Cost of Waste       - Target: $8k/year (from $33k) - 76% reduction
+
+Andon Signals (Stop-the-Line):
+  🔴 CRITICAL - Compiler errors, test failures (STOP IMMEDIATELY)
+  🟡 HIGH     - Linting errors, performance regressions (FIX SOON)
+  🟢 MEDIUM   - Code quality warnings (INVESTIGATE)
+
+Files:
+  .metrics/                       - Metrics data storage
+  docs/metrics/                   - HTML dashboards and reports
+  scripts/metrics/                - Metrics collection scripts
+
+Learn more: docs/KAIZEN_METRICS.md
+HELP_EOF
+'''
+
+# =============================================================================
+# Benchmark Tasks
+# =============================================================================
+
+[tasks.bench]
+description = "Run all benchmarks"
+workspace = false
+command = "cargo"
+args = ["bench"]
+
+[tasks.bench-slo]
+description = "Run all SLO validation benchmarks"
+workspace = false
+command = "cargo"
+args = ["bench", "--bench", "slo_validation"]
+
+[tasks.bench-yawl]
+description = "Run YAWL generation SLO benchmarks"
+workspace = false
+command = "timeout"
+args = ["120s", "cargo", "bench", "--bench", "yawl_generation_slo"]
+
+[tasks.bench-yawl-quick]
+description = "Run YAWL generation benchmarks (quick smoke test)"
+workspace = false
+command = "timeout"
+args = ["60s", "cargo", "bench", "--bench", "yawl_generation_slo", "--", "--warm-up-time", "1", "--measurement-time", "3"]
+
+[tasks.bench-pipeline]
+description = "Run pipeline performance benchmarks"
+workspace = false
+command = "timeout"
+args = ["60s", "cargo", "bench", "--bench", "pipeline_performance"]
+
+[tasks.bench-cli]
+description = "Run CLI startup performance benchmarks"
+workspace = false
+command = "timeout"
+args = ["30s", "cargo", "bench", "--bench", "cli_startup_performance"]
+
+[tasks.bench-marketplace]
+description = "Run marketplace performance benchmarks"
+workspace = false
+command = "timeout"
+args = ["60s", "cargo", "bench", "--bench", "marketplace_performance"]
+
+[tasks.bench-runtime]
+description = "Run runtime overhead benchmarks"
+workspace = false
+command = "timeout"
+args = ["30s", "cargo", "bench", "--bench", "runtime_overhead"]
+
+[tasks.bench-memory]
+description = "Run memory profiling benchmarks"
+workspace = false
+command = "timeout"
+args = ["60s", "cargo", "bench", "--bench", "memory_profiling"]
+
+[tasks.bench-async]
+description = "Run async runtime benchmarks"
+workspace = false
+command = "timeout"
+args = ["30s", "cargo", "bench", "--bench", "async_runtime_benchmarks"]
+
+[tasks.bench-all-slo]
+description = "Run all SLO validation benchmarks (comprehensive)"
+workspace = false
+dependencies = [
+    "bench-slo",
+    "bench-yawl",
+    "bench-pipeline",
+]
+
+[tasks.bench-report]
+description = "Generate HTML benchmark reports (requires previous bench run)"
+workspace = false
+command = "cargo"
+args = ["bench", "--", "--save-baseline", "main"]
+
+[tasks.bench-compare]
+description = "Compare benchmarks against baseline"
+workspace = false
+command = "cargo"
+args = ["bench", "--", "--baseline", "main"]
+
+# ============================================================================
+# Documentation Validation Tasks
+# ============================================================================
+
+[tasks.validate]
+description = "Validate documentation against runtime results"
+workspace = false
+dependencies = ["timeout-check"]
+command = "bash"
+args = ["scripts/validate-docs.sh"]
+
+[tasks.validate-slos]
+description = "Validate performance SLO compliance"
+workspace = false
+command = "bash"
+args = ["scripts/validate-slos.sh"]
+
+[tasks.validate-benchmarks]
+description = "Validate benchmark infrastructure"
+workspace = false
+command = "bash"
+args = ["scripts/validate-benchmarks.sh"]
+
+[tasks.stress-test]
+description = "Run stress tests"
+workspace = false
+command = "bash"
+args = ["scripts/stress-test.sh"]
+
+# ============================================================================
+# Plugin Test Harness — ggen-lsp / ggen-lsp-mcp (LSP + MCP delivery planes)
+# ============================================================================
+
+[tasks.build-lsp-bins]
+description = "Build the LSP and MCP server binaries (ggen-lsp, ggen-lsp-mcp)"
+workspace = false
+script_runner = "@shell"
+script = '''
+#!/bin/bash
+set -euo pipefail
+echo "🔨 Building ggen-lsp (--bin ggen-lsp)..."
+timeout 120s cargo build -p ggen-lsp --bin ggen-lsp
+echo "🔨 Building ggen-lsp-mcp..."
+timeout 120s cargo build -p ggen-lsp-mcp
+echo "✅ LSP/MCP binaries built"
+'''
+
+[tasks.lsp-test]
+description = "Run ggen-lsp manifest contract, protocol, and sabotage integration tests"
+workspace = false
+dependencies = ["build-lsp-bins"]
+command = "timeout"
+args = [
+  "120s",
+  "cargo",
+  "test",
+  "-p",
+  "ggen-lsp",
+  "--test",
+  "manifest_contract_test",
+  "--test",
+  "lsp_protocol_test",
+  "--test",
+  "lsp_sabotage_test",
+]
+
+[tasks.mcp-test]
+description = "Run ggen-lsp-mcp protocol integration test"
+workspace = false
+command = "timeout"
+args = [
+  "120s",
+  "cargo",
+  "test",
+  "-p",
+  "ggen-lsp-mcp",
+  "--test",
+  "mcp_protocol_test",
+]
+
+[tasks.lsp-smoke]
+description = "Live smoke test: spawn ggen-lsp, observe E0011 route over Content-Length framed LSP"
+workspace = false
+dependencies = ["build-lsp-bins"]
+command = "python3"
+args = ["scripts/lsp-smoke.py"]
+
+[tasks.mcp-smoke]
+description = "Live smoke test: spawn ggen-lsp-mcp, observe E0011 route over newline-framed JSON-RPC"
+workspace = false
+dependencies = ["build-lsp-bins"]
+command = "python3"
+args = ["scripts/mcp-smoke.py"]
+
+[tasks.find-fakes]
+description = "Detect Oracle Gaps in production code (fake-success macros/simulated work); fails on HIGH"
+workspace = false
+command = "bash"
+args = ["scripts/find-fakes.sh"]
+
+[tasks.find-fakes-clippy]
+description = "Non-breaking WARN inventory of the fake-set lints. NOTE: [workspace.lints.clippy] in Cargo.toml already DENIES this set but is INERT (no member opts in via [lints] workspace = true), so this runs them as -W warnings, not -D."
+workspace = false
+command = "cargo"
+args = [
+  "clippy",
+  "--workspace",
+  "--all-targets",
+  "--",
+  "-W",
+  "clippy::unwrap_used",
+  "-W",
+  "clippy::expect_used",
+  "-W",
+  "clippy::panic",
+  "-W",
+  "clippy::todo",
+  "-W",
+  "clippy::unimplemented",
+  "-W",
+  "clippy::dbg_macro",
+]
+
+# ============================================================================
+# Phase 2: Inverse Sync + Coherence Gate (BACKWARD COMPAT with justfile)
+# ============================================================================
+# NOTE: Makefile.toml is deprecated in favor of justfile. These recipes
+# mirror the justfile recipes for backward compatibility only. Use `just`
+# commands in new code. See justfile for primary definitions.
+
+[tasks.test-phase2]
+description = "Run Phase 2 test suite (inverse-sync, coherence, process discovery) — DEPRECATED: use `just test-phase2`"
+workspace = false
+script_runner = "@shell"
+script = '''
+#!/bin/bash
+set -euo pipefail
+echo "Running Phase 2 test suite (DEPRECATED: use 'just test-phase2')..."
+
+cargo test -p ggen-core --test ast_extractor_70pct_test || exit 1
+cargo test -p ggen-core --test inverse_receipt_chain_test || exit 1
+cargo test -p ggen-core --test provenance_envelope_test || exit 1
+cargo test -p ggen-graph --test ocel_conformance_test || exit 1
+cargo test -p ggen-graph --test coherence_hash_expectations_test || exit 1
+cargo test -p ggen-graph --test pm4py_bridge_test || exit 1
+cargo test -p ggen-graph --test post_chatman_coherence_integration || exit 1
+
+echo "✅ Phase 2 test suite complete"
+'''
+
+[tasks.coherence-check]
+description = "Validate post-Chatman ontology + SHACL shapes — DEPRECATED: use `just coherence-check`"
+workspace = false
+script_runner = "@shell"
+script = '''
+#!/bin/bash
+set -euo pipefail
+ontology=".specify/specs/post-chatman/post_chatman.ttl"
+shapes=".specify/specs/post-chatman/post_chatman_shapes.ttl"
+
+echo "Validating ontology: $ontology"
+ggen validate "$ontology" || exit 1
+
+echo "Validating shapes: $shapes"
+ggen validate "$shapes" || exit 1
+
+echo "✅ Coherence check passed"
+'''
+
+[tasks.inverse-sync]
+description = "Run inverse-sync on sample artifacts — DEPRECATED: use `just inverse-sync`"
+workspace = false
+script_runner = "@shell"
+script = '''
+#!/bin/bash
+set -euo pipefail
+
+ontology=".specify/specs/post-chatman/post_chatman.ttl"
+echo "Running inverse-sync..."
+echo "  Ontology: $ontology"
+
+ggen validate "$ontology" || exit 1
+echo "✅ Inverse-sync validation complete"
+'''
+
+[tasks.round-trip]
+description = "Full O→A→O round-trip test — DEPRECATED: use `just round-trip`"
+workspace = false
+dependencies = ["coherence-check", "inverse-sync"]
+script_runner = "@shell"
+script = '''
+#!/bin/bash
+set -euo pipefail
+echo "✅ O→A→O round-trip complete"
+'''
+

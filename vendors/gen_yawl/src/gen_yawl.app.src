@@ -1,0 +1,42 @@
+{application, gen_yawl,
+ [{description, "YAWL Workflow Engine OTP Behavior with RDF/SPARQL integration"},
+  {id, "gen_yawl"},
+  {vsn, "1.0.0"},
+  {modules, [
+    gen_yawl,
+    gen_yawl_api,
+    gen_yawl_sup,
+    gen_yawl_rdf,
+    gen_yawl_store,
+    gen_yawl_receipts,
+    yawl_patterns,
+    token_manager,
+    receipt_generator
+  ]},
+  {registered, [
+    gen_yawl_sup,
+    gen_yawl_rdf,
+    gen_yawl_store,
+    gen_yawl_receipts
+  ]},
+  {applications, [
+    kernel,
+    stdlib,
+    sasl,
+    crypto,
+    gen_pnet
+  ]},
+  {env, [
+    {rdf_store_backend, oxigraph},
+    {rdf_store_path, "./data/yawlstore"},
+    {receipt_backend, kgc4d},
+    {max_cases, 10000},
+    {case_timeout, 3600000},
+    {enable_metrics, true},
+    {enable_tracing, true}
+  ]},
+  {mod, {gen_yawl_app, []}},
+  {start_phases, [
+    {init_store, 10},
+    {load_ontologies, 20}
+  ]}]}.

@@ -1,0 +1,111 @@
+Week,Day,Date,Task_Category,Task_Owner,Task_Description,Success_Metric,Status,Notes
+1,Mon,Jan-27,Legal,CEO,Incorporate Delaware C-Corp,Certificate of Incorporation signed,Pending,Start of Week 1
+1,Mon,Jan-27,Legal,CEO,Apply for EIN,EIN received from IRS,Pending,Must complete same day for banking
+1,Mon,Jan-27,Banking,CFO,Open business bank account,Account active with checks,Pending,Use EIN for account opening
+1,Tue,Jan-28,Legal,CEO,IP Assignment Agreements signed,All founders sign (100%),Pending,Critical for fundraising
+1,Tue,Jan-28,Legal,Legal Counsel,Privacy Policy drafted,GDPR/CCPA compliant,Pending,Review customer data handling
+1,Wed,Jan-29,Insurance,Insurance Broker,General Liability & D&O insurance,Policies active,Pending,Certificate of coverage obtained
+1,Wed,Jan-29,Legal,Legal Counsel,MSA template finalized,Ready for customer signature,Pending,Review by external counsel
+1,Thu,Jan-30,Legal,Legal Counsel,DPA template finalized,SOC 2 compliant,Pending,Data processing agreement
+1,Thu,Jan-30,Compliance,Compliance Officer,Regulatory checklist created,Approval matrix documented,Pending,Define who approves deals
+1,Fri,Jan-31,Legal,CEO,Sign authority protocol finalized,CEO approval required for $10K+,Pending,Distribute to team
+1,Fri,Jan-31,Admin,CFO,All contracts uploaded to Notion,Backup in Google Drive,Pending,End of Week 1
+2,Mon,Feb-03,Product,CEO,Product Requirements Document - Start,Outline + market context,Pending,Meet 4 hours with CTO
+2,Mon,Feb-03,Product,CEO,Customer profile research,Target profile finalized,Pending,Use Go-to-Market doc
+2,Tue,Feb-04,Product,CTO,Technical Architecture - Design,4 diagrams completed,Pending,Shopify → Erlang → Dashboard
+2,Tue,Feb-04,Product,CTO,Tech stack decision logged,Rust + Erlang + GCP locked,Pending,No changes after this
+2,Wed,Feb-05,Product,CEO,Feature prioritization (MoSCoW),Core 6 features locked,Pending,Nice-to-have deferred
+2,Wed,Feb-05,Product,CTO,MVP scope finalized,Sprint 1 backlog created,Pending,5 features + 13 story points
+2,Thu,Feb-06,Hiring,CEO,Backend engineer job posting,Live on LinkedIn + AngelList,Pending,Start recruiting immediately
+2,Thu,Feb-06,Engineering,CTO,Engineering workflow documented,Git + CI/CD + code review process,Pending,Test with dummy PR
+2,Fri,Feb-07,Product,CEO,PRD approved by leadership,Notion document ready,Pending,Sign-off from CEO + CTO
+2,Fri,Feb-07,Engineering,CTO,Sprint 1 kickoff,All engineers aligned on goals,Pending,Daily standup starts Monday
+3,Mon,Feb-10,Hiring,CEO,Phone screen 5 candidates,Top candidates identified,Pending,Prep interview questions
+3,Tue,Feb-11,Hiring,CEO,Technical interviews - Round 1,3 candidates advance to final,Pending,90 min coding exercise
+3,Wed,Feb-12,Hiring,CEO,Culture fit interviews,Final 2 candidates selected,Pending,Reference checks start
+3,Thu,Feb-13,Hiring,CEO,Offer letters written,2 offers extended,Pending,Target start date: Week 4
+3,Fri,Feb-14,Engineering,CTO,Sprint 1 progress check,50% of features in progress,Pending,Shopify auth + Stripe webhook
+4,Mon,Feb-17,Sales,VP Sales,Prospect list - Final 25,ICP scoring complete,Pending,Use Go-to-Market doc
+4,Mon,Feb-17,Sales,VP Sales,Warm intro requests sent,10 requests to advisors,Pending,CEO + board members
+4,Tue,Feb-18,Sales,VP Sales,LinkedIn outreach campaign,20 prospects contacted,Pending,High-intent messaging
+4,Tue,Feb-18,Product,CTO,Shopify integration - Tests,Integration tests passing,Pending,Live with test Shopify store
+4,Wed,Feb-19,Sales,VP Sales,First discovery calls,3 calls booked,Pending,Use discovery call script
+4,Wed,Feb-19,Product,CTO,Multi-warehouse aggregation,Engine complete + tested,Pending,1000 SKU performance test
+4,Thu,Feb-20,Sales,VP Sales,Sales playbook - Final,Demo deck + 1-pager ready,Pending,Tested with 2 sample calls
+4,Thu,Feb-20,Product,Eng #1,Dashboard MVP - Screens,5 screens coded + deployed,Pending,Shopify dashboard data
+4,Fri,Feb-21,Sales,VP Sales,Week 4 review - Sales ready,Outreach engine operating,Pending,"First POC expected W5"
+4,Fri,Feb-21,Product,CTO,Sprint 2 kickoff,MVP features in progress,Pending,All engineers on-boarded
+5,Mon,Feb-24,Sales,VP Sales,Discovery calls continue,3 more calls this week,Pending,Target 2-3 POCs
+5,Mon,Feb-24,Product,CTO,Stripe billing - Tests green,All payment flows tested,Pending,Live with test Stripe account
+5,Tue,Feb-25,Sales,VP Sales,POC proposal - Customer #1,Sent to first prospect,Pending,14-day POC timeline
+5,Tue,Feb-25,Product,Eng #2,Dashboard MVP - Real data,Live with customer inventory,Pending,Responsive design validated
+5,Wed,Feb-26,Product,CTO,API documentation - Live,Swagger UI deployed,Pending,docs.tai.app accessible
+5,Wed,Feb-26,Sales,VP Sales,POC acceptance - Customer #1,Customer #1 POC starts,Pending,Access granted + kickoff
+5,Thu,Feb-27,Sales,VP Sales,Follow-up calls - Proposals,3 prospects discussing POCs,Pending,Close 2 more POC starts
+5,Fri,Feb-28,Product,CTO,Sprint 2 complete - MVP ready,All 5 features shipped,Pending,Tests passing + production ready
+5,Fri,Feb-28,Sales,VP Sales,Customer #1 POC - Day 2,Daily check-in completed,Pending,Inventory sync working
+6,Mon,Mar-03,Product,CTO,Customer #1 POC support,Real-time issue resolution,Pending,<2hr SLA
+6,Mon,Mar-03,Sales,VP Sales,Discovery calls,3 calls scheduled,Pending,Build pipeline for Customer #2 & #3
+6,Tue,Mar-04,Product,CTO,Inventory accuracy check,Target: >95%,Pending,Customer #1 feedback
+6,Tue,Mar-04,Sales,VP Sales,ROI calculation - Customer #1,$15K+ annual savings identified,Pending,Share with customer
+6,Wed,Mar-05,Product,CTO,Dashboard feedback loop,Customer #1 iteration requests,Pending,Deploy updates same day
+6,Wed,Mar-05,Sales,VP Sales,Pricing discussion - Customer #1,$50K ACV proposed,Pending,CEO + VP Sales on call
+6,Thu,Mar-06,Sales,VP Sales,Weekly business review - Customer #1,Thursday call with customer,Pending,Discuss next steps
+6,Thu,Mar-06,Legal,Legal Counsel,Contract - Customer #1,Draft MSA + SOW prepared,Pending,Ready for customer review
+6,Fri,Mar-07,Sales,VP Sales,Customer #1 POC - Day 8,End-of-POC feedback,Pending,Customer: "Ready to proceed"
+6,Fri,Mar-07,Product,CTO,Customer #1 implementation plan,60-day roadmap created,Pending,Week-by-week milestones
+7,Mon,Mar-10,Legal,CEO,Customer #1 Contract SIGNED,First contract executed,Pending,REVENUE MILESTONE
+7,Mon,Mar-10,Sales,VP Sales,Customer #1 go-live planning,Kickoff call scheduled,Pending,Implementation Week 1 starts
+7,Tue,Mar-11,Product,CTO,Customer #1 Implementation - W1,Shopify integration in progress,Pending,Target: Live by Day 5
+7,Tue,Mar-11,Sales,VP Sales,Discovery calls,3 calls completed,Pending,POC proposals for Customer #2 & #3
+7,Wed,Mar-12,Product,CTO,Customer #2 POC Environment,API keys provisioned + dashboard,Pending,Real customer data flowing
+7,Wed,Mar-12,Sales,VP Sales,Customer #2 POC Kickoff,First customer in POC,Pending,Day 1 of 14-day POC
+7,Thu,Mar-13,Product,CTO,Customer #1 Implementation - W1,Multi-warehouse integration,Pending,Training sessions scheduled
+7,Thu,Mar-13,Sales,VP Sales,Customer #3 POC discussions,Interest confirmed + proposal sent,Pending,Target start Week 8
+7,Fri,Mar-14,Sales,VP Sales,Week 7 summary,1 customer signed + paid,Pending,$50K revenue secured
+7,Fri,Mar-14,Product,CTO,Customer #2 POC - Day 2,Daily check-in completed,Pending,Feedback positive
+8,Mon,Mar-17,Sales,VP Sales,Discovery calls,3 new prospects,Pending,Continue pipeline building
+8,Tue,Mar-18,Product,CTO,Customer #2 POC - Inventory accuracy,Target: >95%,Pending,Customer feedback positive
+8,Tue,Mar-18,Sales,VP Sales,Customer #2 - ROI calculation,$25K+ annual savings,Pending,Pricing discussion starts
+8,Wed,Mar-19,Product,CTO,Customer #3 POC Kickoff,API keys provisioned,Pending,Real data flowing
+8,Wed,Mar-19,Sales,VP Sales,Customer #2 Pricing negotiation,Deal amount: $40K ACV,Pending,Contract drafting
+8,Thu,Mar-20,Product,CTO,Customer #1 Implementation - W2,Pilot warehouse live,Pending,Inventory accuracy validated
+8,Thu,Mar-20,Sales,VP Sales,Customer #3 POC - Feedback,Multi-warehouse integration working,Pending,Strong interest
+8,Fri,Mar-21,Legal,Legal Counsel,Customer #2 Contract,Draft MSA + SOW ready,Pending,Review by customer
+8,Fri,Mar-21,Sales,VP Sales,Week 8 summary,$75K revenue in pipeline,Pending,2 customers in late-stage POC
+9,Mon,Mar-24,Sales,VP Sales,Customer #2 Contract SIGNED,Second customer executed,Pending,REVENUE UPDATE
+9,Mon,Mar-24,Product,CTO,Customer #2 Implementation - Start,Kickoff call completed,Pending,Week 1 of implementation
+9,Tue,Mar-25,Product,CTO,Customer #3 POC - Week 2,Inventory accuracy validated,Pending,ROI calculation complete
+9,Tue,Mar-25,Sales,VP Sales,Customer #3 - Final pricing,$35K ACV finalized,Pending,Contract ready for signature
+9,Wed,Mar-26,Sales,VP Sales,Customer #3 Contract SIGNED,Third customer executed,Pending,REVENUE MILESTONE: $125K
+9,Wed,Mar-26,Product,CTO,Customer #3 Implementation - Start,Kickoff call + team training,Pending,Parallel implementations
+9,Thu,Mar-27,Product,CTO,Customer #1 Implementation - W3,Full rollout to all warehouses,Pending,Training completion
+9,Thu,Mar-27,Sales,VP Sales,Case study - Customer #1,Draft case study created,Pending,ROI + metrics documented
+9,Fri,Mar-28,Sales,VP Sales,Week 9 summary,3 customers signed + $125K revenue,Pending,Ready to celebrate
+10,Mon,Mar-31,Product,CTO,Customer #2 Implementation - W2,Pilot warehouse live,Pending,Inventory accuracy check
+10,Tue,Apr-01,Sales,VP Sales,Discovery calls,6 calls this week,Pending,Build Q1 pipeline
+10,Tue,Apr-01,Product,CTO,Customer #3 Implementation - W2,Initial integration testing,Pending,Multi-warehouse validation
+10,Wed,Apr-02,Sales,VP Sales,Content marketing,Blog post drafted (Topic: Inventory optimization),Pending,SEO optimization
+10,Thu,Apr-03,Product,CTO,Customer #1 Implementation - W4,Full production live,Pending,Optimization review
+10,Thu,Apr-03,Sales,VP Sales,POC #4 & #5 - Kickoff,Two new POCs starting,Pending,Sales pipeline $600K+
+10,Fri,Apr-04,Sales,VP Sales,Week 10 summary,2 new POCs + 4 discovery calls,Pending,Expansion on track
+11,Mon,Apr-07,Product,CTO,Customer #1 - NPS survey,Feedback: 9/10,Pending,Monthly review call
+11,Tue,Apr-08,Product,CTO,Customer #2 Implementation - Full rollout,All warehouses live,Pending,Production deployment
+11,Tue,Apr-08,Sales,VP Sales,Discovery calls,6 new calls scheduled,Pending,Continue pipeline growth
+11,Wed,Apr-09,Product,CTO,Customer #3 Implementation - Pilot complete,Ready for full rollout,Pending,Week 3-4 full deployment
+11,Thu,Apr-10,Sales,VP Sales,POC #4 & #5 - Mid-point check,ROI calculations underway,Pending,Close to proposing deals
+11,Fri,Apr-11,Marketing,CEO,Case study - Customer #1 FINAL,2-page PDF + testimonial video,Pending,Ready for sales collateral
+11,Fri,Apr-11,Sales,VP Sales,Week 11 summary,3 customers fully implemented,Pending,All in production
+12,Mon,Apr-14,Sales,VP Sales,Customer testimonial video,Recorded + edited,Pending,Customer #1 story shared
+12,Tue,Apr-15,Product,CTO,Customer #2 - Optimization review,Performance tuning + custom reports,Pending,Customer satisfaction validated
+12,Tue,Apr-15,Sales,VP Sales,Discovery calls,8 new calls scheduled,Pending,Q1 forecast: 6+ customers
+12,Wed,Apr-16,Sales,VP Sales,POC #4 - Contract discussion,Deal amount + terms negotiated,Pending,Customer #4 ready to sign
+12,Thu,Apr-17,Product,CTO,Customer #3 - Optimization review,Full rollout complete + optimized,Pending,NPS survey sent
+12/30
+12,Fri,Apr-18,Admin,CEO,Lessons learned documented,10 key takeaways captured,Pending,Guide for Q1 hiring
+13,Mon,Apr-21,Sales,VP Sales,Customer #4 Contract SIGNED,Fourth customer in pipeline,Pending,Q1 momentum continues
+13,Tue,Apr-22,Product,CTO,All 3 customers fully optimized,Monthly success reviews ongoing,Pending,Ready for Q1 scaling
+13,Wed,Apr-23,Admin,CEO,First Revenue Celebration,Team announcement + board update,Pending,Media/blog post drafted
+13/30
+13,Thu,Apr-24,Admin,CEO,Q1 Revenue Projection,$150-200K forecast,Pending,6+ customers by month-end
+13,Fri,Apr-25,Admin,CEO,Week 13 MILESTONE ACHIEVED,3 customers live + $125K revenue,Pending,Ready for Series A positioning

@@ -1,0 +1,228 @@
+{
+  "last_phase": "docs",
+  "phase_history": [
+    {
+      "phase": "setup",
+      "started_ms": 1760239853547,
+      "duration_ms": 4754,
+      "success": true
+    },
+    {
+      "phase": "scaffold",
+      "started_ms": 1760239858302,
+      "duration_ms": 436,
+      "success": true
+    },
+    {
+      "phase": "format",
+      "started_ms": 1760239882310,
+      "duration_ms": 680,
+      "success": true
+    },
+    {
+      "phase": "format",
+      "started_ms": 1760239936617,
+      "duration_ms": 662,
+      "success": true
+    },
+    {
+      "phase": "format",
+      "started_ms": 1760240031087,
+      "duration_ms": 714,
+      "success": true
+    },
+    {
+      "phase": "format",
+      "started_ms": 1760240114743,
+      "duration_ms": 699,
+      "success": true
+    },
+    {
+      "phase": "format",
+      "started_ms": 1760240244869,
+      "duration_ms": 713,
+      "success": true
+    },
+    {
+      "phase": "test",
+      "started_ms": 1760240245584,
+      "duration_ms": 5710,
+      "success": true
+    },
+    {
+      "phase": "format",
+      "started_ms": 1760240385267,
+      "duration_ms": 733,
+      "success": true
+    },
+    {
+      "phase": "test",
+      "started_ms": 1760240386002,
+      "duration_ms": 1152,
+      "success": true
+    },
+    {
+      "phase": "lint",
+      "started_ms": 1760240387154,
+      "duration_ms": 1332,
+      "success": true
+    },
+    {
+      "phase": "build",
+      "started_ms": 1760240388487,
+      "duration_ms": 16731,
+      "success": true
+    },
+    {
+      "phase": "docs",
+      "started_ms": 1760240405219,
+      "duration_ms": 993,
+      "success": true
+    },
+    {
+      "phase": "format",
+      "started_ms": 1760240611417,
+      "duration_ms": 575,
+      "success": true
+    },
+    {
+      "phase": "lint",
+      "started_ms": 1760240611994,
+      "duration_ms": 1139,
+      "success": true
+    },
+    {
+      "phase": "format",
+      "started_ms": 1760240613134,
+      "duration_ms": 545,
+      "success": true
+    },
+    {
+      "phase": "test",
+      "started_ms": 1760240613680,
+      "duration_ms": 754,
+      "success": true
+    },
+    {
+      "phase": "format",
+      "started_ms": 1760240614434,
+      "duration_ms": 531,
+      "success": true
+    },
+    {
+      "phase": "test",
+      "started_ms": 1760240614966,
+      "duration_ms": 728,
+      "success": true
+    },
+    {
+      "phase": "lint",
+      "started_ms": 1760240615695,
+      "duration_ms": 1103,
+      "success": true
+    },
+    {
+      "phase": "build",
+      "started_ms": 1760240616799,
+      "duration_ms": 773,
+      "success": true
+    },
+    {
+      "phase": "docs",
+      "started_ms": 1760240617573,
+      "duration_ms": 759,
+      "success": true
+    }
+  ],
+  "generated": [],
+  "cache_keys": [
+    {
+      "phase": "setup",
+      "key": "09065591c8135143ba93950ea3a54476281abd724813fa5483e0078beac4a53b"
+    },
+    {
+      "phase": "scaffold",
+      "key": "7394d166fe36c080c092eb05a2b84126ae1f3409e170192437a6e89112d8736c"
+    },
+    {
+      "phase": "format",
+      "key": "979c06fbe301ca800643fd058003756997120c9f782d5d1e7052903b6355932c"
+    },
+    {
+      "phase": "format",
+      "key": "979c06fbe301ca800643fd058003756997120c9f782d5d1e7052903b6355932c"
+    },
+    {
+      "phase": "format",
+      "key": "979c06fbe301ca800643fd058003756997120c9f782d5d1e7052903b6355932c"
+    },
+    {
+      "phase": "format",
+      "key": "979c06fbe301ca800643fd058003756997120c9f782d5d1e7052903b6355932c"
+    },
+    {
+      "phase": "format",
+      "key": "979c06fbe301ca800643fd058003756997120c9f782d5d1e7052903b6355932c"
+    },
+    {
+      "phase": "test",
+      "key": "d3b37f9a866a81cfb02e3e4145006d29caec21d2c8417383a2e168b8575ca6e3"
+    },
+    {
+      "phase": "format",
+      "key": "979c06fbe301ca800643fd058003756997120c9f782d5d1e7052903b6355932c"
+    },
+    {
+      "phase": "test",
+      "key": "d3b37f9a866a81cfb02e3e4145006d29caec21d2c8417383a2e168b8575ca6e3"
+    },
+    {
+      "phase": "lint",
+      "key": "9b1b9bda112fbefcd9f61bd1146d633b1d805106dd4488449581523b2ee866f4"
+    },
+    {
+      "phase": "build",
+      "key": "812700dd46cf687d812daf1cc29e002491dbe4ffab4d6b2ba129e1c0b23480ff"
+    },
+    {
+      "phase": "docs",
+      "key": "11af0b4fe2131aebb87679bdf0535aba4853c4316015896baa0a948b1c27e68d"
+    },
+    {
+      "phase": "format",
+      "key": "979c06fbe301ca800643fd058003756997120c9f782d5d1e7052903b6355932c"
+    },
+    {
+      "phase": "lint",
+      "key": "9b1b9bda112fbefcd9f61bd1146d633b1d805106dd4488449581523b2ee866f4"
+    },
+    {
+      "phase": "format",
+      "key": "979c06fbe301ca800643fd058003756997120c9f782d5d1e7052903b6355932c"
+    },
+    {
+      "phase": "test",
+      "key": "d3b37f9a866a81cfb02e3e4145006d29caec21d2c8417383a2e168b8575ca6e3"
+    },
+    {
+      "phase": "format",
+      "key": "979c06fbe301ca800643fd058003756997120c9f782d5d1e7052903b6355932c"
+    },
+    {
+      "phase": "test",
+      "key": "d3b37f9a866a81cfb02e3e4145006d29caec21d2c8417383a2e168b8575ca6e3"
+    },
+    {
+      "phase": "lint",
+      "key": "9b1b9bda112fbefcd9f61bd1146d633b1d805106dd4488449581523b2ee866f4"
+    },
+    {
+      "phase": "build",
+      "key": "812700dd46cf687d812daf1cc29e002491dbe4ffab4d6b2ba129e1c0b23480ff"
+    },
+    {
+      "phase": "docs",
+      "key": "11af0b4fe2131aebb87679bdf0535aba4853c4316015896baa0a948b1c27e68d"
+    }
+  ]
+}

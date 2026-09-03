@@ -1,0 +1,33 @@
+_build/
+.rebar3/
+*.beam
+*.o
+*.so
+*.dylib
+*.dll
+*.log
+*.dump
+*.crash.dump
+rebar.lock
+.DS_Store
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+
+# Terraform
+terraform/.terraform/
+terraform/.terraform.lock.hcl
+terraform/*.tfstate
+terraform/*.tfstate.backup
+terraform/terraform.tfvars
+terraform/.terraform.tfstate.lock.info
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Docker
+docker-compose.override.yml
