@@ -1,3 +1,10 @@
+//! Chicago-TDD e2e proof for `packs/ggen-ecosystem-ocel-pack`'s CELL4 run
+//! step. Real filesystem, real ggen sync, real JSON parsing, no mocks --
+//! same discipline as the sibling `ggen_ecosystem_ocel_pack_e2e.rs`, whose
+//! `#![allow(...)]` header this file was missing (pre-push fmt/lint gate
+//! caught it on the reconcile merge that brought this file in).
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 use sha2::{Digest, Sha256};
 use std::path::{Path, PathBuf};
 
