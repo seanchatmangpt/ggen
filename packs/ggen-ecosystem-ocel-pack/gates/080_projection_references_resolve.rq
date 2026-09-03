@@ -1,0 +1,28 @@
+# MESSAGE: all event joins used by deterministic OCEL projection must resolve to admitted run/object/type subjects; silent row loss is refused.
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+SELECT ?event ?reason WHERE {
+  {
+    ?event a geocel:ManufacturingEvent ;
+           geocel:inRun ?run .
+    FILTER NOT EXISTS { ?run a geocel:ManufacturingRun }
+    BIND("RUN_REFERENCE_UNRESOLVED" AS ?reason)
+  }
+  UNION
+  {
+    ?event a geocel:ManufacturingEvent ;
+           geocel:relatesTo ?object .
+    FILTER NOT EXISTS { ?object a geocel:ManufacturingObject }
+    BIND("OBJECT_REFERENCE_UNRESOLVED" AS ?reason)
+  }
+  UNION
+  {
+    ?event a geocel:ManufacturingEvent ;
+           geocel:eventType ?type .
+    FILTER NOT EXISTS {
+      ?type skos:prefLabel ?label .
+      FILTER(STR(?label) IN ("observe","admit","select","generate","realize","qualify","merge","receipt","replay","refuse"))
+    }
+    BIND("EVENT_TYPE_UNRESOLVED" AS ?reason)
+  }
+}

@@ -1,0 +1,471 @@
+@prefix gha: <http://seanchatmangpt.github.io/packs/github-actions#> .
+@prefix ex: <https://ggen.io/tests/github-sync-run#> .
+
+# Authored semantic input. github-actions-pack + `ggen sync run` owns the YAML.
+ex:workflow
+    a gha:Workflow ;
+    gha:fileName "ggen-sync-run.yml" ;
+    gha:purpose "GGen Sync Run" ;
+    gha:permissionCeiling "contents: read" ;
+    gha:trigger gha:EventWorkflowDispatch ;
+    gha:noPushTriggerReason "reusable workflow_call target with explicit workflow_dispatch replay" ;
+    gha:onBlock """workflow_call:
+  inputs:
+    ggen_release:
+      description: Exact ggen release tag to execute
+      required: true
+      type: string
+    ggen_asset_sha256:
+      description: SHA-256 of ggen-x86_64-unknown-linux-gnu.tar.gz
+      required: true
+      type: string
+    marketplace_sha:
+      description: One exact ggen-marketplace commit required by every pack reference
+      required: false
+      type: string
+      default: 4c4232515b43d40cef8288c43eacfab2c31ab485
+    working_directory:
+      description: Repository-relative directory containing ggen.toml
+      required: false
+      type: string
+      default: .
+    dry_run:
+      description: Execute the same ggen sync run rail in preview mode
+      required: false
+      type: boolean
+      default: false
+    artifact_retention_days:
+      description: Retention for deterministic replay evidence
+      required: false
+      type: number
+      default: 30
+    attest_provenance:
+      description: Emit GitHub artifact attestations when caller authority permits
+      required: false
+      type: boolean
+      default: false
+    publish_changes:
+      description: Permit the separate DO job to push the exact manufactured patch
+      required: false
+      type: boolean
+      default: false
+    commit_message:
+      description: Commit message used only by the optional DO job
+      required: false
+      type: string
+      default: chore(ggen): sync generated artifacts
+  outputs:
+    changed:
+      description: Whether ggen sync run manufactured a repository patch
+      value: ${{ jobs.construct.outputs.changed }}
+    sync_exit_code:
+      description: Exit code returned by ggen sync run
+      value: ${{ jobs.construct.outputs.sync_exit_code }}
+    ggen_binary_sha256:
+      description: SHA-256 of the exact ggen executable used
+      value: ${{ jobs.construct.outputs.ggen_binary_sha256 }}
+    receipt_sha256:
+      description: SHA-256 of the GitHub execution receipt
+      value: ${{ jobs.construct.outputs.receipt_sha256 }}
+workflow_dispatch:
+  inputs:
+    ggen_release:
+      description: Exact ggen release tag
+      required: true
+      type: string
+      default: v26.8.27
+    ggen_asset_sha256:
+      description: SHA-256 of the Linux release asset
+      required: true
+      type: string
+      default: ab442ced90a9836fd4eb07a5d61eb58293843cd515d864699fc0d0453444a035
+    marketplace_sha:
+      description: One exact ggen-marketplace commit required by every pack
+      required: true
+      type: string
+      default: 4c4232515b43d40cef8288c43eacfab2c31ab485
+    working_directory:
+      description: Repository-relative directory containing ggen.toml
+      required: true
+      type: string
+      default: .
+    dry_run:
+      description: Preview without writing generated projections
+      required: true
+      type: boolean
+      default: false
+    artifact_retention_days:
+      description: Retention for deterministic replay evidence
+      required: true
+      type: number
+      default: 30
+    attest_provenance:
+      description: Emit GitHub artifact attestations
+      required: true
+      type: boolean
+      default: true
+    publish_changes:
+      description: Push the exact manufactured patch to the current branch
+      required: true
+      type: boolean
+      default: false
+    commit_message:
+      description: Commit message for the optional DO job
+      required: true
+      type: string
+      default: chore(ggen): sync generated artifacts""" ;
+    gha:concurrencyPolicy """group: ggen-sync-${{ github.repository }}-${{ github.ref }}-${{ inputs.working_directory }}
+cancel-in-progress: false""" ;
+    gha:evidenceObligation "bind exact candidate, GGen asset digest, one marketplace SHA, pack identities, generated patch, intrinsic receipt, and GitHub run" ;
+    gha:standingEffect "CONSTRUCT has no repository write authority; optional DO consumes only the manufactured patch" .
+
+ex:construct
+    a gha:Job ;
+    gha:inWorkflow ex:workflow ;
+    gha:jobName "construct" ;
+    gha:runner "ubuntu-24.04" ;
+    gha:timeoutMinutes 20 ;
+    gha:jobPermissions """contents: read
+id-token: write
+attestations: write""" ;
+    gha:jobExtra """name: Deterministic manufacture
+outputs:
+  changed: ${{ steps.evidence.outputs.changed }}
+  sync_exit_code: ${{ steps.sync.outputs.exit_code }}
+  ggen_binary_sha256: ${{ steps.install.outputs.binary_sha256 }}
+  receipt_sha256: ${{ steps.evidence.outputs.receipt_sha256 }}""" ;
+    gha:evidenceEmitted "immutable patch, replay receipt, GGen receipt, logs, optional GitHub attestation" ;
+    gha:failureClassification "REFUSED or BUILD_BROKEN before repository write authority exists" .
+
+ex:checkout
+    a gha:Step ;
+    gha:inJob ex:construct ; gha:stepOrder 1 ;
+    gha:stepName "Checkout exact caller candidate" ;
+    gha:usesAction "actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6" ;
+    gha:withParam "ref: ${{ github.event.pull_request.head.sha || github.event.merge_group.head_sha || github.sha }}" ;
+    gha:withParam "fetch-depth: 0" ;
+    gha:withParam "persist-credentials: false" .
+
+ex:admit
+    a gha:Step ;
+    gha:inJob ex:construct ; gha:stepOrder 2 ;
+    gha:stepName "Admit immutable producer and marketplace identities" ;
+    gha:stepId "admit" ;
+    gha:envVar "CANDIDATE_SHA: ${{ github.event.pull_request.head.sha || github.event.merge_group.head_sha || github.sha }}" ;
+    gha:envVar "GGEN_RELEASE: ${{ inputs.ggen_release }}" ;
+    gha:envVar "GGEN_ASSET_SHA256: ${{ inputs.ggen_asset_sha256 }}" ;
+    gha:envVar "MARKETPLACE_SHA: ${{ inputs.marketplace_sha }}" ;
+    gha:envVar "GGEN_WORKING_DIRECTORY: ${{ inputs.working_directory }}" ;
+    gha:runCommand """set -euo pipefail
+[[ "$(git rev-parse HEAD)" = "$CANDIDATE_SHA" ]] || { echo 'REFUSED[EXACT_HEAD_MISMATCH]' >&2; exit 2; }
+[[ "$GGEN_RELEASE" =~ ^v[0-9]+[.][0-9]+[.][0-9]+([.+-][0-9A-Za-z.-]+)?$ ]] || { echo 'REFUSED[INVALID_GGEN_RELEASE_TAG]' >&2; exit 2; }
+[[ "$GGEN_ASSET_SHA256" =~ ^[0-9a-f]{64}$ ]] || { echo 'REFUSED[INVALID_GGEN_ASSET_SHA256]' >&2; exit 2; }
+[[ "$MARKETPLACE_SHA" =~ ^[0-9a-f]{40}$ ]] || { echo 'REFUSED[INVALID_MARKETPLACE_SHA]' >&2; exit 2; }
+mkdir -p "$RUNNER_TEMP/ggen-sync-evidence"
+export GGEN_PACK_RECEIPT="$RUNNER_TEMP/ggen-sync-evidence/packs.json"
+python3 - <<'PY'
+import json, os, tomllib
+from pathlib import Path, PurePosixPath
+workspace = Path(os.environ['GITHUB_WORKSPACE']).resolve()
+root = (workspace / os.environ['GGEN_WORKING_DIRECTORY']).resolve()
+if root != workspace and workspace not in root.parents:
+    raise SystemExit('REFUSED[WORKING_DIRECTORY_ESCAPES_WORKSPACE]')
+manifest = root / 'ggen.toml'
+if not manifest.is_file():
+    raise SystemExit('REFUSED[GGEN_MANIFEST_MISSING]')
+doc = tomllib.loads(manifest.read_text())
+packs = doc.get('packs')
+if not isinstance(packs, dict) or not packs:
+    raise SystemExit('REFUSED[MARKETPLACE_PACKS_REQUIRED]')
+expected = os.environ['MARKETPLACE_SHA']
+admitted = []
+for alias, ref in sorted(packs.items()):
+    if not isinstance(ref, dict):
+        raise SystemExit(f'REFUSED[PACK_REF_NOT_GIT]:{alias}')
+    git = str(ref.get('git', '')).removesuffix('.git')
+    version = str(ref.get('version', '')).lower()
+    subdir = str(ref.get('subdir', ''))
+    if git != 'https://github.com/seanchatmangpt/ggen-marketplace':
+        raise SystemExit(f'REFUSED[NON_MARKETPLACE_PACK]:{alias}:{git}')
+    if version != expected:
+        raise SystemExit(f'REFUSED[MARKETPLACE_SHA_DRIFT]:{alias}:{version}:{expected}')
+    sub = PurePosixPath(subdir)
+    if sub.is_absolute() or '..' in sub.parts or len(sub.parts) != 2 or sub.parts[0] != 'packs':
+        raise SystemExit(f'REFUSED[INVALID_MARKETPLACE_PACK_SUBDIR]:{alias}:{subdir}')
+    admitted.append({'alias': alias, 'git': git, 'version': version, 'subdir': subdir})
+Path(os.environ['GGEN_PACK_RECEIPT']).write_text(json.dumps(admitted, indent=2, sort_keys=True) + chr(10))
+print(f'ALIVE: admitted {len(admitted)} pack(s) at marketplace {expected}')
+PY""" .
+
+ex:cache
+    a gha:Step ;
+    gha:inJob ex:construct ; gha:stepOrder 3 ;
+    gha:stepName "Restore untrusted marketplace acceleration cache" ;
+    gha:usesAction "actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5" ;
+    gha:withParam "path: ~/.cache/ggen-marketplace" ;
+    gha:withParam "key: ggen-marketplace-${{ runner.os }}-${{ inputs.marketplace_sha }}" .
+
+ex:prime
+    a gha:Step ;
+    gha:inJob ex:construct ; gha:stepOrder 4 ;
+    gha:stepName "Verify and prime one shared marketplace snapshot" ;
+    gha:envVar "MARKETPLACE_SHA: ${{ inputs.marketplace_sha }}" ;
+    gha:envVar "GGEN_WORKING_DIRECTORY: ${{ inputs.working_directory }}" ;
+    gha:runCommand """set -euo pipefail
+shared="$HOME/.cache/ggen-marketplace/$MARKETPLACE_SHA/repo"
+origin='https://github.com/seanchatmangpt/ggen-marketplace.git'
+valid=false
+if [[ -d "$shared/.git" ]]; then
+  cached_origin="$(git -C "$shared" remote get-url origin 2>/dev/null || true)"
+  cached_head="$(git -C "$shared" rev-parse HEAD 2>/dev/null || true)"
+  if [[ "$cached_origin" = "$origin" && "$cached_head" = "$MARKETPLACE_SHA" ]] && git -C "$shared" fsck --strict --no-dangling >/dev/null 2>&1; then
+    git -C "$shared" reset --hard "$MARKETPLACE_SHA" >/dev/null
+    git -C "$shared" clean -ffdqx >/dev/null
+    valid=true
+  fi
+fi
+if [[ "$valid" != true ]]; then
+  rm -rf "$shared"
+  mkdir -p "$shared"
+  git -C "$shared" init -q
+  git -C "$shared" remote add origin "$origin"
+  git -C "$shared" config remote.origin.promisor true
+  git -C "$shared" config remote.origin.partialclonefilter blob:none
+  git -C "$shared" config core.sparseCheckout true
+  git -C "$shared" config core.sparseCheckoutCone true
+  mkdir -p "$shared/.git/info"
+  cat > "$shared/.git/info/sparse-checkout" <<'EOF'
+/*
+!/*/
+/packs/
+EOF
+  git -C "$shared" -c protocol.version=2 fetch -q --depth 1 --filter=blob:none origin "$MARKETPLACE_SHA"
+  git -C "$shared" checkout -q --detach FETCH_HEAD
+fi
+[[ "$(git -C "$shared" rev-parse HEAD)" = "$MARKETPLACE_SHA" ]] || { echo 'BUILD_BROKEN[MARKETPLACE_CACHE_HEAD_MISMATCH]' >&2; exit 1; }
+git -C "$shared" fsck --strict --no-dangling >/dev/null
+echo "$MARKETPLACE_SHA" > "$shared/.ggen-git-pin"
+export GGEN_SHARED_MARKETPLACE="$shared"
+export GGEN_PACK_RECEIPT="$RUNNER_TEMP/ggen-sync-evidence/packs.json"
+python3 - <<'PY'
+import json, os, shutil
+from pathlib import Path
+workspace = Path(os.environ['GITHUB_WORKSPACE']).resolve()
+root = (workspace / os.environ['GGEN_WORKING_DIRECTORY']).resolve()
+shared = Path(os.environ['GGEN_SHARED_MARKETPLACE']).resolve()
+cache_root = root / '.ggen-v2' / 'git-packs'
+cache_root.mkdir(parents=True, exist_ok=True)
+packs = json.loads(Path(os.environ['GGEN_PACK_RECEIPT']).read_text())
+for pack in packs:
+    dest = cache_root / pack['alias']
+    if dest.is_symlink() or dest.exists():
+        if dest.is_symlink() or dest.is_file():
+            dest.unlink()
+        else:
+            shutil.rmtree(dest)
+    dest.symlink_to(shared, target_is_directory=True)
+print(f'ALIVE: primed shared marketplace snapshot for {len(packs)} pack alias(es)')
+PY""" .
+
+ex:install
+    a gha:Step ;
+    gha:inJob ex:construct ; gha:stepOrder 5 ;
+    gha:stepName "Install checksum-pinned ggen GitHub Release asset" ;
+    gha:stepId "install" ;
+    gha:envVar "GGEN_RELEASE: ${{ inputs.ggen_release }}" ;
+    gha:envVar "GGEN_ASSET_SHA256: ${{ inputs.ggen_asset_sha256 }}" ;
+    gha:runCommand """set -euo pipefail
+asset='ggen-x86_64-unknown-linux-gnu.tar.gz'
+archive="$RUNNER_TEMP/$asset"
+extract="$RUNNER_TEMP/ggen-release"
+bin_dir="$RUNNER_TEMP/ggen-bin"
+url="https://github.com/seanchatmangpt/ggen/releases/download/${GGEN_RELEASE}/${asset}"
+curl --fail --location --retry 3 --retry-all-errors --proto '=https' --tlsv1.2 --output "$archive" "$url"
+echo "$GGEN_ASSET_SHA256  $archive" | sha256sum --check --strict
+rm -rf "$extract" "$bin_dir"
+mkdir -p "$extract" "$bin_dir"
+tar -xzf "$archive" -C "$extract"
+mapfile -t candidates < <(find "$extract" -type f -name ggen -print)
+[[ "${#candidates[@]}" -eq 1 ]] || { echo "REFUSED[GGEN_ASSET_BINARY_COUNT]:${#candidates[@]}" >&2; exit 2; }
+install -m 0755 "${candidates[0]}" "$bin_dir/ggen"
+binary_sha256="$(sha256sum "$bin_dir/ggen" | awk '{print $1}')"
+echo "$bin_dir" >> "$GITHUB_PATH"
+echo "GGEN_BIN=$bin_dir/ggen" >> "$GITHUB_ENV"
+echo "binary_sha256=$binary_sha256" >> "$GITHUB_OUTPUT""" .
+
+ex:sync
+    a gha:Step ;
+    gha:inJob ex:construct ; gha:stepOrder 6 ;
+    gha:stepName "Manufacture with ggen sync run" ;
+    gha:stepId "sync" ;
+    gha:continueOnError true ;
+    gha:envVar "GGEN_WORKING_DIRECTORY: ${{ inputs.working_directory }}" ;
+    gha:envVar "GGEN_DRY_RUN: ${{ inputs.dry_run }}" ;
+    gha:runCommand """set -uo pipefail
+mkdir -p "$RUNNER_TEMP/ggen-sync-evidence"
+set +e
+if [[ "$GGEN_DRY_RUN" = true ]]; then
+  (cd "$GGEN_WORKING_DIRECTORY" && "$GGEN_BIN" sync run --dry-run) > >(tee "$RUNNER_TEMP/ggen-sync-evidence/stdout.log") 2> >(tee "$RUNNER_TEMP/ggen-sync-evidence/stderr.log" >&2)
+else
+  (cd "$GGEN_WORKING_DIRECTORY" && "$GGEN_BIN" sync run) > >(tee "$RUNNER_TEMP/ggen-sync-evidence/stdout.log") 2> >(tee "$RUNNER_TEMP/ggen-sync-evidence/stderr.log" >&2)
+fi
+exit_code=$?
+set -e
+echo "exit_code=$exit_code" >> "$GITHUB_OUTPUT"
+echo "$exit_code" > "$RUNNER_TEMP/ggen-sync-evidence/sync-exit-code.txt""" .
+
+ex:evidence
+    a gha:Step ;
+    gha:inJob ex:construct ; gha:stepOrder 7 ;
+    gha:stepName "Bind exact generated consequence into replay receipt" ;
+    gha:stepId "evidence" ;
+    gha:condition "always()" ;
+    gha:envVar "CANDIDATE_SHA: ${{ github.event.pull_request.head.sha || github.event.merge_group.head_sha || github.sha }}" ;
+    gha:envVar "GGEN_RELEASE: ${{ inputs.ggen_release }}" ;
+    gha:envVar "GGEN_ASSET_SHA256: ${{ inputs.ggen_asset_sha256 }}" ;
+    gha:envVar "MARKETPLACE_SHA: ${{ inputs.marketplace_sha }}" ;
+    gha:envVar "GGEN_WORKING_DIRECTORY: ${{ inputs.working_directory }}" ;
+    gha:envVar "GGEN_DRY_RUN: ${{ inputs.dry_run }}" ;
+    gha:envVar "GGEN_BINARY_SHA256: ${{ steps.install.outputs.binary_sha256 }}" ;
+    gha:envVar "SYNC_EXIT_CODE: ${{ steps.sync.outputs.exit_code }}" ;
+    gha:runCommand """set -euo pipefail
+tmp="$RUNNER_TEMP/ggen-sync-evidence"
+if [[ -f "$GGEN_WORKING_DIRECTORY/.ggen-v2/receipt.json" ]]; then cp "$GGEN_WORKING_DIRECTORY/.ggen-v2/receipt.json" "$tmp/ggen-receipt.json"; fi
+rm -rf "$GGEN_WORKING_DIRECTORY/.ggen-v2"
+git add -A -- "$GGEN_WORKING_DIRECTORY"
+git diff --cached --check
+git diff --cached --binary --no-ext-diff > "$tmp/ggen-sync.patch"
+if [[ -s "$tmp/ggen-sync.patch" ]]; then changed=true; else changed=false; fi
+git reset --quiet
+echo "changed=$changed" >> "$GITHUB_OUTPUT"
+rm -rf .ggen-github
+mkdir -p .ggen-github
+cp "$tmp/packs.json" .ggen-github/packs.json
+cp "$tmp/ggen-sync.patch" .ggen-github/ggen-sync.patch
+cp "$tmp/stdout.log" .ggen-github/stdout.log 2>/dev/null || true
+cp "$tmp/stderr.log" .ggen-github/stderr.log 2>/dev/null || true
+cp "$tmp/ggen-receipt.json" .ggen-github/ggen-receipt.json 2>/dev/null || true
+export GGEN_CHANGED="$changed"
+python3 - <<'PY'
+import hashlib, json, os
+from pathlib import Path
+workspace = Path(os.environ['GITHUB_WORKSPACE']).resolve()
+root = (workspace / os.environ['GGEN_WORKING_DIRECTORY']).resolve()
+out = workspace / '.ggen-github'
+def digest(path):
+    h = hashlib.sha256()
+    with path.open('rb') as fh:
+        for chunk in iter(lambda: fh.read(1048576), b''):
+            h.update(chunk)
+    return h.hexdigest()
+intrinsic = out / 'ggen-receipt.json'
+lock = root / 'ggen.lock'
+receipt = {
+  'schema': 'https://ggen.dev/receipts/github-sync/v1',
+  'repository': os.environ['GITHUB_REPOSITORY'],
+  'source_sha': os.environ['CANDIDATE_SHA'],
+  'workflow_ref': os.environ.get('GITHUB_WORKFLOW_REF'),
+  'run_id': os.environ['GITHUB_RUN_ID'],
+  'run_attempt': os.environ['GITHUB_RUN_ATTEMPT'],
+  'ggen_release': os.environ['GGEN_RELEASE'],
+  'ggen_asset_sha256': os.environ['GGEN_ASSET_SHA256'],
+  'ggen_binary_sha256': os.environ.get('GGEN_BINARY_SHA256'),
+  'marketplace_sha': os.environ['MARKETPLACE_SHA'],
+  'working_directory': os.environ['GGEN_WORKING_DIRECTORY'],
+  'packs': json.loads((out / 'packs.json').read_text()),
+  'sync_command': 'ggen sync run' + (' --dry-run' if os.environ['GGEN_DRY_RUN'] == 'true' else ''),
+  'sync_exit_code': os.environ.get('SYNC_EXIT_CODE'),
+  'changed': os.environ['GGEN_CHANGED'] == 'true',
+  'patch_sha256': digest(out / 'ggen-sync.patch'),
+  'ggen_receipt_sha256': digest(intrinsic) if intrinsic.is_file() else None,
+  'ggen_lock_sha256': digest(lock) if lock.is_file() else None
+}
+(out / 'ggen-sync-receipt.json').write_text(json.dumps(receipt, indent=2, sort_keys=True) + chr(10))
+print(json.dumps(receipt, sort_keys=True))
+PY
+sha256sum .ggen-github/ggen-sync.patch .ggen-github/ggen-sync-receipt.json .ggen-github/packs.json > .ggen-github/SHA256SUMS
+receipt_sha256="$(sha256sum .ggen-github/ggen-sync-receipt.json | awk '{print $1}')"
+echo "receipt_sha256=$receipt_sha256" >> "$GITHUB_OUTPUT""" .
+
+ex:upload
+    a gha:Step ;
+    gha:inJob ex:construct ; gha:stepOrder 8 ;
+    gha:stepName "Upload immutable deterministic replay evidence" ;
+    gha:condition "always()" ;
+    gha:usesAction "actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6" ;
+    gha:withParam "name: ggen-sync-${{ github.run_id }}-${{ github.run_attempt }}" ;
+    gha:withParam "path: .ggen-github/" ;
+    gha:withParam "if-no-files-found: error" ;
+    gha:withParam "retention-days: ${{ inputs.artifact_retention_days }}" ;
+    gha:withParam "include-hidden-files: true" .
+
+ex:attest
+    a gha:Step ;
+    gha:inJob ex:construct ; gha:stepOrder 9 ;
+    gha:stepName "Attest manufactured patch and receipt" ;
+    gha:condition "inputs.attest_provenance && steps.sync.outcome == 'success'" ;
+    gha:usesAction "actions/attest-build-provenance@977bb373ede98d70efdf65b84cb5f73e068dcc2a # v3" ;
+    gha:withParam "subject-checksums: .ggen-github/SHA256SUMS" .
+
+ex:enforce
+    a gha:Step ;
+    gha:inJob ex:construct ; gha:stepOrder 10 ;
+    gha:stepName "Enforce ggen sync standing" ;
+    gha:condition "always()" ;
+    gha:envVar "SYNC_EXIT_CODE: ${{ steps.sync.outputs.exit_code }}" ;
+    gha:runCommand """if [[ "${SYNC_EXIT_CODE:-not-run}" != 0 ]]; then
+  echo "BUILD_BROKEN[GGEN_SYNC_RUN_FAILED]:${SYNC_EXIT_CODE:-not-run}" >&2
+  exit 1
+fi""" .
+
+ex:publish
+    a gha:Job ;
+    gha:inWorkflow ex:workflow ;
+    gha:jobName "publish" ;
+    gha:runner "ubuntu-24.04" ;
+    gha:timeoutMinutes 10 ;
+    gha:dependsOn ex:construct ;
+    gha:condition "inputs.publish_changes && needs.construct.result == 'success'" ;
+    gha:jobPermissions "contents: write" ;
+    gha:evidenceEmitted "one Git commit whose staged diff is exactly the manufactured patch" ;
+    gha:failureClassification "REFUSED when exact-head or branch authority drifts or repository rules reject push" .
+
+ex:publishCheckout
+    a gha:Step ;
+    gha:inJob ex:publish ; gha:stepOrder 1 ;
+    gha:stepName "Checkout exact candidate with bounded DO authority" ;
+    gha:usesAction "actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6" ;
+    gha:withParam "ref: ${{ github.event.pull_request.head.sha || github.event.merge_group.head_sha || github.sha }}" ;
+    gha:withParam "fetch-depth: 0" ;
+    gha:withParam "persist-credentials: true" .
+
+ex:download
+    a gha:Step ;
+    gha:inJob ex:publish ; gha:stepOrder 2 ;
+    gha:stepName "Download exact manufactured consequence" ;
+    gha:usesAction "actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7" ;
+    gha:withParam "name: ggen-sync-${{ github.run_id }}-${{ github.run_attempt }}" ;
+    gha:withParam "path: .ggen-github" .
+
+ex:actuate
+    a gha:Step ;
+    gha:inJob ex:publish ; gha:stepOrder 3 ;
+    gha:stepName "Commit and push the exact manufactured patch" ;
+    gha:envVar "CANDIDATE_SHA: ${{ github.event.pull_request.head.sha || github.event.merge_group.head_sha || github.sha }}" ;
+    gha:envVar "COMMIT_MESSAGE: ${{ inputs.commit_message }}" ;
+    gha:runCommand """set -euo pipefail
+sha256sum --check --strict .ggen-github/SHA256SUMS
+[[ "$(git rev-parse HEAD)" = "$CANDIDATE_SHA" ]] || { echo 'REFUSED[EXACT_HEAD_DRIFT]' >&2; exit 2; }
+[[ "$GITHUB_REF" == refs/heads/* ]] || { echo "REFUSED[PUBLISH_REQUIRES_BRANCH_REF]:$GITHUB_REF" >&2; exit 2; }
+branch="${GITHUB_REF#refs/heads/}"
+git fetch --no-tags origin "$branch"
+[[ "$(git rev-parse FETCH_HEAD)" = "$CANDIDATE_SHA" ]] || { echo 'REFUSED[REMOTE_HEAD_DRIFT]' >&2; exit 2; }
+if [[ ! -s .ggen-github/ggen-sync.patch ]]; then echo 'ALIVE:NO_GENERATED_CHANGES'; exit 0; fi
+git apply --index --whitespace=error-all .ggen-github/ggen-sync.patch
+git diff --cached --check
+if git diff --cached --quiet; then echo 'ALIVE:NO_GENERATED_CHANGES'; exit 0; fi
+git config user.name 'github-actions[bot]'
+git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+git commit -m "$COMMIT_MESSAGE"
+git push origin HEAD:$branch
+""" .

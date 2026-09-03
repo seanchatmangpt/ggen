@@ -1,0 +1,3 @@
+# MESSAGE: objectId must be an opaque token without whitespace.
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+SELECT ?object ?v WHERE { ?object a geocel:ManufacturingObject ; geocel:objectId ?v . FILTER(REGEX(STR(?v), "\\s")) }

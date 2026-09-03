@@ -1,0 +1,6 @@
+# MESSAGE: repository locators must be nonblank before they enter receipts or Project memory.
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+SELECT ?object ?repository WHERE {
+  ?object a geocel:RepositoryObject ; geocel:repository ?repository .
+  FILTER(STRLEN(REPLACE(STR(?repository), "\\s", "")) = 0)
+}

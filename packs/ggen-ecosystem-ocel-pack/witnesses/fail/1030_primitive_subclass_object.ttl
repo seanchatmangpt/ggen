@@ -1,0 +1,3 @@
+@prefix geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+geocel:GgenPrimitiveObject rdfs:subClassOf geocel:ManufacturingRun .

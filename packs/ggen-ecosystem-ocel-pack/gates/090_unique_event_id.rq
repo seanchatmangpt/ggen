@@ -1,0 +1,5 @@
+# MESSAGE: eventId is an OCEL identity key; duplicate event identities make replay ambiguous.
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+SELECT ?eventId (COUNT(?event) AS ?count) WHERE {
+  ?event a geocel:ManufacturingEvent ; geocel:eventId ?eventId .
+} GROUP BY ?eventId HAVING(COUNT(?event) > 1)

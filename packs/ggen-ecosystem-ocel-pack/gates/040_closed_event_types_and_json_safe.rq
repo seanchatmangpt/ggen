@@ -1,0 +1,21 @@
+# MESSAGE: event types are closed and JSON-projected identity literals must be machine-safe; any row refuses generation instead of emitting malformed transport.
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+SELECT ?subject ?value ?reason WHERE {
+  {
+    ?subject a geocel:ManufacturingEvent ; geocel:eventType ?type .
+    ?type skos:prefLabel ?value .
+    FILTER(STR(?value) NOT IN ("observe","admit","select","generate","realize","qualify","merge","receipt","replay","refuse"))
+    BIND("UNSUPPORTED_EVENT_TYPE" AS ?reason)
+  }
+  UNION
+  {
+    ?subject ?property ?value .
+    VALUES ?property {
+      geocel:runId geocel:cell geocel:projectOwner geocel:projectMemoryKey geocel:ocelDigest
+      geocel:standing geocel:eventId geocel:objectId geocel:repository geocel:exactHead
+    }
+    FILTER(REGEX(STR(?value), "[\\\"\\\\\\n\\r\\t]"))
+    BIND("JSON_UNSAFE_LITERAL" AS ?reason)
+  }
+}

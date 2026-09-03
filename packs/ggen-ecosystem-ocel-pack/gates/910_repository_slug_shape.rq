@@ -1,0 +1,3 @@
+# MESSAGE: repository must use canonical owner/name GitHub slug shape.
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+SELECT ?object ?v WHERE { ?object a geocel:RepositoryObject ; geocel:repository ?v . FILTER(!REGEX(STR(?v), "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$")) }

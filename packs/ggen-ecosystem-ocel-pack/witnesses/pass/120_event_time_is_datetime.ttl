@@ -1,0 +1,4 @@
+@prefix geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#> .
+@prefix ex: <urn:ggen:witness:> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+ex:event a geocel:ManufacturingEvent ; geocel:eventTime "2026-08-27T20:00:00Z"^^xsd:dateTime .

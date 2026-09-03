@@ -1,0 +1,6 @@
+# MESSAGE: standing is evidence-bearing state and cannot project as blank text.
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+SELECT ?subject ?standing WHERE {
+  ?subject geocel:standing ?standing .
+  FILTER(STRLEN(REPLACE(STR(?standing), "\\s", "")) = 0)
+}

@@ -1,0 +1,5 @@
+@prefix geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix ex: <urn:ggen:witness:> .
+ex:event a geocel:ManufacturingEvent ; geocel:eventType geocel:Observe .
+geocel:Observe a skos:Concept .

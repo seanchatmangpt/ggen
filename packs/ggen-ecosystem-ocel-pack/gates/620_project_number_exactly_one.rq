@@ -1,0 +1,3 @@
+# MESSAGE: each ManufacturingRun must have exactly one projectNumber.
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+SELECT ?run (COUNT(?v) AS ?count) WHERE { ?run a geocel:ManufacturingRun . OPTIONAL { ?run geocel:projectNumber ?v } } GROUP BY ?run HAVING(COUNT(?v) != 1)

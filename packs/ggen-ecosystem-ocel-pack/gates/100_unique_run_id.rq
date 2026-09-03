@@ -1,0 +1,5 @@
+# MESSAGE: runId is the replay identity for a manufacturing run and must not alias another run.
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+SELECT ?runId (COUNT(?run) AS ?count) WHERE {
+  ?run a geocel:ManufacturingRun ; geocel:runId ?runId .
+} GROUP BY ?runId HAVING(COUNT(?run) > 1)

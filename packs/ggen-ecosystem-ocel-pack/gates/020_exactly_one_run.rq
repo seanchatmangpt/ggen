@@ -1,0 +1,6 @@
+# MESSAGE: this projection pack is deliberately one-run-per-generation so one Project-memory request cannot ambiguously bind multiple runs.
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+SELECT (COUNT(DISTINCT ?run) AS ?run_count) WHERE {
+  ?run a geocel:ManufacturingRun .
+}
+HAVING(COUNT(DISTINCT ?run) != 1)

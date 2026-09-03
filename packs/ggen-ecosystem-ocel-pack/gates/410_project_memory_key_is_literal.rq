@@ -1,0 +1,3 @@
+# MESSAGE: Project memory key is emitted into JSON and must be a literal identity.
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+SELECT ?run ?value WHERE { ?run a geocel:ManufacturingRun ; geocel:projectMemoryKey ?value . FILTER(!isLiteral(?value)) }

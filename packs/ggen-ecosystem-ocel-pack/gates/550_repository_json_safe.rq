@@ -1,0 +1,6 @@
+# MESSAGE: repository identity must be safe for deterministic JSON and receipt projection.
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+SELECT ?object ?value WHERE {
+  ?object a geocel:RepositoryObject ; geocel:repository ?value .
+  FILTER(REGEX(STR(?value), "[\\x00-\\x1F]"))
+}

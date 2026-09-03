@@ -1,0 +1,3 @@
+# MESSAGE: eventId becomes an OCEL JSON identifier and must be literal.
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+SELECT ?event ?value WHERE { ?event a geocel:ManufacturingEvent ; geocel:eventId ?value . FILTER(!isLiteral(?value)) }

@@ -1,0 +1,12 @@
+# MESSAGE: this v1 projection emits one OCEL event record per manufacturing event; multiple primary object relations would duplicate the event identity and are refused.
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+SELECT ?event ?relationCount WHERE {
+  {
+    SELECT ?event (COUNT(DISTINCT ?object) AS ?relationCount) WHERE {
+      ?event a geocel:ManufacturingEvent ;
+             geocel:relatesTo ?object .
+    }
+    GROUP BY ?event
+  }
+  FILTER(?relationCount != 1)
+}

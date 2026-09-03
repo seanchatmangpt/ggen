@@ -1,0 +1,3 @@
+# MESSAGE: eventId must not be empty or whitespace-only.
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+SELECT ?event ?v WHERE { ?event a geocel:ManufacturingEvent ; geocel:eventId ?v . FILTER(STRLEN(REPLACE(STR(?v), "\\s", "")) = 0) }

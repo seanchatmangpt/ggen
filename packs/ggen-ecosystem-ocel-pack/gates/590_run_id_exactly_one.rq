@@ -1,0 +1,3 @@
+# MESSAGE: each ManufacturingRun must have exactly one runId.
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+SELECT ?run (COUNT(?runId) AS ?count) WHERE { ?run a geocel:ManufacturingRun . OPTIONAL { ?run geocel:runId ?runId } } GROUP BY ?run HAVING(COUNT(?runId) != 1)

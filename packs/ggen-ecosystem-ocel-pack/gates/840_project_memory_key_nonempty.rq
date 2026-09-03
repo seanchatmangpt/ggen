@@ -1,0 +1,3 @@
+# MESSAGE: projectMemoryKey must not be empty or whitespace-only.
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+SELECT ?run ?v WHERE { ?run a geocel:ManufacturingRun ; geocel:projectMemoryKey ?v . FILTER(STRLEN(REPLACE(STR(?v), "\\s", "")) = 0) }

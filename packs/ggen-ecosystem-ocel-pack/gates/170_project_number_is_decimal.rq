@@ -1,0 +1,6 @@
+# MESSAGE: projectNumber must project as a positive decimal identifier.
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+SELECT ?run ?number WHERE {
+  ?run a geocel:ManufacturingRun ; geocel:projectNumber ?number .
+  FILTER(!REGEX(STR(?number), "^[1-9][0-9]*$"))
+}
