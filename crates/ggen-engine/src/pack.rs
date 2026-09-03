@@ -257,6 +257,43 @@ fn resolve_git_pack_dir(
 /// the `.ggen-git-pin` marker. Split out of [`resolve_git_pack_dir`] purely
 /// to keep that function under the workspace's line-count lint; behavior is
 /// unchanged from when this was inlined there.
+/// The `GIT_*` variables git itself sets when invoking a hook (pre-push,
+/// pre-commit, etc.) or during `receive-pack`, that override `-C`- and
+/// `current_dir()`-based repository discovery for any `git` subprocess
+/// spawned from inside that hook's process tree. Real, reproduced bug (not
+/// hypothetical), same class as `crates/ggen-cli/src/cmds/sbb/evaluation.rs`'s
+/// identical fix: a real `git push` on this repo (which runs
+/// `scripts/hooks/pre-push.sh`, which runs `cargo test --workspace`)
+/// deterministically failed all 10 `pack::tests::resolve_git_pack_*` /
+/// `sync_*_git_pack*` tests below, while every other invocation (`cargo
+/// test` directly, the hook script run by hand outside a real push) passed
+/// cleanly -- because `git push` sets `GIT_DIR`/`GIT_WORK_TREE` in the
+/// hook's environment, inherited straight through into these tests' own
+/// `git clone`/`git -C <cache_dir> checkout` subprocesses, redirecting them
+/// onto the pushing repository's real `.git` instead of each test's
+/// isolated temp clone/cache dir.
+const GIT_ENV_LEAK_VARS: &[&str] = &[
+    "GIT_DIR",
+    "GIT_WORK_TREE",
+    "GIT_INDEX_FILE",
+    "GIT_OBJECT_DIRECTORY",
+    "GIT_ALTERNATE_OBJECT_DIRECTORIES",
+    "GIT_QUARANTINE_PATH",
+    "GIT_COMMON_DIR",
+    "GIT_PREFIX",
+];
+
+/// Build a `git` [`Command`] with the ambient `GIT_*` env leak vars cleared
+/// (see [`GIT_ENV_LEAK_VARS`]) -- every subprocess `git` invocation in this
+/// module goes through this, never a bare `Command::new("git")`.
+fn git_command() -> Command {
+    let mut command = Command::new("git");
+    for var in GIT_ENV_LEAK_VARS {
+        command.env_remove(var);
+    }
+    command
+}
+
 ///
 /// # Errors
 /// - `[FM-PACK-010]` `git` not on `$PATH`, or `git clone` failed
@@ -292,7 +329,7 @@ fn clone_and_pin_git_pack(
         )
     })?;
 
-    let clone = Command::new("git")
+    let clone = git_command()
         .args([
             "clone",
             "--quiet",
@@ -320,7 +357,7 @@ fn clone_and_pin_git_pack(
         ));
     }
 
-    let checkout = Command::new("git")
+    let checkout = git_command()
         .args([
             "-C",
             cache_dir.to_str().unwrap_or_default(),
@@ -826,7 +863,7 @@ mod tests {
     /// A local scratch git repo with one file committed and tagged `v1`,
     /// used as the clone source — no network needed.
     fn git(args: &[&str], cwd: &Path) {
-        let out = Command::new("git")
+        let out = super::git_command()
             .args(args)
             .current_dir(cwd)
             .output()
