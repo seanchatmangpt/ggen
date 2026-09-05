@@ -447,3 +447,71 @@ pub fn receipt(manifest: String, output: String) -> Result<Value> {
 pub fn replay(manifest: String, output: String) -> Result<Value> {
     receipts::replay(Path::new(&manifest), Path::new(&output))
 }
+
+/// The pack's human-readable report template, compiled into the binary so the
+/// rendered report can never drift from the `Report` struct it is projected
+/// from: a template variable that stops matching a `Report` field fails at
+/// `cargo build` (Tera renders against `Context::from_serialize(&report)`),
+/// not silently at runtime in some consumer's copy of the template.
+///
+/// This is the first real consumer of `packs/vision-2030-phase-change-pack`
+/// under `crates/` -- see the pack README's "If you are picking this pack back
+/// up" step 2/3 and `crates/ggen-config/tests/vision_2030_pack_orphan_test.rs`,
+/// which now asserts exactly this one consumer rather than zero.
+const REPORT_TEMPLATE: &str = include_str!(
+    "../../../../packs/vision-2030-phase-change-pack/templates/vision-2030-report.md.tera"
+);
+const REPORT_TEMPLATE_NAME: &str = "vision-2030-report.md.tera";
+
+/// Render the evaluated program report as Markdown via the pack's Tera template.
+///
+/// Reads nothing but the manifest and its cited evidence; writes exactly one
+/// file, `<output>/vision-2030-report.md`. Returns the same standing/achieved
+/// summary as `receipt` plus the rendered path and its blake3 digest, so a
+/// caller can chain it into a receipt without re-reading the file.
+#[verb]
+pub fn report(manifest: String, output: String) -> Result<Value> {
+    let report = evaluation::evaluate(Path::new(&manifest))?;
+    let context = tera::Context::from_serialize(&report).map_err(|error| {
+        NounVerbError::execution_error(format!(
+            "vision2030 report: cannot build template context from report: {error}"
+        ))
+    })?;
+    let mut tera = tera::Tera::default();
+    tera.add_raw_template(REPORT_TEMPLATE_NAME, REPORT_TEMPLATE)
+        .map_err(|error| {
+            NounVerbError::execution_error(format!(
+                "vision2030 report: pack template failed to parse: {error}"
+            ))
+        })?;
+    let rendered = tera
+        .render(REPORT_TEMPLATE_NAME, &context)
+        .map_err(|error| {
+            NounVerbError::execution_error(format!(
+                "vision2030 report: pack template failed to render: {error}"
+            ))
+        })?;
+    let output_dir = Path::new(&output);
+    fs::create_dir_all(output_dir).map_err(|error| {
+        NounVerbError::execution_error(format!(
+            "vision2030 report: cannot create {}: {error}",
+            output_dir.display()
+        ))
+    })?;
+    let path = output_dir.join("vision-2030-report.md");
+    fs::write(&path, rendered.as_bytes()).map_err(|error| {
+        NounVerbError::execution_error(format!(
+            "vision2030 report: cannot write {}: {error}",
+            path.display()
+        ))
+    })?;
+    Ok(json!({
+        "standing": report.standing,
+        "achieved": report.achieved,
+        "phase_change_multiplier": report.phase_change_multiplier,
+        "capabilities": report.capabilities.len(),
+        "report_markdown": path,
+        "report_markdown_digest": format!("blake3:{}", digest_bytes(rendered.as_bytes())),
+        "report_digest": report.report_digest,
+    }))
+}

@@ -1,0 +1,742 @@
+{
+  "schema": "ggen.vision2030.program.v1",
+  "program": {
+    "id": "vision-2030-phase-change",
+    "version": "26.8.3",
+    "target_year": 2030,
+    "phase_change_target": 1000,
+    "trusted_issuers": {},
+    "trusted_brokers": {}
+  },
+  "required_domains": [
+    "dx",
+    "qol",
+    "doctor",
+    "healthcare",
+    "marketplace",
+    "mcp-plus",
+    "planning",
+    "runtime",
+    "coordination",
+    "process-intelligence",
+    "governance",
+    "manufacturing"
+  ],
+  "horizons": [
+    {
+      "year": 2026,
+      "minimum_alive_capabilities": 1
+    },
+    {
+      "year": 2027,
+      "minimum_alive_capabilities": 1
+    },
+    {
+      "year": 2028,
+      "minimum_alive_capabilities": 1
+    },
+    {
+      "year": 2029,
+      "minimum_alive_capabilities": 1
+    },
+    {
+      "year": 2030,
+      "minimum_alive_capabilities": 1
+    }
+  ],
+  "capabilities": [
+    {
+      "id": "dx-local-first-control-plane",
+      "iri": "urn:ggen:vision2030:dx:local-first-control-plane",
+      "domain": "dx",
+      "horizon": 2026,
+      "blue_ocean_move": "eliminate",
+      "authority": "construct",
+      "summary": "Operate the complete manufacturing control plane locally without mandatory cloud state.",
+      "dependencies": [],
+      "evidence": {}
+    },
+    {
+      "id": "dx-explainable-refusal",
+      "iri": "urn:ggen:vision2030:dx:explainable-refusal",
+      "domain": "dx",
+      "horizon": 2026,
+      "blue_ocean_move": "raise",
+      "authority": "observe",
+      "summary": "Return typed refusal codes, evidence locations, and deterministic remediation paths.",
+      "dependencies": [
+        "dx-local-first-control-plane"
+      ],
+      "evidence": {}
+    },
+    {
+      "id": "dx-one-command-projection",
+      "iri": "urn:ggen:vision2030:dx:one-command-projection",
+      "domain": "dx",
+      "horizon": 2027,
+      "blue_ocean_move": "reduce",
+      "authority": "construct",
+      "summary": "Project an admitted ontology into every selected textual and executable surface through one stable command.",
+      "dependencies": [
+        "dx-explainable-refusal",
+        "manufacturing-multiform-projection"
+      ],
+      "evidence": {}
+    },
+    {
+      "id": "dx-environment-passport",
+      "iri": "urn:ggen:vision2030:dx:environment-passport",
+      "domain": "dx",
+      "horizon": 2027,
+      "blue_ocean_move": "create",
+      "authority": "observe",
+      "summary": "Produce a portable environment passport covering toolchains, runtimes, capabilities, policies, and receipts.",
+      "dependencies": [
+        "governance-capability-passport",
+        "doctor-environment-diagnosis"
+      ],
+      "evidence": {}
+    },
+    {
+      "id": "qol-zero-setup-workspace",
+      "iri": "urn:ggen:vision2030:qol:zero-setup-workspace",
+      "domain": "qol",
+      "horizon": 2027,
+      "blue_ocean_move": "eliminate",
+      "authority": "construct",
+      "summary": "Manufacture a ready workspace from admitted requirements without manual integration choreography.",
+      "dependencies": [
+        "dx-local-first-control-plane",
+        "marketplace-lockfile-resolution"
+      ],
+      "evidence": {}
+    },
+    {
+      "id": "qol-reversible-operations",
+      "iri": "urn:ggen:vision2030:qol:reversible-operations",
+      "domain": "qol",
+      "horizon": 2027,
+      "blue_ocean_move": "raise",
+      "authority": "recommend",
+      "summary": "Expose previews, rollback plans, and receipt-linked reversibility for every bounded mutation.",
+      "dependencies": [
+        "governance-zero-unreceipted-actuation"
+      ],
+      "evidence": {}
+    },
+    {
+      "id": "qol-accessible-control-surface",
+      "iri": "urn:ggen:vision2030:qol:accessible-control-surface",
+      "domain": "qol",
+      "horizon": 2028,
+      "blue_ocean_move": "create",
+      "authority": "construct",
+      "summary": "Project equivalent accessible CLI, structured JSON, voice, and assistive interaction surfaces.",
+      "dependencies": [
+        "mcp-plus-unified-facade"
+      ],
+      "evidence": {}
+    },
+    {
+      "id": "qol-offline-degraded-mode",
+      "iri": "urn:ggen:vision2030:qol:offline-degraded-mode",
+      "domain": "qol",
+      "horizon": 2028,
+      "blue_ocean_move": "reduce",
+      "authority": "construct",
+      "summary": "Continue deterministic local work during network, registry, or provider failure.",
+      "dependencies": [
+        "runtime-portable-wasm-parts",
+        "coordination-supervised-degradation"
+      ],
+      "evidence": {}
+    },
+    {
+      "id": "doctor-environment-diagnosis",
+      "iri": "urn:ggen:vision2030:doctor:environment-diagnosis",
+      "domain": "doctor",
+      "horizon": 2026,
+      "blue_ocean_move": "reduce",
+      "authority": "observe",
+      "summary": "Diagnose toolchain, sibling-repository, feature, runtime, and policy divergence from observed state.",
+      "dependencies": [],
+      "evidence": {}
+    },
+    {
+      "id": "doctor-root-cause-graph",
+      "iri": "urn:ggen:vision2030:doctor:root-cause-graph",
+      "domain": "doctor",
+      "horizon": 2027,
+      "blue_ocean_move": "raise",
+      "authority": "observe",
+      "summary": "Trace a defect through requirements, ontology, templates, generated artifacts, runtime, and receipts.",
+      "dependencies": [
+        "doctor-environment-diagnosis",
+        "governance-provenance-chain"
+      ],
+      "evidence": {}
+    },
+    {
+      "id": "doctor-remediation-plan",
+      "iri": "urn:ggen:vision2030:doctor:remediation-plan",
+      "domain": "doctor",
+      "horizon": 2027,
+      "blue_ocean_move": "create",
+      "authority": "construct",
+      "summary": "Construct a deterministic non-actuating repair plan with preconditions, negative controls, and verification steps.",
+      "dependencies": [
+        "doctor-root-cause-graph",
+        "planning-powl-v2"
+      ],
+      "evidence": {}
+    },
+    {
+      "id": "doctor-continuous-conformance",
+      "iri": "urn:ggen:vision2030:doctor:continuous-conformance",
+      "domain": "doctor",
+      "horizon": 2029,
+      "blue_ocean_move": "eliminate",
+      "authority": "recommend",
+      "summary": "Detect configuration and semantic drift before deployment or release consequence.",
+      "dependencies": [
+        "process-streaming-conformance",
+        "governance-independent-release"
+      ],
+      "evidence": {}
+    },
+    {
+      "id": "healthcare-regulated-observation",
+      "iri": "urn:ggen:vision2030:healthcare:regulated-observation",
+      "domain": "healthcare",
+      "horizon": 2028,
+      "blue_ocean_move": "raise",
+      "authority": "observe",
+      "summary": "Capture provenance-bound regulated observations without inferring autonomous clinical authority.",
+      "dependencies": [
+        "governance-provenance-chain",
+        "runtime-edge-policy-sandbox"
+      ],
+      "evidence": {}
+    },
+    {
+      "id": "healthcare-policy-conformance",
+      "iri": "urn:ggen:vision2030:healthcare:policy-conformance",
+      "domain": "healthcare",
+      "horizon": 2029,
+      "blue_ocean_move": "reduce",
+      "authority": "observe",
+      "summary": "Evaluate admitted healthcare workflows against explicit policy and evidence constraints.",
+      "dependencies": [
+        "healthcare-regulated-observation",
+        "process-streaming-conformance"
+      ],
+      "evidence": {}
+    },
+    {
+      "id": "healthcare-explainable-recommendation",
+      "iri": "urn:ggen:vision2030:healthcare:explainable-recommendation",
+      "domain": "healthcare",
+      "horizon": 2029,
+      "blue_ocean_move": "create",
+      "authority": "recommend",
+      "summary": "Produce bounded recommendations with source evidence, uncertainty, policy basis, and refusal conditions.",
+      "dependencies": [
+        "healthcare-policy-conformance",
+        "governance-independent-release"
+      ],
+      "evidence": {}
+    },
+    {
+      "id": "healthcare-regulated-replay",
+      "iri": "urn:ggen:vision2030:healthcare:regulated-replay",
+      "domain": "healthcare",
+      "horizon": 2030,
+      "blue_ocean_move": "eliminate",
+      "authority": "observe",
+      "summary": "Reconstruct every regulated recommendation from exact admitted observations and policies.",
+      "dependencies": [
+        "healthcare-explainable-recommendation",
+        "process-object-centric-replay"
+      ],
+      "evidence": {}
+    },
+    {
+      "id": "marketplace-capability-index",
+      "iri": "urn:ggen:vision2030:marketplace:capability-index",
+      "domain": "marketplace",
+      "horizon": 2027,
+      "blue_ocean_move": "create",
+      "authority": "observe",
+      "summary": "Discover solution capabilities by ontology, contract, standing, runtime, jurisdiction, and evidence.",
+      "dependencies": [
+        "governance-capability-passport"
+      ],
+      "evidence": {}
+    },
+    {
+      "id": "marketplace-lockfile-resolution",
+      "iri": "urn:ggen:vision2030:marketplace:lockfile-resolution",
+      "domain": "marketplace",
+      "horizon": 2027,
+      "blue_ocean_move": "reduce",
+      "authority": "construct",
+      "summary": "Resolve exact compatible capability graphs into deterministic project lockfiles.",
+      "dependencies": [
+        "marketplace-capability-index"
+      ],
+      "evidence": {}
+    },
+    {
+      "id": "marketplace-safe-enable",
+      "iri": "urn:ggen:vision2030:marketplace:safe-enable",
+      "domain": "marketplace",
+      "horizon": 2028,
+      "blue_ocean_move": "raise",
+      "authority": "construct",
+      "summary": "Enable a capability only after compatibility, policy, receipt, and negative-control checks pass.",
+      "dependencies": [
+        "marketplace-lockfile-resolution",
+        "governance-zero-unreceipted-actuation"
+      ],
+      "evidence": {}
+    },
+    {
+      "id": "marketplace-migration-retirement",
+      "iri": "urn:ggen:vision2030:marketplace:migration-retirement",
+      "domain": "marketplace",
+      "horizon": 2029,
+      "blue_ocean_move": "eliminate",
+      "authority": "construct",
+      "summary": "Manufacture migrations and retirement evidence rather than accumulating permanent package residue.",
+      "dependencies": [
+        "marketplace-safe-enable",
+        "governance-lifecycle-standing"
+      ],
+      "evidence": {}
+    },
+    {
+      "id": "mcp-plus-unified-facade",
+      "iri": "urn:ggen:vision2030:mcp-plus:unified-facade",
+      "domain": "mcp-plus",
+      "horizon": 2027,
+      "blue_ocean_move": "eliminate",
+      "authority": "construct",
+      "summary": "Expose one stable typed control surface over CLI, MCP, A2A, POWL, Doctor, Wizard, and Telco implementations.",
+      "dependencies": [
+        "manufacturing-interface-projection"
+      ],
+      "evidence": {}
+    },
+    {
+      "id": "mcp-plus-capability-negotiation",
+      "iri": "urn:ggen:vision2030:mcp-plus:capability-negotiation",
+      "domain": "mcp-plus",
+      "horizon": 2028,
+      "blue_ocean_move": "raise",
+      "authority": "observe",
+      "summary": "Negotiate supported contracts, versions, runtimes, standing, and policy before invocation.",
+      "dependencies": [
+        "mcp-plus-unified-facade",
+        "marketplace-capability-index"
+      ],
+      "evidence": {}
+    },
+    {
+      "id": "mcp-plus-receipted-invocation",
+      "iri": "urn:ggen:vision2030:mcp-plus:receipted-invocation",
+      "domain": "mcp-plus",
+      "horizon": 2028,
+      "blue_ocean_move": "create",
+      "authority": "recommend",
+      "summary": "Bind every external invocation to intent, policy, result, and replay receipts.",
+      "dependencies": [
+        "mcp-plus-capability-negotiation",
+        "governance-zero-unreceipted-actuation"
+      ],
+      "evidence": {}
+    },
+    {
+      "id": "mcp-plus-protocol-independence",
+      "iri": "urn:ggen:vision2030:mcp-plus:protocol-independence",
+      "domain": "mcp-plus",
+      "horizon": 2029,
+      "blue_ocean_move": "reduce",
+      "authority": "construct",
+      "summary": "Preserve capability semantics while projecting protocol-specific adapters and transports.",
+      "dependencies": [
+        "mcp-plus-receipted-invocation",
+        "manufacturing-multiform-projection"
+      ],
+      "evidence": {}
+    },
+    {
+      "id": "planning-powl-v2",
+      "iri": "urn:ggen:vision2030:planning:powl-v2",
+      "domain": "planning",
+      "horizon": 2026,
+      "blue_ocean_move": "create",
+      "authority": "construct",
+      "summary": "Represent strategy and process through SEQ, PO, CHOICE_GRAPH, and LOOP with explicit guards.",
+      "dependencies": [],
+      "evidence": {}
+    },
+    {
+      "id": "planning-build-order-grammar",
+      "iri": "urn:ggen:vision2030:planning:build-order-grammar",
+      "domain": "planning",
+      "horizon": 2027,
+      "blue_ocean_move": "raise",
+      "authority": "construct",
+      "summary": "Use build-order grammar for unlock order, timing, scouting, defense, expansion, and macro completion.",
+      "dependencies": [
+        "planning-powl-v2"
+      ],
+      "evidence": {}
+    },
+    {
+      "id": "planning-route-validation",
+      "iri": "urn:ggen:vision2030:planning:route-validation",
+      "domain": "planning",
+      "horizon": 2028,
+      "blue_ocean_move": "reduce",
+      "authority": "recommend",
+      "summary": "Validate candidate routes against preconditions, invariants, resources, temporal bounds, and refusal law.",
+      "dependencies": [
+        "planning-build-order-grammar"
+      ],
+      "evidence": {}
+    },
+    {
+      "id": "planning-counterfactual-falsification",
+      "iri": "urn:ggen:vision2030:planning:counterfactual-falsification",
+      "domain": "planning",
+      "horizon": 2029,
+      "blue_ocean_move": "eliminate",
+      "authority": "observe",
+      "summary": "Reject strategies that fail adversarial, counterfactual, or negative-control simulations.",
+      "dependencies": [
+        "planning-route-validation",
+        "process-object-centric-replay"
+      ],
+      "evidence": {}
+    },
+    {
+      "id": "runtime-portable-wasm-parts",
+      "iri": "urn:ggen:vision2030:runtime:portable-wasm-parts",
+      "domain": "runtime",
+      "horizon": 2027,
+      "blue_ocean_move": "create",
+      "authority": "construct",
+      "summary": "Package interchangeable capability parts for browser, native, edge, fog, container, and cloud execution.",
+      "dependencies": [
+        "manufacturing-runtime-projection"
+      ],
+      "evidence": {}
+    },
+    {
+      "id": "runtime-capability-abi",
+      "iri": "urn:ggen:vision2030:runtime:capability-abi",
+      "domain": "runtime",
+      "horizon": 2028,
+      "blue_ocean_move": "raise",
+      "authority": "construct",
+      "summary": "Define typed capability boundaries, version negotiation, resources, receipts, and deterministic failures.",
+      "dependencies": [
+        "runtime-portable-wasm-parts"
+      ],
+      "evidence": {}
+    },
+    {
+      "id": "runtime-edge-policy-sandbox",
+      "iri": "urn:ggen:vision2030:runtime:edge-policy-sandbox",
+      "domain": "runtime",
+      "horizon": 2028,
+      "blue_ocean_move": "reduce",
+      "authority": "construct",
+      "summary": "Execute bounded local computation with explicit policy, resource, network, and actuation limits.",
+      "dependencies": [
+        "runtime-capability-abi",
+        "governance-policy-exchange"
+      ],
+      "evidence": {}
+    },
+    {
+      "id": "runtime-byte-identical-deployment",
+      "iri": "urn:ggen:vision2030:runtime:byte-identical-deployment",
+      "domain": "runtime",
+      "horizon": 2029,
+      "blue_ocean_move": "eliminate",
+      "authority": "construct",
+      "summary": "Regenerate byte-identical deployable capability surfaces from the same admitted inputs.",
+      "dependencies": [
+        "runtime-edge-policy-sandbox",
+        "governance-replay-chain"
+      ],
+      "evidence": {}
+    },
+    {
+      "id": "coordination-atomvm-actors",
+      "iri": "urn:ggen:vision2030:coordination:atomvm-actors",
+      "domain": "coordination",
+      "horizon": 2028,
+      "blue_ocean_move": "create",
+      "authority": "construct",
+      "summary": "Coordinate portable capability parts through lightweight Erlang/AtomVM actor processes.",
+      "dependencies": [
+        "runtime-capability-abi"
+      ],
+      "evidence": {}
+    },
+    {
+      "id": "coordination-supervised-degradation",
+      "iri": "urn:ggen:vision2030:coordination:supervised-degradation",
+      "domain": "coordination",
+      "horizon": 2028,
+      "blue_ocean_move": "raise",
+      "authority": "construct",
+      "summary": "Contain failures through supervision trees and deterministic degraded-mode transitions.",
+      "dependencies": [
+        "coordination-atomvm-actors"
+      ],
+      "evidence": {}
+    },
+    {
+      "id": "coordination-receipted-routing",
+      "iri": "urn:ggen:vision2030:coordination:receipted-routing",
+      "domain": "coordination",
+      "horizon": 2029,
+      "blue_ocean_move": "reduce",
+      "authority": "recommend",
+      "summary": "Route work by capability, locality, policy, resource, and standing with receipt-backed decisions.",
+      "dependencies": [
+        "coordination-supervised-degradation",
+        "governance-zero-unreceipted-actuation"
+      ],
+      "evidence": {}
+    },
+    {
+      "id": "coordination-federated-control",
+      "iri": "urn:ggen:vision2030:coordination:federated-control",
+      "domain": "coordination",
+      "horizon": 2030,
+      "blue_ocean_move": "eliminate",
+      "authority": "recommend",
+      "summary": "Federate cloud, fog, edge, and local control without centralizing private observations or authority.",
+      "dependencies": [
+        "coordination-receipted-routing",
+        "governance-independent-release"
+      ],
+      "evidence": {}
+    },
+    {
+      "id": "process-object-centric-events",
+      "iri": "urn:ggen:vision2030:process:object-centric-events",
+      "domain": "process-intelligence",
+      "horizon": 2027,
+      "blue_ocean_move": "create",
+      "authority": "observe",
+      "summary": "Represent events against interacting business and system objects rather than one flattened case identifier.",
+      "dependencies": [
+        "governance-provenance-chain"
+      ],
+      "evidence": {}
+    },
+    {
+      "id": "process-streaming-conformance",
+      "iri": "urn:ggen:vision2030:process:streaming-conformance",
+      "domain": "process-intelligence",
+      "horizon": 2028,
+      "blue_ocean_move": "raise",
+      "authority": "observe",
+      "summary": "Compare observed streams to admitted normative processes continuously and deterministically.",
+      "dependencies": [
+        "process-object-centric-events",
+        "planning-powl-v2"
+      ],
+      "evidence": {}
+    },
+    {
+      "id": "process-object-centric-replay",
+      "iri": "urn:ggen:vision2030:process:object-centric-replay",
+      "domain": "process-intelligence",
+      "horizon": 2029,
+      "blue_ocean_move": "reduce",
+      "authority": "observe",
+      "summary": "Replay object interactions, variants, conformance findings, and consequences from exact event evidence.",
+      "dependencies": [
+        "process-streaming-conformance",
+        "governance-replay-chain"
+      ],
+      "evidence": {}
+    },
+    {
+      "id": "process-autonomic-feedback",
+      "iri": "urn:ggen:vision2030:process:autonomic-feedback",
+      "domain": "process-intelligence",
+      "horizon": 2030,
+      "blue_ocean_move": "eliminate",
+      "authority": "recommend",
+      "summary": "Produce bounded multi-timescale feedback intents without silently expanding actuation authority.",
+      "dependencies": [
+        "process-object-centric-replay",
+        "coordination-federated-control"
+      ],
+      "evidence": {}
+    },
+    {
+      "id": "governance-provenance-chain",
+      "iri": "urn:ggen:vision2030:governance:provenance-chain",
+      "domain": "governance",
+      "horizon": 2026,
+      "blue_ocean_move": "raise",
+      "authority": "observe",
+      "summary": "Bind requirements, observations, candidates, tests, decisions, artifacts, and consequences through provenance.",
+      "dependencies": [],
+      "evidence": {}
+    },
+    {
+      "id": "governance-zero-unreceipted-actuation",
+      "iri": "urn:ggen:vision2030:governance:zero-unreceipted-actuation",
+      "domain": "governance",
+      "horizon": 2026,
+      "blue_ocean_move": "eliminate",
+      "authority": "observe",
+      "summary": "Refuse every mutation lacking explicit intent, execution grant, broker path, result receipt, and replay.",
+      "dependencies": [
+        "governance-provenance-chain"
+      ],
+      "evidence": {}
+    },
+    {
+      "id": "governance-capability-passport",
+      "iri": "urn:ggen:vision2030:governance:capability-passport",
+      "domain": "governance",
+      "horizon": 2027,
+      "blue_ocean_move": "create",
+      "authority": "construct",
+      "summary": "Issue portable passports for identity, contract, provenance, standing, compatibility, policy, and lifecycle.",
+      "dependencies": [
+        "governance-provenance-chain"
+      ],
+      "evidence": {}
+    },
+    {
+      "id": "governance-policy-exchange",
+      "iri": "urn:ggen:vision2030:governance:policy-exchange",
+      "domain": "governance",
+      "horizon": 2028,
+      "blue_ocean_move": "reduce",
+      "authority": "construct",
+      "summary": "Exchange explicit policy constraints without transferring private observations or release authority.",
+      "dependencies": [
+        "governance-capability-passport"
+      ],
+      "evidence": {}
+    },
+    {
+      "id": "governance-independent-release",
+      "iri": "urn:ggen:vision2030:governance:independent-release",
+      "domain": "governance",
+      "horizon": 2029,
+      "blue_ocean_move": "raise",
+      "authority": "recommend",
+      "summary": "Separate manufacturing from independent acceptance, risk approval, exception authority, and release.",
+      "dependencies": [
+        "governance-policy-exchange",
+        "governance-replay-chain"
+      ],
+      "evidence": {}
+    },
+    {
+      "id": "governance-replay-chain",
+      "iri": "urn:ggen:vision2030:governance:replay-chain",
+      "domain": "governance",
+      "horizon": 2027,
+      "blue_ocean_move": "eliminate",
+      "authority": "observe",
+      "summary": "Recompute reports and receipt chains against exact admitted inputs and return match or divergence.",
+      "dependencies": [
+        "governance-zero-unreceipted-actuation"
+      ],
+      "evidence": {}
+    },
+    {
+      "id": "governance-lifecycle-standing",
+      "iri": "urn:ggen:vision2030:governance:lifecycle-standing",
+      "domain": "governance",
+      "horizon": 2029,
+      "blue_ocean_move": "create",
+      "authority": "recommend",
+      "summary": "Govern introduction, migration, deprecation, retirement, and residue through explicit standing transitions.",
+      "dependencies": [
+        "governance-independent-release"
+      ],
+      "evidence": {}
+    },
+    {
+      "id": "manufacturing-ontology-authority",
+      "iri": "urn:ggen:vision2030:manufacturing:ontology-authority",
+      "domain": "manufacturing",
+      "horizon": 2026,
+      "blue_ocean_move": "eliminate",
+      "authority": "construct",
+      "summary": "Make the admitted ontology the canonical semantic authority rather than duplicated handwritten artifacts.",
+      "dependencies": [],
+      "evidence": {}
+    },
+    {
+      "id": "manufacturing-multiform-projection",
+      "iri": "urn:ggen:vision2030:manufacturing:multiform-projection",
+      "domain": "manufacturing",
+      "horizon": 2027,
+      "blue_ocean_move": "create",
+      "authority": "construct",
+      "summary": "Project one admitted model into code, schemas, APIs, policies, tests, plans, diagrams, documentation, and receipts.",
+      "dependencies": [
+        "manufacturing-ontology-authority"
+      ],
+      "evidence": {}
+    },
+    {
+      "id": "manufacturing-interface-projection",
+      "iri": "urn:ggen:vision2030:manufacturing:interface-projection",
+      "domain": "manufacturing",
+      "horizon": 2027,
+      "blue_ocean_move": "reduce",
+      "authority": "construct",
+      "summary": "Derive equivalent CLI, MCP, A2A, Doctor, Wizard, Telco, and SDK interfaces from one contract.",
+      "dependencies": [
+        "manufacturing-multiform-projection"
+      ],
+      "evidence": {}
+    },
+    {
+      "id": "manufacturing-runtime-projection",
+      "iri": "urn:ggen:vision2030:manufacturing:runtime-projection",
+      "domain": "manufacturing",
+      "horizon": 2028,
+      "blue_ocean_move": "raise",
+      "authority": "construct",
+      "summary": "Derive runtime-specific implementations while preserving capability identity, contract, tests, and receipts.",
+      "dependencies": [
+        "manufacturing-interface-projection"
+      ],
+      "evidence": {}
+    },
+    {
+      "id": "manufacturing-self-hosting-closure",
+      "iri": "urn:ggen:vision2030:manufacturing:self-hosting-closure",
+      "domain": "manufacturing",
+      "horizon": 2030,
+      "blue_ocean_move": "eliminate",
+      "authority": "construct",
+      "summary": "Manufacture and verify the capability program through the same admitted machinery it governs.",
+      "dependencies": [
+        "manufacturing-runtime-projection",
+        "governance-lifecycle-standing",
+        "process-object-centric-replay"
+      ],
+      "evidence": {}
+    }
+  ]
+}
