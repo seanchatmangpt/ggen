@@ -556,3 +556,22 @@ fn project_refuses_base_catalog_as_maximalist_input() {
         "refusal must name the expected schema, got: {error}"
     );
 }
+
+/// The committed maximalism manifest is generated output. If the catalog (or
+/// its `extends` base) changes without re-running `ggen maximalism project`,
+/// this is the test that turns that silent drift into a red build.
+#[test]
+fn committed_maximalism_manifest_matches_fresh_projection() {
+    let catalog = pack_root().join("catalog/vision-2030-maximalist-capabilities.json");
+    let committed = pack_root().join("catalog/vision-2030-maximalism.manifest.json");
+    let fresh: Value =
+        serde_json::to_value(project_catalog(&catalog).expect("project")).expect("value");
+    let committed: Value =
+        serde_json::from_slice(&fs::read(&committed).expect("read committed")).expect("json");
+    assert_eq!(
+        fresh, committed,
+        "catalog/vision-2030-maximalism.manifest.json is stale -- re-run \
+         `ggen maximalism project --catalog catalog/vision-2030-maximalist-capabilities.json \
+         --output catalog` and commit the result"
+    );
+}
