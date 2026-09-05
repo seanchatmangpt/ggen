@@ -97,6 +97,29 @@ Before wiring it in, decide (and update this README when you do):
    **DONE 2026-09-04** — see the status banner at the top; the orphan governance test now
    asserts the consumer set is exactly `[crates/ggen-cli/src/cmds/vision2030.rs]`.
 
+## The maximalist catalog is consumable too (2026-09-04)
+
+`catalog/vision-2030-maximalist-capabilities.json` (`ggen.vision2030.maximalist-catalog.v1`,
+32 entries) `extends` the base catalog, and the maximalism evaluator requires 19 domains the 32
+alone cover 7 of. `ggen maximalism project --catalog <maximalist> --output <dir>` follows
+`extends`, unions 32 + 52 = 84, and writes `catalog/vision-2030-maximalism.manifest.json`
+(committed generated output). The base entries have no `surface`/`outcomes`; the projection
+does **not** invent them — it leaves them empty so the evaluator itself names the gap:
+
+```
+$ ggen maximalism validate --manifest catalog/vision-2030-maximalism.manifest.json --format json
+standing=DESIGNED achieved=false measured_multiplier=0.000 semantic_cells=0
+domain_combination_space=0  # 52 of 84 carry "capability identity, IRI, surface, and summary are required"
+$ ggen maximalism outcomes --manifest ... # all 9 lawful outcomes are declared by the 32 maximalist entries, 0 alive
+```
+
+So the "beyond ideation" measurement surface (`combinations`: semantic cells, domain
+combination space) is now runnable against the real catalog and reports **0** — truthfully,
+because nothing is ALIVE. Deciding a surface and outcome set for the 52 base entries is the
+concrete, human-decidable next step the report makes visible; three real-pack tests in
+`crates/ggen-cli/src/cmds/maximalism/tests.rs` pin the 84/32/52 split, the `DESIGNED`
+verdict, and the schema-first refusal of the wrong catalog kind.
+
 **What is still honestly open:** every one of the 52 capabilities is `DESIGNED`. The
 report verb makes that state *legible* (one Markdown file with every violation named); it
 does not advance any capability. Advancing one means binding real evidence — an SBB

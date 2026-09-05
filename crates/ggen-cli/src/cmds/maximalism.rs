@@ -398,6 +398,225 @@ pub fn replay(manifest: String, output: String) -> Result<Value> {
     receipts::replay(Path::new(&manifest), Path::new(&output))
 }
 
+/// The human-authored maximalist catalog shipped by
+/// `packs/vision-2030-phase-change-pack/catalog/vision-2030-maximalist-capabilities.json`
+/// (`ggen.vision2030.maximalist-catalog.v1`). It `extends` the base
+/// `ggen.vision2030.catalog.v1` catalog by relative path; the projection follows
+/// that link so the resulting manifest is the union the maximalism evaluator's
+/// 19 required domains actually need (the 32 maximalist entries alone cover
+/// only 7 of them).
+const CATALOG_SCHEMA: &str = "ggen.vision2030.maximalist-catalog.v1";
+const BASE_CATALOG_SCHEMA: &str = "ggen.vision2030.catalog.v1";
+
+#[derive(Debug, Clone, Deserialize)]
+struct MaximalistCatalog {
+    schema: String,
+    extends: Option<String>,
+    required_domains: Vec<String>,
+    required_outcomes: Vec<String>,
+    capabilities: Vec<MaximalistEntry>,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+struct MaximalistEntry {
+    id: String,
+    iri: String,
+    domain: String,
+    horizon: u16,
+    authority: String,
+    surface: String,
+    summary: String,
+    #[serde(default)]
+    outcomes: Vec<String>,
+    #[serde(default)]
+    depends_on: Vec<String>,
+}
+
+/// Base-catalog entry shape (the subset the projection needs). Base entries
+/// carry a Blue Ocean move but no `surface`/`outcomes`, which the maximalism
+/// evaluator requires -- see `project_catalog` for how that absence is kept
+/// honest rather than papered over.
+#[derive(Debug, Clone, Deserialize)]
+struct BaseCatalog {
+    schema: String,
+    capabilities: Vec<BaseEntry>,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+struct BaseEntry {
+    id: String,
+    iri: String,
+    domain: String,
+    horizon: u16,
+    authority: String,
+    summary: String,
+    #[serde(default)]
+    depends_on: Vec<String>,
+}
+
+fn read_json<T: for<'de> Deserialize<'de>>(path: &Path, what: &str) -> Result<T> {
+    let bytes = fs::read(path).map_err(|error| {
+        NounVerbError::execution_error(format!(
+            "maximalism project: cannot read {what} {}: {error}",
+            path.display()
+        ))
+    })?;
+    serde_json::from_slice(&bytes).map_err(|error| {
+        NounVerbError::execution_error(format!(
+            "maximalism project: {} is not a valid {what}: {error}",
+            path.display()
+        ))
+    })
+}
+
+/// Project the maximalist catalog (plus the base catalog it `extends`) into a
+/// `Manifest` the maximalism evaluator can consume.
+///
+/// Honesty rules, in order of what would be easiest to fake:
+/// - No evidence is ever invented: every capability lands with an empty
+///   evidence map, so the evaluator reports `DESIGNED`.
+/// - No `surface`/`outcomes` are invented for base-catalog entries: they are
+///   projected with an empty surface and empty outcome list, and the
+///   evaluator's own "surface ... required" / "outcomes must be ... non-empty"
+///   violations then name, per capability, exactly which of the 84 still need
+///   a human (or a receipted proposal) to decide them. That is the true state
+///   of the catalog, made legible -- not a manifest that looks more finished
+///   than the catalog is.
+/// - `required_domains`/`required_outcomes` come from the catalog itself, not
+///   from this binary's constants, so a catalog that under-declares them is
+///   caught by the evaluator's own `unique_nonempty`/coverage checks.
+fn project_catalog(catalog_path: &Path) -> Result<Manifest> {
+    // Check the schema id before the full parse so a wrong-kind document is
+    // refused by name ("expected maximalist-catalog.v1"), not by whichever
+    // field serde happens to miss first.
+    #[derive(Deserialize)]
+    struct SchemaOnly {
+        schema: String,
+    }
+    let header: SchemaOnly = read_json(catalog_path, "catalog")?;
+    if header.schema != CATALOG_SCHEMA {
+        return Err(NounVerbError::execution_error(format!(
+            "maximalism project: refusing catalog with schema {:?} (expected {CATALOG_SCHEMA:?})",
+            header.schema
+        )));
+    }
+    let catalog: MaximalistCatalog = read_json(catalog_path, "maximalist catalog")?;
+    let mut capabilities: Vec<Capability> = Vec::new();
+    if let Some(extends) = &catalog.extends {
+        let base_path = catalog_path
+            .parent()
+            .unwrap_or_else(|| Path::new("."))
+            .join(extends);
+        let base: BaseCatalog = read_json(&base_path, "base catalog (`extends`)")?;
+        if base.schema != BASE_CATALOG_SCHEMA {
+            return Err(NounVerbError::execution_error(format!(
+                "maximalism project: `extends` target {} has schema {:?} (expected {BASE_CATALOG_SCHEMA:?})",
+                base_path.display(),
+                base.schema
+            )));
+        }
+        capabilities.extend(base.capabilities.into_iter().map(|entry| Capability {
+            id: entry.id,
+            iri: entry.iri,
+            domain: entry.domain,
+            horizon: entry.horizon,
+            authority: entry.authority,
+            // Honest absence -- the base catalog does not declare a surface.
+            surface: String::new(),
+            summary: entry.summary,
+            outcomes: Vec::new(),
+            dependencies: entry.depends_on,
+            evidence: BTreeMap::new(),
+        }));
+    }
+    capabilities.extend(catalog.capabilities.into_iter().map(|entry| Capability {
+        id: entry.id,
+        iri: entry.iri,
+        domain: entry.domain,
+        horizon: entry.horizon,
+        authority: entry.authority,
+        surface: entry.surface,
+        summary: entry.summary,
+        outcomes: entry.outcomes,
+        dependencies: entry.depends_on,
+        evidence: BTreeMap::new(),
+    }));
+    let mut seen = BTreeSet::new();
+    for capability in &capabilities {
+        if !seen.insert(capability.id.as_str()) {
+            return Err(NounVerbError::execution_error(format!(
+                "maximalism project: capability id {:?} appears in both the maximalist catalog and its `extends` base",
+                capability.id
+            )));
+        }
+    }
+    Ok(Manifest {
+        schema: MANIFEST_SCHEMA.to_string(),
+        program: Program {
+            id: "vision-2030-maximalism".to_string(),
+            // Tracks the pack's pack.toml version; bump both together.
+            version: "26.8.3".to_string(),
+            target_year: 2030,
+            minimum_multiplier: 1000,
+        },
+        required_domains: catalog.required_domains,
+        required_outcomes: catalog.required_outcomes,
+        horizons: HORIZONS
+            .iter()
+            .map(|year| Horizon {
+                year: *year,
+                minimum_alive_capabilities: 1,
+            })
+            .collect(),
+        capabilities,
+    })
+}
+
+/// Project the pack's maximalist catalog (following `extends`) into a manifest.
+///
+/// Writes exactly one file, `<output>/vision-2030-maximalism.manifest.json`;
+/// the result is `DESIGNED` by construction. Pipe it into
+/// `validate`/`combinations`/`outcomes` to see the real closure numbers stated
+/// by the evaluator, not assumed here.
+#[verb]
+pub fn project(catalog: String, output: String) -> Result<Value> {
+    let manifest = project_catalog(Path::new(&catalog))?;
+    let output_dir = Path::new(&output);
+    fs::create_dir_all(output_dir).map_err(|error| {
+        NounVerbError::execution_error(format!(
+            "maximalism project: cannot create {}: {error}",
+            output_dir.display()
+        ))
+    })?;
+    let path = output_dir.join("vision-2030-maximalism.manifest.json");
+    let mut bytes = serde_json::to_vec_pretty(&manifest).map_err(|error| {
+        NounVerbError::execution_error(format!(
+            "maximalism project: cannot serialise manifest: {error}"
+        ))
+    })?;
+    bytes.push(b'\n');
+    fs::write(&path, &bytes).map_err(|error| {
+        NounVerbError::execution_error(format!(
+            "maximalism project: cannot write {}: {error}",
+            path.display()
+        ))
+    })?;
+    let without_surface = manifest
+        .capabilities
+        .iter()
+        .filter(|c| c.surface.trim().is_empty())
+        .count();
+    Ok(json!({
+        "schema": manifest.schema,
+        "program": manifest.program.id,
+        "capabilities": manifest.capabilities.len(),
+        "capabilities_with_evidence": 0,
+        "capabilities_without_surface": without_surface,
+        "manifest": path,
+        "manifest_digest": format!("blake3:{}", digest_bytes(&bytes)),
+    }))
+}
+
 pub(super) fn doctor_report(path: &Path) -> Result<Value> {
     evaluation::doctor(path)
 }

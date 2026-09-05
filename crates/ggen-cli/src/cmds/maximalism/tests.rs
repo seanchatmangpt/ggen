@@ -460,3 +460,99 @@ fn telco_covers_office_register_line_bridge_and_record() {
         assert_eq!(value["surfaces"][0]["surface"], surface);
     }
 }
+
+// ---------------------------------------------------------------------------
+// Real-pack tests: the maximalist catalog as shipped, projected and evaluated
+// by the real code paths. No fixtures, no mocks; state-based assertions.
+// ---------------------------------------------------------------------------
+
+fn pack_root() -> PathBuf {
+    Path::new(env!("CARGO_MANIFEST_DIR")).join("../../packs/vision-2030-phase-change-pack")
+}
+
+/// The maximalist catalog `extends` the base catalog; the projection must
+/// follow that link so every one of the evaluator's 19 required domains is
+/// covered (the 32 maximalist entries alone cover 7), must never invent
+/// evidence, and must never invent a `surface` for a base entry that has none.
+#[test]
+fn project_follows_extends_and_keeps_base_entries_honestly_surfaceless() {
+    let catalog = pack_root().join("catalog/vision-2030-maximalist-capabilities.json");
+    let manifest = project_catalog(&catalog).expect("project real maximalist catalog");
+    assert_eq!(manifest.capabilities.len(), 84, "32 maximalist + 52 base");
+    let with_surface = manifest
+        .capabilities
+        .iter()
+        .filter(|c| !c.surface.trim().is_empty())
+        .count();
+    assert_eq!(
+        with_surface, 32,
+        "only maximalist entries declare a surface"
+    );
+    assert!(
+        manifest.capabilities.iter().all(|c| c.evidence.is_empty()),
+        "projection must never invent evidence"
+    );
+    let covered: BTreeSet<&str> = manifest
+        .capabilities
+        .iter()
+        .map(|c| c.domain.as_str())
+        .collect();
+    for domain in REQUIRED_DOMAINS {
+        assert!(
+            covered.contains(domain),
+            "required domain {domain} uncovered after union"
+        );
+    }
+    let mut ids: Vec<&str> = manifest
+        .capabilities
+        .iter()
+        .map(|c| c.id.as_str())
+        .collect();
+    ids.sort_unstable();
+    ids.dedup();
+    assert_eq!(
+        ids.len(),
+        84,
+        "capability ids must be unique across the union"
+    );
+}
+
+/// The evaluator, not this test, decides what the projected program is worth:
+/// DESIGNED, with the 52 surfaceless base entries each carrying the evaluator's
+/// own "surface ... required" violation -- the absence is reported, not hidden.
+#[test]
+fn projected_maximalist_program_evaluates_as_designed_and_names_missing_surfaces() {
+    let directory = tempfile::tempdir().expect("tempdir");
+    let catalog = pack_root().join("catalog/vision-2030-maximalist-capabilities.json");
+    let manifest = project_catalog(&catalog).expect("project");
+    let path = directory.path().join("manifest.json");
+    write_manifest(&path, &manifest);
+    let report = evaluate(&path).expect("evaluate projected manifest");
+    assert_eq!(report.standing, "DESIGNED");
+    assert!(!report.achieved);
+    let surface_violations = report
+        .capabilities
+        .iter()
+        .filter(|c| c.violations.iter().any(|v| v.contains("surface")))
+        .count();
+    assert_eq!(
+        surface_violations, 52,
+        "every base entry must be reported as lacking a surface; none papered over"
+    );
+    assert!(
+        report.capabilities.iter().all(|c| c.standing == "DESIGNED"),
+        "no capability may be reported beyond DESIGNED without evidence"
+    );
+}
+
+/// Feeding the *base* catalog to the maximalist projection is refused by schema
+/// id -- the two catalogs are not interchangeable.
+#[test]
+fn project_refuses_base_catalog_as_maximalist_input() {
+    let base = pack_root().join("catalog/vision-2030-capabilities.json");
+    let error = project_catalog(&base).expect_err("must refuse");
+    assert!(
+        error.to_string().contains("maximalist-catalog.v1"),
+        "refusal must name the expected schema, got: {error}"
+    );
+}
