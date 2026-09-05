@@ -9,8 +9,13 @@ stops matching a `Report` field is a build/render failure, not silent drift.
 `crates/ggen-config/tests/vision_2030_pack_orphan_test.rs` asserts this consumer set exactly
 (one file, by name) — it is the same governance test that previously asserted zero.
 
-The catalog→manifest bridge is `tools/catalog_to_manifest.py`; see "If you are picking this
-pack back up" below for what it does and what it deliberately does not claim.
+The catalog→manifest bridge exists twice, on purpose: `tools/catalog_to_manifest.py` (Python,
+reference) and `ggen vision2030 project --catalog <catalog> --output <dir>` (Rust, in-binary,
+no shared code). `project_matches_committed_python_generated_manifest` in
+`crates/ggen-cli/src/cmds/vision2030/tests.rs` asserts the two agree field-for-field on the
+committed manifest — a cross-implementation falsifier, and a drift check if the catalog changes
+without regenerating. See "If you are picking this pack back up" below for what the projection
+does and what it deliberately does not claim.
 
 ## Evidence of the prior orphan status (verified 2026-08-03; superseded above)
 
