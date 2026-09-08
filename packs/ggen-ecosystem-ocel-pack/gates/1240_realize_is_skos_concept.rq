@@ -1,0 +1,4 @@
+# MESSAGE: Realize must remain an admitted SKOS event-type concept.
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+SELECT * WHERE { FILTER NOT EXISTS { geocel:Realize a skos:Concept } }

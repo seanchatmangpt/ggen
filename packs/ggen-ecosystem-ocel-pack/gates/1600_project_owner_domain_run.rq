@@ -1,0 +1,4 @@
+# MESSAGE: projectOwner must remain scoped to ManufacturingRun.
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT * WHERE { FILTER NOT EXISTS { geocel:projectOwner rdfs:domain geocel:ManufacturingRun } }

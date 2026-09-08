@@ -1,0 +1,4 @@
+# MESSAGE: ProjectMemoryObject must remain declared as an RDFS class.
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT * WHERE { FILTER NOT EXISTS { geocel:ProjectMemoryObject a rdfs:Class } }
