@@ -511,3 +511,109 @@ fn test_add_then_remove_roundtrip_on_real_lockfile() {
         "remove must delete the entry that add wrote (compatible formats)"
     );
 }
+
+// ============================================================================
+// query — SPARQL over the REAL registry (pack.rs's `query` verb)
+// ============================================================================
+
+#[test]
+fn test_query_over_all_packs_returns_real_label_rows() {
+    let world = World::new();
+    world.write_pack("zeta", "1.0.0");
+    world.write_pack("eta", "2.0.0");
+
+    let assert = world
+        .pack()
+        .arg("query")
+        .arg(
+            "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \
+             PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> \
+             PREFIX ggen: <https://ggen.io/marketplace/> \
+             SELECT ?label WHERE { ?pack a ggen:Pack ; rdfs:label ?label } ORDER BY ?label",
+        )
+        .assert()
+        .success();
+
+    let output = assert.get_output().clone();
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let json: Value = serde_json::from_str(&stdout).expect("query output must be valid JSON");
+
+    assert_eq!(
+        json.get("scope").and_then(|v| v.as_str()),
+        Some("all-packs")
+    );
+    assert_eq!(json.get("packs_queried").and_then(|v| v.as_u64()), Some(2));
+    assert_eq!(json.get("row_count").and_then(|v| v.as_u64()), Some(2));
+    assert!(
+        stdout.contains("Proof Pack zeta") && stdout.contains("Proof Pack eta"),
+        "expected both real pack labels in output, got: {}",
+        stdout
+    );
+}
+
+#[test]
+fn test_query_scoped_to_single_pack_id() {
+    let world = World::new();
+    world.write_pack("theta", "1.5.0");
+    world.write_pack("iota", "1.6.0");
+
+    let assert = world
+        .pack()
+        .arg("query")
+        .arg(
+            "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \
+             PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> \
+             PREFIX ggen: <https://ggen.io/marketplace/> \
+             SELECT ?label WHERE { ?pack a ggen:Pack ; rdfs:label ?label }",
+        )
+        .arg("--pack-id")
+        .arg("theta")
+        .assert()
+        .success();
+
+    let output = assert.get_output().clone();
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let json: Value = serde_json::from_str(&stdout).expect("query output must be valid JSON");
+
+    assert_eq!(
+        json.get("scope").and_then(|v| v.as_str()),
+        Some("pack:theta")
+    );
+    assert_eq!(json.get("packs_queried").and_then(|v| v.as_u64()), Some(1));
+    assert!(
+        stdout.contains("Proof Pack theta") && !stdout.contains("Proof Pack iota"),
+        "expected only theta's label in scoped output, got: {}",
+        stdout
+    );
+}
+
+// SABOTAGE for query (1): syntactically invalid SPARQL must fail loudly, not
+// silently return an empty/fabricated result.
+#[test]
+fn test_query_invalid_sparql_exits_nonzero() {
+    let world = World::new();
+    world.write_pack("kappa", "1.0.0");
+
+    world
+        .pack()
+        .arg("query")
+        .arg("THIS IS NOT VALID SPARQL {{{")
+        .assert()
+        .failure();
+}
+
+// SABOTAGE for query (2): scoping to a pack id absent from the registry must
+// fail loudly, not silently query zero packs and report success.
+#[test]
+fn test_query_nonexistent_pack_id_exits_nonzero() {
+    let world = World::new();
+
+    world
+        .pack()
+        .arg("query")
+        .arg("SELECT ?s WHERE { ?s ?p ?o }")
+        .arg("--pack-id")
+        .arg("definitely-does-not-exist")
+        .assert()
+        .failure();
+}

@@ -1,0 +1,12 @@
+# goat-capabilities-verify project ontology — deliberately empty of individuals.
+#
+# goat-capabilities-pack's own ontology.ttl is a complete, closed model of
+# the AzureGoat/TerraGoat gc:AttackStep/gc:Finding individuals; this
+# consumer adds no project-specific facts on top of it (mirrors
+# examples/rmcp-verify/schema/domain.ttl's same posture). This file exists
+# only to satisfy [ontology] source in ggen.toml — the real domain facts
+# come entirely from the wired pack.
+
+@prefix gc:   <http://seanchatmangpt.github.io/packs/goat-capabilities#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .

@@ -81,7 +81,7 @@ fn sync_run_cli_refuses_when_declared_shape_is_violated() {
     );
 
     let output = run_sync(dir.path());
-    output
+    let _ = output
         .assert_failure()
         .assert_stderr_contains("FM-TPL-025")
         .assert_stderr_contains("rex");
@@ -112,7 +112,7 @@ fn sync_run_cli_succeeds_when_declared_shape_conforms() {
     );
 
     let output = run_sync(dir.path());
-    output.assert_success();
+    let _ = output.assert_success();
     assert!(
         dir.path().join("out.txt").exists(),
         "out.txt should be written when the declared shape conforms: stdout={} stderr={}",

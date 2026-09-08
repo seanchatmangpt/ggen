@@ -28,7 +28,7 @@ use super::{AppError, DeterministicGraph, Result};
 /// One RDF document admitted as part of an ontology batch.
 ///
 /// Historical name retained to avoid a flag-day API break. A document may be
-/// Turtle, RDF/XML, JSON-LD, N-Triples, N-Quads, TriG, or N3 when the
+/// Turtle, RDF/XML, JSON-LD, N-Triples, N-Quads, `TriG`, or N3 when the
 /// label uses an admitted RDF extension. Dataset formats are parsed
 /// faithfully and then flattened into the engine's existing union/default-
 /// graph model; source-level named-graph provenance is a separate admission
@@ -75,7 +75,10 @@ impl<'a> TurtleDocument<'a> {
             return Ok(format);
         }
 
-        let Some(extension) = Path::new(self.label).extension().and_then(|ext| ext.to_str()) else {
+        let Some(extension) = Path::new(self.label)
+            .extension()
+            .and_then(|ext| ext.to_str())
+        else {
             // Backward compatibility: before this admission boundary became
             // syntax-aware every document was unconditionally parsed as
             // Turtle, including tests/callers that used extensionless labels.
@@ -140,8 +143,7 @@ pub struct OntologyBatchReceipt {
 /// facts form one union graph" contract rather than accidentally making some
 /// imports invisible to ordinary `WHERE { ?s ?p ?o }` queries.
 pub(super) fn insert_documents(
-    graph: &DeterministicGraph,
-    documents: &[TurtleDocument<'_>],
+    graph: &DeterministicGraph, documents: &[TurtleDocument<'_>],
 ) -> Result<OntologyBatchReceipt> {
     if documents.is_empty() {
         return Ok(OntologyBatchReceipt {
@@ -443,17 +445,19 @@ mod tests {
         graph.insert_turtle("<urn:ggen:sentinel> <urn:ggen:p> <urn:ggen:o> .")?;
         let before = graph.state_hash()?;
         let documents = [
-            TurtleDocument::new(
-                "valid.ttl",
-                "<urn:ggen:valid> <urn:ggen:p> <urn:ggen:o> .",
-            ),
+            TurtleDocument::new("valid.ttl", "<urn:ggen:valid> <urn:ggen:p> <urn:ggen:o> ."),
             TurtleDocument::new("authority.openapi.json", "{}"),
         ];
 
-        let error = insert_documents(&graph, &documents).expect_err("must refuse non-RDF syntax");
+        let Err(error) = insert_documents(&graph, &documents) else {
+            panic!("must refuse non-RDF syntax")
+        };
 
         assert!(error.to_string().contains("FM-GRAPH-010"), "{error}");
-        assert!(error.to_string().contains("authority.openapi.json"), "{error}");
+        assert!(
+            error.to_string().contains("authority.openapi.json"),
+            "{error}"
+        );
         assert_eq!(graph.state_hash()?, before);
         assert_eq!(graph.all_quads()?.len(), 1);
         Ok(())

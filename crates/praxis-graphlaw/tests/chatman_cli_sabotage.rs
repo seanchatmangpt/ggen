@@ -144,8 +144,8 @@ fn on_disk_store_sabotage_is_refused_or_undetectable_on_reopen(
             "sanity: the pre-sabotage receipt must be internally consistent"
         );
     }
-    ws.assert_dir_count(".", 1);
-    ws.assert_file_exists("chatman-store");
+    let _ = ws.assert_dir_count(".", 1);
+    let _ = ws.assert_file_exists("chatman-store");
 
     // Act: real byte-level sabotage of every file the store wrote to disk.
     let corrupted_count = xor_every_file_in_dir(&store_path)?;
@@ -256,7 +256,7 @@ fn sabotaged_receipt_fixture_is_detected_by_verify_replay() -> Result<(), Box<dy
     let ws = TempWorkspace::new()?;
     let receipt_path = ws.resolve("receipt.json");
     fs::write(&receipt_path, serde_json::to_string_pretty(&receipt_json)?)?;
-    ws.assert_file_exists("receipt.json");
+    let _ = ws.assert_file_exists("receipt.json");
 
     // Sanity: the untouched fixture, reloaded and replayed, is faithful.
     let loaded = ws.read_json("receipt.json")?;

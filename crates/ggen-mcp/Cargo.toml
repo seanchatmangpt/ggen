@@ -31,6 +31,11 @@ ggen-config = { path = "../ggen-config" }
 # contains both rmcp 0.11.0 and 1.8.0 for that reason. Do not add
 # features = ["mcp"] to either the ggen-lsp or ggen-engine dep here.
 ggen-lsp = { path = "../ggen-lsp" }
+# `ggen_pack_query`'s shared implementation (`run_pack_query`) -- confirmed via
+# `cargo tree -p ggen-marketplace | grep -i rmcp` (empty output) that this
+# crate pulls in no rmcp edge of its own, so it cannot reintroduce the
+# multi-rmcp-version problem the comment above guards against.
+ggen-marketplace = { path = "../ggen-marketplace" }
 # Diagnostic type (`Diagnostic`/`Range`/`NumberOrString`) used by
 # `crate::bridge` to build push-notification content -- same crate ggen-lsp
 # itself uses, not a re-derivation.

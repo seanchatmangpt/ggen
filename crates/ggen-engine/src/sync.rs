@@ -1583,7 +1583,7 @@ fn row_context(named: &BTreeMap<String, Value>, results: &[Value], row: &Value) 
 ///
 /// Uses `template::tera_error_full_chain`, not bare `{e}` Display: Tera's
 /// top-level `Display` is frequently just "Failed to render
-/// '__tera_one_off'" with the actual cause (unknown filter, missing
+/// '__`tera_one_off`'" with the actual cause (unknown filter, missing
 /// variable, wrong argument type) only reachable via `Error::source()`
 /// chaining — the same gap `generation_rules.rs`'s `[FM-GEN-008]` path
 /// already closed with this same helper; this call site had not been
@@ -3438,15 +3438,16 @@ mod tests {
         // operator to bind the destructive migration to an exact admitted project root.
         // This preserves the existing F1 reseal algorithm while making it reusable for
         // project-scoped legacy chains such as examples/interview-sandbox.
-        let root = std::env::var_os("GGEN_RECEIPT_MIGRATION_ROOT")
-            .map(std::path::PathBuf::from)
-            .unwrap_or_else(|| {
+        let root = std::env::var_os("GGEN_RECEIPT_MIGRATION_ROOT").map_or_else(
+            || {
                 std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
                     .parent()
                     .and_then(std::path::Path::parent)
                     .expect("workspace root")
                     .to_path_buf()
-            });
+            },
+            std::path::PathBuf::from,
+        );
         let log_path = root.join(RECEIPT_LOG_REL_PATH);
         let head_path = root.join(RECEIPT_REL_PATH);
 

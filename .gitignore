@@ -205,14 +205,31 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
-!.claude/hooks/lib/
-# The blanket Python-venv `lib/` rule above also matches
-# examples/interview-assist/lib/{domain,adapters,accessibility,client}/ -- real,
-# hand-authored/ggen-generated TypeScript source, not a venv artifact. Un-ignore it;
-# examples/interview-assist/lib/wasm/wasm4pm-cognition/ still has its own local
-# wasm-pack-generated .gitignore (a real build artifact, correctly excluded).
-!examples/interview-assist/lib/
+# DELIBERATELY ABSENT: a bare `lib/` rule.
+#
+# A bare, unanchored `lib/` copied from a Python-packaging template used to sit here. Being
+# unanchored it matched EVERY lib/ directory at ANY depth, and this repo is Rust + TypeScript
+# with no virtualenv at all (no .venv/, no venv/) -- so the rule never protected anything and
+# silently swallowed real source three separate times:
+#   1. examples/interview-assist/lib/ -- hand-authored/ggen-generated TypeScript.
+#   2. marketplace/packages/io.ggen.nextjs.ontology-crud/lib/utils.ts -- the shadcn/ui `cn()`
+#      helper five components/ui/*.tsx import via the "@/*" tsconfig path; its absence is why
+#      `next build` failed to resolve "@/lib/utils" (patched in 07064bc48).
+#   3. examples/interview-assist/tests/lib/fetch-with-timeout.test.ts -- a real Chicago-TDD
+#      vitest suite for TRACKED code, written, passing, and unstageable. The instance-1
+#      negation `!examples/interview-assist/lib/` did not cover the tests/lib/ path.
+# Each was previously patched pointwise with another negation. Two more instances were latent
+# and uncovered (examples/nextjs-ai-sdk/lib/, examples/interview-sandbox/lib/ -- surviving only
+# because gitignore does not apply to already-tracked paths, so any NEW file in them was
+# unstageable). Removing the rule at its root fixes all five; measured blast radius was exactly
+# one newly-visible file (the instance-3 test). The three negations it required are gone with it.
+#
+# If Python-artifact coverage is ever wanted again, anchor it: `/lib/` or `.venv/lib/`.
+# NEVER re-add a bare `lib/`.
+#
+# Build output under those paths is still ignored independently: node_modules rules are
+# untouched, and examples/interview-assist/lib/wasm/wasm4pm-cognition/ keeps its own local
+# wasm-pack-generated .gitignore.
 lib64/
 parts/
 sdist/

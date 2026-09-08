@@ -477,7 +477,8 @@ fn query_and_template_source_pack_resolves_through_package_toml_outputs_table() 
     );
     write_ontology(dir.path(), ONTOLOGY_ALICE_BOB);
 
-    sync(dir.path(), SyncOptions::default()).expect("sync must succeed via real [pack.outputs] resolution");
+    sync(dir.path(), SyncOptions::default())
+        .expect("sync must succeed via real [pack.outputs] resolution");
 
     let body = std::fs::read_to_string(dir.path().join("out/names.txt")).expect("read output");
     assert!(body.contains("alice"), "{body}");
