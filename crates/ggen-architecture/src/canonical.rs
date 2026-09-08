@@ -11,6 +11,7 @@ pub mod building_block;
 pub mod certification;
 pub mod enterprise;
 pub mod self_play;
+pub mod semantic_traversal;
 
 #[path = "lib.rs"]
 pub mod fortune5_kernel;
@@ -58,6 +59,10 @@ pub use self_play::{
     Metric, MetricConstraint, MetricEffect, MoveReceipt, SelfPlayManifest, SelfPlayReport,
     SelfPlayScenario, SelfPlayStanding, SelfPlayViolation, UseCaseKind, SELF_PLAY_RECEIPT_SCHEMA,
     SELF_PLAY_REPORT_SCHEMA, SELF_PLAY_REQUIRED_BROKER,
+};
+pub use semantic_traversal::{
+    ExactRatio, SemanticFactUse, SemanticTraversalReceipt, SemanticTraversalRefusal,
+    SemanticTraversalReport, SemanticUseMode, SEMANTIC_TRAVERSAL_RECEIPT_SCHEMA,
 };
 
 /// Receipt schema retained by the Fortune 5 profile.
