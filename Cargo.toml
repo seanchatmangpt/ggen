@@ -126,7 +126,7 @@ tracing-subscriber = { version = "0.3", features = [
 ] }
 clap = { version = "4.5", features = ["derive"] }
 clap-noun-verb = "=26.7.4"
-clap-noun-verb-macros = "=26.7.4"
+clap-noun-verb-macros = "=26.9.1"
 once_cell = "1.19"
 # default-features = false + explicit charset/http2/system-proxy (2026-07-22):
 # reqwest 0.12's own `default = ["default-tls", "charset", "http2",
