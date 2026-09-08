@@ -38,38 +38,28 @@ updates:
           - "minor"
           - "patch"
 
-  # CLI workspace
-  - package-ecosystem: "cargo"
-    directory: "/cli"
-    schedule:
-      interval: "weekly"
-    open-pull-requests-limit: 5
-    labels:
-      - "dependencies"
-      - "rust"
-      - "cli"
-
-  # Core workspace
-  - package-ecosystem: "cargo"
-    directory: "/ggen-core"
-    schedule:
-      interval: "weekly"
-    open-pull-requests-limit: 5
-    labels:
-      - "dependencies"
-      - "rust"
-      - "core"
-
-  # Utils workspace
-  - package-ecosystem: "cargo"
-    directory: "/utils"
-    schedule:
-      interval: "weekly"
-    open-pull-requests-limit: 5
-    labels:
-      - "dependencies"
-      - "rust"
-      - "utils"
+  # NOTE (fixed 2026-09-06): this file previously carried three more cargo
+  # entries here -- directory: "/cli", "/ggen-core", "/utils" -- left over
+  # from before commit fceb5149a ("refactor: reorganize workspace into
+  # crates structure") moved those trees under crates/. All three had been
+  # failing every week since with "dependency_file_not_found" (e.g.
+  # "/utils/Cargo.toml not found") because the paths no longer exist:
+  #   - cli/     -> crates/ggen-cli   (still exists, and is already a
+  #                 `[workspace] members` entry in the root Cargo.toml)
+  #   - ggen-core -> removed entirely 2026-07-17 (docs/jira/v26.7.16/
+  #                 14-GGEN-CORE-REMOVAL-PROPOSAL.md), replaced by the
+  #                 unrelated crates/ggen-engine, itself already a
+  #                 `[workspace] members` entry
+  #   - utils/   -> crates/ggen-utils, which no longer exists as a
+  #                 standalone crate either
+  # Every surviving successor crate is already a member of the root
+  # workspace Cargo.toml, so the "cargo" / directory: "/" entry above
+  # already resolves and updates their dependencies via the shared
+  # Cargo.lock -- these three entries were pure duplication of that
+  # coverage even before their paths went stale, not a distinct workspace
+  # dependabot needed real per-crate visibility into. Removed rather than
+  # re-pointed at crates/ggen-cli, since re-pointing would just recreate
+  # the same redundant-with-root-workspace duplication under a new path.
 
   # Erlang/Hex.pm dependencies (TPS Jidoka)
   - package-ecosystem: "mix"
