@@ -1,0 +1,2 @@
+@prefix geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#> .
+<urn:run:pass> a geocel:ManufacturingRun .

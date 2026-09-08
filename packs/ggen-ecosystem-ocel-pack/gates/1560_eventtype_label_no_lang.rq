@@ -1,0 +1,4 @@
+# MESSAGE: eventType skos:prefLabel values must not carry language tags.
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+SELECT ?t ?label WHERE { ?e geocel:eventType ?t . ?t skos:prefLabel ?label . FILTER(isLiteral(?label) && lang(?label) != "") }

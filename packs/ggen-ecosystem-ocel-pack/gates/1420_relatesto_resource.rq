@@ -1,0 +1,3 @@
+# MESSAGE: relatesTo values must be RDF resources, never literals.
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+SELECT ?s ?v WHERE { ?s geocel:relatesTo ?v . FILTER(isLiteral(?v)) }

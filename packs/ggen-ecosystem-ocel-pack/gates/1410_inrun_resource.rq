@@ -1,0 +1,3 @@
+# MESSAGE: inRun values must be RDF resources, never literals.
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+SELECT ?s ?v WHERE { ?s geocel:inRun ?v . FILTER(isLiteral(?v)) }

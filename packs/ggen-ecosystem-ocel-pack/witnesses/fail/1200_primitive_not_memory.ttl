@@ -1,0 +1,2 @@
+@prefix geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#> .
+<urn:primitive:failm> a geocel:GgenPrimitiveObject, geocel:ProjectMemoryObject .
