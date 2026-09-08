@@ -80,6 +80,16 @@ struct PackMeta {
     name: String,
     version: String,
     description: String,
+    /// Optional deprecation marker (e.g. `packs/clap-noun-verb-pack/pack.toml`,
+    /// added 2026-08-16). Defaults to `false` for the common case of an
+    /// undeprecated pack.
+    #[serde(default)]
+    deprecated: bool,
+    /// Optional list of pack names this one is superseded by. Only
+    /// meaningful when `deprecated = true`; carries no resolution behavior
+    /// on its own -- see [`resolve_pack_dir`]'s deprecation warning.
+    #[serde(default)]
+    superseded_by: Vec<String>,
 }
 
 /// Resolve every pack declared in `config.packs`, in name (`BTreeMap`) order.
@@ -403,6 +413,17 @@ fn resolve_pack_dir(name: &str, root: &Path) -> Result<Pack> {
     // The [packs] key in ggen.toml is the authoritative resolution name;
     // the manifest's own `name` is informational.
     let _ = &manifest.pack.name;
+    // `deprecated`/`superseded_by` are accepted, closed-vocabulary,
+    // human-authored advisory metadata (see e.g.
+    // packs/clap-noun-verb-pack/pack.toml) -- not surfaced as a per-sync
+    // diagnostic here. A logged warning naming the deprecated pack would
+    // leak that pack's name into every sync's stderr for any project that
+    // merely composes it alongside other packs, which
+    // `cross_pack_matrix.rs`'s `corrupting_one_pack_post_lock_fails_closed_naming_only_that_pack`
+    // correctly refuses to tolerate: a typed sync failure must name only
+    // the pack that actually failed.
+    let _ = &manifest.pack.deprecated;
+    let _ = &manifest.pack.superseded_by;
     Ok(Pack {
         name: name.to_string(),
         version: manifest.pack.version,
@@ -1062,8 +1083,7 @@ version = "v2"
         git(&["init", "--quiet"], dir);
         git(&["config", "user.email", "test@example.com"], dir);
         git(&["config", "user.name", "Test"], dir);
-        std::fs::write(dir.join("README.md"), "monorepo root, not a pack\n")
-            .expect("write README");
+        std::fs::write(dir.join("README.md"), "monorepo root, not a pack\n").expect("write README");
 
         let pack_dir = dir.join("packs/widget-pack");
         std::fs::create_dir_all(pack_dir.join("templates")).expect("mkdir pack templates");
@@ -1092,7 +1112,9 @@ version = "v2"
     /// `PackRef::Git` entry (`GgenConfig` has no `Default` impl, and several
     /// of its fields are meaningfully required, so this is the real
     /// construction every test below needs, not a shortcut around it).
-    fn git_pack_config(url: &str, version: &str, subdir: Option<&str>) -> crate::config::GgenConfig {
+    fn git_pack_config(
+        url: &str, version: &str, subdir: Option<&str>,
+    ) -> crate::config::GgenConfig {
         crate::config::GgenConfig {
             project: crate::config::Project {
                 name: "fixture".to_string(),

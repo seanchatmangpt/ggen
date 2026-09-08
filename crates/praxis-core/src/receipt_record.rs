@@ -450,7 +450,7 @@ mod tests {
     ///
     /// Narrowed root cause, this session: the `v2` epoch payload and
     /// `schema` string re-serialize **byte-identically** after a JSON
-    /// round trip (verified directly, printed and diffed) -- so
+    /// round trip (verified directly, printed and diffed) — so
     /// `fold_in_v2_epoch`'s own contribution is provably not the culprit
     /// here, correcting this bug's original filing, which had not yet
     /// isolated that. The divergence is therefore in the *base* (pre-v2)
@@ -460,19 +460,22 @@ mod tests {
     /// `object_ids`/`obligation_count` plus the decoded `payload_hash`/
     /// `prev_chain_hash`. All of those are plain scalars/strings that
     /// round-trip losslessly through JSON, which is what makes this
-    /// puzzling rather than obviously explained -- the leading remaining
+    /// puzzling rather than obviously explained — the leading remaining
     /// hypothesis is that `chain_from_frame`'s `OcelCausalReceipt::genesis`
-    /// + single-frame `.chain()` replay does not reproduce whatever
+    /// plus single-frame `.chain()` replay does not reproduce whatever
     /// internal state the *live*, multi-file `ggen sync run` accumulated
     /// across its real (transitively multi-object) emission path, even
     /// though both paths agree on the single scalar `prev_chain_hash`.
-    /// Not fixed -- `#[ignore]`d so `cargo test` stays green while this is
+    /// Not fixed — `#[ignore]`d so `cargo test` stays green while this is
     /// tracked; un-ignore once fixed, this must then pass.
     #[test]
     #[ignore = "FM-CHAIN-014, not yet fixed -- see docs/jira/2026-08-11-GGEN-RECEIPT-CHAIN-VERIFY-MISMATCH.md"]
     fn reproduce_the_real_autofde_lab_fm_chain_014_failure() {
-        let record: ReceiptRecord = serde_json::from_str(RECORD_JSON).expect("deserialize real record");
-        let recomputed = record.recompute_chain_hash().expect("recompute real record");
+        let record: ReceiptRecord =
+            serde_json::from_str(RECORD_JSON).expect("deserialize real record");
+        let recomputed = record
+            .recompute_chain_hash()
+            .expect("recompute real record");
         assert_eq!(
             hex::encode(recomputed),
             record.chain_hash_hex,
@@ -517,13 +520,16 @@ mod tests {
         let mut record = sample();
         record.schema = SCHEMA_V2.to_string();
         record.v2 = Some(epoch);
-        let chain = record.recompute_chain_hash().expect("recompute at write time");
+        let chain = record
+            .recompute_chain_hash()
+            .expect("recompute at write time");
         record.chain_hash_hex = hex::encode(chain);
 
         // Simulate the real JSONL persist/reload boundary `write_receipt`
         // and `read_prev_head`/`receipt verify` actually cross.
         let serialized = serde_json::to_string(&record).expect("serialize record");
-        let reloaded: ReceiptRecord = serde_json::from_str(&serialized).expect("deserialize record");
+        let reloaded: ReceiptRecord =
+            serde_json::from_str(&serialized).expect("deserialize record");
 
         let recomputed_after_round_trip = reloaded
             .recompute_chain_hash()

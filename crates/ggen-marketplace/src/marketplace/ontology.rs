@@ -160,6 +160,26 @@ impl Properties {
         format!("{}keywords", Namespaces::GGEN)
     }
 
+    /// Category (primary category/domain of a package) -- the predicate. The
+    /// object of this triple is always a category *node* URI minted by
+    /// [`Self::category_node_uri`], never a bare string literal, so it can be
+    /// the subject of SKOS `related`/`broader`/`narrower` edges elsewhere in
+    /// the graph (see [`Queries::related_by_category`]).
+    pub fn category() -> String {
+        Self::uri("category")
+    }
+
+    /// Mint the category-node URI for one category slug (e.g. `"web"` ->
+    /// `https://ggen.io/marketplace/categories/web`). This is the single
+    /// source of truth for that URI shape -- both the RDF write path
+    /// (`RdfMapper::package_to_rdf`) and the SKOS-expansion query
+    /// ([`Queries::related_by_category`]) must mint the identical URI for the
+    /// same slug, or a package's real `category` triple and a query seeded
+    /// from that same slug silently fail to join.
+    pub fn category_node_uri(category_slug: &str) -> String {
+        format!("{}categories/{}", Namespaces::GGEN, category_slug)
+    }
+
     /// Quality score
     pub fn quality_score() -> String {
         Self::uri("qualityScore")
@@ -433,6 +453,75 @@ impl Queries {
             Classes::package(),
             Properties::created_at(),
             limit
+        )
+    }
+
+    /// Query to find other packages related by keyword overlap.
+    ///
+    /// For a given set of keyword literal strings, finds OTHER packages
+    /// sharing at least one of those keywords via the existing `keywords`
+    /// predicate, groups by package, and counts the number of shared
+    /// keywords as `?overlap`. Pure graph-relation ranking over the RDF
+    /// store -- no vectors, no embeddings, no external HTTP calls.
+    pub fn related_by_keyword_overlap(package_keywords: &[String], limit: usize) -> String {
+        let values = package_keywords
+            .iter()
+            .map(|kw| format!("\"{}\"", kw.replace('\\', "\\\\").replace('"', "\\\"")))
+            .collect::<Vec<_>>()
+            .join(" ");
+
+        format!(
+            r"
+            SELECT ?package (COUNT(DISTINCT ?kw) AS ?overlap) WHERE {{
+                ?package <{rdf_type}> <{package_class}> .
+                ?package <{keywords}> ?kw .
+                VALUES ?kw {{ {values} }}
+            }}
+            GROUP BY ?package
+            ORDER BY DESC(?overlap)
+            LIMIT {limit}
+            ",
+            rdf_type = format!("{}type", Namespaces::RDF),
+            package_class = Classes::package(),
+            keywords = Properties::keywords(),
+            values = values,
+            limit = limit
+        )
+    }
+
+    /// Query to find packages related by category via SKOS relations.
+    ///
+    /// Expands from a seed category through `skos:related|skos:broader|skos:narrower`
+    /// property paths to related categories, then finds packages in any of
+    /// those categories. A real SPARQL property-path query, not
+    /// application-code graph walking.
+    ///
+    /// `category` is a category *slug* (e.g. `"web"`), minted to the same
+    /// category-node URI [`Properties::category_node_uri`] uses on the write
+    /// path, not a raw literal -- category slugs are not attacker-controlled
+    /// free text in this crate's own callers, but are still escaped the same
+    /// way `related_by_keyword_overlap`'s VALUES literals are, since the slug
+    /// is embedded directly into the query text.
+    pub fn related_by_category(category: &str, limit: usize) -> String {
+        let escaped = category
+            .replace('\\', "\\\\")
+            .replace('>', "\\>")
+            .replace('"', "\\\"");
+        format!(
+            r#"
+            SELECT DISTINCT ?package WHERE {{
+                <{seed_category}> (<{skos}related>|<{skos}broader>|<{skos}narrower>)* ?relatedCategory .
+                ?package <{rdf_type}> <{package_class}> .
+                ?package <{category_prop}> ?relatedCategory .
+            }}
+            LIMIT {limit}
+            "#,
+            seed_category = Properties::category_node_uri(&escaped),
+            skos = Namespaces::SKOS,
+            rdf_type = format!("{}type", Namespaces::RDF),
+            package_class = Classes::package(),
+            category_prop = Properties::category(),
+            limit = limit
         )
     }
 }

@@ -95,11 +95,6 @@ mod tests {
     fn receipted(
         payload: serde_json::Value,
     ) -> LawObject<serde_json::Value, Receipted, DefaultLaw> {
-        // `receipt()` signs the chain hash when `signed` is also enabled,
-        // which needs a `PRAXIS_SIGNING_KEY`; see `signing::test_support`.
-        #[cfg(feature = "signed")]
-        let _guard = crate::signing::test_support::with_test_signing_key();
-
         // Drive the real Raw -> Validated -> Admitted -> Receipted lifecycle
         // through the public API rather than hand-rolling a `Receipted`
         // value (the stage phantom fields are private to `law.rs`).
