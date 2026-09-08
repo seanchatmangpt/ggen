@@ -87,7 +87,7 @@ fn plan_then_enable_materializes_real_directories_receipts_and_lockfile() {
             "json",
         ],
     );
-    plan_out.assert_success();
+    let _ = plan_out.assert_success();
     let plan_json = stdout_json(&plan_out);
     let plan_path = root.join(plan_json["plan_path"].as_str().expect("plan_path"));
     let plan_intent_path = root.join(
@@ -126,7 +126,7 @@ fn plan_then_enable_materializes_real_directories_receipts_and_lockfile() {
             "json",
         ],
     );
-    enable_out.assert_success();
+    let _ = enable_out.assert_success();
     let enable_json = stdout_json(&enable_out);
     assert_eq!(enable_json["status"], "enabled");
 
@@ -194,7 +194,7 @@ fn plan_then_enable_materializes_real_directories_receipts_and_lockfile() {
             "json",
         ],
     );
-    enable_out_2.assert_success();
+    let _ = enable_out_2.assert_success();
     let enable_json_2 = stdout_json(&enable_out_2);
     let enable_intent_2 = read_json(&root.join(enable_json_2["intent_receipt"].as_str().unwrap()));
     assert_eq!(
@@ -224,7 +224,7 @@ fn gpc_alias_and_gcp_produce_identical_deterministic_plans_for_the_complete_bund
             "json",
         ],
     );
-    canonical.assert_success();
+    let _ = canonical.assert_success();
     let alias = run_bblock(
         root,
         &[
@@ -237,7 +237,7 @@ fn gpc_alias_and_gcp_produce_identical_deterministic_plans_for_the_complete_bund
             "json",
         ],
     );
-    alias.assert_success();
+    let _ = alias.assert_success();
     let repeated = run_bblock(
         root,
         &[
@@ -250,7 +250,7 @@ fn gpc_alias_and_gcp_produce_identical_deterministic_plans_for_the_complete_bund
             "json",
         ],
     );
-    repeated.assert_success();
+    let _ = repeated.assert_success();
 
     let canonical_json = stdout_json(&canonical);
     let alias_json = stdout_json(&alias);
@@ -324,7 +324,7 @@ fn refuses_unknown_provider_and_unknown_group_with_typed_nonzero_exits() {
             "oracle",
         ],
     );
-    bad_provider.assert_failure();
+    let _ = bad_provider.assert_failure();
     assert!(
         bad_provider.stderr.contains("unsupported provider"),
         "refusal must name the bad provider, got stderr:\n{}",
@@ -341,7 +341,7 @@ fn refuses_unknown_provider_and_unknown_group_with_typed_nonzero_exits() {
             "aws",
         ],
     );
-    bad_group.assert_failure();
+    let _ = bad_group.assert_failure();
     assert!(
         bad_group.stderr.contains("unknown bblock group"),
         "refusal must name the unknown group, got stderr:\n{}",

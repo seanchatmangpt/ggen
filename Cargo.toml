@@ -68,7 +68,23 @@ members = [
   # of ~/praxis/crates/ggen (see 01-PUBLISH-SAFETY-AND-CRATE-RENAME.md) plus
   # its two direct dependencies, also vendored so migration-specific edits
   # (e.g. ReceiptRecord.signature_hex) land here, not upstream in ~/praxis.
-  # Landed inert in this pass -- no consumer references them yet.
+  # NO LONGER INERT (corrected 2026-08-16; the previous line here still read "Landed inert in
+  # this pass -- no consumer references them yet", which went stale between 2026-07-16 and
+  # 2026-08-12 without being updated). ggen-engine is a live, consumed crate. Real Cargo
+  # dependency edges, each with real call sites:
+  #   crates/ggen-mcp/Cargo.toml   -- e.g. src/bridge.rs's `ggen_engine::sync::{sync, SyncOptions}`
+  #                                   and `verbs::handlers::handle_receipt_verify_in`
+  #   crates/ggen-lsp/Cargo.toml   -- the `ggen.construct` MCP handler / mcp_packs.rs
+  #   crates/ggen-cli/Cargo.toml   -- sync/doctor/graph/receipt CLI routing
+  #   crates/ggen-graph/Cargo.toml -- [dev-dependencies] only, the LawEngine N-Triples seam
+  #                                   (docs/jira/v26.7.16/03-RDF-ENGINE-BRIDGE-DESIGN.md DoD
+  #                                   item 2), exercised by that crate's
+  #                                   tests/law_engine_bridge_e2e.rs. Dev-only on purpose --
+  #                                   see that manifest's comment for the publish-safety reason.
+  # The one place ggen-engine is genuinely absent is the ROOT `ggen` package, deliberately and
+  # for publish safety -- see the "ggen-engine intentionally NOT a dependency here" note further
+  # down in this file. That narrow, still-true statement is what this comment used to overstate
+  # into "no consumer references them yet".
   "crates/ggen-engine",
   "crates/praxis-core",
   "crates/praxis-graphlaw",

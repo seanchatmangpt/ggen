@@ -106,13 +106,30 @@ flowchart TD
 
 ## Definition of done for this ticket
 
-- `LawEngine` trait implemented on the new engine crate, backed internally by
-  `/Users/sac/praxis/crates/praxis-graphlaw/`.
-- At least one consumer (`/Users/sac/ggen/crates/ggen-graph/` or
-  `/Users/sac/ggen/crates/ggen-marketplace/`) demonstrated calling
-  `materialize`/`validate_shacl`/`check_denials` and folding the N-Triples result back into
-  its own oxigraph store.
-- No `oxrdf`/`spargebra` dependency added to `ggen-graph`'s or `ggen-marketplace`'s
-  `Cargo.toml`.
-- `ggen-graph/src/lib.rs:24,39`'s own `shacl` module documented as authoritative for its
-  existing non-law callers.
+All four items are met as of 2026-08-16. Each line names the artifact that discharges it, so
+the claim is checkable rather than asserted.
+
+1. **Done** — `LawEngine` trait implemented on the new engine crate, backed internally by
+   `praxis-graphlaw`. See `crates/ggen-engine/src/law_engine.rs` (declared at
+   `crates/ggen-engine/src/lib.rs`'s `pub mod law_engine;`), with the engine crate's own
+   `tests/law_engine_test.rs` proving it from inside.
+2. **Done** — a consumer demonstrated calling `materialize`/`validate_shacl`/`check_denials`
+   and folding the N-Triples result back into its own oxigraph store:
+   `crates/ggen-graph/tests/law_engine_bridge_e2e.rs`, 4 tests, all passing. It proves the
+   part the engine's own tests cannot: that the seam is crossable by an oxigraph consumer
+   that never links `oxrdf`/`spargebra`. Each positive assertion is paired with a negative
+   control (derived fact absent before the round trip; empty rule set derives nothing;
+   denial silent on clean facts; SHACL conforming once the required property is present).
+3. **Done** — no `oxrdf`/`spargebra` dependency in either consumer manifest. The bridge edge
+   added to `crates/ggen-graph/Cargo.toml` is `ggen-engine` as a path-only
+   **dev**-dependency; `ggen-marketplace` gained no edge at all. Publish safety verified,
+   not assumed: `cargo package -p ggen-graph --no-verify --allow-dirty` produces a
+   `.crate` whose `Cargo.toml` contains zero occurrences of `ggen-engine` (path-only
+   dev-dependencies carry no `version` key and are stripped from the packaged manifest),
+   so `cargo publish -p ggen-graph` cannot be broken by the `publish = false` engine crate.
+4. **Done** — `ggen-graph`'s own `shacl` module documented as authoritative for its existing
+   non-law callers, in the doc comment on `pub mod shacl;` in `crates/ggen-graph/src/lib.rs`.
+   That comment states the split explicitly: this module for every non-law consumer (LSP
+   diagnostics, `ggen sync`/`doctor`), the seam's `LawEngine::validate_shacl` for the
+   mu-pipeline law gate, neither superseding the other. The e2e test above runs both over
+   the same facts so they cannot silently diverge on the conforming case.

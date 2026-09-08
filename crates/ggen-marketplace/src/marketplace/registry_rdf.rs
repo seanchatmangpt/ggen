@@ -61,6 +61,35 @@ impl RdfRegistry {
         Self::from_store(store)
     }
 
+    /// Open (or create) a persistent, on-disk RDF-backed registry at `path`.
+    ///
+    /// Before this method existed, [`RdfRegistry`] could only be constructed
+    /// via [`Self::new`]/[`Self::from_store`], both backed by
+    /// `oxigraph::store::Store::new()` -- an in-memory-only store that is
+    /// discarded the moment the process exits. That meant the entire
+    /// real, tested `RdfRegistry`/`RdfMapper`/[`crate::marketplace::SparqlSearchEngine`]
+    /// stack had no way to survive across two separate CLI invocations (a
+    /// fresh `ggen` process each time), and consequently had zero production
+    /// callers anywhere in `ggen-cli`/`ggen-mcp` -- confirmed by grep, not
+    /// assumed. This is the fix for that: `oxigraph::store::Store::open`
+    /// gives a real RocksDB-backed on-disk store, so a package registered by
+    /// one `ggen` invocation is still there for a `search`/`related` command
+    /// run afterward in a separate process.
+    ///
+    /// # Errors
+    ///
+    /// * [`Error::RdfStoreError`] - When the on-disk store cannot be opened
+    ///   (e.g. permissions, corruption, or another process holding an
+    ///   exclusive lock on it)
+    pub fn open(path: impl AsRef<std::path::Path>) -> Result<Self> {
+        let store =
+            Store::open(path).map_err(|e| crate::marketplace::error::Error::RdfStoreError {
+                operation: "open".to_string(),
+                reason: e.to_string(),
+            })?;
+        Ok(Self::from_store(store))
+    }
+
     /// Create a new RDF-backed registry from an existing store
     pub fn from_store(store: Store) -> Self {
         // Initialize ontology
@@ -205,6 +234,41 @@ impl RdfRegistry {
 
         debug!("SPARQL query returned {} results", packages.len());
         Ok(packages)
+    }
+
+    /// Find packages related by real SPARQL-computed keyword overlap.
+    ///
+    /// Delegates to [`crate::marketplace::SparqlSearchEngine::search_semantic`]
+    /// over this registry's own `store` (the same `Arc<Store>` every other
+    /// method on this type already reads/writes) -- this is the real
+    /// production-facing entry point for that capability, previously
+    /// reachable only from the `search_sparql` module's own tests.
+    ///
+    /// # Errors
+    ///
+    /// * `Error::SparqlError` - When the SPARQL query syntax is invalid
+    /// * `Error::SearchError` - When querying the RDF store fails
+    pub fn search_related_by_keywords(
+        &self, keywords: &[String], limit: usize,
+    ) -> Result<Vec<String>> {
+        crate::marketplace::search_sparql::SparqlSearchEngine::new(Arc::clone(&self.store))
+            .search_semantic(keywords, limit)
+    }
+
+    /// Find packages related by SKOS category-taxonomy expansion.
+    ///
+    /// Delegates to
+    /// [`crate::marketplace::SparqlSearchEngine::search_related_by_category`]
+    /// over this registry's own `store`, for the same reachability reason as
+    /// [`Self::search_related_by_keywords`].
+    ///
+    /// # Errors
+    ///
+    /// * `Error::SparqlError` - When the SPARQL query syntax is invalid
+    /// * `Error::SearchError` - When querying the RDF store fails
+    pub fn search_related_by_category(&self, category: &str, limit: usize) -> Result<Vec<String>> {
+        crate::marketplace::search_sparql::SparqlSearchEngine::new(Arc::clone(&self.store))
+            .search_related_by_category(category, limit)
     }
 
     /// Get statistics about the RDF store
@@ -922,6 +986,167 @@ mod tests {
         // Count packages
         let count = registry.count_packages().await.unwrap();
         assert_eq!(count, 3);
+    }
+
+    /// Real proof that `RdfRegistry::open` is genuinely persistent across
+    /// process-equivalent boundaries: insert a package via one `RdfRegistry`
+    /// instance, drop it entirely (simulating a `ggen` process exiting),
+    /// open a brand-new `RdfRegistry` instance over the *same* on-disk path,
+    /// and confirm the package is still there. `RdfRegistry::new` (in-memory
+    /// `Store::new()`) could never pass this test -- that's the real gap
+    /// this method closes.
+    #[tokio::test]
+    async fn test_open_persists_packages_across_registry_instances() {
+        let dir = tempfile::tempdir().expect("real temp dir for on-disk store");
+        let store_path = dir.path().join("registry-store");
+
+        let package_id = PackageId::new("persisted-pkg").unwrap();
+        {
+            let registry = RdfRegistry::open(&store_path).expect("real on-disk store must open");
+            let metadata = PackageMetadata {
+                id: package_id.clone(),
+                name: "Persisted Package".to_string(),
+                description: "Must survive a registry re-open".to_string(),
+                authors: vec!["Test Author".to_string()],
+                license: "MIT".to_string(),
+                repository: None,
+                homepage: None,
+                keywords: vec![],
+                categories: vec![],
+                downloads: 0,
+                quality_score: None,
+                created_at: chrono::Utc::now(),
+                updated_at: chrono::Utc::now(),
+                registry_type: crate::marketplace::trust::RegistryType::default(),
+            };
+            let package = Package {
+                metadata,
+                latest_version: PackageVersion::new("1.0.0").unwrap(),
+                versions: vec![PackageVersion::new("1.0.0").unwrap()],
+                releases: IndexMap::new(),
+            };
+            registry
+                .create_package(package)
+                .await
+                .expect("real insert into the on-disk store must succeed");
+            // `registry` (and its `Store` handle) is dropped here.
+        }
+
+        let reopened = RdfRegistry::open(&store_path)
+            .expect("real on-disk store must reopen from the same path");
+        let exists = reopened
+            .package_exists(&package_id)
+            .await
+            .expect("real query against the reopened store must succeed");
+        assert!(
+            exists,
+            "a package inserted before the registry was dropped and reopened must still be \
+             present -- this is what distinguishes RdfRegistry::open from the in-memory-only \
+             RdfRegistry::new"
+        );
+    }
+
+    /// `RdfRegistry::search_related_by_keywords` is the real production
+    /// entry point for `SparqlSearchEngine::search_semantic` -- proves the
+    /// delegation actually reaches the same store this registry's other
+    /// methods read/write, not a disconnected second store.
+    #[tokio::test]
+    async fn test_search_related_by_keywords_delegates_to_shared_store() {
+        let registry = RdfRegistry::new();
+
+        for (id, kws) in [
+            ("kw-pkg-a", vec!["database", "async"]),
+            ("kw-pkg-b", vec!["database"]),
+            ("kw-pkg-c", vec!["frontend"]),
+        ] {
+            let metadata = PackageMetadata {
+                id: PackageId::new(id).unwrap(),
+                name: id.to_string(),
+                description: "keyword search fixture".to_string(),
+                authors: vec![],
+                license: "MIT".to_string(),
+                repository: None,
+                homepage: None,
+                keywords: kws.into_iter().map(String::from).collect(),
+                categories: vec![],
+                downloads: 0,
+                quality_score: None,
+                created_at: chrono::Utc::now(),
+                updated_at: chrono::Utc::now(),
+                registry_type: crate::marketplace::trust::RegistryType::default(),
+            };
+            let package = Package {
+                metadata,
+                latest_version: PackageVersion::new("1.0.0").unwrap(),
+                versions: vec![PackageVersion::new("1.0.0").unwrap()],
+                releases: IndexMap::new(),
+            };
+            registry.create_package(package).await.unwrap();
+        }
+
+        let results = registry
+            .search_related_by_keywords(&["database".to_string()], 10)
+            .expect("real delegated SPARQL query must succeed");
+
+        assert!(
+            results.iter().any(|p| p.contains("kw-pkg-a")),
+            "kw-pkg-a shares the 'database' keyword, must appear, got {:?}",
+            results
+        );
+        assert!(
+            results.iter().any(|p| p.contains("kw-pkg-b")),
+            "kw-pkg-b shares the 'database' keyword, must appear, got {:?}",
+            results
+        );
+        assert!(
+            !results.iter().any(|p| p.contains("kw-pkg-c")),
+            "kw-pkg-c shares no keywords with the query, must be absent, got {:?}",
+            results
+        );
+    }
+
+    /// `RdfRegistry::search_related_by_category` is the real production
+    /// entry point for `SparqlSearchEngine::search_related_by_category` --
+    /// proves categories written via the real `create_package` path are
+    /// actually findable through it.
+    #[tokio::test]
+    async fn test_search_related_by_category_delegates_to_shared_store() {
+        let registry = RdfRegistry::new();
+
+        let metadata = PackageMetadata {
+            id: PackageId::new("cat-pkg").unwrap(),
+            name: "Categorized Package".to_string(),
+            description: "category search fixture".to_string(),
+            authors: vec![],
+            license: "MIT".to_string(),
+            repository: None,
+            homepage: None,
+            keywords: vec![],
+            categories: vec!["web".to_string()],
+            downloads: 0,
+            quality_score: None,
+            created_at: chrono::Utc::now(),
+            updated_at: chrono::Utc::now(),
+            registry_type: crate::marketplace::trust::RegistryType::default(),
+        };
+        let package = Package {
+            metadata,
+            latest_version: PackageVersion::new("1.0.0").unwrap(),
+            versions: vec![PackageVersion::new("1.0.0").unwrap()],
+            releases: IndexMap::new(),
+        };
+        registry.create_package(package).await.unwrap();
+
+        let results = registry
+            .search_related_by_category("web", 10)
+            .expect("real delegated SKOS-expansion SPARQL query must succeed");
+
+        assert!(
+            results.iter().any(|p| p.contains("cat-pkg")),
+            "cat-pkg was registered with category 'web' via the real create_package path, \
+             must be findable via search_related_by_category, got {:?}",
+            results
+        );
     }
 
     #[tokio::test]

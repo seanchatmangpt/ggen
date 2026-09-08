@@ -156,7 +156,7 @@ fn hooks_live_and_are_queryable_by_templates() {
     let project = scaffold_synthetic_consumer(dir.path(), &["hook-pack"], TRIGGER_ONTOLOGY, "");
 
     // (a) First sync succeeds and the output contains "fired".
-    CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::cargo_bin("ggen")
         .args(["sync", "run"])
         .current_dir(&project)
         .run()
@@ -167,7 +167,7 @@ fn hooks_live_and_are_queryable_by_templates() {
     assert!(flag.contains("fired"), "hook must have fired: {flag}");
 
     // (b) Two consecutive syncs produce byte-identical output.
-    CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::cargo_bin("ggen")
         .args(["sync", "run"])
         .current_dir(&project)
         .run()
@@ -184,7 +184,7 @@ fn hooks_live_and_are_queryable_by_templates() {
         "@prefix ex: <http://example.org/gap#> .\n",
     )
     .expect("clear trigger fact");
-    CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::cargo_bin("ggen")
         .args(["sync", "run"])
         .current_dir(&project)
         .run()
@@ -223,8 +223,8 @@ fn hook_derived_facts_are_gate_checked() {
         .current_dir(&project)
         .run()
         .expect("run sync");
-    output.assert_failure();
-    output.assert_stderr_contains("FM-PACK-013");
+    let _ = output.assert_failure();
+    let _ = output.assert_stderr_contains("FM-PACK-013");
     assert!(
         !project.join("flag.txt").exists(),
         "a refused sync must not have written any template output"
@@ -265,7 +265,7 @@ fn reflexive_receipts_second_sync_sees_first() {
 
     // First sync: log is empty at load time (before this sync's own
     // receipt is written) -> "0".
-    CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::cargo_bin("ggen")
         .args(["sync", "run"])
         .current_dir(&project)
         .run()
@@ -279,7 +279,7 @@ fn reflexive_receipts_second_sync_sees_first() {
     );
 
     // Second sync: the first sync's own receipt-log line is now visible.
-    CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::cargo_bin("ggen")
         .args(["sync", "run"])
         .current_dir(&project)
         .run()
@@ -293,7 +293,7 @@ fn reflexive_receipts_second_sync_sees_first() {
     );
 
     // Receipt verification still succeeds after both syncs.
-    CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::cargo_bin("ggen")
         .args(["receipt", "verify"])
         .current_dir(&project)
         .run()
@@ -320,7 +320,7 @@ fn reflexive_off_by_default_is_unaffected() {
     )
     .expect("write template");
 
-    CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::cargo_bin("ggen")
         .args(["sync", "run"])
         .current_dir(&project)
         .run()
@@ -330,7 +330,7 @@ fn reflexive_off_by_default_is_unaffected() {
     let receipt1 = std::fs::read(project.join(".ggen-v2/receipt.json")).expect("receipt.json");
     let lock1 = std::fs::read(project.join("ggen.lock")).ok();
 
-    CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::cargo_bin("ggen")
         .args(["sync", "run"])
         .current_dir(&project)
         .run()
@@ -389,7 +389,7 @@ fn malformed_receipt_log_line_is_skipped_not_fatal() {
     .expect("write count template");
 
     // First sync creates a real, well-formed log line + establishes .ggen-v2/.
-    CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::cargo_bin("ggen")
         .args(["sync", "run"])
         .current_dir(&project)
         .run()
@@ -412,7 +412,7 @@ fn malformed_receipt_log_line_is_skipped_not_fatal() {
         .expect("prepend garbage line");
 
     // Sync still succeeds; the good (first) line is still reflected...
-    CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::cargo_bin("ggen")
         .args(["sync", "run"])
         .current_dir(&project)
         .run()

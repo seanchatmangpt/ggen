@@ -1,4 +1,13 @@
 [pack]
 name = "clap-noun-verb-pack"
 version = "0.1.0"
-description = "Compatibility-only route-skeleton pack. It preserves the legacy packed cnv:args representation, built-in session/user specimen commands, raw cnv:staticResponse surface, and crate::verbs::handlers::* seam for existing consumers such as receiptctl. New CLIs must compose clap-noun-verb-schema-pack, clap-noun-verb-crate-pack, clap-noun-verb-routing-pack, clap-noun-verb-behavior-pack, clap-noun-verb-boundary-pack, and clap-noun-verb-verification-pack instead. The zero-code compiler uses first-class cnv:Argument nodes, closed typed behavior enums, admitted boundaries, real compiled-binary tests, and never imports this pack or its specimen commands."
+description = "DEPRECATED, superseded by clap-noun-verb-schema-pack, clap-noun-verb-crate-pack, clap-noun-verb-routing-pack, clap-noun-verb-behavior-pack, clap-noun-verb-boundary-pack, and clap-noun-verb-verification-pack. Compatibility-only route-skeleton pack. It preserves the legacy packed cnv:args representation, built-in session/user specimen commands, raw cnv:staticResponse surface, and crate::verbs::handlers::* seam for existing consumers such as receiptctl. New CLIs must compose the successor packs instead. The zero-code compiler uses first-class cnv:Argument nodes, closed typed behavior enums, admitted boundaries, real compiled-binary tests, and never imports this pack or its specimen commands."
+deprecated = true
+superseded_by = [
+    "clap-noun-verb-schema-pack",
+    "clap-noun-verb-crate-pack",
+    "clap-noun-verb-routing-pack",
+    "clap-noun-verb-behavior-pack",
+    "clap-noun-verb-boundary-pack",
+    "clap-noun-verb-verification-pack",
+]

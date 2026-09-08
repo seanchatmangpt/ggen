@@ -80,6 +80,16 @@ struct PackMeta {
     name: String,
     version: String,
     description: String,
+    /// Optional deprecation marker (e.g. `packs/clap-noun-verb-pack/pack.toml`,
+    /// added 2026-08-16). Defaults to `false` for the common case of an
+    /// undeprecated pack.
+    #[serde(default)]
+    deprecated: bool,
+    /// Optional list of pack names this one is superseded by. Only
+    /// meaningful when `deprecated = true`; carries no resolution behavior
+    /// on its own -- see [`resolve_pack_dir`]'s deprecation warning.
+    #[serde(default)]
+    superseded_by: Vec<String>,
 }
 
 /// Resolve every pack declared in `config.packs`, in name (`BTreeMap`) order.
@@ -247,6 +257,43 @@ fn resolve_git_pack_dir(
 /// the `.ggen-git-pin` marker. Split out of [`resolve_git_pack_dir`] purely
 /// to keep that function under the workspace's line-count lint; behavior is
 /// unchanged from when this was inlined there.
+/// The `GIT_*` variables git itself sets when invoking a hook (pre-push,
+/// pre-commit, etc.) or during `receive-pack`, that override `-C`- and
+/// `current_dir()`-based repository discovery for any `git` subprocess
+/// spawned from inside that hook's process tree. Real, reproduced bug (not
+/// hypothetical), same class as `crates/ggen-cli/src/cmds/sbb/evaluation.rs`'s
+/// identical fix: a real `git push` on this repo (which runs
+/// `scripts/hooks/pre-push.sh`, which runs `cargo test --workspace`)
+/// deterministically failed all 10 `pack::tests::resolve_git_pack_*` /
+/// `sync_*_git_pack*` tests below, while every other invocation (`cargo
+/// test` directly, the hook script run by hand outside a real push) passed
+/// cleanly -- because `git push` sets `GIT_DIR`/`GIT_WORK_TREE` in the
+/// hook's environment, inherited straight through into these tests' own
+/// `git clone`/`git -C <cache_dir> checkout` subprocesses, redirecting them
+/// onto the pushing repository's real `.git` instead of each test's
+/// isolated temp clone/cache dir.
+const GIT_ENV_LEAK_VARS: &[&str] = &[
+    "GIT_DIR",
+    "GIT_WORK_TREE",
+    "GIT_INDEX_FILE",
+    "GIT_OBJECT_DIRECTORY",
+    "GIT_ALTERNATE_OBJECT_DIRECTORIES",
+    "GIT_QUARANTINE_PATH",
+    "GIT_COMMON_DIR",
+    "GIT_PREFIX",
+];
+
+/// Build a `git` [`Command`] with the ambient `GIT_*` env leak vars cleared
+/// (see [`GIT_ENV_LEAK_VARS`]) -- every subprocess `git` invocation in this
+/// module goes through this, never a bare `Command::new("git")`.
+fn git_command() -> Command {
+    let mut command = Command::new("git");
+    for var in GIT_ENV_LEAK_VARS {
+        command.env_remove(var);
+    }
+    command
+}
+
 ///
 /// # Errors
 /// - `[FM-PACK-010]` `git` not on `$PATH`, or `git clone` failed
@@ -282,7 +329,7 @@ fn clone_and_pin_git_pack(
         )
     })?;
 
-    let clone = Command::new("git")
+    let clone = git_command()
         .args([
             "clone",
             "--quiet",
@@ -310,7 +357,7 @@ fn clone_and_pin_git_pack(
         ));
     }
 
-    let checkout = Command::new("git")
+    let checkout = git_command()
         .args([
             "-C",
             cache_dir.to_str().unwrap_or_default(),
@@ -403,6 +450,17 @@ fn resolve_pack_dir(name: &str, root: &Path) -> Result<Pack> {
     // The [packs] key in ggen.toml is the authoritative resolution name;
     // the manifest's own `name` is informational.
     let _ = &manifest.pack.name;
+    // `deprecated`/`superseded_by` are accepted, closed-vocabulary,
+    // human-authored advisory metadata (see e.g.
+    // packs/clap-noun-verb-pack/pack.toml) -- not surfaced as a per-sync
+    // diagnostic here. A logged warning naming the deprecated pack would
+    // leak that pack's name into every sync's stderr for any project that
+    // merely composes it alongside other packs, which
+    // `cross_pack_matrix.rs`'s `corrupting_one_pack_post_lock_fails_closed_naming_only_that_pack`
+    // correctly refuses to tolerate: a typed sync failure must name only
+    // the pack that actually failed.
+    let _ = &manifest.pack.deprecated;
+    let _ = &manifest.pack.superseded_by;
     Ok(Pack {
         name: name.to_string(),
         version: manifest.pack.version,
@@ -805,7 +863,7 @@ mod tests {
     /// A local scratch git repo with one file committed and tagged `v1`,
     /// used as the clone source — no network needed.
     fn git(args: &[&str], cwd: &Path) {
-        let out = Command::new("git")
+        let out = super::git_command()
             .args(args)
             .current_dir(cwd)
             .output()
@@ -1062,8 +1120,7 @@ version = "v2"
         git(&["init", "--quiet"], dir);
         git(&["config", "user.email", "test@example.com"], dir);
         git(&["config", "user.name", "Test"], dir);
-        std::fs::write(dir.join("README.md"), "monorepo root, not a pack\n")
-            .expect("write README");
+        std::fs::write(dir.join("README.md"), "monorepo root, not a pack\n").expect("write README");
 
         let pack_dir = dir.join("packs/widget-pack");
         std::fs::create_dir_all(pack_dir.join("templates")).expect("mkdir pack templates");
@@ -1092,7 +1149,9 @@ version = "v2"
     /// `PackRef::Git` entry (`GgenConfig` has no `Default` impl, and several
     /// of its fields are meaningfully required, so this is the real
     /// construction every test below needs, not a shortcut around it).
-    fn git_pack_config(url: &str, version: &str, subdir: Option<&str>) -> crate::config::GgenConfig {
+    fn git_pack_config(
+        url: &str, version: &str, subdir: Option<&str>,
+    ) -> crate::config::GgenConfig {
         crate::config::GgenConfig {
             project: crate::config::Project {
                 name: "fixture".to_string(),

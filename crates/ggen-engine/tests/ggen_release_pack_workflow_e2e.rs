@@ -148,7 +148,7 @@ mode        = "Overwrite"
 fn marketplace_docs_workflow_regenerates_byte_identical_to_committed_file() {
     let (_dir, project) = scaffold_marketplace_docs_consumer();
 
-    CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::cargo_bin("ggen")
         .args(["sync", "run"])
         .current_dir(&project)
         .run()
@@ -175,7 +175,7 @@ fn marketplace_docs_workflow_regenerates_byte_identical_to_committed_file() {
 fn marketplace_docs_workflow_second_sync_is_idempotent() {
     let (_dir, project) = scaffold_marketplace_docs_consumer();
 
-    CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::cargo_bin("ggen")
         .args(["sync", "run"])
         .current_dir(&project)
         .run()
@@ -189,7 +189,7 @@ fn marketplace_docs_workflow_second_sync_is_idempotent() {
         .current_dir(&project)
         .run()
         .expect("second sync");
-    second_run.assert_success();
+    let _ = second_run.assert_success();
     let second = std::fs::read_to_string(project.join(".github/workflows/marketplace-docs.yml"))
         .expect("read second-run output");
 
@@ -208,6 +208,6 @@ fn marketplace_docs_workflow_second_sync_is_idempotent() {
         .current_dir(&project)
         .run()
         .expect("dry-run after second sync");
-    dry_run_output.assert_success();
-    dry_run_output.assert_stdout_contains("unchanged: content identical");
+    let _ = dry_run_output.assert_success();
+    let _ = dry_run_output.assert_stdout_contains("unchanged: content identical");
 }
