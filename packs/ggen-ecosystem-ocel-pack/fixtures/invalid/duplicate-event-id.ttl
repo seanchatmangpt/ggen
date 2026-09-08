@@ -1,0 +1,7 @@
+@prefix geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ex: <urn:ggen:test:> .
+ex:run a geocel:ManufacturingRun ; geocel:runId "run-1" ; geocel:projectOwner "seanchatmangpt" ; geocel:projectNumber "2" ; geocel:projectMemoryKey "ggen/ecosystem/ocel/current" ; geocel:ocelDigest "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" ; geocel:standing "ALIVE" .
+ex:o a geocel:RepositoryObject ; geocel:objectId "repo-1" ; geocel:repository "seanchatmangpt/ggen" ; geocel:exactHead "f1ae5d98936eadd93b06680c0e1ea247597724fb" .
+ex:e1 a geocel:ManufacturingEvent ; geocel:eventId "event-1" ; geocel:eventType geocel:Observe ; geocel:eventTime "2026-08-28T00:00:00Z"^^xsd:dateTime ; geocel:sequence 1 ; geocel:inRun ex:run ; geocel:relatesTo ex:o .
+ex:e2 a geocel:ManufacturingEvent ; geocel:eventId "event-1" ; geocel:eventType geocel:Receipt ; geocel:eventTime "2026-08-28T00:00:01Z"^^xsd:dateTime ; geocel:sequence 2 ; geocel:inRun ex:run ; geocel:relatesTo ex:o .
