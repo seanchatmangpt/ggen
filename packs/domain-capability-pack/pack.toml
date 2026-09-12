@@ -2,14 +2,18 @@
 name = "domain-capability-pack"
 version = "0.2.0"
 description = """
-Canonical domain-capability source and projection pack implementing the ERRC production closure.
+Canonical domain-capability source and consumer-projection pack implementing the ERRC production closure.
 
-The pack owns the cross-repository vocabulary for executable-world capabilities, source provenance,
-consumer allowlists and drift guards. The worked SREGym source contains 14 real gymact capabilities.
-Consumer configuration is no longer expected to maintain an independent capability enumeration:
-`templates/autofde_lab_gymact_capabilities.toml.tmpl` manufactures the consumer TOML from admitted
-graph facts, and `templates/cross_repo_capability_patterns.toml.tmpl` projects Chatman Ecosystem
-capability facts into a capability→implementation-pattern manifest without granting authority.
+The pack owns the shared vocabulary for executable-world capabilities, source provenance, consumer
+allowlists and drift guards. The worked SREGym source contains 14 real gymact capabilities. Consumer
+configuration is no longer expected to maintain an independent capability enumeration:
+`templates/autofde_lab_gymact_capabilities.toml.tmpl` manufactures the AutoFDE consumer TOML from
+the admitted SREGym graph facts.
+
+The cross-repository Chatman Ecosystem capability→implementation-pattern projection is intentionally
+NOT generated here because this pack does not own or load that ABox. Its lawful generator lives beside
+the canonical capability TTLs in `chatman-ecosystem/packs/platform-console-capability-projection` and
+uses ggen `extra_ontologies` to union those exact source files without copying their 44+ individuals.
 
 ERRC constraints implemented here:
 - ELIMINATE consumer-local capability enumeration as a source of truth.
@@ -18,12 +22,12 @@ ERRC constraints implemented here:
   production actuation remains outside this pack.
 - RAISE fidelity with exact per-source counts, allowlist-subset checks, unique source/slug/order
   identity, and a closed READ|DO world-consequence carrier.
-- RAISE proof discipline by requiring downstream implementations to supply positive execution,
-  negative refusal and receipt-replay evidence before MuStar canonical selection.
-- CREATE generated AutoFDE and cross-repo pattern projections from admitted semantic facts.
+- RAISE proof discipline by making positive execution, negative refusal and receipt replay explicit
+  downstream admission requirements rather than assuming build success implies runtime standing.
+- CREATE the generated AutoFDE projection from admitted semantic facts.
 
 This pack does not acquire SELECT or DO authority. A generated projection is data/construct output;
-selection belongs to MuStar and consequential execution remains broker-owned.
+selection belongs to its separate SELECT owner and consequential execution remains broker-owned.
 """
 category = "architecture"
 author = "ggen"
