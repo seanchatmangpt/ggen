@@ -1,0 +1,17 @@
+PREFIX dcp: <http://seanchatmangpt.github.io/packs/domain-capability#>
+
+# Refuse duplicate (sourceRepo, sourceFile, slug) or declaration order identities.
+# Any row returned is a gate failure.
+SELECT ?sourceRepo ?sourceFile ?kind ?value (COUNT(?cap) AS ?count) WHERE {
+  {
+    ?cap a dcp:Capability ; dcp:sourceRepo ?sourceRepo ; dcp:sourceFile ?sourceFile ; dcp:slug ?value .
+    BIND("slug" AS ?kind)
+  }
+  UNION
+  {
+    ?cap a dcp:Capability ; dcp:sourceRepo ?sourceRepo ; dcp:sourceFile ?sourceFile ; dcp:order ?value .
+    BIND("order" AS ?kind)
+  }
+}
+GROUP BY ?sourceRepo ?sourceFile ?kind ?value
+HAVING (COUNT(?cap) != 1)
