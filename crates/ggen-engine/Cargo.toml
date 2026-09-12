@@ -53,7 +53,7 @@ mcp   = ["dep:rmcp", "dep:rmcp-macros", "dep:tokio"]                 # MCP serve
 
 [dependencies]
 once_cell = "1"
-rustyline = { version = "14", optional = true }
+rustyline = { version = "18", optional = true }
 # House shared crate — pick one source:
 # chatman-common = "26.6"                                              # once published
 # chatman-common = { git = "https://github.com/seanchatmangpt/chatman-common" }
