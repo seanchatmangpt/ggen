@@ -232,7 +232,7 @@ parking_lot = "0.12"
 criterion = { version = "0.5", features = ["html_reports"] }
 
 # AI integration
-genai = "0.5"
+genai = "0.6"
 
 # Force base64 version to resolve duplicate dependency issue
 # config -> ron -> base64 0.21.7 conflicts with reqwest -> base64 0.22.1
