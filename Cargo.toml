@@ -206,7 +206,7 @@ ggen-engine = { path = "crates/ggen-engine", version = "26.7.13" }
 
 
 # OpenTelemetry dependencies (make optional at crate level, not workspace level)
-opentelemetry = { version = "0.31" }
+opentelemetry = { version = "0.32" }
 opentelemetry-otlp = { version = "0.31", features = ["grpc-tonic"] }
 opentelemetry_sdk = { version = "0.31", features = ["rt-tokio"] }
 tracing-opentelemetry = { version = "0.32" }
