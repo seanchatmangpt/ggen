@@ -1,0 +1,38 @@
+
+[package]
+name = "ggen-graph-wasm"
+version.workspace = true
+edition.workspace = true
+description = "wasm32-buildable QueryEngine boundary for ggen-graph: OxigraphEngine (native) + RemoteEngine (wasm-safe, delegates SPARQL execution over HTTP)."
+
+[lib]
+crate-type = ["rlib", "cdylib"]
+
+[features]
+default = []
+# Enables OxigraphEngine. A no-op on wasm32 targets (the dependency itself is gated out
+# via [target.cfg(...)] below, not by this feature) -- kept as a feature too so native
+# consumers can opt out of building oxigraph even natively (e.g. a slim CLI build).
+oxigraph-engine = ["dep:oxigraph"]
+# Enables RemoteEngine. wasm32-safe; also usable natively (e.g. testing against a real
+# remote SPARQL endpoint without linking oxigraph at all).
+remote-engine = ["dep:reqwest", "dep:serde_json", "dep:wasm-bindgen"]
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+oxigraph = { version = "0.5.9", features = ["rdf-12"], optional = true }
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+wasm-bindgen = { version = "0.2", optional = true }
+
+[dependencies.reqwest]
+version = "0.12"
+default-features = false
+features = ["json"]
+optional = true
+
+[dependencies.serde_json]
+version = "1"
+optional = true

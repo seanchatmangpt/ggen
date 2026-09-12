@@ -1,0 +1,16 @@
+[project]
+name = "ggen-graph-wasm-pack-verify"
+
+[ontology]
+source = "schema/domain.ttl"
+
+[ontology.prefixes]
+gwp  = "http://seanchatmangpt.github.io/packs/ggen-graph-wasm#"
+rdf  = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+rdfs = "http://www.w3.org/2000/01/rdf-schema#"
+
+[packs]
+ggen-graph-wasm-pack = { path = "../../../ggen-marketplace/packs/ggen-graph-wasm-pack" }
+
+[templates]
+dir = "templates"

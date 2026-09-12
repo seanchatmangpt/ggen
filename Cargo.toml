@@ -63,6 +63,7 @@ members = [
   "crates/ggen-marketplace",
   "crates/ggen-cli",
   "crates/ggen-graph",
+  "crates/ggen-graph-wasm",
   "crates/ggen-lsp",
   # ggen-core replacement engine (docs/jira/v26.7.16/): vendored, renamed copy
   # of ~/praxis/crates/ggen (see 01-PUBLISH-SAFETY-AND-CRATE-RENAME.md) plus
