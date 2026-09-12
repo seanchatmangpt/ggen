@@ -110,7 +110,7 @@ toml = "1.1.0"
 tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt"] }
 schemars = { version = "1.0", features = ["derive"] }
 rmcp = { version = "0.11.0", features = ["transport-io"], optional = true }
-rmcp-macros = { version = "0.11.0", optional = true }
+rmcp-macros = { version = "1.8.0", optional = true }
 # `verbs/` — the ontology-generated clap-noun-verb CLI dispatch layer (specs/014-ggen-core-replacement).
 # Re-enabled now that the workspace-wide clap-noun-verb pin (Cargo.toml) is bumped to the
 # published 26.7.4 (kebab-case-with-snake_case-alias release), matching what this crate
