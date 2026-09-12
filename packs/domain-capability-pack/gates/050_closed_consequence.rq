@@ -1,0 +1,9 @@
+PREFIX dcp: <http://seanchatmangpt.github.io/packs/domain-capability#>
+
+# Domain-capability consequence is deliberately closed to the executable world's
+# observed READ|DO carrier. SELECT/CONSTRUCT/DATA belong to the semantic capability
+# class projection, never this world-consequence field.
+SELECT ?cap ?consequence WHERE {
+  ?cap a dcp:Capability ; dcp:consequence ?consequence .
+  FILTER(STR(?consequence) != "READ" && STR(?consequence) != "DO")
+}
