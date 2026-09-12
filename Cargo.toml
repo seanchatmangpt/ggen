@@ -152,7 +152,7 @@ oxigraph = { version = "0.5.8", features = ["rdf-12"] }
 toml = "1.1.0"
 serde_yaml = "0.9"
 hex = "0.4"
-sha2 = "0.10"
+sha2 = "0.11"
 ed25519-dalek = { version = "2.1", features = ["rand_core"] }
 blake3 = "1.5"
 hashbrown = "0.15"

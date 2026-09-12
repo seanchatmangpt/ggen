@@ -131,7 +131,7 @@ wasm4pm-compat = "26.6"
 assert_cmd = "2"
 predicates = "3"
 tempfile = "3"
-sha2 = "0.10"
+sha2 = "0.11"
 insta = { version = "1", features = ["json"] }
 proptest = "1"
 criterion = { version = "0.5", features = ["html_reports"] }
