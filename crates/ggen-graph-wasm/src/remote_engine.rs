@@ -1,4 +1,3 @@
-
 use crate::{QueryEngine, Row};
 
 #[derive(Debug)]
@@ -13,7 +12,9 @@ impl std::fmt::Display for RemoteEngineError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::Request(e) => write!(f, "remote SPARQL request failed: {e}"),
-            Self::NonSuccessStatus(code) => write!(f, "remote SPARQL endpoint returned status {code}"),
+            Self::NonSuccessStatus(code) => {
+                write!(f, "remote SPARQL endpoint returned status {code}")
+            }
             Self::ResponseParse(e) => write!(f, "failed to parse SPARQL results JSON: {e}"),
         }
     }

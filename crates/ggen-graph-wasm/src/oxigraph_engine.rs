@@ -1,9 +1,8 @@
-
 use std::collections::BTreeMap;
 
 use oxigraph::io::{RdfFormat, RdfParser};
 use oxigraph::sparql::{QueryEvaluationError, QueryResults, SparqlEvaluator};
-use oxigraph::store::{LoaderError, Store, StorageError};
+use oxigraph::store::{LoaderError, StorageError, Store};
 
 use crate::{QueryEngine, Row};
 

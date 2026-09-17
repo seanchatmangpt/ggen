@@ -1,4 +1,3 @@
-
 //! `ggen-graph-wasm`: wasm32-buildable QueryEngine boundary for ggen-graph: OxigraphEngine (native) + RemoteEngine (wasm-safe, delegates SPARQL execution over HTTP).
 //!
 //! Manufactured by ggen-graph-wasm-pack from an admitted `gwp:WasmQueryEngineCrateSpec` --
