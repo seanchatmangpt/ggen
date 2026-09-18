@@ -1,0 +1,3 @@
+# MESSAGE: inRun targets must be ManufacturingRun resources.
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+SELECT ?e ?run WHERE { ?e geocel:inRun ?run . FILTER NOT EXISTS { ?run a geocel:ManufacturingRun } }
