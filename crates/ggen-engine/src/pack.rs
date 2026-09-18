@@ -513,6 +513,66 @@ pub fn content_hash(pack: &Pack) -> Result<[u8; 32]> {
     Ok(*hasher.finalize().as_bytes())
 }
 
+/// Portable SHA-256 pack digest — RFC-GPACK-001 §37/§38, the REQUIRED
+/// interoperable content identity for Core v1:
+///
+/// ```text
+/// PackDigest = SHA256( "ggen-pack-v1\0" || E_1 || ... || E_n )
+/// E_i        = u64be(|path_i|) || path_i || u64be(|bytes_i|) || bytes_i
+/// ```
+///
+/// Files are sorted by UTF-8 path bytes; paths are the same `/`-separated
+/// root-relative forms [`content_hash`] hashes (same walk, same `.git`
+/// exclusion, plus declared extra ontologies under their manifest-relative
+/// names — RFC §39: the digest MUST cover every source artifact capable of
+/// changing semantics or consequences, and MUST NOT cover runtime caches or
+/// emitted consequences). Unlike the legacy BLAKE3 [`content_hash`], this
+/// digest is framed length-prefixed and domain-separated so two independent
+/// engines (RFC §104) compute byte-identical identities. It is the value
+/// carried as `subject.pack_digest` in the portable receipt envelope
+/// (`crate::portable_receipt`); the BLAKE3 chain receipts continue
+/// unchanged and the two formats are NOT byte-equivalent (RFC §56).
+///
+/// Symlinks are forbidden in canonical pack source (RFC §72); this walk
+/// currently mirrors [`content_hash`]'s file set and does not add its own
+/// symlink refusal — that boundary belongs to the pack-admission tickets.
+///
+/// # Errors
+/// `[FM-PACK-006]` when a pack file (or directory) becomes unreadable
+/// between resolution and hashing (same contract as [`content_hash`)].
+pub fn pack_digest_sha256(pack: &Pack) -> Result<[u8; 32]> {
+    use sha2::Digest as _;
+
+    let mut entries: Vec<(String, PathBuf)> = Vec::new();
+    collect_pack_files_sorted(&pack.name, &pack.root, &pack.root, &mut entries)?;
+    for (declared, path) in &pack.extra_ontology_paths {
+        entries.push((declared.clone(), path.clone()));
+    }
+    // Sort by UTF-8 path bytes (RFC §38): String Ord is byte-wise.
+    entries.sort_by(|a, b| a.0.cmp(&b.0));
+
+    let mut hasher = sha2::Sha256::new();
+    hasher.update(b"ggen-pack-v1\0");
+    for (rel, path) in &entries {
+        let bytes = std::fs::read(path).map_err(|e| {
+            AppError::fm_pack(
+                6,
+                format!(
+                    "pack `{}`: file `{}` unreadable while hashing: {e}. \
+                     Remediation: do not mutate a pack during sync.",
+                    pack.name,
+                    path.display()
+                ),
+            )
+        })?;
+        hasher.update(u64::try_from(rel.len()).unwrap_or(u64::MAX).to_be_bytes());
+        hasher.update(rel.as_bytes());
+        hasher.update(u64::try_from(bytes.len()).unwrap_or(u64::MAX).to_be_bytes());
+        hasher.update(&bytes);
+    }
+    Ok(hasher.finalize().into())
+}
+
 /// Recursively collect every regular file under `dir` as `(root-relative
 /// path string, absolute path)` pairs into `out`, sorted at each directory
 /// level so the walk order never depends on the filesystem's own
@@ -802,6 +862,68 @@ mod tests {
         assert!(contents.contains("gadget"));
     }
 
+    /// Minimal [`Pack`] handle over a scratch directory for digest tests
+    /// (no pack.toml/ontology/templates needed — the digest walks raw files).
+    fn bare_pack(root: &Path) -> Pack {
+        Pack {
+            name: "vector-pack".to_string(),
+            version: "1.0.0".to_string(),
+            description: String::new(),
+            root: root.to_path_buf(),
+            ontology_path: root.join("ontology.ttl"),
+            extra_ontology_paths: Vec::new(),
+            template_paths: Vec::new(),
+            lock: true,
+        }
+    }
+
+    /// Known-vector for the RFC-GPACK-001 §38 framing, computed by an
+    /// independent implementation (python hashlib) of
+    /// `SHA256("ggen-pack-v1\0" || u64be(1)||"a"||u64be(1)||"b")`:
+    /// a single file `a` containing `b`.
+    #[test]
+    fn pack_digest_sha256_matches_rfc38_known_vector_single_file() {
+        let dir = TempDir::new().expect("tempdir");
+        std::fs::write(dir.path().join("a"), b"b").expect("write a");
+        let digest = pack_digest_sha256(&bare_pack(dir.path())).expect("digest");
+        assert_eq!(
+            crate::sync::hex32(&digest),
+            "00d88d571d0897f7fd57322b08baaadcaafa73b0803b1d24b22c9b3ecdeee1cc"
+        );
+    }
+
+    /// Two files ordered by UTF-8 path bytes (`"a" < "ab"`), each framed
+    /// `u64be(|path|)||path||u64be(|bytes|)||bytes` — the multi-entry §38
+    /// vector `SHA256("ggen-pack-v1\0" || E("a","one") || E("ab","two"))`.
+    #[test]
+    fn pack_digest_sha256_matches_rfc38_known_vector_sorted_entries() {
+        let dir = TempDir::new().expect("tempdir");
+        std::fs::write(dir.path().join("ab"), b"two").expect("write ab");
+        std::fs::write(dir.path().join("a"), b"one").expect("write a");
+        let digest = pack_digest_sha256(&bare_pack(dir.path())).expect("digest");
+        assert_eq!(
+            crate::sync::hex32(&digest),
+            "87a71f12dd37328ac4dc6a3c6b16152db766572216883c7b870c9a64d869a54a"
+        );
+    }
+
+    /// §39: runtime caches and VCS metadata MUST NOT enter the source
+    /// digest — a `.git/` directory (present in every `PackRef::Git` clone)
+    /// must not change the value.
+    #[test]
+    fn pack_digest_sha256_ignores_git_directory() {
+        let dir = TempDir::new().expect("tempdir");
+        std::fs::write(dir.path().join("a"), b"b").expect("write a");
+        let before = pack_digest_sha256(&bare_pack(dir.path())).expect("digest before");
+
+        let git_dir = dir.path().join(".git");
+        std::fs::create_dir_all(&git_dir).expect("mkdir .git");
+        std::fs::write(git_dir.join("reflog"), b"wall-clock noise").expect("write reflog");
+        let after = pack_digest_sha256(&bare_pack(dir.path())).expect("digest after");
+
+        assert_eq!(before, after, ".git contents must not affect PackDigest");
+    }
+
     /// A local scratch git repo with one file committed and tagged `v1`,
     /// used as the clone source — no network needed.
     fn git(args: &[&str], cwd: &Path) {
@@ -1062,8 +1184,7 @@ version = "v2"
         git(&["init", "--quiet"], dir);
         git(&["config", "user.email", "test@example.com"], dir);
         git(&["config", "user.name", "Test"], dir);
-        std::fs::write(dir.join("README.md"), "monorepo root, not a pack\n")
-            .expect("write README");
+        std::fs::write(dir.join("README.md"), "monorepo root, not a pack\n").expect("write README");
 
         let pack_dir = dir.join("packs/widget-pack");
         std::fs::create_dir_all(pack_dir.join("templates")).expect("mkdir pack templates");
@@ -1092,7 +1213,9 @@ version = "v2"
     /// `PackRef::Git` entry (`GgenConfig` has no `Default` impl, and several
     /// of its fields are meaningfully required, so this is the real
     /// construction every test below needs, not a shortcut around it).
-    fn git_pack_config(url: &str, version: &str, subdir: Option<&str>) -> crate::config::GgenConfig {
+    fn git_pack_config(
+        url: &str, version: &str, subdir: Option<&str>,
+    ) -> crate::config::GgenConfig {
         crate::config::GgenConfig {
             project: crate::config::Project {
                 name: "fixture".to_string(),
