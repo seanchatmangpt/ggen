@@ -175,3 +175,183 @@ jobs:
           set -e
           test "$code" -ne 0
           ! grep -RInE 'reqwest|std::net|Command::new|terraform|pulumi|kubectl|aws_sdk|azure_|google_cloud' crates/ggen-cli/src/cmds/bblock.rs
+
+  # Separate job (own pass/fail signal) from catalog-cli-and-replay above.
+  # catalog-cli-and-replay never `cd`s into a project with a `[packs]` table
+  # wiring `fortune5-deployment-blocks-pack` -- every `ggen bblock <verb>` in
+  # that job runs either at the repo root (no `[packs]` table at all) or in a
+  # bare `mktemp -d` scratch dir with no `ggen.toml`, so it only ever proves
+  # the embedded-catalog fallback path (`CATALOG_BYTES` baked into the binary
+  # via `include_str!`). It does not touch the separate `wired_catalog_bytes`/
+  # `load_catalog` code path in crates/ggen-cli/src/cmds/bblock.rs that reads
+  # a *consuming project's* `[packs]`-wired pack instead -- defect 2 from
+  # docs/jira/v26.9.1/07-FORTUNE5-DEPLOYMENT-BLOCKS-NOT-SYNC-PORTABLE.md, and
+  # the fix this job actually exercises end-to-end through the real binary.
+  wired-catalog-cli-coverage:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+
+      - name: Provision repository toolchain
+        uses: ./.github/actions/setup-ggen-build
+
+      - name: Build the real ggen binary
+        run: cargo build -p ggen-cli-lib --bin ggen
+
+      # This is the step that must be capable of failing: pre-fix `ggen
+      # bblock` reads only `CATALOG_BYTES` (embedded via `include_str!` from
+      # this exact repo's own packs/fortune5-deployment-blocks-pack/catalog/
+      # fortune5-bblocks.json) and ignores `[packs]` entirely, so every
+      # scenario below would collapse to the SAME embedded digest under the
+      # old code. Three real scratch consumer projects, none sharing this
+      # checkout's ggen.toml:
+      #   wired-real  -- [packs] wires this repo's own, UNMODIFIED
+      #                  fortune5-deployment-blocks-pack by absolute path
+      #                  (same [packs.fortune5-deployment-blocks] shape
+      #                  proven in docs/jira/v26.9.1/07-... 's own evidence
+      #                  trail and in bblock.rs's own
+      #                  wired_project_pack_catalog_overrides_embedded_catalog
+      #                  unit test). Because CATALOG_BYTES is include_str! of
+      #                  this exact file, its digest is expected to equal the
+      #                  embedded one either way -- this scenario alone
+      #                  cannot distinguish "genuinely read from the wired
+      #                  path" from "fell back to embedded", so it is
+      #                  cross-checked against an independently-computed
+      #                  digest of the real file rather than treated as the
+      #                  falsifier.
+      #   wired-fork  -- [packs] wires a COPY of the pack whose
+      #                  catalog/fortune5-bblocks.json content is
+      #                  deliberately mutated (distinct version, one group
+      #                  that exists nowhere in the embedded fixture). THIS
+      #                  is the falsifier: only the project-wiring fix can
+      #                  make `ggen bblock list` return this content instead
+      #                  of the embedded one.
+      #   nopacks     -- bare ggen.toml, no [packs] table at all (matches
+      #                  docs/jira/v26.9.1/07-... 's own ~/nopacks-check-home
+      #                  scratch project) -- proves backward compatibility:
+      #                  still resolves to the embedded catalog.
+      - name: Prove [packs]-wired catalog resolution overrides the embedded fixture
+        run: |
+          set -euo pipefail
+          GGEN="$PWD/target/debug/ggen"
+          python3 -m pip install --disable-pip-version-check --break-system-packages blake3==1.0.8
+
+          REAL_CATALOG="$PWD/packs/fortune5-deployment-blocks-pack/catalog/fortune5-bblocks.json"
+          REAL_PACK_DIR="$PWD/packs/fortune5-deployment-blocks-pack"
+          WORK="$(mktemp -d)"
+
+          WIRED_REAL="$WORK/wired-real"
+          mkdir -p "$WIRED_REAL"
+          cat > "$WIRED_REAL/ggen.toml" <<TOML
+          [project]
+          name = "ci06-wired-real"
+
+          [ontology]
+          source = "ontology.ttl"
+
+          [templates]
+          dir = "templates"
+
+          [packs.fortune5-deployment-blocks]
+          path = "$REAL_PACK_DIR"
+          TOML
+
+          FORK_PACK_DIR="$WORK/forked-pack"
+          mkdir -p "$FORK_PACK_DIR/catalog"
+          cat > "$FORK_PACK_DIR/catalog/fortune5-bblocks.json" <<'JSON'
+          {
+            "schema": "ggen.bblock.catalog.v1",
+            "version": "ci06-fork-test-1.0.0",
+            "providers": [
+              {"id": "aws", "title": "Amazon Web Services", "aliases": []},
+              {"id": "azure", "title": "Microsoft Azure", "aliases": []},
+              {"id": "gcp", "title": "Google Cloud Platform", "aliases": ["gpc"]}
+            ],
+            "groups": [
+              {
+                "id": "ci06-wired-only-group",
+                "title": "CI-06 Wired-Only Test Group",
+                "description": "Exists only in the CI-06 forked catalog, never in the embedded fixture.",
+                "directory": "infra/ci06-wired-only",
+                "dependencies": [],
+                "common_packs": [],
+                "provider_packs": {
+                  "aws": ["aws-ci06-wired-test-pack"],
+                  "azure": ["azure-ci06-wired-test-pack"],
+                  "gcp": ["gcp-ci06-wired-test-pack"]
+                }
+              }
+            ]
+          }
+          JSON
+
+          WIRED_FORK="$WORK/wired-fork"
+          mkdir -p "$WIRED_FORK"
+          cat > "$WIRED_FORK/ggen.toml" <<TOML
+          [project]
+          name = "ci06-wired-fork"
+
+          [ontology]
+          source = "ontology.ttl"
+
+          [templates]
+          dir = "templates"
+
+          [packs.fortune5-deployment-blocks]
+          path = "$FORK_PACK_DIR"
+          TOML
+
+          NOPACKS="$WORK/nopacks"
+          mkdir -p "$NOPACKS"
+          cat > "$NOPACKS/ggen.toml" <<'TOML'
+          [project]
+          name = "ci06-nopacks"
+
+          [ontology]
+          source = "ontology.ttl"
+
+          [templates]
+          dir = "templates"
+          TOML
+
+          # Ground truth computed fresh, this run, directly from the files
+          # just written -- never a hardcoded digest string.
+          REAL_DIGEST="$(python3 -c "import blake3,sys; print(blake3.blake3(open(sys.argv[1],'rb').read()).hexdigest())" "$REAL_CATALOG")"
+          FORK_DIGEST="$(python3 -c "import blake3,sys; print(blake3.blake3(open(sys.argv[1],'rb').read()).hexdigest())" "$FORK_PACK_DIR/catalog/fortune5-bblocks.json")"
+          echo "real digest (independently computed): $REAL_DIGEST"
+          echo "fork digest (independently computed): $FORK_DIGEST"
+          test "$REAL_DIGEST" != "$FORK_DIGEST"
+
+          (cd "$WIRED_REAL" && "$GGEN" bblock list) > "$WORK/wired-real.json"
+          (cd "$WIRED_FORK" && "$GGEN" bblock list) > "$WORK/wired-fork.json"
+          (cd "$NOPACKS" && "$GGEN" bblock list) > "$WORK/nopacks.json"
+
+          WIRED_REAL_DIGEST="$(jq -r '.catalog_digest' "$WORK/wired-real.json")"
+          WIRED_FORK_DIGEST="$(jq -r '.catalog_digest' "$WORK/wired-fork.json")"
+          NOPACKS_DIGEST="$(jq -r '.catalog_digest' "$WORK/nopacks.json")"
+          WIRED_FORK_VERSION="$(jq -r '.version' "$WORK/wired-fork.json")"
+
+          echo "wired-real catalog_digest=$WIRED_REAL_DIGEST"
+          echo "wired-fork catalog_digest=$WIRED_FORK_DIGEST"
+          echo "nopacks    catalog_digest=$NOPACKS_DIGEST"
+
+          # wired-real: the CLI's output is genuinely sourced from this
+          # repo's own real pack file, not some other stale content.
+          test "$WIRED_REAL_DIGEST" = "$REAL_DIGEST"
+
+          # nopacks (backward compat): unchanged from before the fix.
+          test "$NOPACKS_DIGEST" = "$REAL_DIGEST"
+
+          # wired-fork (the falsifier): only resolves correctly when
+          # `ggen bblock` actually reads the project's [packs]-wired pack
+          # instead of always falling back to the embedded fixture.
+          test "$WIRED_FORK_DIGEST" = "$FORK_DIGEST"
+          test "$WIRED_FORK_DIGEST" != "$REAL_DIGEST"
+          test "$WIRED_FORK_VERSION" = "ci06-fork-test-1.0.0"
+          test "$(jq '[.groups[] | select(.id == "ci06-wired-only-group")] | length' "$WORK/wired-fork.json")" = "1"
+          test "$(jq '[.groups[] | select(.id == "fortune5-complete")] | length' "$WORK/wired-fork.json")" = "0"
+
+          echo "PROOF: ggen bblock list resolves [packs]-wired fortune5-deployment-blocks-pack catalogs, distinct from the embedded fixture, with real/nopacks/fork digests independently verified."

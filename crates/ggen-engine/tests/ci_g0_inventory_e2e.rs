@@ -46,7 +46,14 @@ fn exact_repository_inventory_manufactures_partial_alive_evidence() {
     // 2026-08-03 comment for the drift evidence and the 28 newly-admitted entries). This was
     // real Contract Drift, not a test bug -- the manifest was stale, not this assertion's
     // intent, so the fix is admitting the real 76 here to match the now-current manifest.
-    assert!(inventory.contains("\"observed_workflow_count\": 76"));
+    // 76 -> 74 (2026-08-18): further real, committed drift -- `docker.yml` and 4 of the 5
+    // `foundry-{clean-room-semantic-replay,historical-lineage-clean-room}*.yml` snapshots were
+    // superseded and removed from disk (their successors `docker-build-push.yml` and the
+    // `-v2`/`-v5` files remain), while `agent-apply-ggen-engine-refactor.yml`,
+    // `agent-source-capsule.yml`, `ggen-lsp-runtime-crown.yml`, and
+    // `mmdio-semantic-crown-contract.yml` merged with no manifest entry. See the manifest's own
+    // 2026-08-18 comment for the per-file evidence; net observed count is 74.
+    assert!(inventory.contains("\"observed_workflow_count\": 74"));
     assert!(inventory.contains("\"state\": \"UNKNOWN\""));
     assert!(!inventory.contains("\"standing\": \"ALIVE\""));
 
@@ -62,7 +69,7 @@ fn exact_repository_inventory_manufactures_partial_alive_evidence() {
     let topology = fs::read_to_string(&topology_path)
         .unwrap_or_else(|error| panic!("missing {}: {error}", topology_path.display()));
     assert!(topology.contains("\"standing\": \"PARTIAL_ALIVE\""));
-    assert!(topology.contains("\"workflow_count\": 76"));
+    assert!(topology.contains("\"workflow_count\": 74"));
     assert!(topology.contains("\"trigger_fanout\""));
     assert!(topology.contains("\"permission_ceiling\""));
     assert!(topology.contains("\"mutable_action_references\""));
