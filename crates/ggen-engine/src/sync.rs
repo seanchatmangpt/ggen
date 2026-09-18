@@ -145,6 +145,12 @@ pub struct SyncReport {
     /// declared input that cannot be read at binding time is recorded as
     /// `MISSING`, never dropped.
     pub closure: BTreeMap<String, String>,
+    /// Names of admitted packs that shipped ZERO templates — semantic-only
+    /// Core packs (RFC-GPACK-001 §73, `Pack ⇏ Template`). Recorded so the
+    /// sync report and the receipt state the no-op explicitly (admission
+    /// succeeded, zero projections manufactured) instead of leaving an empty
+    /// `written` list to imply — correctly but silently — that nothing ran.
+    pub semantic_only_packs: Vec<String>,
 }
 
 /// Relative path of the sync receipt under the project root.
@@ -215,6 +221,13 @@ pub struct ReceiptPayload {
     /// receipt even when the rendered outputs happen to be byte-identical.
     #[serde(default)]
     pub closure: BTreeMap<String, String>,
+    /// Names of admitted packs that shipped ZERO templates — semantic-only
+    /// Core packs (RFC-GPACK-001 §73). `#[serde(default)]` is the sanctioned
+    /// backward-compatible addition: receipts written before §73 admission
+    /// (which could never contain a semantic-only pack) deserialize with an
+    /// empty list.
+    #[serde(default)]
+    pub semantic_only_packs: Vec<String>,
 }
 
 /// Run the five-stage pipeline rooted at `root` (the directory containing
@@ -1223,6 +1236,17 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
         })
         .collect();
 
+    // RFC-GPACK-001 §73 (`Pack ⇏ Template`): packs admitted with zero
+    // templates are semantic-only Core packs. Recorded on the report (and,
+    // via `write_receipt`, in the receipt payload and admission ledger) so
+    // the no-op is stated explicitly instead of implied by an empty
+    // `written` list.
+    let semantic_only_packs: Vec<String> = packs
+        .iter()
+        .filter(|pack| pack.template_paths.is_empty())
+        .map(|pack| pack.name.clone())
+        .collect();
+
     let report = SyncReport {
         written,
         skipped,
@@ -1230,6 +1254,7 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
         decisions,
         packs: pack_hashes,
         closure,
+        semantic_only_packs,
     };
 
     if !opts.dry_run {
@@ -2840,6 +2865,7 @@ pub(crate) fn write_receipt(
         packs: report.packs.clone(),
         decisions: report.decisions.clone(),
         closure: report.closure.clone(),
+        semantic_only_packs: report.semantic_only_packs.clone(),
     };
     let payload_bytes = serde_json::to_vec(&payload)?;
     let payload_hash_hex = blake3::hash(&payload_bytes).to_hex().to_string();
@@ -2922,6 +2948,27 @@ pub(crate) fn write_receipt(
             }
         })
         .collect();
+
+    // RFC-GPACK-001 §73: a semantic-only Core pack (pack.toml + ontology.ttl,
+    // zero templates) is admitted lawfully and manufactures zero projections.
+    // Each such pack gets its own admission item so the receipt states the
+    // no-op explicitly rather than leaving an empty `outputs` map to imply
+    // it: `Pass` here means "admission observed, pack gates evaluated, zero
+    // violations" — never "files were written" (there are no templates to
+    // manufacture from).
+    for name in &report.semantic_only_packs {
+        admission_items.push(AdmissionItem {
+            evidence_id: format!("pack:{name}:semantic-only"),
+            observed_outcome: ObservedOutcome::Pass,
+            decision: AdmissionDecision::Admitted,
+            reason: "semantic-only Core pack admitted (RFC-GPACK-001 §73, Pack ⇏ Template): \
+                     zero templates, manufactured zero projections — a no-op receipt, \
+                     not a write success"
+                .to_string(),
+            obligations_discharged: Vec::new(),
+            obligations_created: Vec::new(),
+        });
+    }
 
     // L5 condition 13 (義務数が憲法判定後の未解決義務から計算される): one
     // AdmissionItem per `ccn:Law` individual found in the already-loaded

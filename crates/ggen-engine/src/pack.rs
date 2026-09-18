@@ -1,10 +1,15 @@
 //! Pack resolution and content hashing.
 //!
-//! A pack is a directory containing `pack.toml`, `ontology.ttl`, and a
-//! `templates/` directory of `*.tmpl` files. Packs are declared in
-//! `ggen.toml` under `[packs]` and resolved fail-closed: a missing pack
-//! directory, missing manifest, missing ontology, unknown manifest keys,
-//! or an empty template set all refuse by name with an `FM-PACK-*` code.
+//! A pack is a directory containing `pack.toml`, `ontology.ttl`, and an
+//! optional `templates/` directory of `*.tmpl` files. A missing or empty
+//! `templates/` directory is a lawful **semantic-only** Core pack
+//! (RFC-GPACK-001 §73, `Pack ⇏ Template`: only `pack.toml` and `ontology.ttl`
+//! are REQUIRED, §6/§12.1) — it is admitted with an empty template set and
+//! zero projection consequences, while its `gates/*.rq` still enforce
+//! against the union graph. Packs are declared in `ggen.toml` under
+//! `[packs]` and resolved fail-closed: a missing pack directory, missing
+//! manifest, missing ontology, unknown manifest keys, or an unreadable
+//! `templates/` directory all refuse by name with an `FM-PACK-*` code.
 //!
 //! [`content_hash`] computes a deterministic BLAKE3 over every regular file
 //! under the pack root (ontology, templates, `pack.toml`, and, when present,
@@ -17,8 +22,8 @@
 //! unchanged config reuses the clone with no network call; a changed
 //! `version` (or a missing/corrupt cache) wipes and re-clones. Once cloned,
 //! a git pack is just a local directory and goes through the exact same
-//! validation (`pack.toml`, `ontology.ttl`, `templates/*.tmpl`) as a
-//! `PackRef::Path` pack.
+//! validation (`pack.toml`, `ontology.ttl`, optional `templates/*.tmpl`)
+//! as a `PackRef::Path` pack.
 //!
 //! [`resolve`] permits that clone/wipe/pin-write network I/O. [`resolve_read_only`]
 //! does not: a git pack resolves only from an already-correctly-pinned cache,
@@ -56,7 +61,10 @@ pub struct Pack {
     /// `ontology.ttl`, in declaration order; each joins the pack content
     /// hash paired with its declared (manifest-relative) path string.
     pub extra_ontology_paths: Vec<(String, PathBuf)>,
-    /// Sorted paths of the pack's `templates/*.tmpl` files.
+    /// Sorted paths of the pack's `templates/*.tmpl` files. Possibly EMPTY:
+    /// a semantic-only Core pack (RFC-GPACK-001 §73, `Pack ⇏ Template`)
+    /// ships no templates at all and is admitted with zero projection
+    /// consequences — its `gates/*.rq` still enforce.
     pub template_paths: Vec<PathBuf>,
     /// Whether this pack participates in `ggen.lock` content-hash pinning
     /// (`PackRef::Path`'s `lock` field; always `true` for `PackRef::Git`
@@ -96,7 +104,9 @@ struct PackMeta {
 /// - `[FM-PACK-002]` `pack.toml` missing or unreadable
 /// - `[FM-PACK-003]` `pack.toml` invalid TOML or unknown keys
 /// - `[FM-PACK-004]` `ontology.ttl` missing
-/// - `[FM-PACK-005]` zero templates under `templates/`
+/// - `[FM-PACK-005]` a `templates/` directory exists but cannot be listed
+///   or read while discovering templates (a missing or empty `templates/`
+///   directory is NOT an error — semantic-only Core pack, RFC-GPACK-001 §73)
 /// - `[FM-PACK-010]` `git` not on `$PATH`, or `git clone` failed
 /// - `[FM-PACK-011]` `git checkout <version>` failed
 pub fn resolve(config: &GgenConfig, config_root: &Path) -> Result<Vec<Pack>> {
@@ -383,22 +393,23 @@ fn resolve_pack_dir(name: &str, root: &Path) -> Result<Pack> {
         ));
     }
 
+    // RFC-GPACK-001 §73 (`Pack ⇏ Template`): a Core pack MAY contain no
+    // projections. A missing OR empty `templates/` directory is a lawful
+    // semantic-only pack (`pack.toml` + `ontology.ttl` suffice, §6/§12.1):
+    // it is admitted with an empty `template_paths` set, syncs with zero
+    // write consequences, and its `gates/*.rq` still enforce against the
+    // union graph (pack-gate loading never consults `template_paths`). Only
+    // an UNREADABLE templates directory still fails closed, via
+    // `collect_pack_tmpl_paths`'s `[FM-PACK-005]`. A pack with neither
+    // `ontology.ttl` nor templates still refuses above (`[FM-PACK-004]`,
+    // the `REFUSED:PACK_GRAPH_MISSING` analog) — the empty TEMPLATE SET is
+    // what became lawful, never a missing semantic graph.
     let templates_dir = root.join("templates");
     let mut template_paths: Vec<PathBuf> = Vec::new();
     if templates_dir.is_dir() {
         collect_pack_tmpl_paths(name, &templates_dir, &mut template_paths)?;
     }
     template_paths.sort();
-    if template_paths.is_empty() {
-        return Err(AppError::fm_pack(
-            5,
-            format!(
-                "pack `{name}`: zero templates under `{}`. \
-                 Remediation: a pack must ship at least one templates/*.tmpl.",
-                templates_dir.display()
-            ),
-        ));
-    }
 
     // The [packs] key in ggen.toml is the authoritative resolution name;
     // the manifest's own `name` is informational.

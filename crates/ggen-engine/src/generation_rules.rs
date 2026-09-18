@@ -702,6 +702,9 @@ pub(crate) fn run(root: &Path, manifest: &GgenManifest, opts: SyncOptions) -> Re
         decisions,
         packs: BTreeMap::new(),
         closure,
+        // The declarative-rules schema has no `[packs]` table at all, so no
+        // pack — semantic-only or otherwise — can be admitted here.
+        semantic_only_packs: Vec::new(),
     };
 
     if !opts.dry_run {

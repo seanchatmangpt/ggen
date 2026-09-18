@@ -370,24 +370,14 @@ fn broken_packs_refuse_by_name() {
     .expect_err("unknown key");
     assert!(err.to_string().contains("FM-PACK-003"), "{err}");
 
-    // Zero templates.
-    let (_dir, project) = scaffold();
-    std::fs::remove_file(
-        project
-            .parent()
-            .expect("root")
-            .join("demo-pack/templates/widget.rs.tmpl"),
-    )
-    .expect("rm tmpl");
-    let err = sync(
-        &project,
-        SyncOptions {
-            dry_run: false,
-            ..Default::default()
-        },
-    )
-    .expect_err("zero templates");
-    assert!(err.to_string().contains("FM-PACK-005"), "{err}");
+    // Zero templates: NOT a refusal anymore. RFC-GPACK-001 §73
+    // (`Pack ⇏ Template`) makes a missing/empty templates/ directory a
+    // lawful semantic-only Core pack, so the former `[FM-PACK-005]`
+    // assertion here was reversed by that spec change. The admitted/
+    // refused witnesses (including this scaffold's empty-templates-dir
+    // shape now syncing clean with zero writes) live in
+    // `semantic_only_pack_e2e.rs`; `broken_packs_refuse_by_name` keeps
+    // only the legs that are still refusals.
 }
 
 // ---------------------------------------------------------------------------
