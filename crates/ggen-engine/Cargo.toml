@@ -67,6 +67,10 @@ clap = { version = "4", features = ["derive", "env"] }               # CLI parsi
 camino = "1"                                                         # UTF-8 paths for graph-validate multi-file args
 tokio = { version = "1", features = ["full"], optional = true }      # async runtime (required by mcp feature)
 hex = { workspace = true }                                            # receipt-signing key/signature hex encoding (T059/T063)
+# Portable SHA-256 pack digest (RFC-GPACK-001 §37/§38) and portable receipt
+# envelope consequence digests (§54/§55) — SHA-256 is the REQUIRED
+# interoperable algorithm; BLAKE3 stays the Rust-legacy chain hash (§56).
+sha2 = { version = "0.10" }
 ed25519-dalek = { workspace = true }                                  # receipt signing/verification (T063) -- no chatman-common envelope, raw signature over chain_hash_hex
 rand = "0.8"                                                          # CSPRNG for fresh ed25519 keypair generation (T063)
 tracing = { workspace = true }                                        # pipeline.{load,extract,generate,validate,emit} spans (T060/T061)
