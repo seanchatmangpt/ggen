@@ -1,0 +1,103 @@
+# goat-capabilities-pack ontology — model-conformance facts for autofde-lab's
+# *goat security domains, per docs/jira/v26.8.12/cloud-cert-wbpr-prd.md FR6.
+#
+# GROUNDING METHOD (real, not simulated): every gc:AttackStep/gc:Finding
+# individual below is transcribed verbatim from a real, vendored file on
+# disk in ~/autofde-lab, read directly this session:
+#   - AzureGoat: vendor/gyms/azuregoat/attack-manuals/module-1/
+#     "05-Privilege Escalation.md" (real numbered Steps 1-9; Step 8 splits
+#     into two discrete commands, 8a/8b, matching
+#     src/autofde_lab/hub/domain/azuregoat_privesc/azuregoat_privesc.py's own
+#     ATTACK_STEPS tuple, read directly, not paraphrased).
+#   - TerraGoat: vendor/gyms/terragoat/terraform/aws/s3.tf's real
+#     "# <misconfiguration>" comments (in file order: data bucket x4,
+#     financials bucket x3, operations bucket x1 of its 2 -- capped at 8,
+#     matching parse_findings(max_findings=8)'s real default in
+#     src/autofde_lab/hub/domain/terragoat/terragoat_remediation.py).
+#
+# NAMESPACE: goat-capabilities# is a new, pack-local IRI space -- reuses no
+# other pack's class IRIs, since no existing ggen pack models security-gym
+# attack-manual/finding content.
+
+@prefix gc:   <http://seanchatmangpt.github.io/packs/goat-capabilities#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+gc:AttackStep a rdfs:Class ; rdfs:comment "One documented attack-manual step, verbatim-transcribed." .
+gc:Finding    a rdfs:Class ; rdfs:comment "One documented misconfiguration finding, verbatim-transcribed." .
+gc:Domain     a rdfs:Class ; rdfs:comment "One *goat security domain this pack models conformance facts for." .
+
+# ── AzureGoat Module-1 privilege escalation ──────────────────────────────
+# vendor/gyms/azuregoat/attack-manuals/module-1/05-Privilege Escalation.md
+
+gc:azuregoat_privesc a gc:Domain ;
+  gc:domainName "azuregoat_privesc" ;
+  gc:sourceFile "vendor/gyms/azuregoat/attack-manuals/module-1/05-Privilege Escalation.md" ;
+  gc:manualStepCount "9"^^<http://www.w3.org/2001/XMLSchema#integer> ;
+  gc:declaredStepIndividualCount "10"^^<http://www.w3.org/2001/XMLSchema#integer> .
+
+gc:azuregoat_step_1 a gc:AttackStep ;
+  gc:forDomain gc:azuregoat_privesc ; gc:stepId "ssh_login_vm" ; gc:manualStep "Step 1" ;
+  gc:description "ssh -i justin.pem justin@<vm-ip> using credentials obtained from config.txt" .
+gc:azuregoat_step_2 a gc:AttackStep ;
+  gc:forDomain gc:azuregoat_privesc ; gc:stepId "az_login_managed_identity" ; gc:manualStep "Step 2" ;
+  gc:description "az login -i (authenticate as the VM's managed identity)" .
+gc:azuregoat_step_3 a gc:AttackStep ;
+  gc:forDomain gc:azuregoat_privesc ; gc:stepId "list_resources_for_principal_id" ; gc:manualStep "Step 3" ;
+  gc:description "az resource list (locate the VM's name and principal ID)" .
+gc:azuregoat_step_4 a gc:AttackStep ;
+  gc:forDomain gc:azuregoat_privesc ; gc:stepId "list_role_assignments" ; gc:manualStep "Step 4" ;
+  gc:description "az role assignment list -g azuregoat_app (confirm Contributor role on the VM and locate the Owner-role principal)" .
+gc:azuregoat_step_5 a gc:AttackStep ;
+  gc:forDomain gc:azuregoat_privesc ; gc:stepId "correlate_owner_principal_to_automation_account" ; gc:manualStep "Step 5" ;
+  gc:description "az resource list again, matching the Owner principal ID to an Automation Account resource" .
+gc:azuregoat_step_6 a gc:AttackStep ;
+  gc:forDomain gc:azuregoat_privesc ; gc:stepId "list_runbooks" ; gc:manualStep "Step 6" ;
+  gc:description "az automation runbook list --automation-account-name <name> -g azuregoat_app (find the PowerShellWorkflow runbook)" .
+gc:azuregoat_step_7 a gc:AttackStep ;
+  gc:forDomain gc:azuregoat_privesc ; gc:stepId "write_privesc_runbook_script" ; gc:manualStep "Step 7" ;
+  gc:description "Write a PowerShell workflow that calls New-AzRoleAssignment -RoleDefinitionName Owner -ObjectId <VM-Object-ID> to grant the VM's identity the Owner role" .
+gc:azuregoat_step_8a a gc:AttackStep ;
+  gc:forDomain gc:azuregoat_privesc ; gc:stepId "replace_and_publish_runbook" ; gc:manualStep "Step 8a" ;
+  gc:description "az automation runbook replace-content ... && az automation runbook publish ... (install the privesc script into the Owner-privileged runbook)" .
+gc:azuregoat_step_8b a gc:AttackStep ;
+  gc:forDomain gc:azuregoat_privesc ; gc:stepId "start_runbook" ; gc:manualStep "Step 8b" ;
+  gc:description "az automation runbook start --automation-account-name <name> -g azuregoat_app --name <runbook> (runbook executes under the Owner-privileged Automation Account identity)" .
+gc:azuregoat_step_9 a gc:AttackStep ;
+  gc:forDomain gc:azuregoat_privesc ; gc:stepId "confirm_owner_role" ; gc:manualStep "Step 9" ;
+  gc:description "az role assignment list -g azuregoat_app (role changed from Contributor to Owner for the VM's identity)" .
+
+# ── TerraGoat S3 misconfiguration findings ───────────────────────────────
+# vendor/gyms/terragoat/terraform/aws/s3.tf, capped at 8 per
+# parse_findings(max_findings=8)'s real default.
+
+gc:terragoat_remediation a gc:Domain ;
+  gc:domainName "terragoat_remediation" ;
+  gc:sourceFile "vendor/gyms/terragoat/terraform/aws/s3.tf" ;
+  gc:manualStepCount "8"^^<http://www.w3.org/2001/XMLSchema#integer> ;
+  gc:declaredStepIndividualCount "8"^^<http://www.w3.org/2001/XMLSchema#integer> .
+
+gc:terragoat_finding_1 a gc:Finding ;
+  gc:forDomain gc:terragoat_remediation ; gc:stepId "data_bucket_public" ; gc:manualStep "data:1" ;
+  gc:description "bucket is public" .
+gc:terragoat_finding_2 a gc:Finding ;
+  gc:forDomain gc:terragoat_remediation ; gc:stepId "data_bucket_not_encrypted" ; gc:manualStep "data:2" ;
+  gc:description "bucket is not encrypted" .
+gc:terragoat_finding_3 a gc:Finding ;
+  gc:forDomain gc:terragoat_remediation ; gc:stepId "data_bucket_no_access_logs" ; gc:manualStep "data:3" ;
+  gc:description "bucket does not have access logs" .
+gc:terragoat_finding_4 a gc:Finding ;
+  gc:forDomain gc:terragoat_remediation ; gc:stepId "data_bucket_no_versioning" ; gc:manualStep "data:4" ;
+  gc:description "bucket does not have versioning" .
+gc:terragoat_finding_5 a gc:Finding ;
+  gc:forDomain gc:terragoat_remediation ; gc:stepId "financials_bucket_not_encrypted" ; gc:manualStep "financials:1" ;
+  gc:description "bucket is not encrypted" .
+gc:terragoat_finding_6 a gc:Finding ;
+  gc:forDomain gc:terragoat_remediation ; gc:stepId "financials_bucket_no_access_logs" ; gc:manualStep "financials:2" ;
+  gc:description "bucket does not have access logs" .
+gc:terragoat_finding_7 a gc:Finding ;
+  gc:forDomain gc:terragoat_remediation ; gc:stepId "financials_bucket_no_versioning" ; gc:manualStep "financials:3" ;
+  gc:description "bucket does not have versioning" .
+gc:terragoat_finding_8 a gc:Finding ;
+  gc:forDomain gc:terragoat_remediation ; gc:stepId "operations_bucket_not_encrypted" ; gc:manualStep "operations:1" ;
+  gc:description "bucket is not encrypted" .

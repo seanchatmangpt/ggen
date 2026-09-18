@@ -125,7 +125,8 @@ ggenspec:PackRef-Path-lock
 
 ggenspec:PackRef-Git
     a ggenspec:Variant ; rdfs:label "Git" ;
-    ggenspec:hasField ggenspec:PackRef-Git-git , ggenspec:PackRef-Git-version .
+    ggenspec:hasField ggenspec:PackRef-Git-git , ggenspec:PackRef-Git-version ,
+        ggenspec:PackRef-Git-subdir .
 
 ggenspec:PackRef-Git-git
     a ggenspec:Field ; ggenspec:name "git" ; ggenspec:type xsd:string ;
@@ -134,6 +135,11 @@ ggenspec:PackRef-Git-git
 ggenspec:PackRef-Git-version
     a ggenspec:Field ; ggenspec:name "version" ; ggenspec:type xsd:string ;
     ggenspec:required true ; ggenspec:nonEmpty true ; rdfs:comment "Version requirement (tag or semver). Must be non-empty." .
+
+ggenspec:PackRef-Git-subdir
+    a ggenspec:Field ; ggenspec:name "subdir" ; ggenspec:type ggenspec:Path ;
+    ggenspec:required false ;
+    rdfs:comment "Subdirectory within the cloned repository to resolve the pack from, e.g. 'packs/dspy-pack' — for a monorepo hosting multiple packs under one clone (e.g. ggen-marketplace's packs/<name>/ layout). Defaults to the clone root (omitted), unchanged behavior for every existing single-pack git repo reference." .
 
 # ---------------------------------------------------------------------------
 # [templates]

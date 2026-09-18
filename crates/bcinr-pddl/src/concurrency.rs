@@ -76,12 +76,13 @@ pub enum ConcurrencyAnalysisError {
     /// concurrently — the exact "unknown defaults to no-conflict" pattern
     /// the independence relation's own default (`Dependent` unless proven
     /// `Independent`) exists to rule out. The current single production
-    /// call site (`crate::mfw::planner`, which always derives `causal` and
-    /// the epoch from the same `PddlCausalAnalyzer::analyze` call) never
-    /// triggers this, since that path's occurrences and independence
-    /// relation are always mutually consistent by construction — this
-    /// guards `analyze`'s public contract against any other `CausalPlan`
-    /// (a different `CausalAnalyzer` impl, or a hand-assembled one).
+    /// call site historically was `crate::mfw::planner` (deleted as
+    /// permanently unbuildable dead code — see `crate::mfw`'s module doc
+    /// comment), which always derived `causal` and the epoch from the same
+    /// `PddlCausalAnalyzer::analyze` call and so never triggered this. This
+    /// variant now guards `analyze`'s public contract against any
+    /// `CausalPlan` producer (a different `CausalAnalyzer` impl, or a
+    /// hand-assembled one) that might not maintain that consistency.
     UnresolvedDependentPair {
         left: ActionOccurrenceId,
         right: ActionOccurrenceId,

@@ -84,6 +84,12 @@ impl FileSystemRepository {
 
     /// Validate pack ID for safety
     fn validate_pack_id(&self, pack_id: &str) -> Result<()> {
+        if pack_id.is_empty() {
+            return Err(Error::Other(
+                "Invalid pack ID: must not be empty".to_string(),
+            ));
+        }
+
         // Prevent path traversal
         if pack_id.contains("..") || pack_id.contains('/') || pack_id.contains('\\') {
             return Err(Error::Other(
@@ -114,10 +120,17 @@ impl PackRepository for FileSystemRepository {
         let pack_path = self.pack_path(pack_id);
 
         if !pack_path.exists() {
+            // Report the resolved absolute path (matching what `pack doctor`/
+            // `pack add` report) rather than a possibly-relative base path.
+            let resolved_display = pack_path.canonicalize().unwrap_or_else(|_| {
+                std::env::current_dir()
+                    .map(|cwd| cwd.join(&pack_path))
+                    .unwrap_or_else(|_| pack_path.clone())
+            });
             return Err(Error::Other(format!(
                 "Pack '{}' not found at {}",
                 pack_id,
-                pack_path.display()
+                resolved_display.display()
             )));
         }
 

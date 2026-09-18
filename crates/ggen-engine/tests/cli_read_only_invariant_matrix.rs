@@ -112,7 +112,7 @@ fn state_never_synced() -> TempDir {
 /// exist and are consistent.
 fn state_freshly_synced() -> TempDir {
     let dir = state_never_synced();
-    CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::cargo_bin("ggen")
         .args(["sync", "run"])
         .current_dir(dir.path())
         .run()

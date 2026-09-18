@@ -108,7 +108,7 @@ fn mega_project_all_packs_sync() {
     let names: Vec<&str> = PACKS.iter().map(|(n, _)| *n).collect();
     let (_dir, project) = scaffold_multi_pack_project(&names);
 
-    CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::cargo_bin("ggen")
         .args(["sync", "run"])
         .current_dir(&project)
         .run()
@@ -155,13 +155,13 @@ fn mega_project_all_packs_sync() {
     assert_eq!(receipt.payload.packs.len(), PACKS.len());
 
     // receipt verify and doctor run both exit 0 (real binary).
-    CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::cargo_bin("ggen")
         .args(["receipt", "verify"])
         .current_dir(&project)
         .run()
         .expect("receipt verify")
         .assert_success();
-    CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::cargo_bin("ggen")
         .args(["doctor", "run"])
         .current_dir(&project)
         .run()
@@ -175,7 +175,7 @@ fn mega_project_all_packs_sync() {
     // byte-identical, and every second-run decision must be a skip (no file
     // was rewritten).
     let lock_1 = lock;
-    CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::cargo_bin("ggen")
         .args(["sync", "run"])
         .current_dir(&project)
         .run()
@@ -365,7 +365,7 @@ fn corrupting_one_pack_post_lock_fails_closed_naming_only_that_pack() {
     let names: Vec<&str> = PACKS.iter().map(|(n, _)| *n).collect();
     let (dir, project) = scaffold_multi_pack_project(&names);
 
-    CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::cargo_bin("ggen")
         .args(["sync", "run"])
         .current_dir(&project)
         .run()
@@ -386,9 +386,9 @@ fn corrupting_one_pack_post_lock_fails_closed_naming_only_that_pack() {
         .current_dir(&project)
         .run()
         .expect("post-corruption sync");
-    out.assert_failure();
-    out.assert_stderr_contains("FM-PACK-008");
-    out.assert_stderr_contains(corrupted);
+    let _ = out.assert_failure();
+    let _ = out.assert_stderr_contains("FM-PACK-008");
+    let _ = out.assert_stderr_contains(corrupted);
     for (name, _) in PACKS {
         if *name != corrupted {
             assert!(
@@ -401,7 +401,7 @@ fn corrupting_one_pack_post_lock_fails_closed_naming_only_that_pack() {
 
     // No distinctive output was rewritten by the refused sync (fail closed
     // means fail before writing): receipt verify still passes.
-    CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::cargo_bin("ggen")
         .args(["receipt", "verify"])
         .current_dir(&project)
         .run()
@@ -414,7 +414,7 @@ fn corrupting_one_pack_post_lock_fails_closed_naming_only_that_pack() {
         .current_dir(&project)
         .run()
         .expect("doctor run");
-    doctor.assert_failure();
+    let _ = doctor.assert_failure();
     assert!(
         doctor.stderr.contains("lockfile_drift") || doctor.stdout.contains("lockfile_drift"),
         "doctor must name lockfile_drift; stdout: {} stderr: {}",
@@ -435,14 +435,14 @@ fn wasm4pm_algorithms_and_cognition_packs_full_coverage() {
     let (_dir, project) =
         scaffold_multi_pack_project(&["wasm4pm-algorithms-pack", "wasm4pm-cognition-pack"]);
 
-    CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::cargo_bin("ggen")
         .args(["sync", "run"])
         .current_dir(&project)
         .run()
         .expect("run sync")
         .assert_success();
 
-    CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::cargo_bin("ggen")
         .args(["graph", "validate"])
         .current_dir(&project)
         .run()
@@ -482,7 +482,7 @@ fn wasm4pm_algorithms_and_cognition_packs_full_coverage() {
     let dispatch_1 = dispatch;
     let lock_1 = std::fs::read_to_string(project.join("ggen.lock")).expect("ggen.lock");
 
-    CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::cargo_bin("ggen")
         .args(["sync", "run"])
         .current_dir(&project)
         .run()
