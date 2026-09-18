@@ -1,0 +1,5 @@
+@prefix geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#> .
+@prefix ex: <urn:ggen:test:> .
+ex:r a geocel:ManufacturingRun .
+ex:e1 a geocel:ManufacturingEvent ; geocel:inRun ex:r ; geocel:sequence 1 .
+ex:e2 a geocel:ManufacturingEvent ; geocel:inRun ex:r ; geocel:sequence 1 .
