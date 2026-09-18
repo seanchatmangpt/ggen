@@ -1,0 +1,4 @@
+# MESSAGE: Receipt must retain canonical prefLabel "receipt".
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+SELECT * WHERE { FILTER NOT EXISTS { geocel:Receipt skos:prefLabel "receipt" } }
