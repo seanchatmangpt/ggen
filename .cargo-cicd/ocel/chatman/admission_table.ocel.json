@@ -4,7 +4,7 @@
   },
   "ocel:events": {
     "evt_000": {
-      "event_id": "f20b7880-96d7-407e-8741-f89e6d3d3019",
+      "event_id": "da4942f0-2071-40f3-a663-56f4430814ea",
       "case_id": "chatman-admission_table",
       "activity": {
         "DiagnosticEmitted": {
@@ -20,55 +20,12 @@
         ]
       ],
       "attributes": {
-        "fixture_id": "Accept_AdmissionTableMatches",
-        "outcome": "admitted"
-      }
-    },
-    "evt_002": {
-      "event_id": "f9bdff84-a8f3-4c00-a9a4-155c9c8f9690",
-      "case_id": "chatman-admission_table",
-      "activity": {
-        "DiagnosticEmitted": {
-          "category": "Admission",
-          "severity": "Info"
-        }
-      },
-      "timestamp_ns": 3,
-      "objects": [
-        [
-          "Accept_OcelEventAdmitted",
-          "Fixture"
-        ]
-      ],
-      "attributes": {
-        "fixture_id": "Accept_OcelEventAdmitted",
-        "outcome": "admitted"
-      }
-    },
-    "evt_001": {
-      "event_id": "1eeecf7e-d804-4b5d-990d-c9ef0a527753",
-      "case_id": "chatman-admission_table",
-      "activity": {
-        "DiagnosticEmitted": {
-          "category": "Admission",
-          "severity": "Andon"
-        }
-      },
-      "timestamp_ns": 2,
-      "objects": [
-        [
-          "Falsify_AdmissionTableMismatch",
-          "Fixture"
-        ]
-      ],
-      "attributes": {
-        "fixture_id": "Falsify_AdmissionTableMismatch",
-        "refusal": "AdmissionTableMismatch",
-        "outcome": "refused"
+        "outcome": "admitted",
+        "fixture_id": "Accept_AdmissionTableMatches"
       }
     },
     "evt_003": {
-      "event_id": "a69885e8-e070-4c1d-bb26-b5e2f7582ab0",
+      "event_id": "11e63dfc-466c-41c3-9585-92bbec15924c",
       "case_id": "chatman-admission_table",
       "activity": {
         "DiagnosticEmitted": {
@@ -84,9 +41,52 @@
         ]
       ],
       "attributes": {
-        "refusal": "OcelEventNotAdmitted",
+        "fixture_id": "Falsify_OcelEventNotAdmitted",
         "outcome": "refused",
-        "fixture_id": "Falsify_OcelEventNotAdmitted"
+        "refusal": "OcelEventNotAdmitted"
+      }
+    },
+    "evt_002": {
+      "event_id": "2313dd77-64b9-4b57-b0e2-b0e245fdda94",
+      "case_id": "chatman-admission_table",
+      "activity": {
+        "DiagnosticEmitted": {
+          "category": "Admission",
+          "severity": "Info"
+        }
+      },
+      "timestamp_ns": 3,
+      "objects": [
+        [
+          "Accept_OcelEventAdmitted",
+          "Fixture"
+        ]
+      ],
+      "attributes": {
+        "outcome": "admitted",
+        "fixture_id": "Accept_OcelEventAdmitted"
+      }
+    },
+    "evt_001": {
+      "event_id": "1f9713a5-6572-4179-a4b3-4d91fdcb5055",
+      "case_id": "chatman-admission_table",
+      "activity": {
+        "DiagnosticEmitted": {
+          "category": "Admission",
+          "severity": "Andon"
+        }
+      },
+      "timestamp_ns": 2,
+      "objects": [
+        [
+          "Falsify_AdmissionTableMismatch",
+          "Fixture"
+        ]
+      ],
+      "attributes": {
+        "refusal": "AdmissionTableMismatch",
+        "outcome": "refused",
+        "fixture_id": "Falsify_AdmissionTableMismatch"
       }
     }
   },

@@ -15,13 +15,13 @@
 //! dependency graph. PDDL does not bleed into bcinr-powl, wasm4pm, or
 //! lsp-max unless they explicitly add bcinr-pddl as a dep.
 //!
-//! `bcinr-powl` and `bcinr-powl-receipt` *are* optional path deps of this
-//! crate (see `Cargo.toml`), enabled only by the `mfw-planner` feature (off
-//! by default) for the `MfwPlanner` orchestrator in [`mfw::planner`]. A
-//! default build of this crate — and every existing consumer that does not
-//! opt into `mfw-planner`, including praxis's own path dependency on this
-//! crate — pulls in neither. This is the one genuine, intentional exception
-//! to the isolation guarantee above, and it is opt-in, not automatic.
+//! `bcinr-powl` and `bcinr-powl-receipt` are **not** dependencies of this
+//! crate at all (see `Cargo.toml`'s comment): an earlier phase carried an
+//! optional `mfw-planner` feature and an `MfwPlanner` orchestrator wiring
+//! them in, but both the feature and the orchestrator module were dropped
+//! from this vendored copy (2026-07-17, PR #255) and the orchestrator
+//! source was subsequently deleted as permanently unbuildable dead code —
+//! it is not merely off by default, it does not exist in this tree.
 //!
 //! Canonical types live in `wasm4pm_compat::pddl` so any crate can import
 //! `Pddl8Tape`, `Pddl8GroundAction`, etc. without pulling in the parser.

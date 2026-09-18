@@ -41,6 +41,7 @@ pub mod composition_receipt;
 pub mod error;
 pub mod fortune5;
 pub mod install;
+pub mod local_pack_bridge;
 pub mod metadata;
 pub mod metrics;
 pub mod migration;

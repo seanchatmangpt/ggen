@@ -1,13 +1,13 @@
-use super::evaluation::evaluate;
+use super::evaluation::{evaluate, GIT_ENV_LEAK_VARS};
 use super::*;
 
 fn run(root: &Path, args: &[&str]) -> String {
-    let output = Command::new("git")
-        .arg("-C")
-        .arg(root)
-        .args(args)
-        .output()
-        .expect("git");
+    let mut command = Command::new("git");
+    command.arg("-C").arg(root).args(args);
+    for var in GIT_ENV_LEAK_VARS {
+        command.env_remove(var);
+    }
+    let output = command.output().expect("git");
     assert!(
         output.status.success(),
         "{}",

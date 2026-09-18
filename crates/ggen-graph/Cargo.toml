@@ -29,6 +29,24 @@ tracing = { workspace = true }
 [dev-dependencies]
 ed25519-dalek = { workspace = true }
 rand = "0.8"
+# ggen-engine (2026-08-16, docs/jira/v26.7.16/03-RDF-ENGINE-BRIDGE-DESIGN.md "Definition of
+# done" item 2): the LawEngine N-Triples-string seam, exercised from the consumer side by
+# tests/law_engine_bridge_e2e.rs -- law/SHACL/N3 output folded back into THIS crate's own
+# oxigraph store. Deliberately a DEV-dependency, not a `[dependencies]` edge:
+#   * ggen-engine is `publish = false` (its praxis-core/praxis-graphlaw deps carry hard
+#     absolute paths to sibling repos), and ggen-graph has no `publish = false` of its own,
+#     so a normal dependency edge would make `cargo publish -p ggen-graph` permanently
+#     unresolvable -- the exact failure documented at the workspace root Cargo.toml's
+#     "ggen-engine intentionally NOT a dependency here" note. Path-only dev-dependencies
+#     carry no `version` key and are stripped from the packaged manifest, so this edge is
+#     invisible to `cargo package`/`cargo publish` (verified with `cargo package -p
+#     ggen-graph --no-verify --allow-dirty` + reading target/package/*/Cargo.toml).
+#   * The bridge design's DoD item 3 ("no oxrdf/spargebra dependency added to ggen-graph's
+#     Cargo.toml") is preserved: oxrdf/spargebra stay internal to ggen-engine and only
+#     plain N-Triples/Turtle/N3 strings cross the seam.
+# Promoting this to a real `[dependencies]` edge is blocked on ggen-engine's own
+# publishability (docs/jira/v26.7.16/ tickets 01/02), not on this crate.
+ggen-engine = { path = "../ggen-engine" }
 
 [lints]
 workspace = true

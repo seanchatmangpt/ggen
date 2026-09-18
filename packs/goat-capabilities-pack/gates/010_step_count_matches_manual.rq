@@ -1,0 +1,18 @@
+# MESSAGE: every gc:Domain's gc:declaredStepIndividualCount must equal the actual number of
+# gc:AttackStep/gc:Finding individuals present for it (gc:forDomain) -- catches silent
+# transcription drift: an individual added or removed here without updating the domain's
+# declared count. The deeper check (that the transcribed content matches the real upstream
+# manual/file byte-for-byte) is proven separately by the generated proof test, since SPARQL
+# over this ontology cannot itself re-read vendor/gyms/**'s files -- this gate is the
+# ontology-internal self-consistency half of FR6's model-conformance requirement.
+PREFIX gc: <http://seanchatmangpt.github.io/packs/goat-capabilities#>
+SELECT ?domain ?declared ?actual WHERE {
+  ?domain a gc:Domain ; gc:declaredStepIndividualCount ?declared .
+  {
+    SELECT ?domain (COUNT(?individual) AS ?actual) WHERE {
+      ?individual gc:forDomain ?domain .
+      FILTER(?individual != ?domain)
+    } GROUP BY ?domain
+  }
+  FILTER(?declared != ?actual)
+}
