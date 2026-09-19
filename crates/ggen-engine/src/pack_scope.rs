@@ -468,6 +468,15 @@ pub struct ScopeBenchmarkRecord {
     pub artifact_count: u64,
     /// Receipts minted by this resolver.
     pub receipt_count: u64,
+    /// Downstream admission result, when independently observed. Structural
+    /// scoping itself leaves this UNKNOWN/None.
+    pub admission_success: Option<bool>,
+    /// Downstream manufacture result, when independently observed.
+    pub artifact_success: Option<bool>,
+    /// Downstream receipt result, when independently observed.
+    pub receipt_success: Option<bool>,
+    /// Candidate scope never raises authority above SELECT.
+    pub authority: CandidateAuthority,
 }
 
 /// Measure LOCAL, DIRECT, TWO_LEVEL, and GLOBAL for one relevance judgment.
@@ -530,7 +539,49 @@ fn benchmark_one_scope(
         admission_events: 0,
         artifact_count: 0,
         receipt_count: 0,
+        admission_success: None,
+        artifact_success: None,
+        receipt_success: None,
+        authority: CandidateAuthority::SelectOnly,
     })
+}
+
+/// Fraction of benchmark scopes that did not contain a relevant candidate.
+#[must_use]
+pub fn unknown_rate(records: &[ScopeBenchmarkRecord]) -> f64 {
+    if records.is_empty() {
+        return 0.0;
+    }
+    records.iter().filter(|record| record.unknown).count() as f64 / records.len() as f64
+}
+
+/// Admission success rate over independently observed downstream outcomes.
+///
+/// Returns None when no admission outcome was observed; UNKNOWN is never
+/// silently coerced to failure.
+#[must_use]
+pub fn admission_success_rate(records: &[ScopeBenchmarkRecord]) -> Option<f64> {
+    observed_success_rate(records.iter().filter_map(|record| record.admission_success))
+}
+
+/// Artifact manufacture success rate over independently observed outcomes.
+#[must_use]
+pub fn artifact_success_rate(records: &[ScopeBenchmarkRecord]) -> Option<f64> {
+    observed_success_rate(records.iter().filter_map(|record| record.artifact_success))
+}
+
+/// Receipt success rate over independently observed downstream outcomes.
+#[must_use]
+pub fn receipt_success_rate(records: &[ScopeBenchmarkRecord]) -> Option<f64> {
+    observed_success_rate(records.iter().filter_map(|record| record.receipt_success))
+}
+
+fn observed_success_rate(outcomes: impl Iterator<Item = bool>) -> Option<f64> {
+    let values: Vec<bool> = outcomes.collect();
+    if values.is_empty() {
+        return None;
+    }
+    Some(values.iter().filter(|&&value| value).count() as f64 / values.len() as f64)
 }
 
 /// Mean reciprocal rank across benchmark observations.
