@@ -109,3 +109,29 @@ Downstream expected consumers:
 The exact PR head executes a real semantic pack from clean state twice, independently recomputes input/output identities, proves byte/identity-stable replay, proves at least one mutation/refusal falsifier, and emits a receipt whose `replay.status=PASS` is an observation rather than a declaration.
 
 Standing on completion: `ALIVE` only for this exact repository-local semantic-pack-replay subject.
+
+## 2026-09-18 semantic telemetry propagation
+
+When an admitted pack manufactures OpenTelemetry semantic-convention inputs, Weaver templates, Rego support data, or generated telemetry constants, those artifacts are ordinary manufactured consequences for GALL-001 purposes.
+
+The portable receipt MUST bind:
+
+- the admitted telemetry-semantic source facts;
+- exact template/source identities;
+- exact generated semconv / telemetry artifact digests;
+- any declared external specialist producer identity required for replay;
+- the same dependency-scoped semantic subject used by the rest of the pack.
+
+Clean replay MUST reproduce the telemetry-semantic projection bytes from the same exact pack/dependency subject. Ambient or globally installed semantic registries MUST NOT acquire replay identity implicitly.
+
+Authority fence:
+
+`pack O* -> ggen manufacture -> telemetry semconv projection -> Weaver`
+
+not:
+
+`Weaver registry -> canonical pack authority`.
+
+A deterministic telemetry projection can satisfy GALL-001 manufacture/replay evidence. It does not establish Weaver Live-check success, runtime process conformance, independent postcondition proof, or DO authority.
+
+Downstream consumer: beam4pm GALL-004's Weaver semantic court is specified in `seanchatmangpt/beam4pm#76`.
