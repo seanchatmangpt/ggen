@@ -15,7 +15,6 @@ use std::{
 
 use ggen_engine::{
     config::GgenConfig,
-    graph::GraphEngine,
     pack::{resolve, Pack, ScopeDepth},
     pack_scope::{
         benchmark_dfcm_scopes, mean_reciprocal_rank, reverse_dependency_closure,
