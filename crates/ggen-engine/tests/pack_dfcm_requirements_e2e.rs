@@ -17,8 +17,9 @@ use ggen_engine::{
     config::GgenConfig,
     pack::{resolve, Pack, ScopeDepth},
     pack_scope::{
-        benchmark_dfcm_scopes, mean_reciprocal_rank, reverse_dependency_closure,
-        topology_turtle, CandidateAuthority, DependencyScopeResolver, ScopeDisposition,
+        admission_success_rate, artifact_success_rate, benchmark_dfcm_scopes,
+        mean_reciprocal_rank, receipt_success_rate, reverse_dependency_closure, topology_turtle,
+        unknown_rate, CandidateAuthority, DependencyScopeResolver, ScopeDisposition,
         ScopeRequirement,
     },
     project_graph::load_for_query,
@@ -368,11 +369,20 @@ fn benchmark_records_mrr_topk_latency_capacity_coupling_and_zero_llm_or_authorit
         assert_eq!(record.admission_events, 0);
         assert_eq!(record.artifact_count, 0);
         assert_eq!(record.receipt_count, 0);
+        assert_eq!(record.admission_success, None);
+        assert_eq!(record.artifact_success, None);
+        assert_eq!(record.receipt_success, None);
+        assert_eq!(record.authority, CandidateAuthority::SelectOnly);
     }
     assert!(records[2].semantic_capacity >= records[1].semantic_capacity);
+    assert!(records[1].semantic_capacity < records[3].semantic_capacity);
     assert!(
         records[2].constraint_coupling_width
             >= records[1].constraint_coupling_width
     );
     assert!(mean_reciprocal_rank(&records) > 0.0);
+    assert_eq!(unknown_rate(&records), 0.5);
+    assert_eq!(admission_success_rate(&records), None);
+    assert_eq!(artifact_success_rate(&records), None);
+    assert_eq!(receipt_success_rate(&records), None);
 }
