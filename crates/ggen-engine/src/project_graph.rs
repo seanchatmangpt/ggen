@@ -70,7 +70,7 @@ pub fn load_for_query_with_engine(root: &Path, engine: EngineKind) -> Result<Arc
             let packs = crate::pack::resolve_read_only(&config, root)?;
             let ontology_path = root.join(&config.ontology.source);
             let mut sources = Vec::with_capacity(
-                1 + packs
+                2 + packs
                     .iter()
                     .map(|p| 1 + p.extra_ontology_paths.len())
                     .sum::<usize>(),
@@ -82,6 +82,10 @@ pub fn load_for_query_with_engine(root: &Path, engine: EngineKind) -> Result<Arc
                     let (_, content) = read_ontology_file(root, extra_path)?;
                     sources.push((declared.clone(), content));
                 }
+            }
+            let pack_topology_ttl = crate::pack_scope::topology_turtle(&packs);
+            if !pack_topology_ttl.is_empty() {
+                sources.push(("urn:ggen:pack-topology".to_string(), pack_topology_ttl));
             }
             sources
         }
