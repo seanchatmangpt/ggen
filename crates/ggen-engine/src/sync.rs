@@ -293,7 +293,7 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
     let lock_entries = crate::pack::lock_entries(&config, &packs)?;
     crate::pack::check_lock(root, &lock_entries)?;
     let mut ontology_sources = Vec::with_capacity(
-        1 + packs
+        2 + packs
             .iter()
             .map(|pack| 1 + pack.extra_ontology_paths.len())
             .sum::<usize>(),
@@ -324,6 +324,14 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
             })?;
             ontology_sources.push((declared.clone(), extra_ttl));
         }
+    }
+    // Compile declared dependency/type/requires/provides facts into the same
+    // canonical graph consumed by gates and templates. The projection uses
+    // public Schema.org/Dublin Core predicates and is empty for legacy packs,
+    // preserving their graph identity.
+    let pack_topology_ttl = crate::pack_scope::topology_turtle(&packs);
+    if !pack_topology_ttl.is_empty() {
+        ontology_sources.push(("urn:ggen:pack-topology".to_string(), pack_topology_ttl));
     }
     let ontology_documents: Vec<TurtleDocument<'_>> = ontology_sources
         .iter()
