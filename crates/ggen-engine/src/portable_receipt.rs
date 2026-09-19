@@ -13,15 +13,16 @@
 //! (RFC §82 vocabulary only, states are never collapsed — §82).
 //!
 //! Fields this run cannot know are present with `"UNKNOWN"` rather than
-//! omitted (RFC §54 "binds at least"). The first run reports replay UNKNOWN;
-//! a subsequent run compares the same admitted replay projection and reports
-//! MATCH/MISMATCH. A sync with no resolved pack reports UNKNOWN subject
-//! identity instead of inventing one. Declared pack dependencies are resolved fail-closed and the portable
+//! omitted (RFC §54 "binds at least"). Ordinary sync always reports replay
+//! UNKNOWN; only the explicit clean-state reconstruction court may promote it
+//! to PASS after independently recomputing the bound identities. A sync with
+//! no resolved pack reports UNKNOWN subject identity instead of inventing one.
+//! Declared pack dependencies are resolved fail-closed and the portable
 //! envelope binds the subject's exact transitive dependency closure by name,
  //! version, digest, and the currently indivisible SEMANTICS/LAW/PROJECTION
 //! pack surface.
 
-use std::path::Path;
+use std::{path::Path, process::Command};
 
 use serde::Serialize;
 
@@ -82,6 +83,31 @@ pub struct PortableEngine {
     pub name: &'static str,
     /// Engine version (`CARGO_PKG_VERSION` at compile time).
     pub version: &'static str,
+}
+
+/// Runtime toolchain identity observed for this manufacture.
+#[derive(Debug, Clone, Serialize)]
+pub struct PortableToolchain {
+    /// rustc --version --verbose output.
+    pub rustc: String,
+    /// cargo --version --verbose output.
+    pub cargo: String,
+}
+
+/// Bounded runtime environment identity. Values are never emitted directly;
+/// only a digest of identity-bearing variables is retained.
+#[derive(Debug, Clone, Serialize)]
+pub struct PortableEnvironment {
+    /// Operating-system family reported by the Rust runtime.
+    pub os: &'static str,
+    /// CPU architecture reported by the Rust runtime.
+    pub arch: &'static str,
+    /// Rust target family reported by the runtime.
+    pub family: &'static str,
+    /// Number of bounded environment variables included in the digest.
+    pub variables_count: usize,
+    /// SHA-256 over the sorted bounded environment map.
+    pub variables_sha256: String,
 }
 
 /// The manufactured subject (RFC §55 `subject`).
@@ -166,11 +192,11 @@ pub struct PortableConsequence {
     pub sha256: String,
 }
 
-/// Replay relation (RFC §53/§55). This engine does not execute replay yet.
+/// Replay relation (RFC §53/§55).
 #[derive(Debug, Clone, Serialize)]
 pub struct PortableReplay {
-    /// UNKNOWN on the first observed run; MATCH when the previous portable
-    /// envelope has the same replay-binding projection; MISMATCH otherwise.
+    /// UNKNOWN on ordinary manufacture. PASS is written only by the explicit
+    /// clean-state replay court after all bound identities recompute equally.
     pub status: String,
 }
 
@@ -193,6 +219,10 @@ pub struct PortableReceiptEnvelope {
     pub spec: &'static str,
     /// Engine identity.
     pub engine: PortableEngine,
+    /// Runtime toolchain identity observed for this manufacture.
+    pub toolchain: PortableToolchain,
+    /// Bounded runtime environment identity observed for this manufacture.
+    pub environment: PortableEnvironment,
     /// Manufactured subject.
     pub subject: PortableSubject,
     /// Exact declared transitive dependency closure for the compatibility subject.
@@ -264,6 +294,83 @@ fn build_consequences(
         });
     }
     Ok(consequences)
+}
+
+fn sha256_prefixed(bytes: &[u8]) -> String {
+    use sha2::Digest as _;
+    format!("sha256:{}", hex::encode(sha2::Sha256::digest(bytes)))
+}
+
+fn command_identity(env_key: &str, fallback: &str) -> Result<String> {
+    let program = std::env::var_os(env_key).unwrap_or_else(|| fallback.into());
+    let output = Command::new(&program)
+        .args(["--version", "--verbose"])
+        .output()
+        .map_err(|e| {
+            AppError::fm_chain(
+                18,
+                format!(
+                    "portable envelope: cannot observe {fallback} toolchain identity via {}: {e}",
+                    program.to_string_lossy()
+                ),
+            )
+        })?;
+    if !output.status.success() {
+        return Err(AppError::fm_chain(
+            18,
+            format!(
+                "portable envelope: {fallback} toolchain identity command exited {:?}",
+                output.status.code()
+            ),
+        ));
+    }
+    Ok(String::from_utf8_lossy(&output.stdout).trim().to_string())
+}
+
+/// Observe the runtime toolchain used by manufacture/replay.
+pub(crate) fn observe_toolchain_identity() -> Result<PortableToolchain> {
+    Ok(PortableToolchain {
+        rustc: command_identity("RUSTC", "rustc")?,
+        cargo: command_identity("CARGO", "cargo")?,
+    })
+}
+
+fn secret_like_env_key(key: &str) -> bool {
+    let upper = key.to_ascii_uppercase();
+    ["TOKEN", "SECRET", "PASSWORD", "PASSWD", "CREDENTIAL", "API_KEY", "PRIVATE_KEY"]
+        .iter()
+        .any(|needle| upper.contains(needle))
+}
+
+fn identity_bearing_env_key(key: &str) -> bool {
+    matches!(
+        key,
+        "CARGO"
+            | "CARGO_BUILD_TARGET"
+            | "HOME"
+            | "LANG"
+            | "LC_ALL"
+            | "PATH"
+            | "RUSTC"
+            | "RUSTFLAGS"
+            | "SOURCE_DATE_EPOCH"
+            | "TZ"
+    ) || key.starts_with("GGEN_")
+}
+
+/// Observe a bounded, non-secret runtime environment identity.
+pub(crate) fn observe_environment_identity() -> Result<PortableEnvironment> {
+    let variables = std::env::vars()
+        .filter(|(key, _)| identity_bearing_env_key(key) && !secret_like_env_key(key))
+        .collect::<std::collections::BTreeMap<_, _>>();
+    let bytes = serde_json::to_vec(&variables)?;
+    Ok(PortableEnvironment {
+        os: std::env::consts::OS,
+        arch: std::env::consts::ARCH,
+        family: std::env::consts::FAMILY,
+        variables_count: variables.len(),
+        variables_sha256: sha256_prefixed(&bytes),
+    })
 }
 
 /// Build the subject block: the single resolved pack when exactly one was
@@ -354,38 +461,6 @@ fn build_work_order(root: &Path) -> Result<PortableWorkOrder> {
     })
 }
 
-/// Projection that defines replay identity. Standing and replay status are
-/// deliberately excluded: replay is evidence about whether the same admitted
-/// subject/input/effect relation was reconstructed, not a recursive comparison
-/// of the verdict with itself.
-fn replay_projection(value: &serde_json::Value) -> serde_json::Value {
-    serde_json::json!({
-        "engine": value.get("engine"),
-        "subject": value.get("subject"),
-        "dependencies": value.get("dependencies"),
-        "composition": value.get("composition"),
-        "graph": value.get("graph"),
-        "work_order": value.get("work_order"),
-        "admission": value.get("admission"),
-        "consequences": value.get("consequences"),
-    })
-}
-
-fn previous_replay_status(path: &Path, current: &PortableReceiptEnvelope) -> String {
-    let previous = std::fs::read_to_string(path)
-        .ok()
-        .and_then(|raw| serde_json::from_str::<serde_json::Value>(&raw).ok());
-    let Some(previous) = previous else {
-        return "UNKNOWN".to_string();
-    };
-    let Ok(current) = serde_json::to_value(current) else {
-        return "UNKNOWN".to_string();
-    };
-    if replay_projection(&previous) == replay_projection(&current) {
-        "MATCH".to_string()
-    } else {
-        "MISMATCH".to_string()
-    }
 }
 
 /// Assemble and write the portable receipt envelope for one sync run.
@@ -411,6 +486,8 @@ pub fn write_portable_envelope(
             name: "ggen",
             version: env!("CARGO_PKG_VERSION"),
         },
+        toolchain: observe_toolchain_identity()?,
+        environment: observe_environment_identity()?,
         subject: build_subject(packs)?,
         dependencies: build_dependencies(packs)?,
         composition: build_composition(packs)?,
@@ -430,8 +507,6 @@ pub fn write_portable_envelope(
     };
 
     let path = root.join(PORTABLE_RECEIPT_REL_PATH);
-    let mut envelope = envelope;
-    envelope.replay.status = previous_replay_status(&path, &envelope);
     if let Some(parent) = path.parent() {
         std::fs::create_dir_all(parent)?;
     }

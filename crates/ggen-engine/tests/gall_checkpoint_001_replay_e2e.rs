@@ -6,7 +6,7 @@
 use std::path::{Path, PathBuf};
 
 use ggen_engine::{
-    portable_receipt::PORTABLE_RECEIPT_REL_PATH,
+    portable_receipt::{PORTABLE_RECEIPT_REL_PATH, WORK_ORDER_REL_PATH},
     replay::verify_project_replay,
     sync::{sync, SyncOptions},
 };
@@ -59,6 +59,11 @@ fn fixture() -> Fixture {
         "[project]\nname = \"gall-001\"\n\n[ontology]\nsource = \"ontology.ttl\"\n\n[templates]\ndir = \"templates\"\n\n[packs.root_pack]\npath = \"../packs/root_pack\"\n\n[packs.dependency_pack]\npath = \"../packs/dependency_pack\"\n",
     )
     .expect("ggen.toml");
+    std::fs::write(
+        project.join(WORK_ORDER_REL_PATH),
+        "@prefix schema: <https://schema.org/> .\n<urn:gall:001> a schema:Action ; schema:name \"GALL-001\" .\n",
+    )
+    .expect("semantic work order");
 
     Fixture {
         _dir: dir,
@@ -101,8 +106,30 @@ fn clean_replay_matches_exact_subject_and_consequence_set() {
     assert_eq!(after["replay"]["status"], "PASS");
     assert_eq!(after["subject"], before["subject"]);
     assert_eq!(after["dependencies"], before["dependencies"]);
+    assert_eq!(after["composition"], before["composition"]);
     assert_eq!(after["graph"], before["graph"]);
+    assert_eq!(after["work_order"], before["work_order"]);
     assert_eq!(after["consequences"], before["consequences"]);
+    assert_eq!(after["toolchain"], before["toolchain"]);
+    assert_eq!(after["environment"], before["environment"]);
+    for field in [
+        "subject",
+        "dependencies",
+        "composition",
+        "graph",
+        "work_order",
+        "consequences",
+        "toolchain",
+        "environment",
+    ] {
+        assert_eq!(after["replay"]["identity"][field]["equal"], true);
+        assert!(
+            after["replay"]["identity"][field]["sha256"]
+                .as_str()
+                .expect("identity digest")
+                .starts_with("sha256:")
+        );
+    }
 }
 
 #[test]
@@ -165,4 +192,76 @@ fn dry_run_cannot_manufacture_replay_pass() {
     )
     .expect_err("dry-run replay must refuse");
     assert!(err.to_string().contains("FM-CHAIN-016"), "{err}");
+}
+
+
+#[test]
+fn mutated_project_graph_refuses_old_replay_identity() {
+    let fx = fixture();
+    run_sync(&fx.project);
+    std::fs::write(
+        fx.project.join("ontology.ttl"),
+        "@prefix ex: <http://example.com/gall001#> .\nex:changed a ex:Graph .\n",
+    )
+    .expect("mutate project graph");
+
+    let err = verify_project_replay(&fx.project, SyncOptions::default())
+        .expect_err("old graph identity must refuse");
+    assert!(err.to_string().contains("FM-CHAIN-017"), "{err}");
+    assert_eq!(receipt(&fx.project)["replay"]["status"], "UNKNOWN");
+}
+
+#[test]
+fn tampered_environment_identity_refuses_before_clean_reconstruction() {
+    let fx = fixture();
+    run_sync(&fx.project);
+    let mut source = receipt(&fx.project);
+    source["environment"]["variables_sha256"] =
+        serde_json::Value::String("sha256:stale-environment".to_string());
+    std::fs::write(
+        fx.project.join(PORTABLE_RECEIPT_REL_PATH),
+        serde_json::to_vec(&source).expect("serialize tampered source"),
+    )
+    .expect("write tampered source");
+
+    let err = verify_project_replay(&fx.project, SyncOptions::default())
+        .expect_err("stale environment identity must refuse");
+    assert!(err.to_string().contains("FM-CHAIN-017"), "{err}");
+    assert!(fx.project.join("src/root_pack.rs").exists());
+}
+
+#[test]
+fn unrelated_top_level_pack_cannot_hide_behind_selected_subject() {
+    let fx = fixture();
+    let aux = write_pack(fx._dir.path(), "zz_aux", "2.0.0", None);
+    let config_path = fx.project.join("ggen.toml");
+    let mut config = std::fs::read_to_string(&config_path).expect("read config");
+    config.push_str("\n[packs.zz_aux]\npath = \"../packs/zz_aux\"\n");
+    std::fs::write(&config_path, config).expect("append unrelated pack");
+
+    run_sync(&fx.project);
+    let before = receipt(&fx.project);
+    assert_ne!(
+        before["subject"]["pack"].as_str(),
+        Some("zz_aux"),
+        "fixture must keep zz_aux outside compatibility subject selection"
+    );
+    assert_eq!(
+        before["composition"]["resolved_packs"]
+            .as_array()
+            .expect("composition")
+            .len(),
+        3
+    );
+
+    std::fs::write(
+        aux.join("ontology.ttl"),
+        "@prefix ex: <http://example.com/gall001#> .\nex:mutated_aux a ex:Pack .\n",
+    )
+    .expect("mutate unrelated top-level pack");
+
+    let err = verify_project_replay(&fx.project, SyncOptions::default())
+        .expect_err("unselected top-level pack identity must remain replay-bearing");
+    assert!(err.to_string().contains("FM-CHAIN-017"), "{err}");
+    assert_eq!(receipt(&fx.project)["replay"]["status"], "UNKNOWN");
 }

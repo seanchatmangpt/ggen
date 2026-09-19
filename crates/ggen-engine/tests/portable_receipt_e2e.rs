@@ -424,12 +424,11 @@ fn dry_run_writes_no_portable_envelope_even_on_refusal() {
 }
 
 
-/// GALL-001 replay witness: remove the manufactured target, then execute a
-/// second real sync from the same semantic subject. The second envelope must
-/// report MATCH because subject/dependencies/graph/work-order/admission and
-/// landed consequence bytes are identical.
+/// Ordinary manufacture never promotes replay standing. Even a second clean
+/// manufacture of the same semantic subject remains UNKNOWN until the explicit
+/// replay court executes.
 #[test]
-fn clean_state_second_sync_reports_replay_match() {
+fn ordinary_second_sync_does_not_self_promote_replay_status() {
     let fx = write_fixture(false, true);
     sync(
         &fx.project,
@@ -439,13 +438,8 @@ fn clean_state_second_sync_reports_replay_match() {
         },
     )
     .expect("first sync");
-    assert_eq!(
-        read_envelope(&fx.project)["replay"]["status"].as_str(),
-        Some("UNKNOWN")
-    );
 
     std::fs::remove_file(fx.project.join("src/widget.rs")).expect("remove manufactured target");
-
     sync(
         &fx.project,
         SyncOptions {
@@ -453,19 +447,19 @@ fn clean_state_second_sync_reports_replay_match() {
             ..Default::default()
         },
     )
-    .expect("clean-state replay sync");
+    .expect("second sync");
 
     assert_eq!(
         read_envelope(&fx.project)["replay"]["status"].as_str(),
-        Some("MATCH")
+        Some("UNKNOWN")
     );
 }
 
-/// Mutation falsifier: changing the admitted ontology between runs changes
-/// replay identity. Re-manufacture may still succeed, but it must not be
-/// reported as a replay of the previous subject.
+/// A changed graph under ordinary manufacture also remains UNKNOWN. Mismatch
+/// is evidence only when the explicit clean-state court actually compares the
+/// old and reconstructed identities.
 #[test]
-fn changed_graph_reports_replay_mismatch() {
+fn changed_graph_without_replay_court_remains_unknown() {
     let fx = write_fixture(false, false);
     sync(
         &fx.project,
@@ -494,7 +488,7 @@ fn changed_graph_reports_replay_mismatch() {
 
     assert_eq!(
         read_envelope(&fx.project)["replay"]["status"].as_str(),
-        Some("MISMATCH")
+        Some("UNKNOWN")
     );
 }
 

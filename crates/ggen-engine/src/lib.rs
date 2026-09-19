@@ -39,7 +39,9 @@ pub mod pack_scope;
 pub mod portable_receipt;
 // Shared "load the project graph, stop before templates" entry point --
 // consumed by `ggen-mcp`'s ad-hoc query tools. See its own doc comment.
-pub mod project_graph;\n/// GALL-001 clean replay verification for portable semantic-pack receipts.\npub mod replay;
+pub mod project_graph;
+/// GALL-001 clean replay verification for portable semantic-pack receipts.
+pub mod replay;
 // The single dispatch point deciding which of ggen.toml's two schemas a project uses
 // (specs/014-ggen-core-replacement, correction 2 / Blocker A part 2). Not `pub`: consumed by
 // `sync::sync` and `verbs::handlers` only -- every other caller already goes through one of
