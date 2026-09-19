@@ -414,6 +414,9 @@ pub fn topology_turtle(packs: &[Pack]) -> String {
 }
 
 fn resource_iri(kind: &str, value: &str) -> String {
+    if oxigraph::model::NamedNode::new(value).is_ok() {
+        return value.to_string();
+    }
     let digest = sha2::Sha256::digest(value.as_bytes());
     format!("urn:ggen:{kind}:sha256:{}", hex::encode(digest))
 }
