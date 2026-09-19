@@ -265,3 +265,47 @@ fn unrelated_top_level_pack_cannot_hide_behind_selected_subject() {
     assert!(err.to_string().contains("FM-CHAIN-017"), "{err}");
     assert_eq!(receipt(&fx.project)["replay"]["status"], "UNKNOWN");
 }
+
+
+#[test]
+fn tampered_toolchain_identity_refuses_before_clean_reconstruction() {
+    let fx = fixture();
+    run_sync(&fx.project);
+    let mut source = receipt(&fx.project);
+    source["toolchain"]["rustc"] =
+        serde_json::Value::String("stale-rustc-identity".to_string());
+    std::fs::write(
+        fx.project.join(PORTABLE_RECEIPT_REL_PATH),
+        serde_json::to_vec(&source).expect("serialize tampered source"),
+    )
+    .expect("write tampered source");
+
+    let err = verify_project_replay(&fx.project, SyncOptions::default())
+        .expect_err("stale toolchain identity must refuse");
+    assert!(err.to_string().contains("FM-CHAIN-017"), "{err}");
+    assert!(fx.project.join("src/root_pack.rs").exists());
+}
+
+#[test]
+fn gate_refused_source_cannot_report_replay_pass() {
+    let fx = fixture();
+    std::fs::write(
+        fx.project.join("law-refuse.rq"),
+        "SELECT ?s WHERE { ?s ?p ?o }",
+    )
+    .expect("write refusing law gate");
+    let config_path = fx.project.join("ggen.toml");
+    let mut config = std::fs::read_to_string(&config_path).expect("read config");
+    config.push_str("\n[law]\ngates = [\"law-refuse.rq\"]\n");
+    std::fs::write(&config_path, config).expect("append refusing law gate");
+
+    sync(&fx.project, SyncOptions::default()).expect_err("law gate must refuse");
+    let refused = receipt(&fx.project);
+    assert_ne!(refused["standing"], "ALIVE");
+    assert_eq!(refused["replay"]["status"], "UNKNOWN");
+
+    let err = verify_project_replay(&fx.project, SyncOptions::default())
+        .expect_err("refused source cannot enter replay court");
+    assert!(err.to_string().contains("FM-CHAIN-016"), "{err}");
+    assert_eq!(receipt(&fx.project)["replay"]["status"], "UNKNOWN");
+}
