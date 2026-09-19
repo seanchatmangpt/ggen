@@ -19,6 +19,7 @@ use std::path::{Path, PathBuf};
 
 use ggen_engine::portable_receipt::{
     PORTABLE_RECEIPT_REL_PATH, PORTABLE_RECEIPT_SCHEMA, PORTABLE_RECEIPT_SPEC,
+    WORK_ORDER_REL_PATH,
 };
 use ggen_engine::sync::{sync, SyncOptions, SyncReceipt, RECEIPT_REL_PATH};
 use sha2::Digest;
@@ -420,4 +421,112 @@ fn dry_run_writes_no_portable_envelope_even_on_refusal() {
         "dry run must not write a portable envelope"
     );
     assert!(!fx.project.join(RECEIPT_REL_PATH).exists());
+}
+
+
+/// GALL-001 replay witness: remove the manufactured target, then execute a
+/// second real sync from the same semantic subject. The second envelope must
+/// report MATCH because subject/dependencies/graph/work-order/admission and
+/// landed consequence bytes are identical.
+#[test]
+fn clean_state_second_sync_reports_replay_match() {
+    let fx = write_fixture(false, true);
+    sync(
+        &fx.project,
+        SyncOptions {
+            dry_run: false,
+            ..Default::default()
+        },
+    )
+    .expect("first sync");
+    assert_eq!(
+        read_envelope(&fx.project)["replay"]["status"].as_str(),
+        Some("UNKNOWN")
+    );
+
+    std::fs::remove_file(fx.project.join("src/widget.rs")).expect("remove manufactured target");
+
+    sync(
+        &fx.project,
+        SyncOptions {
+            dry_run: false,
+            ..Default::default()
+        },
+    )
+    .expect("clean-state replay sync");
+
+    assert_eq!(
+        read_envelope(&fx.project)["replay"]["status"].as_str(),
+        Some("MATCH")
+    );
+}
+
+/// Mutation falsifier: changing the admitted ontology between runs changes
+/// replay identity. Re-manufacture may still succeed, but it must not be
+/// reported as a replay of the previous subject.
+#[test]
+fn changed_graph_reports_replay_mismatch() {
+    let fx = write_fixture(false, false);
+    sync(
+        &fx.project,
+        SyncOptions {
+            dry_run: false,
+            ..Default::default()
+        },
+    )
+    .expect("first sync");
+
+    std::fs::write(
+        fx.project.join("ontology.ttl"),
+        "@prefix ex: <http://example.com/t10#> .\nex:Changed a ex:Class .\n",
+    )
+    .expect("mutate ontology");
+    std::fs::remove_file(fx.project.join("src/widget.rs")).expect("remove target");
+
+    sync(
+        &fx.project,
+        SyncOptions {
+            dry_run: false,
+            ..Default::default()
+        },
+    )
+    .expect("second sync");
+
+    assert_eq!(
+        read_envelope(&fx.project)["replay"]["status"].as_str(),
+        Some("MISMATCH")
+    );
+}
+
+/// Semantic-work-order witness: the optional TTL work order is parsed into the
+/// deterministic RDF graph and its digest is bound into the portable receipt.
+/// Human Markdown projections are intentionally outside this identity.
+#[test]
+fn semantic_work_order_graph_is_identity_bearing() {
+    let fx = write_fixture(false, false);
+    std::fs::write(
+        fx.project.join(WORK_ORDER_REL_PATH),
+        "@prefix schema: <https://schema.org/> .\n<urn:gall:001> a schema:Action ; schema:name \"GALL-001\" .\n",
+    )
+    .expect("write work-order ttl");
+
+    sync(
+        &fx.project,
+        SyncOptions {
+            dry_run: false,
+            ..Default::default()
+        },
+    )
+    .expect("sync with work order");
+
+    let env = read_envelope(&fx.project);
+    assert_eq!(
+        env["work_order"]["source"].as_str(),
+        Some(WORK_ORDER_REL_PATH)
+    );
+    let digest = env["work_order"]["canonical_digest"]
+        .as_str()
+        .expect("work-order digest");
+    assert_ne!(digest, "UNKNOWN");
+    assert_eq!(digest.len(), 64);
 }
