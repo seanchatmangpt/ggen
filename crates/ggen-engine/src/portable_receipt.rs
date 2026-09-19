@@ -13,10 +13,10 @@
 //! (RFC §82 vocabulary only, states are never collapsed — §82).
 //!
 //! Fields this run cannot know are present with `"UNKNOWN"` rather than
-//! omitted (RFC §54 "binds at least"): replay is never executed by this
-//! engine, so `replay.status` is always `"UNKNOWN"`, and a sync with no
-//! resolved pack reports `UNKNOWN` subject identity instead of inventing
-//! one. Declared pack dependencies are resolved fail-closed and the portable
+//! omitted (RFC §54 "binds at least"). The first run reports replay UNKNOWN;
+//! a subsequent run compares the same admitted replay projection and reports
+//! MATCH/MISMATCH. A sync with no resolved pack reports UNKNOWN subject
+//! identity instead of inventing one. Declared pack dependencies are resolved fail-closed and the portable
 //! envelope binds the subject's exact transitive dependency closure by name,
  //! version, digest, and the currently indivisible SEMANTICS/LAW/PROJECTION
 //! pack surface.
@@ -114,6 +114,27 @@ pub struct PortableDependency {
     pub scope: Vec<&'static str>,
 }
 
+/// One exact resolved top-level pack identity. Unlike `subject`, which is
+/// retained for backwards compatibility with the original one-subject shape,
+/// this composition list binds every resolved top-level pack so iteration
+/// order cannot hide an unrelated pack from replay identity.
+#[derive(Debug, Clone, Serialize)]
+pub struct PortablePackIdentity {
+    /// Resolution identity used by this sync.
+    pub name: String,
+    /// Exact resolved version.
+    pub version: String,
+    /// Exact portable pack digest.
+    pub digest: String,
+}
+
+/// Complete resolved top-level pack composition for this sync.
+#[derive(Debug, Clone, Serialize)]
+pub struct PortableComposition {
+    /// Stable name/version/digest-sorted top-level pack identities.
+    pub resolved_packs: Vec<PortablePackIdentity>,
+}
+
 /// Admitted graph identity (RFC §55 `graph`).
 #[derive(Debug, Clone, Serialize)]
 pub struct PortableGraph {
@@ -174,8 +195,10 @@ pub struct PortableReceiptEnvelope {
     pub engine: PortableEngine,
     /// Manufactured subject.
     pub subject: PortableSubject,
-    /// Exact declared transitive dependency closure for the receipt subject.
+    /// Exact declared transitive dependency closure for the compatibility subject.
     pub dependencies: Vec<PortableDependency>,
+    /// Exact identity of every resolved top-level pack in this sync.
+    pub composition: PortableComposition,
     /// Admitted graph identity.
     pub graph: PortableGraph,
     /// Admission evidence.
@@ -268,6 +291,23 @@ fn build_subject(packs: &[Pack]) -> Result<PortableSubject> {
     }
 }
 
+/// Bind every resolved top-level pack, independent of enumeration order.
+fn build_composition(packs: &[Pack]) -> Result<PortableComposition> {
+    let mut resolved_packs = Vec::with_capacity(packs.len());
+    for pack in packs {
+        let digest = pack_digest_sha256(pack)?;
+        resolved_packs.push(PortablePackIdentity {
+            name: pack.name.clone(),
+            version: pack.version.clone(),
+            digest: format!("sha256:{}", crate::sync::hex32(&digest)),
+        });
+    }
+    resolved_packs.sort_by(|left, right| {
+        (&left.name, &left.version, &left.digest).cmp(&(&right.name, &right.version, &right.digest))
+    });
+    Ok(PortableComposition { resolved_packs })
+}
+
 /// Build the exact declared dependency closure for the receipt subject.
 ///
 /// The receipt subject remains the first resolved pack for compatibility with
@@ -323,6 +363,7 @@ fn replay_projection(value: &serde_json::Value) -> serde_json::Value {
         "engine": value.get("engine"),
         "subject": value.get("subject"),
         "dependencies": value.get("dependencies"),
+        "composition": value.get("composition"),
         "graph": value.get("graph"),
         "work_order": value.get("work_order"),
         "admission": value.get("admission"),
@@ -372,6 +413,7 @@ pub fn write_portable_envelope(
         },
         subject: build_subject(packs)?,
         dependencies: build_dependencies(packs)?,
+        composition: build_composition(packs)?,
         graph: PortableGraph {
             canonical_digest: graph_hash_hex.to_string(),
         },
