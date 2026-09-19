@@ -19,6 +19,7 @@ use std::path::{Path, PathBuf};
 
 use ggen_engine::portable_receipt::{
     PORTABLE_RECEIPT_REL_PATH, PORTABLE_RECEIPT_SCHEMA, PORTABLE_RECEIPT_SPEC,
+    WORK_ORDER_REL_PATH,
 };
 use ggen_engine::sync::{sync, SyncOptions, SyncReceipt, RECEIPT_REL_PATH};
 use sha2::Digest;
@@ -236,8 +237,8 @@ fn happy_path_sync_emits_complete_portable_envelope() {
         Some(expected_sha.as_str())
     );
 
-    // Replay relation (§54) + standing (§82): never executed by this
-    // engine => UNKNOWN, honestly; the completed run => ALIVE.
+    // Replay relation (§54) + standing (§82): first observed run => UNKNOWN;
+    // the completed run => ALIVE.
     assert_eq!(env["replay"]["status"].as_str(), Some("UNKNOWN"));
     assert_eq!(env["standing"].as_str(), Some("ALIVE"));
 
@@ -420,4 +421,166 @@ fn dry_run_writes_no_portable_envelope_even_on_refusal() {
         "dry run must not write a portable envelope"
     );
     assert!(!fx.project.join(RECEIPT_REL_PATH).exists());
+}
+
+
+/// Ordinary manufacture never promotes replay standing. Even a second clean
+/// manufacture of the same semantic subject remains UNKNOWN until the explicit
+/// replay court executes.
+#[test]
+fn ordinary_second_sync_does_not_self_promote_replay_status() {
+    let fx = write_fixture(false, true);
+    sync(
+        &fx.project,
+        SyncOptions {
+            dry_run: false,
+            ..Default::default()
+        },
+    )
+    .expect("first sync");
+
+    std::fs::remove_file(fx.project.join("src/widget.rs")).expect("remove manufactured target");
+    sync(
+        &fx.project,
+        SyncOptions {
+            dry_run: false,
+            ..Default::default()
+        },
+    )
+    .expect("second sync");
+
+    assert_eq!(
+        read_envelope(&fx.project)["replay"]["status"].as_str(),
+        Some("UNKNOWN")
+    );
+}
+
+/// A changed graph under ordinary manufacture also remains UNKNOWN. Mismatch
+/// is evidence only when the explicit clean-state court actually compares the
+/// old and reconstructed identities.
+#[test]
+fn changed_graph_without_replay_court_remains_unknown() {
+    let fx = write_fixture(false, false);
+    sync(
+        &fx.project,
+        SyncOptions {
+            dry_run: false,
+            ..Default::default()
+        },
+    )
+    .expect("first sync");
+
+    std::fs::write(
+        fx.project.join("ontology.ttl"),
+        "@prefix ex: <http://example.com/t10#> .\nex:Changed a ex:Class .\n",
+    )
+    .expect("mutate ontology");
+    std::fs::remove_file(fx.project.join("src/widget.rs")).expect("remove target");
+
+    sync(
+        &fx.project,
+        SyncOptions {
+            dry_run: false,
+            ..Default::default()
+        },
+    )
+    .expect("second sync");
+
+    assert_eq!(
+        read_envelope(&fx.project)["replay"]["status"].as_str(),
+        Some("UNKNOWN")
+    );
+}
+
+/// Semantic-work-order witness: the optional TTL work order is parsed into the
+/// deterministic RDF graph and its digest is bound into the portable receipt.
+/// Human Markdown projections are intentionally outside this identity.
+#[test]
+fn semantic_work_order_graph_is_identity_bearing() {
+    let fx = write_fixture(false, false);
+    std::fs::write(
+        fx.project.join(WORK_ORDER_REL_PATH),
+        "@prefix schema: <https://schema.org/> .\n<urn:gall:001> a schema:Action ; schema:name \"GALL-001\" .\n",
+    )
+    .expect("write work-order ttl");
+
+    sync(
+        &fx.project,
+        SyncOptions {
+            dry_run: false,
+            ..Default::default()
+        },
+    )
+    .expect("sync with work order");
+
+    let env = read_envelope(&fx.project);
+    assert_eq!(
+        env["work_order"]["source"].as_str(),
+        Some(WORK_ORDER_REL_PATH)
+    );
+    let digest = env["work_order"]["canonical_digest"]
+        .as_str()
+        .expect("work-order digest");
+    assert_ne!(digest, "UNKNOWN");
+    assert_eq!(digest.len(), 64);
+}
+
+
+/// Multi-pack falsifier: the compatibility `subject` may still name the first
+/// pack, but replay identity must bind every resolved top-level pack. Adding a
+/// second unrelated top-level pack therefore cannot disappear behind iteration
+/// order or masquerade as the original one-pack composition.
+#[test]
+fn multi_pack_sync_binds_every_top_level_pack_in_composition() {
+    let fx = write_fixture(false, false);
+    let aux = fx._dir.path().join("aux-pack");
+
+    std::fs::create_dir_all(aux.join("templates")).expect("aux templates dir");
+    std::fs::write(
+        aux.join("pack.toml"),
+        "[pack]\nname = \"aux-canonical\"\nversion = \"2.0.0\"\ndescription = \"auxiliary top-level pack\"\n",
+    )
+    .expect("aux pack.toml");
+    std::fs::write(
+        aux.join("ontology.ttl"),
+        "@prefix ex: <http://example.com/t10#> .\nex:Aux a ex:Class .\n",
+    )
+    .expect("aux ontology");
+    std::fs::write(
+        aux.join("templates/aux.rs.tmpl"),
+        "---\nto: src/aux.rs\n---\n// generated by aux pack\n",
+    )
+    .expect("aux template");
+
+    let config_path = fx.project.join("ggen.toml");
+    let mut config = std::fs::read_to_string(&config_path).expect("read ggen.toml");
+    config.push_str("\n[packs.aux]\npath = \"../aux-pack\"\n");
+    std::fs::write(&config_path, config).expect("append aux pack");
+
+    sync(
+        &fx.project,
+        SyncOptions {
+            dry_run: false,
+            ..Default::default()
+        },
+    )
+    .expect("multi-pack sync");
+
+    let env = read_envelope(&fx.project);
+    let packs = env["composition"]["resolved_packs"]
+        .as_array()
+        .expect("composition resolved_packs");
+    assert_eq!(packs.len(), 2, "composition must bind every top-level pack");
+
+    let names = packs
+        .iter()
+        .map(|pack| pack["name"].as_str().expect("pack name"))
+        .collect::<Vec<_>>();
+    assert_eq!(names, vec!["aux", "widget"], "composition is stably sorted");
+
+    for pack in packs {
+        let digest = pack["digest"].as_str().expect("pack digest");
+        assert!(digest.starts_with("sha256:"));
+        assert_eq!(digest.len(), 71);
+    }
 }

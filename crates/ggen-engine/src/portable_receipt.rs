@@ -13,15 +13,16 @@
 //! (RFC §82 vocabulary only, states are never collapsed — §82).
 //!
 //! Fields this run cannot know are present with `"UNKNOWN"` rather than
-//! omitted (RFC §54 "binds at least"): replay is never executed by this
-//! engine, so `replay.status` is always `"UNKNOWN"`, and a sync with no
-//! resolved pack reports `UNKNOWN` subject identity instead of inventing
-//! one. Declared pack dependencies are resolved fail-closed and the portable
+//! omitted (RFC §54 "binds at least"). Ordinary sync always reports replay
+//! UNKNOWN; only the explicit clean-state reconstruction court may promote it
+//! to PASS after independently recomputing the bound identities. A sync with
+//! no resolved pack reports UNKNOWN subject identity instead of inventing one.
+//! Declared pack dependencies are resolved fail-closed and the portable
 //! envelope binds the subject's exact transitive dependency closure by name,
  //! version, digest, and the currently indivisible SEMANTICS/LAW/PROJECTION
 //! pack surface.
 
-use std::path::Path;
+use std::{path::Path, process::Command};
 
 use serde::Serialize;
 
@@ -40,6 +41,11 @@ pub const PORTABLE_RECEIPT_SCHEMA: &str = "https://ggen.dev/receipt/pack/v1";
 
 /// The spec revision this envelope reports against (RFC §55).
 pub const PORTABLE_RECEIPT_SPEC: &str = "RFC-GPACK-001-v26.9.17";
+
+/// Optional canonical semantic work-order input. When present it is parsed as
+/// Turtle and bound by deterministic graph state hash; when absent the receipt
+/// reports UNKNOWN rather than inventing a ticket identity.
+pub const WORK_ORDER_REL_PATH: &str = "work-order.ttl";
 
 /// §82 standing value for a fully-landed manufacture.
 const STANDING_ALIVE: &str = "ALIVE";
@@ -79,6 +85,31 @@ pub struct PortableEngine {
     pub version: &'static str,
 }
 
+/// Runtime toolchain identity observed for this manufacture.
+#[derive(Debug, Clone, Serialize)]
+pub struct PortableToolchain {
+    /// rustc --version --verbose output.
+    pub rustc: String,
+    /// cargo --version --verbose output.
+    pub cargo: String,
+}
+
+/// Bounded runtime environment identity. Values are never emitted directly;
+/// only a digest of identity-bearing variables is retained.
+#[derive(Debug, Clone, Serialize)]
+pub struct PortableEnvironment {
+    /// Operating-system family reported by the Rust runtime.
+    pub os: &'static str,
+    /// CPU architecture reported by the Rust runtime.
+    pub arch: &'static str,
+    /// Rust target family reported by the runtime.
+    pub family: &'static str,
+    /// Number of bounded environment variables included in the digest.
+    pub variables_count: usize,
+    /// SHA-256 over the sorted bounded environment map.
+    pub variables_sha256: String,
+}
+
 /// The manufactured subject (RFC §55 `subject`).
 #[derive(Debug, Clone, Serialize)]
 pub struct PortableSubject {
@@ -107,6 +138,27 @@ pub struct PortableDependency {
     pub digest: String,
     /// Required surfaces (RFC §26: subset of SEMANTICS/LAW/PROJECTION).
     pub scope: Vec<&'static str>,
+}
+
+/// One exact resolved top-level pack identity. Unlike `subject`, which is
+/// retained for backwards compatibility with the original one-subject shape,
+/// this composition list binds every resolved top-level pack so iteration
+/// order cannot hide an unrelated pack from replay identity.
+#[derive(Debug, Clone, Serialize)]
+pub struct PortablePackIdentity {
+    /// Resolution identity used by this sync.
+    pub name: String,
+    /// Exact resolved version.
+    pub version: String,
+    /// Exact portable pack digest.
+    pub digest: String,
+}
+
+/// Complete resolved top-level pack composition for this sync.
+#[derive(Debug, Clone, Serialize)]
+pub struct PortableComposition {
+    /// Stable name/version/digest-sorted top-level pack identities.
+    pub resolved_packs: Vec<PortablePackIdentity>,
 }
 
 /// Admitted graph identity (RFC §55 `graph`).
@@ -140,11 +192,22 @@ pub struct PortableConsequence {
     pub sha256: String,
 }
 
-/// Replay relation (RFC §53/§55). This engine does not execute replay yet.
+/// Replay relation (RFC §53/§55).
 #[derive(Debug, Clone, Serialize)]
 pub struct PortableReplay {
-    /// Always `"UNKNOWN"` until a replay court exists (ticket T10 scope).
-    pub status: &'static str,
+    /// UNKNOWN on ordinary manufacture. PASS is written only by the explicit
+    /// clean-state replay court after all bound identities recompute equally.
+    pub status: String,
+}
+
+/// Optional admitted semantic work-order identity. Markdown/WBPR/Vision are
+/// projections; this graph digest is the machine identity when the TTL exists.
+#[derive(Debug, Clone, Serialize)]
+pub struct PortableWorkOrder {
+    /// Root-relative source path, or UNKNOWN when no semantic work order exists.
+    pub source: String,
+    /// Deterministic graph state hash of the Turtle work order, or UNKNOWN.
+    pub canonical_digest: String,
 }
 
 /// The complete portable receipt envelope (RFC §54 field set, §55 shape).
@@ -156,16 +219,24 @@ pub struct PortableReceiptEnvelope {
     pub spec: &'static str,
     /// Engine identity.
     pub engine: PortableEngine,
+    /// Runtime toolchain identity observed for this manufacture.
+    pub toolchain: PortableToolchain,
+    /// Bounded runtime environment identity observed for this manufacture.
+    pub environment: PortableEnvironment,
     /// Manufactured subject.
     pub subject: PortableSubject,
-    /// Exact declared transitive dependency closure for the receipt subject.
+    /// Exact declared transitive dependency closure for the compatibility subject.
     pub dependencies: Vec<PortableDependency>,
+    /// Exact identity of every resolved top-level pack in this sync.
+    pub composition: PortableComposition,
     /// Admitted graph identity.
     pub graph: PortableGraph,
     /// Admission evidence.
     pub admission: PortableAdmission,
     /// Manufactured consequences, target-sorted.
     pub consequences: Vec<PortableConsequence>,
+    /// Optional semantic work-order identity driving this manufacture.
+    pub work_order: PortableWorkOrder,
     /// Replay relation.
     pub replay: PortableReplay,
     /// Reported standing (§82 vocabulary).
@@ -225,6 +296,88 @@ fn build_consequences(
     Ok(consequences)
 }
 
+fn sha256_prefixed(bytes: &[u8]) -> String {
+    use sha2::Digest as _;
+    format!("sha256:{}", hex::encode(sha2::Sha256::digest(bytes)))
+}
+
+fn command_identity(env_key: &str, fallback: &str) -> Result<String> {
+    let program = std::env::var_os(env_key).unwrap_or_else(|| fallback.into());
+    let output = Command::new(&program)
+        .args(["--version", "--verbose"])
+        .output()
+        .map_err(|e| {
+            AppError::fm_chain(
+                18,
+                format!(
+                    "portable envelope: cannot observe {fallback} toolchain identity via {}: {e}",
+                    program.to_string_lossy()
+                ),
+            )
+        })?;
+    if !output.status.success() {
+        return Err(AppError::fm_chain(
+            18,
+            format!(
+                "portable envelope: {fallback} toolchain identity command exited {:?}",
+                output.status.code()
+            ),
+        ));
+    }
+    Ok(String::from_utf8_lossy(&output.stdout).trim().to_string())
+}
+
+/// Observe the runtime toolchain used by manufacture/replay.
+pub(crate) fn observe_toolchain_identity() -> Result<PortableToolchain> {
+    Ok(PortableToolchain {
+        rustc: command_identity("RUSTC", "rustc")?,
+        cargo: command_identity("CARGO", "cargo")?,
+    })
+}
+
+fn secret_like_env_key(key: &str) -> bool {
+    let upper = key.to_ascii_uppercase();
+    ["TOKEN", "SECRET", "PASSWORD", "PASSWD", "CREDENTIAL", "API_KEY", "PRIVATE_KEY"]
+        .iter()
+        .any(|needle| upper.contains(needle))
+}
+
+fn identity_bearing_env_key(key: &str) -> bool {
+    matches!(
+        key,
+        "CARGO"
+            | "CARGO_BUILD_TARGET"
+            | "HOME"
+            | "LANG"
+            | "LC_ALL"
+            | "PATH"
+            | "RUSTC"
+            | "RUSTFLAGS"
+            | "SOURCE_DATE_EPOCH"
+            | "TZ"
+    ) || key.starts_with("GGEN_")
+}
+
+/// Observe a bounded, non-secret runtime environment identity.
+pub(crate) fn observe_environment_identity() -> Result<PortableEnvironment> {
+    let variables = std::env::vars_os()
+        .filter_map(|(key, value)| {
+            let key = key.into_string().ok()?;
+            let value = value.into_string().ok()?;
+            (identity_bearing_env_key(&key) && !secret_like_env_key(&key))
+                .then_some((key, value))
+        })
+        .collect::<std::collections::BTreeMap<_, _>>();
+    let bytes = serde_json::to_vec(&variables)?;
+    Ok(PortableEnvironment {
+        os: std::env::consts::OS,
+        arch: std::env::consts::ARCH,
+        family: std::env::consts::FAMILY,
+        variables_count: variables.len(),
+        variables_sha256: sha256_prefixed(&bytes),
+    })
+}
+
 /// Build the subject block: the single resolved pack when exactly one was
 /// resolved; the lexicographically-first pack for multi-pack runs (the
 /// envelope is one-per-sync until declared dependency resolution exists);
@@ -248,6 +401,23 @@ fn build_subject(packs: &[Pack]) -> Result<PortableSubject> {
             pack_digest: "UNKNOWN".to_string(),
         }),
     }
+}
+
+/// Bind every resolved top-level pack, independent of enumeration order.
+fn build_composition(packs: &[Pack]) -> Result<PortableComposition> {
+    let mut resolved_packs = Vec::with_capacity(packs.len());
+    for pack in packs {
+        let digest = pack_digest_sha256(pack)?;
+        resolved_packs.push(PortablePackIdentity {
+            name: pack.name.clone(),
+            version: pack.version.clone(),
+            digest: format!("sha256:{}", crate::sync::hex32(&digest)),
+        });
+    }
+    resolved_packs.sort_by(|left, right| {
+        (&left.name, &left.version, &left.digest).cmp(&(&right.name, &right.version, &right.digest))
+    });
+    Ok(PortableComposition { resolved_packs })
 }
 
 /// Build the exact declared dependency closure for the receipt subject.
@@ -274,6 +444,28 @@ fn build_dependencies(packs: &[Pack]) -> Result<Vec<PortableDependency>> {
     Ok(dependencies)
 }
 
+/// Resolve the optional semantic work-order identity. The graph is parsed by
+/// the same deterministic RDF engine used elsewhere in ggen, so whitespace or
+/// triple ordering cannot become a second identity.
+fn build_work_order(root: &Path) -> Result<PortableWorkOrder> {
+    let path = root.join(WORK_ORDER_REL_PATH);
+    if !path.is_file() {
+        return Ok(PortableWorkOrder {
+            source: "UNKNOWN".to_string(),
+            canonical_digest: "UNKNOWN".to_string(),
+        });
+    }
+
+    let ttl = std::fs::read_to_string(&path)?;
+    let graph = crate::graph::DeterministicGraph::new()?;
+    graph.insert_turtle(&ttl)?;
+    let hash = graph.state_hash()?;
+    Ok(PortableWorkOrder {
+        source: WORK_ORDER_REL_PATH.to_string(),
+        canonical_digest: crate::sync::hex32(&hash),
+    })
+}
+
 /// Assemble and write the portable receipt envelope for one sync run.
 ///
 /// `gates_attempted` must list every gate identity actually evaluated (in
@@ -297,8 +489,11 @@ pub fn write_portable_envelope(
             name: "ggen",
             version: env!("CARGO_PKG_VERSION"),
         },
+        toolchain: observe_toolchain_identity()?,
+        environment: observe_environment_identity()?,
         subject: build_subject(packs)?,
         dependencies: build_dependencies(packs)?,
+        composition: build_composition(packs)?,
         graph: PortableGraph {
             canonical_digest: graph_hash_hex.to_string(),
         },
@@ -307,7 +502,10 @@ pub fn write_portable_envelope(
             refusals: refusals.to_vec(),
         },
         consequences: build_consequences(root, decisions)?,
-        replay: PortableReplay { status: "UNKNOWN" },
+        work_order: build_work_order(root)?,
+        replay: PortableReplay {
+            status: "UNKNOWN".to_string(),
+        },
         standing: standing.to_string(),
     };
 
