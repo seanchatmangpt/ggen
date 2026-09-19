@@ -1,0 +1,11 @@
+{
+  "checkpoint_iri": {{ checkpoint_iri | json_encode }},
+  "repository": {{ repository | json_encode }},
+  "base_sha": {{ base_sha | json_encode }},
+  "graph_digest": {{ graph_digest | json_encode }},
+  "goal": {{ goal | json_encode }},
+  "provider": {{ provider | json_encode }},
+  "verifier_suite": {{ verifier_suite | json_encode }},
+  "standing": {{ standing | json_encode }},
+  "dependencies": []
+}
