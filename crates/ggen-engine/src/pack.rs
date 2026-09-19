@@ -27,9 +27,13 @@
 //! perform undisclosed network/filesystem side effects (e.g. a read-only
 //! query tool).
 
-use std::path::{Path, PathBuf};
-use std::process::Command;
+use std::{
+    collections::{BTreeMap, BTreeSet, VecDeque},
+    path::{Path, PathBuf},
+    process::Command,
+};
 
+use ggen_marketplace::packs_registry::dependency_graph::DependencyGraph;
 use serde::Deserialize;
 
 use crate::{
@@ -46,6 +50,10 @@ pub struct Pack {
     pub version: String,
     /// Human description from `pack.toml`.
     pub description: String,
+    /// Declared direct pack dependencies: pack resolution name to version
+    /// requirement. This relation scopes candidates; it never grants
+    /// execution authority.
+    pub dependencies: BTreeMap<String, String>,
     /// Absolute (resolved) pack root directory.
     pub root: PathBuf,
     /// Path to the pack's `ontology.ttl`.
@@ -71,6 +79,10 @@ pub struct Pack {
 #[serde(deny_unknown_fields)]
 struct PackToml {
     pack: PackMeta,
+    /// Direct pack dependencies. Each dependency must also be declared by
+    /// the consumer; resolution never performs ambient installation.
+    #[serde(default)]
+    dependencies: BTreeMap<String, String>,
 }
 
 /// `[pack]` table of `pack.toml` (closed key set).
@@ -194,7 +206,205 @@ fn resolve_inner(
             }
         }
     }
+    validate_dependency_graph(&packs)?;
     Ok(packs)
+}
+
+/// Candidate-scope expansion depth for dependency_scope.
+///
+/// These values order inspection only. They do not admit a pack, confer
+/// authority, or actuate anything.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ScopeDepth {
+    /// The subject pack only.
+    Local,
+    /// Subject plus directly declared dependencies.
+    Direct,
+    /// Subject plus direct dependencies plus one additional dependency level.
+    TwoLevel,
+    /// Subject plus the complete declared transitive dependency closure.
+    Transitive,
+    /// Subject first, then every other resolved pack as the final fallback.
+    Global,
+}
+
+/// Return a deterministic candidate scope rooted at subject.
+///
+/// This implements package-aware scoping without changing sync manufacture:
+/// the live sync pipeline still composes every pack declared by the consumer.
+/// SELECT-time callers can inspect Local -> Direct -> TwoLevel/Transitive ->
+/// Global while keeping ranking separate from admission and execution.
+///
+/// Ordering is deterministic breadth-first traversal. Dependencies at the
+/// same depth are ordered by name because the manifest uses BTreeMap.
+///
+/// Errors:
+/// - FM-PACK-014 when a declared dependency is absent from packs
+/// - FM-PACK-017 when subject is not a resolved pack
+pub fn dependency_scope<'a>(
+    packs: &'a [Pack], subject: &str, depth: ScopeDepth,
+) -> Result<Vec<&'a Pack>> {
+    let by_name: BTreeMap<&str, &Pack> =
+        packs.iter().map(|pack| (pack.name.as_str(), pack)).collect();
+    let Some(subject_pack) = by_name.get(subject).copied() else {
+        return Err(AppError::fm_pack(
+            17,
+            format!(
+                "dependency scope subject '{subject}' is not among the resolved packs. \
+                 Remediation: resolve the pack first or use an admitted resolved subject."
+            ),
+        ));
+    };
+
+    if depth == ScopeDepth::Global {
+        let mut rest: Vec<&Pack> = packs.iter().filter(|pack| pack.name != subject).collect();
+        rest.sort_by(|a, b| a.name.cmp(&b.name));
+        let mut scoped = Vec::with_capacity(packs.len());
+        scoped.push(subject_pack);
+        scoped.extend(rest);
+        return Ok(scoped);
+    }
+
+    let max_depth = match depth {
+        ScopeDepth::Local => 0,
+        ScopeDepth::Direct => 1,
+        ScopeDepth::TwoLevel => 2,
+        ScopeDepth::Transitive => usize::MAX,
+        ScopeDepth::Global => unreachable!("handled above"),
+    };
+
+    let mut scoped = Vec::new();
+    let mut seen = BTreeSet::new();
+    let mut queue = VecDeque::from([(subject.to_string(), 0usize)]);
+    while let Some((name, current_depth)) = queue.pop_front() {
+        if !seen.insert(name.clone()) {
+            continue;
+        }
+        let pack = by_name.get(name.as_str()).copied().ok_or_else(|| {
+            AppError::fm_pack(
+                14,
+                format!(
+                    "pack '{subject}' dependency scope references undeclared pack '{name}'. \
+                     Remediation: add '{name}' to the consumer's [packs] table."
+                ),
+            )
+        })?;
+        scoped.push(pack);
+        if current_depth >= max_depth {
+            continue;
+        }
+        for dependency in pack.dependencies.keys() {
+            queue.push_back((dependency.clone(), current_depth.saturating_add(1)));
+        }
+    }
+    Ok(scoped)
+}
+
+/// Validate declared pack dependencies after all consumer-declared packs have
+/// resolved. This admits dependency topology only; it never installs missing
+/// packs or grants runtime authority.
+///
+/// Errors:
+/// - FM-PACK-014 when a required dependency is not consumer-declared/resolved
+/// - FM-PACK-015 when a dependency requirement is malformed or not satisfied
+/// - FM-PACK-016 when the declared dependency graph contains a cycle
+fn validate_dependency_graph(packs: &[Pack]) -> Result<()> {
+    let by_name: BTreeMap<&str, &Pack> =
+        packs.iter().map(|pack| (pack.name.as_str(), pack)).collect();
+    let mut graph = DependencyGraph::new();
+
+    for pack in packs {
+        graph.add_node(&pack.name);
+        for (dependency_name, requirement) in &pack.dependencies {
+            if dependency_name.trim().is_empty() || requirement.trim().is_empty() {
+                return Err(AppError::fm_pack(
+                    15,
+                    format!(
+                        "pack '{}' has an empty dependency name or version requirement. \
+                         Remediation: declare each [dependencies] entry as \
+                         pack-name = version-or-requirement.",
+                        pack.name
+                    ),
+                ));
+            }
+
+            let dependency = by_name
+                .get(dependency_name.as_str())
+                .copied()
+                .ok_or_else(|| {
+                    AppError::fm_pack(
+                        14,
+                        format!(
+                            "pack '{}' requires '{dependency_name}' ({requirement}), but that \
+                             pack is not declared in the consumer's [packs] table. Resolution \
+                             is fail-closed and does not auto-install dependencies. \
+                             Remediation: add '{dependency_name}' to ggen.toml [packs].",
+                            pack.name
+                        ),
+                    )
+                })?;
+
+            let matches = dependency_requirement_matches(requirement, &dependency.version)
+                .map_err(|reason| {
+                    AppError::fm_pack(
+                        15,
+                        format!(
+                            "pack '{}' dependency '{dependency_name}' requirement \
+                             '{requirement}' cannot be admitted against resolved version '{}': \
+                             {reason}. Remediation: align the dependency requirement and the \
+                             resolved pack version.",
+                            pack.name, dependency.version
+                        ),
+                    )
+                })?;
+            if !matches {
+                return Err(AppError::fm_pack(
+                    15,
+                    format!(
+                        "pack '{}' requires '{dependency_name}' '{requirement}', but the \
+                         resolved version is '{}'. Remediation: select a satisfying pack \
+                         version or change the declared requirement.",
+                        pack.name, dependency.version
+                    ),
+                ));
+            }
+            graph.add_edge(&pack.name, dependency_name);
+        }
+    }
+
+    graph.detect_cycles().map_err(|e| {
+        AppError::fm_pack(
+            16,
+            format!(
+                "declared pack dependency graph is cyclic: {e}. \
+                 Remediation: remove at least one dependency edge so the graph is acyclic."
+            ),
+        )
+    })
+}
+
+/// Match the pack dependency requirement convention.
+///
+/// A plain string such as 26.9.17 is exact. Strings containing SemVer
+/// operators use semver::VersionReq. Keeping bare versions exact preserves
+/// ggen's documented pack-manifest convention rather than silently applying
+/// Cargo's implicit-caret interpretation.
+fn dependency_requirement_matches(
+    requirement: &str, resolved_version: &str,
+) -> std::result::Result<bool, String> {
+    let requirement = requirement.trim();
+    let uses_semver_requirement = requirement.chars().any(|c| {
+        matches!(c, '^' | '~' | '>' | '<' | '=' | '*' | ',') || c.is_whitespace()
+    });
+    if !uses_semver_requirement {
+        return Ok(requirement == resolved_version);
+    }
+
+    let requirement = semver::VersionReq::parse(requirement)
+        .map_err(|e| format!("invalid version requirement: {e}"))?;
+    let version = semver::Version::parse(resolved_version)
+        .map_err(|e| format!("resolved version is not SemVer: {e}"))?;
+    Ok(requirement.matches(&version))
 }
 
 /// Directory name (under `<config_root>/.ggen-v2/git-packs/`) a git pack's
@@ -407,6 +617,7 @@ fn resolve_pack_dir(name: &str, root: &Path) -> Result<Pack> {
         name: name.to_string(),
         version: manifest.pack.version,
         description: manifest.pack.description,
+        dependencies: manifest.dependencies,
         root,
         ontology_path,
         extra_ontology_paths: Vec::new(),
