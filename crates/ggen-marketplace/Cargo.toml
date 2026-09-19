@@ -38,7 +38,7 @@ anyhow = { workspace = true }
 futures = "0.3"
 reqwest = { workspace = true, features = ["rustls-tls", "stream"] }
 url = "2.5"
-sha2 = "0.10"
+sha2 = "0.11"
 # Used only to verify npm's legacy SHA-1 `shasum` artifact checksum
 # (download_and_verify_external_pack) -- crates.io/PyPI report SHA-256,
 # already covered by sha2 above.
