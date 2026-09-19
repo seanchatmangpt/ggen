@@ -34,7 +34,7 @@ use std::{
 };
 
 use ggen_marketplace::packs_registry::dependency_graph::DependencyGraph;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 use crate::{
     config::{GgenConfig, PackRef},
@@ -54,6 +54,14 @@ pub struct Pack {
     /// requirement. This relation scopes candidates; it never grants
     /// execution authority.
     pub dependencies: BTreeMap<String, String>,
+    /// Semantic types declared by the pack. These are candidate-routing facts,
+    /// not admission or execution authority.
+    pub semantic_types: BTreeSet<String>,
+    /// Capabilities this pack can provide after its own admission succeeds.
+    pub provides: BTreeSet<String>,
+    /// Capabilities this pack requires from itself or its declared dependency
+    /// closure. Ambient/global providers never satisfy this field.
+    pub requires: BTreeSet<String>,
     /// Absolute (resolved) pack root directory.
     pub root: PathBuf,
     /// Path to the pack's `ontology.ttl`.
@@ -83,6 +91,30 @@ struct PackToml {
     /// the consumer; resolution never performs ambient installation.
     #[serde(default)]
     dependencies: BTreeMap<String, String>,
+    /// Candidate-routing semantics. Optional for backward compatibility;
+    /// absence means no declared semantic type/capability facts.
+    #[serde(default)]
+    capabilities: PackCapabilities,
+}
+
+/// First-class semantic routing facts carried by pack.toml.
+///
+/// These facts are compiled into the canonical RDF graph by
+/// crate::pack_scope::topology_turtle. They narrow SELECT candidates only;
+/// they do not bypass GraphLaw/SHACL/gates or BRCE.
+#[derive(Debug, Default, Deserialize)]
+#[serde(deny_unknown_fields)]
+struct PackCapabilities {
+    /// Semantic type/class labels understood by the caller's public ontology.
+    #[serde(default)]
+    types: BTreeSet<String>,
+    /// Capabilities this pack provides after admission.
+    #[serde(default)]
+    provides: BTreeSet<String>,
+    /// Capabilities that must be provided by this pack or its declared
+    /// dependency closure.
+    #[serde(default)]
+    requires: BTreeSet<String>,
 }
 
 /// `[pack]` table of `pack.toml` (closed key set).
@@ -214,7 +246,7 @@ fn resolve_inner(
 ///
 /// These values order inspection only. They do not admit a pack, confer
 /// authority, or actuate anything.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
 pub enum ScopeDepth {
     /// The subject pack only.
     Local,
@@ -380,7 +412,49 @@ fn validate_dependency_graph(packs: &[Pack]) -> Result<()> {
                  Remediation: remove at least one dependency edge so the graph is acyclic."
             ),
         )
-    })
+    })?;
+    validate_capability_requirements(packs)
+}
+
+/// Admit capability requirements only from the pack's declared dependency
+/// closure. A global pack that happens to provide the same capability is not
+/// an implicit dependency: that would turn repository adjacency into hidden
+/// authority and make replay depend on ambient state.
+///
+/// Errors:
+/// - FM-PACK-018 when a required capability has no provider in the pack's
+///   own transitive dependency closure
+fn validate_capability_requirements(packs: &[Pack]) -> Result<()> {
+    for pack in packs {
+        if pack.requires.is_empty() {
+            continue;
+        }
+        let closure = dependency_scope(packs, &pack.name, ScopeDepth::Transitive)?;
+        let available: BTreeSet<&str> = closure
+            .iter()
+            .flat_map(|candidate| candidate.provides.iter().map(String::as_str))
+            .collect();
+        let missing: Vec<&str> = pack
+            .requires
+            .iter()
+            .map(String::as_str)
+            .filter(|required| !available.contains(required))
+            .collect();
+        if !missing.is_empty() {
+            return Err(AppError::fm_pack(
+                18,
+                format!(
+                    "pack '{}' requires capability/capabilities [{}], but no provider exists \
+                     in its declared dependency closure. Ambient/global providers are not \
+                     admitted as hidden dependencies. Remediation: add a dependency that \
+                     provides the capability or remove the unsatisfied requirement.",
+                    pack.name,
+                    missing.join(", ")
+                ),
+            ));
+        }
+    }
+    Ok(())
 }
 
 /// Match the pack dependency requirement convention.
@@ -618,6 +692,9 @@ fn resolve_pack_dir(name: &str, root: &Path) -> Result<Pack> {
         version: manifest.pack.version,
         description: manifest.pack.description,
         dependencies: manifest.dependencies,
+        semantic_types: manifest.capabilities.types,
+        provides: manifest.capabilities.provides,
+        requires: manifest.capabilities.requires,
         root,
         ontology_path,
         extra_ontology_paths: Vec::new(),
