@@ -31,6 +31,8 @@ pub mod lint;
 // module directly. See the module's own doc comment for the key policy.
 mod keys;
 pub mod pack;
+/// DfCM candidate scoping, semantic pack topology, cache identity, and benchmark metrics.
+pub mod pack_scope;
 // Portable receipt envelope (RFC-GPACK-001 §54/§55, ticket T10): additive
 // sidecar written alongside the legacy BLAKE3 chain receipt — see the
 // module's own doc comment for the standing-reporting contract (§57).

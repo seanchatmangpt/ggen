@@ -16,9 +16,10 @@
 //! omitted (RFC §54 "binds at least"): replay is never executed by this
 //! engine, so `replay.status` is always `"UNKNOWN"`, and a sync with no
 //! resolved pack reports `UNKNOWN` subject identity instead of inventing
-//! one. Dependency resolution (§85 steps 10–11) is a separate migration
-//! step, so `dependencies` is present and empty — Rust packs have no
-//! declared pack-to-pack dependency surface yet.
+//! one. Declared pack dependencies are resolved fail-closed and the portable
+//! envelope binds the subject's exact transitive dependency closure by name,
+ //! version, digest, and the currently indivisible SEMANTICS/LAW/PROJECTION
+//! pack surface.
 
 use std::path::Path;
 
@@ -26,7 +27,7 @@ use serde::Serialize;
 
 use crate::{
     error::{AppError, Result},
-    pack::{pack_digest_sha256, Pack},
+    pack::{dependency_scope, pack_digest_sha256, Pack, ScopeDepth},
 };
 
 /// Where the portable receipt envelope is written, relative to the project
@@ -90,9 +91,12 @@ pub struct PortableSubject {
     pub pack_digest: String,
 }
 
-/// One declared dependency (RFC §26 scope algebra). Never constructed yet:
-/// Rust packs have no declared pack-to-pack dependency surface, so the
-/// envelope carries `dependencies: []` rather than inventing scopes.
+/// One declared dependency (RFC §26 scope algebra).
+///
+/// The current Rust pack format composes ontology semantics, law inputs, and
+/// projection templates as one unit, so a declared dependency carries all
+/// three surfaces. A future narrower manifest may reduce that set, but this
+/// engine never invents a narrower claim than it actually consumes.
 #[derive(Debug, Clone, Serialize)]
 pub struct PortableDependency {
     /// Dependency pack name.
@@ -154,7 +158,7 @@ pub struct PortableReceiptEnvelope {
     pub engine: PortableEngine,
     /// Manufactured subject.
     pub subject: PortableSubject,
-    /// Declared dependency closure (empty until §85 steps 10–11 land).
+    /// Exact declared transitive dependency closure for the receipt subject.
     pub dependencies: Vec<PortableDependency>,
     /// Admitted graph identity.
     pub graph: PortableGraph,
@@ -246,6 +250,30 @@ fn build_subject(packs: &[Pack]) -> Result<PortableSubject> {
     }
 }
 
+/// Build the exact declared dependency closure for the receipt subject.
+///
+/// The receipt subject remains the first resolved pack for compatibility with
+/// the existing one-envelope-per-sync shape. Only packs reachable from that
+/// subject by declared dependency edges are reported here; unrelated
+/// top-level packs are not mislabeled as dependencies.
+fn build_dependencies(packs: &[Pack]) -> Result<Vec<PortableDependency>> {
+    let Some(subject) = packs.first() else {
+        return Ok(Vec::new());
+    };
+    let scoped = dependency_scope(packs, &subject.name, ScopeDepth::Transitive)?;
+    let mut dependencies = Vec::with_capacity(scoped.len().saturating_sub(1));
+    for pack in scoped.into_iter().skip(1) {
+        let digest = pack_digest_sha256(pack)?;
+        dependencies.push(PortableDependency {
+            name: pack.name.clone(),
+            version: pack.version.clone(),
+            digest: format!("sha256:{}", crate::sync::hex32(&digest)),
+            scope: vec!["SEMANTICS", "LAW", "PROJECTION"],
+        });
+    }
+    Ok(dependencies)
+}
+
 /// Assemble and write the portable receipt envelope for one sync run.
 ///
 /// `gates_attempted` must list every gate identity actually evaluated (in
@@ -270,7 +298,7 @@ pub fn write_portable_envelope(
             version: env!("CARGO_PKG_VERSION"),
         },
         subject: build_subject(packs)?,
-        dependencies: Vec::new(),
+        dependencies: build_dependencies(packs)?,
         graph: PortableGraph {
             canonical_digest: graph_hash_hex.to_string(),
         },
