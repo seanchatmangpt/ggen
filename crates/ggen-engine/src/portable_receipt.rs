@@ -360,8 +360,13 @@ fn identity_bearing_env_key(key: &str) -> bool {
 
 /// Observe a bounded, non-secret runtime environment identity.
 pub(crate) fn observe_environment_identity() -> Result<PortableEnvironment> {
-    let variables = std::env::vars()
-        .filter(|(key, _)| identity_bearing_env_key(key) && !secret_like_env_key(key))
+    let variables = std::env::vars_os()
+        .filter_map(|(key, value)| {
+            let key = key.into_string().ok()?;
+            let value = value.into_string().ok()?;
+            (identity_bearing_env_key(&key) && !secret_like_env_key(&key))
+                .then_some((key, value))
+        })
         .collect::<std::collections::BTreeMap<_, _>>();
     let bytes = serde_json::to_vec(&variables)?;
     Ok(PortableEnvironment {
@@ -459,8 +464,6 @@ fn build_work_order(root: &Path) -> Result<PortableWorkOrder> {
         source: WORK_ORDER_REL_PATH.to_string(),
         canonical_digest: crate::sync::hex32(&hash),
     })
-}
-
 }
 
 /// Assemble and write the portable receipt envelope for one sync run.
