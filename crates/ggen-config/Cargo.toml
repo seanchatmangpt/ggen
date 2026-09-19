@@ -61,7 +61,7 @@ tokio = { version = "1.47", features = ["macros", "rt", "rt-multi-thread"] }
 # schema-parity drift guard: `GgenManifest` here vs `ggen_engine::config::GgenConfig`).
 # Same version already vendored by `ggen-cheat-scanner`; only the "full" parse feature is
 # needed here (no visit/extra-traits -- this test walks `syn::Item`s directly).
-syn = { version = "2", features = ["full"] }
+syn = { version = "3", features = ["full"] }
 
 [lints]
 workspace = true
