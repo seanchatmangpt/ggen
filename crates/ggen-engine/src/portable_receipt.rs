@@ -41,6 +41,11 @@ pub const PORTABLE_RECEIPT_SCHEMA: &str = "https://ggen.dev/receipt/pack/v1";
 /// The spec revision this envelope reports against (RFC §55).
 pub const PORTABLE_RECEIPT_SPEC: &str = "RFC-GPACK-001-v26.9.17";
 
+/// Optional canonical semantic work-order input. When present it is parsed as
+/// Turtle and bound by deterministic graph state hash; when absent the receipt
+/// reports UNKNOWN rather than inventing a ticket identity.
+pub const WORK_ORDER_REL_PATH: &str = "work-order.ttl";
+
 /// §82 standing value for a fully-landed manufacture.
 const STANDING_ALIVE: &str = "ALIVE";
 
@@ -143,8 +148,19 @@ pub struct PortableConsequence {
 /// Replay relation (RFC §53/§55). This engine does not execute replay yet.
 #[derive(Debug, Clone, Serialize)]
 pub struct PortableReplay {
-    /// Always `"UNKNOWN"` until a replay court exists (ticket T10 scope).
-    pub status: &'static str,
+    /// UNKNOWN on the first observed run; MATCH when the previous portable
+    /// envelope has the same replay-binding projection; MISMATCH otherwise.
+    pub status: String,
+}
+
+/// Optional admitted semantic work-order identity. Markdown/WBPR/Vision are
+/// projections; this graph digest is the machine identity when the TTL exists.
+#[derive(Debug, Clone, Serialize)]
+pub struct PortableWorkOrder {
+    /// Root-relative source path, or UNKNOWN when no semantic work order exists.
+    pub source: String,
+    /// Deterministic graph state hash of the Turtle work order, or UNKNOWN.
+    pub canonical_digest: String,
 }
 
 /// The complete portable receipt envelope (RFC §54 field set, §55 shape).
@@ -166,6 +182,8 @@ pub struct PortableReceiptEnvelope {
     pub admission: PortableAdmission,
     /// Manufactured consequences, target-sorted.
     pub consequences: Vec<PortableConsequence>,
+    /// Optional semantic work-order identity driving this manufacture.
+    pub work_order: PortableWorkOrder,
     /// Replay relation.
     pub replay: PortableReplay,
     /// Reported standing (§82 vocabulary).
@@ -274,6 +292,61 @@ fn build_dependencies(packs: &[Pack]) -> Result<Vec<PortableDependency>> {
     Ok(dependencies)
 }
 
+/// Resolve the optional semantic work-order identity. The graph is parsed by
+/// the same deterministic RDF engine used elsewhere in ggen, so whitespace or
+/// triple ordering cannot become a second identity.
+fn build_work_order(root: &Path) -> Result<PortableWorkOrder> {
+    let path = root.join(WORK_ORDER_REL_PATH);
+    if !path.is_file() {
+        return Ok(PortableWorkOrder {
+            source: "UNKNOWN".to_string(),
+            canonical_digest: "UNKNOWN".to_string(),
+        });
+    }
+
+    let ttl = std::fs::read_to_string(&path)?;
+    let graph = crate::graph::DeterministicGraph::new()?;
+    graph.insert_turtle(&ttl)?;
+    let hash = graph.state_hash()?;
+    Ok(PortableWorkOrder {
+        source: WORK_ORDER_REL_PATH.to_string(),
+        canonical_digest: crate::sync::hex32(&hash),
+    })
+}
+
+/// Projection that defines replay identity. Standing and replay status are
+/// deliberately excluded: replay is evidence about whether the same admitted
+/// subject/input/effect relation was reconstructed, not a recursive comparison
+/// of the verdict with itself.
+fn replay_projection(value: &serde_json::Value) -> serde_json::Value {
+    serde_json::json!({
+        "engine": value.get("engine"),
+        "subject": value.get("subject"),
+        "dependencies": value.get("dependencies"),
+        "graph": value.get("graph"),
+        "work_order": value.get("work_order"),
+        "admission": value.get("admission"),
+        "consequences": value.get("consequences"),
+    })
+}
+
+fn previous_replay_status(path: &Path, current: &PortableReceiptEnvelope) -> String {
+    let previous = std::fs::read_to_string(path)
+        .ok()
+        .and_then(|raw| serde_json::from_str::<serde_json::Value>(&raw).ok());
+    let Some(previous) = previous else {
+        return "UNKNOWN".to_string();
+    };
+    let Ok(current) = serde_json::to_value(current) else {
+        return "UNKNOWN".to_string();
+    };
+    if replay_projection(&previous) == replay_projection(&current) {
+        "MATCH".to_string()
+    } else {
+        "MISMATCH".to_string()
+    }
+}
+
 /// Assemble and write the portable receipt envelope for one sync run.
 ///
 /// `gates_attempted` must list every gate identity actually evaluated (in
@@ -307,11 +380,16 @@ pub fn write_portable_envelope(
             refusals: refusals.to_vec(),
         },
         consequences: build_consequences(root, decisions)?,
-        replay: PortableReplay { status: "UNKNOWN" },
+        work_order: build_work_order(root)?,
+        replay: PortableReplay {
+            status: "UNKNOWN".to_string(),
+        },
         standing: standing.to_string(),
     };
 
     let path = root.join(PORTABLE_RECEIPT_REL_PATH);
+    let mut envelope = envelope;
+    envelope.replay.status = previous_replay_status(&path, &envelope);
     if let Some(parent) = path.parent() {
         std::fs::create_dir_all(parent)?;
     }
