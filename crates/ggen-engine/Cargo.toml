@@ -81,6 +81,7 @@ notify = "7.0"
 notify-debouncer-full = "0.4"
 serde_yaml = "0.9"
 regex = "1"
+semver = "1.0" # pack.toml [dependencies] version requirement admission
 star-toml = "26.7.3"
 # Direct dep purely for structural (AST-level) pre-flight query inspection
 # in `graph::DeterministicGraph::query()` (GRAPH/SERVICE-clause detection,
