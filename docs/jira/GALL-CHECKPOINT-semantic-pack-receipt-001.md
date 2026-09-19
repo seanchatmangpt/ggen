@@ -302,3 +302,45 @@ A generated semconv registry, Weaver template input/output, Rego support artifac
 - portable envelope / PackDigest / consequence binding: `PARTIAL_ALIVE` by source inspection, execution not re-run in this review;
 - deterministic clean replay: `UNKNOWN`;
 - cross-repository standing: `UNKNOWN`.
+
+## Four-hour conversation synthesis — semantic work orders, 2026-09-18
+
+The last four hours change the **unit being manufactured**. GALL tickets should stop being treated as prose-only Jira descriptions and become admitted semantic work orders.
+
+### MD -> TTL migration
+
+Target direction:
+
+`public ontology + admitted facts -> checkpoint/work-order TTL -> ggen projections -> Markdown / WBPR / Vision / implementation artifacts`.
+
+Once the semantic ticket pack is implemented, TTL/RDF is the machine-authoritative work-order subject and the Markdown ticket becomes a human-readable generated projection. Until that migration court exists, this Markdown file remains the operative contract; no standing is retroactively claimed.
+
+No private ticket ontology is admitted. Reuse public vocabulary and stable instance IRIs; repository-specific constraints belong in admitted shapes/rules rather than a second hidden semantic universe.
+
+The semantic work-order identity must be sufficient to reconstruct at least:
+
+- checkpoint/work-order identity;
+- repository + exact subject;
+- predecessor/dependency edges;
+- required court(s);
+- evidence ceiling;
+- falsifiers/refusal boundaries;
+- required outputs/artifacts;
+- stop condition / Definition of Done;
+- receipt references and standing.
+
+The digest of that admitted work-order graph becomes an identity-bearing input whenever the work order drives manufacture. Clean replay must bind the same work-order subject, not only the same pack bytes.
+
+### Candidate edges are not law
+
+Recent Semantic A2A GNN work (autofde-lab PR #159, exact head `e2909db1090a143ac7fcc8c2c8a8c8905f455db7`) demonstrates the intended learned-model boundary: RDF/graph inference may propose dependency/capability/work-order edges, but learned output remains `CANDIDATE` until ordinary admission.
+
+Therefore a future GNN/ONNX planner may help SELECT which ticket edge or pack dependency to inspect, but it may not mutate the admitted work-order graph, authorize manufacture, or upgrade replay standing.
+
+### Revised GALL-001 handoff
+
+GALL-001 now produces two separable identities when semantic work orders are in use:
+
+`pack/composition identity` and `work-order identity`.
+
+GALL-002 may manufacture from them. Neither Markdown text nor a learned recommendation may silently substitute for either exact identity.
