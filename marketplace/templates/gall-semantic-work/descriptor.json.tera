@@ -1,11 +1,16 @@
 {
+  "schema": "gall.work-order-execution/2",
+  "type": "gall:WorkOrderExecutionDescriptor",
+  "work_order_iri": {{ work_order_iri | json_encode }},
   "checkpoint_iri": {{ checkpoint_iri | json_encode }},
-  "repository": {{ repository | json_encode }},
+  "repository_identity": {{ repository_identity | json_encode }},
   "base_sha": {{ base_sha | json_encode }},
   "graph_digest": {{ graph_digest | json_encode }},
   "goal": {{ goal | json_encode }},
   "provider": {{ provider | json_encode }},
   "verifier_suite": {{ verifier_suite | json_encode }},
+  "execution_policy": {{ execution_policy | json_encode }},
   "standing": {{ standing | json_encode }},
-  "dependencies": []
+  "dependencies": {{ dependencies | json_encode }},
+  "authority": "NONE"
 }
