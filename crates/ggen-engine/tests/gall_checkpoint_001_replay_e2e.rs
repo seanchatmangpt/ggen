@@ -48,15 +48,15 @@ fn fixture() -> Fixture {
         dir.path(),
         "root_pack",
         "1.0.0",
-        Some(("dependency_pack", "1.0.0")),
+        Some(("zz_dependency_pack", "1.0.0")),
     );
-    let dependency_pack = write_pack(dir.path(), "dependency_pack", "1.0.0", None);
+    let dependency_pack = write_pack(dir.path(), "zz_dependency_pack", "1.0.0", None);
     let project = dir.path().join("project");
     std::fs::create_dir_all(project.join("templates")).expect("project templates");
     std::fs::write(project.join("ontology.ttl"), "").expect("project ontology");
     std::fs::write(
         project.join("ggen.toml"),
-        "[project]\nname = \"gall-001\"\n\n[ontology]\nsource = \"ontology.ttl\"\n\n[templates]\ndir = \"templates\"\n\n[packs.root_pack]\npath = \"../packs/root_pack\"\n\n[packs.dependency_pack]\npath = \"../packs/dependency_pack\"\n",
+        "[project]\nname = \"gall-001\"\n\n[ontology]\nsource = \"ontology.ttl\"\n\n[templates]\ndir = \"templates\"\n\n[packs.root_pack]\npath = \"../packs/root_pack\"\n\n[packs.zz_dependency_pack]\npath = \"../packs/zz_dependency_pack\"\n",
     )
     .expect("ggen.toml");
     std::fs::write(
@@ -97,6 +97,9 @@ fn clean_replay_matches_exact_subject_and_consequence_set() {
     run_sync(&fx.project);
     let before = receipt(&fx.project);
     assert_eq!(before["replay"]["status"], "UNKNOWN");
+    let dependencies = before["dependencies"].as_array().expect("dependencies");
+    assert_eq!(dependencies.len(), 1, "fixture must exercise dependency closure");
+    assert_eq!(dependencies[0]["name"], "zz_dependency_pack");
 
     let report = verify_project_replay(&fx.project, SyncOptions::default()).expect("replay");
     assert_eq!(report.status, "PASS");
