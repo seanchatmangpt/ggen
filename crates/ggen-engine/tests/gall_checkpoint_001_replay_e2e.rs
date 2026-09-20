@@ -282,6 +282,40 @@ fn unrelated_top_level_pack_cannot_hide_behind_selected_subject() {
 
 
 #[test]
+fn multi_pack_subject_cannot_rebind_to_another_composition_member() {
+    let fx = fixture();
+    write_pack(fx._dir.path(), "zz_aux", "2.0.0", None);
+    let config_path = fx.project.join("ggen.toml");
+    let mut config = std::fs::read_to_string(&config_path).expect("read config");
+    config.push_str("\n[packs.zz_aux]\npath = \"../packs/zz_aux\"\n");
+    std::fs::write(&config_path, config).expect("append unrelated pack");
+
+    run_sync(&fx.project);
+    let mut source = receipt(&fx.project);
+    let aux = source["composition"]["resolved_packs"]
+        .as_array()
+        .expect("composition")
+        .iter()
+        .find(|member| member["name"] == "zz_aux")
+        .expect("aux composition member")
+        .clone();
+
+    source["subject"]["pack"] = aux["name"].clone();
+    source["subject"]["version"] = aux["version"].clone();
+    source["subject"]["pack_digest"] = aux["digest"].clone();
+    std::fs::write(
+        fx.project.join(PORTABLE_RECEIPT_REL_PATH),
+        serde_json::to_vec(&source).expect("serialize rebound source"),
+    )
+    .expect("write rebound source");
+
+    let err = verify_project_replay(&fx.project, SyncOptions::default())
+        .expect_err("replay must recompute rather than trust a different valid member");
+    assert!(err.to_string().contains("FM-CHAIN-017"), "{err}");
+    assert_eq!(receipt(&fx.project)["replay"]["status"], "UNKNOWN");
+}
+
+#[test]
 fn tampered_toolchain_identity_refuses_before_clean_reconstruction() {
     let fx = fixture();
     run_sync(&fx.project);
