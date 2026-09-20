@@ -91,6 +91,10 @@ fn receipt(project: &Path) -> serde_json::Value {
     .expect("receipt json")
 }
 
+fn remove_pack_lock_to_reach_replay_identity_court(project: &Path) {
+    std::fs::remove_file(project.join("ggen.lock")).expect("remove fixture pack lock");
+}
+
 #[test]
 fn clean_replay_matches_exact_subject_and_consequence_set() {
     let fx = fixture();
@@ -155,6 +159,7 @@ fn mutated_pack_refuses_old_replay_identity() {
         "@prefix ex: <http://example.com/gall001#> .\nex:mutated a ex:Pack .\n",
     )
     .expect("mutate pack");
+    remove_pack_lock_to_reach_replay_identity_court(&fx.project);
 
     let err = verify_project_replay(&fx.project, SyncOptions::default())
         .expect_err("old replay identity must refuse");
@@ -170,6 +175,7 @@ fn mutated_dependency_refuses_old_replay_identity() {
         "@prefix ex: <http://example.com/gall001#> .\nex:dependency_mutated a ex:Pack .\n",
     )
     .expect("mutate dependency");
+    remove_pack_lock_to_reach_replay_identity_court(&fx.project);
 
     let err = verify_project_replay(&fx.project, SyncOptions::default())
         .expect_err("old dependency identity must refuse");
@@ -273,6 +279,7 @@ fn unrelated_top_level_pack_cannot_hide_behind_selected_subject() {
         "@prefix ex: <http://example.com/gall001#> .\nex:mutated_aux a ex:Pack .\n",
     )
     .expect("mutate unrelated top-level pack");
+    remove_pack_lock_to_reach_replay_identity_court(&fx.project);
 
     let err = verify_project_replay(&fx.project, SyncOptions::default())
         .expect_err("unselected top-level pack identity must remain replay-bearing");
