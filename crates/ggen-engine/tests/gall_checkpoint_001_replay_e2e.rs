@@ -130,6 +130,17 @@ fn clean_replay_matches_exact_subject_and_consequence_set() {
                 .starts_with("sha256:")
         );
     }
+
+    if let Some(path) = std::env::var_os("GALL001_REPLAY_RECEIPT_OUT") {
+        let out = PathBuf::from(path);
+        std::fs::copy(fx.project.join(PORTABLE_RECEIPT_REL_PATH), &out)
+            .expect("persist exact emitted replay receipt");
+        std::fs::write(
+            out.with_extension("json.sha256"),
+            format!("{}\n", report.replay_receipt_sha256),
+        )
+        .expect("persist replay receipt digest");
+    }
 }
 
 #[test]
