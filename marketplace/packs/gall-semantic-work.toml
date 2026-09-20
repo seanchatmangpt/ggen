@@ -15,7 +15,7 @@ packages = ["tera", "serde_json"]
 name = "checkpoint-markdown"
 path = "marketplace/templates/gall-semantic-work/checkpoint.md.tera"
 description = "Human-readable ticket projection; canonical graph remains source"
-variables = ["checkpoint_iri", "repository", "base_sha", "graph_digest", "goal", "provider", "verifier_suite", "standing"]
+variables = ["work_order_iri", "checkpoint_iri", "repository_identity", "execution_repo_alias", "base_sha", "graph_digest", "goal", "provider", "verifier_suite", "execution_policy", "standing"]
 
 [[pack.templates]]
 name = "checkpoint-descriptor"
