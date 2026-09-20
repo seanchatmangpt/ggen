@@ -1,8 +1,8 @@
 [pack]
 id = "gall-semantic-work"
 name = "GALL Semantic Work"
-version = "26.9.18"
-description = "Deterministic human and machine projections of canonical GALL semantic checkpoints"
+version = "26.9.19"
+description = "Deterministic authority-free projections of canonical GALL semantic work orders"
 category = "infrastructure"
 author = "ggen"
 repository = "https://github.com/seanchatmangpt/ggen"
@@ -14,18 +14,18 @@ packages = ["tera", "serde_json"]
 [[pack.templates]]
 name = "checkpoint-markdown"
 path = "marketplace/templates/gall-semantic-work/checkpoint.md.tera"
-description = "Human-readable ticket projection; canonical graph remains source"
-variables = ["checkpoint_iri", "repository", "base_sha", "graph_digest", "goal", "provider", "verifier_suite", "standing"]
+description = "Human-readable work-order projection; canonical graph remains source"
+variables = ["work_order_iri", "checkpoint_iri", "repository_identity", "base_sha", "graph_digest", "goal", "provider", "verifier_suite", "execution_policy", "standing", "dependencies"]
 
 [[pack.templates]]
 name = "checkpoint-descriptor"
 path = "marketplace/templates/gall-semantic-work/descriptor.json.tera"
 description = "Authority-free execution descriptor for downstream admission"
-variables = ["checkpoint_iri", "repository", "base_sha", "graph_digest", "goal", "provider", "verifier_suite", "standing"]
+variables = ["work_order_iri", "checkpoint_iri", "repository_identity", "base_sha", "graph_digest", "goal", "provider", "verifier_suite", "execution_policy", "standing", "dependencies"]
 
 [pack.conformance]
 unknown_preservation = true
 
 [pack.metadata]
 tags = ["gall", "semantic-work", "rdf", "sa2a", "ultracode"]
-keywords = ["checkpoint", "projection", "receipt", "work-graph"]
+keywords = ["work-order", "checkpoint", "projection", "receipt", "work-graph"]
