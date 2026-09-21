@@ -18,8 +18,7 @@
 use std::path::{Path, PathBuf};
 
 use ggen_engine::portable_receipt::{
-    PORTABLE_RECEIPT_REL_PATH, PORTABLE_RECEIPT_SCHEMA, PORTABLE_RECEIPT_SPEC,
-    WORK_ORDER_REL_PATH,
+    PORTABLE_RECEIPT_REL_PATH, PORTABLE_RECEIPT_SCHEMA, PORTABLE_RECEIPT_SPEC, WORK_ORDER_REL_PATH,
 };
 use ggen_engine::sync::{sync, SyncOptions, SyncReceipt, RECEIPT_REL_PATH};
 use sha2::Digest;
@@ -423,7 +422,6 @@ fn dry_run_writes_no_portable_envelope_even_on_refusal() {
     assert!(!fx.project.join(RECEIPT_REL_PATH).exists());
 }
 
-
 /// Ordinary manufacture never promotes replay standing. Even a second clean
 /// manufacture of the same semantic subject remains UNKNOWN until the explicit
 /// replay court executes.
@@ -524,7 +522,6 @@ fn semantic_work_order_graph_is_identity_bearing() {
     assert_ne!(digest, "UNKNOWN");
     assert_eq!(digest.len(), 64);
 }
-
 
 /// Multi-pack falsifier: the compatibility `subject` may still name the first
 /// pack, but replay identity must bind every resolved top-level pack. Adding a

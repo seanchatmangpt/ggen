@@ -102,7 +102,11 @@ fn clean_replay_matches_exact_subject_and_consequence_set() {
     let before = receipt(&fx.project);
     assert_eq!(before["replay"]["status"], "UNKNOWN");
     let dependencies = before["dependencies"].as_array().expect("dependencies");
-    assert_eq!(dependencies.len(), 1, "fixture must exercise dependency closure");
+    assert_eq!(
+        dependencies.len(),
+        1,
+        "fixture must exercise dependency closure"
+    );
     assert_eq!(dependencies[0]["name"], "zz_dependency_pack");
 
     let report = verify_project_replay(&fx.project, SyncOptions::default()).expect("replay");
@@ -130,12 +134,10 @@ fn clean_replay_matches_exact_subject_and_consequence_set() {
         "environment",
     ] {
         assert_eq!(after["replay"]["identity"][field]["equal"], true);
-        assert!(
-            after["replay"]["identity"][field]["sha256"]
-                .as_str()
-                .expect("identity digest")
-                .starts_with("sha256:")
-        );
+        assert!(after["replay"]["identity"][field]["sha256"]
+            .as_str()
+            .expect("identity digest")
+            .starts_with("sha256:"));
     }
 
     if let Some(path) = std::env::var_os("GALL001_REPLAY_RECEIPT_OUT") {
@@ -214,7 +216,6 @@ fn dry_run_cannot_manufacture_replay_pass() {
     assert!(err.to_string().contains("FM-CHAIN-016"), "{err}");
 }
 
-
 #[test]
 fn mutated_project_graph_refuses_old_replay_identity() {
     let fx = fixture();
@@ -287,7 +288,6 @@ fn unrelated_top_level_pack_cannot_hide_behind_selected_subject() {
     assert_eq!(receipt(&fx.project)["replay"]["status"], "UNKNOWN");
 }
 
-
 #[test]
 fn multi_pack_subject_cannot_rebind_to_another_composition_member() {
     let fx = fixture();
@@ -327,8 +327,7 @@ fn tampered_toolchain_identity_refuses_before_clean_reconstruction() {
     let fx = fixture();
     run_sync(&fx.project);
     let mut source = receipt(&fx.project);
-    source["toolchain"]["rustc"] =
-        serde_json::Value::String("stale-rustc-identity".to_string());
+    source["toolchain"]["rustc"] = serde_json::Value::String("stale-rustc-identity".to_string());
     std::fs::write(
         fx.project.join(PORTABLE_RECEIPT_REL_PATH),
         serde_json::to_vec(&source).expect("serialize tampered source"),

@@ -115,10 +115,8 @@ geocel:event-generate-ocel a geocel:ManufacturingEvent ;
 
 #[test]
 fn cell4_manufactures_digest_bound_ocel_and_project2_request() {
-    let (_guard, project) = scaffold_pack_with_ontology(
-        &packs_dir().join("ggen-ecosystem-ocel-pack"),
-        CONSUMER,
-    );
+    let (_guard, project) =
+        scaffold_pack_with_ontology(&packs_dir().join("ggen-ecosystem-ocel-pack"), CONSUMER);
 
     ggen_engine::sync::sync(
         &project,
@@ -151,17 +149,33 @@ fn cell4_manufactures_digest_bound_ocel_and_project2_request() {
     .expect("second real sync with digest-bound RDF");
 
     let second_ocel = read(&project, "generated/ggen-ecosystem-ocel.json");
-    assert_eq!(second_ocel, first_ocel, "digest binding must not mutate OCEL projection");
-    assert_eq!(sha256(&ocel_path), digest, "OCEL digest must be replay-stable");
+    assert_eq!(
+        second_ocel, first_ocel,
+        "digest binding must not mutate OCEL projection"
+    );
+    assert_eq!(
+        sha256(&ocel_path),
+        digest,
+        "OCEL digest must be replay-stable"
+    );
 
     let request = read_json(
         &project,
         "generated/project2-ggen-ecosystem-ocel-request.json",
     );
     assert_eq!(request["operation"], "memory.upsert");
-    assert_eq!(request["payload"]["record"]["key"], "ggen/ecosystem/ocel/current");
-    assert_eq!(request["payload"]["record"]["metadata"]["ocel_digest"], digest);
-    assert_eq!(request["payload"]["record"]["metadata"]["process_analysis_owner"], "wasm4pm");
+    assert_eq!(
+        request["payload"]["record"]["key"],
+        "ggen/ecosystem/ocel/current"
+    );
+    assert_eq!(
+        request["payload"]["record"]["metadata"]["ocel_digest"],
+        digest
+    );
+    assert_eq!(
+        request["payload"]["record"]["metadata"]["process_analysis_owner"],
+        "wasm4pm"
+    );
 
     let ocel = read_json(&project, "generated/ggen-ecosystem-ocel.json");
     assert_eq!(ocel["objects"].as_array().expect("objects").len(), 5);

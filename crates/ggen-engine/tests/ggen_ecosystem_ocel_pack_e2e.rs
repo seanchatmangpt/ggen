@@ -5,7 +5,9 @@
 
 mod support;
 use std::path::{Path, PathBuf};
-use support::{assert_gate_refuses, assert_idempotent, read, read_json, scaffold_pack_with_ontology};
+use support::{
+    assert_gate_refuses, assert_idempotent, read, read_json, scaffold_pack_with_ontology,
+};
 
 fn packs_dir() -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR")).join("../../packs")
@@ -54,10 +56,8 @@ geocel:event-generate a geocel:ManufacturingEvent ;
 
 #[test]
 fn ggen_ecosystem_ocel_pack_generates_real_ocel_and_project2_request() {
-    let (_dir, project) = scaffold_pack_with_ontology(
-        &packs_dir().join("ggen-ecosystem-ocel-pack"),
-        CONSUMER,
-    );
+    let (_dir, project) =
+        scaffold_pack_with_ontology(&packs_dir().join("ggen-ecosystem-ocel-pack"), CONSUMER);
 
     ggen_engine::sync::sync(
         &project,
@@ -99,10 +99,8 @@ fn ggen_ecosystem_ocel_pack_generates_real_ocel_and_project2_request() {
 
 #[test]
 fn ggen_ecosystem_ocel_pack_regenerates_owned_project2_request_when_digest_changes() {
-    let (_dir, project) = scaffold_pack_with_ontology(
-        &packs_dir().join("ggen-ecosystem-ocel-pack"),
-        CONSUMER,
-    );
+    let (_dir, project) =
+        scaffold_pack_with_ontology(&packs_dir().join("ggen-ecosystem-ocel-pack"), CONSUMER);
 
     ggen_engine::sync::sync(
         &project,
@@ -142,10 +140,8 @@ fn ggen_ecosystem_ocel_pack_regenerates_owned_project2_request_when_digest_chang
 
 #[test]
 fn ggen_ecosystem_ocel_pack_refuses_parallel_project2_truth() {
-    let (_dir, project) = scaffold_pack_with_ontology(
-        &packs_dir().join("ggen-ecosystem-ocel-pack"),
-        CONSUMER,
-    );
+    let (_dir, project) =
+        scaffold_pack_with_ontology(&packs_dir().join("ggen-ecosystem-ocel-pack"), CONSUMER);
     ggen_engine::sync::sync(
         &project,
         ggen_engine::sync::SyncOptions {

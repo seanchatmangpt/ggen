@@ -68,7 +68,10 @@ fn validate_subject_selection(receipt: &Value) -> Result<()> {
         .get("subject")
         .and_then(Value::as_object)
         .ok_or_else(|| AppError::fm_chain(17, "GALL-001 receipt has no subject object."))?;
-    let pack = subject.get("pack").and_then(Value::as_str).unwrap_or("UNKNOWN");
+    let pack = subject
+        .get("pack")
+        .and_then(Value::as_str)
+        .unwrap_or("UNKNOWN");
     let version = subject
         .get("version")
         .and_then(Value::as_str)

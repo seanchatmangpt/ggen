@@ -276,8 +276,10 @@ pub enum ScopeDepth {
 pub fn dependency_scope<'a>(
     packs: &'a [Pack], subject: &str, depth: ScopeDepth,
 ) -> Result<Vec<&'a Pack>> {
-    let by_name: BTreeMap<&str, &Pack> =
-        packs.iter().map(|pack| (pack.name.as_str(), pack)).collect();
+    let by_name: BTreeMap<&str, &Pack> = packs
+        .iter()
+        .map(|pack| (pack.name.as_str(), pack))
+        .collect();
     let Some(subject_pack) = by_name.get(subject).copied() else {
         return Err(AppError::fm_pack(
             17,
@@ -341,8 +343,10 @@ pub fn dependency_scope<'a>(
 /// - FM-PACK-015 when a dependency requirement is malformed or not satisfied
 /// - FM-PACK-016 when the declared dependency graph contains a cycle
 fn validate_dependency_graph(packs: &[Pack]) -> Result<()> {
-    let by_name: BTreeMap<&str, &Pack> =
-        packs.iter().map(|pack| (pack.name.as_str(), pack)).collect();
+    let by_name: BTreeMap<&str, &Pack> = packs
+        .iter()
+        .map(|pack| (pack.name.as_str(), pack))
+        .collect();
     let mut graph = DependencyGraph::new();
 
     for pack in packs {
@@ -467,9 +471,9 @@ fn dependency_requirement_matches(
     requirement: &str, resolved_version: &str,
 ) -> std::result::Result<bool, String> {
     let requirement = requirement.trim();
-    let uses_semver_requirement = requirement.chars().any(|c| {
-        matches!(c, '^' | '~' | '>' | '<' | '=' | '*' | ',') || c.is_whitespace()
-    });
+    let uses_semver_requirement = requirement
+        .chars()
+        .any(|c| matches!(c, '^' | '~' | '>' | '<' | '=' | '*' | ',') || c.is_whitespace());
     if !uses_semver_requirement {
         return Ok(requirement == resolved_version);
     }

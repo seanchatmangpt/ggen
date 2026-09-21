@@ -167,6 +167,11 @@ fn bench_dfcm_dependency_scope(c: &mut Criterion) {
 // Criterion entry points
 // ---------------------------------------------------------------------------
 
-criterion_group!(benches, bench_throughput, bench_latency, bench_scaling, bench_dfcm_dependency_scope);
+criterion_group!(
+    benches,
+    bench_throughput,
+    bench_latency,
+    bench_scaling,
+    bench_dfcm_dependency_scope
+);
 criterion_main!(benches);
-

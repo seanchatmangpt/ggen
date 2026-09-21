@@ -77,9 +77,7 @@ fn write_project(root: &Path, pack_names: &[&str]) -> PathBuf {
          [templates]\ndir = \"templates\"\n",
     );
     for name in pack_names {
-        manifest.push_str(&format!(
-            "\n[packs.{name}]\npath = \"../packs/{name}\"\n"
-        ));
+        manifest.push_str(&format!("\n[packs.{name}]\npath = \"../packs/{name}\"\n"));
     }
     std::fs::write(project.join("ggen.toml"), manifest).expect("ggen.toml");
     project
@@ -87,12 +85,7 @@ fn write_project(root: &Path, pack_names: &[&str]) -> PathBuf {
 
 fn standard_fixture() -> Fixture {
     let dir = TempDir::new().expect("tempdir");
-    write_pack(
-        dir.path(),
-        "a-root",
-        "1.0.0",
-        &[("b-direct", "^1.0.0")],
-    );
+    write_pack(dir.path(), "a-root", "1.0.0", &[("b-direct", "^1.0.0")]);
     write_pack(
         dir.path(),
         "b-direct",
@@ -131,17 +124,11 @@ fn dependency_scopes_preserve_local_direct_two_level_and_global_boundaries() {
         vec!["a-root", "b-direct"]
     );
     assert_eq!(
-        names(
-            dependency_scope(&packs, "a-root", ScopeDepth::TwoLevel)
-                .expect("two level")
-        ),
+        names(dependency_scope(&packs, "a-root", ScopeDepth::TwoLevel).expect("two level")),
         vec!["a-root", "b-direct", "c-transitive"]
     );
     assert_eq!(
-        names(
-            dependency_scope(&packs, "a-root", ScopeDepth::Transitive)
-                .expect("transitive")
-        ),
+        names(dependency_scope(&packs, "a-root", ScopeDepth::Transitive).expect("transitive")),
         vec!["a-root", "b-direct", "c-transitive"]
     );
     assert_eq!(
@@ -157,12 +144,7 @@ fn dependency_scopes_preserve_local_direct_two_level_and_global_boundaries() {
 #[test]
 fn missing_declared_dependency_refuses_without_auto_installing() {
     let dir = TempDir::new().expect("tempdir");
-    write_pack(
-        dir.path(),
-        "a-root",
-        "1.0.0",
-        &[("b-missing", "1.0.0")],
-    );
+    write_pack(dir.path(), "a-root", "1.0.0", &[("b-missing", "1.0.0")]);
     let project = write_project(dir.path(), &["a-root"]);
     let config = GgenConfig::load(&project.join("ggen.toml")).expect("config");
 
@@ -174,12 +156,7 @@ fn missing_declared_dependency_refuses_without_auto_installing() {
 #[test]
 fn incompatible_dependency_version_refuses() {
     let dir = TempDir::new().expect("tempdir");
-    write_pack(
-        dir.path(),
-        "a-root",
-        "1.0.0",
-        &[("b-direct", "2.0.0")],
-    );
+    write_pack(dir.path(), "a-root", "1.0.0", &[("b-direct", "2.0.0")]);
     write_pack(dir.path(), "b-direct", "1.0.0", &[]);
     let project = write_project(dir.path(), &["a-root", "b-direct"]);
     let config = GgenConfig::load(&project.join("ggen.toml")).expect("config");
@@ -193,18 +170,8 @@ fn incompatible_dependency_version_refuses() {
 #[test]
 fn cyclic_dependency_graph_refuses() {
     let dir = TempDir::new().expect("tempdir");
-    write_pack(
-        dir.path(),
-        "a-root",
-        "1.0.0",
-        &[("b-direct", "1.0.0")],
-    );
-    write_pack(
-        dir.path(),
-        "b-direct",
-        "1.0.0",
-        &[("a-root", "1.0.0")],
-    );
+    write_pack(dir.path(), "a-root", "1.0.0", &[("b-direct", "1.0.0")]);
+    write_pack(dir.path(), "b-direct", "1.0.0", &[("a-root", "1.0.0")]);
     let project = write_project(dir.path(), &["a-root", "b-direct"]);
     let config = GgenConfig::load(&project.join("ggen.toml")).expect("config");
 

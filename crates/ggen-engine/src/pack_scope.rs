@@ -218,7 +218,9 @@ impl<'a> DependencyScopeResolver<'a> {
     /// # Errors
     /// Propagates typed pack topology errors and FM-PACK-019 for an empty
     /// requirement.
-    pub fn resolve(&self, subject: &str, requirement: &ScopeRequirement) -> Result<ScopeResolution> {
+    pub fn resolve(
+        &self, subject: &str, requirement: &ScopeRequirement,
+    ) -> Result<ScopeResolution> {
         requirement.validate()?;
         let fingerprint = self.fingerprint()?;
         let key = ScopeCacheKey {
@@ -376,9 +378,7 @@ pub fn topology_turtle(packs: &[Pack]) -> String {
         }
         for semantic_type in &pack.semantic_types {
             let type_iri = resource_iri("semantic-type", semantic_type);
-            triples.insert(format!(
-                "<{type_iri}> a <https://schema.org/DefinedTerm> ."
-            ));
+            triples.insert(format!("<{type_iri}> a <https://schema.org/DefinedTerm> ."));
             triples.insert(format!(
                 "<{type_iri}> <https://schema.org/name> {} .",
                 ttl_literal(semantic_type)
@@ -389,7 +389,9 @@ pub fn topology_turtle(packs: &[Pack]) -> String {
         }
         for capability in &pack.provides {
             let capability_iri = resource_iri("capability", capability);
-            triples.insert(format!("<{capability_iri}> a <https://schema.org/Action> ."));
+            triples.insert(format!(
+                "<{capability_iri}> a <https://schema.org/Action> ."
+            ));
             triples.insert(format!(
                 "<{capability_iri}> <https://schema.org/name> {} .",
                 ttl_literal(capability)
@@ -400,7 +402,9 @@ pub fn topology_turtle(packs: &[Pack]) -> String {
         }
         for capability in &pack.requires {
             let capability_iri = resource_iri("capability", capability);
-            triples.insert(format!("<{capability_iri}> a <https://schema.org/Action> ."));
+            triples.insert(format!(
+                "<{capability_iri}> a <https://schema.org/Action> ."
+            ));
             triples.insert(format!(
                 "<{capability_iri}> <https://schema.org/name> {} .",
                 ttl_literal(capability)

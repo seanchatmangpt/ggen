@@ -19,7 +19,7 @@
 //! no resolved pack reports UNKNOWN subject identity instead of inventing one.
 //! Declared pack dependencies are resolved fail-closed and the portable
 //! envelope binds the subject's exact transitive dependency closure by name,
- //! version, digest, and the currently indivisible SEMANTICS/LAW/PROJECTION
+//! version, digest, and the currently indivisible SEMANTICS/LAW/PROJECTION
 //! pack surface.
 
 use std::{path::Path, process::Command};
@@ -337,9 +337,17 @@ pub(crate) fn observe_toolchain_identity() -> Result<PortableToolchain> {
 
 fn secret_like_env_key(key: &str) -> bool {
     let upper = key.to_ascii_uppercase();
-    ["TOKEN", "SECRET", "PASSWORD", "PASSWD", "CREDENTIAL", "API_KEY", "PRIVATE_KEY"]
-        .iter()
-        .any(|needle| upper.contains(needle))
+    [
+        "TOKEN",
+        "SECRET",
+        "PASSWORD",
+        "PASSWD",
+        "CREDENTIAL",
+        "API_KEY",
+        "PRIVATE_KEY",
+    ]
+    .iter()
+    .any(|needle| upper.contains(needle))
 }
 
 fn identity_bearing_env_key(key: &str) -> bool {
@@ -364,8 +372,7 @@ pub(crate) fn observe_environment_identity() -> Result<PortableEnvironment> {
         .filter_map(|(key, value)| {
             let key = key.into_string().ok()?;
             let value = value.into_string().ok()?;
-            (identity_bearing_env_key(&key) && !secret_like_env_key(&key))
-                .then_some((key, value))
+            (identity_bearing_env_key(&key) && !secret_like_env_key(&key)).then_some((key, value))
         })
         .collect::<std::collections::BTreeMap<_, _>>();
     let bytes = serde_json::to_vec(&variables)?;
