@@ -91,6 +91,11 @@ jobs:
           run_court "portable-receipt" "cargo test -p ggen-engine --test portable_receipt_e2e"
           run_court "dependency-scope" "cargo test -p ggen-engine --test pack_dependency_scope_e2e"
           run_court "clean-replay" "cargo test -p ggen-engine --test gall_checkpoint_001_replay_e2e -- --nocapture"
+          # Existing repository-native Chicago precedent: engine CLI-boundary tests
+          # execute the real sibling-owned ggen binary, so build it before the
+          # package-wide suite. This preserves the process boundary; no mock/path
+          # substitution is admitted.
+          run_court "real-ggen-cli-build" "cargo build -p ggen-cli-lib --bin ggen"
           run_court "ggen-engine-suite" "cargo test -p ggen-engine"
 
       - name: Observe repository pre-commit gate
