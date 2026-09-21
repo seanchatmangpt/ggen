@@ -11,6 +11,8 @@ on:
       - "Cargo.lock"
       - "rust-toolchain.toml"
       - ".github/workflows/gall-001-replay.yml"
+      - "docs/jira/GALL-CHECKPOINT-semantic-pack-receipt-001*.md"
+      - "docs/jira/v26.9.18/GALL-001-*.md"
   workflow_dispatch:
 
 concurrency:
