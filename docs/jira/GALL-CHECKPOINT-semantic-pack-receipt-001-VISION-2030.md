@@ -106,8 +106,8 @@ Local ightarrow Direct ightarrow TwoHop ightarrow Transitive ightarrow Globa
 But candidate visibility never becomes authority.
 
 [
-Candidate 
-eq Admitted 
+Candidate
+eq Admitted
 eq Authorized
 ]
 

@@ -1,10 +1,10 @@
 # ARD v26.9.18 — GALL-001: Semantic Pack Receipt Replay
 
-**Status:** DRAFT ARCHITECTURE SPEC  
-**Release:** v26.9.18  
-**Repository:** `seanchatmangpt/ggen`  
-**Owner:** ggen / ggen-engine  
-**Dependencies:** None  
+**Status:** DRAFT ARCHITECTURE SPEC
+**Release:** v26.9.18
+**Repository:** `seanchatmangpt/ggen`
+**Owner:** ggen / ggen-engine
+**Dependencies:** None
 **Authority ceiling:** CONSTRUCT only
 
 ## Architectural objective
