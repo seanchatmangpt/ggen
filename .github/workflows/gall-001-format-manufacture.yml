@@ -6,7 +6,7 @@ on:
       - ".github/workflows/gall-001-format-manufacture.yml"
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   format:
@@ -17,36 +17,37 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           ref: ${{ github.event.pull_request.head.sha }}
-          persist-credentials: false
+          persist-credentials: true
+          fetch-depth: 1
 
       - name: Set up pinned Rust toolchain
         uses: ./.github/actions/setup-ggen-build
         with:
           cache-key-suffix: gall-001-format-${{ github.event.pull_request.head.sha }}
 
-      - name: Manufacture rustfmt projection
+      - name: Manufacture and commit rustfmt projection
         shell: bash
+        env:
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha }}
+          HEAD_BRANCH: ${{ github.event.pull_request.head.ref }}
         run: |
           set -euo pipefail
-          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha }}"
-          cargo fmt --all
-          out="${{ runner.temp }}/formatted"
-          mkdir -p "$out"
-          git diff --name-only -- '*.rs' | sort > "${{ runner.temp }}/formatted-paths.txt"
-          test -s "${{ runner.temp }}/formatted-paths.txt"
-          while IFS= read -r path; do
-            mkdir -p "$out/$(dirname "$path")"
-            cp "$path" "$out/$path"
-          done < "${{ runner.temp }}/formatted-paths.txt"
-          git diff --binary -- '*.rs' > "${{ runner.temp }}/cargo-fmt.patch"
+          test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"
 
-      - name: Upload rustfmt projection
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
-        with:
-          name: gall-001-rustfmt-${{ github.event.pull_request.head.sha }}
-          path: |
-            ${{ runner.temp }}/formatted
-            ${{ runner.temp }}/formatted-paths.txt
-            ${{ runner.temp }}/cargo-fmt.patch
-          if-no-files-found: error
-          retention-days: 2
+          remote_head="$(git ls-remote origin "refs/heads/$HEAD_BRANCH" | cut -f1)"
+          test "$remote_head" = "$EXPECTED_HEAD"
+
+          cargo fmt --all
+          git diff --check
+
+          if git diff --quiet -- '*.rs'; then
+            echo "No rustfmt drift remains."
+            exit 0
+          fi
+
+          git config user.name "ggen GALL court"
+          git config user.email "136349053+seanchatmangpt@users.noreply.github.com"
+          git add -- '*.rs'
+          git rm .github/workflows/gall-001-format-manufacture.yml
+          git commit -m "style(gall-001): apply pinned rustfmt projection"
+          git push origin "HEAD:$HEAD_BRANCH"
