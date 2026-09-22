@@ -79,10 +79,16 @@ fmt:
 # correctness, or (b) unilaterally reformatting 276 files without review. Real
 # fix (not done here): either reformat once under careful review, or add a
 # crate-local rustfmt.toml matching praxis's own style for these three.
-# Member list from `cargo metadata --no-deps` (12 total, matches Cargo.toml).
+# Member list from `cargo metadata --no-deps` (14 total, matches Cargo.toml).
+# 2026-09-22: dropped `cpmp`, `genesis-core-v2` and `genesis-types` — those
+# crates no longer exist in the workspace (consolidation into `bcinr-*` /
+# removal), and `cargo fmt -p <gone>` fails the whole recipe, red-lining the
+# quality_deep lane. Crates never previously gated here (ggen-engine,
+# praxis-core, praxis-graphlaw, and the later additions bcinr-*, powl2,
+# ggen-mcp, ggen-cheat-scanner) remain excluded, unchanged exclusion policy.
 fmt-check:
     cargo fmt --check \
-        -p cpmp -p genesis-core-v2 -p genesis-types -p ggen -p ggen-cli-lib \
+        -p ggen -p ggen-cli-lib \
         -p ggen-config -p ggen-graph -p ggen-lsp -p ggen-marketplace
 
 # ── Linting ───────────────────────────────────────────────────────────────────

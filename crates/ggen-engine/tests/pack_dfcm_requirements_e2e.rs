@@ -15,6 +15,7 @@ use std::{
 
 use ggen_engine::{
     config::GgenConfig,
+    graph::EngineQueryResults,
     pack::{resolve, Pack, ScopeDepth},
     pack_scope::{
         admission_success_rate, artifact_success_rate, benchmark_dfcm_scopes,
@@ -24,7 +25,6 @@ use ggen_engine::{
     },
     project_graph::load_for_query,
 };
-use oxigraph::sparql::QueryResults;
 use tempfile::TempDir;
 
 struct Fixture {
@@ -334,10 +334,10 @@ fn topology_is_public_predicate_rdf_and_is_visible_through_project_graph() {
              } ORDER BY ?pack ?cap",
         )
         .expect("query topology");
-    let QueryResults::Solutions(solutions) = results else {
+    let EngineQueryResults::Solutions(solutions) = results else {
         panic!("SELECT must return solutions");
     };
-    let count = solutions.count();
+    let count = solutions.len();
     assert_eq!(count, 4, "one provided capability per fixture pack");
 }
 
