@@ -96,10 +96,18 @@ jobs:
           # package-wide suite. This preserves the process boundary; no mock/path
           # substitution is admitted.
           run_court "real-ggen-cli-build" "cargo build -p ggen-cli-lib --bin ggen"
-          # The repository-wide G0 inventory test depends on an observation fixture
-          # that is absent from both this branch and main. It is not a GALL-001
-          # replay input, so record the exclusion rather than inventing evidence.
-          run_court "ggen-engine-suite-bounded" "cargo test -p ggen-engine -- --skip exact_repository_inventory_manufactures_partial_alive_evidence"
+          # GALL-001 admission ends at the exact replay subject. Repository-wide
+          # engine health is observed separately below so an unrelated baseline
+          # regression cannot manufacture a false replay refusal or false ALIVE.
+
+      - name: Observe bounded ggen-engine suite
+        id: engine_baseline
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -o pipefail
+          cargo test -p ggen-engine -- --skip exact_repository_inventory_manufactures_partial_alive_evidence \
+            2>&1 | tee "${{ runner.temp }}/gall-001-engine-baseline.log"
 
       - name: Observe repository pre-commit gate
         id: precommit
@@ -116,11 +124,12 @@ jobs:
           GALL001_COMMAND_RECEIPT_OUT: ${{ runner.temp }}/gall-001-command-receipt.json
           GALL001_CHECKPOINT_OUT: ${{ runner.temp }}/gall-001-checkpoint.json
           PRECOMMIT_OUTCOME: ${{ steps.precommit.outcome }}
+          ENGINE_BASELINE_OUTCOME: ${{ steps.engine_baseline.outcome }}
           CANDIDATE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
           BASE_SHA: ${{ github.event.pull_request.base.sha || 'UNKNOWN' }}
         run: |
           set -euo pipefail
-          python3 - "$GALL001_REPLAY_RECEIPT_OUT" "$GALL001_COMMAND_RECEIPT_OUT" "$GALL001_CHECKPOINT_OUT" "$PRECOMMIT_OUTCOME" "$CANDIDATE_SHA" "$BASE_SHA" <<'PY'
+          python3 - "$GALL001_REPLAY_RECEIPT_OUT" "$GALL001_COMMAND_RECEIPT_OUT" "$GALL001_CHECKPOINT_OUT" "$PRECOMMIT_OUTCOME" "$ENGINE_BASELINE_OUTCOME" "$CANDIDATE_SHA" "$BASE_SHA" <<'PY'
           import hashlib
           import json
           import pathlib
@@ -131,8 +140,9 @@ jobs:
           commands_path = pathlib.Path(sys.argv[2])
           checkpoint_path = pathlib.Path(sys.argv[3])
           precommit_outcome = sys.argv[4]
-          candidate_sha = sys.argv[5]
-          base_sha = sys.argv[6]
+          engine_baseline_outcome = sys.argv[5]
+          candidate_sha = sys.argv[6]
+          base_sha = sys.argv[7]
 
           assert subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip() == candidate_sha
 
@@ -185,6 +195,16 @@ jobs:
                       else "PASS"
                   ),
               },
+              "repository_engine_suite": {
+                  "command": "cargo test -p ggen-engine -- --skip exact_repository_inventory_manufactures_partial_alive_evidence",
+                  "outcome": engine_baseline_outcome,
+                  "classification": (
+                      "REPOSITORY_BASELINE_GATE"
+                      if engine_baseline_outcome != "success"
+                      else "PASS"
+                  ),
+                  "gall_001_admission_input": False,
+              },
               "replay": {
                   "court": replay["replay"]["court"],
                   "status": replay["replay"]["status"],
@@ -212,6 +232,7 @@ jobs:
               "replay_receipt_sha256": actual,
               "checkpoint_receipt_sha256": checkpoint_digest,
               "repository_pre_commit": precommit_outcome,
+              "repository_engine_suite": engine_baseline_outcome,
           }, sort_keys=True))
           PY
 
@@ -226,5 +247,6 @@ jobs:
             ${{ runner.temp }}/gall-001-checkpoint.json
             ${{ runner.temp }}/gall-001-checkpoint.json.sha256
             ${{ runner.temp }}/gall-001-pre-commit.log
+            ${{ runner.temp }}/gall-001-engine-baseline.log
           if-no-files-found: error
           retention-days: 14
