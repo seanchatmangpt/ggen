@@ -15,7 +15,8 @@ use support::{assert_idempotent, read, read_json, scaffold_pack_with_ontology};
 // "__OCEL_SHA256__" sentinel predates that gate and can no longer survive
 // the first sync; the zero digest carries the same binding-flow semantics
 // in the gate's canonical form.
-const DIGEST_PLACEHOLDER: &str = "sha256:0000000000000000000000000000000000000000000000000000000000000000";
+const DIGEST_PLACEHOLDER: &str =
+    "sha256:0000000000000000000000000000000000000000000000000000000000000000";
 
 fn packs_dir() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../packs")
