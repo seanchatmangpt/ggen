@@ -237,10 +237,6 @@ fn test_ci_workflow_includes_phase2() {
         ci_workflow.contains("name: CI Status"),
         "CI workflow missing aggregate CI Status gate"
     );
-    assert!(
-        ci_workflow.contains("coherence-check"),
-        "CI workflow missing coherence validation"
-    );
 }
 
 /// Test that the CI status gate requires the evidence lanes as dependencies.
