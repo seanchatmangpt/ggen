@@ -1,0 +1,75 @@
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix gsw:  <https://ggen.dev/ontology/gall-semantic-work#> .
+
+# Gall semantic work vocabulary (GGEN-26922-04).
+#
+# This pack projects exactly one artifact class: the authority-free
+# execution descriptor consumed by XaaS `Xaas.Ultracode.SemanticWork`
+# (lib/xaas/ultracode/semantic_work.ex `@required`) and the zcode-cli
+# gall-work hop. The canonical facts live in the consumer's graph; the
+# templates in this pack are deterministic projections of that graph.
+
+gsw:WorkOrderExecutionDescriptor a rdfs:Class ;
+    rdfs:comment "Authority-free execution descriptor for one admitted semantic work order. Carries exact identity (work order IRI, checkpoint IRI, graph digest, repository identity, base SHA), the goal, the verification surface (provider, verifier suite, execution policy), current standing, the typed dependency witness list, and authority NONE. Downstream admission reads it; nothing in it grants write authority." .
+
+gsw:checkpointIri a rdf:Property ;
+    rdfs:domain gsw:WorkOrderExecutionDescriptor ;
+    rdfs:range xsd:string ;
+    rdfs:comment "IRI of the canonical checkpoint this descriptor projects." .
+
+gsw:graphDigest a rdf:Property ;
+    rdfs:domain gsw:WorkOrderExecutionDescriptor ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Content digest of the canonical work-order graph at projection time (e.g. sha256:<64 lowercase hex>)." .
+
+gsw:repositoryIdentity a rdf:Property ;
+    rdfs:domain gsw:WorkOrderExecutionDescriptor ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Canonical repository identity of the subject (e.g. owner/repo or an exact remote URL)." .
+
+gsw:executionRepoAlias a rdf:Property ;
+    rdfs:domain gsw:WorkOrderExecutionDescriptor ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Consumer-side alias naming the execution repository (from the dfcm-semantic-work-execution-contract line, PR #723)." .
+
+gsw:baseSha a rdf:Property ;
+    rdfs:domain gsw:WorkOrderExecutionDescriptor ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Exact base commit SHA the work order is admitted against." .
+
+gsw:goal a rdf:Property ;
+    rdfs:domain gsw:WorkOrderExecutionDescriptor ;
+    rdfs:range xsd:string ;
+    rdfs:comment "One-paragraph goal of the work order." .
+
+gsw:provider a rdf:Property ;
+    rdfs:domain gsw:WorkOrderExecutionDescriptor ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Execution provider that will run the work order." .
+
+gsw:verifierSuite a rdf:Property ;
+    rdfs:domain gsw:WorkOrderExecutionDescriptor ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Name of the verifier suite that will independently judge the closed head." .
+
+gsw:executionPolicy a rdf:Property ;
+    rdfs:domain gsw:WorkOrderExecutionDescriptor ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Execution policy identifier (e.g. attended / bounded-unattended)." .
+
+gsw:standing a rdf:Property ;
+    rdfs:domain gsw:WorkOrderExecutionDescriptor ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Standing vocabulary value for the work order (ALIVE | PARTIAL_ALIVE | BLOCKED | UNKNOWN | ...)." .
+
+gsw:dependenciesJson a rdf:Property ;
+    rdfs:domain gsw:WorkOrderExecutionDescriptor ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Typed dependency witnesses as a canonical JSON array literal. Each element carries exactly: work_order_iri, required_standing, observed_standing, receipt_iri, receipt_digest (the XaaS SemanticWork.dependency contract)." .
+
+gsw:authority a rdf:Property ;
+    rdfs:domain gsw:WorkOrderExecutionDescriptor ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Always the literal NONE: a descriptor is never an authority grant." .

@@ -1,0 +1,44 @@
+# Marketplace registry entry for the unified gall-semantic-work descriptor
+# (GGEN-26922-04). Canonical templates live in
+# packs/gall-semantic-work-pack/templates/ (rendered by `ggen sync` from the
+# canonical graph); the copies under marketplace/templates/gall-semantic-work/
+# are this entry's installable projection of the same content. The
+# `variables` lists below are the declared template-variable contract: they
+# equal, exactly, the row-context keys the descriptor's frontmatter SPARQL
+# query binds, and every key XaaS `Xaas.Ultracode.SemanticWork` `@required`
+# needs.
+#
+# Supersedes the divergent #722 / feat/v26.9.18-semantic-work-fabric and
+# #723 / fabric/dfcm-semantic-work-execution-contract lines.
+
+[pack]
+id = "gall-semantic-work"
+name = "GALL Semantic Work"
+version = "26.9.22"
+description = "Deterministic authority-free execution descriptor for GALL semantic work orders (XaaS SemanticWork @required contract)"
+category = "infrastructure"
+author = "ggen"
+repository = "https://github.com/seanchatmangpt/ggen"
+license = "MIT"
+production_ready = false
+
+packages = ["tera", "serde_json"]
+
+[[pack.templates]]
+name = "checkpoint-descriptor"
+path = "marketplace/templates/gall-semantic-work/descriptor.json.tera"
+description = "Authority-free execution descriptor for downstream admission"
+variables = ["work_order_iri", "checkpoint_iri", "graph_digest", "repository_identity", "execution_repo_alias", "base_sha", "goal", "provider", "verifier_suite", "execution_policy", "standing", "dependencies"]
+
+[[pack.templates]]
+name = "checkpoint-markdown"
+path = "marketplace/templates/gall-semantic-work/checkpoint.md.tera"
+description = "Human-readable work-order projection; canonical graph remains source"
+variables = ["work_order_iri", "checkpoint_iri", "graph_digest", "repository_identity", "execution_repo_alias", "base_sha", "goal", "provider", "verifier_suite", "execution_policy", "standing", "dependencies"]
+
+[pack.conformance]
+unknown_preservation = true
+
+[pack.metadata]
+tags = ["gall", "semantic-work", "rdf", "sa2a", "ultracode"]
+keywords = ["work-order", "checkpoint", "projection", "receipt", "work-graph", "descriptor"]
