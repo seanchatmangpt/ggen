@@ -56,10 +56,25 @@ example_root="$repo_root/examples/interview-sandbox"
 ggen_bin="$repo_root/target/debug/ggen"
 
 if (cd "$example_root" && "$ggen_bin" receipt history > /tmp/pre-history.out 2> /tmp/pre-history.err); then
-  echo 'REFUSED: admitted legacy chain unexpectedly verified before F1 migration' >&2
-  exit 3
+  # The F1 migration for this example was already executed and persisted to
+  # the repository (a3e01321c, 2026-08-16: "persist verified interview-sandbox
+  # F1 migration"), so on any main-derived subject the legacy chain verifies
+  # cleanly BEFORE this constructor runs. Refusing here (the historical
+  # behavior) would refuse every current subject, red-lining live-examples on
+  # main since that commit — the constructor's premise aged out, not its
+  # algorithm. Two lawful subjects remain:
+  #   pre-F1 subject:  history FAILS with FM-CHAIN-*  -> original path below
+  #   post-F1 subject: history SUCCEEDS               -> prove idempotence:
+  #   the migration test re-runs and the sha256-stability diff at the end of
+  #   this script still holds (second run must not move the sealed chain).
+  if ! grep -q 'std::env::var_os("GGEN_RECEIPT_MIGRATION_ROOT")' crates/ggen-engine/src/sync.rs; then
+    echo 'REFUSED: legacy chain verified but the F1 migration is not applied' >&2
+    exit 3
+  fi
+  echo 'ALIVE: chain already migrated and persisted (post-F1 subject); proving idempotence'
+else
+  grep -Eq 'FM-CHAIN-(007|009|014)|chain hash mismatch' /tmp/pre-history.err
 fi
-grep -Eq 'FM-CHAIN-(007|009|014)|chain hash mismatch' /tmp/pre-history.err
 
 export GGEN_RECEIPT_MIGRATION_ROOT="$example_root"
 cargo test -p ggen-engine --lib reseal_receipt_log_under_post_f1_chain_hash_formula -- --ignored --nocapture
