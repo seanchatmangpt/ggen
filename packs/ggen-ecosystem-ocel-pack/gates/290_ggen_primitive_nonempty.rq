@@ -1,0 +1,6 @@
+# MESSAGE: reusable primitive identities cannot be blank placeholders.
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+SELECT ?object ?primitive WHERE {
+  ?object a geocel:GgenPrimitiveObject ; geocel:primitive ?primitive .
+  FILTER(STRLEN(REPLACE(STR(?primitive), "\\s", "")) = 0)
+}

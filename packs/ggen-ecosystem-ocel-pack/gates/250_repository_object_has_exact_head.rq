@@ -1,0 +1,6 @@
+# MESSAGE: RepositoryObject must bind an exact head so standing cannot float with a branch name.
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+SELECT ?object WHERE {
+  ?object a geocel:RepositoryObject .
+  FILTER NOT EXISTS { ?object geocel:exactHead ?head }
+}

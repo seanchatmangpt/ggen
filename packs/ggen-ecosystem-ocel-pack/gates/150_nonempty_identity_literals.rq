@@ -1,0 +1,7 @@
+# MESSAGE: projected identity literals must contain non-whitespace text.
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+SELECT ?subject ?property ?value WHERE {
+  VALUES ?property { geocel:runId geocel:cell geocel:projectOwner geocel:projectMemoryKey geocel:eventId geocel:objectId }
+  ?subject ?property ?value .
+  FILTER(STRLEN(REPLACE(STR(?value), "\\s", "")) = 0)
+}

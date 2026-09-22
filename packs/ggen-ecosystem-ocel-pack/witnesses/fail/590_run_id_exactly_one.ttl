@@ -1,0 +1,2 @@
+@prefix geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#> .
+<urn:run:1> a geocel:ManufacturingRun ; geocel:runId "run-1", "run-2" .

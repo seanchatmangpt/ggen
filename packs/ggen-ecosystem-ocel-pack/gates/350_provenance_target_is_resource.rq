@@ -1,0 +1,6 @@
+# MESSAGE: causedBy is a provenance edge and must target an RDF resource rather than a literal.
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+SELECT ?subject ?cause WHERE {
+  ?subject geocel:causedBy ?cause .
+  FILTER(!isIRI(?cause) && !isBlank(?cause))
+}

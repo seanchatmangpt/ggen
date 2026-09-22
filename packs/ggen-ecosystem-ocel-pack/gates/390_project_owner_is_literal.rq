@@ -1,0 +1,3 @@
+# MESSAGE: projectOwner is a stable projected identifier and must be literal.
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+SELECT ?run ?value WHERE { ?run a geocel:ManufacturingRun ; geocel:projectOwner ?value . FILTER(!isLiteral(?value)) }

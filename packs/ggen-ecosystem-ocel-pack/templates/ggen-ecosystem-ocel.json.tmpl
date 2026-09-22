@@ -1,0 +1,48 @@
+---
+to: "generated/ggen-ecosystem-ocel.json"
+sparql:
+  objects: |
+    PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+    SELECT DISTINCT ?objectId WHERE {
+      ?object a geocel:ManufacturingObject ; geocel:objectId ?objectId .
+    } ORDER BY ?objectId
+  events: |
+    PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+    PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+    SELECT ?eventId ?eventType ?eventTime ?sequence ?objectId ?runId ?cell ?standing WHERE {
+      ?event a geocel:ManufacturingEvent ;
+        geocel:eventId ?eventId ;
+        geocel:eventType ?eventTypeConcept ;
+        geocel:eventTime ?eventTime ;
+        geocel:sequence ?sequence ;
+        geocel:inRun ?run ;
+        geocel:relatesTo ?object ;
+        geocel:standing ?standing .
+      ?eventTypeConcept skos:prefLabel ?eventType .
+      ?object geocel:objectId ?objectId .
+      ?run geocel:runId ?runId ; geocel:cell ?cell .
+    } ORDER BY ?sequence ?eventId ?objectId
+---
+{
+  "objectTypes": [
+    {"name": "manufacturing_subject", "attributes": []}
+  ],
+  "eventTypes": [
+    {"name": "observe", "attributes": [{"name":"run_id","type":"string"},{"name":"cell","type":"string"},{"name":"standing","type":"string"}]},
+    {"name": "admit", "attributes": [{"name":"run_id","type":"string"},{"name":"cell","type":"string"},{"name":"standing","type":"string"}]},
+    {"name": "select", "attributes": [{"name":"run_id","type":"string"},{"name":"cell","type":"string"},{"name":"standing","type":"string"}]},
+    {"name": "generate", "attributes": [{"name":"run_id","type":"string"},{"name":"cell","type":"string"},{"name":"standing","type":"string"}]},
+    {"name": "realize", "attributes": [{"name":"run_id","type":"string"},{"name":"cell","type":"string"},{"name":"standing","type":"string"}]},
+    {"name": "qualify", "attributes": [{"name":"run_id","type":"string"},{"name":"cell","type":"string"},{"name":"standing","type":"string"}]},
+    {"name": "merge", "attributes": [{"name":"run_id","type":"string"},{"name":"cell","type":"string"},{"name":"standing","type":"string"}]},
+    {"name": "receipt", "attributes": [{"name":"run_id","type":"string"},{"name":"cell","type":"string"},{"name":"standing","type":"string"}]},
+    {"name": "replay", "attributes": [{"name":"run_id","type":"string"},{"name":"cell","type":"string"},{"name":"standing","type":"string"}]},
+    {"name": "refuse", "attributes": [{"name":"run_id","type":"string"},{"name":"cell","type":"string"},{"name":"standing","type":"string"}]}
+  ],
+  "objects": [
+{% for row in objects %}    {"id":"{{ row.objectId }}","type":"manufacturing_subject","attributes":[],"relationships":[]}{% if not loop.last %},{% endif %}
+{% endfor %}  ],
+  "events": [
+{% for row in events %}    {"id":"{{ row.eventId }}","type":"{{ row.eventType }}","time":"{{ row.eventTime }}","attributes":[{"name":"run_id","value":"{{ row.runId }}"},{"name":"cell","value":"{{ row.cell }}"},{"name":"standing","value":"{{ row.standing }}"}],"relationships":[{"objectId":"{{ row.objectId }}","qualifier":"primary"}]}{% if not loop.last %},{% endif %}
+{% endfor %}  ]
+}

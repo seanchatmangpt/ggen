@@ -1,0 +1,6 @@
+@prefix geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#> .
+@prefix ex: <urn:ggen:witness:fail:010:> .
+
+# Falsifier: a manufacturing event exists without the required event identity,
+# type, time, sequence, run, or object relation.
+ex:event a geocel:ManufacturingEvent .

@@ -1,0 +1,5 @@
+# MESSAGE: GgenPrimitiveObject must bind one reusable primitive identity per object.
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+SELECT ?object (COUNT(DISTINCT ?value) AS ?count) WHERE {
+  ?object a geocel:GgenPrimitiveObject ; geocel:primitive ?value .
+} GROUP BY ?object HAVING(COUNT(DISTINCT ?value) != 1)

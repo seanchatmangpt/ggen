@@ -1,0 +1,37 @@
+# MESSAGE: every manufacturing run/event/object must carry the identity required for deterministic OCEL and Project-memory projection; any row refuses generation.
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+SELECT ?subject ?missing WHERE {
+  {
+    ?subject a geocel:ManufacturingRun .
+    VALUES (?property ?missing) {
+      (geocel:runId "runId")
+      (geocel:cell "cell")
+      (geocel:projectOwner "projectOwner")
+      (geocel:projectNumber "projectNumber")
+      (geocel:projectMemoryKey "projectMemoryKey")
+      (geocel:ocelDigest "ocelDigest")
+      (geocel:standing "standing")
+    }
+    FILTER NOT EXISTS { ?subject ?property ?value }
+  }
+  UNION
+  {
+    ?subject a geocel:ManufacturingEvent .
+    VALUES (?property ?missing) {
+      (geocel:eventId "eventId")
+      (geocel:eventType "eventType")
+      (geocel:eventTime "eventTime")
+      (geocel:sequence "sequence")
+      (geocel:inRun "inRun")
+      (geocel:relatesTo "relatesTo")
+      (geocel:standing "standing")
+    }
+    FILTER NOT EXISTS { ?subject ?property ?value }
+  }
+  UNION
+  {
+    ?subject a geocel:ManufacturingObject .
+    BIND("objectId" AS ?missing)
+    FILTER NOT EXISTS { ?subject geocel:objectId ?value }
+  }
+}

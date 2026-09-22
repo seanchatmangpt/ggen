@@ -1,0 +1,3 @@
+# MESSAGE: causedBy must target an RDF resource, never a literal.
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+SELECT ?event ?cause WHERE { ?event geocel:causedBy ?cause . FILTER(isLiteral(?cause)) }

@@ -1,0 +1,5 @@
+@prefix geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#> .
+@prefix ex: <urn:ggen:witness:> .
+ex:run a geocel:ManufacturingRun ; geocel:runId "run-1" .
+ex:event a geocel:ManufacturingEvent ; geocel:eventId "event-1" .
+ex:object a geocel:ManufacturingObject ; geocel:objectId "object-1" .

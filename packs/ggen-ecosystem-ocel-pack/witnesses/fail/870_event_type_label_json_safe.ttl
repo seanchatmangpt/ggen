@@ -1,0 +1,4 @@
+@prefix geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+<urn:e> a geocel:ManufacturingEvent ; geocel:eventType <urn:t> .
+<urn:t> skos:prefLabel "bad\\label" .

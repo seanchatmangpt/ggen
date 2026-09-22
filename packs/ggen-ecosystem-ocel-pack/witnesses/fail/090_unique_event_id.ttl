@@ -1,0 +1,4 @@
+@prefix geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#> .
+@prefix ex: <urn:ggen:witness:fail:090:> .
+ex:e1 a geocel:ManufacturingEvent ; geocel:eventId "duplicate" .
+ex:e2 a geocel:ManufacturingEvent ; geocel:eventId "duplicate" .

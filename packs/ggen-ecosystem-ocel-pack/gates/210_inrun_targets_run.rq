@@ -1,0 +1,6 @@
+# MESSAGE: every inRun edge must resolve to a ManufacturingRun, not an untyped dangling resource.
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+SELECT ?event ?run WHERE {
+  ?event a geocel:ManufacturingEvent ; geocel:inRun ?run .
+  FILTER NOT EXISTS { ?run a geocel:ManufacturingRun }
+}

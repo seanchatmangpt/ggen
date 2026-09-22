@@ -1,0 +1,3 @@
+# MESSAGE: causedBy must describe provenance, never a reflexive self-derivation edge.
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+SELECT ?subject WHERE { ?subject geocel:causedBy ?subject }

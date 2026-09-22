@@ -1,0 +1,3 @@
+# MESSAGE: objectId must not be empty or whitespace-only.
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+SELECT ?object ?v WHERE { ?object a geocel:ManufacturingObject ; geocel:objectId ?v . FILTER(STRLEN(REPLACE(STR(?v), "\\s", "")) = 0) }

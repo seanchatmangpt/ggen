@@ -1,0 +1,6 @@
+# MESSAGE: GGEN Ecosystem OCEL state has one canonical shared-memory key; stale side keys are refused rather than silently creating parallel truths.
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+SELECT ?run ?key WHERE {
+  ?run a geocel:ManufacturingRun ; geocel:projectMemoryKey ?key .
+  FILTER(STR(?key) != "ggen/ecosystem/ocel/current")
+}

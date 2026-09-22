@@ -5,6 +5,8 @@ on:
     paths:
       - "scripts/autofde_manufacture_bundle*.py"
       - "scripts/test_autofde_manufacture_bundle*.py"
+      - "scripts/check_no_ambient_do.py"
+      - "scripts/test_check_no_ambient_do.py"
       - ".github/workflows/autofde-manufacturer-contract.yml"
   workflow_dispatch:
 
@@ -24,16 +26,18 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Compile contract
-        run: python -m py_compile scripts/autofde_manufacture_bundle_v2.py scripts/test_autofde_manufacture_bundle_v2.py
-      - name: Execute adversarial receipt court
-        run: python -m unittest -v scripts/test_autofde_manufacture_bundle_v2.py
+      - name: Compile contract and authority guard
+        run: >-
+          python -m py_compile
+          scripts/check_no_ambient_do.py
+          scripts/test_check_no_ambient_do.py
+          scripts/autofde_manufacture_bundle_v2.py
+          scripts/test_autofde_manufacture_bundle_v2.py
+      - name: Execute adversarial receipt and authority courts
+        run: >-
+          python -m unittest -v
+          scripts/test_check_no_ambient_do.py
+          scripts/test_autofde_manufacture_bundle_v2.py
       - name: Refuse ambient DO implementation
-        run: |
-          set -euo pipefail
-          file=scripts/autofde_manufacture_bundle_v2.py
-          if grep -En 'subprocess|os\.system|requests\.|urllib\.|\.actuate\(|broker\.do\(|terraform|kubectl|az[[:space:]]|aws[[:space:]]|gcloud[[:space:]]' "$file"; then
-            echo 'REFUSED:MANUFACTURER_GAINED_DO_PATH' >&2
-            exit 1
-          fi
+        run: python scripts/check_no_ambient_do.py scripts/autofde_manufacture_bundle_v2.py
       - run: echo AUTOFDE_GGEN_MANUFACTURER_RECEIPT_V2=ALIVE

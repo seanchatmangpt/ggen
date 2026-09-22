@@ -1,0 +1,6 @@
+# MESSAGE: QualificationObject must identify the court or verifier that established standing.
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+SELECT ?object WHERE {
+  ?object a geocel:QualificationObject .
+  FILTER NOT EXISTS { ?object geocel:qualification ?qualification }
+}

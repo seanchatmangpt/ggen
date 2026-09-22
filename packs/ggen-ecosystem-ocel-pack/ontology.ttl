@@ -1,0 +1,47 @@
+@prefix geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+geocel:ManufacturingRun a rdfs:Class ; rdfs:subClassOf prov:Activity .
+geocel:ManufacturingEvent a rdfs:Class ; rdfs:subClassOf prov:Activity .
+geocel:ManufacturingObject a rdfs:Class ; rdfs:subClassOf prov:Entity .
+geocel:RepositoryObject a rdfs:Class ; rdfs:subClassOf geocel:ManufacturingObject .
+geocel:GgenPrimitiveObject a rdfs:Class ; rdfs:subClassOf geocel:ManufacturingObject .
+geocel:QualificationObject a rdfs:Class ; rdfs:subClassOf geocel:ManufacturingObject .
+geocel:ProjectMemoryObject a rdfs:Class ; rdfs:subClassOf geocel:ManufacturingObject .
+
+geocel:Observe a skos:Concept ; skos:prefLabel "observe" .
+geocel:Admit a skos:Concept ; skos:prefLabel "admit" .
+geocel:Select a skos:Concept ; skos:prefLabel "select" .
+geocel:Generate a skos:Concept ; skos:prefLabel "generate" .
+geocel:Realize a skos:Concept ; skos:prefLabel "realize" .
+geocel:Qualify a skos:Concept ; skos:prefLabel "qualify" .
+geocel:Merge a skos:Concept ; skos:prefLabel "merge" .
+geocel:Receipt a skos:Concept ; skos:prefLabel "receipt" .
+geocel:Replay a skos:Concept ; skos:prefLabel "replay" .
+geocel:Refuse a skos:Concept ; skos:prefLabel "refuse" .
+
+geocel:runId a rdf:Property ; rdfs:domain geocel:ManufacturingRun .
+geocel:cell a rdf:Property ; rdfs:domain geocel:ManufacturingRun .
+geocel:projectOwner a rdf:Property ; rdfs:domain geocel:ManufacturingRun .
+geocel:projectNumber a rdf:Property ; rdfs:domain geocel:ManufacturingRun .
+geocel:projectMemoryKey a rdf:Property ; rdfs:domain geocel:ManufacturingRun .
+geocel:ocelDigest a rdf:Property ; rdfs:domain geocel:ManufacturingRun .
+geocel:standing a rdf:Property .
+geocel:eventId a rdf:Property ; rdfs:domain geocel:ManufacturingEvent .
+geocel:eventType a rdf:Property ; rdfs:domain geocel:ManufacturingEvent .
+geocel:eventTime a rdf:Property ; rdfs:domain geocel:ManufacturingEvent .
+geocel:sequence a rdf:Property ; rdfs:domain geocel:ManufacturingEvent .
+geocel:inRun a rdf:Property ; rdfs:domain geocel:ManufacturingEvent ; rdfs:range geocel:ManufacturingRun .
+geocel:relatesTo a rdf:Property ; rdfs:domain geocel:ManufacturingEvent ; rdfs:range geocel:ManufacturingObject .
+geocel:objectId a rdf:Property ; rdfs:domain geocel:ManufacturingObject .
+geocel:repository a rdf:Property .
+geocel:exactHead a rdf:Property .
+geocel:primitive a rdf:Property .
+geocel:qualification a rdf:Property .
+geocel:causedBy a rdf:Property ; rdfs:subPropertyOf prov:wasDerivedFrom .
+geocel:description a rdf:Property ; rdfs:subPropertyOf dcterms:description .

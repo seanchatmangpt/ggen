@@ -1,0 +1,3 @@
+# MESSAGE: projectNumber is serialized into the Project-memory request and must be a literal value.
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+SELECT ?run ?value WHERE { ?run a geocel:ManufacturingRun ; geocel:projectNumber ?value . FILTER(!isLiteral(?value)) }

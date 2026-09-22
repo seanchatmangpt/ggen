@@ -1,0 +1,6 @@
+# MESSAGE: every relatesTo edge must resolve to a ManufacturingObject before OCEL projection.
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+SELECT ?event ?object WHERE {
+  ?event a geocel:ManufacturingEvent ; geocel:relatesTo ?object .
+  FILTER NOT EXISTS { ?object a geocel:ManufacturingObject }
+}

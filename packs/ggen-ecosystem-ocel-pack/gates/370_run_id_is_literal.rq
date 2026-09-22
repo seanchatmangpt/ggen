@@ -1,0 +1,3 @@
+# MESSAGE: runId is projected into JSON and must be a literal value, not an RDF resource.
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+SELECT ?run ?value WHERE { ?run a geocel:ManufacturingRun ; geocel:runId ?value . FILTER(!isLiteral(?value)) }

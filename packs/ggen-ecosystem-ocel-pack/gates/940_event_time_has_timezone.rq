@@ -1,0 +1,3 @@
+# MESSAGE: eventTime must carry an explicit UTC or numeric timezone.
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+SELECT ?event ?v WHERE { ?event a geocel:ManufacturingEvent ; geocel:eventTime ?v . FILTER(!REGEX(STR(?v), "(Z|[+-][0-9]{2}:[0-9]{2})$")) }

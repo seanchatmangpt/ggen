@@ -1,0 +1,6 @@
+# MESSAGE: replay sequence positions cannot precede the start of a manufacturing run.
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+SELECT ?event ?sequence WHERE {
+  ?event a geocel:ManufacturingEvent ; geocel:sequence ?sequence .
+  FILTER(?sequence < 0)
+}

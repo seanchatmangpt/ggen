@@ -1,0 +1,6 @@
+# MESSAGE: inRun must reference an RDF run resource; literals cannot carry run identity or provenance.
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+SELECT ?event ?run WHERE {
+  ?event a geocel:ManufacturingEvent ; geocel:inRun ?run .
+  FILTER(!isIRI(?run) && !isBlank(?run))
+}

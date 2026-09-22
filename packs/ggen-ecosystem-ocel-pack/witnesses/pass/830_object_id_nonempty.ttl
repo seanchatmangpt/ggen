@@ -1,0 +1,2 @@
+@prefix geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#> .
+<urn:o> a geocel:ManufacturingObject ; geocel:objectId "o1" .

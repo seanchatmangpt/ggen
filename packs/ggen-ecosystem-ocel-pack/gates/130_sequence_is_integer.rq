@@ -1,0 +1,7 @@
+# MESSAGE: manufacturing sequence is discrete; non-integral values cannot define deterministic replay slots.
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+SELECT ?event ?sequence WHERE {
+  ?event a geocel:ManufacturingEvent ; geocel:sequence ?sequence .
+  FILTER(datatype(?sequence) NOT IN (xsd:integer, xsd:int, xsd:long, xsd:nonNegativeInteger, xsd:positiveInteger))
+}

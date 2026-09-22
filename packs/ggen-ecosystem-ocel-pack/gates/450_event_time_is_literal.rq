@@ -1,0 +1,3 @@
+# MESSAGE: eventTime must be a literal timestamp value before OCEL serialization.
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+SELECT ?event ?value WHERE { ?event a geocel:ManufacturingEvent ; geocel:eventTime ?value . FILTER(!isLiteral(?value)) }

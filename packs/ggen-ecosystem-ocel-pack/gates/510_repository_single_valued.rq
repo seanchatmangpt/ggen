@@ -1,0 +1,5 @@
+# MESSAGE: RepositoryObject projects one repository identity; multiplicity would make subject binding ambiguous.
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+SELECT ?object (COUNT(DISTINCT ?value) AS ?count) WHERE {
+  ?object a geocel:RepositoryObject ; geocel:repository ?value .
+} GROUP BY ?object HAVING(COUNT(DISTINCT ?value) != 1)

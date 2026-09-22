@@ -1,0 +1,30 @@
+name: GGen Sync Run Self-Test
+
+on:
+  pull_request:
+    paths:
+      - .github/workflows/ggen-sync-run.yml
+      - .github/workflows/ggen-sync-run-selftest.yml
+      - .specify/ci-workflows.ttl
+      - docs/how-to/github-actions-ggen-sync-run.md
+      - tests/fixtures/github-sync-run/**
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ggen-sync-selftest-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  contract:
+    permissions:
+      contents: read
+    uses: ./.github/workflows/ggen-sync-run.yml
+    with:
+      ggen_release: v26.8.27
+      ggen_asset_sha256: ab442ced90a9836fd4eb07a5d61eb58293843cd515d864699fc0d0453444a035
+      working_directory: tests/fixtures/github-sync-run
+      dry_run: false
+      artifact_retention_days: 7

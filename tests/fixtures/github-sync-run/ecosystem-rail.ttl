@@ -1,0 +1,278 @@
+@prefix gha: <http://seanchatmangpt.github.io/packs/github-actions#> .
+@prefix ex: <https://ggen.io/tests/github-sync-run/ecosystem#> .
+
+# Authored semantic input for the ecosystem bootstrap rail.
+# github-actions-pack + ggen sync run owns the workflow YAML.
+ex:workflow
+    a gha:Workflow ;
+    gha:fileName "ggen-ecosystem-sync.yml" ;
+    gha:purpose "GGen Ecosystem Sync" ;
+    gha:permissionCeiling "contents: read" ;
+    gha:trigger gha:EventWorkflowDispatch ;
+    gha:noPushTriggerReason "reusable workflow_call target with explicit manual replay" ;
+    gha:onBlock """workflow_call:
+  inputs:
+    ggen_release:
+      description: Exact ggen release tag
+      required: false
+      type: string
+      default: v26.8.27
+    ggen_asset_sha256:
+      description: SHA256 of the Linux release asset
+      required: false
+      type: string
+      default: ab442ced90a9836fd4eb07a5d61eb58293843cd515d864699fc0d0453444a035
+    marketplace_sha:
+      description: Exact ggen marketplace commit required by every pack
+      required: false
+      type: string
+      default: 4c4232515b43d40cef8288c43eacfab2c31ab485
+    working_directory:
+      description: Repository relative directory containing ggen.toml
+      required: false
+      type: string
+      default: .
+    dry_run:
+      description: Run the same manufacture rail without writing projections
+      required: false
+      type: boolean
+      default: false
+    artifact_retention_days:
+      description: Retention for replay evidence
+      required: false
+      type: number
+      default: 7
+workflow_dispatch:
+  inputs:
+    ggen_release:
+      description: Exact ggen release tag
+      required: true
+      type: string
+      default: v26.8.27
+    ggen_asset_sha256:
+      description: SHA256 of the Linux release asset
+      required: true
+      type: string
+      default: ab442ced90a9836fd4eb07a5d61eb58293843cd515d864699fc0d0453444a035
+    marketplace_sha:
+      description: Exact ggen marketplace commit required by every pack
+      required: true
+      type: string
+      default: 4c4232515b43d40cef8288c43eacfab2c31ab485
+    working_directory:
+      description: Repository relative directory containing ggen.toml
+      required: true
+      type: string
+      default: .
+    dry_run:
+      description: Run without writing generated projections
+      required: true
+      type: boolean
+      default: false
+    artifact_retention_days:
+      description: Retention for replay evidence
+      required: true
+      type: number
+      default: 7""" ;
+    gha:concurrencyPolicy """group: ggen-ecosystem-sync-${{ github.repository }}-${{ github.ref }}-${{ inputs.working_directory }}
+cancel-in-progress: false""" ;
+    gha:evidenceObligation "bind exact candidate SHA, GGen release digest, marketplace SHA, pack identities, generated patch digest, intrinsic GGen receipt, and GitHub run identity" ;
+    gha:standingEffect "successful execution proves read-only deterministic manufacture; repository mutation authority remains external" .
+
+ex:construct
+    a gha:Job ;
+    gha:inWorkflow ex:workflow ;
+    gha:jobName "construct" ;
+    gha:runner "ubuntu-24.04" ;
+    gha:timeoutMinutes 20 ;
+    gha:jobPermissions "contents: read" ;
+    gha:jobExtra "name: Deterministic ecosystem manufacture" ;
+    gha:evidenceEmitted "immutable patch and replay receipt artifact" ;
+    gha:failureClassification "REFUSED or BUILD_BROKEN before repository write authority exists" .
+
+ex:checkout
+    a gha:Step ;
+    gha:inJob ex:construct ; gha:stepOrder 1 ;
+    gha:stepName "Checkout exact candidate" ;
+    gha:usesAction "actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6" ;
+    gha:withParam "ref: ${{ github.event.pull_request.head.sha || github.event.merge_group.head_sha || github.sha }}" ;
+    gha:withParam "fetch-depth: 0" ;
+    gha:withParam "persist-credentials: false" .
+
+ex:admit
+    a gha:Step ;
+    gha:inJob ex:construct ; gha:stepOrder 2 ;
+    gha:stepName "Admit immutable producer and pack identities" ;
+    gha:envVar "CANDIDATE_SHA: ${{ github.event.pull_request.head.sha || github.event.merge_group.head_sha || github.sha }}" ;
+    gha:envVar "GGEN_RELEASE: ${{ inputs.ggen_release }}" ;
+    gha:envVar "GGEN_ASSET_SHA256: ${{ inputs.ggen_asset_sha256 }}" ;
+    gha:envVar "MARKETPLACE_SHA: ${{ inputs.marketplace_sha }}" ;
+    gha:envVar "GGEN_WORKING_DIRECTORY: ${{ inputs.working_directory }}" ;
+    gha:runCommand """set -euo pipefail
+[[ "$(git rev-parse HEAD)" = "$CANDIDATE_SHA" ]] || { echo 'REFUSED[EXACT_HEAD_MISMATCH]' >&2; exit 2; }
+[[ "$GGEN_RELEASE" =~ ^v[0-9]+[.][0-9]+[.][0-9]+([.+-][0-9A-Za-z.-]+)?$ ]] || { echo 'REFUSED[INVALID_GGEN_RELEASE_TAG]' >&2; exit 2; }
+[[ "$GGEN_ASSET_SHA256" =~ ^[0-9a-f]{64}$ ]] || { echo 'REFUSED[INVALID_GGEN_ASSET_SHA256]' >&2; exit 2; }
+[[ "$MARKETPLACE_SHA" =~ ^[0-9a-f]{40}$ ]] || { echo 'REFUSED[INVALID_MARKETPLACE_SHA]' >&2; exit 2; }
+mkdir -p "$RUNNER_TEMP/ggen-ecosystem-evidence"
+export GGEN_PACK_RECEIPT="$RUNNER_TEMP/ggen-ecosystem-evidence/packs.json"
+python3 - <<'PY'
+import json, os, tomllib
+from pathlib import Path, PurePosixPath
+workspace = Path(os.environ['GITHUB_WORKSPACE']).resolve()
+root = (workspace / os.environ['GGEN_WORKING_DIRECTORY']).resolve()
+if root != workspace and workspace not in root.parents:
+    raise SystemExit('REFUSED[WORKING_DIRECTORY_ESCAPES_WORKSPACE]')
+manifest = root / 'ggen.toml'
+if not manifest.is_file():
+    raise SystemExit('REFUSED[GGEN_MANIFEST_MISSING]')
+doc = tomllib.loads(manifest.read_text())
+packs = doc.get('packs')
+if not isinstance(packs, dict) or not packs:
+    raise SystemExit('REFUSED[MARKETPLACE_PACKS_REQUIRED]')
+expected = os.environ['MARKETPLACE_SHA']
+admitted = []
+for alias, ref in sorted(packs.items()):
+    if not isinstance(ref, dict):
+        raise SystemExit(f'REFUSED[PACK_REF_NOT_GIT]:{alias}')
+    git = str(ref.get('git', '')).removesuffix('.git')
+    version = str(ref.get('version', '')).lower()
+    subdir = str(ref.get('subdir', ''))
+    if git != 'https://github.com/seanchatmangpt/ggen-marketplace':
+        raise SystemExit(f'REFUSED[NON_MARKETPLACE_PACK]:{alias}:{git}')
+    if version != expected:
+        raise SystemExit(f'REFUSED[MARKETPLACE_SHA_DRIFT]:{alias}:{version}:{expected}')
+    sub = PurePosixPath(subdir)
+    if sub.is_absolute() or '..' in sub.parts or len(sub.parts) != 2 or sub.parts[0] != 'packs':
+        raise SystemExit(f'REFUSED[INVALID_MARKETPLACE_PACK_SUBDIR]:{alias}:{subdir}')
+    admitted.append({'alias': alias, 'git': git, 'version': version, 'subdir': subdir})
+Path(os.environ['GGEN_PACK_RECEIPT']).write_text(json.dumps(admitted, indent=2, sort_keys=True) + chr(10))
+print(f'ALIVE: admitted {len(admitted)} marketplace pack(s) at {expected}')
+PY""" .
+
+ex:cache
+    a gha:Step ;
+    gha:inJob ex:construct ; gha:stepOrder 3 ;
+    gha:stepName "Restore untrusted native GGen pack cache" ;
+    gha:usesAction "actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5" ;
+    gha:withParam "path: ${{ inputs.working_directory }}/.ggen-v2/git-packs" ;
+    gha:withParam "key: ggen-git-packs-${{ runner.os }}-${{ inputs.marketplace_sha }}" .
+
+ex:install
+    a gha:Step ;
+    gha:inJob ex:construct ; gha:stepOrder 4 ;
+    gha:stepName "Install checksum pinned GGen release" ;
+    gha:stepId "install" ;
+    gha:envVar "GGEN_RELEASE: ${{ inputs.ggen_release }}" ;
+    gha:envVar "GGEN_ASSET_SHA256: ${{ inputs.ggen_asset_sha256 }}" ;
+    gha:runCommand """set -euo pipefail
+asset='ggen-x86_64-unknown-linux-gnu.tar.gz'
+archive="$RUNNER_TEMP/$asset"
+extract="$RUNNER_TEMP/ggen-release"
+bin_dir="$RUNNER_TEMP/ggen-bin"
+url="https://github.com/seanchatmangpt/ggen/releases/download/${GGEN_RELEASE}/${asset}"
+curl --fail --location --retry 3 --retry-all-errors --proto '=https' --tlsv1.2 --output "$archive" "$url"
+echo "$GGEN_ASSET_SHA256  $archive" | sha256sum --check --strict
+rm -rf "$extract" "$bin_dir"
+mkdir -p "$extract" "$bin_dir"
+tar -xzf "$archive" -C "$extract"
+mapfile -t candidates < <(find "$extract" -type f -name ggen -print)
+[[ "${#candidates[@]}" -eq 1 ]] || { echo "REFUSED[GGEN_ASSET_BINARY_COUNT]:${#candidates[@]}" >&2; exit 2; }
+install -m 0755 "${candidates[0]}" "$bin_dir/ggen"
+binary_sha256="$(sha256sum "$bin_dir/ggen" | awk '{print $1}')"
+echo "$bin_dir" >> "$GITHUB_PATH"
+echo "binary_sha256=$binary_sha256" >> "$GITHUB_OUTPUT""" .
+
+ex:sync
+    a gha:Step ;
+    gha:inJob ex:construct ; gha:stepOrder 5 ;
+    gha:stepName "Manufacture with ggen sync run" ;
+    gha:stepId "sync" ;
+    gha:continueOnError true ;
+    gha:envVar "GGEN_WORKING_DIRECTORY: ${{ inputs.working_directory }}" ;
+    gha:envVar "GGEN_DRY_RUN: ${{ inputs.dry_run }}" ;
+    gha:runCommand """set -uo pipefail
+mkdir -p "$RUNNER_TEMP/ggen-ecosystem-evidence"
+set +e
+if [[ "$GGEN_DRY_RUN" = true ]]; then
+  (cd "$GGEN_WORKING_DIRECTORY" && ggen sync run --dry-run) > >(tee "$RUNNER_TEMP/ggen-ecosystem-evidence/stdout.log") 2> >(tee "$RUNNER_TEMP/ggen-ecosystem-evidence/stderr.log" >&2)
+else
+  (cd "$GGEN_WORKING_DIRECTORY" && ggen sync run) > >(tee "$RUNNER_TEMP/ggen-ecosystem-evidence/stdout.log") 2> >(tee "$RUNNER_TEMP/ggen-ecosystem-evidence/stderr.log" >&2)
+fi
+exit_code=$?
+set -e
+echo "exit_code=$exit_code" >> "$GITHUB_OUTPUT"
+echo "$exit_code" > "$RUNNER_TEMP/ggen-ecosystem-evidence/sync-exit-code.txt""" .
+
+ex:evidence
+    a gha:Step ;
+    gha:inJob ex:construct ; gha:stepOrder 6 ;
+    gha:stepName "Bind generated consequence into replay receipt" ;
+    gha:condition "always()" ;
+    gha:envVar "CANDIDATE_SHA: ${{ github.event.pull_request.head.sha || github.event.merge_group.head_sha || github.sha }}" ;
+    gha:envVar "GGEN_RELEASE: ${{ inputs.ggen_release }}" ;
+    gha:envVar "GGEN_ASSET_SHA256: ${{ inputs.ggen_asset_sha256 }}" ;
+    gha:envVar "MARKETPLACE_SHA: ${{ inputs.marketplace_sha }}" ;
+    gha:envVar "GGEN_WORKING_DIRECTORY: ${{ inputs.working_directory }}" ;
+    gha:envVar "SYNC_EXIT_CODE: ${{ steps.sync.outputs.exit_code }}" ;
+    gha:envVar "GGEN_BINARY_SHA256: ${{ steps.install.outputs.binary_sha256 }}" ;
+    gha:runCommand """set -euo pipefail
+tmp="$RUNNER_TEMP/ggen-ecosystem-evidence"
+if [[ -f "$GGEN_WORKING_DIRECTORY/.ggen-v2/receipt.json" ]]; then cp "$GGEN_WORKING_DIRECTORY/.ggen-v2/receipt.json" "$tmp/ggen-receipt.json"; fi
+if [[ -f "$GGEN_WORKING_DIRECTORY/ggen.lock" ]]; then cp "$GGEN_WORKING_DIRECTORY/ggen.lock" "$tmp/ggen.lock"; fi
+rm -rf "$GGEN_WORKING_DIRECTORY/.ggen-v2"
+git add -A -- "$GGEN_WORKING_DIRECTORY"
+git diff --cached --check
+git diff --cached --binary --no-ext-diff > "$tmp/ggen-sync.patch"
+git reset --quiet
+python3 - <<'PY'
+import hashlib, json, os
+from pathlib import Path
+root = Path(os.environ['RUNNER_TEMP']) / 'ggen-ecosystem-evidence'
+def digest(path):
+    h = hashlib.sha256()
+    with path.open('rb') as fh:
+        for chunk in iter(lambda: fh.read(1048576), b''):
+            h.update(chunk)
+    return h.hexdigest()
+patch = root / 'ggen-sync.patch'
+receipt = {
+  'schema': 'https://ggen.dev/receipts/ecosystem-sync/v1',
+  'repository': os.environ['GITHUB_REPOSITORY'],
+  'source_sha': os.environ['CANDIDATE_SHA'],
+  'run_id': os.environ['GITHUB_RUN_ID'],
+  'run_attempt': os.environ['GITHUB_RUN_ATTEMPT'],
+  'ggen_release': os.environ['GGEN_RELEASE'],
+  'ggen_asset_sha256': os.environ['GGEN_ASSET_SHA256'],
+  'ggen_binary_sha256': os.environ.get('GGEN_BINARY_SHA256'),
+  'marketplace_sha': os.environ['MARKETPLACE_SHA'],
+  'working_directory': os.environ['GGEN_WORKING_DIRECTORY'],
+  'packs': json.loads((root / 'packs.json').read_text()),
+  'sync_command': 'ggen sync run',
+  'sync_exit_code': os.environ.get('SYNC_EXIT_CODE'),
+  'patch_sha256': digest(patch)
+}
+(root / 'ecosystem-sync-receipt.json').write_text(json.dumps(receipt, indent=2, sort_keys=True) + chr(10))
+PY
+sha256sum "$tmp/ggen-sync.patch" "$tmp/ecosystem-sync-receipt.json" "$tmp/packs.json" > "$tmp/SHA256SUMS""" .
+
+ex:upload
+    a gha:Step ;
+    gha:inJob ex:construct ; gha:stepOrder 7 ;
+    gha:stepName "Upload deterministic replay evidence" ;
+    gha:condition "always()" ;
+    gha:usesAction "actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6" ;
+    gha:withParam "name: ggen-ecosystem-sync-${{ github.run_id }}-${{ github.run_attempt }}" ;
+    gha:withParam "path: ${{ runner.temp }}/ggen-ecosystem-evidence/" ;
+    gha:withParam "if-no-files-found: error" ;
+    gha:withParam "retention-days: ${{ inputs.artifact_retention_days }}" .
+
+ex:enforce
+    a gha:Step ;
+    gha:inJob ex:construct ; gha:stepOrder 8 ;
+    gha:stepName "Enforce GGen sync standing" ;
+    gha:condition "always()" ;
+    gha:envVar "SYNC_EXIT_CODE: ${{ steps.sync.outputs.exit_code }}" ;
+    gha:runCommand """if [[ "${SYNC_EXIT_CODE:-not-run}" != 0 ]]; then
+  echo "BUILD_BROKEN[GGEN_SYNC_RUN_FAILED]:${SYNC_EXIT_CODE:-not-run}" >&2
+  exit 1
+fi""" .

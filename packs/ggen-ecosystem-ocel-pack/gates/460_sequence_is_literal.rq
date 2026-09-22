@@ -1,0 +1,3 @@
+# MESSAGE: sequence must be represented as an RDF literal so numeric replay ordering is explicit.
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+SELECT ?event ?value WHERE { ?event a geocel:ManufacturingEvent ; geocel:sequence ?value . FILTER(!isLiteral(?value)) }

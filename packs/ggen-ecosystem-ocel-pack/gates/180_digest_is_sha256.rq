@@ -1,0 +1,6 @@
+# MESSAGE: ocelDigest must use the canonical sha256:<64 lowercase hex> identity used by replay receipts.
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+SELECT ?run ?digest WHERE {
+  ?run a geocel:ManufacturingRun ; geocel:ocelDigest ?digest .
+  FILTER(!REGEX(STR(?digest), "^sha256:[0-9a-f]{64}$"))
+}

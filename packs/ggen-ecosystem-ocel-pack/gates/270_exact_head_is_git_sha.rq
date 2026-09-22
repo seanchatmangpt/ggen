@@ -1,0 +1,6 @@
+# MESSAGE: exactHead must be a full 40-hex Git object identity, never a mutable ref or abbreviated SHA.
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+SELECT ?object ?head WHERE {
+  ?object a geocel:RepositoryObject ; geocel:exactHead ?head .
+  FILTER(!REGEX(STR(?head), "^[0-9a-fA-F]{40}$"))
+}

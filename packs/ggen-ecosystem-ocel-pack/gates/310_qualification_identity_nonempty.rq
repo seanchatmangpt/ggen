@@ -1,0 +1,6 @@
+# MESSAGE: qualification identity cannot be an empty placeholder in evidence.
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+SELECT ?object ?qualification WHERE {
+  ?object a geocel:QualificationObject ; geocel:qualification ?qualification .
+  FILTER(STRLEN(REPLACE(STR(?qualification), "\\s", "")) = 0)
+}

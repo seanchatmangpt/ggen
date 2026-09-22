@@ -1,0 +1,3 @@
+# MESSAGE: standing is serialized in receipts and OCEL attributes and must be literal.
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+SELECT ?subject ?value WHERE { ?subject geocel:standing ?value . FILTER(!isLiteral(?value)) }

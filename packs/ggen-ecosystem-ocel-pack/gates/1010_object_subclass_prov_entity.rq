@@ -1,0 +1,5 @@
+# MESSAGE: ManufacturingObject must remain aligned as a PROV Entity.
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+SELECT * WHERE { FILTER NOT EXISTS { geocel:ManufacturingObject rdfs:subClassOf prov:Entity } }

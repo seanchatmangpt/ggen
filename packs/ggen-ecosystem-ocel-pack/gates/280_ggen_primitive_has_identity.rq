@@ -1,0 +1,6 @@
+# MESSAGE: GgenPrimitiveObject must name the reusable primitive that manufactured the projection.
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+SELECT ?object WHERE {
+  ?object a geocel:GgenPrimitiveObject .
+  FILTER NOT EXISTS { ?object geocel:primitive ?primitive }
+}

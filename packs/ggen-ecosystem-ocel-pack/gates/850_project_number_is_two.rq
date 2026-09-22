@@ -1,0 +1,4 @@
+# MESSAGE: canonical Project2 lineage requires projectNumber 2.
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+SELECT ?run ?v WHERE { ?run a geocel:ManufacturingRun ; geocel:projectNumber ?v . FILTER(xsd:decimal(?v) != 2) }

@@ -1,0 +1,6 @@
+@prefix geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#> .
+@prefix ex: <urn:ggen:witness:> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+ex:run a geocel:ManufacturingRun ; geocel:runId "run-1" .
+ex:object a geocel:ManufacturingObject ; geocel:objectId "object-1" .
+ex:event a geocel:ManufacturingEvent ; geocel:eventId "event-1" ; geocel:eventType geocel:Observe ; geocel:eventTime "2026-08-27T20:00:00Z"^^xsd:dateTime ; geocel:sequence "0"^^xsd:integer ; geocel:inRun ex:run ; geocel:relatesTo ex:object .

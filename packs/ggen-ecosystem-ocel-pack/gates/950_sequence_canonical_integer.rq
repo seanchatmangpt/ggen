@@ -1,0 +1,3 @@
+# MESSAGE: sequence must use canonical integer lexical form without plus signs or leading zero padding.
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+SELECT ?event ?v WHERE { ?event a geocel:ManufacturingEvent ; geocel:sequence ?v . FILTER(!REGEX(STR(?v), "^(0|[1-9][0-9]*)$")) }

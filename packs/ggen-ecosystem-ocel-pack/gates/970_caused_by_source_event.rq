@@ -1,0 +1,3 @@
+# MESSAGE: causedBy may originate only from ManufacturingEvent subjects.
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+SELECT ?subject ?cause WHERE { ?subject geocel:causedBy ?cause . FILTER NOT EXISTS { ?subject a geocel:ManufacturingEvent } }

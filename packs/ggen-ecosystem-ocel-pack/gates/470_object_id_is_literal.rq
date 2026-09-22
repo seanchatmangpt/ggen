@@ -1,0 +1,3 @@
+# MESSAGE: objectId becomes an OCEL object identifier and must be literal.
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+SELECT ?object ?value WHERE { ?object a geocel:ManufacturingObject ; geocel:objectId ?value . FILTER(!isLiteral(?value)) }

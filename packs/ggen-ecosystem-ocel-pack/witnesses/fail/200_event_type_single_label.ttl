@@ -1,0 +1,4 @@
+@prefix geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix ex: <urn:ggen:witness:fail:200:> .
+ex:type a skos:Concept ; skos:prefLabel "one", "two" .

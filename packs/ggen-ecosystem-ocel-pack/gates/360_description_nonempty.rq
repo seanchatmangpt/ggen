@@ -1,0 +1,6 @@
+# MESSAGE: when description evidence is supplied it must contain information, not whitespace.
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+SELECT ?subject ?description WHERE {
+  ?subject geocel:description ?description .
+  FILTER(STRLEN(REPLACE(STR(?description), "\\s", "")) = 0)
+}

@@ -79,27 +79,64 @@ def artifact_set_digest(manifest):
     return sha256_json(sorted(normalized, key=lambda row: row["path"]))
 
 
-def seal_manifest(request, manifest, *, ggen_revision, lab_revision):
+def validate_manifest_envelope(
+    request,
+    manifest,
+    *,
+    expected_ggen_revision=None,
+    expected_lab_revision=None,
+):
+    """Replay the semantic admission laws that precede manifest sealing.
+
+    Digest consistency is necessary but not sufficient: a caller able to
+    recompute an unsigned receipt must not be able to turn an authority-
+    escalating or provenance-drifted request/manifest pair into admitted
+    evidence merely by making every digest self-consistent.
+    """
     if not isinstance(request, dict) or request.get("schema") != REQUEST_SCHEMA:
         raise ValueError("REFUSED:REQUEST_SCHEMA_INVALID")
     if not isinstance(manifest, dict) or manifest.get("schema") != MANIFEST_SCHEMA:
         raise ValueError("REFUSED:MANIFEST_SCHEMA_INVALID")
-    require_git_sha(ggen_revision, "REFUSED:GGEN_REVISION_INVALID")
-    require_git_sha(lab_revision, "REFUSED:LAB_REVISION_INVALID")
+
     source = request.get("source", {})
     manufacturer = request.get("manufacturer", {})
     authority = request.get("authority", {})
-    if source.get("lab_revision") != lab_revision:
+    if not isinstance(source, dict) or not isinstance(manufacturer, dict) or not isinstance(authority, dict):
+        raise ValueError("REFUSED:REQUEST_ENVELOPE_INVALID")
+
+    lab_revision = source.get("lab_revision")
+    ggen_revision = manufacturer.get("revision")
+    require_git_sha(lab_revision, "REFUSED:LAB_REVISION_INVALID")
+    require_git_sha(ggen_revision, "REFUSED:GGEN_REVISION_INVALID")
+
+    if expected_lab_revision is not None and lab_revision != expected_lab_revision:
         raise ValueError("REFUSED:LAB_REVISION_DRIFT")
-    if manufacturer.get("revision") != ggen_revision:
+    if expected_ggen_revision is not None and ggen_revision != expected_ggen_revision:
         raise ValueError("REFUSED:GGEN_REVISION_DRIFT")
+
     if authority.get("mode") != "external-only" or authority.get("do_authority") is not False:
         raise ValueError("REFUSED:REQUEST_AUTHORITY_ESCALATION")
+
     request_id = raw_sha256(request)
     if manifest.get("request_id") != request_id:
         raise ValueError("REFUSED:MANIFEST_REQUEST_ID_DRIFT")
     if manifest.get("lab_revision") != lab_revision or manifest.get("ggen_revision") != ggen_revision:
         raise ValueError("REFUSED:MANIFEST_PROVENANCE_DRIFT")
+
+    artifact_set_digest(manifest)
+    return True
+
+
+def seal_manifest(request, manifest, *, ggen_revision, lab_revision):
+    require_git_sha(ggen_revision, "REFUSED:GGEN_REVISION_INVALID")
+    require_git_sha(lab_revision, "REFUSED:LAB_REVISION_INVALID")
+    validate_manifest_envelope(
+        request,
+        manifest,
+        expected_ggen_revision=ggen_revision,
+        expected_lab_revision=lab_revision,
+    )
+    request_id = raw_sha256(request)
     receipt = {
         "schema": RECEIPT_SCHEMA,
         "standing": "ALIVE",
@@ -115,12 +152,25 @@ def seal_manifest(request, manifest, *, ggen_revision, lab_revision):
         "courts": list(REQUIRED_COURTS),
     }
     receipt["receipt_digest"] = receipt_digest(receipt)
-    verify_manifest_receipt(request, manifest, receipt, expected_ggen_revision=ggen_revision, expected_lab_revision=lab_revision)
+    verify_manifest_receipt(
+        request,
+        manifest,
+        receipt,
+        expected_ggen_revision=ggen_revision,
+        expected_lab_revision=lab_revision,
+    )
     return receipt
 
 
-def verify_manifest_receipt(request, manifest, receipt, *, expected_ggen_revision=None, expected_lab_revision=None):
-    if receipt.get("schema") != RECEIPT_SCHEMA:
+def verify_manifest_receipt(
+    request,
+    manifest,
+    receipt,
+    *,
+    expected_ggen_revision=None,
+    expected_lab_revision=None,
+):
+    if not isinstance(receipt, dict) or receipt.get("schema") != RECEIPT_SCHEMA:
         raise ValueError("REFUSED:RECEIPT_SCHEMA_INVALID")
     if receipt.get("standing") != "ALIVE":
         raise ValueError("REFUSED:MANUFACTURER_NOT_ALIVE")
@@ -134,6 +184,14 @@ def verify_manifest_receipt(request, manifest, receipt, *, expected_ggen_revisio
         raise ValueError("REFUSED:GGEN_REVISION_DRIFT")
     if expected_lab_revision is not None and receipt.get("lab_revision") != expected_lab_revision:
         raise ValueError("REFUSED:LAB_REVISION_DRIFT")
+
+    validate_manifest_envelope(
+        request,
+        manifest,
+        expected_ggen_revision=receipt.get("ggen_revision"),
+        expected_lab_revision=receipt.get("lab_revision"),
+    )
+
     if receipt.get("request_id") != raw_sha256(request) or receipt.get("request_digest") != sha256_json(request):
         raise ValueError("REFUSED:REQUEST_BINDING_DRIFT")
     if receipt.get("manifest_digest") != sha256_json(manifest):
@@ -180,14 +238,20 @@ def manufacture(requirement, admission, ggen_revision):
         if not isinstance(content, str):
             raise ValueError("REFUSED:PROGRAM_CONTENT_INVALID")
         program = {"kind": "filesystem_write", "path": path, "content": content}
-        verifier = {"kind": "file_sha256", "path": path, "digest": hashlib.sha256(content.encode()).hexdigest()}
+        verifier = {
+            "kind": "file_sha256",
+            "path": path,
+            "digest": hashlib.sha256(content.encode()).hexdigest(),
+        }
     elif kind == "noop":
         program = {"kind": "noop"}
         verifier = {"kind": "noop"}
     else:
         raise ValueError("REFUSED:PROGRAM_KIND_UNSUPPORTED")
     match_all = spec.get("match_all", {})
-    if not isinstance(match_all, dict) or not all(isinstance(k, str) and isinstance(v, str) for k, v in match_all.items()):
+    if not isinstance(match_all, dict) or not all(
+        isinstance(k, str) and isinstance(v, str) for k, v in match_all.items()
+    ):
         raise ValueError("REFUSED:MATCH_SPEC_INVALID")
     payload = {
         "schema": PAYLOAD_SCHEMA,
@@ -206,17 +270,37 @@ def manufacture(requirement, admission, ggen_revision):
         "request_id": requirement["requirement_id"],
         "request_digest": sha256_json(requirement),
         "manifest_digest": sha256_json(payload),
-        "artifact_set_digest": sha256_json([{"path": "compiled-capability.json", "sha256": hashlib.sha256(canonical_bytes(payload)).hexdigest()}]),
+        "artifact_set_digest": sha256_json(
+            [
+                {
+                    "path": "compiled-capability.json",
+                    "sha256": hashlib.sha256(canonical_bytes(payload)).hexdigest(),
+                }
+            ]
+        ),
         "lab_revision": admission["lab_revision"],
         "ggen_revision": ggen_revision,
         "courts": list(REQUIRED_COURTS),
     }
     receipt["receipt_digest"] = receipt_digest(receipt)
-    verify(payload, receipt, expected_ggen_revision=ggen_revision, expected_lab_revision=admission["lab_revision"], expected_requirement_digest=sha256_json(requirement))
+    verify(
+        payload,
+        receipt,
+        expected_ggen_revision=ggen_revision,
+        expected_lab_revision=admission["lab_revision"],
+        expected_requirement_digest=sha256_json(requirement),
+    )
     return payload, receipt
 
 
-def verify(payload, receipt, *, expected_ggen_revision=None, expected_lab_revision=None, expected_requirement_digest=None):
+def verify(
+    payload,
+    receipt,
+    *,
+    expected_ggen_revision=None,
+    expected_lab_revision=None,
+    expected_requirement_digest=None,
+):
     if not isinstance(payload, dict) or payload.get("schema") != PAYLOAD_SCHEMA:
         raise ValueError("REFUSED:PAYLOAD_SCHEMA_INVALID")
     if receipt.get("schema") != RECEIPT_SCHEMA or receipt.get("standing") != "ALIVE":
@@ -283,7 +367,12 @@ def main():
         else:
             request = json.loads(Path(args.request).read_text())
             manifest = json.loads(Path(args.manifest).read_text())
-            receipt = seal_manifest(request, manifest, ggen_revision=args.ggen_revision, lab_revision=args.lab_revision)
+            receipt = seal_manifest(
+                request,
+                manifest,
+                ggen_revision=args.ggen_revision,
+                lab_revision=args.lab_revision,
+            )
         Path(args.receipt_out).write_text(json.dumps(receipt, indent=2, sort_keys=True) + "\n")
     except (KeyError, TypeError, ValueError, json.JSONDecodeError) as exc:
         print(json.dumps({"standing": str(exc)}))

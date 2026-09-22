@@ -1,0 +1,4 @@
+@prefix geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#> .
+@prefix ex: <urn:ggen:witness:fail:020:> .
+ex:runA a geocel:ManufacturingRun .
+ex:runB a geocel:ManufacturingRun .

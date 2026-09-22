@@ -1,0 +1,3 @@
+# MESSAGE: qualification identity is receipt evidence and must serialize as a literal value.
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+SELECT ?object ?value WHERE { ?object a geocel:QualificationObject ; geocel:qualification ?value . FILTER(!isLiteral(?value)) }
