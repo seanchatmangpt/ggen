@@ -63,17 +63,22 @@ if (cd "$example_root" && "$ggen_bin" receipt history > /tmp/pre-history.out 2> 
   # behavior) would refuse every current subject, red-lining live-examples on
   # main since that commit — the constructor's premise aged out, not its
   # algorithm. Two lawful subjects remain:
-  #   pre-F1 subject:  history FAILS with FM-CHAIN-*  -> original path below
+  #   pre-F1 subject:  history FAILS with FM-CHAIN-*  -> original path below;
+  #     the constructor is expected to change sync.rs and reseal the chain.
   #   post-F1 subject: history SUCCEEDS               -> prove idempotence:
-  #   the migration test re-runs and the sha256-stability diff at the end of
-  #   this script still holds (second run must not move the sealed chain).
+  #     the migration test re-runs and the sha256-stability diff at the end
+  #     of this script still holds (second run must not move the sealed
+  #     chain); the working tree must remain clean — resealing an already
+  #     sealed chain changes nothing.
   if ! grep -q 'std::env::var_os("GGEN_RECEIPT_MIGRATION_ROOT")' crates/ggen-engine/src/sync.rs; then
     echo 'REFUSED: legacy chain verified but the F1 migration is not applied' >&2
     exit 3
   fi
+  export SUBJECT_MODE=post-f1
   echo 'ALIVE: chain already migrated and persisted (post-F1 subject); proving idempotence'
 else
   grep -Eq 'FM-CHAIN-(007|009|014)|chain hash mismatch' /tmp/pre-history.err
+  export SUBJECT_MODE=pre-f1
 fi
 
 export GGEN_RECEIPT_MIGRATION_ROOT="$example_root"
@@ -94,6 +99,7 @@ diff -u /tmp/migration-first.sha256 /tmp/migration-second.sha256
 
 git status --short > /tmp/migration-status.txt
 python3 - <<'PY'
+import os
 import subprocess
 
 allowed = {
@@ -106,6 +112,12 @@ untracked = set(subprocess.check_output(['git', 'ls-files', '--others', '--exclu
 unexpected = (changed | untracked) - allowed
 if unexpected:
     raise SystemExit('REFUSED: unexpected migration fallout: ' + ', '.join(sorted(unexpected)))
+if os.environ['SUBJECT_MODE'] == 'post-f1':
+    # An already-sealed chain must not move: idempotence IS the assertion.
+    if changed or untracked:
+        raise SystemExit('REFUSED: post-F1 subject must stay byte-identical, changed: '
+                         + ', '.join(sorted(changed | untracked)))
+    raise SystemExit(0)
 missing = allowed - changed
 if missing:
     raise SystemExit('REFUSED: expected migration change missing: ' + ', '.join(sorted(missing)))
