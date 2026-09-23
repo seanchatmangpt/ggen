@@ -132,7 +132,7 @@ fn integer_op(operator: &str, left: i64, right: i64) -> Result<Value> {
         other => {
             return Err(NounVerbError::execution_error(format!(
                 "unsupported generated expression operator {other:?}"
-            )))
+            )));
         }
     };
     checked
