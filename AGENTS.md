@@ -1,3 +1,16 @@
+# Engineering Standards Root Binding
+
+> Generated adoption header. Shared engineering semantics are rooted at `seanchatmangpt/engineering-standards@5a3bb6446aeaee2255a7523d4d8cebf6042960c3`.
+
+- Repository subject: `seanchatmangpt/ggen@06093e0cd679662b8c6d15eedea0973fd475dec5`
+- Ecosystem role: deterministic semantic manufacture engine
+- Adoption manifest: `engineering-standards.json`
+- Project profile: `semantic/engineering-standards-profile.ttl`
+
+The local constitution below remains authoritative for repository-specific mechanics. It may narrow the root but may not redefine shared WorkOrder identity, authority, receipt/replay, generated-artifact sovereignty, or evidence standing. Ticket, agent, capability, plan, proof, and generated output do not acquire ambient DO authority.
+
+---
+
 # ggen Repository Operating Contract
 
 This file governs the repository unless a deeper `AGENTS.md` narrows a subtree. A nested contract may add constraints, but it may not silently weaken repository safety, evidence, or publication rules.

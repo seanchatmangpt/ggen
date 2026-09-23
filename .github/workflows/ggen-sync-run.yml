@@ -232,6 +232,11 @@ jobs:
         env:
           GGEN_WORKING_DIRECTORY: ${{ inputs.working_directory }}
           GGEN_DRY_RUN: ${{ inputs.dry_run }}
+          # Git packs are admitted by exact repository/SHA/subdir above. Their
+          # unrelated LFS payloads are not semantic inputs to the selected pack,
+          # so refusing an otherwise-admitted pack because a sibling LFS object
+          # cannot be smudged is a transport bug, not an admission rule.
+          GIT_LFS_SKIP_SMUDGE: "1"
         run: |
           set -euo pipefail
           receipt_dir="$RUNNER_TEMP/ggen-sync-receipt"
@@ -265,6 +270,7 @@ jobs:
           GGEN_DRY_RUN: ${{ inputs.dry_run }}
           GGEN_BINARY_SHA256: ${{ steps.install.outputs.binary_sha256 }}
           SYNC_EXIT_CODE: ${{ steps.run.outputs.exit_code }}
+          GIT_LFS_SKIP_SMUDGE: "1"
         run: |
           set -euo pipefail
           receipt_dir="$RUNNER_TEMP/ggen-sync-receipt"
@@ -319,6 +325,7 @@ jobs:
             --arg dry_run "$GGEN_DRY_RUN" \
             --arg sync_exit_code "${SYNC_EXIT_CODE:-not-run}" \
             --arg changed "$changed" \
+            --arg git_lfs_skip_smudge "$GIT_LFS_SKIP_SMUDGE" \
             --slurpfile packs "$receipt_dir/packs.json" \
             '{
               repository: $repository,
@@ -334,6 +341,9 @@ jobs:
               working_directory: $working_directory,
               dry_run: ($dry_run == "true"),
               packs: ($packs[0] // []),
+              transport: {
+                git_lfs_skip_smudge: ($git_lfs_skip_smudge == "1")
+              },
               sync_exit_code: $sync_exit_code,
               changed: ($changed == "true")
             }' > "$receipt_dir/github-sync-receipt.json"
