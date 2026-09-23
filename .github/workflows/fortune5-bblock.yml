@@ -131,8 +131,8 @@ jobs:
           "$GGEN" bblock validate > /tmp/bblock-validate.json
           "$GGEN" bblock providers > /tmp/bblock-providers.json
           "$GGEN" bblock list > /tmp/bblock-list.json
-          "$GGEN" bblock inspect testing gpc > /tmp/bblock-testing-gpc.json
-          "$GGEN" bblock inspect fortune5-complete gpc > /tmp/bblock-inspect-gpc.json
+          "$GGEN" bblock inspect --group-id testing --provider gpc > /tmp/bblock-testing-gpc.json
+          "$GGEN" bblock inspect --group-id fortune5-complete --provider gpc > /tmp/bblock-inspect-gpc.json
           test "$(jq -r '.status' /tmp/bblock-validate.json)" = "ALIVE"
           test "$(jq '.providers' /tmp/bblock-validate.json)" = "3"
           test "$(jq '.groups' /tmp/bblock-validate.json)" = "19"
@@ -148,14 +148,14 @@ jobs:
           GGEN="$PWD/target/debug/ggen"
           ROOT="$(mktemp -d)"
           cd "$ROOT"
-          "$GGEN" bblock plan fortune5-complete aws > /tmp/bblock-plan-first.json
+          "$GGEN" bblock plan --group-id fortune5-complete --provider aws > /tmp/bblock-plan-first.json
           cp .ggen/bblocks/plans/aws/fortune5-complete.json /tmp/bblock-plan-bytes-first.json
-          "$GGEN" bblock plan fortune5-complete aws > /tmp/bblock-plan-second.json
+          "$GGEN" bblock plan --group-id fortune5-complete --provider aws > /tmp/bblock-plan-second.json
           cmp /tmp/bblock-plan-bytes-first.json .ggen/bblocks/plans/aws/fortune5-complete.json
           test -s .ggen/bblocks/receipts/aws/fortune5-complete-plan-intent.json
           test -s .ggen/bblocks/receipts/aws/fortune5-complete-plan-result.json
 
-          "$GGEN" bblock enable fortune5-complete aws > /tmp/bblock-enable.json
+          "$GGEN" bblock enable --group-id fortune5-complete --provider aws > /tmp/bblock-enable.json
           test -s .ggen/packs.lock
           test -s .ggen/bblocks/groups/fortune5-complete.json
           test -s .ggen/bblocks/receipts/aws/fortune5-complete-enable-intent.json
@@ -170,7 +170,7 @@ jobs:
       - name: Refuse unknown providers and direct cloud actuation imports
         run: |
           set +e
-          target/debug/ggen bblock inspect testing oracle >/tmp/bblock-oracle.out 2>/tmp/bblock-oracle.err
+          target/debug/ggen bblock inspect --group-id testing --provider oracle >/tmp/bblock-oracle.out 2>/tmp/bblock-oracle.err
           code=$?
           set -e
           test "$code" -ne 0
