@@ -9,9 +9,15 @@
 // (same reason `blue_river_dam.rs`, this crate's other bench binary,
 // disables the lint) -- a bench binary is not a public API surface.
 #![allow(missing_docs)]
+#![allow(clippy::expect_used)]
 
 use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
-use std::hint::black_box;
+use ggen_engine::{pack::Pack, pack_scope::benchmark_dfcm_scopes};
+use std::{
+    collections::{BTreeMap, BTreeSet},
+    hint::black_box,
+    path::PathBuf,
+};
 
 // ---------------------------------------------------------------------------
 // Subject under benchmark
@@ -111,8 +117,62 @@ fn bench_scaling(c: &mut Criterion) {
 }
 
 // ---------------------------------------------------------------------------
+// 4. DfCM dependency-scope benchmark
+// ---------------------------------------------------------------------------
+
+fn synthetic_pack(
+    name: &str, dependencies: &[&str], semantic_type: &str, capability: &str,
+) -> Pack {
+    Pack {
+        name: name.to_string(),
+        version: "1.0.0".to_string(),
+        description: "benchmark fixture".to_string(),
+        dependencies: dependencies
+            .iter()
+            .map(|dependency| ((*dependency).to_string(), "1.0.0".to_string()))
+            .collect::<BTreeMap<_, _>>(),
+        semantic_types: BTreeSet::from([semantic_type.to_string()]),
+        provides: BTreeSet::from([capability.to_string()]),
+        requires: BTreeSet::new(),
+        root: PathBuf::new(),
+        ontology_path: PathBuf::new(),
+        extra_ontology_paths: Vec::new(),
+        template_paths: Vec::new(),
+        lock: false,
+    }
+}
+
+fn bench_dfcm_dependency_scope(c: &mut Criterion) {
+    let packs = vec![
+        synthetic_pack("a-root", &["b-direct"], "application", "cap.root"),
+        synthetic_pack("b-direct", &["c-twohop"], "runtime", "cap.direct"),
+        synthetic_pack("c-twohop", &[], "projection", "cap.twohop"),
+        synthetic_pack("z-global", &[], "fallback", "cap.global"),
+    ];
+    let relevant = BTreeSet::from(["c-twohop".to_string()]);
+
+    c.bench_function("dfcm/dependency_scope/local_direct_twohop_global", |b| {
+        b.iter(|| {
+            benchmark_dfcm_scopes(
+                black_box(&packs),
+                black_box("a-root"),
+                black_box(&relevant),
+                black_box(3),
+            )
+            .expect("synthetic scope benchmark")
+        });
+    });
+}
+
+// ---------------------------------------------------------------------------
 // Criterion entry points
 // ---------------------------------------------------------------------------
 
-criterion_group!(benches, bench_throughput, bench_latency, bench_scaling);
+criterion_group!(
+    benches,
+    bench_throughput,
+    bench_latency,
+    bench_scaling,
+    bench_dfcm_dependency_scope
+);
 criterion_main!(benches);

@@ -27,10 +27,14 @@
 //! perform undisclosed network/filesystem side effects (e.g. a read-only
 //! query tool).
 
-use std::path::{Path, PathBuf};
-use std::process::Command;
+use std::{
+    collections::{BTreeMap, BTreeSet, VecDeque},
+    path::{Path, PathBuf},
+    process::Command,
+};
 
-use serde::Deserialize;
+use ggen_marketplace::packs_registry::dependency_graph::DependencyGraph;
+use serde::{Deserialize, Serialize};
 
 use crate::{
     config::{GgenConfig, PackRef},
@@ -46,6 +50,18 @@ pub struct Pack {
     pub version: String,
     /// Human description from `pack.toml`.
     pub description: String,
+    /// Declared direct pack dependencies: pack resolution name to version
+    /// requirement. This relation scopes candidates; it never grants
+    /// execution authority.
+    pub dependencies: BTreeMap<String, String>,
+    /// Semantic types declared by the pack. These are candidate-routing facts,
+    /// not admission or execution authority.
+    pub semantic_types: BTreeSet<String>,
+    /// Capabilities this pack can provide after its own admission succeeds.
+    pub provides: BTreeSet<String>,
+    /// Capabilities this pack requires from itself or its declared dependency
+    /// closure. Ambient/global providers never satisfy this field.
+    pub requires: BTreeSet<String>,
     /// Absolute (resolved) pack root directory.
     pub root: PathBuf,
     /// Path to the pack's `ontology.ttl`.
@@ -71,6 +87,34 @@ pub struct Pack {
 #[serde(deny_unknown_fields)]
 struct PackToml {
     pack: PackMeta,
+    /// Direct pack dependencies. Each dependency must also be declared by
+    /// the consumer; resolution never performs ambient installation.
+    #[serde(default)]
+    dependencies: BTreeMap<String, String>,
+    /// Candidate-routing semantics. Optional for backward compatibility;
+    /// absence means no declared semantic type/capability facts.
+    #[serde(default)]
+    capabilities: PackCapabilities,
+}
+
+/// First-class semantic routing facts carried by pack.toml.
+///
+/// These facts are compiled into the canonical RDF graph by
+/// `crate::pack_scope::topology_turtle`. They narrow SELECT candidates only;
+/// they do not bypass GraphLaw/SHACL/gates or BRCE.
+#[derive(Debug, Default, Deserialize)]
+#[serde(deny_unknown_fields)]
+struct PackCapabilities {
+    /// Semantic type/class labels understood by the caller's public ontology.
+    #[serde(default)]
+    types: BTreeSet<String>,
+    /// Capabilities this pack provides after admission.
+    #[serde(default)]
+    provides: BTreeSet<String>,
+    /// Capabilities that must be provided by this pack or its declared
+    /// dependency closure.
+    #[serde(default)]
+    requires: BTreeSet<String>,
 }
 
 /// `[pack]` table of `pack.toml` (closed key set).
@@ -204,7 +248,252 @@ fn resolve_inner(
             }
         }
     }
+    validate_dependency_graph(&packs)?;
     Ok(packs)
+}
+
+/// Candidate-scope expansion depth for `dependency_scope`.
+///
+/// These values order inspection only. They do not admit a pack, confer
+/// authority, or actuate anything.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+pub enum ScopeDepth {
+    /// The subject pack only.
+    Local,
+    /// Subject plus directly declared dependencies.
+    Direct,
+    /// Subject plus direct dependencies plus one additional dependency level.
+    TwoLevel,
+    /// Subject plus the complete declared transitive dependency closure.
+    Transitive,
+    /// Subject first, then every other resolved pack as the final fallback.
+    Global,
+}
+
+/// Return a deterministic candidate scope rooted at subject.
+///
+/// This implements package-aware scoping without changing sync manufacture:
+/// the live sync pipeline still composes every pack declared by the consumer.
+/// SELECT-time callers can inspect Local -> Direct -> TwoLevel/Transitive ->
+/// Global while keeping ranking separate from admission and execution.
+///
+/// Ordering is deterministic breadth-first traversal. Dependencies at the
+/// same depth are ordered by name because the manifest uses `BTreeMap`.
+///
+/// # Errors
+///
+/// - FM-PACK-014 when a declared dependency is absent from packs
+/// - FM-PACK-017 when subject is not a resolved pack
+pub fn dependency_scope<'a>(
+    packs: &'a [Pack], subject: &str, depth: ScopeDepth,
+) -> Result<Vec<&'a Pack>> {
+    let by_name: BTreeMap<&str, &Pack> = packs
+        .iter()
+        .map(|pack| (pack.name.as_str(), pack))
+        .collect();
+    let Some(subject_pack) = by_name.get(subject).copied() else {
+        return Err(AppError::fm_pack(
+            17,
+            format!(
+                "dependency scope subject '{subject}' is not among the resolved packs. \
+                 Remediation: resolve the pack first or use an admitted resolved subject."
+            ),
+        ));
+    };
+
+    if depth == ScopeDepth::Global {
+        let mut rest: Vec<&Pack> = packs.iter().filter(|pack| pack.name != subject).collect();
+        rest.sort_by(|a, b| a.name.cmp(&b.name));
+        let mut scoped = Vec::with_capacity(packs.len());
+        scoped.push(subject_pack);
+        scoped.extend(rest);
+        return Ok(scoped);
+    }
+
+    let max_depth = match depth {
+        ScopeDepth::Local => 0,
+        ScopeDepth::Direct => 1,
+        ScopeDepth::TwoLevel => 2,
+        ScopeDepth::Transitive => usize::MAX,
+        ScopeDepth::Global => unreachable!("handled above"),
+    };
+
+    let mut scoped = Vec::new();
+    let mut seen = BTreeSet::new();
+    let mut queue = VecDeque::from([(subject.to_string(), 0usize)]);
+    while let Some((name, current_depth)) = queue.pop_front() {
+        if !seen.insert(name.clone()) {
+            continue;
+        }
+        let pack = by_name.get(name.as_str()).copied().ok_or_else(|| {
+            AppError::fm_pack(
+                14,
+                format!(
+                    "pack '{subject}' dependency scope references undeclared pack '{name}'. \
+                     Remediation: add '{name}' to the consumer's [packs] table."
+                ),
+            )
+        })?;
+        scoped.push(pack);
+        if current_depth >= max_depth {
+            continue;
+        }
+        for dependency in pack.dependencies.keys() {
+            queue.push_back((dependency.clone(), current_depth.saturating_add(1)));
+        }
+    }
+    Ok(scoped)
+}
+
+/// Validate declared pack dependencies after all consumer-declared packs have
+/// resolved. This admits dependency topology only; it never installs missing
+/// packs or grants runtime authority.
+///
+/// Errors:
+/// - FM-PACK-014 when a required dependency is not consumer-declared/resolved
+/// - FM-PACK-015 when a dependency requirement is malformed or not satisfied
+/// - FM-PACK-016 when the declared dependency graph contains a cycle
+fn validate_dependency_graph(packs: &[Pack]) -> Result<()> {
+    let by_name: BTreeMap<&str, &Pack> = packs
+        .iter()
+        .map(|pack| (pack.name.as_str(), pack))
+        .collect();
+    let mut graph = DependencyGraph::new();
+
+    for pack in packs {
+        graph.add_node(&pack.name);
+        for (dependency_name, requirement) in &pack.dependencies {
+            if dependency_name.trim().is_empty() || requirement.trim().is_empty() {
+                return Err(AppError::fm_pack(
+                    15,
+                    format!(
+                        "pack '{}' has an empty dependency name or version requirement. \
+                         Remediation: declare each [dependencies] entry as \
+                         pack-name = version-or-requirement.",
+                        pack.name
+                    ),
+                ));
+            }
+
+            let dependency = by_name
+                .get(dependency_name.as_str())
+                .copied()
+                .ok_or_else(|| {
+                    AppError::fm_pack(
+                        14,
+                        format!(
+                            "pack '{}' requires '{dependency_name}' ({requirement}), but that \
+                             pack is not declared in the consumer's [packs] table. Resolution \
+                             is fail-closed and does not auto-install dependencies. \
+                             Remediation: add '{dependency_name}' to ggen.toml [packs].",
+                            pack.name
+                        ),
+                    )
+                })?;
+
+            let matches = dependency_requirement_matches(requirement, &dependency.version)
+                .map_err(|reason| {
+                    AppError::fm_pack(
+                        15,
+                        format!(
+                            "pack '{}' dependency '{dependency_name}' requirement \
+                             '{requirement}' cannot be admitted against resolved version '{}': \
+                             {reason}. Remediation: align the dependency requirement and the \
+                             resolved pack version.",
+                            pack.name, dependency.version
+                        ),
+                    )
+                })?;
+            if !matches {
+                return Err(AppError::fm_pack(
+                    15,
+                    format!(
+                        "pack '{}' requires '{dependency_name}' '{requirement}', but the \
+                         resolved version is '{}'. Remediation: select a satisfying pack \
+                         version or change the declared requirement.",
+                        pack.name, dependency.version
+                    ),
+                ));
+            }
+            graph.add_edge(&pack.name, dependency_name);
+        }
+    }
+
+    graph.detect_cycles().map_err(|e| {
+        AppError::fm_pack(
+            16,
+            format!(
+                "declared pack dependency graph is cyclic: {e}. \
+                 Remediation: remove at least one dependency edge so the graph is acyclic."
+            ),
+        )
+    })?;
+    validate_capability_requirements(packs)
+}
+
+/// Admit capability requirements only from the pack's declared dependency
+/// closure. A global pack that happens to provide the same capability is not
+/// an implicit dependency: that would turn repository adjacency into hidden
+/// authority and make replay depend on ambient state.
+///
+/// Errors:
+/// - FM-PACK-018 when a required capability has no provider in the pack's
+///   own transitive dependency closure
+fn validate_capability_requirements(packs: &[Pack]) -> Result<()> {
+    for pack in packs {
+        if pack.requires.is_empty() {
+            continue;
+        }
+        let closure = dependency_scope(packs, &pack.name, ScopeDepth::Transitive)?;
+        let available: BTreeSet<&str> = closure
+            .iter()
+            .flat_map(|candidate| candidate.provides.iter().map(String::as_str))
+            .collect();
+        let missing: Vec<&str> = pack
+            .requires
+            .iter()
+            .map(String::as_str)
+            .filter(|required| !available.contains(required))
+            .collect();
+        if !missing.is_empty() {
+            return Err(AppError::fm_pack(
+                18,
+                format!(
+                    "pack '{}' requires capability/capabilities [{}], but no provider exists \
+                     in its declared dependency closure. Ambient/global providers are not \
+                     admitted as hidden dependencies. Remediation: add a dependency that \
+                     provides the capability or remove the unsatisfied requirement.",
+                    pack.name,
+                    missing.join(", ")
+                ),
+            ));
+        }
+    }
+    Ok(())
+}
+
+/// Match the pack dependency requirement convention.
+///
+/// A plain string such as 26.9.17 is exact. Strings containing `SemVer`
+/// operators use `semver::VersionReq`. Keeping bare versions exact preserves
+/// ggen's documented pack-manifest convention rather than silently applying
+/// Cargo's implicit-caret interpretation.
+fn dependency_requirement_matches(
+    requirement: &str, resolved_version: &str,
+) -> std::result::Result<bool, String> {
+    let requirement = requirement.trim();
+    let uses_semver_requirement = requirement
+        .chars()
+        .any(|c| matches!(c, '^' | '~' | '>' | '<' | '=' | '*' | ',') || c.is_whitespace());
+    if !uses_semver_requirement {
+        return Ok(requirement == resolved_version);
+    }
+
+    let requirement = semver::VersionReq::parse(requirement)
+        .map_err(|e| format!("invalid version requirement: {e}"))?;
+    let version = semver::Version::parse(resolved_version)
+        .map_err(|e| format!("resolved version is not SemVer: {e}"))?;
+    Ok(requirement.matches(&version))
 }
 
 /// Directory name (under `<config_root>/.ggen-v2/git-packs/`) a git pack's
@@ -465,6 +754,10 @@ fn resolve_pack_dir(name: &str, root: &Path) -> Result<Pack> {
         name: name.to_string(),
         version: manifest.pack.version,
         description: manifest.pack.description,
+        dependencies: manifest.dependencies,
+        semantic_types: manifest.capabilities.types,
+        provides: manifest.capabilities.provides,
+        requires: manifest.capabilities.requires,
         root,
         ontology_path,
         extra_ontology_paths: Vec::new(),
@@ -569,6 +862,66 @@ pub fn content_hash(pack: &Pack) -> Result<[u8; 32]> {
         hasher.update(&bytes);
     }
     Ok(*hasher.finalize().as_bytes())
+}
+
+/// Portable SHA-256 pack digest — RFC-GPACK-001 §37/§38, the REQUIRED
+/// interoperable content identity for Core v1:
+///
+/// ```text
+/// PackDigest = SHA256( "ggen-pack-v1\0" || E_1 || ... || E_n )
+/// E_i        = u64be(|path_i|) || path_i || u64be(|bytes_i|) || bytes_i
+/// ```
+///
+/// Files are sorted by UTF-8 path bytes; paths are the same `/`-separated
+/// root-relative forms [`content_hash`] hashes (same walk, same `.git`
+/// exclusion, plus declared extra ontologies under their manifest-relative
+/// names — RFC §39: the digest MUST cover every source artifact capable of
+/// changing semantics or consequences, and MUST NOT cover runtime caches or
+/// emitted consequences). Unlike the legacy BLAKE3 [`content_hash`], this
+/// digest is framed length-prefixed and domain-separated so two independent
+/// engines (RFC §104) compute byte-identical identities. It is the value
+/// carried as `subject.pack_digest` in the portable receipt envelope
+/// (`crate::portable_receipt`); the BLAKE3 chain receipts continue
+/// unchanged and the two formats are NOT byte-equivalent (RFC §56).
+///
+/// Symlinks are forbidden in canonical pack source (RFC §72); this walk
+/// currently mirrors [`content_hash`]'s file set and does not add its own
+/// symlink refusal — that boundary belongs to the pack-admission tickets.
+///
+/// # Errors
+/// `[FM-PACK-006]` when a pack file (or directory) becomes unreadable
+/// between resolution and hashing (same contract as [`content_hash`)].
+pub fn pack_digest_sha256(pack: &Pack) -> Result<[u8; 32]> {
+    use sha2::Digest as _;
+
+    let mut entries: Vec<(String, PathBuf)> = Vec::new();
+    collect_pack_files_sorted(&pack.name, &pack.root, &pack.root, &mut entries)?;
+    for (declared, path) in &pack.extra_ontology_paths {
+        entries.push((declared.clone(), path.clone()));
+    }
+    // Sort by UTF-8 path bytes (RFC §38): String Ord is byte-wise.
+    entries.sort_by(|a, b| a.0.cmp(&b.0));
+
+    let mut hasher = sha2::Sha256::new();
+    hasher.update(b"ggen-pack-v1\0");
+    for (rel, path) in &entries {
+        let bytes = std::fs::read(path).map_err(|e| {
+            AppError::fm_pack(
+                6,
+                format!(
+                    "pack `{}`: file `{}` unreadable while hashing: {e}. \
+                     Remediation: do not mutate a pack during sync.",
+                    pack.name,
+                    path.display()
+                ),
+            )
+        })?;
+        hasher.update(u64::try_from(rel.len()).unwrap_or(u64::MAX).to_be_bytes());
+        hasher.update(rel.as_bytes());
+        hasher.update(u64::try_from(bytes.len()).unwrap_or(u64::MAX).to_be_bytes());
+        hasher.update(&bytes);
+    }
+    Ok(hasher.finalize().into())
 }
 
 /// Recursively collect every regular file under `dir` as `(root-relative
@@ -858,6 +1211,72 @@ mod tests {
         let contents =
             std::fs::read_to_string(dir.path().join(LOCK_FILE_NAME)).expect("read lockfile");
         assert!(contents.contains("gadget"));
+    }
+
+    /// Minimal [`Pack`] handle over a scratch directory for digest tests
+    /// (no pack.toml/ontology/templates needed — the digest walks raw files).
+    fn bare_pack(root: &Path) -> Pack {
+        Pack {
+            name: "vector-pack".to_string(),
+            version: "1.0.0".to_string(),
+            description: String::new(),
+            dependencies: BTreeMap::new(),
+            semantic_types: BTreeSet::new(),
+            provides: BTreeSet::new(),
+            requires: BTreeSet::new(),
+            root: root.to_path_buf(),
+            ontology_path: root.join("ontology.ttl"),
+            extra_ontology_paths: Vec::new(),
+            template_paths: Vec::new(),
+            lock: true,
+        }
+    }
+
+    /// Known-vector for the RFC-GPACK-001 §38 framing, computed by an
+    /// independent implementation (python hashlib) of
+    /// `SHA256("ggen-pack-v1\0" || u64be(1)||"a"||u64be(1)||"b")`:
+    /// a single file `a` containing `b`.
+    #[test]
+    fn pack_digest_sha256_matches_rfc38_known_vector_single_file() {
+        let dir = TempDir::new().expect("tempdir");
+        std::fs::write(dir.path().join("a"), b"b").expect("write a");
+        let digest = pack_digest_sha256(&bare_pack(dir.path())).expect("digest");
+        assert_eq!(
+            crate::sync::hex32(&digest),
+            "00d88d571d0897f7fd57322b08baaadcaafa73b0803b1d24b22c9b3ecdeee1cc"
+        );
+    }
+
+    /// Two files ordered by UTF-8 path bytes (`"a" < "ab"`), each framed
+    /// `u64be(|path|)||path||u64be(|bytes|)||bytes` — the multi-entry §38
+    /// vector `SHA256("ggen-pack-v1\0" || E("a","one") || E("ab","two"))`.
+    #[test]
+    fn pack_digest_sha256_matches_rfc38_known_vector_sorted_entries() {
+        let dir = TempDir::new().expect("tempdir");
+        std::fs::write(dir.path().join("ab"), b"two").expect("write ab");
+        std::fs::write(dir.path().join("a"), b"one").expect("write a");
+        let digest = pack_digest_sha256(&bare_pack(dir.path())).expect("digest");
+        assert_eq!(
+            crate::sync::hex32(&digest),
+            "87a71f12dd37328ac4dc6a3c6b16152db766572216883c7b870c9a64d869a54a"
+        );
+    }
+
+    /// §39: runtime caches and VCS metadata MUST NOT enter the source
+    /// digest — a `.git/` directory (present in every `PackRef::Git` clone)
+    /// must not change the value.
+    #[test]
+    fn pack_digest_sha256_ignores_git_directory() {
+        let dir = TempDir::new().expect("tempdir");
+        std::fs::write(dir.path().join("a"), b"b").expect("write a");
+        let before = pack_digest_sha256(&bare_pack(dir.path())).expect("digest before");
+
+        let git_dir = dir.path().join(".git");
+        std::fs::create_dir_all(&git_dir).expect("mkdir .git");
+        std::fs::write(git_dir.join("reflog"), b"wall-clock noise").expect("write reflog");
+        let after = pack_digest_sha256(&bare_pack(dir.path())).expect("digest after");
+
+        assert_eq!(before, after, ".git contents must not affect PackDigest");
     }
 
     /// A local scratch git repo with one file committed and tagged `v1`,

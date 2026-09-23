@@ -46,24 +46,24 @@ jobs:
           p = Path('crates/ggen-engine/src/sync.rs')
           s = p.read_text()
           old = '''        // CARGO_MANIFEST_DIR is crates/ggen-engine; workspace root is two levels up.
-        let root = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-            .parent()
-            .and_then(std::path::Path::parent)
-            .expect("workspace root")
-            .to_path_buf();'''
+                  let root = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+                      .parent()
+                      .and_then(std::path::Path::parent)
+                      .expect("workspace root")
+                      .to_path_buf();'''
           new = '''        // Default to the historical workspace-root migration target, but allow an
-        // operator to bind the destructive migration to an exact admitted project root.
-        // This makes the existing one-time migration reusable for project-scoped legacy
-        // receipt chains without changing its chain/signing algorithm.
-        let root = std::env::var_os("GGEN_RECEIPT_MIGRATION_ROOT")
-            .map(std::path::PathBuf::from)
-            .unwrap_or_else(|| {
-                std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-                    .parent()
-                    .and_then(std::path::Path::parent)
-                    .expect("workspace root")
-                    .to_path_buf()
-            });'''
+                  // operator to bind the destructive migration to an exact admitted project root.
+                  // This makes the existing one-time migration reusable for project-scoped legacy
+                  // receipt chains without changing its chain/signing algorithm.
+                  let root = std::env::var_os("GGEN_RECEIPT_MIGRATION_ROOT")
+                      .map(std::path::PathBuf::from)
+                      .unwrap_or_else(|| {
+                          std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+                              .parent()
+                              .and_then(std::path::Path::parent)
+                              .expect("workspace root")
+                              .to_path_buf()
+                      });'''
           if old in s:
               s = s.replace(old, new, 1)
           assert 'std::env::var_os("GGEN_RECEIPT_MIGRATION_ROOT")' in s

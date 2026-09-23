@@ -5,7 +5,7 @@
 # vendored copy (not a live path dependency back to ~/praxis) and must never
 # be published under any name from this workspace.
 name = "ggen-engine"
-version = "26.8.28"                       # CalVer YY.M.patch
+version = "26.9.12"                       # CalVer YY.M.patch
 edition = "2021"
 rust-version = "1.82"
 authors = ["Sean Chatman <xpointsh@gmail.com>"]
@@ -67,6 +67,10 @@ clap = { version = "4", features = ["derive", "env"] }               # CLI parsi
 camino = "1"                                                         # UTF-8 paths for graph-validate multi-file args
 tokio = { version = "1", features = ["full"], optional = true }      # async runtime (required by mcp feature)
 hex = { workspace = true }                                            # receipt-signing key/signature hex encoding (T059/T063)
+# Portable SHA-256 pack digest (RFC-GPACK-001 §37/§38) and portable receipt
+# envelope consequence digests (§54/§55) — SHA-256 is the REQUIRED
+# interoperable algorithm; BLAKE3 stays the Rust-legacy chain hash (§56).
+sha2 = { version = "0.10" }
 ed25519-dalek = { workspace = true }                                  # receipt signing/verification (T063) -- no chatman-common envelope, raw signature over chain_hash_hex
 rand = "0.8"                                                          # CSPRNG for fresh ed25519 keypair generation (T063)
 tracing = { workspace = true }                                        # pipeline.{load,extract,generate,validate,emit} spans (T060/T061)
@@ -77,6 +81,7 @@ notify = "7.0"
 notify-debouncer-full = "0.4"
 serde_yaml = "0.9"
 regex = "1"
+semver = "1.0" # pack.toml [dependencies] version requirement admission
 star-toml = "26.7.3"
 # Direct dep purely for structural (AST-level) pre-flight query inspection
 # in `graph::DeterministicGraph::query()` (GRAPH/SERVICE-clause detection,

@@ -293,7 +293,7 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
     let lock_entries = crate::pack::lock_entries(&config, &packs)?;
     crate::pack::check_lock(root, &lock_entries)?;
     let mut ontology_sources = Vec::with_capacity(
-        1 + packs
+        2 + packs
             .iter()
             .map(|pack| 1 + pack.extra_ontology_paths.len())
             .sum::<usize>(),
@@ -324,6 +324,14 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
             })?;
             ontology_sources.push((declared.clone(), extra_ttl));
         }
+    }
+    // Compile declared dependency/type/requires/provides facts into the same
+    // canonical graph consumed by gates and templates. The projection uses
+    // public Schema.org/Dublin Core predicates and is empty for legacy packs,
+    // preserving their graph identity.
+    let pack_topology_ttl = crate::pack_scope::topology_turtle(&packs);
+    if !pack_topology_ttl.is_empty() {
+        ontology_sources.push(("urn:ggen:pack-topology".to_string(), pack_topology_ttl));
     }
     let ontology_documents: Vec<TurtleDocument<'_>> = ontology_sources
         .iter()
@@ -612,6 +620,13 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
     // answers ASK/SELECT on both backends (the GraphLaw store delegates to
     // its oxigraph mirror, which holds every materialized derived fact), so
     // the same gate refuses the same facts under either engine.
+    //
+    // Every gate identity is recorded into `gates_attempted` as it is about
+    // to be evaluated, and the list flows into the portable receipt envelope
+    // (RFC-GPACK-001 §15: a gate result binds gate identity + attempt
+    // observed; §55 `admission.gates_attempted`). A refusal emits the
+    // envelope with the typed refusal before the error propagates (§57).
+    let mut gates_attempted: Vec<String> = Vec::new();
     for rel in &config.law.gates {
         let gate_path = root.join(rel);
         let src = std::fs::read_to_string(&gate_path).map_err(|e| {
@@ -627,28 +642,45 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
             rel_display(root, &gate_path),
             hash_file_or_missing(&gate_path),
         );
+        gates_attempted.push(rel_display(root, &gate_path));
         let gate = parse_gate_source(&src);
         match evaluate_gate(graph.as_ref(), &gate.query)? {
             GateOutcome::Pass => {}
             GateOutcome::NotAGate => {
-                return Err(AppError::fm_law(
-                    12,
-                    format!(
-                        "SPARQL gate `{}` is not a gate query: it must be an ASK \
-                         (true = violation) or a SELECT (any row = violation), not \
-                         a CONSTRUCT/DESCRIBE. Remediation: fix [law].gates.",
-                        rel.display()
+                return Err(refuse_with_portable_envelope(
+                    root,
+                    &packs,
+                    graph.as_ref(),
+                    &gates_attempted,
+                    "GATE_INVALID",
+                    opts.dry_run,
+                    AppError::fm_law(
+                        12,
+                        format!(
+                            "SPARQL gate `{}` is not a gate query: it must be an ASK \
+                             (true = violation) or a SELECT (any row = violation), not \
+                             a CONSTRUCT/DESCRIBE. Remediation: fix [law].gates.",
+                            rel.display()
+                        ),
                     ),
                 ));
             }
             GateOutcome::Violation(detail) => {
-                return Err(AppError::fm_law(
-                    13,
-                    format!(
-                        "SPARQL gate `{}` refused the sync: {}{detail}. \
-                         Remediation: fix the offending facts or the gate query.",
-                        rel.display(),
-                        gate.message_prefix(),
+                return Err(refuse_with_portable_envelope(
+                    root,
+                    &packs,
+                    graph.as_ref(),
+                    &gates_attempted,
+                    "GATE_VIOLATION",
+                    opts.dry_run,
+                    AppError::fm_law(
+                        13,
+                        format!(
+                            "SPARQL gate `{}` refused the sync: {}{detail}. \
+                             Remediation: fix the offending facts or the gate query.",
+                            rel.display(),
+                            gate.message_prefix(),
+                        ),
                     ),
                 ));
             }
@@ -704,37 +736,54 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
                 rel_display(root, &gate_path),
                 hash_file_or_missing(&gate_path),
             );
+            gates_attempted.push(rel_display(root, &gate_path));
             let gate = parse_gate_source(&src);
             match evaluate_gate(graph.as_ref(), &gate.query)? {
                 GateOutcome::Pass => {}
                 GateOutcome::NotAGate => {
-                    return Err(AppError::fm_pack(
-                        12,
-                        format!(
-                            "pack `{}`: gate `{}` is not a gate query: it must be an \
-                             ASK (true = violation) or a SELECT (any row = \
-                             violation), not a CONSTRUCT/DESCRIBE. Remediation: fix \
-                             or remove the gate file.",
-                            pack.name,
-                            gate_path.display()
+                    return Err(refuse_with_portable_envelope(
+                        root,
+                        &packs,
+                        graph.as_ref(),
+                        &gates_attempted,
+                        "GATE_INVALID",
+                        opts.dry_run,
+                        AppError::fm_pack(
+                            12,
+                            format!(
+                                "pack `{}`: gate `{}` is not a gate query: it must be an \
+                                 ASK (true = violation) or a SELECT (any row = \
+                                 violation), not a CONSTRUCT/DESCRIBE. Remediation: fix \
+                                 or remove the gate file.",
+                                pack.name,
+                                gate_path.display()
+                            ),
                         ),
                     ));
                 }
                 GateOutcome::Violation(detail) => {
-                    return Err(AppError::fm_pack(
-                        13,
-                        format!(
-                            "pack `{}` gate `{}` refused the sync against the union \
-                             graph: {}{detail}. Remediation: fix the offending facts \
-                             (in this pack, another pack, or the project ontology — \
-                             gates run against the UNION, so a violation may come \
-                             from any graph source), or fix the gate query.",
-                            pack.name,
-                            gate_path
-                                .file_name()
-                                .unwrap_or(gate_path.as_os_str())
-                                .to_string_lossy(),
-                            gate.message_prefix(),
+                    return Err(refuse_with_portable_envelope(
+                        root,
+                        &packs,
+                        graph.as_ref(),
+                        &gates_attempted,
+                        "GATE_VIOLATION",
+                        opts.dry_run,
+                        AppError::fm_pack(
+                            13,
+                            format!(
+                                "pack `{}` gate `{}` refused the sync against the union \
+                                 graph: {}{detail}. Remediation: fix the offending facts \
+                                 (in this pack, another pack, or the project ontology — \
+                                 gates run against the UNION, so a violation may come \
+                                 from any graph source), or fix the gate query.",
+                                pack.name,
+                                gate_path
+                                    .file_name()
+                                    .unwrap_or(gate_path.as_os_str())
+                                    .to_string_lossy(),
+                                gate.message_prefix(),
+                            ),
                         ),
                     ));
                 }
@@ -1258,6 +1307,42 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
                 None => receipt_err,
             });
         }
+        // Portable receipt envelope (RFC-GPACK-001 §54/§55, §85 step 12):
+        // additive alongside the BLAKE3 chain receipt (§56 — separate file,
+        // never claimed byte-equivalent). REPORTS standing (§57): ALIVE when
+        // the run completed, PARTIAL_ALIVE when the write stage stopped
+        // early but a partial legacy receipt was still chained above.
+        // `admission.gates_attempted` carries every gate actually evaluated
+        // this run (§15); `replay` stays UNKNOWN (no replay court yet).
+        let portable_standing = if emit_err.is_none() {
+            crate::portable_receipt::PortableStanding::Alive
+        } else {
+            crate::portable_receipt::PortableStanding::PartialAlive
+        };
+        if let Err(env_err) = crate::portable_receipt::write_portable_envelope(
+            root,
+            &packs,
+            &report.graph_hash_hex,
+            &gates_attempted,
+            &[],
+            &portable_standing,
+            &report.decisions,
+        ) {
+            return Err(match emit_err {
+                // The write-stage failure is the operative incident; an
+                // envelope-write failure on top of it must be surfaced too
+                // (never silently dropped), but must not replace it.
+                Some(e) => AppError::fm_write(
+                    12,
+                    format!(
+                        "write stage failed ({e}); additionally could not persist \
+                         the portable receipt envelope ({env_err}). Remediation: \
+                         inspect on-disk outputs manually before re-running sync."
+                    ),
+                ),
+                None => env_err,
+            });
+        }
         // The pack lockfile describes a fully-materialized run; skip it when
         // the write stage itself did not complete, rather than lock onto a
         // set of pack versions that only partially produced their outputs.
@@ -1417,6 +1502,49 @@ fn list_gate_files(gates_dir: &Path, pack_name: &str) -> Result<Vec<PathBuf>> {
     }
     paths.sort();
     Ok(paths)
+}
+
+/// Emit the portable refusal envelope (RFC-GPACK-001 §54/§55) for a
+/// gate-stage refusal, then return `original` unchanged — the typed
+/// `[FM-LAW-*]`/`[FM-PACK-*]` refusal stays the operative incident.
+///
+/// §57: the envelope existing is not standing — it REPORTS standing, so a
+/// refused sync's envelope carries the typed `REFUSED:<code>` identity in
+/// `admission.refusals` and `REFUSED:<code>` as `standing`, with empty
+/// `consequences` (gates precede every write). `graph.canonical_digest` is
+/// computed from the live graph (`"UNKNOWN"` if that itself fails — §54:
+/// present, never invented). A dry run writes no envelope at all (zero
+/// side effects, same contract as the legacy receipt).
+///
+/// If the envelope cannot be persisted, the original refusal is returned
+/// wrapped with the additional failure (never silently dropped, never
+/// replacing the original).
+fn refuse_with_portable_envelope(
+    root: &Path, packs: &[crate::pack::Pack], graph: &dyn GraphEngine, gates_attempted: &[String],
+    refusal_code: &str, dry_run: bool, original: AppError,
+) -> AppError {
+    if dry_run {
+        return original;
+    }
+    let graph_hash = graph
+        .state_hash()
+        .map_or_else(|_| "UNKNOWN".to_string(), |h| hex32(&h));
+    let standing = crate::portable_receipt::PortableStanding::Refused(refusal_code.to_string());
+    match crate::portable_receipt::write_portable_envelope(
+        root,
+        packs,
+        &graph_hash,
+        gates_attempted,
+        &[format!("REFUSED:{refusal_code}")],
+        &standing,
+        &BTreeMap::new(),
+    ) {
+        Ok(()) => original,
+        Err(env_err) => AppError::Validation(format!(
+            "{original}; additionally, the portable refusal envelope could not be \
+             written ({env_err})"
+        )),
+    }
 }
 
 /// Root-relative display form of a closure input path (falls back to the
@@ -1583,7 +1711,7 @@ fn row_context(named: &BTreeMap<String, Value>, results: &[Value], row: &Value) 
 ///
 /// Uses `template::tera_error_full_chain`, not bare `{e}` Display: Tera's
 /// top-level `Display` is frequently just "Failed to render
-/// '__`tera_one_off`'" with the actual cause (unknown filter, missing
+/// '`__tera_one_off`'" with the actual cause (unknown filter, missing
 /// variable, wrong argument type) only reachable via `Error::source()`
 /// chaining — the same gap `generation_rules.rs`'s `[FM-GEN-008]` path
 /// already closed with this same helper; this call site had not been

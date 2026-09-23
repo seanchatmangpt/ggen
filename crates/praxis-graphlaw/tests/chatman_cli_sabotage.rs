@@ -144,8 +144,9 @@ fn on_disk_store_sabotage_is_refused_or_undetectable_on_reopen(
             "sanity: the pre-sabotage receipt must be internally consistent"
         );
     }
-    let _ = ws.assert_dir_count(".", 1);
-    let _ = ws.assert_file_exists("chatman-store");
+    let _ = ws
+        .assert_dir_count(".", 1)
+        .assert_file_exists("chatman-store");
 
     // Act: real byte-level sabotage of every file the store wrote to disk.
     let corrupted_count = xor_every_file_in_dir(&store_path)?;
