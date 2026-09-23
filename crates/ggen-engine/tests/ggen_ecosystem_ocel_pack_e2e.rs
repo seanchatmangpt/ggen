@@ -112,10 +112,14 @@ fn ggen_ecosystem_ocel_pack_regenerates_owned_project2_request_when_digest_chang
     .expect("baseline sync");
 
     let ontology = read(&project, "ontology.ttl");
-    assert!(ontology.contains("sha256:abc1230000000000000000000000000000000000000000000000000000000000"));
+    assert!(ontology
+        .contains("sha256:abc1230000000000000000000000000000000000000000000000000000000000"));
     std::fs::write(
         project.join("ontology.ttl"),
-        ontology.replace("sha256:abc1230000000000000000000000000000000000000000000000000000000000", "sha256:def4560000000000000000000000000000000000000000000000000000000000"),
+        ontology.replace(
+            "sha256:abc1230000000000000000000000000000000000000000000000000000000000",
+            "sha256:def4560000000000000000000000000000000000000000000000000000000000",
+        ),
     )
     .expect("change admitted digest input");
 
