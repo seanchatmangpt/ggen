@@ -29,24 +29,3 @@ ERRC constraints implemented here:
 This pack does not acquire SELECT or DO authority. A generated projection is data/construct output;
 selection belongs to its separate SELECT owner and consequential execution remains broker-owned.
 """
-category = "architecture"
-author = "ggen"
-license = "MIT OR Apache-2.0"
-production_ready = false
-
-[pack.metadata]
-tags = ["ggen", "errc", "capability", "authority", "projection", "drift-guard"]
-keywords = ["ontology", "sparql", "capability", "allowlist", "proof-surface", "errc"]
-
-[pack.metadata.standing]
-source_graph = "CANDIDATE"
-generated_projection = "CANDIDATE"
-production_actuation = "UNSUPPORTED"
-
-[pack.metadata.falsifiers]
-items = [
-  "a generated allowlist contains a capability absent from the admitted domain graph",
-  "duplicate slug/order identity exists within one source",
-  "a world consequence is outside READ|DO",
-  "a generated projection is treated as SELECT or DO authority",
-]
