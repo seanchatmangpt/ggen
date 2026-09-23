@@ -1,0 +1,8 @@
+{
+  "wo": "GGEN-26922-W0",
+  "base_sha": "06093e0cd679662b8c6d15eedea0973fd475dec5",
+  "command": "git fetch origin (no --prune); git worktree add /Users/sac/wt/v26922/ggen/int release/v26.9.22 (= origin/main); preserve docs/jira/v26.9.19 on preserve/v26922-ggen-jira-survey (9a70104c8)",
+  "exit": 0,
+  "output_excerpt": "origin already = https://github.com/seanchatmangpt/ggen.git (matches WO repository=seanchatmangpt/ggen); fetch added 6 missing heads incl. gall/checkpoint-001-semantic-pack-receipt-v2 0543d2c1; integration worktree on release/v26.9.22 at origin/main 06093e0cd, clean",
+  "standing": "ALIVE"
+}

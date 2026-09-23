@@ -462,7 +462,7 @@ mod tests {
     /// round-trip losslessly through JSON, which is what makes this
     /// puzzling rather than obviously explained -- the leading remaining
     /// hypothesis is that `chain_from_frame`'s `OcelCausalReceipt::genesis`
-    /// + single-frame `.chain()` replay does not reproduce whatever
+    /// plus single-frame `.chain()` replay does not reproduce whatever
     /// internal state the *live*, multi-file `ggen sync run` accumulated
     /// across its real (transitively multi-object) emission path, even
     /// though both paths agree on the single scalar `prev_chain_hash`.

@@ -100,7 +100,7 @@ struct PackToml {
 /// First-class semantic routing facts carried by pack.toml.
 ///
 /// These facts are compiled into the canonical RDF graph by
-/// crate::pack_scope::topology_turtle. They narrow SELECT candidates only;
+/// `crate::pack_scope::topology_turtle`. They narrow SELECT candidates only;
 /// they do not bypass GraphLaw/SHACL/gates or BRCE.
 #[derive(Debug, Default, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -242,7 +242,7 @@ fn resolve_inner(
     Ok(packs)
 }
 
-/// Candidate-scope expansion depth for dependency_scope.
+/// Candidate-scope expansion depth for `dependency_scope`.
 ///
 /// These values order inspection only. They do not admit a pack, confer
 /// authority, or actuate anything.
@@ -268,9 +268,10 @@ pub enum ScopeDepth {
 /// Global while keeping ranking separate from admission and execution.
 ///
 /// Ordering is deterministic breadth-first traversal. Dependencies at the
-/// same depth are ordered by name because the manifest uses BTreeMap.
+/// same depth are ordered by name because the manifest uses `BTreeMap`.
 ///
-/// Errors:
+/// # Errors
+///
 /// - FM-PACK-014 when a declared dependency is absent from packs
 /// - FM-PACK-017 when subject is not a resolved pack
 pub fn dependency_scope<'a>(
@@ -463,8 +464,8 @@ fn validate_capability_requirements(packs: &[Pack]) -> Result<()> {
 
 /// Match the pack dependency requirement convention.
 ///
-/// A plain string such as 26.9.17 is exact. Strings containing SemVer
-/// operators use semver::VersionReq. Keeping bare versions exact preserves
+/// A plain string such as 26.9.17 is exact. Strings containing `SemVer`
+/// operators use `semver::VersionReq`. Keeping bare versions exact preserves
 /// ggen's documented pack-manifest convention rather than silently applying
 /// Cargo's implicit-caret interpretation.
 fn dependency_requirement_matches(

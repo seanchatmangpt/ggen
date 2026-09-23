@@ -1,7 +1,7 @@
 //! End-to-end proof that declarative `[ontology].imports` admit heterogeneous
 //! RDF serializations through the same project-graph path used by sync/query
 //! consumers. This deliberately exercises schema dispatch, manifest semantic
-//! validation, filesystem admission, batch parsing, and the GraphEngine -- it
+//! validation, filesystem admission, batch parsing, and the `GraphEngine` -- it
 //! is not a parser-unit surrogate.
 
 #![allow(clippy::unwrap_used, clippy::expect_used)]
@@ -83,9 +83,8 @@ fn unsupported_non_rdf_import_refuses_the_entire_project_graph() {
     std::fs::write(root.path().join("kubernetes.openapi.json"), "{}")
         .expect("write non-RDF source");
 
-    let error = match load_for_query_with_engine(root.path(), EngineKind::Oxigraph) {
-        Ok(_) => panic!("arbitrary JSON must not acquire ambient RDF execution authority"),
-        Err(error) => error,
+    let Err(error) = load_for_query_with_engine(root.path(), EngineKind::Oxigraph) else {
+        panic!("arbitrary JSON must not acquire ambient RDF execution authority")
     };
     let diagnostic = error.to_string();
 

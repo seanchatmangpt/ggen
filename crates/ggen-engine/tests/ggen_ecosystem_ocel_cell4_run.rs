@@ -1,10 +1,22 @@
+//! Cell-4 witness: the ggen-ecosystem-ocel-pack manufactures a
+//! digest-bound OCEL plus a Project2 request from a real consumer project.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
+
 use sha2::{Digest, Sha256};
 use std::path::{Path, PathBuf};
 
 mod support;
 use support::{assert_idempotent, read, read_json, scaffold_pack_with_ontology};
 
-const DIGEST_PLACEHOLDER: &str = "__OCEL_SHA256__";
+// The placeholder must satisfy the pack's own identity gate
+// (gates/180_digest_is_sha256.rq, 24a87ce77: every ManufacturingRun
+// ocelDigest must match sha256:<64 lowercase hex>) while still being a
+// value the second sync replaces with the real digest. The pre-gate
+// "__OCEL_SHA256__" sentinel predates that gate and can no longer survive
+// the first sync; the zero digest carries the same binding-flow semantics
+// in the gate's canonical form.
+const DIGEST_PLACEHOLDER: &str =
+    "sha256:0000000000000000000000000000000000000000000000000000000000000000";
 
 fn packs_dir() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../packs")
@@ -26,7 +38,7 @@ geocel:cell4-run-20260826T193631Z a geocel:ManufacturingRun ;
   geocel:projectOwner "seanchatmangpt" ;
   geocel:projectNumber 2 ;
   geocel:projectMemoryKey "ggen/ecosystem/ocel/current" ;
-  geocel:ocelDigest "__OCEL_SHA256__" ;
+  geocel:ocelDigest "sha256:0000000000000000000000000000000000000000000000000000000000000000" ;
   geocel:standing "PARTIAL_ALIVE" .
 
 geocel:consumer-ash-r2rml a geocel:ManufacturingObject, geocel:RepositoryObject ;
@@ -35,8 +47,9 @@ geocel:consumer-ash-r2rml a geocel:ManufacturingObject, geocel:RepositoryObject 
   geocel:exactHead "e8de8bb28e17ac79aeb1e4982ff0e8a7067a433c" .
 
 geocel:constructor-ggen a geocel:ManufacturingObject, geocel:RepositoryObject ;
-  geocel:objectId "repo:seanchatmangpt/ggen" ;
-  geocel:repository "seanchatmangpt/ggen" .
+  geocel:objectId "repo:seanchatmangpt/ggen@06093e0cd679662b8c6d15eedea0973fd475dec5" ;
+  geocel:repository "seanchatmangpt/ggen" ;
+  geocel:exactHead "06093e0cd679662b8c6d15eedea0973fd475dec5" .
 
 geocel:ocel-pack a geocel:ManufacturingObject, geocel:GgenPrimitiveObject ;
   geocel:objectId "pack:ggen-ecosystem-ocel-pack" ;
@@ -47,7 +60,7 @@ geocel:project2-ocel-key a geocel:ManufacturingObject, geocel:ProjectMemoryObjec
 
 geocel:r84-qualification a geocel:ManufacturingObject, geocel:QualificationObject ;
   geocel:objectId "qualification:ash_r2rml:R84:32995950718" ;
-  geocel:qualification "R84 Ash Reactor Domain Error Fanout" .
+  geocel:qualification "R84_Ash_Reactor_Domain_Error_Fanout" .
 
 geocel:event-observe-missing-ocel a geocel:ManufacturingEvent ;
   geocel:eventId "event:cell4:observe:canonical-ocel" ;

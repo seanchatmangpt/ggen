@@ -45,7 +45,7 @@ fn root_help_exits_zero_and_lists_all_nouns() {
         .args(["--help"])
         .run()
         .expect("run --help");
-    output
+    let _ = output
         .assert_success()
         .assert_stdout_contains("sync")
         .assert_stdout_contains("graph")
@@ -63,7 +63,7 @@ fn root_help_gives_each_noun_a_non_blank_description() {
         .args(["--help"])
         .run()
         .expect("run --help");
-    output.assert_success();
+    let _ = output.assert_success();
 
     let stdout = output.stdout.clone();
     for (noun, expected_word) in [
@@ -100,7 +100,7 @@ fn root_version_exits_zero() {
         .args(["--version"])
         .run()
         .expect("run --version");
-    output.assert_success();
+    let _ = output.assert_success();
 }
 
 #[test]
@@ -123,7 +123,7 @@ fn unknown_noun_exits_nonzero() {
         .args(["totally-unknown-noun-xyz"])
         .run()
         .expect("run unknown noun");
-    output.assert_failure();
+    let _ = output.assert_failure();
 }
 
 #[test]
@@ -132,7 +132,7 @@ fn unknown_flag_exits_nonzero() {
         .args(["sync", "run", "--this-flag-does-not-exist"])
         .run()
         .expect("run unknown flag");
-    output.assert_failure();
+    let _ = output.assert_failure();
 }
 
 // ---------------------------------------------------------------------
@@ -145,7 +145,7 @@ fn sync_noun_help_exits_zero_and_lists_run() {
         .args(["sync", "--help"])
         .run()
         .expect("run sync --help");
-    output.assert_success().assert_stdout_contains("run");
+    let _ = output.assert_success().assert_stdout_contains("run");
 }
 
 #[test]
@@ -154,7 +154,7 @@ fn sync_run_help_lists_dry_run_flag() {
         .args(["sync", "run", "--help"])
         .run()
         .expect("run sync run --help");
-    output.assert_success().assert_stdout_contains("dry-run");
+    let _ = output.assert_success().assert_stdout_contains("dry-run");
 }
 
 #[test]
@@ -163,7 +163,7 @@ fn sync_run_help_lists_watch_flag() {
         .args(["sync", "run", "--help"])
         .run()
         .expect("run sync run --help");
-    output.assert_success().assert_stdout_contains("watch");
+    let _ = output.assert_success().assert_stdout_contains("watch");
 }
 
 /// Regression test: `sync run --dry-run` and `--watch` used to render with
@@ -178,7 +178,7 @@ fn sync_run_help_gives_each_flag_a_non_blank_description() {
         .args(["sync", "run", "--help"])
         .run()
         .expect("run sync run --help");
-    output.assert_success();
+    let _ = output.assert_success();
 
     let stdout = output.stdout.clone();
     for (flag, expected_word) in [("--dry-run", "disk"), ("--watch", "filesystem")] {
@@ -208,7 +208,7 @@ fn sync_run_generates_expected_file() {
         .current_dir(dir.path())
         .run()
         .expect("run sync");
-    output.assert_success();
+    let _ = output.assert_success();
 
     let content =
         std::fs::read_to_string(dir.path().join("out/names.txt")).expect("generated file");
@@ -229,7 +229,7 @@ fn sync_run_dry_run_writes_nothing() {
         .current_dir(dir.path())
         .run()
         .expect("run sync --dry-run");
-    output.assert_success();
+    let _ = output.assert_success();
 
     assert!(
         !dir.path().join("out/names.txt").exists(),
@@ -250,7 +250,7 @@ fn sync_run_second_invocation_is_idempotent() {
     let dir = TempDir::new().expect("tempdir");
     scaffold(dir.path());
 
-    CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::cargo_bin("ggen")
         .args(["sync", "run"])
         .current_dir(dir.path())
         .run()
@@ -258,7 +258,7 @@ fn sync_run_second_invocation_is_idempotent() {
         .assert_success();
     let first = std::fs::read_to_string(dir.path().join("out/names.txt")).expect("first output");
 
-    CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::cargo_bin("ggen")
         .args(["sync", "run"])
         .current_dir(dir.path())
         .run()
@@ -277,7 +277,7 @@ fn sync_run_missing_manifest_exits_nonzero() {
         .current_dir(dir.path())
         .run()
         .expect("run sync with no ggen.toml");
-    output.assert_failure();
+    let _ = output.assert_failure();
 }
 
 // ---------------------------------------------------------------------
@@ -467,7 +467,7 @@ fn sync_run_watch_missing_manifest_exits_nonzero_without_hanging() {
         .current_dir(dir.path())
         .run()
         .expect("run sync run --watch with no ggen.toml");
-    output.assert_failure();
+    let _ = output.assert_failure();
 }
 
 #[test]
@@ -488,7 +488,7 @@ fn sync_run_unbound_template_variable_exits_nonzero() {
         .current_dir(dir.path())
         .run()
         .expect("run graph validate");
-    output.assert_failure().assert_stderr_contains("FM-TPL-003");
+    let _ = output.assert_failure().assert_stderr_contains("FM-TPL-003");
 }
 
 // ---------------------------------------------------------------------
@@ -504,7 +504,7 @@ fn graph_validate_valid_project_exits_zero() {
         .current_dir(dir.path())
         .run()
         .expect("run graph validate");
-    output
+    let _ = output
         .assert_success()
         .assert_stdout_contains("templates_checked");
 }
@@ -517,7 +517,7 @@ fn graph_validate_missing_manifest_exits_nonzero() {
         .current_dir(dir.path())
         .run()
         .expect("run graph validate");
-    output.assert_failure();
+    let _ = output.assert_failure();
 }
 
 #[test]
@@ -534,7 +534,7 @@ fn graph_validate_malformed_ontology_exits_nonzero() {
         .current_dir(dir.path())
         .run()
         .expect("run graph validate on bad ttl");
-    output.assert_failure();
+    let _ = output.assert_failure();
 }
 
 // ---------------------------------------------------------------------
@@ -549,7 +549,7 @@ fn receipt_verify_missing_receipt_exits_nonzero() {
         .current_dir(dir.path())
         .run()
         .expect("run receipt verify with no receipt");
-    output.assert_failure();
+    let _ = output.assert_failure();
 }
 
 #[test]
@@ -557,14 +557,14 @@ fn receipt_verify_succeeds_after_sync_and_fails_on_tamper() {
     let dir = TempDir::new().expect("tempdir");
     scaffold(dir.path());
 
-    CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::cargo_bin("ggen")
         .args(["sync", "run"])
         .current_dir(dir.path())
         .run()
         .expect("sync")
         .assert_success();
 
-    CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::cargo_bin("ggen")
         .args(["receipt", "verify"])
         .current_dir(dir.path())
         .run()
@@ -577,7 +577,7 @@ fn receipt_verify_succeeds_after_sync_and_fails_on_tamper() {
         .expect("read receipt")
         .replace("\"graph_hash\"", "\"graph_hash_tampered_key_x\"");
     std::fs::write(&receipt_path, tampered).expect("write tampered");
-    CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::cargo_bin("ggen")
         .args(["receipt", "verify"])
         .current_dir(dir.path())
         .run()
@@ -593,7 +593,7 @@ fn receipt_history_missing_log_exits_nonzero() {
         .current_dir(dir.path())
         .run()
         .expect("run receipt history with no log");
-    output.assert_failure();
+    let _ = output.assert_failure();
 }
 
 #[test]
@@ -601,7 +601,7 @@ fn receipt_history_after_two_syncs_exits_zero() {
     let dir = TempDir::new().expect("tempdir");
     scaffold(dir.path());
 
-    CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::cargo_bin("ggen")
         .args(["sync", "run"])
         .current_dir(dir.path())
         .run()
@@ -614,7 +614,7 @@ fn receipt_history_after_two_syncs_exits_zero() {
         "@prefix ex: <http://example.org/> .\nex:alice ex:name \"alice\" .\nex:bob ex:name \"bob\" .\n",
     )
     .expect("mutate ontology");
-    CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::cargo_bin("ggen")
         .args(["sync", "run"])
         .current_dir(dir.path())
         .run()
@@ -626,7 +626,7 @@ fn receipt_history_after_two_syncs_exits_zero() {
         .current_dir(dir.path())
         .run()
         .expect("run receipt history");
-    output
+    let _ = output
         .assert_success()
         .assert_stdout_contains("\"records\": 2");
 }
@@ -642,7 +642,7 @@ fn receipt_history_tampered_middle_record_exits_nonzero() {
             format!("@prefix ex: <http://example.org/> .\nex:alice ex:name \"{name}\" .\n"),
         )
         .expect("mutate ontology");
-        CliHarness::cargo_bin("ggen")
+        let _ = CliHarness::cargo_bin("ggen")
             .args(["sync", "run"])
             .current_dir(dir.path())
             .run()
@@ -666,7 +666,7 @@ fn receipt_history_tampered_middle_record_exits_nonzero() {
         .current_dir(dir.path())
         .run()
         .expect("run receipt history on tampered log");
-    output.assert_failure();
+    let _ = output.assert_failure();
 }
 
 // ---------------------------------------------------------------------
@@ -679,7 +679,7 @@ fn introspect_emits_json_schema_and_exits_zero() {
         .args(["--introspect"])
         .run()
         .expect("run --introspect");
-    output.assert_success();
+    let _ = output.assert_success();
     assert!(
         output.stdout.trim_start().starts_with('['),
         "expected a JSON array of tool definitions, got: {}",
@@ -696,7 +696,7 @@ fn format_json_flag_produces_parseable_json_on_success() {
         .current_dir(dir.path())
         .run()
         .expect("run graph validate --format json");
-    output.assert_success();
+    let _ = output.assert_success();
     serde_json::from_str::<serde_json::Value>(&output.stdout)
         .unwrap_or_else(|e| panic!("stdout not valid JSON ({e}): {}", output.stdout));
 }

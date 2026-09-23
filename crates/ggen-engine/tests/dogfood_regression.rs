@@ -117,7 +117,7 @@ fn ggen_regenerates_route_files_byte_identically() {
     }
 
     // Dry-run must at least parse the manifest and exit 0.
-    CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::cargo_bin("ggen")
         .args(["sync", "run", "--dry-run"])
         .current_dir(&stage)
         .run()
@@ -125,7 +125,7 @@ fn ggen_regenerates_route_files_byte_identically() {
         .assert_success();
 
     // Real sync inside the temp copy: regenerates every output there.
-    CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::cargo_bin("ggen")
         .args(["sync", "run"])
         .current_dir(&stage)
         .run()

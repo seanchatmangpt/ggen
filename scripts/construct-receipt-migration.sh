@@ -56,10 +56,30 @@ example_root="$repo_root/examples/interview-sandbox"
 ggen_bin="$repo_root/target/debug/ggen"
 
 if (cd "$example_root" && "$ggen_bin" receipt history > /tmp/pre-history.out 2> /tmp/pre-history.err); then
-  echo 'REFUSED: admitted legacy chain unexpectedly verified before F1 migration' >&2
-  exit 3
+  # The F1 migration for this example was already executed and persisted to
+  # the repository (a3e01321c, 2026-08-16: "persist verified interview-sandbox
+  # F1 migration"), so on any main-derived subject the legacy chain verifies
+  # cleanly BEFORE this constructor runs. Refusing here (the historical
+  # behavior) would refuse every current subject, red-lining live-examples on
+  # main since that commit — the constructor's premise aged out, not its
+  # algorithm. Two lawful subjects remain:
+  #   pre-F1 subject:  history FAILS with FM-CHAIN-*  -> original path below;
+  #     the constructor is expected to change sync.rs and reseal the chain.
+  #   post-F1 subject: history SUCCEEDS               -> prove idempotence:
+  #     the migration test re-runs and the sha256-stability diff at the end
+  #     of this script still holds (second run must not move the sealed
+  #     chain); the working tree must remain clean — resealing an already
+  #     sealed chain changes nothing.
+  if ! grep -q 'std::env::var_os("GGEN_RECEIPT_MIGRATION_ROOT")' crates/ggen-engine/src/sync.rs; then
+    echo 'REFUSED: legacy chain verified but the F1 migration is not applied' >&2
+    exit 3
+  fi
+  export SUBJECT_MODE=post-f1
+  echo 'ALIVE: chain already migrated and persisted (post-F1 subject); proving idempotence'
+else
+  grep -Eq 'FM-CHAIN-(007|009|014)|chain hash mismatch' /tmp/pre-history.err
+  export SUBJECT_MODE=pre-f1
 fi
-grep -Eq 'FM-CHAIN-(007|009|014)|chain hash mismatch' /tmp/pre-history.err
 
 export GGEN_RECEIPT_MIGRATION_ROOT="$example_root"
 cargo test -p ggen-engine --lib reseal_receipt_log_under_post_f1_chain_hash_formula -- --ignored --nocapture
@@ -79,6 +99,7 @@ diff -u /tmp/migration-first.sha256 /tmp/migration-second.sha256
 
 git status --short > /tmp/migration-status.txt
 python3 - <<'PY'
+import os
 import subprocess
 
 allowed = {
@@ -91,6 +112,12 @@ untracked = set(subprocess.check_output(['git', 'ls-files', '--others', '--exclu
 unexpected = (changed | untracked) - allowed
 if unexpected:
     raise SystemExit('REFUSED: unexpected migration fallout: ' + ', '.join(sorted(unexpected)))
+if os.environ['SUBJECT_MODE'] == 'post-f1':
+    # An already-sealed chain must not move: idempotence IS the assertion.
+    if changed or untracked:
+        raise SystemExit('REFUSED: post-F1 subject must stay byte-identical, changed: '
+                         + ', '.join(sorted(changed | untracked)))
+    raise SystemExit(0)
 missing = allowed - changed
 if missing:
     raise SystemExit('REFUSED: expected migration change missing: ' + ', '.join(sorted(missing)))
