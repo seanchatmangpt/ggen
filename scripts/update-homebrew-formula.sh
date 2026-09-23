@@ -47,11 +47,21 @@ echo "  macOS x86_64: ${SHA_X86_64_DARWIN}"
 echo "  Linux ARM64:  ${SHA_AARCH64_LINUX}"
 echo "  Linux x86_64: ${SHA_X86_64_LINUX}"
 
-# Clone or update homebrew-tap
+# Clone or update homebrew-tap. HOMEBREW_TAP_TOKEN (a PAT with repo:write on
+# seanchatmangpt/homebrew-tap) is optional locally; the GitHub Actions workflow
+# exports COMMITTER_TOKEN as HOMEBREW_TAP_TOKEN so the push authenticates —
+# plain https clone can read but not push, which is why every previous
+# workflow run could compute a formula yet could never have landed it.
+TAP_URL="https://github.com/seanchatmangpt/homebrew-tap.git"
+if [[ -n "${HOMEBREW_TAP_TOKEN:-}" ]]; then
+  TAP_URL="https://x-access-token:${HOMEBREW_TAP_TOKEN}@github.com/seanchatmangpt/homebrew-tap.git"
+fi
 HOMEBREW_TAP_DIR="/tmp/homebrew-tap-$$"
 log_info "Cloning homebrew-tap repository..."
-git clone https://github.com/seanchatmangpt/homebrew-tap.git "$HOMEBREW_TAP_DIR"
+git clone "$TAP_URL" "$HOMEBREW_TAP_DIR"
 cd "$HOMEBREW_TAP_DIR"
+git config user.name "${GGEN_RELEASE_BOT_NAME:-ggen-homebrew-releaser}"
+git config user.email "${GGEN_RELEASE_BOT_EMAIL:-actions@users.noreply.github.com}"
 
 # Update formula
 FORMULA_FILE="Formula/ggen.rb"

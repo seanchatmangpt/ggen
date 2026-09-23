@@ -1,0 +1,15 @@
+[pack]
+name = "gall-semantic-work-pack"
+version = "26.9.22"
+description = """
+Authority-free execution descriptor for GALL semantic work orders (GGEN-26922-04).
+One unified line merging PR #722's projection pack, PR #723's execution_repo_alias
+contract, and feat/v26.9.19-work-envelope-v2's typed dependencies + authority NONE
+into a single descriptor satisfying the XaaS consumer contract
+`Xaas.Ultracode.SemanticWork` (@required) verbatim. Renders the machine descriptor
+(generated/gall-work-order-descriptor.json) and the human checkpoint projection
+(generated/gall-work-order-checkpoint.md) from the canonical graph; the descriptor
+carries authority NONE and is never an authority grant. The marketplace index entry
+(marketplace/packs/gall-semantic-work.toml) mirrors this pack's template contract
+for the registry surface; the canonical templates live in this pack.
+"""

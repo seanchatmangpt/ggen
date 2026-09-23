@@ -1,0 +1,42 @@
+---
+to: generated/gall-work-order-descriptor.json
+for_each: work_order
+sparql:
+  work_order: |
+    PREFIX gsw: <https://ggen.dev/ontology/gall-semantic-work#>
+    SELECT ?work_order_iri ?checkpoint_iri ?graph_digest ?repository_identity
+           ?execution_repo_alias ?base_sha ?goal ?provider ?verifier_suite
+           ?execution_policy ?standing ?dependencies
+    WHERE {
+      ?wo a gsw:WorkOrderExecutionDescriptor ;
+          gsw:checkpointIri ?checkpoint_iri ;
+          gsw:graphDigest ?graph_digest ;
+          gsw:repositoryIdentity ?repository_identity ;
+          gsw:executionRepoAlias ?execution_repo_alias ;
+          gsw:baseSha ?base_sha ;
+          gsw:goal ?goal ;
+          gsw:provider ?provider ;
+          gsw:verifierSuite ?verifier_suite ;
+          gsw:executionPolicy ?execution_policy ;
+          gsw:standing ?standing ;
+          gsw:dependenciesJson ?dependencies .
+      BIND(STR(?wo) AS ?work_order_iri)
+    }
+---
+{
+  "schema": "gall.work-order-execution/2",
+  "type": "gall:WorkOrderExecutionDescriptor",
+  "work_order_iri": {{ work_order_iri | json_encode }},
+  "checkpoint_iri": {{ checkpoint_iri | json_encode }},
+  "graph_digest": {{ graph_digest | json_encode }},
+  "repository_identity": {{ repository_identity | json_encode }},
+  "execution_repo_alias": {{ execution_repo_alias | json_encode }},
+  "base_sha": {{ base_sha | json_encode }},
+  "goal": {{ goal | json_encode }},
+  "provider": {{ provider | json_encode }},
+  "verifier_suite": {{ verifier_suite | json_encode }},
+  "execution_policy": {{ execution_policy | json_encode }},
+  "standing": {{ standing | json_encode }},
+  "dependencies": {{ dependencies }},
+  "authority": "NONE"
+}
