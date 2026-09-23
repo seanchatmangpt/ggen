@@ -12,7 +12,9 @@ Binary resolution: $GGEN_LSP_BIN, else target/debug/ggen-lsp, else `ggen-lsp` on
 import json, os, signal, subprocess, sys, tempfile
 
 BIN = os.environ.get("GGEN_LSP_BIN") or (
-    "target/debug/ggen-lsp" if os.path.exists("target/debug/ggen-lsp") else "ggen-lsp")
+    # abspath now, against the invocation cwd: Popen's cwd=t would otherwise
+    # resolve the relative binary path under the temp dir and ENOENT.
+    os.path.abspath("target/debug/ggen-lsp") if os.path.exists("target/debug/ggen-lsp") else "ggen-lsp")
 BROKEN = "CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o }\n"
 URI = "file:///smoke/q.rq"
 

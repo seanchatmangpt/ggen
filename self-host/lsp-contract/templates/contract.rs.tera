@@ -15,11 +15,7 @@ pub const REQUIRED_METHODS: &[&str] = &[
 {%- endfor %}
 ];
 
-pub const REQUIRED_SURFACES: &[&str] = &[
-{%- for row in surfaces %}
-    {{ row.extension | json_encode() }},
-{%- endfor %}
-];
+pub const REQUIRED_SURFACES: &[&str] = &[{%- for row in surfaces %}{{ row.extension | json_encode() }}{% if not loop.last %}, {% endif %}{%- endfor %}];
 
 pub const DECLARED_DIAGNOSTICS: &[&str] = &[
 {%- for row in diagnostics %}
