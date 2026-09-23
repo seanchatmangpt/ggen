@@ -655,6 +655,13 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
         }
     }
 
+    // Pack-shipped named query bindings (RFC-GPACK-001 §13): filled by the
+    // pack loop below (file stem → retrieval result), merged UNDER every
+    // template's own extraction before rendering. Declared here so the
+    // generate stage's render contexts see them; an empty map (no pack
+    // ships `queries/`) changes nothing for existing packs.
+    let mut pack_query_bindings: BTreeMap<String, Value> = BTreeMap::new();
+
     // Pack-shipped SPARQL gates: any resolved pack may carry a `gates/`
     // directory of `*.rq` files next to its `ontology.ttl`. Each one is
     // evaluated (in sorted filename order) against the same union graph the
@@ -739,6 +746,66 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
                     ));
                 }
             }
+        }
+
+        // Pack-shipped named queries (RFC-GPACK-001 §13, resolving D1 —
+        // §3.5 Query Is Not Gate): any resolved pack may carry a
+        // `queries/` directory of `*.rq` files next to its `ontology.ttl`.
+        // Each file is parsed with the exact same `.rq` convention as gates
+        // (optional leading `# MESSAGE:` block, then one query) and
+        // executed against the same post-materialization union graph — but
+        // with RETRIEVAL semantics, never refusal semantics: rows are
+        // bound into every template's render context under the file stem
+        // (e.g. `queries/entities.rq` → `entities`), and a query returning
+        // rows causes NO refusal and NO error. Discovery is sorted lexical
+        // path order (§13 canonical order), byte-identical to gates. Every
+        // query file joins the receipt closure like gates do — a changed
+        // query is a changed governing input, so replay identity holds.
+        // Shadowing is deterministic: a template's own `sparql:` key wins
+        // over a same-named pack query (pack bindings merge with
+        // `or_insert`), and a cross-pack duplicate stem resolves by last
+        // pack in `resolve()` order (conflict detection belongs to
+        // dependency semantics — out of scope here).
+        for query_path in list_query_files(&pack.root.join("queries"), &pack.name)? {
+            let src = std::fs::read_to_string(&query_path).map_err(|e| {
+                AppError::fm_pack(
+                    12,
+                    format!(
+                        "pack `{}`: query `{}` exists but is unreadable: {e}. \
+                         Remediation: fix the file's permissions/encoding or remove it.",
+                        pack.name,
+                        query_path.display()
+                    ),
+                )
+            })?;
+            closure.insert(
+                rel_display(root, &query_path),
+                hash_file_or_missing(&query_path),
+            );
+            let parsed = parse_gate_source(&src);
+            let value = sparql_to_value(graph.as_ref(), &parsed.query)?;
+            if let Some(rows) = value.as_array() {
+                if rows.len() > MAX_QUERY_RESULT_ROWS {
+                    return Err(AppError::fm_pack(
+                        21,
+                        format!(
+                            "pack `{}`: named query `{}` produced {} row(s), over \
+                             the Fortune 5 limit of {MAX_QUERY_RESULT_ROWS}. \
+                             Remediation: constrain the query with a selective \
+                             WHERE clause, grouping, or an explicit LIMIT.",
+                            pack.name,
+                            query_path.display(),
+                            rows.len()
+                        ),
+                    ));
+                }
+            }
+            let stem = query_path
+                .file_stem()
+                .unwrap_or(query_path.as_os_str())
+                .to_string_lossy()
+                .to_string();
+            pack_query_bindings.insert(stem, value);
         }
     }
 
@@ -849,20 +916,25 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
                     Some(fresh_overlay) => fresh_overlay,
                     None => fresh_base,
                 };
-            Some(extract_query_results(
-                recheck_graph.as_ref(),
-                tpl_path,
-                &tpl.frontmatter,
-                "determinism_recheck",
-            )?)
+            Some(merge_pack_query_bindings(
+                extract_query_results(
+                    recheck_graph.as_ref(),
+                    tpl_path,
+                    &tpl.frontmatter,
+                    "determinism_recheck",
+                )?,
+                &pack_query_bindings,
+            ))
         } else {
             None
         };
 
-        // Extract: `when:` ASK guard + named `sparql:` SELECTs → rows.
-        let Some((named, results)) =
-            extract_query_results(active_graph.as_ref(), tpl_path, &tpl.frontmatter, "primary")?
-        else {
+        // Extract: `when:` ASK guard + named `sparql:` SELECTs → rows, then
+        // layer pack `queries/` bindings underneath (template keys win).
+        let Some((named, results)) = merge_pack_query_bindings(
+            extract_query_results(active_graph.as_ref(), tpl_path, &tpl.frontmatter, "primary")?,
+            &pack_query_bindings,
+        ) else {
             // The independent recheck was already computed above (if
             // `determinism: true`) for exactly this situation. A primary
             // `when:` guard evaluating false must not silently bypass
@@ -1379,22 +1451,25 @@ fn engine_value_display(value: &crate::graph::EngineValue) -> String {
     }
 }
 
-/// The sorted `*.rq` files under a pack's `gates/` directory. A missing
-/// directory is simply "no gates" (empty vec); a directory that exists but
-/// cannot be enumerated is a typed `[FM-PACK-012]` refusal — an existing
-/// gate directory whose contents cannot be seen must never be silently
-/// treated as gateless (fail-open).
-fn list_gate_files(gates_dir: &Path, pack_name: &str) -> Result<Vec<PathBuf>> {
-    if !gates_dir.is_dir() {
+/// The sorted `*.rq` files under one of a pack's SPARQL directories
+/// (`dir_kind` = `gates` — refusal law, RFC-GPACK-001 §14; `queries` —
+/// named render bindings, RFC §13). A missing directory is simply "no
+/// files" (empty vec); a directory that exists but cannot be enumerated is
+/// a typed `[FM-PACK-012]` refusal — an existing directory whose contents
+/// cannot be seen must never be silently treated as empty (fail-open).
+/// `paths.sort()` gives the canonical lexical path order §13 requires for
+/// BOTH directories.
+fn list_rq_files(rq_dir: &Path, pack_name: &str, dir_kind: &str) -> Result<Vec<PathBuf>> {
+    if !rq_dir.is_dir() {
         return Ok(Vec::new());
     }
-    let entries = std::fs::read_dir(gates_dir).map_err(|e| {
+    let entries = std::fs::read_dir(rq_dir).map_err(|e| {
         AppError::fm_pack(
             12,
             format!(
-                "pack `{pack_name}`: gates directory `{}` exists but is unreadable: {e}. \
+                "pack `{pack_name}`: {dir_kind} directory `{}` exists but is unreadable: {e}. \
                  Remediation: fix the directory's permissions or remove it.",
-                gates_dir.display()
+                rq_dir.display()
             ),
         )
     })?;
@@ -1405,8 +1480,8 @@ fn list_gate_files(gates_dir: &Path, pack_name: &str) -> Result<Vec<PathBuf>> {
                 AppError::fm_pack(
                     12,
                     format!(
-                        "pack `{pack_name}`: gates directory `{}` entry unreadable: {e}.",
-                        gates_dir.display()
+                        "pack `{pack_name}`: {dir_kind} directory `{}` entry unreadable: {e}.",
+                        rq_dir.display()
                     ),
                 )
             })?
@@ -1417,6 +1492,17 @@ fn list_gate_files(gates_dir: &Path, pack_name: &str) -> Result<Vec<PathBuf>> {
     }
     paths.sort();
     Ok(paths)
+}
+
+/// The sorted `*.rq` files under a pack's `gates/` directory (refusal law).
+fn list_gate_files(gates_dir: &Path, pack_name: &str) -> Result<Vec<PathBuf>> {
+    list_rq_files(gates_dir, pack_name, "gates")
+}
+
+/// The sorted `*.rq` files under a pack's `queries/` directory (named
+/// render bindings — RFC-GPACK-001 §13; rows never refuse, §3.5).
+fn list_query_files(queries_dir: &Path, pack_name: &str) -> Result<Vec<PathBuf>> {
+    list_rq_files(queries_dir, pack_name, "queries")
 }
 
 /// Root-relative display form of a closure input path (falls back to the
@@ -1449,6 +1535,26 @@ pub(crate) fn hash_file_or_missing(path: &Path) -> String {
 /// `None` (the outer [`Option`] returned by [`extract_query_results`] itself)
 /// means the `when:` guard evaluated `false` — the template must be skipped.
 type ExtractedRows = Option<(BTreeMap<String, Value>, Vec<Value>)>;
+
+/// Layer pack `queries/*.rq` named bindings UNDER one extraction result:
+/// template-declared keys win, pack queries only fill gaps (`or_insert`).
+/// Applied AFTER `for_each`/implicit-driver resolution (which happens
+/// inside [`extract_query_results`]), so a pack query can never become a
+/// template's driving row set or fan-out driver — per RFC-GPACK-001 §13,
+/// pack queries are additive named render bindings only. Applied to both
+/// the primary extraction and the `determinism: true` recheck extraction,
+/// so a recheck render sees the identical binding layer and the byte
+/// comparison stays meaningful.
+fn merge_pack_query_bindings(
+    extracted: ExtractedRows, pack_bindings: &BTreeMap<String, Value>,
+) -> ExtractedRows {
+    extracted.map(|(mut named, results)| {
+        for (key, value) in pack_bindings {
+            named.entry(key.clone()).or_insert_with(|| value.clone());
+        }
+        (named, results)
+    })
+}
 
 /// Run this template's `when:` ASK guard and named `sparql:` SELECTs against
 /// `active_graph`. Returns `Ok(None)` when a `when:` guard is present and
