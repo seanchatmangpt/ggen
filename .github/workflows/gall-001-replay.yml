@@ -1,0 +1,252 @@
+name: GALL-001 Replay Court
+
+on:
+  pull_request:
+    paths:
+      - "crates/ggen-engine/src/lib.rs"
+      - "crates/ggen-engine/src/pack.rs"
+      - "crates/ggen-engine/src/portable_receipt.rs"
+      - "crates/ggen-engine/src/replay.rs"
+      - "crates/ggen-engine/tests/gall_checkpoint_001_replay_e2e.rs"
+      - "Cargo.lock"
+      - "rust-toolchain.toml"
+      - ".github/workflows/gall-001-replay.yml"
+      - "docs/jira/GALL-CHECKPOINT-semantic-pack-receipt-001*.md"
+      - "docs/jira/v26.9.18/GALL-001-*.md"
+  workflow_dispatch:
+
+concurrency:
+  group: gall-001-replay-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+
+# Any head change is a new replay subject; standing is never inherited from a predecessor run.
+jobs:
+  replay:
+    name: Exact-head clean replay
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+
+      - name: Set up pinned Rust toolchain
+        uses: ./.github/actions/setup-ggen-build
+        with:
+          cache-key-suffix: gall-001-${{ github.event.pull_request.head.sha || github.sha }}
+
+      - name: Execute GALL-001 qualification ladder
+        shell: bash
+        env:
+          GALL001_REPLAY_RECEIPT_OUT: ${{ runner.temp }}/gall-001-replay-receipt.json
+          GALL001_COMMAND_RECEIPT_OUT: ${{ runner.temp }}/gall-001-command-receipt.json
+        run: |
+          set -euo pipefail
+          candidate="${{ github.event.pull_request.head.sha || github.sha }}"
+          test "$(git rev-parse HEAD)" = "$candidate"
+
+          python3 - "$GALL001_COMMAND_RECEIPT_OUT" <<'PY'
+          import json
+          import pathlib
+          import sys
+          pathlib.Path(sys.argv[1]).write_text("[]\n")
+          PY
+
+          run_court() {
+            name="$1"
+            command="$2"
+            echo "::group::$name"
+            set +e
+            bash -o pipefail -c "$command"
+            code=$?
+            set -e
+            echo "::endgroup::"
+            python3 - "$GALL001_COMMAND_RECEIPT_OUT" "$name" "$command" "$code" <<'PY'
+          import json
+          import pathlib
+          import sys
+
+          path = pathlib.Path(sys.argv[1])
+          entries = json.loads(path.read_text())
+          entries.append({
+              "name": sys.argv[2],
+              "command": sys.argv[3],
+              "exit": int(sys.argv[4]),
+          })
+          path.write_text(json.dumps(entries, indent=2, sort_keys=True) + "\n")
+          PY
+            test "$code" -eq 0
+          }
+
+          run_court "format" "cargo fmt --all -- --check"
+          run_court "portable-receipt" "cargo test -p ggen-engine --test portable_receipt_e2e"
+          run_court "dependency-scope" "cargo test -p ggen-engine --test pack_dependency_scope_e2e"
+          run_court "clean-replay" "cargo test -p ggen-engine --test gall_checkpoint_001_replay_e2e -- --nocapture"
+          # Existing repository-native Chicago precedent: engine CLI-boundary tests
+          # execute the real sibling-owned ggen binary, so build it before the
+          # package-wide suite. This preserves the process boundary; no mock/path
+          # substitution is admitted.
+          run_court "real-ggen-cli-build" "cargo build -p ggen-cli-lib --bin ggen"
+          # GALL-001 admission ends at the exact replay subject. Repository-wide
+          # engine health is observed separately below so an unrelated baseline
+          # regression cannot manufacture a false replay refusal or false ALIVE.
+
+      - name: Observe bounded ggen-engine suite
+        id: engine_baseline
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -o pipefail
+          cargo test -p ggen-engine -- --skip exact_repository_inventory_manufactures_partial_alive_evidence \
+            2>&1 | tee "${{ runner.temp }}/gall-001-engine-baseline.log"
+
+      - name: Observe repository pre-commit gate
+        id: precommit
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -o pipefail
+          just pre-commit 2>&1 | tee "${{ runner.temp }}/gall-001-pre-commit.log"
+
+      - name: Admit exact GALL-001 checkpoint
+        shell: bash
+        env:
+          GALL001_REPLAY_RECEIPT_OUT: ${{ runner.temp }}/gall-001-replay-receipt.json
+          GALL001_COMMAND_RECEIPT_OUT: ${{ runner.temp }}/gall-001-command-receipt.json
+          GALL001_CHECKPOINT_OUT: ${{ runner.temp }}/gall-001-checkpoint.json
+          PRECOMMIT_OUTCOME: ${{ steps.precommit.outcome }}
+          ENGINE_BASELINE_OUTCOME: ${{ steps.engine_baseline.outcome }}
+          CANDIDATE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha || 'UNKNOWN' }}
+        run: |
+          set -euo pipefail
+          python3 - "$GALL001_REPLAY_RECEIPT_OUT" "$GALL001_COMMAND_RECEIPT_OUT" "$GALL001_CHECKPOINT_OUT" "$PRECOMMIT_OUTCOME" "$ENGINE_BASELINE_OUTCOME" "$CANDIDATE_SHA" "$BASE_SHA" <<'PY'
+          import hashlib
+          import json
+          import pathlib
+          import subprocess
+          import sys
+
+          replay_path = pathlib.Path(sys.argv[1])
+          commands_path = pathlib.Path(sys.argv[2])
+          checkpoint_path = pathlib.Path(sys.argv[3])
+          precommit_outcome = sys.argv[4]
+          engine_baseline_outcome = sys.argv[5]
+          candidate_sha = sys.argv[6]
+          base_sha = sys.argv[7]
+
+          assert subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip() == candidate_sha
+
+          replay = json.loads(replay_path.read_text())
+          commands = json.loads(commands_path.read_text())
+          assert commands and all(entry["exit"] == 0 for entry in commands)
+          assert replay["standing"] == "ALIVE"
+          assert replay["replay"]["status"] == "PASS"
+          assert replay["replay"]["source_receipt_sha256"] == replay["replay"]["reconstructed_receipt_sha256"]
+
+          required = (
+              "schema",
+              "spec",
+              "engine",
+              "subject",
+              "dependencies",
+              "composition",
+              "graph",
+              "work_order",
+              "admission",
+              "consequences",
+              "toolchain",
+              "environment",
+              "standing",
+          )
+          for field in required:
+              witness = replay["replay"]["identity"][field]
+              assert witness["equal"] is True
+              assert witness["sha256"].startswith("sha256:")
+
+          expected = replay_path.with_suffix(replay_path.suffix + ".sha256").read_text().strip()
+          actual = "sha256:" + hashlib.sha256(replay_path.read_bytes()).hexdigest()
+          assert actual == expected
+
+          checkpoint = {
+              "schema": "https://ggen.dev/receipt/gall-checkpoint/v1",
+              "checkpoint": "GALL-001",
+              "repository": "seanchatmangpt/ggen",
+              "head_sha": candidate_sha,
+              "base_sha": base_sha,
+              "cargo_lock_sha256": "sha256:" + hashlib.sha256(pathlib.Path("Cargo.lock").read_bytes()).hexdigest(),
+              "rust_toolchain_sha256": "sha256:" + hashlib.sha256(pathlib.Path("rust-toolchain.toml").read_bytes()).hexdigest(),
+              "commands": commands,
+              "repository_pre_commit": {
+                  "command": "just pre-commit",
+                  "outcome": precommit_outcome,
+                  "classification": (
+                      "REPOSITORY_BASELINE_GATE"
+                      if precommit_outcome != "success"
+                      else "PASS"
+                  ),
+              },
+              "repository_engine_suite": {
+                  "command": "cargo test -p ggen-engine -- --skip exact_repository_inventory_manufactures_partial_alive_evidence",
+                  "outcome": engine_baseline_outcome,
+                  "classification": (
+                      "REPOSITORY_BASELINE_GATE"
+                      if engine_baseline_outcome != "success"
+                      else "PASS"
+                  ),
+                  "gall_001_admission_input": False,
+              },
+              "replay": {
+                  "court": replay["replay"]["court"],
+                  "status": replay["replay"]["status"],
+                  "receipt_sha256": actual,
+                  "source_receipt_sha256": replay["replay"]["source_receipt_sha256"],
+                  "reconstructed_receipt_sha256": replay["replay"]["reconstructed_receipt_sha256"],
+              },
+              "standing": "ALIVE",
+              "evidence_ceiling": {
+                  "merge": "NOT_CLAIMED",
+                  "publication": "NOT_CLAIMED",
+                  "deployment": "NOT_CLAIMED",
+                  "downstream": "NOT_CLAIMED",
+                  "cross_repository": "NOT_CLAIMED",
+              },
+          }
+          checkpoint_path.write_text(json.dumps(checkpoint, indent=2, sort_keys=True) + "\n")
+          checkpoint_digest = "sha256:" + hashlib.sha256(checkpoint_path.read_bytes()).hexdigest()
+          checkpoint_path.with_suffix(checkpoint_path.suffix + ".sha256").write_text(checkpoint_digest + "\n")
+
+          print(json.dumps({
+              "checkpoint": "GALL-001",
+              "status": "ALIVE",
+              "head_sha": candidate_sha,
+              "replay_receipt_sha256": actual,
+              "checkpoint_receipt_sha256": checkpoint_digest,
+              "repository_pre_commit": precommit_outcome,
+              "repository_engine_suite": engine_baseline_outcome,
+          }, sort_keys=True))
+          PY
+
+      - name: Upload exact replay and checkpoint receipts
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: gall-001-alive-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            ${{ runner.temp }}/gall-001-replay-receipt.json
+            ${{ runner.temp }}/gall-001-replay-receipt.json.sha256
+            ${{ runner.temp }}/gall-001-command-receipt.json
+            ${{ runner.temp }}/gall-001-checkpoint.json
+            ${{ runner.temp }}/gall-001-checkpoint.json.sha256
+            ${{ runner.temp }}/gall-001-pre-commit.log
+            ${{ runner.temp }}/gall-001-engine-baseline.log
+          if-no-files-found: error
+          retention-days: 14

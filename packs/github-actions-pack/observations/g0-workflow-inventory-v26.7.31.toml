@@ -3,7 +3,7 @@ schema_version = 1
 repository = "seanchatmangpt/ggen"
 implementation_base_sha = "2364ccda8d1a38f14e314365583c99f3fb81357d"
 historical_inventory_sha = "f775fbb8b147ccdde2e2629df944552ffbfc6214"
-expected_workflow_count = 83
+expected_workflow_count = 84
 # Re-observed 2026-08-03 (TECH-DEBT-003 fix): the original 48-workflow snapshot below
 # (observation_date 2026-07-30) went stale as 28 more workflows merged to main via real,
 # separate PRs after that date (each has its own commit in `git log -- .github/workflows/`,
@@ -130,6 +130,10 @@ acceptance = "Retain until the reusable infrastructure profile preserves real-bo
 "agent-source-capsule.yml" = { owner = "agent-transport/source-capsule", purpose = "Archive the exact-head engine-crate source tree (ggen-engine, praxis-core, praxis-graphlaw, ggen-marketplace, ggen-config) into a checksummed tarball for cross-agent transport, without mutating tracked state (contents: read).", evidence = "uploaded ggen-source.tar.gz capsule and sha256 checksum", output = "observation:agent-source-capsule", fence = "observation" }
 "certification-assist-evidence-control-v26-7-31.yml" = { owner = "certification-assist/evidence-control", purpose = "Enforce the read-only changed-source hygiene gate and crown verification for the CertificationAssist evidence-control pack.", evidence = "crown job logs", output = "capability:certification-assist-evidence-control-v26.7.31", fence = "verification" }
 "cyberpunk-tv-platform.yml" = { owner = "packs/cyberpunk-tv-platform", purpose = "Manufacture, execute, and replay the Cyberpunk TV Platform pack capability.", evidence = "manufacture-execute-replay job logs", output = "capability:cyberpunk-tv-platform", fence = "verification" }
+# 84th entry (2026-09-23, GGEN-26922-03): gall-001-replay.yml merged via PR #720's
+# branch; facts grounded in the file's own name:/on:/permissions: (pull_request paths
+# + workflow_dispatch, contents: read), same discipline as the 28-entry admission above.
+"gall-001-replay.yml" = { owner = "gall/gall-001-replay-court", purpose = "Replay the GALL-001 semantic-pack receipt checkpoint against each changed head as a new replay subject (standing never inherited).", evidence = "replay court job logs and checkpoint receipt", output = "receipt:gall-001-replay-checkpoint", fence = "verification" }
 "ecosystem-alive-generated-command-format.yml" = { owner = "cli/generated-commands", purpose = "Verify the rustfmt-stable template law for the generated CLI command-reference output.", evidence = "verify job logs", output = "capability:ecosystem-alive-generated-command-format", fence = "verification" }
 "eod-repo-synthesis.yml" = { owner = "tools/eod-repo-synthesis", purpose = "Execute the real-boundary End-of-Day repository synthesis verifier and confirm it does not mutate tracked state.", evidence = "verifier machine report and git-diff non-mutation check", output = "capability:eod-repo-synthesis", fence = "verification" }
 "gbb-certification.yml" = { owner = "architecture/gbb-certification", purpose = "Verify the GBB certification program law, including refusal of a certification head detached from its live TAI parent.", evidence = "certification-law job logs", output = "capability:gbb-certification", fence = "verification" }
