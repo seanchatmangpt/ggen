@@ -718,3 +718,71 @@ prod:fm_WRITE_12 a prod:DiagnosticCode ;
     prod:family "WRITE" ;
     prod:number "12"^^xsd:integer ;
     prod:citation "crates/ggen-engine/src/sync.rs:1203" .
+
+# ---------------------------------------------------------------------------
+
+# Re-observed 2026-09-22 (v26.9.22 baseline repair, GGEN-26922-01): 15 real
+# call sites that postdate the last manual sweep of this ledger. Citations are
+# the first real call site per (family, number), found by the same scanner the
+# conformance witness runs (product_mirror_conformance.rs scan_real_fm_codes).
+prod:fm_CHAIN_12 a prod:DiagnosticCode ;
+    prod:family "CHAIN" ;
+    prod:number "12"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/verbs/handlers.rs:445" .
+prod:fm_CHAIN_13 a prod:DiagnosticCode ;
+    prod:family "CHAIN" ;
+    prod:number "13"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/verbs/handlers.rs:462" .
+prod:fm_CHAIN_14 a prod:DiagnosticCode ;
+    prod:family "CHAIN" ;
+    prod:number "14"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/verbs/handlers.rs:475" .
+prod:fm_CHAIN_15 a prod:DiagnosticCode ;
+    prod:family "CHAIN" ;
+    prod:number "15"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/portable_receipt.rs:209" .
+prod:fm_CHAIN_16 a prod:DiagnosticCode ;
+    prod:family "CHAIN" ;
+    prod:number "16"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/verbs/handlers.rs:507" .
+prod:fm_CHAIN_17 a prod:DiagnosticCode ;
+    prod:family "CHAIN" ;
+    prod:number "17"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/verbs/handlers.rs:519" .
+prod:fm_GRAPH_10 a prod:DiagnosticCode ;
+    prod:family "GRAPH" ;
+    prod:number "10"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/graph/ontology_batch.rs:108" .
+prod:fm_PACK_15 a prod:DiagnosticCode ;
+    prod:family "PACK" ;
+    prod:number "15"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/pack.rs:357" .
+prod:fm_PACK_16 a prod:DiagnosticCode ;
+    prod:family "PACK" ;
+    prod:number "16"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/pack.rs:413" .
+prod:fm_PACK_17 a prod:DiagnosticCode ;
+    prod:family "PACK" ;
+    prod:number "17"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/pack.rs:285" .
+prod:fm_PACK_18 a prod:DiagnosticCode ;
+    prod:family "PACK" ;
+    prod:number "18"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/pack.rs:449" .
+prod:fm_PACK_19 a prod:DiagnosticCode ;
+    prod:family "PACK" ;
+    prod:number "19"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/pack_scope.rs:97" .
+prod:fm_PACK_20 a prod:DiagnosticCode ;
+    prod:family "PACK" ;
+    prod:number "20"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/pack_scope.rs:301" .
+prod:fm_TPL_23 a prod:DiagnosticCode ;
+    prod:family "TPL" ;
+    prod:number "23"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/frontmatter_rdf.rs:138" .
+
+prod:fm_TPL_27 a prod:DiagnosticCode ;
+    prod:family "TPL" ;
+    prod:number "27"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/template.rs:384" .
