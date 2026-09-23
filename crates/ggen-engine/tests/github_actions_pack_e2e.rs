@@ -17,7 +17,7 @@ mod support;
 use std::path::{Path, PathBuf};
 
 use ggen_engine::sync::{sync, SyncOptions};
-use support::{copy_tree, read};
+use support::copy_tree;
 use tempfile::TempDir;
 
 fn packs_dir() -> PathBuf {
@@ -60,33 +60,6 @@ const PRODUCTS: [&str; 4] = [
     ".github/actions/emit-evidence/action.yml",
     "docs/github-actions/inspection-caller-example.yml",
 ];
-
-/// Every `uses:` line naming a remote action (`owner/repo@ref`, not a
-/// repo-local `./` path) must be pinned to a 40-hex commit SHA.
-fn assert_all_remote_refs_pinned(rel: &str, body: &str) {
-    for line in body.lines() {
-        let trimmed = line.trim();
-        let Some(rest) = trimmed
-            .strip_prefix("uses:")
-            .or_else(|| trimmed.strip_prefix("- uses:"))
-        else {
-            continue;
-        };
-        let spec = rest.trim().trim_matches(|c| c == '"' || c == '\'');
-        if spec.starts_with("./") {
-            continue; // repo-local composite action: no ref to pin
-        }
-        let Some((_, r)) = spec.split_once('@') else {
-            panic!("{rel}: remote uses without a ref: {line}");
-        };
-        // Comments after the SHA (e.g. `# v4`) are allowed.
-        let sha = r.split_whitespace().next().unwrap_or("");
-        assert!(
-            sha.len() == 40 && sha.chars().all(|c| c.is_ascii_hexdigit()),
-            "{rel}: mutable third-party action ref (not a 40-hex SHA): {line}"
-        );
-    }
-}
 
 #[test]
 fn github_actions_pack_syncs_schema_only_clean_and_idempotent() {
