@@ -76,6 +76,7 @@ jobs:
           cp generated/LSP_CONTRACT.md ../../docs/generated/LSP_CONTRACT.md
           # verify.py parses the ontology with rdflib; runner images do not
           # ship it.
+          python3 -m pip install --quiet rdflib
           python3 verify.py \
             --ggen-root ../.. \
             --legacy-root ../../external/ggen-legacy \
