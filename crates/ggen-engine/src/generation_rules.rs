@@ -701,6 +701,10 @@ pub(crate) fn run(root: &Path, manifest: &GgenManifest, opts: SyncOptions) -> Re
         graph_hash_hex,
         decisions,
         packs: BTreeMap::new(),
+        // The declarative-rules path resolves no `[packs]` entries, so both
+        // pack maps stay empty (RFC-GPACK-001 §9 additivity: the field
+        // exists so frontmatter-path receipts are not a divergent shape).
+        pack_canonical_names: BTreeMap::new(),
         closure,
     };
 

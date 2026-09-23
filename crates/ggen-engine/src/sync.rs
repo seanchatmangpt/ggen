@@ -139,6 +139,12 @@ pub struct SyncReport {
     pub decisions: BTreeMap<String, String>,
     /// Pack name → BLAKE3 hex of the pack's content hash.
     pub packs: BTreeMap<String, String>,
+    /// Consumer alias → canonical pack name (RFC-GPACK-001 §9): the alias is
+    /// the `[packs]` key (and the key of `packs` above, unchanged); the
+    /// canonical name comes from the pack's own `pack.toml` `[pack].name`.
+    /// Recorded beside — never instead of — the alias, so the receipt shows
+    /// both identities.
+    pub pack_canonical_names: BTreeMap<String, String>,
     /// Input-closure binding: root-relative input path (ontology, pack
     /// ontologies, template files, `from:` bodies) → BLAKE3 hex of the file
     /// bytes, plus an `actuator` entry naming the generator version. A
@@ -207,6 +213,13 @@ pub struct ReceiptPayload {
     /// Pack name → BLAKE3 hex of the pack's content hash.
     #[serde(default)]
     pub packs: BTreeMap<String, String>,
+    /// Consumer alias → canonical pack name (RFC-GPACK-001 §9), recorded
+    /// beside `packs` so the receipt binds BOTH identities. `#[serde(default)]`
+    /// is the sanctioned backward-compatible add: receipts written before the
+    /// alias/canonical distinction landed (and dry-run-less declarative-rules
+    /// receipts with no packs) deserialize with an empty map.
+    #[serde(default)]
+    pub pack_canonical_names: BTreeMap<String, String>,
     /// Root-relative output path → why the file landed (or did not).
     #[serde(default)]
     pub decisions: BTreeMap<String, String>,
@@ -1223,12 +1236,22 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
         })
         .collect();
 
+    // RFC-GPACK-001 §9: record the canonical pack identity (pack.toml
+    // `[pack].name`) beside the consumer alias for every resolved pack —
+    // including unlocked ones, which are absent from `pack_hashes` by
+    // design but still participated in the run.
+    let pack_canonical_names: BTreeMap<String, String> = packs
+        .iter()
+        .map(|p| (p.name.clone(), p.canonical_name.clone()))
+        .collect();
+
     let report = SyncReport {
         written,
         skipped,
         graph_hash_hex,
         decisions,
         packs: pack_hashes,
+        pack_canonical_names,
         closure,
     };
 
@@ -2838,6 +2861,7 @@ pub(crate) fn write_receipt(
         graph_hash: report.graph_hash_hex.clone(),
         outputs,
         packs: report.packs.clone(),
+        pack_canonical_names: report.pack_canonical_names.clone(),
         decisions: report.decisions.clone(),
         closure: report.closure.clone(),
     };
