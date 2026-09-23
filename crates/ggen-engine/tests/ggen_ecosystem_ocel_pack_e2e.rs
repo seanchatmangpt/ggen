@@ -5,7 +5,9 @@
 
 mod support;
 use std::path::{Path, PathBuf};
-use support::{assert_gate_refuses, assert_idempotent, read, read_json, scaffold_pack_with_ontology};
+use support::{
+    assert_gate_refuses, assert_idempotent, read, read_json, scaffold_pack_with_ontology,
+};
 
 fn packs_dir() -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR")).join("../../packs")
@@ -21,7 +23,7 @@ geocel:run-20260826 a geocel:ManufacturingRun ;
   geocel:projectOwner "seanchatmangpt" ;
   geocel:projectNumber 2 ;
   geocel:projectMemoryKey "ggen/ecosystem/ocel/current" ;
-  geocel:ocelDigest "sha256:abc123" ;
+  geocel:ocelDigest "sha256:abc1230000000000000000000000000000000000000000000000000000000000" ;
   geocel:standing "ALIVE" .
 
 geocel:repo-ggen a geocel:ManufacturingObject, geocel:RepositoryObject ;
@@ -54,10 +56,8 @@ geocel:event-generate a geocel:ManufacturingEvent ;
 
 #[test]
 fn ggen_ecosystem_ocel_pack_generates_real_ocel_and_project2_request() {
-    let (_dir, project) = scaffold_pack_with_ontology(
-        &packs_dir().join("ggen-ecosystem-ocel-pack"),
-        CONSUMER,
-    );
+    let (_dir, project) =
+        scaffold_pack_with_ontology(&packs_dir().join("ggen-ecosystem-ocel-pack"), CONSUMER);
 
     ggen_engine::sync::sync(
         &project,
@@ -99,10 +99,8 @@ fn ggen_ecosystem_ocel_pack_generates_real_ocel_and_project2_request() {
 
 #[test]
 fn ggen_ecosystem_ocel_pack_regenerates_owned_project2_request_when_digest_changes() {
-    let (_dir, project) = scaffold_pack_with_ontology(
-        &packs_dir().join("ggen-ecosystem-ocel-pack"),
-        CONSUMER,
-    );
+    let (_dir, project) =
+        scaffold_pack_with_ontology(&packs_dir().join("ggen-ecosystem-ocel-pack"), CONSUMER);
 
     ggen_engine::sync::sync(
         &project,
@@ -114,10 +112,14 @@ fn ggen_ecosystem_ocel_pack_regenerates_owned_project2_request_when_digest_chang
     .expect("baseline sync");
 
     let ontology = read(&project, "ontology.ttl");
-    assert!(ontology.contains("sha256:abc123"));
+    assert!(ontology
+        .contains("sha256:abc1230000000000000000000000000000000000000000000000000000000000"));
     std::fs::write(
         project.join("ontology.ttl"),
-        ontology.replace("sha256:abc123", "sha256:def456"),
+        ontology.replace(
+            "sha256:abc1230000000000000000000000000000000000000000000000000000000000",
+            "sha256:def4560000000000000000000000000000000000000000000000000000000000",
+        ),
     )
     .expect("change admitted digest input");
 
@@ -136,16 +138,14 @@ fn ggen_ecosystem_ocel_pack_regenerates_owned_project2_request_when_digest_chang
     );
     assert_eq!(
         request["payload"]["record"]["metadata"]["ocel_digest"],
-        "sha256:def456"
+        "sha256:def4560000000000000000000000000000000000000000000000000000000000"
     );
 }
 
 #[test]
 fn ggen_ecosystem_ocel_pack_refuses_parallel_project2_truth() {
-    let (_dir, project) = scaffold_pack_with_ontology(
-        &packs_dir().join("ggen-ecosystem-ocel-pack"),
-        CONSUMER,
-    );
+    let (_dir, project) =
+        scaffold_pack_with_ontology(&packs_dir().join("ggen-ecosystem-ocel-pack"), CONSUMER);
     ggen_engine::sync::sync(
         &project,
         ggen_engine::sync::SyncOptions {
@@ -164,7 +164,7 @@ fn ggen_ecosystem_ocel_pack_refuses_parallel_project2_truth() {
           geocel:projectOwner "seanchatmangpt" ;
           geocel:projectNumber 2 ;
           geocel:projectMemoryKey "ocel/v2/revops/current" ;
-          geocel:ocelDigest "sha256:deadbeef" ;
+          geocel:ocelDigest "sha256:deadbeef000000000000000000000000000000000000000000000000000000" ;
           geocel:standing "UNKNOWN" .
         "#,
         "030_canonical_project2_key",

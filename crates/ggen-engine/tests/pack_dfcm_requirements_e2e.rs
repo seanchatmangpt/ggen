@@ -1,4 +1,4 @@
-//! Chicago-TDD witnesses for the remaining DfCM pack-scope requirements.
+//! Chicago-TDD witnesses for the remaining `DfCM` pack-scope requirements.
 //!
 //! Real files, real pack.toml parsing, real portable digests, real canonical
 //! graph loading. No mocks.
@@ -8,6 +8,7 @@
 
 #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 
+use std::fmt::Write as _;
 use std::{
     collections::BTreeSet,
     path::{Path, PathBuf},
@@ -18,10 +19,9 @@ use ggen_engine::{
     graph::EngineQueryResults,
     pack::{resolve, Pack, ScopeDepth},
     pack_scope::{
-        admission_success_rate, artifact_success_rate, benchmark_dfcm_scopes,
-        mean_reciprocal_rank, receipt_success_rate, reverse_dependency_closure, topology_turtle,
-        unknown_rate, CandidateAuthority, DependencyScopeResolver, ScopeDisposition,
-        ScopeRequirement,
+        admission_success_rate, artifact_success_rate, benchmark_dfcm_scopes, mean_reciprocal_rank,
+        receipt_success_rate, reverse_dependency_closure, topology_turtle, unknown_rate,
+        CandidateAuthority, DependencyScopeResolver, ScopeDisposition, ScopeRequirement,
     },
     project_graph::load_for_query,
 };
@@ -37,13 +37,8 @@ fn safe_name(name: &str) -> String {
 }
 
 fn write_pack(
-    root: &Path,
-    name: &str,
-    version: &str,
-    dependencies: &[(&str, &str)],
-    types: &[&str],
-    provides: &[&str],
-    requires: &[&str],
+    root: &Path, name: &str, version: &str, dependencies: &[(&str, &str)], types: &[&str],
+    provides: &[&str], requires: &[&str],
 ) {
     let pack = root.join("packs").join(name);
     std::fs::create_dir_all(pack.join("templates")).expect("pack templates");
@@ -55,14 +50,14 @@ fn write_pack(
     if !dependencies.is_empty() {
         manifest.push_str("\n[dependencies]\n");
         for (dependency, requirement) in dependencies {
-            manifest.push_str(&format!("{dependency} = \"{requirement}\"\n"));
+            let _ = writeln!(manifest, "{dependency} = \"{requirement}\"");
         }
     }
     if !types.is_empty() || !provides.is_empty() || !requires.is_empty() {
         manifest.push_str("\n[capabilities]\n");
-        manifest.push_str(&format!("types = {}\n", toml_array(types)));
-        manifest.push_str(&format!("provides = {}\n", toml_array(provides)));
-        manifest.push_str(&format!("requires = {}\n", toml_array(requires)));
+        let _ = writeln!(manifest, "types = {}", toml_array(types));
+        let _ = writeln!(manifest, "provides = {}", toml_array(provides));
+        let _ = writeln!(manifest, "requires = {}", toml_array(requires));
     }
     std::fs::write(pack.join("pack.toml"), manifest).expect("pack.toml");
 
@@ -106,9 +101,8 @@ fn write_project(root: &Path, pack_names: &[&str]) -> PathBuf {
          [templates]\ndir = \"templates\"\n",
     );
     for name in pack_names {
-        manifest.push_str(&format!(
-            "\n[packs.{name}]\npath = \"../packs/{name}\"\n"
-        ));
+        let _ = write!(manifest, "\n[packs.{name}]\npath = \"../packs/{name}\"");
+        let _ = writeln!(manifest);
     }
     std::fs::write(project.join("ggen.toml"), manifest).expect("ggen.toml");
     project
@@ -153,10 +147,7 @@ fn standard_fixture() -> Fixture {
         &[],
     );
 
-    let project = write_project(
-        dir.path(),
-        &["a-root", "b-direct", "c-twohop", "z-global"],
-    );
+    let project = write_project(dir.path(), &["a-root", "b-direct", "c-twohop", "z-global"]);
     Fixture { _dir: dir, project }
 }
 
@@ -255,7 +246,10 @@ fn exact_fingerprint_cache_hits_and_invalidates_on_ontology_or_registry_change()
         .resolve("a-root", &requirement)
         .expect("registry revision re-resolve");
     assert!(!registry_changed.cache_hit);
-    assert_ne!(changed.cache_fingerprint, registry_changed.cache_fingerprint);
+    assert_ne!(
+        changed.cache_fingerprint,
+        registry_changed.cache_fingerprint
+    );
 }
 
 #[test]
@@ -270,15 +264,7 @@ fn capability_requirement_refuses_ambient_global_provider() {
         &[],
         &["cap.only-global"],
     );
-    write_pack(
-        dir.path(),
-        "b-direct",
-        "1.0.0",
-        &[],
-        &["runtime"],
-        &[],
-        &[],
-    );
+    write_pack(dir.path(), "b-direct", "1.0.0", &[], &["runtime"], &[], &[]);
     write_pack(
         dir.path(),
         "z-global",
@@ -346,8 +332,7 @@ fn benchmark_records_mrr_topk_latency_capacity_coupling_and_zero_llm_or_authorit
     let fx = standard_fixture();
     let packs = resolved(&fx);
     let relevant = BTreeSet::from(["c-twohop".to_string()]);
-    let records =
-        benchmark_dfcm_scopes(&packs, "a-root", &relevant, 3).expect("scope benchmark");
+    let records = benchmark_dfcm_scopes(&packs, "a-root", &relevant, 3).expect("scope benchmark");
 
     assert_eq!(records.len(), 4);
     assert_eq!(records[0].depth, ScopeDepth::Local);
@@ -359,7 +344,7 @@ fn benchmark_records_mrr_topk_latency_capacity_coupling_and_zero_llm_or_authorit
     assert_eq!(records[2].depth, ScopeDepth::TwoLevel);
     assert_eq!(records[2].candidate_count, 3);
     assert!(!records[2].unknown);
-    assert_eq!(records[2].reciprocal_rank, 1.0 / 3.0);
+    assert!((records[2].reciprocal_rank - 1.0 / 3.0).abs() < 1e-9);
     assert!(records[2].top_k_hit);
     assert_eq!(records[3].depth, ScopeDepth::Global);
     assert_eq!(records[3].candidate_count, 4);
@@ -376,12 +361,9 @@ fn benchmark_records_mrr_topk_latency_capacity_coupling_and_zero_llm_or_authorit
     }
     assert!(records[2].semantic_capacity >= records[1].semantic_capacity);
     assert!(records[1].semantic_capacity < records[3].semantic_capacity);
-    assert!(
-        records[2].constraint_coupling_width
-            >= records[1].constraint_coupling_width
-    );
+    assert!(records[2].constraint_coupling_width >= records[1].constraint_coupling_width);
     assert!(mean_reciprocal_rank(&records) > 0.0);
-    assert_eq!(unknown_rate(&records), 0.5);
+    assert!((unknown_rate(&records) - 0.5).abs() < 1e-9);
     assert_eq!(admission_success_rate(&records), None);
     assert_eq!(artifact_success_rate(&records), None);
     assert_eq!(receipt_success_rate(&records), None);

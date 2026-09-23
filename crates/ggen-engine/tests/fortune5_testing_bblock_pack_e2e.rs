@@ -156,7 +156,7 @@ mode = "Overwrite"
 fn testing_bblock_pack_generates_verifier_and_suite_scripts_with_real_content() {
     let (_dir, project) = scaffold_consumer();
 
-    CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::cargo_bin("ggen")
         .args(["sync", "run"])
         .current_dir(&project)
         .run()
@@ -242,7 +242,7 @@ fn testing_bblock_pack_generates_verifier_and_suite_scripts_with_real_content() 
     // Second sync is idempotent: exit 0, real bytes unchanged.
     let before = std::fs::read(project.join("consumer/testing-bblock/testing_bblock.py"))
         .expect("verifier bytes");
-    CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::cargo_bin("ggen")
         .args(["sync", "run"])
         .current_dir(&project)
         .run()
@@ -258,7 +258,7 @@ fn testing_bblock_pack_generates_verifier_and_suite_scripts_with_real_content() 
 #[test]
 fn generated_suite_scripts_are_syntactically_valid_bash() {
     let (_dir, project) = scaffold_consumer();
-    CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::cargo_bin("ggen")
         .args(["sync", "run"])
         .current_dir(&project)
         .run()
@@ -292,7 +292,7 @@ fn generated_suite_scripts_are_syntactically_valid_bash() {
 #[test]
 fn generated_verifier_self_test_actually_passes_as_a_real_subprocess() {
     let (_dir, project) = scaffold_consumer();
-    CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::cargo_bin("ggen")
         .args(["sync", "run"])
         .current_dir(&project)
         .run()

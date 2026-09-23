@@ -9,6 +9,7 @@
 // (same reason `blue_river_dam.rs`, this crate's other bench binary,
 // disables the lint) -- a bench binary is not a public API surface.
 #![allow(missing_docs)]
+#![allow(clippy::expect_used)]
 
 use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
 use ggen_engine::{pack::Pack, pack_scope::benchmark_dfcm_scopes};
@@ -167,6 +168,11 @@ fn bench_dfcm_dependency_scope(c: &mut Criterion) {
 // Criterion entry points
 // ---------------------------------------------------------------------------
 
-criterion_group!(benches, bench_throughput, bench_latency, bench_scaling, bench_dfcm_dependency_scope);
+criterion_group!(
+    benches,
+    bench_throughput,
+    bench_latency,
+    bench_scaling,
+    bench_dfcm_dependency_scope
+);
 criterion_main!(benches);
-

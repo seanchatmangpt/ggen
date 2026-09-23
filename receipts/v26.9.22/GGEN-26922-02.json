@@ -1,0 +1,8 @@
+{
+  "wo": "GGEN-26922-02",
+  "base_sha": "e2a5e8878dd632f3e72f169613c5b730a9c3e4b0 (#725) / 86d416e2f481984d95636b6855627e8134736918 (#724)",
+  "command": "gh pr ready 725 && gh pr merge 725 --merge; gh pr ready 724 && gh pr merge 724 --merge; gh pr view 725/724 --json state",
+  "exit": 0,
+  "output_excerpt": "both un-drafted then merged only after exact-head verification: #725 head e2a5e887 CLEAN (Fast Admission SUCCESS, contract/Deterministic manufacture SUCCESS, qualify SUCCESS, Deep/ci_deep SUCCESS, CI Status SUCCESS); #724 head 86d416e2 CLEAN (Fast Admission, qualify, Deep/docs_deep, CI Status all SUCCESS); gh pr view state = MERGED for both",
+  "standing": "ALIVE"
+}
