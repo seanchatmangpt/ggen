@@ -67,6 +67,7 @@ Verified against `Cargo.toml`'s `[workspace] members = [...]` array (17 entries)
 | `bcinr-mfw-ir` | Vendored alongside `bcinr-pddl` (its own hard dependency, same divergence reasoning) — shared IR types/trait contracts for the multifractal-workflow planner. `publish = false` |
 | `ggen-mcp` | MCP server (`rmcp` over stdio) exposing ggen's SPARQL/frontmatter/diagnostic introspection surface as tool calls: nine tools, read-only except `ggen_write_apply` (destructive, requires explicit `confirm: true`). Present in `Cargo.toml` `[workspace] members` since before 2026-08-03 but absent from this facts file until that date, when `crates/ggen-config/tests/system_crate_map_parity_test.rs` caught the divergence — a real crate-map/repo-facts gap, not merely asserted here. Also ships `ggen-selfplay-explore`, a separate corpus-growth binary using a local LLM, never invoked from a test |
 | `ggen` | Workspace root package |
+| `ggen-graph-wasm` | wasm32-buildable QueryEngine boundary for ggen-graph (OxigraphEngine native, RemoteEngine delegating SPARQL over HTTP); shipped by #672's SPARQL semantic-search surface |
 
 ### Commands (generated)
 
