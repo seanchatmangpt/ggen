@@ -1,0 +1,8 @@
+{
+  "wo": "GGEN-26922-07 (partial: PR cleanup half)",
+  "base_sha": "origin/main 06093e0cd",
+  "command": "git push origin release/v26.8.9; gh pr close 681/692/699/700-707 --comment; gh pr comment 717; trial merge origin/main into reconcile/fortune5-fixes-and-git-env-leak-fixes (0 conflicts, aborted trial)",
+  "exit": 0,
+  "output_excerpt": "release/v26.8.9 (51 unpushed commits) pushed as archive backup: new remote branch. #681 (26.8.26 bump, CONFLICTING) and #692 (26.8.28 bump, CONFLICTING) closed citing supersession by 26.9.12 sequential counter. Dependabot singles #699,#700-#707 closed citing group #717; #717 left open as the single dependabot PR (count=1 <= 1) with baseline-repair note. open dependabot count = 1. #694 decision: land it (local main f893e8004 IS its head; 38 commits preserved on the pushed branch); trial merge clean -> sequence is merge repaired main into branch -> green -> merge PR -> ff local main -> 0/0. NOT YET DONE: 694 landing + local main ff.",
+  "standing": "PARTIAL_ALIVE"
+}
