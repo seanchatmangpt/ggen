@@ -99,7 +99,7 @@ jobs:
           # and post-F1 (history succeeds; this workflow then proves the
           # migration is already applied and byte-stable across re-runs).
           if ../../target/debug/ggen receipt history > /tmp/pre-history.out 2> /tmp/pre-history.err; then
-            if ! grep -q 'std::env::var_os("GGEN_RECEIPT_MIGRATION_ROOT")' crates/ggen-engine/src/sync.rs; then
+            if ! grep -q 'std::env::var_os("GGEN_RECEIPT_MIGRATION_ROOT")' ../../crates/ggen-engine/src/sync.rs; then
               echo 'legacy chain verified but the F1 migration is not applied in sync.rs' >&2
               exit 1
             fi
