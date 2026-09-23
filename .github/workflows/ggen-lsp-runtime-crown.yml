@@ -74,12 +74,8 @@ jobs:
           cp generated/lsp-contract.json ../../crates/ggen-lsp/generated/lsp-contract.json
           cp generated/generated_contract.rs ../../crates/ggen-lsp/src/generated_contract.rs
           cp generated/LSP_CONTRACT.md ../../docs/generated/LSP_CONTRACT.md
-          # The rendered .rs is not guaranteed rustfmt-clean; normalize the
-          # installed projection before the drift and fmt checks below.
-          cargo fmt -p ggen-lsp
           # verify.py parses the ontology with rdflib; runner images do not
           # ship it.
-          python3 -m pip install --quiet rdflib
           python3 verify.py \
             --ggen-root ../.. \
             --legacy-root ../../external/ggen-legacy \
