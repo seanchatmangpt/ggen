@@ -447,3 +447,218 @@ pub fn receipt(manifest: String, output: String) -> Result<Value> {
 pub fn replay(manifest: String, output: String) -> Result<Value> {
     receipts::replay(Path::new(&manifest), Path::new(&output))
 }
+
+/// The human-authored catalog shape shipped by
+/// `packs/vision-2030-phase-change-pack/catalog/vision-2030-capabilities.json`
+/// (`ggen.vision2030.catalog.v1`). Only the fields the projection needs are
+/// modelled; unknown fields are ignored so the catalog can grow without
+/// breaking the binary, and missing required fields are a parse error, not a
+/// silently-empty capability.
+const CATALOG_SCHEMA: &str = "ggen.vision2030.catalog.v1";
+
+#[derive(Debug, Clone, Deserialize)]
+struct Catalog {
+    schema: String,
+    capabilities: Vec<CatalogEntry>,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+struct CatalogEntry {
+    id: String,
+    iri: String,
+    domain: String,
+    horizon: u16,
+    blue_ocean_move: String,
+    authority: String,
+    summary: String,
+    #[serde(default)]
+    depends_on: Vec<String>,
+}
+
+/// Project a catalog into a `Manifest` the evaluator can consume.
+///
+/// This is the in-binary twin of the pack's
+/// `tools/catalog_to_manifest.py`; the two are kept deliberately independent
+/// (different language, no shared code) so that
+/// `project_matches_committed_python_generated_manifest` in `tests.rs` is a
+/// real cross-implementation check, not a tautology. Every capability lands
+/// with an empty evidence map -- the honest state -- so the evaluator reports
+/// the projected program as `DESIGNED`; this function manufactures the
+/// *manifest*, never the *evidence*.
+fn project_catalog(catalog_path: &Path) -> Result<Manifest> {
+    let bytes = fs::read(catalog_path).map_err(|error| {
+        NounVerbError::execution_error(format!(
+            "vision2030 project: cannot read {}: {error}",
+            catalog_path.display()
+        ))
+    })?;
+    let catalog: Catalog = serde_json::from_slice(&bytes).map_err(|error| {
+        NounVerbError::execution_error(format!(
+            "vision2030 project: {} is not a ggen.vision2030.catalog.v1 document: {error}",
+            catalog_path.display()
+        ))
+    })?;
+    if catalog.schema != CATALOG_SCHEMA {
+        return Err(NounVerbError::execution_error(format!(
+            "vision2030 project: refusing catalog with schema {:?} (expected {CATALOG_SCHEMA:?})",
+            catalog.schema
+        )));
+    }
+    let capabilities: Vec<Capability> = catalog
+        .capabilities
+        .into_iter()
+        .map(|entry| Capability {
+            id: entry.id,
+            iri: entry.iri,
+            domain: entry.domain,
+            horizon: entry.horizon,
+            blue_ocean_move: entry.blue_ocean_move,
+            authority: entry.authority,
+            summary: entry.summary,
+            dependencies: entry.depends_on,
+            evidence: BTreeMap::new(),
+        })
+        .collect();
+    let covered: BTreeSet<&str> = capabilities.iter().map(|c| c.domain.as_str()).collect();
+    let missing: Vec<&str> = REQUIRED_DOMAINS
+        .iter()
+        .copied()
+        .filter(|domain| !covered.contains(domain))
+        .collect();
+    if !missing.is_empty() {
+        return Err(NounVerbError::execution_error(format!(
+            "vision2030 project: catalog does not cover required domains {missing:?}"
+        )));
+    }
+    Ok(Manifest {
+        schema: MANIFEST_SCHEMA.to_string(),
+        program: Program {
+            id: "vision-2030-phase-change".to_string(),
+            // Tracks the pack's pack.toml version; bump both together.
+            version: "26.8.3".to_string(),
+            target_year: 2030,
+            // 1000x phase-change target (docs/architecture/VISION-2030-PHASE-CHANGE-ARD-PRD).
+            phase_change_target: 1000,
+            // Empty on purpose: no independent acceptance authority has registered
+            // a key for this program yet, and the evaluator refuses acceptances
+            // signed by unregistered issuers.
+            trusted_issuers: BTreeMap::new(),
+            trusted_brokers: BTreeMap::new(),
+        },
+        required_domains: REQUIRED_DOMAINS.iter().map(|d| (*d).to_string()).collect(),
+        horizons: HORIZONS
+            .iter()
+            .map(|year| Horizon {
+                year: *year,
+                minimum_alive_capabilities: 1,
+            })
+            .collect(),
+        capabilities,
+    })
+}
+
+/// Project the pack's human-authored capability catalog into an evaluator-consumable manifest.
+///
+/// Writes exactly one file, `<output>/vision-2030-program.manifest.json`. The
+/// result is a `DESIGNED` program by construction (no evidence is invented);
+/// pipe it into `validate`/`report` to see that stated, not assumed.
+#[verb]
+pub fn project(catalog: String, output: String) -> Result<Value> {
+    let manifest = project_catalog(Path::new(&catalog))?;
+    let output_dir = Path::new(&output);
+    fs::create_dir_all(output_dir).map_err(|error| {
+        NounVerbError::execution_error(format!(
+            "vision2030 project: cannot create {}: {error}",
+            output_dir.display()
+        ))
+    })?;
+    let path = output_dir.join("vision-2030-program.manifest.json");
+    let mut bytes = serde_json::to_vec_pretty(&manifest).map_err(|error| {
+        NounVerbError::execution_error(format!(
+            "vision2030 project: cannot serialise manifest: {error}"
+        ))
+    })?;
+    bytes.push(b'\n');
+    fs::write(&path, &bytes).map_err(|error| {
+        NounVerbError::execution_error(format!(
+            "vision2030 project: cannot write {}: {error}",
+            path.display()
+        ))
+    })?;
+    Ok(json!({
+        "schema": manifest.schema,
+        "program": manifest.program.id,
+        "capabilities": manifest.capabilities.len(),
+        "capabilities_with_evidence": 0,
+        "manifest": path,
+        "manifest_digest": format!("blake3:{}", digest_bytes(&bytes)),
+    }))
+}
+
+/// The pack's human-readable report template, compiled into the binary so the
+/// rendered report can never drift from the `Report` struct it is projected
+/// from: a template variable that stops matching a `Report` field fails at
+/// `cargo build` (Tera renders against `Context::from_serialize(&report)`),
+/// not silently at runtime in some consumer's copy of the template.
+///
+/// This is the first real consumer of `packs/vision-2030-phase-change-pack`
+/// under `crates/` -- see the pack README's "If you are picking this pack back
+/// up" step 2/3 and `crates/ggen-config/tests/vision_2030_pack_orphan_test.rs`,
+/// which now asserts exactly this one consumer rather than zero.
+const REPORT_TEMPLATE: &str = include_str!(
+    "../../../../packs/vision-2030-phase-change-pack/templates/vision-2030-report.md.tera"
+);
+const REPORT_TEMPLATE_NAME: &str = "vision-2030-report.md.tera";
+
+/// Render the evaluated program report as Markdown via the pack's Tera template.
+///
+/// Reads nothing but the manifest and its cited evidence; writes exactly one
+/// file, `<output>/vision-2030-report.md`. Returns the same standing/achieved
+/// summary as `receipt` plus the rendered path and its blake3 digest, so a
+/// caller can chain it into a receipt without re-reading the file.
+#[verb]
+pub fn report(manifest: String, output: String) -> Result<Value> {
+    let report = evaluation::evaluate(Path::new(&manifest))?;
+    let context = tera::Context::from_serialize(&report).map_err(|error| {
+        NounVerbError::execution_error(format!(
+            "vision2030 report: cannot build template context from report: {error}"
+        ))
+    })?;
+    let mut tera = tera::Tera::default();
+    tera.add_raw_template(REPORT_TEMPLATE_NAME, REPORT_TEMPLATE)
+        .map_err(|error| {
+            NounVerbError::execution_error(format!(
+                "vision2030 report: pack template failed to parse: {error}"
+            ))
+        })?;
+    let rendered = tera
+        .render(REPORT_TEMPLATE_NAME, &context)
+        .map_err(|error| {
+            NounVerbError::execution_error(format!(
+                "vision2030 report: pack template failed to render: {error}"
+            ))
+        })?;
+    let output_dir = Path::new(&output);
+    fs::create_dir_all(output_dir).map_err(|error| {
+        NounVerbError::execution_error(format!(
+            "vision2030 report: cannot create {}: {error}",
+            output_dir.display()
+        ))
+    })?;
+    let path = output_dir.join("vision-2030-report.md");
+    fs::write(&path, rendered.as_bytes()).map_err(|error| {
+        NounVerbError::execution_error(format!(
+            "vision2030 report: cannot write {}: {error}",
+            path.display()
+        ))
+    })?;
+    Ok(json!({
+        "standing": report.standing,
+        "achieved": report.achieved,
+        "phase_change_multiplier": report.phase_change_multiplier,
+        "capabilities": report.capabilities.len(),
+        "report_markdown": path,
+        "report_markdown_digest": format!("blake3:{}", digest_bytes(rendered.as_bytes())),
+        "report_digest": report.report_digest,
+    }))
+}

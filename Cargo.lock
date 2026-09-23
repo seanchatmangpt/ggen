@@ -2979,6 +2979,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "ggen-graph-wasm"
+version = "26.9.21"
+dependencies = [
+ "oxigraph",
+ "reqwest 0.12.28",
+ "serde",
+ "serde_json",
+ "wasm-bindgen",
+]
+
+[[package]]
 name = "ggen-lsp"
 version = "26.9.21"
 dependencies = [

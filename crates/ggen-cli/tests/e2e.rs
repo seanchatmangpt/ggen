@@ -9,7 +9,7 @@
 //! that no longer exist in the current binary and have been removed below (not rewritten),
 //! because there is no current command doing the same thing to repoint them at. Confirmed
 //! live against the current `ggen --help` noun list (`init`, `receipt`, `bblock`, `ontology`,
-//! `law`, `mod`, `sbb`, `pack`, `sync`, `packs`, `telco`, `agent`, `wizard`, `policy`,
+//! `law`, `sbb`, `pack`, `sync`, `packs`, `telco`, `agent`, `wizard`, `policy`,
 //! `capability`, `maximalism`, `utils`, `vision2030`, `doctor`, `graph`, `help`): none of
 //! `template`, `market`, `project`, `lifecycle`, `ai` exist, and `graph` now has only a
 //! `validate` subcommand (no `import`/`query`).

@@ -125,10 +125,24 @@ fn vision_2030_pack_still_has_zero_ggen_toml_or_rust_consumers() {
                 .unwrap_or(false)
         })
         .collect();
-    assert!(
-        rs_hits.is_empty(),
-        "packs/vision-2030-phase-change-pack now has Rust consumer(s) under crates/: \
-         {rs_hits:?} -- same note as above: update the README instead of leaving it stale."
+    // 2026-09-04: the pack gained its first real Rust consumer -- `ggen vision2030 report`
+    // (`crates/ggen-cli/src/cmds/vision2030.rs`) `include_str!`s the pack's
+    // `templates/vision-2030-report.md.tera` and renders the evaluated `Report` through it.
+    // This test's contract is unchanged in spirit (the set of consumers must match what the
+    // README documents); what changed is the documented set: exactly one, by name. Anything
+    // else appearing here is undocumented and must fail loudly, same as before.
+    let mut rs_hit_names: Vec<String> = rs_hits
+        .iter()
+        .filter_map(|p| p.file_name().and_then(|n| n.to_str()).map(str::to_string))
+        .collect();
+    rs_hit_names.sort();
+    assert_eq!(
+        rs_hit_names,
+        vec!["vision2030.rs".to_string()],
+        "packs/vision-2030-phase-change-pack's documented Rust consumer set is exactly \
+         [crates/ggen-cli/src/cmds/vision2030.rs] (the `ggen vision2030 report` verb); found \
+         {rs_hits:?} -- if a consumer was added or removed, update \
+         packs/vision-2030-phase-change-pack/README.md and this assertion together."
     );
 }
 
@@ -144,17 +158,23 @@ fn vision_2030_pack_orphan_status_is_documented() {
     });
 
     for needle in [
-        "ORPHANED",
+        "ggen vision2030 report",
         "crates/ggen-cli/src/cmds/vision2030",
         "ggen.vision2030.program.v1",
         "ggen.vision2030.catalog.v1",
+        "catalog_to_manifest.py",
     ] {
         assert!(
             text.contains(needle),
             "packs/vision-2030-phase-change-pack/README.md is missing expected content \
-             {needle:?} -- it should clearly document that this pack is not wired into any \
-             ggen.toml or Rust code path, and name the live, schema-incompatible \
-             `ggen vision2030` CLI implementation it is easily confused with"
+             {needle:?} -- it should name its one real Rust consumer (`ggen vision2030 \
+             report`), the catalog->manifest projection tool, and both schema ids so a reader \
+             can tell the human-authored catalog from the CLI-consumable manifest"
         );
     }
+    assert!(
+        !text.contains("Status: ORPHANED"),
+        "packs/vision-2030-phase-change-pack/README.md still carries the retired \
+         `Status: ORPHANED` banner -- the pack has had a real consumer since 2026-09-04"
+    );
 }

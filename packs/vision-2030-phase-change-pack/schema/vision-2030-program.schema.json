@@ -30,13 +30,23 @@
     "program": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["id", "version", "target_year", "phase_change_target"],
+      "required": [
+        "id", "version", "target_year", "phase_change_target",
+        "trusted_issuers", "trusted_brokers"
+      ],
       "properties": {
         "id": {"type": "string", "minLength": 1},
         "version": {"type": "string", "minLength": 1},
         "target_year": {"const": 2030},
-        "phase_change_target": {"type": "integer", "minimum": 1000}
+        "phase_change_target": {"type": "integer", "minimum": 1000},
+        "trusted_issuers": {"$ref": "#/$defs/key_registry"},
+        "trusted_brokers": {"$ref": "#/$defs/key_registry"}
       }
+    },
+    "key_registry": {
+      "description": "issuer/broker id -> hex-encoded ed25519 public key. Mirrors `Program.trusted_issuers` / `Program.trusted_brokers` (BTreeMap<String,String>) in crates/ggen-cli/src/cmds/vision2030/mod.rs, which serde REQUIRES (no #[serde(default)]). An empty map is legal and is the correct starting state: the evaluator refuses any external_acceptance / execution_grant signed by an unregistered key.",
+      "type": "object",
+      "additionalProperties": {"type": "string", "pattern": "^[0-9A-Fa-f]{64}$"}
     },
     "horizon": {
       "type": "object",
@@ -68,12 +78,9 @@
           "items": {"type": "string", "minLength": 1}
         },
         "evidence": {
+          "description": "Evidence roles bound to this capability. Deliberately NO `required` list: the live evaluator (crates/ggen-cli/src/cmds/vision2030/evaluation.rs) classifies a capability with an EMPTY evidence map as DESIGNED, never as ALIVE -- an empty map is the honest, legal state for a catalog entry that has no evidence yet. Requiring all 7 roles here would make a DESIGNED manifest fail schema validation while the real CLI accepts it, i.e. the schema would be stricter than the code it documents. ALIVE standing is decided by the evaluator's evidence checks (all 7 REQUIRED_EVIDENCE roles present, digests match, issuer signatures verify), not by this schema.",
           "type": "object",
           "additionalProperties": false,
-          "required": [
-            "sbb_report", "positive", "negative", "verifier", "receipt", "replay",
-            "external_acceptance"
-          ],
           "properties": {
             "sbb_report": {"$ref": "#/$defs/evidence"},
             "positive": {"$ref": "#/$defs/evidence"},

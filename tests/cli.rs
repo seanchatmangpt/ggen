@@ -1,7 +1,7 @@
 // UPDATED (2026-08-03): this file used to test CLI nouns from before the v26.7.16 CLI-routing
 // flip (`market`, `audit`) plus a hardcoded stale version string. Confirmed live against the
 // current binary (`ggen --help`): the real noun list is exactly `init, wizard, packs, pack,
-// bblock, sync, agent, telco, maximalism, mod, receipt, policy, vision2030, utils, ontology,
+// bblock, sync, agent, telco, maximalism, receipt, policy, vision2030, utils, ontology,
 // sbb, capability, graph, law, doctor, help` -- no `market`, `audit`, `ci`, `ai`, `hook`,
 // `lifecycle`, `project`, `shell`, or `template` noun exists (this is a real removal, not a
 // rename -- clap's "did you mean" even suggests unrelated nouns like `agent`/`capability`).
@@ -51,7 +51,7 @@ fn test_version() {
 
 // REMOVED (2026-08-03): test_hazard_exit_code and test_hazard_stdout both called
 // `ggen audit hazard scan`. Confirmed live: `audit` is not in the current noun list at all
-// (`ggen --help` lists only init/wizard/packs/pack/bblock/sync/agent/telco/maximalism/mod/
+// (`ggen --help` lists only init/wizard/packs/pack/bblock/sync/agent/telco/maximalism/
 // receipt/policy/vision2030/utils/ontology/sbb/capability/graph/law/doctor/help) and
 // `grep -rn "hazard"` across `crates/` finds zero CLI-command hits -- only unrelated domain
 // ontology files (e.g. `doid.owl`) use the word. `test_hazard_exit_code` was passing only
