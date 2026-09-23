@@ -125,7 +125,12 @@ ggenspec:PackRef-Path-lock
 
 ggenspec:PackRef-Git
     a ggenspec:Variant ; rdfs:label "Git" ;
-    ggenspec:hasField ggenspec:PackRef-Git-git , ggenspec:PackRef-Git-version .
+    ggenspec:hasField ggenspec:PackRef-Git-git , ggenspec:PackRef-Git-version , ggenspec:PackRef-Git-subdir .
+
+ggenspec:PackRef-Git-subdir
+    a ggenspec:Field ; ggenspec:name "subdir" ; ggenspec:type xsd:string ;
+    ggenspec:required false ;
+    rdfs:comment "Subdirectory of the clone that actually hosts pack.toml/ontology.ttl/templates, for monorepos hosting many packs; absent means the repository root is the pack root." .
 
 ggenspec:PackRef-Git-git
     a ggenspec:Field ; ggenspec:name "git" ; ggenspec:type xsd:string ;
