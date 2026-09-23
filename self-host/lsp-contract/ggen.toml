@@ -12,7 +12,10 @@ lspc = "https://ggen.dev/ontology/lsp-contract#"
 dcterms = "http://purl.org/dc/terms/"
 
 [generation]
-output_dir = "../.."
+# FM-WRITE-002 (write.rs resolve_target) refuses traversal components, so the
+# manufactured outputs land in-root under generated/ and the crown workflow
+# installs them into their repository homes after the sync.
+output_dir = "generated"
 
 [[generation.rules]]
 name = "lsp-contract-json"
@@ -21,7 +24,7 @@ PREFIX lspc: <https://ggen.dev/ontology/lsp-contract#>
 SELECT ?version WHERE { lspc:ContractV1 lspc:contractVersion ?version . } ORDER BY ?version
 """ }
 template = { file = "templates/contract.json.tera" }
-output_file = "crates/ggen-lsp/generated/lsp-contract.json"
+output_file = "lsp-contract.json"
 skip_empty = false
 mode = "Overwrite"
 
@@ -32,7 +35,7 @@ PREFIX lspc: <https://ggen.dev/ontology/lsp-contract#>
 SELECT ?version WHERE { lspc:ContractV1 lspc:contractVersion ?version . } ORDER BY ?version
 """ }
 template = { file = "templates/contract.rs.tera" }
-output_file = "crates/ggen-lsp/src/generated_contract.rs"
+output_file = "generated_contract.rs"
 skip_empty = false
 mode = "Overwrite"
 
@@ -43,6 +46,6 @@ PREFIX lspc: <https://ggen.dev/ontology/lsp-contract#>
 SELECT ?version WHERE { lspc:ContractV1 lspc:contractVersion ?version . } ORDER BY ?version
 """ }
 template = { file = "templates/contract.md.tera" }
-output_file = "docs/generated/LSP_CONTRACT.md"
+output_file = "LSP_CONTRACT.md"
 skip_empty = false
 mode = "Overwrite"
