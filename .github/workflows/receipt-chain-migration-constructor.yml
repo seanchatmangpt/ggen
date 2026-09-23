@@ -46,24 +46,24 @@ jobs:
           p = Path('crates/ggen-engine/src/sync.rs')
           s = p.read_text()
           old = '''        // CARGO_MANIFEST_DIR is crates/ggen-engine; workspace root is two levels up.
-        let root = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-            .parent()
-            .and_then(std::path::Path::parent)
-            .expect("workspace root")
-            .to_path_buf();'''
+                  let root = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+                      .parent()
+                      .and_then(std::path::Path::parent)
+                      .expect("workspace root")
+                      .to_path_buf();'''
           new = '''        // Default to the historical workspace-root migration target, but allow an
-        // operator to bind the destructive migration to an exact admitted project root.
-        // This makes the existing one-time migration reusable for project-scoped legacy
-        // receipt chains without changing its chain/signing algorithm.
-        let root = std::env::var_os("GGEN_RECEIPT_MIGRATION_ROOT")
-            .map(std::path::PathBuf::from)
-            .unwrap_or_else(|| {
-                std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-                    .parent()
-                    .and_then(std::path::Path::parent)
-                    .expect("workspace root")
-                    .to_path_buf()
-            });'''
+                  // operator to bind the destructive migration to an exact admitted project root.
+                  // This makes the existing one-time migration reusable for project-scoped legacy
+                  // receipt chains without changing its chain/signing algorithm.
+                  let root = std::env::var_os("GGEN_RECEIPT_MIGRATION_ROOT")
+                      .map(std::path::PathBuf::from)
+                      .unwrap_or_else(|| {
+                          std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+                              .parent()
+                              .and_then(std::path::Path::parent)
+                              .expect("workspace root")
+                              .to_path_buf()
+                      });'''
           if old in s:
               s = s.replace(old, new, 1)
           assert 'std::env::var_os("GGEN_RECEIPT_MIGRATION_ROOT")' in s
@@ -87,17 +87,29 @@ jobs:
           cargo fmt --all -- --check
           cargo build --locked -p ggen-cli-lib --bin ggen
 
-      - name: Prove legacy chain refuses before migration
+      - name: Prove legacy chain refuses before migration (pre-F1) or is already sealed (post-F1)
         working-directory: examples/interview-sandbox
         shell: bash
         run: |
           set -euo pipefail
+          # The interview-sandbox F1 migration was executed and persisted to the
+          # repository (a3e01321c, 2026-08-16), so on any main-derived subject
+          # the chain verifies BEFORE this constructor runs. Two lawful
+          # subjects: pre-F1 (history refuses with FM-CHAIN-*, original path)
+          # and post-F1 (history succeeds; this workflow then proves the
+          # migration is already applied and byte-stable across re-runs).
           if ../../target/debug/ggen receipt history > /tmp/pre-history.out 2> /tmp/pre-history.err; then
-            echo 'expected legacy pre-F1 chain to refuse before migration' >&2
-            exit 1
+            if ! grep -q 'std::env::var_os("GGEN_RECEIPT_MIGRATION_ROOT")' ../../crates/ggen-engine/src/sync.rs; then
+              echo 'legacy chain verified but the F1 migration is not applied in sync.rs' >&2
+              exit 1
+            fi
+            echo 'ALIVE: chain already migrated and persisted (post-F1 subject)'
+            printf 'post-f1\n' > /tmp/subject-mode.txt
+          else
+            grep -Eq 'FM-CHAIN-(007|009|014)|chain hash mismatch' /tmp/pre-history.err
+            cat /tmp/pre-history.err
+            printf 'pre-f1\n' > /tmp/subject-mode.txt
           fi
-          grep -Eq 'FM-CHAIN-(007|009|014)|chain hash mismatch' /tmp/pre-history.err
-          cat /tmp/pre-history.err
 
       - name: Execute repository-declared F1 migration at exact project root
         shell: bash
@@ -124,7 +136,8 @@ jobs:
         run: |
           set -euo pipefail
           git status --short | tee /tmp/migration-status.txt
-          python3 - <<'PY'
+          MODE="$(cat /tmp/subject-mode.txt)" python3 - <<'PY'
+          import os
           import subprocess
           allowed = {
               'crates/ggen-engine/src/sync.rs',
@@ -136,6 +149,12 @@ jobs:
           unexpected = (changed | untracked) - allowed
           if unexpected:
               raise SystemExit('unexpected migration fallout: ' + ', '.join(sorted(unexpected)))
+          if os.environ['MODE'] == 'post-f1':
+              # An already-sealed chain must not move: idempotence IS the assertion.
+              if changed or untracked:
+                  raise SystemExit('post-F1 subject must stay byte-identical, changed: '
+                                   + ', '.join(sorted(changed | untracked)))
+              raise SystemExit(0)
           assert 'crates/ggen-engine/src/sync.rs' in changed
           assert 'examples/interview-sandbox/.ggen-v2/receipt-log.jsonl' in changed
           assert 'examples/interview-sandbox/.ggen-v2/receipt.json' in changed

@@ -18,7 +18,7 @@
 //! resolved pack reports `UNKNOWN` subject identity instead of inventing
 //! one. Declared pack dependencies are resolved fail-closed and the portable
 //! envelope binds the subject's exact transitive dependency closure by name,
- //! version, digest, and the currently indivisible SEMANTICS/LAW/PROJECTION
+//! version, digest, and the currently indivisible SEMANTICS/LAW/PROJECTION
 //! pack surface.
 
 use std::path::Path;

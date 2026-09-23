@@ -1711,7 +1711,7 @@ fn row_context(named: &BTreeMap<String, Value>, results: &[Value], row: &Value) 
 ///
 /// Uses `template::tera_error_full_chain`, not bare `{e}` Display: Tera's
 /// top-level `Display` is frequently just "Failed to render
-/// '__tera_one_off'" with the actual cause (unknown filter, missing
+/// '`__tera_one_off`'" with the actual cause (unknown filter, missing
 /// variable, wrong argument type) only reachable via `Error::source()`
 /// chaining — the same gap `generation_rules.rs`'s `[FM-GEN-008]` path
 /// already closed with this same helper; this call site had not been
@@ -1994,6 +1994,16 @@ pub fn discover_templates(
     let mut templates = load_templates(&root.join(&config.templates.dir))?;
     for pack in packs {
         for path in &pack.template_paths {
+            let content = std::fs::read_to_string(path)?;
+            if !content
+                .strip_prefix('\u{feff}')
+                .unwrap_or(&content)
+                .starts_with("---")
+            {
+                // Rules-consumed template (see load_templates): the consumer's
+                // own [[generation.rules]] renders it; self-discovery skips it.
+                continue;
+            }
             templates.push((path.clone(), parse_template_file(path)?));
         }
     }
@@ -2002,12 +2012,29 @@ pub fn discover_templates(
 
 /// Load and parse every `*.tmpl` under `dir` (recursive), in sorted path
 /// order for deterministic processing.
+///
+/// Files that do not begin with a `---` frontmatter block are skipped, not
+/// refused: they are `[[generation.rules]]`-consumed templates (the repo's
+/// documented convention — see packs/github-actions-pack/templates/
+/// workflow.yml.tmpl's header comment and .specify/templates/*.tera), whose
+/// rendering is driven entirely by a consumer's own generation rule and
+/// which by design carry no frontmatter. Attempting to frontmatter-parse
+/// them here made every consumer of such a pack refuse with FM-TPL-006
+/// even when the consumer never self-discovers those templates.
 fn load_templates(dir: &Path) -> Result<Vec<(PathBuf, Template)>> {
     let mut paths: Vec<PathBuf> = Vec::new();
     collect_tmpl_paths(dir, &mut paths)?;
     paths.sort();
     let mut out = Vec::with_capacity(paths.len());
     for path in paths {
+        let content = std::fs::read_to_string(&path)?;
+        if !content
+            .strip_prefix('\u{feff}')
+            .unwrap_or(&content)
+            .starts_with("---")
+        {
+            continue;
+        }
         let tpl = parse_template_file(&path)?;
         out.push((path, tpl));
     }
@@ -3566,15 +3593,16 @@ mod tests {
         // operator to bind the destructive migration to an exact admitted project root.
         // This preserves the existing F1 reseal algorithm while making it reusable for
         // project-scoped legacy chains such as examples/interview-sandbox.
-        let root = std::env::var_os("GGEN_RECEIPT_MIGRATION_ROOT")
-            .map(std::path::PathBuf::from)
-            .unwrap_or_else(|| {
+        let root = std::env::var_os("GGEN_RECEIPT_MIGRATION_ROOT").map_or_else(
+            || {
                 std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
                     .parent()
                     .and_then(std::path::Path::parent)
                     .expect("workspace root")
                     .to_path_buf()
-            });
+            },
+            std::path::PathBuf::from,
+        );
         let log_path = root.join(RECEIPT_LOG_REL_PATH);
         let head_path = root.join(RECEIPT_REL_PATH);
 

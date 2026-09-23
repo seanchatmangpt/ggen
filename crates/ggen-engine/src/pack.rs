@@ -100,7 +100,7 @@ struct PackToml {
 /// First-class semantic routing facts carried by pack.toml.
 ///
 /// These facts are compiled into the canonical RDF graph by
-/// crate::pack_scope::topology_turtle. They narrow SELECT candidates only;
+/// `crate::pack_scope::topology_turtle`. They narrow SELECT candidates only;
 /// they do not bypass GraphLaw/SHACL/gates or BRCE.
 #[derive(Debug, Default, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -242,7 +242,7 @@ fn resolve_inner(
     Ok(packs)
 }
 
-/// Candidate-scope expansion depth for dependency_scope.
+/// Candidate-scope expansion depth for `dependency_scope`.
 ///
 /// These values order inspection only. They do not admit a pack, confer
 /// authority, or actuate anything.
@@ -268,16 +268,19 @@ pub enum ScopeDepth {
 /// Global while keeping ranking separate from admission and execution.
 ///
 /// Ordering is deterministic breadth-first traversal. Dependencies at the
-/// same depth are ordered by name because the manifest uses BTreeMap.
+/// same depth are ordered by name because the manifest uses `BTreeMap`.
 ///
-/// Errors:
+/// # Errors
+///
 /// - FM-PACK-014 when a declared dependency is absent from packs
 /// - FM-PACK-017 when subject is not a resolved pack
 pub fn dependency_scope<'a>(
     packs: &'a [Pack], subject: &str, depth: ScopeDepth,
 ) -> Result<Vec<&'a Pack>> {
-    let by_name: BTreeMap<&str, &Pack> =
-        packs.iter().map(|pack| (pack.name.as_str(), pack)).collect();
+    let by_name: BTreeMap<&str, &Pack> = packs
+        .iter()
+        .map(|pack| (pack.name.as_str(), pack))
+        .collect();
     let Some(subject_pack) = by_name.get(subject).copied() else {
         return Err(AppError::fm_pack(
             17,
@@ -341,8 +344,10 @@ pub fn dependency_scope<'a>(
 /// - FM-PACK-015 when a dependency requirement is malformed or not satisfied
 /// - FM-PACK-016 when the declared dependency graph contains a cycle
 fn validate_dependency_graph(packs: &[Pack]) -> Result<()> {
-    let by_name: BTreeMap<&str, &Pack> =
-        packs.iter().map(|pack| (pack.name.as_str(), pack)).collect();
+    let by_name: BTreeMap<&str, &Pack> = packs
+        .iter()
+        .map(|pack| (pack.name.as_str(), pack))
+        .collect();
     let mut graph = DependencyGraph::new();
 
     for pack in packs {
@@ -459,17 +464,17 @@ fn validate_capability_requirements(packs: &[Pack]) -> Result<()> {
 
 /// Match the pack dependency requirement convention.
 ///
-/// A plain string such as 26.9.17 is exact. Strings containing SemVer
-/// operators use semver::VersionReq. Keeping bare versions exact preserves
+/// A plain string such as 26.9.17 is exact. Strings containing `SemVer`
+/// operators use `semver::VersionReq`. Keeping bare versions exact preserves
 /// ggen's documented pack-manifest convention rather than silently applying
 /// Cargo's implicit-caret interpretation.
 fn dependency_requirement_matches(
     requirement: &str, resolved_version: &str,
 ) -> std::result::Result<bool, String> {
     let requirement = requirement.trim();
-    let uses_semver_requirement = requirement.chars().any(|c| {
-        matches!(c, '^' | '~' | '>' | '<' | '=' | '*' | ',') || c.is_whitespace()
-    });
+    let uses_semver_requirement = requirement
+        .chars()
+        .any(|c| matches!(c, '^' | '~' | '>' | '<' | '=' | '*' | ',') || c.is_whitespace());
     if !uses_semver_requirement {
         return Ok(requirement == resolved_version);
     }
@@ -1157,6 +1162,10 @@ mod tests {
             name: "vector-pack".to_string(),
             version: "1.0.0".to_string(),
             description: String::new(),
+            dependencies: BTreeMap::new(),
+            semantic_types: BTreeSet::new(),
+            provides: BTreeSet::new(),
+            requires: BTreeSet::new(),
             root: root.to_path_buf(),
             ontology_path: root.join("ontology.ttl"),
             extra_ontology_paths: Vec::new(),

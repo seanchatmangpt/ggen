@@ -32,7 +32,7 @@ pub enum CandidateAuthority {
     SelectOnly,
 }
 
-/// Outcome of the bounded DfCM escalation ladder.
+/// Outcome of the bounded `DfCM` escalation ladder.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
 pub enum ScopeDisposition {
     /// One or more candidates matched the requested semantic boundary.
@@ -210,7 +210,7 @@ impl<'a> DependencyScopeResolver<'a> {
         Ok(format!("sha256:{}", hex::encode(hasher.finalize())))
     }
 
-    /// Resolve first matching scope in LOCAL -> DIRECT -> TWO_LEVEL -> GLOBAL.
+    /// Resolve first matching scope in LOCAL -> DIRECT -> `TWO_LEVEL` -> GLOBAL.
     ///
     /// Exhausting all four scopes returns UNKNOWN, not a refusal and not an
     /// admitted empty result.
@@ -218,7 +218,9 @@ impl<'a> DependencyScopeResolver<'a> {
     /// # Errors
     /// Propagates typed pack topology errors and FM-PACK-019 for an empty
     /// requirement.
-    pub fn resolve(&self, subject: &str, requirement: &ScopeRequirement) -> Result<ScopeResolution> {
+    pub fn resolve(
+        &self, subject: &str, requirement: &ScopeRequirement,
+    ) -> Result<ScopeResolution> {
         requirement.validate()?;
         let fingerprint = self.fingerprint()?;
         let key = ScopeCacheKey {
@@ -376,9 +378,7 @@ pub fn topology_turtle(packs: &[Pack]) -> String {
         }
         for semantic_type in &pack.semantic_types {
             let type_iri = resource_iri("semantic-type", semantic_type);
-            triples.insert(format!(
-                "<{type_iri}> a <https://schema.org/DefinedTerm> ."
-            ));
+            triples.insert(format!("<{type_iri}> a <https://schema.org/DefinedTerm> ."));
             triples.insert(format!(
                 "<{type_iri}> <https://schema.org/name> {} .",
                 ttl_literal(semantic_type)
@@ -389,7 +389,9 @@ pub fn topology_turtle(packs: &[Pack]) -> String {
         }
         for capability in &pack.provides {
             let capability_iri = resource_iri("capability", capability);
-            triples.insert(format!("<{capability_iri}> a <https://schema.org/Action> ."));
+            triples.insert(format!(
+                "<{capability_iri}> a <https://schema.org/Action> ."
+            ));
             triples.insert(format!(
                 "<{capability_iri}> <https://schema.org/name> {} .",
                 ttl_literal(capability)
@@ -400,7 +402,9 @@ pub fn topology_turtle(packs: &[Pack]) -> String {
         }
         for capability in &pack.requires {
             let capability_iri = resource_iri("capability", capability);
-            triples.insert(format!("<{capability_iri}> a <https://schema.org/Action> ."));
+            triples.insert(format!(
+                "<{capability_iri}> a <https://schema.org/Action> ."
+            ));
             triples.insert(format!(
                 "<{capability_iri}> <https://schema.org/name> {} .",
                 ttl_literal(capability)
@@ -438,9 +442,9 @@ fn ttl_literal(value: &str) -> String {
     escaped
 }
 
-/// One DfCM scope benchmark observation.
+/// One `DfCM` scope benchmark observation.
 ///
-/// LLM tokens, admission events, artifact count, and receipt count are
+/// `LLM` tokens, admission events, artifact count, and receipt count are
 /// intentionally zero: scoping is deterministic structural machinery.
 #[derive(Debug, Clone, Serialize)]
 pub struct ScopeBenchmarkRecord {
@@ -479,7 +483,7 @@ pub struct ScopeBenchmarkRecord {
     pub authority: CandidateAuthority,
 }
 
-/// Measure LOCAL, DIRECT, TWO_LEVEL, and GLOBAL for one relevance judgment.
+/// Measure LOCAL, DIRECT, `TWO_LEVEL`, and GLOBAL for one relevance judgment.
 ///
 /// This is an observation utility, not a verifier and not release standing.
 ///
@@ -510,7 +514,7 @@ fn benchmark_one_scope(
         .iter()
         .position(|pack| relevant.contains(&pack.name))
         .map(|index| index + 1);
-    let reciprocal_rank = first_rank.map_or(0.0, |rank| 1.0 / rank as f64);
+    let reciprocal_rank = first_rank.map_or(0.0, |rank| 1.0 / count_as_f64(rank));
     let top_k_hit = first_rank.is_some_and(|rank| rank <= top_k);
 
     let mut capabilities = BTreeSet::new();
@@ -546,13 +550,23 @@ fn benchmark_one_scope(
     })
 }
 
+/// Convert a count to `f64` through `u32` so the precision-loss cast lint is
+/// satisfied without silently changing benchmark math: every count fed to the
+/// scope metrics is bounded far below `u32::MAX`, and the saturating fallback
+/// is explicit rather than a raw `as` cast.
+#[must_use]
+fn count_as_f64(count: usize) -> f64 {
+    f64::from(u32::try_from(count).unwrap_or(u32::MAX))
+}
+
 /// Fraction of benchmark scopes that did not contain a relevant candidate.
 #[must_use]
 pub fn unknown_rate(records: &[ScopeBenchmarkRecord]) -> f64 {
     if records.is_empty() {
         return 0.0;
     }
-    records.iter().filter(|record| record.unknown).count() as f64 / records.len() as f64
+    count_as_f64(records.iter().filter(|record| record.unknown).count())
+        / count_as_f64(records.len())
 }
 
 /// Admission success rate over independently observed downstream outcomes.
@@ -581,7 +595,7 @@ fn observed_success_rate(outcomes: impl Iterator<Item = bool>) -> Option<f64> {
     if values.is_empty() {
         return None;
     }
-    Some(values.iter().filter(|&&value| value).count() as f64 / values.len() as f64)
+    Some(count_as_f64(values.iter().filter(|&&value| value).count()) / count_as_f64(values.len()))
 }
 
 /// Mean reciprocal rank across benchmark observations.
@@ -594,5 +608,5 @@ pub fn mean_reciprocal_rank(records: &[ScopeBenchmarkRecord]) -> f64 {
         .iter()
         .map(|record| record.reciprocal_rank)
         .sum::<f64>()
-        / records.len() as f64
+        / count_as_f64(records.len())
 }

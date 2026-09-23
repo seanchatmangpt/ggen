@@ -1,0 +1,8 @@
+{
+  "wo": "GGEN-26922-04",
+  "base_sha": "fix/v26922-gall-semantic-work-descriptor b6541fbac (off fix/v26922-main-ci-baseline)",
+  "command": "fixture /tmp/gsw-fixture: ggen sync run (ggen 26.9.12 binary); python contract check vs /Users/sac/xaas/lib/xaas/ultracode/semantic_work.ex @required; scripts/ci/check_pack_template_variables.py gall-semantic-work; guard-pack-count.sh",
+  "exit": 0,
+  "output_excerpt": "sync renders generated/gall-work-order-descriptor.json + gall-work-order-checkpoint.md; second sync byte-identical (cmp OK); missing-from-descriptor: []; dependency typed-key violations: [] (each carries work_order_iri/required_standing/observed_standing/receipt_iri/receipt_digest); authority: NONE; declared-vs-used check prints []; packCount 92->93 guard ALIVE. Cross-repo H6 contract file: generated/gall-work-order-descriptor.json. PR #729; supersedes/closes #722 and #723 on merge.",
+  "standing": "ALIVE"
+}

@@ -210,41 +210,42 @@ fn test_pre_commit_includes_coherence() {
     );
 }
 
-/// Test that CI workflow includes phase2 job
+/// Test that the CI workflow (redesigned to the 80/20 ERRC model in
+/// d68cee811, which retired the per-recipe `phase2:` job) still carries the
+/// evidence surface Phase 2 depends on: the Deep evidence matrix that runs
+/// the coherence/quality lanes and an aggregate status gate over them. The
+/// original version of this test asserted a literal `phase2:` job; that job
+/// no longer exists, and the test only stayed green historically because
+/// the integration_deep lane it lives in failed to compile before reaching
+/// it. Updated 2026-09-22 (v26.9.22 baseline repair) to pin the new
+/// structure with the same intent: no CI redesign may silently drop the
+/// evidence lanes or the aggregate gate.
 #[test]
 fn test_ci_workflow_includes_phase2() {
     let ci_workflow = std::fs::read_to_string(workspace_root().join(".github/workflows/ci.yml"))
         .expect("Failed to read CI workflow");
 
     assert!(
-        ci_workflow.contains("phase2:"),
-        "CI workflow missing phase2 job"
+        ci_workflow.contains("name: Fast Admission"),
+        "CI workflow missing Fast Admission job"
     );
     assert!(
-        ci_workflow.contains("name: Phase 2 (Inverse Sync + Coherence)"),
-        "CI workflow phase2 job missing correct name"
+        ci_workflow.contains("name: Deep / ${{ matrix.lane }}"),
+        "CI workflow missing Deep evidence matrix"
     );
     assert!(
-        ci_workflow.contains("coherence-check passed") || ci_workflow.contains("Coherence"),
-        "CI workflow phase2 job missing coherence validation"
-    );
-    assert!(
-        ci_workflow.contains("ast_extractor_70pct_test")
-            || ci_workflow.contains("Phase 2 test suite"),
-        "CI workflow phase2 job missing Phase 2 tests"
+        ci_workflow.contains("name: CI Status"),
+        "CI workflow missing aggregate CI Status gate"
     );
 }
 
-/// Test that CI status gate includes phase2 and the other critical jobs as
-/// required dependencies.
+/// Test that the CI status gate requires the evidence lanes as dependencies.
 ///
 /// Checks each required job name individually rather than matching the full
 /// `needs: [...]` line verbatim: a full-line match breaks every time a job
 /// is legitimately added to (or reordered within) the list, even when the
-/// invariant this test actually cares about -- phase2 and its siblings are
-/// still required -- continues to hold. This exact brittleness is what broke
-/// this test when `integration-tests` was correctly promoted from advisory
-/// to required and added to the real needs list.
+/// invariant this test actually cares about -- the aggregate gate still
+/// requires every evidence lane -- continues to hold.
 #[test]
 fn test_ci_status_requires_phase2() {
     let ci_workflow = std::fs::read_to_string(workspace_root().join(".github/workflows/ci.yml"))
@@ -252,10 +253,10 @@ fn test_ci_status_requires_phase2() {
 
     let needs_line = ci_workflow
         .lines()
-        .find(|line| line.trim_start().starts_with("needs: [") && line.contains("phase2"))
-        .expect("CI status gate's needs: [...] line (containing phase2) not found");
+        .find(|line| line.trim_start().starts_with("needs: [admission, deep]"))
+        .expect("CI status gate's needs: [...] line (requiring admission + deep) not found");
 
-    for required_job in ["check", "build", "test", "doctest", "phase2", "cargo-cicd"] {
+    for required_job in ["admission", "deep"] {
         assert!(
             needs_line.contains(required_job),
             "CI status gate doesn't require {required_job} job (needs line: {needs_line})"
