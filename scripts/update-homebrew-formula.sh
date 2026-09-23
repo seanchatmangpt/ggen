@@ -93,7 +93,11 @@ class Ggen < Formula
   end
   def install
     bin.install "ggen"
-    generate_completions_from_executable(bin/"ggen", "completion")
+    # No `generate_completions_from_executable`: the ggen CLI has no
+    # `completion` subcommand (verified: `ggen completion` -> unrecognized
+    # subcommand), and executing the missing verb inside brew's sandbox
+    # fails the whole install. Every tap install of >=26.9.13 broke on this
+    # line; the binary pour alone is the formula's job.
   end
   test do
     assert_match "ggen", shell_output("#{bin}/ggen --version")

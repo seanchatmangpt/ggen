@@ -214,7 +214,8 @@ class Ggen < Formula
   
   def install
     bin.install "ggen"
-    generate_completions_from_executable(bin/"ggen", "completion")
+    # No generate_completions_from_executable -- matches the live generator
+    # (the ggen CLI has no completion subcommand).
   end
   
   test do
