@@ -13,7 +13,7 @@ Full public API surface derived from LSP `documentSymbol` sweep of all workspace
 
 Use LSP for navigation -- this file is orientation, not a substitute for `LSP workspaceSymbol`.
 
-## Crate Map (14 workspace crates)
+## Crate Map (15 workspace crates)
 
 **Correction (2026-08-12, ERRC elimination pass, verified live):** this 14-total count supersedes
 the prior 18-total count below. Four crates confirmed to have zero real reverse dependencies
