@@ -76,6 +76,7 @@ jobs:
           cp generated/LSP_CONTRACT.md ../../docs/generated/LSP_CONTRACT.md
           # verify.py parses the ontology with rdflib; runner images do not
           # ship it.
+          python3 -m pip install --quiet rdflib
           python3 verify.py \
             --ggen-root ../.. \
             --legacy-root ../../external/ggen-legacy \
@@ -98,7 +99,8 @@ jobs:
           cargo test -p ggen-lsp --lib --locked -- --test-threads=1
           cargo test -p ggen-lsp --test ggen_src_004_living_loop --locked -- --test-threads=1
           cargo test -p ggen-lsp --test lsp_protocol_test --locked -- --test-threads=1
-          cargo test -p ggen-lsp --test lsp_contract_completion_test --locked -- --test-threads=1
+          # (lsp_contract_completion_test was folded into lsp_protocol_test by
+          # 766eee13f "feat(dspy-pack)": the completion coverage lives there now.)
 
       - name: Execute real stdio smoke consequence
         run: python3 scripts/lsp-smoke.py
