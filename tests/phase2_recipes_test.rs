@@ -210,42 +210,70 @@ fn test_pre_commit_includes_coherence() {
     );
 }
 
-/// Test that the CI workflow (redesigned to the 80/20 ERRC model in
-/// d68cee811, which retired the per-recipe `phase2:` job) still carries the
-/// evidence surface Phase 2 depends on: the Deep evidence matrix that runs
-/// the coherence/quality lanes and an aggregate status gate over them. The
-/// original version of this test asserted a literal `phase2:` job; that job
-/// no longer exists, and the test only stayed green historically because
-/// the integration_deep lane it lives in failed to compile before reaching
-/// it. Updated 2026-09-22 (v26.9.22 baseline repair) to pin the new
-/// structure with the same intent: no CI redesign may silently drop the
-/// evidence lanes or the aggregate gate.
+/// Test that CI workflow still runs Phase 2 evidence (inverse-sync +
+/// coherence + the rest of the workspace test suite).
+///
+/// `d68cee811` ("refactor CI to 80/20 ERRC", 2026-08-05) replaced the fixed
+/// `check`/`build`/`test`/`doctest`/`phase2`/`cargo-cicd` job list this test
+/// originally checked for with a path-routed model: a single `admission` job
+/// computes a `deep_matrix_json` (via `scripts/ci/errc_router.py`) and a
+/// matrixed `deep` job runs only the lanes whose owned paths actually
+/// changed. There is no standalone `phase2:` job anymore -- Phase 2 evidence
+/// (this very test file, plus `just coherence-check` / `just inverse-sync`
+/// covered above) now runs inside the `integration_deep` lane's
+/// `cargo test --workspace --exclude ggen-lsp` step, gated the same way
+/// every other deep lane is. Verified live: `errc_router.classify_path`
+/// routes `tests/phase2_recipes_test.rs` itself into `integration_deep`.
 #[test]
 fn test_ci_workflow_includes_phase2() {
     let ci_workflow = std::fs::read_to_string(workspace_root().join(".github/workflows/ci.yml"))
         .expect("Failed to read CI workflow");
 
     assert!(
-        ci_workflow.contains("name: Fast Admission"),
-        "CI workflow missing Fast Admission job"
+        ci_workflow.contains("integration_deep) cargo test --workspace"),
+        "CI workflow's integration_deep lane no longer runs the workspace test suite \
+         (this is what now exercises Phase 2 tests: inverse-sync, coherence, ast_extractor, etc.)"
     );
+
+    // Confirm the router actually routes this test file's own path -- i.e.
+    // the file containing the Phase 2 recipe assertions -- into the lane
+    // asserted above, using the real router module as the collaborator
+    // rather than re-implementing its classification rules here.
+    let output = Command::new("python3")
+        .args([
+            "-c",
+            "import sys; sys.path.insert(0, 'scripts/ci'); import errc_router as r; \
+             print('integration_deep' in r.classify_path('tests/phase2_recipes_test.rs'))",
+        ])
+        .current_dir(workspace_root())
+        .output()
+        .expect("Failed to run errc_router.classify_path via python3");
     assert!(
-        ci_workflow.contains("name: Deep / ${{ matrix.lane }}"),
-        "CI workflow missing Deep evidence matrix"
+        output.status.success(),
+        "errc_router.classify_path invocation failed: {}",
+        String::from_utf8_lossy(&output.stderr)
     );
-    assert!(
-        ci_workflow.contains("name: CI Status"),
-        "CI workflow missing aggregate CI Status gate"
+    assert_eq!(
+        String::from_utf8_lossy(&output.stdout).trim(),
+        "True",
+        "errc_router no longer routes tests/phase2_recipes_test.rs into integration_deep -- \
+         Phase 2 evidence would silently stop being gated in CI"
     );
 }
 
-/// Test that the CI status gate requires the evidence lanes as dependencies.
+/// Test that CI status gate still requires the deep evidence lane that
+/// carries Phase 2 (integration_deep) to have run and succeeded.
 ///
-/// Checks each required job name individually rather than matching the full
-/// `needs: [...]` line verbatim: a full-line match breaks every time a job
-/// is legitimately added to (or reordered within) the list, even when the
-/// invariant this test actually cares about -- the aggregate gate still
-/// requires every evidence lane -- continues to hold.
+/// Post-`d68cee811` there is no per-job `needs: [check, build, test, ...]`
+/// list to check job names against -- `ci-status` gates on exactly two
+/// upstream jobs, `admission` and the matrixed `deep` job. `deep`'s matrix
+/// is computed by `admission` from `errc_router`'s path routing, and GitHub
+/// Actions fails a matrixed job as a whole if any included lane fails
+/// (`fail-fast: false` only disables early cancellation, not the overall
+/// pass/fail rollup), so requiring `deep` transitively requires every lane
+/// the router activated for the change -- including `integration_deep`
+/// whenever Phase-2-relevant paths (this test file among them, per the
+/// prior test) are touched.
 #[test]
 fn test_ci_status_requires_phase2() {
     let ci_workflow = std::fs::read_to_string(workspace_root().join(".github/workflows/ci.yml"))
@@ -253,8 +281,8 @@ fn test_ci_status_requires_phase2() {
 
     let needs_line = ci_workflow
         .lines()
-        .find(|line| line.trim_start().starts_with("needs: [admission, deep]"))
-        .expect("CI status gate's needs: [...] line (requiring admission + deep) not found");
+        .find(|line| line.trim_start().starts_with("needs: [") && line.contains("admission"))
+        .expect("CI status gate's needs: [...] line (containing admission) not found");
 
     for required_job in ["admission", "deep"] {
         assert!(
@@ -262,6 +290,14 @@ fn test_ci_status_requires_phase2() {
             "CI status gate doesn't require {required_job} job (needs line: {needs_line})"
         );
     }
+
+    // The gate must actually fail closed, not just list the names: assert
+    // the enforcement step ties DEEP's real result to CI status.
+    assert!(
+        ci_workflow.contains("DEEP: ${{ needs.deep.result }}")
+            && ci_workflow.contains(r#"case "$DEEP" in success|skipped) ;; *)"#),
+        "ci-status no longer fails closed on the deep job's result"
+    );
 }
 
 /// Test that Makefile.toml has backward-compatible Phase 2 recipes

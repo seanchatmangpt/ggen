@@ -311,8 +311,8 @@ mod clap_noun_verb_routes_proof_tests {
     // test, `cargo test --lib`) rather than a separate `tests/*.rs`
     // integration-test file -- a real, verified constraint, not a stylistic
     // choice: building this exact proof as a separate `tests/*.rs` file
-    // first (against a real scratch consumer, `clap-noun-verb = "26.7.4"`)
-    // found that `CommandRegistry::get_all_noun_names()` comes back EMPTY
+    // first (against a real scratch consumer) found that
+    // `CommandRegistry::get_all_noun_names()` comes back EMPTY
     // there, even though the exact same call from a `#[cfg(test)]` mod in
     // this file (or from the real compiled `main.rs` binary) sees both
     // nouns correctly. Root cause, confirmed with a throwaway debug probe

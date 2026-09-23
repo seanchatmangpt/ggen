@@ -22,6 +22,23 @@ pub mod ocel;
 pub mod prelude;
 pub mod receipt;
 pub mod rwr;
+/// SHACL validation for this crate's own callers — **authoritative** for every
+/// non-law consumer (LSP diagnostics, `ggen sync`/`doctor`).
+///
+/// `ggen-engine`'s `LawEngine::validate_shacl` is a *second*, deliberately separate
+/// SHACL entry point, reachable only across the N-Triples-string seam described in
+/// `docs/jira/v26.7.16/03-RDF-ENGINE-BRIDGE-DESIGN.md`. It exists for the mu-pipeline's
+/// law gate and is backed by `praxis-graphlaw`, not by this module. The two are not
+/// interchangeable and neither supersedes the other:
+///
+/// * Use [`shacl::validate_shacl`] for anything inside this crate or downstream of it.
+///   It returns one [`shacl::ShaclViolation`] per failing focus node, which is what a
+///   language server needs, and it adds no dependency on `ggen-engine` (which is
+///   `publish = false`).
+/// * The seam's variant is for law-gate callers that already hold an engine handle.
+///
+/// `tests/law_engine_bridge_e2e.rs` exercises both over the same facts so the two
+/// cannot silently diverge on the conforming case without a test noticing.
 pub mod shacl;
 pub mod sparql;
 pub mod vocab;

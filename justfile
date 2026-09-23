@@ -79,17 +79,24 @@ fmt:
 # correctness, or (b) unilaterally reformatting 276 files without review. Real
 # fix (not done here): either reformat once under careful review, or add a
 # crate-local rustfmt.toml matching praxis's own style for these three.
-# Member list from `cargo metadata --no-deps` (14 total, matches Cargo.toml).
-# 2026-09-22: dropped `cpmp`, `genesis-core-v2` and `genesis-types` — those
-# crates no longer exist in the workspace (consolidation into `bcinr-*` /
-# removal), and `cargo fmt -p <gone>` fails the whole recipe, red-lining the
-# quality_deep lane. Crates never previously gated here (ggen-engine,
-# praxis-core, praxis-graphlaw, and the later additions bcinr-*, powl2,
-# ggen-mcp, ggen-cheat-scanner) remain excluded, unchanged exclusion policy.
+# Member list derived live from `cargo metadata --no-deps`, minus the 3
+# documented exclusions above -- a hardcoded name list here has gone stale
+# twice already (cpmp/genesis-core-v2/genesis-types no longer exist as
+# workspace members; ggen-mcp and others were added and never appended),
+# silently dropping newly-added crates from this gate instead of checking them.
 fmt-check:
-    cargo fmt --check \
-        -p ggen -p ggen-cli-lib \
-        -p ggen-config -p ggen-graph -p ggen-lsp -p ggen-marketplace
+    #!/usr/bin/env bash
+    set -euo pipefail
+    EXCLUDE="ggen-engine praxis-core praxis-graphlaw"
+    MEMBERS=$(cargo metadata --no-deps --format-version 1 | \
+        python3 -c "import json,sys; print('\n'.join(p['name'] for p in json.load(sys.stdin)['packages']))")
+    ARGS=()
+    for m in $MEMBERS; do
+        skip=false
+        for e in $EXCLUDE; do [ "$m" = "$e" ] && skip=true; done
+        $skip || ARGS+=("-p" "$m")
+    done
+    cargo fmt --check "${ARGS[@]}"
 
 # ── Linting ───────────────────────────────────────────────────────────────────
 

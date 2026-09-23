@@ -66,9 +66,17 @@ fn destructive(title: &'static str) -> ToolAnnotations {
         .destructive(true)
 }
 
-/// Register a tool: name, description, params type, annotations.
+/// Register a tool: name, description, params type, annotations, and the
+/// `dispatch`-compatible handler fn that `call_tool` routes to.
+///
+/// One macro invocation is now the single source of truth for two things
+/// that used to be able to drift independently: the schema list
+/// (`tool_list`, consumed by `list_tools`) and the dispatch table
+/// (`dispatch_tool`, consumed by `call_tool`). Adding a tool entry here
+/// without a matching `call_tool` arm -- or vice versa -- is no longer a
+/// possible mistake, because there is only one arm to write.
 macro_rules! tool_defs {
-    ($( $name:literal => ($params:ty, $ann:expr, $desc:literal) ),* $(,)?) => {
+    ($( $name:literal => ($params:ty, $ann:expr, $desc:literal, $handler:path) ),* $(,)?) => {
         fn tool_list() -> Vec<Tool> {
             vec![$(
                 make_tool(
@@ -88,6 +96,24 @@ macro_rules! tool_defs {
                 )
             ),*]
         }
+
+        /// Route one `call_tool` request by name to its handler. Generated
+        /// from the same `tool_defs!` table as `tool_list` above, so every
+        /// registered tool name has exactly one place its handler is named.
+        /// An unrecognized name falls through to the same
+        /// `McpError::invalid_params` the hand-written match used to return.
+        fn dispatch_tool(
+            name: &str,
+            arguments: Option<serde_json::Map<String, serde_json::Value>>,
+        ) -> Result<CallToolResult, McpError> {
+            match name {
+                $( $name => Ok(dispatch(arguments, $handler)), )*
+                other => Err(McpError::invalid_params(
+                    format!("unknown tool: {other}"),
+                    None,
+                )),
+            }
+        }
     };
 }
 
@@ -99,14 +125,16 @@ tool_defs! {
          report the TRUE row count before any truncation. A zero-row SELECT is not an \
          error -- it is reported loudly (ok:true, row_count:0) so a mandatory triple \
          pattern that matches nothing is never silently mistaken for success. Call \
-         this before relying on a query in a template."
+         this before relying on a query in a template.",
+        tools::query_preview::query_preview
     ),
     "ggen_config_classify" => (
         tools::config_classify::ConfigClassifyParams,
         read_only("Classify ggen.toml schema"),
         "Report which of ggen.toml's two incompatible schemas (declarative-rules vs \
          frontmatter) a project will be parsed as. Reads exactly one file: runs no \
-         pipeline stage, resolves no packs, clones no git repositories."
+         pipeline stage, resolves no packs, clones no git repositories.",
+        tools::config_classify::config_classify
     ),
     "ggen_frontmatter_schema" => (
         tools::frontmatter_schema::FrontmatterSchemaParams,
@@ -114,7 +142,8 @@ tool_defs! {
         "Enumerate every legal template frontmatter key (derived live from the engine's \
          own schema, so it cannot drift), plus the projection-mode rule that decides \
          whether a template writes ONE file or one file PER ROW -- which is control \
-         flow, not schema, and is therefore invisible in the key list alone."
+         flow, not schema, and is therefore invisible in the key list alone.",
+        tools::frontmatter_schema::frontmatter_schema
     ),
     "ggen_frontmatter_lint" => (
         tools::frontmatter_lint::FrontmatterLintParams,
@@ -122,7 +151,8 @@ tool_defs! {
         "Parse one template and report its SPARQL-projected variables, its \
          Tera-consumed variables, and the diff -- catching both an unparseable Tera \
          body and a template that consumes a variable its SELECT never binds, without \
-         running the pipeline."
+         running the pipeline.",
+        tools::frontmatter_lint::frontmatter_lint
     ),
     "ggen_sync_dry_run" => (
         tools::sync_dry_run::SyncDryRunParams,
@@ -130,7 +160,8 @@ tool_defs! {
         "Run the pipeline in dry-run mode (writes nothing) and report what would be \
          written, with TYPED skip reasons -- so 'skipped because the when: guard was \
          false' and 'skipped because the query returned zero rows' are distinguishable \
-         rather than both being opaque strings."
+         rather than both being opaque strings.",
+        tools::sync_dry_run::sync_dry_run
     ),
     "ggen_check_project" => (
         tools::check_project::CheckProjectParams,
@@ -146,21 +177,24 @@ tool_defs! {
          ggen_receipt_verify (checks an existing receipt's chain hash and signature), \
          or the ggen-sync-refusal:// push notifications (real sync refusals surfaced \
          as they happen). Treat a clean ggen_check_project result as 'no cheap-tier \
-         problems found', not 'this project is correct.'"
+         problems found', not 'this project is correct.'",
+        tools::check_project::check_project
     ),
     "ggen_rule_graph" => (
         tools::rule_graph::RuleGraphParams,
         read_only("Map rules to queries, templates, outputs"),
         "Expose the rule -> query -> template -> output wiring for a project, including \
          each rule's SELECT variables. The orientation map for an unfamiliar project. \
-         Declarative-rules schema only; a frontmatter project has no such rules."
+         Declarative-rules schema only; a frontmatter project has no such rules.",
+        tools::rule_graph::rule_graph
     ),
     "ggen_capability_status" => (
         tools::capability_status::CapabilityStatusParams,
         read_only("Report inert ggen.toml fields"),
         "Report ggen.toml fields that are structurally accepted but not implemented \
          (TemplateSource::Pack/Git/Package), AND whether this specific project already \
-         depends on one -- so an author learns up front instead of at sync time."
+         depends on one -- so an author learns up front instead of at sync time.",
+        tools::capability_status::capability_status
     ),
     "ggen_pack_capabilities" => (
         tools::pack_capabilities::PackCapabilitiesParams,
@@ -170,7 +204,17 @@ tool_defs! {
          does (its own # MESSAGE: header, when present), and whether it uses the \
          expectsBinding/producesShape-style 'contract' predicate convention (matched \
          generically by predicate local name, never by hardcoding one pack's namespace -- \
-         most packs will report none found, which is expected, not an error)."
+         most packs will report none found, which is expected, not an error).",
+        tools::pack_capabilities::pack_capabilities
+    ),
+    "ggen_pack_query" => (
+        tools::pack_query::PackQueryParams,
+        read_only("Query the local pack registry via SPARQL"),
+        "Execute an ad-hoc SPARQL query against the LOCAL PACK REGISTRY: either one \
+         pack's RDF facts (pack_id given) or the union of every pack currently \
+         installed (pack_id omitted). Distinct from ggen_query_preview, which queries \
+         a project's own graph, not the marketplace.",
+        tools::pack_query::pack_query
     ),
     "ggen_receipt_verify" => (
         tools::receipt_verify::ReceiptVerifyParams,
@@ -179,7 +223,8 @@ tool_defs! {
          and check the ed25519 signature when present. Reports `valid:false` (never an \
          error) plus the engine's own refusal message and, when the message embeds one, \
          a typed `fm_code` (a `FM-CHAIN-0NN`-shaped code) on a tampered or malformed \
-         receipt. Writes nothing."
+         receipt. Writes nothing.",
+        tools::receipt_verify::receipt_verify
     ),
     "ggen_write_apply" => (
         tools::write_apply::WriteApplyParams,
@@ -189,7 +234,8 @@ tool_defs! {
          ggen_sync_dry_run call against this same root) -- refuses if the hash \
          does not match the project's current graph state. Returns the \
          BLAKE3 of each file read back after writing, as evidence of what actually \
-         landed. Run ggen_sync_dry_run first."
+         landed. Run ggen_sync_dry_run first.",
+        tools::write_apply::write_apply
     ),
 }
 
@@ -507,37 +553,7 @@ impl ServerHandler for GgenMcpServer {
         }: CallToolRequestParams,
         _ctx: RequestContext<RoleServer>,
     ) -> impl std::future::Future<Output = Result<CallToolResult, McpError>> + Send + '_ {
-        std::future::ready(match name.as_ref() {
-            "ggen_query_preview" => Ok(dispatch(arguments, tools::query_preview::query_preview)),
-            "ggen_config_classify" => {
-                Ok(dispatch(arguments, tools::config_classify::config_classify))
-            }
-            "ggen_frontmatter_schema" => Ok(dispatch(
-                arguments,
-                tools::frontmatter_schema::frontmatter_schema,
-            )),
-            "ggen_frontmatter_lint" => Ok(dispatch(
-                arguments,
-                tools::frontmatter_lint::frontmatter_lint,
-            )),
-            "ggen_sync_dry_run" => Ok(dispatch(arguments, tools::sync_dry_run::sync_dry_run)),
-            "ggen_check_project" => Ok(dispatch(arguments, tools::check_project::check_project)),
-            "ggen_rule_graph" => Ok(dispatch(arguments, tools::rule_graph::rule_graph)),
-            "ggen_capability_status" => Ok(dispatch(
-                arguments,
-                tools::capability_status::capability_status,
-            )),
-            "ggen_pack_capabilities" => Ok(dispatch(
-                arguments,
-                tools::pack_capabilities::pack_capabilities,
-            )),
-            "ggen_receipt_verify" => Ok(dispatch(arguments, tools::receipt_verify::receipt_verify)),
-            "ggen_write_apply" => Ok(dispatch(arguments, tools::write_apply::write_apply)),
-            other => Err(McpError::invalid_params(
-                format!("unknown tool: {other}"),
-                None,
-            )),
-        })
+        std::future::ready(dispatch_tool(name.as_ref(), arguments))
     }
 }
 
