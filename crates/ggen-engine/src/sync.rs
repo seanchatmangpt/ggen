@@ -1994,6 +1994,16 @@ pub fn discover_templates(
     let mut templates = load_templates(&root.join(&config.templates.dir))?;
     for pack in packs {
         for path in &pack.template_paths {
+            let content = std::fs::read_to_string(path)?;
+            if !content
+                .strip_prefix('\u{feff}')
+                .unwrap_or(&content)
+                .starts_with("---")
+            {
+                // Rules-consumed template (see load_templates): the consumer's
+                // own [[generation.rules]] renders it; self-discovery skips it.
+                continue;
+            }
             templates.push((path.clone(), parse_template_file(path)?));
         }
     }
@@ -2002,12 +2012,29 @@ pub fn discover_templates(
 
 /// Load and parse every `*.tmpl` under `dir` (recursive), in sorted path
 /// order for deterministic processing.
+///
+/// Files that do not begin with a `---` frontmatter block are skipped, not
+/// refused: they are `[[generation.rules]]`-consumed templates (the repo's
+/// documented convention — see packs/github-actions-pack/templates/
+/// workflow.yml.tmpl's header comment and .specify/templates/*.tera), whose
+/// rendering is driven entirely by a consumer's own generation rule and
+/// which by design carry no frontmatter. Attempting to frontmatter-parse
+/// them here made every consumer of such a pack refuse with FM-TPL-006
+/// even when the consumer never self-discovers those templates.
 fn load_templates(dir: &Path) -> Result<Vec<(PathBuf, Template)>> {
     let mut paths: Vec<PathBuf> = Vec::new();
     collect_tmpl_paths(dir, &mut paths)?;
     paths.sort();
     let mut out = Vec::with_capacity(paths.len());
     for path in paths {
+        let content = std::fs::read_to_string(&path)?;
+        if !content
+            .strip_prefix('\u{feff}')
+            .unwrap_or(&content)
+            .starts_with("---")
+        {
+            continue;
+        }
         let tpl = parse_template_file(&path)?;
         out.push((path, tpl));
     }
