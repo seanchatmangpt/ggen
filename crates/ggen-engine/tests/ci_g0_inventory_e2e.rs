@@ -49,7 +49,9 @@ fn exact_repository_inventory_manufactures_partial_alive_evidence() {
     // 76 -> 83 (2026-09-22, v26.9.22 baseline repair): same drift class, same resolution --
     // the manifest was re-observed against reality (5 deleted foundry workflows removed,
     // 14 post-2026-08-18 workflows admitted) and this assertion admits the real 83.
-    assert!(inventory.contains("\"observed_workflow_count\": 83"));
+    // 83 -> 84 (2026-09-23, GGEN-26922-03): PR #720's gall-001-replay.yml is a real,
+    // separately-merged workflow; the manifest admits it and this assertion admits the real 84.
+    assert!(inventory.contains("\"observed_workflow_count\": 84"));
     assert!(inventory.contains("\"state\": \"UNKNOWN\""));
     assert!(!inventory.contains("\"standing\": \"ALIVE\""));
 
@@ -65,7 +67,7 @@ fn exact_repository_inventory_manufactures_partial_alive_evidence() {
     let topology = fs::read_to_string(&topology_path)
         .unwrap_or_else(|error| panic!("missing {}: {error}", topology_path.display()));
     assert!(topology.contains("\"standing\": \"PARTIAL_ALIVE\""));
-    assert!(topology.contains("\"workflow_count\": 83"));
+    assert!(topology.contains("\"workflow_count\": 84"));
     assert!(topology.contains("\"trigger_fanout\""));
     assert!(topology.contains("\"permission_ceiling\""));
     assert!(topology.contains("\"mutable_action_references\""));
