@@ -246,7 +246,12 @@ fn git_resolved_pack_syncs_over_the_cli_boundary_and_caches_across_runs() {
     // (2) Second sync (real CLI again) reuses the pinned clone cache — no
     // re-clone, proven via a sentinel file a wipe-and-re-clone would remove.
     let cache_dir = project.join(".ggen-v2/git-packs/widget");
-    std::fs::write(cache_dir.join("sentinel.txt"), "still here").expect("write sentinel");
+    // Sentinel goes INSIDE the cached clone's .git/ (excluded from the pack
+    // content hash): a sentinel at the cache root itself would change the
+    // hashed directory content and trip FM-PACK-008 on the second sync.
+    // Credit: the reconcile/fortune5 line (PR #694) carried this fix.
+    let sentinel = cache_dir.join(".git").join("sentinel.txt");
+    std::fs::write(&sentinel, "still here").expect("write sentinel");
     let _ = CliHarness::cargo_bin("ggen")
         .args(["sync", "run"])
         .current_dir(&project)
@@ -254,7 +259,7 @@ fn git_resolved_pack_syncs_over_the_cli_boundary_and_caches_across_runs() {
         .expect("second sync")
         .assert_success();
     assert!(
-        cache_dir.join("sentinel.txt").is_file(),
+        sentinel.is_file(),
         "unchanged version must reuse the cached clone, not re-clone"
     );
 }
