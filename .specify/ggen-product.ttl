@@ -749,6 +749,11 @@ prod:fm_CHAIN_17 a prod:DiagnosticCode ;
     prod:family "CHAIN" ;
     prod:number "17"^^xsd:integer ;
     prod:citation "crates/ggen-engine/src/verbs/handlers.rs:519" .
+
+prod:fm_CHAIN_18 a prod:DiagnosticCode ;
+    prod:family "CHAIN" ;
+    prod:number "18"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/portable_receipt.rs:310" .
 prod:fm_GRAPH_10 a prod:DiagnosticCode ;
     prod:family "GRAPH" ;
     prod:number "10"^^xsd:integer ;
