@@ -222,6 +222,7 @@ fn persist_keypair(project_root: &Path, signing_key: SigningKey) -> Result<Signi
     let dir = keys_dir(project_root);
     std::fs::create_dir_all(&dir)
         .map_err(|e| AppError::fm_key(6, format!("cannot create `{}`: {e}", dir.display())))?;
+    ensure_keys_gitignore(&dir)?;
 
     let signing_path = dir.join(SIGNING_KEY_FILE);
     let verifying_path = dir.join(VERIFYING_KEY_FILE);
@@ -363,6 +364,31 @@ fn write_new_file(path: &Path, contents: &[u8]) -> std::io::Result<()> {
     }
 }
 
+/// Content of the `.gitignore` written into `.ggen/keys/` on key generation.
+const KEYS_GITIGNORE: &str =
+    "# Written by ggen: signing.key is this checkout's private ed25519 seed and must\n\
+# never be committed (a committed seed signs receipts for anyone who can read the\n\
+# repository). verifying.key is the public half and may be tracked.\n\
+signing.key\n";
+
+/// Write `.ggen/keys/.gitignore` ignoring `signing.key`, so a freshly generated
+/// private key can never be committed by a plain `git add -A` in any consumer
+/// repository (the committed-key class found in 2026-09 across the fleet).
+/// Never overwrites an existing `.gitignore` (the owner's rules win); any
+/// write failure other than `AlreadyExists` refuses key generation
+/// (`[FM-KEY-012]`) instead of silently persisting an unprotected key.
+fn ensure_keys_gitignore(dir: &Path) -> Result<()> {
+    let path = dir.join(".gitignore");
+    match write_new_file(&path, KEYS_GITIGNORE.as_bytes()) {
+        Ok(()) => Ok(()),
+        Err(e) if e.kind() == std::io::ErrorKind::AlreadyExists => Ok(()),
+        Err(e) => Err(AppError::fm_key(
+            12,
+            format!("cannot write `{}`: {e}", path.display()),
+        )),
+    }
+}
+
 /// Best-effort `0o600` (owner read/write only) on Unix; a no-op on other
 /// targets (never blocks key generation on non-Unix support).
 #[cfg(unix)]
@@ -398,6 +424,69 @@ mod tests {
 
     fn clear_env() {
         std::env::remove_var(GGEN_SIGNING_KEY_ENV);
+    }
+
+    fn git(dir: &Path, args: &[&str]) -> std::process::Output {
+        std::process::Command::new("git")
+            .arg("-C")
+            .arg(dir)
+            .args(args)
+            .output()
+            .expect("git runs")
+    }
+
+    #[test]
+    fn generated_signing_key_is_ignored_by_git_and_verifying_key_is_not() {
+        let _guard = env_lock();
+        clear_env();
+        let dir = tempfile::tempdir().expect("tempdir");
+        assert!(git(dir.path(), &["init", "-q"]).status.success());
+
+        resolve_signing_key(dir.path()).expect("resolve generates a keypair");
+
+        let gitignore = dir.path().join(".ggen/keys/.gitignore");
+        let content = std::fs::read_to_string(&gitignore).expect(".gitignore written");
+        assert!(content.lines().any(|l| l == "signing.key"), "{content}");
+        // Real git decides, not a string match: the private key is ignored,
+        // the public half is not, and `git add -A` stages no signing.key.
+        assert!(git(
+            dir.path(),
+            &["check-ignore", "-q", ".ggen/keys/signing.key"]
+        )
+        .status
+        .success());
+        assert!(!git(
+            dir.path(),
+            &["check-ignore", "-q", ".ggen/keys/verifying.key"]
+        )
+        .status
+        .success());
+        assert!(git(dir.path(), &["add", "-A"]).status.success());
+        let staged =
+            String::from_utf8(git(dir.path(), &["diff", "--cached", "--name-only"]).stdout)
+                .expect("utf8");
+        assert!(!staged.contains("signing.key"), "staged: {staged}");
+        assert!(
+            staged.contains(".ggen/keys/verifying.key"),
+            "staged: {staged}"
+        );
+    }
+
+    #[test]
+    fn an_existing_keys_gitignore_is_never_overwritten() {
+        let _guard = env_lock();
+        clear_env();
+        let dir = tempfile::tempdir().expect("tempdir");
+        let keys = dir.path().join(".ggen/keys");
+        std::fs::create_dir_all(&keys).expect("mkdir");
+        std::fs::write(keys.join(".gitignore"), "owner-rule\n").expect("write owner rule");
+
+        resolve_signing_key(dir.path()).expect("resolve generates a keypair");
+
+        assert_eq!(
+            std::fs::read_to_string(keys.join(".gitignore")).expect("read"),
+            "owner-rule\n"
+        );
     }
 
     #[test]

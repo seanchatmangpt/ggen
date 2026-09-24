@@ -281,47 +281,47 @@ prod:fm_GRAPH_9 a prod:DiagnosticCode ;
 prod:fm_KEY_1 a prod:DiagnosticCode ;
     prod:family "KEY" ;
     prod:number "1"^^xsd:integer ;
-    prod:citation "crates/ggen-engine/src/keys.rs:47" .
+    prod:citation "crates/ggen-engine/src/keys.rs:87" .
 
 prod:fm_KEY_2 a prod:DiagnosticCode ;
     prod:family "KEY" ;
     prod:number "2"^^xsd:integer ;
-    prod:citation "crates/ggen-engine/src/keys.rs:56" .
+    prod:citation "crates/ggen-engine/src/keys.rs:96" .
 
 prod:fm_KEY_3 a prod:DiagnosticCode ;
     prod:family "KEY" ;
     prod:number "3"^^xsd:integer ;
-    prod:citation "crates/ggen-engine/src/keys.rs:90" .
+    prod:citation "crates/ggen-engine/src/keys.rs:150" .
 
 prod:fm_KEY_4 a prod:DiagnosticCode ;
     prod:family "KEY" ;
     prod:number "4"^^xsd:integer ;
-    prod:citation "crates/ggen-engine/src/keys.rs:118" .
+    prod:citation "crates/ggen-engine/src/keys.rs:178" .
 
 prod:fm_KEY_5 a prod:DiagnosticCode ;
     prod:family "KEY" ;
     prod:number "5"^^xsd:integer ;
-    prod:citation "crates/ggen-engine/src/keys.rs:130" .
+    prod:citation "crates/ggen-engine/src/keys.rs:190" .
 
 prod:fm_KEY_6 a prod:DiagnosticCode ;
     prod:family "KEY" ;
     prod:number "6"^^xsd:integer ;
-    prod:citation "crates/ggen-engine/src/keys.rs:147" .
+    prod:citation "crates/ggen-engine/src/keys.rs:224" .
 
 prod:fm_KEY_7 a prod:DiagnosticCode ;
     prod:family "KEY" ;
     prod:number "7"^^xsd:integer ;
-    prod:citation "crates/ggen-engine/src/keys.rs:167" .
+    prod:citation "crates/ggen-engine/src/keys.rs:238" .
 
 prod:fm_KEY_8 a prod:DiagnosticCode ;
     prod:family "KEY" ;
     prod:number "8"^^xsd:integer ;
-    prod:citation "crates/ggen-engine/src/keys.rs:187" .
+    prod:citation "crates/ggen-engine/src/keys.rs:273" .
 
 prod:fm_KEY_9 a prod:DiagnosticCode ;
     prod:family "KEY" ;
     prod:number "9"^^xsd:integer ;
-    prod:citation "crates/ggen-engine/src/keys.rs:213" .
+    prod:citation "crates/ggen-engine/src/keys.rs:398" .
 
 prod:fm_LAW_1 a prod:DiagnosticCode ;
     prod:family "LAW" ;
@@ -692,12 +692,17 @@ prod:fm_GEN_16 a prod:DiagnosticCode ;
 prod:fm_KEY_10 a prod:DiagnosticCode ;
     prod:family "KEY" ;
     prod:number "10"^^xsd:integer ;
-    prod:citation "crates/ggen-engine/src/keys.rs:288" .
+    prod:citation "crates/ggen-engine/src/keys.rs:289" .
+
+prod:fm_KEY_12 a prod:DiagnosticCode ;
+    prod:family "KEY" ;
+    prod:number "12"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/keys.rs:385" .
 
 prod:fm_KEY_11 a prod:DiagnosticCode ;
     prod:family "KEY" ;
     prod:number "11"^^xsd:integer ;
-    prod:citation "crates/ggen-engine/src/keys.rs:317" .
+    prod:citation "crates/ggen-engine/src/keys.rs:318" .
 
 prod:fm_TPL_24 a prod:DiagnosticCode ;
     prod:family "TPL" ;
