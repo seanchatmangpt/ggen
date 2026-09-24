@@ -321,7 +321,7 @@ prod:fm_KEY_8 a prod:DiagnosticCode ;
 prod:fm_KEY_9 a prod:DiagnosticCode ;
     prod:family "KEY" ;
     prod:number "9"^^xsd:integer ;
-    prod:citation "crates/ggen-engine/src/keys.rs:398" .
+    prod:citation "crates/ggen-engine/src/keys.rs:403" .
 
 prod:fm_LAW_1 a prod:DiagnosticCode ;
     prod:family "LAW" ;
@@ -697,7 +697,7 @@ prod:fm_KEY_10 a prod:DiagnosticCode ;
 prod:fm_KEY_12 a prod:DiagnosticCode ;
     prod:family "KEY" ;
     prod:number "12"^^xsd:integer ;
-    prod:citation "crates/ggen-engine/src/keys.rs:385" .
+    prod:citation "crates/ggen-engine/src/keys.rs:390" .
 
 prod:fm_KEY_11 a prod:DiagnosticCode ;
     prod:family "KEY" ;

@@ -368,12 +368,17 @@ fn write_new_file(path: &Path, contents: &[u8]) -> std::io::Result<()> {
 const KEYS_GITIGNORE: &str =
     "# Written by ggen: signing.key is this checkout's private ed25519 seed and must\n\
 # never be committed (a committed seed signs receipts for anyone who can read the\n\
-# repository). verifying.key is the public half and may be tracked.\n\
-signing.key\n";
+# repository). verifying.key is ignored too: every checkout owns its own pair, and a\n\
+# tracked public half without its private half makes a fresh clone's first sync\n\
+# refuse [FM-KEY-010]/[FM-KEY-011]. Publish the public key out of band.\n\
+signing.key\n\
+verifying.key\n";
 
-/// Write `.ggen/keys/.gitignore` ignoring `signing.key`, so a freshly generated
-/// private key can never be committed by a plain `git add -A` in any consumer
-/// repository (the committed-key class found in 2026-09 across the fleet).
+/// Write `.ggen/keys/.gitignore` ignoring `signing.key` and `verifying.key`, so a
+/// freshly generated private key can never be committed by a plain `git add -A`
+/// in any consumer repository (the committed-key class found in 2026-09 across the
+/// fleet), and a fresh clone never inherits a public half without its private half
+/// (which the stale-verifying-key detection refuses; fleet rotation 2026-09-24).
 /// Never overwrites an existing `.gitignore` (the owner's rules win); any
 /// write failure other than `AlreadyExists` refuses key generation
 /// (`[FM-KEY-012]`) instead of silently persisting an unprotected key.
@@ -436,7 +441,7 @@ mod tests {
     }
 
     #[test]
-    fn generated_signing_key_is_ignored_by_git_and_verifying_key_is_not() {
+    fn generated_keypair_is_ignored_by_git() {
         let _guard = env_lock();
         clear_env();
         let dir = tempfile::tempdir().expect("tempdir");
@@ -447,29 +452,68 @@ mod tests {
         let gitignore = dir.path().join(".ggen/keys/.gitignore");
         let content = std::fs::read_to_string(&gitignore).expect(".gitignore written");
         assert!(content.lines().any(|l| l == "signing.key"), "{content}");
-        // Real git decides, not a string match: the private key is ignored,
-        // the public half is not, and `git add -A` stages no signing.key.
-        assert!(git(
-            dir.path(),
-            &["check-ignore", "-q", ".ggen/keys/signing.key"]
-        )
-        .status
-        .success());
-        assert!(!git(
-            dir.path(),
-            &["check-ignore", "-q", ".ggen/keys/verifying.key"]
-        )
-        .status
-        .success());
+        assert!(content.lines().any(|l| l == "verifying.key"), "{content}");
+        // Real git decides, not a string match: both halves are ignored and
+        // `git add -A` stages neither.
+        for key in [".ggen/keys/signing.key", ".ggen/keys/verifying.key"] {
+            assert!(
+                git(dir.path(), &["check-ignore", "-q", key])
+                    .status
+                    .success(),
+                "{key} not ignored"
+            );
+        }
         assert!(git(dir.path(), &["add", "-A"]).status.success());
         let staged =
             String::from_utf8(git(dir.path(), &["diff", "--cached", "--name-only"]).stdout)
                 .expect("utf8");
         assert!(!staged.contains("signing.key"), "staged: {staged}");
-        assert!(
-            staged.contains(".ggen/keys/verifying.key"),
-            "staged: {staged}"
-        );
+        assert!(!staged.contains("verifying.key"), "staged: {staged}");
+        assert!(staged.contains(".ggen/keys/.gitignore"), "staged: {staged}");
+    }
+
+    #[test]
+    fn a_fresh_clone_of_a_committed_project_generates_its_own_keypair() {
+        // A project whose owner ran ggen and committed with `git add -A` must stay
+        // usable from a fresh clone (CI, a second machine): the clone carries no
+        // key half, so resolving generates a new pair instead of refusing
+        // [FM-KEY-010]/[FM-KEY-011] over an inherited public key.
+        let _guard = env_lock();
+        clear_env();
+        let origin = tempfile::tempdir().expect("tempdir");
+        assert!(git(origin.path(), &["init", "-q"]).status.success());
+        let first = resolve_signing_key(origin.path()).expect("owner generates a keypair");
+        assert!(git(origin.path(), &["add", "-A"]).status.success());
+        assert!(git(
+            origin.path(),
+            &[
+                "-c",
+                "user.email=k@x",
+                "-c",
+                "user.name=k",
+                "commit",
+                "-q",
+                "-m",
+                "project"
+            ]
+        )
+        .status
+        .success());
+
+        let clones = tempfile::tempdir().expect("tempdir");
+        let clone = clones.path().join("clone");
+        let cloned = std::process::Command::new("git")
+            .args(["clone", "-q"])
+            .arg(origin.path())
+            .arg(&clone)
+            .output()
+            .expect("git clone runs");
+        assert!(cloned.status.success(), "{cloned:?}");
+        assert!(!clone.join(".ggen/keys/verifying.key").exists());
+
+        let second = resolve_signing_key(&clone).expect("a fresh clone generates its own keypair");
+        assert_ne!(first.to_bytes(), second.to_bytes());
+        resolve_verifying_key(&clone).expect("the clone's verifying key is its own");
     }
 
     #[test]
