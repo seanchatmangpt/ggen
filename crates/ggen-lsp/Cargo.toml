@@ -30,7 +30,7 @@ publish = false
 # still compile clean under nightly-2026-06-22 via `just check`. The exact pin
 # intersects with lsp-max-runtime's ^26.6.9 constraint so Cargo can't silently
 # pull a future broken release within the same date-versioned minor.
-wasm4pm-compat = "=26.6.29"
+wasm4pm-compat = "=26.8.7"
 lsp-max = { workspace = true }
 lsp-max-protocol = { workspace = true }
 lsp-max-macros = { workspace = true }
