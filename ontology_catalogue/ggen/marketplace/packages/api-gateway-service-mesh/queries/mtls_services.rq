@@ -1,8 +1,0 @@
-PREFIX agw: <https://ggen.ai/ontology/api-gateway#>
-SELECT ?service ?mtlsMode ?certExpiry WHERE {
-  ?service agw:hasMutualTLS ?mtls .
-  ?mtls agw:mtlsMode ?mtlsMode ;
-        agw:hasCertificate ?cert .
-  ?cert agw:certificateExpiry ?certExpiry .
-  FILTER(?certExpiry < "2025-12-31T00:00:00"^^xsd:dateTime)
-}

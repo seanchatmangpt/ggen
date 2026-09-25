@@ -1,1 +1,0 @@
-<http://example.org/alice> <http://example.org/name> "Alice" .
