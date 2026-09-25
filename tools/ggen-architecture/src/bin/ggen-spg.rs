@@ -17,12 +17,22 @@ struct Cli {
 #[derive(Debug, Subcommand)]
 enum Command {
     /// Validate structural SPG law.
-    Validate { graph: PathBuf },
+    Validate {
+        /// SPG JSON file.
+        graph: PathBuf,
+    },
     /// Compute a semantic graph diff.
-    Diff { old: PathBuf, new: PathBuf },
+    Diff {
+        /// Old SPG JSON file.
+        old: PathBuf,
+        /// New SPG JSON file.
+        new: PathBuf,
+    },
     /// Compile one declared projection family.
     Compile {
+        /// SPG JSON file.
         graph: PathBuf,
+        /// Projection family, e.g. hddl, tla_plus, ocel2, sa2a, brce.
         #[arg(long)]
         family: String,
     },
