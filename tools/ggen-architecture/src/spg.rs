@@ -207,10 +207,7 @@ pub fn validate(graph: &SpgGraph) -> Result<(), SpgError> {
             )));
         }
         if edge.guard.trim().is_empty() {
-            return Err(SpgError::Refused(format!(
-                "REFUSED:SPG_GUARD:{}",
-                edge.id
-            )));
+            return Err(SpgError::Refused(format!("REFUSED:SPG_GUARD:{}", edge.id)));
         }
         if edge.evidence_required.is_empty() {
             return Err(SpgError::Refused(format!(
@@ -373,10 +370,7 @@ pub fn semantic_diff(old: &SpgGraph, new: &SpgGraph) -> SpgDiff {
 ///
 /// The output explicitly carries semantic_equivalence = UNCLAIMED; a binding
 /// proves only correspondence declared by the source SPG.
-pub fn compile_projection(
-    graph: &SpgGraph,
-    family: &str,
-) -> Result<ProjectionEnvelope, SpgError> {
+pub fn compile_projection(graph: &SpgGraph, family: &str) -> Result<ProjectionEnvelope, SpgError> {
     validate(graph)?;
     let bindings = graph
         .projections
