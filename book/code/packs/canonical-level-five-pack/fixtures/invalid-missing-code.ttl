@@ -1,2 +1,0 @@
-@prefix ex: <https://example.org/level-five#> .
-ex:Broken a ex:Capability ; ex:order 4 .

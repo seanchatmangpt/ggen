@@ -1,5 +1,0 @@
-knhk-workflow execute --workflow approval-workflow --case-id <id>
-
-# 4. Profile performance
-knhk-workflow profile approval-workflow.ttl \
-    --case-id <id> --report > performance.html

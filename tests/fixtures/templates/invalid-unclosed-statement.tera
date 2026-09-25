@@ -1,8 +1,0 @@
----
-to: "broken-loop.md"
----
-# Broken Loop
-
-{% for item in items
-
-This for statement is not closed.
