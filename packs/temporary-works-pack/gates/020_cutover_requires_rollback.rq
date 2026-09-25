@@ -1,2 +1,0 @@
-PREFIX ret: <https://seanchatmangpt.github.io/ontology/retrofit#>
-SELECT ?cutover WHERE { ?cutover a ret:Cutover . FILTER NOT EXISTS { ?cutover ret:rollbackPlan ?p . ?p a ret:RollbackPlan } }

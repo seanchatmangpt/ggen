@@ -1,3 +1,0 @@
-
-@prefix pcp: <urn:mfw:pcp:> .
-pcp:fixture-negative-sequence pcp:openSequence 1 ; pcp:closeSequence 2 ; pcp:openDigest "open-a" ; pcp:closeOpenReference "open-a" .
