@@ -1,9 +1,0 @@
-PREFIX wf: <https://ggen.ai/ontology/workflow#>
-SELECT ?instance ?workflow ?status ?startTime WHERE {
-  ?instance a wf:WorkflowInstance ;
-            wf:status ?status ;
-            wf:startTime ?startTime .
-  ?workflow wf:hasTask ?task .
-  FILTER(?status IN ("running", "suspended"))
-}
-ORDER BY ?startTime
