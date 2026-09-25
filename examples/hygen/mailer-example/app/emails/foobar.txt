@@ -1,3 +1,0 @@
-Hello foobar
-hello
-(version 1)

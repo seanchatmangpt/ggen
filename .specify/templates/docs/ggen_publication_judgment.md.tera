@@ -1,2 +1,0 @@
-{%- set r = sparql(query='PREFIX grp: <http://seanchatmangpt.github.io/packs/ggen-release#> SELECT ?body WHERE { grp:PublicationJudgmentArtifact grp:artifactBody ?body . }') | first -%}
-{{ r.body }}

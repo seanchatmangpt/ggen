@@ -1,8 +1,0 @@
-PREFIX pkg: <http://ggen.io/ontology/package#>
-PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-
-SELECT ?dependency ?version
-WHERE {
-  ?package pkg:dependsOn ?dependency .
-  ?dependency pkg:version ?version .
-}
