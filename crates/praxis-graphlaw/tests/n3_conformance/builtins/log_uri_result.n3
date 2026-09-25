@@ -1,3 +1,0 @@
-@prefix : <http://example.org/#>.
-
-:x :hasUriString "http://example.org/#y" .

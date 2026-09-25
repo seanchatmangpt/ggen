@@ -1,6 +1,0 @@
-@prefix dx: <https://chatmangpt.com/ontology/dx#> .
-@prefix code: <https://chatmangpt.com/ontology/codegen#> .
-
-dx:Xtask a code:RustCrate ;
-  code:name "xtask" ;
-  code:path "xtask" .

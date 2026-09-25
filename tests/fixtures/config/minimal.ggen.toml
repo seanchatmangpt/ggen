@@ -1,6 +1,0 @@
-# Minimal valid ggen.toml - only required fields
-
-[project]
-output_dir = "out"
-
-[rdf]

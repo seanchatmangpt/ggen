@@ -1,6 +1,0 @@
-PREFIX agw: <https://ggen.ai/ontology/api-gateway#>
-SELECT ?route ?failureThreshold ?timeout WHERE {
-  ?route agw:hasCircuitBreaker ?cb .
-  ?cb agw:failureThreshold ?failureThreshold ;
-      agw:timeoutSeconds ?timeout .
-}

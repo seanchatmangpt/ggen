@@ -1,3 +1,0 @@
-@prefix : <http://example.org/> .
-
-:a :sinValue 0 .
