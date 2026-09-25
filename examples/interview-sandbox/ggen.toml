@@ -1,8 +1,0 @@
-[project]
-name = "interview-sandbox"
-
-[ontology]
-source = "schema/domain.ttl"
-
-[templates]
-dir = "templates"

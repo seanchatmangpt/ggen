@@ -1,8 +1,0 @@
-PREFIX dwh: <https://ggen.ai/ontology/data-warehouse#>
-SELECT ?table ?completeness ?accuracy WHERE {
-  ?table dwh:hasQualityRule ?rule .
-  ?metric a dwh:QualityMetric ;
-          dwh:completenessScore ?completeness ;
-          dwh:accuracyScore ?accuracy .
-  FILTER(?completeness < 95.0 || ?accuracy < 95.0)
-}

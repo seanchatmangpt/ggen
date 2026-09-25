@@ -1,4 +1,0 @@
-# Dependencies
-
-- serde: JSON serialization
-- tokio: Async runtime

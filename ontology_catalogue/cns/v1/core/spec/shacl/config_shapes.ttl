@@ -1,4 +1,0 @@
-@prefix sh: <http://www.w3.org/ns/shacl#> .
-@prefix cfg: <https://cns.dev/config#> .
-
-cfg:ConfigShape a sh:NodeShape ; sh:targetClass cfg:Config .

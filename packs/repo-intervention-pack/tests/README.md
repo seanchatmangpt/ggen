@@ -1,1 +1,0 @@
-負例は改修でありながら継続運転計画を欠き、`030_rehabilitation_requires_continuity.rq`が拒否する。

@@ -1,6 +1,0 @@
-[consumer]
-# github-actions-pack is schema-only (dspy-pack contract): ontology.ttl carries
-# zero gha:Workflow/gha:Job/gha:Step/gha:CompositeAction individuals. Real
-# consumers author their own instance-data .ttl in their own repo and union it
-# into the pack graph via their own ggen.toml — there is nothing for this
-# pack's own qualification pass to union locally.

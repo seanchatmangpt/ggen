@@ -1,6 +1,0 @@
-@prefix : <http://example.org/data/#> .
-
-:subjectCase :verified true .
-:nestedBaseCase :verified true .
-:sparqlBaseCase :verified true .
-:sparqlPrefixCase :verified true .
