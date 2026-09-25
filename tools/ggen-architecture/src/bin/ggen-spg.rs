@@ -1,7 +1,9 @@
 //! CLI for Semantic Procedural Graph validation, diff, and projection.
 
 use clap::{Parser, Subcommand};
-use ggen_architecture::{compile_projection, spg_from_json, spg_semantic_diff, validate_spg, SpgGraph};
+use ggen_architecture::{
+    compile_projection, spg_from_json, spg_semantic_diff, validate_spg, SpgGraph,
+};
 use std::{fs, path::PathBuf, process::ExitCode};
 
 #[derive(Debug, Parser)]
@@ -15,22 +17,12 @@ struct Cli {
 #[derive(Debug, Subcommand)]
 enum Command {
     /// Validate structural SPG law.
-    Validate {
-        /// SPG JSON file.
-        graph: PathBuf,
-    },
+    Validate { graph: PathBuf },
     /// Compute a semantic graph diff.
-    Diff {
-        /// Old SPG JSON file.
-        old: PathBuf,
-        /// New SPG JSON file.
-        new: PathBuf,
-    },
+    Diff { old: PathBuf, new: PathBuf },
     /// Compile one declared projection family.
     Compile {
-        /// SPG JSON file.
         graph: PathBuf,
-        /// Projection family, e.g. hddl, tla_plus, ocel2, sa2a, brce.
         #[arg(long)]
         family: String,
     },
@@ -42,8 +34,8 @@ fn read_graph(path: &PathBuf) -> Result<SpgGraph, String> {
 }
 
 fn emit<T: serde::Serialize>(value: &T) -> Result<(), String> {
-    let rendered =
-        serde_json::to_string_pretty(value).map_err(|error| format!("REFUSED:SPG_RENDER:{error}"))?;
+    let rendered = serde_json::to_string_pretty(value)
+        .map_err(|error| format!("REFUSED:SPG_RENDER:{error}"))?;
     println!("{rendered}");
     Ok(())
 }
