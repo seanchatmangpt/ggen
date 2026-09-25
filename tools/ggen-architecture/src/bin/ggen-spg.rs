@@ -1,7 +1,7 @@
 //! CLI for Semantic Procedural Graph validation, diff, and projection.
 
 use clap::{Parser, Subcommand};
-use ggen_architecture::{compile_projection, from_json, semantic_diff, validate, SpgGraph};
+use ggen_architecture::{compile_projection, spg_from_json, spg_semantic_diff, validate_spg, SpgGraph};
 use std::{fs, path::PathBuf, process::ExitCode};
 
 #[derive(Debug, Parser)]
@@ -38,7 +38,7 @@ enum Command {
 
 fn read_graph(path: &PathBuf) -> Result<SpgGraph, String> {
     let bytes = fs::read(path).map_err(|error| format!("REFUSED:SPG_READ:{path:?}:{error}"))?;
-    from_json(&bytes).map_err(|error| error.to_string())
+    spg_from_json(&bytes).map_err(|error| error.to_string())
 }
 
 fn emit<T: serde::Serialize>(value: &T) -> Result<(), String> {
@@ -52,7 +52,7 @@ fn run(cli: Cli) -> Result<(), String> {
     match cli.command {
         Command::Validate { graph } => {
             let graph = read_graph(&graph)?;
-            validate(&graph).map_err(|error| error.to_string())?;
+            validate_spg(&graph).map_err(|error| error.to_string())?;
             emit(&serde_json::json!({
                 "schema": "chatman.spg-validation.v1",
                 "graph": graph.id,
@@ -64,9 +64,9 @@ fn run(cli: Cli) -> Result<(), String> {
         Command::Diff { old, new } => {
             let old = read_graph(&old)?;
             let new = read_graph(&new)?;
-            validate(&old).map_err(|error| error.to_string())?;
-            validate(&new).map_err(|error| error.to_string())?;
-            emit(&semantic_diff(&old, &new))
+            validate_spg(&old).map_err(|error| error.to_string())?;
+            validate_spg(&new).map_err(|error| error.to_string())?;
+            emit(&spg_semantic_diff(&old, &new))
         }
         Command::Compile { graph, family } => {
             let graph = read_graph(&graph)?;
