@@ -21,6 +21,7 @@ pub mod model;
 pub mod receipt;
 pub mod registry;
 pub mod self_play;
+pub mod spg;
 pub mod state;
 
 pub use autonomic::{
@@ -61,5 +62,9 @@ pub use self_play::{
     ActorRole, Comparison, GameState, Metric, MetricConstraint, MetricEffect, MoveReceipt,
     SelfPlayDoctorFinding, SelfPlayDoctorReport, SelfPlayDoctorStatus, SelfPlayReport,
     SelfPlayScenario, SelfPlayStanding, SelfPlayViolation, UseCaseKind,
+};
+pub use spg::{
+    compile_projection, from_json as spg_from_json, semantic_diff as spg_semantic_diff,
+    validate as validate_spg, ProjectionEnvelope, SpgDiff, SpgEdge, SpgError, SpgGraph, SpgNode,
 };
 pub use state::{ArchitectureState, AutonomicPolicy};
