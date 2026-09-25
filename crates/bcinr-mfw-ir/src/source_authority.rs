@@ -34,7 +34,7 @@ pub fn admit_projection(expected: ProjectionBinding, observed: ProjectionEvidenc
 #[cfg(test)]
 mod tests {
     use super::*;
-    fn d(s: &str) -> Digest { Digest::of_bytes(s.as_bytes()) }
+    fn d(s: &str) -> Digest { Digest::hash(s.as_bytes()) }
     fn binding() -> ProjectionBinding { ProjectionBinding { semantic_source: d("source"), manufacturer: d("manufacturer"), projection_profile: d("profile") } }
 
     #[test]
