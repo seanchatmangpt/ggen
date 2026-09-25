@@ -1,0 +1,4 @@
+# MESSAGE: Qualify must retain canonical prefLabel "qualify".
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+SELECT * WHERE { FILTER NOT EXISTS { geocel:Qualify skos:prefLabel "qualify" } }
