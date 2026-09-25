@@ -1,6 +1,0 @@
-### Key Entities
-
-{% for row in sparql_results -%}
-- **{{ row.entityName }}**: {{ row.definition }}
-
-{% endfor %}

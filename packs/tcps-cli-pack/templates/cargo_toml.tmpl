@@ -1,8 +1,0 @@
----
-to: crates/tcps-cli/Cargo.toml
-sparql:
-  rows: |
-    PREFIX tcps: <http://seanchatmangpt.github.io/packs/tcps-cli#>
-    SELECT ?source WHERE { tcps:CargoTomlModule tcps:sourceText ?source } ORDER BY ?source
----
-{{ rows[0].source }}

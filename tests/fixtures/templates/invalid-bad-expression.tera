@@ -1,8 +1,0 @@
----
-to: "bad-expr.md"
----
-# Bad Expression
-
-Result: {{ 42 + }}
-
-This expression has a missing operand.

@@ -1,2 +1,0 @@
-ancestor(X, Y) :- parent(X, Y).
-parent(john, bob).

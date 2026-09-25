@@ -1,2 +1,0 @@
-PREFIX pcp: <urn:mfw:pcp:>
-SELECT ?order ?category ?text WHERE { ?x a pcp:Distinction ; pcp:order ?order ; pcp:category ?category ; pcp:text ?text . } ORDER BY ?order
