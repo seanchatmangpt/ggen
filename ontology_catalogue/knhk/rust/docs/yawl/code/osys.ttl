@@ -1,4 +1,0 @@
-├── playground
-│   └── dod-validator
-│       ├── .github
-│       │   └── workflows

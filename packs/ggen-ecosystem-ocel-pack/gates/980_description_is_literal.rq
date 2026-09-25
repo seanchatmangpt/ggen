@@ -1,3 +1,0 @@
-# MESSAGE: description values must be RDF literals suitable for projection.
-PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
-SELECT ?subject ?v WHERE { ?subject geocel:description ?v . FILTER(!isLiteral(?v)) }

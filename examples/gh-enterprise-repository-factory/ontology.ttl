@@ -1,3 +1,0 @@
-@prefix ex: <http://example.com/gh-enterprise-consumer#> .
-
-ex:CommittedConsumer ex:purpose "Compose institutional and enterprise GitHub repository architecture packs" .

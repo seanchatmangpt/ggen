@@ -1,4 +1,0 @@
-Available Variables:
-{% for key, value in self %}
-  {{ key }}: {{ value }}
-{% endfor %}

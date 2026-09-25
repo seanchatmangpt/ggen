@@ -1,3 +1,0 @@
-
-@prefix pcp: <urn:mfw:pcp:> .
-pcp:fixture-negative-goal pcp:goalSatisfied false ; pcp:allEffectsSucceeded true .
