@@ -1,0 +1,3 @@
+# MESSAGE: causedBy targets must be ManufacturingEvent resources.
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+SELECT ?e ?cause WHERE { ?e geocel:causedBy ?cause . FILTER NOT EXISTS { ?cause a geocel:ManufacturingEvent } }
