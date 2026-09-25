@@ -1,1 +1,0 @@
-[ foaf:name "Anonymous" ; foaf:age 25 ] .

@@ -1,8 +1,0 @@
----
-to: "nested.md"
----
-# Nested Object Access
-
-User: {{ user.profile.name }}
-Email: {{ user.profile.contact.email }}
-Location: {{ user.address.city }}, {{ user.address.country }}

@@ -1,3 +1,0 @@
-{# Consumes only the bound projection variable `name`. No unbound vars. #}
-Item: {{ name }}
-Row name: {{ row["name"] }}

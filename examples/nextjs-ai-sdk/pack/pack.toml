@@ -1,4 +1,0 @@
-[pack]
-name = "nextjs-ai-sdk-pack"
-version = "26.7.23"
-description = "Projects an admitted Next.js 16 + AI SDK 7 application with AI Elements, shadcn/ui, Better Auth, Neon/PostgreSQL, Drizzle, approval-gated tools, OpenTelemetry, and BLAKE3 receipts into canonical source paths. Gates (gates/*.rq) and ontology.ttl are auto-discovered by the engine. Verification practice: run `ggen sync run --dry-run` twice; the second run must report zero pending writes."
