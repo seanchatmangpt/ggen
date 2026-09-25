@@ -1,2 +1,0 @@
-PREFIX ostar: <urn:ostar:ontology#>
-SELECT * WHERE { VALUES (?lattice ?variant ?field ?fieldType) { ("WitnessState" "PartialReplay" "cost" "number") ("DeclareState" "Evaluated" "values" "record") } }

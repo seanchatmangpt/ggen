@@ -1,2 +1,0 @@
-{# Template BODY is clean; the unbound variable is in the OUTPUT PATH, not here. #}
-Item: {{ name }}

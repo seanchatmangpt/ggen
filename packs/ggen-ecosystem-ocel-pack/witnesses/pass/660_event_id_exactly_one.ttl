@@ -1,2 +1,0 @@
-@prefix geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#> .
-<urn:e> a geocel:ManufacturingEvent ; geocel:eventId "e1" .

@@ -1,7 +1,0 @@
-## Success Criteria *(mandatory)*
-
-### Measurable Outcomes
-
-{% for row in sparql_results -%}
-- **{{ row.criterionId }}**: {{ row.description }}
-{% endfor %}
