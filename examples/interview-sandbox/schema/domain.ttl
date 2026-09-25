@@ -1,3 +1,0 @@
-# interview-sandbox project ontology -- deliberately minimal, the pack's
-# own ontology.ttl carries all site:Application and site:InterviewCapability
-# individuals needed.

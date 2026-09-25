@@ -1,3 +1,0 @@
-@prefix : <http://example.org/> .
-
-:cart :restCount 2 .

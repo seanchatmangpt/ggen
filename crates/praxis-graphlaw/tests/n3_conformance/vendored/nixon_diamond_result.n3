@@ -1,3 +1,0 @@
-@prefix ex:  <http://example.org/nixon#> .
-
-ex:RichardNixon a ex:NonPacifist .

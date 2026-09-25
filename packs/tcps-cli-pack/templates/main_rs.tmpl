@@ -1,8 +1,0 @@
----
-to: crates/tcps-cli/src/main.rs
-sparql:
-  rows: |
-    PREFIX tcps: <http://seanchatmangpt.github.io/packs/tcps-cli#>
-    SELECT ?source WHERE { tcps:MainModule tcps:sourceText ?source } ORDER BY ?source
----
-{{ rows[0].source -}}

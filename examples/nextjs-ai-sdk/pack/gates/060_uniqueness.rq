@@ -1,8 +1,0 @@
-# MESSAGE: package, model, tool, and handler identifiers must be unique; any returned row is refused.
-PREFIX nai: <https://ggen.dev/packs/nextjs-ai#>
-SELECT ?field ?value ?count WHERE {
-  { SELECT (nai:modelId AS ?field) ?value (COUNT(?s) AS ?count) WHERE { ?s a nai:Model ; nai:modelId ?value } GROUP BY ?value HAVING (?count > 1) }
-  UNION { SELECT (nai:toolName AS ?field) ?value (COUNT(?s) AS ?count) WHERE { ?s a nai:Tool ; nai:toolName ?value } GROUP BY ?value HAVING (?count > 1) }
-  UNION { SELECT (nai:handlerKey AS ?field) ?value (COUNT(?s) AS ?count) WHERE { ?s a nai:Tool ; nai:handlerKey ?value } GROUP BY ?value HAVING (?count > 1) }
-}
-ORDER BY ?field ?value

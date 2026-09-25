@@ -1,3 +1,0 @@
-@prefix : <http://example.org/#>.
-
-:x :formulaText "<http://example.org/#a> <http://example.org/#b> <http://example.org/#c>.\n" .

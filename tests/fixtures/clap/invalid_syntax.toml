@@ -1,5 +1,0 @@
-# Invalid TOML syntax - missing closing bracket
-
-[project
-name = "invalid-project"
-version = "1.0.0"
