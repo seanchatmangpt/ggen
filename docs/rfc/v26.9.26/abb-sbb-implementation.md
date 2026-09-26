@@ -29,13 +29,13 @@ Kernel: `crates/ggen-abb-sbb` (IO-free, authority NONE, ceiling CONSTRUCT). Cour
 | 5 | ALIVE | same; `tampered_receipt_is_refused` |
 | 6 | ALIVE | `second_run_is_byte_identical`, `element_reordering_does_not_change_digest_or_receipt` |
 | 7 | ALIVE | `plan_selects_lowest_admissible_candidate`, `plan_falls_back_to_manufacture_with_every_refusal_recorded`, `manufacture_decision_reports_only_ports_no_candidate_provides`; SELECT implies manufacturable (artifact paths and placeholders are checked at admission: `path_escape_is_refused`, `duplicate_artifact_path_is_refused`, `unbound_or_unterminated_placeholder_is_refused`) |
-| 8 | UNSUPPORTED | fixture is `synthetic_graph(2, 3)`, not the marketplace EA pack |
+| 8 | ALIVE | `marketplace_fixture_is_the_exact_admitted_projection`; vendored bytes are bound to ggen-marketplace PR #506 fixture blob `dce7518e8a1e22f3864a5f957b3fe6809f27df02` by `fixtures/marketplace-source.json` |
 | 9 | ALIVE | `pack_named_as_abb_or_sbb_is_refused`, `pack_colliding_with_any_element_id_is_refused_without_a_pack_list` (a pack id may not equal any element id, with or without a `packs` list) |
 | 10 | ALIVE | `stale_qualification_is_refused_after_sbb_changes`, `changed_architecture_contract_invalidates_qualification` |
 
 Standing of the whole seed: PARTIAL_ALIVE. The kernel has no consumer yet (nothing in
 ggen-cli, ggen-engine or sync calls it); it is an independent workspace root listed in the root
-`Cargo.toml` `exclude`, and DoD 8 is UNSUPPORTED.
+`Cargo.toml` `exclude`, and remains PARTIAL_ALIVE only because the kernel is not yet wired into ggen-cli/ggen-engine/sync and the EA graph is still a JSON projection rather than native RDF ingestion.
 
 Benchmark: `cargo bench --manifest-path crates/ggen-abb-sbb/Cargo.toml`; recorded numbers
 in `crates/ggen-abb-sbb/bench/receipt.json`; regression bounds enforced by
