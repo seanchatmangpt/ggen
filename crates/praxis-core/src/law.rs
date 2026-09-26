@@ -417,6 +417,7 @@ impl<Payload: Serialize, Law> LawObject<Payload, Admitted, Law> {
             signature_hex: None,
             schema: crate::receipt_epoch::SCHEMA_V1.to_string(),
             v2: None,
+            chain_rule: None,
         };
 
         let receipted = LawObject {

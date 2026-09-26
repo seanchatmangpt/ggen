@@ -154,14 +154,24 @@ impl ReceiptValidator {
     }
 
     fn check_chain_recompute(records: &[ReceiptRecord]) -> StageResult {
+        // Rule-aware (FM-CHAIN-009): each record is checked under the chain
+        // rule that sealed it, and a legacy base-rule record after a
+        // declared one is a refused downgrade.
+        let mut monotonic = crate::receipt_record::ChainRuleMonotonicity::new();
         for (i, record) in records.iter().enumerate() {
-            let claimed = match record.chain_hash() {
-                Ok(h) => h,
-                Err(_) => continue, // already reported by `schema`
+            let Ok(claimed) = record.chain_hash() else {
+                continue; // already reported by `schema`
             };
-            match record.recompute_chain_hash() {
-                Ok(computed) if computed == claimed => {}
-                Ok(_) => {
+            match record.verify_chain_against(claimed) {
+                Ok(crate::receipt_record::ChainVerification::Verified(standing)) => {
+                    if let Err(e) = monotonic.observe(i, record, standing) {
+                        return StageResult::new(
+                            "chain_recompute",
+                            CheckOutcome::Fail(format!("record {i}: {e}")),
+                        );
+                    }
+                }
+                Ok(crate::receipt_record::ChainVerification::Mismatch { .. }) => {
                     return StageResult::new(
                         "chain_recompute",
                         CheckOutcome::Fail(format!(
@@ -311,6 +321,7 @@ mod tests {
                 signature_hex: None,
                 schema: crate::receipt_epoch::SCHEMA_V1.to_string(),
                 v2: None,
+                chain_rule: None,
             };
             let chain_hash = record.recompute_chain_hash().expect("recompute");
             record.chain_hash_hex = hex::encode(chain_hash);
