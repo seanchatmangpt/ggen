@@ -385,6 +385,7 @@ fn legacy_payload_without_optional_fields_verifies() {
         signature_hex: None,
         schema: praxis_core::receipt_epoch::SCHEMA_V1.to_string(),
         v2: None,
+        chain_rule: None,
     };
     let chain = record.recompute_chain_hash().expect("chain");
     record.chain_hash_hex = chain.iter().fold(String::new(), |mut hex, b| {
@@ -742,6 +743,7 @@ fn legacy_unsigned_receipt_still_chain_verifies_with_signed_false() {
         signature_hex: None, // legacy: predates signing
         schema: praxis_core::receipt_epoch::SCHEMA_V1.to_string(),
         v2: None,
+        chain_rule: None,
     };
     let chain = record.recompute_chain_hash().expect("chain");
     record.chain_hash_hex = chain.iter().fold(String::new(), |mut hex, b| {
@@ -765,4 +767,256 @@ fn legacy_unsigned_receipt_still_chain_verifies_with_signed_false() {
         .assert_stdout_json_field("valid", "true")
         .assert_stdout_json_field("signed", "false")
         .assert_stdout_not_contains("signature_valid");
+}
+
+// ---------------------------------------------------------------------------
+// FM-CHAIN-009 (ggen-tcps-receipt-chain-fm-chain-009): chain verification is
+// aware of the rule that sealed each record. A pre-F1 (base-rule) head is
+// extended with a capped standing; a fold-sealed head keeps F1 tamper
+// detection on its v2 payload. Real syncs, real files, real CLI -- no mocks.
+// ---------------------------------------------------------------------------
+
+fn committed_tcps_ggen_v2() -> std::path::PathBuf {
+    Path::new(env!("CARGO_MANIFEST_DIR")).join("../../examples/tcps-generated/.ggen-v2")
+}
+
+fn sync_now(root: &Path) -> Result<(), String> {
+    sync(
+        root,
+        SyncOptions {
+            dry_run: false,
+            ..Default::default()
+        },
+    )
+    .map(|_| ())
+    .map_err(|e| e.to_string())
+}
+
+/// Rewrite the log tail (and receipt.json head) of `root` through `edit`.
+fn edit_tail(root: &Path, edit: impl FnOnce(&mut serde_json::Value)) {
+    let log_path = root.join(RECEIPT_LOG_REL_PATH);
+    let raw = std::fs::read_to_string(&log_path).expect("read log");
+    let mut lines: Vec<String> = raw
+        .lines()
+        .filter(|l| !l.trim().is_empty())
+        .map(str::to_string)
+        .collect();
+    let mut tail: serde_json::Value =
+        serde_json::from_str(lines.last().expect("tail")).expect("parse tail");
+    edit(&mut tail);
+    let tail_line = serde_json::to_string(&tail).expect("ser tail");
+    lines.last_mut().expect("tail").clone_from(&tail_line);
+    std::fs::write(&log_path, lines.join("\n") + "\n").expect("write log");
+    std::fs::write(root.join(RECEIPT_REL_PATH), tail_line).expect("write head");
+}
+
+/// Reseal the tail under the pre-F1 base rule with no declaration: the exact
+/// shape of every record written before the v2 fold existed (the committed
+/// tcps-generated head is one). A test fixture built in a temp dir by the
+/// real praxis-core base rule -- never an edit of a committed chain.
+fn make_tail_legacy_base_sealed(root: &Path) {
+    use praxis_core::receipt_record::{ChainRule, ReceiptRecord};
+    edit_tail(root, |tail| {
+        let mut record: ReceiptRecord =
+            serde_json::from_value(tail["record"].clone()).expect("record");
+        record.chain_rule = None;
+        record.signature_hex = None;
+        let base = record
+            .recompute_chain_hash_under(ChainRule::Base)
+            .expect("base recompute");
+        record.chain_hash_hex = hex::encode(base);
+        tail["record"] = serde_json::to_value(&record).expect("record to value");
+    });
+}
+
+fn tail_record(root: &Path) -> praxis_core::receipt_record::ReceiptRecord {
+    read_log(root).pop().expect("non-empty log").record
+}
+
+/// The committed examples/tcps-generated chain (66 records, pre-F1) replays
+/// under rule-aware verification: every link holds, and its head recomputes
+/// to its stored `chain_hash_hex` (under the base rule that sealed it).
+#[test]
+fn committed_tcps_generated_head_recomputes_to_its_stored_chain_hash() {
+    use praxis_core::receipt_record::{ChainRule, ChainStanding, ChainVerification};
+
+    let dir = committed_tcps_ggen_v2();
+    let head: SyncReceipt = serde_json::from_str(
+        &std::fs::read_to_string(dir.join("receipt.json")).expect("read committed head"),
+    )
+    .expect("parse committed head");
+    assert_eq!(
+        hex::encode(
+            head.record
+                .recompute_chain_hash_under(ChainRule::Base)
+                .expect("base recompute")
+        ),
+        head.record.chain_hash_hex,
+        "committed tcps head must recompute to its stored chain hash"
+    );
+    assert_eq!(
+        head.record.verify_chain().expect("verify"),
+        ChainVerification::Verified(ChainStanding::LegacyV2Unbound)
+    );
+
+    let raw = std::fs::read_to_string(dir.join("receipt-log.jsonl")).expect("read committed log");
+    let log: Vec<SyncReceipt> = raw
+        .lines()
+        .filter(|l| !l.trim().is_empty())
+        .map(|l| serde_json::from_str(l).expect("parse log line"))
+        .collect();
+    assert_eq!(log.len(), 66);
+    let mut prev = "0".repeat(64);
+    for (idx, receipt) in log.iter().enumerate() {
+        assert_eq!(receipt.record.prev_chain_hash_hex, prev, "link at {idx}");
+        assert!(
+            matches!(
+                receipt.record.verify_chain().expect("verify"),
+                ChainVerification::Verified(_)
+            ),
+            "record {idx} must verify under its sealing rule"
+        );
+        prev.clone_from(&receipt.record.chain_hash_hex);
+    }
+    assert_eq!(prev, head.record.chain_hash_hex, "log tail == head");
+}
+
+/// The exact failing edge: `ggen sync` onto the committed tcps chain used to
+/// refuse with FM-CHAIN-009. It now extends it, the new record declares the
+/// fold rule, and its standing ceiling is capped at `LegacyObserved` because
+/// the legacy head's v2 payload was never bound.
+#[test]
+fn sync_extends_the_committed_tcps_generated_chain_with_capped_standing() {
+    use praxis_core::receipt_epoch::CeilingLevel;
+    use praxis_core::receipt_record::CHAIN_RULE_V2_FOLD;
+
+    let dir = TempDir::new().expect("tempdir");
+    scaffold(dir.path(), &["alice"]);
+    let src = committed_tcps_ggen_v2();
+    std::fs::create_dir_all(dir.path().join(".ggen-v2")).expect("mkdir .ggen-v2");
+    for name in ["receipt.json", "receipt-log.jsonl"] {
+        std::fs::copy(src.join(name), dir.path().join(".ggen-v2").join(name)).expect("copy");
+    }
+    let committed_head = tail_record(dir.path());
+
+    sync_now(dir.path()).expect("sync must extend the legacy tcps chain (was FM-CHAIN-009)");
+
+    let log = read_log(dir.path());
+    assert_eq!(log.len(), 67);
+    let new_head = &log[66].record;
+    assert_eq!(new_head.prev_chain_hash_hex, committed_head.chain_hash_hex);
+    assert_eq!(new_head.chain_rule.as_deref(), Some(CHAIN_RULE_V2_FOLD));
+    assert_eq!(
+        new_head.v2.as_ref().expect("v2").standing_ceiling,
+        CeilingLevel::LegacyObserved,
+        "a chain extended from an unbound legacy head must carry a capped ceiling"
+    );
+
+    let verify = ggen_engine::verbs::handlers::handle_receipt_verify_in(dir.path())
+        .expect("receipt verify on the new head");
+    assert_eq!(verify["valid"], serde_json::json!(true));
+    assert_eq!(verify["chain_standing"], serde_json::json!("fully-bound"));
+
+    let _ = CliHarness::cargo_bin("ggen")
+        .args(["receipt", "history"])
+        .current_dir(dir.path())
+        .run()
+        .expect("history")
+        .assert_success();
+}
+
+/// Falsifier: the F1 hole stays closed. A v2 record written by sync (which
+/// declares the fold rule) whose v2 payload is tampered is refused by the
+/// next sync with FM-CHAIN-009 -- also when the declaration is stripped.
+#[test]
+fn tampered_v2_payload_on_a_fold_head_is_refused_even_undeclared() {
+    for strip_declaration in [false, true] {
+        let dir = TempDir::new().expect("tempdir");
+        scaffold(dir.path(), &["alice"]);
+        sync_now(dir.path()).expect("sync 1");
+        edit_tail(dir.path(), |tail| {
+            tail["record"]["v2"]["promotion_eligible"] = serde_json::json!(!tail["record"]["v2"]
+                ["promotion_eligible"]
+                .as_bool()
+                .expect("promotion_eligible bool"));
+            if strip_declaration {
+                tail["record"]
+                    .as_object_mut()
+                    .expect("record object")
+                    .remove("chain_rule");
+            }
+        });
+        write_ontology(dir.path(), &["alice", "bob"]);
+        let err = sync_now(dir.path()).expect_err("tampered v2 must be refused");
+        assert!(err.contains("FM-CHAIN-009"), "{err}");
+
+        let verify_err = ggen_engine::verbs::handlers::handle_receipt_verify_in(dir.path())
+            .expect_err("receipt verify must refuse too");
+        assert!(
+            verify_err.to_string().contains("FM-CHAIN-014"),
+            "{verify_err}"
+        );
+    }
+}
+
+/// Declaring the base rule on a v2 record (which would leave v2 unbound) is
+/// refused rather than verified.
+#[test]
+fn declared_base_rule_on_a_v2_head_is_refused() {
+    let dir = TempDir::new().expect("tempdir");
+    scaffold(dir.path(), &["alice"]);
+    sync_now(dir.path()).expect("sync 1");
+    make_tail_legacy_base_sealed(dir.path());
+    edit_tail(dir.path(), |tail| {
+        tail["record"]["chain_rule"] = serde_json::json!("praxis-chain/base");
+    });
+    write_ontology(dir.path(), &["alice", "bob"]);
+    let err = sync_now(dir.path()).expect_err("declared base + v2 must be refused");
+    let msg = err;
+    assert!(msg.contains("FM-CHAIN-009"), "{msg}");
+    assert!(msg.contains("chain rule invalid"), "{msg}");
+}
+
+/// A legacy base-sealed head is extended, but its (unprovable) v2 payload is
+/// never consumed: even a forged Green ceiling on it yields a new record
+/// capped at `LegacyObserved`, and `receipt history` reports the legacy record.
+#[test]
+fn legacy_head_v2_payload_is_never_consumed_as_bound_evidence() {
+    use praxis_core::receipt_epoch::CeilingLevel;
+    use praxis_core::receipt_record::{ChainStanding, ChainVerification};
+
+    let dir = TempDir::new().expect("tempdir");
+    scaffold(dir.path(), &["alice"]);
+    sync_now(dir.path()).expect("sync 1");
+    make_tail_legacy_base_sealed(dir.path());
+    // Forge the legacy head's v2 ceiling to the lattice top. The base rule
+    // never covered v2, so this still verifies -- but only as capped legacy.
+    edit_tail(dir.path(), |tail| {
+        tail["record"]["v2"]["standing_ceiling"] = serde_json::json!("Green");
+    });
+    assert_eq!(
+        tail_record(dir.path()).verify_chain().expect("verify"),
+        ChainVerification::Verified(ChainStanding::LegacyV2Unbound)
+    );
+
+    write_ontology(dir.path(), &["alice", "bob"]);
+    sync_now(dir.path()).expect("sync extends the legacy head");
+    let head = tail_record(dir.path());
+    assert_eq!(
+        head.v2.as_ref().expect("v2").standing_ceiling,
+        CeilingLevel::LegacyObserved,
+        "the forged legacy ceiling must not propagate"
+    );
+    assert_eq!(
+        head.verify_chain().expect("verify"),
+        ChainVerification::Verified(ChainStanding::FullyBound)
+    );
+
+    let _ = CliHarness::cargo_bin("ggen")
+        .args(["receipt", "history"])
+        .current_dir(dir.path())
+        .run()
+        .expect("history")
+        .assert_success()
+        .assert_stdout_json_field("legacy_v2_unbound_records", "1");
 }

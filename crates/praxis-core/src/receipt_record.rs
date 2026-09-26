@@ -108,6 +108,116 @@ pub struct ReceiptRecord {
     /// unaffected.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub v2: Option<crate::receipt_epoch::ReceiptEpochV2>,
+    /// Chain-rule discriminator: which rule produced [`Self::chain_hash_hex`]
+    /// ([`CHAIN_RULE_V2_FOLD`] or [`CHAIN_RULE_BASE`]; see [`ChainRule`]).
+    ///
+    /// `None` on every record written before this field existed. Such an
+    /// undeclared record is verified by [`Self::verify_chain`] under the
+    /// v2-fold rule first; only when that fails AND the record carries a
+    /// `v2` payload is the pre-fold base rule tried, and a base-rule match
+    /// yields the capped [`ChainStanding::LegacyV2Unbound`] standing (its
+    /// `v2` payload was never covered by the chain hash, so it must never be
+    /// consumed as bound evidence). Every v2 record `ggen sync` writes from
+    /// here on declares [`CHAIN_RULE_V2_FOLD`], so a declared record is
+    /// verified under exactly its declared rule with no fallback.
+    ///
+    /// Deliberately not folded into the chain hash itself: it cannot be
+    /// abused by editing it, because for any record with a `v2` payload the
+    /// two rules produce different hashes -- stripping or flipping the
+    /// declaration of a fold-sealed record makes it fail to verify, and
+    /// declaring the fold rule on a base-sealed record fails the same way.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub chain_rule: Option<String>,
+}
+
+/// Chain-rule discriminator value for the v2-fold rule (the F1 fix): the
+/// base admission-frame chain hash, then `schema` and the full `v2` payload
+/// folded in by `fold_in_v2_epoch` (a strict no-op when `v2` is `None`).
+pub const CHAIN_RULE_V2_FOLD: &str = "praxis-chain/v2-fold";
+
+/// Chain-rule discriminator value for the pre-F1 base rule: the admission
+/// frame chain hash alone, with no `v2` fold. Lawful only on a record with
+/// no `v2` payload (where it equals the fold rule); declared on a record
+/// that carries `v2` it is refused, because it would leave that payload
+/// outside the chain hash.
+pub const CHAIN_RULE_BASE: &str = "praxis-chain/base";
+
+/// The chain rules a [`ReceiptRecord`] can be sealed under.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ChainRule {
+    /// Pre-F1 rule: admission-frame chain hash only; `v2` not covered.
+    Base,
+    /// Post-F1 rule: admission-frame chain hash with `schema` + `v2` folded in.
+    V2Fold,
+}
+
+impl ChainRule {
+    /// The wire discriminator for this rule.
+    #[must_use]
+    pub fn as_str(self) -> &'static str {
+        match self {
+            ChainRule::Base => CHAIN_RULE_BASE,
+            ChainRule::V2Fold => CHAIN_RULE_V2_FOLD,
+        }
+    }
+
+    /// Parse a wire discriminator; an unknown value is refused, never
+    /// defaulted.
+    ///
+    /// # Errors
+    /// [`CoreError::ReceiptChainRuleInvalid`] for any unrecognized string.
+    pub fn parse(s: &str) -> Result<Self, CoreError> {
+        match s {
+            CHAIN_RULE_V2_FOLD => Ok(ChainRule::V2Fold),
+            CHAIN_RULE_BASE => Ok(ChainRule::Base),
+            other => Err(CoreError::ReceiptChainRuleInvalid(format!(
+                "unrecognized chain rule `{other}`"
+            ))),
+        }
+    }
+}
+
+/// What a successful chain verification proves about a record.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ChainStanding {
+    /// Every hash-relevant field, including `schema` + `v2` when present, is
+    /// bound into the chain hash. The only standing a v2 payload can be
+    /// consumed under as evidence.
+    FullyBound,
+    /// A pre-F1 record (no chain-rule declaration, `v2` present) whose chain
+    /// hash recomputes only under [`ChainRule::Base`]. Its linkage fields
+    /// are verified, but its `v2` payload was never covered by the chain
+    /// hash and cannot be proven untampered: consumers must read its epoch
+    /// as `ReceiptEpochV2::legacy_bounded` (ceiling capped at
+    /// `LegacyObserved`), never as the stored payload.
+    LegacyV2Unbound,
+}
+
+impl ChainStanding {
+    /// Stable machine label for reports.
+    #[must_use]
+    pub fn as_str(self) -> &'static str {
+        match self {
+            ChainStanding::FullyBound => "fully-bound",
+            ChainStanding::LegacyV2Unbound => "legacy-v2-unbound",
+        }
+    }
+}
+
+/// Outcome of [`ReceiptRecord::verify_chain`].
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ChainVerification {
+    /// The stored chain hash recomputes under a lawful rule for this record.
+    Verified(ChainStanding),
+    /// The stored chain hash matches no lawful rule for this record.
+    /// `recomputed` is the hash under the governing rule (the declared rule,
+    /// or [`ChainRule::V2Fold`] for an undeclared record).
+    Mismatch {
+        /// The rule the mismatch is reported against.
+        rule: ChainRule,
+        /// The chain hash that rule produces from the record's fields.
+        recomputed: [u8; 32],
+    },
 }
 
 /// Decode a 64-lowercase-hex-character string into 32 raw bytes.
@@ -164,13 +274,98 @@ impl ReceiptRecord {
     ///
     /// If the result doesn't match [`Self::chain_hash_hex`], the record was
     /// tampered with (or the crate's chain rule changed incompatibly).
+    ///
+    /// Uses the record's declared [`Self::chain_rule`], or
+    /// [`ChainRule::V2Fold`] when undeclared -- the rule every writer uses.
+    /// This is the strict, emission-side recompute; verifiers that must
+    /// accept pre-F1 records use [`Self::verify_chain`].
+    ///
+    /// # Errors
+    /// Malformed hex fields, an unrecognized or shape-contradicting
+    /// [`Self::chain_rule`], or a `v2` payload that fails to serialize.
     pub fn recompute_chain_hash(&self) -> Result<[u8; 32], CoreError> {
+        let rule = self.declared_chain_rule()?.unwrap_or(ChainRule::V2Fold);
+        self.recompute_chain_hash_under(rule)
+    }
+
+    /// The declared chain rule, if any, validated against this record's
+    /// shape.
+    ///
+    /// # Errors
+    /// [`CoreError::ReceiptChainRuleInvalid`] for an unrecognized
+    /// discriminator, or for [`ChainRule::Base`] declared on a record that
+    /// carries a `v2` payload.
+    pub fn declared_chain_rule(&self) -> Result<Option<ChainRule>, CoreError> {
+        let Some(raw) = self.chain_rule.as_deref() else {
+            return Ok(None);
+        };
+        let rule = ChainRule::parse(raw)?;
+        if rule == ChainRule::Base && self.v2.is_some() {
+            return Err(CoreError::ReceiptChainRuleInvalid(format!(
+                "`{CHAIN_RULE_BASE}` declared on a record carrying a v2 payload: the base \
+                 rule would leave the payload outside the chain hash"
+            )));
+        }
+        Ok(Some(rule))
+    }
+
+    /// Recompute the chain hash under an explicit `rule`, ignoring
+    /// [`Self::chain_rule`].
+    ///
+    /// # Errors
+    /// Malformed hex fields, or a `v2` payload that fails to serialize.
+    pub fn recompute_chain_hash_under(&self, rule: ChainRule) -> Result<[u8; 32], CoreError> {
         let payload_hash = self.payload_hash()?;
         let prev_chain_hash = self.prev_chain_hash()?;
         let meta = self.receipt_meta();
         let frame = build_admission_frame(&payload_hash, &prev_chain_hash, &meta, self.ts_ns);
         let base = chain_from_frame(&prev_chain_hash, &frame);
-        fold_in_v2_epoch(base, &self.schema, self.v2.as_ref())
+        match rule {
+            ChainRule::Base => Ok(base),
+            ChainRule::V2Fold => fold_in_v2_epoch(base, &self.schema, self.v2.as_ref()),
+        }
+    }
+
+    /// Rule-aware chain verification of this record's stored
+    /// [`Self::chain_hash_hex`].
+    ///
+    /// - Declared rule: verified under exactly that rule, no fallback.
+    ///   A match is [`ChainStanding::FullyBound`] (declared base is only
+    ///   lawful without a `v2` payload, where nothing is left unbound).
+    /// - Undeclared: [`ChainRule::V2Fold`] first ([`ChainStanding::FullyBound`]
+    ///   on match). Only if that fails and a `v2` payload is present is
+    ///   [`ChainRule::Base`] tried; a match there is the capped
+    ///   [`ChainStanding::LegacyV2Unbound`], never `FullyBound`.
+    ///
+    /// Tampering with the `v2` payload of any record sealed under the fold
+    /// rule still fails: the fold hash changes, and the base hash never
+    /// equalled the stored fold hash in the first place.
+    ///
+    /// # Errors
+    /// Malformed hex fields, an invalid [`Self::chain_rule`], or a `v2`
+    /// payload that fails to serialize. A hash that matches no lawful rule
+    /// is not an error but [`ChainVerification::Mismatch`].
+    pub fn verify_chain(&self) -> Result<ChainVerification, CoreError> {
+        let stored = self.chain_hash()?;
+        if let Some(rule) = self.declared_chain_rule()? {
+            let recomputed = self.recompute_chain_hash_under(rule)?;
+            return Ok(if recomputed == stored {
+                ChainVerification::Verified(ChainStanding::FullyBound)
+            } else {
+                ChainVerification::Mismatch { rule, recomputed }
+            });
+        }
+        let fold = self.recompute_chain_hash_under(ChainRule::V2Fold)?;
+        if fold == stored {
+            return Ok(ChainVerification::Verified(ChainStanding::FullyBound));
+        }
+        if self.v2.is_some() && self.recompute_chain_hash_under(ChainRule::Base)? == stored {
+            return Ok(ChainVerification::Verified(ChainStanding::LegacyV2Unbound));
+        }
+        Ok(ChainVerification::Mismatch {
+            rule: ChainRule::V2Fold,
+            recomputed: fold,
+        })
     }
 }
 
@@ -231,6 +426,7 @@ mod tests {
             signature_hex: None,
             schema: crate::receipt_epoch::SCHEMA_V1.to_string(),
             v2: None,
+            chain_rule: None,
         }
     }
 
@@ -581,6 +777,236 @@ mod tests {
             hex::encode(recomputed),
             forged.chain_hash_hex,
             "flipping promotion_eligible must be caught by chain_recompute"
+        );
+    }
+
+    // -----------------------------------------------------------------
+    // FM-CHAIN-009 (ggen-tcps-receipt-chain-fm-chain-009): rule-aware
+    // chain verification. A pre-F1 record verifies only under the base
+    // rule and is capped at `LegacyV2Unbound`; every fold-sealed record
+    // keeps the F1 tamper detection on its `v2` payload.
+    // -----------------------------------------------------------------
+
+    fn v2_sample() -> ReceiptRecord {
+        use crate::receipt_epoch::{
+            AndonLevel, CeilingLevel, ComponentLevels, ReceiptEpochV2Builder, SCHEMA_V2,
+        };
+        let epoch = ReceiptEpochV2Builder::new(
+            CeilingLevel::Green,
+            ComponentLevels::uniform(AndonLevel::Green),
+        )
+        .build()
+        .expect("epoch builds");
+        let mut record = sample();
+        record.schema = SCHEMA_V2.to_string();
+        record.v2 = Some(epoch);
+        record
+    }
+
+    /// Seal `record` under `rule`, optionally declaring it.
+    fn seal(mut record: ReceiptRecord, rule: ChainRule, declare: bool) -> ReceiptRecord {
+        record.chain_rule = None;
+        let chain = record.recompute_chain_hash_under(rule).expect("recompute");
+        record.chain_hash_hex = hex::encode(chain);
+        if declare {
+            record.chain_rule = Some(rule.as_str().to_string());
+        }
+        record
+    }
+
+    fn forge_ceiling(record: &mut ReceiptRecord) {
+        use crate::receipt_epoch::CeilingLevel;
+        record.v2.as_mut().expect("v2 present").standing_ceiling = CeilingLevel::Red;
+    }
+
+    #[test]
+    fn chain_rule_discriminators_round_trip_and_unknown_is_refused() {
+        for rule in [ChainRule::Base, ChainRule::V2Fold] {
+            assert_eq!(ChainRule::parse(rule.as_str()).expect("parse"), rule);
+        }
+        let err = ChainRule::parse("praxis-chain/v3").expect_err("unknown rule refused");
+        assert_eq!(err.name(), "ReceiptChainRuleInvalid");
+    }
+
+    #[test]
+    fn declared_v2_fold_record_verifies_fully_bound() {
+        let record = seal(v2_sample(), ChainRule::V2Fold, true);
+        assert_eq!(
+            record.verify_chain().expect("verify"),
+            ChainVerification::Verified(ChainStanding::FullyBound)
+        );
+        // recompute_chain_hash (emission side) agrees with the declared rule.
+        assert_eq!(
+            hex::encode(record.recompute_chain_hash().expect("recompute")),
+            record.chain_hash_hex
+        );
+    }
+
+    #[test]
+    fn chain_rule_field_survives_a_json_round_trip() {
+        let record = seal(v2_sample(), ChainRule::V2Fold, true);
+        let json = serde_json::to_string(&record).expect("serialize");
+        assert!(
+            json.contains(r#""chain_rule":"praxis-chain/v2-fold""#),
+            "{json}"
+        );
+        let back: ReceiptRecord = serde_json::from_str(&json).expect("deserialize");
+        assert_eq!(back, record);
+        // An undeclared record serializes without the key at all (the
+        // pre-existing wire shape is unchanged for old writers/readers).
+        let undeclared = seal(v2_sample(), ChainRule::V2Fold, false);
+        assert!(!serde_json::to_string(&undeclared)
+            .expect("serialize")
+            .contains("chain_rule"));
+    }
+
+    /// Falsifier for the F1 hole: a declared fold record whose v2 payload is
+    /// tampered must not verify.
+    #[test]
+    fn tampered_v2_on_declared_fold_record_is_a_mismatch() {
+        let mut record = seal(v2_sample(), ChainRule::V2Fold, true);
+        forge_ceiling(&mut record);
+        assert!(matches!(
+            record.verify_chain().expect("verify"),
+            ChainVerification::Mismatch {
+                rule: ChainRule::V2Fold,
+                ..
+            }
+        ));
+    }
+
+    /// A fold-sealed record written before the discriminator existed (no
+    /// declaration) with a tampered v2 payload must not be rescued by the
+    /// legacy base-rule fallback.
+    #[test]
+    fn tampered_v2_on_undeclared_fold_record_is_not_rescued_by_base_rule() {
+        let mut record = seal(v2_sample(), ChainRule::V2Fold, false);
+        forge_ceiling(&mut record);
+        assert!(matches!(
+            record.verify_chain().expect("verify"),
+            ChainVerification::Mismatch { .. }
+        ));
+    }
+
+    /// Downgrade attack: strip the declaration from a fold-sealed record and
+    /// tamper its v2 payload -- still refused.
+    #[test]
+    fn stripping_the_declaration_does_not_downgrade_a_fold_record() {
+        let mut record = seal(v2_sample(), ChainRule::V2Fold, true);
+        record.chain_rule = None;
+        assert_eq!(
+            record.verify_chain().expect("verify"),
+            ChainVerification::Verified(ChainStanding::FullyBound),
+            "an untampered fold record still verifies once undeclared"
+        );
+        forge_ceiling(&mut record);
+        assert!(matches!(
+            record.verify_chain().expect("verify"),
+            ChainVerification::Mismatch { .. }
+        ));
+    }
+
+    #[test]
+    fn declaring_base_on_a_v2_record_is_refused() {
+        let mut record = seal(v2_sample(), ChainRule::Base, false);
+        record.chain_rule = Some(CHAIN_RULE_BASE.to_string());
+        let err = record.verify_chain().expect_err("base + v2 refused");
+        assert_eq!(err.name(), "ReceiptChainRuleInvalid");
+        assert_eq!(
+            record
+                .recompute_chain_hash()
+                .expect_err("emission side too")
+                .name(),
+            "ReceiptChainRuleInvalid"
+        );
+    }
+
+    #[test]
+    fn legacy_base_sealed_v2_record_verifies_only_as_capped_legacy() {
+        let record = seal(v2_sample(), ChainRule::Base, false);
+        assert_eq!(
+            record.verify_chain().expect("verify"),
+            ChainVerification::Verified(ChainStanding::LegacyV2Unbound)
+        );
+        // It can never be promoted by declaring the fold rule on it.
+        let mut upgraded = record.clone();
+        upgraded.chain_rule = Some(CHAIN_RULE_V2_FOLD.to_string());
+        assert!(matches!(
+            upgraded.verify_chain().expect("verify"),
+            ChainVerification::Mismatch {
+                rule: ChainRule::V2Fold,
+                ..
+            }
+        ));
+        // Its base-rule linkage fields are still bound: a tampered payload
+        // hash fails under every rule.
+        let mut tampered = record;
+        tampered.payload_hash_hex = "22".repeat(32);
+        assert!(matches!(
+            tampered.verify_chain().expect("verify"),
+            ChainVerification::Mismatch { .. }
+        ));
+    }
+
+    #[test]
+    fn v1_record_without_v2_is_fully_bound_under_either_rule() {
+        let base = seal(sample(), ChainRule::Base, false);
+        let fold = seal(sample(), ChainRule::V2Fold, false);
+        assert_eq!(base.chain_hash_hex, fold.chain_hash_hex);
+        assert_eq!(
+            base.verify_chain().expect("verify"),
+            ChainVerification::Verified(ChainStanding::FullyBound)
+        );
+        let declared_base = seal(sample(), ChainRule::Base, true);
+        assert_eq!(
+            declared_base.verify_chain().expect("verify"),
+            ChainVerification::Verified(ChainStanding::FullyBound)
+        );
+    }
+
+    /// The committed `examples/tcps-generated` receipt head (sealed
+    /// 2026-07-22, before the F1 fold) recomputes to its stored
+    /// `chain_hash_hex` under the base rule, verifies as capped legacy, and
+    /// reproduces the exact FM-CHAIN-009 mismatch under the fold rule.
+    #[test]
+    fn committed_tcps_generated_head_recomputes_to_its_stored_chain_hash() {
+        let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("../../examples/tcps-generated/.ggen-v2/receipt.json");
+        let raw = std::fs::read_to_string(&path).expect("read committed tcps receipt.json");
+        let value: serde_json::Value = serde_json::from_str(&raw).expect("parse receipt.json");
+        let record: ReceiptRecord =
+            serde_json::from_value(value["record"].clone()).expect("record deserializes");
+
+        assert_eq!(record.schema, crate::receipt_epoch::SCHEMA_V2);
+        assert!(record.v2.is_some());
+        assert!(record.chain_rule.is_none());
+        assert_eq!(
+            hex::encode(
+                record
+                    .recompute_chain_hash_under(ChainRule::Base)
+                    .expect("base")
+            ),
+            record.chain_hash_hex
+        );
+        assert!(record.chain_hash_hex.starts_with("d04c6d08"));
+        let fold = hex::encode(
+            record
+                .recompute_chain_hash_under(ChainRule::V2Fold)
+                .expect("fold"),
+        );
+        assert!(fold.starts_with("bebae299"), "fold recompute {fold}");
+        assert_eq!(
+            record.verify_chain().expect("verify"),
+            ChainVerification::Verified(ChainStanding::LegacyV2Unbound)
+        );
+
+        // Falsifier on the real bytes: tampering the committed head's v2
+        // payload never yields a fully-bound standing.
+        let mut forged = record;
+        forge_ceiling(&mut forged);
+        assert_ne!(
+            forged.verify_chain().expect("verify"),
+            ChainVerification::Verified(ChainStanding::FullyBound)
         );
     }
 }

@@ -137,6 +137,7 @@ mod tests {
             signature_hex: None,
             schema: crate::receipt_epoch::SCHEMA_V1.to_string(),
             v2: None,
+            chain_rule: None,
         }
     }
 

@@ -212,6 +212,7 @@ mod tests {
             signature_hex: None,
             schema: crate::receipt_epoch::SCHEMA_V1.to_string(),
             v2: None,
+            chain_rule: None,
         };
         let metrics = replay_receipt_lifecycle(&record).expect("must replay");
         assert_eq!(metrics.fitness, 0x0001_0000);

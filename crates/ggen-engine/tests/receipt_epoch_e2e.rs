@@ -78,6 +78,7 @@ fn v1_record(instruction_id: u64, prev_chain_hash_hex: &str) -> ReceiptRecord {
         signature_hex: None,
         schema: SCHEMA_V1.to_string(),
         v2: None,
+        chain_rule: None,
     };
     let chain = record.recompute_chain_hash().expect("recompute v1 chain");
     record.chain_hash_hex = hex::encode(chain);
@@ -121,6 +122,7 @@ fn v2_record(
         signature_hex: None,
         schema: SCHEMA_V2.to_string(),
         v2: Some(epoch),
+        chain_rule: None,
     };
     let chain = record.recompute_chain_hash().expect("recompute v2 chain");
     record.chain_hash_hex = hex::encode(chain);

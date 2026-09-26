@@ -174,6 +174,7 @@ proptest! {
             signature_hex: None,
             schema: praxis_core::receipt_epoch::SCHEMA_V1.to_string(),
             v2: None,
+            chain_rule: None,
         };
         // Must resolve, never unwind. (Ok only when both fields are valid 64-hex.)
         let _ = record.recompute_chain_hash();
@@ -235,6 +236,7 @@ fn arb_record() -> impl Strategy<Value = ReceiptRecord> {
                     signature_hex: None,
                     schema: praxis_core::receipt_epoch::SCHEMA_V1.to_string(),
                     v2: None,
+                    chain_rule: None,
                 }
             },
         )

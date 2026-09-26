@@ -33,7 +33,9 @@ use praxis_core::{
         CeilingLevel, ComponentLevels, EquivalenceMap, EquivalenceStatus, ObservedOutcome,
         ReceiptEpochV2, ReceiptEpochV2Builder, SCHEMA_V2,
     },
-    receipt_record::{ReceiptRecord, RECEIPT_RECORD_VERSION},
+    receipt_record::{
+        ChainStanding, ChainVerification, ReceiptRecord, CHAIN_RULE_V2_FOLD, RECEIPT_RECORD_VERSION,
+    },
     Andon,
 };
 use serde::Serialize;
@@ -3006,25 +3008,36 @@ pub(crate) fn write_receipt(
     let receipt_path = root.join(RECEIPT_REL_PATH);
     let log_path = root.join(RECEIPT_LOG_REL_PATH);
     let prev_head = read_prev_head(&receipt_path, &log_path)?;
-    let prev_chain_hash_hex = match &prev_head {
-        Some(prev) => {
-            let recomputed = prev.record.recompute_chain_hash().map_err(|e| {
-                AppError::fm_chain(9, format!("previous receipt chain recompute failed: {e}"))
-            })?;
-            if hex32(&recomputed) != prev.record.chain_hash_hex {
+    // Rule-aware verification (FM-CHAIN-009): the previous head is checked
+    // under the chain rule that produced it (`ReceiptRecord::verify_chain`).
+    // A pre-F1 head that verifies only under the base rule is extended, but
+    // its standing is capped: its `v2` payload was never bound into its
+    // chain hash, so it is read as the legacy-bounded epoch below, never as
+    // the stored (unprovable) payload.
+    let prev_chain_standing = match &prev_head {
+        Some(prev) => match prev.record.verify_chain().map_err(|e| {
+            AppError::fm_chain(9, format!("previous receipt chain recompute failed: {e}"))
+        })? {
+            ChainVerification::Verified(standing) => Some(standing),
+            ChainVerification::Mismatch { rule, recomputed } => {
                 return Err(AppError::fm_chain(
                     9,
                     format!(
                         "previous receipt head is invalid: stored chain hash {} does not \
-                         match recompute {}. Refusing to extend a tampered chain. \
-                         Remediation: run `ggen receipt history` and restore the receipts.",
+                         match recompute {} (chain rule `{}`). Refusing to extend a tampered \
+                         chain. Remediation: run `ggen receipt history` and restore the \
+                         receipts.",
                         prev.record.chain_hash_hex,
-                        hex32(&recomputed)
+                        hex32(&recomputed),
+                        rule.as_str()
                     ),
                 ));
             }
-            prev.record.chain_hash_hex.clone()
-        }
+        },
+        None => None,
+    };
+    let prev_chain_hash_hex = match &prev_head {
+        Some(prev) => prev.record.chain_hash_hex.clone(),
         None => "0".repeat(64),
     };
 
@@ -3335,11 +3348,17 @@ pub(crate) fn write_receipt(
         );
     }
 
-    let prev_epoch = match &prev_head {
-        Some(prev) => Some(read_receipt_epoch(&prev.record).map_err(|e| {
+    let prev_epoch = match (&prev_head, prev_chain_standing) {
+        // A legacy (pre-F1, base-rule) head's `v2` payload is not covered by
+        // its chain hash: read it as the fixed legacy-bounded sentinel
+        // (ceiling `LegacyObserved`, unrecorded ledger), exactly like a v1
+        // record, so an unprovable stored ceiling/ledger never feeds the
+        // ratchet or the equivalence map.
+        (Some(_), Some(ChainStanding::LegacyV2Unbound)) => Some(ReceiptEpochV2::legacy_bounded()),
+        (Some(prev), _) => Some(read_receipt_epoch(&prev.record).map_err(|e| {
             AppError::fm_chain(10, format!("previous receipt epoch unreadable: {e}"))
         })?),
-        None => None,
+        (None, _) => None,
     };
     let prev_ceiling = match &prev_epoch {
         Some(epoch) => epoch.standing_ceiling,
@@ -3486,6 +3505,9 @@ pub(crate) fn write_receipt(
         signature_hex: None,
         schema: SCHEMA_V2.to_string(),
         v2: Some(epoch),
+        // Every newly written v2 record declares the rule that seals it, so
+        // verifiers never have to infer it (see `ReceiptRecord::chain_rule`).
+        chain_rule: Some(CHAIN_RULE_V2_FOLD.to_string()),
     };
     let chain = record
         .recompute_chain_hash()
