@@ -1067,28 +1067,32 @@ mod rewrite_tests {
         new.version = "2".to_owned();
         new.edges.retain(|edge| edge.id != "e1");
         new.nodes.retain(|node| node.id != "observe");
-        new.projections
-            .get_mut("brce")
-            .expect("fixture has brce projection")
-            .remove("observe");
+        let Some(brce_projection) = new.projections.get_mut("brce") else {
+            return Err(refused("TEST_FIXTURE_BRCE_PROJECTION"));
+        };
+        brce_projection.remove("observe");
 
         let plan = plan_rewrite(&old, &new, exact_subject(&old)?)?;
-        let remove_edge = plan
+        let Some(remove_edge) = plan
             .operations
             .iter()
             .position(|operation| matches!(
                 operation,
                 SpgRewriteOperation::RemoveEdge { id } if id == "e1"
             ))
-            .expect("edge removal exists");
-        let remove_node = plan
+        else {
+            return Err(refused("TEST_REWRITE_EDGE_REMOVAL_MISSING"));
+        };
+        let Some(remove_node) = plan
             .operations
             .iter()
             .position(|operation| matches!(
                 operation,
                 SpgRewriteOperation::RemoveNode { id } if id == "observe"
             ))
-            .expect("node removal exists");
+        else {
+            return Err(refused("TEST_REWRITE_NODE_REMOVAL_MISSING"));
+        };
         assert!(remove_edge < remove_node);
         assert_eq!(apply_rewrite(&old, &plan)?, normalized_graph(&new));
         Ok(())
