@@ -1,0 +1,22 @@
+{
+  "@context": {
+    "cs2": "https://chatman.ai/cs2#",
+    "subject": {"@id": "cs2:subject", "@type": "@id"},
+    "authority_ceiling": "cs2:authorityCeiling",
+    "consumer": {"@id": "cs2:consumer", "@type": "@id"},
+    "work_id": "cs2:workId",
+    "expected_projection": "cs2:expectedProjection"
+  },
+  "@graph": [
+{% for row in sparql_results -%}
+    {
+      "@type": "cs2:ConsumerProjection",
+      "subject": "{{ row["subject"] }}",
+      "authority_ceiling": "{{ row["authority"] }}",
+      "consumer": "{{ row["consumer"] }}",
+      "work_id": "{{ row["work_id"] }}",
+      "expected_projection": "{{ row["projection"] }}"
+    }{% if not loop.last %},{% endif %}
+{% endfor -%}
+  ]
+}
