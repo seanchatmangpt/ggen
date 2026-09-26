@@ -30,3 +30,11 @@ template = { file = "templates/consumers.exs.tera" }
 output_file = "generated/consumers.exs"
 mode = "Overwrite"
 skip_empty = true
+
+[[generation.rules]]
+name = "cs2-consumer-manifest"
+query = { file = "queries/consumers.rq" }
+template = { file = "templates/consumer-manifest.json.tera" }
+output_file = "generated/consumer-manifest.json"
+mode = "Overwrite"
+skip_empty = true
