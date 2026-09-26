@@ -306,6 +306,16 @@ fn admission_below_construct_is_refused() {
             admit(&g, &r).unwrap_err(),
             Refusal::InsufficientAuthority { admitted: a }
         );
+    }
+    // plan selects, so it needs SELECT: NONE is refused rather than handed a SELECT
+    // decision it was never granted; SELECT and CONSTRUCT both plan.
+    assert_eq!(
+        plan(&g, "abb:event-ingest", Authority::None).unwrap_err(),
+        Refusal::InsufficientAuthority {
+            admitted: Authority::None
+        }
+    );
+    for a in [Authority::Select, Authority::Construct] {
         assert!(matches!(
             plan(&g, "abb:event-ingest", a).unwrap(),
             Decision::Select {
@@ -414,6 +424,41 @@ fn dangling_references_are_refused() {
         .unwrap_err(),
         Refusal::DanglingReference { .. }
     ));
+}
+
+#[test]
+fn contract_binding_a_nonexistent_abb_is_a_dangling_reference() {
+    // A contract no ABB points back to used to escape validation, so a graph naming a
+    // contract for a ghost ABB was admitted and digested into receipts.
+    let mut g = graph();
+    let mut orphan = g.contracts[0].clone();
+    orphan.id = "contract:orphan".into();
+    orphan.abb = "abb:ghost".into();
+    g.contracts.push(orphan);
+    let r = Request {
+        expected_graph_digest: None,
+        ..req(&graph(), "sbb:ingest-0000")
+    };
+    assert_eq!(
+        admit(&g, &r).unwrap_err(),
+        Refusal::DanglingReference {
+            from: "contract:orphan".into(),
+            to: "abb:ghost".into()
+        }
+    );
+    assert_eq!(
+        plan(&g, "abb:event-ingest", Authority::Construct).unwrap_err(),
+        Refusal::DanglingReference {
+            from: "contract:orphan".into(),
+            to: "abb:ghost".into()
+        }
+    );
+    // Positive control: the same orphan bound to the real ABB is well formed.
+    let mut ok = graph();
+    let mut extra = ok.contracts[0].clone();
+    extra.id = "contract:spare".into();
+    ok.contracts.push(extra);
+    assert!(admit(&ok, &r).is_ok());
 }
 
 /// Adds a second, fully wired ABB (`abb:other`) with its own contract.

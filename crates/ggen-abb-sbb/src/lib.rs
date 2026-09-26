@@ -149,7 +149,7 @@ pub enum Refusal {
     GraphDigestMismatch { expected: String, actual: String },
     #[error("AUTHORITY_EXCEEDED: requested {requested:?}, ceiling CONSTRUCT")]
     AuthorityExceeded { requested: Authority },
-    #[error("INSUFFICIENT_AUTHORITY: requested {admitted:?}, admission for manufacture requires CONSTRUCT")]
+    #[error("INSUFFICIENT_AUTHORITY: requested {admitted:?}, below the authority the call requires (plan: SELECT, admit: CONSTRUCT)")]
     InsufficientAuthority { admitted: Authority },
     #[error("PACK_CONFLATION: {id}")]
     PackConflation { id: String },
@@ -370,6 +370,20 @@ pub fn canonical_digest<T: Serialize>(value: &T) -> String {
     sha256_hex(v.to_string().as_bytes())
 }
 
+thread_local! {
+    static GRAPH_DIGESTS: std::cell::Cell<u64> = const { std::cell::Cell::new(0) };
+}
+
+/// Number of [`EaGraph::digest`] computations performed on the calling thread so far.
+///
+/// The graph digest is the dominant admission cost (see `bench/receipt.json`), so
+/// "admission digests the graph exactly once" is a structural property, not a timing
+/// one: callers take the difference of this counter around one call. Thread-local, so
+/// concurrently running callers (e.g. parallel tests) never perturb each other.
+pub fn graph_digests_computed() -> u64 {
+    GRAPH_DIGESTS.with(|n| n.get())
+}
+
 /// Parse a graph from JSON bytes, refusing malformed input with a typed refusal.
 pub fn parse_graph(json: &str) -> Result<EaGraph, Refusal> {
     let g: EaGraph = serde_json::from_str(json).map_err(|e| Refusal::MalformedGraph {
@@ -403,6 +417,7 @@ impl EaGraph {
     }
 
     pub fn digest(&self) -> String {
+        GRAPH_DIGESTS.with(|n| n.set(n.get() + 1));
         canonical_digest(&self.canonical())
     }
 
@@ -443,6 +458,12 @@ impl EaGraph {
             from: from.into(),
             to: to.into(),
         };
+        for k in &self.contracts {
+            // Every contract binds an existing ABB, even one no ABB points back to.
+            if !self.abbs.iter().any(|a| a.id == k.abb) {
+                return Err(dangling(&k.id, &k.abb));
+            }
+        }
         for c in &self.capabilities {
             if c.strategy != self.strategy.id {
                 return Err(dangling(&c.id, &c.strategy));
@@ -680,8 +701,17 @@ pub fn admit(g: &EaGraph, req: &Request) -> Result<Admitted, Refusal> {
 
 /// `SELECT existing SBB || MANUFACTURE missing realization`, separate from DO.
 /// Selection is deterministic: the lowest-id admissible candidate wins.
+///
+/// Planning selects, so it requires at least SELECT authority: a request at NONE is
+/// refused with `INSUFFICIENT_AUTHORITY` instead of returning a SELECT decision the
+/// caller was never granted. DO is refused with `AUTHORITY_EXCEEDED`.
 pub fn plan(g: &EaGraph, abb: &str, authority: Authority) -> Result<Decision, Refusal> {
     let (a, digest) = admit_common(g, abb, authority, None)?;
+    if authority < Authority::Select {
+        return Err(Refusal::InsufficientAuthority {
+            admitted: authority,
+        });
+    }
     let mut candidates: Vec<&CandidateSbb> =
         g.candidate_sbbs.iter().filter(|s| s.abb == a.id).collect();
     candidates.sort_by(|x, y| x.id.cmp(&y.id));

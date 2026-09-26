@@ -5,7 +5,10 @@
     "pr": 753,
     "parent": "dfee4a8c5cdb4433ff888bb1ed51a3324bbb97d7",
     "crate": "crates/ggen-abb-sbb",
-    "note": "measured on the exact tree committed as the child of parent (a commit cannot contain its own sha); round 2 adds admission-time artifact/template checks"
+    "note": "measured on the tree of measured_commit (the child of parent; a commit cannot contain its own sha, so the subject sha is recorded out of subject by a later commit). Later commits that change src/ are not re-measured here: the #753 round-3 repair adds one thread-local counter increment per graph digest (load average 262 at repair time, criterion numbers would be noise); tests/bench_bound.rs re-witnesses the ratio bounds and the one-digest-per-admission property on every tree",
+    "measured_commit": "71948f90015714750e7d90aaa7da3710d5e5e800",
+    "measured_src_tree": "711944518e5b252532fafa5b3d91b7ad4df4bd12",
+    "measured_src_lib_rs_sha256": "925955850684d6548585a407ce4ecec6874ad5fa519e8c70bc283cd0399ad5d8"
   },
   "command": "cargo bench --offline --manifest-path crates/ggen-abb-sbb/Cargo.toml --bench manufacture -- --warm-up-time 1 --measurement-time 3 --noplot",
   "host": {

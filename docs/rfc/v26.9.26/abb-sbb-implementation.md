@@ -23,8 +23,8 @@ Kernel: `crates/ggen-abb-sbb` (IO-free, authority NONE, ceiling CONSTRUCT). Cour
 
 | DoD | standing | falsifier (test name) |
 |---|---|---|
-| 1 | PARTIAL_ALIVE | `malformed_inputs_are_refused_with_typed_refusals`, `dangling_references_are_refused`, `sbb_realizing_a_nonexistent_abb_is_a_dangling_reference` (JSON projection of the EA graph; no RDF ingestion yet) |
-| 2 | ALIVE | `unknown_sbb_is_refused`, `sbb_with_unknown_identity_is_refused`, `mutable_sbb_is_refused`, `unqualified_sbb_is_refused`, `sbb_exceeding_artifact_ceiling_is_refused`, `sbb_authority_above_contract_ceiling_is_refused`, `contract_ceiling_of_do_is_clamped_to_construct`, `unauthorized_do_request_is_refused`, `admission_below_construct_is_refused`; `Admitted` is sealed (private fields, only `admit` constructs it; `compile_fail` doctests on `Admitted`), so `manufacture` cannot be applied to a hand-built or edited value |
+| 1 | PARTIAL_ALIVE | `malformed_inputs_are_refused_with_typed_refusals`, `dangling_references_are_refused`, `sbb_realizing_a_nonexistent_abb_is_a_dangling_reference`, `contract_binding_a_nonexistent_abb_is_a_dangling_reference` (JSON projection of the EA graph; no RDF ingestion yet) |
+| 2 | ALIVE | `unknown_sbb_is_refused`, `sbb_with_unknown_identity_is_refused`, `mutable_sbb_is_refused`, `unqualified_sbb_is_refused`, `sbb_exceeding_artifact_ceiling_is_refused`, `sbb_authority_above_contract_ceiling_is_refused`, `contract_ceiling_of_do_is_clamped_to_construct`, `unauthorized_do_request_is_refused`, `admission_below_construct_is_refused` (admit requires CONSTRUCT; plan requires SELECT and refuses NONE); `Admitted` is sealed (private fields, only `admit` constructs it; `compile_fail` doctests on `Admitted`), so `manufacture` cannot be applied to a hand-built or edited value |
 | 3, 4 | ALIVE | `qualified_sbb_manufactures_with_provenance_and_receipt` |
 | 5 | ALIVE | same; `tampered_receipt_is_refused` |
 | 6 | ALIVE | `second_run_is_byte_identical`, `element_reordering_does_not_change_digest_or_receipt` |
@@ -39,4 +39,7 @@ ggen-cli, ggen-engine or sync calls it); it is an independent workspace root lis
 
 Benchmark: `cargo bench --manifest-path crates/ggen-abb-sbb/Cargo.toml`; recorded numbers
 in `crates/ggen-abb-sbb/bench/receipt.json`; regression bounds enforced by
-`crates/ggen-abb-sbb/tests/bench_bound.rs` (admission digests the graph once).
+`crates/ggen-abb-sbb/tests/bench_bound.rs`. "Admission digests the graph once" is witnessed
+structurally (`graph_digests_computed()` counter deltas for admit, plan and replay, load
+independent); the admit/digest timing ratio is its twin (minimum of interleaved rounds, best of
+three attempts). The receipt names the measured commit and src tree (`subject.measured_commit`).
