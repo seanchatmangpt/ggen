@@ -1,0 +1,6 @@
+{
+  "schema": "https://chatman.ai/cs2/jira-work-orders/v1",
+  "subject": "RFC-CS2-001",
+  "authority_ceiling": "CONSTRUCT",
+  "items": {{ sparql_results | json_encode() }}
+}
