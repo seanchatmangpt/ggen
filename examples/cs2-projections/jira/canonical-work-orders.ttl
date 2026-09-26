@@ -1,0 +1,37 @@
+@prefix cs2: <https://chatman.ai/cs2#> .
+
+cs2:RFC-CS2-001 a cs2:SemanticWorld ;
+  cs2:campaign "CS2-CHICAGO" ;
+  cs2:canonicalOwner "seanchatmangpt/chatman-ecosystem" ;
+  cs2:authorityCeiling cs2:CONSTRUCT .
+
+cs2:CS2-WRK-002 a cs2:Work ;
+  cs2:implements cs2:RFC-CS2-001 ;
+  cs2:summary "Publish canonical CS2 projection contract" ;
+  cs2:priority "P0" ;
+  cs2:state "READY" ;
+  cs2:acceptance "Exact RFC-CS2-001 identity and CONSTRUCT ceiling are preserved" .
+
+cs2:CS2-WRK-003 a cs2:Work ;
+  cs2:implements cs2:RFC-CS2-001 ;
+  cs2:dependsOn cs2:CS2-WRK-002 ;
+  cs2:summary "Manufacture reusable CS2 semantic pack" ;
+  cs2:priority "P1" ;
+  cs2:state "READY" ;
+  cs2:acceptance "Pack projection is generated from the canonical CS2 graph" .
+
+cs2:CS2-WRK-012 a cs2:Work ;
+  cs2:implements cs2:RFC-CS2-001 ;
+  cs2:dependsOn cs2:CS2-WRK-002 ;
+  cs2:summary "Exchange bounded CS2 evidence and triage" ;
+  cs2:priority "P1" ;
+  cs2:state "READY" ;
+  cs2:acceptance "Exchange preserves exact subject provenance and authority ceiling" .
+
+cs2:CS2-WRK-020 a cs2:Work ;
+  cs2:implements cs2:RFC-CS2-001 ;
+  cs2:dependsOn cs2:CS2-WRK-003, cs2:CS2-WRK-012 ;
+  cs2:summary "Compose producer and consumer CS2 projections" ;
+  cs2:priority "P2" ;
+  cs2:state "OPEN" ;
+  cs2:acceptance "Composition names every dependency and retains deterministic ordering" .
