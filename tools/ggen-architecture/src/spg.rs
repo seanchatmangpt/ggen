@@ -390,6 +390,444 @@ pub fn compile_projection(graph: &SpgGraph, family: &str) -> Result<ProjectionEn
     })
 }
 
+
+/// Immutable Git + graph subject for rewrite manufacture.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct SpgExactSubject {
+    /// Repository identity in owner/name form.
+    pub repository: String,
+    /// Exact lowercase 40-hex Git commit.
+    pub commit: String,
+    /// Canonical source graph digest.
+    pub graph_digest: String,
+}
+
+/// One deterministic graph rewrite operation.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(tag = "op", rename_all = "snake_case")]
+pub enum SpgRewriteOperation {
+    /// Remove an edge before removing any node it references.
+    RemoveEdge { id: String },
+    /// Remove a node after incident edges are removed.
+    RemoveNode { id: String },
+    /// Replace a node with the same stable identity.
+    ReplaceNode { node: SpgNode },
+    /// Add a new node.
+    AddNode { node: SpgNode },
+    /// Replace an edge with the same stable identity.
+    ReplaceEdge { edge: SpgEdge },
+    /// Add a new edge.
+    AddEdge { edge: SpgEdge },
+    /// Replace or remove one projection family.
+    SetProjection {
+        family: String,
+        bindings: Option<BTreeMap<String, String>>,
+    },
+    /// Replace the prior-art evidence sequence.
+    SetPriorArt { prior_art: Vec<Value> },
+    /// Set the target semantic version after payload rewrites.
+    SetVersion { version: String },
+}
+
+/// Exact-subject deterministic graph rewrite plan.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct SpgRewritePlan {
+    /// Rewrite-plan schema.
+    pub schema: String,
+    /// Immutable source repository/commit/graph binding.
+    pub source_subject: SpgExactSubject,
+    /// Stable graph identity.
+    pub source_graph: String,
+    /// Source graph version.
+    pub source_version: String,
+    /// Target graph version.
+    pub target_version: String,
+    /// Expected canonical target graph digest.
+    pub target_graph_digest: String,
+    /// Semantic delta retained for review/qualification.
+    pub semantic_diff: SpgDiff,
+    /// Deterministic ordered rewrite operations.
+    pub operations: Vec<SpgRewriteOperation>,
+    /// Any manufactured semantic rewrite requires external requalification.
+    pub requires_requalification: bool,
+    /// Rewrite manufacture never grants DO authority.
+    pub grants_do_authority: bool,
+    /// A rewrite plan has no runtime standing.
+    pub standing: String,
+}
+
+/// Replay evidence for a graph rewrite.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct SpgReplayReceipt {
+    /// Replay receipt schema.
+    pub schema: String,
+    /// Immutable source subject.
+    pub source_subject: SpgExactSubject,
+    /// Expected target graph digest.
+    pub target_graph_digest: String,
+    /// Digest of the exact rewrite plan.
+    pub plan_digest: String,
+    /// Digest observed on first replay.
+    pub first_replay_digest: String,
+    /// Digest observed on second replay from the same immutable source.
+    pub second_replay_digest: String,
+    /// True only when both replays produce byte-identical canonical target bytes.
+    pub second_run_byte_identical: bool,
+    /// Semantic changes remain candidates until requalified externally.
+    pub requires_requalification: bool,
+    /// Replay never grants actuation authority.
+    pub authority: String,
+    /// Replay evidence alone is not production standing.
+    pub standing: String,
+}
+
+fn valid_git_commit(value: &str) -> bool {
+    value.len() == 40
+        && value
+            .chars()
+            .all(|ch| ch.is_ascii_hexdigit() && !ch.is_ascii_uppercase())
+}
+
+fn valid_blake3_digest(value: &str) -> bool {
+    value
+        .strip_prefix("blake3:")
+        .is_some_and(|hex| {
+            hex.len() == 64
+                && hex
+                    .chars()
+                    .all(|ch| ch.is_ascii_hexdigit() && !ch.is_ascii_uppercase())
+        })
+}
+
+fn validate_exact_subject(subject: &SpgExactSubject) -> Result<(), SpgError> {
+    if subject.repository.trim().is_empty() {
+        return Err(refused("SPG_SUBJECT_REPOSITORY"));
+    }
+    if !valid_git_commit(&subject.commit) {
+        return Err(refused("SPG_SUBJECT_IMMUTABLE_COMMIT"));
+    }
+    if !valid_blake3_digest(&subject.graph_digest) {
+        return Err(refused("SPG_SUBJECT_GRAPH_DIGEST"));
+    }
+    Ok(())
+}
+
+fn normalized_graph(graph: &SpgGraph) -> SpgGraph {
+    let mut normalized = graph.clone();
+    normalized.nodes.sort_by(|left, right| left.id.cmp(&right.id));
+    normalized.edges.sort_by(|left, right| left.id.cmp(&right.id));
+    normalized
+}
+
+/// Canonical bytes for an admitted SPG structure.
+///
+/// Stable node/edge identities, rather than input vector ordering, determine
+/// the byte representation used by rewrite receipts.
+pub fn canonical_graph_bytes(graph: &SpgGraph) -> Result<Vec<u8>, SpgError> {
+    validate(graph)?;
+    Ok(serde_json::to_vec(&normalized_graph(graph))?)
+}
+
+/// Canonical BLAKE3 digest for an SPG graph.
+pub fn graph_digest(graph: &SpgGraph) -> Result<String, SpgError> {
+    let bytes = canonical_graph_bytes(graph)?;
+    Ok(format!("blake3:{}", blake3::hash(&bytes).to_hex()))
+}
+
+/// Canonical BLAKE3 digest for a deterministic rewrite plan.
+pub fn rewrite_plan_digest(plan: &SpgRewritePlan) -> Result<String, SpgError> {
+    let bytes = serde_json::to_vec(plan)?;
+    Ok(format!("blake3:{}", blake3::hash(&bytes).to_hex()))
+}
+
+fn operation_changes_semantics(operation: &SpgRewriteOperation) -> bool {
+    !matches!(operation, SpgRewriteOperation::SetVersion { .. })
+}
+
+/// Manufacture an exact-subject deterministic rewrite plan.
+///
+/// Graph identity, admission state, and evidence standing cannot be changed by
+/// rewrite manufacture. Those transitions belong to external admission
+/// machinery. Any semantic operation is marked as requiring requalification.
+pub fn plan_rewrite(
+    old: &SpgGraph,
+    new: &SpgGraph,
+    source_subject: SpgExactSubject,
+) -> Result<SpgRewritePlan, SpgError> {
+    validate(old)?;
+    validate(new)?;
+    validate_exact_subject(&source_subject)?;
+
+    let observed_source_digest = graph_digest(old)?;
+    if observed_source_digest != source_subject.graph_digest {
+        return Err(refused("SPG_REWRITE_SOURCE_DIGEST_MISMATCH"));
+    }
+    if old.schema != new.schema {
+        return Err(refused("SPG_REWRITE_SCHEMA_CHANGE"));
+    }
+    if old.id != new.id {
+        return Err(refused("SPG_REWRITE_IDENTITY_CHANGE"));
+    }
+    if old.state != new.state {
+        return Err(refused("SPG_REWRITE_ADMISSION_STATE_CHANGE"));
+    }
+    if old.standing != new.standing {
+        return Err(refused("SPG_REWRITE_STANDING_CHANGE"));
+    }
+
+    let diff = semantic_diff(old, new);
+    let old_nodes: BTreeMap<_, _> = old.nodes.iter().map(|item| (&item.id, item)).collect();
+    let new_nodes: BTreeMap<_, _> = new.nodes.iter().map(|item| (&item.id, item)).collect();
+    let old_edges: BTreeMap<_, _> = old.edges.iter().map(|item| (&item.id, item)).collect();
+    let new_edges: BTreeMap<_, _> = new.edges.iter().map(|item| (&item.id, item)).collect();
+
+    let mut operations = Vec::new();
+
+    for id in old_edges.keys().filter(|id| !new_edges.contains_key(*id)) {
+        operations.push(SpgRewriteOperation::RemoveEdge {
+            id: (*id).clone(),
+        });
+    }
+    for id in old_nodes.keys().filter(|id| !new_nodes.contains_key(*id)) {
+        operations.push(SpgRewriteOperation::RemoveNode {
+            id: (*id).clone(),
+        });
+    }
+    for (id, old_node) in &old_nodes {
+        if let Some(new_node) = new_nodes.get(id) {
+            if *old_node != *new_node {
+                operations.push(SpgRewriteOperation::ReplaceNode {
+                    node: (*new_node).clone(),
+                });
+            }
+        }
+    }
+    for id in new_nodes.keys().filter(|id| !old_nodes.contains_key(*id)) {
+        operations.push(SpgRewriteOperation::AddNode {
+            node: (*new_nodes[id]).clone(),
+        });
+    }
+    for (id, old_edge) in &old_edges {
+        if let Some(new_edge) = new_edges.get(id) {
+            if *old_edge != *new_edge {
+                operations.push(SpgRewriteOperation::ReplaceEdge {
+                    edge: (*new_edge).clone(),
+                });
+            }
+        }
+    }
+    for id in new_edges.keys().filter(|id| !old_edges.contains_key(*id)) {
+        operations.push(SpgRewriteOperation::AddEdge {
+            edge: (*new_edges[id]).clone(),
+        });
+    }
+
+    let projection_families: BTreeSet<_> = old
+        .projections
+        .keys()
+        .chain(new.projections.keys())
+        .cloned()
+        .collect();
+    for family in projection_families {
+        if old.projections.get(&family) != new.projections.get(&family) {
+            operations.push(SpgRewriteOperation::SetProjection {
+                family: family.clone(),
+                bindings: new.projections.get(&family).cloned(),
+            });
+        }
+    }
+
+    if old.prior_art != new.prior_art {
+        operations.push(SpgRewriteOperation::SetPriorArt {
+            prior_art: new.prior_art.clone(),
+        });
+    }
+
+    let has_semantic_change = operations.iter().any(operation_changes_semantics);
+    if has_semantic_change && old.version == new.version {
+        return Err(refused("SPG_REWRITE_VERSION_NOT_BUMPED"));
+    }
+    if old.version != new.version {
+        operations.push(SpgRewriteOperation::SetVersion {
+            version: new.version.clone(),
+        });
+    }
+
+    let requires_requalification = operations.iter().any(operation_changes_semantics);
+
+    Ok(SpgRewritePlan {
+        schema: "chatman.spg-rewrite-plan.v1".to_owned(),
+        source_subject,
+        source_graph: old.id.clone(),
+        source_version: old.version.clone(),
+        target_version: new.version.clone(),
+        target_graph_digest: graph_digest(new)?,
+        semantic_diff: diff,
+        operations,
+        requires_requalification,
+        grants_do_authority: false,
+        standing: "NONE".to_owned(),
+    })
+}
+
+fn find_node(graph: &SpgGraph, id: &str) -> Option<usize> {
+    graph.nodes.iter().position(|node| node.id == id)
+}
+
+fn find_edge(graph: &SpgGraph, id: &str) -> Option<usize> {
+    graph.edges.iter().position(|edge| edge.id == id)
+}
+
+/// Apply a rewrite plan only to its exact immutable source.
+///
+/// This function constructs a candidate target graph. It never changes graph
+/// admission state or standing and never actuates the resulting procedure.
+pub fn apply_rewrite(
+    source: &SpgGraph,
+    plan: &SpgRewritePlan,
+) -> Result<SpgGraph, SpgError> {
+    validate(source)?;
+    validate_exact_subject(&plan.source_subject)?;
+    if plan.schema != "chatman.spg-rewrite-plan.v1" {
+        return Err(refused("SPG_REWRITE_PLAN_SCHEMA"));
+    }
+    if plan.grants_do_authority || plan.standing != "NONE" {
+        return Err(refused("SPG_REWRITE_AMBIENT_AUTHORITY"));
+    }
+    if source.id != plan.source_graph || source.version != plan.source_version {
+        return Err(refused("SPG_REWRITE_SOURCE_IDENTITY_MISMATCH"));
+    }
+    if graph_digest(source)? != plan.source_subject.graph_digest {
+        return Err(refused("SPG_REWRITE_SOURCE_DIGEST_MISMATCH"));
+    }
+
+    let mut target = source.clone();
+    for operation in &plan.operations {
+        match operation {
+            SpgRewriteOperation::RemoveEdge { id } => {
+                let Some(index) = find_edge(&target, id) else {
+                    return Err(SpgError::Refused(format!(
+                        "REFUSED:SPG_REWRITE_EDGE_NOT_FOUND:{id}"
+                    )));
+                };
+                target.edges.remove(index);
+            }
+            SpgRewriteOperation::RemoveNode { id } => {
+                if target
+                    .edges
+                    .iter()
+                    .any(|edge| edge.from == *id || edge.to == *id)
+                {
+                    return Err(SpgError::Refused(format!(
+                        "REFUSED:SPG_REWRITE_NODE_STILL_REFERENCED:{id}"
+                    )));
+                }
+                let Some(index) = find_node(&target, id) else {
+                    return Err(SpgError::Refused(format!(
+                        "REFUSED:SPG_REWRITE_NODE_NOT_FOUND:{id}"
+                    )));
+                };
+                target.nodes.remove(index);
+            }
+            SpgRewriteOperation::ReplaceNode { node } => {
+                let Some(index) = find_node(&target, &node.id) else {
+                    return Err(SpgError::Refused(format!(
+                        "REFUSED:SPG_REWRITE_NODE_NOT_FOUND:{}",
+                        node.id
+                    )));
+                };
+                target.nodes[index] = node.clone();
+            }
+            SpgRewriteOperation::AddNode { node } => {
+                if find_node(&target, &node.id).is_some() {
+                    return Err(SpgError::Refused(format!(
+                        "REFUSED:SPG_REWRITE_NODE_ALREADY_EXISTS:{}",
+                        node.id
+                    )));
+                }
+                target.nodes.push(node.clone());
+            }
+            SpgRewriteOperation::ReplaceEdge { edge } => {
+                let Some(index) = find_edge(&target, &edge.id) else {
+                    return Err(SpgError::Refused(format!(
+                        "REFUSED:SPG_REWRITE_EDGE_NOT_FOUND:{}",
+                        edge.id
+                    )));
+                };
+                target.edges[index] = edge.clone();
+            }
+            SpgRewriteOperation::AddEdge { edge } => {
+                if find_edge(&target, &edge.id).is_some() {
+                    return Err(SpgError::Refused(format!(
+                        "REFUSED:SPG_REWRITE_EDGE_ALREADY_EXISTS:{}",
+                        edge.id
+                    )));
+                }
+                target.edges.push(edge.clone());
+            }
+            SpgRewriteOperation::SetProjection { family, bindings } => {
+                if let Some(bindings) = bindings {
+                    target.projections.insert(family.clone(), bindings.clone());
+                } else {
+                    target.projections.remove(family);
+                }
+            }
+            SpgRewriteOperation::SetPriorArt { prior_art } => {
+                target.prior_art.clone_from(prior_art);
+            }
+            SpgRewriteOperation::SetVersion { version } => {
+                target.version.clone_from(version);
+            }
+        }
+    }
+
+    target.nodes.sort_by(|left, right| left.id.cmp(&right.id));
+    target.edges.sort_by(|left, right| left.id.cmp(&right.id));
+    validate(&target)?;
+
+    if target.version != plan.target_version {
+        return Err(refused("SPG_REWRITE_TARGET_VERSION_MISMATCH"));
+    }
+    if graph_digest(&target)? != plan.target_graph_digest {
+        return Err(refused("SPG_REWRITE_TARGET_DIGEST_MISMATCH"));
+    }
+    Ok(target)
+}
+
+/// Replay a rewrite twice from the same exact source and manufacture evidence.
+pub fn replay_rewrite(
+    source: &SpgGraph,
+    plan: &SpgRewritePlan,
+) -> Result<(SpgGraph, SpgReplayReceipt), SpgError> {
+    let first = apply_rewrite(source, plan)?;
+    let second = apply_rewrite(source, plan)?;
+    let first_bytes = canonical_graph_bytes(&first)?;
+    let second_bytes = canonical_graph_bytes(&second)?;
+    let first_digest = graph_digest(&first)?;
+    let second_digest = graph_digest(&second)?;
+    let identical = first_bytes == second_bytes && first_digest == second_digest;
+    if !identical {
+        return Err(refused("SPG_REWRITE_NONDETERMINISTIC_REPLAY"));
+    }
+
+    Ok((
+        first,
+        SpgReplayReceipt {
+            schema: "chatman.spg-rewrite-replay.v1".to_owned(),
+            source_subject: plan.source_subject.clone(),
+            target_graph_digest: plan.target_graph_digest.clone(),
+            plan_digest: rewrite_plan_digest(plan)?,
+            first_replay_digest: first_digest,
+            second_replay_digest: second_digest,
+            second_run_byte_identical: true,
+            requires_requalification: plan.requires_requalification,
+            authority: "NONE".to_owned(),
+            standing: "NONE".to_owned(),
+        },
+    ))
+}
+
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -458,3 +896,206 @@ mod tests {
         Ok(())
     }
 }
+
+#[cfg(test)]
+mod rewrite_tests {
+    use super::*;
+
+    fn graph(version: &str, authority: &str) -> Result<SpgGraph, SpgError> {
+        from_json(
+            format!(
+                r#"{{
+                  "schema":"chatman.spg.v1",
+                  "id":"spg:rewrite",
+                  "version":"{version}",
+                  "state":"CANDIDATE",
+                  "standing":"NONE",
+                  "nodes":[
+                    {{"id":"observe","class":"OBSERVE","capability":"cap.observe"}},
+                    {{"id":"select","class":"SELECT","capability":"cap.select"}},
+                    {{"id":"do","class":"DO","capability":"brce.do"}}
+                  ],
+                  "edges":[
+                    {{
+                      "id":"e1","from":"observe","to":"select","relation":"PROVIDES_INPUT_FOR",
+                      "guard":"observed","evidence_required":["observation"],
+                      "authority_required":"NONE","consequence":"observational",
+                      "receipt_required":false
+                    }},
+                    {{
+                      "id":"e2","from":"select","to":"do","relation":"TRIGGERS",
+                      "guard":"admitted","evidence_required":["grant"],
+                      "authority_required":"{authority}","consequence":"consequential",
+                      "receipt_required":true,"falsifier":"unreceipted consequence"
+                    }}
+                  ],
+                  "projections":{{
+                    "brce":{{
+                      "observe":"event.observe",
+                      "select":"command.admit",
+                      "do":"command.do"
+                    }}
+                  }},
+                  "prior_art":[{{"disposition":"REUSE","source":"public"}}]
+                }}"#
+            )
+            .as_bytes(),
+        )
+    }
+
+    fn exact_subject(graph: &SpgGraph) -> Result<SpgExactSubject, SpgError> {
+        Ok(SpgExactSubject {
+            repository: "seanchatmangpt/ggen".to_owned(),
+            commit: "0123456789abcdef0123456789abcdef01234567".to_owned(),
+            graph_digest: graph_digest(graph)?,
+        })
+    }
+
+    #[test]
+    fn rewrite_replay_is_byte_identical_and_authority_inert() -> Result<(), SpgError> {
+        let old = graph("1", "BRCE_GRANT")?;
+        let mut new = graph("2", "OTHER_BRCE_GRANT")?;
+        new.nodes[1].capability = "cap.select.v2".to_owned();
+
+        let plan = plan_rewrite(&old, &new, exact_subject(&old)?)?;
+        assert!(plan.requires_requalification);
+        assert!(!plan.grants_do_authority);
+        assert_eq!(plan.standing, "NONE");
+        assert!(plan.operations.iter().any(|operation| matches!(
+            operation,
+            SpgRewriteOperation::ReplaceEdge { edge }
+                if edge.id == "e2" && edge.authority_required == "OTHER_BRCE_GRANT"
+        )));
+
+        let (target, receipt) = replay_rewrite(&old, &plan)?;
+        assert_eq!(canonical_graph_bytes(&target)?, canonical_graph_bytes(&new)?);
+        assert!(receipt.second_run_byte_identical);
+        assert_eq!(receipt.authority, "NONE");
+        assert_eq!(receipt.standing, "NONE");
+        Ok(())
+    }
+
+    #[test]
+    fn canonical_digest_is_invariant_to_node_and_edge_vector_order() -> Result<(), SpgError> {
+        let left = graph("1", "BRCE_GRANT")?;
+        let mut right = left.clone();
+        right.nodes.reverse();
+        right.edges.reverse();
+        assert_eq!(graph_digest(&left)?, graph_digest(&right)?);
+        assert_eq!(canonical_graph_bytes(&left)?, canonical_graph_bytes(&right)?);
+        Ok(())
+    }
+
+    #[test]
+    fn mutable_git_ref_cannot_become_rewrite_subject() -> Result<(), SpgError> {
+        let old = graph("1", "BRCE_GRANT")?;
+        let new = graph("2", "BRCE_GRANT")?;
+        let result = plan_rewrite(
+            &old,
+            &new,
+            SpgExactSubject {
+                repository: "seanchatmangpt/ggen".to_owned(),
+                commit: "main".to_owned(),
+                graph_digest: graph_digest(&old)?,
+            },
+        );
+        assert!(matches!(
+            result,
+            Err(SpgError::Refused(message))
+                if message.contains("SPG_SUBJECT_IMMUTABLE_COMMIT")
+        ));
+        Ok(())
+    }
+
+    #[test]
+    fn semantic_change_without_version_bump_fails_closed() -> Result<(), SpgError> {
+        let old = graph("1", "BRCE_GRANT")?;
+        let mut new = old.clone();
+        new.nodes[1].capability = "cap.changed".to_owned();
+
+        let result = plan_rewrite(&old, &new, exact_subject(&old)?);
+        assert!(matches!(
+            result,
+            Err(SpgError::Refused(message))
+                if message.contains("SPG_REWRITE_VERSION_NOT_BUMPED")
+        ));
+        Ok(())
+    }
+
+    #[test]
+    fn rewrite_cannot_launder_admission_state_or_standing() -> Result<(), SpgError> {
+        let old = graph("1", "BRCE_GRANT")?;
+        let mut admitted = graph("2", "BRCE_GRANT")?;
+        admitted.state = "ADMITTED".to_owned();
+        assert!(matches!(
+            plan_rewrite(&old, &admitted, exact_subject(&old)?),
+            Err(SpgError::Refused(message))
+                if message.contains("SPG_REWRITE_ADMISSION_STATE_CHANGE")
+        ));
+
+        let mut standing = graph("2", "BRCE_GRANT")?;
+        standing.standing = "PARTIAL_ALIVE".to_owned();
+        assert!(matches!(
+            plan_rewrite(&old, &standing, exact_subject(&old)?),
+            Err(SpgError::Refused(message))
+                if message.contains("SPG_REWRITE_STANDING_CHANGE")
+        ));
+        Ok(())
+    }
+
+    #[test]
+    fn replay_refuses_source_drift() -> Result<(), SpgError> {
+        let old = graph("1", "BRCE_GRANT")?;
+        let new = graph("2", "OTHER_BRCE_GRANT")?;
+        let plan = plan_rewrite(&old, &new, exact_subject(&old)?)?;
+
+        let mut drifted = old.clone();
+        drifted.nodes[0].capability = "cap.drifted".to_owned();
+        let result = apply_rewrite(&drifted, &plan);
+        assert!(matches!(
+            result,
+            Err(SpgError::Refused(message))
+                if message.contains("SPG_REWRITE_SOURCE_DIGEST_MISMATCH")
+        ));
+        Ok(())
+    }
+
+    #[test]
+    fn removal_plan_orders_edges_before_nodes() -> Result<(), SpgError> {
+        let old = graph("1", "BRCE_GRANT")?;
+        let mut new = old.clone();
+        new.version = "2".to_owned();
+        new.edges.retain(|edge| edge.id != "e1");
+        new.nodes.retain(|node| node.id != "observe");
+        let Some(brce_projection) = new.projections.get_mut("brce") else {
+            return Err(refused("TEST_FIXTURE_BRCE_PROJECTION"));
+        };
+        brce_projection.remove("observe");
+
+        let plan = plan_rewrite(&old, &new, exact_subject(&old)?)?;
+        let Some(remove_edge) = plan
+            .operations
+            .iter()
+            .position(|operation| matches!(
+                operation,
+                SpgRewriteOperation::RemoveEdge { id } if id == "e1"
+            ))
+        else {
+            return Err(refused("TEST_REWRITE_EDGE_REMOVAL_MISSING"));
+        };
+        let Some(remove_node) = plan
+            .operations
+            .iter()
+            .position(|operation| matches!(
+                operation,
+                SpgRewriteOperation::RemoveNode { id } if id == "observe"
+            ))
+        else {
+            return Err(refused("TEST_REWRITE_NODE_REMOVAL_MISSING"));
+        };
+        assert!(remove_edge < remove_node);
+        assert_eq!(apply_rewrite(&old, &plan)?, normalized_graph(&new));
+        Ok(())
+    }
+}
+

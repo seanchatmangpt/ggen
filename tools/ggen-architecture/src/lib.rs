@@ -64,7 +64,11 @@ pub use self_play::{
     SelfPlayScenario, SelfPlayStanding, SelfPlayViolation, UseCaseKind,
 };
 pub use spg::{
-    compile_projection, from_json as spg_from_json, semantic_diff as spg_semantic_diff,
-    validate as validate_spg, ProjectionEnvelope, SpgDiff, SpgEdge, SpgError, SpgGraph, SpgNode,
+    apply_rewrite as apply_spg_rewrite, canonical_graph_bytes as spg_canonical_graph_bytes,
+    compile_projection, from_json as spg_from_json, graph_digest as spg_graph_digest,
+    plan_rewrite as plan_spg_rewrite, replay_rewrite as replay_spg_rewrite,
+    rewrite_plan_digest as spg_rewrite_plan_digest, semantic_diff as spg_semantic_diff,
+    validate as validate_spg, ProjectionEnvelope, SpgDiff, SpgEdge, SpgError, SpgExactSubject,
+    SpgGraph, SpgNode, SpgReplayReceipt, SpgRewriteOperation, SpgRewritePlan,
 };
 pub use state::{ArchitectureState, AutonomicPolicy};
