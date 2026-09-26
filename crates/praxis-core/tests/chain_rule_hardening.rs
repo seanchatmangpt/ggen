@@ -350,6 +350,25 @@ fn legacy_record_after_a_declared_one_is_a_refused_downgrade() {
     assert!(msg.contains("chain-rule downgrade"), "{msg}");
     assert!(msg.contains("record 2"), "{msg}");
 
+    // Every verifier, not only the validator: the generic
+    // `verify::chain_integrity` pipeline applies the same guard (court ADV-2
+    // observed it passing this ledger before the guard existed).
+    let integrity = chain_integrity(&log);
+    assert!(
+        !integrity.passed,
+        "chain_integrity must refuse the downgrade"
+    );
+    assert!(
+        integrity.detail.contains("chain-rule downgrade"),
+        "{}",
+        integrity.detail
+    );
+    assert!(
+        integrity.detail.contains("record 2"),
+        "{}",
+        integrity.detail
+    );
+
     let mut mono = ChainRuleMonotonicity::new();
     mono.observe(0, &log[0], ChainStanding::FullyBound)
         .expect("declared");
@@ -469,17 +488,20 @@ fn median(mut v: Vec<Duration>) -> Duration {
     v[v.len() / 2]
 }
 
-/// Median over rounds of the same-round ratio `b / a`: adjacent samples
-/// share the machine state, so drift cancels and outlier rounds drop out.
-fn median_ratio(a: &[Duration], b: &[Duration]) -> f64 {
-    let mut r: Vec<f64> = a
-        .iter()
-        .zip(b)
-        .map(|(x, y)| y.as_secs_f64() / x.as_secs_f64())
-        .collect();
-    r.sort_by(f64::total_cmp);
-    r[r.len() / 2]
+/// Ratio of the per-path minima `min(b) / min(a)`. The minimum over rounds
+/// is the least-disturbed sample of each path (scheduler preemption and
+/// concurrent test threads only ever add time), so the ratio converges on
+/// the true cost ratio under load instead of drifting with it.
+fn min_ratio(a: &[Duration], b: &[Duration]) -> f64 {
+    let min_a = a.iter().min().expect("samples").as_secs_f64();
+    let min_b = b.iter().min().expect("samples").as_secs_f64();
+    min_b / min_a
 }
+
+/// Attempts at the ratio bound: a real regression (a second base-frame
+/// recompute, 1.4-2.0x) exceeds the bound on every attempt; a load spike
+/// on one attempt does not fail the suite.
+const RATIO_ATTEMPTS: usize = 3;
 
 /// Deterministic timing benchmark (the crate carries no criterion harness;
 /// this mirrors `receipt_validator`'s documented-target pattern). Numbers
@@ -496,9 +518,13 @@ fn median_ratio(a: &[Duration], b: &[Duration]) -> f64 {
 ///
 /// Ceilings (debug build, shared CI runners, test threads concurrent): 2ms
 /// per small record on either path, 30ms per committed tcps record, and the
-/// legacy path at most 1.25x the fully-bound path (median of 21 same-round
-/// ratios, interleaved) -- the falsifier for a reintroduced second base
-/// frame recompute (measured 1.4-2.0x) or any quadratic re-verification.
+/// legacy path at most 1.25x the fully-bound path (ratio of per-path minima
+/// over 21 interleaved rounds, up to 3 attempts, failing only if every
+/// attempt exceeds the bound) -- the falsifier for a reintroduced second
+/// base frame recompute (measured 1.4-2.0x) or any quadratic
+/// re-verification. The earlier median-of-same-round-ratios gate measured
+/// 0.76-1.13 on unmutated code under concurrent debug tests (court
+/// 2026-09-26), too close to 1.25 for a default-suite gate.
 #[test]
 fn bench_rule_aware_verification_stays_within_bound() {
     let fold = ledger(1000, |_| (ChainRule::V2Fold, true));
@@ -511,8 +537,14 @@ fn bench_rule_aware_verification_stays_within_bound() {
         );
     }
 
-    let stats = interleaved(&[&fold, &legacy, &tcps], 21);
-    let ratio = median_ratio(&stats[0], &stats[1]);
+    let mut stats = interleaved(&[&fold, &legacy, &tcps], 21);
+    let mut ratio = min_ratio(&stats[0], &stats[1]);
+    let mut ratios = vec![ratio];
+    while ratio > 1.25 && ratios.len() < RATIO_ATTEMPTS {
+        stats = interleaved(&[&fold, &legacy, &tcps], 21);
+        ratio = min_ratio(&stats[0], &stats[1]);
+        ratios.push(ratio);
+    }
     let fold_med = median(stats[0].clone());
     let legacy_med = median(stats[1].clone());
     let tcps_med = median(stats[2].clone());
@@ -525,8 +557,8 @@ fn bench_rule_aware_verification_stays_within_bound() {
     eprintln!(
         "[bench chain_rule] verify_chain median per record over 21 interleaved rounds: \
          fully-bound(declared fold, n=1000) {fold_med:?}; legacy-v2-unbound(base, n=1000) \
-         {legacy_med:?}; committed tcps (n={}) {tcps_med:?}; median same-round ratio \
-         legacy/fully-bound {ratio:.3}; ReceiptValidator::validate(1000 fold) {validate_1000:?}",
+         {legacy_med:?}; committed tcps (n={}) {tcps_med:?}; min-ratio legacy/fully-bound \
+         per attempt {ratios:.3?}; ReceiptValidator::validate(1000 fold) {validate_1000:?}",
         tcps.len()
     );
 
@@ -543,7 +575,7 @@ fn bench_rule_aware_verification_stays_within_bound() {
     );
     assert!(
         ratio <= 1.25,
-        "legacy path costs {ratio:.3}x the fully-bound path (bound 1.25x; a second \
-         base-frame recompute measures 1.4-2.0x)"
+        "legacy path costs {ratios:.3?}x the fully-bound path on every attempt (bound \
+         1.25x; a second base-frame recompute measures 1.4-2.0x)"
     );
 }

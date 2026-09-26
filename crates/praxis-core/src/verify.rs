@@ -230,6 +230,26 @@ pub trait ReceiptLike {
     /// exact same construction the emission path used. A mismatch against
     /// [`Self::chain_hash`] means tampering (or an incompatible chain rule).
     fn recompute_chain_hash(&self) -> Result<[u8; 32], CoreError>;
+
+    /// Rule-aware recompute plus the chain standing it verified at, for
+    /// receipt types with more than one chain rule (FM-CHAIN-009). The
+    /// standing is `Some` only when the recompute reproduces the stored
+    /// chain hash. The default (single-rule receipt types) reports no
+    /// standing, so [`chain_integrity`] applies no downgrade guard.
+    ///
+    /// # Errors
+    /// Same as [`Self::recompute_chain_hash`].
+    fn recompute_chain_hash_with_standing(
+        &self,
+    ) -> Result<([u8; 32], Option<crate::receipt_record::ChainStanding>), CoreError> {
+        Ok((self.recompute_chain_hash()?, None))
+    }
+
+    /// Whether this record declares its chain rule (feeds the downgrade
+    /// guard in [`chain_integrity`]). Single-rule receipt types: `false`.
+    fn declares_chain_rule(&self) -> bool {
+        false
+    }
 }
 
 impl ReceiptLike for crate::receipt_record::ReceiptRecord {
@@ -268,6 +288,26 @@ impl ReceiptLike for crate::receipt_record::ReceiptRecord {
     fn recompute_chain_hash(&self) -> Result<[u8; 32], CoreError> {
         crate::receipt_record::ReceiptRecord::recompute_chain_hash_lawful(self)
     }
+
+    /// One `verify_chain` per record: the lawful recompute and the standing
+    /// it verified at (`None` on mismatch).
+    fn recompute_chain_hash_with_standing(
+        &self,
+    ) -> Result<([u8; 32], Option<crate::receipt_record::ChainStanding>), CoreError> {
+        match self.verify_chain()? {
+            crate::receipt_record::ChainVerification::Verified(standing) => Ok((
+                crate::receipt_record::ReceiptRecord::chain_hash(self)?,
+                Some(standing),
+            )),
+            crate::receipt_record::ChainVerification::Mismatch { recomputed, .. } => {
+                Ok((recomputed, None))
+            }
+        }
+    }
+
+    fn declares_chain_rule(&self) -> bool {
+        self.chain_rule.is_some()
+    }
 }
 
 /// `true` iff `s` is exactly 64 lowercase-or-digit hex characters.
@@ -305,13 +345,25 @@ pub fn check_format<R: ReceiptLike>(records: &[R]) -> CheckOutcome {
 /// Stage 2: recompute each record's chain hash from its own fields and
 /// compare against the stored `chain_hash`. A mismatch is tamper detection.
 pub fn chain_integrity<R: ReceiptLike>(records: &[R]) -> CheckOutcome {
+    // Chain-rule downgrade guard (FM-CHAIN-009): same monotonicity law as
+    // `ReceiptValidator`'s `chain_recompute` stage and `ggen receipt
+    // history` -- a record verifying only as legacy-v2-unbound after a
+    // record that declared its chain rule is refused, not counted as legacy.
+    let mut monotonic = crate::receipt_record::ChainRuleMonotonicity::new();
     for (i, r) in records.iter().enumerate() {
         let claimed = match r.chain_hash() {
             Ok(h) => h,
             Err(e) => return CheckOutcome::fail("chain_integrity", format!("record {i}: {e}")),
         };
-        match r.recompute_chain_hash() {
-            Ok(computed) if computed == claimed => {}
+        match r.recompute_chain_hash_with_standing() {
+            Ok((computed, standing)) if computed == claimed => {
+                if let Some(standing) = standing {
+                    if let Err(e) = monotonic.observe_declared(i, r.declares_chain_rule(), standing)
+                    {
+                        return CheckOutcome::fail("chain_integrity", format!("record {i}: {e}"));
+                    }
+                }
+            }
             Ok(_) => {
                 return CheckOutcome::fail(
                     "chain_integrity",

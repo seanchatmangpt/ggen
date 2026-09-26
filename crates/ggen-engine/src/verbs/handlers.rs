@@ -495,6 +495,27 @@ pub fn handle_receipt_verify_in(root: &std::path::Path) -> Result<serde_json::Va
         }
     };
 
+    // 2b. Chain-rule downgrade guard (FM-CHAIN-009): a legacy head is lawful
+    //     only when no record in the log declared a chain rule -- the same
+    //     monotonicity law `receipt history` applies record by record.
+    if chain_standing == praxis_core::receipt_record::ChainStanding::LegacyV2Unbound {
+        let log_path = root.join(RECEIPT_LOG_REL_PATH);
+        if let Some(first) =
+            crate::sync::first_declared_chain_rule_in_log(&log_path, 14).map_err(exec_err)?
+        {
+            return Err(exec_err(AppError::fm_chain(
+                14,
+                format!(
+                    "receipt invalid: chain-rule downgrade -- the head verifies only as `{}` \
+                     but receipt log record {first} declared a chain rule. Remediation: the \
+                     head was re-sealed under the legacy base rule -- restore from `receipt \
+                     history`/git.",
+                    praxis_core::receipt_record::ChainStanding::LegacyV2Unbound.as_str()
+                ),
+            )));
+        }
+    }
+
     // 3. Signature (T063): only when the record was signed. A legacy/unsigned
     //    record is not a failure -- chain integrity above already ran and
     //    passed, which is everything a pre-signing receipt can prove.

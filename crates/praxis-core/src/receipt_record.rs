@@ -445,6 +445,18 @@ impl ChainRuleMonotonicity {
     pub fn observe(
         &mut self, idx: usize, record: &ReceiptRecord, standing: ChainStanding,
     ) -> Result<(), CoreError> {
+        self.observe_declared(idx, record.chain_rule.is_some(), standing)
+    }
+
+    /// [`Self::observe`] for callers that hold only whether record `idx`
+    /// declared a chain rule (e.g. the generic [`crate::verify::ReceiptLike`]
+    /// pipeline), not the [`ReceiptRecord`] itself.
+    ///
+    /// # Errors
+    /// Same as [`Self::observe`].
+    pub fn observe_declared(
+        &mut self, idx: usize, declared: bool, standing: ChainStanding,
+    ) -> Result<(), CoreError> {
         if standing == ChainStanding::LegacyV2Unbound {
             if let Some(first) = self.first_declared {
                 return Err(CoreError::ReceiptChainRuleInvalid(format!(
@@ -454,7 +466,7 @@ impl ChainRuleMonotonicity {
                 )));
             }
         }
-        if record.chain_rule.is_some() && self.first_declared.is_none() {
+        if declared && self.first_declared.is_none() {
             self.first_declared = Some(idx);
         }
         Ok(())

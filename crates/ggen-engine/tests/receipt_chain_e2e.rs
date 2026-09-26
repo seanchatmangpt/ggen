@@ -1071,6 +1071,78 @@ fn history_refuses_a_legacy_record_after_a_declared_one() {
         .assert_stderr_contains("chain-rule downgrade");
 }
 
+/// Downgrade at the head-only verifiers (court ADV-6): after a declared
+/// record, a head re-sealed under the undeclared base rule (with a forged
+/// Green ceiling) must be refused by `ggen sync` -- never extended into a
+/// ledger `receipt history` rejects -- and by `ggen receipt verify`. Both
+/// run in-process: the exact verifier compiled with this test, never a
+/// `ggen` binary resolved from target/ or PATH (under `cargo test -p
+/// ggen-engine` no `CARGO_BIN_EXE_ggen` is set, so the CLI harness would
+/// run whatever stale binary happens to be there). The log and head stay
+/// untouched by the refused sync.
+#[test]
+fn sync_and_verify_refuse_a_downgraded_head_after_a_declared_record() {
+    use praxis_core::receipt_record::{ChainStanding, ChainVerification};
+
+    let dir = TempDir::new().expect("tempdir");
+    scaffold(dir.path(), &["alice"]);
+    sync_now(dir.path()).expect("sync 1");
+    write_ontology(dir.path(), &["alice", "bob"]);
+    sync_now(dir.path()).expect("sync 2");
+    assert!(read_log(dir.path())[0].record.chain_rule.is_some());
+
+    edit_tail(dir.path(), |tail| {
+        tail["record"]["v2"]["standing_ceiling"] = serde_json::json!("Green");
+    });
+    make_tail_legacy_base_sealed(dir.path());
+    assert_eq!(
+        tail_record(dir.path()).verify_chain().expect("verify"),
+        ChainVerification::Verified(ChainStanding::LegacyV2Unbound)
+    );
+    let log_before = std::fs::read(dir.path().join(RECEIPT_LOG_REL_PATH)).expect("log");
+    let head_before = std::fs::read(dir.path().join(RECEIPT_REL_PATH)).expect("head");
+
+    write_ontology(dir.path(), &["alice", "bob", "carol"]);
+    let err = sync_now(dir.path()).expect_err("sync must refuse to extend a downgraded head");
+    assert!(err.contains("FM-CHAIN-009"), "{err}");
+    assert!(err.contains("chain-rule downgrade"), "{err}");
+    assert!(err.contains("record 0"), "{err}");
+    assert_eq!(
+        std::fs::read(dir.path().join(RECEIPT_LOG_REL_PATH)).expect("log"),
+        log_before,
+        "a refused sync must not append to the log"
+    );
+    assert_eq!(
+        std::fs::read(dir.path().join(RECEIPT_REL_PATH)).expect("head"),
+        head_before,
+        "a refused sync must not rewrite the head"
+    );
+
+    let verify_err = ggen_engine::verbs::handlers::handle_receipt_verify_in(dir.path())
+        .expect_err("receipt verify must refuse the downgraded head")
+        .to_string();
+    assert!(verify_err.contains("FM-CHAIN-014"), "{verify_err}");
+    assert!(verify_err.contains("chain-rule downgrade"), "{verify_err}");
+}
+
+/// Boundary of the guard: a legacy head with no declared record anywhere in
+/// the log (the pre-F1 shape) is still verified -- as capped legacy -- by
+/// `receipt verify`; only a declared predecessor turns it into a downgrade.
+#[test]
+fn verify_accepts_a_legacy_head_when_no_record_declared_a_rule() {
+    let dir = TempDir::new().expect("tempdir");
+    scaffold(dir.path(), &["alice"]);
+    sync_now(dir.path()).expect("sync 1");
+    make_tail_legacy_base_sealed(dir.path());
+    let verify = ggen_engine::verbs::handlers::handle_receipt_verify_in(dir.path())
+        .expect("pre-F1 legacy head verifies");
+    assert_eq!(verify["valid"], serde_json::json!(true));
+    assert_eq!(
+        verify["chain_standing"],
+        serde_json::json!("legacy-v2-unbound")
+    );
+}
+
 /// Duplicate delivery: the same (valid) tail record appended twice breaks
 /// adjacency and fails closed.
 #[test]

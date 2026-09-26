@@ -2726,6 +2726,54 @@ fn read_prev_head(receipt_path: &Path, log_path: &Path) -> Result<Option<SyncRec
     }
 }
 
+/// Chain-rule downgrade guard for a head that verifies only as
+/// [`ChainStanding::LegacyV2Unbound`] (FM-CHAIN-009): a legacy base-rule
+/// record is lawful only in the pre-F1 prefix of the ledger, so if any
+/// record in the receipt log declares a chain rule, a legacy head is a
+/// downgrade (e.g. a fold-sealed head re-sealed under the base rule with
+/// its declaration stripped). Same law as
+/// `praxis_core::receipt_record::ChainRuleMonotonicity`, applied at the
+/// head-only call sites (`ggen sync`'s write path and `ggen receipt
+/// verify`) so they fail closed exactly where `ggen receipt history` does.
+///
+/// Returns the index of the first log record that declares a chain rule,
+/// or `None` when the log is absent or carries no declared record. `code`
+/// is the FM-CHAIN code the caller reports read failures under.
+///
+/// # Errors
+/// The log exists but is unreadable, or one of its lines is malformed
+/// (fail closed: an unparseable log cannot prove the head is lawful).
+pub(crate) fn first_declared_chain_rule_in_log(
+    log_path: &Path, code: u16,
+) -> Result<Option<usize>> {
+    let raw = match std::fs::read_to_string(log_path) {
+        Ok(raw) => raw,
+        Err(e) if e.kind() == std::io::ErrorKind::NotFound => return Ok(None),
+        Err(e) => {
+            return Err(AppError::fm_chain(
+                code,
+                format!("receipt log `{}` unreadable: {e}", log_path.display()),
+            ))
+        }
+    };
+    for (idx, line) in raw.lines().filter(|l| !l.trim().is_empty()).enumerate() {
+        let receipt: SyncReceipt = serde_json::from_str(line).map_err(|e| {
+            AppError::fm_chain(
+                code,
+                format!(
+                    "receipt log `{}` entry {idx} malformed: {e}. \
+                     Remediation: run `ggen receipt history` and repair the log.",
+                    log_path.display()
+                ),
+            )
+        })?;
+        if receipt.record.chain_rule.is_some() {
+            return Ok(Some(idx));
+        }
+    }
+    Ok(None)
+}
+
 /// Chain a praxis-core [`ReceiptRecord`] over `{ graph_hash, outputs }` and
 /// write it to [`RECEIPT_REL_PATH`]. `ts_ns` is fixed to 0 (no wall clock;
 /// see module docs).
@@ -3018,6 +3066,23 @@ pub(crate) fn write_receipt(
         Some(prev) => match prev.record.verify_chain().map_err(|e| {
             AppError::fm_chain(9, format!("previous receipt chain recompute failed: {e}"))
         })? {
+            ChainVerification::Verified(ChainStanding::LegacyV2Unbound) => {
+                // Never extend a downgraded head: a legacy head after a
+                // declared record is exactly what `receipt history` refuses.
+                if let Some(first) = first_declared_chain_rule_in_log(&log_path, 9)? {
+                    return Err(AppError::fm_chain(
+                        9,
+                        format!(
+                            "previous receipt head is invalid: chain-rule downgrade -- the head \
+                             verifies only as `{}` but receipt log record {first} declared a \
+                             chain rule. Refusing to extend a downgraded chain. Remediation: run \
+                             `ggen receipt history` and restore the receipts.",
+                            ChainStanding::LegacyV2Unbound.as_str()
+                        ),
+                    ));
+                }
+                Some(ChainStanding::LegacyV2Unbound)
+            }
             ChainVerification::Verified(standing) => Some(standing),
             ChainVerification::Mismatch { rule, recomputed } => {
                 return Err(AppError::fm_chain(
