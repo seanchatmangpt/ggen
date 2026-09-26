@@ -1,0 +1,56 @@
+name: ABB/SBB Manufacture Kernel
+
+# RFC docs/rfc/v26.9.26/abb-sbb-implementation.md. crates/ggen-abb-sbb is an independent
+# workspace root (like crates/ggen-architecture), so the root CI's `cargo --workspace`
+# lanes do not execute it; this workflow is its court. Read-only: authority NONE.
+on:
+  pull_request:
+    paths:
+      - 'crates/ggen-abb-sbb/**'
+      - 'docs/rfc/v26.9.26/abb-sbb-implementation.md'
+      - '.github/workflows/abb-sbb-manufacture.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'crates/ggen-abb-sbb/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: abb-sbb-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  kernel:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - name: Provision pinned Rust toolchain
+        uses: ./.github/actions/setup-ggen-build
+      - name: Enforce pinned rustfmt bytes
+        run: cargo fmt --manifest-path crates/ggen-abb-sbb/Cargo.toml --check
+      - name: Enforce warning-free kernel
+        run: cargo clippy --locked --manifest-path crates/ggen-abb-sbb/Cargo.toml --all-targets -- -D warnings
+      - name: Positive witnesses, falsifiers and regression bounds
+        # --no-fail-fast: one failing test binary must not hide the verdicts of the others.
+        run: cargo test --locked --no-fail-fast --manifest-path crates/ggen-abb-sbb/Cargo.toml --all-targets
+      - name: Sealed admission (compile_fail doctests) and doc positive controls
+        run: cargo test --locked --manifest-path crates/ggen-abb-sbb/Cargo.toml --doc
+      - name: Fixture is a projection of its generator
+        run: |
+          set -euo pipefail
+          cargo run --locked -q --manifest-path crates/ggen-abb-sbb/Cargo.toml --example emit_fixture > "$RUNNER_TEMP/ea-graph.json"
+          cmp "$RUNNER_TEMP/ea-graph.json" crates/ggen-abb-sbb/fixtures/ea-graph.json
+      - name: Kernel has no actuation imports
+        run: |
+          ! grep -RnE 'std::process|std::fs|std::net|Command::new|TcpStream|UdpSocket' crates/ggen-abb-sbb/src
+      - name: No interaction mocks
+        run: |
+          ! grep -RnE 'unittest.mock|Mock\(|MagicMock|patch\(|monkeypatch|mockall' crates/ggen-abb-sbb

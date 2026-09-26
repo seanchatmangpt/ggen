@@ -1,0 +1,10 @@
+{
+  "schema": "ggen.abb-sbb.marketplace-source.v1",
+  "repository": "seanchatmangpt/ggen-marketplace",
+  "pull_request": 506,
+  "branch": "feat/v26.9.26-abb-sbb-rfc-seed",
+  "head": "19b714ce750e9f512e7e115d2d3b7d1853d07bee",
+  "path": "packs/enterprise-architecture-pack/fixtures/ea-graph.json",
+  "git_blob_sha": "dce7518e8a1e22f3864a5f957b3fe6809f27df02",
+  "authority": "NONE"
+}

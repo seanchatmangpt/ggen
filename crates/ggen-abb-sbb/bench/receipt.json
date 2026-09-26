@@ -1,0 +1,157 @@
+{
+  "schema": "ggen.abb-sbb.bench-receipt.v1",
+  "subject": {
+    "repository": "seanchatmangpt/ggen",
+    "pr": 753,
+    "parent": "dfee4a8c5cdb4433ff888bb1ed51a3324bbb97d7",
+    "crate": "crates/ggen-abb-sbb",
+    "note": "measured on the tree of measured_commit (the child of parent; a commit cannot contain its own sha, so the subject sha is recorded out of subject by a later commit). Later commits that change src/ are not re-measured here: the #753 round-3 repair adds one thread-local counter increment per graph digest (load average 262 at repair time, criterion numbers would be noise); tests/bench_bound.rs re-witnesses the ratio bounds and the one-digest-per-admission property on every tree",
+    "measured_commit": "71948f90015714750e7d90aaa7da3710d5e5e800",
+    "measured_src_tree": "711944518e5b252532fafa5b3d91b7ad4df4bd12",
+    "measured_src_lib_rs_sha256": "925955850684d6548585a407ce4ecec6874ad5fa519e8c70bc283cd0399ad5d8"
+  },
+  "command": "cargo bench --offline --manifest-path crates/ggen-abb-sbb/Cargo.toml --bench manufacture -- --warm-up-time 1 --measurement-time 3 --noplot",
+  "host": {
+    "cpu": "Apple M3 Max",
+    "toolchain": "rustc 1.98.0-nightly (91fe22da8 2026-06-21)",
+    "load_average_1m": 125.65,
+    "note": "contended host; absolute numbers are upper-biased, ratios are the regression signal"
+  },
+  "fixture": "synthetic_graph(n_sbbs, n_artifacts), labels NxM",
+  "results": {
+    "admit/16x16": {
+      "median_us": 461.5,
+      "ci95_us": [
+        449.9,
+        469.4
+      ]
+    },
+    "admit/2x3": {
+      "median_us": 40.8,
+      "ci95_us": [
+        40.4,
+        41.4
+      ]
+    },
+    "admit/64x64": {
+      "median_us": 5804.3,
+      "ci95_us": [
+        5692.6,
+        5890.8
+      ]
+    },
+    "graph_digest/16x16": {
+      "median_us": 391.0,
+      "ci95_us": [
+        387.9,
+        394.1
+      ]
+    },
+    "graph_digest/2x3": {
+      "median_us": 26.4,
+      "ci95_us": [
+        25.9,
+        27.3
+      ]
+    },
+    "graph_digest/64x64": {
+      "median_us": 5259.6,
+      "ci95_us": [
+        5195.9,
+        5307.1
+      ]
+    },
+    "manufacture/16x16": {
+      "median_us": 119.0,
+      "ci95_us": [
+        116.5,
+        121.3
+      ]
+    },
+    "manufacture/2x3": {
+      "median_us": 33.4,
+      "ci95_us": [
+        32.7,
+        36.2
+      ]
+    },
+    "manufacture/64x64": {
+      "median_us": 546.9,
+      "ci95_us": [
+        510.2,
+        590.1
+      ]
+    },
+    "plan/16x16": {
+      "median_us": 451.9,
+      "ci95_us": [
+        440.8,
+        458.4
+      ]
+    },
+    "plan/2x3": {
+      "median_us": 40.4,
+      "ci95_us": [
+        40.1,
+        40.6
+      ]
+    },
+    "plan/64x64": {
+      "median_us": 6233.4,
+      "ci95_us": [
+        5761.1,
+        6951.5
+      ]
+    },
+    "replay/16x16": {
+      "median_us": 589.5,
+      "ci95_us": [
+        574.5,
+        597.6
+      ]
+    },
+    "replay/2x3": {
+      "median_us": 84.4,
+      "ci95_us": [
+        83.0,
+        86.1
+      ]
+    },
+    "replay/64x64": {
+      "median_us": 6732.5,
+      "ci95_us": [
+        6547.3,
+        6880.0
+      ]
+    }
+  },
+  "before_single_digest_fix": {
+    "admit/64x64": {
+      "median_us": 11569.6
+    },
+    "replay/64x64": {
+      "median_us": 12301.5
+    },
+    "graph_digest/64x64": {
+      "median_us": 5605.6
+    }
+  },
+  "observed_ratios": {
+    "admit_over_digest_64x64": 1.104,
+    "admit_over_digest_64x64_before_fix": 2.064,
+    "manufacture_64x64_over_16x16": 4.596
+  },
+  "bounds": {
+    "max_admit_over_digest": 1.6,
+    "max_manufacture_64_over_16": 8.0,
+    "max_admit_64x64_ms": 2000,
+    "enforced_by": "crates/ggen-abb-sbb/tests/bench_bound.rs"
+  },
+  "authority": "NONE",
+  "previous_receipt": {
+    "parent": "4e8def21297fd028ab864e2a5f19aef55a17bed4",
+    "admit_over_digest_64x64": 1.044,
+    "manufacture_64x64_over_16x16": 3.87,
+    "load_average_1m": 142.0
+  }
+}
