@@ -1,0 +1,3 @@
+{% for row in sparql_results -%}
+{{ row | json_encode() }}
+{% endfor -%}
