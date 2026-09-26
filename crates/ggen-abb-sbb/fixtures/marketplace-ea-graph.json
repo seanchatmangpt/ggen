@@ -1,0 +1,113 @@
+{
+  "schema": "ggen.ea.graph.v1",
+  "strategy": {
+    "id": "strategy:real-time-ops",
+    "title": "Real-time operations"
+  },
+  "capabilities": [
+    {
+      "id": "cap:event-ingest",
+      "strategy": "strategy:real-time-ops"
+    }
+  ],
+  "abbs": [
+    {
+      "id": "abb:event-ingest",
+      "capability": "cap:event-ingest",
+      "contract": "contract:ingest"
+    }
+  ],
+  "contracts": [
+    {
+      "id": "contract:ingest",
+      "abb": "abb:event-ingest",
+      "version": "1.0.0",
+      "max_artifacts": 3,
+      "authority_ceiling": "CONSTRUCT",
+      "required_ports": [
+        "port:events-in",
+        "port:receipts-out"
+      ]
+    }
+  ],
+  "candidate_sbbs": [
+    {
+      "id": "sbb:ingest-0000",
+      "abb": "abb:event-ingest",
+      "pack": "pack:ingest-0000",
+      "digest": "sha256:70e6782cb595b2868f61919b848ac161fd2e2ea67cb8f1b5a17475d59d2f0930",
+      "mutable": false,
+      "authority": "CONSTRUCT",
+      "provides_ports": [
+        "port:events-in",
+        "port:receipts-out"
+      ],
+      "artifacts": [
+        {
+          "path": "gen/0000/module_0000.rs",
+          "template": "// abb {{abb}} realized by {{sbb}} for {{capability}}\npub const CONTRACT: &str = \"{{contract}}@{{contract_version}}\";\n"
+        },
+        {
+          "path": "gen/0000/module_0001.rs",
+          "template": "// abb {{abb}} realized by {{sbb}} for {{capability}}\npub const CONTRACT: &str = \"{{contract}}@{{contract_version}}\";\n"
+        },
+        {
+          "path": "gen/0000/module_0002.rs",
+          "template": "// abb {{abb}} realized by {{sbb}} for {{capability}}\npub const CONTRACT: &str = \"{{contract}}@{{contract_version}}\";\n"
+        }
+      ]
+    },
+    {
+      "id": "sbb:ingest-0001",
+      "abb": "abb:event-ingest",
+      "pack": "pack:ingest-0001",
+      "digest": "sha256:c39b7f9e68a36050bb5da7c0f0ca7188e54239abbfab3f59885e2481218f1f78",
+      "mutable": false,
+      "authority": "CONSTRUCT",
+      "provides_ports": [
+        "port:events-in",
+        "port:receipts-out"
+      ],
+      "artifacts": [
+        {
+          "path": "gen/0001/module_0000.rs",
+          "template": "// abb {{abb}} realized by {{sbb}} for {{capability}}\npub const CONTRACT: &str = \"{{contract}}@{{contract_version}}\";\n"
+        },
+        {
+          "path": "gen/0001/module_0001.rs",
+          "template": "// abb {{abb}} realized by {{sbb}} for {{capability}}\npub const CONTRACT: &str = \"{{contract}}@{{contract_version}}\";\n"
+        },
+        {
+          "path": "gen/0001/module_0002.rs",
+          "template": "// abb {{abb}} realized by {{sbb}} for {{capability}}\npub const CONTRACT: &str = \"{{contract}}@{{contract_version}}\";\n"
+        }
+      ]
+    }
+  ],
+  "qualifications": [
+    {
+      "id": "qual:ingest-0000",
+      "sbb": "sbb:ingest-0000",
+      "sbb_digest": "sha256:70e6782cb595b2868f61919b848ac161fd2e2ea67cb8f1b5a17475d59d2f0930",
+      "contract": "contract:ingest",
+      "contract_digest": "sha256:e107ace33101539d8aac875844b63d488395e35ba572e009bc3a7b603dbf5fdf",
+      "verdict": "QUALIFIED"
+    },
+    {
+      "id": "qual:ingest-0001",
+      "sbb": "sbb:ingest-0001",
+      "sbb_digest": "sha256:c39b7f9e68a36050bb5da7c0f0ca7188e54239abbfab3f59885e2481218f1f78",
+      "contract": "contract:ingest",
+      "contract_digest": "sha256:e107ace33101539d8aac875844b63d488395e35ba572e009bc3a7b603dbf5fdf",
+      "verdict": "QUALIFIED"
+    }
+  ],
+  "packs": [
+    {
+      "id": "pack:ingest-0000"
+    },
+    {
+      "id": "pack:ingest-0001"
+    }
+  ]
+}
