@@ -1,0 +1,147 @@
+{
+  "schema": "ggen.abb-sbb.bench-receipt.v1",
+  "subject": {
+    "repository": "seanchatmangpt/ggen",
+    "pr": 753,
+    "parent": "4e8def21297fd028ab864e2a5f19aef55a17bed4",
+    "crate": "crates/ggen-abb-sbb"
+  },
+  "command": "cargo bench --offline --manifest-path crates/ggen-abb-sbb/Cargo.toml --bench manufacture -- --warm-up-time 1 --measurement-time 3",
+  "host": {
+    "cpu": "Apple M3 Max",
+    "toolchain": "rustc 1.98.0-nightly (91fe22da8 2026-06-21)",
+    "load_average_1m": 142.0,
+    "note": "contended host; absolute numbers are upper-biased, ratios are the regression signal"
+  },
+  "fixture": "synthetic_graph(n_sbbs, n_artifacts), labels NxM",
+  "results": {
+    "admit/16x16": {
+      "median_us": 414.8,
+      "ci95_us": [
+        411.9,
+        418.6
+      ]
+    },
+    "admit/2x3": {
+      "median_us": 42.3,
+      "ci95_us": [
+        41.3,
+        42.7
+      ]
+    },
+    "admit/64x64": {
+      "median_us": 5666.3,
+      "ci95_us": [
+        5560.4,
+        5728.3
+      ]
+    },
+    "graph_digest/16x16": {
+      "median_us": 380.6,
+      "ci95_us": [
+        378.6,
+        382.4
+      ]
+    },
+    "graph_digest/2x3": {
+      "median_us": 27.3,
+      "ci95_us": [
+        26.8,
+        27.8
+      ]
+    },
+    "graph_digest/64x64": {
+      "median_us": 5425.2,
+      "ci95_us": [
+        5362.5,
+        5452.2
+      ]
+    },
+    "manufacture/16x16": {
+      "median_us": 118.9,
+      "ci95_us": [
+        116.8,
+        122.0
+      ]
+    },
+    "manufacture/2x3": {
+      "median_us": 31.6,
+      "ci95_us": [
+        31.2,
+        31.8
+      ]
+    },
+    "manufacture/64x64": {
+      "median_us": 460.2,
+      "ci95_us": [
+        451.8,
+        472.8
+      ]
+    },
+    "plan/16x16": {
+      "median_us": 436.2,
+      "ci95_us": [
+        427.6,
+        446.6
+      ]
+    },
+    "plan/2x3": {
+      "median_us": 41.5,
+      "ci95_us": [
+        41.0,
+        41.9
+      ]
+    },
+    "plan/64x64": {
+      "median_us": 5607.9,
+      "ci95_us": [
+        5544.0,
+        5707.8
+      ]
+    },
+    "replay/16x16": {
+      "median_us": 602.1,
+      "ci95_us": [
+        591.9,
+        609.1
+      ]
+    },
+    "replay/2x3": {
+      "median_us": 82.9,
+      "ci95_us": [
+        80.9,
+        85.2
+      ]
+    },
+    "replay/64x64": {
+      "median_us": 6272.6,
+      "ci95_us": [
+        6186.1,
+        6325.3
+      ]
+    }
+  },
+  "before_single_digest_fix": {
+    "admit/64x64": {
+      "median_us": 11569.6
+    },
+    "replay/64x64": {
+      "median_us": 12301.5
+    },
+    "graph_digest/64x64": {
+      "median_us": 5605.6
+    }
+  },
+  "observed_ratios": {
+    "admit_over_digest_64x64": 1.044,
+    "admit_over_digest_64x64_before_fix": 2.064,
+    "manufacture_64x64_over_16x16": 3.87
+  },
+  "bounds": {
+    "max_admit_over_digest": 1.6,
+    "max_manufacture_64_over_16": 8.0,
+    "max_admit_64x64_ms": 2000,
+    "enforced_by": "crates/ggen-abb-sbb/tests/bench_bound.rs"
+  },
+  "authority": "NONE"
+}
