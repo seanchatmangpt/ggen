@@ -261,8 +261,12 @@ impl ReceiptLike for crate::receipt_record::ReceiptRecord {
         crate::receipt_record::ReceiptRecord::chain_hash(self)
     }
 
+    /// Verifier-side recompute: rule-aware (FM-CHAIN-009), so a pre-F1
+    /// base-sealed record is checked under the rule that sealed it instead
+    /// of being reported as tampered. Never accepts a hash
+    /// [`crate::receipt_record::ReceiptRecord::verify_chain`] refuses.
     fn recompute_chain_hash(&self) -> Result<[u8; 32], CoreError> {
-        crate::receipt_record::ReceiptRecord::recompute_chain_hash(self)
+        crate::receipt_record::ReceiptRecord::recompute_chain_hash_lawful(self)
     }
 }
 

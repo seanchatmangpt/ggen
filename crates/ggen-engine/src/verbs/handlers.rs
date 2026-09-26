@@ -565,13 +565,24 @@ pub fn handle_receipt_verify_in(root: &std::path::Path) -> Result<serde_json::Va
 /// A missing or empty log, any malformed line, or the first broken link
 /// (named by zero-based index and failed check) exits non-zero — fail
 /// closed, never a cheerful `valid: false`.
+pub fn handle_receipt_history() -> Result<serde_json::Value> {
+    let root = project_root()?;
+    handle_receipt_history_in(&root)
+}
+
+/// [`handle_receipt_history`] against an explicit project root (same
+/// reason as [`handle_receipt_verify_in`]: in-process callers and tests
+/// must exercise the exact verifier without depending on the process cwd
+/// or on a separately built `ggen` binary being current).
+///
+/// # Errors
+/// Same as [`handle_receipt_history`].
 // One linear chain-verification loop (payload hash, chain-hash recompute,
 // prev-link check per record); splitting it would scatter one sequential
 // per-record check across call boundaries rather than shrink real
 // complexity.
 #[allow(clippy::too_many_lines)]
-pub fn handle_receipt_history() -> Result<serde_json::Value> {
-    let root = project_root()?;
+pub fn handle_receipt_history_in(root: &std::path::Path) -> Result<serde_json::Value> {
     let log_path = root.join(RECEIPT_LOG_REL_PATH);
     let raw = std::fs::read_to_string(&log_path).map_err(|e| {
         exec_err(AppError::fm_chain(
@@ -620,6 +631,9 @@ pub fn handle_receipt_history() -> Result<serde_json::Value> {
     // Records that verify only under the pre-F1 base rule (their `v2`
     // payload is outside their chain hash); reported, never hidden.
     let mut legacy_v2_unbound = 0usize;
+    // Chain-rule downgrade guard: a legacy base-rule record is lawful only
+    // in the pre-F1 prefix, never after a record that declared its rule.
+    let mut rule_monotonicity = praxis_core::receipt_record::ChainRuleMonotonicity::new();
     for (idx, (receipt, line)) in receipts.iter().enumerate() {
         // 0. Schema version: refuse a record whose schema this binary
         //    doesn't know how to interpret before trusting any hash it
@@ -657,6 +671,14 @@ pub fn handle_receipt_history() -> Result<serde_json::Value> {
             ))
         })? {
             praxis_core::receipt_record::ChainVerification::Verified(standing) => {
+                rule_monotonicity
+                    .observe(idx, &receipt.record, standing)
+                    .map_err(|e| {
+                        exec_err(AppError::fm_chain(
+                            7,
+                            format!("history invalid at index {idx}: {e}"),
+                        ))
+                    })?;
                 if standing == praxis_core::receipt_record::ChainStanding::LegacyV2Unbound {
                     legacy_v2_unbound += 1;
                 }

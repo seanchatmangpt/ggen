@@ -1020,3 +1020,82 @@ fn legacy_head_v2_payload_is_never_consumed_as_bound_evidence() {
         .assert_success()
         .assert_stdout_json_field("legacy_v2_unbound_records", "1");
 }
+
+// ---------------------------------------------------------------------------
+// PR #752 hardening: chain-rule downgrade and duplicate delivery at the CLI
+// boundary. Real syncs, real files, real `ggen receipt history`.
+// ---------------------------------------------------------------------------
+
+/// Downgrade attack: after declared fold records exist, the head is
+/// re-sealed under the undeclared base rule with a forged v2 payload. In
+/// isolation it looks like a pre-F1 record (`LegacyV2Unbound`), so before the
+/// monotonicity guard `receipt history` counted it as legacy and passed.
+/// It must be refused, naming the index.
+#[test]
+fn history_refuses_a_legacy_record_after_a_declared_one() {
+    use praxis_core::receipt_record::{ChainStanding, ChainVerification};
+
+    let dir = TempDir::new().expect("tempdir");
+    scaffold(dir.path(), &["alice"]);
+    sync_now(dir.path()).expect("sync 1");
+    write_ontology(dir.path(), &["alice", "bob"]);
+    sync_now(dir.path()).expect("sync 2");
+    assert!(read_log(dir.path())[0].record.chain_rule.is_some());
+
+    edit_tail(dir.path(), |tail| {
+        tail["record"]["v2"]["standing_ceiling"] = serde_json::json!("Green");
+    });
+    make_tail_legacy_base_sealed(dir.path());
+    assert_eq!(
+        tail_record(dir.path()).verify_chain().expect("verify"),
+        ChainVerification::Verified(ChainStanding::LegacyV2Unbound),
+        "the forged head is indistinguishable from a pre-F1 record in isolation"
+    );
+
+    // In-process: the exact verifier compiled with this test (never a stale
+    // binary resolved from target/ or PATH).
+    let err = ggen_engine::verbs::handlers::handle_receipt_history_in(dir.path())
+        .expect_err("history must refuse the downgrade")
+        .to_string();
+    assert!(err.contains("index 1"), "{err}");
+    assert!(err.contains("chain-rule downgrade"), "{err}");
+    assert!(err.contains("FM-CHAIN-007"), "{err}");
+
+    let _ = CliHarness::cargo_bin("ggen")
+        .args(["receipt", "history"])
+        .current_dir(dir.path())
+        .run()
+        .expect("history")
+        .assert_failure()
+        .assert_stderr_contains("index 1")
+        .assert_stderr_contains("chain-rule downgrade");
+}
+
+/// Duplicate delivery: the same (valid) tail record appended twice breaks
+/// adjacency and fails closed.
+#[test]
+fn history_refuses_a_duplicated_record() {
+    let dir = TempDir::new().expect("tempdir");
+    scaffold(dir.path(), &["alice"]);
+    sync_now(dir.path()).expect("sync 1");
+    write_ontology(dir.path(), &["alice", "bob"]);
+    sync_now(dir.path()).expect("sync 2");
+    let log_path = dir.path().join(RECEIPT_LOG_REL_PATH);
+    let raw = std::fs::read_to_string(&log_path).expect("read log");
+    let last = raw
+        .lines()
+        .rfind(|l| !l.trim().is_empty())
+        .expect("tail")
+        .to_string();
+    std::fs::write(&log_path, format!("{raw}{last}\n")).expect("append duplicate");
+    assert!(
+        ggen_engine::verbs::handlers::handle_receipt_history_in(dir.path()).is_err(),
+        "in-process history must refuse the duplicate"
+    );
+    let _ = CliHarness::cargo_bin("ggen")
+        .args(["receipt", "history"])
+        .current_dir(dir.path())
+        .run()
+        .expect("history")
+        .assert_failure();
+}

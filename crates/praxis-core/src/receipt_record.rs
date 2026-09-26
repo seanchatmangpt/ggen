@@ -346,7 +346,18 @@ impl ReceiptRecord {
     /// payload that fails to serialize. A hash that matches no lawful rule
     /// is not an error but [`ChainVerification::Mismatch`].
     pub fn verify_chain(&self) -> Result<ChainVerification, CoreError> {
-        let stored = self.chain_hash()?;
+        self.verify_chain_against(self.chain_hash()?)
+    }
+
+    /// [`Self::verify_chain`] against an already-decoded stored chain hash
+    /// (`stored` must be [`Self::chain_hash`]); lets a verifier that has
+    /// decoded [`Self::chain_hash_hex`] for its own format stage avoid a
+    /// second decode per record.
+    ///
+    /// # Errors
+    /// Malformed payload/prev hex fields, an invalid [`Self::chain_rule`],
+    /// or a `v2` payload that fails to serialize.
+    pub fn verify_chain_against(&self, stored: [u8; 32]) -> Result<ChainVerification, CoreError> {
         if let Some(rule) = self.declared_chain_rule()? {
             let recomputed = self.recompute_chain_hash_under(rule)?;
             return Ok(if recomputed == stored {
@@ -355,17 +366,98 @@ impl ReceiptRecord {
                 ChainVerification::Mismatch { rule, recomputed }
             });
         }
-        let fold = self.recompute_chain_hash_under(ChainRule::V2Fold)?;
+        // The fold rule is the base frame hash with `schema` + `v2` folded
+        // in, so the base hash is computed once and shared by both rules
+        // (the legacy path costs one fold, not a second full frame
+        // recompute; see tests/chain_rule_hardening.rs bench bound).
+        let base = self.recompute_chain_hash_under(ChainRule::Base)?;
+        let fold = fold_in_v2_epoch(base, &self.schema, self.v2.as_ref())?;
         if fold == stored {
             return Ok(ChainVerification::Verified(ChainStanding::FullyBound));
         }
-        if self.v2.is_some() && self.recompute_chain_hash_under(ChainRule::Base)? == stored {
+        if self.v2.is_some() && base == stored {
             return Ok(ChainVerification::Verified(ChainStanding::LegacyV2Unbound));
         }
         Ok(ChainVerification::Mismatch {
             rule: ChainRule::V2Fold,
             recomputed: fold,
         })
+    }
+
+    /// Recompute the chain hash under the rule [`Self::verify_chain`] would
+    /// govern this record by: the declared rule; else [`ChainRule::V2Fold`]
+    /// when it reproduces the stored hash; else [`ChainRule::Base`] when the
+    /// record carries `v2` and the base rule reproduces the stored hash (the
+    /// capped legacy case); else the [`ChainRule::V2Fold`] recompute (which
+    /// then mismatches the stored hash, i.e. tamper detected).
+    ///
+    /// This is the recompute every *verifier* of stored records must use
+    /// (`receipt_validator`, `verify::chain_integrity`); emission paths use
+    /// the strict [`Self::recompute_chain_hash`]. It never accepts a hash the
+    /// rule-aware [`Self::verify_chain`] would refuse.
+    ///
+    /// # Errors
+    /// Same as [`Self::verify_chain`].
+    pub fn recompute_chain_hash_lawful(&self) -> Result<[u8; 32], CoreError> {
+        match self.verify_chain()? {
+            ChainVerification::Verified(_) => self.chain_hash(),
+            ChainVerification::Mismatch { recomputed, .. } => Ok(recomputed),
+        }
+    }
+}
+
+/// Chain-rule monotonicity over an ordered ledger (downgrade guard).
+///
+/// A record that verifies only as [`ChainStanding::LegacyV2Unbound`] is
+/// lawful only in the pre-F1 prefix of a chain. Once any record has
+/// declared a chain rule (every writer since the discriminator existed
+/// does), a later record that verifies only under the undeclared base rule
+/// is a downgrade: it re-opens the F1 hole for its `v2` payload (e.g. an
+/// attacker re-sealing a fold-sealed head under the base rule and stripping
+/// its declaration so a forged payload still verifies). Such a record is
+/// refused, never counted as legacy.
+///
+/// Feed records in ledger order via [`Self::observe`].
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
+pub struct ChainRuleMonotonicity {
+    first_declared: Option<usize>,
+}
+
+impl ChainRuleMonotonicity {
+    /// A fresh tracker (no record observed yet).
+    #[must_use]
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    /// Index of the first record that declared a chain rule, if any.
+    #[must_use]
+    pub fn first_declared(&self) -> Option<usize> {
+        self.first_declared
+    }
+
+    /// Observe record `idx` (ledger order) with its verified `standing`.
+    ///
+    /// # Errors
+    /// [`CoreError::ReceiptChainRuleInvalid`] when a
+    /// [`ChainStanding::LegacyV2Unbound`] record follows a record that
+    /// declared a chain rule.
+    pub fn observe(
+        &mut self, idx: usize, record: &ReceiptRecord, standing: ChainStanding,
+    ) -> Result<(), CoreError> {
+        if standing == ChainStanding::LegacyV2Unbound {
+            if let Some(first) = self.first_declared {
+                return Err(CoreError::ReceiptChainRuleInvalid(format!(
+                    "chain-rule downgrade: record {idx} verifies only as `{}` after record \
+                     {first} declared a chain rule",
+                    ChainStanding::LegacyV2Unbound.as_str()
+                )));
+            }
+        }
+        if record.chain_rule.is_some() && self.first_declared.is_none() {
+            self.first_declared = Some(idx);
+        }
+        Ok(())
     }
 }
 
