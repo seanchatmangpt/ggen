@@ -1,0 +1,10 @@
+PREFIX cs2: <https://chatman.ai/cs2#>
+SELECT ?consumer ?work_id ?projection
+WHERE {
+  cs2:CS2-WRK-002 cs2:implements cs2:RFC-CS2-001 ;
+                      cs2:consumer ?consumer .
+  ?consumer a cs2:Consumer ;
+            cs2:workId ?work_id ;
+            cs2:expectedProjection ?projection .
+}
+ORDER BY STR(?consumer) STR(?work_id)
