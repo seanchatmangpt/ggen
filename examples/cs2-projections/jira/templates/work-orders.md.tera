@@ -1,0 +1,13 @@
+# CS2 semantic work orders
+
+Generated from the exact RFC-CS2-001 subject. This projection carries work data; it does not grant execution authority.
+
+{% for row in sparql_results -%}
+## {{ row["work_id"] }} — {{ row["summary"] }}
+
+- Priority: {{ row["priority"] }}
+- State: {{ row["state"] }}
+- Authority ceiling: {{ row["authority"] }}
+- Acceptance: {{ row["acceptance"] }}
+
+{% endfor -%}
