@@ -53,4 +53,8 @@ jobs:
           ! grep -RnE 'std::process|std::fs|std::net|Command::new|TcpStream|UdpSocket' crates/ggen-abb-sbb/src
       - name: No interaction mocks
         run: |
-          ! grep -RnE 'unittest.mock|Mock\(|MagicMock|patch\(|monkeypatch|mockall' crates/ggen-abb-sbb
+          # Text sources only: restored rust-cache build artifacts under target/ are
+          # dependency binaries whose byte streams can alias the pattern (witnessed
+          # firing 2026-09-26: libregex_automata-*.rmeta matched 'patch\('); the gate's
+          # subject is kernel source, so exclude target/ and binary files.
+          ! grep -RnE --binary-files=without-match --exclude-dir=target 'unittest.mock|Mock\(|MagicMock|patch\(|monkeypatch|mockall' crates/ggen-abb-sbb

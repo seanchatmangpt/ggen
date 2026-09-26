@@ -6,5 +6,6 @@
   "head": "19b714ce750e9f512e7e115d2d3b7d1853d07bee",
   "path": "packs/enterprise-architecture-pack/fixtures/ea-graph.json",
   "git_blob_sha": "dce7518e8a1e22f3864a5f957b3fe6809f27df02",
+  "fixture_sha256": "1e7167ad397343d34e3aa8e657b8fbd73efec018d052b200e87ed0c265b3a0a0",
   "authority": "NONE"
 }

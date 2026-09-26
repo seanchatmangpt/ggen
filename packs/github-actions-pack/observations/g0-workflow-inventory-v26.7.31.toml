@@ -3,7 +3,7 @@ schema_version = 1
 repository = "seanchatmangpt/ggen"
 implementation_base_sha = "2364ccda8d1a38f14e314365583c99f3fb81357d"
 historical_inventory_sha = "f775fbb8b147ccdde2e2629df944552ffbfc6214"
-expected_workflow_count = 84
+expected_workflow_count = 85
 # Re-observed 2026-08-03 (TECH-DEBT-003 fix): the original 48-workflow snapshot below
 # (observation_date 2026-07-30) went stale as 28 more workflows merged to main via real,
 # separate PRs after that date (each has its own commit in `git log -- .github/workflows/`,
@@ -149,3 +149,11 @@ acceptance = "Retain until the reusable infrastructure profile preserves real-bo
 "validate-dteam-kernel.yml" = { owner = "dteam/kernel", purpose = "Compile, test, and demonstrate the standalone dteam capability kernel.", evidence = "uploaded execution-evidence artifact", output = "capability:validate-dteam-kernel", fence = "verification" }
 "validate-dteam-x64.yml" = { owner = "dteam/x64", purpose = "Type-check, test, and demo the exact dteam x64 capability.", evidence = "uploaded exact-head evidence artifact", output = "capability:validate-dteam-x64", fence = "verification" }
 "verify-v26-8-1-source-removal.yml" = { owner = "v26-8-1/source-removal", purpose = "Verify the v26.8.1 legacy source removal against the exact baseline and candidate branches.", evidence = "verify job logs", output = "capability:verify-v26-8-1-source-removal", fence = "verification" }
+
+# 85th entry (2026-09-26, PR #753 branch): abb-sbb-manufacture.yml is the ABB/SBB
+# manufacture kernel's own court (independent workspace root, like gall-001-replay's
+# admission, GGEN-26922-03); facts grounded in the file's own name:/on:/permissions:
+# (pull_request paths + push main + workflow_dispatch, contents: read) and job/step
+# surface (fmt, clippy -D warnings, falsifiers, sealed compile_fail doctests,
+# emit-fixture cmp, IO-free and no-mock gates).
+"abb-sbb-manufacture.yml" = { owner = "crates/ggen-abb-sbb", purpose = "Admit the ABB/SBB manufacture kernel on each changed head: pinned rustfmt bytes, warning-free clippy, positive witnesses plus falsifiers, sealed compile_fail doctests, fixture-is-a-projection-of-generator cmp, and IO-free/no-mock source gates (authority NONE, read-only).", evidence = "kernel job logs (fmt/clippy/test/doc/emit-fixture/gates)", output = "capability:ggen-abb-sbb-manufacture-kernel", fence = "verification" }
