@@ -896,3 +896,202 @@ mod tests {
         Ok(())
     }
 }
+
+#[cfg(test)]
+mod rewrite_tests {
+    use super::*;
+
+    fn graph(version: &str, authority: &str) -> Result<SpgGraph, SpgError> {
+        from_json(
+            format!(
+                r#"{{
+                  "schema":"chatman.spg.v1",
+                  "id":"spg:rewrite",
+                  "version":"{version}",
+                  "state":"CANDIDATE",
+                  "standing":"NONE",
+                  "nodes":[
+                    {{"id":"observe","class":"OBSERVE","capability":"cap.observe"}},
+                    {{"id":"select","class":"SELECT","capability":"cap.select"}},
+                    {{"id":"do","class":"DO","capability":"brce.do"}}
+                  ],
+                  "edges":[
+                    {{
+                      "id":"e1","from":"observe","to":"select","relation":"PROVIDES_INPUT_FOR",
+                      "guard":"observed","evidence_required":["observation"],
+                      "authority_required":"NONE","consequence":"observational",
+                      "receipt_required":false
+                    }},
+                    {{
+                      "id":"e2","from":"select","to":"do","relation":"TRIGGERS",
+                      "guard":"admitted","evidence_required":["grant"],
+                      "authority_required":"{authority}","consequence":"consequential",
+                      "receipt_required":true,"falsifier":"unreceipted consequence"
+                    }}
+                  ],
+                  "projections":{{
+                    "brce":{{
+                      "observe":"event.observe",
+                      "select":"command.admit",
+                      "do":"command.do"
+                    }}
+                  }},
+                  "prior_art":[{{"disposition":"REUSE","source":"public"}}]
+                }}"#
+            )
+            .as_bytes(),
+        )
+    }
+
+    fn exact_subject(graph: &SpgGraph) -> Result<SpgExactSubject, SpgError> {
+        Ok(SpgExactSubject {
+            repository: "seanchatmangpt/ggen".to_owned(),
+            commit: "0123456789abcdef0123456789abcdef01234567".to_owned(),
+            graph_digest: graph_digest(graph)?,
+        })
+    }
+
+    #[test]
+    fn rewrite_replay_is_byte_identical_and_authority_inert() -> Result<(), SpgError> {
+        let old = graph("1", "BRCE_GRANT")?;
+        let mut new = graph("2", "OTHER_BRCE_GRANT")?;
+        new.nodes[1].capability = "cap.select.v2".to_owned();
+
+        let plan = plan_rewrite(&old, &new, exact_subject(&old)?)?;
+        assert!(plan.requires_requalification);
+        assert!(!plan.grants_do_authority);
+        assert_eq!(plan.standing, "NONE");
+        assert!(plan.operations.iter().any(|operation| matches!(
+            operation,
+            SpgRewriteOperation::ReplaceEdge { edge }
+                if edge.id == "e2" && edge.authority_required == "OTHER_BRCE_GRANT"
+        )));
+
+        let (target, receipt) = replay_rewrite(&old, &plan)?;
+        assert_eq!(canonical_graph_bytes(&target)?, canonical_graph_bytes(&new)?);
+        assert!(receipt.second_run_byte_identical);
+        assert_eq!(receipt.authority, "NONE");
+        assert_eq!(receipt.standing, "NONE");
+        Ok(())
+    }
+
+    #[test]
+    fn canonical_digest_is_invariant_to_node_and_edge_vector_order() -> Result<(), SpgError> {
+        let left = graph("1", "BRCE_GRANT")?;
+        let mut right = left.clone();
+        right.nodes.reverse();
+        right.edges.reverse();
+        assert_eq!(graph_digest(&left)?, graph_digest(&right)?);
+        assert_eq!(canonical_graph_bytes(&left)?, canonical_graph_bytes(&right)?);
+        Ok(())
+    }
+
+    #[test]
+    fn mutable_git_ref_cannot_become_rewrite_subject() -> Result<(), SpgError> {
+        let old = graph("1", "BRCE_GRANT")?;
+        let new = graph("2", "BRCE_GRANT")?;
+        let result = plan_rewrite(
+            &old,
+            &new,
+            SpgExactSubject {
+                repository: "seanchatmangpt/ggen".to_owned(),
+                commit: "main".to_owned(),
+                graph_digest: graph_digest(&old)?,
+            },
+        );
+        assert!(matches!(
+            result,
+            Err(SpgError::Refused(message))
+                if message.contains("SPG_SUBJECT_IMMUTABLE_COMMIT")
+        ));
+        Ok(())
+    }
+
+    #[test]
+    fn semantic_change_without_version_bump_fails_closed() -> Result<(), SpgError> {
+        let old = graph("1", "BRCE_GRANT")?;
+        let mut new = old.clone();
+        new.nodes[1].capability = "cap.changed".to_owned();
+
+        let result = plan_rewrite(&old, &new, exact_subject(&old)?);
+        assert!(matches!(
+            result,
+            Err(SpgError::Refused(message))
+                if message.contains("SPG_REWRITE_VERSION_NOT_BUMPED")
+        ));
+        Ok(())
+    }
+
+    #[test]
+    fn rewrite_cannot_launder_admission_state_or_standing() -> Result<(), SpgError> {
+        let old = graph("1", "BRCE_GRANT")?;
+        let mut admitted = graph("2", "BRCE_GRANT")?;
+        admitted.state = "ADMITTED".to_owned();
+        assert!(matches!(
+            plan_rewrite(&old, &admitted, exact_subject(&old)?),
+            Err(SpgError::Refused(message))
+                if message.contains("SPG_REWRITE_ADMISSION_STATE_CHANGE")
+        ));
+
+        let mut standing = graph("2", "BRCE_GRANT")?;
+        standing.standing = "PARTIAL_ALIVE".to_owned();
+        assert!(matches!(
+            plan_rewrite(&old, &standing, exact_subject(&old)?),
+            Err(SpgError::Refused(message))
+                if message.contains("SPG_REWRITE_STANDING_CHANGE")
+        ));
+        Ok(())
+    }
+
+    #[test]
+    fn replay_refuses_source_drift() -> Result<(), SpgError> {
+        let old = graph("1", "BRCE_GRANT")?;
+        let new = graph("2", "OTHER_BRCE_GRANT")?;
+        let plan = plan_rewrite(&old, &new, exact_subject(&old)?)?;
+
+        let mut drifted = old.clone();
+        drifted.nodes[0].capability = "cap.drifted".to_owned();
+        let result = apply_rewrite(&drifted, &plan);
+        assert!(matches!(
+            result,
+            Err(SpgError::Refused(message))
+                if message.contains("SPG_REWRITE_SOURCE_DIGEST_MISMATCH")
+        ));
+        Ok(())
+    }
+
+    #[test]
+    fn removal_plan_orders_edges_before_nodes() -> Result<(), SpgError> {
+        let old = graph("1", "BRCE_GRANT")?;
+        let mut new = old.clone();
+        new.version = "2".to_owned();
+        new.edges.retain(|edge| edge.id != "e1");
+        new.nodes.retain(|node| node.id != "observe");
+        new.projections
+            .get_mut("brce")
+            .expect("fixture has brce projection")
+            .remove("observe");
+
+        let plan = plan_rewrite(&old, &new, exact_subject(&old)?)?;
+        let remove_edge = plan
+            .operations
+            .iter()
+            .position(|operation| matches!(
+                operation,
+                SpgRewriteOperation::RemoveEdge { id } if id == "e1"
+            ))
+            .expect("edge removal exists");
+        let remove_node = plan
+            .operations
+            .iter()
+            .position(|operation| matches!(
+                operation,
+                SpgRewriteOperation::RemoveNode { id } if id == "observe"
+            ))
+            .expect("node removal exists");
+        assert!(remove_edge < remove_node);
+        assert_eq!(apply_rewrite(&old, &plan)?, normalized_graph(&new));
+        Ok(())
+    }
+}
+
