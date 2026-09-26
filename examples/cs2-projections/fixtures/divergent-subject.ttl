@@ -1,0 +1,17 @@
+@prefix cs2: <https://chatman.ai/cs2#> .
+
+cs2:RFC-CS2-999 a cs2:SemanticWorld ;
+  cs2:campaign "CS2-CHICAGO" ;
+  cs2:canonicalOwner "seanchatmangpt/chatman-ecosystem" ;
+  cs2:authorityCeiling cs2:CONSTRUCT ;
+  cs2:requiresExactSubject true ;
+  cs2:requiresProvenance true ;
+  cs2:requiresReceiptReplay true .
+
+cs2:CS2-WRK-DIVERGENT a cs2:Work ;
+  cs2:implements cs2:RFC-CS2-999 ;
+  cs2:consumer cs2:ggen-marketplace .
+
+cs2:ggen-marketplace a cs2:Consumer ;
+  cs2:workId "CS2-WRK-003" ;
+  cs2:expectedProjection "must not be minted for the divergent subject" .
