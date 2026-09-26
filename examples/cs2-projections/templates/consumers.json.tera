@@ -1,5 +1,4 @@
 {
-  "subject": "https://chatman.ai/cs2#RFC-CS2-001",
-  "authority_ceiling": "CONSTRUCT",
-  "consumers": {{ sparql_results | json_encode() }}
+  "projection_schema": "https://chatman.ai/cs2/projection/v1",
+  "rows": {{ sparql_results | json_encode() }}
 }
