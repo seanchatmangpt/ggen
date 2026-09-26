@@ -1,0 +1,16 @@
+PREFIX cs2: <https://chatman.ai/cs2#>
+
+SELECT ?subject ?authority ?work_id ?summary ?priority ?state ?acceptance
+WHERE {
+  VALUES ?subject { cs2:RFC-CS2-001 }
+  ?subject a cs2:SemanticWorld ; cs2:authorityCeiling ?authority_iri .
+  ?work a cs2:Work ;
+        cs2:implements ?subject ;
+        cs2:summary ?summary ;
+        cs2:priority ?priority ;
+        cs2:state ?state ;
+        cs2:acceptance ?acceptance .
+  BIND(REPLACE(STR(?authority_iri), "^.*[#/]", "") AS ?authority)
+  BIND(REPLACE(STR(?work), "^.*[#/]", "") AS ?work_id)
+}
+ORDER BY ?priority ?work_id
