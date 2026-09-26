@@ -117,7 +117,13 @@ members = [
 # going to sweep it in by accident). Listed here for the same reason `examples/7-agent-validation`
 # is: to make the "why isn't this one of the workspace's crates" answer discoverable in the one
 # file a reader would check first, not left to be re-derived from scratch.
-exclude = ["examples/7-agent-validation", "crates/ggen-architecture"]
+#
+# `crates/ggen-abb-sbb` (2026-09-26, RFC docs/rfc/v26.9.26/abb-sbb-implementation.md): excluded
+# for the same reason as `crates/ggen-architecture` -- it declares its own `[workspace]` and ships
+# its own `Cargo.lock`, so it is an independent workspace root that cannot be a member here. Its
+# court is `.github/workflows/abb-sbb-manufacture.yml`; no root member depends on it yet (seed
+# standing PARTIAL_ALIVE, not wired into ggen-cli/sync).
+exclude = ["examples/7-agent-validation", "crates/ggen-architecture", "crates/ggen-abb-sbb"]
 resolver = "2" # Use new resolver for better dependency resolution
 
 # Workspace-wide dependencies for version consistency
