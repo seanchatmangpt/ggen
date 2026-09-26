@@ -40,6 +40,8 @@ jobs:
         run: cargo clippy --locked --manifest-path crates/ggen-abb-sbb/Cargo.toml --all-targets -- -D warnings
       - name: Positive witnesses, falsifiers and regression bounds
         run: cargo test --locked --manifest-path crates/ggen-abb-sbb/Cargo.toml --all-targets
+      - name: Sealed admission (compile_fail doctests) and doc positive controls
+        run: cargo test --locked --manifest-path crates/ggen-abb-sbb/Cargo.toml --doc
       - name: Fixture is a projection of its generator
         run: |
           set -euo pipefail

@@ -23,15 +23,19 @@ Kernel: `crates/ggen-abb-sbb` (IO-free, authority NONE, ceiling CONSTRUCT). Cour
 
 | DoD | standing | falsifier (test name) |
 |---|---|---|
-| 1 | PARTIAL_ALIVE | `malformed_inputs_are_refused_with_typed_refusals`, `dangling_references_are_refused` (JSON projection of the EA graph; no RDF ingestion yet) |
-| 2 | ALIVE | `unknown_sbb_is_refused`, `sbb_with_unknown_identity_is_refused`, `mutable_sbb_is_refused`, `unqualified_sbb_is_refused`, `sbb_exceeding_artifact_ceiling_is_refused`, `sbb_authority_above_contract_ceiling_is_refused`, `unauthorized_do_request_is_refused` |
+| 1 | PARTIAL_ALIVE | `malformed_inputs_are_refused_with_typed_refusals`, `dangling_references_are_refused`, `sbb_realizing_a_nonexistent_abb_is_a_dangling_reference` (JSON projection of the EA graph; no RDF ingestion yet) |
+| 2 | ALIVE | `unknown_sbb_is_refused`, `sbb_with_unknown_identity_is_refused`, `mutable_sbb_is_refused`, `unqualified_sbb_is_refused`, `sbb_exceeding_artifact_ceiling_is_refused`, `sbb_authority_above_contract_ceiling_is_refused`, `contract_ceiling_of_do_is_clamped_to_construct`, `unauthorized_do_request_is_refused`, `admission_below_construct_is_refused`; `Admitted` is sealed (private fields, only `admit` constructs it; `compile_fail` doctests on `Admitted`), so `manufacture` cannot be applied to a hand-built or edited value |
 | 3, 4 | ALIVE | `qualified_sbb_manufactures_with_provenance_and_receipt` |
 | 5 | ALIVE | same; `tampered_receipt_is_refused` |
 | 6 | ALIVE | `second_run_is_byte_identical`, `element_reordering_does_not_change_digest_or_receipt` |
-| 7 | ALIVE | `plan_selects_lowest_admissible_candidate`, `plan_falls_back_to_manufacture_with_every_refusal_recorded` |
+| 7 | ALIVE | `plan_selects_lowest_admissible_candidate`, `plan_falls_back_to_manufacture_with_every_refusal_recorded`, `manufacture_decision_reports_only_ports_no_candidate_provides`; SELECT implies manufacturable (artifact paths and placeholders are checked at admission: `path_escape_is_refused`, `duplicate_artifact_path_is_refused`, `unbound_or_unterminated_placeholder_is_refused`) |
 | 8 | UNSUPPORTED | fixture is `synthetic_graph(2, 3)`, not the marketplace EA pack |
-| 9 | ALIVE | `pack_named_as_abb_or_sbb_is_refused` |
+| 9 | ALIVE | `pack_named_as_abb_or_sbb_is_refused`, `pack_colliding_with_any_element_id_is_refused_without_a_pack_list` (a pack id may not equal any element id, with or without a `packs` list) |
 | 10 | ALIVE | `stale_qualification_is_refused_after_sbb_changes`, `changed_architecture_contract_invalidates_qualification` |
+
+Standing of the whole seed: PARTIAL_ALIVE. The kernel has no consumer yet (nothing in
+ggen-cli, ggen-engine or sync calls it); it is an independent workspace root listed in the root
+`Cargo.toml` `exclude`, and DoD 8 is UNSUPPORTED.
 
 Benchmark: `cargo bench --manifest-path crates/ggen-abb-sbb/Cargo.toml`; recorded numbers
 in `crates/ggen-abb-sbb/bench/receipt.json`; regression bounds enforced by

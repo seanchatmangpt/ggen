@@ -149,6 +149,8 @@ pub enum Refusal {
     GraphDigestMismatch { expected: String, actual: String },
     #[error("AUTHORITY_EXCEEDED: requested {requested:?}, ceiling CONSTRUCT")]
     AuthorityExceeded { requested: Authority },
+    #[error("INSUFFICIENT_AUTHORITY: requested {admitted:?}, admission for manufacture requires CONSTRUCT")]
+    InsufficientAuthority { admitted: Authority },
     #[error("PACK_CONFLATION: {id}")]
     PackConflation { id: String },
     #[error("UNKNOWN_ABB: {id}")]
@@ -216,23 +218,96 @@ pub enum Decision {
     },
     Manufacture {
         abb: String,
+        /// Every port the contract requires.
+        required_ports: BTreeSet<String>,
+        /// Required ports that no candidate SBB of this ABB provides.
         missing_ports: BTreeSet<String>,
         refusals: Vec<Refusal>,
         authority: Authority,
     },
 }
 
+/// Output of [`admit`]. Sealed: fields are private and the only constructor is the
+/// admission gate, so `manufacture` (mu) is type-restricted to admitted input (O*).
+/// A hand-built or edited value cannot exist outside this crate:
+///
+/// ```compile_fail
+/// // Falsifier for the sealed constructor: forging an Admitted outside the crate fails
+/// // to compile (private fields), so mu cannot be applied to unadmitted input.
+/// let g = ggen_abb_sbb::synthetic_graph(1, 1);
+/// let forged = ggen_abb_sbb::Admitted {
+///     graph_digest: g.digest(),
+///     qualification: "qual:does-not-exist".into(),
+/// };
+/// ```
+///
+/// ```compile_fail
+/// // Falsifier: an admitted value cannot be edited in place either.
+/// let g = ggen_abb_sbb::synthetic_graph(1, 1);
+/// let req = ggen_abb_sbb::Request {
+///     abb: "abb:event-ingest".into(),
+///     sbb: "sbb:ingest-0000".into(),
+///     requested_authority: ggen_abb_sbb::Authority::Construct,
+///     expected_graph_digest: None,
+/// };
+/// let mut ad = ggen_abb_sbb::admit(&g, &req).unwrap();
+/// ad.qualification = "qual:does-not-exist".into();
+/// ```
+///
+/// ```
+/// // Positive control for the two compile_fail blocks above: the same setup compiles
+/// // and admits through the gate, so they fail only on the forgery itself.
+/// let g = ggen_abb_sbb::synthetic_graph(1, 1);
+/// let req = ggen_abb_sbb::Request {
+///     abb: "abb:event-ingest".into(),
+///     sbb: "sbb:ingest-0000".into(),
+///     requested_authority: ggen_abb_sbb::Authority::Construct,
+///     expected_graph_digest: None,
+/// };
+/// let ad = ggen_abb_sbb::admit(&g, &req).unwrap();
+/// assert_eq!(ad.qualification(), "qual:ingest-0000");
+/// ```
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Admitted {
-    pub graph_digest: String,
-    pub strategy: String,
-    pub capability: String,
-    pub abb: Abb,
-    pub contract: ArchitectureContract,
-    pub contract_digest: String,
-    pub sbb: CandidateSbb,
-    pub sbb_digest: String,
-    pub qualification: String,
+    graph_digest: String,
+    strategy: String,
+    capability: String,
+    abb: Abb,
+    contract: ArchitectureContract,
+    contract_digest: String,
+    sbb: CandidateSbb,
+    sbb_digest: String,
+    qualification: String,
+}
+
+impl Admitted {
+    pub fn graph_digest(&self) -> &str {
+        &self.graph_digest
+    }
+    pub fn strategy(&self) -> &str {
+        &self.strategy
+    }
+    pub fn capability(&self) -> &str {
+        &self.capability
+    }
+    pub fn abb(&self) -> &Abb {
+        &self.abb
+    }
+    pub fn contract(&self) -> &ArchitectureContract {
+        &self.contract
+    }
+    pub fn contract_digest(&self) -> &str {
+        &self.contract_digest
+    }
+    pub fn sbb(&self) -> &CandidateSbb {
+        &self.sbb
+    }
+    pub fn sbb_digest(&self) -> &str {
+        &self.sbb_digest
+    }
+    pub fn qualification(&self) -> &str {
+        &self.qualification
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -383,11 +458,17 @@ impl EaGraph {
             }
         }
         for s in &self.candidate_sbbs {
-            if s.pack == s.id || s.pack == s.abb || self.abbs.iter().any(|a| a.id == s.pack) {
+            // Pack is neither an ABB nor an SBB, nor any other element (RFC DoD 9): the
+            // pack id space is disjoint from every element id, whether or not the graph
+            // carries a `packs` list.
+            if s.pack.trim().is_empty() || seen.contains(s.pack.as_str()) {
                 return Err(Refusal::PackConflation { id: s.pack.clone() });
             }
             if !self.packs.is_empty() && !pack_ids.contains(s.pack.as_str()) {
                 return Err(dangling(&s.id, &s.pack));
+            }
+            if !self.abbs.iter().any(|a| a.id == s.abb) {
+                return Err(dangling(&s.id, &s.abb));
             }
         }
         for q in &self.qualifications {
@@ -525,6 +606,18 @@ fn admit_sbb(
         .iter()
         .find(|c| c.id == abb.capability)
         .expect("validated reference");
+    // Admission implies manufacturability: every artifact path is safe and unique and
+    // every template placeholder binds, so SELECT never names an SBB mu would refuse.
+    let mut paths = BTreeSet::new();
+    for spec in &sbb.artifacts {
+        check_path(&spec.path)?;
+        if !paths.insert(spec.path.as_str()) {
+            return Err(Refusal::DuplicateArtifactPath {
+                path: spec.path.clone(),
+            });
+        }
+        check_template(&spec.template, &spec.path)?;
+    }
     Ok(Admitted {
         graph_digest: graph_digest.to_string(),
         strategy: g.strategy.id.clone(),
@@ -574,6 +667,14 @@ pub fn admit(g: &EaGraph, req: &Request) -> Result<Admitted, Refusal> {
         req.requested_authority,
         req.expected_graph_digest.as_deref(),
     )?;
+    // An Admitted value licenses manufacture, which runs at CONSTRUCT; admission at a
+    // lower requested authority is refused so the value is bound to CONSTRUCT (court A5).
+    // Selection below CONSTRUCT goes through `plan`, which returns a value, not an Admitted.
+    if req.requested_authority < Authority::Construct {
+        return Err(Refusal::InsufficientAuthority {
+            admitted: req.requested_authority,
+        });
+    }
     admit_sbb(g, &digest, abb, &req.sbb)
 }
 
@@ -585,6 +686,12 @@ pub fn plan(g: &EaGraph, abb: &str, authority: Authority) -> Result<Decision, Re
         g.candidate_sbbs.iter().filter(|s| s.abb == a.id).collect();
     candidates.sort_by(|x, y| x.id.cmp(&y.id));
     let mut refusals = Vec::new();
+    // Ports no candidate realization of this ABB provides at all. A candidate refused
+    // for another reason (stale, mutable, ...) still counts as providing its ports.
+    let mut provided = BTreeSet::new();
+    for s in &candidates {
+        provided.extend(s.provides_ports.iter().cloned());
+    }
     for s in candidates {
         match admit_sbb(g, &digest, a, &s.id) {
             Ok(ad) => {
@@ -604,7 +711,12 @@ pub fn plan(g: &EaGraph, abb: &str, authority: Authority) -> Result<Decision, Re
         .expect("validated reference");
     Ok(Decision::Manufacture {
         abb: a.id.clone(),
-        missing_ports: contract.required_ports.clone(),
+        required_ports: contract.required_ports.clone(),
+        missing_ports: contract
+            .required_ports
+            .difference(&provided)
+            .cloned()
+            .collect(),
         refusals,
         authority: Authority::Construct,
     })
@@ -620,6 +732,40 @@ fn check_path(path: &str) -> Result<(), Refusal> {
             .any(|seg| seg.is_empty() || seg == "." || seg == "..");
     if bad {
         return Err(Refusal::UnsafeArtifactPath { path: path.into() });
+    }
+    Ok(())
+}
+
+/// Placeholder keys `manufacture` binds; `check_template` and `render` share this list.
+const TEMPLATE_KEYS: [&str; 7] = [
+    "strategy",
+    "capability",
+    "abb",
+    "sbb",
+    "contract",
+    "contract_version",
+    "graph_digest",
+];
+
+/// Allocation-free admission-time check that every `{{key}}` is terminated and bound.
+fn check_template(template: &str, path: &str) -> Result<(), Refusal> {
+    let mut rest = template;
+    while let Some(start) = rest.find("{{") {
+        let after = &rest[start + 2..];
+        let end = after
+            .find("}}")
+            .ok_or_else(|| Refusal::UnboundPlaceholder {
+                placeholder: after.chars().take(32).collect(),
+                path: path.into(),
+            })?;
+        let key = after[..end].trim();
+        if !TEMPLATE_KEYS.contains(&key) {
+            return Err(Refusal::UnboundPlaceholder {
+                placeholder: key.into(),
+                path: path.into(),
+            });
+        }
+        rest = &after[end + 2..];
     }
     Ok(())
 }
@@ -657,15 +803,16 @@ fn receipt_digest(r: &ManufactureReceipt) -> String {
 /// Compile an admitted SBB into deterministic artifacts and a receipt. Pure: returns
 /// bytes, writes nothing.
 pub fn manufacture(ad: &Admitted, generator: &Generator) -> Result<Manufactured, Refusal> {
-    let vars: BTreeMap<&str, &str> = BTreeMap::from([
-        ("strategy", ad.strategy.as_str()),
-        ("capability", ad.capability.as_str()),
-        ("abb", ad.abb.id.as_str()),
-        ("sbb", ad.sbb.id.as_str()),
-        ("contract", ad.contract.id.as_str()),
-        ("contract_version", ad.contract.version.as_str()),
-        ("graph_digest", ad.graph_digest.as_str()),
-    ]);
+    let values = [
+        ad.strategy.as_str(),
+        ad.capability.as_str(),
+        ad.abb.id.as_str(),
+        ad.sbb.id.as_str(),
+        ad.contract.id.as_str(),
+        ad.contract.version.as_str(),
+        ad.graph_digest.as_str(),
+    ];
+    let vars: BTreeMap<&str, &str> = TEMPLATE_KEYS.into_iter().zip(values).collect();
     let mut specs = ad.sbb.artifacts.clone();
     specs.sort_by(|a, b| a.path.cmp(&b.path));
     let mut artifacts = Vec::with_capacity(specs.len());

@@ -56,7 +56,7 @@ fn qualified_sbb_manufactures_with_provenance_and_receipt() {
         );
         assert!(header.contains("abb=abb:event-ingest"));
         assert!(header.contains("sbb=sbb:ingest-0000"));
-        assert!(header.contains(&format!("sbb_digest={}", ad.sbb_digest)));
+        assert!(header.contains(&format!("sbb_digest={}", ad.sbb_digest())));
         assert!(a
             .bytes
             .contains("realized by sbb:ingest-0000 for cap:event-ingest"));
@@ -269,6 +269,56 @@ fn sbb_authority_above_contract_ceiling_is_refused() {
 }
 
 #[test]
+fn contract_ceiling_of_do_is_clamped_to_construct() {
+    // Court mutant M10: dropping `.min(Authority::Construct)` survived. A contract that
+    // declares a DO ceiling must still refuse a DO-authority SBB at CONSTRUCT.
+    let mut g = graph();
+    g.contracts[0].authority_ceiling = Authority::Do;
+    let k = contract_digest(&g.contracts[0]);
+    g.candidate_sbbs[0].authority = Authority::Do;
+    resign(&mut g.candidate_sbbs[0]);
+    let d = g.candidate_sbbs[0].digest.clone().unwrap();
+    for q in &mut g.qualifications {
+        q.contract_digest = k.clone();
+    }
+    g.qualifications[0].sbb_digest = d;
+    assert_eq!(
+        admit(&g, &req(&g, "sbb:ingest-0000")).unwrap_err(),
+        Refusal::ExceedsAuthorityCeiling {
+            sbb: "sbb:ingest-0000".into(),
+            authority: Authority::Do,
+            ceiling: Authority::Construct,
+        }
+    );
+    // Positive control: the CONSTRUCT-authority sibling under the same contract admits.
+    assert!(admit(&g, &req(&g, "sbb:ingest-0001")).is_ok());
+}
+
+#[test]
+fn admission_below_construct_is_refused() {
+    // Court A5: an Admitted value licenses manufacture at CONSTRUCT, so admission at a
+    // lower requested authority is refused; selection at SELECT goes through plan().
+    let g = graph();
+    for a in [Authority::None, Authority::Select] {
+        let mut r = req(&g, "sbb:ingest-0000");
+        r.requested_authority = a;
+        assert_eq!(
+            admit(&g, &r).unwrap_err(),
+            Refusal::InsufficientAuthority { admitted: a }
+        );
+        assert!(matches!(
+            plan(&g, "abb:event-ingest", a).unwrap(),
+            Decision::Select {
+                authority: Authority::Select,
+                ..
+            }
+        ));
+    }
+    let ad = admit(&g, &req(&g, "sbb:ingest-0000")).unwrap();
+    assert!(manufacture(&ad, &gen()).is_ok());
+}
+
+#[test]
 fn unauthorized_do_request_is_refused() {
     let g = graph();
     let mut r = req(&g, "sbb:ingest-0000");
@@ -366,15 +416,50 @@ fn dangling_references_are_refused() {
     ));
 }
 
+/// Adds a second, fully wired ABB (`abb:other`) with its own contract.
+fn with_second_abb(mut g: EaGraph) -> EaGraph {
+    g.abbs.push(Abb {
+        id: "abb:other".into(),
+        capability: "cap:event-ingest".into(),
+        contract: "contract:other".into(),
+    });
+    let mut k = g.contracts[0].clone();
+    k.id = "contract:other".into();
+    k.abb = "abb:other".into();
+    g.contracts.push(k);
+    g
+}
+
 #[test]
 fn sbb_bound_to_another_abb_is_refused() {
-    let mut g = graph();
+    let mut g = with_second_abb(graph());
     g.candidate_sbbs[0].abb = "abb:other".into();
     resign(&mut g.candidate_sbbs[0]);
-    assert!(matches!(
+    assert_eq!(
         admit(&g, &req(&g, "sbb:ingest-0000")).unwrap_err(),
-        Refusal::SbbAbbMismatch { .. }
-    ));
+        Refusal::SbbAbbMismatch {
+            sbb: "sbb:ingest-0000".into(),
+            expected: "abb:event-ingest".into(),
+            actual: "abb:other".into(),
+        }
+    );
+}
+
+#[test]
+fn sbb_realizing_a_nonexistent_abb_is_a_dangling_reference() {
+    // Court A4: plan() used to skip such an SBB silently instead of refusing the graph.
+    let mut g = graph();
+    g.candidate_sbbs[1].abb = "abb:ghost".into();
+    resign(&mut g.candidate_sbbs[1]);
+    let want = Refusal::DanglingReference {
+        from: "sbb:ingest-0001".into(),
+        to: "abb:ghost".into(),
+    };
+    assert_eq!(
+        plan(&g, "abb:event-ingest", Authority::Construct).unwrap_err(),
+        want
+    );
+    assert_eq!(admit(&g, &req(&g, "sbb:ingest-0000")).unwrap_err(), want);
 }
 
 // --- DoD 9: Pack is never ABB nor SBB ----------------------------------------------
@@ -411,6 +496,50 @@ fn pack_named_as_abb_or_sbb_is_refused() {
     ));
 }
 
+#[test]
+fn pack_colliding_with_any_element_id_is_refused_without_a_pack_list() {
+    // Court A1: with `packs` empty, a pack named after another SBB (or any other
+    // element) was admitted and recorded in the receipt as pack=<element id>.
+    for collide in [
+        "sbb:ingest-0001",
+        "sbb:ingest-0000",
+        "abb:event-ingest",
+        "contract:ingest",
+        "cap:event-ingest",
+        "qual:ingest-0001",
+        "strategy:real-time-ops",
+        "",
+        "  ",
+    ] {
+        let mut g = graph();
+        g.packs.clear();
+        g.candidate_sbbs[0].pack = collide.into();
+        resign(&mut g.candidate_sbbs[0]);
+        let d = g.candidate_sbbs[0].digest.clone().unwrap();
+        g.qualifications[0].sbb_digest = d;
+        assert_eq!(
+            admit(&g, &req(&g, "sbb:ingest-0000")).unwrap_err(),
+            Refusal::PackConflation { id: collide.into() },
+            "{collide:?}"
+        );
+        assert_eq!(
+            plan(&g, "abb:event-ingest", Authority::Construct).unwrap_err(),
+            Refusal::PackConflation { id: collide.into() },
+            "{collide:?}"
+        );
+    }
+    // Positive control: the same edit with a fresh pack id admits, so the refusal above
+    // is caused by the collision and not by clearing the pack list or re-signing.
+    let mut g = graph();
+    g.packs.clear();
+    g.candidate_sbbs[0].pack = "pack:fresh".into();
+    resign(&mut g.candidate_sbbs[0]);
+    let d = g.candidate_sbbs[0].digest.clone().unwrap();
+    g.qualifications[0].sbb_digest = d;
+    let m = manufacture(&admit(&g, &req(&g, "sbb:ingest-0000")).unwrap(), &gen()).unwrap();
+    assert_eq!(m.receipt.pack, "pack:fresh");
+}
+
 // --- DoD 7: SELECT || MANUFACTURE, separate from DO --------------------------------
 
 #[test]
@@ -443,6 +572,7 @@ fn plan_falls_back_to_manufacture_with_every_refusal_recorded() {
             refusals,
             authority,
             missing_ports,
+            required_ports,
             ..
         } => {
             assert_eq!(refusals.len(), 2);
@@ -450,8 +580,51 @@ fn plan_falls_back_to_manufacture_with_every_refusal_recorded() {
                 .iter()
                 .all(|r| matches!(r, Refusal::SbbMutable { .. })));
             assert_eq!(authority, Authority::Construct);
-            assert_eq!(missing_ports.len(), 2);
+            // Both SBBs provide both ports; they are refused for mutability only.
+            assert!(missing_ports.is_empty(), "{missing_ports:?}");
+            assert_eq!(required_ports.len(), 2);
         }
+        other => panic!("expected MANUFACTURE, got {other:?}"),
+    }
+}
+
+#[test]
+fn manufacture_decision_reports_only_ports_no_candidate_provides() {
+    // Stale qualifications everywhere: every candidate still provides every port.
+    let mut g = graph();
+    for q in &mut g.qualifications {
+        q.sbb_digest = "sha256:stale".into();
+    }
+    match plan(&g, "abb:event-ingest", Authority::Construct).unwrap() {
+        Decision::Manufacture {
+            missing_ports,
+            required_ports,
+            refusals,
+            ..
+        } => {
+            assert!(missing_ports.is_empty(), "{missing_ports:?}");
+            assert_eq!(required_ports.len(), 2);
+            assert!(refusals
+                .iter()
+                .all(|r| matches!(r, Refusal::StaleQualification { .. })));
+        }
+        other => panic!("expected MANUFACTURE, got {other:?}"),
+    }
+    // No candidate provides port:receipts-out: exactly that port is missing.
+    let mut g = graph();
+    for i in 0..g.candidate_sbbs.len() {
+        g.candidate_sbbs[i]
+            .provides_ports
+            .remove("port:receipts-out");
+        resign(&mut g.candidate_sbbs[i]);
+        let d = g.candidate_sbbs[i].digest.clone().unwrap();
+        g.qualifications[i].sbb_digest = d;
+    }
+    match plan(&g, "abb:event-ingest", Authority::Construct).unwrap() {
+        Decision::Manufacture { missing_ports, .. } => assert_eq!(
+            missing_ports,
+            std::collections::BTreeSet::from(["port:receipts-out".to_string()])
+        ),
         other => panic!("expected MANUFACTURE, got {other:?}"),
     }
 }
@@ -470,6 +643,35 @@ fn with_artifact(path: &str, template: &str) -> EaGraph {
     g
 }
 
+/// SELECT implies manufacturable: sbb:ingest-0000 is refused, so plan must pick 0001,
+/// and the SBB it picks must manufacture.
+fn assert_not_selected(g: &EaGraph) {
+    match plan(g, "abb:event-ingest", Authority::Construct).unwrap() {
+        Decision::Select { sbb, .. } => {
+            assert_eq!(sbb, "sbb:ingest-0001");
+            let ad = admit(g, &req(g, &sbb)).unwrap();
+            assert!(manufacture(&ad, &gen()).is_ok());
+        }
+        other => panic!("expected SELECT of sbb:ingest-0001, got {other:?}"),
+    }
+}
+
+#[test]
+fn every_template_placeholder_the_generator_binds_is_accepted() {
+    let t = "{{strategy}}|{{capability}}|{{abb}}|{{sbb}}|{{contract}}|{{contract_version}}|{{ graph_digest }}";
+    let g = with_artifact("gen/all.rs", t);
+    let m = manufacture(&admit(&g, &req(&g, "sbb:ingest-0000")).unwrap(), &gen()).unwrap();
+    let a = m.artifacts.iter().find(|a| a.path == "gen/all.rs").unwrap();
+    let body = a.bytes.lines().nth(1).unwrap();
+    assert_eq!(
+        body,
+        format!(
+            "strategy:real-time-ops|cap:event-ingest|abb:event-ingest|sbb:ingest-0000|contract:ingest|1.0.0|{}",
+            g.digest()
+        )
+    );
+}
+
 #[test]
 fn path_escape_is_refused() {
     for p in [
@@ -482,12 +684,13 @@ fn path_escape_is_refused() {
         "a\\b",
     ] {
         let g = with_artifact(p, "x");
-        let ad = admit(&g, &req(&g, "sbb:ingest-0000")).unwrap();
+        // Refused at admission (court A3), so plan never SELECTs it either.
         assert_eq!(
-            manufacture(&ad, &gen()).unwrap_err(),
+            admit(&g, &req(&g, "sbb:ingest-0000")).unwrap_err(),
             Refusal::UnsafeArtifactPath { path: p.into() },
             "{p:?}"
         );
+        assert_not_selected(&g);
     }
 }
 
@@ -499,25 +702,25 @@ fn duplicate_artifact_path_is_refused() {
     resign(&mut g.candidate_sbbs[0]);
     let d = g.candidate_sbbs[0].digest.clone().unwrap();
     g.qualifications[0].sbb_digest = d;
-    let ad = admit(&g, &req(&g, "sbb:ingest-0000")).unwrap();
     assert_eq!(
-        manufacture(&ad, &gen()).unwrap_err(),
+        admit(&g, &req(&g, "sbb:ingest-0000")).unwrap_err(),
         Refusal::DuplicateArtifactPath { path: first.path }
     );
+    assert_not_selected(&g);
 }
 
 #[test]
 fn unbound_or_unterminated_placeholder_is_refused() {
     for t in ["{{secret}}", "{{abb", "ok {{ graph_digest }} then {{nope}}"] {
         let g = with_artifact("gen/x.rs", t);
-        let ad = admit(&g, &req(&g, "sbb:ingest-0000")).unwrap();
         assert!(
             matches!(
-                manufacture(&ad, &gen()).unwrap_err(),
+                admit(&g, &req(&g, "sbb:ingest-0000")).unwrap_err(),
                 Refusal::UnboundPlaceholder { .. }
             ),
             "{t:?}"
         );
+        assert_not_selected(&g);
     }
 }
 
