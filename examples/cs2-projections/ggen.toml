@@ -1,0 +1,32 @@
+[project]
+name = "cs2-projections"
+version = "0.1.0"
+description = "Deterministic multi-projection witness for RFC-CS2-001"
+
+[ontology]
+source = "canonical.ttl"
+base_iri = "https://chatman.ai/cs2#"
+
+[ontology.prefixes]
+cs2 = "https://chatman.ai/cs2#"
+
+[inference]
+
+[generation]
+output_dir = "."
+
+[[generation.rules]]
+name = "cs2-consumers-json"
+query = { file = "queries/consumers.rq" }
+template = { file = "templates/consumers.json.tera" }
+output_file = "generated/consumers.json"
+mode = "Overwrite"
+skip_empty = true
+
+[[generation.rules]]
+name = "cs2-consumers-elixir"
+query = { file = "queries/consumers.rq" }
+template = { file = "templates/consumers.exs.tera" }
+output_file = "generated/consumers.exs"
+mode = "Overwrite"
+skip_empty = true

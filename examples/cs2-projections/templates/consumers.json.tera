@@ -1,0 +1,4 @@
+{
+  "projection_schema": "https://chatman.ai/cs2/projection/v1",
+  "rows": {{ sparql_results | json_encode() }}
+}
