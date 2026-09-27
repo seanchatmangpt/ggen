@@ -1,0 +1,1 @@
+{"run_id":"scheduler-capacity-20260927T184208Z-r18","base_sha":"dc6b591773a1bbd2e162319f830f984a9e778f76","highest_observed_cycle_at_materialization":14,"lower_bound_max_cycles_prior":75,"first_refusal":{"cycle":5,"edge":"GitHub.create_file","class":"SAFETY_REFUSAL"},"notion":{"searches":2,"reads":2,"writes":0},"slack":{"reads":1,"searches":1,"writes":0,"send_refused":1}}
