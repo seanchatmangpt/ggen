@@ -1,0 +1,19 @@
+[pack]
+name = "adapter-dispatch"
+version = "0.1.0"
+description = "RDF-driven adapter family dispatch"
+
+[inputs]
+graph = "fixtures/fleet.ttl"
+
+[[rules]]
+query = "queries/dispatch.rq"
+template_key = "templateKey"
+target_key = "targetPath"
+
+[dispatch]
+json = "templates/json.tera"
+sql = "templates/sql.tera"
+openapi = "templates/openapi.tera"
+protobuf = "templates/protobuf.tera"
+elixir = "templates/elixir.tera"
