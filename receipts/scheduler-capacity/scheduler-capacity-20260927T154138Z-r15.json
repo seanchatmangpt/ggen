@@ -1,64 +1,42 @@
 {
   "run_id": "scheduler-capacity-20260927T154138Z-r15",
   "lower_bound_max_cycles_prior": 39,
-  "base": "dc6b591773a1bbd2e162319f830f984a9e778f76",
-  "branch": "probe/scheduler-capacity-20260927T154138Z-r15",
   "entries": [
     {
-      "cycle": 1,
-      "tool": "connector-schema",
-      "operation": "discover edges",
-      "status": "SUCCESS"
-    },
-    {
-      "cycle": 2,
-      "tool": "Notion/GitHub",
-      "operation": "2 searches + repo metadata",
-      "status": "SUCCESS"
-    },
-    {
-      "cycle": 3,
-      "tool": "Notion/GitHub",
-      "operation": "2 reads + exact HEAD",
-      "status": "SUCCESS"
-    },
-    {
-      "cycle": 4,
+      "cycle": 9,
       "tool": "GitHub",
-      "operation": "initial ledger checkpoint",
+      "operation": "fetch parent tree + create integration tree",
+      "status": "SUCCESS"
+    },
+    {
+      "cycle": 10,
+      "tool": "GitHub",
+      "operation": "create code checkpoint commit",
       "status": "SUCCESS",
-      "commit_sha": "d3021a1b5e0308014486a02d35d2fccb488239fb"
+      "commit_sha": "e6373efd70cf4f53c5784c90f8cbd5d3eafc4159",
+      "code_lines": 24
     },
     {
-      "cycle": 5,
+      "cycle": 11,
       "tool": "GitHub",
-      "operation": "fetch_commit response-shape",
-      "status": "ERROR",
-      "failure_class": "CALL_SHAPE"
-    },
-    {
-      "cycle": 6,
-      "tool": "GitHub",
-      "operation": "compound routed checkpoint",
+      "operation": "update_ref publication",
       "status": "REFUSED",
       "failure_class": "SAFETY_RAIL"
     },
     {
-      "cycle": 7,
+      "cycle": 12,
       "tool": "GitHub",
-      "operation": "isolated code blob",
+      "operation": "immutable checkpoint branch publication",
       "status": "SUCCESS",
-      "durable_bytes": 741,
-      "durable_files": 0,
-      "code_lines": 24,
-      "next": "checkpoint via isolated tree/commit"
+      "commit_sha": "e6373efd70cf4f53c5784c90f8cbd5d3eafc4159"
     },
     {
-      "cycle": 8,
+      "cycle": 13,
       "tool": "GitHub",
-      "operation": "isolated ledger blob",
+      "operation": "code batch 2 blobs",
       "status": "SUCCESS",
-      "next": "create tree from base + blobs"
+      "code_lines": 30,
+      "next": "tree/commit/publish"
     }
   ]
 }
