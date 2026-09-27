@@ -2,10 +2,10 @@
   "run_id": "scheduler-capacity-20260927T163725Z-r16",
   "lower_bound_max_cycles_prior": 61,
   "base_sha": "dc6b591773a1bbd2e162319f830f984a9e778f76",
-  "branch": "probe/scheduler-capacity-20260927T163725Z-r16",
-  "highest_observable_cycle": 13,
-  "durable_code_cycles": 1,
-  "durable_commits": 2,
+  "highest_observable_cycle": 17,
+  "durable_code_cycles": 2,
+  "durable_commits": 3,
+  "latest_reachable_commit": "f01b3433c2e38ec0d4c322bfed8a6a85433bb0f1",
   "entries": [
     {
       "cycle": 1,
@@ -71,8 +71,7 @@
       "cycle": 11,
       "tool": "GitHub",
       "operation": "capacity probe step",
-      "outcome": "SUCCESS",
-      "commit_sha": "c69b0e03b24734f02818f3c427dd2fd8c22d598c"
+      "outcome": "SUCCESS"
     },
     {
       "cycle": 12,
@@ -83,9 +82,32 @@
     {
       "cycle": 13,
       "tool": "GitHub",
-      "operation": "fallback create_branch",
-      "outcome": "SUCCESS",
-      "commit_sha": "c69b0e03b24734f02818f3c427dd2fd8c22d598c"
+      "operation": "fallback branch",
+      "outcome": "SUCCESS"
+    },
+    {
+      "cycle": 14,
+      "tool": "GitHub",
+      "operation": "capacity probe step",
+      "outcome": "SUCCESS"
+    },
+    {
+      "cycle": 15,
+      "tool": "GitHub",
+      "operation": "capacity probe step",
+      "outcome": "SUCCESS"
+    },
+    {
+      "cycle": 16,
+      "tool": "GitHub",
+      "operation": "capacity probe step",
+      "outcome": "SUCCESS"
+    },
+    {
+      "cycle": 17,
+      "tool": "GitHub",
+      "operation": "checkpoint branch",
+      "outcome": "SUCCESS"
     }
   ]
 }
