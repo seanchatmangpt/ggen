@@ -1,0 +1,2 @@
+@prefix fc: <https://ggen.dev/ontology/fleet-contract#> .
+fc:broken a fc:Projection ; fc:subject <urn:subject> ; fc:consumer <urn:consumer> .

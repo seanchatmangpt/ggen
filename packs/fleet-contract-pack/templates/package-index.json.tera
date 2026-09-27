@@ -1,0 +1,1 @@
+{"schema":"https://ggen.dev/schema/fleet-package-index/v1","artifacts":{{ sparql_results | json_encode() }}}

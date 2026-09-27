@@ -1,0 +1,8 @@
+defmodule {{ module_name }} do
+  @moduledoc "Generated fleet contract. Do not hand-edit."
+  @subject "{{ subject }}"
+  @consumer "{{ consumer }}"
+  @work_id "{{ work_id }}"
+  @contract_version "{{ contract_version }}"
+  def contract, do: %{subject: @subject, consumer: @consumer, work_id: @work_id, version: @contract_version}
+end

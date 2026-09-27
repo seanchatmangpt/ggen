@@ -1,0 +1,5 @@
+PREFIX fc: <https://ggen.dev/ontology/fleet-contract#>
+SELECT ?projection WHERE {
+ ?projection a fc:Projection ; fc:subject ?subject ; fc:consumer ?consumer .
+ FILTER(?subject = ?consumer)
+}
