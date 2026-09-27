@@ -1,0 +1,18 @@
+{
+  "$schema": "https://chatman.ai/cs2/schema/semantic-jira-batch.json",
+  "projectionSchema": "https://chatman.ai/cs2/projection/semantic-jira/v1",
+  "subject": "https://chatman.ai/cs2#RFC-CS2-001",
+  "campaign": "CS2-CHICAGO",
+  "issues": [
+{% for row in sparql_results -%}
+    {
+      "externalId": "{{ row["workId"] }}",
+      "subject": "{{ row["subject"] }}",
+      "campaign": "{{ row["campaign"] }}",
+      "consumer": "{{ row["consumer"] }}",
+      "summary": "{{ row["workId"] }}: {{ row["expectedProjection"] }}",
+      "labels": ["cs2", "cs2-chicago", "semantic-projection"]
+    }{% if not loop.last %},{% endif %}
+{% endfor -%}
+  ]
+}

@@ -30,3 +30,11 @@ template = { file = "templates/consumers.exs.tera" }
 output_file = "generated/consumers.exs"
 mode = "Overwrite"
 skip_empty = true
+
+[[generation.rules]]
+name = "cs2-semantic-jira-json"
+query = { file = "semantic-jira.rq" }
+template = { file = "templates/semantic-jira.json.tera" }
+output_file = "generated/semantic-jira.json"
+mode = "Overwrite"
+skip_empty = true
