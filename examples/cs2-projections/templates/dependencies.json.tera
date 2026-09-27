@@ -1,0 +1,5 @@
+{
+  "projection_schema": "https://chatman.ai/cs2/dependencies/v1",
+  "subject": "https://chatman.ai/cs2#RFC-CS2-001",
+  "edges": {{ sparql_results | json_encode() }}
+}
