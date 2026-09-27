@@ -1,0 +1,10 @@
+[
+  {
+    "subject": "https://example.invalid/divergent",
+    "consumer": "https://chatman.ai/cs2#ggen-igniter",
+    "workId": "CS2-WRK-006",
+    "projection": "semantic Jira projection",
+    "authorityCeiling": "CONSTRUCT",
+    "status": "OPEN"
+  }
+]
