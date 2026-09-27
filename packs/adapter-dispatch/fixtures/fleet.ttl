@@ -1,0 +1,12 @@
+@prefix ad: <https://chatmangpt.com/ggen/adapter-dispatch#> .
+@prefix ex: <https://chatmangpt.com/ggen/fixtures#> .
+
+ex:cs2 a ad:Subject .
+ex:ptd a ad:Subject .
+ex:xaas a ad:Consumer .
+ex:gymact a ad:Consumer .
+ex:sjira a ad:Consumer .
+
+ex:cs2-xaas-openapi a ad:Projection ; ad:subject ex:cs2 ; ad:consumer ex:xaas ; ad:family ad:OpenAPI ; ad:targetPath "generated/xaas/cs2.openapi.yaml" .
+ex:cs2-gymact-proto a ad:Projection ; ad:subject ex:cs2 ; ad:consumer ex:gymact ; ad:family ad:Protobuf ; ad:targetPath "generated/gymact/cs2.proto" .
+ex:ptd-sjira-elixir a ad:Projection ; ad:subject ex:ptd ; ad:consumer ex:sjira ; ad:family ad:Elixir ; ad:targetPath "generated/sjira/ptd_adapter.ex" .
