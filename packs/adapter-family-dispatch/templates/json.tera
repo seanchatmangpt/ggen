@@ -1,0 +1,6 @@
+{
+  "subject": "{{ subject }}",
+  "consumer": "{{ consumer }}",
+  "package": "{{ packageName | default(value="generated") }}",
+  "generatedBy": "adapter-family-dispatch"
+}
