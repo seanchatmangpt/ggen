@@ -1,0 +1,7 @@
+openapi: 3.1.0
+info:
+  title: "{{ packageName | default(value="Generated Adapter") }}"
+  version: "0.1.0"
+paths: {}
+x-subject: "{{ subject }}"
+x-consumer: "{{ consumer }}"
