@@ -1,0 +1,17 @@
+// Generated from canonical fleet bindings. Do not edit.
+pub const SUBJECT: &str = "{{ subjectIri }}";
+pub const BINDING_KEY: &str = "{{ bindingKey }}";
+pub const CONSUMER: &str = "{{ consumerName }}";
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct SubjectBinding {
+    pub subject: &'static str,
+    pub binding_key: &'static str,
+    pub consumer: &'static str,
+}
+
+pub const BINDING: SubjectBinding = SubjectBinding {
+    subject: SUBJECT,
+    binding_key: BINDING_KEY,
+    consumer: CONSUMER,
+};

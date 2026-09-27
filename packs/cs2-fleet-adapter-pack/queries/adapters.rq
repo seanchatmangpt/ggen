@@ -1,0 +1,13 @@
+PREFIX fa: <https://ggen.dev/packs/cs2-fleet-adapter#>
+SELECT ?consumer ?consumerName ?subjectIri ?language ?namespace ?outputPath ?transport ?bindingKey
+WHERE {
+  ?consumer a fa:Consumer ;
+    fa:consumerName ?consumerName ;
+    fa:subjectIri ?subjectIri ;
+    fa:language ?language ;
+    fa:namespace ?namespace ;
+    fa:outputPath ?outputPath ;
+    fa:transport ?transport ;
+    fa:bindingKey ?bindingKey .
+}
+ORDER BY ?consumerName ?outputPath

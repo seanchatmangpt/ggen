@@ -1,0 +1,19 @@
+[project]
+name = "cs2-fleet-adapters-example"
+version = "1.0.0"
+description = "Fleet-scale exact-subject adapter projection fixture."
+
+[ontology]
+source = "fleet.ttl"
+imports = ["../../packs/cs2-fleet-adapter-pack/ontology.ttl"]
+base_iri = "https://ggen.dev/examples/cs2-fleet-adapters#"
+
+[generation]
+output_dir = "generated"
+
+[[generation.rules]]
+name = "bindings-json"
+query = { file = "../../packs/cs2-fleet-adapter-pack/queries/adapters.rq" }
+template = { file = "../../packs/cs2-fleet-adapter-pack/templates/adapter.json.tera" }
+output_file = "bindings.json"
+mode = "Overwrite"

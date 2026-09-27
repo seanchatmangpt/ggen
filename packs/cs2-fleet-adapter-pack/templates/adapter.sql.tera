@@ -1,0 +1,15 @@
+-- Generated from canonical fleet bindings. Do not edit.
+CREATE TABLE IF NOT EXISTS cs2_subject_binding (
+  consumer TEXT PRIMARY KEY,
+  subject_iri TEXT NOT NULL,
+  binding_key TEXT NOT NULL,
+  namespace TEXT NOT NULL,
+  transport TEXT NOT NULL
+);
+INSERT INTO cs2_subject_binding(consumer, subject_iri, binding_key, namespace, transport)
+VALUES ('{{ consumerName }}', '{{ subjectIri }}', '{{ bindingKey }}', '{{ namespace }}', '{{ transport }}')
+ON CONFLICT (consumer) DO UPDATE SET
+  subject_iri = EXCLUDED.subject_iri,
+  binding_key = EXCLUDED.binding_key,
+  namespace = EXCLUDED.namespace,
+  transport = EXCLUDED.transport;

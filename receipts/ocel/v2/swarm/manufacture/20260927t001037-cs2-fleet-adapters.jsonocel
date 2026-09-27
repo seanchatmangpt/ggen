@@ -1,0 +1,57 @@
+{
+  "eventTypes": [
+    {"name":"task_started","attributes":[{"name":"sequence","type":"integer"}]},
+    {"name":"control_read","attributes":[{"name":"sequence","type":"integer"}]},
+    {"name":"work_selected","attributes":[{"name":"sequence","type":"integer"}]},
+    {"name":"scope_locked","attributes":[{"name":"sequence","type":"integer"}]},
+    {"name":"source_read","attributes":[{"name":"sequence","type":"integer"}]},
+    {"name":"branch_created","attributes":[{"name":"sequence","type":"integer"}]},
+    {"name":"write_attempted","attributes":[{"name":"sequence","type":"integer"}]},
+    {"name":"write_succeeded","attributes":[{"name":"sequence","type":"integer"}]},
+    {"name":"write_failed","attributes":[{"name":"sequence","type":"integer"},{"name":"failureClass","type":"string"}]},
+    {"name":"fallback_selected","attributes":[{"name":"sequence","type":"integer"}]},
+    {"name":"receipt_materialized","attributes":[{"name":"sequence","type":"integer"}]}
+  ],
+  "objectTypes": [
+    {"name":"ScheduledTask","attributes":[{"name":"title","type":"string"}]},
+    {"name":"Run","attributes":[{"name":"runId","type":"string"}]},
+    {"name":"Lane","attributes":[{"name":"name","type":"string"}]},
+    {"name":"WorkItem","attributes":[{"name":"workId","type":"string"}]},
+    {"name":"Repository","attributes":[{"name":"fullName","type":"string"}]},
+    {"name":"Branch","attributes":[{"name":"name","type":"string"}]},
+    {"name":"BaseCommit","attributes":[{"name":"sha","type":"string"}]},
+    {"name":"Capability","attributes":[{"name":"name","type":"string"}]},
+    {"name":"CodeSurface","attributes":[{"name":"path","type":"string"}]},
+    {"name":"ToolEdge","attributes":[{"name":"name","type":"string"}]}
+  ],
+  "events": [
+    {"id":"e01","type":"task_started","time":"2026-09-27T07:10:37Z","attributes":[{"name":"sequence","value":1}],"relationships":[{"objectId":"run:20260927t001037-cs2-fleet-adapters","qualifier":"run"},{"objectId":"task:notion-manufacture-code-lab","qualifier":"target"}]},
+    {"id":"e02","type":"control_read","time":"2026-09-27T07:10:37Z","attributes":[{"name":"sequence","value":2}],"relationships":[{"objectId":"run:20260927t001037-cs2-fleet-adapters","qualifier":"run"},{"objectId":"lane:manufacture","qualifier":"lane"},{"objectId":"edge:notion.fetch","qualifier":"edge"}]},
+    {"id":"e03","type":"work_selected","time":"2026-09-27T07:10:37Z","attributes":[{"name":"sequence","value":3}],"relationships":[{"objectId":"run:20260927t001037-cs2-fleet-adapters","qualifier":"run"},{"objectId":"work:CS2-WRK-004","qualifier":"target"},{"objectId":"cap:cs2-fleet-adapters","qualifier":"capability"}]},
+    {"id":"e04","type":"scope_locked","time":"2026-09-27T07:10:37Z","attributes":[{"name":"sequence","value":4}],"relationships":[{"objectId":"run:20260927t001037-cs2-fleet-adapters","qualifier":"run"},{"objectId":"repo:seanchatmangpt/ggen","qualifier":"target"},{"objectId":"cap:cs2-fleet-adapters","qualifier":"capability"}]},
+    {"id":"e05","type":"write_failed","time":"2026-09-27T07:10:37Z","attributes":[{"name":"sequence","value":5},{"name":"failureClass","value":"ToolInternalError"}],"relationships":[{"objectId":"run:20260927t001037-cs2-fleet-adapters","qualifier":"run"},{"objectId":"edge:github.search","qualifier":"edge"}]},
+    {"id":"e06","type":"fallback_selected","time":"2026-09-27T07:10:37Z","attributes":[{"name":"sequence","value":6}],"relationships":[{"objectId":"run:20260927t001037-cs2-fleet-adapters","qualifier":"run"},{"objectId":"edge:github.search","qualifier":"parent"},{"objectId":"edge:github.fetch_file","qualifier":"next"}]},
+    {"id":"e07","type":"source_read","time":"2026-09-27T07:10:37Z","attributes":[{"name":"sequence","value":7}],"relationships":[{"objectId":"run:20260927t001037-cs2-fleet-adapters","qualifier":"run"},{"objectId":"repo:seanchatmangpt/ggen","qualifier":"target"},{"objectId":"edge:github.fetch_file","qualifier":"edge"}]},
+    {"id":"e08","type":"branch_created","time":"2026-09-27T07:10:37Z","attributes":[{"name":"sequence","value":8}],"relationships":[{"objectId":"run:20260927t001037-cs2-fleet-adapters","qualifier":"run"},{"objectId":"branch:manufacture/20260927t001037-cs2-fleet-adapters","qualifier":"target"},{"objectId":"base:dc6b591773a1bbd2e162319f830f984a9e778f76","qualifier":"parent"},{"objectId":"edge:github.create_branch","qualifier":"edge"}]},
+    {"id":"e09","type":"write_attempted","time":"2026-09-27T07:10:37Z","attributes":[{"name":"sequence","value":9}],"relationships":[{"objectId":"run:20260927t001037-cs2-fleet-adapters","qualifier":"run"},{"objectId":"cap:cs2-fleet-adapters","qualifier":"capability"},{"objectId":"surface:pack-family","qualifier":"surface"},{"objectId":"edge:github.create_blob","qualifier":"edge"}]},
+    {"id":"e10","type":"write_succeeded","time":"2026-09-27T07:10:37Z","attributes":[{"name":"sequence","value":10}],"relationships":[{"objectId":"run:20260927t001037-cs2-fleet-adapters","qualifier":"run"},{"objectId":"cap:cs2-fleet-adapters","qualifier":"capability"},{"objectId":"surface:pack-family","qualifier":"surface"},{"objectId":"edge:github.create_blob","qualifier":"edge"}]},
+    {"id":"e11","type":"receipt_materialized","time":"2026-09-27T07:10:37Z","attributes":[{"name":"sequence","value":11}],"relationships":[{"objectId":"run:20260927t001037-cs2-fleet-adapters","qualifier":"run"},{"objectId":"surface:receipt","qualifier":"surface"},{"objectId":"repo:seanchatmangpt/ggen","qualifier":"target"}]}
+  ],
+  "objects": [
+    {"id":"task:notion-manufacture-code-lab","type":"ScheduledTask","attributes":[{"name":"title","time":"2026-09-27T07:10:37Z","value":"Notion Manufacture Code Lab"}],"relationships":[]},
+    {"id":"run:20260927t001037-cs2-fleet-adapters","type":"Run","attributes":[{"name":"runId","time":"2026-09-27T07:10:37Z","value":"20260927t001037-cs2-fleet-adapters"}],"relationships":[]},
+    {"id":"lane:manufacture","type":"Lane","attributes":[{"name":"name","time":"2026-09-27T07:10:37Z","value":"MANUFACTURE"}],"relationships":[]},
+    {"id":"work:CS2-WRK-004","type":"WorkItem","attributes":[{"name":"workId","time":"2026-09-27T07:10:37Z","value":"CS2-WRK-004"}],"relationships":[]},
+    {"id":"repo:seanchatmangpt/ggen","type":"Repository","attributes":[{"name":"fullName","time":"2026-09-27T07:10:37Z","value":"seanchatmangpt/ggen"}],"relationships":[]},
+    {"id":"branch:manufacture/20260927t001037-cs2-fleet-adapters","type":"Branch","attributes":[{"name":"name","time":"2026-09-27T07:10:37Z","value":"manufacture/20260927t001037-cs2-fleet-adapters"}],"relationships":[]},
+    {"id":"base:dc6b591773a1bbd2e162319f830f984a9e778f76","type":"BaseCommit","attributes":[{"name":"sha","time":"2026-09-27T07:10:37Z","value":"dc6b591773a1bbd2e162319f830f984a9e778f76"}],"relationships":[]},
+    {"id":"cap:cs2-fleet-adapters","type":"Capability","attributes":[{"name":"name","time":"2026-09-27T07:10:37Z","value":"CS2 exact-subject fleet adapter generation"}],"relationships":[]},
+    {"id":"surface:pack-family","type":"CodeSurface","attributes":[{"name":"path","time":"2026-09-27T07:10:37Z","value":"packs/cs2-fleet-adapter-pack/** and examples/cs2-fleet-adapters/**"}],"relationships":[]},
+    {"id":"surface:receipt","type":"CodeSurface","attributes":[{"name":"path","time":"2026-09-27T07:10:37Z","value":"receipts/ocel/v2/swarm/manufacture/20260927t001037-cs2-fleet-adapters.jsonocel"}],"relationships":[]},
+    {"id":"edge:notion.fetch","type":"ToolEdge","attributes":[{"name":"name","time":"2026-09-27T07:10:37Z","value":"Notion.fetch"}],"relationships":[]},
+    {"id":"edge:github.search","type":"ToolEdge","attributes":[{"name":"name","time":"2026-09-27T07:10:37Z","value":"GitHub.search"}],"relationships":[]},
+    {"id":"edge:github.fetch_file","type":"ToolEdge","attributes":[{"name":"name","time":"2026-09-27T07:10:37Z","value":"GitHub.fetch_file"}],"relationships":[]},
+    {"id":"edge:github.create_branch","type":"ToolEdge","attributes":[{"name":"name","time":"2026-09-27T07:10:37Z","value":"GitHub.create_branch"}],"relationships":[]},
+    {"id":"edge:github.create_blob","type":"ToolEdge","attributes":[{"name":"name","time":"2026-09-27T07:10:37Z","value":"GitHub.create_blob"}],"relationships":[]}
+  ]
+}

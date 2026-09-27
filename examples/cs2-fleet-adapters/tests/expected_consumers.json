@@ -1,0 +1,9 @@
+{
+  "subject": "urn:chatman:rfc:cs2:001",
+  "consumers": ["gymact", "semantic-jira", "xaas"],
+  "bindingKeys": [
+    "RFC-CS2-001:gymact",
+    "RFC-CS2-001:semantic-jira",
+    "RFC-CS2-001:xaas"
+  ]
+}

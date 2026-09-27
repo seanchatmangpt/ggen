@@ -1,0 +1,19 @@
+# Generated from canonical fleet bindings. Do not edit.
+defmodule {{ namespace }} do
+  @subject "{{ subjectIri }}"
+  @binding_key "{{ bindingKey }}"
+  @consumer "{{ consumerName }}"
+
+  def subject, do: @subject
+  def binding_key, do: @binding_key
+  def consumer, do: @consumer
+
+  def envelope(payload) when is_map(payload) do
+    %{
+      "subject" => @subject,
+      "binding_key" => @binding_key,
+      "consumer" => @consumer,
+      "payload" => payload
+    }
+  end
+end

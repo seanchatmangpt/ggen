@@ -1,0 +1,8 @@
+{
+  "consumer": "{{ consumerName }}",
+  "subject": "{{ subjectIri }}",
+  "bindingKey": "{{ bindingKey }}",
+  "namespace": "{{ namespace }}",
+  "transport": "{{ transport }}",
+  "generated": true
+}

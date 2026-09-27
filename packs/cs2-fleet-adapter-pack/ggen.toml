@@ -1,0 +1,56 @@
+[project]
+name = "cs2-fleet-adapter-pack"
+version = "1.0.0"
+description = "Generate exact-subject fleet adapters from RDF consumer bindings."
+
+[ontology]
+source = "ontology.ttl"
+base_iri = "https://ggen.dev/packs/cs2-fleet-adapter#"
+
+[ontology.prefixes]
+fa = "https://ggen.dev/packs/cs2-fleet-adapter#"
+
+[generation]
+output_dir = "generated"
+
+[[generation.rules]]
+name = "fleet-elixir"
+query = { file = "queries/adapters.rq" }
+template = { file = "templates/adapter.ex.tera" }
+output_file = "{{ outputPath }}.ex"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "fleet-rust"
+query = { file = "queries/adapters.rq" }
+template = { file = "templates/adapter.rs.tera" }
+output_file = "{{ outputPath }}.rs"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "fleet-json"
+query = { file = "queries/adapters.rq" }
+template = { file = "templates/adapter.json.tera" }
+output_file = "{{ outputPath }}.json"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "fleet-sql"
+query = { file = "queries/adapters.rq" }
+template = { file = "templates/adapter.sql.tera" }
+output_file = "{{ outputPath }}.sql"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "fleet-openapi"
+query = { file = "queries/adapters.rq" }
+template = { file = "templates/adapter.openapi.yaml.tera" }
+output_file = "{{ outputPath }}.openapi.yaml"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "fleet-protobuf"
+query = { file = "queries/adapters.rq" }
+template = { file = "templates/adapter.proto.tera" }
+output_file = "{{ outputPath }}.proto"
+mode = "Overwrite"

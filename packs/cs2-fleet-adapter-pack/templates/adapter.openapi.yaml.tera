@@ -1,0 +1,25 @@
+# Generated from canonical fleet bindings. Do not edit.
+openapi: 3.1.0
+info:
+  title: "{{ consumerName }} CS2 binding"
+  version: "1"
+paths:
+  /subject:
+    get:
+      operationId: getSubjectBinding
+      responses:
+        "200":
+          description: Canonical subject binding
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SubjectBinding"
+components:
+  schemas:
+    SubjectBinding:
+      type: object
+      required: [consumer, subject, bindingKey]
+      properties:
+        consumer: { type: string, const: "{{ consumerName }}" }
+        subject: { type: string, format: uri, const: "{{ subjectIri }}" }
+        bindingKey: { type: string, const: "{{ bindingKey }}" }

@@ -1,0 +1,28 @@
+@prefix fa: <https://ggen.dev/packs/cs2-fleet-adapter#> .
+
+<urn:consumer:xaas> a fa:Consumer ;
+  fa:consumerName "xaas" ;
+  fa:subjectIri "urn:chatman:rfc:cs2:001" ;
+  fa:language fa:Elixir ;
+  fa:namespace "Xaas.CS2.Binding" ;
+  fa:outputPath "xaas/cs2_binding" ;
+  fa:transport fa:Http ;
+  fa:bindingKey "RFC-CS2-001:xaas" .
+
+<urn:consumer:gymact> a fa:Consumer ;
+  fa:consumerName "gymact" ;
+  fa:subjectIri "urn:chatman:rfc:cs2:001" ;
+  fa:language fa:Rust ;
+  fa:namespace "gymact.cs2" ;
+  fa:outputPath "gymact/cs2_binding" ;
+  fa:transport fa:File ;
+  fa:bindingKey "RFC-CS2-001:gymact" .
+
+<urn:consumer:semantic-jira> a fa:Consumer ;
+  fa:consumerName "semantic-jira" ;
+  fa:subjectIri "urn:chatman:rfc:cs2:001" ;
+  fa:language fa:Json ;
+  fa:namespace "semantic_jira.cs2" ;
+  fa:outputPath "semantic-jira/cs2_binding" ;
+  fa:transport fa:Http ;
+  fa:bindingKey "RFC-CS2-001:semantic-jira" .
