@@ -1,0 +1,17 @@
+PREFIX cs2f: <https://ggen.dev/packs/cs2-fleet-contract#>
+SELECT ?binding ?missing
+WHERE {
+  ?binding a cs2f:ConsumerBinding .
+  VALUES (?predicate ?missing) {
+    (cs2f:subject "subject")
+    (cs2f:authorityCeiling "authorityCeiling")
+    (cs2f:consumer "consumer")
+    (cs2f:workId "workId")
+    (cs2f:targetRepository "targetRepository")
+    (cs2f:targetPath "targetPath")
+    (cs2f:artifactKind "artifactKind")
+    (cs2f:contractVersion "contractVersion")
+  }
+  FILTER NOT EXISTS { ?binding ?predicate ?value }
+}
+ORDER BY STR(?binding) ?missing
