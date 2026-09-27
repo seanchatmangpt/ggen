@@ -1,0 +1,35 @@
+[package]
+name = "ggen-abb-sbb"
+version = "26.9.26"
+edition = "2021"
+license = "MIT"
+repository = "https://github.com/seanchatmangpt/ggen"
+description = "IO-free ABB/SBB manufacture admission kernel: SELECT existing SBB || MANUFACTURE missing realization, never DO."
+publish = false
+
+[package.metadata.ggen]
+rfc = "docs/rfc/v26.9.26/abb-sbb-implementation.md"
+authority = "NONE"
+ceiling = "CONSTRUCT"
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+sha2 = "0.10"
+thiserror = "2.0"
+
+[dev-dependencies]
+criterion = { version = "0.5", default-features = false }
+
+[[bench]]
+name = "manufacture"
+harness = false
+
+# Independent workspace root (same pattern as crates/ggen-architecture): the kernel
+# builds and tests without resolving the root workspace's sibling [patch] paths.
+[workspace]
+members = ["."]
+resolver = "2"

@@ -51,7 +51,10 @@ fn exact_repository_inventory_manufactures_partial_alive_evidence() {
     // 14 post-2026-08-18 workflows admitted) and this assertion admits the real 83.
     // 83 -> 84 (2026-09-23, GGEN-26922-03): PR #720's gall-001-replay.yml is a real,
     // separately-merged workflow; the manifest admits it and this assertion admits the real 84.
-    assert!(inventory.contains("\"observed_workflow_count\": 84"));
+    // 84 -> 85 (2026-09-26, PR #753): abb-sbb-manufacture.yml is the ABB/SBB manufacture
+    // kernel's own court (independent workspace root, same admission discipline as
+    // gall-001-replay); the manifest admits it and this assertion admits the real 85.
+    assert!(inventory.contains("\"observed_workflow_count\": 85"));
     assert!(inventory.contains("\"state\": \"UNKNOWN\""));
     assert!(!inventory.contains("\"standing\": \"ALIVE\""));
 
@@ -67,7 +70,7 @@ fn exact_repository_inventory_manufactures_partial_alive_evidence() {
     let topology = fs::read_to_string(&topology_path)
         .unwrap_or_else(|error| panic!("missing {}: {error}", topology_path.display()));
     assert!(topology.contains("\"standing\": \"PARTIAL_ALIVE\""));
-    assert!(topology.contains("\"workflow_count\": 84"));
+    assert!(topology.contains("\"workflow_count\": 85"));
     assert!(topology.contains("\"trigger_fanout\""));
     assert!(topology.contains("\"permission_ceiling\""));
     assert!(topology.contains("\"mutable_action_references\""));
