@@ -5,6 +5,14 @@ All notable changes to ggen will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [26.9.25] — SPG Exact-Subject Rewrite Manufacturing (2026-09-26)
+
+### Added
+- **SPG rewrite manufacturing with exact-subject replay** — `ggen-spg` (the Semantic Procedural Graph CLI) gained `rewrite-plan`, `apply`, and `replay` subcommands: a deterministic rewrite plan is manufactured from an exact source SPG JSON to a candidate target, bound to the subject's repository identity and immutable source commit; `apply` applies the manufactured plan to the exact source graph; `replay` applies it twice and refuses with `SPG_REWRITE_NONDETERMINISTIC_REPLAY` unless both runs are byte-identical, emitting a `chatman.spg-rewrite-replay.v1` receipt (plan and target-graph digests, replay digests, authority `NONE`, standing `NONE`). Core API in `tools/ggen-architecture/src/spg.rs` (`plan_rewrite`, `apply_rewrite`, `replay_rewrite`), CLI in `tools/ggen-architecture/src/bin/ggen-spg.rs` (#751).
+
+### Changed
+- **Version 26.9.25** — workspace version bumped from 26.9.24 to 26.9.25 (#754).
+
 ## [26.15.2] — Binary Distribution & Crates.io Launch (2026-07-24)
 
 ### Added
