@@ -1,0 +1,15 @@
+@prefix ad: <https://ggen.dev/adapter-dispatch#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+ad:Projection a ad:Class .
+ad:AdapterFamily a ad:Class .
+ad:subject a ad:Property .
+ad:consumer a ad:Property .
+ad:family a ad:Property .
+ad:targetPath a ad:Property .
+ad:templateKey a ad:Property .
+ad:outputKind a ad:Property .
+ad:Json a ad:AdapterFamily ; ad:templateKey "json" ; ad:outputKind "json" .
+ad:Sql a ad:AdapterFamily ; ad:templateKey "sql" ; ad:outputKind "sql" .
+ad:OpenApi a ad:AdapterFamily ; ad:templateKey "openapi" ; ad:outputKind "yaml" .
+ad:Protobuf a ad:AdapterFamily ; ad:templateKey "protobuf" ; ad:outputKind "proto" .
+ad:Elixir a ad:AdapterFamily ; ad:templateKey "elixir" ; ad:outputKind "ex" .
