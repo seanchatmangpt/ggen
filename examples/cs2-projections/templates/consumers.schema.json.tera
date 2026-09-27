@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://chatman.ai/cs2/generated/consumers.schema.json",
+  "title": "CS2 Consumer Projection",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["consumer", "work_id", "projection"],
+    "properties": {
+      "consumer": {"type": "string", "minLength": 1},
+      "work_id": {"type": "string", "pattern": "^CS2-WRK-[0-9]+$"},
+      "projection": {"type": "string", "minLength": 1}
+    }
+  }
+}
