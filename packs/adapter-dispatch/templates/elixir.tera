@@ -1,0 +1,7 @@
+defmodule {{ consumer | pascal_case }}.Generated.{{ subject | pascal_case }}Adapter do
+  @moduledoc false
+  @projection "{{ projection }}"
+  @target_path "{{ targetPath }}"
+  def projection, do: @projection
+  def target_path, do: @target_path
+end
