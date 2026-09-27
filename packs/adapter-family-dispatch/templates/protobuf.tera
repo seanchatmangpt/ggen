@@ -1,0 +1,6 @@
+syntax = "proto3";
+package generated;
+message SubjectBinding {
+  string subject = 1;
+  string consumer = 2;
+}
