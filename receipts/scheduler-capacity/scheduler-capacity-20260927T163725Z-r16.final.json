@@ -1,0 +1,46 @@
+{
+  "run_id": "scheduler-capacity-20260927T163725Z-r16",
+  "supplement_to": "receipts/scheduler-capacity/scheduler-capacity-20260927T163725Z-r16.json",
+  "highest_observable_cycle_before_this_write": 74,
+  "lower_bound_max_cycles": 74,
+  "durable_primary_ledger_through_cycle": 62,
+  "reason_for_supplement": "terminal create_commit edge refused while publishing primary-ledger update",
+  "durable_code_cycles": 4,
+  "notion": {
+    "searches": 11,
+    "reads": 9,
+    "writes": 0
+  },
+  "slack": {
+    "reads": 9,
+    "searches": 8,
+    "writes_success": 0,
+    "writes_refused": 1,
+    "edits": 0,
+    "reactions": 0
+  },
+  "failures": [
+    {
+      "cycle": 12,
+      "edge": "GitHub.update_ref",
+      "outcome": "REFUSED"
+    },
+    {
+      "cycle": 28,
+      "edge": "Slack.send",
+      "outcome": "REFUSED"
+    },
+    {
+      "cycle": 30,
+      "edge": "GitHub.update_file",
+      "outcome": "REFUSED"
+    },
+    {
+      "cycle": 73,
+      "edge": "GitHub.create_commit",
+      "outcome": "REFUSED"
+    }
+  ],
+  "throttled": 0,
+  "truncated": 0
+}
