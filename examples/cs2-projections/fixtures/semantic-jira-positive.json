@@ -1,0 +1,10 @@
+[
+  {
+    "subject": "https://chatman.ai/cs2#RFC-CS2-001",
+    "consumer": "https://chatman.ai/cs2#ggen-igniter",
+    "workId": "CS2-WRK-006",
+    "projection": "semantic Jira projection",
+    "authorityCeiling": "CONSTRUCT",
+    "status": "OPEN"
+  }
+]
