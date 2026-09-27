@@ -1,0 +1,9 @@
+# RFC-CS2-001 Work Orders
+
+Generated from the canonical CS2 semantic world. Do not hand-edit.
+
+| Work | Consumer | Priority | State | Projection | Authority |
+|---|---|---|---|---|---|
+{% for row in sparql_results -%}
+| `{{ row["work_id"] }}` | `{{ row["consumer"] }}` | {{ row["priority"] }} | {{ row["state"] }} | {{ row["projection"] }} | {{ row["authority"] }} |
+{% endfor %}
