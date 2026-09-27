@@ -1,0 +1,14 @@
+PREFIX ad: <https://chatmangpt.com/ggen/adapter-dispatch#>
+
+SELECT ?projection ?subject ?consumer ?family ?templateKey ?targetPath ?mediaType ?extension
+WHERE {
+  ?projection a ad:Projection ;
+    ad:subject ?subject ;
+    ad:consumer ?consumer ;
+    ad:family ?family ;
+    ad:targetPath ?targetPath .
+  ?family ad:templateKey ?templateKey ;
+    ad:mediaType ?mediaType ;
+    ad:extension ?extension .
+}
+ORDER BY ?subject ?consumer ?templateKey ?targetPath
