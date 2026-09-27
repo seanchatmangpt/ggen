@@ -1,0 +1,32 @@
+@prefix cs2f: <https://ggen.dev/packs/cs2-fleet-contract#> .
+@prefix ex: <https://ggen.dev/packs/cs2-fleet-contract/example#> .
+
+ex:marketplace a cs2f:ConsumerBinding ;
+  cs2f:subject <https://chatman.ai/cs2#RFC-CS2-001> ;
+  cs2f:authorityCeiling "CONSTRUCT" ;
+  cs2f:consumer <https://chatman.ai/cs2#ggen-marketplace> ;
+  cs2f:workId "CS2-WRK-003" ;
+  cs2f:targetRepository "seanchatmangpt/ggen-marketplace" ;
+  cs2f:targetPath "packs/cs2-fleet-contract/generated/fleet-contract.json" ;
+  cs2f:artifactKind "FleetPack" ;
+  cs2f:contractVersion "v1" .
+
+ex:ashA2A a cs2f:ConsumerBinding ;
+  cs2f:subject <https://chatman.ai/cs2#RFC-CS2-001> ;
+  cs2f:authorityCeiling "CONSTRUCT" ;
+  cs2f:consumer <https://chatman.ai/cs2#ash-a2a> ;
+  cs2f:workId "CS2-WRK-012" ;
+  cs2f:targetRepository "seanchatmangpt/ash_a2a" ;
+  cs2f:targetPath "lib/ash_a2a/cs2/generated_fleet_contract.ex" ;
+  cs2f:artifactKind "ElixirModule" ;
+  cs2f:contractVersion "v1" .
+
+ex:xaas a cs2f:ConsumerBinding ;
+  cs2f:subject <https://chatman.ai/cs2#RFC-CS2-001> ;
+  cs2f:authorityCeiling "CONSTRUCT" ;
+  cs2f:consumer <https://chatman.ai/cs2#xaas> ;
+  cs2f:workId "CS2-WRK-013" ;
+  cs2f:targetRepository "seanchatmangpt/xaas" ;
+  cs2f:targetPath "lib/xaas/cs2/generated_fleet_contract.ex" ;
+  cs2f:artifactKind "ElixirModule" ;
+  cs2f:contractVersion "v1" .
