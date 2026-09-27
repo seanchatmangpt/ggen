@@ -1,0 +1,4 @@
+@prefix cs2: <https://chatman.ai/cs2#> .
+cs2:RFC-CS2-001 a cs2:SemanticWorld ; cs2:authorityCeiling cs2:CONSTRUCT .
+cs2:A a cs2:Work ; cs2:implements cs2:RFC-CS2-001 ; cs2:workId "A" ; cs2:consumer cs2:ggen-marketplace ; cs2:dependsOn cs2:B .
+cs2:B a cs2:Work ; cs2:implements cs2:RFC-CS2-001 ; cs2:workId "B" ; cs2:consumer cs2:ash-a2a ; cs2:dependsOn cs2:A .
