@@ -1,42 +1,71 @@
 {
   "run_id": "scheduler-capacity-20260927T154138Z-r15",
   "lower_bound_max_cycles_prior": 39,
-  "entries": [
+  "highest_cycle_observed": 41,
+  "base": "dc6b591773a1bbd2e162319f830f984a9e778f76",
+  "branch": "probe/scheduler-capacity-r15-c15",
+  "durable_code_cycles": 2,
+  "counters": {
+    "notion_searches": 6,
+    "notion_reads": 5,
+    "notion_writes": 0,
+    "slack_reads": 3,
+    "slack_searches": 3,
+    "slack_writes": 0,
+    "slack_edits": 0,
+    "slack_reactions": 0,
+    "github_reachable_commits": 3
+  },
+  "failures": [
     {
-      "cycle": 9,
-      "tool": "GitHub",
-      "operation": "fetch parent tree + create integration tree",
-      "status": "SUCCESS"
+      "cycle": 5,
+      "edge": "fetch_commit response handling",
+      "class": "CALL_SHAPE"
     },
     {
-      "cycle": 10,
-      "tool": "GitHub",
-      "operation": "create code checkpoint commit",
-      "status": "SUCCESS",
-      "commit_sha": "e6373efd70cf4f53c5784c90f8cbd5d3eafc4159",
-      "code_lines": 24
+      "cycle": 6,
+      "edge": "compound GitHub mutation",
+      "class": "REFUSED"
     },
     {
       "cycle": 11,
-      "tool": "GitHub",
-      "operation": "update_ref publication",
-      "status": "REFUSED",
-      "failure_class": "SAFETY_RAIL"
+      "edge": "update_ref",
+      "class": "REFUSED"
     },
     {
-      "cycle": 12,
-      "tool": "GitHub",
-      "operation": "immutable checkpoint branch publication",
-      "status": "SUCCESS",
-      "commit_sha": "e6373efd70cf4f53c5784c90f8cbd5d3eafc4159"
+      "cycle": 19,
+      "edge": "create_commit",
+      "class": "REFUSED"
     },
     {
-      "cycle": 13,
-      "tool": "GitHub",
-      "operation": "code batch 2 blobs",
-      "status": "SUCCESS",
-      "code_lines": 30,
-      "next": "tree/commit/publish"
+      "cycle": 26,
+      "edge": "Slack send",
+      "class": "CALL_SHAPE"
+    },
+    {
+      "cycle": 27,
+      "edge": "Slack send repaired",
+      "class": "REFUSED"
+    },
+    {
+      "cycle": 31,
+      "edge": "GitHub create_file",
+      "class": "REFUSED"
     }
-  ]
+  ],
+  "checkpoints": [
+    {
+      "cycle": 4,
+      "commit": "d3021a1b5e0308014486a02d35d2fccb488239fb"
+    },
+    {
+      "cycle": 10,
+      "commit": "e6373efd70cf4f53c5784c90f8cbd5d3eafc4159"
+    },
+    {
+      "cycle": 15,
+      "commit": "75b8a4404e75566b80008325ec2345f0cc9c212a"
+    }
+  ],
+  "note": "Cycles 32-40 continued successful Notion/Slack read-plane probes; no throttle or truncation observed. Cycle 41 attempts direct contents-API ledger checkpoint."
 }
