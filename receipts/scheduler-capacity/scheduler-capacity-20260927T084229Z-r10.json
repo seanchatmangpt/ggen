@@ -2,12 +2,11 @@
   "run_id": "scheduler-capacity-20260927T084229Z-r10",
   "base_sha": "dc6b591773a1bbd2e162319f830f984a9e778f76",
   "branch": "probe/scheduler-capacity-20260927T084229Z-r10",
-  "highest_observable_cycle": 8,
-  "lower_bound_max_cycles": 8,
-  "durable_code_cycles": 2,
-  "commits": [
-    "9a89f16bfd42e4a80448022672ec4ba8dbe1e4e0"
-  ],
+  "highest_observable_cycle": 10,
+  "lower_bound_max_cycles": 10,
+  "durable_code_cycles": 3,
+  "total_durable_commits": 2,
+  "latest_reachable_commit": "0dca02ceb30b91957e4dfff658ce210256731308",
   "notion": {
     "searches": 2,
     "reads": 2,
@@ -21,7 +20,8 @@
     "reactions": 0
   },
   "github": {
-    "first_refusal": "multi-mutation orchestration safety refusal; split calls succeeded"
+    "refusal_count": 3,
+    "route": "split compound GitHub mutations into individual edges"
   },
-  "next": "code batch 3"
+  "next": "Notion capacity"
 }
