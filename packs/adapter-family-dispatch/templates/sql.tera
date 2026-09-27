@@ -1,0 +1,8 @@
+-- generated from canonical RDF projection
+CREATE TABLE IF NOT EXISTS {{ packageName | default(value="generated_binding") }} (
+  subject TEXT NOT NULL,
+  consumer TEXT NOT NULL,
+  PRIMARY KEY (subject, consumer)
+);
+INSERT INTO {{ packageName | default(value="generated_binding") }} (subject, consumer)
+VALUES ('{{ subject }}', '{{ consumer }}');
