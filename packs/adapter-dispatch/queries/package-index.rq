@@ -1,0 +1,11 @@
+PREFIX ad: <https://chatmangpt.com/ggen/adapter-dispatch#>
+
+SELECT ?consumer ?family ?templateKey (COUNT(?projection) AS ?artifactCount)
+WHERE {
+  ?projection a ad:Projection ;
+    ad:consumer ?consumer ;
+    ad:family ?family .
+  ?family ad:templateKey ?templateKey .
+}
+GROUP BY ?consumer ?family ?templateKey
+ORDER BY ?consumer ?templateKey
