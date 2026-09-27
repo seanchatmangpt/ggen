@@ -1,0 +1,1 @@
+{"subject":"{{ subject }}","consumer":"{{ consumer }}","adapter_family":"{{ templateKey }}"}
