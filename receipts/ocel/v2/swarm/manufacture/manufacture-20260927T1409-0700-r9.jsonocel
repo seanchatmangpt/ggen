@@ -1,0 +1,26 @@
+{
+  "objectTypes": [
+    {"name":"repository"},
+    {"name":"branch"},
+    {"name":"manufactured_surface"}
+  ],
+  "eventTypes": [
+    {"name":"bind"},
+    {"name":"manufacture"},
+    {"name":"route_refusal"}
+  ],
+  "objects": [
+    {"id":"seanchatmangpt/ggen","type":"repository"},
+    {"id":"manufacture/v26.9.27-cs2-fleet-compose-r9","type":"branch"},
+    {"id":"packs/cs2-fleet-contract-r9/ontology.ttl","type":"manufactured_surface"},
+    {"id":"packs/cs2-fleet-contract-r9/queries/bindings.rq","type":"manufactured_surface"},
+    {"id":"packs/cs2-fleet-contract-r9/templates/fleet-contract.json.tera","type":"manufactured_surface"},
+    {"id":"packs/cs2-fleet-contract-r9/fixtures/fleet.ttl","type":"manufactured_surface"},
+    {"id":"packs/cs2-fleet-contract-r9/gates/010_required_identity.rq","type":"manufactured_surface"}
+  ],
+  "events": [
+    {"id":"bind-1","type":"bind","time":"2026-09-27T14:09:22-07:00","relationships":[{"objectId":"seanchatmangpt/ggen","qualifier":"repository"},{"objectId":"manufacture/v26.9.27-cs2-fleet-compose-r9","qualifier":"branch"}]},
+    {"id":"manufacture-1","type":"manufacture","time":"2026-09-27T14:09:22-07:00","relationships":[{"objectId":"packs/cs2-fleet-contract-r9/ontology.ttl","qualifier":"output"},{"objectId":"packs/cs2-fleet-contract-r9/queries/bindings.rq","qualifier":"output"},{"objectId":"packs/cs2-fleet-contract-r9/templates/fleet-contract.json.tera","qualifier":"output"},{"objectId":"packs/cs2-fleet-contract-r9/fixtures/fleet.ttl","qualifier":"output"},{"objectId":"packs/cs2-fleet-contract-r9/gates/010_required_identity.rq","qualifier":"output"}]},
+    {"id":"route-1","type":"route_refusal","time":"2026-09-27T14:09:22-07:00","attributes":[{"name":"edge","value":"existing-file mutation"},{"name":"result","value":"REFUSED(tool_safety)"}],"relationships":[]}
+  ]
+}
