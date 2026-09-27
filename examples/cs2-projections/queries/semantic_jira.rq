@@ -1,0 +1,17 @@
+PREFIX cs2: <https://chatman.ai/cs2#>
+
+SELECT ?subject ?work ?work_id ?consumer ?projection ?authority ?campaign
+WHERE {
+  VALUES ?subject { cs2:RFC-CS2-001 }
+  ?subject a cs2:SemanticWorld ;
+           cs2:campaign ?campaign ;
+           cs2:authorityCeiling ?authority_iri .
+  ?work a cs2:Work ;
+        cs2:implements ?subject ;
+        cs2:consumer ?consumer .
+  ?consumer a cs2:Consumer ;
+            cs2:workId ?work_id ;
+            cs2:expectedProjection ?projection .
+  BIND(REPLACE(STR(?authority_iri), "^.*[#/]", "") AS ?authority)
+}
+ORDER BY STR(?work_id) STR(?consumer)
