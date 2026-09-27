@@ -1,0 +1,5 @@
+PREFIX ad: <https://ggen.dev/adapter-dispatch#>
+SELECT ?projection WHERE {
+  ?projection a ad:Projection .
+  FILTER NOT EXISTS { ?projection ad:targetPath ?targetPath }
+}
