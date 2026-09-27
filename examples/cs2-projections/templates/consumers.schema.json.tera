@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://chatman.ai/cs2/projection/v1/schema",
+  "title": "CS2 Consumer Projection",
+  "type": "object",
+  "required": ["projection_schema", "rows"],
+  "properties": {
+    "projection_schema": {"const": "https://chatman.ai/cs2/projection/v1"},
+    "rows": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["subject", "authority", "consumer", "work_id", "projection"],
+        "properties": {
+          "subject": {"type": "string"},
+          "authority": {"type": "string"},
+          "consumer": {"type": "string"},
+          "work_id": {"type": "string"},
+          "projection": {"type": "string"}
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

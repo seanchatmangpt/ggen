@@ -1,0 +1,580 @@
+{
+  "eventTypes": [
+    {
+      "name": "task_started",
+      "attributes": [
+        {
+          "name": "sequence",
+          "type": "integer"
+        }
+      ]
+    },
+    {
+      "name": "control_read",
+      "attributes": [
+        {
+          "name": "sequence",
+          "type": "integer"
+        }
+      ]
+    },
+    {
+      "name": "work_selected",
+      "attributes": [
+        {
+          "name": "sequence",
+          "type": "integer"
+        }
+      ]
+    },
+    {
+      "name": "scope_locked",
+      "attributes": [
+        {
+          "name": "sequence",
+          "type": "integer"
+        }
+      ]
+    },
+    {
+      "name": "source_read",
+      "attributes": [
+        {
+          "name": "sequence",
+          "type": "integer"
+        }
+      ]
+    },
+    {
+      "name": "branch_created",
+      "attributes": [
+        {
+          "name": "sequence",
+          "type": "integer"
+        }
+      ]
+    },
+    {
+      "name": "write_attempted",
+      "attributes": [
+        {
+          "name": "sequence",
+          "type": "integer"
+        }
+      ]
+    },
+    {
+      "name": "write_succeeded",
+      "attributes": [
+        {
+          "name": "sequence",
+          "type": "integer"
+        }
+      ]
+    },
+    {
+      "name": "receipt_materialized",
+      "attributes": [
+        {
+          "name": "sequence",
+          "type": "integer"
+        }
+      ]
+    }
+  ],
+  "objectTypes": [
+    {
+      "name": "ScheduledTask",
+      "attributes": []
+    },
+    {
+      "name": "Run",
+      "attributes": []
+    },
+    {
+      "name": "Lane",
+      "attributes": []
+    },
+    {
+      "name": "WorkItem",
+      "attributes": []
+    },
+    {
+      "name": "Repository",
+      "attributes": []
+    },
+    {
+      "name": "Branch",
+      "attributes": []
+    },
+    {
+      "name": "BaseCommit",
+      "attributes": []
+    },
+    {
+      "name": "Capability",
+      "attributes": []
+    },
+    {
+      "name": "CodeSurface",
+      "attributes": []
+    },
+    {
+      "name": "ToolEdge",
+      "attributes": []
+    }
+  ],
+  "objects": [
+    {
+      "id": "task:Notion-Manufacture-Code-Lab",
+      "type": "ScheduledTask",
+      "attributes": [],
+      "relationships": []
+    },
+    {
+      "id": "run:manufacture-20260926T201205-0700-r15",
+      "type": "Run",
+      "attributes": [
+        {
+          "name": "run_id",
+          "time": "2026-09-26T20:12:05-07:00",
+          "value": "manufacture-20260926T201205-0700-r15"
+        }
+      ],
+      "relationships": [
+        {
+          "objectId": "repo:seanchatmangpt/ggen",
+          "qualifier": "target"
+        },
+        {
+          "objectId": "lane:MANUFACTURE",
+          "qualifier": "lane"
+        }
+      ]
+    },
+    {
+      "id": "lane:MANUFACTURE",
+      "type": "Lane",
+      "attributes": [],
+      "relationships": []
+    },
+    {
+      "id": "work:CS2-multiprojection",
+      "type": "WorkItem",
+      "attributes": [],
+      "relationships": [
+        {
+          "objectId": "cap:CS2-multiprojection",
+          "qualifier": "capability"
+        }
+      ]
+    },
+    {
+      "id": "repo:seanchatmangpt/ggen",
+      "type": "Repository",
+      "attributes": [
+        {
+          "name": "full_name",
+          "time": "2026-09-26T20:12:05-07:00",
+          "value": "seanchatmangpt/ggen"
+        }
+      ],
+      "relationships": []
+    },
+    {
+      "id": "branch:ce/v26.9.26/manufacture/r15-2012-multiprojection",
+      "type": "Branch",
+      "attributes": [
+        {
+          "name": "name",
+          "time": "2026-09-26T20:12:05-07:00",
+          "value": "ce/v26.9.26/manufacture/r15-2012-multiprojection"
+        }
+      ],
+      "relationships": [
+        {
+          "objectId": "base:35ae0552d4ea0aad9d5b41ff769fbe7865d0480d",
+          "qualifier": "parent"
+        }
+      ]
+    },
+    {
+      "id": "base:35ae0552d4ea0aad9d5b41ff769fbe7865d0480d",
+      "type": "BaseCommit",
+      "attributes": [
+        {
+          "name": "sha",
+          "time": "2026-09-26T20:12:05-07:00",
+          "value": "35ae0552d4ea0aad9d5b41ff769fbe7865d0480d"
+        }
+      ],
+      "relationships": []
+    },
+    {
+      "id": "cap:CS2-multiprojection",
+      "type": "Capability",
+      "attributes": [],
+      "relationships": []
+    },
+    {
+      "id": "surface:examples/cs2-projections/ggen.toml",
+      "type": "CodeSurface",
+      "attributes": [
+        {
+          "name": "path",
+          "time": "2026-09-26T20:12:05-07:00",
+          "value": "examples/cs2-projections/ggen.toml"
+        }
+      ],
+      "relationships": [
+        {
+          "objectId": "cap:CS2-multiprojection",
+          "qualifier": "capability"
+        }
+      ]
+    },
+    {
+      "id": "surface:examples/cs2-projections/templates/consumers.ts.tera",
+      "type": "CodeSurface",
+      "attributes": [
+        {
+          "name": "path",
+          "time": "2026-09-26T20:12:05-07:00",
+          "value": "examples/cs2-projections/templates/consumers.ts.tera"
+        }
+      ],
+      "relationships": [
+        {
+          "objectId": "cap:CS2-multiprojection",
+          "qualifier": "capability"
+        }
+      ]
+    },
+    {
+      "id": "surface:examples/cs2-projections/templates/consumers.rs.tera",
+      "type": "CodeSurface",
+      "attributes": [
+        {
+          "name": "path",
+          "time": "2026-09-26T20:12:05-07:00",
+          "value": "examples/cs2-projections/templates/consumers.rs.tera"
+        }
+      ],
+      "relationships": [
+        {
+          "objectId": "cap:CS2-multiprojection",
+          "qualifier": "capability"
+        }
+      ]
+    },
+    {
+      "id": "surface:examples/cs2-projections/templates/consumers.py.tera",
+      "type": "CodeSurface",
+      "attributes": [
+        {
+          "name": "path",
+          "time": "2026-09-26T20:12:05-07:00",
+          "value": "examples/cs2-projections/templates/consumers.py.tera"
+        }
+      ],
+      "relationships": [
+        {
+          "objectId": "cap:CS2-multiprojection",
+          "qualifier": "capability"
+        }
+      ]
+    },
+    {
+      "id": "surface:examples/cs2-projections/templates/consumers.graphql.tera",
+      "type": "CodeSurface",
+      "attributes": [
+        {
+          "name": "path",
+          "time": "2026-09-26T20:12:05-07:00",
+          "value": "examples/cs2-projections/templates/consumers.graphql.tera"
+        }
+      ],
+      "relationships": [
+        {
+          "objectId": "cap:CS2-multiprojection",
+          "qualifier": "capability"
+        }
+      ]
+    },
+    {
+      "id": "surface:examples/cs2-projections/templates/consumers.proto.tera",
+      "type": "CodeSurface",
+      "attributes": [
+        {
+          "name": "path",
+          "time": "2026-09-26T20:12:05-07:00",
+          "value": "examples/cs2-projections/templates/consumers.proto.tera"
+        }
+      ],
+      "relationships": [
+        {
+          "objectId": "cap:CS2-multiprojection",
+          "qualifier": "capability"
+        }
+      ]
+    },
+    {
+      "id": "surface:examples/cs2-projections/templates/consumers.sql.tera",
+      "type": "CodeSurface",
+      "attributes": [
+        {
+          "name": "path",
+          "time": "2026-09-26T20:12:05-07:00",
+          "value": "examples/cs2-projections/templates/consumers.sql.tera"
+        }
+      ],
+      "relationships": [
+        {
+          "objectId": "cap:CS2-multiprojection",
+          "qualifier": "capability"
+        }
+      ]
+    },
+    {
+      "id": "surface:examples/cs2-projections/templates/consumers.schema.json.tera",
+      "type": "CodeSurface",
+      "attributes": [
+        {
+          "name": "path",
+          "time": "2026-09-26T20:12:05-07:00",
+          "value": "examples/cs2-projections/templates/consumers.schema.json.tera"
+        }
+      ],
+      "relationships": [
+        {
+          "objectId": "cap:CS2-multiprojection",
+          "qualifier": "capability"
+        }
+      ]
+    },
+    {
+      "id": "surface:examples/cs2-projections/templates/consumers.jsonld.tera",
+      "type": "CodeSurface",
+      "attributes": [
+        {
+          "name": "path",
+          "time": "2026-09-26T20:12:05-07:00",
+          "value": "examples/cs2-projections/templates/consumers.jsonld.tera"
+        }
+      ],
+      "relationships": [
+        {
+          "objectId": "cap:CS2-multiprojection",
+          "qualifier": "capability"
+        }
+      ]
+    },
+    {
+      "id": "edge:GitHub.create_blob",
+      "type": "ToolEdge",
+      "attributes": [],
+      "relationships": []
+    },
+    {
+      "id": "edge:GitHub.create_tree",
+      "type": "ToolEdge",
+      "attributes": [],
+      "relationships": []
+    },
+    {
+      "id": "edge:GitHub.create_commit",
+      "type": "ToolEdge",
+      "attributes": [],
+      "relationships": []
+    },
+    {
+      "id": "edge:GitHub.update_ref",
+      "type": "ToolEdge",
+      "attributes": [],
+      "relationships": []
+    }
+  ],
+  "events": [
+    {
+      "id": "e1",
+      "type": "task_started",
+      "time": "2026-09-26T20:12:05-07:00",
+      "attributes": [
+        {
+          "name": "sequence",
+          "value": 1
+        }
+      ],
+      "relationships": [
+        {
+          "objectId": "run:manufacture-20260926T201205-0700-r15",
+          "qualifier": "run"
+        }
+      ]
+    },
+    {
+      "id": "e2",
+      "type": "control_read",
+      "time": "2026-09-26T20:12:05-07:00",
+      "attributes": [
+        {
+          "name": "sequence",
+          "value": 2
+        }
+      ],
+      "relationships": [
+        {
+          "objectId": "lane:MANUFACTURE",
+          "qualifier": "lane"
+        },
+        {
+          "objectId": "run:manufacture-20260926T201205-0700-r15",
+          "qualifier": "run"
+        }
+      ]
+    },
+    {
+      "id": "e3",
+      "type": "work_selected",
+      "time": "2026-09-26T20:12:05-07:00",
+      "attributes": [
+        {
+          "name": "sequence",
+          "value": 3
+        }
+      ],
+      "relationships": [
+        {
+          "objectId": "work:CS2-multiprojection",
+          "qualifier": "target"
+        },
+        {
+          "objectId": "cap:CS2-multiprojection",
+          "qualifier": "capability"
+        }
+      ]
+    },
+    {
+      "id": "e4",
+      "type": "scope_locked",
+      "time": "2026-09-26T20:12:05-07:00",
+      "attributes": [
+        {
+          "name": "sequence",
+          "value": 4
+        }
+      ],
+      "relationships": [
+        {
+          "objectId": "repo:seanchatmangpt/ggen",
+          "qualifier": "target"
+        },
+        {
+          "objectId": "branch:ce/v26.9.26/manufacture/r15-2012-multiprojection",
+          "qualifier": "target"
+        }
+      ]
+    },
+    {
+      "id": "e5",
+      "type": "source_read",
+      "time": "2026-09-26T20:12:05-07:00",
+      "attributes": [
+        {
+          "name": "sequence",
+          "value": 5
+        }
+      ],
+      "relationships": [
+        {
+          "objectId": "base:35ae0552d4ea0aad9d5b41ff769fbe7865d0480d",
+          "qualifier": "parent"
+        }
+      ]
+    },
+    {
+      "id": "e6",
+      "type": "branch_created",
+      "time": "2026-09-26T20:12:05-07:00",
+      "attributes": [
+        {
+          "name": "sequence",
+          "value": 6
+        }
+      ],
+      "relationships": [
+        {
+          "objectId": "branch:ce/v26.9.26/manufacture/r15-2012-multiprojection",
+          "qualifier": "target"
+        },
+        {
+          "objectId": "base:35ae0552d4ea0aad9d5b41ff769fbe7865d0480d",
+          "qualifier": "parent"
+        }
+      ]
+    },
+    {
+      "id": "e7",
+      "type": "write_attempted",
+      "time": "2026-09-26T20:12:05-07:00",
+      "attributes": [
+        {
+          "name": "sequence",
+          "value": 7
+        }
+      ],
+      "relationships": [
+        {
+          "objectId": "edge:GitHub.create_blob",
+          "qualifier": "edge"
+        },
+        {
+          "objectId": "cap:CS2-multiprojection",
+          "qualifier": "capability"
+        }
+      ]
+    },
+    {
+      "id": "e8",
+      "type": "write_succeeded",
+      "time": "2026-09-26T20:12:05-07:00",
+      "attributes": [
+        {
+          "name": "sequence",
+          "value": 8
+        }
+      ],
+      "relationships": [
+        {
+          "objectId": "edge:GitHub.create_blob",
+          "qualifier": "edge"
+        },
+        {
+          "objectId": "cap:CS2-multiprojection",
+          "qualifier": "capability"
+        }
+      ]
+    },
+    {
+      "id": "e9",
+      "type": "receipt_materialized",
+      "time": "2026-09-26T20:12:05-07:00",
+      "attributes": [
+        {
+          "name": "sequence",
+          "value": 9
+        }
+      ],
+      "relationships": [
+        {
+          "objectId": "run:manufacture-20260926T201205-0700-r15",
+          "qualifier": "run"
+        },
+        {
+          "objectId": "repo:seanchatmangpt/ggen",
+          "qualifier": "target"
+        }
+      ]
+    }
+  ]
+}

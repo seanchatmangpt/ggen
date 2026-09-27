@@ -1,6 +1,6 @@
 [project]
 name = "cs2-projections"
-version = "0.1.0"
+version = "0.2.0"
 description = "Deterministic multi-projection witness for RFC-CS2-001"
 
 [ontology]
@@ -24,9 +24,73 @@ mode = "Overwrite"
 skip_empty = true
 
 [[generation.rules]]
+name = "cs2-consumers-jsonld"
+query = { file = "queries/consumers.rq" }
+template = { file = "templates/consumers.jsonld.tera" }
+output_file = "generated/consumers.jsonld"
+mode = "Overwrite"
+skip_empty = true
+
+[[generation.rules]]
+name = "cs2-consumers-json-schema"
+query = { file = "queries/consumers.rq" }
+template = { file = "templates/consumers.schema.json.tera" }
+output_file = "generated/consumers.schema.json"
+mode = "Overwrite"
+skip_empty = true
+
+[[generation.rules]]
 name = "cs2-consumers-elixir"
 query = { file = "queries/consumers.rq" }
 template = { file = "templates/consumers.exs.tera" }
 output_file = "generated/consumers.exs"
+mode = "Overwrite"
+skip_empty = true
+
+[[generation.rules]]
+name = "cs2-consumers-rust"
+query = { file = "queries/consumers.rq" }
+template = { file = "templates/consumers.rs.tera" }
+output_file = "generated/consumers.rs"
+mode = "Overwrite"
+skip_empty = true
+
+[[generation.rules]]
+name = "cs2-consumers-python"
+query = { file = "queries/consumers.rq" }
+template = { file = "templates/consumers.py.tera" }
+output_file = "generated/consumers.py"
+mode = "Overwrite"
+skip_empty = true
+
+[[generation.rules]]
+name = "cs2-consumers-typescript"
+query = { file = "queries/consumers.rq" }
+template = { file = "templates/consumers.ts.tera" }
+output_file = "generated/consumers.ts"
+mode = "Overwrite"
+skip_empty = true
+
+[[generation.rules]]
+name = "cs2-consumers-sql"
+query = { file = "queries/consumers.rq" }
+template = { file = "templates/consumers.sql.tera" }
+output_file = "generated/consumers.sql"
+mode = "Overwrite"
+skip_empty = true
+
+[[generation.rules]]
+name = "cs2-consumers-protobuf"
+query = { file = "queries/consumers.rq" }
+template = { file = "templates/consumers.proto.tera" }
+output_file = "generated/consumers.proto"
+mode = "Overwrite"
+skip_empty = true
+
+[[generation.rules]]
+name = "cs2-consumers-graphql"
+query = { file = "queries/consumers.rq" }
+template = { file = "templates/consumers.graphql.tera" }
+output_file = "generated/consumers.graphql"
 mode = "Overwrite"
 skip_empty = true
