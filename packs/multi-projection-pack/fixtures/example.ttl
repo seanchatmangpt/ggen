@@ -1,0 +1,12 @@
+@prefix mp: <https://ggen.dev/pack/multi-projection#> .
+@prefix ex: <https://example.test/orders#> .
+
+ex:OrderProjection a mp:ProjectionSpec ;
+  mp:subject ex:Order ;
+  mp:authorityCeiling ex:CONSTRUCT ;
+  mp:field ex:idField, ex:totalField .
+
+ex:idField mp:name "id" ; mp:ordinal 1 ; mp:sourcePredicate ex:id ;
+  mp:type "String" ; mp:required true .
+ex:totalField mp:name "total" ; mp:ordinal 2 ; mp:sourcePredicate ex:total ;
+  mp:type "Decimal" ; mp:required true .

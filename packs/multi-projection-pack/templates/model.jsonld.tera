@@ -1,0 +1,19 @@
+{
+  "@context": {
+    "mp": "https://ggen.dev/pack/multi-projection#",
+    "name": "mp:name",
+    "ordinal": "mp:ordinal",
+    "sourcePredicate": {"@id":"mp:sourcePredicate","@type":"@id"},
+    "type": "mp:type",
+    "required": "mp:required",
+    "authorityCeiling": {"@id":"mp:authorityCeiling","@type":"@id"}
+  },
+  "@id": "{{ rows[0].subject }}",
+  "@type": "mp:ProjectionSpec",
+  "authorityCeiling": "{{ rows[0].authority }}",
+  "mp:field": [
+{%- for row in rows %}
+    {"name":"{{ row.name }}","ordinal":{{ row.ordinal }},"sourcePredicate":"{{ row.sourcePredicate }}","type":"{{ row.type }}","required":{{ row.required | lower }}}{% if not loop.last %},{% endif %}
+{%- endfor %}
+  ]
+}

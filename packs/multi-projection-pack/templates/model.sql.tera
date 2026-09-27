@@ -1,0 +1,8 @@
+-- Generated from RDF. Do not edit.
+-- subject: {{ rows[0].subject }}
+-- authority-ceiling: {{ rows[0].authority }}
+CREATE TABLE projection (
+{%- for row in rows %}
+  {{ row.name | snake_case }} {{ row.type }}{% if row.required == "true" %} NOT NULL{% endif %}{% if not loop.last %},{% endif %}
+{%- endfor %}
+);

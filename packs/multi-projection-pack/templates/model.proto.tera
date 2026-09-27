@@ -1,0 +1,9 @@
+// Generated from RDF. Do not edit.
+syntax = "proto3";
+package ggen.projection;
+
+message Projection {
+{%- for row in rows %}
+  {{ row.type }} {{ row.name | snake_case }} = {{ row.ordinal }};
+{%- endfor %}
+}

@@ -1,0 +1,8 @@
+# Generated from RDF. Do not edit.
+# subject: {{ rows[0].subject }}
+# authority-ceiling: {{ rows[0].authority }}
+type Projection {
+{%- for row in rows %}
+  {{ row.name }}: {{ row.type }}{% if row.required == "true" %}!{% endif %}
+{%- endfor %}
+}

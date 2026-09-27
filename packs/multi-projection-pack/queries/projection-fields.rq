@@ -1,0 +1,14 @@
+PREFIX mp: <https://ggen.dev/pack/multi-projection#>
+SELECT ?subject ?authority ?name ?ordinal ?sourcePredicate ?type ?required
+WHERE {
+  ?spec a mp:ProjectionSpec ;
+        mp:subject ?subject ;
+        mp:authorityCeiling ?authority ;
+        mp:field ?field .
+  ?field mp:name ?name ;
+         mp:ordinal ?ordinal ;
+         mp:sourcePredicate ?sourcePredicate ;
+         mp:type ?type ;
+         mp:required ?required .
+}
+ORDER BY ?ordinal ?name

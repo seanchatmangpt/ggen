@@ -1,0 +1,15 @@
+// Generated from RDF. Do not edit.
+export const SUBJECT = "{{ rows[0].subject }}" as const;
+export const AUTHORITY_CEILING = "{{ rows[0].authority }}" as const;
+
+export interface Projection {
+{%- for row in rows %}
+  {{ row.name }}{% if row.required == "false" %}?{% endif %}: {{ row.type }};
+{%- endfor %}
+}
+
+export const fields = [
+{%- for row in rows %}
+  { name: "{{ row.name }}", sourcePredicate: "{{ row.sourcePredicate }}", required: {{ row.required | lower }} },
+{%- endfor %}
+] as const;

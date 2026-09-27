@@ -1,0 +1,9 @@
+{
+  "subject": "{{ rows[0].subject }}",
+  "authorityCeiling": "{{ rows[0].authority }}",
+  "fields": [
+{%- for row in rows %}
+    {"name":"{{ row.name }}","ordinal":{{ row.ordinal }},"sourcePredicate":"{{ row.sourcePredicate }}","type":"{{ row.type }}","required":{{ row.required | lower }}}{% if not loop.last %},{% endif %}
+{%- endfor %}
+  ]
+}

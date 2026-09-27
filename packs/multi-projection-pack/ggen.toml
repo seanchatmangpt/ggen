@@ -1,0 +1,67 @@
+[project]
+name = "multi-projection-pack"
+version = "0.1.0"
+description = "RDF-first deterministic multi-language projection pack"
+
+[ontology]
+source = "fixtures/example.ttl"
+base_iri = "https://ggen.dev/pack/multi-projection#"
+
+[generation]
+output_dir = "generated"
+
+[[generation.rules]]
+name = "json"
+query = { file = "queries/projection-fields.rq" }
+template = { file = "templates/model.json.tera" }
+output_file = "model.json"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "jsonld"
+query = { file = "queries/projection-fields.rq" }
+template = { file = "templates/model.jsonld.tera" }
+output_file = "model.jsonld"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "rust"
+query = { file = "queries/projection-fields.rq" }
+template = { file = "templates/model.rs.tera" }
+output_file = "model.rs"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "python"
+query = { file = "queries/projection-fields.rq" }
+template = { file = "templates/model.py.tera" }
+output_file = "model.py"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "typescript"
+query = { file = "queries/projection-fields.rq" }
+template = { file = "templates/model.ts.tera" }
+output_file = "model.ts"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "sql"
+query = { file = "queries/projection-fields.rq" }
+template = { file = "templates/model.sql.tera" }
+output_file = "model.sql"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "protobuf"
+query = { file = "queries/projection-fields.rq" }
+template = { file = "templates/model.proto.tera" }
+output_file = "model.proto"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "graphql"
+query = { file = "queries/projection-fields.rq" }
+template = { file = "templates/model.graphql.tera" }
+output_file = "model.graphql"
+mode = "Overwrite"

@@ -1,0 +1,17 @@
+# Generated from RDF. Do not edit.
+from dataclasses import dataclass
+
+SUBJECT = "{{ rows[0].subject }}"
+AUTHORITY_CEILING = "{{ rows[0].authority }}"
+
+@dataclass(frozen=True, slots=True)
+class Projection:
+{%- for row in rows %}
+    {{ row.name | snake_case }}: {{ row.type }}
+{%- endfor %}
+
+FIELDS = (
+{%- for row in rows %}
+    ("{{ row.name }}", "{{ row.sourcePredicate }}", {{ row.required | capitalize }}),
+{%- endfor %}
+)

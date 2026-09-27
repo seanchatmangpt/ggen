@@ -1,0 +1,16 @@
+// Generated from RDF. Do not edit.
+pub const SUBJECT: &str = "{{ rows[0].subject }}";
+pub const AUTHORITY_CEILING: &str = "{{ rows[0].authority }}";
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Projection {
+{%- for row in rows %}
+    pub {{ row.name | snake_case }}: {{ row.type }},
+{%- endfor %}
+}
+
+pub const FIELDS: &[(&str, &str, bool)] = &[
+{%- for row in rows %}
+    ("{{ row.name }}", "{{ row.sourcePredicate }}", {{ row.required | lower }}),
+{%- endfor %}
+];

@@ -1,0 +1,25 @@
+@prefix mp: <https://ggen.dev/pack/multi-projection#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+mp:ProjectionSpec a mp:Capability ;
+  mp:description "One semantic relation projected deterministically into multiple implementation surfaces." .
+
+mp:Field a mp:Concept .
+mp:Projection a mp:Concept .
+
+mp:ConsumerProjection a mp:Projection ;
+  mp:query "queries/projection-fields.rq" ;
+  mp:stableOrder "ordinal,name" ;
+  mp:authorityRule "projection-preserves-source-authority" .
+
+mp:name a rdf:Property .
+mp:ordinal a rdf:Property .
+mp:sourcePredicate a rdf:Property .
+mp:type a rdf:Property .
+mp:required a rdf:Property .
+mp:projection a rdf:Property .
+mp:outputPath a rdf:Property .
+mp:templatePath a rdf:Property .
+mp:authorityCeiling a rdf:Property .
+mp:subject a rdf:Property .
