@@ -1,0 +1,51 @@
+{
+  "run_id": "scheduler-capacity-20260927T064121-0700-r13",
+  "lower_bound_max_cycles_prior": 25,
+  "base_sha": "dc6b591773a1bbd2e162319f830f984a9e778f76",
+  "branch": "probe/scheduler-capacity-20260927T064121-0700-r13",
+  "entries": [
+    {
+      "cycle": 1,
+      "tool": "connector-discovery",
+      "operation": "discover probe tool edges",
+      "status": "SUCCESS"
+    },
+    {
+      "cycle": 2,
+      "tool": "Notion",
+      "operation": "access-tool discovery",
+      "status": "UNKNOWN"
+    },
+    {
+      "cycle": 3,
+      "tool": "Notion/GitHub",
+      "operation": "control search + repository metadata",
+      "status": "SUCCESS"
+    },
+    {
+      "cycle": 4,
+      "tool": "GitHub",
+      "operation": "fetch-edge schema discovery",
+      "status": "SUCCESS"
+    },
+    {
+      "cycle": 5,
+      "tool": "Notion/GitHub",
+      "operation": "control read + exact main HEAD",
+      "status": "SUCCESS"
+    },
+    {
+      "cycle": 6,
+      "tool": "GitHub",
+      "operation": "create fresh branch",
+      "status": "SUCCESS"
+    },
+    {
+      "cycle": 7,
+      "tool": "GitHub",
+      "operation": "compound blob/tree/commit/ref checkpoint",
+      "status": "REFUSED",
+      "failure_class": "safety_rail"
+    }
+  ]
+}
