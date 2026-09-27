@@ -1,0 +1,9 @@
+@prefix ad: <https://ggen.dev/adapter-dispatch#> .
+@prefix f: <https://ggen.dev/fleet#> .
+f:CS2 a ad:Subject . f:PTD a ad:Subject .
+f:XaaS a ad:Consumer . f:GymAct a ad:Consumer . f:SemanticJira a ad:Consumer .
+f:p1 a ad:Projection ; ad:subject f:CS2 ; ad:consumer f:XaaS ; ad:family ad:Elixir ; ad:targetPath "generated/xaas/cs2_adapter.ex" .
+f:p2 a ad:Projection ; ad:subject f:CS2 ; ad:consumer f:GymAct ; ad:family ad:Json ; ad:targetPath "generated/gymact/cs2.json" .
+f:p3 a ad:Projection ; ad:subject f:PTD ; ad:consumer f:SemanticJira ; ad:family ad:OpenApi ; ad:targetPath "generated/semantic-jira/ptd.openapi.yaml" .
+f:p4 a ad:Projection ; ad:subject f:PTD ; ad:consumer f:XaaS ; ad:family ad:Protobuf ; ad:targetPath "generated/xaas/ptd.proto" .
+f:p5 a ad:Projection ; ad:subject f:CS2 ; ad:consumer f:SemanticJira ; ad:family ad:Sql ; ad:targetPath "generated/semantic-jira/cs2.sql" .
