@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://chatman.ai/cs2/semantic-jira/v1",
+  "type": "object",
+  "required": ["schema", "exact_subject", "authority_ceiling", "issues"],
+  "properties": {
+    "schema": {"const": "https://chatman.ai/cs2/semantic-jira/v1"},
+    "exact_subject": {"const": "https://chatman.ai/cs2#RFC-CS2-001"},
+    "authority_ceiling": {"const": "CONSTRUCT"},
+    "issues": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["external_id", "summary", "description", "labels", "properties"],
+        "properties": {
+          "external_id": {"type": "string", "minLength": 1},
+          "summary": {"type": "string", "minLength": 1},
+          "description": {"type": "string"},
+          "labels": {"type": "array", "items": {"type": "string"}},
+          "properties": {
+            "type": "object",
+            "required": ["subject", "consumer", "authority_ceiling"],
+            "properties": {
+              "subject": {"const": "https://chatman.ai/cs2#RFC-CS2-001"},
+              "consumer": {"type": "string", "minLength": 1},
+              "authority_ceiling": {"const": "CONSTRUCT"}
+            },
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}
