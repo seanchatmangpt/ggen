@@ -1,0 +1,8 @@
+-- Generated from canonical.ttl. Do not edit.
+CREATE TABLE IF NOT EXISTS cs2_consumer (
+  consumer TEXT PRIMARY KEY,
+  work_id TEXT NOT NULL UNIQUE,
+  projection TEXT NOT NULL
+);
+{% for row in results %}INSERT INTO cs2_consumer (consumer, work_id, projection) VALUES ('{{ row.consumer }}', '{{ row.workId }}', '{{ row.projection }}');
+{% endfor %}
