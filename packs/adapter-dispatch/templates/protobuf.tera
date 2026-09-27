@@ -1,0 +1,9 @@
+syntax = "proto3";
+package generated.adapter;
+
+message ProjectionBinding {
+  string subject = 1;
+  string consumer = 2;
+  string projection = 3;
+  string target_path = 4;
+}
