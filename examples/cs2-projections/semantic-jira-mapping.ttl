@@ -1,0 +1,10 @@
+@prefix cs2: <https://chatman.ai/cs2#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+
+cs2:SemanticJiraProjection a cs2:Projection ;
+  cs2:sourceSubject cs2:RFC-CS2-001 ;
+  cs2:requiresExactSubject true ;
+  cs2:outputKind cs2:JiraIssue ;
+  prov:wasDerivedFrom cs2:RFC-CS2-001 .
+
+cs2:JiraIssue a cs2:GeneratedArtifact .
