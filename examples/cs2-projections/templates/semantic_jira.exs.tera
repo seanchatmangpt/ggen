@@ -1,0 +1,10 @@
+# Generated from RFC-CS2-001. Do not hand-edit.
+%{
+  exact_subject: "https://chatman.ai/cs2#RFC-CS2-001",
+  authority_ceiling: "CONSTRUCT",
+  consumers: [
+{% for row in sparql_results -%}
+    %{work_id: "{{ row["work_id"] }}", consumer: "{{ row["consumer"] }}", projection: "{{ row["projection"] }}"}{% if not loop.last %},{% endif %}
+{% endfor -%}
+  ]
+}
