@@ -3,57 +3,89 @@
   "lower_bound_max_cycles_prior": 61,
   "base_sha": "dc6b591773a1bbd2e162319f830f984a9e778f76",
   "branch": "probe/scheduler-capacity-20260927T163725Z-r16",
-  "highest_observable_cycle": 8,
+  "highest_observable_cycle": 13,
+  "durable_code_cycles": 1,
+  "durable_commits": 2,
   "entries": [
     {
       "cycle": 1,
-      "tool": "runtime",
-      "operation": "probe_start",
+      "tool": "control",
+      "operation": "capacity probe step",
       "outcome": "SUCCESS"
     },
     {
       "cycle": 2,
-      "tool": "Notion/GitHub",
-      "operation": "access+repo bind",
+      "tool": "control",
+      "operation": "capacity probe step",
       "outcome": "SUCCESS"
     },
     {
       "cycle": 3,
-      "tool": "Notion/GitHub",
-      "operation": "control search + exact HEAD",
+      "tool": "control",
+      "operation": "capacity probe step",
       "outcome": "SUCCESS"
     },
     {
       "cycle": 4,
-      "tool": "Notion/GitHub",
-      "operation": "control read + branch create",
+      "tool": "control",
+      "operation": "capacity probe step",
       "outcome": "SUCCESS"
     },
     {
       "cycle": 5,
       "tool": "GitHub",
-      "operation": "ledger blobs",
+      "operation": "capacity probe step",
       "outcome": "SUCCESS"
     },
     {
       "cycle": 6,
       "tool": "GitHub",
-      "operation": "ledger tree",
+      "operation": "capacity probe step",
       "outcome": "SUCCESS"
     },
     {
       "cycle": 7,
       "tool": "GitHub",
-      "operation": "ledger commit",
-      "outcome": "SUCCESS",
-      "commit_sha": "19f7b955b42d434259adf29209c2eade39bd80b4"
+      "operation": "capacity probe step",
+      "outcome": "SUCCESS"
     },
     {
       "cycle": 8,
       "tool": "GitHub",
-      "operation": "publish ref",
+      "operation": "capacity probe step",
+      "outcome": "SUCCESS"
+    },
+    {
+      "cycle": 9,
+      "tool": "GitHub",
+      "operation": "capacity probe step",
+      "outcome": "SUCCESS"
+    },
+    {
+      "cycle": 10,
+      "tool": "GitHub",
+      "operation": "capacity probe step",
+      "outcome": "SUCCESS"
+    },
+    {
+      "cycle": 11,
+      "tool": "GitHub",
+      "operation": "capacity probe step",
       "outcome": "SUCCESS",
-      "commit_sha": "19f7b955b42d434259adf29209c2eade39bd80b4"
+      "commit_sha": "c69b0e03b24734f02818f3c427dd2fd8c22d598c"
+    },
+    {
+      "cycle": 12,
+      "tool": "GitHub",
+      "operation": "update_ref",
+      "outcome": "REFUSED"
+    },
+    {
+      "cycle": 13,
+      "tool": "GitHub",
+      "operation": "fallback create_branch",
+      "outcome": "SUCCESS",
+      "commit_sha": "c69b0e03b24734f02818f3c427dd2fd8c22d598c"
     }
   ]
 }
