@@ -1,0 +1,10 @@
+[
+{% for row in results %}  %{
+    subject: "{{ row.subject }}",
+    consumer: "{{ row.consumer }}",
+    work_id: "{{ row.workId }}",
+    projection: "{{ row.projection }}",
+    authority_ceiling: :construct,
+    status: :open
+  }{% if not loop.last %},{% endif %}
+{% endfor %}]
