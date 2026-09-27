@@ -2,26 +2,42 @@
   "run_id": "scheduler-capacity-20260927T084229Z-r10",
   "base_sha": "dc6b591773a1bbd2e162319f830f984a9e778f76",
   "branch": "probe/scheduler-capacity-20260927T084229Z-r10",
-  "highest_observable_cycle": 10,
-  "lower_bound_max_cycles": 10,
+  "highest_observable_cycle": 16,
+  "lower_bound_max_cycles": 16,
   "durable_code_cycles": 3,
-  "total_durable_commits": 2,
-  "latest_reachable_commit": "0dca02ceb30b91957e4dfff658ce210256731308",
+  "total_durable_commits": 3,
+  "latest_reachable_commit": "9e58efc6b2277ce89ca3ad01cb983388227b8e5b",
+  "code_files": [
+    "examples/scheduler-capacity-probe/lib/cycle_ledger.ex",
+    "examples/scheduler-capacity-probe/lib/stats.ex",
+    "examples/scheduler-capacity-probe/lib/event.ex"
+  ],
   "notion": {
-    "searches": 2,
+    "searches": 4,
     "reads": 2,
-    "writes": 0
+    "writes": 0,
+    "mutation_reason": "no designated Notion sandbox found"
   },
   "slack": {
-    "reads": 0,
-    "searches": 0,
-    "writes": 0,
+    "reads": 1,
+    "searches": 1,
+    "writes": {
+      "success": 0,
+      "refused": 1
+    },
     "edits": 0,
     "reactions": 0
   },
   "github": {
-    "refusal_count": 3,
-    "route": "split compound GitHub mutations into individual edges"
+    "branch_creates": 1,
+    "blob_creates": 7,
+    "tree_creates": 3,
+    "commit_creates": 3,
+    "ref_updates_success": 3,
+    "ref_updates_refused": 2,
+    "compound_orchestration_refused": 3
   },
-  "next": "Notion capacity"
+  "first_refusal": "GitHub compound multi-mutation orchestration safety refusal; individual blob/tree/commit/ref edges remained usable",
+  "likely_termination_class": "censored: run still executing; no scheduler boundary observed",
+  "next": "repeat with isolated Slack send then checkpoint"
 }
