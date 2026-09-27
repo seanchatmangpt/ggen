@@ -1,0 +1,1 @@
+{"schema":"https://chatman.ai/cs2/a2a-packet/v1","subject":"RFC-CS2-001","authority_ceiling":"CONSTRUCT","rows":{{ sparql_results | json_encode() }}}
