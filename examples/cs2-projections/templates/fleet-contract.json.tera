@@ -1,0 +1,18 @@
+{
+  "schema": "https://chatman.ai/schemas/cs2/fleet-contract-v1",
+  "subject": "https://chatman.ai/cs2#RFC-CS2-001",
+  "campaign": "CS2-CHICAGO",
+  "authority_ceiling": "CONSTRUCT",
+  "requires_exact_subject": true,
+  "requires_provenance": true,
+  "requires_receipt_replay": true,
+  "consumers": [
+{% for row in results %}
+    {
+      "id": "{{ row.consumer }}",
+      "work_id": "{{ row.workId }}",
+      "projection": "{{ row.expectedProjection }}"
+    }{% if not loop.last %},{% endif %}
+{% endfor %}
+  ]
+}
