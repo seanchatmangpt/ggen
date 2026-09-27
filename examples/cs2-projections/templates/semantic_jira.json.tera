@@ -1,0 +1,23 @@
+{
+  "schema": "https://chatman.ai/cs2/semantic-jira/v1",
+  "source": "RFC-CS2-001",
+  "authority": "CONSTRUCT",
+  "issues": [
+{%- for row in sparql_results %}
+    {
+      "external_id": "{{ row.work_id }}",
+      "subject": "{{ row.subject }}",
+      "campaign": "{{ row.campaign }}",
+      "consumer": "{{ row.consumer }}",
+      "summary": "{{ row.projection }}",
+      "authority_ceiling": "{{ row.authority }}",
+      "labels": ["cs2", "semantic-projection", "{{ row.work_id }}"],
+      "provenance": {
+        "canonical_subject": "{{ row.subject }}",
+        "generated": true,
+        "do_authorized": false
+      }
+    }{% if not loop.last %},{% endif %}
+{%- endfor %}
+  ]
+}
