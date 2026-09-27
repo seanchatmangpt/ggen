@@ -1,0 +1,7 @@
+openapi: 3.1.0
+info:
+  title: "{{ packageName | default(value="Generated Consumer API") }}"
+  version: "1.0.0"
+paths: {}
+x-ggen-subject: "{{ subject }}"
+x-ggen-consumer: "{{ consumer }}"
