@@ -1,0 +1,25 @@
+{%- set spec = sparql_results | first -%}
+{%- set required_names = [] -%}
+{%- for row in sparql_results -%}
+{%- if row["required"] == true or row["required"] == "true" -%}
+{%- set_global required_names = required_names | concat(with=row["json_name"]) -%}
+{%- endif -%}
+{%- endfor -%}
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "{{ spec["spec"] }}",
+  "title": "{{ spec["spec_name"] }}",
+  "type": "object",
+  "x-semantic-subject": "{{ spec["spec"] }}",
+  "x-target-namespace": "{{ spec["target_namespace"] }}",
+  "properties": {
+{%- for row in sparql_results %}
+    "{{ row["json_name"] }}": {
+      "type": "{{ row["json_schema_type"] }}",
+      "description": "{{ row["documentation"] }}",
+      "x-semantic-iri": "{{ row["semantic_iri"] }}"
+    }{% if not loop.last %},{% endif %}
+{%- endfor %}
+  },
+  "required": {{ required_names | json_encode() }}
+}

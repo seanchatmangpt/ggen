@@ -1,0 +1,10 @@
+{%- set spec = sparql_results | first -%}
+-- GENERATED from RDF ProjectionSpec by ggen. Do not hand-edit.
+CREATE TABLE IF NOT EXISTS {{ spec["package_name"] }} (
+{%- for row in sparql_results %}
+  {{ row["field_name"] }} {{ row["sql_type"] }}{% if row["required"] == true or row["required"] == "true" %} NOT NULL{% endif %}{% if not loop.last %},{% endif %}
+{%- endfor %}
+);
+
+-- semantic-subject: {{ spec["spec"] }}
+-- target-namespace: {{ spec["target_namespace"] }}

@@ -1,0 +1,89 @@
+[project]
+name = "multi-projection-pack"
+version = "0.1.0"
+description = "Manufacture language/schema projections from one RDF ProjectionSpec."
+
+[ontology]
+source = "example.ttl"
+imports = ["ontology.ttl"]
+base_iri = "https://ggen.dev/packs/multi-projection#"
+
+[ontology.prefixes]
+mp = "https://ggen.dev/packs/multi-projection#"
+
+[inference]
+
+[generation]
+output_dir = "generated"
+
+[[generation.rules]]
+name = "projection-rust"
+query = { file = "queries/fields.rq" }
+template = { file = "templates/projection.rs.tera" }
+output_file = "projection.rs"
+mode = "Overwrite"
+skip_empty = true
+
+[[generation.rules]]
+name = "projection-python"
+query = { file = "queries/fields.rq" }
+template = { file = "templates/projection.py.tera" }
+output_file = "projection.py"
+mode = "Overwrite"
+skip_empty = true
+
+[[generation.rules]]
+name = "projection-typescript"
+query = { file = "queries/fields.rq" }
+template = { file = "templates/projection.ts.tera" }
+output_file = "projection.ts"
+mode = "Overwrite"
+skip_empty = true
+
+[[generation.rules]]
+name = "projection-sql"
+query = { file = "queries/fields.rq" }
+template = { file = "templates/projection.sql.tera" }
+output_file = "projection.sql"
+mode = "Overwrite"
+skip_empty = true
+
+[[generation.rules]]
+name = "projection-protobuf"
+query = { file = "queries/fields.rq" }
+template = { file = "templates/projection.proto.tera" }
+output_file = "projection.proto"
+mode = "Overwrite"
+skip_empty = true
+
+[[generation.rules]]
+name = "projection-graphql"
+query = { file = "queries/fields.rq" }
+template = { file = "templates/projection.graphql.tera" }
+output_file = "projection.graphql"
+mode = "Overwrite"
+skip_empty = true
+
+[[generation.rules]]
+name = "projection-json-schema"
+query = { file = "queries/fields.rq" }
+template = { file = "templates/projection.schema.json.tera" }
+output_file = "projection.schema.json"
+mode = "Overwrite"
+skip_empty = true
+
+[[generation.rules]]
+name = "projection-jsonld-context"
+query = { file = "queries/fields.rq" }
+template = { file = "templates/projection.context.jsonld.tera" }
+output_file = "projection.context.jsonld"
+mode = "Overwrite"
+skip_empty = true
+
+[[generation.rules]]
+name = "projection-manifest"
+query = { file = "queries/fields.rq" }
+template = { file = "templates/projection.manifest.json.tera" }
+output_file = "projection.manifest.json"
+mode = "Overwrite"
+skip_empty = true

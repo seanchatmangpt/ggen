@@ -1,0 +1,88 @@
+@prefix mp: <https://ggen.dev/packs/multi-projection#> .
+@prefix cs2: <https://chatman.ai/cs2#> .
+
+cs2:ConsumerProjectionSpec a mp:ProjectionSpec ;
+  mp:typeName "ConsumerProjection" ;
+  mp:packageName "cs2_consumer_projection" ;
+  mp:targetNamespace "chatman.cs2.consumer" ;
+  mp:hasField
+    cs2:SubjectField,
+    cs2:AuthorityCeilingField,
+    cs2:ConsumerField,
+    cs2:WorkIdField,
+    cs2:ExpectedProjectionField .
+
+cs2:SubjectField a mp:ProjectionField ;
+  mp:fieldName "subject" ;
+  mp:fieldOrder 1 ;
+  mp:semanticIri cs2:implements ;
+  mp:required true ;
+  mp:documentation "Exact RFC-CS2-001 semantic subject." ;
+  mp:jsonName "subject" ;
+  mp:rustType "String" ;
+  mp:pythonType "str" ;
+  mp:typescriptType "string" ;
+  mp:sqlType "TEXT" ;
+  mp:protobufType "string" ;
+  mp:graphqlType "ID!" ;
+  mp:jsonSchemaType "string" .
+
+cs2:AuthorityCeilingField a mp:ProjectionField ;
+  mp:fieldName "authority_ceiling" ;
+  mp:fieldOrder 2 ;
+  mp:semanticIri cs2:authorityCeiling ;
+  mp:required true ;
+  mp:documentation "Authority ceiling projected from the canonical subject." ;
+  mp:jsonName "authority_ceiling" ;
+  mp:rustType "String" ;
+  mp:pythonType "str" ;
+  mp:typescriptType "string" ;
+  mp:sqlType "TEXT" ;
+  mp:protobufType "string" ;
+  mp:graphqlType "String!" ;
+  mp:jsonSchemaType "string" .
+
+cs2:ConsumerField a mp:ProjectionField ;
+  mp:fieldName "consumer" ;
+  mp:fieldOrder 3 ;
+  mp:semanticIri cs2:consumer ;
+  mp:required true ;
+  mp:documentation "Consumer IRI bound to the work projection." ;
+  mp:jsonName "consumer" ;
+  mp:rustType "String" ;
+  mp:pythonType "str" ;
+  mp:typescriptType "string" ;
+  mp:sqlType "TEXT" ;
+  mp:protobufType "string" ;
+  mp:graphqlType "ID!" ;
+  mp:jsonSchemaType "string" .
+
+cs2:WorkIdField a mp:ProjectionField ;
+  mp:fieldName "work_id" ;
+  mp:fieldOrder 4 ;
+  mp:semanticIri cs2:workId ;
+  mp:required true ;
+  mp:documentation "Stable Blackboard work identifier." ;
+  mp:jsonName "work_id" ;
+  mp:rustType "String" ;
+  mp:pythonType "str" ;
+  mp:typescriptType "string" ;
+  mp:sqlType "TEXT" ;
+  mp:protobufType "string" ;
+  mp:graphqlType "String!" ;
+  mp:jsonSchemaType "string" .
+
+cs2:ExpectedProjectionField a mp:ProjectionField ;
+  mp:fieldName "expected_projection" ;
+  mp:fieldOrder 5 ;
+  mp:semanticIri cs2:expectedProjection ;
+  mp:required true ;
+  mp:documentation "Expected consumer projection declared by the CS2 work source." ;
+  mp:jsonName "expected_projection" ;
+  mp:rustType "String" ;
+  mp:pythonType "str" ;
+  mp:typescriptType "string" ;
+  mp:sqlType "TEXT" ;
+  mp:protobufType "string" ;
+  mp:graphqlType "String!" ;
+  mp:jsonSchemaType "string" .
