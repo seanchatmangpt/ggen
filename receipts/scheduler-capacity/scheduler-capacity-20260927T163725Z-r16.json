@@ -2,112 +2,38 @@
   "run_id": "scheduler-capacity-20260927T163725Z-r16",
   "lower_bound_max_cycles_prior": 61,
   "base_sha": "dc6b591773a1bbd2e162319f830f984a9e778f76",
-  "highest_observable_cycle": 17,
-  "durable_code_cycles": 2,
-  "durable_commits": 3,
-  "latest_reachable_commit": "f01b3433c2e38ec0d4c322bfed8a6a85433bb0f1",
-  "entries": [
-    {
-      "cycle": 1,
-      "tool": "control",
-      "operation": "capacity probe step",
-      "outcome": "SUCCESS"
-    },
-    {
-      "cycle": 2,
-      "tool": "control",
-      "operation": "capacity probe step",
-      "outcome": "SUCCESS"
-    },
-    {
-      "cycle": 3,
-      "tool": "control",
-      "operation": "capacity probe step",
-      "outcome": "SUCCESS"
-    },
-    {
-      "cycle": 4,
-      "tool": "control",
-      "operation": "capacity probe step",
-      "outcome": "SUCCESS"
-    },
-    {
-      "cycle": 5,
-      "tool": "GitHub",
-      "operation": "capacity probe step",
-      "outcome": "SUCCESS"
-    },
-    {
-      "cycle": 6,
-      "tool": "GitHub",
-      "operation": "capacity probe step",
-      "outcome": "SUCCESS"
-    },
-    {
-      "cycle": 7,
-      "tool": "GitHub",
-      "operation": "capacity probe step",
-      "outcome": "SUCCESS"
-    },
-    {
-      "cycle": 8,
-      "tool": "GitHub",
-      "operation": "capacity probe step",
-      "outcome": "SUCCESS"
-    },
-    {
-      "cycle": 9,
-      "tool": "GitHub",
-      "operation": "capacity probe step",
-      "outcome": "SUCCESS"
-    },
-    {
-      "cycle": 10,
-      "tool": "GitHub",
-      "operation": "capacity probe step",
-      "outcome": "SUCCESS"
-    },
-    {
-      "cycle": 11,
-      "tool": "GitHub",
-      "operation": "capacity probe step",
-      "outcome": "SUCCESS"
-    },
+  "highest_observable_cycle": 30,
+  "durable_code_cycles": 3,
+  "durable_commits": 4,
+  "latest_reachable_commit": "7a3b2297ecfb9843f08dcb7312f5ab7b2177786c",
+  "notion": {
+    "searches": 2,
+    "reads": 3,
+    "writes": 0
+  },
+  "slack": {
+    "reads": 1,
+    "searches": 1,
+    "writes_success": 0,
+    "writes_refused": 1,
+    "edits": 0,
+    "reactions": 0
+  },
+  "failures": [
     {
       "cycle": 12,
-      "tool": "GitHub",
-      "operation": "update_ref",
-      "outcome": "REFUSED"
+      "edge": "GitHub.update_ref",
+      "class": "REFUSED"
     },
     {
-      "cycle": 13,
-      "tool": "GitHub",
-      "operation": "fallback branch",
-      "outcome": "SUCCESS"
+      "cycle": 28,
+      "edge": "Slack.send",
+      "class": "REFUSED"
     },
     {
-      "cycle": 14,
-      "tool": "GitHub",
-      "operation": "capacity probe step",
-      "outcome": "SUCCESS"
-    },
-    {
-      "cycle": 15,
-      "tool": "GitHub",
-      "operation": "capacity probe step",
-      "outcome": "SUCCESS"
-    },
-    {
-      "cycle": 16,
-      "tool": "GitHub",
-      "operation": "capacity probe step",
-      "outcome": "SUCCESS"
-    },
-    {
-      "cycle": 17,
-      "tool": "GitHub",
-      "operation": "checkpoint branch",
-      "outcome": "SUCCESS"
+      "cycle": 30,
+      "edge": "GitHub.update_file",
+      "class": "REFUSED"
     }
   ]
 }
