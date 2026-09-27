@@ -1,0 +1,31 @@
+@prefix mp: <https://ggen.dev/packs/multi-projection#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+mp:ProjectionSpec a rdfs:Class ;
+  rdfs:label "Projection specification" ;
+  rdfs:comment "Declarative schema for manufacturing multiple implementation projections from one semantic field map." .
+
+mp:ProjectionField a rdfs:Class ;
+  rdfs:label "Projection field" ;
+  rdfs:comment "One semantic field with explicit target-language representations." .
+
+mp:hasField a rdf:Property ; rdfs:domain mp:ProjectionSpec ; rdfs:range mp:ProjectionField .
+mp:typeName a rdf:Property ; rdfs:domain mp:ProjectionSpec ; rdfs:range xsd:string .
+mp:packageName a rdf:Property ; rdfs:domain mp:ProjectionSpec ; rdfs:range xsd:string .
+mp:targetNamespace a rdf:Property ; rdfs:domain mp:ProjectionSpec ; rdfs:range xsd:string .
+
+mp:fieldName a rdf:Property ; rdfs:domain mp:ProjectionField ; rdfs:range xsd:string .
+mp:fieldOrder a rdf:Property ; rdfs:domain mp:ProjectionField ; rdfs:range xsd:integer .
+mp:semanticIri a rdf:Property ; rdfs:domain mp:ProjectionField ; rdfs:range xsd:anyURI .
+mp:required a rdf:Property ; rdfs:domain mp:ProjectionField ; rdfs:range xsd:boolean .
+mp:documentation a rdf:Property ; rdfs:domain mp:ProjectionField ; rdfs:range xsd:string .
+mp:jsonName a rdf:Property ; rdfs:domain mp:ProjectionField ; rdfs:range xsd:string .
+mp:rustType a rdf:Property ; rdfs:domain mp:ProjectionField ; rdfs:range xsd:string .
+mp:pythonType a rdf:Property ; rdfs:domain mp:ProjectionField ; rdfs:range xsd:string .
+mp:typescriptType a rdf:Property ; rdfs:domain mp:ProjectionField ; rdfs:range xsd:string .
+mp:sqlType a rdf:Property ; rdfs:domain mp:ProjectionField ; rdfs:range xsd:string .
+mp:protobufType a rdf:Property ; rdfs:domain mp:ProjectionField ; rdfs:range xsd:string .
+mp:graphqlType a rdf:Property ; rdfs:domain mp:ProjectionField ; rdfs:range xsd:string .
+mp:jsonSchemaType a rdf:Property ; rdfs:domain mp:ProjectionField ; rdfs:range xsd:string .

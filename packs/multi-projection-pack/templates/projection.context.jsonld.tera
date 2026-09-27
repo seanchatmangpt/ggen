@@ -1,0 +1,10 @@
+{%- set spec = sparql_results | first -%}
+{
+  "@context": {
+{%- for row in sparql_results %}
+    "{{ row["json_name"] }}": "{{ row["semantic_iri"] }}"{% if not loop.last %},{% endif %}
+{%- endfor %}
+  },
+  "@id": "{{ spec["spec"] }}",
+  "@type": "{{ spec["spec_name"] }}"
+}

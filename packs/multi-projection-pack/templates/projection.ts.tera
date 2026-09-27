@@ -1,0 +1,12 @@
+{%- set spec = sparql_results | first -%}
+// GENERATED from RDF ProjectionSpec by ggen. Do not hand-edit.
+
+export interface {{ spec["spec_name"] }} {
+{%- for row in sparql_results %}
+  /** {{ row["documentation"] }} */
+  {{ row["field_name"] }}: {{ row["typescript_type"] }};
+{%- endfor %}
+}
+
+export const SEMANTIC_SUBJECT = "{{ spec["spec"] }}" as const;
+export const TARGET_NAMESPACE = "{{ spec["target_namespace"] }}" as const;

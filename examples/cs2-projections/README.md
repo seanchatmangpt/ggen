@@ -1,24 +1,40 @@
 # CS2 projections
 
-Deterministic multi-projection witness for `RFC-CS2-001`.
+Deterministic value projections and reusable schema manufacture for `RFC-CS2-001`.
 
 ```
-canonical.ttl
-  -> queries/consumers.rq
-  -> templates/consumers.json.tera -> generated/consumers.json
-  -> templates/consumers.exs.tera  -> generated/consumers.exs
-  -> semantic-jira.rq
-  -> templates/semantic-jira.json.tera -> generated/semantic-jira.json
+canonical.ttl -----------------> queries/consumers.rq
+      |                                  |
+      |                                  +--> generated/consumers.json
+      |                                  +--> generated/consumers.exs
+      |
+      +-------------------------> semantic-jira.rq
+      |                                  |
+      |                                  +--> generated/semantic-jira.json
+      |
+projection-spec.ttl
+      |
+      +--> packs/multi-projection-pack/queries/fields.rq
+              |
+              +--> Rust / Python / TypeScript
+              +--> SQL / Protobuf / GraphQL
+              +--> JSON Schema / JSON-LD context / manifest
 ```
 
-All outputs are projections of the same exact subject and authority ceiling.
-Generated output is not truth, authority, DO, admission, or standing.
+All generated values remain projections of the same exact subject and authority
+ceiling. Generated output is not truth, authority, DO, admission, or standing.
 
 The semantic Jira projection is schema-bound by
 `schema/semantic-jira.schema.json` (issue contract) and
 `schema/semantic-jira-batch.schema.json` (generated batch contract). The
 generated batch carries its canonical schema URI and preserves the CS2 work ID,
 consumer IRI, campaign, and exact subject used by downstream Jira adapters.
+
+The generic multi-projection pack owns repeated target-schema manufacture.
+`projection-spec.ttl` is the CS2-specific semantic map; Rust, Python,
+TypeScript, SQL, Protocol Buffers, GraphQL, JSON Schema, JSON-LD context, and
+the projection manifest are generated from that single field map rather than
+maintained as parallel handwritten schemas.
 
 ## Manufacture
 
@@ -29,31 +45,20 @@ cargo run --quiet -p ggen-cli -- sync \
   --manifest examples/cs2-projections/ggen.toml
 ```
 
-If `ggen` is already installed, the equivalent is:
+If `ggen` is already installed:
 
 ```bash
 ggen sync --manifest examples/cs2-projections/ggen.toml
 ```
 
-## Qualification court
+## Qualification courts
 
 ```bash
 python3 examples/cs2-projections/tests/verify.py
+python3 packs/multi-projection-pack/tests/verify_pack.py
 ```
 
-The court requires:
-
-1. JSON and Elixir projections are both manufactured.
-2. every row binds the exact `RFC-CS2-001` subject.
-3. every row preserves the `CONSTRUCT` authority ceiling.
-4. projection rows remain deterministically ordered and unique.
-5. a second sync is byte-identical for both artifacts.
-6. the divergent-subject fixture cannot mint a canonical projection.
-7. JSON and Elixir contain the same source semantic values.
-
-The semantic Jira code surface additionally projects the same canonical TTL
-through `semantic-jira.rq` into a schema-linked batch consumed by the
-repository's deterministic Python Jira adapter.
-
-The successful court prints a content-addressed JSON receipt using SHA-256 over
-the canonical Turtle input and both generated artifacts.
+The CS2 court checks exact-subject value projection and replay. The generic pack
+court checks complete target manufacture plus byte-identical second generation.
+These courts are authored separately from manufacture and may be executed by a
+verification lane.

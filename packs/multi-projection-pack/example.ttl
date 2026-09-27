@@ -1,0 +1,54 @@
+@prefix mp: <https://ggen.dev/packs/multi-projection#> .
+@prefix ex: <https://example.com/projection#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+ex:ExampleProjection a mp:ProjectionSpec ;
+  mp:typeName "ExampleProjection" ;
+  mp:packageName "example_projection" ;
+  mp:targetNamespace "example.projection" ;
+  mp:hasField ex:IdField, ex:NameField, ex:EnabledField .
+
+ex:IdField a mp:ProjectionField ;
+  mp:fieldName "id" ;
+  mp:fieldOrder 1 ;
+  mp:semanticIri ex:id ;
+  mp:required true ;
+  mp:documentation "Stable exact-subject identifier." ;
+  mp:jsonName "id" ;
+  mp:rustType "String" ;
+  mp:pythonType "str" ;
+  mp:typescriptType "string" ;
+  mp:sqlType "TEXT" ;
+  mp:protobufType "string" ;
+  mp:graphqlType "ID!" ;
+  mp:jsonSchemaType "string" .
+
+ex:NameField a mp:ProjectionField ;
+  mp:fieldName "name" ;
+  mp:fieldOrder 2 ;
+  mp:semanticIri ex:name ;
+  mp:required true ;
+  mp:documentation "Human-readable projection name." ;
+  mp:jsonName "name" ;
+  mp:rustType "String" ;
+  mp:pythonType "str" ;
+  mp:typescriptType "string" ;
+  mp:sqlType "TEXT" ;
+  mp:protobufType "string" ;
+  mp:graphqlType "String!" ;
+  mp:jsonSchemaType "string" .
+
+ex:EnabledField a mp:ProjectionField ;
+  mp:fieldName "enabled" ;
+  mp:fieldOrder 3 ;
+  mp:semanticIri ex:enabled ;
+  mp:required false ;
+  mp:documentation "Optional activation flag." ;
+  mp:jsonName "enabled" ;
+  mp:rustType "Option<bool>" ;
+  mp:pythonType "Optional[bool]" ;
+  mp:typescriptType "boolean | undefined" ;
+  mp:sqlType "BOOLEAN" ;
+  mp:protobufType "bool" ;
+  mp:graphqlType "Boolean" ;
+  mp:jsonSchemaType "boolean" .

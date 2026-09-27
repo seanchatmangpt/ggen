@@ -1,0 +1,15 @@
+{%- set spec = sparql_results | first -%}
+// GENERATED from RDF ProjectionSpec by ggen. Do not hand-edit.
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct {{ spec["spec_name"] }} {
+{%- for row in sparql_results %}
+    /// {{ row["documentation"] }}
+    pub {{ row["field_name"] }}: {{ row["rust_type"] }},
+{%- endfor %}
+}
+
+impl {{ spec["spec_name"] }} {
+    pub const SEMANTIC_SUBJECT: &'static str = "{{ spec["spec"] }}";
+    pub const TARGET_NAMESPACE: &'static str = "{{ spec["target_namespace"] }}";
+}

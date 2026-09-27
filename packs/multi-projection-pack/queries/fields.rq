@@ -1,0 +1,30 @@
+PREFIX mp: <https://ggen.dev/packs/multi-projection#>
+
+SELECT
+  ?spec ?spec_name ?package_name ?target_namespace
+  ?field ?field_order ?field_name ?semantic_iri ?required ?documentation
+  ?json_name ?rust_type ?python_type ?typescript_type ?sql_type
+  ?protobuf_type ?graphql_type ?json_schema_type
+WHERE {
+  ?spec a mp:ProjectionSpec ;
+        mp:typeName ?spec_name ;
+        mp:packageName ?package_name ;
+        mp:targetNamespace ?target_namespace ;
+        mp:hasField ?field .
+
+  ?field a mp:ProjectionField ;
+         mp:fieldOrder ?field_order ;
+         mp:fieldName ?field_name ;
+         mp:semanticIri ?semantic_iri ;
+         mp:required ?required ;
+         mp:documentation ?documentation ;
+         mp:jsonName ?json_name ;
+         mp:rustType ?rust_type ;
+         mp:pythonType ?python_type ;
+         mp:typescriptType ?typescript_type ;
+         mp:sqlType ?sql_type ;
+         mp:protobufType ?protobuf_type ;
+         mp:graphqlType ?graphql_type ;
+         mp:jsonSchemaType ?json_schema_type .
+}
+ORDER BY STR(?spec) ?field_order STR(?field_name)

@@ -1,0 +1,8 @@
+{%- set spec = sparql_results | first -%}
+# GENERATED from RDF ProjectionSpec by ggen. Do not hand-edit.
+type {{ spec["spec_name"] }} {
+{%- for row in sparql_results %}
+  """{{ row["documentation"] }}"""
+  {{ row["field_name"] }}: {{ row["graphql_type"] }}
+{%- endfor %}
+}
