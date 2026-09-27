@@ -1,0 +1,4 @@
+PREFIX ad: <https://ggen.dev/adapter-dispatch#>
+SELECT ?subject ?consumer ?targetPath WHERE {
+ ?p a ad:Projection ; ad:subject ?subject ; ad:consumer ?consumer ; ad:targetPath ?targetPath .
+} ORDER BY ?consumer ?subject ?targetPath
