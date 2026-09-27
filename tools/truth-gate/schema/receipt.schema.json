@@ -1,0 +1,17 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"https://ggen.dev/schema/truth-gate/receipt.schema.json",
+  "title":"TruthGateReceipt",
+  "type":"object",
+  "additionalProperties":false,
+  "required":["subject","base","head","operation","outcome"],
+  "properties":{
+    "subject":{"type":"string","minLength":1},
+    "base":{"type":"string","minLength":1},
+    "head":{"type":"string","minLength":1},
+    "operation":{"type":"string","minLength":1},
+    "outcome":{"enum":["SUCCESS","REFUSED","ERROR","THROTTLED","TRUNCATED","UNKNOWN"]},
+    "consequence":{"type":"string"},
+    "replay":{"type":"string"}
+  }
+}

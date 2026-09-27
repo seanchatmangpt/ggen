@@ -1,0 +1,27 @@
+@prefix tg: <https://ggen.dev/truth-gate#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+tg:WriteIntent a tg:Concept .
+tg:AdmissionDecision a tg:Concept .
+tg:Receipt a tg:Concept .
+tg:PathClass a tg:Concept .
+
+tg:subject a tg:Property .
+tg:base a tg:Property .
+tg:head a tg:Property .
+tg:operation a tg:Property .
+tg:outcome a tg:Property .
+tg:consequence a tg:Property .
+tg:replay a tg:Property .
+
+tg:ADMIT a tg:Outcome .
+tg:REFUSE a tg:Outcome .
+tg:GeneratedProjection a tg:PathClass .
+tg:ReceiptPath a tg:PathClass .
+tg:WorkflowPath a tg:PathClass .
+tg:SubjectPath a tg:PathClass .
+
+# Canonical invariant: generated projections are outputs of construction.
+tg:GeneratedProjection tg:manualWriteAllowed false .
+# Canonical invariant: receipt identity binds exact before/after artifact identity.
+tg:Receipt tg:requires tg:subject, tg:base, tg:head, tg:operation, tg:outcome .
