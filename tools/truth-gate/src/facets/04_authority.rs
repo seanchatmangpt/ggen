@@ -1,0 +1,4 @@
+//! authority facet for truth-gate exact-subject admission.
+#[derive(Debug,Clone,PartialEq,Eq)] pub struct AuthorityFacet{pub subject:String,pub value:String,pub provenance:String}
+impl AuthorityFacet{pub fn new(s:impl Into<String>,v:impl Into<String>,p:impl Into<String>)->Self{Self{subject:s.into(),value:v.into(),provenance:p.into()}} pub fn exact_subject(&self,e:&str)->bool{self.subject==e} pub fn admitted(&self)->bool{!self.subject.is_empty()&&!self.value.is_empty()&&!self.provenance.is_empty()} pub fn receipt(&self)->String{format!("authority|{}|{}|{}",self.subject,self.value,self.provenance)}}
+#[cfg(test)] mod tests{use super::*;#[test] fn contract(){let x=AuthorityFacet::new("s:a","admitted","git:abc");assert!(x.exact_subject("s:a"));assert!(x.admitted());assert!(!x.exact_subject("s:b"));}}
