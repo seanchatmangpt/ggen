@@ -1,0 +1,4 @@
+# Generated adapter registry
+{% for row in projections %}
+{{ row.templateKey }} | {{ row.subject }} | {{ row.consumer }} | {{ row.targetPath }}
+{% endfor %}
