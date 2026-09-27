@@ -1,0 +1,11 @@
+openapi: 3.1.0
+info:
+  title: "{{ subject }} for {{ consumer }}"
+  version: "1.0.0"
+paths:
+  /projection:
+    get:
+      operationId: getProjection
+      responses:
+        "200":
+          description: Generated semantic projection
