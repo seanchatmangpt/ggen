@@ -1,7 +1,7 @@
 [project]
 name = "cs2-projections"
-version = "0.1.0"
-description = "Deterministic multi-projection witness for RFC-CS2-001"
+version = "0.2.0"
+description = "Deterministic multi-projection witness and fleet consumer contract for RFC-CS2-001"
 
 [ontology]
 source = "canonical.ttl"
@@ -28,6 +28,38 @@ name = "cs2-consumers-elixir"
 query = { file = "queries/consumers.rq" }
 template = { file = "templates/consumers.exs.tera" }
 output_file = "generated/consumers.exs"
+mode = "Overwrite"
+skip_empty = true
+
+[[generation.rules]]
+name = "cs2-fleet-contract-json"
+query = { file = "queries/consumers.rq" }
+template = { file = "templates/fleet-contract.json.tera" }
+output_file = "generated/fleet-contract.json"
+mode = "Overwrite"
+skip_empty = true
+
+[[generation.rules]]
+name = "cs2-marketplace-pack"
+query = { file = "queries/consumers.rq" }
+template = { file = "templates/marketplace-pack.ttl.tera" }
+output_file = "generated/marketplace-pack.ttl"
+mode = "Overwrite"
+skip_empty = true
+
+[[generation.rules]]
+name = "cs2-ash-a2a-fleet-contract"
+query = { file = "queries/consumers.rq" }
+template = { file = "templates/ash-a2a-fleet-contract.ex.tera" }
+output_file = "generated/ash_a2a/generated_fleet_contract.ex"
+mode = "Overwrite"
+skip_empty = true
+
+[[generation.rules]]
+name = "cs2-xaas-fleet-contract"
+query = { file = "queries/consumers.rq" }
+template = { file = "templates/xaas-fleet-contract.ex.tera" }
+output_file = "generated/xaas/generated_fleet_contract.ex"
 mode = "Overwrite"
 skip_empty = true
 

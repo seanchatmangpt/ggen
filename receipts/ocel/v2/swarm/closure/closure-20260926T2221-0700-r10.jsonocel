@@ -1,0 +1,840 @@
+{
+  "eventTypes": [
+    {
+      "name": "task_started",
+      "attributes": [
+        {
+          "name": "sequence",
+          "type": "integer"
+        }
+      ]
+    },
+    {
+      "name": "control_read",
+      "attributes": [
+        {
+          "name": "sequence",
+          "type": "integer"
+        }
+      ]
+    },
+    {
+      "name": "work_selected",
+      "attributes": [
+        {
+          "name": "sequence",
+          "type": "integer"
+        }
+      ]
+    },
+    {
+      "name": "scope_locked",
+      "attributes": [
+        {
+          "name": "sequence",
+          "type": "integer"
+        }
+      ]
+    },
+    {
+      "name": "source_read",
+      "attributes": [
+        {
+          "name": "sequence",
+          "type": "integer"
+        }
+      ]
+    },
+    {
+      "name": "branch_created",
+      "attributes": [
+        {
+          "name": "sequence",
+          "type": "integer"
+        }
+      ]
+    },
+    {
+      "name": "write_attempted",
+      "attributes": [
+        {
+          "name": "sequence",
+          "type": "integer"
+        }
+      ]
+    },
+    {
+      "name": "write_succeeded",
+      "attributes": [
+        {
+          "name": "sequence",
+          "type": "integer"
+        }
+      ]
+    },
+    {
+      "name": "dependency_connected",
+      "attributes": [
+        {
+          "name": "sequence",
+          "type": "integer"
+        }
+      ]
+    },
+    {
+      "name": "receipt_materialized",
+      "attributes": [
+        {
+          "name": "sequence",
+          "type": "integer"
+        }
+      ]
+    }
+  ],
+  "objectTypes": [
+    {
+      "name": "ScheduledTask",
+      "attributes": []
+    },
+    {
+      "name": "Run",
+      "attributes": [
+        {
+          "name": "run_id",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "Lane",
+      "attributes": [
+        {
+          "name": "name",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "WorkItem",
+      "attributes": [
+        {
+          "name": "work_id",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "Repository",
+      "attributes": [
+        {
+          "name": "repository",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "Branch",
+      "attributes": [
+        {
+          "name": "branch",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "BaseCommit",
+      "attributes": [
+        {
+          "name": "sha",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "Capability",
+      "attributes": [
+        {
+          "name": "name",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "CodeSurface",
+      "attributes": [
+        {
+          "name": "path",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "DependencyEdge",
+      "attributes": [
+        {
+          "name": "identity",
+          "type": "string"
+        }
+      ]
+    }
+  ],
+  "events": [
+    {
+      "id": "e01",
+      "type": "task_started",
+      "time": "2026-09-26T22:21:00-07:00",
+      "attributes": [
+        {
+          "name": "sequence",
+          "value": 1
+        }
+      ],
+      "relationships": [
+        {
+          "objectId": "run:closure-20260926T2221-0700-r10",
+          "qualifier": "run"
+        },
+        {
+          "objectId": "lane:closure",
+          "qualifier": "lane"
+        }
+      ]
+    },
+    {
+      "id": "e02",
+      "type": "control_read",
+      "time": "2026-09-26T22:21:00-07:00",
+      "attributes": [
+        {
+          "name": "sequence",
+          "value": 2
+        }
+      ],
+      "relationships": [
+        {
+          "objectId": "run:closure-20260926T2221-0700-r10",
+          "qualifier": "run"
+        },
+        {
+          "objectId": "lane:closure",
+          "qualifier": "lane"
+        }
+      ]
+    },
+    {
+      "id": "e03",
+      "type": "work_selected",
+      "time": "2026-09-26T22:21:00-07:00",
+      "attributes": [
+        {
+          "name": "sequence",
+          "value": 3
+        }
+      ],
+      "relationships": [
+        {
+          "objectId": "run:closure-20260926T2221-0700-r10",
+          "qualifier": "run"
+        },
+        {
+          "objectId": "work:CS2-WRK-003",
+          "qualifier": "target"
+        }
+      ]
+    },
+    {
+      "id": "e04",
+      "type": "scope_locked",
+      "time": "2026-09-26T22:21:00-07:00",
+      "attributes": [
+        {
+          "name": "sequence",
+          "value": 4
+        }
+      ],
+      "relationships": [
+        {
+          "objectId": "run:closure-20260926T2221-0700-r10",
+          "qualifier": "run"
+        },
+        {
+          "objectId": "capability:cs2-fleet-contract-generation",
+          "qualifier": "capability"
+        }
+      ]
+    },
+    {
+      "id": "e05",
+      "type": "source_read",
+      "time": "2026-09-26T22:21:00-07:00",
+      "attributes": [
+        {
+          "name": "sequence",
+          "value": 5
+        }
+      ],
+      "relationships": [
+        {
+          "objectId": "run:closure-20260926T2221-0700-r10",
+          "qualifier": "run"
+        },
+        {
+          "objectId": "repo:seanchatmangpt/ggen",
+          "qualifier": "producer"
+        }
+      ]
+    },
+    {
+      "id": "e06",
+      "type": "branch_created",
+      "time": "2026-09-26T22:21:00-07:00",
+      "attributes": [
+        {
+          "name": "sequence",
+          "value": 6
+        }
+      ],
+      "relationships": [
+        {
+          "objectId": "run:closure-20260926T2221-0700-r10",
+          "qualifier": "run"
+        },
+        {
+          "objectId": "branch:closure/v26.9.26/cs2-generated-fleet-contract-r10",
+          "qualifier": "target"
+        }
+      ]
+    },
+    {
+      "id": "e07",
+      "type": "write_attempted",
+      "time": "2026-09-26T22:21:00-07:00",
+      "attributes": [
+        {
+          "name": "sequence",
+          "value": 7
+        }
+      ],
+      "relationships": [
+        {
+          "objectId": "run:closure-20260926T2221-0700-r10",
+          "qualifier": "run"
+        },
+        {
+          "objectId": "capability:cs2-fleet-contract-generation",
+          "qualifier": "target"
+        }
+      ]
+    },
+    {
+      "id": "e08",
+      "type": "write_succeeded",
+      "time": "2026-09-26T22:21:00-07:00",
+      "attributes": [
+        {
+          "name": "sequence",
+          "value": 8
+        }
+      ],
+      "relationships": [
+        {
+          "objectId": "run:closure-20260926T2221-0700-r10",
+          "qualifier": "run"
+        },
+        {
+          "objectId": "capability:cs2-fleet-contract-generation",
+          "qualifier": "target"
+        }
+      ]
+    },
+    {
+      "id": "e09",
+      "type": "dependency_connected",
+      "time": "2026-09-26T22:21:00-07:00",
+      "attributes": [
+        {
+          "name": "sequence",
+          "value": 9
+        }
+      ],
+      "relationships": [
+        {
+          "objectId": "run:closure-20260926T2221-0700-r10",
+          "qualifier": "run"
+        },
+        {
+          "objectId": "dependency:ggen-to-marketplace",
+          "qualifier": "edge"
+        }
+      ]
+    },
+    {
+      "id": "e10",
+      "type": "dependency_connected",
+      "time": "2026-09-26T22:21:00-07:00",
+      "attributes": [
+        {
+          "name": "sequence",
+          "value": 10
+        }
+      ],
+      "relationships": [
+        {
+          "objectId": "run:closure-20260926T2221-0700-r10",
+          "qualifier": "run"
+        },
+        {
+          "objectId": "dependency:ggen-to-ash-a2a",
+          "qualifier": "edge"
+        }
+      ]
+    },
+    {
+      "id": "e11",
+      "type": "dependency_connected",
+      "time": "2026-09-26T22:21:00-07:00",
+      "attributes": [
+        {
+          "name": "sequence",
+          "value": 11
+        }
+      ],
+      "relationships": [
+        {
+          "objectId": "run:closure-20260926T2221-0700-r10",
+          "qualifier": "run"
+        },
+        {
+          "objectId": "dependency:ggen-to-xaas",
+          "qualifier": "edge"
+        }
+      ]
+    },
+    {
+      "id": "e12",
+      "type": "receipt_materialized",
+      "time": "2026-09-26T22:21:00-07:00",
+      "attributes": [
+        {
+          "name": "sequence",
+          "value": 12
+        }
+      ],
+      "relationships": [
+        {
+          "objectId": "run:closure-20260926T2221-0700-r10",
+          "qualifier": "run"
+        },
+        {
+          "objectId": "surface:receipts/ocel/v2/swarm/closure/closure-20260926T2221-0700-r10.jsonocel",
+          "qualifier": "target"
+        }
+      ]
+    }
+  ],
+  "objects": [
+    {
+      "id": "task:fleet-closure",
+      "type": "ScheduledTask",
+      "attributes": [],
+      "relationships": [
+        {
+          "objectId": "run:closure-20260926T2221-0700-r10",
+          "qualifier": "run"
+        }
+      ]
+    },
+    {
+      "id": "run:closure-20260926T2221-0700-r10",
+      "type": "Run",
+      "attributes": [
+        {
+          "name": "run_id",
+          "time": "2026-09-26T22:21:00-07:00",
+          "value": "closure-20260926T2221-0700-r10"
+        }
+      ],
+      "relationships": [
+        {
+          "objectId": "lane:closure",
+          "qualifier": "lane"
+        }
+      ]
+    },
+    {
+      "id": "lane:closure",
+      "type": "Lane",
+      "attributes": [
+        {
+          "name": "name",
+          "time": "2026-09-26T22:21:00-07:00",
+          "value": "Fleet Closure"
+        }
+      ],
+      "relationships": []
+    },
+    {
+      "id": "work:CS2-WRK-003",
+      "type": "WorkItem",
+      "attributes": [
+        {
+          "name": "work_id",
+          "time": "2026-09-26T22:21:00-07:00",
+          "value": "CS2-WRK-003"
+        }
+      ],
+      "relationships": [
+        {
+          "objectId": "run:closure-20260926T2221-0700-r10",
+          "qualifier": "run"
+        }
+      ]
+    },
+    {
+      "id": "repo:seanchatmangpt/ggen",
+      "type": "Repository",
+      "attributes": [
+        {
+          "name": "repository",
+          "time": "2026-09-26T22:21:00-07:00",
+          "value": "seanchatmangpt/ggen"
+        }
+      ],
+      "relationships": [
+        {
+          "objectId": "run:closure-20260926T2221-0700-r10",
+          "qualifier": "run"
+        }
+      ]
+    },
+    {
+      "id": "branch:closure/v26.9.26/cs2-generated-fleet-contract-r10",
+      "type": "Branch",
+      "attributes": [
+        {
+          "name": "branch",
+          "time": "2026-09-26T22:21:00-07:00",
+          "value": "closure/v26.9.26/cs2-generated-fleet-contract-r10"
+        }
+      ],
+      "relationships": [
+        {
+          "objectId": "repo:seanchatmangpt/ggen",
+          "qualifier": "parent"
+        }
+      ]
+    },
+    {
+      "id": "commit:base:eb19155a859a61d6e8f7e4b2f5bbcfb4ecbb781d",
+      "type": "BaseCommit",
+      "attributes": [
+        {
+          "name": "sha",
+          "time": "2026-09-26T22:21:00-07:00",
+          "value": "eb19155a859a61d6e8f7e4b2f5bbcfb4ecbb781d"
+        }
+      ],
+      "relationships": [
+        {
+          "objectId": "branch:closure/v26.9.26/cs2-generated-fleet-contract-r10",
+          "qualifier": "parent"
+        }
+      ]
+    },
+    {
+      "id": "capability:cs2-fleet-contract-generation",
+      "type": "Capability",
+      "attributes": [
+        {
+          "name": "name",
+          "time": "2026-09-26T22:21:00-07:00",
+          "value": "CS2 fleet consumer contract generation"
+        }
+      ],
+      "relationships": [
+        {
+          "objectId": "repo:seanchatmangpt/ggen",
+          "qualifier": "producer"
+        }
+      ]
+    },
+    {
+      "id": "dependency:ggen-to-marketplace",
+      "type": "DependencyEdge",
+      "attributes": [
+        {
+          "name": "identity",
+          "time": "2026-09-26T22:21:00-07:00",
+          "value": "ggen CS2 projection -> ggen-marketplace fleet pack"
+        }
+      ],
+      "relationships": [
+        {
+          "objectId": "capability:cs2-fleet-contract-generation",
+          "qualifier": "producer"
+        }
+      ]
+    },
+    {
+      "id": "dependency:ggen-to-ash-a2a",
+      "type": "DependencyEdge",
+      "attributes": [
+        {
+          "name": "identity",
+          "time": "2026-09-26T22:21:00-07:00",
+          "value": "ggen CS2 projection -> ash_a2a generated contract"
+        }
+      ],
+      "relationships": [
+        {
+          "objectId": "capability:cs2-fleet-contract-generation",
+          "qualifier": "producer"
+        }
+      ]
+    },
+    {
+      "id": "dependency:ggen-to-xaas",
+      "type": "DependencyEdge",
+      "attributes": [
+        {
+          "name": "identity",
+          "time": "2026-09-26T22:21:00-07:00",
+          "value": "ggen CS2 projection -> XaaS generated contract"
+        }
+      ],
+      "relationships": [
+        {
+          "objectId": "capability:cs2-fleet-contract-generation",
+          "qualifier": "producer"
+        }
+      ]
+    },
+    {
+      "id": "surface:examples/cs2-projections/canonical.ttl",
+      "type": "CodeSurface",
+      "attributes": [
+        {
+          "name": "path",
+          "time": "2026-09-26T22:21:00-07:00",
+          "value": "examples/cs2-projections/canonical.ttl"
+        }
+      ],
+      "relationships": [
+        {
+          "objectId": "repo:seanchatmangpt/ggen",
+          "qualifier": "parent"
+        },
+        {
+          "objectId": "capability:cs2-fleet-contract-generation",
+          "qualifier": "capability"
+        }
+      ]
+    },
+    {
+      "id": "surface:examples/cs2-projections/queries/consumers.rq",
+      "type": "CodeSurface",
+      "attributes": [
+        {
+          "name": "path",
+          "time": "2026-09-26T22:21:00-07:00",
+          "value": "examples/cs2-projections/queries/consumers.rq"
+        }
+      ],
+      "relationships": [
+        {
+          "objectId": "repo:seanchatmangpt/ggen",
+          "qualifier": "parent"
+        },
+        {
+          "objectId": "capability:cs2-fleet-contract-generation",
+          "qualifier": "capability"
+        }
+      ]
+    },
+    {
+      "id": "surface:examples/cs2-projections/templates/fleet-contract.json.tera",
+      "type": "CodeSurface",
+      "attributes": [
+        {
+          "name": "path",
+          "time": "2026-09-26T22:21:00-07:00",
+          "value": "examples/cs2-projections/templates/fleet-contract.json.tera"
+        }
+      ],
+      "relationships": [
+        {
+          "objectId": "repo:seanchatmangpt/ggen",
+          "qualifier": "parent"
+        },
+        {
+          "objectId": "capability:cs2-fleet-contract-generation",
+          "qualifier": "capability"
+        }
+      ]
+    },
+    {
+      "id": "surface:examples/cs2-projections/templates/marketplace-pack.ttl.tera",
+      "type": "CodeSurface",
+      "attributes": [
+        {
+          "name": "path",
+          "time": "2026-09-26T22:21:00-07:00",
+          "value": "examples/cs2-projections/templates/marketplace-pack.ttl.tera"
+        }
+      ],
+      "relationships": [
+        {
+          "objectId": "repo:seanchatmangpt/ggen",
+          "qualifier": "parent"
+        },
+        {
+          "objectId": "capability:cs2-fleet-contract-generation",
+          "qualifier": "capability"
+        }
+      ]
+    },
+    {
+      "id": "surface:examples/cs2-projections/templates/ash-a2a-fleet-contract.ex.tera",
+      "type": "CodeSurface",
+      "attributes": [
+        {
+          "name": "path",
+          "time": "2026-09-26T22:21:00-07:00",
+          "value": "examples/cs2-projections/templates/ash-a2a-fleet-contract.ex.tera"
+        }
+      ],
+      "relationships": [
+        {
+          "objectId": "repo:seanchatmangpt/ggen",
+          "qualifier": "parent"
+        },
+        {
+          "objectId": "capability:cs2-fleet-contract-generation",
+          "qualifier": "capability"
+        }
+      ]
+    },
+    {
+      "id": "surface:examples/cs2-projections/templates/xaas-fleet-contract.ex.tera",
+      "type": "CodeSurface",
+      "attributes": [
+        {
+          "name": "path",
+          "time": "2026-09-26T22:21:00-07:00",
+          "value": "examples/cs2-projections/templates/xaas-fleet-contract.ex.tera"
+        }
+      ],
+      "relationships": [
+        {
+          "objectId": "repo:seanchatmangpt/ggen",
+          "qualifier": "parent"
+        },
+        {
+          "objectId": "capability:cs2-fleet-contract-generation",
+          "qualifier": "capability"
+        }
+      ]
+    },
+    {
+      "id": "surface:examples/cs2-projections/schema/fleet-contract.schema.json",
+      "type": "CodeSurface",
+      "attributes": [
+        {
+          "name": "path",
+          "time": "2026-09-26T22:21:00-07:00",
+          "value": "examples/cs2-projections/schema/fleet-contract.schema.json"
+        }
+      ],
+      "relationships": [
+        {
+          "objectId": "repo:seanchatmangpt/ggen",
+          "qualifier": "parent"
+        },
+        {
+          "objectId": "capability:cs2-fleet-contract-generation",
+          "qualifier": "capability"
+        }
+      ]
+    },
+    {
+      "id": "surface:examples/cs2-projections/tests/test_fleet_contract_sources.py",
+      "type": "CodeSurface",
+      "attributes": [
+        {
+          "name": "path",
+          "time": "2026-09-26T22:21:00-07:00",
+          "value": "examples/cs2-projections/tests/test_fleet_contract_sources.py"
+        }
+      ],
+      "relationships": [
+        {
+          "objectId": "repo:seanchatmangpt/ggen",
+          "qualifier": "parent"
+        },
+        {
+          "objectId": "capability:cs2-fleet-contract-generation",
+          "qualifier": "capability"
+        }
+      ]
+    },
+    {
+      "id": "surface:examples/cs2-projections/ggen.toml",
+      "type": "CodeSurface",
+      "attributes": [
+        {
+          "name": "path",
+          "time": "2026-09-26T22:21:00-07:00",
+          "value": "examples/cs2-projections/ggen.toml"
+        }
+      ],
+      "relationships": [
+        {
+          "objectId": "repo:seanchatmangpt/ggen",
+          "qualifier": "parent"
+        },
+        {
+          "objectId": "capability:cs2-fleet-contract-generation",
+          "qualifier": "capability"
+        }
+      ]
+    },
+    {
+      "id": "surface:examples/cs2-projections/README.md",
+      "type": "CodeSurface",
+      "attributes": [
+        {
+          "name": "path",
+          "time": "2026-09-26T22:21:00-07:00",
+          "value": "examples/cs2-projections/README.md"
+        }
+      ],
+      "relationships": [
+        {
+          "objectId": "repo:seanchatmangpt/ggen",
+          "qualifier": "parent"
+        },
+        {
+          "objectId": "capability:cs2-fleet-contract-generation",
+          "qualifier": "capability"
+        }
+      ]
+    },
+    {
+      "id": "surface:receipts/ocel/v2/swarm/closure/closure-20260926T2221-0700-r10.jsonocel",
+      "type": "CodeSurface",
+      "attributes": [
+        {
+          "name": "path",
+          "time": "2026-09-26T22:21:00-07:00",
+          "value": "receipts/ocel/v2/swarm/closure/closure-20260926T2221-0700-r10.jsonocel"
+        }
+      ],
+      "relationships": [
+        {
+          "objectId": "repo:seanchatmangpt/ggen",
+          "qualifier": "parent"
+        }
+      ]
+    }
+  ]
+}

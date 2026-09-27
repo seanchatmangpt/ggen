@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://chatman.ai/cs2/fleet-contract/v1",
+  "title": "CS2 Fleet Consumer Contract",
+  "type": "object",
+  "required": ["contract_schema", "consumers"],
+  "additionalProperties": false,
+  "properties": {
+    "contract_schema": {
+      "const": "https://chatman.ai/cs2/fleet-contract/v1"
+    },
+    "consumers": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "subject",
+          "authority_ceiling",
+          "consumer",
+          "work_id",
+          "expected_projection",
+          "target_repository",
+          "target_path",
+          "artifact_kind",
+          "contract_version"
+        ],
+        "properties": {
+          "subject": {"type": "string", "const": "https://chatman.ai/cs2#RFC-CS2-001"},
+          "authority_ceiling": {"type": "string", "const": "CONSTRUCT"},
+          "consumer": {"type": "string", "minLength": 1},
+          "work_id": {"type": "string", "pattern": "^CS2-WRK-[0-9]{3}$"},
+          "expected_projection": {"type": "string", "minLength": 1},
+          "target_repository": {"type": "string", "pattern": "^seanchatmangpt/[A-Za-z0-9_.-]+$"},
+          "target_path": {"type": "string", "minLength": 1},
+          "artifact_kind": {"type": "string", "enum": ["FleetPack", "ElixirModule"]},
+          "contract_version": {"type": "string", "const": "v1"}
+        }
+      }
+    }
+  }
+}

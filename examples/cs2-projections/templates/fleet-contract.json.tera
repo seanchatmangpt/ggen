@@ -1,0 +1,18 @@
+{
+  "contract_schema": "https://chatman.ai/cs2/fleet-contract/v1",
+  "consumers": [
+{% for row in sparql_results %}
+    {
+      "subject": "{{ row["subject"] }}",
+      "authority_ceiling": "{{ row["authority"] }}",
+      "consumer": "{{ row["consumer"] }}",
+      "work_id": "{{ row["work_id"] }}",
+      "expected_projection": "{{ row["projection"] }}",
+      "target_repository": "{{ row["target_repo"] }}",
+      "target_path": "{{ row["target_path"] }}",
+      "artifact_kind": "{{ row["artifact_kind"] }}",
+      "contract_version": "{{ row["contract_version"] }}"
+    }{% if not loop.last %},{% endif %}
+{% endfor %}
+  ]
+}

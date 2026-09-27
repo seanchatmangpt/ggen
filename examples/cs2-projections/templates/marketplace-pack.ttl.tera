@@ -1,0 +1,21 @@
+@prefix cs2: <https://chatman.ai/cs2#> .
+@prefix pack: <https://chatman.ai/cs2/pack#> .
+
+pack:fleet-contract-v1 a pack:FleetContractManifest ;
+  pack:schema <https://chatman.ai/cs2/fleet-contract/v1> ;
+{% for row in sparql_results %}
+  pack:binding pack:binding-{{ loop.index }}{% if not loop.last %} ;{% else %} .{% endif %}
+{% endfor %}
+
+{% for row in sparql_results %}
+pack:binding-{{ loop.index }} a pack:ConsumerBinding ;
+  pack:subject <{{ row["subject"] }}> ;
+  pack:authorityCeiling "{{ row["authority"] }}" ;
+  pack:consumer <{{ row["consumer"] }}> ;
+  pack:workId "{{ row["work_id"] }}" ;
+  pack:expectedProjection "{{ row["projection"] }}" ;
+  pack:targetRepository "{{ row["target_repo"] }}" ;
+  pack:targetPath "{{ row["target_path"] }}" ;
+  pack:artifactKind "{{ row["artifact_kind"] }}" ;
+  pack:contractVersion "{{ row["contract_version"] }}" .
+{% endfor %}

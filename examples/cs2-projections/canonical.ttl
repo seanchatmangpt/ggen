@@ -10,12 +10,28 @@ cs2:RFC-CS2-001 a cs2:SemanticWorld ;
 
 cs2:CS2-WRK-002 a cs2:Work ;
   cs2:implements cs2:RFC-CS2-001 ;
-  cs2:consumer cs2:ggen-marketplace, cs2:ash-a2a .
+  cs2:consumer cs2:ggen-marketplace, cs2:ash-a2a, cs2:xaas .
 
 cs2:ggen-marketplace a cs2:Consumer ;
   cs2:workId "CS2-WRK-003" ;
-  cs2:expectedProjection "pinned reusable CS2 pack" .
+  cs2:expectedProjection "pinned reusable CS2 pack" ;
+  cs2:targetRepository "seanchatmangpt/ggen-marketplace" ;
+  cs2:targetPath "packs/cs2-fleet-contract/generated/fleet-contract.json" ;
+  cs2:artifactKind cs2:FleetPack ;
+  cs2:contractVersion "v1" .
 
 cs2:ash-a2a a cs2:Consumer ;
   cs2:workId "CS2-WRK-012" ;
-  cs2:expectedProjection "bounded CS2 evidence/triage exchange" .
+  cs2:expectedProjection "bounded CS2 evidence/triage exchange" ;
+  cs2:targetRepository "seanchatmangpt/ash_a2a" ;
+  cs2:targetPath "lib/ash_a2a/cs2/generated_fleet_contract.ex" ;
+  cs2:artifactKind cs2:ElixirModule ;
+  cs2:contractVersion "v1" .
+
+cs2:xaas a cs2:Consumer ;
+  cs2:workId "CS2-WRK-013" ;
+  cs2:expectedProjection "bounded engineer workflow packet" ;
+  cs2:targetRepository "seanchatmangpt/xaas" ;
+  cs2:targetPath "lib/xaas/cs2/generated_fleet_contract.ex" ;
+  cs2:artifactKind cs2:ElixirModule ;
+  cs2:contractVersion "v1" .
