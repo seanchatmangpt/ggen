@@ -1,0 +1,11 @@
+@prefix cs2: <https://chatman.ai/cs2#> .
+@prefix rt: <https://chatman.ai/cs2/runtime#> .
+rt:Projection a rt:Type ; rt:exactSubject cs2:RFC-CS2-001 ; rt:authorityCeiling "CONSTRUCT" .
+rt:Provenance a rt:Type ; rt:requires rt:source, rt:sha256 .
+rt:Receipt a rt:Type ; rt:requires rt:inputDigest, rt:outputDigest, rt:constructor ; rt:replayable true .
+rt:JiraMaterialization a rt:Materialization ; rt:adapter "jira" ; rt:consequence "construct-only" .
+rt:A2AMaterialization a rt:Materialization ; rt:adapter "a2a" ; rt:consequence "construct-only" .
+rt:CanonicalMaterialization a rt:Materialization ; rt:adapter "canonical" ; rt:consequence "construct-only" .
+rt:ExactSubjectGuard a rt:Guard ; rt:rejects "subject mismatch" .
+rt:AuthorityGuard a rt:Guard ; rt:rejects "authority_ceiling != CONSTRUCT" .
+rt:ProvenanceGuard a rt:Guard ; rt:rejects "missing source or sha256" .
