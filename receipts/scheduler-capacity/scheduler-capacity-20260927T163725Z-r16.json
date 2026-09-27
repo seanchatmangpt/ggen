@@ -1,40 +1,40 @@
 {
   "run_id": "scheduler-capacity-20260927T163725Z-r16",
   "lower_bound_max_cycles_prior": 61,
+  "lower_bound_max_cycles_observed": 62,
   "base_sha": "dc6b591773a1bbd2e162319f830f984a9e778f76",
-  "highest_observable_cycle": 40,
+  "highest_observable_cycle": 62,
   "durable_code_cycles": 4,
-  "durable_commits": 5,
-  "latest_reachable_commit": "52564dada45115306c4a201631a0ceeb00b87cc1",
+  "durable_commits_before_final_checkpoint": 6,
+  "latest_reachable_commit_before_final_checkpoint": "c173d9896921f8d112ed52956c9c120a3fbe577c",
   "notion": {
-    "searches": 4,
-    "reads": 4,
-    "writes": 0
+    "searches": 10,
+    "reads": 8,
+    "writes": 0,
+    "outcome": "SUCCESS_NO_THROTTLE"
   },
   "slack": {
-    "reads": 3,
-    "searches": 2,
+    "reads": 8,
+    "searches": 7,
     "writes_success": 0,
     "writes_refused": 1,
     "edits": 0,
-    "reactions": 0
+    "reactions": 0,
+    "outcome": "READ_SEARCH_SUCCESS_SEND_REFUSED"
   },
-  "github_failures": [
-    {
-      "cycle": 12,
-      "edge": "update_ref",
-      "outcome": "REFUSED"
-    },
-    {
-      "cycle": 30,
-      "edge": "update_file",
-      "outcome": "REFUSED"
-    }
-  ],
+  "github": {
+    "update_ref_refused": 1,
+    "update_file_refused": 1,
+    "blob_success": true,
+    "tree_success": true,
+    "commit_success": true,
+    "create_branch_success": true
+  },
   "first_refusal": {
     "cycle": 12,
     "edge": "GitHub.update_ref"
   },
   "throttled": 0,
-  "truncated": 0
+  "truncated": 0,
+  "termination_class": "RIGHT_CENSORED_NO_SCHEDULER_BOUNDARY"
 }
