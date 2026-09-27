@@ -1,0 +1,10 @@
+// Generated from canonical.ttl. Do not edit.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Cs2Consumer {
+    pub consumer: &'static str,
+    pub work_id: &'static str,
+    pub projection: &'static str,
+}
+pub const CS2_CONSUMERS: &[Cs2Consumer] = &[
+{% for row in results %}    Cs2Consumer { consumer: "{{ row.consumer }}", work_id: "{{ row.workId }}", projection: "{{ row.projection }}" },
+{% endfor %}];
