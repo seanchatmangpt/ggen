@@ -1,0 +1,33 @@
+{
+  "run_id": "scheduler-capacity-20260927T084229Z-r10",
+  "base_sha": "dc6b591773a1bbd2e162319f830f984a9e778f76",
+  "branch": "probe/scheduler-capacity-20260927T084229Z-r10",
+  "cycles": [
+    {
+      "cycle": 1,
+      "status": "SUCCESS"
+    },
+    {
+      "cycle": 2,
+      "status": "SUCCESS"
+    },
+    {
+      "cycle": 3,
+      "status": "SUCCESS"
+    },
+    {
+      "cycle": 4,
+      "status": "SUCCESS"
+    },
+    {
+      "cycle": 5,
+      "status": "SUCCESS"
+    },
+    {
+      "cycle": 6,
+      "status": "SUCCESS"
+    }
+  ],
+  "lower_bound_max_cycles": 6,
+  "next": "code batch 2"
+}
