@@ -3,35 +3,57 @@
   "lower_bound_max_cycles_prior": 61,
   "base_sha": "dc6b591773a1bbd2e162319f830f984a9e778f76",
   "branch": "probe/scheduler-capacity-20260927T163725Z-r16",
-  "highest_observable_cycle": 4,
+  "highest_observable_cycle": 8,
   "entries": [
     {
       "cycle": 1,
       "tool": "runtime",
       "operation": "probe_start",
-      "outcome": "SUCCESS",
-      "next": "discover tool schemas"
+      "outcome": "SUCCESS"
     },
     {
       "cycle": 2,
       "tool": "Notion/GitHub",
       "operation": "access+repo bind",
-      "outcome": "SUCCESS",
-      "next": "search control state"
+      "outcome": "SUCCESS"
     },
     {
       "cycle": 3,
       "tool": "Notion/GitHub",
       "operation": "control search + exact HEAD",
-      "outcome": "SUCCESS",
-      "next": "fetch law + branch"
+      "outcome": "SUCCESS"
     },
     {
       "cycle": 4,
       "tool": "Notion/GitHub",
       "operation": "control read + branch create",
+      "outcome": "SUCCESS"
+    },
+    {
+      "cycle": 5,
+      "tool": "GitHub",
+      "operation": "ledger blobs",
+      "outcome": "SUCCESS"
+    },
+    {
+      "cycle": 6,
+      "tool": "GitHub",
+      "operation": "ledger tree",
+      "outcome": "SUCCESS"
+    },
+    {
+      "cycle": 7,
+      "tool": "GitHub",
+      "operation": "ledger commit",
       "outcome": "SUCCESS",
-      "next": "durable ledger checkpoint"
+      "commit_sha": "19f7b955b42d434259adf29209c2eade39bd80b4"
+    },
+    {
+      "cycle": 8,
+      "tool": "GitHub",
+      "operation": "publish ref",
+      "outcome": "SUCCESS",
+      "commit_sha": "19f7b955b42d434259adf29209c2eade39bd80b4"
     }
   ]
 }
