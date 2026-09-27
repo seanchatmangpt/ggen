@@ -1,0 +1,975 @@
+{
+  "eventTypes": [
+    {
+      "name": "task_started",
+      "attributes": [
+        {
+          "name": "sequence",
+          "type": "integer"
+        }
+      ]
+    },
+    {
+      "name": "control_read",
+      "attributes": [
+        {
+          "name": "sequence",
+          "type": "integer"
+        }
+      ]
+    },
+    {
+      "name": "work_selected",
+      "attributes": [
+        {
+          "name": "sequence",
+          "type": "integer"
+        }
+      ]
+    },
+    {
+      "name": "scope_locked",
+      "attributes": [
+        {
+          "name": "sequence",
+          "type": "integer"
+        }
+      ]
+    },
+    {
+      "name": "source_read",
+      "attributes": [
+        {
+          "name": "sequence",
+          "type": "integer"
+        }
+      ]
+    },
+    {
+      "name": "branch_created",
+      "attributes": [
+        {
+          "name": "sequence",
+          "type": "integer"
+        }
+      ]
+    },
+    {
+      "name": "write_attempted",
+      "attributes": [
+        {
+          "name": "sequence",
+          "type": "integer"
+        }
+      ]
+    },
+    {
+      "name": "write_succeeded",
+      "attributes": [
+        {
+          "name": "sequence",
+          "type": "integer"
+        }
+      ]
+    },
+    {
+      "name": "write_failed",
+      "attributes": [
+        {
+          "name": "sequence",
+          "type": "integer"
+        },
+        {
+          "name": "failure_class",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "fallback_selected",
+      "attributes": [
+        {
+          "name": "sequence",
+          "type": "integer"
+        }
+      ]
+    },
+    {
+      "name": "receipt_materialized",
+      "attributes": [
+        {
+          "name": "sequence",
+          "type": "integer"
+        }
+      ]
+    }
+  ],
+  "objectTypes": [
+    {
+      "name": "ScheduledTask",
+      "attributes": []
+    },
+    {
+      "name": "Run",
+      "attributes": []
+    },
+    {
+      "name": "Lane",
+      "attributes": []
+    },
+    {
+      "name": "WorkItem",
+      "attributes": []
+    },
+    {
+      "name": "Repository",
+      "attributes": []
+    },
+    {
+      "name": "Branch",
+      "attributes": []
+    },
+    {
+      "name": "BaseCommit",
+      "attributes": []
+    },
+    {
+      "name": "Capability",
+      "attributes": []
+    },
+    {
+      "name": "CodeSurface",
+      "attributes": []
+    },
+    {
+      "name": "ToolEdge",
+      "attributes": []
+    }
+  ],
+  "objects": [
+    {
+      "id": "task:frontier-code-production",
+      "type": "ScheduledTask",
+      "attributes": []
+    },
+    {
+      "id": "run:frontier-cs2-consumer-codegen-001",
+      "type": "Run",
+      "attributes": []
+    },
+    {
+      "id": "lane:FRONTIER",
+      "type": "Lane",
+      "attributes": []
+    },
+    {
+      "id": "work:CS2-WRK-004",
+      "type": "WorkItem",
+      "attributes": []
+    },
+    {
+      "id": "repo:1071971708",
+      "type": "Repository",
+      "attributes": []
+    },
+    {
+      "id": "branch:frontier/v26.9.26/cs2-consumer-codegen-001",
+      "type": "Branch",
+      "attributes": []
+    },
+    {
+      "id": "commit:35ae0552d4ea0aad9d5b41ff769fbe7865d0480d",
+      "type": "BaseCommit",
+      "attributes": []
+    },
+    {
+      "id": "capability:cs2-semantic-jira-consumers",
+      "type": "Capability",
+      "attributes": []
+    },
+    {
+      "id": "surface:examples/cs2-projections/queries/semantic_jira.rq",
+      "type": "CodeSurface",
+      "attributes": []
+    },
+    {
+      "id": "surface:examples/cs2-projections/templates/semantic_jira.json.tera",
+      "type": "CodeSurface",
+      "attributes": []
+    },
+    {
+      "id": "surface:examples/cs2-projections/schemas/semantic-jira.schema.json",
+      "type": "CodeSurface",
+      "attributes": []
+    },
+    {
+      "id": "surface:examples/cs2-projections/adapters/semantic_jira.py",
+      "type": "CodeSurface",
+      "attributes": []
+    },
+    {
+      "id": "surface:examples/cs2-projections/tests/test_semantic_jira.py",
+      "type": "CodeSurface",
+      "attributes": []
+    },
+    {
+      "id": "surface:examples/cs2-projections/templates/semantic_jira.py.tera",
+      "type": "CodeSurface",
+      "attributes": []
+    },
+    {
+      "id": "surface:examples/cs2-projections/templates/semantic_jira.exs.tera",
+      "type": "CodeSurface",
+      "attributes": []
+    },
+    {
+      "id": "surface:examples/cs2-projections/consumer_registry.py",
+      "type": "CodeSurface",
+      "attributes": []
+    },
+    {
+      "id": "edge:create_branch",
+      "type": "ToolEdge",
+      "attributes": []
+    },
+    {
+      "id": "edge:create_file",
+      "type": "ToolEdge",
+      "attributes": []
+    },
+    {
+      "id": "edge:update_file",
+      "type": "ToolEdge",
+      "attributes": []
+    },
+    {
+      "id": "edge:create_tree",
+      "type": "ToolEdge",
+      "attributes": []
+    }
+  ],
+  "events": [
+    {
+      "id": "e001",
+      "type": "task_started",
+      "time": "2026-09-26T23:45:00Z",
+      "attributes": [
+        {
+          "name": "sequence",
+          "value": 1
+        }
+      ],
+      "relationships": [
+        {
+          "objectId": "run:frontier-cs2-consumer-codegen-001",
+          "qualifier": "run"
+        },
+        {
+          "objectId": "lane:FRONTIER",
+          "qualifier": "lane"
+        }
+      ]
+    },
+    {
+      "id": "e002",
+      "type": "control_read",
+      "time": "2026-09-26T23:45:00Z",
+      "attributes": [
+        {
+          "name": "sequence",
+          "value": 2
+        }
+      ],
+      "relationships": [
+        {
+          "objectId": "run:frontier-cs2-consumer-codegen-001",
+          "qualifier": "run"
+        },
+        {
+          "objectId": "lane:FRONTIER",
+          "qualifier": "lane"
+        }
+      ]
+    },
+    {
+      "id": "e003",
+      "type": "work_selected",
+      "time": "2026-09-26T23:45:00Z",
+      "attributes": [
+        {
+          "name": "sequence",
+          "value": 3
+        }
+      ],
+      "relationships": [
+        {
+          "objectId": "run:frontier-cs2-consumer-codegen-001",
+          "qualifier": "run"
+        },
+        {
+          "objectId": "lane:FRONTIER",
+          "qualifier": "lane"
+        },
+        {
+          "objectId": "work:CS2-WRK-004",
+          "qualifier": "target"
+        },
+        {
+          "objectId": "capability:cs2-semantic-jira-consumers",
+          "qualifier": "capability"
+        }
+      ]
+    },
+    {
+      "id": "e004",
+      "type": "scope_locked",
+      "time": "2026-09-26T23:45:00Z",
+      "attributes": [
+        {
+          "name": "sequence",
+          "value": 4
+        }
+      ],
+      "relationships": [
+        {
+          "objectId": "run:frontier-cs2-consumer-codegen-001",
+          "qualifier": "run"
+        },
+        {
+          "objectId": "lane:FRONTIER",
+          "qualifier": "lane"
+        },
+        {
+          "objectId": "repo:1071971708",
+          "qualifier": "target"
+        },
+        {
+          "objectId": "commit:35ae0552d4ea0aad9d5b41ff769fbe7865d0480d",
+          "qualifier": "parent"
+        }
+      ]
+    },
+    {
+      "id": "e005",
+      "type": "source_read",
+      "time": "2026-09-26T23:45:00Z",
+      "attributes": [
+        {
+          "name": "sequence",
+          "value": 5
+        }
+      ],
+      "relationships": [
+        {
+          "objectId": "run:frontier-cs2-consumer-codegen-001",
+          "qualifier": "run"
+        },
+        {
+          "objectId": "lane:FRONTIER",
+          "qualifier": "lane"
+        },
+        {
+          "objectId": "repo:1071971708",
+          "qualifier": "target"
+        }
+      ]
+    },
+    {
+      "id": "e006",
+      "type": "branch_created",
+      "time": "2026-09-26T23:45:00Z",
+      "attributes": [
+        {
+          "name": "sequence",
+          "value": 6
+        }
+      ],
+      "relationships": [
+        {
+          "objectId": "run:frontier-cs2-consumer-codegen-001",
+          "qualifier": "run"
+        },
+        {
+          "objectId": "lane:FRONTIER",
+          "qualifier": "lane"
+        },
+        {
+          "objectId": "branch:frontier/v26.9.26/cs2-consumer-codegen-001",
+          "qualifier": "target"
+        },
+        {
+          "objectId": "edge:create_branch",
+          "qualifier": "edge"
+        }
+      ]
+    },
+    {
+      "id": "e007",
+      "type": "write_attempted",
+      "time": "2026-09-26T23:45:00Z",
+      "attributes": [
+        {
+          "name": "sequence",
+          "value": 7
+        }
+      ],
+      "relationships": [
+        {
+          "objectId": "run:frontier-cs2-consumer-codegen-001",
+          "qualifier": "run"
+        },
+        {
+          "objectId": "lane:FRONTIER",
+          "qualifier": "lane"
+        },
+        {
+          "objectId": "surface:examples/cs2-projections/queries/semantic_jira.rq",
+          "qualifier": "surface"
+        },
+        {
+          "objectId": "edge:create_file",
+          "qualifier": "edge"
+        }
+      ]
+    },
+    {
+      "id": "e008",
+      "type": "write_succeeded",
+      "time": "2026-09-26T23:45:00Z",
+      "attributes": [
+        {
+          "name": "sequence",
+          "value": 8
+        }
+      ],
+      "relationships": [
+        {
+          "objectId": "run:frontier-cs2-consumer-codegen-001",
+          "qualifier": "run"
+        },
+        {
+          "objectId": "lane:FRONTIER",
+          "qualifier": "lane"
+        },
+        {
+          "objectId": "surface:examples/cs2-projections/queries/semantic_jira.rq",
+          "qualifier": "surface"
+        },
+        {
+          "objectId": "edge:create_file",
+          "qualifier": "edge"
+        }
+      ]
+    },
+    {
+      "id": "e009",
+      "type": "write_attempted",
+      "time": "2026-09-26T23:45:00Z",
+      "attributes": [
+        {
+          "name": "sequence",
+          "value": 9
+        }
+      ],
+      "relationships": [
+        {
+          "objectId": "run:frontier-cs2-consumer-codegen-001",
+          "qualifier": "run"
+        },
+        {
+          "objectId": "lane:FRONTIER",
+          "qualifier": "lane"
+        },
+        {
+          "objectId": "surface:examples/cs2-projections/schemas/semantic-jira.schema.json",
+          "qualifier": "surface"
+        },
+        {
+          "objectId": "edge:create_file",
+          "qualifier": "edge"
+        }
+      ]
+    },
+    {
+      "id": "e010",
+      "type": "write_succeeded",
+      "time": "2026-09-26T23:45:00Z",
+      "attributes": [
+        {
+          "name": "sequence",
+          "value": 10
+        }
+      ],
+      "relationships": [
+        {
+          "objectId": "run:frontier-cs2-consumer-codegen-001",
+          "qualifier": "run"
+        },
+        {
+          "objectId": "lane:FRONTIER",
+          "qualifier": "lane"
+        },
+        {
+          "objectId": "surface:examples/cs2-projections/schemas/semantic-jira.schema.json",
+          "qualifier": "surface"
+        },
+        {
+          "objectId": "edge:create_file",
+          "qualifier": "edge"
+        }
+      ]
+    },
+    {
+      "id": "e011",
+      "type": "write_attempted",
+      "time": "2026-09-26T23:45:00Z",
+      "attributes": [
+        {
+          "name": "sequence",
+          "value": 11
+        }
+      ],
+      "relationships": [
+        {
+          "objectId": "run:frontier-cs2-consumer-codegen-001",
+          "qualifier": "run"
+        },
+        {
+          "objectId": "lane:FRONTIER",
+          "qualifier": "lane"
+        },
+        {
+          "objectId": "surface:examples/cs2-projections/tests/test_semantic_jira.py",
+          "qualifier": "surface"
+        },
+        {
+          "objectId": "edge:create_file",
+          "qualifier": "edge"
+        }
+      ]
+    },
+    {
+      "id": "e012",
+      "type": "write_succeeded",
+      "time": "2026-09-26T23:45:00Z",
+      "attributes": [
+        {
+          "name": "sequence",
+          "value": 12
+        }
+      ],
+      "relationships": [
+        {
+          "objectId": "run:frontier-cs2-consumer-codegen-001",
+          "qualifier": "run"
+        },
+        {
+          "objectId": "lane:FRONTIER",
+          "qualifier": "lane"
+        },
+        {
+          "objectId": "surface:examples/cs2-projections/tests/test_semantic_jira.py",
+          "qualifier": "surface"
+        },
+        {
+          "objectId": "edge:create_file",
+          "qualifier": "edge"
+        }
+      ]
+    },
+    {
+      "id": "e013",
+      "type": "write_attempted",
+      "time": "2026-09-26T23:45:00Z",
+      "attributes": [
+        {
+          "name": "sequence",
+          "value": 13
+        }
+      ],
+      "relationships": [
+        {
+          "objectId": "run:frontier-cs2-consumer-codegen-001",
+          "qualifier": "run"
+        },
+        {
+          "objectId": "lane:FRONTIER",
+          "qualifier": "lane"
+        },
+        {
+          "objectId": "surface:examples/cs2-projections/templates/semantic_jira.json.tera",
+          "qualifier": "surface"
+        },
+        {
+          "objectId": "edge:create_file",
+          "qualifier": "edge"
+        }
+      ]
+    },
+    {
+      "id": "e014",
+      "type": "write_succeeded",
+      "time": "2026-09-26T23:45:00Z",
+      "attributes": [
+        {
+          "name": "sequence",
+          "value": 14
+        }
+      ],
+      "relationships": [
+        {
+          "objectId": "run:frontier-cs2-consumer-codegen-001",
+          "qualifier": "run"
+        },
+        {
+          "objectId": "lane:FRONTIER",
+          "qualifier": "lane"
+        },
+        {
+          "objectId": "surface:examples/cs2-projections/templates/semantic_jira.json.tera",
+          "qualifier": "surface"
+        },
+        {
+          "objectId": "edge:create_file",
+          "qualifier": "edge"
+        }
+      ]
+    },
+    {
+      "id": "e015",
+      "type": "write_attempted",
+      "time": "2026-09-26T23:45:00Z",
+      "attributes": [
+        {
+          "name": "sequence",
+          "value": 15
+        }
+      ],
+      "relationships": [
+        {
+          "objectId": "run:frontier-cs2-consumer-codegen-001",
+          "qualifier": "run"
+        },
+        {
+          "objectId": "lane:FRONTIER",
+          "qualifier": "lane"
+        },
+        {
+          "objectId": "surface:examples/cs2-projections/adapters/semantic_jira.py",
+          "qualifier": "surface"
+        },
+        {
+          "objectId": "edge:create_file",
+          "qualifier": "edge"
+        }
+      ]
+    },
+    {
+      "id": "e016",
+      "type": "write_succeeded",
+      "time": "2026-09-26T23:45:00Z",
+      "attributes": [
+        {
+          "name": "sequence",
+          "value": 16
+        }
+      ],
+      "relationships": [
+        {
+          "objectId": "run:frontier-cs2-consumer-codegen-001",
+          "qualifier": "run"
+        },
+        {
+          "objectId": "lane:FRONTIER",
+          "qualifier": "lane"
+        },
+        {
+          "objectId": "surface:examples/cs2-projections/adapters/semantic_jira.py",
+          "qualifier": "surface"
+        },
+        {
+          "objectId": "edge:create_file",
+          "qualifier": "edge"
+        }
+      ]
+    },
+    {
+      "id": "e017",
+      "type": "write_attempted",
+      "time": "2026-09-26T23:45:00Z",
+      "attributes": [
+        {
+          "name": "sequence",
+          "value": 17
+        }
+      ],
+      "relationships": [
+        {
+          "objectId": "run:frontier-cs2-consumer-codegen-001",
+          "qualifier": "run"
+        },
+        {
+          "objectId": "lane:FRONTIER",
+          "qualifier": "lane"
+        },
+        {
+          "objectId": "surface:examples/cs2-projections/templates/semantic_jira.py.tera",
+          "qualifier": "surface"
+        },
+        {
+          "objectId": "edge:create_file",
+          "qualifier": "edge"
+        }
+      ]
+    },
+    {
+      "id": "e018",
+      "type": "write_succeeded",
+      "time": "2026-09-26T23:45:00Z",
+      "attributes": [
+        {
+          "name": "sequence",
+          "value": 18
+        }
+      ],
+      "relationships": [
+        {
+          "objectId": "run:frontier-cs2-consumer-codegen-001",
+          "qualifier": "run"
+        },
+        {
+          "objectId": "lane:FRONTIER",
+          "qualifier": "lane"
+        },
+        {
+          "objectId": "surface:examples/cs2-projections/templates/semantic_jira.py.tera",
+          "qualifier": "surface"
+        },
+        {
+          "objectId": "edge:create_file",
+          "qualifier": "edge"
+        }
+      ]
+    },
+    {
+      "id": "e019",
+      "type": "write_attempted",
+      "time": "2026-09-26T23:45:00Z",
+      "attributes": [
+        {
+          "name": "sequence",
+          "value": 19
+        }
+      ],
+      "relationships": [
+        {
+          "objectId": "run:frontier-cs2-consumer-codegen-001",
+          "qualifier": "run"
+        },
+        {
+          "objectId": "lane:FRONTIER",
+          "qualifier": "lane"
+        },
+        {
+          "objectId": "surface:examples/cs2-projections/templates/semantic_jira.exs.tera",
+          "qualifier": "surface"
+        },
+        {
+          "objectId": "edge:create_file",
+          "qualifier": "edge"
+        }
+      ]
+    },
+    {
+      "id": "e020",
+      "type": "write_succeeded",
+      "time": "2026-09-26T23:45:00Z",
+      "attributes": [
+        {
+          "name": "sequence",
+          "value": 20
+        }
+      ],
+      "relationships": [
+        {
+          "objectId": "run:frontier-cs2-consumer-codegen-001",
+          "qualifier": "run"
+        },
+        {
+          "objectId": "lane:FRONTIER",
+          "qualifier": "lane"
+        },
+        {
+          "objectId": "surface:examples/cs2-projections/templates/semantic_jira.exs.tera",
+          "qualifier": "surface"
+        },
+        {
+          "objectId": "edge:create_file",
+          "qualifier": "edge"
+        }
+      ]
+    },
+    {
+      "id": "e021",
+      "type": "write_attempted",
+      "time": "2026-09-26T23:45:00Z",
+      "attributes": [
+        {
+          "name": "sequence",
+          "value": 21
+        }
+      ],
+      "relationships": [
+        {
+          "objectId": "run:frontier-cs2-consumer-codegen-001",
+          "qualifier": "run"
+        },
+        {
+          "objectId": "lane:FRONTIER",
+          "qualifier": "lane"
+        },
+        {
+          "objectId": "surface:examples/cs2-projections/consumer_registry.py",
+          "qualifier": "surface"
+        },
+        {
+          "objectId": "edge:create_file",
+          "qualifier": "edge"
+        }
+      ]
+    },
+    {
+      "id": "e022",
+      "type": "write_succeeded",
+      "time": "2026-09-26T23:45:00Z",
+      "attributes": [
+        {
+          "name": "sequence",
+          "value": 22
+        }
+      ],
+      "relationships": [
+        {
+          "objectId": "run:frontier-cs2-consumer-codegen-001",
+          "qualifier": "run"
+        },
+        {
+          "objectId": "lane:FRONTIER",
+          "qualifier": "lane"
+        },
+        {
+          "objectId": "surface:examples/cs2-projections/consumer_registry.py",
+          "qualifier": "surface"
+        },
+        {
+          "objectId": "edge:create_file",
+          "qualifier": "edge"
+        }
+      ]
+    },
+    {
+      "id": "e023",
+      "type": "write_attempted",
+      "time": "2026-09-26T23:45:00Z",
+      "attributes": [
+        {
+          "name": "sequence",
+          "value": 23
+        }
+      ],
+      "relationships": [
+        {
+          "objectId": "run:frontier-cs2-consumer-codegen-001",
+          "qualifier": "run"
+        },
+        {
+          "objectId": "lane:FRONTIER",
+          "qualifier": "lane"
+        },
+        {
+          "objectId": "edge:update_file",
+          "qualifier": "edge"
+        }
+      ]
+    },
+    {
+      "id": "e024",
+      "type": "write_failed",
+      "time": "2026-09-26T23:45:00Z",
+      "attributes": [
+        {
+          "name": "sequence",
+          "value": 24
+        },
+        {
+          "name": "failure_class",
+          "value": "rail_refusal"
+        }
+      ],
+      "relationships": [
+        {
+          "objectId": "run:frontier-cs2-consumer-codegen-001",
+          "qualifier": "run"
+        },
+        {
+          "objectId": "lane:FRONTIER",
+          "qualifier": "lane"
+        },
+        {
+          "objectId": "edge:update_file",
+          "qualifier": "edge"
+        }
+      ]
+    },
+    {
+      "id": "e025",
+      "type": "fallback_selected",
+      "time": "2026-09-26T23:45:00Z",
+      "attributes": [
+        {
+          "name": "sequence",
+          "value": 25
+        }
+      ],
+      "relationships": [
+        {
+          "objectId": "run:frontier-cs2-consumer-codegen-001",
+          "qualifier": "run"
+        },
+        {
+          "objectId": "lane:FRONTIER",
+          "qualifier": "lane"
+        },
+        {
+          "objectId": "edge:create_tree",
+          "qualifier": "next"
+        }
+      ]
+    },
+    {
+      "id": "e026",
+      "type": "receipt_materialized",
+      "time": "2026-09-26T23:45:00Z",
+      "attributes": [
+        {
+          "name": "sequence",
+          "value": 26
+        }
+      ],
+      "relationships": [
+        {
+          "objectId": "run:frontier-cs2-consumer-codegen-001",
+          "qualifier": "run"
+        },
+        {
+          "objectId": "lane:FRONTIER",
+          "qualifier": "lane"
+        },
+        {
+          "objectId": "repo:1071971708",
+          "qualifier": "target"
+        }
+      ]
+    }
+  ]
+}
