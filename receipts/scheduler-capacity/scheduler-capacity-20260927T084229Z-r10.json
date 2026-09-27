@@ -2,32 +2,26 @@
   "run_id": "scheduler-capacity-20260927T084229Z-r10",
   "base_sha": "dc6b591773a1bbd2e162319f830f984a9e778f76",
   "branch": "probe/scheduler-capacity-20260927T084229Z-r10",
-  "cycles": [
-    {
-      "cycle": 1,
-      "status": "SUCCESS"
-    },
-    {
-      "cycle": 2,
-      "status": "SUCCESS"
-    },
-    {
-      "cycle": 3,
-      "status": "SUCCESS"
-    },
-    {
-      "cycle": 4,
-      "status": "SUCCESS"
-    },
-    {
-      "cycle": 5,
-      "status": "SUCCESS"
-    },
-    {
-      "cycle": 6,
-      "status": "SUCCESS"
-    }
+  "highest_observable_cycle": 8,
+  "lower_bound_max_cycles": 8,
+  "durable_code_cycles": 2,
+  "commits": [
+    "9a89f16bfd42e4a80448022672ec4ba8dbe1e4e0"
   ],
-  "lower_bound_max_cycles": 6,
-  "next": "code batch 2"
+  "notion": {
+    "searches": 2,
+    "reads": 2,
+    "writes": 0
+  },
+  "slack": {
+    "reads": 0,
+    "searches": 0,
+    "writes": 0,
+    "edits": 0,
+    "reactions": 0
+  },
+  "github": {
+    "first_refusal": "multi-mutation orchestration safety refusal; split calls succeeded"
+  },
+  "next": "code batch 3"
 }
