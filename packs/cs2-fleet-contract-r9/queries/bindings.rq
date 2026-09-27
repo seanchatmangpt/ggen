@@ -1,0 +1,14 @@
+PREFIX cs2f: <https://ggen.dev/packs/cs2-fleet-contract#>
+SELECT ?subject ?authority ?consumer ?work_id ?target_repo ?target_path ?artifact_kind ?contract_version
+WHERE {
+  ?binding a cs2f:ConsumerBinding ;
+    cs2f:subject ?subject ;
+    cs2f:authorityCeiling ?authority ;
+    cs2f:consumer ?consumer ;
+    cs2f:workId ?work_id ;
+    cs2f:targetRepository ?target_repo ;
+    cs2f:targetPath ?target_path ;
+    cs2f:artifactKind ?artifact_kind ;
+    cs2f:contractVersion ?contract_version .
+}
+ORDER BY STR(?subject) STR(?consumer) STR(?target_repo) STR(?target_path)
