@@ -1,0 +1,10 @@
+# Generated from canonical.ttl. Do not edit.
+from dataclasses import dataclass
+@dataclass(frozen=True, slots=True)
+class Cs2Consumer:
+    consumer: str
+    work_id: str
+    projection: str
+CS2_CONSUMERS = (
+{% for row in results %}    Cs2Consumer("{{ row.consumer }}", "{{ row.workId }}", "{{ row.projection }}"),
+{% endfor %})
