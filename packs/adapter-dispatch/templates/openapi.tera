@@ -1,0 +1,7 @@
+openapi: 3.1.0
+info:
+  title: "{{ subject }} → {{ consumer }}"
+  version: "1.0.0"
+paths: {}
+x-ggen-projection: "{{ projection }}"
+x-ggen-target: "{{ targetPath }}"
