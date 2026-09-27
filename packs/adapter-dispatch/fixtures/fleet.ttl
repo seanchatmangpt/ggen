@@ -1,0 +1,12 @@
+@prefix ad: <https://chatmangpt.com/ggen/adapter-dispatch#> .
+@prefix ex: <https://chatmangpt.com/ggen/fixture#> .
+ex:CS2 a ad:Subject . ex:PTD a ad:Subject .
+ex:XaaS a ad:Consumer . ex:GymAct a ad:Consumer . ex:SemanticJira a ad:Consumer .
+ex:JSON a ad:AdapterFamily ; ad:templateKey "json" .
+ex:SQL a ad:AdapterFamily ; ad:templateKey "sql" .
+ex:OpenAPI a ad:AdapterFamily ; ad:templateKey "openapi" .
+ex:Protobuf a ad:AdapterFamily ; ad:templateKey "protobuf" .
+ex:Elixir a ad:AdapterFamily ; ad:templateKey "elixir" .
+ex:p1 a ad:Projection ; ad:subject ex:CS2 ; ad:consumer ex:XaaS ; ad:family ex:JSON ; ad:targetPath "generated/xaas/cs2.json" ; ad:packageName "xaas_cs2" .
+ex:p2 a ad:Projection ; ad:subject ex:CS2 ; ad:consumer ex:GymAct ; ad:family ex:Elixir ; ad:targetPath "generated/gymact/cs2.ex" ; ad:moduleName "GymAct.CS2" .
+ex:p3 a ad:Projection ; ad:subject ex:PTD ; ad:consumer ex:SemanticJira ; ad:family ex:OpenAPI ; ad:targetPath "generated/semantic_jira/ptd.openapi.yaml" .
