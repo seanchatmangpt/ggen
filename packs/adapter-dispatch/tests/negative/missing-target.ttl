@@ -1,0 +1,3 @@
+@prefix ad: <https://ggen.dev/adapter-dispatch#> .
+@prefix bad: <https://ggen.dev/bad#> .
+bad:projection a ad:Projection ; ad:subject bad:S ; ad:consumer bad:C ; ad:family ad:Json .
