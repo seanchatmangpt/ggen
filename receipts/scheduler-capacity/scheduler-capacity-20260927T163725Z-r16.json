@@ -2,38 +2,39 @@
   "run_id": "scheduler-capacity-20260927T163725Z-r16",
   "lower_bound_max_cycles_prior": 61,
   "base_sha": "dc6b591773a1bbd2e162319f830f984a9e778f76",
-  "highest_observable_cycle": 30,
-  "durable_code_cycles": 3,
-  "durable_commits": 4,
-  "latest_reachable_commit": "7a3b2297ecfb9843f08dcb7312f5ab7b2177786c",
+  "highest_observable_cycle": 40,
+  "durable_code_cycles": 4,
+  "durable_commits": 5,
+  "latest_reachable_commit": "52564dada45115306c4a201631a0ceeb00b87cc1",
   "notion": {
-    "searches": 2,
-    "reads": 3,
+    "searches": 4,
+    "reads": 4,
     "writes": 0
   },
   "slack": {
-    "reads": 1,
-    "searches": 1,
+    "reads": 3,
+    "searches": 2,
     "writes_success": 0,
     "writes_refused": 1,
     "edits": 0,
     "reactions": 0
   },
-  "failures": [
+  "github_failures": [
     {
       "cycle": 12,
-      "edge": "GitHub.update_ref",
-      "class": "REFUSED"
-    },
-    {
-      "cycle": 28,
-      "edge": "Slack.send",
-      "class": "REFUSED"
+      "edge": "update_ref",
+      "outcome": "REFUSED"
     },
     {
       "cycle": 30,
-      "edge": "GitHub.update_file",
-      "class": "REFUSED"
+      "edge": "update_file",
+      "outcome": "REFUSED"
     }
-  ]
+  ],
+  "first_refusal": {
+    "cycle": 12,
+    "edge": "GitHub.update_ref"
+  },
+  "throttled": 0,
+  "truncated": 0
 }
