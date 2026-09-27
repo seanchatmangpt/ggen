@@ -1,0 +1,10 @@
+{
+  "schema": "https://chatman.ai/cs2/fleet-contract/v1",
+  "subject": "RFC-CS2-001",
+  "authority_ceiling": "CONSTRUCT",
+  "producer": {
+    "repository": "seanchatmangpt/chatman-ecosystem",
+    "artifact": "cs2/canonical.ttl"
+  },
+  "consumers": {{ sparql_results | json_encode() }}
+}
