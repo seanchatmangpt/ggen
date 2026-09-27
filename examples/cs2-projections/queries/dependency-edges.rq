@@ -1,0 +1,11 @@
+PREFIX cs2: <https://chatman.ai/cs2#>
+
+SELECT ?subject ?from ?to ?kind
+WHERE {
+  VALUES ?subject { cs2:RFC-CS2-001 }
+  ?subject a cs2:SemanticWorld .
+  ?from cs2:implements ?subject ;
+        cs2:dependsOn ?to .
+  BIND("requires" AS ?kind)
+}
+ORDER BY STR(?from) STR(?to)
