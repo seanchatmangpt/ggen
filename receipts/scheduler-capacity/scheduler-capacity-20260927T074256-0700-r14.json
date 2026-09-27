@@ -1,0 +1,41 @@
+{
+  "run_id": "scheduler-capacity-20260927T074256-0700-r14",
+  "lower_bound_max_cycles_previous": 36,
+  "base": "dc6b591773a1bbd2e162319f830f984a9e778f76",
+  "branch": "probe/scheduler-capacity-20260927T074256-0700-r14",
+  "entries": [
+    {
+      "cycle": 1,
+      "timestamp": "2026-09-27T07:42:56-07:00",
+      "tool": "Notion+GitHub",
+      "operation": "minimal bind search/repo resolve",
+      "status": "SUCCESS",
+      "next": "fetch control/base"
+    },
+    {
+      "cycle": 2,
+      "timestamp": "2026-09-27T07:42:56-07:00",
+      "tool": "Notion+GitHub",
+      "operation": "control fetch/default HEAD",
+      "status": "SUCCESS",
+      "next": "create branch"
+    },
+    {
+      "cycle": 3,
+      "timestamp": "2026-09-27T07:42:56-07:00",
+      "tool": "GitHub",
+      "operation": "create fresh branch",
+      "status": "SUCCESS",
+      "next": "source probe"
+    },
+    {
+      "cycle": 4,
+      "timestamp": "2026-09-27T07:42:56-07:00",
+      "tool": "GitHub",
+      "operation": "source read for prior probe helper",
+      "status": "ERROR",
+      "failure_class": "NOT_FOUND",
+      "next": "author standalone probe helper and checkpoint"
+    }
+  ]
+}
