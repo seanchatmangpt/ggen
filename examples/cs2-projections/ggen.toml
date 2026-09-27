@@ -1,6 +1,6 @@
 [project]
 name = "cs2-projections"
-version = "0.1.0"
+version = "0.2.0"
 description = "Deterministic multi-projection witness for RFC-CS2-001"
 
 [ontology]
@@ -28,5 +28,37 @@ name = "cs2-consumers-elixir"
 query = { file = "queries/consumers.rq" }
 template = { file = "templates/consumers.exs.tera" }
 output_file = "generated/consumers.exs"
+mode = "Overwrite"
+skip_empty = true
+
+[[generation.rules]]
+name = "cs2-work-orders-json"
+query = { file = "queries/work-orders.rq" }
+template = { file = "templates/work-orders.json.tera" }
+output_file = "generated/work-orders.json"
+mode = "Overwrite"
+skip_empty = true
+
+[[generation.rules]]
+name = "cs2-work-orders-ndjson"
+query = { file = "queries/work-orders.rq" }
+template = { file = "templates/work-orders.ndjson.tera" }
+output_file = "generated/work-orders.ndjson"
+mode = "Overwrite"
+skip_empty = true
+
+[[generation.rules]]
+name = "cs2-work-orders-markdown"
+query = { file = "queries/work-orders.rq" }
+template = { file = "templates/work-orders.md.tera" }
+output_file = "generated/work-orders.md"
+mode = "Overwrite"
+skip_empty = true
+
+[[generation.rules]]
+name = "cs2-dependencies-json"
+query = { file = "queries/dependencies.rq" }
+template = { file = "templates/dependencies.json.tera" }
+output_file = "generated/dependencies.json"
 mode = "Overwrite"
 skip_empty = true
