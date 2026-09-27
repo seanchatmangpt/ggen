@@ -1,0 +1,3 @@
+@prefix fc: <https://ggen.dev/ontology/fleet-contract#> .
+fc:a a fc:Projection ; fc:targetRepository "r" ; fc:targetPath "same" .
+fc:b a fc:Projection ; fc:targetRepository "r" ; fc:targetPath "same" .

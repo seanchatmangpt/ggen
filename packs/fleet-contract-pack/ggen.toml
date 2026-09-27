@@ -1,0 +1,16 @@
+[project]
+name = "fleet-contract-pack"
+version = "0.1.0"
+description = "RDF-driven N-subject x N-consumer fleet contract manufacture"
+[ontology]
+source = "fixtures/fleet.ttl"
+base_iri = "https://ggen.dev/ontology/fleet-contract#"
+[generation]
+output_dir = "generated"
+[[generation.rules]]
+name = "fleet-contract-json"
+query = { file = "queries/projections.rq" }
+template = { file = "templates/fleet-contract.json.tera" }
+output_file = "fleet-contract.json"
+mode = "Overwrite"
+skip_empty = true

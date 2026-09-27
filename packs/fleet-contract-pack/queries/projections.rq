@@ -1,0 +1,8 @@
+PREFIX fc: <https://ggen.dev/ontology/fleet-contract#>
+SELECT ?projection ?subject ?consumer ?work_id ?target_repository ?target_path ?artifact_kind ?contract_version ?family ?template_key
+WHERE {
+ ?projection a fc:Projection ; fc:subject ?subject ; fc:consumer ?consumer ;
+   fc:workId ?work_id ; fc:targetRepository ?target_repository ; fc:targetPath ?target_path ;
+   fc:artifactKind ?artifact_kind ; fc:contractVersion ?contract_version ; fc:adapterFamily ?family .
+ ?family a fc:AdapterFamily ; fc:templateKey ?template_key .
+} ORDER BY STR(?subject) STR(?consumer) STR(?target_path)

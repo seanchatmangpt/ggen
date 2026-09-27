@@ -1,0 +1,5 @@
+@prefix fc: <https://ggen.dev/ontology/fleet-contract#> .
+fc:json a fc:AdapterFamily ; fc:templateKey "fleet-contract-json" .
+fc:marketplace a fc:Projection ; fc:subject <https://chatman.ai/cs2#RFC-CS2-001> ; fc:consumer <https://chatman.ai/cs2#ggen-marketplace> ; fc:workId "CS2-WRK-003" ; fc:targetRepository "seanchatmangpt/ggen-marketplace" ; fc:targetPath "packs/cs2-fleet-contract/generated/fleet-contract.json" ; fc:artifactKind "json" ; fc:contractVersion "v1" ; fc:adapterFamily fc:json .
+fc:ash a fc:Projection ; fc:subject <https://chatman.ai/cs2#RFC-CS2-001> ; fc:consumer <https://chatman.ai/cs2#ash-a2a> ; fc:workId "CS2-WRK-012" ; fc:targetRepository "seanchatmangpt/ash_a2a" ; fc:targetPath "priv/cs2/fleet-contract.json" ; fc:artifactKind "json" ; fc:contractVersion "v1" ; fc:adapterFamily fc:json .
+fc:xaas a fc:Projection ; fc:subject <https://chatman.ai/cs2#RFC-CS2-001> ; fc:consumer <https://chatman.ai/cs2#xaas> ; fc:workId "CS2-WRK-013" ; fc:targetRepository "seanchatmangpt/xaas" ; fc:targetPath "priv/cs2/fleet-contract.json" ; fc:artifactKind "json" ; fc:contractVersion "v1" ; fc:adapterFamily fc:json .

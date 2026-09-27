@@ -1,0 +1,1 @@
+{"schema":"https://ggen.dev/schema/fleet-contract/v1","projections":{{ sparql_results | json_encode() }}}

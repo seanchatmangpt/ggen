@@ -1,0 +1,10 @@
+PREFIX fc: <https://ggen.dev/ontology/fleet-contract#>
+SELECT ?projection ?missing WHERE {
+ ?projection a fc:Projection .
+ VALUES (?predicate ?missing) {
+  (fc:subject "subject") (fc:consumer "consumer") (fc:workId "workId")
+  (fc:targetRepository "targetRepository") (fc:targetPath "targetPath")
+  (fc:artifactKind "artifactKind") (fc:contractVersion "contractVersion") (fc:adapterFamily "adapterFamily")
+ }
+ FILTER NOT EXISTS { ?projection ?predicate ?value }
+}

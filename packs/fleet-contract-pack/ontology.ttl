@@ -1,0 +1,7 @@
+@prefix fc: <https://ggen.dev/ontology/fleet-contract#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+fc:Projection a rdf:Class . fc:AdapterFamily a rdf:Class .
+fc:subject a rdf:Property . fc:consumer a rdf:Property . fc:workId a rdf:Property .
+fc:targetRepository a rdf:Property . fc:targetPath a rdf:Property .
+fc:artifactKind a rdf:Property . fc:contractVersion a rdf:Property .
+fc:adapterFamily a rdf:Property . fc:templateKey a rdf:Property .

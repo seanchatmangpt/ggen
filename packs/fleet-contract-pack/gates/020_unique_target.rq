@@ -1,0 +1,4 @@
+PREFIX fc: <https://ggen.dev/ontology/fleet-contract#>
+SELECT ?repository ?path (COUNT(?projection) AS ?count) WHERE {
+ ?projection a fc:Projection ; fc:targetRepository ?repository ; fc:targetPath ?path .
+} GROUP BY ?repository ?path HAVING(COUNT(?projection) > 1)
