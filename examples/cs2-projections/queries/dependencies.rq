@@ -1,0 +1,10 @@
+PREFIX cs2: <https://chatman.ai/cs2#>
+SELECT ?subject ?from_work ?from_id ?to_work ?to_id ?kind
+WHERE {
+  VALUES ?subject { cs2:RFC-CS2-001 }
+  ?from_work a cs2:Work ; cs2:implements ?subject ; cs2:workId ?from_id ; cs2:dependsOn ?to_work .
+  ?to_work a cs2:Work ; cs2:implements ?subject ; cs2:workId ?to_id .
+  OPTIONAL { ?from_work cs2:dependencyKind ?kind_raw }
+  BIND(COALESCE(STR(?kind_raw), "requires") AS ?kind)
+}
+ORDER BY STR(?from_id) STR(?to_id) ?kind
