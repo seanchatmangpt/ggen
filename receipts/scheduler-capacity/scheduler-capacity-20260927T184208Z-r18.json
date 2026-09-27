@@ -1,0 +1,34 @@
+{
+  "run_id": "scheduler-capacity-20260927T184208Z-r18",
+  "base_sha": "dc6b591773a1bbd2e162319f830f984a9e778f76",
+  "branch": "probe/scheduler-capacity-20260927T184208Z-r18",
+  "lower_bound_max_cycles_prior": 75,
+  "entries": [
+    {
+      "cycle": 1,
+      "tool": "GitHub",
+      "operation": "get_repo",
+      "outcome": "SUCCESS"
+    },
+    {
+      "cycle": 2,
+      "tool": "GitHub",
+      "operation": "fetch_file mix.exs",
+      "outcome": "ERROR",
+      "failure_class": "NOT_FOUND"
+    },
+    {
+      "cycle": 3,
+      "tool": "GitHub",
+      "operation": "search_commits default HEAD",
+      "outcome": "SUCCESS"
+    },
+    {
+      "cycle": 4,
+      "tool": "GitHub",
+      "operation": "create_branch",
+      "outcome": "SUCCESS"
+    }
+  ],
+  "next": "Notion control read then code batch"
+}
