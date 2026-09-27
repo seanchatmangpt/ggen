@@ -1,0 +1,5 @@
+name = "{{ consumer }}-{{ subject }}-generated"
+subject = "{{ subject }}"
+consumer = "{{ consumer }}"
+family = "{{ templateKey }}"
+target = "{{ targetPath }}"
