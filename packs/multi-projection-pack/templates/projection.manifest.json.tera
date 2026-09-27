@@ -1,0 +1,27 @@
+{%- set spec = sparql_results | first -%}
+{
+  "semantic_subject": "{{ spec["spec"] }}",
+  "type_name": "{{ spec["spec_name"] }}",
+  "package_name": "{{ spec["package_name"] }}",
+  "target_namespace": "{{ spec["target_namespace"] }}",
+  "fields": [
+{%- for row in sparql_results %}
+    {
+      "order": {{ row["field_order"] }},
+      "name": "{{ row["field_name"] }}",
+      "json_name": "{{ row["json_name"] }}",
+      "semantic_iri": "{{ row["semantic_iri"] }}",
+      "required": {{ row["required"] }},
+      "targets": {
+        "rust": "{{ row["rust_type"] }}",
+        "python": "{{ row["python_type"] }}",
+        "typescript": "{{ row["typescript_type"] }}",
+        "sql": "{{ row["sql_type"] }}",
+        "protobuf": "{{ row["protobuf_type"] }}",
+        "graphql": "{{ row["graphql_type"] }}",
+        "json_schema": "{{ row["json_schema_type"] }}"
+      }
+    }{% if not loop.last %},{% endif %}
+{%- endfor %}
+  ]
+}

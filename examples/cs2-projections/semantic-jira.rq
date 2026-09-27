@@ -1,0 +1,14 @@
+PREFIX cs2: <https://chatman.ai/cs2#>
+SELECT ?subject ?campaign ?consumer ?workId ?expectedProjection
+WHERE {
+  ?subject a cs2:SemanticWorld ;
+    cs2:campaign ?campaign ;
+    cs2:requiresExactSubject true .
+  ?work a cs2:Work ;
+    cs2:implements ?subject ;
+    cs2:consumer ?consumer .
+  ?consumer a cs2:Consumer ;
+    cs2:workId ?workId ;
+    cs2:expectedProjection ?expectedProjection .
+}
+ORDER BY ?workId ?consumer

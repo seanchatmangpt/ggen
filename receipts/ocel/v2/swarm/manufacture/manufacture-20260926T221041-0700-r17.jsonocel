@@ -1,0 +1,962 @@
+{
+  "eventTypes": [
+    {
+      "name": "task_started",
+      "attributes": [
+        {
+          "name": "sequence",
+          "type": "integer"
+        }
+      ]
+    },
+    {
+      "name": "control_read",
+      "attributes": [
+        {
+          "name": "sequence",
+          "type": "integer"
+        }
+      ]
+    },
+    {
+      "name": "work_selected",
+      "attributes": [
+        {
+          "name": "sequence",
+          "type": "integer"
+        }
+      ]
+    },
+    {
+      "name": "scope_locked",
+      "attributes": [
+        {
+          "name": "sequence",
+          "type": "integer"
+        }
+      ]
+    },
+    {
+      "name": "source_read",
+      "attributes": [
+        {
+          "name": "sequence",
+          "type": "integer"
+        },
+        {
+          "name": "path",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "write_attempted",
+      "attributes": [
+        {
+          "name": "sequence",
+          "type": "integer"
+        },
+        {
+          "name": "operation",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "write_succeeded",
+      "attributes": [
+        {
+          "name": "sequence",
+          "type": "integer"
+        },
+        {
+          "name": "operation",
+          "type": "string"
+        },
+        {
+          "name": "outcome",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "receipt_materialized",
+      "attributes": [
+        {
+          "name": "sequence",
+          "type": "integer"
+        },
+        {
+          "name": "path",
+          "type": "string"
+        }
+      ]
+    }
+  ],
+  "objectTypes": [
+    {
+      "name": "ScheduledTask",
+      "attributes": [
+        {
+          "name": "name",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "Run",
+      "attributes": [
+        {
+          "name": "run_id",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "Lane",
+      "attributes": [
+        {
+          "name": "name",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "WorkItem",
+      "attributes": [
+        {
+          "name": "name",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "Repository",
+      "attributes": [
+        {
+          "name": "repository_full_name",
+          "type": "string"
+        },
+        {
+          "name": "repository_id",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "Branch",
+      "attributes": [
+        {
+          "name": "name",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "BaseCommit",
+      "attributes": [
+        {
+          "name": "sha",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "Capability",
+      "attributes": [
+        {
+          "name": "name",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "CodeSurface",
+      "attributes": [
+        {
+          "name": "path",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "ToolEdge",
+      "attributes": [
+        {
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "name": "failure_class",
+          "type": "string"
+        }
+      ]
+    }
+  ],
+  "objects": [
+    {
+      "id": "task:manufacture",
+      "type": "ScheduledTask",
+      "attributes": [
+        {
+          "name": "name",
+          "time": "2026-09-26T22:15:00-07:00",
+          "value": "Scheduled Lane — Manufacture"
+        }
+      ],
+      "relationships": []
+    },
+    {
+      "id": "run:manufacture-20260926T221041-0700-r17",
+      "type": "Run",
+      "attributes": [
+        {
+          "name": "run_id",
+          "time": "2026-09-26T22:15:00-07:00",
+          "value": "manufacture-20260926T221041-0700-r17"
+        }
+      ],
+      "relationships": []
+    },
+    {
+      "id": "lane:manufacture",
+      "type": "Lane",
+      "attributes": [
+        {
+          "name": "name",
+          "time": "2026-09-26T22:15:00-07:00",
+          "value": "MANUFACTURE"
+        }
+      ],
+      "relationships": []
+    },
+    {
+      "id": "work:multi-projection-pack",
+      "type": "WorkItem",
+      "attributes": [
+        {
+          "name": "name",
+          "time": "2026-09-26T22:15:00-07:00",
+          "value": "Reusable multi-projection pack with CS2 first consumer"
+        }
+      ],
+      "relationships": []
+    },
+    {
+      "id": "repo:1071971708",
+      "type": "Repository",
+      "attributes": [
+        {
+          "name": "repository_full_name",
+          "time": "2026-09-26T22:15:00-07:00",
+          "value": "seanchatmangpt/ggen"
+        },
+        {
+          "name": "repository_id",
+          "time": "2026-09-26T22:15:00-07:00",
+          "value": "1071971708"
+        }
+      ],
+      "relationships": []
+    },
+    {
+      "id": "branch:r17",
+      "type": "Branch",
+      "attributes": [
+        {
+          "name": "name",
+          "time": "2026-09-26T22:15:00-07:00",
+          "value": "ce/v26.9.26/manufacture/r17-2210-multiprojection-pack"
+        }
+      ],
+      "relationships": []
+    },
+    {
+      "id": "base:eb19155a",
+      "type": "BaseCommit",
+      "attributes": [
+        {
+          "name": "sha",
+          "time": "2026-09-26T22:15:00-07:00",
+          "value": "eb19155a859a61d6e8f7e4b2f5bbcfb4ecbb781d"
+        }
+      ],
+      "relationships": []
+    },
+    {
+      "id": "cap:multi-projection",
+      "type": "Capability",
+      "attributes": [
+        {
+          "name": "name",
+          "time": "2026-09-26T22:15:00-07:00",
+          "value": "RDF ProjectionSpec -> multi-language/schema generation"
+        }
+      ],
+      "relationships": []
+    },
+    {
+      "id": "edge:notion-fetch",
+      "type": "ToolEdge",
+      "attributes": [
+        {
+          "name": "name",
+          "time": "2026-09-26T22:15:00-07:00",
+          "value": "mcp__Notion__fetch"
+        },
+        {
+          "name": "failure_class",
+          "time": "2026-09-26T22:15:00-07:00",
+          "value": "NONE"
+        }
+      ],
+      "relationships": []
+    },
+    {
+      "id": "edge:notion-search",
+      "type": "ToolEdge",
+      "attributes": [
+        {
+          "name": "name",
+          "time": "2026-09-26T22:15:00-07:00",
+          "value": "mcp__Notion__search"
+        },
+        {
+          "name": "failure_class",
+          "time": "2026-09-26T22:15:00-07:00",
+          "value": "NONE"
+        }
+      ],
+      "relationships": []
+    },
+    {
+      "id": "edge:github-read",
+      "type": "ToolEdge",
+      "attributes": [
+        {
+          "name": "name",
+          "time": "2026-09-26T22:15:00-07:00",
+          "value": "GitHub read wrappers"
+        },
+        {
+          "name": "failure_class",
+          "time": "2026-09-26T22:15:00-07:00",
+          "value": "NONE"
+        }
+      ],
+      "relationships": []
+    },
+    {
+      "id": "edge:create-blob",
+      "type": "ToolEdge",
+      "attributes": [
+        {
+          "name": "name",
+          "time": "2026-09-26T22:15:00-07:00",
+          "value": "mcp__GitHub__create_blob"
+        },
+        {
+          "name": "failure_class",
+          "time": "2026-09-26T22:15:00-07:00",
+          "value": "NONE"
+        }
+      ],
+      "relationships": []
+    },
+    {
+      "id": "surface:1",
+      "type": "CodeSurface",
+      "attributes": [
+        {
+          "name": "path",
+          "time": "2026-09-26T22:15:00-07:00",
+          "value": "packs/multi-projection-pack/ontology.ttl"
+        }
+      ],
+      "relationships": []
+    },
+    {
+      "id": "surface:2",
+      "type": "CodeSurface",
+      "attributes": [
+        {
+          "name": "path",
+          "time": "2026-09-26T22:15:00-07:00",
+          "value": "packs/multi-projection-pack/example.ttl"
+        }
+      ],
+      "relationships": []
+    },
+    {
+      "id": "surface:3",
+      "type": "CodeSurface",
+      "attributes": [
+        {
+          "name": "path",
+          "time": "2026-09-26T22:15:00-07:00",
+          "value": "packs/multi-projection-pack/queries/fields.rq"
+        }
+      ],
+      "relationships": []
+    },
+    {
+      "id": "surface:4",
+      "type": "CodeSurface",
+      "attributes": [
+        {
+          "name": "path",
+          "time": "2026-09-26T22:15:00-07:00",
+          "value": "packs/multi-projection-pack/templates/projection.rs.tera"
+        }
+      ],
+      "relationships": []
+    },
+    {
+      "id": "surface:5",
+      "type": "CodeSurface",
+      "attributes": [
+        {
+          "name": "path",
+          "time": "2026-09-26T22:15:00-07:00",
+          "value": "packs/multi-projection-pack/templates/projection.py.tera"
+        }
+      ],
+      "relationships": []
+    },
+    {
+      "id": "surface:6",
+      "type": "CodeSurface",
+      "attributes": [
+        {
+          "name": "path",
+          "time": "2026-09-26T22:15:00-07:00",
+          "value": "packs/multi-projection-pack/templates/projection.ts.tera"
+        }
+      ],
+      "relationships": []
+    },
+    {
+      "id": "surface:7",
+      "type": "CodeSurface",
+      "attributes": [
+        {
+          "name": "path",
+          "time": "2026-09-26T22:15:00-07:00",
+          "value": "packs/multi-projection-pack/templates/projection.sql.tera"
+        }
+      ],
+      "relationships": []
+    },
+    {
+      "id": "surface:8",
+      "type": "CodeSurface",
+      "attributes": [
+        {
+          "name": "path",
+          "time": "2026-09-26T22:15:00-07:00",
+          "value": "packs/multi-projection-pack/templates/projection.proto.tera"
+        }
+      ],
+      "relationships": []
+    },
+    {
+      "id": "surface:9",
+      "type": "CodeSurface",
+      "attributes": [
+        {
+          "name": "path",
+          "time": "2026-09-26T22:15:00-07:00",
+          "value": "packs/multi-projection-pack/templates/projection.graphql.tera"
+        }
+      ],
+      "relationships": []
+    },
+    {
+      "id": "surface:10",
+      "type": "CodeSurface",
+      "attributes": [
+        {
+          "name": "path",
+          "time": "2026-09-26T22:15:00-07:00",
+          "value": "packs/multi-projection-pack/templates/projection.schema.json.tera"
+        }
+      ],
+      "relationships": []
+    },
+    {
+      "id": "surface:11",
+      "type": "CodeSurface",
+      "attributes": [
+        {
+          "name": "path",
+          "time": "2026-09-26T22:15:00-07:00",
+          "value": "packs/multi-projection-pack/templates/projection.context.jsonld.tera"
+        }
+      ],
+      "relationships": []
+    },
+    {
+      "id": "surface:12",
+      "type": "CodeSurface",
+      "attributes": [
+        {
+          "name": "path",
+          "time": "2026-09-26T22:15:00-07:00",
+          "value": "packs/multi-projection-pack/templates/projection.manifest.json.tera"
+        }
+      ],
+      "relationships": []
+    },
+    {
+      "id": "surface:13",
+      "type": "CodeSurface",
+      "attributes": [
+        {
+          "name": "path",
+          "time": "2026-09-26T22:15:00-07:00",
+          "value": "packs/multi-projection-pack/ggen.toml"
+        }
+      ],
+      "relationships": []
+    },
+    {
+      "id": "surface:14",
+      "type": "CodeSurface",
+      "attributes": [
+        {
+          "name": "path",
+          "time": "2026-09-26T22:15:00-07:00",
+          "value": "packs/multi-projection-pack/tests/verify_pack.py"
+        }
+      ],
+      "relationships": []
+    },
+    {
+      "id": "surface:15",
+      "type": "CodeSurface",
+      "attributes": [
+        {
+          "name": "path",
+          "time": "2026-09-26T22:15:00-07:00",
+          "value": "packs/multi-projection-pack/README.md"
+        }
+      ],
+      "relationships": []
+    },
+    {
+      "id": "surface:16",
+      "type": "CodeSurface",
+      "attributes": [
+        {
+          "name": "path",
+          "time": "2026-09-26T22:15:00-07:00",
+          "value": "examples/cs2-projections/projection-spec.ttl"
+        }
+      ],
+      "relationships": []
+    },
+    {
+      "id": "surface:17",
+      "type": "CodeSurface",
+      "attributes": [
+        {
+          "name": "path",
+          "time": "2026-09-26T22:15:00-07:00",
+          "value": "examples/cs2-projections/ggen.toml"
+        }
+      ],
+      "relationships": []
+    },
+    {
+      "id": "surface:18",
+      "type": "CodeSurface",
+      "attributes": [
+        {
+          "name": "path",
+          "time": "2026-09-26T22:15:00-07:00",
+          "value": "examples/cs2-projections/README.md"
+        }
+      ],
+      "relationships": []
+    },
+    {
+      "id": "surface:receipt",
+      "type": "CodeSurface",
+      "attributes": [
+        {
+          "name": "path",
+          "time": "2026-09-26T22:15:00-07:00",
+          "value": "receipts/ocel/v2/swarm/manufacture/manufacture-20260926T221041-0700-r17.jsonocel"
+        }
+      ],
+      "relationships": []
+    }
+  ],
+  "events": [
+    {
+      "id": "e1",
+      "type": "task_started",
+      "time": "2026-09-26T22:15:00-07:00",
+      "attributes": [
+        {
+          "name": "sequence",
+          "value": 1
+        }
+      ],
+      "relationships": [
+        {
+          "objectId": "run:manufacture-20260926T221041-0700-r17",
+          "qualifier": "run"
+        },
+        {
+          "objectId": "lane:manufacture",
+          "qualifier": "lane"
+        },
+        {
+          "objectId": "task:manufacture",
+          "qualifier": "target"
+        }
+      ]
+    },
+    {
+      "id": "e2",
+      "type": "control_read",
+      "time": "2026-09-26T22:15:00-07:00",
+      "attributes": [
+        {
+          "name": "sequence",
+          "value": 2
+        }
+      ],
+      "relationships": [
+        {
+          "objectId": "run:manufacture-20260926T221041-0700-r17",
+          "qualifier": "run"
+        },
+        {
+          "objectId": "lane:manufacture",
+          "qualifier": "lane"
+        },
+        {
+          "objectId": "edge:notion-fetch",
+          "qualifier": "edge"
+        },
+        {
+          "objectId": "task:manufacture",
+          "qualifier": "target"
+        }
+      ]
+    },
+    {
+      "id": "e3",
+      "type": "work_selected",
+      "time": "2026-09-26T22:15:00-07:00",
+      "attributes": [
+        {
+          "name": "sequence",
+          "value": 3
+        }
+      ],
+      "relationships": [
+        {
+          "objectId": "run:manufacture-20260926T221041-0700-r17",
+          "qualifier": "run"
+        },
+        {
+          "objectId": "lane:manufacture",
+          "qualifier": "lane"
+        },
+        {
+          "objectId": "work:multi-projection-pack",
+          "qualifier": "target"
+        },
+        {
+          "objectId": "cap:multi-projection",
+          "qualifier": "capability"
+        }
+      ]
+    },
+    {
+      "id": "e4",
+      "type": "scope_locked",
+      "time": "2026-09-26T22:15:00-07:00",
+      "attributes": [
+        {
+          "name": "sequence",
+          "value": 4
+        }
+      ],
+      "relationships": [
+        {
+          "objectId": "run:manufacture-20260926T221041-0700-r17",
+          "qualifier": "run"
+        },
+        {
+          "objectId": "lane:manufacture",
+          "qualifier": "lane"
+        },
+        {
+          "objectId": "repo:1071971708",
+          "qualifier": "target"
+        },
+        {
+          "objectId": "branch:r17",
+          "qualifier": "parent"
+        },
+        {
+          "objectId": "base:eb19155a",
+          "qualifier": "parent"
+        },
+        {
+          "objectId": "cap:multi-projection",
+          "qualifier": "capability"
+        }
+      ]
+    },
+    {
+      "id": "e5",
+      "type": "source_read",
+      "time": "2026-09-26T22:15:00-07:00",
+      "attributes": [
+        {
+          "name": "sequence",
+          "value": 5
+        },
+        {
+          "name": "path",
+          "value": "examples/cs2-projections/ggen.toml"
+        }
+      ],
+      "relationships": [
+        {
+          "objectId": "run:manufacture-20260926T221041-0700-r17",
+          "qualifier": "run"
+        },
+        {
+          "objectId": "lane:manufacture",
+          "qualifier": "lane"
+        },
+        {
+          "objectId": "repo:1071971708",
+          "qualifier": "target"
+        },
+        {
+          "objectId": "edge:github-read",
+          "qualifier": "edge"
+        }
+      ]
+    },
+    {
+      "id": "e6",
+      "type": "source_read",
+      "time": "2026-09-26T22:15:00-07:00",
+      "attributes": [
+        {
+          "name": "sequence",
+          "value": 6
+        },
+        {
+          "name": "path",
+          "value": "packs/pddl-embedded-workflow-pack/ggen.toml"
+        }
+      ],
+      "relationships": [
+        {
+          "objectId": "run:manufacture-20260926T221041-0700-r17",
+          "qualifier": "run"
+        },
+        {
+          "objectId": "lane:manufacture",
+          "qualifier": "lane"
+        },
+        {
+          "objectId": "repo:1071971708",
+          "qualifier": "target"
+        },
+        {
+          "objectId": "edge:github-read",
+          "qualifier": "edge"
+        }
+      ]
+    },
+    {
+      "id": "e7",
+      "type": "write_attempted",
+      "time": "2026-09-26T22:15:00-07:00",
+      "attributes": [
+        {
+          "name": "sequence",
+          "value": 7
+        },
+        {
+          "name": "operation",
+          "value": "create 18 Git blobs for pack and CS2 consumer surfaces"
+        }
+      ],
+      "relationships": [
+        {
+          "objectId": "run:manufacture-20260926T221041-0700-r17",
+          "qualifier": "run"
+        },
+        {
+          "objectId": "lane:manufacture",
+          "qualifier": "lane"
+        },
+        {
+          "objectId": "edge:create-blob",
+          "qualifier": "edge"
+        },
+        {
+          "objectId": "cap:multi-projection",
+          "qualifier": "capability"
+        }
+      ]
+    },
+    {
+      "id": "e8",
+      "type": "write_succeeded",
+      "time": "2026-09-26T22:15:00-07:00",
+      "attributes": [
+        {
+          "name": "sequence",
+          "value": 8
+        },
+        {
+          "name": "operation",
+          "value": "create 18 Git blobs for pack and CS2 consumer surfaces"
+        },
+        {
+          "name": "outcome",
+          "value": "18 blobs created"
+        }
+      ],
+      "relationships": [
+        {
+          "objectId": "run:manufacture-20260926T221041-0700-r17",
+          "qualifier": "run"
+        },
+        {
+          "objectId": "lane:manufacture",
+          "qualifier": "lane"
+        },
+        {
+          "objectId": "edge:create-blob",
+          "qualifier": "edge"
+        },
+        {
+          "objectId": "cap:multi-projection",
+          "qualifier": "capability"
+        },
+        {
+          "objectId": "surface:1",
+          "qualifier": "surface"
+        },
+        {
+          "objectId": "surface:2",
+          "qualifier": "surface"
+        },
+        {
+          "objectId": "surface:3",
+          "qualifier": "surface"
+        },
+        {
+          "objectId": "surface:4",
+          "qualifier": "surface"
+        },
+        {
+          "objectId": "surface:5",
+          "qualifier": "surface"
+        },
+        {
+          "objectId": "surface:6",
+          "qualifier": "surface"
+        },
+        {
+          "objectId": "surface:7",
+          "qualifier": "surface"
+        },
+        {
+          "objectId": "surface:8",
+          "qualifier": "surface"
+        },
+        {
+          "objectId": "surface:9",
+          "qualifier": "surface"
+        },
+        {
+          "objectId": "surface:10",
+          "qualifier": "surface"
+        },
+        {
+          "objectId": "surface:11",
+          "qualifier": "surface"
+        },
+        {
+          "objectId": "surface:12",
+          "qualifier": "surface"
+        },
+        {
+          "objectId": "surface:13",
+          "qualifier": "surface"
+        },
+        {
+          "objectId": "surface:14",
+          "qualifier": "surface"
+        },
+        {
+          "objectId": "surface:15",
+          "qualifier": "surface"
+        },
+        {
+          "objectId": "surface:16",
+          "qualifier": "surface"
+        },
+        {
+          "objectId": "surface:17",
+          "qualifier": "surface"
+        },
+        {
+          "objectId": "surface:18",
+          "qualifier": "surface"
+        }
+      ]
+    },
+    {
+      "id": "e9",
+      "type": "receipt_materialized",
+      "time": "2026-09-26T22:15:00-07:00",
+      "attributes": [
+        {
+          "name": "sequence",
+          "value": 9
+        },
+        {
+          "name": "path",
+          "value": "receipts/ocel/v2/swarm/manufacture/manufacture-20260926T221041-0700-r17.jsonocel"
+        }
+      ],
+      "relationships": [
+        {
+          "objectId": "run:manufacture-20260926T221041-0700-r17",
+          "qualifier": "run"
+        },
+        {
+          "objectId": "lane:manufacture",
+          "qualifier": "lane"
+        },
+        {
+          "objectId": "surface:receipt",
+          "qualifier": "surface"
+        },
+        {
+          "objectId": "repo:1071971708",
+          "qualifier": "target"
+        },
+        {
+          "objectId": "branch:r17",
+          "qualifier": "parent"
+        }
+      ]
+    }
+  ]
+}

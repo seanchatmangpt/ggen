@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://chatman.ai/cs2/schema/semantic-jira-batch.json",
+  "title": "CS2 Semantic Jira Projection Batch",
+  "type": "object",
+  "required": ["$schema", "projectionSchema", "subject", "campaign", "issues"],
+  "properties": {
+    "$schema": {"const": "https://chatman.ai/cs2/schema/semantic-jira-batch.json"},
+    "projectionSchema": {"const": "https://chatman.ai/cs2/projection/semantic-jira/v1"},
+    "subject": {"const": "https://chatman.ai/cs2#RFC-CS2-001"},
+    "campaign": {"const": "CS2-CHICAGO"},
+    "issues": {
+      "type": "array",
+      "items": {"$ref": "https://chatman.ai/cs2/schema/semantic-jira.json"}
+    }
+  },
+  "additionalProperties": false
+}

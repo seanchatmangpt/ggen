@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://chatman.ai/cs2/schema/semantic-jira.json",
+  "title": "CS2 Semantic Jira Projection",
+  "type": "object",
+  "required": ["externalId", "subject", "campaign", "consumer", "summary", "labels"],
+  "properties": {
+    "externalId": {"type": "string", "pattern": "^CS2-WRK-[0-9]+$"},
+    "subject": {"const": "https://chatman.ai/cs2#RFC-CS2-001"},
+    "campaign": {"const": "CS2-CHICAGO"},
+    "consumer": {"type": "string"},
+    "summary": {"type": "string", "minLength": 1},
+    "labels": {"type": "array", "items": {"type": "string"}, "uniqueItems": true}
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,117 @@
+[project]
+name = "cs2-projections"
+version = "0.2.0"
+description = "Deterministic CS2 value projections plus reusable multi-projection schemas."
+
+[ontology]
+source = "canonical.ttl"
+imports = [
+  "projection-spec.ttl",
+  "../../packs/multi-projection-pack/ontology.ttl"
+]
+base_iri = "https://chatman.ai/cs2#"
+
+[ontology.prefixes]
+cs2 = "https://chatman.ai/cs2#"
+mp = "https://ggen.dev/packs/multi-projection#"
+
+[inference]
+
+[generation]
+output_dir = "."
+
+[[generation.rules]]
+name = "cs2-consumers-json"
+query = { file = "queries/consumers.rq" }
+template = { file = "templates/consumers.json.tera" }
+output_file = "generated/consumers.json"
+mode = "Overwrite"
+skip_empty = true
+
+[[generation.rules]]
+name = "cs2-consumers-elixir"
+query = { file = "queries/consumers.rq" }
+template = { file = "templates/consumers.exs.tera" }
+output_file = "generated/consumers.exs"
+mode = "Overwrite"
+skip_empty = true
+
+[[generation.rules]]
+name = "cs2-semantic-jira-json"
+query = { file = "semantic-jira.rq" }
+template = { file = "templates/semantic-jira.json.tera" }
+output_file = "generated/semantic-jira.json"
+mode = "Overwrite"
+skip_empty = true
+
+[[generation.rules]]
+name = "cs2-schema-rust"
+query = { file = "../../packs/multi-projection-pack/queries/fields.rq" }
+template = { file = "../../packs/multi-projection-pack/templates/projection.rs.tera" }
+output_file = "generated/schema/consumer_projection.rs"
+mode = "Overwrite"
+skip_empty = true
+
+[[generation.rules]]
+name = "cs2-schema-python"
+query = { file = "../../packs/multi-projection-pack/queries/fields.rq" }
+template = { file = "../../packs/multi-projection-pack/templates/projection.py.tera" }
+output_file = "generated/schema/consumer_projection.py"
+mode = "Overwrite"
+skip_empty = true
+
+[[generation.rules]]
+name = "cs2-schema-typescript"
+query = { file = "../../packs/multi-projection-pack/queries/fields.rq" }
+template = { file = "../../packs/multi-projection-pack/templates/projection.ts.tera" }
+output_file = "generated/schema/consumer_projection.ts"
+mode = "Overwrite"
+skip_empty = true
+
+[[generation.rules]]
+name = "cs2-schema-sql"
+query = { file = "../../packs/multi-projection-pack/queries/fields.rq" }
+template = { file = "../../packs/multi-projection-pack/templates/projection.sql.tera" }
+output_file = "generated/schema/consumer_projection.sql"
+mode = "Overwrite"
+skip_empty = true
+
+[[generation.rules]]
+name = "cs2-schema-protobuf"
+query = { file = "../../packs/multi-projection-pack/queries/fields.rq" }
+template = { file = "../../packs/multi-projection-pack/templates/projection.proto.tera" }
+output_file = "generated/schema/consumer_projection.proto"
+mode = "Overwrite"
+skip_empty = true
+
+[[generation.rules]]
+name = "cs2-schema-graphql"
+query = { file = "../../packs/multi-projection-pack/queries/fields.rq" }
+template = { file = "../../packs/multi-projection-pack/templates/projection.graphql.tera" }
+output_file = "generated/schema/consumer_projection.graphql"
+mode = "Overwrite"
+skip_empty = true
+
+[[generation.rules]]
+name = "cs2-schema-json-schema"
+query = { file = "../../packs/multi-projection-pack/queries/fields.rq" }
+template = { file = "../../packs/multi-projection-pack/templates/projection.schema.json.tera" }
+output_file = "generated/schema/consumer_projection.schema.json"
+mode = "Overwrite"
+skip_empty = true
+
+[[generation.rules]]
+name = "cs2-schema-jsonld-context"
+query = { file = "../../packs/multi-projection-pack/queries/fields.rq" }
+template = { file = "../../packs/multi-projection-pack/templates/projection.context.jsonld.tera" }
+output_file = "generated/schema/consumer_projection.context.jsonld"
+mode = "Overwrite"
+skip_empty = true
+
+[[generation.rules]]
+name = "cs2-schema-manifest"
+query = { file = "../../packs/multi-projection-pack/queries/fields.rq" }
+template = { file = "../../packs/multi-projection-pack/templates/projection.manifest.json.tera" }
+output_file = "generated/schema/consumer_projection.manifest.json"
+mode = "Overwrite"
+skip_empty = true
