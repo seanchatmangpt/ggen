@@ -1,0 +1,36 @@
+{
+  "run_id": "scheduler-capacity-20260927T154138Z-r15",
+  "lower_bound_max_cycles_prior": 39,
+  "base": "dc6b591773a1bbd2e162319f830f984a9e778f76",
+  "branch": "probe/scheduler-capacity-20260927T154138Z-r15",
+  "entries": [
+    {
+      "cycle": 1,
+      "tool": "connector-schema",
+      "operation": "discover probe-capable edges",
+      "status": "SUCCESS",
+      "next": "bind Notion and GitHub"
+    },
+    {
+      "cycle": 2,
+      "tool": "Notion/GitHub",
+      "operation": "2 searches + repo metadata",
+      "status": "SUCCESS",
+      "next": "fetch canonical pages and exact HEAD"
+    },
+    {
+      "cycle": 3,
+      "tool": "Notion/GitHub",
+      "operation": "2 reads + exact main HEAD",
+      "status": "SUCCESS",
+      "next": "create fresh branch and durable ledger"
+    },
+    {
+      "cycle": 4,
+      "tool": "GitHub",
+      "operation": "branch + initial ledger checkpoint",
+      "status": "SUCCESS",
+      "next": "experimental code batch 1"
+    }
+  ]
+}
