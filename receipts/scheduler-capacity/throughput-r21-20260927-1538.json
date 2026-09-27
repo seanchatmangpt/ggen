@@ -1,0 +1,13 @@
+{
+  "run_id":"throughput-r21-20260927-1538",
+  "subject":"seanchatmangpt/ggen:tools/truth-gate",
+  "base":"fd5f9315c49d21c022c17b866c2dbc43f665aeda",
+  "head":"PENDING_SECOND_COMMIT",
+  "operation":"construct canonical adapter/policy/receipt surfaces",
+  "outcome":"SUCCESS",
+  "durable_files":12,
+  "durable_lines_approx":330,
+  "durable_bytes_approx":13000,
+  "verification":"not executed by throughput-probe design",
+  "replay":"inspect immutable probe branches and Git object chain"
+}
