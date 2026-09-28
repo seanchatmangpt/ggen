@@ -1,0 +1,4 @@
+use serde::{Deserialize,Serialize}; use super::{evidence::Evidence,subject::SubjectId};
+#[derive(Clone,Debug,Serialize,Deserialize)] pub struct Falsifier{pub id:String,pub subject:SubjectId,pub negates:String,pub condition:String}
+#[derive(Clone,Debug,Serialize,Deserialize,PartialEq,Eq)] pub enum Falsification{NotApplicable,Survives,Refuted{by:String}}
+impl Falsifier{pub fn evaluate(&self,c:&str,e:&[Evidence])->Falsification{if self.negates!=c{return Falsification::NotApplicable}for x in e{if x.subject==self.subject&&x.claim==self.condition{return Falsification::Refuted{by:x.id.clone()}}}Falsification::Survives}}

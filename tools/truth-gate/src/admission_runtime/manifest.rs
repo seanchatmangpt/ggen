@@ -1,0 +1,4 @@
+use serde::{Deserialize,Serialize}; use super::subject::SubjectId;
+#[derive(Clone,Debug,Serialize,Deserialize)]pub struct Artifact{pub subject:SubjectId,pub digest:String,pub generator:String,pub inputs:Vec<String>}
+#[derive(Clone,Debug,Default,Serialize,Deserialize)]pub struct Manifest{pub artifacts:Vec<Artifact>}
+impl Manifest{pub fn add(&mut self,a:Artifact)->Result<(),String>{a.subject.validate()?;if self.artifacts.iter().any(|x|x.subject==a.subject){return Err("duplicate exact subject".into())}self.artifacts.push(a);Ok(())}pub fn find(&self,s:&SubjectId)->Option<&Artifact>{self.artifacts.iter().find(|a|&a.subject==s)}}

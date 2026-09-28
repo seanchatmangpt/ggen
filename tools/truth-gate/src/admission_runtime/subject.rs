@@ -1,0 +1,3 @@
+use serde::{Deserialize,Serialize};
+#[derive(Clone,Debug,Serialize,Deserialize,PartialEq,Eq,Hash)] pub struct SubjectId{pub repository:String,pub path:String,pub revision:String}
+impl SubjectId{pub fn exact(r:impl Into<String>,p:impl Into<String>,v:impl Into<String>)->Self{Self{repository:r.into(),path:p.into(),revision:v.into()}} pub fn key(&self)->String{format!("{}:{}@{}",self.repository,self.path,self.revision)} pub fn validate(&self)->Result<(),String>{if self.repository.trim().is_empty()||self.path.trim().is_empty()||self.revision.trim().is_empty(){Err("subject fields must be non-empty".into())}else{Ok(())}}}

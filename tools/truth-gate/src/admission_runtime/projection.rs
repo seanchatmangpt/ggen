@@ -1,0 +1,3 @@
+use serde::{Deserialize,Serialize};
+#[derive(Clone,Debug,Serialize,Deserialize)]pub struct Projection{pub source:String,pub query:String,pub template:String,pub destination:String,pub expected_digest:Option<String>}
+impl Projection{pub fn validate(&self)->Result<(),String>{if[self.source.as_str(),self.query.as_str(),self.template.as_str(),self.destination.as_str()].iter().any(|x|x.trim().is_empty()){Err("projection fields must be non-empty".into())}else{Ok(())}}pub fn identity(&self)->String{format!("{}|{}|{}|{}",self.source,self.query,self.template,self.destination)}}

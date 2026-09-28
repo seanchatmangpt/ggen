@@ -1,0 +1,4 @@
+use std::collections::VecDeque;
+#[derive(Clone,Debug)]pub struct Work{pub id:String,pub leverage:u32,pub cost:u32,pub deps:Vec<String>}
+#[derive(Default)]pub struct Queue{items:VecDeque<Work>,done:Vec<String>}
+impl Queue{pub fn push(&mut self,w:Work){self.items.push_back(w)}pub fn complete(&mut self,id:&str){if !self.done.iter().any(|x|x==id){self.done.push(id.into())}}pub fn next(&mut self)->Option<Work>{let mut ready:Vec<_>=self.items.iter().filter(|w|w.deps.iter().all(|d|self.done.contains(d))).cloned().collect();ready.sort_by_key(|w|std::cmp::Reverse((w.leverage as u64)*1000/w.cost.max(1)as u64));let n=ready.first()?.id.clone();let p=self.items.iter().position(|w|w.id==n)?;self.items.remove(p)}}

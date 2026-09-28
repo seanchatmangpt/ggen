@@ -1,0 +1,5 @@
+use serde::{Deserialize,Serialize}; use super::{decision::Decision,subject::SubjectId};
+#[derive(Clone,Debug,Serialize,Deserialize)] pub struct Receipt{pub id:String,pub subject:SubjectId,pub actor:String,pub decision:Decision,pub input_digest:String,pub output_digest:String,pub parent:Option<String>}
+impl Receipt{pub fn validate(&self)->Result<(),String>{self.subject.validate()?;if self.id.is_empty()||self.actor.is_empty()||self.input_digest.len()<8||self.output_digest.len()<8{Err("invalid receipt".into())}else{Ok(())}}}
+#[derive(Default)] pub struct ReceiptChain{pub receipts:Vec<Receipt>}
+impl ReceiptChain{pub fn append(&mut self,r:Receipt)->Result<(),String>{r.validate()?;if let Some(p)=&r.parent{if self.receipts.last().map(|x|&x.id)!=Some(p){return Err("receipt parent mismatch".into())}}self.receipts.push(r);Ok(())}}

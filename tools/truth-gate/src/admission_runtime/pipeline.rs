@@ -1,0 +1,4 @@
+use super::{admission::{self,AdmissionRequest},decision::Decision,receipt::{Receipt,ReceiptChain},standing::{self,Standing}};
+pub struct Pipeline{pub receipts:ReceiptChain}
+impl Default for Pipeline{fn default()->Self{Self{receipts:ReceiptChain::default()}}}
+impl Pipeline{pub fn admit(&mut self,r:AdmissionRequest<'_>,id:String,input:String,output:String)->Result<(Decision,Standing),String>{let subject=r.subject.clone();let actor=r.principal.to_string();let d=admission::evaluate(r);let parent=self.receipts.receipts.last().map(|x|x.id.clone());self.receipts.append(Receipt{id,subject,actor,decision:d.clone(),input_digest:input,output_digest:output,parent})?;let s=standing::derive(&d,None,false);Ok((d,s))}}

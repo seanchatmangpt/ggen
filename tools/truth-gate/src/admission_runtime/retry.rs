@@ -1,0 +1,2 @@
+#[derive(Clone,Debug)] pub struct RetryPolicy{pub max_attempts:u32,pub base_delay_ms:u64,pub max_delay_ms:u64}
+impl RetryPolicy{pub fn delay(&self,a:u32)->Option<u64>{if a>=self.max_attempts{return None}Some(self.base_delay_ms.saturating_mul(1u64<<a.min(20)).min(self.max_delay_ms))} pub fn should_retry(&self,a:u32,transient:bool)->bool{transient&&self.delay(a).is_some()}}

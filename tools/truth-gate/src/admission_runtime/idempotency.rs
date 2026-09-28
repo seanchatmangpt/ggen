@@ -1,0 +1,3 @@
+use std::collections::HashMap;
+#[derive(Default)] pub struct IdempotencyLedger{entries:HashMap<String,String>}
+impl IdempotencyLedger{pub fn admit(&mut self,k:String,d:String)->Result<bool,String>{match self.entries.get(&k){None=>{self.entries.insert(k,d);Ok(true)},Some(v)if v==&d=>Ok(false),Some(_)=>Err("idempotency key reused with different digest".into())}}pub fn len(&self)->usize{self.entries.len()}}

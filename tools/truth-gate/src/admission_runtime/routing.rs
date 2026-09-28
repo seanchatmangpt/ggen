@@ -1,0 +1,3 @@
+use serde::{Deserialize,Serialize}; use super::exclusion::ExclusionSet;
+#[derive(Clone,Debug,Serialize,Deserialize)] pub struct Edge{pub id:String,pub cost:u32,pub leverage:u32,pub lawful:bool}
+pub fn rank(mut e:Vec<Edge>,x:&ExclusionSet)->Vec<Edge>{e.retain(|v|v.lawful&&!x.blocked(&v.id));e.sort_by(|a,b|{let ar=(a.leverage as u64)*1000/a.cost.max(1)as u64;let br=(b.leverage as u64)*1000/b.cost.max(1)as u64;br.cmp(&ar).then_with(||a.id.cmp(&b.id))});e}

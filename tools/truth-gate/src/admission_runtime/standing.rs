@@ -1,0 +1,3 @@
+use serde::{Deserialize,Serialize}; use super::{decision::Decision,replay::ReplayResult};
+#[derive(Clone,Debug,Serialize,Deserialize,PartialEq,Eq)] pub enum Standing{Unknown,Observed,Admitted,Replayable,Published}
+pub fn derive(d:&Decision,r:Option<&ReplayResult>,p:bool)->Standing{if !d.admitted(){return Standing::Observed}if r.map(|x|x.deterministic).unwrap_or(false){if p{Standing::Published}else{Standing::Replayable}}else{Standing::Admitted}}

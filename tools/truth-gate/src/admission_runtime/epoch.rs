@@ -1,0 +1,3 @@
+use serde::{Deserialize,Serialize};
+#[derive(Clone,Debug,Serialize,Deserialize)]pub struct Epoch{pub id:String,pub semantic_digest:String,pub implementation_digest:String,pub parent:Option<String>}
+impl Epoch{pub fn validate_successor(&self,next:&Epoch)->Result<(),String>{if next.parent.as_deref()!=Some(&self.id){return Err("epoch parent mismatch".into())}if next.semantic_digest!=self.semantic_digest{return Err("semantic drift across epoch".into())}if next.implementation_digest==self.implementation_digest{return Err("implementation did not phase".into())}Ok(())}}

@@ -1,0 +1,3 @@
+use serde::{Deserialize,Serialize};
+#[derive(Clone,Debug,Serialize,Deserialize)] pub struct Migration{pub from:u32,pub to:u32,pub name:String,pub reversible:bool}
+pub fn plan(c:u32,t:u32,a:&[Migration])->Result<Vec<Migration>,String>{let mut at=c;let mut out=vec![];while at!=t{let m=a.iter().find(|m|m.from==at&&m.to<=t).cloned().ok_or_else(||format!("no migration from {at}"))?;at=m.to;out.push(m);if out.len()>a.len(){return Err("migration cycle".into())}}Ok(out)}

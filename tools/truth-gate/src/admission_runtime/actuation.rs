@@ -1,0 +1,3 @@
+use super::{authority::{AuthoritySet,Capability},boundary::{self,Phase,Transition},decision::Decision};
+pub struct Actuation<'a>{pub principal:&'a str,pub scope:&'a str,pub decision:&'a Decision,pub authority:&'a AuthoritySet}
+pub fn authorize(a:Actuation<'_>)->Result<(),String>{if !a.decision.admitted(){return Err("cannot actuate refused decision".into())}a.authority.require(a.principal,Capability::Actuate,a.scope)?;boundary::lawful(&Transition{from:Phase::Construct,to:Phase::Do,reason:"authorized actuation".into()}).then_some(()).ok_or_else(||"construct/do boundary denied".into())}

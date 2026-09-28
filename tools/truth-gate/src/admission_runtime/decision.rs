@@ -1,0 +1,3 @@
+use serde::{Deserialize,Serialize}; use super::exclusion::ExclusionReason;
+#[derive(Clone,Debug,Serialize,Deserialize)] pub enum Decision{Admit{claim:String,evidence:Vec<String>},Refuse{claim:String,reasons:Vec<ExclusionReason>},Partial{claim:String,missing:Vec<String>}}
+impl Decision{pub fn admitted(&self)->bool{matches!(self,Self::Admit{..})}pub fn claim(&self)->&str{match self{Self::Admit{claim,..}|Self::Refuse{claim,..}|Self::Partial{claim,..}=>claim}}}

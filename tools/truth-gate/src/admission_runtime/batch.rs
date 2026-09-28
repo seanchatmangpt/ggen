@@ -1,0 +1,3 @@
+use super::{admission::AdmissionRequest,decision::Decision,pipeline::Pipeline,standing::Standing};
+pub struct BatchResult{pub decisions:Vec<(Decision,Standing)>,pub failures:Vec<String>}
+impl Pipeline{pub fn admit_batch<'a,I>(&mut self,i:I)->BatchResult where I:IntoIterator<Item=(AdmissionRequest<'a>,String,String,String)>{let mut o=BatchResult{decisions:vec![],failures:vec![]};for(r,id,a,b)in i{match self.admit(r,id,a,b){Ok(v)=>o.decisions.push(v),Err(e)=>o.failures.push(e)}}o}}

@@ -1,0 +1,4 @@
+use serde::{Deserialize,Serialize}; use super::subject::SubjectId;
+#[derive(Clone,Debug,Serialize,Deserialize,PartialEq,Eq)] pub enum Origin{Human,Generator{generator:String,version:String},Imported{source:String}}
+#[derive(Clone,Debug,Serialize,Deserialize)] pub struct Provenance{pub subject:SubjectId,pub origin:Origin,pub parents:Vec<String>,pub evidence:Vec<String>}
+impl Provenance{pub fn validate(&self)->Result<(),String>{self.subject.validate()?;if self.parents.iter().any(|p|p.trim().is_empty()){Err("empty provenance parent".into())}else{Ok(())}} pub fn is_generated(&self)->bool{matches!(self.origin,Origin::Generator{..})}}

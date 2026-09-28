@@ -1,0 +1,3 @@
+use std::collections::BTreeMap;
+#[derive(Clone,Debug,Default)] pub struct Metrics{pub counters:BTreeMap<String,u64>,pub bytes:BTreeMap<String,u64>}
+impl Metrics{pub fn inc(&mut self,n:&str,v:u64){*self.counters.entry(n.into()).or_default()+=v} pub fn add_bytes(&mut self,n:&str,v:u64){*self.bytes.entry(n.into()).or_default()+=v} pub fn get(&self,n:&str)->u64{self.counters.get(n).copied().unwrap_or(0)}}
