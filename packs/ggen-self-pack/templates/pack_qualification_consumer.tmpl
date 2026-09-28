@@ -1,0 +1,22 @@
+# {{ name }} qualification fixture — generated skeleton by `ggen pack new`
+# from ggen-self-pack. {{ description }}
+#
+# This is a STARTING POINT, not a real qualification fixture: it is a
+# trivial synthetic instance of this pack's own namespace, just enough
+# to exist as a `consumer.ttl` for the pack-qualification harness to
+# load. Replace it with real data that exercises this pack's actual
+# generation rules and gates before treating this pack as qualified —
+# an empty or placeholder fixture must never be read as "qualified".
+
+@prefix {{ name | replace(from="-", to="_") }}: <{{ namespace }}> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+# ── Starter individual ──────────────────────────────────────────────
+#
+# Replace with a real individual of a class this pack's ontology.ttl
+# actually declares, once that ontology has real classes.
+{{ name | replace(from="-", to="_") }}:ExampleConsumer
+    a rdfs:Resource ;
+    rdfs:comment "Placeholder qualification fixture for {{ name }} — replace with real data." .
