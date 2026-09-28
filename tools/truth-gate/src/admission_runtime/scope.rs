@@ -1,0 +1,3 @@
+use serde::{Deserialize,Serialize};
+#[derive(Clone,Debug,Serialize,Deserialize,PartialEq,Eq,Hash)] pub struct Scope{pub repository:String,pub prefix:String}
+impl Scope{pub fn new(r:impl Into<String>,p:impl Into<String>)->Self{Self{repository:r.into(),prefix:p.into()}} pub fn contains(&self,repo:&str,path:&str)->bool{self.repository==repo&&(self.prefix=="*"||path==self.prefix||path.starts_with(&(self.prefix.trim_end_matches('/').to_string()+"/")))} pub fn specificity(&self)->usize{if self.prefix=="*"{0}else{self.prefix.len()}}}

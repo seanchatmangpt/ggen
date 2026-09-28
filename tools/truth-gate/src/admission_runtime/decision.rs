@@ -1,0 +1,3 @@
+use serde::{Deserialize,Serialize};
+#[derive(Clone,Debug,Serialize,Deserialize,PartialEq,Eq)] pub enum Decision{Admit{claims:Vec<String>},Refuse{code:String,reasons:Vec<String>},Partial{admitted:Vec<String>,missing:Vec<String>}}
+impl Decision{pub fn admitted(&self)->bool{matches!(self,Self::Admit{..})}pub fn reasons(&self)->&[String]{match self{Self::Refuse{reasons,..}=>reasons,Self::Partial{missing,..}=>missing,Self::Admit{claims}=>claims}}pub fn code(&self)->&str{match self{Self::Admit{..}=>"ADMIT",Self::Partial{..}=>"PARTIAL",Self::Refuse{code,..}=>code}}}

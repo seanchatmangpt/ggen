@@ -1,0 +1,3 @@
+//! Exact-subject, provenance-bound admission runtime.
+pub mod actuation; pub mod admission; pub mod authority; pub mod batch; pub mod boundary; pub mod compatibility; pub mod consequence; pub mod consumer; pub mod decision; pub mod epoch; pub mod evidence; pub mod exclusion; pub mod falsifier; pub mod idempotency; pub mod manifest; pub mod metrics; pub mod migration; pub mod pipeline; pub mod projection; pub mod provenance; pub mod queue; pub mod receipt; pub mod recovery; pub mod replay; pub mod retry; pub mod routing; pub mod standing; pub mod store_law; pub mod subject; pub mod versioning;
+pub mod digest; pub mod error; pub mod ledger; pub mod scope; pub mod transaction; pub mod ocel;

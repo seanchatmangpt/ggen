@@ -1,0 +1,5 @@
+use serde::{Deserialize,Serialize}; use std::fmt;
+#[derive(Clone,Debug,Serialize,Deserialize,PartialEq,Eq)] pub enum AdmissionErrorKind{InvalidSubject,InvalidProvenance,AuthorityDenied,BoundaryViolation,EvidenceMissing,Falsified,Excluded,ReceiptInvalid,ReplayMismatch,Conflict,Unsupported}
+#[derive(Clone,Debug,Serialize,Deserialize,PartialEq,Eq)] pub struct AdmissionError{pub kind:AdmissionErrorKind,pub code:String,pub message:String,pub subject:Option<String>,pub recoverable:bool}
+impl AdmissionError{pub fn new(kind:AdmissionErrorKind,code:impl Into<String>,message:impl Into<String>)->Self{Self{kind,code:code.into(),message:message.into(),subject:None,recoverable:false}} pub fn subject(mut self,s:impl Into<String>)->Self{self.subject=Some(s.into());self} pub fn recoverable(mut self,v:bool)->Self{self.recoverable=v;self}}
+impl fmt::Display for AdmissionError{fn fmt(&self,f:&mut fmt::Formatter<'_>)->fmt::Result{write!(f,"{}: {}",self.code,self.message)}} impl std::error::Error for AdmissionError{} pub type Result<T>=std::result::Result<T,AdmissionError>;
