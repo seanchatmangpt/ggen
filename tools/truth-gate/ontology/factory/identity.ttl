@@ -1,0 +1,35 @@
+@prefix tg: <https://ggen.dev/truth-gate#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+tg:identityPolicy a tg:AdmissionPolicy ;
+  rdfs:label "identity admission policy" ;
+  tg:domain "identity" ;
+  tg:defaultDecision tg:Refuse ;
+  tg:requires tg:identityIdentity, tg:identityBoundary, tg:identityReceipt .
+
+tg:identityIdentity a tg:Requirement ;
+  tg:key "identity:identity" ;
+  tg:subjectBinding tg:ExactSubject ;
+  tg:onMissing tg:Refuse .
+
+tg:identityBoundary a tg:Requirement ;
+  tg:key "identity:boundary" ;
+  tg:subjectBinding tg:ExactSubject ;
+  tg:onMissing tg:Refuse .
+
+tg:identityReceipt a tg:Requirement ;
+  tg:key "identity:receipt" ;
+  tg:subjectBinding tg:ExactSubject ;
+  tg:onMissing tg:Refuse .
+
+tg:identityDecision a tg:DecisionShape ;
+  tg:records tg:ExactSubject, tg:ObservationEpoch, tg:MissingRequirement ;
+  tg:replayable true ;
+  tg:closedWorld true .
+
+tg:identityProjection a tg:GeneratedProjection ;
+  tg:source tg:identityPolicy ;
+  tg:target "src/factory/identity.rs" ;
+  tg:manualEditAllowed false .

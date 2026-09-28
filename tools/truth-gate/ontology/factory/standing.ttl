@@ -1,0 +1,35 @@
+@prefix tg: <https://ggen.dev/truth-gate#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+tg:standingPolicy a tg:AdmissionPolicy ;
+  rdfs:label "standing admission policy" ;
+  tg:domain "standing" ;
+  tg:defaultDecision tg:Refuse ;
+  tg:requires tg:standingIdentity, tg:standingBoundary, tg:standingReceipt .
+
+tg:standingIdentity a tg:Requirement ;
+  tg:key "standing:identity" ;
+  tg:subjectBinding tg:ExactSubject ;
+  tg:onMissing tg:Refuse .
+
+tg:standingBoundary a tg:Requirement ;
+  tg:key "standing:boundary" ;
+  tg:subjectBinding tg:ExactSubject ;
+  tg:onMissing tg:Refuse .
+
+tg:standingReceipt a tg:Requirement ;
+  tg:key "standing:receipt" ;
+  tg:subjectBinding tg:ExactSubject ;
+  tg:onMissing tg:Refuse .
+
+tg:standingDecision a tg:DecisionShape ;
+  tg:records tg:ExactSubject, tg:ObservationEpoch, tg:MissingRequirement ;
+  tg:replayable true ;
+  tg:closedWorld true .
+
+tg:standingProjection a tg:GeneratedProjection ;
+  tg:source tg:standingPolicy ;
+  tg:target "src/factory/standing.rs" ;
+  tg:manualEditAllowed false .

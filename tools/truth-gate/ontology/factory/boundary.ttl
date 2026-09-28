@@ -1,0 +1,35 @@
+@prefix tg: <https://ggen.dev/truth-gate#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+tg:boundaryPolicy a tg:AdmissionPolicy ;
+  rdfs:label "boundary admission policy" ;
+  tg:domain "boundary" ;
+  tg:defaultDecision tg:Refuse ;
+  tg:requires tg:boundaryIdentity, tg:boundaryBoundary, tg:boundaryReceipt .
+
+tg:boundaryIdentity a tg:Requirement ;
+  tg:key "boundary:identity" ;
+  tg:subjectBinding tg:ExactSubject ;
+  tg:onMissing tg:Refuse .
+
+tg:boundaryBoundary a tg:Requirement ;
+  tg:key "boundary:boundary" ;
+  tg:subjectBinding tg:ExactSubject ;
+  tg:onMissing tg:Refuse .
+
+tg:boundaryReceipt a tg:Requirement ;
+  tg:key "boundary:receipt" ;
+  tg:subjectBinding tg:ExactSubject ;
+  tg:onMissing tg:Refuse .
+
+tg:boundaryDecision a tg:DecisionShape ;
+  tg:records tg:ExactSubject, tg:ObservationEpoch, tg:MissingRequirement ;
+  tg:replayable true ;
+  tg:closedWorld true .
+
+tg:boundaryProjection a tg:GeneratedProjection ;
+  tg:source tg:boundaryPolicy ;
+  tg:target "src/factory/boundary.rs" ;
+  tg:manualEditAllowed false .

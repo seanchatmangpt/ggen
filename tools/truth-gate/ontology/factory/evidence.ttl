@@ -1,0 +1,35 @@
+@prefix tg: <https://ggen.dev/truth-gate#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+tg:evidencePolicy a tg:AdmissionPolicy ;
+  rdfs:label "evidence admission policy" ;
+  tg:domain "evidence" ;
+  tg:defaultDecision tg:Refuse ;
+  tg:requires tg:evidenceIdentity, tg:evidenceBoundary, tg:evidenceReceipt .
+
+tg:evidenceIdentity a tg:Requirement ;
+  tg:key "evidence:identity" ;
+  tg:subjectBinding tg:ExactSubject ;
+  tg:onMissing tg:Refuse .
+
+tg:evidenceBoundary a tg:Requirement ;
+  tg:key "evidence:boundary" ;
+  tg:subjectBinding tg:ExactSubject ;
+  tg:onMissing tg:Refuse .
+
+tg:evidenceReceipt a tg:Requirement ;
+  tg:key "evidence:receipt" ;
+  tg:subjectBinding tg:ExactSubject ;
+  tg:onMissing tg:Refuse .
+
+tg:evidenceDecision a tg:DecisionShape ;
+  tg:records tg:ExactSubject, tg:ObservationEpoch, tg:MissingRequirement ;
+  tg:replayable true ;
+  tg:closedWorld true .
+
+tg:evidenceProjection a tg:GeneratedProjection ;
+  tg:source tg:evidencePolicy ;
+  tg:target "src/factory/evidence.rs" ;
+  tg:manualEditAllowed false .

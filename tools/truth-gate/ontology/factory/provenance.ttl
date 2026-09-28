@@ -1,0 +1,35 @@
+@prefix tg: <https://ggen.dev/truth-gate#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+tg:provenancePolicy a tg:AdmissionPolicy ;
+  rdfs:label "provenance admission policy" ;
+  tg:domain "provenance" ;
+  tg:defaultDecision tg:Refuse ;
+  tg:requires tg:provenanceIdentity, tg:provenanceBoundary, tg:provenanceReceipt .
+
+tg:provenanceIdentity a tg:Requirement ;
+  tg:key "provenance:identity" ;
+  tg:subjectBinding tg:ExactSubject ;
+  tg:onMissing tg:Refuse .
+
+tg:provenanceBoundary a tg:Requirement ;
+  tg:key "provenance:boundary" ;
+  tg:subjectBinding tg:ExactSubject ;
+  tg:onMissing tg:Refuse .
+
+tg:provenanceReceipt a tg:Requirement ;
+  tg:key "provenance:receipt" ;
+  tg:subjectBinding tg:ExactSubject ;
+  tg:onMissing tg:Refuse .
+
+tg:provenanceDecision a tg:DecisionShape ;
+  tg:records tg:ExactSubject, tg:ObservationEpoch, tg:MissingRequirement ;
+  tg:replayable true ;
+  tg:closedWorld true .
+
+tg:provenanceProjection a tg:GeneratedProjection ;
+  tg:source tg:provenancePolicy ;
+  tg:target "src/factory/provenance.rs" ;
+  tg:manualEditAllowed false .

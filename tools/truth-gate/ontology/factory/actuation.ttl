@@ -1,0 +1,35 @@
+@prefix tg: <https://ggen.dev/truth-gate#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+tg:actuationPolicy a tg:AdmissionPolicy ;
+  rdfs:label "actuation admission policy" ;
+  tg:domain "actuation" ;
+  tg:defaultDecision tg:Refuse ;
+  tg:requires tg:actuationIdentity, tg:actuationBoundary, tg:actuationReceipt .
+
+tg:actuationIdentity a tg:Requirement ;
+  tg:key "actuation:identity" ;
+  tg:subjectBinding tg:ExactSubject ;
+  tg:onMissing tg:Refuse .
+
+tg:actuationBoundary a tg:Requirement ;
+  tg:key "actuation:boundary" ;
+  tg:subjectBinding tg:ExactSubject ;
+  tg:onMissing tg:Refuse .
+
+tg:actuationReceipt a tg:Requirement ;
+  tg:key "actuation:receipt" ;
+  tg:subjectBinding tg:ExactSubject ;
+  tg:onMissing tg:Refuse .
+
+tg:actuationDecision a tg:DecisionShape ;
+  tg:records tg:ExactSubject, tg:ObservationEpoch, tg:MissingRequirement ;
+  tg:replayable true ;
+  tg:closedWorld true .
+
+tg:actuationProjection a tg:GeneratedProjection ;
+  tg:source tg:actuationPolicy ;
+  tg:target "src/factory/actuation.rs" ;
+  tg:manualEditAllowed false .

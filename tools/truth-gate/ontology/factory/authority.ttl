@@ -1,0 +1,35 @@
+@prefix tg: <https://ggen.dev/truth-gate#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+tg:authorityPolicy a tg:AdmissionPolicy ;
+  rdfs:label "authority admission policy" ;
+  tg:domain "authority" ;
+  tg:defaultDecision tg:Refuse ;
+  tg:requires tg:authorityIdentity, tg:authorityBoundary, tg:authorityReceipt .
+
+tg:authorityIdentity a tg:Requirement ;
+  tg:key "authority:identity" ;
+  tg:subjectBinding tg:ExactSubject ;
+  tg:onMissing tg:Refuse .
+
+tg:authorityBoundary a tg:Requirement ;
+  tg:key "authority:boundary" ;
+  tg:subjectBinding tg:ExactSubject ;
+  tg:onMissing tg:Refuse .
+
+tg:authorityReceipt a tg:Requirement ;
+  tg:key "authority:receipt" ;
+  tg:subjectBinding tg:ExactSubject ;
+  tg:onMissing tg:Refuse .
+
+tg:authorityDecision a tg:DecisionShape ;
+  tg:records tg:ExactSubject, tg:ObservationEpoch, tg:MissingRequirement ;
+  tg:replayable true ;
+  tg:closedWorld true .
+
+tg:authorityProjection a tg:GeneratedProjection ;
+  tg:source tg:authorityPolicy ;
+  tg:target "src/factory/authority.rs" ;
+  tg:manualEditAllowed false .
