@@ -2779,7 +2779,7 @@ dependencies = [
  "sha2 0.10.9",
  "shell-words",
  "tempfile",
- "tera",
+ "tera 1.20.1",
  "testcontainers",
  "testcontainers-modules",
  "tokio",
@@ -2861,7 +2861,7 @@ dependencies = [
  "sha2 0.10.9",
  "tar",
  "tempfile",
- "tera",
+ "tera 1.20.1",
  "thiserror 2.0.21",
  "tokio",
  "tokio-test",
@@ -2941,7 +2941,7 @@ dependencies = [
  "spargebra",
  "star-toml",
  "tempfile",
- "tera",
+ "tera 1.20.1",
  "thiserror 2.0.21",
  "tokio",
  "toml 1.1.6+spec-1.1.0",
@@ -3000,7 +3000,7 @@ dependencies = [
  "serde_json",
  "serde_yaml",
  "tempfile",
- "tera",
+ "tera 1.20.1",
  "thiserror 2.0.21",
  "tokio",
  "toml 1.1.6+spec-1.1.0",
@@ -3044,7 +3044,7 @@ dependencies = [
  "sha2 0.10.9",
  "tar",
  "tempfile",
- "tera",
+ "tera 1.20.1",
  "thiserror 2.0.21",
  "tokio",
  "toml 1.1.6+spec-1.1.0",
@@ -5768,7 +5768,7 @@ dependencies = [
  "serde",
  "serde_json",
  "tempfile",
- "tera",
+ "tera 1.20.1",
  "thiserror 2.0.21",
  "wasm4pm-compat",
 ]
@@ -5992,9 +5992,9 @@ checksum = "4debfffbf1669869b4bea1bab297f8e9ec11900a9ff2dcf659c2a1c4918c811a"
 
 [[package]]
 name = "qlue-ls"
-version = "3.7.0"
+version = "3.11.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "911a8ae2a56813516c07b965d66bb2fa52e42831d9a4eb38372b1000bfdf847e"
+checksum = "78ea69ad449b1d11975cb5ab65bc2acb381d88803abeaa5590aafae3f52ffb6d"
 dependencies = [
  "clap",
  "config",
@@ -6014,7 +6014,7 @@ dependencies = [
  "serde-wasm-bindgen",
  "serde_json",
  "serde_repr",
- "tera",
+ "tera 2.4.0",
  "text-size",
  "tokio",
  "tracing",
@@ -7317,9 +7317,9 @@ dependencies = [
 
 [[package]]
 name = "smallvec"
-version = "1.16.1"
+version = "1.16.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ba467056f1b547ed52077911161fc86985becbc60e8e1857c8a144dab0def891"
+checksum = "f9395f0f0eee849a9b707b2f06bb92a6a422090e2123bb2ef8e87a0e61892a8e"
 dependencies = [
  "serde",
 ]
@@ -7812,6 +7812,15 @@ dependencies = [
  "serde_json",
  "slug",
  "unicode-segmentation",
+]
+
+[[package]]
+name = "tera"
+version = "2.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "61e0cadeeb54426080b4c5395d59769ce8293f542cc25511c167c742b2175809"
+dependencies = [
+ "serde",
 ]
 
 [[package]]
