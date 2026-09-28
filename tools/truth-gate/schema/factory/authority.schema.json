@@ -1,0 +1,138 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ggen.dev/truth-gate/authority.schema.json",
+  "title": "Truth Gate authority contract",
+  "description": "Exact-subject authority contract used by generated truth-gate policy surfaces.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "subject",
+    "base_sha",
+    "epoch",
+    "policy",
+    "decision",
+    "provenance",
+    "facts",
+    "missing",
+    "receipt_id",
+    "replay_key",
+    "reversible",
+    "schema_version"
+  ],
+  "properties": {
+    "subject": {
+      "type": "string",
+      "minLength": 1
+    },
+    "base_sha": {
+      "type": "string",
+      "minLength": 7
+    },
+    "epoch": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "policy": {
+      "type": "string",
+      "minLength": 1
+    },
+    "decision": {
+      "type": "string",
+      "enum": [
+        "admit",
+        "refuse",
+        "partial"
+      ]
+    },
+    "authority": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "provenance": {
+      "type": "string"
+    },
+    "facts": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "missing": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "uniqueItems": true
+    },
+    "receipt_id": {
+      "type": "string"
+    },
+    "parent_receipt": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "replay_key": {
+      "type": "string"
+    },
+    "consequence": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "reversible": {
+      "type": "boolean"
+    },
+    "standing": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "observed_at": {
+      "type": "string"
+    },
+    "schema_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\\\.[0-9]+$"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "decision": {
+            "const": "admit"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "missing": {
+            "maxItems": 0
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "decision": {
+            "const": "refuse"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "missing": {
+            "minItems": 1
+          }
+        }
+      }
+    }
+  ]
+}
