@@ -80,12 +80,16 @@ ggenspec:Project-name
 ggenspec:Ontology
     a ggenspec:Section ; rdfs:label "Ontology" ;
     rdfs:comment "The RDF source of truth and its namespace prefixes (crate::config::Ontology)." ;
-    ggenspec:hasField ggenspec:Ontology-source , ggenspec:Ontology-prefixes .
+    ggenspec:hasField ggenspec:Ontology-source , ggenspec:Ontology-imports , ggenspec:Ontology-prefixes .
 
 ggenspec:Ontology-source
     a ggenspec:Field ; ggenspec:name "source" ; ggenspec:type ggenspec:Path ;
     ggenspec:required true ; ggenspec:pathSafe true ; ggenspec:pathMustBeRelative true ;
     rdfs:comment "Path to the ontology file (Turtle), relative to the manifest. No traversal ('..'), no null bytes (Validator::check_path)." .
+
+ggenspec:Ontology-imports
+    a ggenspec:Field ; ggenspec:name "imports" ; ggenspec:type ggenspec:ListOfPath ;
+    ggenspec:required false ; rdfs:comment "Additional Turtle files unioned into the graph alongside `source`, relative to the manifest. Defaults to empty." .
 
 ggenspec:Ontology-prefixes
     a ggenspec:Field ; ggenspec:name "prefixes" ; ggenspec:type ggenspec:MapOfString ;
