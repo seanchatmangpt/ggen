@@ -927,9 +927,7 @@ const SELF_PACK_FILES: &[(&str, &str)] = &[
     ),
     (
         "templates/pack_qualification_consumer.tmpl",
-        include_str!(
-            "../../../../packs/ggen-self-pack/templates/pack_qualification_consumer.tmpl"
-        ),
+        include_str!("../../../../packs/ggen-self-pack/templates/pack_qualification_consumer.tmpl"),
     ),
 ];
 

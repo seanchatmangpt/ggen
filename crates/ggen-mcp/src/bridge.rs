@@ -471,9 +471,7 @@ pub async fn list_resources(store: &DiagnosticStore) -> Vec<Resource> {
         .list()
         .await
         .into_iter()
-        .map(|(uri, diag)| {
-            Resource::new(uri, format!("{}: {}", diag.code, diag.file))
-        })
+        .map(|(uri, diag)| Resource::new(uri, format!("{}: {}", diag.code, diag.file)))
         .collect()
 }
 
@@ -824,8 +822,6 @@ pub async fn list_sync_refusals(store: &SyncRefusalStore) -> Vec<Resource> {
         .list()
         .await
         .into_iter()
-        .map(|(uri, refusal)| {
-            Resource::new(uri, format!("{}: {}", refusal.kind, refusal.root))
-        })
+        .map(|(uri, refusal)| Resource::new(uri, format!("{}: {}", refusal.kind, refusal.root)))
         .collect()
 }
