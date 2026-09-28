@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ggen.dev/truth-gate/contract.schema.json",
+  "title": "Contract",
+  "type": "object",
+  "required": [
+    "name",
+    "major",
+    "required",
+    "optional"
+  ],
+  "additionalProperties": true,
+  "properties": {
+    "name": {
+      "description": "Canonical Contract field name"
+    },
+    "major": {
+      "description": "Canonical Contract field major"
+    },
+    "required": {
+      "description": "Canonical Contract field required"
+    },
+    "optional": {
+      "description": "Canonical Contract field optional"
+    }
+  }
+}

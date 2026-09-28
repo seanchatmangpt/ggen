@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ggen.dev/truth-gate/consumer.schema.json",
+  "title": "Consumer",
+  "type": "object",
+  "required": [
+    "name",
+    "contract",
+    "required_standing",
+    "scopes"
+  ],
+  "additionalProperties": true,
+  "properties": {
+    "name": {
+      "description": "Canonical Consumer field name"
+    },
+    "contract": {
+      "description": "Canonical Consumer field contract"
+    },
+    "required_standing": {
+      "description": "Canonical Consumer field required_standing"
+    },
+    "scopes": {
+      "description": "Canonical Consumer field scopes"
+    }
+  }
+}

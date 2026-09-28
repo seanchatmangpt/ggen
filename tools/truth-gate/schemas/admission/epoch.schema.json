@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ggen.dev/truth-gate/epoch.schema.json",
+  "title": "Epoch",
+  "type": "object",
+  "required": [
+    "id",
+    "semantic_digest",
+    "implementation_digest"
+  ],
+  "additionalProperties": true,
+  "properties": {
+    "id": {
+      "description": "Canonical Epoch field id"
+    },
+    "semantic_digest": {
+      "description": "Canonical Epoch field semantic_digest"
+    },
+    "implementation_digest": {
+      "description": "Canonical Epoch field implementation_digest"
+    }
+  }
+}

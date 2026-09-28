@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ggen.dev/truth-gate/projection.schema.json",
+  "title": "Projection",
+  "type": "object",
+  "required": [
+    "source",
+    "query",
+    "template",
+    "destination"
+  ],
+  "additionalProperties": true,
+  "properties": {
+    "source": {
+      "description": "Canonical Projection field source"
+    },
+    "query": {
+      "description": "Canonical Projection field query"
+    },
+    "template": {
+      "description": "Canonical Projection field template"
+    },
+    "destination": {
+      "description": "Canonical Projection field destination"
+    }
+  }
+}

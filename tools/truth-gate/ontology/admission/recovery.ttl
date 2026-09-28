@@ -1,0 +1,3 @@
+@prefix tg: <https://ggen.dev/truth-gate/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+tg:recovery a tg:PolicyDomain ; rdfs:comment "Recovery routes edge failures without graph failure." .

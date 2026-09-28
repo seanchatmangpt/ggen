@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ggen.dev/truth-gate/artifact.schema.json",
+  "title": "Artifact",
+  "type": "object",
+  "required": [
+    "subject",
+    "digest",
+    "generator",
+    "inputs"
+  ],
+  "additionalProperties": true,
+  "properties": {
+    "subject": {
+      "description": "Canonical Artifact field subject"
+    },
+    "digest": {
+      "description": "Canonical Artifact field digest"
+    },
+    "generator": {
+      "description": "Canonical Artifact field generator"
+    },
+    "inputs": {
+      "description": "Canonical Artifact field inputs"
+    }
+  }
+}

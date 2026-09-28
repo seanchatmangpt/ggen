@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ggen.dev/truth-gate/evidence.schema.json",
+  "title": "Evidence",
+  "type": "object",
+  "required": [
+    "id",
+    "subject",
+    "kind",
+    "claim",
+    "digest"
+  ],
+  "additionalProperties": true,
+  "properties": {
+    "id": {
+      "description": "Canonical Evidence field id"
+    },
+    "subject": {
+      "description": "Canonical Evidence field subject"
+    },
+    "kind": {
+      "description": "Canonical Evidence field kind"
+    },
+    "claim": {
+      "description": "Canonical Evidence field claim"
+    },
+    "digest": {
+      "description": "Canonical Evidence field digest"
+    }
+  }
+}

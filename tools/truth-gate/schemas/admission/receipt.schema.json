@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ggen.dev/truth-gate/receipt.schema.json",
+  "title": "Receipt",
+  "type": "object",
+  "required": [
+    "id",
+    "subject",
+    "actor",
+    "decision",
+    "input_digest",
+    "output_digest"
+  ],
+  "additionalProperties": true,
+  "properties": {
+    "id": {
+      "description": "Canonical Receipt field id"
+    },
+    "subject": {
+      "description": "Canonical Receipt field subject"
+    },
+    "actor": {
+      "description": "Canonical Receipt field actor"
+    },
+    "decision": {
+      "description": "Canonical Receipt field decision"
+    },
+    "input_digest": {
+      "description": "Canonical Receipt field input_digest"
+    },
+    "output_digest": {
+      "description": "Canonical Receipt field output_digest"
+    }
+  }
+}

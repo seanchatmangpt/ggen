@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ggen.dev/truth-gate/transition.schema.json",
+  "title": "Transition",
+  "type": "object",
+  "required": [
+    "from",
+    "to",
+    "reason"
+  ],
+  "additionalProperties": true,
+  "properties": {
+    "from": {
+      "description": "Canonical Transition field from"
+    },
+    "to": {
+      "description": "Canonical Transition field to"
+    },
+    "reason": {
+      "description": "Canonical Transition field reason"
+    }
+  }
+}

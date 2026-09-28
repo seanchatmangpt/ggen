@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ggen.dev/truth-gate/subject.schema.json",
+  "title": "SubjectId",
+  "type": "object",
+  "required": [
+    "repository",
+    "path",
+    "revision"
+  ],
+  "additionalProperties": true,
+  "properties": {
+    "repository": {
+      "description": "Canonical SubjectId field repository"
+    },
+    "path": {
+      "description": "Canonical SubjectId field path"
+    },
+    "revision": {
+      "description": "Canonical SubjectId field revision"
+    }
+  }
+}

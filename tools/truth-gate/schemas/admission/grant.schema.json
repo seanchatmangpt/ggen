@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ggen.dev/truth-gate/grant.schema.json",
+  "title": "Grant",
+  "type": "object",
+  "required": [
+    "principal",
+    "capability",
+    "scope"
+  ],
+  "additionalProperties": true,
+  "properties": {
+    "principal": {
+      "description": "Canonical Grant field principal"
+    },
+    "capability": {
+      "description": "Canonical Grant field capability"
+    },
+    "scope": {
+      "description": "Canonical Grant field scope"
+    }
+  }
+}
