@@ -135,11 +135,11 @@ dir = "templates"
 
         let mut hasher1 = Sha256::new();
         hasher1.update(content.as_bytes());
-        let hash1 = format!("{:x}", hasher1.finalize());
+        let hash1 = hex::encode(hasher1.finalize());
 
         let mut hasher2 = Sha256::new();
         hasher2.update(content.as_bytes());
-        let hash2 = format!("{:x}", hasher2.finalize());
+        let hash2 = hex::encode(hasher2.finalize());
 
         assert_eq!(
             hash1, hash2,
@@ -265,14 +265,14 @@ dir = "templates"
         let file_bytes = fs::read_to_string(&receipt_path)?;
         let mut hasher1 = Sha256::new();
         hasher1.update(file_bytes.as_bytes());
-        let hash1 = format!("{:x}", hasher1.finalize());
+        let hash1 = hex::encode(hasher1.finalize());
 
         // Hash 2: Parse JSON → serialize → SHA-256
         let parsed: serde_json::Value = serde_json::from_str(&file_bytes)?;
         let serialized = serde_json::to_string(&parsed)?;
         let mut hasher2 = Sha256::new();
         hasher2.update(serialized.as_bytes());
-        let hash2 = format!("{:x}", hasher2.finalize());
+        let hash2 = hex::encode(hasher2.finalize());
 
         // Note: hash1 vs hash2 may differ due to JSON formatting, so verify
         // both are valid SHA-256 digests.
@@ -291,7 +291,7 @@ dir = "templates"
         let file_bytes_2 = fs::read_to_string(&receipt_path)?;
         let mut hasher3 = Sha256::new();
         hasher3.update(file_bytes_2.as_bytes());
-        let hash3 = format!("{:x}", hasher3.finalize());
+        let hash3 = hex::encode(hasher3.finalize());
 
         assert_eq!(
             hash1, hash3,

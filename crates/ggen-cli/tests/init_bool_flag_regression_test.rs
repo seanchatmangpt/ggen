@@ -78,7 +78,7 @@ fn dir_digest(root: &Path) -> String {
         hasher.update(content);
         hasher.update([0u8]);
     }
-    format!("{:x}", hasher.finalize())
+    hex::encode(hasher.finalize())
 }
 
 fn collect_files(root: &Path, dir: &Path, out: &mut Vec<(String, Vec<u8>)>) {

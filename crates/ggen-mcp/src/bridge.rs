@@ -472,10 +472,7 @@ pub async fn list_resources(store: &DiagnosticStore) -> Vec<Resource> {
         .await
         .into_iter()
         .map(|(uri, diag)| {
-            Resource::new(
-                rmcp::model::RawResource::new(uri, format!("{}: {}", diag.code, diag.file)),
-                None,
-            )
+            Resource::new(uri, format!("{}: {}", diag.code, diag.file))
         })
         .collect()
 }
@@ -828,10 +825,7 @@ pub async fn list_sync_refusals(store: &SyncRefusalStore) -> Vec<Resource> {
         .await
         .into_iter()
         .map(|(uri, refusal)| {
-            Resource::new(
-                rmcp::model::RawResource::new(uri, format!("{}: {}", refusal.kind, refusal.root)),
-                None,
-            )
+            Resource::new(uri, format!("{}: {}", refusal.kind, refusal.root))
         })
         .collect()
 }

@@ -53,7 +53,7 @@ mcp   = ["dep:rmcp", "dep:rmcp-macros", "dep:tokio"]                 # MCP serve
 
 [dependencies]
 once_cell = "1"
-rustyline = { version = "14", optional = true }
+rustyline = { version = "18", optional = true }
 # House shared crate — pick one source:
 # chatman-common = "26.6"                                              # once published
 # chatman-common = { git = "https://github.com/seanchatmangpt/chatman-common" }
@@ -72,13 +72,13 @@ hex = { workspace = true }                                            # receipt-
 # interoperable algorithm; BLAKE3 stays the Rust-legacy chain hash (§56).
 sha2 = { version = "0.10" }
 ed25519-dalek = { workspace = true }                                  # receipt signing/verification (T063) -- no chatman-common envelope, raw signature over chain_hash_hex
-rand = "0.8"                                                          # CSPRNG for fresh ed25519 keypair generation (T063)
+getrandom = "0.4"                                                       # OS CSPRNG seed bytes for fresh ed25519 keypair generation (T063)
 tracing = { workspace = true }                                        # pipeline.{load,extract,generate,validate,emit} spans (T060/T061)
 # Engine deps (unconditional — the whole point of this crate is the SPARQL+Tera pipeline)
-oxigraph = "0.5.9"
-tera = "1.20.0"
+oxigraph = "0.5.11"
+tera = "1.20"
 notify = "8.2"
-notify-debouncer-full = "0.4"
+notify-debouncer-full = "0.6"
 serde_yaml = "0.9"
 regex = "1"
 semver = "1.0" # pack.toml [dependencies] version requirement admission
@@ -92,7 +92,7 @@ star-toml = "26.7.3"
 # independent parse via spargebra's own public `SparqlParser::parse_query`.
 # Pinned to the exact version oxigraph 0.5.9 already resolves (see
 # Cargo.lock) so this never becomes a duplicate-version dependency graph.
-spargebra = "0.4.6"
+spargebra = "0.4.7"
 praxis-core = { path = "../praxis-core" }
 praxis-graphlaw = { path = "../praxis-graphlaw" }
 # New, deliberate edge (not an undocumented re-export): resolving a `GenerationRule`'s
@@ -111,11 +111,11 @@ ggen-config = { path = "../ggen-config", version = "26.7.4" }
 # any typed parse, whether a project's ggen.toml belongs to this module's declarative-rules
 # schema or `crate::config::GgenConfig`'s frontmatter schema -- same version ggen-config itself
 # already depends on.
-toml = "1.1.0"
+toml = "1.0.7"
 tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt"] }
-schemars = { version = "1.0", features = ["derive"] }
-rmcp = { version = "0.11.0", features = ["transport-io"], optional = true }
-rmcp-macros = { version = "0.11.0", optional = true }
+schemars = { version = "1.2", features = ["derive"] }
+rmcp = { version = "2.2.0", features = ["transport-io"], optional = true }
+rmcp-macros = { version = "2.2.0", optional = true }
 # `verbs/` — the ontology-generated clap-noun-verb CLI dispatch layer (specs/014-ggen-core-replacement).
 # Re-enabled now that the workspace-wide clap-noun-verb pin (Cargo.toml) is bumped to the
 # published 26.7.4 (kebab-case-with-snake_case-alias release), matching what this crate
@@ -132,14 +132,14 @@ chicago-tdd-tools = { workspace = true, features = ["cli-proof"] }
 # (.claude/rules/architecture.md), ggen emits OCEL, wasm4pm-compat analyzes
 # it; this dev-dependency lets one test invoke that analysis directly rather
 # than ggen ever reimplementing it.
-wasm4pm-compat = "26.6"
+wasm4pm-compat = "26.8"
 assert_cmd = "2"
 predicates = "3"
 tempfile = "3"
 sha2 = "0.10"
 insta = { version = "1", features = ["json"] }
 proptest = "1"
-criterion = { version = "0.5", features = ["html_reports"] }
+criterion = { version = "0.7", features = ["html_reports"] }
 divan = "0.1"
 
 [[bin]]

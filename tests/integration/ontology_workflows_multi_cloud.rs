@@ -530,7 +530,7 @@ fn extract_content_hash(proposal: &str) -> String {
     // Return SHA256 hash
     let mut hasher = Sha256::new();
     hasher.update(semantic_content.as_bytes());
-    format!("{:x}", hasher.finalize())
+    hex::encode(hasher.finalize())
 }
 
 /// Calculate receipt signature using Ed25519-like behavior (SHA256 hash)
@@ -560,5 +560,5 @@ fn calculate_receipt_signature(proposal: &str) -> String {
     let canonical = serde_json::to_string(&parsed).unwrap_or_default();
     let mut hasher = Sha256::new();
     hasher.update(canonical.as_bytes());
-    format!("{:x}", hasher.finalize())
+    hex::encode(hasher.finalize())
 }

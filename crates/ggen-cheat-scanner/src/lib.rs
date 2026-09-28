@@ -471,7 +471,7 @@ fn type_name_of(ty: &syn::Type) -> Option<String> {
 
 impl<'ast> Visit<'ast> for ImplCollector<'_> {
     fn visit_item_impl(&mut self, i: &'ast ItemImpl) {
-        if let Some((_, trait_path, _)) = &i.trait_ {
+        if let Some((trait_path, _)) = &i.trait_ {
             if let Some(trait_name) = trait_path.segments.last().map(|s| s.ident.to_string()) {
                 if let Some(type_name) = type_name_of(&i.self_ty) {
                     use syn::spanned::Spanned;

@@ -505,7 +505,7 @@ fn generate_hipaa_proposal(domain_yaml: &str, ontology_ttl: &str) -> String {
     hasher.update(domain_yaml.as_bytes());
     hasher.update(ontology_ttl.as_bytes());
     let hash = hasher.finalize();
-    proposal.push_str(&format!("{:x}", hash));
+    proposal.push_str(&hex::encode(hash));
 
     proposal.push_str("\", \"guards_passed\": 12 } }");
     proposal

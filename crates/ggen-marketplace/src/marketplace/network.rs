@@ -371,7 +371,7 @@ fn sha256(content: &[u8]) -> String {
     hasher.update(content);
     let result = hasher.finalize();
 
-    format!("{:x}", result)
+    hex::encode(result)
 }
 
 #[cfg(test)]

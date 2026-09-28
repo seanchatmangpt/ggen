@@ -22,7 +22,7 @@ pddl = { version = "0.2", features = ["parser"] }
 blake3 = "1"
 # Prolog8 kernel — admission gate (R ⊢ A). Pulled from crates.io, not a
 # local path, so only one copy of the crate is ever resolved workspace-wide.
-prolog8 = { version = "26.6.25" }
+prolog8 = { version = "26.7.1" }
 # wasm4pm-compat — canonical OCEL types + PDDL types.
 # The prior path-pin exception (published 26.6.28 was missing fn_values/
 # preferences/metric/object_types/typed_params/condition/effects/
@@ -30,7 +30,7 @@ prolog8 = { version = "26.6.25" }
 # 2026-07-03). Path kept alongside version for local dev; praxis's own
 # [patch.crates-io] unifies this with its own wasm4pm-compat resolution
 # when bcinr-pddl is pulled in as a path dependency there.
-wasm4pm-compat = "26.6.29"
+wasm4pm-compat = "26.8.7"
 # Serde for serialization (wasm4pm-compat re-exports most of what's needed)
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
@@ -61,7 +61,7 @@ dhat-heap = []
 # tooling, used only for its `ocel-generation` feature's OcelCollector to
 # emit an OCEL trace of the propose->admit->schedule->receipt pipeline in
 # tests/proposer_substrate.rs. Registry version, matching bcinr-powl's dep.
-chicago-tdd-tools = { version = "26.8.3", features = ["ocel-generation"] }
+chicago-tdd-tools = { version = "26.8.9", features = ["ocel-generation"] }
 divan = "0.1.21"
 # Property-based testing for q_lens's normalization/ordering invariants
 # (LAW_QLENS_RATIO) — same major version already pinned in bcinr-logic and

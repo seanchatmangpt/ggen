@@ -136,7 +136,7 @@ impl PackageDownloader {
         use sha2::{Digest, Sha256};
         let mut hasher = Sha256::new();
         hasher.update(data);
-        let result = format!("{:x}", hasher.finalize());
+        let result = hex::encode(hasher.finalize());
 
         if result == expected {
             Ok(())

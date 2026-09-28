@@ -99,6 +99,6 @@ impl From<McpError> for rmcp::model::CallToolResult {
                 err.message
             )
         });
-        rmcp::model::CallToolResult::error(vec![rmcp::model::Content::text(body)])
+        rmcp::model::CallToolResult::error(vec![rmcp::model::ContentBlock::text(body)])
     }
 }
