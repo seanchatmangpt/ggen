@@ -112,6 +112,11 @@ pub struct Project {
 pub struct Ontology {
     /// Path to the ontology file (Turtle), relative to the manifest.
     pub source: PathBuf,
+    /// Additional Turtle files unioned into the graph alongside `source`,
+    /// relative to the manifest (same semantics as
+    /// `ggen_config::manifest::OntologyConfig::imports`).
+    #[serde(default)]
+    pub imports: Vec<PathBuf>,
     /// Prefix → namespace IRI map.
     #[serde(default)]
     pub prefixes: BTreeMap<String, String>,
@@ -276,6 +281,13 @@ impl Validate for Ontology {
         // Declared "relative to the manifest" in schema/ggen-toml-schema.ttl;
         // `must_be_absolute: Some(false)` matches that contract.
         v.check_path("source", &self.source.to_string_lossy(), Some(false));
+        for (i, import) in self.imports.iter().enumerate() {
+            v.check_path(
+                &format!("imports[{i}]"),
+                &import.to_string_lossy(),
+                Some(false),
+            );
+        }
     }
 }
 

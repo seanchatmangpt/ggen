@@ -1577,6 +1577,7 @@ version = "v2"
             },
             ontology: crate::config::Ontology {
                 source: PathBuf::from("ontology.ttl"),
+                imports: Vec::new(),
                 prefixes: std::collections::BTreeMap::new(),
             },
             packs: std::collections::BTreeMap::from([(

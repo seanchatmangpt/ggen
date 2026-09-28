@@ -76,6 +76,9 @@ pub fn load_for_query_with_engine(root: &Path, engine: EngineKind) -> Result<Arc
                     .sum::<usize>(),
             );
             sources.push(read_ontology_file(root, &ontology_path)?);
+            for import in &config.ontology.imports {
+                sources.push(read_ontology_file(root, &root.join(import))?);
+            }
             for pack in &packs {
                 sources.push(read_ontology_file(root, &pack.ontology_path)?);
                 for (declared, extra_path) in &pack.extra_ontology_paths {

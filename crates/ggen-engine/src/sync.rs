@@ -301,6 +301,9 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
             .sum::<usize>(),
     );
     ontology_sources.push((ontology_label, ttl));
+    for import in &config.ontology.imports {
+        ontology_sources.push(read_ontology_file(root, &root.join(import))?);
+    }
     for pack in &packs {
         let pack_ttl = std::fs::read_to_string(&pack.ontology_path).map_err(|e| {
             AppError::fm_pack(
@@ -2452,6 +2455,9 @@ fn build_independent_recheck_base_graph(
             .sum::<usize>(),
     );
     ontology_sources.push((ontology_label, ttl));
+    for import in &config.ontology.imports {
+        ontology_sources.push(read_ontology_file(root, &root.join(import))?);
+    }
     for pack in packs {
         let pack_ttl = std::fs::read_to_string(&pack.ontology_path).map_err(|e| {
             AppError::fm_pack(

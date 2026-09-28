@@ -156,7 +156,20 @@ pub(super) fn insert_documents(
     let mut quads: Vec<Quad> = Vec::new();
     for document in documents {
         let format = document.resolved_format()?;
-        let parser = RdfParser::from_format(format).rename_blank_nodes();
+        // Vendored public vocabularies (prov-o, org, ...) use relative IRIs
+        // such as `<#>`. Resolve them against a deterministic per-document
+        // base (`@base` inside the document still overrides it); documents
+        // without relative IRIs are unaffected.
+        let base = format!("file:///ggen-ontology/{}", document.label);
+        let parser = RdfParser::from_format(format)
+            .with_base_iri(base.as_str())
+            .map_err(|error| {
+                AppError::fm_graph(
+                    2,
+                    format!("RDF document `{}`: invalid base IRI: {error}", document.label),
+                )
+            })?
+            .rename_blank_nodes();
         for parsed in parser.for_slice(document.content.as_bytes()) {
             let parsed = parsed.map_err(|error| {
                 AppError::fm_graph(
