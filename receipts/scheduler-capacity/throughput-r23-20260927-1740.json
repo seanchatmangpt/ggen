@@ -1,0 +1,18 @@
+{
+  "run_id":"throughput-r23-20260927-1740",
+  "base":"fd5f9315c49d21c022c17b866c2dbc43f665aeda",
+  "branch":"probe/throughput-r23-semantic-factory-integrated",
+  "code_head":"dd90d7fdb318c3de09f10ac2cd96e242178dd63b",
+  "family":"tools/semantic-factory",
+  "qualifying_code_files":61,
+  "created":61,
+  "updated":0,
+  "approximate_loc":550,
+  "approximate_bytes":36000,
+  "durable_code_commits":2,
+  "file_floor_met":true,
+  "notion":{"reads":1,"rows_created":3,"larger_batch":"REFUSED"},
+  "slack":{"reads":1,"messages":0,"send":"REFUSED"},
+  "token_estimate":{"exact":false,"cumulative_input_range":[450000,900000],"output_range":[12000,25000],"hidden_reasoning":"UNOBSERVED"},
+  "previous_lower_bound_max_cycles":110
+}
