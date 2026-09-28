@@ -67,13 +67,14 @@ enum Command {
 }
 
 fn read_graph(path: &PathBuf) -> Result<SpgGraph, String> {
-    let bytes = fs::read(path).map_err(|error| format!("REFUSED:SPG_READ:{path:?}:{error}"))?;
+    let bytes =
+        fs::read(path).map_err(|error| format!("REFUSED:SPG_READ:{}:{error}", path.display()))?;
     spg_from_json(&bytes).map_err(|error| error.to_string())
 }
 
 fn read_plan(path: &PathBuf) -> Result<SpgRewritePlan, String> {
-    let bytes =
-        fs::read(path).map_err(|error| format!("REFUSED:SPG_PLAN_READ:{path:?}:{error}"))?;
+    let bytes = fs::read(path)
+        .map_err(|error| format!("REFUSED:SPG_PLAN_READ:{}:{error}", path.display()))?;
     serde_json::from_slice(&bytes).map_err(|error| format!("REFUSED:SPG_PLAN_JSON:{error}"))
 }
 

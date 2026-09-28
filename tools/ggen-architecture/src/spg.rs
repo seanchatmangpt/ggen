@@ -246,7 +246,7 @@ pub fn validate(graph: &SpgGraph) -> Result<(), SpgError> {
             if edge
                 .falsifier
                 .as_deref()
-                .map_or(true, |value| value.trim().is_empty())
+                .is_none_or(|value| value.trim().is_empty())
             {
                 return Err(SpgError::Refused(format!(
                     "REFUSED:CONSEQUENCE_WITHOUT_FALSIFIER:{}",
@@ -406,26 +406,52 @@ pub struct SpgExactSubject {
 #[serde(tag = "op", rename_all = "snake_case")]
 pub enum SpgRewriteOperation {
     /// Remove an edge before removing any node it references.
-    RemoveEdge { id: String },
+    RemoveEdge {
+        /// Stable identity of the edge to remove.
+        id: String,
+    },
     /// Remove a node after incident edges are removed.
-    RemoveNode { id: String },
+    RemoveNode {
+        /// Stable identity of the node to remove.
+        id: String,
+    },
     /// Replace a node with the same stable identity.
-    ReplaceNode { node: SpgNode },
+    ReplaceNode {
+        /// Replacement node; its identity must match the node it replaces.
+        node: SpgNode,
+    },
     /// Add a new node.
-    AddNode { node: SpgNode },
+    AddNode {
+        /// Node to add.
+        node: SpgNode,
+    },
     /// Replace an edge with the same stable identity.
-    ReplaceEdge { edge: SpgEdge },
+    ReplaceEdge {
+        /// Replacement edge; its identity must match the edge it replaces.
+        edge: SpgEdge,
+    },
     /// Add a new edge.
-    AddEdge { edge: SpgEdge },
+    AddEdge {
+        /// Edge to add.
+        edge: SpgEdge,
+    },
     /// Replace or remove one projection family.
     SetProjection {
+        /// Projection family whose bindings are rewritten.
         family: String,
+        /// New bindings for the family, or `None` to remove the family.
         bindings: Option<BTreeMap<String, String>>,
     },
     /// Replace the prior-art evidence sequence.
-    SetPriorArt { prior_art: Vec<Value> },
+    SetPriorArt {
+        /// Replacement prior-art evidence sequence.
+        prior_art: Vec<Value>,
+    },
     /// Set the target semantic version after payload rewrites.
-    SetVersion { version: String },
+    SetVersion {
+        /// Target semantic version.
+        version: String,
+    },
 }
 
 /// Exact-subject deterministic graph rewrite plan.
