@@ -77,7 +77,7 @@ tracing = { workspace = true }                                        # pipeline
 # Engine deps (unconditional — the whole point of this crate is the SPARQL+Tera pipeline)
 oxigraph = "0.5.9"
 tera = "1.20.0"
-notify = "7.0"
+notify = "8.2"
 notify-debouncer-full = "0.4"
 serde_yaml = "0.9"
 regex = "1"
