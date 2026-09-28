@@ -49,7 +49,7 @@ jobs:
         if: env.HAS_TF_ACC_TOKEN == 'true'
 
       - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
+        uses: hashicorp/setup-terraform@v4
         if: env.HAS_TF_ACC_TOKEN == 'true'
 
       - name: Authenticate gh with acceptance token
