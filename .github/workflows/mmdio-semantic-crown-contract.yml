@@ -27,13 +27,13 @@ jobs:
       MMDIO_BLOB: d114944c95392adf14a22fb2bdfcd26651dc39a0
     steps:
       - name: Check out exact ggen candidate
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 1
 
       - name: Check out exact mmdio crown candidate
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           repository: seanchatmangpt/mmdio
           ref: 360c575becf941743131e51e8cb06e8b6f0eeef9

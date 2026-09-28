@@ -398,7 +398,7 @@ where
     };
     match f(&params) {
         Ok(result) => match serde_json::to_string_pretty(&result) {
-            Ok(text) => CallToolResult::success(vec![Content::text(text)]),
+            Ok(text) => CallToolResult::success(vec![ContentBlock::text(text)]),
             // Per-request, not startup-time -- unlike the schema-building
             // sites above, a panic here would kill the whole server on one
             // bad response instead of surfacing to just this caller. Route
@@ -449,11 +449,7 @@ impl ServerHandler for GgenMcpServer {
     fn list_tools(
         &self, _request: Option<PaginatedRequestParams>, _ctx: RequestContext<RoleServer>,
     ) -> impl std::future::Future<Output = Result<ListToolsResult, McpError>> + Send + '_ {
-        std::future::ready(Ok(ListToolsResult {
-            tools: (*self.tools).clone(),
-            next_cursor: None,
-            meta: None,
-        }))
+        std::future::ready(Ok(ListToolsResult::with_all_items((*self.tools).clone())))
     }
 
     /// List currently-pushed `GGEN-*` diagnostic resources (CP12). Empty
@@ -471,11 +467,7 @@ impl ServerHandler for GgenMcpServer {
             // listed together unambiguously rather than trying both stores
             // per-lookup.
             resources.extend(crate::bridge::list_sync_refusals(&sync_store).await);
-            Ok(ListResourcesResult {
-                resources,
-                next_cursor: None,
-                meta: None,
-            })
+            Ok(ListResourcesResult::with_all_items(resources))
         }
     }
 
@@ -484,7 +476,7 @@ impl ServerHandler for GgenMcpServer {
     /// received the push follows up here for the actual diagnostic.
     fn read_resource(
         &self, request: ReadResourceRequestParams, _ctx: RequestContext<RoleServer>,
-    ) -> impl std::future::Future<Output = Result<ReadResourceResult, McpError>> + Send + '_ {
+    ) -> impl std::future::Future<Output = Result<ReadResourceResponse, McpError>> + Send + '_ {
         let store = self.diagnostics.clone();
         let sync_store = self.sync_refusals.clone();
         let read_span = tracing::info_span!(
@@ -543,6 +535,7 @@ impl ServerHandler for GgenMcpServer {
             }
             .instrument(read_span)
             .await
+            .map(ReadResourceResponse::from)
         }
     }
 
@@ -552,8 +545,8 @@ impl ServerHandler for GgenMcpServer {
             name, arguments, ..
         }: CallToolRequestParams,
         _ctx: RequestContext<RoleServer>,
-    ) -> impl std::future::Future<Output = Result<CallToolResult, McpError>> + Send + '_ {
-        std::future::ready(dispatch_tool(name.as_ref(), arguments))
+    ) -> impl std::future::Future<Output = Result<CallToolResponse, McpError>> + Send + '_ {
+        std::future::ready(dispatch_tool(name.as_ref(), arguments).map(CallToolResponse::from))
     }
 }
 

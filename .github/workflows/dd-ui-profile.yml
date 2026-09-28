@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout exact subject
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
@@ -28,7 +28,7 @@ jobs:
           set -euo pipefail
           test "$(git rev-parse HEAD)" = "$EXPECTED_SHA"
       - name: Checkout exact DDUI engine
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: seanchatmangpt/wasm4pm
           ref: 8d48e784a4215857c8428c09bb09a91c05a8be97

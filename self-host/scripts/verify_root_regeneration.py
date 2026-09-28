@@ -16,7 +16,7 @@ import tomllib
 from pathlib import Path, PurePosixPath
 from typing import Any
 
-EVIDENCE_PREFIXES = (".ggen-v2/",)
+EVIDENCE_PREFIXES = (".ggen-v2/", ".clap-noun-verb/")  # clap-noun-verb >=26.9 writes ocel.json + receipts.jsonl here at runtime
 _TEMPLATE_FIELD = re.compile(r"\{\{\s*[^{}]+?\s*\}\}")
 
 

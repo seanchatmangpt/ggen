@@ -58,3 +58,11 @@ template    = { file = "templates/pack_readme.tmpl" }
 output_file = "packs/{{ name }}/README.md"
 skip_empty  = true
 mode        = "Create"
+
+[[generation.rules]]
+name        = "pack-qualification-consumer"
+query       = { file = "queries/pack_new.rq" }
+template    = { file = "templates/pack_qualification_consumer.tmpl" }
+output_file = "packs/{{ name }}/qualification/consumer.ttl"
+skip_empty  = true
+mode        = "Create"

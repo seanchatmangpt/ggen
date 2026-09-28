@@ -3,7 +3,6 @@
 use crate::error::{ReceiptError, Result};
 use chrono::{DateTime, Utc};
 use ed25519_dalek::{Signature, Signer, SigningKey, Verifier, VerifyingKey};
-use rand::rngs::OsRng;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 
@@ -172,10 +171,20 @@ impl Receipt {
 /// # Returns
 ///
 /// A tuple of (signing_key, verifying_key).
+///
+/// # Panics
+///
+/// Panics if the operating system CSPRNG is unavailable (same failure mode as the
+/// previous `OsRng`-based implementation; no safe fallback exists for key material).
 #[must_use]
 pub fn generate_keypair() -> (SigningKey, VerifyingKey) {
-    let mut rng = OsRng;
-    let signing_key = SigningKey::generate(&mut rng);
+    // Seed straight from the OS CSPRNG: ed25519-dalek 3 requires rand_core 0.10
+    // traits, so avoid coupling this to the `rand` crate version.
+    let mut seed = [0u8; 32];
+    if let Err(e) = getrandom::fill(&mut seed) {
+        panic!("OS CSPRNG unavailable for ed25519 keygen: {e}");
+    }
+    let signing_key = SigningKey::from_bytes(&seed);
     let verifying_key = signing_key.verifying_key();
     (signing_key, verifying_key)
 }

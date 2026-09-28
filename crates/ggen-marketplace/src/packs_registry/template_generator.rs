@@ -279,7 +279,7 @@ impl TemplateGenerator {
         let mut context = Context::new();
 
         for (key, value) in variables {
-            context.insert(key, value);
+            context.insert(key.clone(), value);
         }
 
         // Add utility functions/filters
