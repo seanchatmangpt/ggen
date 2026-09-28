@@ -1068,3 +1068,6 @@ target-local*/
 
 # gitignored scratch dir for cloning external reference repos (lumen-searchable, never committed)
 /vendor-refs/
+
+# clap-noun-verb >=26.9 writes runtime OCEL + receipt ledgers here (CWD-relative) whenever a CLI built on it runs
+.clap-noun-verb/
