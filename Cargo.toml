@@ -169,7 +169,7 @@ futures = "0.3"
 futures-util = "0.3"
 uuid = { version = "1.26", features = ["v4", "serde"] }
 indexmap = { version = "2.14", features = ["serde"] }
-tera = "1.20"
+tera = "2.4"
 oxigraph = { version = "0.5.11", features = ["rdf-12"] }
 toml = "1.1.6"
 serde_yaml = "0.9"

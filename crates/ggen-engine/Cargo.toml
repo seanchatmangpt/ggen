@@ -76,7 +76,7 @@ getrandom = "0.4"                                                       # OS CSP
 tracing = { workspace = true }                                        # pipeline.{load,extract,generate,validate,emit} spans (T060/T061)
 # Engine deps (unconditional — the whole point of this crate is the SPARQL+Tera pipeline)
 oxigraph = "0.5.11"
-tera = "1.20"
+tera = "2.4"
 notify = "8.2"
 notify-debouncer-full = "0.6"
 serde_yaml = "0.9"
