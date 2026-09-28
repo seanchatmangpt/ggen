@@ -34,7 +34,7 @@ jobs:
       HAS_TF_ACC_TOKEN: ${{ secrets.TF_ACC_GITHUB_TOKEN != '' }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Note when token is not configured
         if: env.HAS_TF_ACC_TOKEN != 'true'
