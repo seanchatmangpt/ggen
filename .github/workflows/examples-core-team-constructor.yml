@@ -214,8 +214,8 @@ jobs:
           from pathlib import Path
           p = Path('.github/workflows/live-examples.yml')
           s = p.read_text()
-          old = '      - name: Checkout\n        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v4.2.2\n'
-          new = '''      - name: Checkout exact subject\n        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v4.2.2\n        with:\n          ref: ${{ github.event.pull_request.head.sha || github.sha }}\n          fetch-depth: 0\n\n      - name: Verify checkout identity\n        if: github.event_name == 'pull_request'\n        run: test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha }}"\n'''
+          old = '      - name: Checkout\n        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1\n'
+          new = '''      - name: Checkout exact subject\n        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1\n        with:\n          ref: ${{ github.event.pull_request.head.sha || github.sha }}\n          fetch-depth: 0\n\n      - name: Verify checkout identity\n        if: github.event_name == 'pull_request'\n        run: test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha }}"\n'''
           if old in s:
               s = s.replace(old, new)
           assert 'github.event.pull_request.head.sha || github.sha' in s
