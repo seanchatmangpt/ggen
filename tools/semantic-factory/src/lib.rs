@@ -48,5 +48,16 @@ pub mod property_harness;
 pub mod stress_harness;
 pub mod benchmark_harness;
 pub mod integration_harness;
+pub mod pipeline;
+pub mod receipt_chain;
+pub mod fond_router;
+pub mod projection_manifest;
+pub mod admission_matrix;
+pub mod typed_exclusion;
+pub mod falsifier_set;
+pub mod store_law;
+pub mod work_queue;
+pub mod ocel_event;
 
 pub const FACET_COUNT: usize = 50;
+pub const INTEGRATION_MODULE_COUNT: usize = 10;
