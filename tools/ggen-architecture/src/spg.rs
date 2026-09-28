@@ -390,7 +390,6 @@ pub fn compile_projection(graph: &SpgGraph, family: &str) -> Result<ProjectionEn
     })
 }
 
-
 /// Immutable Git + graph subject for rewrite manufacture.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct SpgExactSubject {
@@ -489,14 +488,12 @@ fn valid_git_commit(value: &str) -> bool {
 }
 
 fn valid_blake3_digest(value: &str) -> bool {
-    value
-        .strip_prefix("blake3:")
-        .is_some_and(|hex| {
-            hex.len() == 64
-                && hex
-                    .chars()
-                    .all(|ch| ch.is_ascii_hexdigit() && !ch.is_ascii_uppercase())
-        })
+    value.strip_prefix("blake3:").is_some_and(|hex| {
+        hex.len() == 64
+            && hex
+                .chars()
+                .all(|ch| ch.is_ascii_hexdigit() && !ch.is_ascii_uppercase())
+    })
 }
 
 fn validate_exact_subject(subject: &SpgExactSubject) -> Result<(), SpgError> {
@@ -514,8 +511,12 @@ fn validate_exact_subject(subject: &SpgExactSubject) -> Result<(), SpgError> {
 
 fn normalized_graph(graph: &SpgGraph) -> SpgGraph {
     let mut normalized = graph.clone();
-    normalized.nodes.sort_by(|left, right| left.id.cmp(&right.id));
-    normalized.edges.sort_by(|left, right| left.id.cmp(&right.id));
+    normalized
+        .nodes
+        .sort_by(|left, right| left.id.cmp(&right.id));
+    normalized
+        .edges
+        .sort_by(|left, right| left.id.cmp(&right.id));
     normalized
 }
 
@@ -550,9 +551,7 @@ fn operation_changes_semantics(operation: &SpgRewriteOperation) -> bool {
 /// rewrite manufacture. Those transitions belong to external admission
 /// machinery. Any semantic operation is marked as requiring requalification.
 pub fn plan_rewrite(
-    old: &SpgGraph,
-    new: &SpgGraph,
-    source_subject: SpgExactSubject,
+    old: &SpgGraph, new: &SpgGraph, source_subject: SpgExactSubject,
 ) -> Result<SpgRewritePlan, SpgError> {
     validate(old)?;
     validate(new)?;
@@ -584,14 +583,10 @@ pub fn plan_rewrite(
     let mut operations = Vec::new();
 
     for id in old_edges.keys().filter(|id| !new_edges.contains_key(*id)) {
-        operations.push(SpgRewriteOperation::RemoveEdge {
-            id: (*id).clone(),
-        });
+        operations.push(SpgRewriteOperation::RemoveEdge { id: (*id).clone() });
     }
     for id in old_nodes.keys().filter(|id| !new_nodes.contains_key(*id)) {
-        operations.push(SpgRewriteOperation::RemoveNode {
-            id: (*id).clone(),
-        });
+        operations.push(SpgRewriteOperation::RemoveNode { id: (*id).clone() });
     }
     for (id, old_node) in &old_nodes {
         if let Some(new_node) = new_nodes.get(id) {
@@ -682,10 +677,7 @@ fn find_edge(graph: &SpgGraph, id: &str) -> Option<usize> {
 ///
 /// This function constructs a candidate target graph. It never changes graph
 /// admission state or standing and never actuates the resulting procedure.
-pub fn apply_rewrite(
-    source: &SpgGraph,
-    plan: &SpgRewritePlan,
-) -> Result<SpgGraph, SpgError> {
+pub fn apply_rewrite(source: &SpgGraph, plan: &SpgRewritePlan) -> Result<SpgGraph, SpgError> {
     validate(source)?;
     validate_exact_subject(&plan.source_subject)?;
     if plan.schema != "chatman.spg-rewrite-plan.v1" {
@@ -796,8 +788,7 @@ pub fn apply_rewrite(
 
 /// Replay a rewrite twice from the same exact source and manufacture evidence.
 pub fn replay_rewrite(
-    source: &SpgGraph,
-    plan: &SpgRewritePlan,
+    source: &SpgGraph, plan: &SpgRewritePlan,
 ) -> Result<(SpgGraph, SpgReplayReceipt), SpgError> {
     let first = apply_rewrite(source, plan)?;
     let second = apply_rewrite(source, plan)?;
@@ -826,7 +817,6 @@ pub fn replay_rewrite(
         },
     ))
 }
-
 
 #[cfg(test)]
 mod tests {
@@ -968,7 +958,10 @@ mod rewrite_tests {
         )));
 
         let (target, receipt) = replay_rewrite(&old, &plan)?;
-        assert_eq!(canonical_graph_bytes(&target)?, canonical_graph_bytes(&new)?);
+        assert_eq!(
+            canonical_graph_bytes(&target)?,
+            canonical_graph_bytes(&new)?
+        );
         assert!(receipt.second_run_byte_identical);
         assert_eq!(receipt.authority, "NONE");
         assert_eq!(receipt.standing, "NONE");
@@ -982,7 +975,10 @@ mod rewrite_tests {
         right.nodes.reverse();
         right.edges.reverse();
         assert_eq!(graph_digest(&left)?, graph_digest(&right)?);
-        assert_eq!(canonical_graph_bytes(&left)?, canonical_graph_bytes(&right)?);
+        assert_eq!(
+            canonical_graph_bytes(&left)?,
+            canonical_graph_bytes(&right)?
+        );
         Ok(())
     }
 
@@ -1073,24 +1069,20 @@ mod rewrite_tests {
         brce_projection.remove("observe");
 
         let plan = plan_rewrite(&old, &new, exact_subject(&old)?)?;
-        let Some(remove_edge) = plan
-            .operations
-            .iter()
-            .position(|operation| matches!(
+        let Some(remove_edge) = plan.operations.iter().position(|operation| {
+            matches!(
                 operation,
                 SpgRewriteOperation::RemoveEdge { id } if id == "e1"
-            ))
-        else {
+            )
+        }) else {
             return Err(refused("TEST_REWRITE_EDGE_REMOVAL_MISSING"));
         };
-        let Some(remove_node) = plan
-            .operations
-            .iter()
-            .position(|operation| matches!(
+        let Some(remove_node) = plan.operations.iter().position(|operation| {
+            matches!(
                 operation,
                 SpgRewriteOperation::RemoveNode { id } if id == "observe"
-            ))
-        else {
+            )
+        }) else {
             return Err(refused("TEST_REWRITE_NODE_REMOVAL_MISSING"));
         };
         assert!(remove_edge < remove_node);
@@ -1098,4 +1090,3 @@ mod rewrite_tests {
         Ok(())
     }
 }
-

@@ -2,9 +2,8 @@
 
 use clap::{Parser, Subcommand};
 use ggen_architecture::{
-    apply_spg_rewrite, compile_projection, plan_spg_rewrite, replay_spg_rewrite,
-    spg_from_json, spg_graph_digest, spg_semantic_diff, validate_spg, SpgExactSubject,
-    SpgGraph, SpgRewritePlan,
+    apply_spg_rewrite, compile_projection, plan_spg_rewrite, replay_spg_rewrite, spg_from_json,
+    spg_graph_digest, spg_semantic_diff, validate_spg, SpgExactSubject, SpgGraph, SpgRewritePlan,
 };
 use std::{fs, path::PathBuf, process::ExitCode};
 
@@ -73,7 +72,8 @@ fn read_graph(path: &PathBuf) -> Result<SpgGraph, String> {
 }
 
 fn read_plan(path: &PathBuf) -> Result<SpgRewritePlan, String> {
-    let bytes = fs::read(path).map_err(|error| format!("REFUSED:SPG_PLAN_READ:{path:?}:{error}"))?;
+    let bytes =
+        fs::read(path).map_err(|error| format!("REFUSED:SPG_PLAN_READ:{path:?}:{error}"))?;
     serde_json::from_slice(&bytes).map_err(|error| format!("REFUSED:SPG_PLAN_JSON:{error}"))
 }
 
@@ -123,15 +123,13 @@ fn run(cli: Cli) -> Result<(), String> {
                 commit,
                 graph_digest: spg_graph_digest(&old).map_err(|error| error.to_string())?,
             };
-            let plan =
-                plan_spg_rewrite(&old, &new, subject).map_err(|error| error.to_string())?;
+            let plan = plan_spg_rewrite(&old, &new, subject).map_err(|error| error.to_string())?;
             emit(&plan)
         }
         Command::Apply { graph, plan } => {
             let graph = read_graph(&graph)?;
             let plan = read_plan(&plan)?;
-            let target =
-                apply_spg_rewrite(&graph, &plan).map_err(|error| error.to_string())?;
+            let target = apply_spg_rewrite(&graph, &plan).map_err(|error| error.to_string())?;
             emit(&target)
         }
         Command::Replay { graph, plan } => {
