@@ -1,0 +1,29 @@
+name: OCEL executable gate regression
+
+on:
+  pull_request:
+    paths:
+      - 'packs/ggen-ecosystem-ocel-pack/**'
+      - 'tests/ocel_gate_contracts/**'
+      - '.github/workflows/ocel-gate-contract-regression.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  exact-stem-court:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install RDF court dependency
+        run: python -m pip install 'rdflib==7.1.4'
+      - name: Execute every admitted OCEL gate guard
+        run: |
+          set -euo pipefail
+          for test in tests/ocel_gate_contracts/test_*.py; do
+            python "$test"
+          done
