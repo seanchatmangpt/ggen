@@ -1,0 +1,19 @@
+pub const PROTOCOL: &str = "{{ protocol }}";
+pub const AMBIENT_AUTHORITY: bool = {{ ambient_authority }};
+pub const RECEIPTABILITY_PRECEDES_DO: bool = {{ receiptability_precedes_do }};
+
+pub fn admits(authority_digest: Option<&str>, consequence_digest: &str, receipt_capable: bool) -> Result<(), &'static str> {
+    if authority_digest.is_none() { return Err("REFUSED:AUTHORITY_REQUIRED"); }
+    if authority_digest != Some(consequence_digest) { return Err("REFUSED:AUTHORITY_SCOPE_MISMATCH"); }
+    if !receipt_capable { return Err("REFUSED:RECEIPT_CAPABILITY_REQUIRED"); }
+    Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test] fn exact_authority_and_receiptability_admit() { assert!(admits(Some("d"), "d", true).is_ok()); }
+    #[test] fn planner_has_no_ambient_authority() { assert_eq!(admits(None, "d", true), Err("REFUSED:AUTHORITY_REQUIRED")); }
+    #[test] fn wrong_scope_is_refused() { assert_eq!(admits(Some("x"), "d", true), Err("REFUSED:AUTHORITY_SCOPE_MISMATCH")); }
+    #[test] fn unreceiptable_do_is_refused() { assert_eq!(admits(Some("d"), "d", false), Err("REFUSED:RECEIPT_CAPABILITY_REQUIRED")); }
+}
