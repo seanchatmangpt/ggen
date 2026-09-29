@@ -50,6 +50,7 @@ pub mod event_set;
 pub mod ids;
 pub mod outcome;
 pub mod projection;
+pub mod source_authority;
 
 pub use causal::{
     ActionOccurrence, ActionPair, AtomId, CausalAnalyzer, CausalPlan, CausalSupportEdge,
@@ -83,3 +84,5 @@ pub use projection::{
     ActionNodeBijection, ConcurrencyPreservationWitness, OrderPreservationWitness,
     PowlProjectionWitness, PowlProjector,
 };
+
+pub use source_authority::{admit_projection, ProjectionBinding, ProjectionEvidence, ProjectionRefusal};
