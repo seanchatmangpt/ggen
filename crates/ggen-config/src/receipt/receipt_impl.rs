@@ -177,6 +177,12 @@ impl Receipt {
 /// Panics if the operating system CSPRNG is unavailable (same failure mode as the
 /// previous `OsRng`-based implementation; no safe fallback exists for key material).
 #[must_use]
+#[allow(clippy::panic)]
+// Justified per workspace `[workspace.lints.clippy] panic = "warn"` Phase B.1
+// review: OS CSPRNG failure has no safe fallback for key material (per the
+// `# Panics` doc above) -- returning a zeroed/predictable key instead would
+// silently mint a forgeable signing key, which is strictly worse than
+// aborting. Reviewed 2026-09-29; not a candidate for elimination.
 pub fn generate_keypair() -> (SigningKey, VerifyingKey) {
     // Seed straight from the OS CSPRNG: ed25519-dalek 3 requires rand_core 0.10
     // traits, so avoid coupling this to the `rand` crate version.

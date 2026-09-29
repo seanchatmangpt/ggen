@@ -14,12 +14,20 @@ use crate::{
     sync::{sync, SyncOptions},
 };
 
+/// Outcome of a GALL-001 clean-state replay verification.
 #[derive(Debug, Clone, Serialize)]
 pub struct ReplayReport {
+    /// Digest of the portable receipt found on disk before replay.
     pub source_receipt_sha256: String,
+    /// Digest of the receipt reconstructed from the source receipt's own
+    /// recorded inputs, before any consequence is cleared.
     pub reconstructed_receipt_sha256: String,
+    /// Digest of the receipt produced by the replayed sync run.
     pub replay_receipt_sha256: String,
+    /// Number of prior-run consequences (generated files) cleared before replay.
     pub cleared_consequences: usize,
+    /// Outcome label; always `"PASS"` on `Ok` -- any identity or standing
+    /// mismatch returns `Err` before this report is constructed.
     pub status: &'static str,
 }
 
@@ -241,6 +249,15 @@ fn clear_managed_writes(root: &Path, receipt: &Value) -> Result<usize> {
 /// Execute the real sync path from clean managed-output state. PASS is emitted
 /// only after source identity, runtime identity, and clean reconstruction all
 /// independently agree.
+///
+/// # Errors
+///
+/// Returns `Err` (typed `FM-CHAIN-*`, never a panic) when: `opts.dry_run` is
+/// set (replay requires a durable consequence); the source receipt's
+/// `standing` is not `"ALIVE"`; the source or reconstructed receipt fails
+/// unknown-source or subject-selection validation; runtime identity
+/// (toolchain/environment) does not match the source; a prior-run consequence
+/// cannot be cleared; or the underlying `sync` call itself fails.
 pub fn verify_project_replay(root: &Path, opts: SyncOptions) -> Result<ReplayReport> {
     if opts.dry_run {
         return Err(AppError::fm_chain(

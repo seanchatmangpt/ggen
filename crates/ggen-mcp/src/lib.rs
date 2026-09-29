@@ -418,8 +418,8 @@ where
 }
 
 impl ServerHandler for GgenMcpServer {
-    fn get_info(&self) -> ServerInfo {
-        ServerInfo::new(
+    fn get_info(&self) -> ServerConfig {
+        ServerConfig::new(
             ServerCapabilities::builder()
                 .enable_tools()
                 // CP12: advertise resources (+ subscribe) so a spec-compliant

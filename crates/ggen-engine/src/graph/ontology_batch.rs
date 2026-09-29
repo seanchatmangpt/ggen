@@ -166,7 +166,10 @@ pub(super) fn insert_documents(
             .map_err(|error| {
                 AppError::fm_graph(
                     2,
-                    format!("RDF document `{}`: invalid base IRI: {error}", document.label),
+                    format!(
+                        "RDF document `{}`: invalid base IRI: {error}",
+                        document.label
+                    ),
                 )
             })?
             .rename_blank_nodes();
