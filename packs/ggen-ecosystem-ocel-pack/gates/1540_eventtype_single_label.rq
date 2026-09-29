@@ -1,0 +1,4 @@
+# MESSAGE: every referenced eventType concept must have exactly one skos:prefLabel.
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+SELECT ?t (COUNT(?label) AS ?count) WHERE { ?e geocel:eventType ?t . OPTIONAL { ?t skos:prefLabel ?label } } GROUP BY ?t HAVING(COUNT(?label) != 1)

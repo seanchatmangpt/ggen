@@ -1,0 +1,3 @@
+# MESSAGE: QualificationObject and ProjectMemoryObject identities must remain disjoint.
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+SELECT ?x WHERE { ?x a geocel:QualificationObject ; a geocel:ProjectMemoryObject . }

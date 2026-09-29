@@ -1,0 +1,3 @@
+# MESSAGE: ManufacturingEvent identities must be IRIs, never blank nodes.
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+SELECT ?x WHERE { ?x a geocel:ManufacturingEvent . FILTER(!isIRI(?x)) }

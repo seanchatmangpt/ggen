@@ -1,0 +1,3 @@
+# MESSAGE: relatesTo targets must be ManufacturingObject resources.
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+SELECT ?e ?object WHERE { ?e geocel:relatesTo ?object . FILTER NOT EXISTS { ?object a geocel:ManufacturingObject } }

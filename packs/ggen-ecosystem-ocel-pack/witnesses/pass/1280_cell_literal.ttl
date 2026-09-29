@@ -1,0 +1,1 @@
+@prefix geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#> . <urn:s> geocel:cell "WS1" .

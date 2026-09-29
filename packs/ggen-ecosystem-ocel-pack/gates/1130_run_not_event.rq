@@ -1,0 +1,3 @@
+# MESSAGE: ManufacturingRun and ManufacturingEvent identities must remain disjoint.
+PREFIX geocel: <https://ggen.dev/ontology/ggen-ecosystem-ocel#>
+SELECT ?x WHERE { ?x a geocel:ManufacturingRun ; a geocel:ManufacturingEvent . }
