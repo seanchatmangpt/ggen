@@ -367,10 +367,10 @@ fn test_post_chatman_roundtrip_scenario_4_sabotage_event_log() {
 #[test]
 fn test_post_chatman_roundtrip_scenario_5_invalid_signature_fail_closed() {
     // Arrange: create a real Ed25519 keypair and a second (wrong) keypair
-    let signing_key_1 = SigningKey::generate(&mut rand::thread_rng());
+    let signing_key_1 = SigningKey::generate(&mut rand::rng());
     let verifying_key_1 = signing_key_1.verifying_key();
 
-    let signing_key_2 = SigningKey::generate(&mut rand::thread_rng());
+    let signing_key_2 = SigningKey::generate(&mut rand::rng());
     let verifying_key_2 = signing_key_2.verifying_key();
 
     // Create OCEL event and serialize as JSON (simulates InverseReceipt field)

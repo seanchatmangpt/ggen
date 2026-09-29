@@ -180,7 +180,7 @@ pub fn verify_receipt(
 fn calculate_sha256(content: &str) -> String {
     let mut hasher = Sha256::new();
     hasher.update(content.as_bytes());
-    format!("{:x}", hasher.finalize())
+    hex::encode(hasher.finalize())
 }
 
 // ============================================================================

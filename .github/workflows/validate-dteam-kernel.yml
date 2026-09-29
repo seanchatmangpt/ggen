@@ -22,7 +22,7 @@ jobs:
     runs-on: ubuntu-24.04-arm
     steps:
       - name: Check out exact dteam head
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: seanchatmangpt/dteam
           ref: 796537d3cdcee9e341c1b1ca78a1d8a73560cc8b

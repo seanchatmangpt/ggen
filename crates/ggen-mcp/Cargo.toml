@@ -42,8 +42,8 @@ ggen-marketplace = { path = "../ggen-marketplace" }
 lsp-max = { workspace = true }
 
 # Exact match to crates/ggen-lsp/Cargo.toml's own rmcp pin -- do not drift.
-rmcp = { version = "1.7.0", features = ["transport-io", "schemars"] }
-schemars = "1.2.1"
+rmcp = { version = "3.5.0", features = ["transport-io", "schemars"] }
+schemars = "1.2.2"
 regex = { workspace = true }
 
 serde = { workspace = true }
@@ -71,4 +71,4 @@ assert_cmd = { workspace = true }
 # Test-only: `crate::bridge`'s end-to-end test constructs a real MCP client
 # (ClientHandler, RoleClient) over an in-process duplex transport. The
 # production server code never uses the `client` feature.
-rmcp = { version = "1.7.0", features = ["client"] }
+rmcp = { version = "3.5.0", features = ["client"] }

@@ -103,7 +103,7 @@ impl PackageVerifier {
     ) -> Result<(), VerificationError> {
         let mut hasher = Sha256::new();
         hasher.update(file_data);
-        let actual = format!("{:x}", hasher.finalize());
+        let actual = hex::encode(hasher.finalize());
 
         if actual == expected_checksum {
             Ok(())
@@ -210,7 +210,7 @@ fn test_checksum_verification_success() {
     // Calculate expected checksum
     let mut hasher = Sha256::new();
     hasher.update(data);
-    let expected = format!("{:x}", hasher.finalize());
+    let expected = hex::encode(hasher.finalize());
 
     let result = verifier.verify_checksum(data, &expected);
     assert!(result.is_ok());
@@ -243,11 +243,11 @@ fn test_manifest_verification_success() {
 
     let mut hasher = Sha256::new();
     hasher.update(file1_data);
-    let file1_checksum = format!("{:x}", hasher.finalize());
+    let file1_checksum = hex::encode(hasher.finalize());
 
     let mut hasher = Sha256::new();
     hasher.update(file2_data);
-    let file2_checksum = format!("{:x}", hasher.finalize());
+    let file2_checksum = hex::encode(hasher.finalize());
 
     let mut manifest_files = HashMap::new();
     manifest_files.insert("file1.txt".to_string(), file1_checksum);
@@ -381,7 +381,7 @@ fn test_verify_all_success() {
     let file_data = b"test content";
     let mut hasher = Sha256::new();
     hasher.update(file_data);
-    let checksum = format!("{:x}", hasher.finalize());
+    let checksum = hex::encode(hasher.finalize());
 
     let mut manifest_files = HashMap::new();
     manifest_files.insert("test.txt".to_string(), checksum);

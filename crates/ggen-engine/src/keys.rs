@@ -202,8 +202,10 @@ pub(crate) fn resolve_verifying_key(project_root: &Path) -> Result<ed25519_dalek
 /// `signing.key`: uses `create_new` so a concurrent racer's file wins and
 /// this call falls back to reading it instead of clobbering it.
 fn generate_and_persist_keypair(project_root: &Path) -> Result<SigningKey> {
-    let mut csprng = rand::rngs::OsRng;
-    let signing_key = SigningKey::generate(&mut csprng);
+    let mut seed = [0u8; 32];
+    getrandom::fill(&mut seed)
+        .map_err(|e| AppError::Config(format!("OS CSPRNG unavailable for ed25519 keygen: {e}")))?;
+    let signing_key = SigningKey::from_bytes(&seed);
     persist_keypair(project_root, signing_key)
 }
 

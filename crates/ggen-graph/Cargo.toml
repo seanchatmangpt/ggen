@@ -28,7 +28,7 @@ tracing = { workspace = true }
 
 [dev-dependencies]
 ed25519-dalek = { workspace = true }
-rand = "0.8"
+rand = "0.10"
 # ggen-engine (2026-08-16, docs/jira/v26.7.16/03-RDF-ENGINE-BRIDGE-DESIGN.md "Definition of
 # done" item 2): the LawEngine N-Triples-string seam, exercised from the consumer side by
 # tests/law_engine_bridge_e2e.rs -- law/SHACL/N3 output folded back into THIS crate's own

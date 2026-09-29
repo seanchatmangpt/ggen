@@ -2,7 +2,7 @@
 
 use crate::utils::error::Result;
 use notify::{Event, RecursiveMode, Watcher};
-use notify_debouncer_full::{new_debouncer, DebounceEventResult, Debouncer, FileIdMap};
+use notify_debouncer_full::{new_debouncer, DebounceEventResult, Debouncer, RecommendedCache};
 use std::path::{Path, PathBuf};
 use std::sync::mpsc::{channel, Receiver};
 use std::time::Duration;
@@ -12,7 +12,7 @@ use super::resolver::ConventionResolver;
 
 /// Watches project files and triggers regeneration on changes
 pub struct ProjectWatcher {
-    debouncer: Debouncer<notify::RecommendedWatcher, FileIdMap>,
+    debouncer: Debouncer<notify::RecommendedWatcher, RecommendedCache>,
     receiver: Receiver<DebounceEventResult>,
     resolver: ConventionResolver,
     planner: GenerationPlanner,
@@ -65,7 +65,6 @@ impl ProjectWatcher {
         for dir in watched_dirs {
             if dir.exists() {
                 self.debouncer
-                    .watcher()
                     .watch(dir, RecursiveMode::Recursive)
                     .map_err(|e| {
                         crate::utils::error::Error::new(&format!(

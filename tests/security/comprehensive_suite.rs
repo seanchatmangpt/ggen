@@ -676,7 +676,7 @@ fn compute_sha256(data: &[u8]) -> String {
     use sha2::{Digest, Sha256};
     let mut hasher = Sha256::new();
     hasher.update(data);
-    format!("{:x}", hasher.finalize())
+    hex::encode(hasher.finalize())
 }
 
 async fn upload_file_with_verification(content: &[u8], expected_hash: &str) -> Result<String, String> {

@@ -13,36 +13,36 @@ deepmesa-collections = "0.14.0"
 bencher = "0.1.5"
 log = { version = "0.4"}
 env_logger = "0.11.11"
-spargebra = "=0.4.6"
-sparesults = "=0.3.3"
+spargebra = "=0.4.7"
+sparesults = "=0.3.4"
 
 
 rio_api = "0.8.6"
 rio_turtle = "0.8.6"
 rio_xml = "0.8.6"
-pest = "2.8.7"
-pest_derive = "2.8.7"
-either = "1.16.0"
+pest = "2.9.2"
+pest_derive = "2.9.2"
+either = "1.18.0"
 once_cell = "1.21.4"
-oxrdf = { version = "=0.3.3", features = ["rdfc-10"] }
-regex = "1.10"
+oxrdf = { version = "=0.3.4", features = ["rdfc-10"] }
+regex = "1.13"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 sha1 = "0.11.0"
 sha2 = "0.11.0"
 blake3 = "1"
-md5 = "0.8.0"
+md5 = "0.8.1"
 rustc-hash = "2"
 smallvec = { version = "1", features = ["serde"] }
 fixedbitset = "0.5"
-oxigraph = { version = "0.5.9", features = ["rdf-12"] }
+oxigraph = { version = "0.5.11", features = ["rdf-12"] }
 powl2-decompose = { path = "../powl2-decompose" }
 bcinr-pddl = { path = "../bcinr-pddl", version = "26.6.26" }
-bcinr-powl = "26.6.25"
-bcinr-powl-receipt = "26.6.24"
+bcinr-powl = "26.7.28"
+bcinr-powl-receipt = "26.7.28"
 thiserror = "2"
 # compat owns receipt identity; all chatman hashing routes through wasm4pm_compat::hash.
-wasm4pm-compat = "26.6.29"
+wasm4pm-compat = "26.8.7"
 # LICENSE WARNING (2026-07-17, PR #255 license audit): the published 26.7.1
 # is BUSL-1.1 (Business Source License), not MIT/Apache -- non-OSI,
 # source-available with a use restriction until its Change Date (converts to
@@ -93,11 +93,11 @@ harness = false
 divan = "0.1"
 # Seeded fake-data generation for test fixtures only (anti-hardcoding proof in
 # chatman_pddl_to_powl_projection); never a production dependency.
-fake = "4"
-rand = "0.9"
+fake = "5"
+rand = "0.10"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-proptest = "1.5"
+proptest = "1.11"
 # Required for chicago_tdd_tools::async_test! (expands to #[tokio::test]).
 tokio = { version = "1", features = ["macros", "rt-multi-thread", "time"] }
 # otel/weaver features left OFF: they drag network deps into the required build.

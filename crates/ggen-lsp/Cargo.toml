@@ -30,7 +30,7 @@ publish = false
 # still compile clean under nightly-2026-06-22 via `just check`. The exact pin
 # intersects with lsp-max-runtime's ^26.6.9 constraint so Cargo can't silently
 # pull a future broken release within the same date-versioned minor.
-wasm4pm-compat = "=26.6.29"
+wasm4pm-compat = "=26.8.7"
 lsp-max = { workspace = true }
 lsp-max-protocol = { workspace = true }
 lsp-max-macros = { workspace = true }
@@ -62,11 +62,11 @@ oxigraph = { workspace = true }
 # Real opinionated SPARQL formatter (Qlue-ls, MIT) — a published crate, so the
 # build is fresh-clone-safe. Vendored at vendors/qlue-ls for reference only; the
 # build uses the crates.io release. default-features off to skip the wasm panic hook.
-qlue-ls = { version = "3.4.1", default-features = false }
+qlue-ls = { version = "3.11.1", default-features = false }
 # Qlue-ls's own SPARQL parser (same version it depends on), used as a syntax
 # GATE: format_raw is error-tolerant and will reformat a broken tree, so we parse
 # first and refuse to rewrite anything with parse errors.
-ll-sparql-parser = "3.3.1"
+ll-sparql-parser = "3.5.1"
 
 # Utilities
 url = "2"
@@ -79,10 +79,10 @@ tempfile = { workspace = true }
 
 # Optional: mcp/a2a features (absorbed from ggen-lsp-mcp, ggen-a2a-mcp, ggen-lsp-a2a
 # during the 2026-07 crate-consolidation pass — see CRATE_CONSOLIDATION_ANALYSIS_2026-07-01.md)
-rmcp = { version = "1.7.0", features = ["transport-io", "schemars"], optional = true }
-schemars = { version = "1.2.1", optional = true }
+rmcp = { version = "3.5.0", features = ["transport-io", "schemars"], optional = true }
+schemars = { version = "1.2.2", optional = true }
 async-trait = { version = "0.1", optional = true }
-uuid = { version = "1.18", features = ["v4", "serde"], optional = true }
+uuid = { version = "1.26", features = ["v4", "serde"], optional = true }
 
 [dependencies.reqwest]
 workspace = true
