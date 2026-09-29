@@ -201,7 +201,7 @@ fn test_download_network_timeout() {
     assert_eq!(result.unwrap_err(), DownloadError::NetworkTimeout);
 
     // Verify REAL HTTP call was made (and timed out)
-    assert!(mock.hits() > 0);
+    assert!(mock.calls() > 0);
 }
 
 #[test]

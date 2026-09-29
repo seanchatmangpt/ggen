@@ -6,36 +6,13 @@ version: 6.0.0
 
 # 🔧 Development Workflow (4 Steps)
 
-## 1. Create RDF Spec
-```bash
-mkdir -p .specify/specs/NNN-feature
-vim .specify/specs/NNN-feature/feature.ttl  # Edit TTL (source)
-ggen graph validate --files .specify/specs/NNN-feature/feature.ttl  # bare `ggen validate` no longer exists
-ggen sync run --dry-run   # Preview generation (`ggen sync --dry_run true` no longer works)
-```
-
-## 2. Chicago TDD
-```bash
-# ggen-engine is the live crate; ggen-core is disconnected and should not
-# receive new tests/features (see .claude/rules/architecture.md)
-vim crates/ggen-engine/tests/feature_test.rs  # Write failing test (RED)
-just test                                     # Verify fails (test-lib only runs --lib, not tests/)
-vim crates/ggen-engine/src/feature.rs         # Implement (GREEN)
-just test                                     # Verify passes
-just pre-commit                               # Refactor (maintain GREEN)
-```
-
-## 3. Generate from Ontology
-```bash
-ggen sync run --dry-run   # Preview (`just sync-dry` currently runs a broken command internally)
-ggen sync run             # Full sync with cryptographic receipt (`just sync` also currently broken)
-```
-
-## 4. Commit with Evidence
-```bash
-just pre-commit
-git commit -m "feat(NNN): Implement feature
-
-[Receipt] just pre-commit: ✓ 3/3 gates
-[Receipt] just test: ✓ 347/347 tests"
-```
+1. **RDF spec**: edit `.specify/specs/NNN-feature/feature.ttl` (source) →
+   `ggen graph validate --files <path>` (bare `ggen validate` doesn't exist) →
+   `ggen sync run --dry-run` (preview; `--dry_run true` doesn't work).
+2. **Chicago TDD**: write failing test in `crates/ggen-engine/tests/` (RED, `ggen-engine` is
+   live, `ggen-core` deleted) → `just test` (fails; `test-lib` is `--lib` only) → implement →
+   `just test` (GREEN) → `just pre-commit` (refactor, maintain GREEN).
+3. **Generate**: `ggen sync run --dry-run` (preview) → `ggen sync run` (full sync w/ receipt;
+   `just sync`/`sync-dry` currently run broken internal commands — use `ggen sync run` directly).
+4. **Commit with evidence**: `just pre-commit` → commit message citing real gate/test counts,
+   e.g. `[Receipt] just pre-commit: ✓ N/N gates`, `[Receipt] just test: ✓ N/N tests`.

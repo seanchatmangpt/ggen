@@ -30,6 +30,19 @@ cargo run --manifest-path crates/ggen-architecture/Cargo.toml \
   -p ggen-architecture-cli --bin ggen-spg -- diff old.json new.json
 ```
 
+## Rewrite manufacturing / exact-subject replay
+
+Beyond validating, diffing, and compiling projections, `ggen-spg` manufactures deterministic graph rewrites against an exact subject. `rewrite-plan` produces a plan from a source SPG to a candidate target, bound to an exact subject (repository `owner/name`, immutable 40-hex source commit, canonical source-graph digest — a mismatched digest is refused); `apply` replays that plan onto the exact source graph. `replay` applies the plan twice and refuses with `SPG_REWRITE_NONDETERMINISTIC_REPLAY` unless both runs are byte-identical, emitting a `chatman.spg-rewrite-replay.v1` receipt with the plan digest, target-graph digest, and both replay digests. As everywhere in this compiler, the receipt carries `authority = NONE` and `standing = NONE` — a reproducible rewrite is still not an executed, admitted one.
+
+```bash
+cargo run --manifest-path tools/ggen-architecture/Cargo.toml \
+  -p ggen-architecture-cli --bin ggen-spg -- rewrite-plan old.json new.json \
+  --repository owner/name --commit <40-hex-commit>
+
+cargo run --manifest-path tools/ggen-architecture/Cargo.toml \
+  -p ggen-architecture-cli --bin ggen-spg -- replay graph.json plan.json
+```
+
 ## Structural law
 
 A consequential edge is refused unless it carries:

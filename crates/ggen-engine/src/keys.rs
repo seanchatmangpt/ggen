@@ -502,15 +502,15 @@ mod tests {
         .status
         .success());
 
-        let clones = tempfile::tempdir().expect("tempdir");
-        let clone = clones.path().join("clone");
-        let cloned = std::process::Command::new("git")
+        let clone_scratch = tempfile::tempdir().expect("tempdir");
+        let clone = clone_scratch.path().join("clone");
+        let clone_output = std::process::Command::new("git")
             .args(["clone", "-q"])
             .arg(origin.path())
             .arg(&clone)
             .output()
             .expect("git clone runs");
-        assert!(cloned.status.success(), "{cloned:?}");
+        assert!(clone_output.status.success(), "{clone_output:?}");
         assert!(!clone.join(".ggen/keys/verifying.key").exists());
 
         let second = resolve_signing_key(&clone).expect("a fresh clone generates its own keypair");

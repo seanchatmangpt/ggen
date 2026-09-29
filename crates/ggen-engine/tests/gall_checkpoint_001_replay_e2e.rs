@@ -3,6 +3,7 @@
 
 #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 
+use std::fmt::Write as _;
 use std::path::{Path, PathBuf};
 
 use ggen_engine::{
@@ -13,7 +14,7 @@ use ggen_engine::{
 use tempfile::TempDir;
 
 struct Fixture {
-    _dir: TempDir,
+    dir: TempDir,
     project: PathBuf,
     root_pack: PathBuf,
     dependency_pack: PathBuf,
@@ -26,7 +27,7 @@ fn write_pack(root: &Path, name: &str, version: &str, dependency: Option<(&str, 
         "[pack]\nname = \"{name}\"\nversion = \"{version}\"\ndescription = \"GALL-001 replay fixture\"\n"
     );
     if let Some((dep, req)) = dependency {
-        manifest.push_str(&format!("\n[dependencies]\n{dep} = \"{req}\"\n"));
+        let _ = write!(manifest, "\n[dependencies]\n{dep} = \"{req}\"\n");
     }
     std::fs::write(pack.join("pack.toml"), manifest).expect("pack manifest");
     std::fs::write(
@@ -66,7 +67,7 @@ fn fixture() -> Fixture {
     .expect("semantic work order");
 
     Fixture {
-        _dir: dir,
+        dir,
         project,
         root_pack,
         dependency_pack,
@@ -254,7 +255,7 @@ fn tampered_environment_identity_refuses_before_clean_reconstruction() {
 #[test]
 fn unrelated_top_level_pack_cannot_hide_behind_selected_subject() {
     let fx = fixture();
-    let aux = write_pack(fx._dir.path(), "zz_aux", "2.0.0", None);
+    let aux = write_pack(fx.dir.path(), "zz_aux", "2.0.0", None);
     let config_path = fx.project.join("ggen.toml");
     let mut config = std::fs::read_to_string(&config_path).expect("read config");
     config.push_str("\n[packs.zz_aux]\npath = \"../packs/zz_aux\"\n");
@@ -291,7 +292,7 @@ fn unrelated_top_level_pack_cannot_hide_behind_selected_subject() {
 #[test]
 fn multi_pack_subject_cannot_rebind_to_another_composition_member() {
     let fx = fixture();
-    write_pack(fx._dir.path(), "zz_aux", "2.0.0", None);
+    write_pack(fx.dir.path(), "zz_aux", "2.0.0", None);
     let config_path = fx.project.join("ggen.toml");
     let mut config = std::fs::read_to_string(&config_path).expect("read config");
     config.push_str("\n[packs.zz_aux]\npath = \"../packs/zz_aux\"\n");

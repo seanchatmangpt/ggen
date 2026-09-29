@@ -82,9 +82,13 @@ pub struct Pack {
     pub lock: bool,
 }
 
-/// On-disk `pack.toml` schema (closed key set, fail closed).
+/// On-disk `pack.toml` schema. `pack`/`dependencies`/`capabilities` are the
+/// closed, meaningful key set this loader acts on; any other top-level table
+/// an author declares (e.g. `[[generation_rules]]`, `[authority]`,
+/// `[manufacture]`, `[provenance]`, `[governance]`) is informational and
+/// collected into `extra` below rather than refused -- see `PackMeta`'s
+/// `extra` field doc comment for the real-corpus evidence.
 #[derive(Debug, Deserialize)]
-#[serde(deny_unknown_fields)]
 struct PackToml {
     pack: PackMeta,
     /// Direct pack dependencies. Each dependency must also be declared by
@@ -95,6 +99,10 @@ struct PackToml {
     /// absence means no declared semantic type/capability facts.
     #[serde(default)]
     capabilities: PackCapabilities,
+    /// Author-declared top-level tables beyond the three above: informational
+    /// only, never consulted by resolution/generation/admission.
+    #[serde(flatten)]
+    extra: BTreeMap<String, toml::Value>,
 }
 
 /// First-class semantic routing facts carried by pack.toml.
@@ -117,9 +125,9 @@ struct PackCapabilities {
     requires: BTreeSet<String>,
 }
 
-/// `[pack]` table of `pack.toml` (closed key set).
+/// `[pack]` table of `pack.toml` (open key set for author metadata; see
+/// `extra` below).
 #[derive(Debug, Deserialize)]
-#[serde(deny_unknown_fields)]
 struct PackMeta {
     name: String,
     version: String,
@@ -134,6 +142,18 @@ struct PackMeta {
     /// on its own -- see [`resolve_pack_dir`]'s deprecation warning.
     #[serde(default)]
     superseded_by: Vec<String>,
+    /// Author-declared extension metadata (e.g. `category`, `author`,
+    /// `license`, `tags`, `metadata`, `authority`) that carries no resolution
+    /// or execution behavior here. Real-corpus check 2026-09-28: 12/352
+    /// `~/ggen-marketplace` packs (including `ggen-self-pack`, the
+    /// marketplace's own canonical pack constructor) declare such fields;
+    /// this struct previously used `deny_unknown_fields` and refused all
+    /// twelve at `[FM-PACK-003]`. Collecting them here instead of refusing
+    /// mirrors `ggen_igniter`'s own `GgenIgniter.Pack.parse_manifest/1`
+    /// Legacy-profile behavior (no `gp:profile` declared -> pack.toml is not
+    /// even read), which already accepts every one of these twelve packs.
+    #[serde(flatten)]
+    extra: BTreeMap<String, toml::Value>,
 }
 
 /// Resolve every pack declared in `config.packs`, in name (`BTreeMap`) order.
@@ -750,6 +770,10 @@ fn resolve_pack_dir(name: &str, root: &Path) -> Result<Pack> {
     // the pack that actually failed.
     let _ = &manifest.pack.deprecated;
     let _ = &manifest.pack.superseded_by;
+    // Author-declared extension metadata: informational only, never
+    // consulted by resolution/generation/admission.
+    let _ = &manifest.pack.extra;
+    let _ = &manifest.extra;
     Ok(Pack {
         name: name.to_string(),
         version: manifest.pack.version,
@@ -1577,6 +1601,7 @@ version = "v2"
             },
             ontology: crate::config::Ontology {
                 source: PathBuf::from("ontology.ttl"),
+                imports: Vec::new(),
                 prefixes: std::collections::BTreeMap::new(),
             },
             packs: std::collections::BTreeMap::from([(
@@ -1703,6 +1728,67 @@ subdir = "packs/widget-pack"
         assert!(
             root.join("src/widget.rs").is_file(),
             "generated file must actually exist on disk"
+        );
+    }
+
+    /// Real-corpus regression: `~/ggen-marketplace/packs/ggen-self-pack`'s
+    /// actual `[pack]` table shape (name/version/description plus author
+    /// metadata `category`/`author`/`license`/`repository`/
+    /// `production_ready`/`[pack.metadata]`), and a top-level extension
+    /// table (`[[generation_rules]]`-shaped tables exist in other real
+    /// marketplace packs), must both resolve -- not refuse with
+    /// `[FM-PACK-003]`. 12/352 marketplace packs carried one of these two
+    /// shapes and were refused before `PackMeta`/`PackToml` stopped using
+    /// `deny_unknown_fields`.
+    #[test]
+    fn resolve_pack_dir_accepts_author_metadata_and_extension_tables_beyond_the_closed_schema() {
+        let dir = TempDir::new().expect("tempdir");
+        std::fs::write(
+            dir.path().join("pack.toml"),
+            r#"[pack]
+name = "widget"
+version = "1.0.0"
+description = "d"
+category = "infrastructure"
+author = "someone"
+license = "MIT"
+production_ready = false
+
+[pack.metadata]
+tags = ["a", "b"]
+
+[authority]
+consequential_do = false
+"#,
+        )
+        .expect("write pack.toml");
+        std::fs::write(dir.path().join("ontology.ttl"), "").expect("write ontology");
+        std::fs::create_dir_all(dir.path().join("templates")).expect("mkdir templates");
+        std::fs::write(dir.path().join("templates").join("t.tmpl"), "x").expect("write template");
+
+        let pack = resolve_pack_dir("widget", dir.path()).expect(
+            "author metadata and an unrecognized top-level table must not refuse pack resolution",
+        );
+        assert_eq!(pack.version, "1.0.0");
+        assert_eq!(pack.description, "d");
+    }
+
+    /// The schema is open to extra fields, not to invalid TOML: a
+    /// syntactically broken `pack.toml` must still refuse with
+    /// `[FM-PACK-003]`.
+    #[test]
+    fn resolve_pack_dir_still_refuses_genuinely_invalid_toml() {
+        let dir = TempDir::new().expect("tempdir");
+        std::fs::write(dir.path().join("pack.toml"), "not = [valid toml").expect("write pack.toml");
+        std::fs::write(dir.path().join("ontology.ttl"), "").expect("write ontology");
+        std::fs::create_dir_all(dir.path().join("templates")).expect("mkdir templates");
+        std::fs::write(dir.path().join("templates").join("t.tmpl"), "x").expect("write template");
+
+        let err = resolve_pack_dir("widget", dir.path())
+            .expect_err("syntactically invalid TOML must still refuse");
+        assert!(
+            format!("{err}").contains("FM-PACK-003"),
+            "expected FM-PACK-003, got: {err}"
         );
     }
 }

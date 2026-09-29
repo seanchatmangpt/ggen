@@ -34,7 +34,7 @@ const PACK_VERSION: &str = "1.0.0";
 /// <dir>/project/           — the consumer (ggen.toml → ../widget-pack)
 /// ```
 struct Fixture {
-    _dir: TempDir,
+    dir: TempDir,
     project: PathBuf,
     pack: PathBuf,
 }
@@ -88,11 +88,7 @@ fn write_fixture(violating_pack_gate: bool, passing_law_gate: bool) -> Fixture {
     }
     std::fs::write(project.join("ggen.toml"), ggen_toml).expect("write ggen.toml");
 
-    Fixture {
-        _dir: dir,
-        project,
-        pack,
-    }
+    Fixture { dir, project, pack }
 }
 
 fn envelope_path(project: &Path) -> PathBuf {
@@ -530,7 +526,7 @@ fn semantic_work_order_graph_is_identity_bearing() {
 #[test]
 fn multi_pack_sync_binds_every_top_level_pack_in_composition() {
     let fx = write_fixture(false, false);
-    let aux = fx._dir.path().join("aux-pack");
+    let aux = fx.dir.path().join("aux-pack");
 
     std::fs::create_dir_all(aux.join("templates")).expect("aux templates dir");
     std::fs::write(

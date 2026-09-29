@@ -175,6 +175,16 @@ pub enum CoreError {
         /// Which invariant the witness violated.
         reason: String,
     },
+
+    /// Receipt chain-rule discriminator
+    /// (`crate::receipt_record::ReceiptRecord::chain_rule`): the record
+    /// declares a chain rule this binary does not recognize, or declares a
+    /// rule that contradicts its own shape (the base rule on a record that
+    /// carries a `v2` payload, which would leave that payload outside the
+    /// chain hash). Refused rather than silently verified under a default
+    /// rule.
+    #[error("receipt chain rule invalid: {0}")]
+    ReceiptChainRuleInvalid(String),
 }
 
 /// Every [`CoreError`] name, in declaration order. Mirrors
@@ -186,7 +196,7 @@ pub enum CoreError {
 /// `tests::all_core_error_names_matches_enum` below, which builds one
 /// instance of every variant and zip-checks `name()` against this array in
 /// order.
-pub const ALL_CORE_ERROR_NAMES: [&str; 18] = [
+pub const ALL_CORE_ERROR_NAMES: [&str; 19] = [
     "ObligationUnmet",
     "SignatureInvalid",
     "ChainMismatch",
@@ -205,6 +215,7 @@ pub const ALL_CORE_ERROR_NAMES: [&str; 18] = [
     "ReceiptSchemaPayloadMismatch",
     "CeilingExceedsMeet",
     "PromotionRefused",
+    "ReceiptChainRuleInvalid",
 ];
 
 impl CoreError {
@@ -234,6 +245,7 @@ impl CoreError {
             CoreError::ReceiptSchemaPayloadMismatch(_) => "ReceiptSchemaPayloadMismatch",
             CoreError::CeilingExceedsMeet { .. } => "CeilingExceedsMeet",
             CoreError::PromotionRefused { .. } => "PromotionRefused",
+            CoreError::ReceiptChainRuleInvalid(_) => "ReceiptChainRuleInvalid",
         }
     }
 }
@@ -252,7 +264,7 @@ mod tests {
     fn all_core_error_names_len_matches_array() {
         assert_eq!(
             ALL_CORE_ERROR_NAMES.len(),
-            18,
+            19,
             "ALL_CORE_ERROR_NAMES size drifted"
         );
     }
@@ -308,6 +320,7 @@ mod tests {
             CoreError::PromotionRefused {
                 reason: "gate".to_string(),
             },
+            CoreError::ReceiptChainRuleInvalid("gate".to_string()),
         ];
         assert_eq!(all.len(), ALL_CORE_ERROR_NAMES.len());
         for (err, expected) in all.iter().zip(ALL_CORE_ERROR_NAMES) {
