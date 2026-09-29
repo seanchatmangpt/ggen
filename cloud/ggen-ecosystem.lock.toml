@@ -1,0 +1,35 @@
+schema = "ggen.ecosystem-lock.v1"
+owner = "seanchatmangpt"
+closure = "core-source"
+observed_at = "2026-08-19"
+
+# ggen itself is intentionally not pinned here. The workflow binds the exact
+# candidate SHA at execution time so a PR proves the tree it actually contains.
+# Runtime sibling dependencies (lsp-max, lsp-types-max, wasm4pm, wasm4pm-compat)
+# are likewise not duplicated here: .github/actions/setup-ggen-build/action.yml
+# is their authority and the manufacturer records the exact checked-out SHAs.
+
+[[repository]]
+name = "ggen-marketplace"
+sha = "3cc10e5066837ddfe959271b4ba11851953a7605"
+role = "marketplace-source"
+
+[[repository]]
+name = "ggen-legacy"
+sha = "93d2ecd18147acaff659bf1d9cc2d4313628305b"
+role = "reconstitution-source"
+
+[[repository]]
+name = "ggen-create"
+sha = "b7b9f7a2478f7f7ab601cc964c43ad956f1b0e45"
+role = "construction-source"
+
+[[repository]]
+name = "ggen-mcp"
+sha = "676ab576e679a2bd228992e9316733deab7b2a64"
+role = "mcp-source"
+
+[[repository]]
+name = "ggen-spec-kit"
+sha = "09cc665fd7637de604d97c748719e0e314ea2c46"
+role = "specification-source"
