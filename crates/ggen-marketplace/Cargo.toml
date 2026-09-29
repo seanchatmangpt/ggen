@@ -47,7 +47,7 @@ ed25519-dalek = { workspace = true }
 hex = "0.4"
 oxigraph = { version = "0.5.11", features = ["rdf-12"] }
 indexmap = { version = "2.14", features = ["serde"] }
-tera = "1.20"
+tera = "2.4"
 tracing = "0.1"
 async-trait = "0.1"
 toml = "1.1.6"
