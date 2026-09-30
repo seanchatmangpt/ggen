@@ -266,6 +266,15 @@ fn missing_common_document_field_is_refused() {
 }
 
 #[test]
+fn ambiguous_single_valued_routing_is_refused() {
+    assert_mutation_refused(
+        "    sd:title \"Learn Semantic Diataxis\" ;",
+        "    sd:title \"Learn Semantic Diataxis\", \"Conflicting title\" ;",
+        "020_single_valued",
+    );
+}
+
+#[test]
 fn document_with_two_diataxis_quadrants_is_refused() {
     assert_mutation_refused(
         "ex:ConstructHowTo a sd:SemanticDocument, sd:HowTo ;",
