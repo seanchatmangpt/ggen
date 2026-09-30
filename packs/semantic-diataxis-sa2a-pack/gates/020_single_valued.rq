@@ -6,6 +6,9 @@ SELECT ?s ?property ?v1 ?v2 WHERE {
     sd:repository sd:revision sd:digest
     sd:docPath sd:slug sd:title sd:semanticSubject sd:standing sd:provenance sd:owner
     sd:freshnessBoundary sd:falsifier sd:authority sd:relatedCapability
+    sd:achieves sd:precondition sd:requiresCapability sd:requiresAuthority sd:procedure
+    sd:expectedObservation sd:postcondition sd:failureMap sd:rollback
+    sd:receiptSchema sd:replayProcedure
     sd:category sd:consequence
   }
   ?s ?property ?v1, ?v2 .
