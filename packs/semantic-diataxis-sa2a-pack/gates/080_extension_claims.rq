@@ -1,0 +1,9 @@
+# MESSAGE: Unknown/extension fields may be preserved, but an uninterpreted extension must remain
+# UNSUPPORTED rather than silently acquiring runtime semantics.
+PREFIX sd: <https://ggen.dev/semantic-diataxis#>
+SELECT ?extension ?violation WHERE {
+  ?extension a sd:ExtensionClaim ; sd:standing ?standing .
+  FILTER(?standing != "UNSUPPORTED")
+  BIND("extension-semantic-standing-must-be-unsupported" AS ?violation)
+}
+ORDER BY ?extension
