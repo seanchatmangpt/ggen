@@ -1,0 +1,28 @@
+---
+to: "generated/semantic-diataxis/marketplace/{{ slug }}.json"
+sparql:
+  rows: |
+    PREFIX sd: <https://ggen.dev/semantic-diataxis#>
+    SELECT ?capability ?slug ?title ?standing ?category ?consequence ?evidence
+    WHERE {
+      ?capability a sd:Capability ;
+                  sd:slug ?slug ;
+                  sd:title ?title ;
+                  sd:standing ?standing ;
+                  sd:category ?category ;
+                  sd:consequence ?consequence .
+      OPTIONAL { ?capability sd:evidence ?evidence }
+    }
+    ORDER BY ?slug
+---
+{
+  "schema": "chatman.marketplace-capability.v1",
+  "capability": {{ capability | json_encode | safe }},
+  "slug": {{ slug | json_encode | safe }},
+  "name": {{ title | json_encode | safe }},
+  "category": {{ category | json_encode | safe }},
+  "standing": {{ standing | json_encode | safe }},
+  "consequence": {{ consequence | json_encode | safe }},
+  "evidence": {% if evidence is defined %}{{ evidence | json_encode | safe }}{% else %}null{% endif %},
+  "production_ready": null
+}
