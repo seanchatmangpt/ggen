@@ -1,0 +1,32 @@
+# MESSAGE: Capability taxonomy and consequence values are semantic identities, not free-form
+# strings. Categories must be typed IRIs; consequence is closed to observational/constructive/consequential.
+PREFIX sd: <https://ggen.dev/semantic-diataxis#>
+SELECT ?s ?violation WHERE {
+  {
+    ?s a sd:Capability ; sd:category ?category .
+    FILTER(!isIRI(?category))
+    BIND("capability-category-must-be-iri" AS ?violation)
+  }
+  UNION {
+    ?s a sd:Capability ; sd:category ?category .
+    FILTER NOT EXISTS { ?category a sd:CapabilityCategory }
+    BIND("capability-category-must-be-typed" AS ?violation)
+  }
+  UNION {
+    ?s sd:consequence ?consequence .
+    FILTER(
+      ?consequence != "observational" &&
+      ?consequence != "constructive" &&
+      ?consequence != "consequential"
+    )
+    BIND("invalid-consequence" AS ?violation)
+  }
+  UNION {
+    ?s a sd:HowTo ;
+       sd:relatedCapability ?related ;
+       sd:requiresCapability ?required .
+    FILTER(?related != ?required)
+    BIND("howto-capability-projections-disagree" AS ?violation)
+  }
+}
+ORDER BY ?s ?violation
