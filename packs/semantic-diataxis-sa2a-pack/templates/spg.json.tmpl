@@ -1,0 +1,68 @@
+---
+to: "generated/semantic-diataxis/spg/{{ slug }}.json"
+sparql:
+  rows: |
+    PREFIX sd: <https://ggen.dev/semantic-diataxis#>
+    SELECT ?slug ?doc ?revision ?goal ?precondition ?capability ?requiredAuthority
+           ?observation ?consequence ?falsifier
+    WHERE {
+      ?doc a sd:SemanticDocument, sd:HowTo ;
+           sd:slug ?slug ;
+           sd:semanticSubject ?subject ;
+           sd:achieves ?goal ;
+           sd:precondition ?precondition ;
+           sd:requiresCapability ?capability ;
+           sd:requiresAuthority ?requiredAuthority ;
+           sd:expectedObservation ?observation ;
+           sd:consequence ?consequence ;
+           sd:falsifier ?falsifier .
+      ?subject sd:revision ?revision .
+    }
+    ORDER BY ?slug
+---
+{
+  "schema": "chatman.spg.v1",
+  "id": "semantic-diataxis:{{ slug }}",
+  "version": {{ revision | json_encode | safe }},
+  "state": "CANDIDATE",
+  "standing": "NONE",
+  "nodes": [
+    {
+      "id": "{{ slug }}:observe",
+      "class": "OBSERVE",
+      "capability": {{ capability | json_encode | safe }}
+    },
+    {
+      "id": "{{ slug }}:candidate",
+      "class": {% if consequence == "consequential" %}"DO"{% else %}"CONSTRUCT"{% endif %},
+      "capability": {{ capability | json_encode | safe }}
+    }
+  ],
+  "edges": [
+    {
+      "id": "{{ slug }}:procedure",
+      "from": "{{ slug }}:observe",
+      "to": "{{ slug }}:candidate",
+      "relation": "LEADS_TO",
+      "guard": {{ precondition | json_encode | safe }},
+      "evidence_required": [{{ observation | json_encode | safe }}],
+      "authority_required": {{ requiredAuthority | json_encode | safe }},
+      "consequence": {{ consequence | json_encode | safe }},
+      "receipt_required": {% if consequence == "consequential" %}true{% else %}false{% endif %},
+      "falsifier": {{ falsifier | json_encode | safe }}
+    }
+  ],
+  "projections": {
+    "sa2a": {
+      "{{ slug }}:observe": "sa2a:observe",
+      "{{ slug }}:candidate": "sa2a:candidate-procedure"
+    }
+  },
+  "prior_art": [
+    {
+      "kind": "semantic-diataxis",
+      "document": {{ doc | json_encode | safe }},
+      "goal": {{ goal | json_encode | safe }}
+    }
+  ]
+}
