@@ -1,0 +1,23 @@
+# MESSAGE: Standing is closed to the repository vocabulary, and ALIVE requires explicit evidence.
+# Structural completeness, generation or a package-wide boolean cannot create ALIVE standing.
+PREFIX sd: <https://ggen.dev/semantic-diataxis#>
+SELECT ?s ?violation WHERE {
+  {
+    ?s sd:standing ?standing .
+    FILTER(
+      ?standing != "ALIVE" &&
+      ?standing != "PARTIAL_ALIVE" &&
+      ?standing != "BLOCKED" &&
+      ?standing != "BUILD_BROKEN" &&
+      ?standing != "UNKNOWN" &&
+      ?standing != "UNSUPPORTED"
+    )
+    BIND("invalid-standing" AS ?violation)
+  }
+  UNION {
+    ?s sd:standing "ALIVE" .
+    FILTER NOT EXISTS { ?s sd:evidence ?evidence }
+    BIND("alive-without-evidence" AS ?violation)
+  }
+}
+ORDER BY ?s ?violation
