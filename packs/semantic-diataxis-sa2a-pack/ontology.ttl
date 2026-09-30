@@ -1,0 +1,99 @@
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix sd:   <https://ggen.dev/semantic-diataxis#> .
+
+# Semantic Diátaxis for SA2A agents.
+#
+# One admitted graph owns semantic identity. Markdown and JSON are projections.
+# This vocabulary intentionally separates:
+#   documentation != authority
+#   procedure != execution
+#   generated != admitted
+#   receipt != authority
+#
+# Current ggen pack law uses gates/*.rq for admission. A legacy pack-level
+# shapes.ttl is a typed refusal, so this pack does NOT ship one.
+
+sd:SemanticSubject a rdfs:Class ;
+    rdfs:comment "Exact repository/revision/semantic-digest identity described by documentation." .
+
+sd:SemanticDocument a rdfs:Class ;
+    rdfs:comment "Base class for a generated Diátaxis projection. Every instance is also exactly one Tutorial, HowTo, Reference, or Explanation." .
+
+sd:Tutorial a rdfs:Class ;
+    rdfs:subClassOf sd:SemanticDocument ;
+    rdfs:comment "Learning-oriented bounded procedure." .
+
+sd:HowTo a rdfs:Class ;
+    rdfs:subClassOf sd:SemanticDocument ;
+    rdfs:comment "Goal-oriented candidate procedure with pre/postconditions, authority requirements, falsifier, receipt and replay contract." .
+
+sd:Reference a rdfs:Class ;
+    rdfs:subClassOf sd:SemanticDocument ;
+    rdfs:comment "Information-oriented machine contract projection." .
+
+sd:Explanation a rdfs:Class ;
+    rdfs:subClassOf sd:SemanticDocument ;
+    rdfs:comment "Understanding-oriented rationale projection; never an actuation grant." .
+
+sd:Capability a rdfs:Class ;
+    rdfs:comment "Capability with standing attached to the exact claim rather than a package-wide production-ready boolean." .
+
+sd:CapabilityCategory a rdfs:Class ;
+    rdfs:comment "Semantic category identity used instead of unconstrained category strings." .
+
+sd:ExtensionClaim a rdfs:Class ;
+    rdfs:comment "Forward-compatible extension field preserved without silently gaining supported semantics." .
+
+sd:repository a rdf:Property ; rdfs:domain sd:SemanticSubject ; rdfs:range xsd:string .
+sd:revision a rdf:Property ; rdfs:domain sd:SemanticSubject ; rdfs:range xsd:string .
+sd:digest a rdf:Property ; rdfs:domain sd:SemanticSubject ; rdfs:range xsd:string .
+
+sd:docPath a rdf:Property ; rdfs:domain sd:SemanticDocument ; rdfs:range xsd:string .
+sd:slug a rdf:Property ; rdfs:range xsd:string .
+sd:title a rdf:Property ; rdfs:range xsd:string .
+sd:semanticSubject a rdf:Property ; rdfs:domain sd:SemanticDocument ; rdfs:range sd:SemanticSubject .
+sd:standing a rdf:Property ; rdfs:range xsd:string .
+sd:provenance a rdf:Property ; rdfs:domain sd:SemanticDocument ; rdfs:range xsd:string .
+sd:owner a rdf:Property ; rdfs:domain sd:SemanticDocument ; rdfs:range xsd:string .
+sd:freshnessBoundary a rdf:Property ; rdfs:domain sd:SemanticDocument ; rdfs:range xsd:string .
+sd:falsifier a rdf:Property ; rdfs:domain sd:SemanticDocument ; rdfs:range xsd:string .
+sd:authority a rdf:Property ; rdfs:domain sd:SemanticDocument ; rdfs:range xsd:string .
+sd:relatedCapability a rdf:Property ; rdfs:domain sd:SemanticDocument ; rdfs:range sd:Capability .
+sd:evidence a rdf:Property ; rdfs:range xsd:string .
+
+sd:learningGoal a rdf:Property ; rdfs:domain sd:Tutorial ; rdfs:range xsd:string .
+sd:startingState a rdf:Property ; rdfs:domain sd:Tutorial ; rdfs:range xsd:string .
+sd:prerequisite a rdf:Property ; rdfs:domain sd:Tutorial ; rdfs:range xsd:string .
+sd:exercise a rdf:Property ; rdfs:domain sd:Tutorial ; rdfs:range xsd:string .
+sd:checkpointObservation a rdf:Property ; rdfs:domain sd:Tutorial ; rdfs:range xsd:string .
+sd:terminalObservation a rdf:Property ; rdfs:domain sd:Tutorial ; rdfs:range xsd:string .
+sd:cleanup a rdf:Property ; rdfs:domain sd:Tutorial ; rdfs:range xsd:string .
+
+sd:achieves a rdf:Property ; rdfs:domain sd:HowTo ; rdfs:range xsd:string .
+sd:precondition a rdf:Property ; rdfs:domain sd:HowTo ; rdfs:range xsd:string .
+sd:requiresCapability a rdf:Property ; rdfs:domain sd:HowTo ; rdfs:range sd:Capability .
+sd:requiresAuthority a rdf:Property ; rdfs:domain sd:HowTo ; rdfs:range xsd:string .
+sd:procedure a rdf:Property ; rdfs:domain sd:HowTo ; rdfs:range xsd:string .
+sd:expectedObservation a rdf:Property ; rdfs:domain sd:HowTo ; rdfs:range xsd:string .
+sd:postcondition a rdf:Property ; rdfs:domain sd:HowTo ; rdfs:range xsd:string .
+sd:failureMap a rdf:Property ; rdfs:domain sd:HowTo ; rdfs:range xsd:string .
+sd:rollback a rdf:Property ; rdfs:domain sd:HowTo ; rdfs:range xsd:string .
+sd:receiptSchema a rdf:Property ; rdfs:domain sd:HowTo ; rdfs:range xsd:string .
+sd:replayProcedure a rdf:Property ; rdfs:domain sd:HowTo ; rdfs:range xsd:string .
+sd:consequence a rdf:Property ; rdfs:range xsd:string .
+
+sd:contract a rdf:Property ; rdfs:domain sd:Reference ; rdfs:range xsd:string .
+sd:schemaSource a rdf:Property ; rdfs:domain sd:Reference ; rdfs:range xsd:string .
+sd:machineContract a rdf:Property ; rdfs:domain sd:Reference ; rdfs:range xsd:string .
+
+sd:concept a rdf:Property ; rdfs:domain sd:Explanation ; rdfs:range xsd:string .
+sd:rationale a rdf:Property ; rdfs:domain sd:Explanation ; rdfs:range xsd:string .
+sd:tradeoff a rdf:Property ; rdfs:domain sd:Explanation ; rdfs:range xsd:string .
+sd:alternative a rdf:Property ; rdfs:domain sd:Explanation ; rdfs:range xsd:string .
+
+sd:category a rdf:Property ; rdfs:domain sd:Capability ; rdfs:range sd:CapabilityCategory .
+
+sd:extensionPredicate a rdf:Property ; rdfs:domain sd:ExtensionClaim .
+sd:extensionValue a rdf:Property ; rdfs:domain sd:ExtensionClaim .
