@@ -1,0 +1,14 @@
+# MESSAGE: Every How-To is a complete candidate-procedure contract: goal, precondition,
+# capability, authority requirement, procedure, observation, postcondition, failure/rollback,
+# receipt, replay and consequence. Any returned row is missing one of those semantics.
+PREFIX sd: <https://ggen.dev/semantic-diataxis#>
+SELECT ?doc ?missing WHERE {
+  ?doc a sd:HowTo .
+  VALUES ?missing {
+    sd:achieves sd:precondition sd:requiresCapability sd:requiresAuthority sd:procedure
+    sd:expectedObservation sd:postcondition sd:failureMap sd:rollback
+    sd:receiptSchema sd:replayProcedure sd:consequence
+  }
+  FILTER NOT EXISTS { ?doc ?missing ?any }
+}
+ORDER BY ?doc ?missing

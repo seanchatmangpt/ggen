@@ -1,0 +1,11 @@
+[pack]
+name = "semantic-diataxis-sa2a-pack"
+version = "26.9.29"
+description = """
+Semantic Diátaxis contract for SA2A agents. Extends the existing ggen Diátaxis model with exact
+semantic subjects, capability-level standing, procedural pre/postconditions, authority requirements,
+falsifiers, receipts and replay. Generates tutorial/how-to/reference/explanation views plus
+machine-readable SA2A, SPG and marketplace-capability projections from one RDF source. Admission is
+enforced by pack-local SPARQL gates (the repository's current engine-independent replacement for
+legacy pack SHACL); generated procedure graphs carry standing NONE and never grant runtime authority.
+"""

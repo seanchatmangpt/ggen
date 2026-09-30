@@ -1,0 +1,21 @@
+# MESSAGE: Every sd:SemanticDocument must be exactly one Diátaxis quadrant:
+# Tutorial, HowTo, Reference, or Explanation. Any returned row is untyped or multiply typed.
+PREFIX sd: <https://ggen.dev/semantic-diataxis#>
+SELECT ?doc ?violation WHERE {
+  {
+    ?doc a sd:SemanticDocument .
+    FILTER NOT EXISTS { ?doc a sd:Tutorial }
+    FILTER NOT EXISTS { ?doc a sd:HowTo }
+    FILTER NOT EXISTS { ?doc a sd:Reference }
+    FILTER NOT EXISTS { ?doc a sd:Explanation }
+    BIND("missing-quadrant" AS ?violation)
+  }
+  UNION {
+    ?doc a sd:SemanticDocument, ?q1, ?q2 .
+    VALUES ?q1 { sd:Tutorial sd:HowTo sd:Reference sd:Explanation }
+    VALUES ?q2 { sd:Tutorial sd:HowTo sd:Reference sd:Explanation }
+    FILTER(STR(?q1) < STR(?q2))
+    BIND("multiple-quadrants" AS ?violation)
+  }
+}
+ORDER BY ?doc ?violation

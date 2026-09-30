@@ -1,0 +1,29 @@
+# MESSAGE: Semantic Diátaxis subjects, documents, capabilities and extension claims must carry
+# their minimum machine contract. Any returned row is a missing required property.
+PREFIX sd: <https://ggen.dev/semantic-diataxis#>
+SELECT ?s ?missing WHERE {
+  {
+    ?s a sd:SemanticSubject .
+    VALUES ?missing { sd:repository sd:revision sd:digest }
+    FILTER NOT EXISTS { ?s ?missing ?any }
+  }
+  UNION {
+    ?s a sd:SemanticDocument .
+    VALUES ?missing {
+      sd:docPath sd:slug sd:title sd:semanticSubject sd:standing sd:provenance
+      sd:owner sd:freshnessBoundary sd:falsifier sd:authority sd:relatedCapability
+    }
+    FILTER NOT EXISTS { ?s ?missing ?any }
+  }
+  UNION {
+    ?s a sd:Capability .
+    VALUES ?missing { sd:slug sd:title sd:standing sd:category sd:consequence }
+    FILTER NOT EXISTS { ?s ?missing ?any }
+  }
+  UNION {
+    ?s a sd:ExtensionClaim .
+    VALUES ?missing { sd:extensionPredicate sd:extensionValue sd:standing }
+    FILTER NOT EXISTS { ?s ?missing ?any }
+  }
+}
+ORDER BY ?s ?missing

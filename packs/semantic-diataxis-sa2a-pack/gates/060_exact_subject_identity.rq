@@ -1,0 +1,21 @@
+# MESSAGE: Semantic subjects must bind owner/repo, an immutable lowercase 40-hex revision,
+# and a sha256:/blake3: 64-hex digest. Mutable branches and malformed identities are refused.
+PREFIX sd: <https://ggen.dev/semantic-diataxis#>
+SELECT ?subject ?violation WHERE {
+  {
+    ?subject a sd:SemanticSubject ; sd:repository ?repo .
+    FILTER(!REGEX(STR(?repo), "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"))
+    BIND("repository-not-owner-slash-name" AS ?violation)
+  }
+  UNION {
+    ?subject a sd:SemanticSubject ; sd:revision ?revision .
+    FILTER(!REGEX(STR(?revision), "^[0-9a-f]{40}$"))
+    BIND("revision-not-immutable-40hex" AS ?violation)
+  }
+  UNION {
+    ?subject a sd:SemanticSubject ; sd:digest ?digest .
+    FILTER(!REGEX(STR(?digest), "^(sha256|blake3):[0-9a-f]{64}$"))
+    BIND("digest-not-canonical" AS ?violation)
+  }
+}
+ORDER BY ?subject ?violation

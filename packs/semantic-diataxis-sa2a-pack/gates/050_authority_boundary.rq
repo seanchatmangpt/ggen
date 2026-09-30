@@ -1,0 +1,23 @@
+# MESSAGE: Documentation never grants authority. All SemanticDocument authority is NONE;
+# only How-To may declare required authority, and consequential procedures may not require NONE.
+PREFIX sd: <https://ggen.dev/semantic-diataxis#>
+SELECT ?doc ?violation WHERE {
+  {
+    ?doc a sd:SemanticDocument ; sd:authority ?authority .
+    FILTER(?authority != "NONE")
+    BIND("document-grants-authority" AS ?violation)
+  }
+  UNION {
+    ?doc a sd:SemanticDocument .
+    FILTER NOT EXISTS { ?doc a sd:HowTo }
+    ?doc sd:requiresAuthority ?authority .
+    BIND("non-howto-declares-required-authority" AS ?violation)
+  }
+  UNION {
+    ?doc a sd:HowTo ;
+         sd:consequence "consequential" ;
+         sd:requiresAuthority "NONE" .
+    BIND("consequence-without-authority" AS ?violation)
+  }
+}
+ORDER BY ?doc ?violation

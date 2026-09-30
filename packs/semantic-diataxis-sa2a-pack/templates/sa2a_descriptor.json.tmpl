@@ -1,0 +1,57 @@
+---
+to: "generated/semantic-diataxis/sa2a/{{ slug }}.json"
+sparql:
+  rows: |
+    PREFIX sd: <https://ggen.dev/semantic-diataxis#>
+    SELECT ?slug ?doc ?title ?repository ?revision ?digest ?goal ?precondition ?capability
+           ?requiredAuthority ?procedure ?observation ?postcondition ?failureMap ?rollback
+           ?receiptSchema ?replay ?consequence ?falsifier
+    WHERE {
+      ?doc a sd:SemanticDocument, sd:HowTo ;
+           sd:slug ?slug ;
+           sd:title ?title ;
+           sd:semanticSubject ?subject ;
+           sd:achieves ?goal ;
+           sd:precondition ?precondition ;
+           sd:requiresCapability ?capability ;
+           sd:requiresAuthority ?requiredAuthority ;
+           sd:procedure ?procedure ;
+           sd:expectedObservation ?observation ;
+           sd:postcondition ?postcondition ;
+           sd:failureMap ?failureMap ;
+           sd:rollback ?rollback ;
+           sd:receiptSchema ?receiptSchema ;
+           sd:replayProcedure ?replay ;
+           sd:consequence ?consequence ;
+           sd:falsifier ?falsifier .
+      ?subject sd:repository ?repository ; sd:revision ?revision ; sd:digest ?digest .
+    }
+    ORDER BY ?slug
+---
+{
+  "schema": "chatman.semantic-diataxis.sa2a.v1",
+  "document": {{ doc | json_encode | safe }},
+  "title": {{ title | json_encode | safe }},
+  "exact_subject": {
+    "repository": {{ repository | json_encode | safe }},
+    "revision": {{ revision | json_encode | safe }},
+    "digest": {{ digest | json_encode | safe }}
+  },
+  "goal": {{ goal | json_encode | safe }},
+  "precondition": {{ precondition | json_encode | safe }},
+  "required_capability": {{ capability | json_encode | safe }},
+  "required_authority": {{ requiredAuthority | json_encode | safe }},
+  "procedure": {{ procedure | json_encode | safe }},
+  "expected_observation": {{ observation | json_encode | safe }},
+  "postcondition": {{ postcondition | json_encode | safe }},
+  "failure_map": {{ failureMap | json_encode | safe }},
+  "rollback": {{ rollback | json_encode | safe }},
+  "receipt_schema": {{ receiptSchema | json_encode | safe }},
+  "replay": {{ replay | json_encode | safe }},
+  "consequence": {{ consequence | json_encode | safe }},
+  "falsifier": {{ falsifier | json_encode | safe }},
+  "document_authority": "NONE",
+  "construction_state": "CANDIDATE",
+  "standing": "NONE",
+  "semantic_equivalence": "UNCLAIMED"
+}
