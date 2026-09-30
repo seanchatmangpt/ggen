@@ -154,10 +154,7 @@ fn packs_dir() -> PathBuf {
 }
 
 fn project_with_fixture(fixture: &str) -> (tempfile::TempDir, PathBuf) {
-    scaffold_pack_with_ontology(
-        &packs_dir().join("semantic-diataxis-sa2a-pack"),
-        fixture,
-    )
+    scaffold_pack_with_ontology(&packs_dir().join("semantic-diataxis-sa2a-pack"), fixture)
 }
 
 fn sync_fixture(fixture: &str) -> (tempfile::TempDir, PathBuf) {
@@ -236,11 +233,9 @@ fn semantic_diataxis_generates_human_and_machine_projections_and_is_idempotent()
         "consequential"
     );
     assert_eq!(consequential_spg["edges"][0]["receipt_required"], true);
-    assert!(
-        consequential_spg["prior_art"]
-            .as_array()
-            .is_some_and(|items| !items.is_empty())
-    );
+    assert!(consequential_spg["prior_art"]
+        .as_array()
+        .is_some_and(|items| !items.is_empty()));
 
     let capability = read_json(
         &project,
