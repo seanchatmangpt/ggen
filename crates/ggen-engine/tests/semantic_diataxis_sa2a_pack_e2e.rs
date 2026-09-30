@@ -205,6 +205,7 @@ fn semantic_diataxis_generates_human_and_machine_projections_and_is_idempotent()
     assert_eq!(sa2a["document_authority"], "NONE");
     assert_eq!(sa2a["construction_state"], "CANDIDATE");
     assert_eq!(sa2a["standing"], "NONE");
+    assert_eq!(sa2a["semantic_equivalence"], "UNCLAIMED");
     assert_eq!(sa2a["exact_subject"]["revision"], BASE_SHA);
 
     let constructive_spg = read_json(
@@ -333,6 +334,24 @@ fn free_form_capability_category_is_refused() {
     assert_mutation_refused(
         "    sd:category ex:DocumentationCategory ;",
         "    sd:category \"documentation\" ;",
+        "090_controlled_values",
+    );
+}
+
+#[test]
+fn untyped_capability_link_is_refused() {
+    assert_mutation_refused(
+        "    sd:relatedCapability ex:GenerateSemanticDocs ;\n    sd:learningGoal",
+        "    sd:relatedCapability ex:UnknownCapability ;\n    sd:learningGoal",
+        "090_controlled_values",
+    );
+}
+
+#[test]
+fn duplicate_document_output_path_is_refused() {
+    assert_mutation_refused(
+        "    sd:docPath \"docs/semantic-diataxis/reference.md\" ;",
+        "    sd:docPath \"docs/semantic-diataxis/tutorial.md\" ;",
         "090_controlled_values",
     );
 }
