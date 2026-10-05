@@ -71,6 +71,8 @@ Muscle-memory bare commands still work: `ggen sync`, `ggen doctor`, and
 11. [Defensive Workflow Patterns](#11-defensive-workflow-patterns)
 12. [Output Structure](#12-output-structure)
 13. [Related Documentation](#13-related-documentation)
+14. [Ontology imports](#14-ontology-imports)
+15. [Qualification probe contract](#15-qualification-probe-contract)
 
 ---
 
@@ -615,3 +617,41 @@ The `SyncOutput` struct is serialized when `--format json` is used:
 | Receipt verification constitution | `AGENTS.md` |
 | Gate conventions across runtimes (offender- vs witness-reporting) | `docs/reference/gate-conventions.md` |
 | First-principles doc system architecture | `docs/rust_swarm_doc_plan/RFC.md` |
+
+---
+
+## 14. Ontology imports
+
+`[ontology].imports` entries resolve relative to the directory containing
+`ggen.toml`, not the process CWD: `ManifestParser::parse_and_validate` uses the
+manifest's parent directory as the base for every path check
+(`crates/ggen-config/src/manifest/parser.rs`), and graph loading joins each
+import onto the manifest root (`crates/ggen-engine/src/project_graph.rs`).
+
+Composition: the consumer graph is the union of `source` and every import,
+loaded in order — `source` first, then each `imports` entry appended after it.
+
+Refusals: a missing import file fails at manifest load with
+`Ontology import not found: <path>` (`ConfigError::Validation`). In the
+frontmatter schema, `[FM-CONFIG-003]` fires for path-safety violations in
+`imports[i]` (e.g. `..` traversal).
+
+Example (pack-local self-proof: base ontology plus per-fixture vocabulary):
+
+```toml
+[ontology]
+source = "ontology.ttl"
+imports = ["fixtures/<fixture>.ttl"]
+```
+
+---
+
+## 15. Qualification probe contract
+
+A consumer of a pack whose packaging profile is not `project` must surface a
+non-empty `qualification/marketplace-probe.txt`. ggen-marketplace's
+`scripts/qualify_packs.py` checks for it between the two `sync run` passes and
+otherwise refuses the pack with `REFUSED:GGEN_PACK_PROBE_MISSING`, naming the
+missing probe path. A probe should contain one line naming the rendered
+artifact plus its digest expectation — the minimum evidence that the pack's
+projection actually rendered.
