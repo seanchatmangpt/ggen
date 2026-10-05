@@ -1,7 +1,7 @@
 # ggen v26.8.2 - Rust Code Generation CLI
 
 Spec-driven codegen from RDF. A=μ(O), 5-stage pipeline. Rust nightly | Tokio | Oxigraph | Tera |
-Clap | Chicago TDD only | 14-crate workspace. Crate map/packs/commands: GENERATED
+Clap | Chicago TDD only | 15-crate workspace. Crate map/packs/commands: GENERATED
 `.claude/rules/architecture.md` — edit `.specify/repo-facts.ttl`, never the file.
 
 **Process Intelligence Boundary**: ggen EMITS OCEL evidence, never ANALYSES it

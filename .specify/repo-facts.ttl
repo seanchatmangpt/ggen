@@ -166,6 +166,16 @@ rf:crate_ggen_mcp a rf:Crate ;
     rf:summaryPurpose "MCP server (`rmcp` over stdio) exposing ggen's SPARQL/frontmatter/diagnostic introspection surface as tool calls: nine tools, read-only except `ggen_write_apply` (destructive, requires explicit `confirm: true`). Present in `Cargo.toml` `[workspace] members` since before 2026-08-03 but absent from this facts file until that date, when `crates/ggen-config/tests/system_crate_map_parity_test.rs` caught the divergence — a real crate-map/repo-facts gap, not merely asserted here. Also ships `ggen-selfplay-explore`, a separate corpus-growth binary using a local LLM, never invoked from a test" ;
     rf:archPurpose "MCP server exposing ggen's SPARQL/frontmatter/diagnostic introspection surface as tool calls over stdio (`rmcp` 1.7.0). Tools only — no Resources/Prompts/Sampling/Tasks; read/write split by per-tool annotation (`readOnlyHint`/`destructiveHint`), never by flag. Path deps only on `ggen-engine`/`ggen-graph`/`ggen-config`/`ggen-lsp` (default features, `mcp` feature intentionally left off to keep one `rmcp` version resolved workspace-wide). `publish = false`" .
 
+rf:crate_pm4pytest_cli a rf:Crate ;
+    rf:order "020" ;
+    rf:dir "pm4pytest-cli" ;
+    rf:package "pm4pytest-cli" ;
+    rf:version "26.10.5" ;
+    rf:group "testing" ;
+    rf:cargoDescription "Thin cargo wrapper around the pm4pytest binary (PATH or PM4PYTEST_BIN)" ;
+    rf:summaryPurpose "Thin `cargo` wrapper exposing the external `pm4pytest` process-conformance tool as a workspace command: resolves the binary from `PATH` or `PM4PYTEST_BIN`, never a direct Python/wasm dependency" ;
+    rf:archPurpose "Thin `cargo` wrapper around the external `pm4pytest` binary (process-mining/conformance checking): resolves via `PATH` or `PM4PYTEST_BIN` so the Rust workspace never takes a direct Python dependency. Consumed by process-science qualification flows that need real OCEL/conformance evidence; `publish = false`" .
+
 rf:crate_ggen a rf:Crate ;
     rf:order "019" ;
     rf:dir "ggen" ;
