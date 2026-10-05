@@ -760,8 +760,10 @@ fn lower_pref_gd_full(pref: &PreferenceGoalDefinition) -> PddlCondition {
     match pref {
         PreferenceGoalDefinition::Goal(gd) => lower_condition(gd),
         PreferenceGoalDefinition::Preference(_) => {
-            // TODO(dead, see fn doc comment): lower named preferences into
-            // PddlCondition instead of discarding them as And([]).
+            // OUT-OF-SCOPE(preferences unsupported): lower named preferences
+            // into PddlCondition instead of discarding them as And([]).
+            // Scope abandoned per `lower_pref_gd_full`'s fn doc comment and
+            // `capability.rs` (`PddlFeature::Preferences` is `Unsupported`).
             PddlCondition::And(vec![])
         }
     }
@@ -1302,8 +1304,11 @@ fn lower_constraint_gd(cgd: &ConstraintGoalDefinition) -> Vec<PddlConstraint> {
     match cgd {
         ConstraintGoalDefinition::And(cs) => cs.iter().flat_map(lower_constraint_gd).collect(),
         ConstraintGoalDefinition::Forall(_, inner) => {
-            // TODO(dead, see fn doc comment): quantifier silently dropped —
-            // lowers `inner` unquantified rather than enumerating objects.
+            // OUT-OF-SCOPE(trajectory constraints unsupported): quantifier
+            // silently dropped — lowers `inner` unquantified rather than
+            // enumerating objects. Scope abandoned per
+            // `lower_constraint_gd`'s fn doc comment and `capability.rs`
+            // (`PddlFeature::TrajectoryConstraints` is `Unsupported`).
             lower_constraint_gd(inner)
         }
         other => {
@@ -1325,8 +1330,10 @@ fn lower_trajectory_constraint(cgd: &ConstraintGoalDefinition) -> TrajectoryCons
             TrajectoryConstraint::And(cs.iter().map(lower_trajectory_constraint).collect())
         }
         ConstraintGoalDefinition::Forall(_, inner) => {
-            // TODO(dead, see lower_constraint_gd's doc comment): quantifier
-            // silently dropped here too.
+            // OUT-OF-SCOPE(trajectory constraints unsupported): quantifier
+            // silently dropped here too. Scope abandoned per
+            // `lower_constraint_gd`'s doc comment and `capability.rs`
+            // (`PddlFeature::TrajectoryConstraints` is `Unsupported`).
             lower_trajectory_constraint(inner)
         }
         ConstraintGoalDefinition::AtEnd(gd) => {
@@ -1394,9 +1401,11 @@ fn lower_con2gd_condition(inner: &ConstraintGoalDefinitionInner) -> PddlConditio
     match inner {
         ConstraintGoalDefinitionInner::Goal(gd) => lower_condition(gd),
         ConstraintGoalDefinitionInner::Nested(cgd) => {
-            // TODO(dead, see fn doc comment): nested trajectory constraint
-            // discarded as And([]) — PddlCondition has no variant to
-            // represent it.
+            // OUT-OF-SCOPE(trajectory constraints unsupported): nested
+            // trajectory constraint discarded as And([]) — PddlCondition has
+            // no variant to represent it. Scope abandoned per
+            // `lower_con2gd_condition`'s fn doc comment and `capability.rs`
+            // (`PddlFeature::TrajectoryConstraints` is `Unsupported`).
             let _ = cgd;
             PddlCondition::And(vec![])
         }
