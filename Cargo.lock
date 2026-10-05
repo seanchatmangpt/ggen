@@ -1096,9 +1096,9 @@ checksum = "baf0a07a401f374238ab8e2f11a104d2851bf9ce711ec69804834de8af45c7af"
 
 [[package]]
 name = "config"
-version = "0.15.26"
+version = "0.15.27"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "790374c727a4cb20877dd2cc99ce7011cbe03b0b8df083acccd37df0d161304d"
+checksum = "38e9fbc53afcec54441422f1c596cd054655b32e70e1cbac956651b7b175a404"
 dependencies = [
  "async-trait",
  "convert_case 0.6.0",
@@ -3870,9 +3870,9 @@ dependencies = [
 
 [[package]]
 name = "lazy_static"
-version = "1.5.0"
+version = "1.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bbd2bcb4c963f2ddae06a2efc7e9f3591312473c50c6685e1f298068316e66fe"
+checksum = "20870f649af7073d53e38067b2a84312175d56ea15217e1b15bc83506ec50afb"
 
 [[package]]
 name = "leb128fmt"
@@ -5545,9 +5545,9 @@ dependencies = [
 
 [[package]]
 name = "prolog8"
-version = "26.7.1"
+version = "26.9.30"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2d0e9a50b3f5d83f84834af019f8d55aae339ed9cc0fa350be81a1c85d540127"
+checksum = "7843be5039c360448c3db791f4b6ea9d457212768fc7f94a53abed8ead929da8"
 dependencies = [
  "blake3",
  "serde",
@@ -8448,9 +8448,9 @@ dependencies = [
 
 [[package]]
 name = "wasm4pm-cognition"
-version = "26.7.1"
+version = "26.9.30"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "796e7dea47c759cc388233b81df0a83f626ca7b4dd4794e8b90ec9d6ff33b922"
+checksum = "bc90ca06fa1026b0a349e9b220ca722ab84f92ddf848038813e7c4333776959e"
 dependencies = [
  "blake3",
  "ed25519-dalek 2.2.0",
@@ -8458,7 +8458,7 @@ dependencies = [
  "indexmap 2.14.2",
  "once_cell",
  "prolog8",
- "rand 0.8.8",
+ "rand 0.9.5",
  "rand_core 0.6.4",
  "regex",
  "serde",
