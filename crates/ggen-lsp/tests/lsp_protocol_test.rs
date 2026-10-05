@@ -34,7 +34,16 @@ use std::thread;
 use std::time::Duration;
 use tempfile::TempDir;
 
+/// Per-frame bound once the server is warm (post-handshake). Genuine protocol
+/// hangs surface as a fast panic here.
 const READ_TIMEOUT: Duration = Duration::from_secs(10);
+/// Bound for the FIRST awaited frame (the initialize handshake). That frame
+/// carries the child's fork+exec of the ~145 MB debug `ggen-lsp` binary, dyld
+/// page-in, and cold-start of the tokio runtime — under a loaded machine
+/// (observed load average >80 during parallel agent fan-out builds) this takes
+/// 2-10+s and has no protocol meaning, so it gets a generous ceiling instead of
+/// a flaky 10s cutoff that misreports startup starvation as a protocol stall.
+const HANDSHAKE_TIMEOUT: Duration = Duration::from_secs(60);
 
 /// The broken law surface: an unconstrained CONSTRUCT → E0011 + route template.values-inline.
 const BROKEN_CONSTRUCT: &str = "CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o }\n";
@@ -93,15 +102,32 @@ impl LspClient {
     }
 
     fn recv(&self) -> Value {
-        self.rx
-            .recv_timeout(READ_TIMEOUT)
-            .expect("LSP read timed out — server never sent the awaited frame")
+        self.recv_bounded(READ_TIMEOUT)
+    }
+
+    /// Wait up to `timeout` for the next frame. The handshake (fork+exec of the
+    /// freshly linked ~145 MB debug binary, dyld page-in, first request served)
+    /// can take tens of seconds on a loaded machine (observed load average 80
+    /// during fan-out builds), so `recv`'s tight READ_TIMEOUT applies only once
+    /// the server is warm; use `HANDSHAKE_TIMEOUT` for the first awaited frame.
+    fn recv_bounded(&self, timeout: Duration) -> Value {
+        self.rx.recv_timeout(timeout).expect(
+            "LSP read timed out — server never sent the awaited frame (child still running? \
+             check `ps` for ggen-lsp; if alive, this is startup latency, not a protocol bug)",
+        )
     }
 
     /// Send a request and return its correlated response, stashing notifications and
     /// replying to any server→client request encountered along the way (avoids deadlock
     /// if the server asks for e.g. workspace/configuration).
     fn request(&mut self, method: &str, params: Value) -> Value {
+        self.request_bounded(method, params, READ_TIMEOUT)
+    }
+
+    /// `request` with an explicit frame wait bound — the initialize handshake
+    /// uses `HANDSHAKE_TIMEOUT` because the first awaited frame includes the
+    /// child's fork+exec+startup, which is load-dependent (see `recv_bounded`).
+    fn request_bounded(&mut self, method: &str, params: Value, timeout: Duration) -> Value {
         let id = self.next_id;
         self.next_id += 1;
         // Omit the `params` key when null. tower-lsp's `shutdown` (and other param-less
@@ -113,7 +139,7 @@ impl LspClient {
         }
         self.send(&msg);
         loop {
-            let f = self.recv();
+            let f = self.recv_bounded(timeout);
             let f_id = f.get("id").and_then(Value::as_i64);
             let has_result = f.get("result").is_some() || f.get("error").is_some();
             if f_id == Some(id) && has_result {
@@ -195,9 +221,10 @@ fn read_frame(reader: &mut impl BufRead) -> Option<Value> {
 }
 
 fn initialize(client: &mut LspClient) -> Value {
-    let resp = client.request(
+    let resp = client.request_bounded(
         "initialize",
         json!({"processId":null,"rootUri":null,"capabilities":{}}),
+        HANDSHAKE_TIMEOUT,
     );
     client.notify("initialized", json!({}));
     resp
