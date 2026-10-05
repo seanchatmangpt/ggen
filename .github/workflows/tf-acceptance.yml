@@ -17,6 +17,7 @@ jobs:
   tf-acceptance:
     name: Real-API acceptance
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     # BUG FIXED (2026-07-23): `secrets.X` is not a recognized named-value
     # inside a step `if:` condition -- GitHub Actions raises "Unrecognized
     # named-value: 'secrets'" for that context, which fails the ENTIRE
@@ -34,22 +35,22 @@ jobs:
       HAS_TF_ACC_TOKEN: ${{ secrets.TF_ACC_GITHUB_TOKEN != '' }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
       - name: Note when token is not configured
         if: env.HAS_TF_ACC_TOKEN != 'true'
         run: echo "TF_ACC_GITHUB_TOKEN secret not configured; skipping real-API acceptance."
 
       - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@stable
+        uses: dtolnay/rust-toolchain@b3b07ba8b418998c39fb20f53e8b695cdcc8de1b
         if: env.HAS_TF_ACC_TOKEN == 'true'
 
       - name: Install just
-        uses: extractions/setup-just@v4
+        uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3
         if: env.HAS_TF_ACC_TOKEN == 'true'
 
       - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v4
+        uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e
         if: env.HAS_TF_ACC_TOKEN == 'true'
 
       - name: Authenticate gh with acceptance token
