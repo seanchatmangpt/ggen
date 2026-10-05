@@ -1,7 +1,7 @@
 {
-  "release": "v26.7.20",
-  "audited_release": "v26.7.20",
-  "workspace_version_note": "Cargo.toml has since moved to 26.8.6 locally / 26.8.7 on origin/main (automated version-law bumps); this standing declaration's 23-condition audit was NOT re-run at either version -- see docs/jira/v26.8.7/STATUS.md for current release-readiness state",
+  "release": "v26.10.5",
+  "audited_release": "v26.10.5",
+  "workspace_version_note": "Cargo.toml workspace version is 26.10.5 on feat/v26.10.5-release-cut; the 23-condition release audit was NOT re-run at this version -- see docs/jira for current release-readiness state; tag v26.10.5 not yet present at this sha (fix-forward target if cut elsewhere)",
   "flavor": "candidate",
   "source_standing": "believable-claimed",
   "binary_standing": "unverified-on-artifact-host",
@@ -19,4 +19,3 @@
     "just verify-tcps"
   ]
 }
-
