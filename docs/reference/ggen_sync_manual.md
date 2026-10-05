@@ -613,4 +613,5 @@ The `SyncOutput` struct is serialized when `--format json` is used:
 | A2A μ₁–μ₅ pipeline deep dive | `docs/features/a2a-pipeline.md` |
 | ggen.toml manifest schema | `docs/ggen-toml-schema.toml` |
 | Receipt verification constitution | `AGENTS.md` |
+| Gate conventions across runtimes (offender- vs witness-reporting) | `docs/reference/gate-conventions.md` |
 | First-principles doc system architecture | `docs/rust_swarm_doc_plan/RFC.md` |
