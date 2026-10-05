@@ -354,11 +354,16 @@ fn broken_packs_refuse_by_name() {
     .expect_err("missing ontology");
     assert!(err.to_string().contains("FM-PACK-004"), "{err}");
 
-    // Unknown key in pack.toml.
+    // Syntactically invalid pack.toml. (Unknown top-level keys are no longer
+    // a refusal: `PackToml`/`PackMeta` deliberately dropped
+    // `deny_unknown_fields` in favor of a flattened open schema -- 12/352
+    // real marketplace packs carry author metadata beyond the closed keys --
+    // so the broken-pack refusal this case anchors is now invalid TOML, which
+    // `[FM-PACK-003]` still covers.)
     let (_dir, project) = scaffold();
     let manifest = project.parent().expect("root").join("demo-pack/pack.toml");
     let mut toml = std::fs::read_to_string(&manifest).expect("pack.toml");
-    toml.push_str("sneaky = true\n");
+    toml.push_str("not = [valid toml\n");
     std::fs::write(&manifest, toml).expect("rewrite");
     let err = sync(
         &project,
@@ -367,8 +372,9 @@ fn broken_packs_refuse_by_name() {
             ..Default::default()
         },
     )
-    .expect_err("unknown key");
+    .expect_err("invalid pack.toml");
     assert!(err.to_string().contains("FM-PACK-003"), "{err}");
+    assert!(err.to_string().contains("widget"), "{err}");
 
     // Zero templates.
     let (_dir, project) = scaffold();
