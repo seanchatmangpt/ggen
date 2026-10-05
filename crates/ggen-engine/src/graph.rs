@@ -186,8 +186,11 @@ impl DeterministicGraph {
                              Underlying parse error: {e}"
                         ),
                     )
+                } else if let Some(err) = diagnose_bind_rebind(sparql) {
+                    err
                 } else {
-                    AppError::fm_graph(3, format!("SPARQL parse failed: {e}"))
+                    let near = offending_line_hint(sparql, &e);
+                    AppError::fm_graph(3, format!("SPARQL parse failed: {e}{near}"))
                 }
             })?
             .on_store(&self.store)
@@ -399,6 +402,179 @@ fn looks_like_sparql_update(sparql: &str) -> bool {
                 .next()
                 .is_none_or(|c| !c.is_alphanumeric() && c != '_')
     })
+}
+
+/// Best-effort pre-parse diagnostic for the SPARQL 1.1 illegal rebind
+/// pattern: `BIND(expr AS ?v)` where `?v` already appears earlier in the
+/// group (or inside the BIND expression itself, before the `AS`).
+///
+/// This is an AST-free lexical scan, not a parser: it locates each
+/// case-insensitive `BIND` keyword, walks its parenthesized expression at
+/// paren depth 1 to the `AS` keyword, extracts the target `?variable`, and
+/// refuses when that variable token occurs anywhere earlier in the query
+/// text. Per SPARQL 1.1 grammar the `AS` variable of `BIND` must be fresh
+/// in the group, so this scan is deliberately conservative in the direction
+/// of *more* refusals only when a parse would have failed anyway — it runs
+/// exclusively on the parse-failure path, never overrides a successful
+/// parse, and therefore cannot turn a valid query into an error.
+///
+/// Returns the typed `[FM-GRAPH-013]` error, or `None` when no rebind
+/// pattern is found (caller falls through to the generic parse error).
+fn diagnose_bind_rebind(sparql: &str) -> Option<AppError> {
+    let bytes = sparql.as_bytes();
+    let is_name_char =
+        |c: u8| c.is_ascii_alphanumeric() || c == b'_' || c >= 0x80;
+    let mut from = 0usize;
+    while let Some(rel) = sparql[from..]
+        .to_ascii_lowercase()
+        .find("bind")
+        .map(|p| from + p)
+    {
+        let kw = rel;
+        // Word-boundary check: must not be part of e.g. `UNBINDD` or a name.
+        let before_ok = kw == 0 || !is_name_char(bytes[kw - 1]);
+        let after_ok = bytes
+            .get(kw + 4)
+            .is_none_or(|&c| !is_name_char(c));
+        from = kw + 4;
+        if !before_ok || !after_ok {
+            continue;
+        }
+        // First `(` after BIND opens the expression.
+        let Some(open_rel) = sparql[kw..].find('(') else {
+            continue;
+        };
+        let open = kw + open_rel;
+        // Walk to the `AS` keyword at paren depth 1, tracking the offset of
+        // the deepest scan position so the target-variable freshness check
+        // covers the expression text before `AS`.
+        let mut depth: usize = 0;
+        let mut as_pos: Option<usize> = None;
+        let mut i = open;
+        while i < bytes.len() {
+            match bytes[i] {
+                b'(' => depth += 1,
+                b')' => {
+                    if depth == 1 {
+                        break;
+                    }
+                    depth -= 1;
+                }
+                b'A' | b'a' if depth == 1 => {
+                    if sparql[i..].len() >= 2
+                        && sparql[i + 1..].starts_with(['S', 's'])
+                        && !is_name_char(bytes[i - 1])
+                        && bytes.get(i + 2).is_none_or(|&c| !is_name_char(c))
+                    {
+                        as_pos = Some(i);
+                        break;
+                    }
+                }
+                _ => {}
+            }
+            i += 1;
+        }
+        let Some(as_pos) = as_pos else { continue };
+        // Extract the target `?var` right after AS.
+        let rest = &sparql[as_pos + 2..];
+        let rest_trimmed = rest.trim_start();
+        let target_rel = rest.len() - rest_trimmed.len();
+        let target_abs = as_pos + 2 + target_rel;
+        let target_name: String = {
+            let mut cs = sparql[target_abs..].chars();
+            match cs.next() {
+                Some('?') | Some('$') => cs
+                    .by_ref()
+                    .take_while(|c| c.is_alphanumeric() || *c == '_')
+                    .collect(),
+                _ => continue,
+            }
+        };
+        if target_name.is_empty() {
+            continue;
+        }
+        // Freshness check: does `?target_name` occur anywhere strictly
+        // before the AS keyword (group prefix or the BIND expression)?
+        let prefix = &sparql[..as_pos];
+        if var_token_present(prefix, &target_name) {
+            let line_no = sparql[..kw].matches('\n').count() + 1;
+            let line_start = prefix_line_start(sparql, kw);
+            let line_text = sparql[line_start..]
+                .lines()
+                .next()
+                .unwrap_or("")
+                .trim();
+            return Some(AppError::fm_graph(
+                13,
+                format!(
+                    "BIND re-binds in-scope variable ?{target_name} (SPARQL 1.1 \
+                     requires a fresh variable); rename the AS target. \
+                     [at line {line_no}: {line_text}]"
+                ),
+            ));
+        }
+    }
+    None
+}
+
+/// Byte offset of the start of the line containing byte offset `at`.
+fn prefix_line_start(sparql: &str, at: usize) -> usize {
+    sparql[..at].rfind('\n').map(|p| p + 1).unwrap_or(0)
+}
+
+/// True when the variable token `?name` (or `$name`) appears in `text` with
+/// a proper token boundary after the name characters.
+fn var_token_present(text: &str, name: &str) -> bool {
+    let needle_q = format!("?{name}");
+    let needle_d = format!("${name}");
+    let mut from = 0usize;
+    while let Some(rel) = text[from..].find(&needle_q).map(|p| from + p) {
+        let end = rel + needle_q.len();
+        let boundary = text[end..]
+            .chars()
+            .next()
+            .is_none_or(|c| !(c.is_alphanumeric() || c == '_'));
+        if boundary {
+            return true;
+        }
+        from = rel + 1;
+    }
+    let mut from = 0usize;
+    while let Some(rel) = text[from..].find(&needle_d).map(|p| from + p) {
+        let end = rel + needle_d.len();
+        let boundary = text[end..]
+            .chars()
+            .next()
+            .is_none_or(|c| !(c.is_alphanumeric() || c == '_'));
+        if boundary {
+            return true;
+        }
+        from = rel + 1;
+    }
+    false
+}
+
+/// Extract the source line named by a spargebra `error at L:C` message and
+/// render a short context suffix for the generic `[FM-GRAPH-003]` error, so
+/// the message carries the actual offending text even when the parser's
+/// reported column points after the illegal construct.
+fn offending_line_hint(sparql: &str, err: &impl std::fmt::Display) -> String {
+    let rendered = err.to_string();
+    let Some(at_idx) = rendered.find(" at ") else {
+        return String::new();
+    };
+    let rest = &rendered[at_idx + 4..];
+    let line_no: Option<usize> = rest
+        .split(|c: char| !c.is_ascii_digit())
+        .next()
+        .and_then(|s| s.parse().ok());
+    let Some(line_no) = line_no else {
+        return String::new();
+    };
+    match sparql.lines().nth(line_no.saturating_sub(1)) {
+        Some(line) => format!(" (near line {line_no}: {})", line.trim()),
+        None => String::new(),
+    }
 }
 
 // ---------------------------------------------------------------------------
