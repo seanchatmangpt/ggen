@@ -207,6 +207,16 @@ ggen.toml
     ▼  SyncOutput + receipt_path
 ```
 
+**Template discovery (Phase 1):** templates without a `---` frontmatter block — in packs or in
+the consumer project — are now skipped by discovery instead of refusing with `[FM-TPL-006]`.
+They are treated as consumed by the project's own `[[generation.rules]]`, which remain the only
+path that renders them (`a11524121`).
+
+**`[ontology].imports`:** the `[ontology]` table accepts an `imports` list of extra TTL files
+(paths relative to the manifest) unioned into the graph after `source`, so a project can compose
+several vocabularies without flattening them into one file; a missing import is the typed
+refusal `[FM-CONFIG-003]` naming `[ontology].imports` (`3085cd76f`, 2026-09-28).
+
 #### Per-stage progress output (with `--verbose`)
 
 ```text
@@ -376,8 +386,15 @@ Every non-dry-run invocation of `ggen sync` automatically emits a cryptographic 
 |---|---|
 | `.ggen/receipts/sync-<YYYYMMDD-HHMMSS>.json` | Timestamped archive copy (immutable) |
 | `.ggen/receipts/latest.json` | Always points to the most recent receipt |
-| `.ggen/keys/signing.key` | Ed25519 private key (hex, generated once, never overwritten) |
+| `.ggen-v2/receipt-portable.json` | Portable receipt envelope (every non-dry-run frontmatter-schema sync, including gate-refused ones — standing `REFUSED:<code>`): schema, subject `{pack, version, sha256}`, dependencies, `graph.canonical_digest`, admission gates/refusals, consequences, replay status, standing |
+| `.ggen/keys/signing.key` | Ed25519 private key (hex, generated once, never overwritten). `ggen keys` also writes `.ggen/keys/.gitignore` (ignoring both `signing.key` and `verifying.key`, so a fresh clone generates its own pair — `214d1b20c`) when it creates the keys dir so neither half can be committed; any other key-persist write failure refuses with `[FM-KEY-012]` instead of leaving an unprotected key. |
 | `.ggen/keys/verifying.key` | Corresponding Ed25519 public key (hex) |
+
+The CI surface (reusable `ggen-sync-run.yml` workflow) emits its own `github-sync-receipt.json`
+artifact. Exact pack clones there set `GIT_LFS_SKIP_SMUDGE=1` — an unrelated Git LFS smudge
+failure is a transport bug, not an admission rule — and the artifact's `transport` object gains
+a `git_lfs_skip_smudge` boolean; receipt-parsing consumers must tolerate the new field
+(`e2a5e8878`).
 
 ### 8.2 Input closure hashed into every receipt
 

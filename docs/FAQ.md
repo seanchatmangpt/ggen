@@ -44,13 +44,24 @@ and checks that chain against the resolved project root's verifying key
 true`, `"outputs": 6` — see `docs/GETTING_STARTED.md` for the full transcript. A legacy or
 unsigned receipt reports `"signed": false` rather than failing outright.
 
+Since 2026-09-17 (portable receipts), every non-dry-run frontmatter-schema sync also writes a
+portable receipt envelope at `.ggen-v2/receipt-portable.json`
+(`crates/ggen-engine/src/portable_receipt.rs`): schema, subject `{pack, version, sha256
+pack_digest}`, dependencies (declared closure), `graph.canonical_digest`, admission
+`gates_attempted`/refusals, consequences `[{target, operation, sha256}]`, replay status, and
+standing (`ALIVE | PARTIAL_ALIVE | REFUSED:<code>`). A gate-refused sync writes the envelope
+too (typed `REFUSED:GATE_VIOLATION`/`REFUSED:GATE_INVALID`) before the error propagates;
+`--dry-run` writes nothing.
+
 ## How many crates are actually in this workspace?
 
-Root `Cargo.toml`'s `[workspace] members` array currently lists 16 entries under `crates/`, plus
-the root `ggen` package itself, for **17 workspace crates total**. This is confirmed two
-independent ways: `grep -c '^  "crates/' Cargo.toml` and `ls crates/ | wc -l` both return 16.
-One further directory, `examples/7-agent-validation`, is explicitly `exclude`d (broken build,
-non-member) — it is not part of the 17. `.claude/rules/architecture.md` carries the current,
+Root `Cargo.toml`'s `[workspace] members` array currently lists 13 entries under `crates/`, plus
+the root `ggen` package itself, for **14 workspace crates total** (as of 2026-09-27). The two
+obvious counts deliberately diverge: `grep -c '^  "crates/' Cargo.toml` returns 13 (the members
+array), while `ls crates/ | wc -l` returns 15 — the two extra directories (`ggen-architecture`,
+`ggen-abb-sbb`) declare their own `[workspace]` roots and are explicitly `exclude`d, like
+`examples/7-agent-validation` before them. None of the three is part of the 14.
+`.claude/rules/architecture.md` carries the current,
 actively-maintained per-crate breakdown; treat it as more current than any archived doc, and
 re-run the `grep`/`ls` above yourself if the number matters for what you're doing, since this repo
 adds and removes workspace members at a real cadence.
@@ -68,11 +79,18 @@ than re-pointed at the new engine.
 
 ## How many packs does ggen ship, and what is a "pack"?
 
-40 pack directories currently exist under `packs/` (`ls packs/ | wc -l`) — a real, current count,
-not the "32" some older docs still cite; re-run the `ls` if you need the number to be current for
+97 pack directories currently exist under `packs/`, 93 of them carrying a `pack.toml` (as of
+2026-09-27; `ls packs/ | wc -l` → 97, `ls packs/*/pack.toml | wc -l` → 93, matching
+`rf:packCount "93"` in `.specify/repo-facts.ttl`) — a real, current count,
+not the "40" or "32" some older docs still cite; re-run the `ls` if you need the number to be current for
 your purposes, since this repo actively adds packs. Every pack has the same real shape:
 `ontology.ttl` (RDF facts) + `templates/*.tmpl` (Tera templates that SPARQL-query the ontology) +
-`gates/*.rq` (SPARQL-translated SHACL constraints) + `pack.toml` (name/version/description). A
+`gates/*.rq` (SPARQL-translated SHACL constraints) + `pack.toml` (name/version/description, and
+since 26.9.12 optional `[dependencies]` — `pack-name = "semver-req"`, semver-enforced — and
+`[capabilities]` — `{types, provides, requires}`; resolution refuses `[FM-PACK-014]`
+undeclared/unresolved dependency, `[FM-PACK-015]` malformed semver requirement, `[FM-PACK-016]`
+dependency cycle, `[FM-PACK-017]` scope subject not a resolved pack, `[FM-PACK-018]` required
+capability with no provider in the closure). A
 consumer project declares which packs it depends on in its own `ggen.toml`; `ggen sync run`
 composes the pack's ontology and templates into generated modules, tests, docs, and a
 cryptographic receipt for that consumer. Concrete, verified examples: `rmcp-pack` models the real
