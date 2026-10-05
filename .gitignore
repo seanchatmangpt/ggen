@@ -1071,3 +1071,4 @@ target-local*/
 
 # clap-noun-verb >=26.9 writes runtime OCEL + receipt ledgers here (CWD-relative) whenever a CLI built on it runs
 .clap-noun-verb/
+crates/pm4pytest-cli/tests/fixtures/
