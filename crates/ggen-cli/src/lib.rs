@@ -113,6 +113,29 @@ pub use crate::utils::error::Result;
 /// all `\[verb\]` functions in the cmds module and its submodules.
 /// The version flag is handled automatically by clap-noun-verb.
 pub async fn cli_match() -> crate::utils::error::Result<()> {
+    // OCEL/receipt telemetry determinism: `clap-noun-verb` writes per-invocation
+    // events (wall-clock nanos event ids + `Utc::now()` timestamps) to
+    // `.clap-noun-verb/{ocel.json,receipts.jsonl}` relative to the CWD on every
+    // run. Inside a consumer project that makes `ggen sync run` never reach a
+    // byte-identical fixed point -- two syncs of unchanged inputs differ only in
+    // tool telemetry, which is not a product of the sync. These logs are
+    // per-invocation process telemetry, not sync output, so default them OUT of
+    // the consumer tree into a stable process-global location. An explicit
+    // `CLAP_NOUN_VERB_OCEL_PATH` / `CLAP_NOUN_VERB_RECEIPT_PATH` still wins.
+    if std::env::var_os("CLAP_NOUN_VERB_OCEL_PATH").is_none() {
+        let telemetry_dir = std::env::temp_dir().join("ggen-cli-telemetry");
+        let _ = std::fs::create_dir_all(&telemetry_dir);
+        std::env::set_var("CLAP_NOUN_VERB_OCEL_PATH", telemetry_dir.join("ocel.json"));
+    }
+    if std::env::var_os("CLAP_NOUN_VERB_RECEIPT_PATH").is_none() {
+        let telemetry_dir = std::env::temp_dir().join("ggen-cli-telemetry");
+        let _ = std::fs::create_dir_all(&telemetry_dir);
+        std::env::set_var(
+            "CLAP_NOUN_VERB_RECEIPT_PATH",
+            telemetry_dir.join("receipts.jsonl"),
+        );
+    }
+
     version_checker::check_outdated_binary();
 
     // Find manifest path from CLI args to check if telemetry is configured in ggen.toml
