@@ -100,6 +100,7 @@ members = [
   # ("in the build" but not buildable), so it leaves the boundary. Code preserved
   # on disk (non-deletion doctrine); re-add after repair.
   # "examples/7-agent-validation",
+  "crates/pm4pytest-cli",
   ]
 # `crates/ggen-core` (2026-07-17, ggen-core removal, docs/jira/v26.7.16/14-GGEN-CORE-REMOVAL-PROPOSAL.md):
 # fully deleted, not merely disconnected. It spent from 2026-07-16 to 2026-07-17 in `exclude`

@@ -1,0 +1,9 @@
+[package]
+name = "pm4pytest-cli"
+version = "26.10.5"
+edition = "2021"
+description = "Thin cargo wrapper around the pm4pytest binary (PATH or PM4PYTEST_BIN)"
+
+[[bin]]
+name = "pm4pytest"
+path = "src/main.rs"

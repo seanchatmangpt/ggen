@@ -5315,6 +5315,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "pm4pytest-cli"
+version = "26.10.5"
+
+[[package]]
 name = "portable-atomic"
 version = "1.15.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
