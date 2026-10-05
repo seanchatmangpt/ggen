@@ -42,6 +42,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   composing several vocabularies (e.g. vendored PROV-O) sync without flattening them into one
   file; a missing import is the typed refusal `[FM-CONFIG-003]` naming `[ontology].imports`
   (`3085cd76f`, 2026-09-28).
+- **E0015 GROUP_CONCAT separator lint** — a generation-rule inline SELECT using
+  `GROUP_CONCAT` without an explicit `; separator=` now warns (ERROR under
+  `strict_mode = true`), so aggregate folds stay deterministic (`9510e4b2b`).
 
 ### Changed
 - **Reusable `ggen-sync-run.yml` skips unrelated Git LFS smudge** — exact pack clones set

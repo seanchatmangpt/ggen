@@ -385,6 +385,9 @@ first-array-valued-result behavior in sorted key order.
   an alphabetically earlier auxiliary result remains the legacy implicit driver.
 - Row-level conditional generation belongs in the query `WHERE` clause; `when`
   guards the whole template.
+- Pin an explicit separator on every aggregate fold: `GROUP_CONCAT(?x ; separator=", ")`
+  passes; bare `GROUP_CONCAT(?x)` refuses with lint `E0015` (WARNING, or ERROR under
+  `strict_mode = true`) because the engine-default fold is not deterministic.
 
 ## 4.3 `for_each`
 

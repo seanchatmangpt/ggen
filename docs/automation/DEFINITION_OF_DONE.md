@@ -218,6 +218,7 @@ Step 5: Repeat until all signals clear
 | **GGEN-YIELD-001** | `output_file` escapes project root | ERROR | security_repair |
 | **GGEN-HARNESS-001** | Cargo.toml [[test]] path mismatch | RELEASE_BLOCKING | proof_topology_repair |
 | **E0011 / E0013** | SPARQL lacks ORDER BY | WARNING / ERROR (strict) | — |
+| **E0015** | GROUP_CONCAT missing `separator` | WARNING / ERROR (strict) | — |
 
 **Recovery**:
 1. Diagnostic appears → Read the code (GGEN-TPL-001, etc.)
