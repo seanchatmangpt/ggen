@@ -796,3 +796,13 @@ prod:fm_TPL_27 a prod:DiagnosticCode ;
     prod:family "TPL" ;
     prod:number "27"^^xsd:integer ;
     prod:citation "crates/ggen-engine/src/template.rs:384" .
+
+prod:fm_GRAPH_13 a prod:DiagnosticCode ;
+    prod:family "GRAPH" ;
+    prod:number "13"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/graph.rs:507" .
+
+prod:fm_CONFIG_14 a prod:DiagnosticCode ;
+    prod:family "CONFIG" ;
+    prod:number "14"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/sync.rs:1532" .
