@@ -14,9 +14,10 @@ permissions:
 jobs:
   verify-dd-ui-profile:
     runs-on: ubuntu-24.04
+    timeout-minutes: 20
     steps:
       - name: Checkout exact subject
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
@@ -28,13 +29,13 @@ jobs:
           set -euo pipefail
           test "$(git rev-parse HEAD)" = "$EXPECTED_SHA"
       - name: Checkout exact DDUI engine
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           repository: seanchatmangpt/wasm4pm
           ref: 8d48e784a4215857c8428c09bb09a91c05a8be97
           path: .dd-ui-engine
           persist-credentials: false
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version: 22
       - name: Project and replay all admitted avatar/context views
