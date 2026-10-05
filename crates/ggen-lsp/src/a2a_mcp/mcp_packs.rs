@@ -19,7 +19,7 @@ use std::collections::HashMap;
 
 use async_trait::async_trait;
 use ggen_marketplace::agent::{AgentError, InstallRequest, PackAgent};
-use rmcp::model::{CallToolResult, Content, ErrorData};
+use rmcp::model::{CallToolResult, ContentBlock, ErrorData};
 use serde::Deserialize;
 use serde_json::{json, Value};
 
@@ -248,9 +248,9 @@ pub fn ocel_invoked(tool: &str, subject: &str) {
 /// plus a `ggen_result` meta payload carrying the structured value.
 pub fn mcp_ok(value: Value) -> CallToolResult {
     let text = serde_json::to_string_pretty(&value).unwrap_or_else(|_| value.to_string());
-    let mut meta = rmcp::model::Meta::default();
-    meta.insert("ggen_result".to_string(), value);
-    CallToolResult::success(vec![Content::text(text)]).with_meta(Some(meta))
+    let mut meta = rmcp::model::MetaObject::new();
+    meta.0.insert("ggen_result".to_string(), value);
+    CallToolResult::success(vec![ContentBlock::text(text)]).with_meta(Some(meta))
 }
 
 /// Map a facade [`AgentError`] to an MCP [`ErrorData`], preserving the structured

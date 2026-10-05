@@ -352,6 +352,9 @@ impl ServerHandler for RepairRouteServer {
             tools: (*self.tools).clone(),
             next_cursor: None,
             meta: None,
+            result_type: None,
+            ttl_ms: None,
+            cache_scope: None,
         }))
     }
 
@@ -361,7 +364,7 @@ impl ServerHandler for RepairRouteServer {
             name, arguments, ..
         }: CallToolRequestParams,
         _ctx: RequestContext<RoleServer>,
-    ) -> impl std::future::Future<Output = Result<CallToolResult, McpError>> + Send + '_ {
+    ) -> impl std::future::Future<Output = Result<CallToolResponse, McpError>> + Send + '_ {
         tracing::info!(
             "OCEL: {}",
             serde_json::json!({
@@ -383,9 +386,9 @@ impl ServerHandler for RepairRouteServer {
                     ))
                 }
             };
-            Ok(CallToolResult::success(vec![Content::text(
-                serde_json::to_string_pretty(&result).unwrap_or_default(),
-            )]))
+            Ok(CallToolResponse::from(CallToolResult::success(vec![
+                ContentBlock::text(serde_json::to_string_pretty(&result).unwrap_or_default()),
+            ])))
         })())
     }
 }
