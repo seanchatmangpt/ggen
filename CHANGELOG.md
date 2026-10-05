@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - **Version 26.9.25** — workspace version bumped from 26.9.24 to 26.9.25 (#754).
 
-## [Unreleased]
+## 26.10.5 - 2026-10-05
 
 ### Added
 - **ABB/SBB manufacture kernel seed** — `crates/ggen-abb-sbb`, an IO-free kernel for the ABB/SBB
@@ -1717,7 +1717,7 @@ Each pattern includes complete workflow, real commands, use cases, and impact me
 - Reputation system algorithm documentation
 - Geo-proximity routing guide
 
-## [Unreleased]
+## 26.10.5 - 2026-10-05
 
 ### Added
 - Universal lifecycle system with 15 standard phases
