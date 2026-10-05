@@ -953,3 +953,83 @@ fn validate_syntax_true_does_not_refuse_non_rust_output() {
         vec![std::path::PathBuf::from("out/static.txt")]
     );
 }
+
+// ---------------------------------------------------------------------------
+// Static output_file context unification: `row` alias + flattened first-row
+// keys (roadmap B3 / marketplace lane T1 remediation)
+// ---------------------------------------------------------------------------
+
+/// A fixed (non-`{{`-templated) `output_file` must supply the SAME context
+/// surface as the fan-out branch: `results`, `sparql_results`, `row`, and
+/// every row key flattened at top level. A template using BOTH the
+/// flattened key (`{{ name }}`) and the `row` alias (`{{ row.name }}`)
+/// must render, and for a single-row query the two must agree — one file
+/// proves both surface fixes are wired, a mismatched pair would fail the
+/// assert on content.
+#[test]
+fn static_rule_supplies_row_alias_and_flattened_keys_matching_fanout_context() {
+    let dir = TempDir::new().expect("tempdir");
+    write_manifest(
+        dir.path(),
+        "[[generation.rules]]\nname = \"agent\"\nquery = { inline = \"SELECT ?name WHERE { ?s <http://example.org/name> ?name } ORDER BY ?name LIMIT 1\" }\ntemplate = { inline = \"name={{ name }} row={{ row.name }}\\n\" }\noutput_file = \"out/agent.txt\"\n",
+    );
+    write_ontology(dir.path(), ONTOLOGY_ALICE_BOB);
+
+    let report = sync(dir.path(), SyncOptions::default())
+        .expect("static rule must supply `row` and flattened keys like the fan-out branch");
+    assert_eq!(
+        report.written,
+        vec![std::path::PathBuf::from("out/agent.txt")]
+    );
+    let content = std::fs::read_to_string(dir.path().join("out/agent.txt")).expect("read output");
+    assert_eq!(
+        content, "name=alice row=alice\n",
+        "flattened `{{ name }}` and aliased `{{ row.name }}` must both render \
+         (and identically for a single-row query): {content}"
+    );
+}
+
+/// Multi-row query + static output_file: documented legacy-renderer choice
+/// is FIRST-ROW-WINS for both the flattened keys and the `row` alias. With
+/// ORDER BY name, alice (not bob) must appear — bob is still reachable via
+/// `{{ row.name }}` only through iteration over `results`.
+#[test]
+fn static_rule_multi_row_query_uses_first_row_values() {
+    let dir = TempDir::new().expect("tempdir");
+    write_manifest(
+        dir.path(),
+        "[[generation.rules]]\nname = \"agent\"\nquery = { inline = \"SELECT ?name WHERE { ?s <http://example.org/name> ?name } ORDER BY ?name\" }\ntemplate = { inline = \"name={{ name }} row={{ row.name }}\\n\" }\noutput_file = \"out/agent.txt\"\n",
+    );
+    write_ontology(dir.path(), ONTOLOGY_ALICE_BOB);
+
+    let report = sync(dir.path(), SyncOptions::default())
+        .expect("multi-row static rule renders with first-row values");
+    let content = std::fs::read_to_string(dir.path().join("out/agent.txt")).expect("read output");
+    assert_eq!(
+        content, "name=alice row=alice\n",
+        "static output_file flattens the FIRST row (legacy renderer semantics), \
+         not the last or the whole set: {content}"
+    );
+}
+
+/// Zero rows: the static branch must insert nothing extra (no `row`, no
+/// flattened keys) and keep the current refusal behavior — a template
+/// referencing a missing variable must still be a loud render failure, not
+/// a silent empty render.
+#[test]
+fn static_rule_zero_rows_keeps_loud_refusal_for_missing_variables() {
+    let dir = TempDir::new().expect("tempdir");
+    write_manifest(
+        dir.path(),
+        "[[generation.rules]]\nname = \"agent\"\nquery = { inline = \"SELECT ?name WHERE { ?s <http://example.org/name> ?name } ORDER BY ?name\" }\ntemplate = { inline = \"name={{ name }}\\n\" }\noutput_file = \"out/agent.txt\"\n",
+    );
+    write_ontology(dir.path(), ONTOLOGY_REX_DOG);
+
+    let err = sync(dir.path(), SyncOptions::default())
+        .expect_err("zero rows must leave `{{ name }}` unbound -> loud render failure");
+    let msg = err.to_string();
+    assert!(
+        msg.contains("name") && (msg.contains("not found") || msg.contains("undefined")),
+        "expected a Tera missing-variable failure naming `name`, got: {msg}"
+    );
+}
