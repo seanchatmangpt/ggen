@@ -203,6 +203,34 @@ test-lib:
     echo "⚠️  First compile >30s, escalating to 600s..."
     timeout 600s cargo test --lib --workspace
 
+# MU3 lane: mutation-test the replay/determinism-critical sync.rs law functions.
+# Bounded at 40 min wall clock; kills must come from test-side oracles only
+# (lib/ untouched). See mutations/README.md and mutations/mutants-replay.toml.
+mutate-replay:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    bound=2400
+    start=$(date +%s)
+    run_pass() {
+        local pass="$1" filter="$2" out="$3"
+        local log
+        log=$(mktemp)
+        timeout "$bound" cargo mutants \
+            --config mutations/mutants-replay.toml \
+            -p ggen-engine --test-package ggen-engine \
+            --output "$out" --timeout-multiplier 3 --minimum-test-timeout 60 \
+            -j 6 --no-shuffle -- "$filter" >"$log" 2>&1
+        local status=$?
+        tail -80 "$log" | sed "s/^/[$pass] /"
+        if [ "$status" -eq 124 ]; then
+            echo "[$pass] 40-minute bound TRIPPED; partial results in $out"
+        fi
+        return 0
+    }
+    run_pass A determinism mutations/outcome-replay-a
+    run_pass B sync mutations/outcome-replay-b
+    echo "Elapsed: $(( $(date +%s) - start ))s (per-pass bound ${bound}s)"
+
 # Integration tests only (crates/*/tests/*.rs), excluding lib tests (test-lib
 # above already covers those) and bin-embedded unit tests. Added 2026-08-02
 # to close a real gap: `test:` above uses `--tests`, but `--tests` is NOT
