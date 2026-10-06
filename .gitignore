@@ -1072,3 +1072,6 @@ target-local*/
 # clap-noun-verb >=26.9 writes runtime OCEL + receipt ledgers here (CWD-relative) whenever a CLI built on it runs
 .clap-noun-verb/
 crates/pm4pytest-cli/tests/fixtures/
+
+# cargo-cicd runtime OCEL/receipt telemetry (CA1 residue) — runtime-written, not source
+.cargo-cicd/ocel/
