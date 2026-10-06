@@ -40,19 +40,45 @@ law in ggen-engine is realized by these sync.rs functions, all under mutation:
 
 ## Bound
 
-Each `just mutate-replay` run is wall-clock bounded at 40 minutes
-(`timeout 2400` in the recipe) and reports the bound when it trips.
+Each `just mutate-replay` run is wall-clock bounded at 40 minutes per pass
+(`timeout 2400` in the recipe) and reports the bound when it trips. With
+`--copy-target true` the per-pass fixed cost is ≈8 min target hardlink-copy +
+≈11 min build; the residual ≈20 min samples ≈5–8 mutants per pass from the
+243 sync.rs mutants. cargo-mutants RESUMES: rerunning the recipe adds to the
+same outcome dirs, so repeated passes walk the 243 toward full coverage.
+The recorded run tripped its bound after 6 outcomes (see below) — the
+zero-survivor baseline is therefore SAMPLED, not exhaustive, until passes
+accumulate.
 
 ## Baseline (v26.10.5 @ c1c4703a, 2026-10-05)
 
-Recorded from the recorded outcome in `mutations/outcome-*.log`:
+Recorded bounded sample (`mutations/outcome-replay-sync/`, filter `sync`):
 
-<!-- MU3-RESULTS -->
+- generated: 243 mutants total in `crates/ggen-engine/src/sync.rs`;
+- tested: 6 (bounded sample, shuffled order);
+- caught: 5 (`new_graph_engine`×1 unviable, `read_ontology_file`×4,
+  `*`→`+` arithmetic mutant @ sync.rs:164);
+- MISSED (survivors): **0**;
+- replay/determinism function coverage in sample: partial (shuffled).
 
-## Known environment quirk
+Classification: no survivors, so no equivalent/REAL-GAP split this pass and
+no test strengthening was forced. The killing oracles exercised were the
+`sync::tests::*` unit tests (`guard_agrees_false_*`, `rows_agree_empty_*`),
+`multi_template_determinism` (receipt bytes/second-sync byte-identity),
+`sync_dry_run_no_mutation_e2e`, and `cli_read_only_invariant_matrix`'s
+byte+mtime fingerprint matrix.
+
+## Known environment quirk (root-caused)
 
 Under cargo-mutants' copied tree, running the FULL ggen-engine suite as baseline
-fails `book_gap_closure_e2e::five_gap_packs_resolve_compose_receipt_and_replay_idempotently`
-(`.clap-noun-verb/ocel.json` / `receipts.jsonl` byte-identity) via cross-binary
-interference in the copy; it passes on the real tree (54s). The scoped name filters
-above avoid that interference; do not remove them without re-verifying the baseline.
+failed `book_gap_closure_e2e` (byte-identity) and `cli_read_only_invariant_matrix`
+(read-only invariant): the copied tree has no `target/debug/ggen` (cargo-mutants
+builds only `-p ggen-engine`), so `chicago_tdd_tools`' binary fallback walked up
+to PATH and spawned the installed `ggen` **26.9.28** (`~/.local/bin/ggen` →
+homebrew), which predates the telemetry redirect in
+`crates/ggen-cli/src/lib.rs:116-136` and writes `.clap-noun-verb/{ocel.json,
+receipts.jsonl}` into the consumer project cwd — breaking byte-identity.
+Both binaries pass on the real tree with the tree's own build. Fix applied:
+`--copy-target true` so the copy carries the current `target/debug/ggen`.
+Do not drop it. (A stale installed ggen on PATH silently poisons any
+ggen-engine CLI-spawning test run in a copied tree.)

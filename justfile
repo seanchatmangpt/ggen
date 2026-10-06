@@ -218,8 +218,9 @@ mutate-replay:
         timeout "$bound" cargo mutants \
             --config mutations/mutants-replay.toml \
             -p ggen-engine --test-package ggen-engine \
-            --output "$out" --timeout-multiplier 3 --minimum-test-timeout 60 \
-            -j 6 --no-shuffle -- "$filter" >"$log" 2>&1
+            --output "$out" --copy-target true \
+            --timeout-multiplier 3 --minimum-test-timeout 60 \
+            -j 6 -- "$filter" >"$log" 2>&1
         local status=$?
         tail -80 "$log" | sed "s/^/[$pass] /"
         if [ "$status" -eq 124 ]; then
