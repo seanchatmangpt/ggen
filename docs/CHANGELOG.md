@@ -4,6 +4,18 @@ All notable changes to ggen are documented here.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [26.10.6] — v26.10.5 Convergence Closure (2026-10-06)
+
+### Fixed
+- **Fixture load-order races** — Unique per-run package id in the readme physical-presence test; load-order fixture races in m2 stress and composed-packs e2e tests eliminated (b741d0fa1, 03942743a).
+- **Test hygiene** — Untracked runtime OCEL telemetry artifacts (CA1 closure, 000bffb8f).
+
+### Added
+- **MU3 bounded replay-idempotency mutation sample** — Mutation recipe + `just mutate-replay`; 0 survivors of 6 tested mutations (243 total in corpus), with root-cause note on copy-tree stale-ggen PATH poisoning (07e1c1c6f, 8ac246add).
+
+### Changed
+- **Workspace version bump** — 26.10.5 → 26.10.6 (workspace Cargo.toml, ggen.toml, ggen-engine, pm4pytest-cli, marketplace.json, repo-facts.ttl).
+
 ## [26.7.2] — CI Stabilization and Vendor Fork Cleanup (2026-07-02)
 
 ### Removed
