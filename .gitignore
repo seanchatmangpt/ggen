@@ -1075,3 +1075,8 @@ crates/pm4pytest-cli/tests/fixtures/
 
 # cargo-cicd runtime OCEL/receipt telemetry (CA1 residue) — runtime-written, not source
 .cargo-cicd/ocel/
+
+# lane-lease build roots (fan-out campaign)
+_build/
+_build-lane*/
+target-lane*/
