@@ -23,6 +23,7 @@ fn process_intelligence_rag_pack_generates_and_is_idempotent() {
     ggen_engine::sync::sync(
         &project,
         ggen_engine::sync::SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -66,6 +67,7 @@ fn process_intelligence_rag_pack_gate_refuses_ungrounded_query() {
     ggen_engine::sync::sync(
         &project,
         ggen_engine::sync::SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -94,6 +96,7 @@ fn process_intelligence_rag_pack_renders_the_real_vision_signature_and_worked_mo
     ggen_engine::sync::sync(
         &project,
         ggen_engine::sync::SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -114,6 +117,7 @@ fn process_intelligence_rag_pack_gate_refuses_operationally_grounded_but_strateg
     ggen_engine::sync::sync(
         &project,
         ggen_engine::sync::SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -152,6 +156,7 @@ fn process_intelligence_rag_pack_renders_the_real_training_example_signature_and
     ggen_engine::sync::sync(
         &project,
         ggen_engine::sync::SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -197,6 +202,7 @@ fn process_intelligence_rag_pack_gate_refuses_ungrounded_training_example_genera
     ggen_engine::sync::sync(
         &project,
         ggen_engine::sync::SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -227,6 +233,7 @@ fn process_intelligence_rag_pack_renders_the_real_bridge_mapping_signature_and_w
     ggen_engine::sync::sync(
         &project,
         ggen_engine::sync::SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -269,6 +276,7 @@ fn process_intelligence_rag_pack_gate_refuses_ungrounded_bridge_mapping_proposal
     ggen_engine::sync::sync(
         &project,
         ggen_engine::sync::SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },

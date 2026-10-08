@@ -52,6 +52,7 @@ fn run_sync(root: &Path) -> ggen_engine::sync::SyncReport {
     sync(
         root,
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -104,6 +105,7 @@ fn optional_unguarded_access_to_missing_key_behavior_is_documented_by_a_real_run
     let result = sync(
         dir.path(),
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },

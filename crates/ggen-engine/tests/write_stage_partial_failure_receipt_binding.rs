@@ -68,6 +68,7 @@ fn partial_write_failure_still_binds_succeeded_outputs_in_the_receipt() {
     let result = sync(
         dir.path(),
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },

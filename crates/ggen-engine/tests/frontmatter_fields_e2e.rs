@@ -50,6 +50,7 @@ fn sh_before_and_sh_after_run_around_the_write() {
     sync(
         dir.path(),
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -73,6 +74,7 @@ fn dangerous_sh_command_is_refused() {
     let err = sync(
         dir.path(),
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -94,6 +96,7 @@ fn dry_run_never_executes_shell_hooks() {
     sync(
         dir.path(),
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: true,
             ..Default::default()
         },
@@ -119,6 +122,7 @@ fn backup_copies_existing_file_before_force_overwrite() {
     sync(
         dir.path(),
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -148,6 +152,7 @@ fn missing_shape_file_is_refused() {
     let err = sync(
         dir.path(),
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -174,6 +179,7 @@ fn existing_shape_file_passes() {
     sync(
         dir.path(),
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -194,6 +200,7 @@ fn determinism_true_passes_for_a_pure_template() {
     let report = sync(
         dir.path(),
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -216,6 +223,7 @@ fn freeze_always_skips_once_target_exists() {
     let report = sync(
         dir.path(),
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -254,6 +262,7 @@ fn freeze_always_drift_is_quarantined_and_creates_an_obligation_in_the_real_rece
     sync(
         dir.path(),
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -319,6 +328,7 @@ fn freeze_always_no_drift_stays_admitted_with_no_obligation() {
     sync(
         dir.path(),
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -365,6 +375,7 @@ fn freeze_checksum_allows_regen_until_manual_edit_then_protects_it() {
     let first = sync(
         dir.path(),
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -382,6 +393,7 @@ fn freeze_checksum_allows_regen_until_manual_edit_then_protects_it() {
     let second = sync(
         dir.path(),
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -400,6 +412,7 @@ fn freeze_checksum_allows_regen_until_manual_edit_then_protects_it() {
     let third = sync(
         dir.path(),
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -431,6 +444,7 @@ fn freeze_checksum_without_slots_dir_is_refused() {
     let err = sync(
         dir.path(),
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -457,6 +471,7 @@ fn from_field_loads_body_from_referenced_sibling_file() {
     sync(
         dir.path(),
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -484,6 +499,7 @@ fn from_field_path_traversal_outside_template_dir_is_refused() {
     let err = sync(
         dir.path(),
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },

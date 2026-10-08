@@ -42,6 +42,7 @@ fn run_sync(root: &Path) -> ggen_engine::sync::SyncReport {
     sync(
         root,
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -138,6 +139,7 @@ fn rdf_path_traversal_escape_is_refused() {
     let err = sync(
         dir.path(),
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },

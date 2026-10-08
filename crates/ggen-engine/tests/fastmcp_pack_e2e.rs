@@ -28,6 +28,7 @@ fn fastmcp_pack_generates_valid_python_and_is_idempotent() {
     sync(
         &project,
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },

@@ -78,6 +78,7 @@ fn run_sync(project: &Path) {
     sync(
         project,
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -209,6 +210,7 @@ fn dry_run_cannot_manufacture_replay_pass() {
     let err = verify_project_replay(
         &fx.project,
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: true,
             ..Default::default()
         },

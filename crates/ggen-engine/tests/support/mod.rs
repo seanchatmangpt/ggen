@@ -236,6 +236,7 @@ pub(crate) fn assert_idempotent(project: &Path) -> String {
     let second = sync(
         project,
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -277,6 +278,7 @@ pub(crate) fn assert_gate_refuses(project: &Path, sabotage_ttl: &str, gate_name_
     let err = sync(
         project,
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },

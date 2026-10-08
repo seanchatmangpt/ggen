@@ -66,6 +66,7 @@ fn when_guard_passes_only_after_n3_materialization() {
     let err = sync(
         dir.path(),
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             receipt_origin: None,
             engine: EngineKind::Oxigraph,
@@ -102,6 +103,7 @@ fn engines_agree_when_no_law_configured() {
         let report = sync(
             dir.path(),
             SyncOptions {
+                consumer_mode: Default::default(),
                 dry_run: false,
                 receipt_origin: None,
                 engine,
@@ -160,6 +162,7 @@ fn law_gate_violation_refuses_sync_naming_offending_node() {
     let err_oxi = sync(
         dir.path(),
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             receipt_origin: None,
             engine: EngineKind::Oxigraph,

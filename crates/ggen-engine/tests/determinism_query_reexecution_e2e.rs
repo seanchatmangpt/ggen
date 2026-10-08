@@ -173,6 +173,7 @@ fn run_sync_counting_phases(root: &Path) -> PhaseCounts {
         sync(
             root,
             SyncOptions {
+                consumer_mode: Default::default(),
                 dry_run: false,
                 ..Default::default()
             },

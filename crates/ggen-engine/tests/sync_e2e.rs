@@ -43,6 +43,7 @@ fn first_sync_writes_second_sync_skips_unchanged_and_hash_is_stable() {
     let first = sync(
         dir.path(),
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -64,6 +65,7 @@ fn first_sync_writes_second_sync_skips_unchanged_and_hash_is_stable() {
     let second = sync(
         dir.path(),
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -96,6 +98,7 @@ fn dry_run_writes_nothing() {
     let report = sync(
         dir.path(),
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: true,
             ..Default::default()
         },
@@ -125,6 +128,7 @@ fn non_dry_sync_emits_verifiable_receipt() {
     let report = sync(
         dir.path(),
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -162,6 +166,7 @@ fn missing_ggen_toml_fails_closed() {
     let err = sync(
         dir.path(),
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -188,6 +193,7 @@ fn render_failure_names_available_context_keys() {
     let err = sync(
         dir.path(),
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -227,6 +233,7 @@ fn when_guard_that_is_not_an_ask_query_is_refused_with_fm_tpl_016() {
     let err = sync(
         dir.path(),
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -261,6 +268,7 @@ fn oversized_rendered_output_is_refused() {
     let err = sync(
         dir.path(),
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -299,6 +307,7 @@ fn a_render_failure_leaves_no_writes_from_other_templates_in_the_same_run() {
     let err = sync(
         dir.path(),
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -332,6 +341,7 @@ fn duplicate_render_targets_are_refused() {
     let err = sync(
         dir.path(),
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -358,6 +368,7 @@ fn nondeterministic_to_path_violates_determinism_check() {
     let err = sync(
         dir.path(),
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -381,6 +392,7 @@ fn dry_run_refuses_non_utf8_existing_target() {
     let err = sync(
         dir.path(),
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: true,
             ..Default::default()
         },

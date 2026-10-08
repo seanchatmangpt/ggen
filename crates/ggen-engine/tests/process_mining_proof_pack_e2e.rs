@@ -22,6 +22,7 @@ fn process_mining_proof_pack_generates_and_is_idempotent() {
     ggen_engine::sync::sync(
         &project,
         ggen_engine::sync::SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -73,6 +74,7 @@ fn process_mining_proof_pack_gate_refuses_incomplete_pipeline() {
     ggen_engine::sync::sync(
         &project,
         ggen_engine::sync::SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },

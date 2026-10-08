@@ -131,6 +131,7 @@ fn run_sync(project: &Path) -> Result<ggen_engine::sync::SyncReport, String> {
     sync(
         project,
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },

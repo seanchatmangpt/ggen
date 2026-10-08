@@ -98,6 +98,7 @@ fn clean_synced_project_is_healthy() {
     sync(
         dir.path(),
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -153,6 +154,7 @@ fn corrupted_pack_content_fails_lockfile_drift() {
     sync(
         &project,
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -186,6 +188,7 @@ fn deleted_output_fails_receipt_staleness_independently_of_other_checks() {
     sync(
         dir.path(),
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -220,6 +223,7 @@ fn orphaned_artifact_after_template_deletion_fails_independently() {
     sync(
         dir.path(),
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },

@@ -187,6 +187,7 @@ fn sync_receipt_binds_only_the_subjects_declared_dependency_closure() {
     sync(
         &fx.project,
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },

@@ -151,6 +151,7 @@ fn gh_terraform_pack_acceptance_real_api() {
     let result = sync(
         &project,
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },

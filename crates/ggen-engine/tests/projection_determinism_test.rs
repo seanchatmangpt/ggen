@@ -52,6 +52,7 @@ fn identical_fixtures_replay_to_byte_identical_output_trees() {
     let r1 = sync(
         d1.path(),
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -60,6 +61,7 @@ fn identical_fixtures_replay_to_byte_identical_output_trees() {
     let r2 = sync(
         d2.path(),
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -82,6 +84,7 @@ fn identical_fixtures_replay_to_byte_identical_output_trees() {
     let r1_again = sync(
         d1.path(),
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -125,6 +128,7 @@ fn unless_exists_frontmatter_preserves_hand_edited_scaffold_file() {
     let report = sync(
         dir.path(),
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -173,6 +177,7 @@ fn unless_exists_frontmatter_writes_when_target_absent() {
     let report = sync(
         dir.path(),
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },

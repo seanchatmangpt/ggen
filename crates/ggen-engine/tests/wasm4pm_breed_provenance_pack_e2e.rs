@@ -28,6 +28,7 @@ fn wasm4pm_breed_provenance_pack_generates_and_is_idempotent() {
     ggen_engine::sync::sync(
         &project,
         ggen_engine::sync::SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -88,6 +89,7 @@ fn wasm4pm_breed_provenance_pack_gate_refuses_missing_required_property() {
     ggen_engine::sync::sync(
         &project,
         ggen_engine::sync::SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -114,6 +116,7 @@ fn wasm4pm_breed_provenance_pack_gate_refuses_adoption_referencing_bogus_breed()
     ggen_engine::sync::sync(
         &project,
         ggen_engine::sync::SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -139,6 +142,7 @@ fn wasm4pm_breed_provenance_pack_gate_refuses_breed_count_drift() {
     ggen_engine::sync::sync(
         &project,
         ggen_engine::sync::SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -167,6 +171,7 @@ fn wasm4pm_breed_provenance_pack_gate_refuses_sibling_adoption_divergence() {
     ggen_engine::sync::sync(
         &project,
         ggen_engine::sync::SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },

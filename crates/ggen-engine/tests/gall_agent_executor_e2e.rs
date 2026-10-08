@@ -165,6 +165,7 @@ fn scaffold(agent_script: &str, verification: &str, evidence: &str) -> (TempDir,
     sync(
         &project,
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },

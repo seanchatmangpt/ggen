@@ -59,6 +59,7 @@ fn three_syncs_form_a_verifiable_chain() {
     sync(
         dir.path(),
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -68,6 +69,7 @@ fn three_syncs_form_a_verifiable_chain() {
     sync(
         dir.path(),
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -77,6 +79,7 @@ fn three_syncs_form_a_verifiable_chain() {
     sync(
         dir.path(),
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -141,6 +144,7 @@ fn tampering_middle_line_payload_fails_naming_index_1() {
     sync(
         dir.path(),
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -150,6 +154,7 @@ fn tampering_middle_line_payload_fails_naming_index_1() {
     sync(
         dir.path(),
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -159,6 +164,7 @@ fn tampering_middle_line_payload_fails_naming_index_1() {
     sync(
         dir.path(),
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -192,6 +198,7 @@ fn removing_or_reordering_lines_fails_history_verification() {
     sync(
         dir.path(),
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -201,6 +208,7 @@ fn removing_or_reordering_lines_fails_history_verification() {
     sync(
         dir.path(),
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -210,6 +218,7 @@ fn removing_or_reordering_lines_fails_history_verification() {
     sync(
         dir.path(),
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -284,6 +293,7 @@ fn sync_refuses_to_extend_a_tampered_head() {
     sync(
         dir.path(),
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -302,6 +312,7 @@ fn sync_refuses_to_extend_a_tampered_head() {
     let err = sync(
         dir.path(),
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -319,6 +330,7 @@ fn missing_receipt_json_chains_from_log_tail() {
     sync(
         dir.path(),
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -330,6 +342,7 @@ fn missing_receipt_json_chains_from_log_tail() {
     sync(
         dir.path(),
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -416,6 +429,7 @@ fn dry_run_touches_neither_receipt_nor_log() {
     sync(
         dir.path(),
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: true,
             ..Default::default()
         },
@@ -435,6 +449,7 @@ fn template_edit_changes_receipt_closure_even_with_identical_outputs() {
     sync(
         dir.path(),
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -447,6 +462,7 @@ fn template_edit_changes_receipt_closure_even_with_identical_outputs() {
     sync(
         dir.path(),
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -480,6 +496,7 @@ fn closure_marks_missing_inputs_instead_of_dropping_them() {
     let report = sync(
         dir.path(),
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -516,6 +533,7 @@ fn sign_then_verify_reports_signed_and_signature_valid_true() {
     sync(
         dir.path(),
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -638,6 +656,7 @@ fn tampered_chain_hash_fails_closed_and_is_distinguished_from_signature_failure(
     sync(
         dir.path(),
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -678,6 +697,7 @@ fn tampered_signature_fails_closed_and_is_distinguished_from_chain_failure() {
     sync(
         dir.path(),
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -784,6 +804,7 @@ fn sync_now(root: &Path) -> Result<(), String> {
     sync(
         root,
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },

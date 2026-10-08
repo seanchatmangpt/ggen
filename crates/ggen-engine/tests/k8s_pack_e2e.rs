@@ -60,6 +60,7 @@ fn k8s_pack_generates_and_is_idempotent() {
     ggen_engine::sync::sync(
         &project,
         ggen_engine::sync::SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -116,6 +117,7 @@ fn k8s_pack_gate_refuses_resource_requirements_missing_cpu_limit() {
     ggen_engine::sync::sync(
         &project,
         ggen_engine::sync::SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -150,6 +152,7 @@ fn k8s_pack_gate_refuses_podspec_missing_container() {
     ggen_engine::sync::sync(
         &project,
         ggen_engine::sync::SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },

@@ -60,6 +60,7 @@ fn execution_profile_pack_generates_powerless_revision_bound_json_and_is_idempot
     sync(
         &project,
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -119,6 +120,7 @@ fn execution_profile_pack_escapes_malformed_inner_json_instead_of_injecting_oute
     sync(
         &project,
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },

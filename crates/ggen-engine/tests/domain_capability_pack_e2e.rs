@@ -26,6 +26,7 @@ fn domain_capability_pack_generates_and_is_idempotent() {
     ggen_engine::sync::sync(
         &project,
         ggen_engine::sync::SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -84,6 +85,7 @@ fn domain_capability_pack_gate_refuses_missing_required_property() {
     ggen_engine::sync::sync(
         &project,
         ggen_engine::sync::SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -112,6 +114,7 @@ fn domain_capability_pack_gate_refuses_out_of_enum_consequence() {
     ggen_engine::sync::sync(
         &project,
         ggen_engine::sync::SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -139,6 +142,7 @@ fn domain_capability_pack_gate_refuses_allowlist_referencing_bogus_capability() 
     ggen_engine::sync::sync(
         &project,
         ggen_engine::sync::SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -163,6 +167,7 @@ fn domain_capability_pack_gate_refuses_capability_count_drift() {
     ggen_engine::sync::sync(
         &project,
         ggen_engine::sync::SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },

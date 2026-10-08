@@ -140,6 +140,7 @@ fn v1_only_reader_refuses_to_parse_a_v2_receipt() {
     sync(
         dir.path(),
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },

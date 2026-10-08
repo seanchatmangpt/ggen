@@ -67,6 +67,7 @@ fn written_ordering_is_stable_and_lexicographic_regardless_of_creation_order() {
     let r1 = sync(
         d1.path(),
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -75,6 +76,7 @@ fn written_ordering_is_stable_and_lexicographic_regardless_of_creation_order() {
     let r2 = sync(
         d2.path(),
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -118,6 +120,7 @@ fn receipt_payload_bytes_identical_across_fresh_syncs_of_identical_input() {
     sync(
         d1.path(),
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -126,6 +129,7 @@ fn receipt_payload_bytes_identical_across_fresh_syncs_of_identical_input() {
     sync(
         d2.path(),
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -153,6 +157,7 @@ fn second_sync_of_multi_template_project_is_fully_unchanged() {
     let first = sync(
         dir.path(),
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -163,6 +168,7 @@ fn second_sync_of_multi_template_project_is_fully_unchanged() {
     let second = sync(
         dir.path(),
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },

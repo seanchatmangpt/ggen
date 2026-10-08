@@ -88,7 +88,10 @@ SELECT ?y WHERE {
 fn truly_malformed_query_still_fm_graph_003_with_line_hint() {
     let g = DeterministicGraph::new().expect("graph");
     let q = "SELECT ?x WHERE {\n  ?s :p ?x .\n  ?s :p\n}";
-    let err = g.query(q).map(|_| ()).expect_err("malformed must be refused");
+    let err = g
+        .query(q)
+        .map(|_| ())
+        .expect_err("malformed must be refused");
     let msg = err.to_string();
     assert!(
         msg.contains("FM-GRAPH-003"),
@@ -108,9 +111,5 @@ fn malformed_without_position_still_fm_graph_003() {
     // `SELECT` with nothing after it — spargebra still reports a position,
     // but this pins the fallthrough for any message shape.
     let err = g.query("SELECT").map(|_| ()).expect_err("must refuse");
-    assert!(
-        err.to_string().contains("FM-GRAPH-003"),
-        "got: {}",
-        err
-    );
+    assert!(err.to_string().contains("FM-GRAPH-003"), "got: {}", err);
 }

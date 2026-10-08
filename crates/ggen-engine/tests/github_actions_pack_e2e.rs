@@ -80,6 +80,7 @@ fn github_actions_pack_syncs_schema_only_clean_and_idempotent() {
     let first = sync(
         &project,
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -111,6 +112,7 @@ fn github_actions_pack_syncs_schema_only_clean_and_idempotent() {
     let _ = sync(
         &project,
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -135,6 +137,7 @@ fn github_actions_pack_refuses_write_all_ceiling() {
     let err = sync(
         &project,
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -166,6 +169,7 @@ fn github_actions_pack_refuses_mutable_action_ref() {
     let err = sync(
         &project,
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -195,6 +199,7 @@ fn github_actions_pack_refuses_workflow_missing_required_facts() {
     let err = sync(
         &project,
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },

@@ -134,6 +134,7 @@ fn cell4_manufactures_digest_bound_ocel_and_project2_request() {
     ggen_engine::sync::sync(
         &project,
         ggen_engine::sync::SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -155,6 +156,7 @@ fn cell4_manufactures_digest_bound_ocel_and_project2_request() {
     ggen_engine::sync::sync(
         &project,
         ggen_engine::sync::SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },

@@ -62,6 +62,7 @@ fn ggen_ecosystem_ocel_pack_generates_real_ocel_and_project2_request() {
     ggen_engine::sync::sync(
         &project,
         ggen_engine::sync::SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -105,6 +106,7 @@ fn ggen_ecosystem_ocel_pack_regenerates_owned_project2_request_when_digest_chang
     ggen_engine::sync::sync(
         &project,
         ggen_engine::sync::SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -126,6 +128,7 @@ fn ggen_ecosystem_ocel_pack_regenerates_owned_project2_request_when_digest_chang
     ggen_engine::sync::sync(
         &project,
         ggen_engine::sync::SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -149,6 +152,7 @@ fn ggen_ecosystem_ocel_pack_refuses_parallel_project2_truth() {
     ggen_engine::sync::sync(
         &project,
         ggen_engine::sync::SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },

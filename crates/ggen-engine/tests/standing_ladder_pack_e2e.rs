@@ -25,6 +25,7 @@ fn standing_ladder_pack_admits_the_real_worked_instance_chain() {
     ggen_engine::sync::sync(
         &project,
         ggen_engine::sync::SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -86,6 +87,7 @@ fn standing_ladder_pack_gate_refuses_a_skipped_rung() {
     ggen_engine::sync::sync(
         &project,
         ggen_engine::sync::SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -124,6 +126,7 @@ fn standing_ladder_pack_gate_refuses_empty_evidence_ref() {
     ggen_engine::sync::sync(
         &project,
         ggen_engine::sync::SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -157,6 +160,7 @@ fn standing_ladder_pack_gate_refuses_a_standing_with_no_transition_chain_at_all(
     ggen_engine::sync::sync(
         &project,
         ggen_engine::sync::SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -184,6 +188,7 @@ fn standing_ladder_pack_gate_refuses_a_claim_about_a_fact_that_does_not_exist() 
     ggen_engine::sync::sync(
         &project,
         ggen_engine::sync::SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },

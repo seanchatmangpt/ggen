@@ -33,6 +33,7 @@ fn typer_pack_generates_valid_python_and_is_idempotent() {
     sync(
         &project,
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -106,6 +107,7 @@ fn typer_pack_generated_cli_actually_runs_and_greets() {
     sync(
         &project,
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },

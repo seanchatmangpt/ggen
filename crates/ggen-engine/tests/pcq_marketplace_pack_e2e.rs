@@ -32,6 +32,7 @@ fn pcq_marketplace_pack_pack_syncs_from_empty_ontology_and_is_idempotent() {
     ggen_engine::sync::sync(
         &project,
         ggen_engine::sync::SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },

@@ -159,6 +159,7 @@ fn happy_path_sync_emits_complete_portable_envelope() {
     let report = sync(
         &fx.project,
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -257,6 +258,7 @@ fn gate_refused_sync_emits_envelope_reporting_typed_refusal() {
     let err = sync(
         &fx.project,
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -319,6 +321,7 @@ fn envelope_pack_digest_matches_independent_rfc38_computation() {
     sync(
         &fx.project,
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -376,6 +379,7 @@ fn law_gate_refusal_on_packless_project_emits_unknown_subject_refusal_envelope()
     let err = sync(
         &project,
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -405,6 +409,7 @@ fn dry_run_writes_no_portable_envelope_even_on_refusal() {
     let err = sync(
         &fx.project,
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: true,
             ..Default::default()
         },
@@ -427,6 +432,7 @@ fn ordinary_second_sync_does_not_self_promote_replay_status() {
     sync(
         &fx.project,
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -437,6 +443,7 @@ fn ordinary_second_sync_does_not_self_promote_replay_status() {
     sync(
         &fx.project,
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -458,6 +465,7 @@ fn changed_graph_without_replay_court_remains_unknown() {
     sync(
         &fx.project,
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -474,6 +482,7 @@ fn changed_graph_without_replay_court_remains_unknown() {
     sync(
         &fx.project,
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -501,6 +510,7 @@ fn semantic_work_order_graph_is_identity_bearing() {
     sync(
         &fx.project,
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -553,6 +563,7 @@ fn multi_pack_sync_binds_every_top_level_pack_in_composition() {
     sync(
         &fx.project,
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },

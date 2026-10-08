@@ -151,7 +151,8 @@ ggenspec:PackRef-Git-version
 ggenspec:Templates
     a ggenspec:Section ; rdfs:label "Templates" ;
     rdfs:comment "Where Tera templates live (crate::config::Templates)." ;
-    ggenspec:hasField ggenspec:Templates-dir , ggenspec:Templates-aggregate_modules .
+    ggenspec:hasField ggenspec:Templates-dir , ggenspec:Templates-aggregate_modules ,
+        ggenspec:Templates-consumer_mode .
 
 ggenspec:Templates-dir
     a ggenspec:Field ; ggenspec:name "dir" ; ggenspec:type ggenspec:Path ;
@@ -162,6 +163,11 @@ ggenspec:Templates-aggregate_modules
     a ggenspec:Field ; ggenspec:name "aggregate_modules" ; ggenspec:type xsd:boolean ;
     ggenspec:required false ;
     rdfs:comment "When true, sync emits one engine-owned src/ggen_pack_mods.rs aggregator mounting every generated src/*.rs module. Defaults to false (existing consumers unchanged). Was present on the struct without a TTL entry before 2026-07-19 — pre-existing drift caught by tests/ggen_toml_schema_match.rs and fixed alongside the Law-gates addition." .
+
+ggenspec:Templates-consumer_mode
+    a ggenspec:Field ; ggenspec:name "consumer_mode" ; ggenspec:type xsd:boolean ;
+    ggenspec:required false ;
+    rdfs:comment "Consumer mode (OS-13): suppress installer emission of outputs derived from fixtureOnly-marked spec individuals. Opt-in via `ggen sync run --consumer-mode` or this [templates] key. Defaults to false (existing behavior byte-identical)." .
 
 # ---------------------------------------------------------------------------
 # [law]

@@ -84,6 +84,7 @@ fn run_sync(root: &Path) {
     sync(
         root,
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },

@@ -82,6 +82,7 @@ fn gh_terraform_pack_generates_full_surface_and_is_idempotent() {
     let first = sync(
         &project,
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -493,6 +494,7 @@ fn gh_terraform_pack_generates_full_surface_and_is_idempotent() {
     let second = sync(
         &project,
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -531,6 +533,7 @@ fn gh_terraform_accept_receipt_chains_hermetically() {
     sync(
         &project,
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -612,6 +615,7 @@ fn fleet_model_doc_renders_and_exemplar_passes_gates() {
     sync(
         &project,
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -700,6 +704,7 @@ fn fleet_gate_refuses_unpermitted_override_tierless_repo_and_unadmitted_deviatio
         let err = sync(
             &project,
             SyncOptions {
+                consumer_mode: Default::default(),
                 dry_run: false,
                 ..Default::default()
             },
@@ -736,6 +741,7 @@ fn fleet_census_script_is_read_only_and_outputs_are_committed() {
     sync(
         &project,
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },

@@ -82,16 +82,10 @@ fn write_fixture_pack(root: &Path, name: &str) {
     )
     .expect("write pack.toml");
     std::fs::write(pack_dir.join("ontology.ttl"), PACK_ONTOLOGY).expect("write ontology.ttl");
-    std::fs::write(
-        pack_dir.join("templates/specs.ex.tmpl"),
-        FANOUT_TEMPLATE,
-    )
-    .expect("write fanout template");
-    std::fs::write(
-        pack_dir.join("templates/all_specs.ex.tmpl"),
-        WHOLE_TEMPLATE,
-    )
-    .expect("write whole template");
+    std::fs::write(pack_dir.join("templates/specs.ex.tmpl"), FANOUT_TEMPLATE)
+        .expect("write fanout template");
+    std::fs::write(pack_dir.join("templates/all_specs.ex.tmpl"), WHOLE_TEMPLATE)
+        .expect("write whole template");
 }
 
 fn write_consumer(root: &Path, name: &str, templates_table_extra: &str) -> PathBuf {
@@ -167,7 +161,12 @@ fn consumer_mode_flag_suppresses_fixture_spec_but_emits_live_spec() {
         .iter()
         .filter(|(p, _)| p.display().to_string().contains("audit_trail"))
         .collect();
-    assert_eq!(audit_skips.len(), 1, "exactly one typed skip for the fixture-marked spec: {:?}", report.skipped);
+    assert_eq!(
+        audit_skips.len(),
+        1,
+        "exactly one typed skip for the fixture-marked spec: {:?}",
+        report.skipped
+    );
     let (_, reason) = audit_skips[0];
     assert!(
         reason.contains("consumer-mode") && reason.contains("fixtureOnly"),
@@ -183,11 +182,7 @@ fn consumer_mode_flag_suppresses_fixture_spec_but_emits_live_spec() {
 fn config_key_consumer_mode_is_permanent_per_consumer() {
     let dir = TempDir::new().expect("tempdir");
     write_fixture_pack(dir.path(), "fixpack");
-    let project = write_consumer(
-        dir.path(),
-        "consumer",
-        "\nconsumer_mode = true",
-    );
+    let project = write_consumer(dir.path(), "consumer", "\nconsumer_mode = true");
 
     let report = sync(&project, options(false)).expect("sync must succeed");
 
@@ -219,11 +214,8 @@ fn whole_file_projection_touching_fixture_spec_is_suppressed() {
     )
     .expect("write pack.toml");
     std::fs::write(pack_dir.join("ontology.ttl"), PACK_ONTOLOGY).expect("write ontology.ttl");
-    std::fs::write(
-        pack_dir.join("templates/all_specs.ex.tmpl"),
-        WHOLE_TEMPLATE,
-    )
-    .expect("write whole template");
+    std::fs::write(pack_dir.join("templates/all_specs.ex.tmpl"), WHOLE_TEMPLATE)
+        .expect("write whole template");
     let project = write_consumer(dir.path(), "consumer", "");
 
     let report = sync(&project, options(true)).expect("sync must succeed");
@@ -234,7 +226,8 @@ fn whole_file_projection_touching_fixture_spec_is_suppressed() {
     );
     let (_, reason) = &report.skipped[0];
     assert!(
-        reason.contains("consumer-mode") && reason.contains("http://example.com/aex#AuditTrailSpec"),
+        reason.contains("consumer-mode")
+            && reason.contains("http://example.com/aex#AuditTrailSpec"),
         "typed skip must name the marked spec IRI, got: {reason}"
     );
 }

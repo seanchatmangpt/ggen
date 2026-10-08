@@ -77,6 +77,7 @@ fn sync_refuses_when_declared_shape_is_violated() {
     let err = sync(
         dir.path(),
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
@@ -115,6 +116,7 @@ fn sync_passes_when_declared_shape_conforms() {
     sync(
         dir.path(),
         SyncOptions {
+            consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
         },
