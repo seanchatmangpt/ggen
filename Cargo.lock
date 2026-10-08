@@ -2527,7 +2527,7 @@ dependencies = [
 
 [[package]]
 name = "ggen"
-version = "26.10.7"
+version = "26.10.8"
 dependencies = [
  "anyhow",
  "assert_cmd",
@@ -2581,7 +2581,7 @@ dependencies = [
 
 [[package]]
 name = "ggen-cheat-scanner"
-version = "26.10.7"
+version = "26.10.8"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -2591,7 +2591,7 @@ dependencies = [
 
 [[package]]
 name = "ggen-cli-lib"
-version = "26.10.7"
+version = "26.10.8"
 dependencies = [
  "anyhow",
  "assert_cmd",
@@ -2665,7 +2665,7 @@ dependencies = [
 
 [[package]]
 name = "ggen-config"
-version = "26.10.7"
+version = "26.10.8"
 dependencies = [
  "blake3",
  "chrono",
@@ -2740,7 +2740,7 @@ dependencies = [
 
 [[package]]
 name = "ggen-graph"
-version = "26.10.7"
+version = "26.10.8"
 dependencies = [
  "blake3",
  "chrono",
@@ -2762,7 +2762,7 @@ dependencies = [
 
 [[package]]
 name = "ggen-lsp"
-version = "26.10.7"
+version = "26.10.8"
 dependencies = [
  "anyhow",
  "assert_cmd",
@@ -2802,7 +2802,7 @@ dependencies = [
 
 [[package]]
 name = "ggen-marketplace"
-version = "26.10.7"
+version = "26.10.8"
 dependencies = [
  "anyhow",
  "async-trait",
