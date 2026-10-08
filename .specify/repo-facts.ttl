@@ -26,7 +26,7 @@ rf:dispatchRoute a owl:DatatypeProperty ;
     rdfs:domain rf:DiagnosticCode .
 
 rf:doc a rf:Doc ;
-    rf:workspaceVersion "26.10.5" ;
+    rf:workspaceVersion "26.10.6" ;
     rf:projectManifestVersion "26.7.1" ;
     rf:toolchainChannel "nightly-2026-06-22" ;
     rf:memberCount "18" ;
@@ -170,7 +170,7 @@ rf:crate_pm4pytest_cli a rf:Crate ;
     rf:order "020" ;
     rf:dir "pm4pytest-cli" ;
     rf:package "pm4pytest-cli" ;
-    rf:version "26.10.5" ;
+    rf:version "26.10.6" ;
     rf:group "testing" ;
     rf:cargoDescription "Thin cargo wrapper around the pm4pytest binary (PATH or PM4PYTEST_BIN)" ;
     rf:summaryPurpose "Thin `cargo` wrapper exposing the external `pm4pytest` process-conformance tool as a workspace command: resolves the binary from `PATH` or `PM4PYTEST_BIN`, never a direct Python/wasm dependency" ;

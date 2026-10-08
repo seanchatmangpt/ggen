@@ -125,6 +125,13 @@ pub struct SyncOptions {
     /// (`crates/ggen-mcp/src/tools/unattended_dispatch.rs`). A `&'static
     /// str` rather than `String` so `SyncOptions` stays `Copy`.
     pub receipt_origin: Option<&'static str>,
+    /// Consumer mode (OS-13): suppress installer emission of outputs
+    /// derived from `fixtureOnly`-marked spec individuals. Opt-in via
+    /// `ggen sync run --consumer-mode`; also settable permanently per
+    /// consumer via `[templates] consumer_mode = true` in `ggen.toml`
+    /// (either source enables it). Default `false`: existing behavior
+    /// byte-identical.
+    pub consumer_mode: bool,
 }
 
 /// The outcome of one [`sync`] run.
@@ -824,6 +831,27 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
     let generate_guard = generate_span.enter();
 
     let mut tera = build_tera(Arc::clone(&graph))?;
+
+    // ── Consumer-mode emission filter (OS-13, WP-5 consumer half) ───────
+    //
+    // Opt-in via `ggen sync run --consumer-mode` (or the permanent
+    // `[templates] consumer_mode = true` config key): sync must never emit
+    // installer artifacts derived from `fixtureOnly`-marked spec
+    // individuals into a consumer tree. The marked subjects are collected
+    // once from the post-enrich union graph (the same graph the pack
+    // gates just evaluated), then every candidate write is checked for
+    // provenance before joining `pending` — so suppressed outputs never
+    // reach `apply`, never run `sh_before`/`sh_after`, never join the
+    // `aggregate_modules` aggregator, and never enter the receipt's
+    // `outputs` map. Each suppression is recorded as a typed skip in
+    // `decisions`/`skipped`, never silently dropped.
+    let consumer_fixture_subjects: Option<std::collections::BTreeSet<String>> =
+        if opts.consumer_mode || config.templates.consumer_mode {
+            Some(fixture_only_subjects(graph.as_ref())?)
+        } else {
+            None
+        };
+
     let mut skipped: Vec<(PathBuf, String)> = Vec::new();
     let mut decisions: BTreeMap<String, String> = BTreeMap::new();
     // Every pending write owns the output-phase frontmatter rendered from
@@ -999,6 +1027,22 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
                 &body,
                 &frontmatter,
             )?;
+            // Consumer-mode (OS-13): an aggregate projection over any
+            // fixtureOnly-marked subject is suppressed whole.
+            if let Some(subjects) = &consumer_fixture_subjects {
+                if let Some(iri) = named
+                    .values()
+                    .find_map(|v| fixture_reference_in(v, subjects))
+                {
+                    let reason = format!(
+                        "consumer-mode: aggregate projection references fixtureOnly-marked \
+                         spec <{iri}> — installer emission suppressed"
+                    );
+                    decisions.insert(tpl.frontmatter.to.clone(), format!("skipped: {reason}"));
+                    skipped.push((PathBuf::from(tpl.frontmatter.to.clone()), reason));
+                    continue;
+                }
+            }
             pending.push(PendingWrite {
                 to: tpl.frontmatter.to.clone(),
                 body,
@@ -1053,6 +1097,20 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
                     &body,
                     &frontmatter,
                 )?;
+                // Consumer-mode (OS-13): a row bound to a fixtureOnly-marked
+                // spec individual is suppressed — its installer emission is
+                // recorded as a typed skip keyed by the rendered output path.
+                if let Some(subjects) = &consumer_fixture_subjects {
+                    if let Some(iri) = fixture_reference_in(&results[row_index], subjects) {
+                        let reason = format!(
+                            "consumer-mode: row references fixtureOnly-marked spec \
+                             <{iri}> — installer emission suppressed"
+                        );
+                        decisions.insert(to.clone(), format!("skipped: {reason}"));
+                        skipped.push((PathBuf::from(to.clone()), reason));
+                        continue;
+                    }
+                }
                 pending.push(PendingWrite {
                     to,
                     body,
@@ -1082,6 +1140,22 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
                 &body,
                 &frontmatter,
             )?;
+            // Consumer-mode (OS-13): a whole-file projection whose query
+            // results name a fixtureOnly-marked subject is suppressed.
+            if let Some(subjects) = &consumer_fixture_subjects {
+                if let Some(iri) = named
+                    .values()
+                    .find_map(|v| fixture_reference_in(v, subjects))
+                {
+                    let reason = format!(
+                        "consumer-mode: projection references fixtureOnly-marked spec \
+                         <{iri}> — installer emission suppressed"
+                    );
+                    decisions.insert(to.clone(), format!("skipped: {reason}"));
+                    skipped.push((PathBuf::from(to.clone()), reason));
+                    continue;
+                }
+            }
             pending.push(PendingWrite {
                 to,
                 body,
@@ -1468,6 +1542,49 @@ fn engine_value_display(value: &crate::graph::EngineValue) -> String {
         crate::graph::EngineValue::Int(n) => n.to_string(),
         crate::graph::EngineValue::Float(f) => f.to_string(),
         crate::graph::EngineValue::String(s) => s.clone(),
+    }
+}
+
+/// Consumer-mode (OS-13): collect every subject IRI carrying a
+/// `fixtureOnly`-marker predicate (any predicate whose IRI contains
+/// `fixtureOnly` — covers `aex:fixtureOnly` and the mirrored
+/// `pr:priorArtFixtureOnly` idiom) with the literal `true` from the
+/// post-enrich union graph.
+///
+/// # Errors
+/// Propagates any [`crate::error::AppError`] from the graph query.
+fn fixture_only_subjects(
+    graph: &dyn crate::graph::GraphEngine,
+) -> Result<std::collections::BTreeSet<String>> {
+    const QUERY: &str = "SELECT ?s WHERE { ?s ?p true . FILTER(CONTAINS(STR(?p), \"fixtureOnly\")) }";
+    match graph.query(QUERY)? {
+        EngineQueryResults::Solutions(rows) => Ok(rows
+            .into_iter()
+            .filter_map(|row| match row.get("s") {
+                Some(EngineValue::String(iri)) => Some(iri.clone()),
+                _ => None,
+            })
+            .collect()),
+        // A marker query is a SELECT by construction; the other result
+        // shapes cannot arise from this query text.
+        EngineQueryResults::Graph(_) | EngineQueryResults::Boolean(_) => Ok(Default::default()),
+    }
+}
+
+/// Consumer-mode (OS-13): does this rendered row/named-result JSON name a
+/// `fixtureOnly`-marked subject? Returns the first matched subject IRI (in
+/// BTreeSet order, so the skip reason is deterministic) for the typed skip
+/// log.
+fn fixture_reference_in(
+    value: &serde_json::Value,
+    subjects: &std::collections::BTreeSet<String>,
+) -> Option<String> {
+    use serde_json::Value as J;
+    match value {
+        J::String(s) => subjects.iter().find(|iri| s.contains(iri.as_str())).cloned(),
+        J::Array(items) => items.iter().find_map(|i| fixture_reference_in(i, subjects)),
+        J::Object(map) => map.values().find_map(|v| fixture_reference_in(v, subjects)),
+        J::Null | J::Bool(_) | J::Number(_) => None,
     }
 }
 

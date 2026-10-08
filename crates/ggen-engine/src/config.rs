@@ -202,6 +202,18 @@ pub struct Templates {
     /// (`FM-WRITE-008`). Default `false`: existing consumers unchanged.
     #[serde(default)]
     pub aggregate_modules: bool,
+    /// Consumer mode (OS-13, WP-5 consumer half): when `true`, sync
+    /// permanently suppresses installer emission of any output derived from
+    /// a `fixtureOnly`-marked spec individual (any predicate whose IRI
+    /// contains `fixtureOnly`, e.g. `aex:fixtureOnly` in ggen-marketplace's
+    /// ash-extension packs — the same marker the pack gate
+    /// `gates/100_projection_isolation_contract.rq` exempts from projection
+    /// isolation). Suppressed outputs are recorded per file as
+    /// `skipped: consumer-mode: …` in the report's `decisions`/`skipped`,
+    /// never silently dropped. Opt-in per consumer: default `false` keeps
+    /// existing behavior byte-identical.
+    #[serde(default)]
+    pub consumer_mode: bool,
 }
 
 impl GgenConfig {

@@ -57,7 +57,7 @@ fn stored_payload_hash(receipt_doc: &str) -> Result<String> {
 /// # Errors
 /// Any pipeline failure (`FM-*` codes) is mapped to a `NounVerbError`
 /// execution error, exiting non-zero.
-pub fn handle_sync_run(dry_run: bool, watch: bool) -> Result<serde_json::Value> {
+pub fn handle_sync_run(dry_run: bool, watch: bool, consumer_mode: bool) -> Result<serde_json::Value> {
     let root = project_root()?;
     if watch {
         crate::watch::watch(&root, dry_run).map_err(exec_err)?;
@@ -67,6 +67,7 @@ pub fn handle_sync_run(dry_run: bool, watch: bool) -> Result<serde_json::Value> 
         &root,
         SyncOptions {
             dry_run,
+            consumer_mode,
             ..Default::default()
         },
     )
