@@ -46,7 +46,10 @@ fn group_concat_without_separator_refused_in_strict_mode() {
         other => panic!("expected ConfigError::Validation, got {other:?}"),
     };
     assert!(msg.contains("E0015"), "expected E0015 in: {msg}");
-    assert!(msg.contains("GROUP_CONCAT"), "expected GROUP_CONCAT in: {msg}");
+    assert!(
+        msg.contains("GROUP_CONCAT"),
+        "expected GROUP_CONCAT in: {msg}"
+    );
     assert!(msg.contains("separator"), "expected separator in: {msg}");
 }
 
@@ -66,7 +69,9 @@ fn group_concat_without_separator_warns_only_in_non_strict_mode() {
 #[test]
 fn separator_detection_is_case_insensitive_and_ignores_spacing() {
     use ggen_config::manifest::validation::{query_has_group_concat, query_has_separator};
-    assert!(query_has_group_concat("select group_concat(?x) as ?a where {}"));
+    assert!(query_has_group_concat(
+        "select group_concat(?x) as ?a where {}"
+    ));
     assert!(!query_has_group_concat("select count(?x) where {}"));
     assert!(query_has_separator("GROUP_CONCAT(?x; SEPARATOR='')"));
     assert!(query_has_separator("GROUP_CONCAT(?x;separator = ', ')"));

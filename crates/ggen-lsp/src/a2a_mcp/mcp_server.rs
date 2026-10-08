@@ -1,6 +1,7 @@
 use rmcp::handler::server::wrapper::Parameters;
-use rmcp::model::{CallToolResult, ContentBlock, Implementation, InitializeResult,
-                  ServerCapabilities};
+use rmcp::model::{
+    CallToolResult, ContentBlock, Implementation, InitializeResult, ServerCapabilities,
+};
 use rmcp::{tool, tool_handler, tool_router, ServerHandler, ServiceExt};
 
 #[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
@@ -142,8 +143,7 @@ impl GgenMcpServer {
         let mut meta = rmcp::model::MetaObject::new();
         meta.0.insert("ggen_result".to_string(), result_data);
 
-        Ok(CallToolResult::success(vec![ContentBlock::text(text)])
-            .with_meta(Some(meta)))
+        Ok(CallToolResult::success(vec![ContentBlock::text(text)]).with_meta(Some(meta)))
     }
 
     // ── Pack + marketplace tools ────────────────────────────────────────────

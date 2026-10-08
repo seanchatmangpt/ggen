@@ -422,8 +422,7 @@ fn looks_like_sparql_update(sparql: &str) -> bool {
 /// pattern is found (caller falls through to the generic parse error).
 fn diagnose_bind_rebind(sparql: &str) -> Option<AppError> {
     let bytes = sparql.as_bytes();
-    let is_name_char =
-        |c: u8| c.is_ascii_alphanumeric() || c == b'_' || c >= 0x80;
+    let is_name_char = |c: u8| c.is_ascii_alphanumeric() || c == b'_' || c >= 0x80;
     let mut from = 0usize;
     while let Some(rel) = sparql[from..]
         .to_ascii_lowercase()
@@ -433,9 +432,7 @@ fn diagnose_bind_rebind(sparql: &str) -> Option<AppError> {
         let kw = rel;
         // Word-boundary check: must not be part of e.g. `UNBINDD` or a name.
         let before_ok = kw == 0 || !is_name_char(bytes[kw - 1]);
-        let after_ok = bytes
-            .get(kw + 4)
-            .is_none_or(|&c| !is_name_char(c));
+        let after_ok = bytes.get(kw + 4).is_none_or(|&c| !is_name_char(c));
         from = kw + 4;
         if !before_ok || !after_ok {
             continue;
@@ -499,11 +496,7 @@ fn diagnose_bind_rebind(sparql: &str) -> Option<AppError> {
         if var_token_present(prefix, &target_name) {
             let line_no = sparql[..kw].matches('\n').count() + 1;
             let line_start = prefix_line_start(sparql, kw);
-            let line_text = sparql[line_start..]
-                .lines()
-                .next()
-                .unwrap_or("")
-                .trim();
+            let line_text = sparql[line_start..].lines().next().unwrap_or("").trim();
             return Some(AppError::fm_graph(
                 13,
                 format!(

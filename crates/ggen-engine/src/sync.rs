@@ -1556,7 +1556,8 @@ fn engine_value_display(value: &crate::graph::EngineValue) -> String {
 fn fixture_only_subjects(
     graph: &dyn crate::graph::GraphEngine,
 ) -> Result<std::collections::BTreeSet<String>> {
-    const QUERY: &str = "SELECT ?s WHERE { ?s ?p true . FILTER(CONTAINS(STR(?p), \"fixtureOnly\")) }";
+    const QUERY: &str =
+        "SELECT ?s WHERE { ?s ?p true . FILTER(CONTAINS(STR(?p), \"fixtureOnly\")) }";
     match graph.query(QUERY)? {
         EngineQueryResults::Solutions(rows) => Ok(rows
             .into_iter()
@@ -1576,12 +1577,14 @@ fn fixture_only_subjects(
 /// BTreeSet order, so the skip reason is deterministic) for the typed skip
 /// log.
 fn fixture_reference_in(
-    value: &serde_json::Value,
-    subjects: &std::collections::BTreeSet<String>,
+    value: &serde_json::Value, subjects: &std::collections::BTreeSet<String>,
 ) -> Option<String> {
     use serde_json::Value as J;
     match value {
-        J::String(s) => subjects.iter().find(|iri| s.contains(iri.as_str())).cloned(),
+        J::String(s) => subjects
+            .iter()
+            .find(|iri| s.contains(iri.as_str()))
+            .cloned(),
         J::Array(items) => items.iter().find_map(|i| fixture_reference_in(i, subjects)),
         J::Object(map) => map.values().find_map(|v| fixture_reference_in(v, subjects)),
         J::Null | J::Bool(_) | J::Number(_) => None,
@@ -1676,13 +1679,20 @@ fn expand_gate_glob(root: &Path, pattern: &str) -> Result<Vec<String>> {
         let mut names: Vec<(String, std::path::PathBuf)> = Vec::new();
         for entry in &mut entries {
             let entry = entry?;
-            names.push((entry.file_name().to_string_lossy().into_owned(), entry.path()));
+            names.push((
+                entry.file_name().to_string_lossy().into_owned(),
+                entry.path(),
+            ));
         }
         // Enumerate deterministically so `sort` below is the only order that
         // matters, not the filesystem's.
         names.sort();
         for (name, path) in names {
-            let child_rel = if rel.is_empty() { name } else { format!("{rel}/{name}") };
+            let child_rel = if rel.is_empty() {
+                name
+            } else {
+                format!("{rel}/{name}")
+            };
             if path.is_dir() {
                 walk(&path, &child_rel, out)?;
             } else {
@@ -1717,7 +1727,10 @@ fn expand_gate_glob(root: &Path, pattern: &str) -> Result<Vec<String>> {
         }
     }
 
-    let pat_parts: Vec<&str> = pattern.split('/').filter(|p| !p.is_empty() && *p != ".").collect();
+    let pat_parts: Vec<&str> = pattern
+        .split('/')
+        .filter(|p| !p.is_empty() && *p != ".")
+        .collect();
     let mut files: Vec<String> = Vec::new();
     walk(root, "", &mut files).map_err(|e| {
         AppError::fm_law(
@@ -3894,40 +3907,31 @@ mod tests {
         }
 
         // 1. `gates/*.rq` -> all three, sorted.
-        let resolved = resolve_gate_entries(
-            root,
-            &[std::path::PathBuf::from("gates/*.rq")],
-        )
-        .expect("glob resolves");
+        let resolved = resolve_gate_entries(root, &[std::path::PathBuf::from("gates/*.rq")])
+            .expect("glob resolves");
         let rels: Vec<&str> = resolved.iter().map(|(rel, _)| rel.as_str()).collect();
-        assert_eq!(rels, vec!["gates/a_gate.rq", "gates/b_gate.rq", "gates/c_gate.rq"]);
+        assert_eq!(
+            rels,
+            vec!["gates/a_gate.rq", "gates/b_gate.rq", "gates/c_gate.rq"]
+        );
 
         // 2. `gates/*.norq` matches nothing -> typed fail-closed refusal.
-        let err = resolve_gate_entries(
-            root,
-            &[std::path::PathBuf::from("gates/*.norq")],
-        )
-        .expect_err("non-matching glob refuses");
+        let err = resolve_gate_entries(root, &[std::path::PathBuf::from("gates/*.norq")])
+            .expect_err("non-matching glob refuses");
         let msg = err.to_string();
         assert!(msg.contains("FM-CONFIG-014"), "{msg}");
         assert!(msg.contains("GLOB_NO_MATCHES"), "{msg}");
         assert!(msg.contains("gates/*.norq"), "{msg}");
 
         // 3. Literal entries unchanged (no `*`/`?` -> single path as given).
-        let literal = resolve_gate_entries(
-            root,
-            &[std::path::PathBuf::from("gates/a_gate.rq")],
-        )
-        .expect("literal resolves");
+        let literal = resolve_gate_entries(root, &[std::path::PathBuf::from("gates/a_gate.rq")])
+            .expect("literal resolves");
         assert_eq!(literal.len(), 1);
         assert_eq!(literal[0].0, "gates/a_gate.rq");
 
         // 4. `?` matches exactly one character, per component.
-        let qmark = resolve_gate_entries(
-            root,
-            &[std::path::PathBuf::from("gates/?_gate.rq")],
-        )
-        .expect("?-glob resolves");
+        let qmark = resolve_gate_entries(root, &[std::path::PathBuf::from("gates/?_gate.rq")])
+            .expect("?-glob resolves");
         assert_eq!(qmark.len(), 3, "? matches exactly one char: {qmark:?}");
     }
 

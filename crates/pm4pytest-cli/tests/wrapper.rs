@@ -32,10 +32,7 @@ fn bin_path() -> std::path::PathBuf {
 
 #[test]
 fn propagates_exit_code_from_real_fixture() {
-    let fixture = write_fixture(
-        "pass_fixture.sh",
-        "#!/bin/sh\necho fixture-ok\nexit 7\n",
-    );
+    let fixture = write_fixture("pass_fixture.sh", "#!/bin/sh\necho fixture-ok\nexit 7\n");
     let out = Command::new(bin_path())
         .env("PM4PYTEST_BIN", &fixture)
         .args(["--flag", "value"])
@@ -65,7 +62,10 @@ fn refusal_when_binary_not_found() {
 
 #[test]
 fn uses_pm4pytest_bin_when_set_and_exists() {
-    let fixture = write_fixture("env_fixture.sh", "#!/bin/sh\necho from-env-fixture\nexit 0\n");
+    let fixture = write_fixture(
+        "env_fixture.sh",
+        "#!/bin/sh\necho from-env-fixture\nexit 0\n",
+    );
     assert!(Path::new(&fixture).exists());
     let out = Command::new(bin_path())
         .env("PM4PYTEST_BIN", &fixture)
