@@ -413,8 +413,11 @@ fn test_challenger_sparql_injection_case_insensitivity() {
 async fn test_challenger_readme_validator_physical_presence() {
     let validator = ReadmeValidator;
 
-    // Check with a package ID
-    let package_id = "challenger-test-pkg";
+    // Unique per-run package ID: the validator probes the shared-cwd relative
+    // path `marketplace/packages/{id}`, so a fixed ID races with concurrent
+    // test binaries (seen as intermittent green-alone/red-in-workspace).
+    let package_id = format!("challenger-test-pkg-{}", std::process::id());
+    let package_id = package_id.as_str();
     let id = PackageId::new(package_id).unwrap();
     let metadata = PackageMetadata::new(id, "Challenger Test Package", "Description", "MIT");
     let package = Package {

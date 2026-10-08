@@ -186,6 +186,34 @@ impl Validate for GgenManifest {
                             );
                         }
 
+                        // E0015: a generation-rule SELECT containing GROUP_CONCAT
+                        // must also pin an explicit `separator`, otherwise the
+                        // folded value is engine-default (comma+space) and not a
+                        // deterministic fold law. Same purity split as E0013:
+                        // only the Inline variant is checked here (File-variant
+                        // content is checked in `validate_paths` territory; Pack
+                        // queries are resolved at sync time and skipped).
+                        if let QuerySource::Inline { inline } = &rule.query {
+                            if query_has_group_concat(inline) && !query_has_separator(inline) {
+                                if self.validation.strict_mode {
+                                    v.check_predicate(
+                                        "query",
+                                        false,
+                                        "E0015",
+                                        format!(
+                                            "error[E0015]: Generation rule '{}' SELECT query uses GROUP_CONCAT without an explicit separator\n  |\n  = strict_mode is enabled: non-deterministic group folding is rejected\n  = help: Add `separator = '...'` inside GROUP_CONCAT(...) to guarantee a deterministic fold\n  = help: Or set `strict_mode = false` in [validation] to downgrade to a warning",
+                                            rule.name
+                                        ),
+                                    );
+                                } else {
+                                    log::warn!(
+                                        "Generation rule '{}' SELECT query uses GROUP_CONCAT without an explicit separator — folded value may not be a deterministic fold law",
+                                        rule.name
+                                    );
+                                }
+                            }
+                        }
+
                         // E0013: only the Inline variant is pure data. The File
                         // variant needs to read the referenced file's content,
                         // which requires a base_path -- that half of this check
@@ -490,6 +518,20 @@ impl<'a> ManifestValidator<'a> {
 #[must_use]
 pub fn query_has_order_by(sparql: &str) -> bool {
     sparql.to_uppercase().contains("ORDER BY")
+}
+
+/// Returns true if the SPARQL query string uses GROUP_CONCAT.
+#[must_use]
+pub fn query_has_group_concat(sparql: &str) -> bool {
+    sparql.to_uppercase().contains("GROUP_CONCAT")
+}
+
+/// Returns true if the SPARQL query string pins an explicit
+/// `separator` (case-insensitive, `separator =` or `separator=`).
+#[must_use]
+pub fn query_has_separator(sparql: &str) -> bool {
+    let lower = sparql.to_lowercase();
+    lower.contains("separator =") || lower.contains("separator=")
 }
 
 /// Returns true if the SPARQL query string contains a VALUES clause.

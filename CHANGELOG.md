@@ -5,6 +5,10 @@ All notable changes to ggen will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+_Nothing unreleased._
+
 ## [26.9.25] — SPG Exact-Subject Rewrite Manufacturing (2026-09-26)
 
 ### Added
@@ -13,7 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - **Version 26.9.25** — workspace version bumped from 26.9.24 to 26.9.25 (#754).
 
-## [Unreleased]
+## 26.10.5 - 2026-10-05
 
 ### Added
 - **ABB/SBB manufacture kernel seed** — `crates/ggen-abb-sbb`, an IO-free kernel for the ABB/SBB
@@ -36,6 +40,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **`ggen_engine::replay` public module** — GALL-001 clean replay verification for portable
   semantic-pack receipts; `pack_scope` gained the DfCM scope resolver, metrics, and benchmark
   outcome-rate reporting (`650e0ed00` + `da1e50983`, `eeb8ce434`, `c10741732`, 2026-09-18).
+- **`[ontology].imports` honored by `ggen sync`** — the sync manifest now accepts an
+  `imports` list: extra TTL files (paths relative to the manifest, same semantics as
+  `ggen_config`'s `OntologyConfig::imports`) unioned into the graph after `source`, so projects
+  composing several vocabularies (e.g. vendored PROV-O) sync without flattening them into one
+  file; a missing import is the typed refusal `[FM-CONFIG-003]` naming `[ontology].imports`
+  (`3085cd76f`, 2026-09-28).
+- **E0015 GROUP_CONCAT separator lint** — a generation-rule inline SELECT using
+  `GROUP_CONCAT` without an explicit `; separator=` now warns (ERROR under
+  `strict_mode = true`), so aggregate folds stay deterministic (`9510e4b2b`).
 
 ### Changed
 - **Reusable `ggen-sync-run.yml` skips unrelated Git LFS smudge** — exact pack clones set
@@ -43,13 +56,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   transport bug rather than an admission rule; the `github-sync-receipt.json` artifact gains a
   `transport.git_lfs_skip_smudge` field — receipt-parsing consumers must tolerate the new
   field (`e2a5e8878`, 2026-09-21).
+- **`pack.toml` resolution accepts author metadata** — `PackMeta`/`PackToml` no longer use
+  `deny_unknown_fields`: the `[pack]` table accepts author metadata (`category`, `author`,
+  `license`, `repository`, `production_ready`, `[pack.metadata]`) and top-level extension
+  tables (`[[generation_rules]]`, `[authority]`) as informational, flattened into an inert
+  `extra` map — 12/352 `~/ggen-marketplace` packs (including `ggen-self-pack`) that declare
+  such fields resolve instead of refusing; genuinely invalid TOML still refuses `[FM-PACK-003]`
+  (`8226b0b96`, 2026-09-28).
 
 ### Fixed
 - **Signing keys can no longer be committed** — `ggen keys` writes `.ggen/keys/.gitignore`
-  (`signing.key`) immediately after creating the keys directory (never overwriting an existing
-  `.gitignore`); any other key-persist write failure refuses generation with `[FM-KEY-012]`
-  instead of silently persisting an unprotected key (`08d32f0fa`, 2026-09-23). Security fix:
-  committed signing keys had been found in ~15 public repos.
+  (ignoring both `signing.key` and `verifying.key`, so a fresh clone generates its own pair —
+  `214d1b20c`, 2026-09-24) immediately after creating the keys directory (never overwriting an
+  existing `.gitignore`); any other key-persist write failure refuses generation with
+  `[FM-KEY-012]` instead of silently persisting an unprotected key (`08d32f0fa`, 2026-09-23).
+  Security fix: committed signing keys had been found in ~15 public repos.
 - **Sync self-discovery no longer refuses non-frontmatter templates** — pack and project templates
   without a `---` frontmatter block are now skipped by template discovery (treated as
   `[[generation.rules]]`-consumed) instead of refusing with `[FM-TPL-006]`; rendering such
@@ -189,13 +210,10 @@ had no changelog entry.
   requiring an explicit test verb.
 - **semantic-release git-add glob bug** blocking this release from publishing (#250).
 
-## [Unreleased] — Crate Consolidation (2026-07-02)
+## [26.7.2] — Crate Consolidation (2026-07-02)
 
-Note: despite the "Unreleased" heading, this entry's date is older than every tagged release
-above it (the workspace has since shipped 26.7.2 through 26.7.4) — its changes shipped as part
-of the 26.7.2 lineage, not a separate future release. Left as "Unreleased" rather than
-retroactively re-labeled, since the git history for exactly which tag first contained each item
-wasn't re-verified in this pass.
+Shipped in the 26.7.2 lineage; re-verified in-tree (workspace members trimmed, `star-toml`
+externalized to a published dependency, `scripts/publish_loop.sh` removed).
 
 ### Removed
 - **Workspace trimmed from 17 packages / 24 disk dirs to 10 packages / 9 disk dirs.** A 5-phase consolidation pass (see `CRATE_CONSOLIDATION_ANALYSIS_2026-07-01.md`) removed dead crates and folded single-consumer/leaf crates into their sole dependent, all behind Cargo features to preserve functionality:
@@ -592,7 +610,7 @@ all work between v26.5.19 and v26.5.19.
 
 ---
 
-## [Unreleased] — GgenMcpServer: full MCP primitives (2026-03-28)
+## [26.5.5] — GgenMcpServer: full MCP primitives (2026-03-28, shipped by v26.5.5)
 
 ### Added
 
@@ -629,7 +647,7 @@ all work between v26.5.19 and v26.5.19.
 
 ---
 
-## [Unreleased] — Elixir A2A generator (2026-03-28)
+## [26.5.5] — Elixir A2A generator (2026-03-28, shipped by v26.5.5)
 
 ### Added
 
@@ -650,7 +668,7 @@ all work between v26.5.19 and v26.5.19.
 
 ---
 
-## [Unreleased] — MCP template: rmcp 1.3.0 compatibility (2026-03-28)
+## [26.5.5] — MCP template: rmcp 1.3.0 compatibility (2026-03-28, shipped by v26.5.5)
 
 ### Changed
 
@@ -676,7 +694,7 @@ all work between v26.5.19 and v26.5.19.
 
 ---
 
-## [Unreleased] — Test suite green + examples expansion (2026-03-28)
+## [26.5.5] — Test suite green + examples expansion (2026-03-28, shipped by v26.5.5)
 
 ### Added
 
@@ -1702,31 +1720,6 @@ Each pattern includes complete workflow, real commands, use cases, and impact me
 - Content distribution API documentation
 - Reputation system algorithm documentation
 - Geo-proximity routing guide
-
-## [Unreleased]
-
-### Added
-- Universal lifecycle system with 15 standard phases
-- Comprehensive hooks system (before/after for all phases)
-- State tracking with  for reproducible builds
-- Content-addressed caching with SHA256 keys
-- Environment management (development, staging, production)
-- Parallel workspace execution (2-5x speedup)
-- Type-safe error handling with LifecycleError enum (24 variants)
-- Thread-safe context with Arc-based shared ownership
-- Hook recursion detection
-- 204 tests with 100% pass rate
-- Complete example project (examples/rust-cli-lifecycle)
-- 9,032 lines of documentation
-
-### Changed
-- Migrated from lifetime-based Context to Arc-based for thread safety
-
-### Fixed
-- All 26 compilation warnings fixed (0 warnings)
-- Removed unused imports
-- Fixed deprecated API usage
-- Fixed static mut refs
 
 ## [1.2.0] - 2024-10-30
 

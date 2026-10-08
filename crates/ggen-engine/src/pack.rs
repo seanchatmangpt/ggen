@@ -1615,6 +1615,7 @@ version = "v2"
             templates: crate::config::Templates {
                 dir: PathBuf::from("templates"),
                 aggregate_modules: false,
+                consumer_mode: false,
             },
             law: crate::config::Law::default(),
         }

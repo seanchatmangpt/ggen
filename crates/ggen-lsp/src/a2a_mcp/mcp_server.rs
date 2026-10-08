@@ -1,5 +1,6 @@
 use rmcp::handler::server::wrapper::Parameters;
-use rmcp::model::{CallToolResult, Content, Implementation, InitializeResult, ServerCapabilities};
+use rmcp::model::{CallToolResult, ContentBlock, Implementation, InitializeResult,
+                  ServerCapabilities};
 use rmcp::{tool, tool_handler, tool_router, ServerHandler, ServiceExt};
 
 #[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
@@ -28,7 +29,7 @@ impl GgenMcpServer {
     async fn hello(
         &self, Parameters(params): Parameters<HelloParams>,
     ) -> Result<CallToolResult, rmcp::model::ErrorData> {
-        Ok(CallToolResult::success(vec![Content::text(format!(
+        Ok(CallToolResult::success(vec![ContentBlock::text(format!(
             "Hello, {}!",
             params.name
         ))]))
@@ -138,10 +139,11 @@ impl GgenMcpServer {
             "duration_ms": duration_ms,
         });
 
-        let mut meta = rmcp::model::Meta::default();
-        meta.insert("ggen_result".to_string(), result_data);
+        let mut meta = rmcp::model::MetaObject::new();
+        meta.0.insert("ggen_result".to_string(), result_data);
 
-        Ok(CallToolResult::success(vec![Content::text(text)]).with_meta(Some(meta)))
+        Ok(CallToolResult::success(vec![ContentBlock::text(text)])
+            .with_meta(Some(meta)))
     }
 
     // ── Pack + marketplace tools ────────────────────────────────────────────

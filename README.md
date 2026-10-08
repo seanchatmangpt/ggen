@@ -34,7 +34,7 @@ Resolve → Enrich → Extract → Render → Write → Receipt
 3. **Extract** executes `when:` and `sparql:` selection queries.
 4. **Render** evaluates Tera templates entirely in memory.
 5. **Write** applies create, inject, skip, merge, or overwrite semantics.
-6. **Receipt** records graph and output hashes in `.ggen-v2/receipt.json` and the append-only receipt log.
+6. **Receipt** records graph and output hashes in `.ggen-v2/receipt.json` and the append-only receipt log; every non-dry-run frontmatter-schema sync additionally writes a portable receipt envelope at `.ggen-v2/receipt-portable.json` (schema, subject `{pack, version, sha256 pack_digest}`, dependencies, `graph.canonical_digest`, admission gates/refusals, consequences, replay status, and standing `ALIVE | PARTIAL_ALIVE | REFUSED:<code>`). A gate-refused sync also emits the envelope (typed `REFUSED:GATE_VIOLATION` / `REFUSED:GATE_INVALID`) before the error propagates; dry-run writes nothing.
 
 The documentation must not collapse these stages into an unobserved claim. Current stage-to-span differences and implementation caveats are tracked in [FAQ](docs/FAQ.md).
 
@@ -68,6 +68,8 @@ ggen emits process evidence. It does not own process discovery, conformance, fit
 ## Pack ecosystem
 
 A pack combines an ontology, templates, gates, and metadata into a reusable manufacturing unit. Packs can generate implementation modules, tests, documentation, and receipts for consumer projects.
+
+A pack's `pack.toml` may declare `[dependencies]` (`pack-name = "semver-req"`) and `[capabilities]` (`types`, `provides`, `requires`). Resolution validates the declared graph and refuses: `[FM-PACK-014]` dependency not consumer-declared/resolved, `[FM-PACK-015]` malformed/unsatisfied semver requirement, `[FM-PACK-016]` dependency cycle, `[FM-PACK-017]` scope subject not a resolved pack, `[FM-PACK-018]` required capability with no provider in the transitive closure. The diagnostic-code ledger lives in `.specify/ggen-product.ttl`.
 
 Pack maturity is not inferred from directory presence or isolated passing tests. The Level-5 promotion program records per-capability standing; no prose summary outranks the executable claims and proof gates.
 

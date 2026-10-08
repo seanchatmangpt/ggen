@@ -125,6 +125,13 @@ pub struct SyncOptions {
     /// (`crates/ggen-mcp/src/tools/unattended_dispatch.rs`). A `&'static
     /// str` rather than `String` so `SyncOptions` stays `Copy`.
     pub receipt_origin: Option<&'static str>,
+    /// Consumer mode (OS-13): suppress installer emission of outputs
+    /// derived from `fixtureOnly`-marked spec individuals. Opt-in via
+    /// `ggen sync run --consumer-mode`; also settable permanently per
+    /// consumer via `[templates] consumer_mode = true` in `ggen.toml`
+    /// (either source enables it). Default `false`: existing behavior
+    /// byte-identical.
+    pub consumer_mode: bool,
 }
 
 /// The outcome of one [`sync`] run.
@@ -632,9 +639,14 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
     // observed; §55 `admission.gates_attempted`). A refusal emits the
     // envelope with the typed refusal before the error propagates (§57).
     let mut gates_attempted: Vec<String> = Vec::new();
-    for rel in &config.law.gates {
-        let gate_path = root.join(rel);
-        let src = std::fs::read_to_string(&gate_path).map_err(|e| {
+    // Gate-path glob expansion (fix-forward of the v26.10.6 candidate): a
+    // `[law].gates` entry containing `*` or `?` expands — sorted, so the
+    // documented gate-precedes-writes evaluation order stays deterministic
+    // — against paths relative to the manifest dir; a matching-nothing glob
+    // is a fail-closed `[FM-CONFIG-014]` refusal. Literal entries unchanged.
+    let resolved_gates = resolve_gate_entries(root, &config.law.gates)?;
+    for (rel_disp, gate_path) in &resolved_gates {
+        let src = std::fs::read_to_string(gate_path).map_err(|e| {
             AppError::fm_law(
                 12,
                 format!(
@@ -643,11 +655,8 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
                 ),
             )
         })?;
-        closure.insert(
-            rel_display(root, &gate_path),
-            hash_file_or_missing(&gate_path),
-        );
-        gates_attempted.push(rel_display(root, &gate_path));
+        closure.insert(rel_disp.clone(), hash_file_or_missing(gate_path));
+        gates_attempted.push(rel_disp.clone());
         let gate = parse_gate_source(&src);
         match evaluate_gate(graph.as_ref(), &gate.query)? {
             GateOutcome::Pass => {}
@@ -665,7 +674,7 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
                             "SPARQL gate `{}` is not a gate query: it must be an ASK \
                              (true = violation) or a SELECT (any row = violation), not \
                              a CONSTRUCT/DESCRIBE. Remediation: fix [law].gates.",
-                            rel.display()
+                            rel_disp
                         ),
                     ),
                 ));
@@ -683,7 +692,7 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
                         format!(
                             "SPARQL gate `{}` refused the sync: {}{detail}. \
                              Remediation: fix the offending facts or the gate query.",
-                            rel.display(),
+                            rel_disp,
                             gate.message_prefix(),
                         ),
                     ),
@@ -822,6 +831,27 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
     let generate_guard = generate_span.enter();
 
     let mut tera = build_tera(Arc::clone(&graph))?;
+
+    // ── Consumer-mode emission filter (OS-13, WP-5 consumer half) ───────
+    //
+    // Opt-in via `ggen sync run --consumer-mode` (or the permanent
+    // `[templates] consumer_mode = true` config key): sync must never emit
+    // installer artifacts derived from `fixtureOnly`-marked spec
+    // individuals into a consumer tree. The marked subjects are collected
+    // once from the post-enrich union graph (the same graph the pack
+    // gates just evaluated), then every candidate write is checked for
+    // provenance before joining `pending` — so suppressed outputs never
+    // reach `apply`, never run `sh_before`/`sh_after`, never join the
+    // `aggregate_modules` aggregator, and never enter the receipt's
+    // `outputs` map. Each suppression is recorded as a typed skip in
+    // `decisions`/`skipped`, never silently dropped.
+    let consumer_fixture_subjects: Option<std::collections::BTreeSet<String>> =
+        if opts.consumer_mode || config.templates.consumer_mode {
+            Some(fixture_only_subjects(graph.as_ref())?)
+        } else {
+            None
+        };
+
     let mut skipped: Vec<(PathBuf, String)> = Vec::new();
     let mut decisions: BTreeMap<String, String> = BTreeMap::new();
     // Every pending write owns the output-phase frontmatter rendered from
@@ -997,6 +1027,22 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
                 &body,
                 &frontmatter,
             )?;
+            // Consumer-mode (OS-13): an aggregate projection over any
+            // fixtureOnly-marked subject is suppressed whole.
+            if let Some(subjects) = &consumer_fixture_subjects {
+                if let Some(iri) = named
+                    .values()
+                    .find_map(|v| fixture_reference_in(v, subjects))
+                {
+                    let reason = format!(
+                        "consumer-mode: aggregate projection references fixtureOnly-marked \
+                         spec <{iri}> — installer emission suppressed"
+                    );
+                    decisions.insert(tpl.frontmatter.to.clone(), format!("skipped: {reason}"));
+                    skipped.push((PathBuf::from(tpl.frontmatter.to.clone()), reason));
+                    continue;
+                }
+            }
             pending.push(PendingWrite {
                 to: tpl.frontmatter.to.clone(),
                 body,
@@ -1051,6 +1097,20 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
                     &body,
                     &frontmatter,
                 )?;
+                // Consumer-mode (OS-13): a row bound to a fixtureOnly-marked
+                // spec individual is suppressed — its installer emission is
+                // recorded as a typed skip keyed by the rendered output path.
+                if let Some(subjects) = &consumer_fixture_subjects {
+                    if let Some(iri) = fixture_reference_in(&results[row_index], subjects) {
+                        let reason = format!(
+                            "consumer-mode: row references fixtureOnly-marked spec \
+                             <{iri}> — installer emission suppressed"
+                        );
+                        decisions.insert(to.clone(), format!("skipped: {reason}"));
+                        skipped.push((PathBuf::from(to.clone()), reason));
+                        continue;
+                    }
+                }
                 pending.push(PendingWrite {
                     to,
                     body,
@@ -1080,6 +1140,22 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
                 &body,
                 &frontmatter,
             )?;
+            // Consumer-mode (OS-13): a whole-file projection whose query
+            // results name a fixtureOnly-marked subject is suppressed.
+            if let Some(subjects) = &consumer_fixture_subjects {
+                if let Some(iri) = named
+                    .values()
+                    .find_map(|v| fixture_reference_in(v, subjects))
+                {
+                    let reason = format!(
+                        "consumer-mode: projection references fixtureOnly-marked spec \
+                         <{iri}> — installer emission suppressed"
+                    );
+                    decisions.insert(to.clone(), format!("skipped: {reason}"));
+                    skipped.push((PathBuf::from(to.clone()), reason));
+                    continue;
+                }
+            }
             pending.push(PendingWrite {
                 to,
                 body,
@@ -1469,6 +1545,49 @@ fn engine_value_display(value: &crate::graph::EngineValue) -> String {
     }
 }
 
+/// Consumer-mode (OS-13): collect every subject IRI carrying a
+/// `fixtureOnly`-marker predicate (any predicate whose IRI contains
+/// `fixtureOnly` — covers `aex:fixtureOnly` and the mirrored
+/// `pr:priorArtFixtureOnly` idiom) with the literal `true` from the
+/// post-enrich union graph.
+///
+/// # Errors
+/// Propagates any [`crate::error::AppError`] from the graph query.
+fn fixture_only_subjects(
+    graph: &dyn crate::graph::GraphEngine,
+) -> Result<std::collections::BTreeSet<String>> {
+    const QUERY: &str = "SELECT ?s WHERE { ?s ?p true . FILTER(CONTAINS(STR(?p), \"fixtureOnly\")) }";
+    match graph.query(QUERY)? {
+        EngineQueryResults::Solutions(rows) => Ok(rows
+            .into_iter()
+            .filter_map(|row| match row.get("s") {
+                Some(EngineValue::String(iri)) => Some(iri.clone()),
+                _ => None,
+            })
+            .collect()),
+        // A marker query is a SELECT by construction; the other result
+        // shapes cannot arise from this query text.
+        EngineQueryResults::Graph(_) | EngineQueryResults::Boolean(_) => Ok(Default::default()),
+    }
+}
+
+/// Consumer-mode (OS-13): does this rendered row/named-result JSON name a
+/// `fixtureOnly`-marked subject? Returns the first matched subject IRI (in
+/// BTreeSet order, so the skip reason is deterministic) for the typed skip
+/// log.
+fn fixture_reference_in(
+    value: &serde_json::Value,
+    subjects: &std::collections::BTreeSet<String>,
+) -> Option<String> {
+    use serde_json::Value as J;
+    match value {
+        J::String(s) => subjects.iter().find(|iri| s.contains(iri.as_str())).cloned(),
+        J::Array(items) => items.iter().find_map(|i| fixture_reference_in(i, subjects)),
+        J::Object(map) => map.values().find_map(|v| fixture_reference_in(v, subjects)),
+        J::Null | J::Bool(_) | J::Number(_) => None,
+    }
+}
+
 /// The sorted `*.rq` files under a pack's `gates/` directory. A missing
 /// directory is simply "no gates" (empty vec); a directory that exists but
 /// cannot be enumerated is a typed `[FM-PACK-012]` refusal — an existing
@@ -1507,6 +1626,112 @@ fn list_gate_files(gates_dir: &Path, pack_name: &str) -> Result<Vec<PathBuf>> {
     }
     paths.sort();
     Ok(paths)
+}
+
+/// Expand `[law].gates` entries into concrete gate files, in evaluation
+/// order. A literal entry (no `*`/`?`) is joined to the manifest root
+/// unchanged. An entry containing `*` or `?` is a glob pattern expanded
+/// against paths relative to the manifest dir; matches are sorted so the
+/// documented gate-precedes-writes order stays deterministic. A glob that
+/// matches nothing is a typed, fail-closed `[FM-CONFIG-014]` refusal — a
+/// typo'd pattern must never silently pass zero gates.
+fn resolve_gate_entries(root: &Path, gates: &[PathBuf]) -> Result<Vec<(String, PathBuf)>> {
+    let mut resolved: Vec<(String, PathBuf)> = Vec::new();
+    for rel in gates {
+        let pattern = rel.to_string_lossy();
+        if !pattern.contains('*') && !pattern.contains('?') {
+            let path = root.join(rel);
+            resolved.push((rel_display(root, &path), path));
+            continue;
+        }
+        let matches = expand_gate_glob(root, &pattern)?;
+        if matches.is_empty() {
+            return Err(AppError::fm_config(
+                14,
+                format!(
+                    "GLOB_NO_MATCHES: `{pattern}` matched no files under {}. \
+                     Remediation: fix the [law].gates pattern, or create the gate \
+                     files it names.",
+                    root.display()
+                ),
+            ));
+        }
+        for matched in matches {
+            let path = root.join(&matched);
+            resolved.push((rel_display(root, &path), path));
+        }
+    }
+    Ok(resolved)
+}
+
+/// Sorted root-relative file paths under `root` matching a `*`/`?` glob.
+/// `*` matches any run of characters within one path component (it never
+/// crosses `/`); `?` matches exactly one character. The whole tree under
+/// `root` is walked (gate trees are small); an unreadable directory is a
+/// typed refusal, not silently-no-matches (fail-closed, same discipline as
+/// [`list_gate_files`]).
+fn expand_gate_glob(root: &Path, pattern: &str) -> Result<Vec<String>> {
+    fn walk(dir: &Path, rel: &str, out: &mut Vec<String>) -> std::io::Result<()> {
+        let mut entries = std::fs::read_dir(dir)?;
+        let mut names: Vec<(String, std::path::PathBuf)> = Vec::new();
+        for entry in &mut entries {
+            let entry = entry?;
+            names.push((entry.file_name().to_string_lossy().into_owned(), entry.path()));
+        }
+        // Enumerate deterministically so `sort` below is the only order that
+        // matters, not the filesystem's.
+        names.sort();
+        for (name, path) in names {
+            let child_rel = if rel.is_empty() { name } else { format!("{rel}/{name}") };
+            if path.is_dir() {
+                walk(&path, &child_rel, out)?;
+            } else {
+                out.push(child_rel);
+            }
+        }
+        Ok(())
+    }
+
+    fn match_component(pat: &[char], text: &[char]) -> bool {
+        match (pat.first(), text.first()) {
+            (None, None) => true,
+            (Some('*'), _) => {
+                // Greedy-with-backtrack: '*' absorbs 0..=n chars of this component.
+                (0..=text.len()).any(|skip| match_component(&pat[1..], &text[skip..]))
+            }
+            (Some('?'), Some(_)) => match_component(&pat[1..], &text[1..]),
+            (Some(p), Some(t)) if p == t => match_component(&pat[1..], &text[1..]),
+            _ => false,
+        }
+    }
+
+    fn match_components(pat: &[&str], text: &[&str]) -> bool {
+        match (pat.first(), text.first()) {
+            (None, None) => true,
+            (None, Some(_)) | (Some(_), None) => false,
+            (Some(p), Some(t)) => {
+                let pc: Vec<char> = p.chars().collect();
+                let tc: Vec<char> = t.chars().collect();
+                match_component(&pc, &tc) && match_components(&pat[1..], &text[1..])
+            }
+        }
+    }
+
+    let pat_parts: Vec<&str> = pattern.split('/').filter(|p| !p.is_empty() && *p != ".").collect();
+    let mut files: Vec<String> = Vec::new();
+    walk(root, "", &mut files).map_err(|e| {
+        AppError::fm_law(
+            12,
+            format!(
+                "[law].gates glob `{pattern}` could not enumerate files under {}: {e}. \
+                 Remediation: fix the directory's permissions or the pattern.",
+                root.display()
+            ),
+        )
+    })?;
+    files.retain(|f| match_components(&pat_parts, f.split('/').collect::<Vec<_>>().as_slice()));
+    files.sort();
+    Ok(files)
 }
 
 /// Emit the portable refusal envelope (RFC-GPACK-001 §54/§55) for a
@@ -3649,8 +3874,62 @@ mod tests {
 
     use super::{
         check_determinism_guard_agrees_false, check_determinism_rows_agree_empty,
-        hash_file_or_missing, ExtractedRows, SyncReceipt, RECEIPT_LOG_REL_PATH, RECEIPT_REL_PATH,
+        hash_file_or_missing, resolve_gate_entries, ExtractedRows, SyncReceipt,
+        RECEIPT_LOG_REL_PATH, RECEIPT_REL_PATH,
     };
+
+    /// Gate-path glob expansion (fix-forward): a `gates/*.rq` entry over a
+    /// 3-file gates dir expands to exactly those 3 files, in sorted order;
+    /// a non-matching glob is a typed, fail-closed `[FM-CONFIG-014]`
+    /// refusal; literal entries pass through unchanged.
+    #[test]
+    fn gate_glob_expansion_is_sorted_and_fail_closed() {
+        let dir = tempfile::tempdir().expect("tempdir");
+        let root = dir.path();
+        std::fs::create_dir_all(root.join("gates")).expect("mkdir gates");
+        // Create deliberately out of lexical order; expansion must sort.
+        for name in ["c_gate.rq", "a_gate.rq", "b_gate.rq"] {
+            std::fs::write(root.join("gates").join(name), "ASK { FILTER(false) }")
+                .expect("write gate file");
+        }
+
+        // 1. `gates/*.rq` -> all three, sorted.
+        let resolved = resolve_gate_entries(
+            root,
+            &[std::path::PathBuf::from("gates/*.rq")],
+        )
+        .expect("glob resolves");
+        let rels: Vec<&str> = resolved.iter().map(|(rel, _)| rel.as_str()).collect();
+        assert_eq!(rels, vec!["gates/a_gate.rq", "gates/b_gate.rq", "gates/c_gate.rq"]);
+
+        // 2. `gates/*.norq` matches nothing -> typed fail-closed refusal.
+        let err = resolve_gate_entries(
+            root,
+            &[std::path::PathBuf::from("gates/*.norq")],
+        )
+        .expect_err("non-matching glob refuses");
+        let msg = err.to_string();
+        assert!(msg.contains("FM-CONFIG-014"), "{msg}");
+        assert!(msg.contains("GLOB_NO_MATCHES"), "{msg}");
+        assert!(msg.contains("gates/*.norq"), "{msg}");
+
+        // 3. Literal entries unchanged (no `*`/`?` -> single path as given).
+        let literal = resolve_gate_entries(
+            root,
+            &[std::path::PathBuf::from("gates/a_gate.rq")],
+        )
+        .expect("literal resolves");
+        assert_eq!(literal.len(), 1);
+        assert_eq!(literal[0].0, "gates/a_gate.rq");
+
+        // 4. `?` matches exactly one character, per component.
+        let qmark = resolve_gate_entries(
+            root,
+            &[std::path::PathBuf::from("gates/?_gate.rq")],
+        )
+        .expect("?-glob resolves");
+        assert_eq!(qmark.len(), 3, "? matches exactly one char: {qmark:?}");
+    }
 
     /// One-time, explicit migration: re-seals `.ggen-v2/receipt-log.jsonl`'s
     /// `chain_hash_hex`/`prev_chain_hash_hex`/`signature_hex` for every

@@ -118,8 +118,16 @@ ggen lsp check --all
 | **E0010** | values_forbidden | ERROR | VALUES clause in external .rq file | Move to ggen.toml [[rule.data]] or inline |
 | **E0011** | ordering_missing | WARNING (ERROR strict) | CONSTRUCT lacks ORDER BY | Add ORDER BY clause |
 | **E0013** | ordering_missing | WARNING (ERROR strict) | SELECT lacks ORDER BY | Add ORDER BY clause |
+| **E0015** | group_concat_separator | WARNING (ERROR strict) | GROUP_CONCAT missing `separator` | Pin `separator` in GROUP_CONCAT |
 | **E0015** | identity_construct | WARNING | Identity CONSTRUCT (no-op transformation) | Modify template or remove rule |
 | **E0024** | template_syntax_error | ERROR | Tera template syntax error | Fix Tera syntax |
+
+Note: code `E0015` carries two failure classes. The `group_concat_separator` lint
+(crates/ggen-config validation, inline generation-rule SELECTs only) fires when
+GROUP_CONCAT lacks an explicit `separator`: without one the fold is engine-default
+(comma+space), not a deterministic fold law. It is a WARNING normally and an ERROR
+under `strict_mode = true`. Example: `GROUP_CONCAT(?x ; separator=", ")` passes;
+bare `GROUP_CONCAT(?x)` refuses.
 
 **Validation Rules**:
 - All Tera template variables must be in SPARQL SELECT projection

@@ -1,0 +1,118 @@
+# AIRo risk description for ggen — semantic manufacturer (AIRo wiring wave, lane W614)
+# Vocabulary: https://w3id.org/airo# (DelaramGlp/airo @ main, sha256 6274d2d8711e046cf38f1b5b2980188094d4aa87b5af79804005a06468fd8469, verified 2026-10-06)
+# All Likelihood/Severity individuals below are SELF-ASSESSED by the ggen operator, not measured rates.
+# Cross-repo wave references (w377/w339, w334/w474, w523, dc27242) are work-order receipts from the
+# xaas-side wave ledger and are not file paths in this repository.
+
+@prefix airo: <https://w3id.org/airo#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ggen-airo: <https://w3id.org/ggen/airo/> .
+
+### ---------------------------------------------------------------------
+### Self-assessed qualitative scale individuals
+### (airo defines the Likelihood/Severity classes only; no individuals)
+### ---------------------------------------------------------------------
+
+ggen-airo:LikelihoodLow a airo:Likelihood ;
+    rdfs:label "Likelihood: Low (self-assessed)"@en ;
+    rdfs:comment "Operator self-assessment: materialisation is gated by an automated CI control that has a witnessed firing history (w334/w474)."@en .
+
+ggen-airo:LikelihoodMedium a airo:Likelihood ;
+    rdfs:label "Likelihood: Medium (self-assessed)"@en ;
+    rdfs:comment "Operator self-assessment: risk materialises only under multi-repo composition, where no single-repo gate has authority."@en .
+
+ggen-airo:SeverityModerate a airo:Severity ;
+    rdfs:label "Severity: Moderate (self-assessed)"@en ;
+    rdfs:comment "Operator self-assessment: consequence is bounded to generated-artifact drift detectable by replay; no direct harm to persons."@en .
+
+ggen-airo:SeverityMajor a airo:Severity ;
+    rdfs:label "Severity: Major (self-assessed)"@en ;
+    rdfs:comment "Operator self-assessment: silent nondeterminism or stale pins propagate to downstream consumers before any gate fires."@en .
+
+### ---------------------------------------------------------------------
+### AIProvider
+### ---------------------------------------------------------------------
+
+ggen-airo:GgenProject a airo:AIProvider ;
+    rdfs:label "ggen project (semantic manufacturer)"@en ;
+    rdfs:comment "Provider of the ggen RDF->code manufacture rail; maintains the ontology-to-code generators, the portable receipt format, and the sync CI rails."@en .
+
+### ---------------------------------------------------------------------
+### AISystem
+### ---------------------------------------------------------------------
+
+ggen-airo:GgenManufactureSystem a airo:AISystem ;
+    rdfs:label "ggen semantic code-manufacture system"@en ;
+    rdfs:comment "Ontology-driven code generation pipeline: canonical RDF/SHACL graph in, deterministic generated code + portable receipts out. Runs via 'ggen sync' locally and as the pinned ggen-sync-run reusable GitHub rail."@en ;
+    airo:isProvidedBy ggen-airo:GgenProject ;
+    airo:hasRisk ggen-airo:RiskGeneratedCodeDrift ,
+                 ggen-airo:RiskGeneratorIdentitySkew ,
+                 ggen-airo:RiskStalePin ;
+    airo:hasRiskControl ggen-airo:ControlPortableReceiptReplay ,
+                        ggen-airo:ControlSyncDriftGate ,
+                        ggen-airo:ControlFrozenCourtPinning .
+
+### ---------------------------------------------------------------------
+### Risks (each grounded in a real documented hazard + a real gate)
+### ---------------------------------------------------------------------
+
+ggen-airo:RiskGeneratedCodeDrift a airo:Risk ;
+    rdfs:label "Risk: generated-code drift (ontology and generated outputs diverge)"@en ;
+    rdfs:comment "Hazard: hand-edits or stale re-runs let committed generated artifacts diverge from what the canonical graph would render. Documented hazard; the docs-sync drift gate exists precisely because this materialised in #285/#287 (false-positive churn, then real drift detection)."@en .
+
+ggen-airo:RiskGeneratorIdentitySkew a airo:Risk ;
+    rdfs:label "Risk: generator-identity skew (plural generator identities on one surface)"@en ;
+    rdfs:label "Risk: generator-identity skew"@en ;
+    rdfs:comment "Hazard: 'generated from RDF' is only meaningful relative to WHICH ggen binary rendered it. Composition catalog primitive R (w523-era): ambient, vendored, frozen-court and release ggen identities coexist; disagreement between two identities on one projection is undetected without a plurality court (composition C20, falsifier still UNKNOWN)."@en .
+
+ggen-airo:RiskStalePin a airo:Risk ;
+    rdfs:label "Risk: stale cross-repo pin (consumer bound to moved gitlink/version)"@en ;
+    rdfs:comment "Hazard: consumers pin ggen by version or gitlink; upstream moves leave the pin stale and the closure undeclared (w377/w339 class; composition-root lock N records standing bound to fcd6a068 while gitlinks moved). Consequence: replay at the consumer is against a subject that no longer exists upstream."@en .
+
+### ---------------------------------------------------------------------
+### RiskControls (each is a REAL gate, with real files)
+### ---------------------------------------------------------------------
+
+ggen-airo:ControlPortableReceiptReplay a airo:RiskControl ;
+    rdfs:label "Control: portable receipt exact-SHA/digest replay"@en ;
+    rdfs:comment "crates/ggen-engine/src/portable_receipt.rs — RFC-anchored portable receipt envelope binding the manufactured subject to exact SHA-256 pack digests and the transitive dependency closure; refuses UNKNOWN subject identity. Mitigates drift and stale-pin replay by making replay subject-keyed and verifiable. Cross-ref: dc27242 admission (wave receipt, xaas-side)."@en ;
+    airo:mitigatesRiskConcept ggen-airo:RiskGeneratedCodeDrift ,
+                              ggen-airo:RiskStalePin .
+
+ggen-airo:ControlSyncDriftGate a airo:RiskControl ;
+    rdfs:label "Control: sync drift CI gate (docs-sync)"@en ;
+    rdfs:comment ".github/workflows/publish-candidate.yml 'Docs-through-ggen drift gate (docs-sync)' step + justfile recipes `docs-sync` and `verify-tcps` — re-runs sync and fails the build (ANDON) when generated docs/artifacts differ from committed output. Witnessed firing history w334/w474."@en ;
+    airo:mitigatesRiskConcept ggen-airo:RiskGeneratedCodeDrift .
+
+ggen-airo:ControlFrozenCourtPinning a airo:RiskControl ;
+    rdfs:label "Control: frozen-court generator pinning (exact release tag)"@en ;
+    rdfs:comment ".github/workflows/ggen-sync-run.yml (reusable rail; inputs declare 'Exact ggen release tag to execute, for example v26.8.27') and .github/workflows/ggen-sync-run-selftest.yml (pins ggen_release: v26.8.27) — courts verify against a frozen generator identity so verification is independent of whichever ambient ggen is on PATH (composition catalog primitive R)."@en ;
+    airo:mitigatesRiskConcept ggen-airo:RiskGeneratorIdentitySkew ,
+                              ggen-airo:RiskStalePin .
+
+### ---------------------------------------------------------------------
+### Qualitative assessment bindings (self-assessed)
+### ---------------------------------------------------------------------
+
+# airo:hasLikelihood has no rdfs:domain restriction in airo.ttl; applied to airo:Risk individuals.
+ggen-airo:RiskGeneratedCodeDrift airo:hasLikelihood ggen-airo:LikelihoodLow ;
+    airo:hasSeverity ggen-airo:SeverityModerate .
+
+ggen-airo:RiskGeneratorIdentitySkew airo:hasLikelihood ggen-airo:LikelihoodMedium ;
+    airo:hasSeverity ggen-airo:SeverityMajor .
+
+ggen-airo:RiskStalePin airo:hasLikelihood ggen-airo:LikelihoodMedium ;
+    airo:hasSeverity ggen-airo:SeverityMajor .
+
+### ---------------------------------------------------------------------
+### Consequences
+### ---------------------------------------------------------------------
+
+ggen-airo:ConsequenceSilentDrift a airo:Consequence ;
+    rdfs:label "Consequence: silent divergence between graph and shipped artifacts"@en ;
+    rdfs:comment "Downstream repos consume generated code that the canonical graph would not produce; detected only by cross-generator disagreement (C20 falsifier, currently UNKNOWN)."@en ;
+    airo:hasSeverity ggen-airo:SeverityMajor .
+
+ggen-airo:RiskGeneratedCodeDrift airo:hasConsequence ggen-airo:ConsequenceSilentDrift .

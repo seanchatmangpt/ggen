@@ -69,7 +69,9 @@
 //! }
 //! ```
 
+use ggen_engine::sync::{SyncOptions, RECEIPT_REL_PATH};
 use serde::{Deserialize, Serialize};
+use std::path::PathBuf;
 use std::time::Instant;
 
 /// Input parameters for `ggen.construct` MCP tool.
@@ -226,43 +228,149 @@ pub fn execute(input: GgenConstructInput) -> GgenConstructOutput {
 
     let duration_ms = start.elapsed().as_millis() as u64;
 
-    // OCEL boundary-crossing evidence: the tool WAS invoked. We preserve this
-    // log even though we refuse to fake a result — the invocation is real
-    // (genuine boundary crossing), only the construction is not yet wired.
-    tracing::warn!(
+    // `ontology_uri` is a filesystem path to the project's ontology Turtle
+    // file; the project root (the directory holding `ggen.toml`) is its
+    // parent. Remote URIs are refused: this adapter runs the real in-process
+    // μ₁–μ₅ pipeline (`ggen_engine::sync::sync`, the same call the MCP-side
+    // sibling handler in `mcp_server.rs` makes), which reads from disk.
+    if input.ontology_uri.starts_with("http://") || input.ontology_uri.starts_with("https://") {
+        tracing::warn!(
+            event = "a2a.mcp.tool.invoked",
+            task_id = %input.task_id,
+            tool = "ggen.construct",
+            invoker = %input.avatar,
+            duration_ms = duration_ms,
+            status = "REFUSED:REMOTE_ONTOLOGY_URI",
+            "ggen.construct refused: remote ontology URIs are not supported"
+        );
+        return GgenConstructOutput {
+            status: "error".to_string(),
+            task_id: input.task_id,
+            jtbd: input.jtbd,
+            avatar: input.avatar,
+            message: "REFUSED:REMOTE_ONTOLOGY_URI — ontology_uri must be a filesystem \
+                      path to a Turtle file inside a ggen project (its parent directory \
+                      must hold ggen.toml). Fetch the ontology to disk first."
+                .to_string(),
+            result: None,
+        };
+    }
+
+    let ontology_path = PathBuf::from(&input.ontology_uri);
+    let base_path = match ontology_path.canonicalize() {
+        Ok(p) => p
+            .parent()
+            .map(std::path::Path::to_path_buf)
+            .unwrap_or_else(|| PathBuf::from(".")),
+        Err(e) => {
+            let message = format!(
+                "REFUSED:ONTOLOGY_UNREADABLE — ontology_uri `{}` cannot be read: {e}",
+                input.ontology_uri
+            );
+            return error_output(input, message);
+        }
+    };
+
+    if !base_path.join("ggen.toml").exists() {
+        return error_output(
+            input,
+            format!(
+                "REFUSED:NO_PROJECT_ROOT — no ggen.toml in `{}`. ggen.construct \
+                 requires a ggen project context (the ontology's parent directory \
+                 must hold ggen.toml), exactly like the `ggen.construct` MCP tool.",
+                base_path.display()
+            ),
+        );
+    }
+
+    // Real μ₁–μ₅ actuation: load ggen.toml + ontology, enrich/extract, render
+    // via Tera, write outputs, and chain a praxis-core receipt over the
+    // payload at `.ggen-v2/receipt.json`. Same engine entrypoint as the
+    // MCP-side handler — one route engine, two transports, no drift.
+    let sync_started = Instant::now();
+    let report = match ggen_engine::sync::sync(&base_path, SyncOptions::default()) {
+        Ok(r) => r,
+        Err(e) => {
+            tracing::warn!(
+                event = "a2a.mcp.tool.invoked",
+                task_id = %input.task_id,
+                tool = "ggen.construct",
+                invoker = %input.avatar,
+                duration_ms = start.elapsed().as_millis() as u64,
+                status = "error",
+                "ggen.construct pipeline failed"
+            );
+            return error_output(input, format!("Generation pipeline failed: {e}"));
+        }
+    };
+    let generation_time_ms = sync_started.elapsed().as_millis() as u64;
+
+    // Artifact identity: first written output, hashed from the real bytes on
+    // disk (never synthesized).
+    let artifact_rel = report
+        .written
+        .first()
+        .map(|p| p.display().to_string())
+        .unwrap_or_default();
+    let artifact_hash = report
+        .written
+        .first()
+        .and_then(|p| std::fs::read(base_path.join(p)).ok())
+        .map(|bytes| format!("blake3:{}", blake3::hash(&bytes).to_hex()))
+        .unwrap_or_default();
+
+    tracing::info!(
         event = "a2a.mcp.tool.invoked",
         task_id = %input.task_id,
         tool = "ggen.construct",
         invoker = %input.avatar,
-        duration_ms = duration_ms,
-        status = "unimplemented",
-        "ggen.construct invoked but the μ₁–μ₅ pipeline is not wired through this A2A adapter"
+        duration_ms = start.elapsed().as_millis() as u64,
+        files_written = report.written.len(),
+        graph_hash = %report.graph_hash_hex,
+        status = "success",
+        "ggen.construct completed via the real μ₁–μ₅ sync pipeline"
     );
 
-    // Oracle Gap closure: this adapter does NOT run the real μ₁–μ₅ pipeline.
-    // Reporting "success" for work that never happened is contract drift — any
-    // caller, receipt, or provenance record would capture a fabricated outcome
-    // (a synthetic artifact hash, a dummy receipt path, all-pass proof gates).
-    // The only honest response is an explicit failure that:
-    //   - does NOT claim status "success",
-    //   - does NOT emit or reference a fabricated receipt path,
-    //   - does NOT report synthetic artifact hashes or all-pass proof gates,
-    //   - directs the caller to the real construction path.
-    //
-    // This mirrors the MCP-side closure in `mcp_server.rs` (commit 3a7f1f7e),
-    // which returns an explicit error rather than a hardcoded success.
-    // Integration requirement: wire this adapter to the real ggen pipeline (subprocess to
-    // `ggen sync` or FFI into ggen-core) to return a real receipt and hashes.
+    let _ = duration_ms;
     GgenConstructOutput {
-        status: "unimplemented".to_string(),
+        status: "success".to_string(),
         task_id: input.task_id,
         jtbd: input.jtbd,
         avatar: input.avatar,
-        message: "ggen.construct is not yet wired to the μ₁–μ₅ pipeline through \
-                  this A2A adapter. No artifact was generated and no receipt was \
-                  emitted. Use the real construction path: run `ggen sync` (the \
-                  μ₁–μ₅ actuator) to construct artifacts from your ontology."
-            .to_string(),
+        message: format!(
+            "Constructed {} file(s) from `{}` via the μ₁–μ₅ sync pipeline.",
+            report.written.len(),
+            input.ontology_uri
+        ),
+        result: Some(GgenConstructResult {
+            artifact_path: artifact_rel,
+            artifact_hash,
+            receipt_path: RECEIPT_REL_PATH.to_string(),
+            // Honest gate reporting: the sync pipeline validates the graph and
+            // gates (law/SHACL) but does NOT compile, lint, or run consumer
+            // tests — fabricating "pass" would be an Oracle Gap. Callers
+            // that need compiler/lint/test verdicts must run them against the
+            // written outputs themselves.
+            proof_gates: ProofGateResult {
+                compiler: "not_run".to_string(),
+                lint: "not_run".to_string(),
+                tests: "not_run".to_string(),
+                slo: "not_run".to_string(),
+            },
+            generation_time_ms,
+            error_details: None,
+        }),
+    }
+}
+
+/// Typed refusal output preserving the request echo fields.
+fn error_output(input: GgenConstructInput, message: String) -> GgenConstructOutput {
+    GgenConstructOutput {
+        status: "error".to_string(),
+        task_id: input.task_id,
+        jtbd: input.jtbd,
+        avatar: input.avatar,
+        message,
         result: None,
     }
 }
@@ -293,51 +401,155 @@ mod tests {
             .contains(&"ontology_uri".into()));
     }
 
-    /// Oracle Gap closure: with valid input, the adapter must FAIL LOUD rather
-    /// than fake success. The μ₁–μ₅ pipeline is not wired through this adapter,
-    /// so it must not claim "success", must not emit a result payload (no
-    /// fabricated receipt path, no synthetic artifact hash, no all-pass proof
-    /// gates), and must direct the caller to the real construction path.
-    #[test]
-    fn test_execute_valid_input_fails_loud_not_fake_success() {
-        let input = GgenConstructInput {
+    /// Scaffold a minimal real ggen project in a tempdir: ggen.toml +
+    /// ontology.ttl + one static Tera template. No mocks — `execute` runs the
+    /// real `ggen_engine::sync::sync` against these real files.
+    fn scaffold_project() -> (tempfile::TempDir, std::path::PathBuf) {
+        let dir = tempfile::tempdir().expect("tempdir");
+        let root = dir.path().to_path_buf();
+        std::fs::write(
+            root.join("ggen.toml"),
+            "[project]\nname = \"a2a-construct-test\"\n\n[ontology]\nsource = \"ontology.ttl\"\n\n[templates]\ndir = \"templates\"\n",
+        )
+        .expect("write ggen.toml");
+        std::fs::write(
+            root.join("ontology.ttl"),
+            "@prefix ex: <http://example.com/ns#> .\nex:thing a ex:Thing .\n",
+        )
+        .expect("write ontology.ttl");
+        std::fs::create_dir_all(root.join("templates")).expect("mkdir templates");
+        std::fs::write(
+            root.join("templates").join("hello.tmpl"),
+            "---\nto: generated/hello.txt\n---\nHello from ggen.construct\n",
+        )
+        .expect("write template");
+        (dir, root)
+    }
+
+    fn input_for(ontology_uri: String) -> GgenConstructInput {
+        GgenConstructInput {
             task_id: "123e4567-e89b-12d3-a456-426614174000".to_string(),
-            jtbd: "Generate Rust service".to_string(),
+            jtbd: "Generate a greeting artifact".to_string(),
             avatar: "mcpp-router-01".to_string(),
-            ontology_uri: ".specify/myapp.ttl".to_string(),
+            ontology_uri,
             target_language: "rust".to_string(),
             output_format: "source".to_string(),
-        };
+        }
+    }
 
-        let output = execute(input);
+    /// Chicago: real project on disk, real μ₁–μ₅ pipeline, real output file
+    /// and receipt asserted on disk. Status "success" only because real work
+    /// happened.
+    #[test]
+    fn test_execute_real_pipeline_generates_and_hashes_artifact() {
+        let (_dir, root) = scaffold_project();
+        let ontology_uri = root.join("ontology.ttl").display().to_string();
 
-        // Must NOT claim success.
-        assert_ne!(output.status, "success");
-        assert_eq!(output.status, "unimplemented");
+        let output = execute(input_for(ontology_uri));
 
-        // Must NOT emit a result payload (no fabricated receipt/hash/gates).
+        assert_eq!(output.status, "success", "message: {}", output.message);
+        let result = output.result.expect("success must carry a result payload");
+
+        // Real file written at the declared path.
+        let artifact_path = root.join(&result.artifact_path);
         assert!(
-            output.result.is_none(),
-            "honest refusal must not carry a result payload"
+            artifact_path.exists(),
+            "artifact must exist on disk: {}",
+            artifact_path.display()
+        );
+        let body = std::fs::read_to_string(&artifact_path).expect("read artifact");
+        assert_eq!(body, "Hello from ggen.construct\n");
+
+        // Hash is real BLAKE3 of the real bytes, not synthesized.
+        let expected = format!("blake3:{}", blake3::hash(body.as_bytes()).to_hex());
+        assert_eq!(result.artifact_hash, expected);
+
+        // Receipt: the real chained receipt written by sync.
+        assert_eq!(result.receipt_path, ".ggen-v2/receipt.json");
+        assert!(
+            root.join(".ggen-v2/receipt.json").exists(),
+            "sync must have written the real receipt"
         );
 
-        // Must direct the caller to the real construction path.
+        // Honest gate reporting: the pipeline did not compile/lint/test.
+        assert_eq!(result.proof_gates.compiler, "not_run");
+        assert_eq!(result.proof_gates.lint, "not_run");
+        assert_eq!(result.proof_gates.tests, "not_run");
+        assert!(result.generation_time_ms < 60_000);
+    }
+
+    /// A remote ontology URI is a typed refusal — never a fabricated
+    /// generation and never a crash.
+    #[test]
+    fn test_execute_remote_ontology_uri_is_typed_refusal() {
+        let output = execute(input_for("https://example.com/ontology.ttl".to_string()));
+
+        assert_eq!(output.status, "error");
+        assert!(output.result.is_none());
         assert!(
-            output.message.contains("ggen sync"),
-            "message must point to the real μ₁–μ₅ actuator: {}",
+            output.message.contains("REFUSED:REMOTE_ONTOLOGY_URI"),
+            "typed refusal codes required: {}",
             output.message
         );
+    }
 
-        // The serialized output must not contain any fabricated receipt path
-        // or synthetic artifact hash.
-        let json = serde_json::to_string(&output).expect("serialization should succeed");
+    /// An ontology path whose parent lacks ggen.toml is a typed refusal with
+    /// the fix (create a ggen project around the ontology).
+    #[test]
+    fn test_execute_no_project_root_is_typed_refusal() {
+        let dir = tempfile::tempdir().expect("tempdir");
+        let ttl = dir.path().join("ontology.ttl");
+        std::fs::write(&ttl, "@prefix ex: <http://example.com/ns#> .\n").expect("write ttl");
+
+        let output = execute(input_for(ttl.display().to_string()));
+
+        assert_eq!(output.status, "error");
+        assert!(output.result.is_none());
         assert!(
-            !json.contains("rcpt-simulated"),
-            "must not reference a fabricated receipt path"
+            output.message.contains("REFUSED:NO_PROJECT_ROOT"),
+            "typed refusal code required: {}",
+            output.message
         );
+    }
+
+    /// An unreadable ontology path is a typed refusal, not a panic.
+    #[test]
+    fn test_execute_unreadable_ontology_is_typed_refusal() {
+        let output = execute(input_for("/nonexistent/a2a/ontology.ttl".to_string()));
+
+        assert_eq!(output.status, "error");
+        assert!(output.result.is_none());
         assert!(
-            !json.contains("blake3:"),
-            "must not report a synthetic artifact hash"
+            output.message.contains("REFUSED:ONTOLOGY_UNREADABLE"),
+            "typed refusal code required: {}",
+            output.message
+        );
+    }
+
+    /// A structurally invalid project (ontology missing while ggen.toml
+    /// references it) surfaces the pipeline's own typed error, fail-closed —
+    /// never a fake success.
+    #[test]
+    fn test_execute_pipeline_failure_fails_closed_with_typed_error() {
+        let dir = tempfile::tempdir().expect("tempdir");
+        let root = dir.path().to_path_buf();
+        std::fs::write(
+            root.join("ggen.toml"),
+            "[project]\nname = \"broken\"\n\n[ontology]\nsource = \"missing.ttl\"\n\n[templates]\ndir = \"templates\"\n",
+        )
+        .expect("write ggen.toml");
+        // ontology.ttl deliberately NOT written.
+        let ttl = root.join("ontology.ttl");
+        std::fs::write(&ttl, "").expect("write empty ttl so root-resolution passes");
+
+        let output = execute(input_for(ttl.display().to_string()));
+
+        assert_eq!(output.status, "error");
+        assert!(output.result.is_none());
+        assert!(
+            output.message.contains("Generation pipeline failed"),
+            "pipeline error must surface: {}",
+            output.message
         );
     }
 
@@ -377,25 +589,21 @@ mod tests {
         assert!(output.message.contains("ontology_uri"));
     }
 
-    /// Even with empty (defaultable) language/format, the adapter must still
-    /// refuse honestly — defaults do not unlock a fake-success path.
+    /// Even with empty (defaultable) language/format, the pipeline still runs
+    /// for a real project — defaults do not unlock or block real construction.
     #[test]
-    fn test_execute_defaults_still_fails_loud() {
-        let input = GgenConstructInput {
-            task_id: "123e4567-e89b-12d3-a456-426614174000".to_string(),
-            jtbd: "Generate artifact".to_string(),
-            avatar: "mcpp-router-01".to_string(),
-            ontology_uri: ".specify/myapp.ttl".to_string(),
-            target_language: "".to_string(),
-            output_format: "".to_string(),
-        };
+    fn test_execute_defaults_run_real_pipeline() {
+        let (_dir, root) = scaffold_project();
+        let ontology_uri = root.join("ontology.ttl").display().to_string();
+        let mut input = input_for(ontology_uri);
+        input.target_language = String::new();
+        input.output_format = String::new();
 
         let output = execute(input);
 
-        assert_ne!(output.status, "success");
-        assert_eq!(output.status, "unimplemented");
-        assert!(output.result.is_none());
-        assert!(output.message.contains("ggen sync"));
+        assert_eq!(output.status, "success", "message: {}", output.message);
+        let result = output.result.expect("success carries result");
+        assert!(root.join(&result.artifact_path).exists());
     }
 
     #[test]

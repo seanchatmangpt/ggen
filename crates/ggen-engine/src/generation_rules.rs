@@ -612,9 +612,15 @@ pub(crate) fn run(root: &Path, manifest: &GgenManifest, opts: SyncOptions) -> Re
             // already uses), matching the per-row branch's behavior for
             // the common one-row/static-output-file case (Cluster D,
             // `examples/llm-full-integration`'s bare `{{ agent_name }}`).
-            if let Some(Value::Object(map)) = row_values.first() {
-                for (k, v) in map {
-                    ctx.insert(k, v);
+            if let Some(first) = row_values.first() {
+                // Alias so static templates can use `{{ row.name }}` exactly
+                // as fan-out templates do (first-row-wins for multi-row
+                // queries — legacy renderer semantics, see Cluster D).
+                ctx.insert("row", first);
+                if let Value::Object(map) = first {
+                    for (k, v) in map {
+                        ctx.insert(k, v);
+                    }
                 }
             }
             let body = render_template(

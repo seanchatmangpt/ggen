@@ -376,9 +376,22 @@ fn test_stress_sparql_injection_detection() {
 async fn test_stress_readme_validator_scenarios() {
     let validator = ReadmeValidator;
 
-    // Check with a package ID
-    let package_id = "readme-stress-pkg";
-    let id = PackageId::new(package_id).unwrap();
+    // Check with a package ID. ReadmeValidator resolves the package directory
+    // relative to the process CWD from the package id itself, so we mint a
+    // unique id per run (pid + nanos): concurrent test binaries/threads get a
+    // disjoint marketplace/packages/<id> directory instead of racing on a
+    // fixed fixture path in the shared tree. ReadmeValidator lowercases ids,
+    // so keep the suffix lowercase alphanumerics.
+    let unique_suffix = format!(
+        "{:x}{:x}",
+        std::process::id(),
+        std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap()
+            .as_nanos() as u64
+    );
+    let package_id = format!("readme-stress-pkg-{unique_suffix}");
+    let id = PackageId::new(&package_id).unwrap();
     let metadata = PackageMetadata::new(id, "Readme Stress Package", "Description", "MIT");
     let package = Package {
         metadata,

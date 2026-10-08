@@ -71,6 +71,8 @@ Muscle-memory bare commands still work: `ggen sync`, `ggen doctor`, and
 11. [Defensive Workflow Patterns](#11-defensive-workflow-patterns)
 12. [Output Structure](#12-output-structure)
 13. [Related Documentation](#13-related-documentation)
+14. [Ontology imports](#14-ontology-imports)
+15. [Qualification probe contract](#15-qualification-probe-contract)
 
 ---
 
@@ -206,6 +208,16 @@ ggen.toml
     │
     ▼  SyncOutput + receipt_path
 ```
+
+**Template discovery (Phase 1):** templates without a `---` frontmatter block — in packs or in
+the consumer project — are now skipped by discovery instead of refusing with `[FM-TPL-006]`.
+They are treated as consumed by the project's own `[[generation.rules]]`, which remain the only
+path that renders them (`a11524121`).
+
+**`[ontology].imports`:** the `[ontology]` table accepts an `imports` list of extra TTL files
+(paths relative to the manifest) unioned into the graph after `source`, so a project can compose
+several vocabularies without flattening them into one file; a missing import is the typed
+refusal `[FM-CONFIG-003]` naming `[ontology].imports` (`3085cd76f`, 2026-09-28).
 
 #### Per-stage progress output (with `--verbose`)
 
@@ -376,8 +388,15 @@ Every non-dry-run invocation of `ggen sync` automatically emits a cryptographic 
 |---|---|
 | `.ggen/receipts/sync-<YYYYMMDD-HHMMSS>.json` | Timestamped archive copy (immutable) |
 | `.ggen/receipts/latest.json` | Always points to the most recent receipt |
-| `.ggen/keys/signing.key` | Ed25519 private key (hex, generated once, never overwritten) |
+| `.ggen-v2/receipt-portable.json` | Portable receipt envelope (every non-dry-run frontmatter-schema sync, including gate-refused ones — standing `REFUSED:<code>`): schema, subject `{pack, version, sha256}`, dependencies, `graph.canonical_digest`, admission gates/refusals, consequences, replay status, standing |
+| `.ggen/keys/signing.key` | Ed25519 private key (hex, generated once, never overwritten). `ggen keys` also writes `.ggen/keys/.gitignore` (ignoring both `signing.key` and `verifying.key`, so a fresh clone generates its own pair — `214d1b20c`) when it creates the keys dir so neither half can be committed; any other key-persist write failure refuses with `[FM-KEY-012]` instead of leaving an unprotected key. |
 | `.ggen/keys/verifying.key` | Corresponding Ed25519 public key (hex) |
+
+The CI surface (reusable `ggen-sync-run.yml` workflow) emits its own `github-sync-receipt.json`
+artifact. Exact pack clones there set `GIT_LFS_SKIP_SMUDGE=1` — an unrelated Git LFS smudge
+failure is a transport bug, not an admission rule — and the artifact's `transport` object gains
+a `git_lfs_skip_smudge` boolean; receipt-parsing consumers must tolerate the new field
+(`e2a5e8878`).
 
 ### 8.2 Input closure hashed into every receipt
 
@@ -596,4 +615,43 @@ The `SyncOutput` struct is serialized when `--format json` is used:
 | A2A μ₁–μ₅ pipeline deep dive | `docs/features/a2a-pipeline.md` |
 | ggen.toml manifest schema | `docs/ggen-toml-schema.toml` |
 | Receipt verification constitution | `AGENTS.md` |
+| Gate conventions across runtimes (offender- vs witness-reporting) | `docs/reference/gate-conventions.md` |
 | First-principles doc system architecture | `docs/rust_swarm_doc_plan/RFC.md` |
+
+---
+
+## 14. Ontology imports
+
+`[ontology].imports` entries resolve relative to the directory containing
+`ggen.toml`, not the process CWD: `ManifestParser::parse_and_validate` uses the
+manifest's parent directory as the base for every path check
+(`crates/ggen-config/src/manifest/parser.rs`), and graph loading joins each
+import onto the manifest root (`crates/ggen-engine/src/project_graph.rs`).
+
+Composition: the consumer graph is the union of `source` and every import,
+loaded in order — `source` first, then each `imports` entry appended after it.
+
+Refusals: a missing import file fails at manifest load with
+`Ontology import not found: <path>` (`ConfigError::Validation`). In the
+frontmatter schema, `[FM-CONFIG-003]` fires for path-safety violations in
+`imports[i]` (e.g. `..` traversal).
+
+Example (pack-local self-proof: base ontology plus per-fixture vocabulary):
+
+```toml
+[ontology]
+source = "ontology.ttl"
+imports = ["fixtures/<fixture>.ttl"]
+```
+
+---
+
+## 15. Qualification probe contract
+
+A consumer of a pack whose packaging profile is not `project` must surface a
+non-empty `qualification/marketplace-probe.txt`. ggen-marketplace's
+`scripts/qualify_packs.py` checks for it between the two `sync run` passes and
+otherwise refuses the pack with `REFUSED:GGEN_PACK_PROBE_MISSING`, naming the
+missing probe path. A probe should contain one line naming the rendered
+artifact plus its digest expectation — the minimum evidence that the pack's
+projection actually rendered.

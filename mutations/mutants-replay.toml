@@ -1,0 +1,11 @@
+# MU3 lane: replay/determinism-critical engine functions.
+# Oracle scoping: only ggen-engine's determinism/replay test binaries kill mutants.
+# Note: the lane brief named `snapshot`/`snapshot_tree` in crates/ggen-engine/src/sync.rs;
+# no functions by those names exist (snapshot helpers live test-side only). The
+# replay-idempotency law in ggen-engine is realized by these sync.rs functions:
+#   check_determinism / check_determinism_guard_agrees_false /
+#   check_determinism_rows_agree_empty / hash_file_or_missing
+# so this config examines the whole sync.rs file (the law's home) and relies on the
+# determinism test suite as the killing oracle.
+examine_globs = ["crates/ggen-engine/src/sync.rs"]
+exclude_re = ["fn main"]

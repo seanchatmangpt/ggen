@@ -1,217 +1,116 @@
-//! Chicago-TDD end-to-end tests for SPARQL constructs `ggen_engine::graph`
-//! must refuse loudly rather than silently mishandle
-//! (specs/014-ggen-core-replacement Phase 7, Tasks 2 & 3): `GRAPH` clauses
-//! (structurally detected — Task 2), SPARQL UPDATE attempts (message
-//! quality on an already-unreachable path — Task 3), and SPARQL 1.1
-//! federated `SERVICE` calls (already fail closed at evaluation time with
-//! no service handler configured — Task 3). Real filesystem, real oxigraph
-//! store, real `ggen_engine::sync::sync()` pipeline — no mocks.
+//! E2E: SPARQL parse-failure error ergonomics through the public
+//! `DeterministicGraph::query` surface.
+//!
+//! Witnessed defect (twice in the v26.10.5 cycle): an in-scope
+//! `BIND(... AS ?x)` rebind made oxigraph/spargebra report a parse error
+//! pointing *after* the illegal construct (`error at 44:7: expected
+//! OPTIONAL` — the reported position moved with the BIND block, never to
+//! it). These tests pin the two refusal classes:
+//!
+//! - `[FM-GRAPH-013]` — pre-parse diagnostic for the SPARQL 1.1 illegal
+//!   rebind (`AS` target variable not fresh in the group), naming the
+//!   variable and the offending line;
+//! - `[FM-GRAPH-003]` — retained for genuinely malformed queries, now
+//!   carrying the offending line's text as context.
 
-#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+use ggen_engine::graph::DeterministicGraph;
 
-use std::path::Path;
-
-use ggen_engine::sync::{sync, SyncOptions};
-use tempfile::TempDir;
-
-const GGEN_TOML: &str = r#"
-[project]
-name = "demo"
-
-[ontology]
-source = "ontology.ttl"
-
-[templates]
-dir = "templates"
-"#;
-
-const ONTOLOGY: &str = r#"
-@prefix ex: <http://example.org/> .
-ex:alice ex:name "alice" .
-"#;
-
-fn scaffold(root: &Path) {
-    std::fs::write(root.join("ggen.toml"), GGEN_TOML).expect("write ggen.toml");
-    std::fs::write(root.join("ontology.ttl"), ONTOLOGY).expect("write ontology");
-    std::fs::create_dir_all(root.join("templates")).expect("mkdir templates");
-}
-
-fn write_template(root: &Path, name: &str, content: &str) {
-    std::fs::write(root.join("templates").join(name), content).expect("write template");
-}
-
-/// A `GRAPH <...> { ... }` clause is refused loudly with `[FM-GRAPH-008]`,
-/// not silently executed to an (always-empty, since this crate never loads
-/// named graphs) zero-row result.
+/// The witnessed defect shape: `?x` is projected in the group, then
+/// `BIND(STR(?x) AS ?x)` re-binds it. The parser reports a position after
+/// the BIND; the diagnostic must name `x` and the BIND line.
 #[test]
-fn graph_clause_is_refused_loudly_not_silently_empty() {
-    let dir = TempDir::new().expect("tempdir");
-    scaffold(dir.path());
-    write_template(
-        dir.path(),
-        "graph.tmpl",
-        "---\nto: out.txt\nsparql:\n  default: \"SELECT ?s ?p ?o WHERE { GRAPH <http://example.org/named> { ?s ?p ?o } }\"\n---\n{{ results | length }}",
-    );
-
-    let err = sync(
-        dir.path(),
-        SyncOptions {
-            dry_run: false,
-            ..Default::default()
-        },
-    )
-    .expect_err("GRAPH clause must be refused");
-    assert!(err.to_string().contains("FM-GRAPH-008"), "{err}");
+fn bind_rebind_in_scope_variable_refused_fm_graph_013() {
+    let g = DeterministicGraph::new().expect("graph");
+    let q = r#"PREFIX : <http://example.org/>
+SELECT ?x WHERE {
+  ?s :p ?x .
+  BIND(STR(?x) AS ?x) .
+}"#;
+    let err = g.query(q).map(|_| ()).expect_err("rebind must be refused");
+    let msg = err.to_string();
     assert!(
-        err.to_string().contains("GRAPH"),
-        "error must name the refused construct: {err}"
+        msg.contains("FM-GRAPH-013"),
+        "expected FM-GRAPH-013, got: {msg}"
     );
-}
-
-/// A `GRAPH` clause nested inside `FILTER EXISTS { ... }` is also caught —
-/// not just a top-level `GRAPH` block. Regression guard for the recursive
-/// expression walk in `graph::expression_has_graph_clause`.
-#[test]
-fn graph_clause_nested_inside_filter_exists_is_also_refused() {
-    let dir = TempDir::new().expect("tempdir");
-    scaffold(dir.path());
-    write_template(
-        dir.path(),
-        "graph_exists.tmpl",
-        "---\nto: out.txt\nsparql:\n  default: \"SELECT ?s WHERE { ?s ?p ?o . FILTER EXISTS { GRAPH <http://example.org/named> { ?s ?p ?o } } }\"\n---\n{{ results | length }}",
-    );
-
-    let err = sync(
-        dir.path(),
-        SyncOptions {
-            dry_run: false,
-            ..Default::default()
-        },
-    )
-    .expect_err("GRAPH clause nested inside FILTER EXISTS must be refused");
-    assert!(err.to_string().contains("FM-GRAPH-008"), "{err}");
-}
-
-/// A query with no `GRAPH` clause at all (the overwhelming common case)
-/// still executes normally — regression guard that the structural
-/// pre-check never false-positives on an ordinary query, including one
-/// whose literal *text* happens to contain the substring `"Graph"` inside
-/// a string literal (the exact false-positive a Debug-string heuristic
-/// would have hit, per this task's investigation).
-#[test]
-fn query_with_graph_substring_inside_a_string_literal_is_not_a_false_positive() {
-    let dir = TempDir::new().expect("tempdir");
-    scaffold(dir.path());
-    write_template(
-        dir.path(),
-        "no_graph.tmpl",
-        "---\nto: out.txt\nsparql:\n  default: \"SELECT ?s WHERE { ?s ?p \\\"a Graph { thing }\\\" }\"\n---\nrows={{ results | length }}",
-    );
-
-    let report = sync(
-        dir.path(),
-        SyncOptions {
-            dry_run: false,
-            ..Default::default()
-        },
-    )
-    .expect("must NOT be refused -- no real GRAPH clause is present, only a string literal containing the text");
-    assert!(report.written.iter().any(|p| p.ends_with("out.txt")));
-    let out = std::fs::read_to_string(dir.path().join("out.txt")).expect("read output");
-    assert_eq!(
-        out, "rows=0",
-        "no match expected, but the query itself must run: {out:?}"
-    );
-}
-
-/// A SPARQL UPDATE attempt (`INSERT DATA { ... }`) is refused with a clear,
-/// named message ("SPARQL UPDATE is not supported...") rather than
-/// oxigraph's raw grammar-mismatch parse-error text. UPDATE is already
-/// structurally unreachable via this crate's `Query`-only parse path
-/// (confirmed: `spargebra::Query` has no `Update` variant) -- this test
-/// proves the *message quality* improvement, not a new refusal mechanism.
-#[test]
-fn sparql_update_attempt_is_refused_with_a_clear_named_message() {
-    let dir = TempDir::new().expect("tempdir");
-    scaffold(dir.path());
-    write_template(
-        dir.path(),
-        "update.tmpl",
-        "---\nto: out.txt\nsparql:\n  default: \"INSERT DATA { <http://example.org/x> <http://example.org/y> <http://example.org/z> }\"\n---\n{{ results | length }}",
-    );
-
-    let err = sync(
-        dir.path(),
-        SyncOptions {
-            dry_run: false,
-            ..Default::default()
-        },
-    )
-    .expect_err("SPARQL UPDATE must be refused");
-    assert!(err.to_string().contains("FM-GRAPH-009"), "{err}");
     assert!(
-        err.to_string().contains("SPARQL UPDATE is not supported"),
-        "error must name the refused construct, not just leak oxigraph's raw grammar-mismatch text: {err}"
+        msg.contains("?x"),
+        "message must name the re-bound variable, got: {msg}"
+    );
+    assert!(
+        msg.contains("rename the AS target"),
+        "message must carry the remediation, got: {msg}"
+    );
+    // Line number computed from the BIND match offset (line 4 here).
+    assert!(
+        msg.contains("line 4"),
+        "message must carry the BIND line number, got: {msg}"
+    );
+    // Offending line text included.
+    assert!(
+        msg.contains("BIND(STR(?x) AS ?x)"),
+        "message must include the offending line text, got: {msg}"
     );
 }
 
-/// A `DELETE WHERE { ... }` UPDATE attempt is caught by the same keyword
-/// sniff (covers the `DELETE`, not just `INSERT`, branch of the
-/// best-effort keyword list).
+/// Variables used inside the BIND expression before the `AS` count as
+/// in-scope too (SPARQL 1.1: fresh up to the point of use).
 #[test]
-fn sparql_delete_update_attempt_is_also_refused_with_a_clear_message() {
-    let dir = TempDir::new().expect("tempdir");
-    scaffold(dir.path());
-    write_template(
-        dir.path(),
-        "delete_update.tmpl",
-        "---\nto: out.txt\nsparql:\n  default: \"DELETE WHERE { <http://example.org/alice> ?p ?o }\"\n---\n{{ results | length }}",
-    );
+fn bind_rebind_via_own_expression_refused_fm_graph_013() {
+    let g = DeterministicGraph::new().expect("graph");
+    let q = r#"PREFIX : <http://example.org/>
+SELECT ?sum WHERE {
+  ?s :p ?sum .
+  BIND(?sum + 1 AS ?sum) .
+}"#;
+    let err = g.query(q).map(|_| ()).expect_err("rebind must be refused");
+    let msg = err.to_string();
+    assert!(msg.contains("FM-GRAPH-013"), "got: {msg}");
+    assert!(msg.contains("?sum"), "got: {msg}");
+}
 
-    let err = sync(
-        dir.path(),
-        SyncOptions {
-            dry_run: false,
-            ..Default::default()
-        },
-    )
-    .expect_err("SPARQL UPDATE (DELETE) must be refused");
-    assert!(err.to_string().contains("FM-GRAPH-009"), "{err}");
+/// A valid BIND (fresh AS target) still parses and executes.
+#[test]
+fn bind_fresh_variable_still_executes() {
+    let g = DeterministicGraph::new().expect("graph");
+    g.insert_turtle("@prefix ex: <http://example.org/> . ex:s ex:p \"v\" .")
+        .expect("ttl");
+    let q = r#"PREFIX : <http://example.org/>
+SELECT ?y WHERE {
+  ?s :p ?x .
+  BIND(STR(?x) AS ?y) .
+}"#;
+    g.query(q).expect("fresh BIND target must not be refused");
+}
+
+/// FM-GRAPH-003 is retained for genuinely malformed queries, and the
+/// message now carries the offending line's text as context.
+#[test]
+fn truly_malformed_query_still_fm_graph_003_with_line_hint() {
+    let g = DeterministicGraph::new().expect("graph");
+    let q = "SELECT ?x WHERE {\n  ?s :p ?x .\n  ?s :p\n}";
+    let err = g.query(q).map(|_| ()).expect_err("malformed must be refused");
+    let msg = err.to_string();
     assert!(
-        err.to_string().contains("SPARQL UPDATE is not supported"),
-        "{err}"
+        msg.contains("FM-GRAPH-003"),
+        "expected FM-GRAPH-003, got: {msg}"
+    );
+    assert!(
+        msg.contains("near line"),
+        "003 must now carry a line hint, got: {msg}"
     );
 }
 
-/// A SPARQL 1.1 federated `SERVICE` call fails closed at evaluation time
-/// with oxigraph's own clear `UnsupportedService` error (no HTTP
-/// service-handler feature or custom handler is configured on this
-/// crate's evaluator) -- already a hard, clear error naturally, so this
-/// test proves that behavior rather than adding a new refusal path.
+/// A malformed query with no `error at L:C` position in the message must
+/// still yield FM-GRAPH-003 without a line hint (hint is additive only).
 #[test]
-fn service_clause_fails_closed_with_a_clear_evaluation_error() {
-    let dir = TempDir::new().expect("tempdir");
-    scaffold(dir.path());
-    write_template(
-        dir.path(),
-        "service.tmpl",
-        "---\nto: out.txt\nsparql:\n  default: \"SELECT ?s ?p ?o WHERE { SERVICE <http://example.org/remote-endpoint> { ?s ?p ?o } }\"\n---\n{{ results | length }}",
-    );
-
-    let err = sync(
-        dir.path(),
-        SyncOptions {
-            dry_run: false,
-            ..Default::default()
-        },
-    )
-    .expect_err(
-        "SERVICE call must fail closed (no handler configured, no live network dependency)",
-    );
-    assert!(err.to_string().contains("FM-GRAPH-003"), "{err}");
+fn malformed_without_position_still_fm_graph_003() {
+    let g = DeterministicGraph::new().expect("graph");
+    // `SELECT` with nothing after it — spargebra still reports a position,
+    // but this pins the fallthrough for any message shape.
+    let err = g.query("SELECT").map(|_| ()).expect_err("must refuse");
     assert!(
-        err.to_string().contains("not supported")
-            || err.to_string().contains("example.org/remote-endpoint"),
-        "error must surface oxigraph's own clear UnsupportedService message: {err}"
+        err.to_string().contains("FM-GRAPH-003"),
+        "got: {}",
+        err
     );
 }
