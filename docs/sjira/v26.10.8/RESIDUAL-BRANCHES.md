@@ -157,3 +157,44 @@ Closes R19 unblock order (a); (b) measured and re-typed as operator policy;
 5. **spec-integration content untouched**: shared tree still on
    spec-integration at `b58f7cb9a` (hook-fix commit + R19 docs only; no
    branch switch, no rebase, no --no-verify).
+
+## main — R51 expect_used policy adjudication (2026-10-09, lane R51)
+
+Adjudicates R35's `BLOCKED[MAIN_SELF_TEST_LINT_POLICY]` via operator doctrine:
+annotations are explicit decisions, not silent relaxations; `expect!`-style
+assertions are idiomatic in e2e tests; lib gate untouched.
+
+1. **Policy**: `#![expect(clippy::expect_used)]` (or item-level `#[expect]`)
+   with a one-line justification comment is the documented mechanism for
+   expect/unwrap in e2e test assertions. `expect!`/unwrap forbidden in lib
+   code — the lib gate is unchanged and separately enforced.
+2. **Measured correction to R35's count**: of the 4 flagged files, 3
+   (composed_packs_e2e.rs, consumer_mode_fixture_only_e2e.rs,
+   generation_rules_e2e.rs) already carry the house
+   `#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]` at
+   module scope, so expect_used never fired there; only
+   `sparql_refusals_e2e.rs` (5 expect sites, no allow) needed the annotation.
+   A crate-level `#![expect]` on the 3 allow-carrying files is REFUSED by
+   `-D warnings` as unfulfilled_lint_expectations — expect, not allow,
+   enforced.
+3. **Candidate commit** `c24af1b24158` (parent ecb36850e; delta vs ecb36850e
+   = exactly the 4-line annotation block in sparql_refusals_e2e.rs, minted
+   via temp-index plumbing, main CAS-updated ecb36850e→c24af1b24158).
+   `git push --dry-run origin main` through the ref-validating hook:
+   `[1/4] Check PASS`, `[3/4] Format PASS`, `[4/4] Unit tests PASS`,
+   `[2/4] Lint FAIL` — `BLOCKED: pushed ref c24af1b24158 failed gates. Push
+   refused.` Local main = c24af1b24158; origin main = d593a7f30 (FF chain
+   d593a7f30→fcfd6349d→ecb36850e→c24af1b24158 intact, NOT pushed).
+4. **Re-typed standing**: expect_used class is now **0** (annotation
+   fulfilled in sparql_refusals_e2e.rs:1-4). `BLOCKED[MAIN_TEST_LINT_RESIDUE:
+   8 non-expect clippy errors on main's own content, 4 files]`:
+   - sparql_refusals_e2e.rs: needless_raw_string_hashes ×3 (:24, :60, :77)
+     + uninlined_format_args (:114)
+   - consumer_mode_fixture_only_e2e.rs: doc_markdown (:4)
+   - composed_packs_e2e.rs: too_many_lines (:257, 109/100)
+   - generation_rules_e2e.rs: doc_markdown (:992) + unused_variables (:1005)
+   Next lane: fix the 8 mechanical lints (only too_many_lines needs a
+   function split); then main FF-pushes clean through all 4 gates.
+5. **spec-integration carries the annotation** (file identical on both refs,
+   so the policy landing is ref-agnostic): annotation committed alongside
+   this doc update; hook does not gate spec-integration pushes.

@@ -1,3 +1,7 @@
+// Policy (operator-adjudicated 2026-10-09): expect!/unwrap-style assertions are
+// idiomatic in e2e tests; they remain forbidden in lib code (gated separately).
+#![expect(clippy::expect_used)]
+
 //! E2E: SPARQL parse-failure error ergonomics through the public
 //! `DeterministicGraph::query` surface.
 //!
