@@ -118,3 +118,42 @@ clean, 3 spec-integration files + 4 main test files failing; scratch
 main-content lint runs as above; `git checkout -- graph.rs sync.rs` +
 byte-identical restoration proof exit 0.
 
+
+## main — R35 hook fix + patch landing (2026-10-09, lane R35)
+
+Closes R19 unblock order (a); (b) measured and re-typed as operator policy;
+(c)/(d) no longer gate main's push (hook now validates the ref).
+
+1. **Hook root-caused and fixed** (`scripts/hooks/pre-push.sh`, symlinked as
+   `.git/hooks/pre-push`): the hook ran `just check/lint/fmt-check/test-lib`
+   in the shared working tree, so main was gated on the checkout's branch
+   content. Rewritten to `git archive <local_sha>` the pushed ref into a
+   scratch dir and run the same four gates there — identical clippy flags,
+   only WHAT is validated changed. Cargo target cache is per-sha under
+   `~/.cache/ggen-pre-push/<sha12>`, so the shared tree's `target/` and
+   working files are untouched. Committed on spec-integration:
+   `b58f7cb9a`.
+2. **R19 lib patch landed on main via plumbing** (no branch switch): tree
+   `a6eb4f6a5d76850e46d8b7d90875955033017d59` (diff vs `fcfd6349d` = exactly
+   graph.rs+sync.rs, ±11 lines), commit `ecb36850e`, parent `fcfd6349d` —
+   main fast-forward, history append-only. Verified on the patched scratch
+   tree (/tmp/ggen-r35-main.51083, warm target reuse):
+   `just check` PASS; tree diff `--stat` = 2 files only.
+3. **Push re-tested through the new hook** (`git push --dry-run origin
+   main`, exit 1): hook header shows `ref ecb36850e532` + scratch export
+   (validates the REF, demonstrated); `[1/4] Check PASS`, `[2/4] Lint FAIL`
+   — `BLOCKED: pushed ref ecb36850e532 failed gates. Push refused.`
+4. **Re-typed standing (ref-validation removed as a cause):**
+   `BLOCKED[MAIN_SELF_TEST_LINT_POLICY: 19 clippy::expect_used-class errors
+   in 4 e2e test files on main's own content —
+   crates/ggen-engine/tests/sparql_refusals_e2e.rs (15),
+   generation_rules_e2e.rs (2), composed_packs_e2e.rs (1),
+   consumer_mode_fixture_only_e2e.rs (1)]`. This is the operator policy
+   decision R19 deferred: `expect_used`/`expect_err` in e2e tests vs
+   `-D warnings`. Until decided, main is NOT pushed; local main
+   `ecb36850e` remains a lawful FF of origin `d593a7f30`.
+   Note: measured 19 errors vs R19's "25" — R19's count included
+   spec-integration tree noise; the ref-scoped run is authoritative.
+5. **spec-integration content untouched**: shared tree still on
+   spec-integration at `b58f7cb9a` (hook-fix commit + R19 docs only; no
+   branch switch, no rebase, no --no-verify).
