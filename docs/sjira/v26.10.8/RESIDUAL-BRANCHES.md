@@ -230,3 +230,35 @@ assertions are idiomatic in e2e tests; lib gate untouched.
   `find -delete` + re-extract per push, scratch no longer deleted after
   gates. Gate commands and strength unchanged.
 - spec-integration itself remains 0/0 vs origin after this doc commit.
+
+## closure — PR #795 merged + same-checkout violation record (2026-10-09, lane R109)
+
+1. **PR #795 merged** (`gh pr view 795 --repo seanchatmangpt/ggen --json
+   state,mergeCommit`): `state=MERGED`, mergeCommit
+   `16b99731a703fa13c1ec0c310c4137e85186af9d`. `git fetch origin` +
+   `git rev-parse origin/main` → `16b99731a703f...` — origin/main matches
+   R68's landed candidate exactly. main is 0/0 and closed; the R68
+   "PUSHED" standing above is now MERGED-via-PR.
+2. **Recovered stash delta — already landed, no residual diff.** The
+   violating actor's stash (`2896f0588`, "WIP on spec-integration",
+   parented on `4619246cc`) contained exactly one path delta:
+   `scripts/hooks/pre-push.sh` (+10/−2) — the persistent per-sha scratch
+   path that R68 receipts above. Verification:
+   `git diff 2896f0588 HEAD -- scripts/hooks/pre-push.sh` is empty; the
+   fix is byte-identical in R68's commit `583d01573` (attribution: hook
+   fix found applied mid-flight by an unknown lane, landed and disclosed
+   by R68). `docs/sjira/v26.10.8/RESIDUAL-BRANCHES.md` carried no delta in
+   the stash — this section is the only doc change. The stash ref
+   `2896f0588` is preserved, not dropped.
+3. **Same-checkout violation recorded** (for operator audit): at
+   2026-10-09 11:44:49−0700 an unknown actor ran `git reset` + a
+   stash-creating WIP commit (`2896f0588`) on spec-integration, then
+   `git checkout feat/integrate-graphlaw-engine` at 11:44:58 (reflog:
+   `checkout: moving from spec-integration to
+   feat/integrate-graphlaw-engine`, landing at `5d209290c`), then
+   `checkout: moving from feat/integrate-graphlaw-engine to
+   spec-integration` at 11:50:39 (back at `749c7441f`). This is a
+   checkout-global branch switch + stash on the shared canonical checkout
+   — both banned by same-checkout fan-out law rule 1. In-flight edits were
+   swept into the stash mid-flight. No worktree was created; the stash ref
+   is retained as evidence.
