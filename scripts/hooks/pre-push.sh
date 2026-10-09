@@ -42,7 +42,16 @@ FAILED=0
 # push to main; multiple refs are validated sequentially.)
 STATUS=0
 for SHA in "${PUSHED_SHAS[@]}"; do
-    SCRATCH="$(mktemp -d "${TMPDIR:-/tmp}/ggen-pre-push.XXXXXX")"
+    # Persistent per-sha scratch (root-cause fix 2026-10-09, lane R68): the
+    # previous mktemp+rm -rf scratch baked a DIFFERENT deleted directory into
+    # env!("CARGO_MANIFEST_DIR") on every push; the per-sha cargo cache then
+    # reused test binaries whose baked paths no longer existed, so
+    # praxis-core's committed-receipt test failed NotFound on every reuse.
+    # A stable, surviving path keeps baked paths valid across pushes. Gates
+    # and commands are unchanged.
+    SCRATCH="${XDG_CACHE_HOME:-$HOME/.cache}/ggen-pre-push/${SHA:0:12}-src"
+    mkdir -p "$SCRATCH"
+    find "$SCRATCH" -mindepth 1 -delete
     git archive "$SHA" | tar -x -C "$SCRATCH"
 
     # Persistent per-ref cargo target cache so the scratch build is not
@@ -74,7 +83,6 @@ for SHA in "${PUSHED_SHAS[@]}"; do
     run_gate "[3/4] Format"     just fmt-check  || { ok=1; }
     run_gate "[4/4] Unit tests" just test-lib   || { ok=1; }
 
-    rm -rf "$SCRATCH"
 
     if [ "$ok" != 0 ]; then
         echo ""
