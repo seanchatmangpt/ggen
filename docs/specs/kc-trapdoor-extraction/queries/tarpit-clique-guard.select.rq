@@ -1,0 +1,27 @@
+# Algorithmic tar pit 1: saturated cyclic clique guard (b > 100).
+# Corpus: qlever-fortune5-test, index fortune5, builder git-hash 1075455, 203 triples.
+# The traversal predicate f5:rotateCredential occurs in the index (sh:path
+# position), so a naive planner could try to expand it transitively. This guard
+# detects saturation only for a KEYED root; it never runs un-anchored.
+
+PREFIX f5: <https://enterprise.fortune5.com/ontology/>
+PREFIX sh: <http://www.w3.org/ns/shacl#>
+PREFIX kc: <https://ggen.io/ontology/kc-trapdoor#>
+
+SELECT ?root (COUNT(DISTINCT ?y) AS ?cliqueSize)
+WHERE {
+  # Anchoring coordinate: keyed needle IRI (BLAKE3 over canonical subject IRI).
+  BIND(IRI(CONCAT("https://ggen.io/kc/needle/",
+      "blake3:k=<hex-key>|subject=<canonical-iri>")) AS ?root)
+  ?root a kc:Needle .
+
+  # Fuel-budgeted bounded traversal: exactly one hop per clique edge candidate,
+  # never a star. Un-anchored forms of this traversal are refused at the
+  # admission gate (see spec section 4) before the engine sees them.
+  ?root f5:rotateCredential ?y .
+  ?y    f5:rotateCredential ?z .
+  ?z    f5:rotateCredential ?root .
+  FILTER(?y != ?z)
+}
+GROUP BY ?root
+HAVING (COUNT(DISTINCT ?y) > 100)

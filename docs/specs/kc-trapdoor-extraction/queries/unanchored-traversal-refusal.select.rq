@@ -1,0 +1,15 @@
+# REFUSED FORM — this query shape must be REJECTED at the admission gate, never executed.
+# It is recorded here as the falsifier corpus entry for spec section 4.
+# Corpus: qlever-fortune5-test, builder 1075455.
+
+PREFIX f5: <https://enterprise.fortune5.com/ontology/>
+PREFIX kc: <https://ggen.io/ontology/kc-trapdoor#>
+
+SELECT ?src ?dst
+WHERE {
+  # NO anchored root: ?src is free, so the (f5:connects)+ transitive closure
+  # would enumerate the full graph before any join reduction. This is exactly
+  # the un-anchored transitiveConnects* class the fuel budget must abort.
+  ?src (f5:connects)+ ?dst .
+  ?dst f5:serviceId ?sid .
+}
