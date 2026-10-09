@@ -1,0 +1,120 @@
+# Residual Branches — ggen v26.10.8 (Lane R16 closure)
+
+Typed branch-closure state, 2026-10-09. Gate: each branch either 0/0 vs
+`origin` or a receipted PARKED with reason. No force-push, no rebase, no
+`--no-verify` was used.
+
+## lane/cdt-revocation — PUSHED (closed)
+
+- Was local-only at `a82fd95ea` ("spec: CDT revocation for the receipt
+  fabric"), contained in no other branch.
+- Content: 1 commit, docs-only (`docs/specs/cdt-revocation/README.md` +
+  `test-vector.rs`, 521 insertions, 0 deletions). Coherent, no code.
+- `git push -u origin lane/cdt-revocation` — exit 0.
+- Now 0/0 vs origin.
+
+## main — PARKED (BLOCKED by pre-push gate)
+
+- State: 38/0 ahead of `origin/main` (`d593a7f30` → tip `fcfd6349d`), lawful
+  descendant (merge-base = `origin/main`), no force needed. Receipt-clean:
+  the single `wip` commit `2ccaceb29` (self-declared "unverified in-flight")
+  is completed by the later commit `339ba4e9b` ("complete consumer_mode
+  field...") — the wip+fix pair is the receipt.
+- Two push attempts, both refused by the installed pre-push hook
+  (`.git/hooks/pre-push`: `just check` / `just lint` / `just fmt-check` /
+  `just test-lib`):
+  1. Attempt 1: `just check` exceeded the hook's 300s timeout on a cold
+     build (transient — `just check` passes warm in 3.35s, exit 0).
+  2. Attempt 2: real `just lint` (clippy `-D warnings`) failures —
+     `crates/ggen-engine/src/graph.rs:483` `Some('?') | Some('$')`
+     (`clippy::unnested_or_patterns`) and `:461` (`collapsible_match`),
+     present identically in main's own content; plus clippy errors in
+     `crates/praxis-graphlaw/tests/arw1_wire_spec_test.rs` /
+     `ggen_law_pack_audit.rs` that exist only on the checked-out
+     spec-integration tree, not in main.
+- Typed reason: `BLOCKED[HOOK_VALIDATES_CHECKED_OUT_TREE]` — the hook gates
+  the working tree (`spec-integration` = main+15, another lane's in-flight
+  state), not the pushed ref's content. Closing it requires either (a)
+  fixing spec-integration's clippy debt (not lane R16's files) or (b)
+  `--no-verify` (refused: bypassing a gate is a force-class transition). A
+  checkout-global branch switch on the shared canonical checkout is
+  likewise refused by same-checkout fan-out law.
+- Push commands + exits: `git push origin main` x2, exits 1 and 1. Origin
+  `main` unchanged at `d593a7f30`.
+
+## feat/v26.10.5-release-cut — PUSHED (closed)
+
+- Was 1 commit ahead of origin (`905d8af33` → `2ccaceb29`, "wip(os-13):
+  consumer-mode fixtureOnly emission filter (WP-5 consumer half)"). The tip
+  is fully contained in main (ancestor of `fcfd6349d`), so the push carries
+  no content not already covered by main's eventual landing.
+- `git push origin feat/v26.10.5-release-cut` — exit 0; origin moved
+  `905d8af33..2ccaceb29`. Now 0/0 vs origin.
+- The tip is a self-declared wip whose completion (`339ba4e9b`) lives on
+  main; no separate PARKED needed — branch is 0/0 and its content is
+  superseded on main.
+
+## Receipt summary
+
+| branch | from → to | command | exit | standing |
+|---|---|---|---|---|
+| lane/cdt-revocation | local-only → `a82fd95ea` | `git push -u origin lane/cdt-revocation` | 0 | PUSHED, 0/0 |
+| main | `d593a7f30` → `fcfd6349d` (38 commits, fast-forward, NOT pushed) | `git push origin main` (x2) | 1, 1 | PARKED: `BLOCKED[HOOK_VALIDATES_CHECKED_OUT_TREE]` |
+| feat/v26.10.5-release-cut | `905d8af33` → `2ccaceb29` | `git push origin feat/v26.10.5-release-cut` | 0 | PUSHED, 0/0 |
+
+Fix-forward path for main (one lane, ~3 lines): nest the or-pattern at
+`crates/ggen-engine/src/graph.rs:483` (`Some('?' | '$')`), collapse the
+`collapsible_match` at `:461`, and land spec-integration or fix its
+praxis-graphlaw test clippy debt so the hook's `just lint` passes on the
+checked-out tree; then re-push main (still a fast-forward).
+
+## main — R19 re-type (2026-10-09, lane R19)
+
+`BLOCKED[HOOK_VALIDATES_CHECKED_OUT_TREE]` is CONFIRMED but the fix-forward
+path above is UNDERSTATED. Findings, from running the hook's exact lint gate
+(`timeout 300s cargo clippy --workspace --all-targets --keep-going -- -D
+warnings -A unexpected_cfgs`) against main's exact bytes via
+`git archive main` into a scratch dir (no worktree, no branch switch):
+
+1. **Main's own lib debt is 6 lints, not 2.** graph.rs:461
+   (`collapsible_match`), :483 (`unnested_or_patterns`), :515
+   (`map_unwrap_or`); sync.rs:673 (`uninlined_format_args`), :1571
+   (`default_trait_access`), :1577 (`doc_markdown`). All six were fixed in
+   the working tree (clippy --fix on `-p ggen-engine` + one hand edit), the
+   lint gate then passed for the ggen-engine lib, and the fixes were
+   reverted per compile-freeze-SLA disclosure rules. Receipted diff:
+   `docs/sjira/v26.10.8/r19-main-clippy-unblock.patch` (applies cleanly to
+   the current tree; `git apply --check` exit 0). Owner lane lands it.
+2. **Main cannot pass its own hook even in isolation.** With the 6 lib
+   fixes applied to main's bytes, the same lint gate still fails with 25
+   errors in 4 main-content test files (identical to main on disk):
+   `crates/ggen-engine/tests/sparql_refusals_e2e.rs` (15: expect_used/
+   expect_err_used, needless raw-string hashes, uninlined_format_args),
+   `generation_rules_e2e.rs` (2: unused variable, doc_markdown),
+   `composed_packs_e2e.rs` (1: too-many-lines 109/100),
+   `consumer_mode_fixture_only_e2e.rs` (1: doc_markdown). These lints only
+   surface once the lib compiles, which is why R16's sweep stopped at 2.
+3. **spec-integration debt on the shared tree** (not fixed, not lane R19's):
+   `crates/praxis-graphlaw/tests/arw1_wire_spec_test.rs:33` (empty line
+   after doc comment), `ggen_law_pack_audit.rs:81` (needless_borrows),
+   `crates/ggen-engine/tests/abb_sbb_datalog_admission_e2e.rs` (2, new file
+   not on main).
+4. **Working tree returned to pre-lane state.** `git status` = only
+   `?? docs/sjira/`; `git diff` empty; graph.rs/sync.rs verified
+   byte-identical to HEAD via `git show HEAD:` diff (exit 0).
+
+Re-typed standing:
+`BLOCKED[HOOK_VALIDATES_CHECKED_OUT_TREE: main-self-debt=6-lib+25-test-lints;
+spec-integration-debt=3-files]`. No push attempted (hook would refuse).
+Push of main remains a lawful fast-forward d593a7f30 → fcfd6349d once the
+shared tree's lint gate passes; unblock order: (a) land
+`r19-main-clippy-unblock.patch` on main, (b) fix the 4 main test files'
+lint debt on main, (c) land/fix spec-integration's 3 files, (d) re-push.
+
+Commands + exits (this lane): `just check` exit 0 (warm, 2.93s); `just
+lint` exit 101 pre-fix; `cargo clippy -p ggen-engine --fix` applied 5 of 6
+lints (default_trait_access applied by hand); `just lint` post-fix: lib
+clean, 3 spec-integration files + 4 main test files failing; scratch
+main-content lint runs as above; `git checkout -- graph.rs sync.rs` +
+byte-identical restoration proof exit 0.
+
