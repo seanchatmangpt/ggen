@@ -1,0 +1,7 @@
+delta-validation report (rust/rustdoc-json)
+subject: demo_agent.rs
+G_original (expected surface): 2 paths
+G_recovered (public-item surface): 2 paths
+Delta(G) = G_recovered \ G_original =
+  (none)
+VERDICT: ALIVE (Delta(G) = 0)

@@ -1,0 +1,2 @@
+demo_agent::init
+demo_agent::handle_message

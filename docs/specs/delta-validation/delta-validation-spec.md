@@ -2,10 +2,13 @@
 
 Status: PARTIAL_ALIVE. The invariant (Section 2), abort semantics
 (Section 2.3), and per-language parse-back designs (Section 3) are
-specified; the Elixir harness is implemented and witnessed on a real
-ggen-generated artifact (Section 6 receipt). The Rust and WASM
-parse-back designs are spec-proposed with real toolchain anchors and
-unimplemented (UNVERIFIED).
+specified. All three language legs (Elixir, Rust, WASM) are implemented
+and witnessed: the Elixir harness on a real ggen-generated artifact
+(Section 6 receipt), the Rust and WASM extractors on hand-built sample
+artifacts plus one real wasm4pm binary (Section 6b receipt). The ggen
+Rust-artifact leg remains UNVERIFIED — no Rust artifact was generated
+through the ggen pipeline in the witnessing run; the Rust sample crate
+is hand-built and marked as such.
 
 ## 1. Scope and epistemic status
 
@@ -21,9 +24,12 @@ that declares exactly two exported functions; parsing the artifact back
 yielded Delta(G) = empty and verdict ALIVE. A hand-mutated artifact
 with one smuggled public function yields Delta(G) nonempty and verdict
 ABORT. The run receipt, artifact, and delta report are frozen in
-`fixtures/`. Everything else — Rust/WASM parse-back, mix-task
-integration, CI wiring — is spec-proposed (UNVERIFIED here); each such
-item is labeled. No number in this document was produced by execution
+`fixtures/`. The Rust and WASM parse-back extractors are implemented
+and witnessed (`delta_validate_rust.sh`, `delta_validate_wasm.sh`,
+Section 6b receipt) — the Rust sample is hand-built and marked as
+such. Everything else — write-stage integration, mix-task packaging,
+CI wiring — is spec-proposed (UNVERIFIED here); each such item is
+labeled. No number in this document was produced by execution
 unless it appears in the Section 6 receipt or is cited with its
 command.
 
@@ -118,25 +124,33 @@ stripped before comparison with ontology literal strings. Only
 `:export` attribute forms are read — a `defp` can never appear there,
 so the recovered set is exactly the caller-touchable surface.
 
-### 3.2 Rust (spec-proposed, UNVERIFIED)
+### 3.2 Rust (witnessed, 2026-10-09 — design corrected by evidence)
 
-Anchor: `rustc --emit=metadata` on each emitted `.rs` artifact (plus
-`--crate-type=lib` and `--edition2021`/manifest edition). The metadata
-decoding path is `rustc_metadata` — not a stable API, so the design
-decomposes the surface extraction into toolchain-stable outputs:
+The spec-proposed anchor was validated against the real toolchain and
+two parts of it are **refuted by execution**:
 
-- exported items via `rustdoc --output-format json` (nightly
-  JSON backend, stable-shape output since 1.82-era nightly) — gives
-  the public item set per crate without executing the crate;
-- the strict Delta check then diffs that item set against
-  ontology-declared `cli:binding`/`cli:action` individuals, the same
-  surface the repo's own gate
-  `.specify/gates/every-action-has-binding.rq` already enumerates.
+1. `rustc --emit=metadata` produces a bare `.rmeta` file that `nm`
+   cannot read at all ("The file was not recognized as a valid object
+   file"). The metadata+nm fallback as originally written cannot work;
+   metadata-only emission has no symbol surface.
+2. `nm -g` on a *full* rlib works for some crates, but is unreliable on
+   this host: Apple `nm` (Xcode CLT) and homebrew `llvm-nm` (LLVM 21)
+   both refuse certain LLVM-22 object members with
+   "Unknown attribute kind (102/105)" — a two-function crate read fine
+   while a third crate (same compiler) using std alloc glue was
+   unreadable to both. `nm` is a degraded fallback only, never primary.
 
-Fallback anchor if the JSON output drifts: compile with
-`rustc --emit=metadata -Zls` (rust-analyzer side) is rejected —
-non-hermetic; instead fall back to `nm -g` on the compiled rlib's
-object members for the symbol surface, a stable binutils anchor.
+Primary anchor (witnessed): `rustdoc --output-format json -Z
+unstable-options` (nightly-only). Public items are machine-extractable
+from the JSON index (`visibility == "public"`), giving the surface as
+`crate::item` paths without any object parsing. Requires a nightly
+rustdoc; `delta_validate_rust.sh` retries through the rustup-active
+nightly if the ambient toolchain is stable (outside the ggen tree the
+rustup default is stable 1.97 — witnessed).
+
+Witnessed surface: `crate::item` paths, top-level items only; nested
+module paths and `#[no_mangle]` extern surfaces are future work
+(Section 7).
 
 ### 3.2.1 ABB/proof-test tie-in (spec-proposed, UNVERIFIED)
 
@@ -144,21 +158,31 @@ ggen's own surface already has the ontology side enumerated by gates
 (`every-binding-has-template.rq`,
 `every-binding-has-output-pattern.rq`, `every-command-has-handler.rq`
 under `/Users/sac/ggen/.specify/gates/`); the Delta harness for Rust
-completes the artifact side. Until the rustdoc-JSON extractor exists,
-Rust artifacts are UNVERIFIED under this law (labeled, not hidden).
+completes the artifact side. Until the extractor is wired into the
+write stage, Rust artifacts are UNVERIFIED under this law (labeled,
+not hidden) — the extractor itself is witnessed (Section 6b), the
+pipeline integration is not.
 
-### 3.3 WASM (spec-proposed, praxis-graphlaw target, UNVERIFIED)
+### 3.3 WASM (witnessed, 2026-10-09)
 
-Anchor: the WebAssembly text format. Emitted `.wat` parses with
-`wat2wasm` (wabt) `--no-check` off, i.e. a plain
-`wat2wasm mod.wat -o /dev/null` already refuses malformed text; the
-surface is then the `(export "name" ...)` clauses, extracted by a
-line-oriented parse of the `.wat` text — the text format is the
-toolchain's own grammar. For binary `.wasm`, `wasm2wat` first, then
-the same export extraction. For praxis-graphlaw's WASM kernel
-(`crates/praxis-graphlaw/`), the recovered export set is diffed
+Anchor: the WebAssembly text format, exactly as spec-proposed — the
+design survived execution unchanged. `wat2wasm mod.wat -o /dev/null`
+(wabt 1.0.42) is the syntax gate; binary `.wasm` goes through
+`wasm2wat` first; the surface is the `(export "name")` clauses,
+extracted by a line-oriented parse of the wat text. Witnessed on:
+
+- hand-built `.wat` sample (2 exports) — ALIVE; adversarial `.wat`
+  with a smuggled export — ABORT naming it;
+- binary path: a real wasm4pm artifact
+  (`/Users/sac/wasm4pm/wasm4pm/pkg/wasm4pm_bg.wasm`, sha256
+  `45d5b982ce26f36eca11055f37d34ef88b9fcf83d57b9d0b08813b4c0da7e76a`,
+  730 distinct export names) — ALIVE; a recompiled binary with one
+  smuggled export — ABORT naming it.
+
+praxis-graphlaw tie-in unchanged: the recovered export set is diffed
 against the law object's declared API in
-`crates/praxis-graphlaw/src/lib.rs`.
+`crates/praxis-graphlaw/src/lib.rs` (not exercised in the witnessing
+run; integration UNVERIFIED).
 
 ## 4. Harness
 
@@ -256,14 +280,75 @@ Frozen fixture check commands:
     elixir delta_validate.exs fixtures/Demo.Agents.Echo.ex fixtures/expected-surface.txt   # exit 0
     elixir delta_validate.exs fixtures/evil.ex fixtures/expected-surface.txt               # exit 1
 
+## 6b. Receipt (Rust + WASM legs witnessed, 2026-10-09)
+
+Environment: rustc/rustdoc 1.98.0-nightly (91fe22da8 2026-06-21,
+rustup toolchain `nightly-2026-06-22-aarch64-apple-darwin`, pinned by
+ggen's rust-toolchain.toml; rustup default outside the tree is stable
+1.97.0 — witnessed); Apple nm (Xcode CLT, LLVM
+APPLE_1_1700.6.3.2_0) and llvm-nm 21.1.7 both refuted as primary
+anchors (Section 3.2); wabt 1.0.42 (wat2wasm/wasm2wat, homebrew);
+macOS darwin.
+
+Scripts: `delta_validate_rust.sh`, `delta_validate_wasm.sh` (this
+directory). Fixtures: `fixtures-rust/` (hand-built sample crate,
+marked as such — no Rust artifact was generated through the ggen
+pipeline in this run) and `fixtures-wasm/` (hand-built `.wat`
+samples; the real-binary witness is the wasm4pm artifact cited by
+sha256, not frozen in-tree at 7.2 MB).
+
+Commands and exits (all executed 2026-10-09):
+
+    # Rust leg (rustdoc JSON primary anchor)
+    bash delta_validate_rust.sh demo_agent.rs expected-surface.txt
+      -> exit 0, VERDICT: ALIVE (Delta(G) = 0), 2/2 paths
+    bash delta_validate_rust.sh evil/demo_agent.rs expected-surface.txt
+      -> exit 1, Delta(G) = ["demo_agent::smuggled_admin_backdoor"],
+         VERDICT: ABORT
+
+    # WASM leg, hand-built text
+    bash delta_validate_wasm.sh mod.wat expected-surface.txt
+      -> exit 0, VERDICT: ALIVE (Delta(G) = 0), 2/2 exports
+    bash delta_validate_wasm.sh evil.wat expected-surface.txt
+      -> exit 1, Delta(G) = ["smuggled_admin_backdoor"], VERDICT: ABORT
+
+    # WASM leg, real binary (wasm4pm, sha256 above)
+    bash delta_validate_wasm.sh <wasm4pm_bg.wasm> <its own export set>
+      -> exit 0, VERDICT: ALIVE, 730/730 exports
+    bash delta_validate_wasm.sh <recompiled binary +1 smuggled export> <same expected>
+      -> exit 1, Delta(G) = ["smuggled_admin_backdoor"], VERDICT: ABORT
+
+Frozen fixture check commands:
+
+    cd docs/specs/delta-validation
+    bash delta_validate_rust.sh fixtures-rust/demo_agent.rs fixtures-rust/expected-surface.txt   # exit 0
+    bash delta_validate_rust.sh fixtures-rust/evil_demo_agent.rs fixtures-rust/expected-surface.txt  # exit 1 (names smuggled_admin_backdoor)
+    bash delta_validate_wasm.sh fixtures-wasm/mod.wat fixtures-wasm/expected-surface.txt          # exit 0
+    bash delta_validate_wasm.sh fixtures-wasm/evil.wat fixtures-wasm/expected-surface.txt          # exit 1
+
+Note on the negative Rust fixture: the recovered crate name derives
+from the artifact filename (`crate::item`), so the adversarial artifact
+must keep the same filename as the clean one — the fixture is frozen
+as `evil_demo_agent.rs`; running it directly would report a full-surface
+delta under crate name `evil_demo_agent`. The witnessed abort run used
+`evil/demo_agent.rs`.
+
 ## 7. Future work
 
 - Abort on completeness violations (G_original \ G_recovered), not
   just soundness (Delta).
 - Wire the harness as a mix task (`mix ggen.delta_validate`) or
   post-write hook inside `generation_rules.rs` (invoke
-  `elixir delta_validate.exs` per emitted `.ex`).
-- Implement the Rust (Section 3.2) and WASM (Section 3.3) extractors
-  to bring those surfaces under the same law.
+  `elixir delta_validate.exs` per emitted `.ex`; invoke
+  `delta_validate_rust.sh` / `delta_validate_wasm.sh` per emitted
+  `.rs` / `.wat`+`.wasm`).
+- Generate a Rust artifact through the ggen pipeline and re-run the
+  witnessed extractor on it (the Rust sample is hand-built today).
+- Nested-module path reconstruction in the rustdoc-JSON extractor
+  (current surface is top-level `crate::item` only), and a
+  `#[no_mangle]` extern surface.
+- praxis-graphlaw WASM tie-in: diff the recovered export set against
+  the law object's declared API in
+  `crates/praxis-graphlaw/src/lib.rs`.
 - Ontology-side derivation of `expected-surface.txt` via the repo's
   SPARQL machinery instead of a frozen sidecar file.
