@@ -1,0 +1,6 @@
+delta-validation report
+subject: Elixir.Demo.Agents.Echo
+G_original (ontology-declared surface): 2 exports
+G_recovered (abstract_code surface): 2 exports
+Delta(G) = G_recovered \ G_original = []
+VERDICT: ALIVE (Delta(G) = 0)
