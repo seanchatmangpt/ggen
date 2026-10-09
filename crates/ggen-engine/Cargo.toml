@@ -93,6 +93,8 @@ star-toml = "26.7.3"
 # Pinned to the exact version oxigraph 0.5.9 already resolves (see
 # Cargo.lock) so this never becomes a duplicate-version dependency graph.
 spargebra = "0.4.7"
+graphlaw = { workspace = true }
+ggen-abb-sbb = { path = "../ggen-abb-sbb" }
 praxis-core = { path = "../praxis-core" }
 praxis-graphlaw = { path = "../praxis-graphlaw" }
 # New, deliberate edge (not an undocumented re-export): resolving a `GenerationRule`'s

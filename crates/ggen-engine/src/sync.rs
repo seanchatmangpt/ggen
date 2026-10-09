@@ -811,6 +811,83 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
         duration_ms(validate_start.elapsed()),
     );
 
+    // ── Stage 2c: EA Graph (ABB/SBB) & Depgraph Admission ──────────────
+    //
+    // If an EA graph (strategy/capabilities/abbs/contracts/sbbs/qualifications)
+    // is declared in the project, admit every candidate SBB against the
+    // architecture contract before proceeding to template rendering.
+    // In addition, if packs define [graph] dependencies or ports, resolve
+    // cross-pack DAG, cycles, and port completeness.
+    {
+        // 1. Pack-level dependency/port resolution
+        let mut pack_manifests = Vec::new();
+        for pack in &packs {
+            let manifest_path = pack.root.join("pack.toml");
+            if manifest_path.is_file() {
+                if let Ok(content) = std::fs::read_to_string(&manifest_path) {
+                    if let Ok(pm) = ggen_abb_sbb::depgraph::extract_pack_manifest(&content) {
+                        pack_manifests.push(pm);
+                    }
+                }
+            }
+        }
+        if !pack_manifests.is_empty() {
+            let consumer_edges = if manifest_path.is_file() {
+                std::fs::read_to_string(&manifest_path)
+                    .ok()
+                    .and_then(|c| ggen_abb_sbb::depgraph::extract_consumer_edges(&c).ok().flatten())
+            } else {
+                None
+            };
+            ggen_abb_sbb::depgraph::resolve_sync_order(&pack_manifests, consumer_edges.as_ref())
+                .map_err(|refusal| {
+                    AppError::fm_pack(
+                        15,
+                        format!("Cross-pack dependency graph admission refused: {refusal}"),
+                    )
+                })?;
+        }
+
+        // 2. EA graph admission: if ea.graph.json exists or is embedded
+        let ea_graph_path = root.join("ea.graph.json");
+        if ea_graph_path.is_file() {
+            let content = std::fs::read_to_string(&ea_graph_path).map_err(|e| {
+                AppError::fm_law(
+                    15,
+                    format!("ea.graph.json at `{}` unreadable: {e}", ea_graph_path.display()),
+                )
+            })?;
+            let ea_graph = ggen_abb_sbb::parse_graph(&content).map_err(|refusal| {
+                AppError::fm_law(
+                    15,
+                    format!("EA graph at `{}` malformed: {refusal}", ea_graph_path.display()),
+                )
+            })?;
+            // Validate graph integrity
+            ea_graph.validate().map_err(|refusal| {
+                AppError::fm_law(
+                    15,
+                    format!("EA graph at `{}` failed validation: {refusal}", ea_graph_path.display()),
+                )
+            })?;
+            // Admit every candidate SBB defined in the graph
+            for sbb in &ea_graph.candidate_sbbs {
+                let req = ggen_abb_sbb::Request {
+                    abb: sbb.abb.clone(),
+                    sbb: sbb.id.clone(),
+                    requested_authority: ggen_abb_sbb::Authority::Construct,
+                    expected_graph_digest: None,
+                };
+                ggen_abb_sbb::admit(&ea_graph, &req).map_err(|refusal| {
+                    AppError::fm_law(
+                        15,
+                        format!("EA SBB admission refused for `{}`: {refusal}", sbb.id),
+                    )
+                })?;
+            }
+        }
+    }
+
     let graph_hash_hex = hex32(&graph.state_hash()?);
 
     // ── Stages 3–4: Extract, Render every template into memory ──────────

@@ -62,6 +62,7 @@ members = [
   "crates/ggen-config",
   "crates/ggen-marketplace",
   "crates/ggen-cli",
+  "crates/ggen-abb-sbb",
   "crates/ggen-graph",
   "crates/ggen-lsp",
   # ggen-core replacement engine (docs/jira/v26.7.16/): vendored, renamed copy
@@ -119,12 +120,9 @@ members = [
 # is: to make the "why isn't this one of the workspace's crates" answer discoverable in the one
 # file a reader would check first, not left to be re-derived from scratch.
 #
-# `crates/ggen-abb-sbb` (2026-09-26, RFC docs/rfc/v26.9.26/abb-sbb-implementation.md): excluded
-# for the same reason as `crates/ggen-architecture` -- it declares its own `[workspace]` and ships
-# its own `Cargo.lock`, so it is an independent workspace root that cannot be a member here. Its
-# court is `.github/workflows/abb-sbb-manufacture.yml`; no root member depends on it yet (seed
-# standing PARTIAL_ALIVE, not wired into ggen-cli/sync).
-exclude = ["examples/7-agent-validation", "crates/ggen-architecture", "crates/ggen-abb-sbb"]
+# `crates/ggen-abb-sbb` (RFC docs/rfc/v26.9.26/abb-sbb-implementation.md): integrated
+# into workspace members in v26.10.9.
+exclude = ["examples/7-agent-validation", "crates/ggen-architecture"]
 resolver = "2" # Use new resolver for better dependency resolution
 
 # Workspace-wide dependencies for version consistency
@@ -141,6 +139,7 @@ anyhow = "1.0"
 chrono = { version = "0.4", features = ["serde"] }
 thiserror = "2.0"
 async-trait = "0.1"
+graphlaw = { path = "../graphlaw", default-features = false, features = ["abi"] }
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = [
   "env-filter",
