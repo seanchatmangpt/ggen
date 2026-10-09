@@ -333,7 +333,22 @@ as `evil_demo_agent.rs`; running it directly would report a full-surface
 delta under crate name `evil_demo_agent`. The witnessed abort run used
 `evil/demo_agent.rs`.
 
-## 7. Future work
+## 7. Alpha-gamma kernel hygiene error codes (grounded)
+
+The alpha-gamma kernel (`crates/praxis-graphlaw/src/ggen_law.rs`) implements
+the ontology hygiene laws as typed errors whose `Display` begins with a
+stable string code so receipts and refusals can be matched on the code alone
+(ggen_law.rs:51-96, checker `check_hygiene` at :195). These are the hygiene
+refusal codes; they are not ARW/1 wire codes:
+
+| string code | variant | meaning |
+|---|---|---|
+| `E_DOD9_COLLISION` | `Dod9Collision` (ggen_law.rs:56, display :73) | one IRI claimed two of Pack/ABB/SBB (pairwise disjoint) |
+| `E_METAMODEL_HYGIENE_VIOLATION` | `MetamodelHygieneViolation` (:59, display :78) | a non-core source axiomatizes a core term, or a core term is redefined as an external class; wire alias formally reserved as 0xE009 (wire-protocol.md Section 6) |
+| `E_AUTHORITY_ROOT_UNPINNED` | `AuthorityRootUnpinned` (:65, display :88) | an ea/togaf-family IRI outside the pinned authority root |
+| `E_NAMESPACE_LEAK` | `NamespaceLeak` (:67, display :92) | a pack-internal term escaped into the domain projection; wire alias formally reserved as 0xEA01 (wire-protocol.md Section 6) |
+
+## 8. Future work
 
 - Abort on completeness violations (G_original \ G_recovered), not
   just soundness (Delta).
