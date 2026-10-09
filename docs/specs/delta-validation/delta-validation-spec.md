@@ -13,9 +13,10 @@ Elixir demo (Tera templates are language-agnostic); the pipeline
 artifact compiles with ggen's pinned nightly rustc and the harness
 witnesses ALIVE and ABORT on pipeline-produced artifacts. The hand-built
 Rust samples (Section 6b) remain in-tree as extractor-level fixtures.
-The pipeline-hop question for WASM is resolved in Section 3.3.1: no
+The WASM pipeline-hop question is resolved in Section 3.3.1: no
 WAT/WASM template exists in ggen, so the WASM leg stays
-witnessed-on-real-binary.
+witnessed-on-real-binary (Section 3.3) and WASM template authoring is
+future work (Section 8).
 
 ## 1. Scope and epistemic status
 
@@ -204,18 +205,19 @@ exists anywhere in ggen's pack inventory. Established by direct
 filesystem sweep on 2026-10-09 over `packs/*/templates/` and the
 local marketplace cache (`~/.ggen`): zero `*.wat*` files, zero
 `*wasm*.tmpl` templates, and no template body containing WebAssembly
-text (`(module`, `(export`, `wat2wasm`). Nearest neighbors, neither of
+text (`(module`, `(export`, `wat2wasm`). Nearest neighbors, none of
 which renders WAT/WASM bytes:
 
 - `packs/tcps-wasm-pack/` — generates a Rust crate that *targets*
   `wasm32-*`; its templates emit `.rs`, not WAT.
 - `packs/tcps-release-pack/templates/wasm_smoke_mjs.tmpl` (and the
   `*_sh_script.tmpl` companions) — Node/shell smoke tests that
-  *load* a prebuilt `.wasm`; they consume binary, never produce it.
+  *load* a prebuilt `.wasm`; they consume the binary, never produce
+  it.
 
 Consequence: the WASM leg remains witnessed on the hand-built `.wat`
 samples plus the real wasm4pm binary (Section 3.3); WASM artifacts
-emitted by the ggen pipeline remain a vacuous class — the pipeline
+emitted by the ggen pipeline are a vacuous class today — the pipeline
 cannot currently emit one, so there is nothing to validate and the
 hop is future work. Closing it requires first authoring a
 `*.wat.tmpl` template + ontology declaring an export surface in some
@@ -378,7 +380,7 @@ delta under crate name `evil_demo_agent`. The witnessed abort run used
 ## 6c. Receipt (Rust pipeline hop closed, 2026-10-09)
 
 The last UNVERIFIED hop — "no Rust artifact generated through the ggen
-pipeline" (Sections Status/1/6b; formerly also Section 7) — is closed by execution. There is
+pipeline" (Sections Status/1/6b; formerly also Section 8) — is closed by execution. There is
 no Rust template gap: ggen's generation rules are language-agnostic
 (Tera template + SPARQL query + output pattern), so the exact
 generation-rule shape of the Elixir demo (Section 5) renders Rust
