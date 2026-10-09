@@ -25,7 +25,7 @@
     dcterms:creator <https://github.com/seanchatmangpt> ;
     dcterms:hasVersion "1.0.0" ;
     dcterms:modified "2026-08-06"^^xsd:date ;
-    prov:wasDerivedFrom <../source-inventory.md> ;
+    prov:wasDerivedFrom "source-inventory.md" ;
     reg:sourceInventorySha256 "8a4a75675ad9db9597767bd8086b2a5a85b1a1e7c98c0d34f90bc4b935c99d1a" ;
     reg:recordStanding reg:ALIVE ;
     reg:sourceStanding reg:UNKNOWN ;
