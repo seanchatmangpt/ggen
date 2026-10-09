@@ -147,9 +147,6 @@ under `/Users/sac/ggen/.specify/gates/`); the Delta harness for Rust
 completes the artifact side. Until the rustdoc-JSON extractor exists,
 Rust artifacts are UNVERIFIED under this law (labeled, not hidden).
 
- until the extractor exists,
-until the extractor exists, Rust artifacts are UNVERIFIED under this law.
-
 ### 3.3 WASM (spec-proposed, praxis-graphlaw target, UNVERIFIED)
 
 Anchor: the WebAssembly text format. Emitted `.wat` parses with
