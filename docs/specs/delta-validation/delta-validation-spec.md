@@ -13,6 +13,9 @@ Elixir demo (Tera templates are language-agnostic); the pipeline
 artifact compiles with ggen's pinned nightly rustc and the harness
 witnesses ALIVE and ABORT on pipeline-produced artifacts. The hand-built
 Rust samples (Section 6b) remain in-tree as extractor-level fixtures.
+The pipeline-hop question for WASM is resolved in Section 3.3.1: no
+WAT/WASM template exists in ggen, so the WASM leg stays
+witnessed-on-real-binary.
 
 ## 1. Scope and epistemic status
 
@@ -73,7 +76,7 @@ The converse direction (G_original \ G_recovered, an ontology-declared
 export missing from the artifact) is a *completeness* violation, not a
 Delta violation; the harness reports it in the per-surface counts but
 does not abort on it. Extending abort to both directions is future
-work (Section 7).
+work (Section 8).
 
 The law is checked post-write, pre-qualification. Integration point:
 immediately after the write stage inside
@@ -157,7 +160,7 @@ rustup default is stable 1.97 — witnessed).
 
 Witnessed surface: `crate::item` paths, top-level items only; nested
 module paths and `#[no_mangle]` extern surfaces are future work
-(Section 7).
+(Section 8).
 
 ### 3.2.1 ABB/proof-test tie-in (spec-proposed, UNVERIFIED)
 
@@ -190,6 +193,37 @@ praxis-graphlaw tie-in unchanged: the recovered export set is diffed
 against the law object's declared API in
 `crates/praxis-graphlaw/src/lib.rs` (not exercised in the witnessing
 run; integration UNVERIFIED).
+
+### 3.3.1 Pipeline hop: template gap (resolved 2026-10-09 — gap named, not closed)
+
+The last pipeline hop for WASM — render a `.wat` module **through
+`ggen sync run`** and run `delta_validate_wasm.sh` on the true render
+(ALIVE) and a pipeline-rendered adversarial variant with a smuggled
+export (ABORT) — is **not executed**, because no WAT/WASM template
+exists anywhere in ggen's pack inventory. Established by direct
+filesystem sweep on 2026-10-09 over `packs/*/templates/` and the
+local marketplace cache (`~/.ggen`): zero `*.wat*` files, zero
+`*wasm*.tmpl` templates, and no template body containing WebAssembly
+text (`(module`, `(export`, `wat2wasm`). Nearest neighbors, neither of
+which renders WAT/WASM bytes:
+
+- `packs/tcps-wasm-pack/` — generates a Rust crate that *targets*
+  `wasm32-*`; its templates emit `.rs`, not WAT.
+- `packs/tcps-release-pack/templates/wasm_smoke_mjs.tmpl` (and the
+  `*_sh_script.tmpl` companions) — Node/shell smoke tests that
+  *load* a prebuilt `.wasm`; they consume binary, never produce it.
+
+Consequence: the WASM leg remains witnessed on the hand-built `.wat`
+samples plus the real wasm4pm binary (Section 3.3); WASM artifacts
+emitted by the ggen pipeline remain a vacuous class — the pipeline
+cannot currently emit one, so there is nothing to validate and the
+hop is future work. Closing it requires first authoring a
+`*.wat.tmpl` template + ontology declaring an export surface in some
+pack, then re-running this section's two-case witnessing (ALIVE on
+the render, ABORT on an ontology-unproven smuggled export) and
+replacing this paragraph with the receipt. The Elixir leg's
+`fixtures/` (ontology + `ggen.toml` + template + artifact) is the
+shape to copy.
 
 ## 4. Harness
 
@@ -344,7 +378,7 @@ delta under crate name `evil_demo_agent`. The witnessed abort run used
 ## 6c. Receipt (Rust pipeline hop closed, 2026-10-09)
 
 The last UNVERIFIED hop — "no Rust artifact generated through the ggen
-pipeline" (Sections Status/1/6b/7) — is closed by execution. There is
+pipeline" (Sections Status/1/6b; formerly also Section 7) — is closed by execution. There is
 no Rust template gap: ggen's generation rules are language-agnostic
 (Tera template + SPARQL query + output pattern), so the exact
 generation-rule shape of the Elixir demo (Section 5) renders Rust
@@ -404,7 +438,22 @@ expected-surface.txt) into a scratch dir preserving that shape, run
 `ggen sync run --format json`, compile with the pinned nightly, then
 run the harness commands above.
 
-## 7. Future work
+## 7. Alpha-gamma kernel hygiene error codes (grounded)
+
+The alpha-gamma kernel (`crates/praxis-graphlaw/src/ggen_law.rs`) implements
+the ontology hygiene laws as typed errors whose `Display` begins with a
+stable string code so receipts and refusals can be matched on the code alone
+(ggen_law.rs:51-96, checker `check_hygiene` at :195). These are the hygiene
+refusal codes; they are not ARW/1 wire codes:
+
+| string code | variant | meaning |
+|---|---|---|
+| `E_DOD9_COLLISION` | `Dod9Collision` (ggen_law.rs:56, display :73) | one IRI claimed two of Pack/ABB/SBB (pairwise disjoint) |
+| `E_METAMODEL_HYGIENE_VIOLATION` | `MetamodelHygieneViolation` (:59, display :78) | a non-core source axiomatizes a core term, or a core term is redefined as an external class; wire alias formally reserved as 0xE009 (wire-protocol.md Section 6) |
+| `E_AUTHORITY_ROOT_UNPINNED` | `AuthorityRootUnpinned` (:65, display :88) | an ea/togaf-family IRI outside the pinned authority root |
+| `E_NAMESPACE_LEAK` | `NamespaceLeak` (:67, display :92) | a pack-internal term escaped into the domain projection; wire alias formally reserved as 0xEA01 (wire-protocol.md Section 6) |
+
+## 8. Future work
 
 - Abort on completeness violations (G_original \ G_recovered), not
   just soundness (Delta).
@@ -416,6 +465,11 @@ run the harness commands above.
 - Nested-module path reconstruction in the rustdoc-JSON extractor
   (current surface is top-level `crate::item` only), and a
   `#[no_mangle]` extern surface.
+- Author a WAT/WASM template (`*.wat.tmpl` + export-surface ontology)
+  in a pack, then close the WASM pipeline hop: render via
+  `ggen sync run`, run `delta_validate_wasm.sh` on the true render
+  (ALIVE) and an ontology-unproven smuggled-export variant (ABORT);
+  see Section 3.3.1.
 - praxis-graphlaw WASM tie-in: diff the recovered export set against
   the law object's declared API in
   `crates/praxis-graphlaw/src/lib.rs`.

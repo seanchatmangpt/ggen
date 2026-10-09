@@ -271,9 +271,14 @@ first call.
 | 0xE2A3 | E_BAD_FLAGS | reserved flag bits set, or TIER_DUAL without FLAGS.bit0 |
 | 0xE0A0 | E_DIGEST_UNPINNED | artifact digest pin missing (ex4pm `:wasm_digest_unpinned`) |
 | 0xE0AC | E_VACUOUS_QUALIFICATION_REJECTED | anti-vacuity gate; shared with attestation.md Section 5 |
+| 0xE0AD | E_STANDING_REGRESSION | standing rank decrease for a fixed subject key without the lawful QUALIFIED -> SUPERSEDED transition; defined in attestation.md Section 3, surfaced on the ARW/1 wire |
+| 0xE009 | RESERVED_HYGIENE | formally reserved for ontology metamodel-hygiene refusals (implemented in the alpha-gamma kernel as the typed string-coded error `E_METAMODEL_HYGIENE_VIOLATION`, ggen_law.rs:84, checker `check_hygiene` at :195); no wire emission yet |
+| 0xEA01 | RESERVED_HYGIENE | formally reserved for ontology namespace-leak refusals (implemented in the alpha-gamma kernel as the typed string-coded error `E_NAMESPACE_LEAK`, ggen_law.rs:95); no wire emission yet |
 
-The set is closed. The 16-bit ranges 0xE0xx and 0xE1xx..0xE2xx are reserved;
-new codes require a spec revision. ERROR packet payloads carry the code as
+The set is closed. The 16-bit ranges 0xE0xx, 0xE1xx..0xE2xx, and 0xEAxx are
+reserved; new codes require a spec revision. Reserved entries carry no
+runtime semantics until a spec revision defines their emission; a RESERVED
+code arriving on the wire is refused like any other unallocated code. ERROR packet payloads carry the code as
 u64 LE; unknown codes arriving on the wire are refused at parse (closed
 PKT_TYPE domain), never surfaced.
 
@@ -288,3 +293,42 @@ vector discipline is the affidavit KAT registry law (affidavit
 `src/crypto_trust_kat.rs:59` `KAT_ALGORITHM_REGISTRY`, fixture
 `fixtures/crypto_trust_kat.json`); ARW/1 conformance vectors use the same
 golden-literal pattern.
+
+## 8. Falsifiers
+
+The refusal semantics of this spec are testable. Each falsifier below names
+the observation that would refute the spec's claim; a passing conformance
+suite must include the positive path plus every listed mutation.
+
+1. **Closed enum domains.** Feed a packet with `PKT_TYPE = 0x08` and
+   `TIER = 0x04`. If either is accepted (no SINK refusal: E_BAD_PKT_TYPE
+   0xE1A1 / E_BAD_TIER 0xE1A2), the closed-domain law is refuted.
+2. **DFA boundary completeness.** For each byte position p in 0..N, inject
+   one out-of-class byte. If any position accepts an out-of-class byte
+   without reaching SINK with the table's code (Section 4.4), the
+   branchless boundary claim is refuted.
+3. **Overlong refusal.** Append one trailing byte after a complete frame.
+   If the parser truncates and accepts instead of refusing E_OVERLONG
+   (0xE2A1), the "never a silent truncate" law is refuted.
+4. **Chain and sequence laws.** Flip one bit of CHAIN_PREV (expect
+   E_CHAIN_BREAK 0xE1A8); replay a packet with SEQ not +1 (expect
+   E_SEQ_GAP 0xE1A9); corrupt one payload byte (expect E_BODY_HASH
+   0xE1AA). Acceptance of any mutated stream refutes the journal-chain
+   grounding.
+5. **Fuel monotonicity.** Send a stream whose second packet declares FUEL
+   greater than the first packet's remaining fuel, and a packet with
+   FUEL > FUEL_CEILING (expect E_BAD_FUEL 0xE2A2; exhaustion must emit
+   FUEL_EXHAUSTED with the consumed count, never a hang or silent stop).
+6. **Capability admission ordering.** Present a module whose imports exceed
+   the allowlist and one missing the alloc/dealloc/free trio. If either is
+   instantiated (no pre-instantiation E_NO_AMBIENT_CLOCK 0xE1A7 /
+   E_NO_ALLOC_TRIO 0xE1A6 refusal), the "refusal before instantiation"
+   law is refuted.
+7. **Cross-transport determinism.** Decode the same mutation corpus with
+   all four language parsers. If any two disagree on accept/refuse or on
+   the refusal code, the cross-transport determinism law (Section 7) is
+   refuted.
+8. **Closed error-code set.** Send an ERROR packet carrying an unallocated
+   code (e.g. 0xE1A3 or a RESERVED entry: 0xE009, 0xEA01). If it is
+   surfaced to a handler instead of refused at parse, the closed-set law
+   is refuted.

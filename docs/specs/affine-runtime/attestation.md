@@ -94,10 +94,13 @@ UNQUALIFIED < PROVISIONAL < QUALIFIED < SUPERSEDED
 Superseded` (architecture.rs:51-62, deriving `Ord`). The spec poset maps:
 UNQUALIFIED := Unknown, PROVISIONAL := Candidate, QUALIFIED := Qualified,
 SUPERSEDED := Superseded. `Refused` is **outside the poset** — it is not a
-rank but a verdict; it never participates in monotonicity. The enum already
-derives `PartialOrd/Ord`, and the derived order coincides with the spec
-poset order, so non-regression can be enforced with the existing derive; a
-`Refused` receipt must be refused in any monotonicity check.
+rank but a verdict; it never participates in monotonicity. The enum derives
+`PartialOrd/Ord` (architecture.rs:49); the derived order places `Refused`
+at rank 3, between `Qualified` (2) and `Superseded` (4), so raw
+derived-`Ord` comparison is not by itself the monotonicity gate — the rank
+check is restricted to `{Unknown, Candidate, Qualified, Superseded}`, where
+the derived order coincides with the spec poset, and a `Refused` receipt is
+refused in any monotonicity check.
 
 **Non-regression enforcement.** For a fixed subject key
 `(abb_digest, contract_digest, sbb_digest)` (fields at architecture.rs:144-148),
