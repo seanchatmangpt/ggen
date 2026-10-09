@@ -25,11 +25,11 @@ use ggen_engine::graph::DeterministicGraph;
 #[test]
 fn bind_rebind_in_scope_variable_refused_fm_graph_013() {
     let g = DeterministicGraph::new().expect("graph");
-    let q = r#"PREFIX : <http://example.org/>
+    let q = r"PREFIX : <http://example.org/>
 SELECT ?x WHERE {
   ?s :p ?x .
   BIND(STR(?x) AS ?x) .
-}"#;
+";
     let err = g.query(q).map(|_| ()).expect_err("rebind must be refused");
     let msg = err.to_string();
     assert!(
@@ -61,11 +61,11 @@ SELECT ?x WHERE {
 #[test]
 fn bind_rebind_via_own_expression_refused_fm_graph_013() {
     let g = DeterministicGraph::new().expect("graph");
-    let q = r#"PREFIX : <http://example.org/>
+    let q = r"PREFIX : <http://example.org/>
 SELECT ?sum WHERE {
   ?s :p ?sum .
   BIND(?sum + 1 AS ?sum) .
-}"#;
+";
     let err = g.query(q).map(|_| ()).expect_err("rebind must be refused");
     let msg = err.to_string();
     assert!(msg.contains("FM-GRAPH-013"), "got: {msg}");
@@ -78,11 +78,11 @@ fn bind_fresh_variable_still_executes() {
     let g = DeterministicGraph::new().expect("graph");
     g.insert_turtle("@prefix ex: <http://example.org/> . ex:s ex:p \"v\" .")
         .expect("ttl");
-    let q = r#"PREFIX : <http://example.org/>
+    let q = r"PREFIX : <http://example.org/>
 SELECT ?y WHERE {
   ?s :p ?x .
   BIND(STR(?x) AS ?y) .
-}"#;
+";
     g.query(q).expect("fresh BIND target must not be refused");
 }
 
@@ -115,5 +115,6 @@ fn malformed_without_position_still_fm_graph_003() {
     // `SELECT` with nothing after it — spargebra still reports a position,
     // but this pins the fallthrough for any message shape.
     let err = g.query("SELECT").map(|_| ()).expect_err("must refuse");
-    assert!(err.to_string().contains("FM-GRAPH-003"), "got: {}", err);
+    let msg = err.to_string();
+    assert!(msg.contains("FM-GRAPH-003"), "got: {msg}");
 }

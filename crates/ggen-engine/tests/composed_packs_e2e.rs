@@ -305,14 +305,7 @@ fn thirty_one_packs_compose_with_verify_gates_active() {
     let bootstrap = dir
         .path()
         .join("ggen-verify-pack/bootstrap/verify-evidence-bootstrap.sh");
-    let (code, out) = run_script(&project, &stub_bin, &bootstrap);
-    assert_eq!(code, 0, "bootstrap must exit 0: {out}");
-    let evidence =
-        std::fs::read_to_string(project.join("evidence/ontology.ttl")).expect("evidence");
-    assert!(
-        evidence.contains("ver:exitCode 0"),
-        "green evidence recorded: {evidence}"
-    );
+    assert_bootstrap_evidence(&project, &stub_bin, &bootstrap);
 
     // ── Phase 2: sync over the 31-pack union, verify gates ACTIVE ────────
     let output = CliHarness::cargo_bin("ggen")
@@ -330,13 +323,7 @@ fn thirty_one_packs_compose_with_verify_gates_active() {
     assert!(project.join("VERIFICATION.md").is_file());
 
     // Lock still covers all 30 base packs alongside the capstone.
-    let lock = std::fs::read_to_string(project.join("ggen.lock")).expect("ggen.lock");
-    for pack in COMPOSED_PACKS.iter().chain(["ggen-verify-pack"].iter()) {
-        assert!(
-            lock.contains(&format!("[packs.{pack}]")),
-            "ggen.lock missing [packs.{pack}]"
-        );
-    }
+    assert_lock_covers_composed_packs(&project);
 
     // ── Phase 3: steady state — generated emitter re-run, resync green ───
     let (code, out) = run_script(&project, &stub_bin, &generated_emitter);
@@ -354,17 +341,49 @@ fn thirty_one_packs_compose_with_verify_gates_active() {
         "@prefix ver: <http://seanchatmangpt.github.io/packs/ggen-verify#> .\n",
     )
     .expect("truncate evidence");
-    // Load-tolerance (CB1 gate hit): the refusal text itself is deterministic,
-    // but a one-shot gate failure was observed under heavy load where the
-    // captured stderr did not carry FM-PACK-013. Match the refusal on the
-    // combined output (either stream), include the full capture in the panic
-    // message for diagnosability, and retry the sabotage sync once before
-    // failing -- a second attempt on the same sabotaged tree must still refuse
-    // with the same typed refusal, so the retry cannot mask a real gate break.
+    // Load-tolerance (CB1 gate hit): see assert_sabotage_refusal_is_fm_pack_013.
+    assert_sabotage_refusal_is_fm_pack_013(&project);
+}
+
+/// Phase 1: the committed bootstrap emitter exits 0 and records
+/// `ver:exitCode 0` evidence in the consumer project.
+fn assert_bootstrap_evidence(project: &Path, stub_bin: &Path, bootstrap: &Path) {
+    let (code, out) = run_script(project, stub_bin, bootstrap);
+    assert_eq!(code, 0, "bootstrap must exit 0: {out}");
+    let evidence =
+        std::fs::read_to_string(project.join("evidence/ontology.ttl")).expect("evidence");
+    assert!(
+        evidence.contains("ver:exitCode 0"),
+        "green evidence recorded: {evidence}"
+    );
+}
+
+/// Lock still covers all 30 base packs alongside the capstone.
+fn assert_lock_covers_composed_packs(project: &Path) {
+    let lock = std::fs::read_to_string(project.join("ggen.lock")).expect("ggen.lock");
+    for pack in COMPOSED_PACKS.iter().chain(["ggen-verify-pack"].iter()) {
+        assert!(
+            lock.contains(&format!("[packs.{pack}]")),
+            "ggen.lock missing [packs.{pack}]"
+        );
+    }
+}
+
+/// Phase 4: with the `ver:` evidence facts truncated away, a sync must refuse
+/// with the typed FM-PACK-013 refusal naming gate `010_evidence_present`.
+///
+/// Load-tolerance (CB1 gate hit): the refusal text itself is deterministic,
+/// but a one-shot gate failure was observed under heavy load where the
+/// captured stderr did not carry FM-PACK-013. Match the refusal on the
+/// combined output (either stream), include the full capture in the panic
+/// message for diagnosability, and retry the sabotage sync once before
+/// failing -- a second attempt on the same sabotaged tree must still refuse
+/// with the same typed refusal, so the retry cannot mask a real gate break.
+fn assert_sabotage_refusal_is_fm_pack_013(project: &Path) {
     let run_sabotage = || {
         CliHarness::cargo_bin("ggen")
             .args(["sync", "run"])
-            .current_dir(&project)
+            .current_dir(project)
             .run()
             .expect("run sabotage sync")
     };

@@ -989,7 +989,7 @@ fn static_rule_supplies_row_alias_and_flattened_keys_matching_fanout_context() {
     );
 }
 
-/// Multi-row query + static output_file: documented legacy-renderer choice
+/// Multi-row query + static `output_file`: documented legacy-renderer choice
 /// is FIRST-ROW-WINS for both the flattened keys and the `row` alias. With
 /// ORDER BY name, alice (not bob) must appear — bob is still reachable via
 /// `{{ row.name }}` only through iteration over `results`.
@@ -1002,7 +1002,7 @@ fn static_rule_multi_row_query_uses_first_row_values() {
     );
     write_ontology(dir.path(), ONTOLOGY_ALICE_BOB);
 
-    let report = sync(dir.path(), SyncOptions::default())
+    let _report = sync(dir.path(), SyncOptions::default())
         .expect("multi-row static rule renders with first-row values");
     let content = std::fs::read_to_string(dir.path().join("out/agent.txt")).expect("read output");
     assert_eq!(

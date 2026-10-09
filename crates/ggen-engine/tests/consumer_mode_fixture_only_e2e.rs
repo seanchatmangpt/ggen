@@ -1,7 +1,7 @@
 //! Chicago-TDD end-to-end proof of consumer-mode fixtureOnly emission
 //! suppression (OS-13, WP-5 consumer half).
 //!
-//! Real filesystem, real GraphLaw graph engine, real SPARQL extraction,
+//! Real filesystem, real `GraphLaw` graph engine, real SPARQL extraction,
 //! real Tera rendering, real `ggen_engine::sync` pipeline — no mocks.
 //! A fixture pack marks one `AshExtensionSpec` individual
 //! `aex:fixtureOnly true` (the exact idiom ggen-marketplace's
