@@ -1,0 +1,11 @@
+delta-validation report (rust/rustdoc-json)
+subject: out/demo_agent.rs
+G_original (expected surface): 2 paths
+G_recovered (public-item surface): 3 paths
+Delta(G) = G_recovered \ G_original =
+  demo_agent::smuggled_admin_backdoor
+RECOVERED SET:
+  demo_agent::init
+  demo_agent::handle_message
+  demo_agent::smuggled_admin_backdoor
+VERDICT: ABORT (Delta(G) nonempty)

@@ -4,11 +4,15 @@ Status: PARTIAL_ALIVE. The invariant (Section 2), abort semantics
 (Section 2.3), and per-language parse-back designs (Section 3) are
 specified. All three language legs (Elixir, Rust, WASM) are implemented
 and witnessed: the Elixir harness on a real ggen-generated artifact
-(Section 6 receipt), the Rust and WASM extractors on hand-built sample
-artifacts plus one real wasm4pm binary (Section 6b receipt). The ggen
-Rust-artifact leg remains UNVERIFIED — no Rust artifact was generated
-through the ggen pipeline in the witnessing run; the Rust sample crate
-is hand-built and marked as such.
+(Section 6 receipt), the WASM extractors on hand-built sample artifacts
+plus one real wasm4pm binary (Section 6b receipt), and the Rust
+extractor first on hand-built sample artifacts (Section 6b) and then on
+a real ggen-pipeline-generated Rust artifact (Section 6c receipt). The
+pipeline renders Rust through the same generation-rule shape as the
+Elixir demo (Tera templates are language-agnostic); the pipeline
+artifact compiles with ggen's pinned nightly rustc and the harness
+witnesses ALIVE and ABORT on pipeline-produced artifacts. The hand-built
+Rust samples (Section 6b) remain in-tree as extractor-level fixtures.
 
 ## 1. Scope and epistemic status
 
@@ -26,12 +30,15 @@ with one smuggled public function yields Delta(G) nonempty and verdict
 ABORT. The run receipt, artifact, and delta report are frozen in
 `fixtures/`. The Rust and WASM parse-back extractors are implemented
 and witnessed (`delta_validate_rust.sh`, `delta_validate_wasm.sh`,
-Section 6b receipt) — the Rust sample is hand-built and marked as
-such. Everything else — write-stage integration, mix-task packaging,
+Section 6b receipt), and the Rust leg is additionally witnessed
+end-to-end on a ggen-pipeline-generated artifact (Section 6c receipt:
+same generation-rule shape as the Elixir demo, real nightly rustc
+compile to rlib, ALIVE and ABORT both witnessed on pipeline-produced
+artifacts). Everything else — write-stage integration, mix-task packaging,
 CI wiring — is spec-proposed (UNVERIFIED here); each such item is
 labeled. No number in this document was produced by execution
-unless it appears in the Section 6 receipt or is cited with its
-command.
+unless it appears in the Section 6, 6b, or 6c receipts or is cited
+with its command.
 
 ## 2. The invariant
 
@@ -293,7 +300,8 @@ macOS darwin.
 Scripts: `delta_validate_rust.sh`, `delta_validate_wasm.sh` (this
 directory). Fixtures: `fixtures-rust/` (hand-built sample crate,
 marked as such — no Rust artifact was generated through the ggen
-pipeline in this run) and `fixtures-wasm/` (hand-built `.wat`
+pipeline in this run; superseded for the pipeline hop by Section 6c)
+and `fixtures-wasm/` (hand-built `.wat`
 samples; the real-binary witness is the wasm4pm artifact cited by
 sha256, not frozen in-tree at 7.2 MB).
 
@@ -333,6 +341,69 @@ as `evil_demo_agent.rs`; running it directly would report a full-surface
 delta under crate name `evil_demo_agent`. The witnessed abort run used
 `evil/demo_agent.rs`.
 
+## 6c. Receipt (Rust pipeline hop closed, 2026-10-09)
+
+The last UNVERIFIED hop — "no Rust artifact generated through the ggen
+pipeline" (Sections Status/1/6b/7) — is closed by execution. There is
+no Rust template gap: ggen's generation rules are language-agnostic
+(Tera template + SPARQL query + output pattern), so the exact
+generation-rule shape of the Elixir demo (Section 5) renders Rust
+unchanged — only the template body, the `ex:crateName` ontology
+property, and the `{{ crateName }}.rs` output pattern differ.
+
+Environment: ggen@26.9.28 (`/Users/sac/.local/bin/ggen`), rustc/rustdoc
+nightly-2026-06-22 (ggen's pinned toolchain, `rustup run` invoked since
+the scratch dir is outside the tree), macOS darwin.
+
+Pipeline run (scratch `/tmp` project, replayable from
+`fixtures-rust/pipeline/`):
+
+    ggen sync run --format json
+      -> {"written":["out/demo_agent.rs"],"skipped":[],
+          "graph_hash_hex":"bf436a2db0e41955d92fd18a372629f049e614f623500f3059795a905fbef13a",
+          "decisions":{"out/demo_agent.rs":"written"},
+          "closure":{"actuator":"ggen@26.9.28",
+                     "ontology.ttl":
+                       "9f9098c801df791096c2fd79b67ab78a57fdb8a91ddfdfe9642f52eacd52c3b9",
+                     "templates/demo_agent.rs.tera":
+                       "082fe6c7f61187e0cfb7b30341d282cc55da9b10d405f27af3207fb10dbaf644"}}
+
+Real toolchain compile of the pipeline artifact:
+
+    rustup run nightly-2026-06-22-aarch64-apple-darwin \
+      rustc --crate-type=lib --crate-name demo_agent out/demo_agent.rs \
+      -o demo_agent.rlib
+      -> exit 0, demo_agent.rlib = 7992-byte ar archive
+         (one dead_code warning for the intentional private_helper)
+
+Adversarial case produced by the same pipeline (same ontology, template
+body gains one smuggled `pub fn smuggled_admin_backdoor`):
+
+    ggen sync run --format json (evil template project)
+      -> {"written":["out/demo_agent.rs"],...,
+          "templates/evil_demo_agent.rs.tera":
+            "5066e0e78de1549b4ad7380ca2a91293e58dd176e128b81c8156544fd425e853"}
+
+Harness on pipeline-produced artifacts (ALIVE and ABORT both
+witnessed):
+
+    bash delta_validate_rust.sh out/demo_agent.rs expected-surface.txt
+      -> exit 0, 2/2 paths, VERDICT: ALIVE (Delta(G) = 0)
+    bash delta_validate_rust.sh <evil>/out/demo_agent.rs expected-surface.txt
+      -> exit 1, Delta(G) = ["demo_agent::smuggled_admin_backdoor"],
+         VERDICT: ABORT (Delta(G) nonempty)
+
+Frozen in `fixtures-rust/pipeline/`: `ggen.toml`, `ontology.ttl`,
+`templates/demo_agent.rs.tera`,
+`templates/evil_demo_agent.rs.tera`, the pipeline-produced
+`demo_agent.rs` and `evil/demo_agent.rs` (byte copies of the runs'
+outputs), `expected-surface.txt`, and both delta reports
+(`delta-report-alive.txt`, `delta-report-abort.txt`). Replay: copy the
+five input files (ggen.toml, ontology.ttl, both templates,
+expected-surface.txt) into a scratch dir preserving that shape, run
+`ggen sync run --format json`, compile with the pinned nightly, then
+run the harness commands above.
+
 ## 7. Future work
 
 - Abort on completeness violations (G_original \ G_recovered), not
@@ -342,8 +413,6 @@ delta under crate name `evil_demo_agent`. The witnessed abort run used
   `elixir delta_validate.exs` per emitted `.ex`; invoke
   `delta_validate_rust.sh` / `delta_validate_wasm.sh` per emitted
   `.rs` / `.wat`+`.wasm`).
-- Generate a Rust artifact through the ggen pipeline and re-run the
-  witnessed extractor on it (the Rust sample is hand-built today).
 - Nested-module path reconstruction in the rustdoc-JSON extractor
   (current surface is top-level `crate::item` only), and a
   `#[no_mangle]` extern surface.
