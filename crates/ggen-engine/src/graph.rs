@@ -457,16 +457,15 @@ fn diagnose_bind_rebind(sparql: &str) -> Option<AppError> {
                     }
                     depth -= 1;
                 }
-                b'A' | b'a' if depth == 1 => {
-                    if sparql[i..].len() >= 2
+                b'A' | b'a' if depth == 1
+                    && sparql[i..].len() >= 2
                         && sparql[i + 1..].starts_with(['S', 's'])
                         && !is_name_char(bytes[i - 1])
                         && bytes.get(i + 2).is_none_or(|&c| !is_name_char(c))
-                    {
+                    => {
                         as_pos = Some(i);
                         break;
                     }
-                }
                 _ => {}
             }
             i += 1;
@@ -480,7 +479,7 @@ fn diagnose_bind_rebind(sparql: &str) -> Option<AppError> {
         let target_name: String = {
             let mut cs = sparql[target_abs..].chars();
             match cs.next() {
-                Some('?') | Some('$') => cs
+                Some('?' | '$') => cs
                     .by_ref()
                     .take_while(|c| c.is_alphanumeric() || *c == '_')
                     .collect(),
@@ -512,7 +511,7 @@ fn diagnose_bind_rebind(sparql: &str) -> Option<AppError> {
 
 /// Byte offset of the start of the line containing byte offset `at`.
 fn prefix_line_start(sparql: &str, at: usize) -> usize {
-    sparql[..at].rfind('\n').map(|p| p + 1).unwrap_or(0)
+    sparql[..at].rfind('\n').map_or(0, |p| p + 1)
 }
 
 /// True when the variable token `?name` (or `$name`) appears in `text` with

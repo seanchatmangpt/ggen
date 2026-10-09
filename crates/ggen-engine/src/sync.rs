@@ -671,10 +671,9 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
                     AppError::fm_law(
                         12,
                         format!(
-                            "SPARQL gate `{}` is not a gate query: it must be an ASK \
+                            "SPARQL gate `{rel_disp}` is not a gate query: it must be an ASK \
                              (true = violation) or a SELECT (any row = violation), not \
-                             a CONSTRUCT/DESCRIBE. Remediation: fix [law].gates.",
-                            rel_disp
+                             a CONSTRUCT/DESCRIBE. Remediation: fix [law].gates."
                         ),
                     ),
                 ));
@@ -1568,13 +1567,15 @@ fn fixture_only_subjects(
             .collect()),
         // A marker query is a SELECT by construction; the other result
         // shapes cannot arise from this query text.
-        EngineQueryResults::Graph(_) | EngineQueryResults::Boolean(_) => Ok(Default::default()),
+        EngineQueryResults::Graph(_) | EngineQueryResults::Boolean(_) => {
+            Ok(std::collections::BTreeSet::default())
+        }
     }
 }
 
 /// Consumer-mode (OS-13): does this rendered row/named-result JSON name a
 /// `fixtureOnly`-marked subject? Returns the first matched subject IRI (in
-/// BTreeSet order, so the skip reason is deterministic) for the typed skip
+/// `BTreeSet` order, so the skip reason is deterministic) for the typed skip
 /// log.
 fn fixture_reference_in(
     value: &serde_json::Value, subjects: &std::collections::BTreeSet<String>,
