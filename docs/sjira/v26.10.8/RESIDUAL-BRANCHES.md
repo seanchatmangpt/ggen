@@ -198,3 +198,42 @@ assertions are idiomatic in e2e tests; lib gate untouched.
 5. **spec-integration carries the annotation** (file identical on both refs,
    so the policy landing is ref-agnostic): annotation committed alongside
    this doc update; hook does not gate spec-integration pushes.
+
+## main — R77 final push: lint residue cleared by R68, push BLOCKED[LANE_CONTENTION] (2026-10-09, lane R77)
+
+Picks up R51's 8-itemized mechanical lint list.
+
+1. **SKIP-ALREADY-LANDED (local)**: origin/main was still `d593a7f30` at
+   lane start, but local `main` had already moved to `16b99731a`
+   ("fix(ggen-engine): resolve 8 residual clippy lints in e2e tests (R68)") —
+   a lawful descendant of R51's `c24af1b24158`, covering all 8 sites
+   (raw-string hashes x3, uninlined_format_args, 2x doc_markdown,
+   unused_variables, too_many_lines via helper extract). R77 independently
+   reproduced the same 8 fixes on `c24af1b24158` bytes in scratch
+   (/tmp/r77full archive; commit `eaeac1aeca`, unused — tree differs from
+   R68's only in helper granularity), verified clippy `-p ggen-engine
+   --tests` = 0 warnings + fmt clean, then DISCARDED it in favor of R68's
+   landing; local main left untouched at `16b99731a`.
+2. **Content is green**: `just test-lib` on the `16b99731a` archive with a
+   fresh target dir = exit 0, 0 failed across all crates (e.g. 238/433/31/
+   21/95/433 passed). First dry-run with the ref-validating hook showed
+   3/4 + the praxis-core committed-tcps-receipt test failing NotFound —
+   root-caused to the hook itself: `mktemp` scratch deleted after each run
+   + persistent per-sha `CARGO_TARGET_DIR` means cached test binaries bake
+   a dead `CARGO_MANIFEST_DIR`. With the (in-flight, uncommitted) stable
+   scratch-path hook fix and one stale-cache purge, `git push --dry-run
+   origin main` = 4/4 PASS ("All gates passed on pushed ref"), exit 0.
+3. **Real push BLOCKED[LANE_CONTENTION]**: two real `git push origin main`
+   attempts failed with DIFFERENT gate failures each time (unit tests →
+   fmt → lint) despite green content — concurrent pushes of the same sha
+   through the shared deterministic scratch path wipe each other mid-run;
+   then the shared checkout was BRANCH-SWITCHED to
+   `feat/integrate-graphlaw-engine` (`5d209290c`) and spec-integration WIP
+   stashed (`2896f0588`) by another actor, leaving the hook file resolving
+   to the tree-gating old version. Both violate same-checkout fan-out rules
+   (no branch switch, no stash). origin/main remains `d593a7f30`; local
+   main `16b99731a` is a lawful FF descendant, ref-validating gates
+   witnessed 4/4. Unblocking requires the coordinator to (a) serialize
+   main pushes through the hook (lock or per-run scratch+cache keyed
+   together) and (b) restore the checkout to spec-integration or authorize
+   the FF push directly.
