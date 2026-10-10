@@ -1077,7 +1077,7 @@ impl GraphEngine for DeterministicGraph {
 // ---------------------------------------------------------------------------
 
 /// The default [`GraphEngine`]: the `graphlaw` kernel (Eyeron N3 forward
-/// chaining, PurRDF SHACL/ShEx evaluation, SPARQL `kh:` hook packs) as the
+/// chaining, `PurRDF` SHACL/ShEx evaluation, SPARQL `kh:` hook packs) as the
 /// law-state engine — N3 rule materialization, SHACL/ShEx gates, denial
 /// checks — layered over a [`DeterministicGraph`] mirror that answers
 /// SPARQL 1.1 and provides the canonical BLAKE3 state hash.

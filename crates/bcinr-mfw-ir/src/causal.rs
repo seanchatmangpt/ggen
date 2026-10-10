@@ -185,9 +185,9 @@ pub enum IndependenceVerdict {
     Unsupported(String),
 }
 
-///The full independence relation over a `CausalPlan`'s action occurrences: every pair that was
-///determined independent or dependent (pairs with an `Unsupported` verdict are not required to appear
-///in either map).
+/// The full independence relation over a `CausalPlan`'s action occurrences: every pair that was
+///
+/// determined independent or dependent (pairs with an `Unsupported` verdict are not required to appear in either map).
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Default)]
 pub struct IndependenceRelation {
     pub independent: BTreeMap<ActionPair, IndependenceWitness>,
@@ -201,10 +201,9 @@ pub struct PrecedenceEdge {
     pub after: ActionOccurrenceId,
 }
 
-///A strict partial order over action occurrences, represented as its edge set.
-///Irreflexivity/transitivity/acyclicity are properties a `CausalAnalyzer` implementation must
-///establish before constructing one — this type does not itself validate them (no analyzer logic lives
-///in this IR-only crate).
+/// A strict partial order over action occurrences, represented as its edge set.
+///
+/// Irreflexivity/transitivity/acyclicity are properties a `CausalAnalyzer` implementation must establish before constructing one — this type does not itself validate them (no analyzer logic lives in this IR-only crate).
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Default)]
 pub struct StrictPartialOrder {
     pub edges: BTreeSet<PrecedenceEdge>,
@@ -228,9 +227,9 @@ pub struct CausalSupportEdge {
 }
 
 /// One action occurrence within a causal plan. `action` is a plain `u64`
-///placeholder for the ground-action reference: `GroundActionId` is pddl-specific and lives in
-///`bcinr-pddl`, which will most likely newtype-wrap this `u64` (or replace it with its own ID type via
-///a From/Into bridge) rather than this crate depending on pddl's type.
+/// placeholder for the ground-action reference: `GroundActionId` is pddl-specific and lives in
+///
+/// `bcinr-pddl`, which will most likely newtype-wrap this `u64` (or replace it with its own ID type via a From/Into bridge) rather than this crate depending on pddl's type.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct ActionOccurrence {
     pub id: ActionOccurrenceId,
@@ -238,9 +237,9 @@ pub struct ActionOccurrence {
 }
 
 /// The causal structure derived from one grounded planning epoch's action
-/// occurrences: the occurrences themselves, their precedence order, the
-///pairwise independence relation, the causal-support edges, and a digest summarizing the whole
-///structure.
+/// occurrences: the occurrences themselves, their precedence order, the pairwise independence
+///
+/// relation, the causal-support edges, and a digest summarizing the whole structure.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct CausalPlan {
     pub epoch: PlanningEpochId,
@@ -252,9 +251,9 @@ pub struct CausalPlan {
 }
 
 /// Produces a `CausalPlan` from a set of action occurrences within some
-/// epoch. Generic over `Epoch` so `bcinr-pddl` can implement this trait
-/// against its own `GroundedPlanningEpoch` without this crate knowing
-/// pddl's types.
+/// epoch.
+///
+/// Generic over `Epoch` so `bcinr-pddl` can implement this trait against its own `GroundedPlanningEpoch` without this crate knowing pddl's types.
 pub trait CausalAnalyzer {
     type Epoch;
     type Error;

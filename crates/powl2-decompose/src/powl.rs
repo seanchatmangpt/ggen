@@ -219,22 +219,9 @@ impl SocketKind {
     }
 }
 
-/// A stable identifier for a potential **workflow socket**: any addressable
-/// point in an admitted POWL v2 model (PRD v26.7.11 §7.3, "recursive
-/// workflow sockets" + "every POWL activity SHALL be addressable as a
-/// potential workflow socket").
+/// A stable identifier for a potential **workflow socket**: any addressable point in an admitted POWL
 ///
-/// Every node is addressable, not only leaf activities: a composite
-/// (`PartialOrder`/`Choice`/`ExternalCut`) region can itself be the target
-/// of a *recursive* workflow socket — e.g. an external cut projects a whole
-/// subtree, not a single activity — so restricting addressability to leaves
-/// would under-cover the PRD's "recursive" qualifier.
-///
-/// Combines the structural [`SocketPath`] with the [`SocketKind`] observed
-/// at that path so a socket id captures both *where* a node lives and
-/// *what* it is; two ids are equal only if both agree, which catches an
-/// address computed against a stale/mismatched model at construction
-/// rather than silently returning the wrong node at first use.
+/// v2 model (PRD v26.7.11 §7.3, "recursive workflow sockets" + "every POWL activity SHALL be addressable as a potential workflow socket").  Every node is addressable, not only leaf activities: a composite (`PartialOrder`/`Choice`/`ExternalCut`) region can itself be the target of a *recursive* workflow socket — e.g. an external cut projects a whole subtree, not a single activity — so restricting addressability to leaves would under-cover the PRD's "recursive" qualifier.  Combines the structural [`SocketPath`] with the [`SocketKind`] observed at that path so a socket id captures both *where* a node lives and *what* it is; two ids are equal only if both agree, which catches an address computed against a stale/mismatched model at construction rather than silently returning the wrong node at first use.
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct WorkflowSocketId {
     /// Structural address within the model.

@@ -235,46 +235,9 @@ pub enum Decision {
     },
 }
 
-/// Output of [`admit`]. Sealed: fields are private and the only constructor is the
-/// admission gate, so `manufacture` (mu) is type-restricted to admitted input (O*).
-/// A hand-built or edited value cannot exist outside this crate:
+/// Output of [`admit`].
 ///
-/// ```compile_fail
-/// // Falsifier for the sealed constructor: forging an Admitted outside the crate fails
-/// // to compile (private fields), so mu cannot be applied to unadmitted input.
-/// let g = ggen_abb_sbb::synthetic_graph(1, 1);
-/// let forged = ggen_abb_sbb::Admitted {
-///     graph_digest: g.digest(),
-///     qualification: "qual:does-not-exist".into(),
-/// };
-/// ```
-///
-/// ```compile_fail
-/// // Falsifier: an admitted value cannot be edited in place either.
-/// let g = ggen_abb_sbb::synthetic_graph(1, 1);
-/// let req = ggen_abb_sbb::Request {
-///     abb: "abb:event-ingest".into(),
-///     sbb: "sbb:ingest-0000".into(),
-///     requested_authority: ggen_abb_sbb::Authority::Construct,
-///     expected_graph_digest: None,
-/// };
-/// let mut ad = ggen_abb_sbb::admit(&g, &req).unwrap();
-/// ad.qualification = "qual:does-not-exist".into();
-/// ```
-///
-/// ```
-/// // Positive control for the two compile_fail blocks above: the same setup compiles
-/// // and admits through the gate, so they fail only on the forgery itself.
-/// let g = ggen_abb_sbb::synthetic_graph(1, 1);
-/// let req = ggen_abb_sbb::Request {
-///     abb: "abb:event-ingest".into(),
-///     sbb: "sbb:ingest-0000".into(),
-///     requested_authority: ggen_abb_sbb::Authority::Construct,
-///     expected_graph_digest: None,
-/// };
-/// let ad = ggen_abb_sbb::admit(&g, &req).unwrap();
-/// assert_eq!(ad.qualification(), "qual:ingest-0000");
-/// ```
+/// Sealed: fields are private and the only constructor is the admission gate, so `manufacture` (mu) is type-restricted to admitted input (O*). A hand-built or edited value cannot exist outside this crate:  ```compile_fail // Falsifier for the sealed constructor: forging an Admitted outside the crate fails // to compile (private fields), so mu cannot be applied to unadmitted input. let g = ggen_abb_sbb::synthetic_graph(1, 1); let forged = ggen_abb_sbb::Admitted { graph_digest: g.digest(), qualification: "qual:does-not-exist".into(), }; ```  ```compile_fail // Falsifier: an admitted value cannot be edited in place either. let g = ggen_abb_sbb::synthetic_graph(1, 1); let req = ggen_abb_sbb::Request { abb: "abb:event-ingest".into(), sbb: "sbb:ingest-0000".into(), requested_authority: ggen_abb_sbb::Authority::Construct, expected_graph_digest: None, }; let mut ad = ggen_abb_sbb::admit(&g, &req).unwrap(); ad.qualification = "qual:does-not-exist".into(); ```  ``` // Positive control for the two compile_fail blocks above: the same setup compiles // and admits through the gate, so they fail only on the forgery itself. let g = ggen_abb_sbb::synthetic_graph(1, 1); let req = ggen_abb_sbb::Request { abb: "abb:event-ingest".into(), sbb: "sbb:ingest-0000".into(), requested_authority: ggen_abb_sbb::Authority::Construct, expected_graph_digest: None, }; let ad = ggen_abb_sbb::admit(&g, &req).unwrap(); assert_eq!(ad.qualification(), "qual:ingest-0000"); ```
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Admitted {
     graph_digest: String,

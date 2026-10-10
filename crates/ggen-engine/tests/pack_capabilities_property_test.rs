@@ -217,7 +217,7 @@ fn build(s: Scenario) -> (TempDir, PathBuf) {
     write(&root, "ggen.toml", &manifest);
     write(&root, "ontology.ttl", "");
 
-    (dir, root.to_path_buf())
+    (dir, root.clone())
 }
 
 #[test]

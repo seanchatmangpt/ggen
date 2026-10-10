@@ -1,5 +1,5 @@
 //! `LawEngine` — the seam between this crate's law/SHACL/N3 evaluation
-//! (backed by `graphlaw`: Eyeron for N3, PurRDF for SHACL/ShEx/SPARQL hooks)
+//! (backed by `graphlaw`: Eyeron for N3, `PurRDF` for SHACL/ShEx/SPARQL hooks)
 //! and the oxigraph-based crates (`ggen-graph`, `ggen-marketplace`) that need
 //! its output without taking on that dependency themselves.
 //!
@@ -60,7 +60,7 @@ fn to_ntriples(n3_text: &str) -> std::result::Result<String, String> {
     String::from_utf8(bytes).map_err(|e| e.to_string())
 }
 
-/// Forward-chain `rules` over `facts_nt` with GraphLaw's resource limits.
+/// Forward-chain `rules` over `facts_nt` with `GraphLaw`'s resource limits.
 /// A fired `=> false` fuse is reported in [`N3Run::fuse`] (Eyeron clears the
 /// derivation in that case; `graphlaw::law::reason_n3_bounded` would hide it).
 pub(crate) fn n3_run(facts_nt: &str, rules: &[&str]) -> std::result::Result<N3Run, N3Failure> {

@@ -284,12 +284,12 @@ fn assert_golden_agreement(label: &str, record: &ReceiptRecord) {
         .map_err(|e| e.name().to_string());
 
     assert_eq!(
-        format!("{:?}", recompute),
+        format!("{recompute:?}"),
         format!("{:?}", g_recompute),
         "{label}: graphlaw wire-side recompute diverged from the seam"
     );
     assert_eq!(
-        format!("{:?}", verification),
+        format!("{verification:?}"),
         format!("{:?}", g_verification),
         "{label}: graphlaw wire-side verify verdict diverged from the seam"
     );

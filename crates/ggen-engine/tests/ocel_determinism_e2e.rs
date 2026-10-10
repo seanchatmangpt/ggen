@@ -1,23 +1,23 @@
 //! OCEL/receipt determinism court (Lane X, ocel-determinism).
 //!
 //! Sync output is a function of (inputs, decisions), never of (machine, clock).
-//! OCEL evidence must satisfy the same law. Real binary, real TempDir, no mocks.
+//! OCEL evidence must satisfy the same law. Real binary, real `TempDir`, no mocks.
 //!
 //! Root causes found while landing this court:
 //!
-//! 1. CliHarness::cargo_bin falls back to a PATH search, which resolves to an
+//! 1. `CliHarness::cargo_bin` falls back to a PATH search, which resolves to an
 //!    ambient ggen (26.9.28) predating the telemetry redirect d2a92c400. Engine
 //!    tests that believed they ran this workspace were running the installed
 //!    binary, which still writes .clap-noun-verb/{ocel.json,receipts.jsonl} into
-//!    the consumer tree with wall-clock event ids (dep ocel.rs:206 generate_event_id),
-//!    Utc::now() times (ocel.rs:202), PID+nanos process ids (ocel.rs:215) and
-//!    per-invocation duration_ms (ocel.rs:1170). That is the whole flake class.
+//!    the consumer tree with wall-clock event ids (dep ocel.rs:206 `generate_event_id`),
+//!    `Utc::now()` times (ocel.rs:202), PID+nanos process ids (ocel.rs:215) and
+//!    per-invocation `duration_ms` (ocel.rs:1170). That is the whole flake class.
 //!    This court resolves the workspace binary explicitly (building if absent).
 //! 2. With the workspace binary the redirect
 //!    (crates/ggen-cli/src/lib.rs:125-137) holds: telemetry goes to
 //!    /tmp/ggen-cli-telemetry, not the project. .ggen-v2/ is append-only chain
-//!    history by design (sync.rs:276-278, 4020-4036; ts_ns pinned 0, sync.rs:15-19),
-//!    so it is excluded from byte-identity like book_gap_closure_e2e::tree_digest,
+//!    history by design (sync.rs:276-278, 4020-4036; `ts_ns` pinned 0, sync.rs:15-19),
+//!    so it is excluded from byte-identity like `book_gap_closure_e2e::tree_digest`,
 //!    and instead asserted clock-free directly.
 
 #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
@@ -62,8 +62,7 @@ fn workspace_ggen() -> PathBuf {
             .and_then(|p| p.parent())
             .expect("crate lives at <workspace>/crates/ggen-engine");
         let target_dir = std::env::var("CARGO_TARGET_DIR")
-            .map(PathBuf::from)
-            .unwrap_or_else(|_| workspace_root.join("target"));
+            .map_or_else(|_| workspace_root.join("target"), PathBuf::from);
         let exe = target_dir.join("debug").join("ggen");
         if !exe.exists() {
             let cargo = std::env::var("CARGO").unwrap_or_else(|_| "cargo".into());
@@ -160,7 +159,7 @@ fn two_syncs_on_unchanged_project_are_content_identical() {
 }
 
 /// The sync receipt must be a function of (inputs, decisions): no wall clock.
-/// ts_ns is pinned to 0 (sync.rs:15-19) and no timestamp-ish field may appear.
+/// `ts_ns` is pinned to 0 (sync.rs:15-19) and no timestamp-ish field may appear.
 #[test]
 fn sync_receipt_is_clock_free() {
     let dir = fresh_project();
@@ -187,7 +186,7 @@ fn sync_receipt_is_clock_free() {
 }
 
 /// Read-only commands must not create .clap-noun-verb telemetry in the
-/// consumer tree (the cli_read_only_invariant_matrix contract, end to end).
+/// consumer tree (the `cli_read_only_invariant_matrix` contract, end to end).
 #[test]
 fn read_only_commands_do_not_emit_ocel_into_the_project_tree() {
     let dir = fresh_project();

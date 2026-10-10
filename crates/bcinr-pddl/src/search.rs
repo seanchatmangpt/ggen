@@ -271,9 +271,9 @@ pub enum RailSelection {
     Exploit(usize),
 }
 
-/// A round-robin-among-exploit-rails scheduler with a hard fairness floor:
-///the exact rail is selected at least once every `max_gap` selections, regardless of how many exploit
-///rails there are or what they return.
+/// A round-robin-among-exploit-rails scheduler with a hard fairness floor: the exact rail is selected
+///
+/// at least once every `max_gap` selections, regardless of how many exploit rails there are or what they return.
 #[derive(Debug, Clone)]
 pub struct FairRailScheduler {
     max_gap: usize,
@@ -319,9 +319,9 @@ impl FairRailScheduler {
 // Portfolio
 // ---------------------------------------------------------------------
 
-/// [`MfwPortfolio::solve`]'s outcome. Every non-`Found` variant carries the
-///heuristic `Candidate` plans collected along the way (from exploit rails) — never presented as
-///verified, only as what was found before the exact rail settled the question.
+/// [`MfwPortfolio::solve`]'s outcome.
+///
+/// Every non-`Found` variant carries the heuristic `Candidate` plans collected along the way (from exploit rails) — never presented as verified, only as what was found before the exact rail settled the question.
 #[derive(Debug, Clone)]
 pub enum PortfolioOutcome {
     /// The exact rail found (and therefore proved) a plan.

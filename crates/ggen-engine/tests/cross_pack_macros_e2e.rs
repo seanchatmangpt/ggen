@@ -1,6 +1,6 @@
 //! Cross-pack Tera macro imports (`<pack-name>://<subpath>` template URIs).
 //!
-//! Chicago: a real project tree on disk (TempDir), a real pack resolved via
+//! Chicago: a real project tree on disk (`TempDir`), a real pack resolved via
 //! [`ggen_engine::pack::resolve`], and real Tera renders asserting on
 //! rendered bytes — no mocks.
 
@@ -90,7 +90,9 @@ fn graph() -> Arc<dyn GraphEngine> {
 /// returned guard for its whole body.
 fn serial(root: &Path) -> std::sync::MutexGuard<'static, ()> {
     static LOCK: std::sync::Mutex<()> = std::sync::Mutex::new(());
-    let guard = LOCK.lock().unwrap_or_else(|e| e.into_inner());
+    let guard = LOCK
+        .lock()
+        .unwrap_or_else(std::sync::PoisonError::into_inner);
     std::env::set_current_dir(root).expect("chdir into fixture");
     guard
 }

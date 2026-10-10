@@ -1,21 +1,6 @@
-//! Cross-pack Datalog resolver: dependency facts extracted from
-//! `ggen.toml`/`pack.toml`, forward-chained through the transitive-dependency
-//! rules, and refused on cycles, unbound ports, and artifact collisions —
-//! with a topological sync order as the result.
+//! Cross-pack Datalog resolver: dependency facts extracted from `ggen.toml`/`pack.toml`,
 //!
-//! Datalog rules (forward chaining over pack facts):
-//!
-//! ```text
-//! dep(P, Q)        <- pack.toml [graph] depends_on / ggen.toml consumer edges.
-//! transitive_dep(P, R) :- dep(P, Q), transitive_dep(Q, R).
-//! transitive_dep(P, Q) :- dep(P, Q).
-//! cyclic(P)        :- transitive_dep(P, P).
-//! unbound_port(P, T) :- requires(P, T), not provided_by_closure(P, T).
-//! ```
-//!
-//! The resolver is IO-free: extraction is from in-memory TOML text, the gate
-//! takes values and returns values (`SyncPlan` / [`Refusal`]). Chicago tests
-//! below exercise real TOML documents end to end.
+//! forward-chained through the transitive-dependency rules, and refused on cycles, unbound ports, and artifact collisions — with a topological sync order as the result.  Datalog rules (forward chaining over pack facts):  ```text dep(P, Q)        <- pack.toml [graph] depends_on / ggen.toml consumer edges. transitive_dep(P, R) :- dep(P, Q), transitive_dep(Q, R). transitive_dep(P, Q) :- dep(P, Q). cyclic(P)        :- transitive_dep(P, P). unbound_port(P, T) :- requires(P, T), not provided_by_closure(P, T). ```  The resolver is IO-free: extraction is from in-memory TOML text, the gate takes values and returns values (`SyncPlan` / [`Refusal`]). Chicago tests below exercise real TOML documents end to end.
 
 use crate::Refusal;
 use serde::{Deserialize, Serialize};

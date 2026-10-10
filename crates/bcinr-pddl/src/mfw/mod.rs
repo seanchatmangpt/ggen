@@ -223,18 +223,17 @@ impl MassVector {
     }
 }
 
-/// Produces a [`MassVector`] for one frontier box. Implemented by whatever
-/// PDDL-specific type represents a candidate expansion (e.g. a partially
-///expanded state in a portfolio rail) — kept generic here so this module has no dependency on
-///`crate::search`'s rail types.
+/// Produces a [`MassVector`] for one frontier box.
+///
+/// Implemented by whatever PDDL-specific type represents a candidate expansion (e.g. a partially expanded state in a portfolio rail) — kept generic here so this module has no dependency on `crate::search`'s rail types.
 pub trait FrontierMeasure {
     fn measure(&self) -> MassVector;
 }
 
 /// A named collection of frontier boxes and their projected masses — used
 /// by `crate::search`'s exploit rail to rank candidates via [`q_lens`].
-///`BTreeMap` (not `HashMap`) for deterministic iteration order, matching this workspace's determinism
-///discipline wherever ordering could feed a digest or a reproducible search trace.
+///
+/// `BTreeMap` (not `HashMap`) for deterministic iteration order, matching this workspace's determinism discipline wherever ordering could feed a digest or a reproducible search trace.
 #[derive(Debug, Clone, Default)]
 pub struct FrontierBoxes<K: Ord> {
     boxes: BTreeMap<K, MassVector>,

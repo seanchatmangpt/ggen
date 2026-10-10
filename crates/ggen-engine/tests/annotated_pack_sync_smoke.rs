@@ -231,7 +231,7 @@ fn same_project_without_provider_declaration_refuses_with_fm_pack_018() {
 /// carries a non-URN `capabilities.requires` (and the one real
 /// `[dependencies]` pair, sa2a-* → praxis-core-pack "0.1.0", pins a version
 /// the resolved 0.3.0 refuses), so the pair is authored as REAL on-disk
-/// packs in the test's TempDir — real pack.toml parsing, real dependency
+/// packs in the test's `TempDir` — real pack.toml parsing, real dependency
 /// closure, real FM-PACK-018 adjudication. No mocks.
 const NON_URN_CAPABILITY: &str = "example:transitive-capability";
 const CONSUMER_V2_PACK: &str = "tier2-consumer-pack";

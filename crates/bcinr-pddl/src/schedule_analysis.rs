@@ -57,22 +57,18 @@ pub struct ScheduleAnalysis64 {
     pub capacity_delta: Option<CapacityDelta>,
 }
 
-/// Analyze the schedule `gtp.find_temporal_plan()` produces, plus capacity
-/// sensitivity for the named numeric-fluent resources (e.g. `"available-workers"`,
-/// matching the key format `fn_key`/`eval_numeric` use for zero-param functions).
+/// Analyze the schedule `gtp.find_temporal_plan()` produces, plus capacity sensitivity for the named
 ///
-/// `resource_keys` is capped at 64 entries (bitmask width); extras are ignored.
+/// numeric-fluent resources (e.g. `"available-workers"`, matching the key format `fn_key`/`eval_numeric` use for zero-param functions).  `resource_keys` is capped at 64 entries (bitmask width); extras are ignored.
 pub fn analyze_schedule(
     gtp: &GroundTemporalProblem, resource_keys: &[String],
 ) -> Result<ScheduleAnalysis64, Pddl8Error> {
     analyze_schedule_instrumented(gtp, resource_keys).map(|(result, _substage)| result)
 }
 
-/// Same as `analyze_schedule`, but also returns L3 substage timing
-/// (`AnalysisSubstageNs`). The extra `Instant::now()` checkpoints are cheap
-///relative to `analyze_schedule`'s ~3-6 total sub-calls (unlike `execute_temporal_plan`'s per-step hot
-///loop, which needed a separate bench-only duplicate to avoid adding overhead) — `analyze_schedule`
-///delegates to this function directly rather than duplicating it.
+/// Same as `analyze_schedule`, but also returns L3 substage timing (`AnalysisSubstageNs`).
+///
+/// The extra `Instant::now()` checkpoints are cheap relative to `analyze_schedule`'s ~3-6 total sub-calls (unlike `execute_temporal_plan`'s per-step  hot loop, which needed a separate bench-only duplicate to avoid adding overhead) — `analyze_schedule` delegates to this function directly rather than duplicating it.
 pub fn analyze_schedule_instrumented(
     gtp: &GroundTemporalProblem, resource_keys: &[String],
 ) -> Result<(ScheduleAnalysis64, AnalysisSubstageNs), Pddl8Error> {

@@ -177,10 +177,9 @@ pub const LAW_OBSERVABLE_IFF_FIBER_CONSTANT: FormalLawRef = FormalLawRef {
     standing: FormalStanding::Proven,
 };
 
-///Concurrency complex `K_Pi` (downward-closed family of faces — mfact's actual representation, NOT
-///minimal-nonfaces) is downward-closed. Proven, but *requires* downward-closure and empty-face
-///membership as admission hypotheses rather than deriving them — callers must supply those hypotheses,
-///the proof does not manufacture them.
+/// Concurrency complex `K_Pi` (downward-closed family of faces — mfact's actual representation, NOT
+///
+/// minimal-nonfaces) is downward-closed. Proven, but *requires* downward-closure and empty-face membership as admission hypotheses rather than deriving them — callers must supply those hypotheses, the proof does not manufacture them.
 pub const LAW_CONCURRENCY_COMPLEX_DOWNWARD_CLOSED: FormalLawRef = FormalLawRef {
     module: "procint/ProcInt/MFW/Concurrency.lean",
     declaration: "K_Pi downward-closed face family@Concurrency.lean:293-321 (sorry-free; requires downward-closure + empty-face membership as admission hypotheses, does not assume them)",

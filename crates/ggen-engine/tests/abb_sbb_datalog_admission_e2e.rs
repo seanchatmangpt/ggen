@@ -22,10 +22,10 @@ source = "ontology.ttl"
 dir = "templates"
 "#;
 
-const ONTOLOGY: &str = r#"
+const ONTOLOGY: &str = r"
 @prefix ex: <http://example.org/> .
 ex:subject a ex:Item .
-"#;
+";
 
 const TEMPLATE: &str = "---\nto: out/result.txt\n---\nhello\n";
 

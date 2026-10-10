@@ -15,11 +15,9 @@ use wasm4pm_compat::pddl::{
 
 use crate::ground::GroundProblem;
 
-/// The sixteen PDDL-requirement-shaped capabilities this crate's planners
-///might need. Not a 1:1 mirror of the `pddl` crate's `Requirement` enum — see [`requirement_implies`]
-///for how the wider requirement vocabulary (`Adl`, `Fluents`, `QuantifiedPreconditions`,
-///`ObjectFluents`, ...) maps onto these sixteen (or, for `ObjectFluents`, is rejected structurally
-///instead, since it has no corresponding `PddlFeature`).
+/// The sixteen PDDL-requirement-shaped capabilities this crate's planners might need.
+///
+/// Not a 1:1 mirror of the `pddl` crate's `Requirement` enum — see [`requirement_implies`] for how the wider requirement vocabulary (`Adl`, `Fluents`, `QuantifiedPreconditions`, `ObjectFluents`, ...) maps onto these sixteen (or, for `ObjectFluents`, is rejected structurally instead, since it has no corresponding `PddlFeature`).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum PddlFeature {
     Strips,
@@ -91,9 +89,9 @@ pub enum SemanticSupport {
 
 /// A policy: what level of support this planner instance claims for each
 /// [`PddlFeature`]. Implementations other than [`DefaultCapabilityProfile`]
-///let a caller be *more* conservative (e.g. downgrade `Approximate` to `Unsupported` for a
-///safety-critical deployment) — [`admit_planning_task`] never grants more trust than the profile it is
-///given.
+/// let a caller be *more* conservative (e.g.
+///
+/// downgrade `Approximate` to `Unsupported` for a safety-critical deployment) — [`admit_planning_task`] never grants more trust than the profile it is given.
 pub trait CapabilityProfile {
     fn support(&self, feature: PddlFeature) -> SemanticSupport;
 }
@@ -288,16 +286,9 @@ fn effect_list_uses_object_fluent_sentinel(effects: &[PddlEffect]) -> bool {
     effects.iter().any(effect_uses_object_fluent_sentinel)
 }
 
-/// A domain + problem that passed [`admit_planning_task`]'s structural and
-/// capability checks. Cheap to construct further planning stages from —
-///`theory_digest` (see [`domain_problem_digest`] for exactly which fields it walks) content-addresses
-///the domain's/problem's action bodies, durations, and `:init`/`:goal` content, not just their names —
-///it is *not* the same construction as `crate::llm_bridge::compute_domain_witness`/
-///`compute_problem_witness` (those remain name/requirements-only, for a human-readable LLM-facing
-///witness string, not a semantic content digest). `theory_digest` still does not cover
-///`:constraints`/`:preferences`/ `:metric`/PDDL+ `:process`/`:event` — see [`domain_problem_digest`]'s
-///doc comment for the precise, current coverage boundary. Two domains/problems differing only in one
-///of those uncovered fields will still collide.
+/// A domain + problem that passed [`admit_planning_task`]'s structural and capability checks.
+///
+/// Cheap to construct further planning stages from — `theory_digest` (see [`domain_problem_digest`] for exactly which fields it walks) content-addresses  the domain's/problem's action bodies, durations, and `:init`/`:goal` content, not just their names — it is *not* the same construction as `crate::llm_bridge::compute_domain_witness`/ `compute_problem_witness` (those remain name/requirements-only, for a human-readable LLM-facing witness string, not a semantic content digest). `theory_digest` still does not cover `:constraints`/`:preferences`/ `:metric`/PDDL+ `:process`/`:event` — see [`domain_problem_digest`]'s doc comment for the precise, current coverage boundary. Two domains/problems differing only in one of those uncovered fields will still collide.
 #[derive(Debug, Clone)]
 pub struct AdmittedPlanningTask {
     pub domain: Pddl31Domain,
@@ -305,14 +296,9 @@ pub struct AdmittedPlanningTask {
     pub theory_digest: Digest,
 }
 
-/// Structurally validate `domain`/`problem` and check every requirement
-/// `domain` declares against `profile`, refusing (`PlannerOutcome::Unsupported`)
-/// rather than silently proceeding for anything `profile` marks
-/// `SemanticSupport::Unsupported`.
+/// Structurally validate `domain`/`problem` and check every requirement `domain` declares against
 ///
-/// This does **not** ground or search — it is the admission gate that runs
-/// before either, so a domain requiring an unsupported feature never reaches
-/// `GroundProblem::build`/`GroundTemporalProblem::build` at all.
+/// `profile`, refusing (`PlannerOutcome::Unsupported`) rather than silently proceeding for anything `profile` marks `SemanticSupport::Unsupported`.  This does **not** ground or search — it is the admission gate that runs before either, so a domain requiring an unsupported feature never reaches `GroundProblem::build`/`GroundTemporalProblem::build` at all.
 pub fn admit_planning_task(
     domain: &Pddl31Domain, problem: &Pddl31Problem, profile: &dyn CapabilityProfile,
 ) -> PlannerOutcome<AdmittedPlanningTask> {
@@ -803,8 +789,8 @@ fn hash_duration_constraint(buf: &mut Vec<u8>, d: &DurationConstraint) {
 /// One bounded PDDL grounding + search run — the PDDL-shaped
 /// `GroundedPlanningEpoch` `bcinr_mfw_ir::epoch`'s module doc comment
 /// explicitly deferred to this crate ("`GroundedPlanningEpoch` itself...
-/// is PDDL-shaped and is left to `bcinr-pddl` to define"), built from the
-/// generic bound-tracking primitives [`EpochBounds`]/`bcinr_mfw_ir::DescentMeter`.
+///
+/// is PDDL-shaped and is left to `bcinr-pddl` to define"), built from the generic bound-tracking primitives [`EpochBounds`]/`bcinr_mfw_ir::DescentMeter`.
 #[derive(Debug, Clone)]
 pub struct GroundedPlanningEpoch {
     pub id: PlanningEpochId,

@@ -13,10 +13,9 @@ use std::collections::{BTreeMap, BTreeSet, VecDeque};
 /// A transition label: `Some(activity)` or the silent activity `τ` (`None`).
 pub type Label = Option<String>;
 
-/// A safe & sound workflow net `N = (P, T, F)` (Def 3.3). Ids are strings so
-/// hand-authored test nets and machine-generated subnets share one type.
-/// All internal sets are `BTree*` so every derived structure (partitions,
-/// projections, receipts) is deterministic.
+/// A safe & sound workflow net `N = (P, T, F)` (Def 3.3).
+///
+/// Ids are strings so hand-authored test nets and machine-generated subnets share one type. All internal sets are `BTree*` so every derived structure (partitions, projections, receipts) is deterministic.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct WfNet {
     places: BTreeSet<String>,

@@ -14,7 +14,7 @@
 //! a per-pack, per-field report naming both readings.
 //!
 //! Court 2 (edge differential): crafted fixtures pin the *known semantic
-//! asymmetries* as assertions — BTreeSet dedup vs Vec preserve, strict
+//! asymmetries* as assertions — `BTreeSet` dedup vs Vec preserve, strict
 //! unknown-key refusal vs lenient acceptance, empty arrays, non-string
 //! entries — so a future change to either parser's semantics breaks a test
 //! instead of drifting silently.
@@ -254,7 +254,7 @@ fn corpus_engines_and_marketplace_agree_on_capabilities() {
 // ---------------------------------------------------------------------------
 
 /// Write a full pack dir (pack.toml + ontology.ttl + one template) with the
-/// given `[capabilities]` table text, in a TempDir.
+/// given `[capabilities]` table text, in a `TempDir`.
 struct EdgePack {
     _dir: TempDir,
     pack_dir: PathBuf,

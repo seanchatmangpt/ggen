@@ -84,7 +84,10 @@ fn committed_receipt_records_the_enforced_bounds() {
         measured.len() == 40 && measured.bytes().all(|b| b.is_ascii_hexdigit()),
         "measured_commit {measured:?} is not a full sha"
     );
-    assert!(r["subject"]["measured_src_tree"].as_str().unwrap().len() == 40);
+    assert_eq!(
+        r["subject"]["measured_src_tree"].as_str().unwrap().len(),
+        40
+    );
     let obs = r["observed_ratios"]["admit_over_digest_64x64"]
         .as_f64()
         .unwrap();

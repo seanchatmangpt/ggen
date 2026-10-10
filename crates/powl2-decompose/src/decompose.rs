@@ -1,22 +1,6 @@
-//! Stage-1 decomposition: `ConvertNetToPOWL` (Algorithm 3) with its two
-//! partitioners `PartitionMG` (Algorithm 1, conflict-hiding → partial order)
-//! and `PartitionSM` (Algorithm 2, concurrency-hiding → choice graph).
+//! Stage-1 decomposition: `ConvertNetToPOWL` (Algorithm 3) with its two partitioners `PartitionMG`
 //!
-//! # Separability is the admission predicate
-//!
-//! Algorithm 3's fall-through branch — *neither a base case, nor a
-//! conflict-hiding partition, nor a concurrency-hiding partition exists* — is
-//! the paper's completeness boundary: the algorithm is complete exactly on
-//! **separable** WF-nets (Def 3.13). We do not approximate the fall-through;
-//! we **refuse** it, emitting a [`Refusal`] carrying a machine reason and a
-//! BLAKE3 receipt over the offending (sub-)net.
-//!
-//! This is a Rice-style boundary for process models: "is this WF-net
-//! expressible in POWL 2.0?" is answered constructively (a decomposition) or
-//! refused with evidence — never silently approximated. Non-free-choice nets
-//! are refused up front (every separable net is free-choice, Def 3.13
-//! corollary), and irreducible free-choice fragments are refused at the
-//! recursion level where both partitioners fail.
+//! (Algorithm 1, conflict-hiding → partial order) and `PartitionSM` (Algorithm 2, concurrency-hiding → choice graph).  # Separability is the admission predicate  Algorithm 3's fall-through branch — *neither a base case, nor a conflict-hiding partition, nor a concurrency-hiding partition exists* — is the paper's completeness boundary: the algorithm is complete exactly on **separable** WF-nets (Def 3.13). We do not approximate the fall-through; we **refuse** it, emitting a [`Refusal`] carrying a machine reason and a BLAKE3 receipt over the offending (sub-)net.  This is a Rice-style boundary for process models: "is this WF-net expressible in POWL 2.0?" is answered constructively (a decomposition) or refused with evidence — never silently approximated. Non-free-choice nets are refused up front (every separable net is free-choice, Def 3.13 corollary), and irreducible free-choice fragments are refused at the recursion level where both partitioners fail.
 
 use std::collections::{BTreeMap, BTreeSet};
 

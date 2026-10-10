@@ -4,7 +4,7 @@
 //! `n3_run`/`hooks_apply`/`shacl_check`/`shex_check` helpers that
 //! `law_engine.rs` already uses — one kernel binding, string-only seam).
 //!
-//! Chicago discipline: real Turtle/N3/SHACL files in a real TempDir, real
+//! Chicago discipline: real Turtle/N3/SHACL files in a real `TempDir`, real
 //! materialization, assertions on observable state (derived facts, DENIED
 //! lines, BLAKE3 hashes) — no doubles.
 
@@ -12,7 +12,7 @@ use ggen_engine::graph::{
     DeterministicGraph, EngineQueryResults, GraphEngine, GraphLawStore, ShaclOutcome,
 };
 
-/// Real Turtle facts + N3 rule + SHACL shape, written to a real TempDir and
+/// Real Turtle facts + N3 rule + SHACL shape, written to a real `TempDir` and
 /// loaded from disk (no inline-only fixtures).
 fn write_fixtures(
     dir: &std::path::Path,
@@ -32,13 +32,13 @@ fn write_fixtures(
     let shapes = dir.join("shapes.ttl");
     std::fs::write(
         &shapes,
-        r#"
+        r"
         @prefix sh: <http://www.w3.org/ns/shacl#> .
         @prefix ex: <http://example.org/> .
         ex:DogShape a sh:NodeShape ;
             sh:targetClass ex:Dog ;
             sh:property [ sh:path ex:name ; sh:minCount 1 ] .
-        "#,
+        ",
     )
     .expect("write shapes.ttl");
     (facts, rules, shapes)

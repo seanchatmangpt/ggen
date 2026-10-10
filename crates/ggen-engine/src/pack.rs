@@ -375,7 +375,7 @@ pub fn dependency_scope<'a>(
         }
         if let Some(providers) = capability_edges.get(name.as_str()) {
             for provider in providers {
-                queue.push_back(((*provider).to_string(), current_depth.saturating_add(1)));
+                queue.push_back(((*provider).clone(), current_depth.saturating_add(1)));
             }
         }
     }
