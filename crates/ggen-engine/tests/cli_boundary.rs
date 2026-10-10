@@ -377,16 +377,38 @@ fn ggen_bin() -> std::path::PathBuf {
         }
     }
 
-    // Last resort: PATH search (may find a system-installed version).
+    // Last resort: PATH search — version-guarded. A stale ambient ggen (e.g.
+    // 26.9.28 in ~/.local/bin) has poisoned harness runs before, producing
+    // flakes that looked like code failures. Refuse any PATH candidate whose
+    // `--version` does not match this workspace's version.
     if let Some(path_var) = std::env::var_os("PATH") {
         for dir in std::env::split_paths(&path_var) {
             let candidate = dir.join("ggen");
-            if candidate.is_file() {
-                return candidate;
-            }
             let candidate_exe = dir.join("ggen.exe");
-            if candidate_exe.is_file() {
-                return candidate_exe;
+            for candidate in [candidate, candidate_exe] {
+                if candidate.is_file() {
+                    let out = std::process::Command::new(&candidate)
+                        .arg("--version")
+                        .output()
+                        .unwrap_or_else(|e| {
+                            panic!("failed to execute {} --version: {e}", candidate.display())
+                        });
+                    let found = String::from_utf8_lossy(&out.stdout)
+                        .split_whitespace()
+                        .next_back()
+                        .unwrap_or_default()
+                        .to_string();
+                    assert!(
+                        found == env!("CARGO_PKG_VERSION"),
+                        "stale ambient ggen: harness fell back to PATH and resolved {}, \
+                         which reports version {found} but the workspace version is {}. \
+                         Remove or reinstall the ambient binary (ambient reinstall is \
+                         user-gated).",
+                        candidate.display(),
+                        env!("CARGO_PKG_VERSION")
+                    );
+                    return candidate;
+                }
             }
         }
     }
