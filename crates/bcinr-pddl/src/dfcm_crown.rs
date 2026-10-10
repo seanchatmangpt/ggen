@@ -1,18 +1,6 @@
-//! DfCM crown suite: a fixed, bounded (ops × capacity) matrix, each cell
-//! exercising topology → planning → analysis → admission → receipt → replay
-//! entirely within the 8/64 bound (≤ 64 durative-action ground instances, ≤
-//! 64 POWL tape ops per cell — see `docs/DFCM_CONTRACT.md`). Backs both
-//! `bcinr-bench/benches/dfcm_crown_bench.rs` and the wall-clock gate test in
-//! `tests/dfcm_crown_suite.rs`, so the same suite is what's benchmarked and
-//! what's gated.
+//! DfCM crown suite: a fixed, bounded (ops × capacity) matrix, each cell exercising topology →
 //!
-//! This empirically demonstrates composition stays inside one fixed
-//! wall-clock envelope, gated by `dfcm_crown_suite_completes_under_5_seconds`
-//! (`tests/dfcm_crown_suite.rs`) — a single wall-clock `elapsed <= 5.0`
-//! assertion, inherently machine-load-dependent, that can pass on one
-//! run/host and fail on another. It shows the bound held on the runs that
-//! were checked; it is not a general timing proof, and does not claim to be
-//! the fastest planner.
+//! planning → analysis → admission → receipt → replay entirely within the 8/64 bound (≤ 64 durative-action ground instances, ≤ 64 POWL tape ops per cell — see `docs/DFCM_CONTRACT.md`). Backs both `bcinr-bench/benches/dfcm_crown_bench.rs` and the wall-clock gate test in `tests/dfcm_crown_suite.rs`, so the same suite is what's benchmarked and what's gated.  This empirically demonstrates composition stays inside one fixed wall-clock envelope, gated by `dfcm_crown_suite_completes_under_5_seconds` (`tests/dfcm_crown_suite.rs`) — a single wall-clock `elapsed <= 5.0` assertion, inherently machine-load-dependent, that can pass on one run/host and fail on another. It shows the bound held on the runs that were checked; it is not a general timing proof, and does not claim to be the fastest planner.
 
 use std::time::Instant;
 

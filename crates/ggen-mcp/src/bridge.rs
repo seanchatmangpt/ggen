@@ -64,6 +64,7 @@ static DISPATCH_BREAKERS: LazyLock<crate::tools::unattended_dispatch::PerRootCir
     LazyLock::new(crate::tools::unattended_dispatch::PerRootCircuitBreaker::new);
 
 /// Default cap on how many `PushedDiagnostic`s `DiagnosticStore` retains at
+///
 /// once (CP18). Unbounded growth was the real gap: a large refactor can fire
 /// hundreds of diagnostics per gate run, and with no cap the store's memory
 /// grows without limit for the lifetime of the server process. `500` is an
@@ -73,6 +74,7 @@ static DISPATCH_BREAKERS: LazyLock<crate::tools::unattended_dispatch::PerRootCir
 pub const DEFAULT_MAX_ENTRIES: usize = 500;
 
 /// Default minimum interval between two *notifications* for the same
+///
 /// logical diagnostic (same `file`+`code`, independent of the per-run `idx`
 /// suffix) (CP18). Rapid-fire re-pushes of the same diagnostic (e.g. an
 /// editor firing the gate on every keystroke during a large refactor) are
@@ -83,6 +85,7 @@ pub const DEFAULT_MAX_ENTRIES: usize = 500;
 pub const DEFAULT_DEBOUNCE: Duration = Duration::from_millis(200);
 
 /// One pushed diagnostic, stored so a subscribing client's follow-up
+///
 /// `resources/read` for the URI named in the notification returns real
 /// content -- `notify_resource_updated` itself carries only a URI (rmcp
 /// 1.8.0's `ResourceUpdatedNotificationParam { uri: String }`, confirmed by
@@ -121,6 +124,7 @@ struct Inner {
 }
 
 /// In-memory store backing `GgenMcpServer::list_resources`/`read_resource`
+///
 /// for diagnostic-resource URIs. Cleared on server restart -- these are
 /// live-session facts about the current gate run, not persisted state.
 ///
@@ -239,6 +243,7 @@ fn diagnostic_uri(file: &str, code: &str, idx: usize) -> String {
 }
 
 /// Registry of every currently-retained `Peer<RoleServer>` this bridge can
+///
 /// push notifications to (CP16). One MCP server process may serve more than
 /// one concurrent client connection (e.g. multiple `serve()` calls over
 /// separate stdio/transport instances sharing one `GgenMcpServer` clone, or
@@ -340,6 +345,7 @@ impl PeerRegistry {
 }
 
 /// Run the real headless gate (`ggen_lsp::check::check_files_in_root`) over
+///
 /// `paths` under `root`, then for every diagnostic whose `code` is in
 /// `codes`: store its content in `store` (always -- so a client that
 /// connects later can still `resources/read` it) and broadcast a real
@@ -459,6 +465,7 @@ pub async fn push_diagnostics_for_root(
 }
 
 /// Result of one `push_diagnostics_for_root` call. `matched` counts real
+///
 /// diagnostics found and stored regardless of whether any peer was
 /// connected to receive a push for them; `delivered_notifications` counts
 /// the individual peer deliveries (so with 2 live peers and 3 matched
@@ -483,6 +490,7 @@ pub async fn list_resources(store: &DiagnosticStore) -> Vec<Resource> {
 }
 
 /// One pushed sync-dry-run refusal (CP28): either a real `sync()` `Err`
+///
 /// (its FM-* code already embedded in the `Display` text, since `AppError`
 /// has no typed FM-code field -- see this module's `push_sync_refusal_for_root`
 /// doc comment) or a non-routine typed skip from a successful dry run's
@@ -748,6 +756,7 @@ fn receipt_chain_refusal_uri(root: &Path) -> String {
 }
 
 /// Run a real `ggen_engine::verbs::handlers::handle_receipt_verify_in(root)`
+///
 /// and push any refusal it surfaces, into the *same* `SyncRefusalStore` (and
 /// `ggen-sync-refusal://` URI scheme) that `push_sync_refusal_for_root` uses.
 ///

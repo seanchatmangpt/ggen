@@ -1,4 +1,5 @@
 //! Gall CP39: the general dispatcher, scoped to route only into CP33's
+//!
 //! already-reviewed bounded path -- never a new, broader write path. Closes
 //! the "nothing consumes a pushed signal to trigger an action" gap named in
 //! the first-principles plan's item #1, without reopening item #2's
@@ -34,6 +35,7 @@ pub enum DispatchRoute {
 }
 
 /// Query `root/.specify/repo-facts.ttl` (if present) for the declared
+///
 /// `rf:dispatchRoute` of the `rf:DiagnosticCode` individual whose `rf:code`
 /// contains `signal_code` (substring match, since this repo's own facts
 /// wrap codes in markdown bold, e.g. `"**GGEN-TPL-001**"` -- matching by

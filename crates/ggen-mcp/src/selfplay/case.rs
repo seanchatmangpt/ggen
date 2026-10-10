@@ -8,6 +8,7 @@
 use serde::{Deserialize, Serialize};
 
 /// Where a case came from. Recorded because provenance changes how a
+///
 /// finding is read: a hand-written case encodes a human's intent, a
 /// Gemma-generated one encodes only "this tripped the referee", and
 /// conflating the two would let an LLM's guess masquerade as a

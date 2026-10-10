@@ -1,4 +1,5 @@
 //! Gall CP33: the bounded unattended-write dispatcher. Grounded in real
+//!
 //! precedent from three sibling projects with their own receipted/
 //! consequence-tracking pipelines (`~/mfw`'s branchless declared-risk-class
 //! admit-mask, `~/turbo-fieldfare/kcj-mustar`'s independent-recheck-at-the-
@@ -33,6 +34,7 @@ use crate::tools::protected_paths::is_protected_path;
 use crate::tools::write_apply::{write_apply, WriteApplyParams};
 
 /// Rolling-window circuit breaker (mfw/wasm4pm precedent: bound the *volume*
+///
 /// of zero-decision-step writes, not just gate individual attempts) --
 /// distinct from mfw's failure-triggered breaker (`PolicyGuard`'s anomaly
 /// threshold), since an eligible unattended write can never itself "fail" in
@@ -90,6 +92,7 @@ impl CircuitBreaker {
 }
 
 /// R2: a `CircuitBreaker` per distinct project root, so a rate-limit burst
+///
 /// on one project can never exhaust another, unrelated project's budget --
 /// the real bug the earlier single, process-wide `static CircuitBreaker` in
 /// `bridge.rs` had. Unbounded by root count (not FIFO-evicted like

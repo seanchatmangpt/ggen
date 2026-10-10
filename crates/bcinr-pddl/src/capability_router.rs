@@ -281,9 +281,9 @@ impl Ord for CostVector {
     }
 }
 
-/// The router's output: the plan it found, the schedule analysis that
-/// justified it, its cost, and a BLAKE3 chain binding all three together —
-/// same witnessing pattern as `WorldManufactureReceipt`, not a new format.
+/// The router's output: the plan it found, the schedule analysis that justified it, its cost, and a
+///
+/// BLAKE3 chain binding all three together — same witnessing pattern as `WorldManufactureReceipt`, not a new format.
 #[derive(Debug, Clone)]
 pub struct CapabilityRouteReceipt {
     pub admitted: bool,

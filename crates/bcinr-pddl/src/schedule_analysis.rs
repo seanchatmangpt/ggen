@@ -1,14 +1,6 @@
-//! Bounded schedule analyzer: reads a `TemporalPlan` + its POWL partial-order
-//! tape and derives structure — critical path, slack, parallelism, binding
-//! resources, and capacity sensitivity — without introducing a new planner,
-//! LP solver, or polytope representation. Everything here is either a direct
-//! graph computation over the existing `pred_mask`/`succ_mask` DAG (bounded by
-//! the 64-op tape cap) or a finite-difference re-run of the existing greedy
-//! `find_temporal_plan`.
+//! Bounded schedule analyzer: reads a `TemporalPlan` + its POWL partial-order tape and derives
 //!
-//! This is deliberately *not* sensitivity over an optimal scheduler, and not
-//! a feasible-region boundary/polytope. It explains the one schedule the
-//! planner already found.
+//! structure — critical path, slack, parallelism, binding resources, and capacity sensitivity — without introducing a new planner, LP solver, or polytope representation. Everything here is either a direct graph computation over the existing `pred_mask`/`succ_mask` DAG (bounded by the 64-op tape cap) or a finite-difference re-run of the existing greedy `find_temporal_plan`.  This is deliberately *not* sensitivity over an optimal scheduler, and not a feasible-region boundary/polytope. It explains the one schedule the planner already found.
 
 use crate::ground::GroundTemporalProblem;
 use crate::powl_bridge::{temporal_plan_to_powl_tape, PowlOpSpec};
@@ -78,10 +70,9 @@ pub fn analyze_schedule(
 
 /// Same as `analyze_schedule`, but also returns L3 substage timing
 /// (`AnalysisSubstageNs`). The extra `Instant::now()` checkpoints are cheap
-/// relative to `analyze_schedule`'s ~3-6 total sub-calls (unlike
-/// `execute_temporal_plan`'s per-step hot loop, which needed a separate
-/// bench-only duplicate to avoid adding overhead) — `analyze_schedule`
-/// delegates to this function directly rather than duplicating it.
+///relative to `analyze_schedule`'s ~3-6 total sub-calls (unlike `execute_temporal_plan`'s per-step hot
+///loop, which needed a separate bench-only duplicate to avoid adding overhead) — `analyze_schedule`
+///delegates to this function directly rather than duplicating it.
 pub fn analyze_schedule_instrumented(
     gtp: &GroundTemporalProblem, resource_keys: &[String],
 ) -> Result<(ScheduleAnalysis64, AnalysisSubstageNs), Pddl8Error> {

@@ -7,8 +7,6 @@
 //! no stubs — state-based assertions on actual stdout/stderr from the actual
 //! process, plus a determinism check (two runs, byte-identical output).
 
-#![allow(clippy::unwrap_used, clippy::expect_used)]
-
 use assert_cmd::Command;
 use serde_json::Value;
 use std::path::PathBuf;

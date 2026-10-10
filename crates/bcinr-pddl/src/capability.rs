@@ -1,125 +1,6 @@
-//! Capability admission: what PDDL features this crate's planners *actually*
-//! implement correctly, wired into a real admission gate so a caller-chosen
-//! [`CapabilityProfile`] can refuse a domain that needs something the
-//! profile marks unsupported instead of silently planning against it anyway
-//! and producing a plan that quietly ignores part of the domain's semantics.
+//! Capability admission: what PDDL features this crate's planners *actually* implement correctly,
 //!
-//! # Per-feature accounting (the honest part)
-//!
-//! [`DefaultCapabilityProfile`] is not a guess — every rating below reflects
-//! code actually read (and, where noted, actually run) this phase:
-//!
-//! - [`PddlFeature::Strips`], [`PddlFeature::Typing`] — `Exact`. The
-//!   foundation; every passing test in this crate exercises both.
-//! - [`PddlFeature::NegativePreconditions`] — `Exact`. `eval_condition`'s
-//!   `Not` arm is a straightforward `!eval_condition(inner, ...)`, and it is
-//!   genuinely load-bearing in a passing test:
-//!   `capability_router::tests::same_file_edit_and_draft_conflict_and_sequence`
-//!   only passes because `(at start (not (locked ?f)))` really gates
-//!   scheduling.
-//! - [`PddlFeature::Disjunction`] — `Exact`. `eval_condition`'s `Or` arm
-//!   (`.any(...)`) is reachable through the same durative-condition pipeline
-//!   already proven live for `Not`/`Compare`/`Timed`, and is now itself
-//!   proven end-to-end by `tests/durative_disjunction.rs`: a
-//!   `:durative-action`'s `(at start (or ...))` condition genuinely gates
-//!   scheduling, including the adversarial case (only one of two disjuncts
-//!   true still fires; neither true correctly blocks). Like
-//!   `UniversalPreconditions`, this is only proven through the one
-//!   parser-reachable path that exists — `:action`/`:goal` preconditions
-//!   still can't carry a `PddlCondition::Or` at all in this crate.
-//! - [`PddlFeature::Equality`] — `Unsupported`. Nothing in this crate
-//!   special-cases the built-in `=` predicate (no equality facts are
-//!   synthesized, no identity check exists anywhere in `ground/mod.rs`) — a
-//!   domain declaring `:equality` gets `=` treated as an arbitrary
-//!   uninterpreted predicate name, which is silently wrong, not merely
-//!   incomplete.
-//! - [`PddlFeature::ExistentialPreconditions`] — `Unsupported`.
-//!   `ground::eval_quantifier`'s `Exists` arm is real and directly
-//!   unit-tested (`ground::quantifier_tests::exists_*`), but no parser path
-//!   in this crate ever constructs a `PddlCondition::Exists` that reaches
-//!   `eval_condition`: the `pddl` crate's durative-action-condition grammar
-//!   (`da-GD`) has no `exists` production (only `forall` — see
-//!   `src/parse.rs`'s `lower_da_gd`), plain `:action` preconditions and
-//!   `:goal` can't carry any `PddlCondition` at all (both are flattened to
-//!   `Vec<Pddl8Atom>`), and `ground_derived_schema`'s local `ground_condition`
-//!   helper drops `Exists` bodies (`_ => None`). A correct-but-unreachable
-//!   evaluator is still `Unsupported` at the admission layer — this is the
-//!   explicit, honest choice the mission brief allows for a feature whose
-//!   evaluator works but has no way to receive real input.
-//! - [`PddlFeature::UniversalPreconditions`] — `Approximate`. The mirror
-//!   image: `eval_quantifier`'s `Forall` arm *is* reachable, through exactly
-//!   one path — a `:durative-action`'s `:condition` — and that path is
-//!   proven correct end-to-end by `tests/durative_quantifiers.rs` (including
-//!   the adversarial case the pre-fix stub got wrong: one item not ready).
-//!   `Approximate`, not `Exact`, because the same feature in a plain
-//!   `:action` precondition or `:goal` still silently vanishes.
-//! - [`PddlFeature::ConditionalEffects`] — `Unsupported`. A real bug, not a
-//!   gap: `ground::apply_effect_ground`'s `PddlEffect::When { condition,
-//!   effects }` arm destructures `condition` with `..` and **never
-//!   evaluates it** — the effects fire unconditionally. `PddlEffect::Forall`
-//!   effects have the same disease (`vars` is discarded, effects apply once
-//!   without any substitution/enumeration over objects). Neither bug was
-//!   introduced this phase; both are surfaced here rather than silently
-//!   inherited as an `Exact`/`Approximate` rating that would overclaim.
-//!   [`admit_planning_task`] refuses on this feature two ways: the
-//!   declared-requirement loop (any `:requirements` entry that
-//!   [`requirement_implies`] maps to `ConditionalEffects`), and a separate
-//!   content scan (`effect_list_uses_conditional_or_quantified`) over every
-//!   action's/durative-action's actual effect AST, so a domain that uses
-//!   `when`/`forall` in an effect *without* declaring the requirement is
-//!   still refused instead of silently admitted.
-//! - [`PddlFeature::NumericFluents`] — `Approximate`. Numeric comparisons
-//!   (`eval_numeric`/`Compare`) are genuinely evaluated and load-bearing
-//!   (`capability_router`'s `(>= (attention) 1)` gates every real test in
-//!   that module) — but only through the durative-action pipeline. Plain
-//!   `:action` preconditions cannot carry a numeric comparison at all
-//!   (`Pddl8ActionSchema.preconditions: Vec<Pddl8Atom>` has no slot for one),
-//!   so `src/parse.rs`'s `collect_gd` silently drops it instead of
-//!   rejecting the domain — directly demonstrated by
-//!   `tests/semantic_falsifier.rs`'s `test_numeric_cost`, `#[ignore]`d with
-//!   this exact citation rather than left to fail unexplained.
-//! - [`PddlFeature::NumericEffects`] — `Exact`. `apply_numeric_effect`
-//!   correctly implements `Assign`/`Increase`/`Decrease`/`ScaleUp`/
-//!   `ScaleDown`, and it is the only numeric-effect surface `:numeric-fluents`
-//!   realistically implies in this crate (paired with `:durative-actions`,
-//!   the classical `Pddl8GroundAction` has no numeric-effect field at all —
-//!   a structural, advertised STRIPS8 scope limit, not a silent gap).
-//! - [`PddlFeature::DurativeActions`] — `Exact`. `GroundTemporalProblem` is
-//!   the best-tested part of this crate (`tests/capacity.rs`,
-//!   `tests/proposer_substrate.rs`, `capability_router`, the DfCM crown
-//!   suite all exercise it).
-//! - [`PddlFeature::TimedInitialLiterals`] — `Exact`.
-//!   `tests/semantic_falsifier.rs`'s `test_til_schedule` passes and directly
-//!   checks TIL-driven makespan values.
-//! - [`PddlFeature::DerivedPredicates`] — `Approximate`.
-//!   `compute_derived_closure`'s fixpoint iteration is real and
-//!   `test_derived_predicates` passes — but `ground_derived_schema`'s
-//!   `ground_condition` helper has no `Forall`/`Exists` arm, so a derived
-//!   predicate whose body quantifies is silently dropped in full (not
-//!   partially evaluated), never appearing in `derived_predicates` at all.
-//! - [`PddlFeature::TrajectoryConstraints`] — `Unsupported`.
-//!   `crate::parse::problem_from_pddl` and `problem31_from_pddl` both
-//!   hardcode `preferences: vec![]` — `(:constraints ...)` is never parsed
-//!   into `Pddl8Problem`/`Pddl31Problem` at all, by either function, so
-//!   `GroundProblem::build`'s/`GroundTemporalProblem::build`'s
-//!   `self.constraints` is always empty regardless of what a domain
-//!   declares. Directly demonstrated by `test_trajectory_constraints`,
-//!   `#[ignore]`d with this citation.
-//! - [`PddlFeature::Preferences`] — `Unsupported`. Same root cause
-//!   (`preferences: vec![]`, always), and even setting that aside, nothing
-//!   in this crate computes soft-constraint violation cost against a metric.
-//! - [`PddlFeature::Metrics`] — `Unsupported`. `problem.metric: Option<Metric>`
-//!   is parsed but never consulted: both `GroundProblem::find_plan` and
-//!   `GroundTemporalProblem::find_temporal_plan_with_fn_overrides`
-//!   hardcode `metric_value: None` on every `TemporalPlan` they return, and
-//!   classical `find_plan` has no metric field on `Pddl8Tape` to populate at
-//!   all — no plan is ever selected or ranked by a metric.
-//!
-//! None of the above bugs (`ConditionalEffects`, the two `preferences: vec![]`
-//! sites, `metric_value: None`) were introduced by this phase — they're
-//! reported here because an honest [`CapabilityProfile`] cannot be built
-//! without finding them, and finding them without saying so would be exactly
-//! the silent-overclaim this module exists to prevent.
+//! wired into a real admission gate so a caller-chosen [`CapabilityProfile`] can refuse a domain that needs something the profile marks unsupported instead of silently planning against it anyway and producing a plan that quietly ignores part of the domain's semantics.  # Per-feature accounting (the honest part)  [`DefaultCapabilityProfile`] is not a guess — every rating below reflects code actually read (and, where noted, actually run) this phase:  - [`PddlFeature::Strips`], [`PddlFeature::Typing`] — `Exact`. The foundation; every passing test in this crate exercises both. - [`PddlFeature::NegativePreconditions`] — `Exact`. `eval_condition`'s `Not` arm is a straightforward `!eval_condition(inner, ...)`, and it is genuinely load-bearing in a passing test: `capability_router::tests::same_file_edit_and_draft_conflict_and_sequence` only passes because `(at start (not (locked ?f)))` really gates scheduling. - [`PddlFeature::Disjunction`] — `Exact`. `eval_condition`'s `Or` arm (`.any(...)`) is reachable through the same durative-condition pipeline already proven live for `Not`/`Compare`/`Timed`, and is now itself proven end-to-end by `tests/durative_disjunction.rs`: a `:durative-action`'s `(at start (or ...))` condition genuinely gates scheduling, including the adversarial case (only one of two disjuncts true still fires; neither true correctly blocks). Like `UniversalPreconditions`, this is only proven through the one parser-reachable path that exists — `:action`/`:goal` preconditions still can't carry a `PddlCondition::Or` at all in this crate. - [`PddlFeature::Equality`] — `Unsupported`. Nothing in this crate special-cases the built-in `=` predicate (no equality facts are synthesized, no identity check exists anywhere in `ground/mod.rs`) — a domain declaring `:equality` gets `=` treated as an arbitrary uninterpreted predicate name, which is silently wrong, not merely incomplete. - [`PddlFeature::ExistentialPreconditions`] — `Unsupported`. `ground::eval_quantifier`'s `Exists` arm is real and directly unit-tested (`ground::quantifier_tests::exists_*`), but no parser path in this crate ever constructs a `PddlCondition::Exists` that reaches `eval_condition`: the `pddl` crate's durative-action-condition grammar (`da-GD`) has no `exists` production (only `forall` — see `src/parse.rs`'s `lower_da_gd`), plain `:action` preconditions and `:goal` can't carry any `PddlCondition` at all (both are flattened to `Vec<Pddl8Atom>`), and `ground_derived_schema`'s local `ground_condition` helper drops `Exists` bodies (`_ => None`). A correct-but-unreachable evaluator is still `Unsupported` at the admission layer — this is the explicit, honest choice the mission brief allows for a feature whose evaluator works but has no way to receive real input. - [`PddlFeature::UniversalPreconditions`] — `Approximate`. The mirror image: `eval_quantifier`'s `Forall` arm *is* reachable, through exactly one path — a `:durative-action`'s `:condition` — and that path is proven correct end-to-end by `tests/durative_quantifiers.rs` (including the adversarial case the pre-fix stub got wrong: one item not ready). `Approximate`, not `Exact`, because the same feature in a plain `:action` precondition or `:goal` still silently vanishes. - [`PddlFeature::ConditionalEffects`] — `Unsupported`. A real bug, not a gap: `ground::apply_effect_ground`'s `PddlEffect::When { condition, effects }` arm destructures `condition` with `..` and **never evaluates it** — the effects fire unconditionally. `PddlEffect::Forall` effects have the same disease (`vars` is discarded, effects apply once without any substitution/enumeration over objects). Neither bug was introduced this phase; both are surfaced here rather than silently inherited as an `Exact`/`Approximate` rating that would overclaim. [`admit_planning_task`] refuses on this feature two ways: the declared-requirement loop (any `:requirements` entry that [`requirement_implies`] maps to `ConditionalEffects`), and a separate content scan (`effect_list_uses_conditional_or_quantified`) over every action's/durative-action's actual effect AST, so a domain that uses `when`/`forall` in an effect *without* declaring the requirement is still refused instead of silently admitted. - [`PddlFeature::NumericFluents`] — `Approximate`. Numeric comparisons (`eval_numeric`/`Compare`) are genuinely evaluated and load-bearing (`capability_router`'s `(>= (attention) 1)` gates every real test in that module) — but only through the durative-action pipeline. Plain `:action` preconditions cannot carry a numeric comparison at all (`Pddl8ActionSchema.preconditions: Vec<Pddl8Atom>` has no slot for one), so `src/parse.rs`'s `collect_gd` silently drops it instead of rejecting the domain — directly demonstrated by `tests/semantic_falsifier.rs`'s `test_numeric_cost`, `#[ignore]`d with this exact citation rather than left to fail unexplained. - [`PddlFeature::NumericEffects`] — `Exact`. `apply_numeric_effect` correctly implements `Assign`/`Increase`/`Decrease`/`ScaleUp`/ `ScaleDown`, and it is the only numeric-effect surface `:numeric-fluents` realistically implies in this crate (paired with `:durative-actions`, the classical `Pddl8GroundAction` has no numeric-effect field at all — a structural, advertised STRIPS8 scope limit, not a silent gap). - [`PddlFeature::DurativeActions`] — `Exact`. `GroundTemporalProblem` is the best-tested part of this crate (`tests/capacity.rs`, `tests/proposer_substrate.rs`, `capability_router`, the DfCM crown suite all exercise it). - [`PddlFeature::TimedInitialLiterals`] — `Exact`. `tests/semantic_falsifier.rs`'s `test_til_schedule` passes and directly checks TIL-driven makespan values. - [`PddlFeature::DerivedPredicates`] — `Approximate`. `compute_derived_closure`'s fixpoint iteration is real and `test_derived_predicates` passes — but `ground_derived_schema`'s `ground_condition` helper has no `Forall`/`Exists` arm, so a derived predicate whose body quantifies is silently dropped in full (not partially evaluated), never appearing in `derived_predicates` at all. - [`PddlFeature::TrajectoryConstraints`] — `Unsupported`. `crate::parse::problem_from_pddl` and `problem31_from_pddl` both hardcode `preferences: vec![]` — `(:constraints ...)` is never parsed into `Pddl8Problem`/`Pddl31Problem` at all, by either function, so `GroundProblem::build`'s/`GroundTemporalProblem::build`'s `self.constraints` is always empty regardless of what a domain declares. Directly demonstrated by `test_trajectory_constraints`, `#[ignore]`d with this citation. - [`PddlFeature::Preferences`] — `Unsupported`. Same root cause (`preferences: vec![]`, always), and even setting that aside, nothing in this crate computes soft-constraint violation cost against a metric. - [`PddlFeature::Metrics`] — `Unsupported`. `problem.metric: Option<Metric>` is parsed but never consulted: both `GroundProblem::find_plan` and `GroundTemporalProblem::find_temporal_plan_with_fn_overrides` hardcode `metric_value: None` on every `TemporalPlan` they return, and classical `find_plan` has no metric field on `Pddl8Tape` to populate at all — no plan is ever selected or ranked by a metric.  None of the above bugs (`ConditionalEffects`, the two `preferences: vec![]` sites, `metric_value: None`) were introduced by this phase — they're reported here because an honest [`CapabilityProfile`] cannot be built without finding them, and finding them without saying so would be exactly the silent-overclaim this module exists to prevent.
 
 use std::collections::BTreeSet;
 
@@ -135,11 +16,10 @@ use wasm4pm_compat::pddl::{
 use crate::ground::GroundProblem;
 
 /// The sixteen PDDL-requirement-shaped capabilities this crate's planners
-/// might need. Not a 1:1 mirror of the `pddl` crate's `Requirement` enum —
-/// see [`requirement_implies`] for how the wider requirement vocabulary
-/// (`Adl`, `Fluents`, `QuantifiedPreconditions`, `ObjectFluents`, ...) maps
-/// onto these sixteen (or, for `ObjectFluents`, is rejected structurally
-/// instead, since it has no corresponding `PddlFeature`).
+///might need. Not a 1:1 mirror of the `pddl` crate's `Requirement` enum — see [`requirement_implies`]
+///for how the wider requirement vocabulary (`Adl`, `Fluents`, `QuantifiedPreconditions`,
+///`ObjectFluents`, ...) maps onto these sixteen (or, for `ObjectFluents`, is rejected structurally
+///instead, since it has no corresponding `PddlFeature`).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum PddlFeature {
     Strips,
@@ -211,9 +91,9 @@ pub enum SemanticSupport {
 
 /// A policy: what level of support this planner instance claims for each
 /// [`PddlFeature`]. Implementations other than [`DefaultCapabilityProfile`]
-/// let a caller be *more* conservative (e.g. downgrade `Approximate` to
-/// `Unsupported` for a safety-critical deployment) — [`admit_planning_task`]
-/// never grants more trust than the profile it is given.
+///let a caller be *more* conservative (e.g. downgrade `Approximate` to `Unsupported` for a
+///safety-critical deployment) — [`admit_planning_task`] never grants more trust than the profile it is
+///given.
 pub trait CapabilityProfile {
     fn support(&self, feature: PddlFeature) -> SemanticSupport;
 }
@@ -253,24 +133,9 @@ impl CapabilityProfile for DefaultCapabilityProfile {
 /// spelling; see `src/parse.rs`'s `domain31_from_pddl`, which populates this
 /// field via `format!("{r:?}")`) implies `feature`.
 ///
-/// Shorthand requirements (`Adl`, `Fluents`, `QuantifiedPreconditions`) are
-/// expanded to the same constituent set the `pddl` crate's own
-/// `Requirement::expand()` uses. `ObjectFluents`/`DurationInequalities`/
-/// `ContinuousEffects`/`ActionCosts` never imply any [`PddlFeature`] here —
-/// `ObjectFluents` is rejected structurally by [`admit_planning_task`]
-/// instead (see that function), `ContinuousEffects` is likewise rejected
-/// structurally by [`admit_planning_task`] but via a *content* scan
-/// (`effect_list_uses_continuous_effect_sentinel`) rather than this
-/// declared-requirement mapping — declaring `:continuous-effects` without
-/// ever using the construct is harmless, so keying the refusal on the
-/// requirement string the way `ObjectFluents` does would both needlessly
-/// refuse harmless domains and miss a domain that uses the construct
-/// without declaring it — and the other two have no corresponding feature
-/// in this crate's admission vocabulary at all (this crate does not
-/// implement duration inequalities beyond the min/max bounds
-/// `resolve_duration` already resolves, and `ActionCosts`'s restricted-metric
-/// semantics fall under [`PddlFeature::Metrics`], which is
-/// already `Unsupported`).
+/// Shorthand requirements (`Adl`, `Fluents`, `QuantifiedPreconditions`) are expanded to the same
+///
+/// constituent set the `pddl` crate's own `Requirement::expand()` uses. `ObjectFluents`/`DurationInequalities`/ `ContinuousEffects`/`ActionCosts` never imply any [`PddlFeature`] here — `ObjectFluents` is rejected structurally by [`admit_planning_task`] instead (see that function), `ContinuousEffects` is likewise rejected structurally by [`admit_planning_task`] but via a *content* scan (`effect_list_uses_continuous_effect_sentinel`) rather than this declared-requirement mapping — declaring `:continuous-effects` without ever using the construct is harmless, so keying the refusal on the requirement string the way `ObjectFluents` does would both needlessly refuse harmless domains and miss a domain that uses the construct without declaring it — and the other two have no corresponding feature in this crate's admission vocabulary at all (this crate does not implement duration inequalities beyond the min/max bounds `resolve_duration` already resolves, and `ActionCosts`'s restricted-metric semantics fall under [`PddlFeature::Metrics`], which is already `Unsupported`).
 fn requirement_implies(req: &str, feature: PddlFeature) -> bool {
     match req {
         "Strips" => feature == PddlFeature::Strips,
@@ -425,16 +290,14 @@ fn effect_list_uses_object_fluent_sentinel(effects: &[PddlEffect]) -> bool {
 
 /// A domain + problem that passed [`admit_planning_task`]'s structural and
 /// capability checks. Cheap to construct further planning stages from —
-/// `theory_digest` (see [`domain_problem_digest`] for exactly which fields
-/// it walks) content-addresses the domain's/problem's action bodies,
-/// durations, and `:init`/`:goal` content, not just their names — it is
-/// *not* the same construction as `crate::llm_bridge::compute_domain_witness`/
-/// `compute_problem_witness` (those remain name/requirements-only, for a
-/// human-readable LLM-facing witness string, not a semantic content digest).
-/// `theory_digest` still does not cover `:constraints`/`:preferences`/
-/// `:metric`/PDDL+ `:process`/`:event` — see [`domain_problem_digest`]'s doc
-/// comment for the precise, current coverage boundary. Two domains/problems
-/// differing only in one of those uncovered fields will still collide.
+///`theory_digest` (see [`domain_problem_digest`] for exactly which fields it walks) content-addresses
+///the domain's/problem's action bodies, durations, and `:init`/`:goal` content, not just their names —
+///it is *not* the same construction as `crate::llm_bridge::compute_domain_witness`/
+///`compute_problem_witness` (those remain name/requirements-only, for a human-readable LLM-facing
+///witness string, not a semantic content digest). `theory_digest` still does not cover
+///`:constraints`/`:preferences`/ `:metric`/PDDL+ `:process`/`:event` — see [`domain_problem_digest`]'s
+///doc comment for the precise, current coverage boundary. Two domains/problems differing only in one
+///of those uncovered fields will still collide.
 #[derive(Debug, Clone)]
 pub struct AdmittedPlanningTask {
     pub domain: Pddl31Domain,

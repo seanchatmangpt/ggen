@@ -21,6 +21,7 @@ use crate::error::{ErrorCategory, McpError};
 use crate::project_root::resolve_root;
 
 /// Gall CP38: an answer to "was this specific caller authorized to trigger
+///
 /// this write," a real, separate question from CP17's hash-corroboration
 /// gate (which only ever answers "is this write correct/fresh"). Threaded
 /// straight into the resulting receipt's `origin` field (CP37).

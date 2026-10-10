@@ -37,11 +37,9 @@ pub struct ActionNodeBijection {
     pub node_to_action: BTreeMap<PowlNodeId, ActionOccurrenceId>,
 }
 
-/// Witness that precedence order was preserved by the projection: digests
-/// of the source order, the order as naively projected, and the order as
-/// mapped through the bijection — a projector should establish these are
-/// consistent (e.g. `mapped_order_digest == projected_order_digest`)
-/// before returning a witness claiming preservation.
+/// Witness that precedence order was preserved by the projection: digests of the source order, the
+///
+/// order as naively projected, and the order as mapped through the bijection — a projector should establish these are consistent (e.g. `mapped_order_digest == projected_order_digest`) before returning a witness claiming preservation.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct OrderPreservationWitness {
     pub source_order_digest: Digest,
@@ -73,10 +71,9 @@ pub struct PowlProjectionWitness {
 }
 
 /// Projects a `CausalPlan` + `ExecutableConcurrencyComplex` into a POWL
-/// model, returning both the model and a witness that the projection
-/// preserved source semantics. `Model` is an associated type so
-/// `bcinr-powl` can plug in its own concrete model type without this crate
-/// depending on `bcinr-powl` (see the module-level doc comment).
+/// model, returning both the model and a witness that the projection preserved source semantics.
+///
+/// `Model` is an associated type so `bcinr-powl` can plug in its own concrete model type without this crate depending on `bcinr-powl` (see the module-level doc comment).
 pub trait PowlProjector {
     type Model;
     type Error;

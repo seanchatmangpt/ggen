@@ -98,21 +98,9 @@ impl std::fmt::Display for ContractError {
 
 impl std::error::Error for ContractError {}
 
-/// A license to perform a semantic optimization (e.g. skip re-search inside
-/// a consequence horizon because the result is provably equivalent) —
-/// constructible only when the cited `FormalLawRef` is `Proven`.
+/// A license to perform a semantic optimization (e.g.
 ///
-/// This is the enforcement point, not documentation: `new` refuses
-/// (`Err(ContractError::LawNotProven)`) rather than merely warning when
-/// `law.standing != FormalStanding::Proven`. The fields are deliberately
-/// **not** `pub`: `#[derive(Clone)]` plus public fields would let any
-/// caller (in this crate or downstream, since Rust field privacy is
-/// per-crate, not per-module) construct a full `SemanticOptimizationContract`
-/// via struct-literal syntax carrying a non-`Proven` law, bypassing `new`'s
-/// refusal entirely and making the doc comment above false as written. Use
-/// the accessor methods below for read access — nothing outside this
-/// module needs write access, and `new` is the only place that should ever
-/// need it.
+/// skip re-search inside a consequence horizon because the result is provably equivalent) — constructible only when the cited `FormalLawRef` is `Proven`.  This is the enforcement point, not documentation: `new` refuses (`Err(ContractError::LawNotProven)`) rather than merely warning when `law.standing != FormalStanding::Proven`. The fields are deliberately **not** `pub`: `#[derive(Clone)]` plus public fields would let any caller (in this crate or downstream, since Rust field privacy is per-crate, not per-module) construct a full `SemanticOptimizationContract` via struct-literal syntax carrying a non-`Proven` law, bypassing `new`'s refusal entirely and making the doc comment above false as written. Use the accessor methods below for read access — nothing outside this module needs write access, and `new` is the only place that should ever need it.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct SemanticOptimizationContract {
     law: FormalLawRef,
@@ -189,11 +177,10 @@ pub const LAW_OBSERVABLE_IFF_FIBER_CONSTANT: FormalLawRef = FormalLawRef {
     standing: FormalStanding::Proven,
 };
 
-/// Concurrency complex `K_Pi` (downward-closed family of faces — mfact's
-/// actual representation, NOT minimal-nonfaces) is downward-closed.
-/// Proven, but *requires* downward-closure and empty-face membership as
-/// admission hypotheses rather than deriving them — callers must supply
-/// those hypotheses, the proof does not manufacture them.
+///Concurrency complex `K_Pi` (downward-closed family of faces — mfact's actual representation, NOT
+///minimal-nonfaces) is downward-closed. Proven, but *requires* downward-closure and empty-face
+///membership as admission hypotheses rather than deriving them — callers must supply those hypotheses,
+///the proof does not manufacture them.
 pub const LAW_CONCURRENCY_COMPLEX_DOWNWARD_CLOSED: FormalLawRef = FormalLawRef {
     module: "procint/ProcInt/MFW/Concurrency.lean",
     declaration: "K_Pi downward-closed face family@Concurrency.lean:293-321 (sorry-free; requires downward-closure + empty-face membership as admission hypotheses, does not assume them)",
@@ -202,9 +189,9 @@ pub const LAW_CONCURRENCY_COMPLEX_DOWNWARD_CLOSED: FormalLawRef = FormalLawRef {
     standing: FormalStanding::Proven,
 };
 
-/// "Executable concurrency" as an intersection `C_E = C_C ∩ C_T ∩ C_R` of
-/// causal/temporal/resource predicates. Defined in Lean, but NOT proven to
-/// be downward-closed or a valid complex — `Stated`, not `Proven`.
+/// "Executable concurrency" as an intersection `C_E = C_C ∩ C_T ∩ C_R` of causal/temporal/resource
+///
+/// predicates. Defined in Lean, but NOT proven to be downward-closed or a valid complex — `Stated`, not `Proven`.
 pub const LAW_EXECUTABLE_CONCURRENCY_INTERSECTION: FormalLawRef = FormalLawRef {
     module: "procint/ProcInt/MFW/Concurrency.lean",
     declaration: "C_E = C_C ∩ C_T ∩ C_R@Concurrency.lean:400-416 (defined; NOT proven downward-closed or a valid complex)",
@@ -214,10 +201,9 @@ pub const LAW_EXECUTABLE_CONCURRENCY_INTERSECTION: FormalLawRef = FormalLawRef {
 };
 
 /// Crown theorem / kernel characterization: `tau(b1) = tau(b2)` iff `b1` is
-/// K-equivalent to `b2`. This is the open goal mfact's authors themselves
-/// call out as `CONJECTURAL` (see `mfact/MFW_THESIS_SUMMARY.md` line 50,
-/// "Current Status: CONJECTURAL") — a bare `Prop` in Lean with no proof
-/// attempted, not a proven side lemma.
+/// K-equivalent to `b2`.
+///
+/// This is the open goal mfact's authors themselves call out as `CONJECTURAL` (see `mfact/MFW_THESIS_SUMMARY.md` line 50, "Current Status: CONJECTURAL") — a bare `Prop` in Lean with no proof attempted, not a proven side lemma.
 pub const LAW_CROWN_KERNEL_CHARACTERIZATION: FormalLawRef = FormalLawRef {
     module: "procint/ProcInt/MFW/Kernel.lean",
     declaration: "crown_theorem: tau(b1)=tau(b2) iff K-equivalent@Kernel.lean:302-320 (bare Prop, no proof attempted; see MFW_THESIS_SUMMARY.md:50 \"CONJECTURAL\")",
@@ -226,10 +212,9 @@ pub const LAW_CROWN_KERNEL_CHARACTERIZATION: FormalLawRef = FormalLawRef {
     standing: FormalStanding::Conjectural,
 };
 
-/// Generalized dimension / multifractal spectrum estimator (`D_q` from
-/// moments/scaling fits). `SpectrumBundle.lean`'s "dimension" field is an
-/// opaque, uninterpreted function — no box-counting/scaling-fit estimator
-/// exists in any language anywhere in mfact. `Blocked`.
+/// Generalized dimension / multifractal spectrum estimator (`D_q` from moments/scaling fits).
+///
+/// `SpectrumBundle.lean`'s "dimension" field is an opaque, uninterpreted function — no box-counting/scaling-fit estimator exists in any language anywhere in mfact. `Blocked`.
 pub const LAW_SPECTRUM_ESTIMATOR: FormalLawRef = FormalLawRef {
     module: "procint/ProcInt/MFW/SpectrumBundle.lean",
     declaration: "D_q generalized-dimension estimator (opaque 'dimension' field; no box-counting/scaling-fit estimator exists anywhere in mfact, any language)",
@@ -240,14 +225,8 @@ pub const LAW_SPECTRUM_ESTIMATOR: FormalLawRef = FormalLawRef {
 
 /// Minimal-nonfaces / Stanley-Reisner representation of an
 /// executable-concurrency complex (as opposed to positive face-lists).
-/// **No Lean artifact of this representation exists anywhere in mfact** —
-/// mfact formalizes `K_Pi` exclusively via positive face-lists. `Blocked`.
 ///
-/// `MinimalNonFace` / `ExecutableConcurrencyComplex` in this crate's
-/// `concurrency` module implement exactly this representation because it
-/// was explicitly requested — but neither their construction nor their
-/// `admits()` method should ever be described as exact or proven; the
-/// honest ceiling is "structurally well-formed" / "internally consistent."
+/// **No Lean artifact of this representation exists anywhere in mfact** — mfact formalizes `K_Pi` exclusively via positive face-lists. `Blocked`.  `MinimalNonFace` / `ExecutableConcurrencyComplex` in this crate's `concurrency` module implement exactly this representation because it was explicitly requested — but neither their construction nor their `admits()` method should ever be described as exact or proven; the honest ceiling is "structurally well-formed" / "internally consistent."
 pub const LAW_MINIMAL_NONFACE_REPRESENTATION: FormalLawRef = FormalLawRef {
     module: "procint/ProcInt/MFW/Concurrency.lean",
     declaration: "minimal-nonfaces / Stanley-Reisner representation of K_Pi — NO Lean artifact of this representation exists anywhere in mfact (mfact formalizes K_Pi exclusively via positive face-lists)",

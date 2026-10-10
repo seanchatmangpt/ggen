@@ -661,13 +661,9 @@ pub struct SubstageNs {
     pub trace_build_ns: u128,
 }
 
-/// Bench-only instrumented variant of `execute_temporal_plan`, duplicating
-/// its logic with `Instant::now()` checkpoints around each L3 substage.
-/// Exists *only* so DfCM crown-suite benchmarking can attribute
-/// admission/replay cost by substage without adding timing overhead to
-/// `execute_temporal_plan` itself, which every production caller uses.
-/// Keep this in sync with `execute_temporal_plan` if that function's
-/// structure changes.
+/// Bench-only instrumented variant of `execute_temporal_plan`, duplicating its logic with
+///
+/// `Instant::now()` checkpoints around each L3 substage. Exists *only* so DfCM crown-suite benchmarking can attribute admission/replay cost by substage without adding timing overhead to `execute_temporal_plan` itself, which every production caller uses. Keep this in sync with `execute_temporal_plan` if that function's structure changes.
 pub fn execute_temporal_plan_instrumented(
     plan: &TemporalPlan, domain: &Pddl8Domain, problem: &Pddl8Problem, case_id: &str,
     policy_rules: &[(&str, Vec<&str>)],

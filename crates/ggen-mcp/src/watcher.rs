@@ -71,6 +71,7 @@ const DEBOUNCE_WINDOW: Duration = Duration::from_millis(500);
 const SYNC_DEBOUNCE_WINDOW: Duration = Duration::from_secs(2);
 
 /// Diagnostic codes this watcher pushes on. `crate::bridge`'s own end-to-end
+///
 /// proof (`tpl_001_diagnostic_reaches_a_real_mcp_client`) already exercises
 /// `GGEN-TPL-001`; reusing it here means this watcher is wiring, not new
 /// diagnostic-code work.

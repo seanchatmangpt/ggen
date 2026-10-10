@@ -6,13 +6,9 @@ use wasm4pm_compat::pddl::TemporalPlan;
 
 use crate::error::Pddl8Error;
 
-/// `pred_mask`/`succ_mask` are `u64` bitmasks (bit `i` = tape slot `i`), so
-/// this representation cannot address a step index past 63 — see
-/// [`temporal_plan_to_powl_tape`]'s own doc comment for the refusal this
-/// bound enforces, and `crate::schedule_analysis::ScheduleAnalysis64`
-/// (which documents the same 64-op cap independently) for a downstream
-/// consumer that already assumed this bound before it was actually
-/// enforced here.
+/// `pred_mask`/`succ_mask` are `u64` bitmasks (bit `i` = tape slot `i`), so this representation cannot
+///
+/// address a step index past 63 — see [`temporal_plan_to_powl_tape`]'s own doc comment for the refusal this bound enforces, and `crate::schedule_analysis::ScheduleAnalysis64` (which documents the same 64-op cap independently) for a downstream consumer that already assumed this bound before it was actually enforced here.
 pub const MAX_POWL_TAPE_STEPS: usize = 64;
 
 /// A single op in the POWL tape description.

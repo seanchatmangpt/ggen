@@ -106,6 +106,7 @@ impl Verdict {
 }
 
 /// Everything observed while playing one case, handed to the referee as
+///
 /// plain data. Kept as an owned record (rather than the referee re-running
 /// anything) so a verdict is a pure function of observations — the same
 /// observations always yield the same ruling, which is what makes corpus

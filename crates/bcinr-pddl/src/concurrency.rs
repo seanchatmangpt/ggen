@@ -50,9 +50,9 @@ use bcinr_mfw_ir::{
 
 use crate::capability::GroundedPlanningEpoch;
 
-/// Real (not boilerplate) `ConcurrencyAnalyzer` for [`GroundedPlanningEpoch`],
-/// built from a [`CausalPlan`]'s [`bcinr_mfw_ir::IndependenceRelation`]. See
-/// the module doc comment for exactly what this does and does not detect.
+/// Real (not boilerplate) `ConcurrencyAnalyzer` for [`GroundedPlanningEpoch`], built from a
+///
+/// [`CausalPlan`]'s [`bcinr_mfw_ir::IndependenceRelation`]. See the module doc comment for exactly what this does and does not detect.
 #[derive(Debug, Clone, Copy, Default)]
 pub struct PddlConcurrencyAnalyzer;
 

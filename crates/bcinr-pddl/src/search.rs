@@ -144,23 +144,9 @@ pub trait ExploitSearchRail {
     fn step(&mut self) -> ExploitStepOutcome;
 }
 
-/// A real, non-trivial greedy best-first exploit rail: at each step, scores
-/// every currently-applicable ground action by how many additional goal
-/// atoms its effects would satisfy, normalizes those scores via
-/// [`crate::mfw::q_lens`], and advances along the highest-weighted action.
-/// No backtracking — a dead end or revisited state ends the walk (`Idle`),
-/// honestly, rather than silently looping or claiming completeness.
+/// A real, non-trivial greedy best-first exploit rail: at each step, scores every currently-applicable
 ///
-/// # Complexity
-///
-/// One [`ExploitSearchRail::step`] call is O(A * k), where A is the
-/// ground-action count (`problem.actions.len()`) and k is the average
-/// precondition/effect-list size: the applicability filter and the
-/// per-action scoring pass are each O(A * k), and [`crate::mfw::q_lens`]
-/// is O(A) on top of that. `MfwPortfolio::solve` can tick this rail up to
-/// `max_ticks` times, so the walk's total cost scales with both the
-/// ground-action count and the number of ticks it survives before hitting
-/// a dead end.
+/// ground action by how many additional goal atoms its effects would satisfy, normalizes those scores via [`crate::mfw::q_lens`], and advances along the highest-weighted action. No backtracking — a dead end or revisited state ends the walk (`Idle`), honestly, rather than silently looping or claiming completeness.  # Complexity  One [`ExploitSearchRail::step`] call is O(A * k), where A is the ground-action count (`problem.actions.len()`) and k is the average precondition/effect-list size: the applicability filter and the per-action scoring pass are each O(A * k), and [`crate::mfw::q_lens`] is O(A) on top of that. `MfwPortfolio::solve` can tick this rail up to `max_ticks` times, so the walk's total cost scales with both the ground-action count and the number of ticks it survives before hitting a dead end.
 pub struct QLensRail<'a> {
     problem: &'a GroundProblem,
     current_state: BTreeSet<Pddl8GroundAtom>,
@@ -286,8 +272,8 @@ pub enum RailSelection {
 }
 
 /// A round-robin-among-exploit-rails scheduler with a hard fairness floor:
-/// the exact rail is selected at least once every `max_gap` selections,
-/// regardless of how many exploit rails there are or what they return.
+///the exact rail is selected at least once every `max_gap` selections, regardless of how many exploit
+///rails there are or what they return.
 #[derive(Debug, Clone)]
 pub struct FairRailScheduler {
     max_gap: usize,
@@ -334,9 +320,8 @@ impl FairRailScheduler {
 // ---------------------------------------------------------------------
 
 /// [`MfwPortfolio::solve`]'s outcome. Every non-`Found` variant carries the
-/// heuristic `Candidate` plans collected along the way (from exploit rails)
-/// — never presented as verified, only as what was found before the exact
-/// rail settled the question.
+///heuristic `Candidate` plans collected along the way (from exploit rails) — never presented as
+///verified, only as what was found before the exact rail settled the question.
 #[derive(Debug, Clone)]
 pub enum PortfolioOutcome {
     /// The exact rail found (and therefore proved) a plan.
@@ -347,9 +332,9 @@ pub enum PortfolioOutcome {
     Bounded(BoundHit, Vec<Pddl8Tape>),
     /// `max_ticks` elapsed before the exact rail reached a terminal
     /// outcome (only possible with a genuinely step-wise `ExactSearchRail`
-    /// — `ExactBfsRail` always resolves on its first `step()`, so this
-    /// variant is unreachable with that specific adapter, reachable with
-    /// any truly incremental one).
+    /// — `ExactBfsRail` always resolves on its first `step()`, so this variant is unreachable with that
+    ///
+    /// specific adapter, reachable with any truly incremental one).
     TickBudgetExhausted(Vec<Pddl8Tape>),
 }
 

@@ -9,10 +9,9 @@
 
 use crate::outcome::{BoundHit, BoundKind};
 
-/// Structural bounds a grounded planning epoch must respect. Every field
-/// corresponds one-to-one with a `BoundKind` variant that can be hit while
-/// respecting it (`GroundActions`, `PlanDepth`, `SearchSteps`,
-/// `PartitionBoxes`).
+/// Structural bounds a grounded planning epoch must respect.
+///
+/// Every field corresponds one-to-one with a `BoundKind` variant that can be hit while respecting it (`GroundActions`, `PlanDepth`, `SearchSteps`, `PartitionBoxes`).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct EpochBounds {
     pub max_ground_actions: usize,

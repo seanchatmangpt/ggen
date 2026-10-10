@@ -1,4 +1,5 @@
 //! `ggen_frontmatter_schema` — enumerate every legal template frontmatter
+//!
 //! key, from the `schemars::JsonSchema` derive on
 //! `ggen_engine::template::Frontmatter` (the same struct that is
 //! `#[serde(deny_unknown_fields)]` and drift-tested against

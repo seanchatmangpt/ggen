@@ -7,8 +7,6 @@
 //! actual process, plus a determinism check (two runs, byte-identical
 //! stdout).
 
-#![allow(clippy::unwrap_used, clippy::expect_used)]
-
 use assert_cmd::Command;
 use serde_json::Value;
 use std::path::PathBuf;
