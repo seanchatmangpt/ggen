@@ -371,8 +371,9 @@ fn declarative_advisory_markers(table: &toml::Table) -> Vec<String> {
     out
 }
 
-/// [`classify_ggen_toml`], plus a NON-FATAL schema-drift advisory: when the
-/// classification SUCCEEDS (i.e. is
+/// [`classify_ggen_toml`], plus a NON-FATAL schema-drift advisory.
+///
+/// When the classification SUCCEEDS (i.e. is
 /// [`ConfigSchemaClassification::DeclarativeRules`] or
 /// [`ConfigSchemaClassification::Frontmatter`]) but the
 /// document also carries shape evidence of the non-selected schema, emit one
