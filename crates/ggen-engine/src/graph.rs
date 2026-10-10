@@ -135,7 +135,7 @@ impl DeterministicGraph {
     ///
     /// Before executing, the query is independently parsed with
     /// [`spargebra`] (oxigraph keeps its own parsed AST private — see
-    /// [`query_has_graph_clause`]'s doc comment) and structurally checked
+    /// `query_has_graph_clause`'s doc comment) and structurally checked
     /// for a `GRAPH <...> { ... }` clause. This crate loads all RDF content
     /// into a single default graph — no named-graph ingestion path exists —
     /// so a `GRAPH` clause would otherwise always match zero triples
@@ -147,7 +147,7 @@ impl DeterministicGraph {
     /// - Returns `[FM-GRAPH-009]` if the query fails to parse as a
     ///   SELECT/CONSTRUCT/DESCRIBE/ASK *and* its text looks like a SPARQL
     ///   UPDATE attempt (best-effort keyword sniff — see
-    ///   [`looks_like_sparql_update`]). SPARQL UPDATE is structurally
+    ///   `looks_like_sparql_update`). SPARQL UPDATE is structurally
     ///   unreachable through this method regardless: `spargebra::Query` has
     ///   no `Update` variant and the `QueryUnit` grammar this crate parses
     ///   with never accepts UPDATE syntax, so this is strictly a clearer
@@ -583,7 +583,7 @@ fn offending_line_hint(sparql: &str, err: &impl std::fmt::Display) -> String {
 pub type EngineRow = std::collections::BTreeMap<String, EngineValue>;
 
 /// A datatype-aware scalar value coerced from an RDF term, produced by
-/// [`term_to_engine_value`] and consumed by
+/// `term_to_engine_value` and consumed by
 /// `template::solutions_to_values` (the only place that turns this into a
 /// `tera::Value`). Kept engine-neutral here — no `tera::Value` in this
 /// module — matching this seam's existing "no engine model types cross
@@ -593,7 +593,7 @@ pub type EngineRow = std::collections::BTreeMap<String, EngineValue>;
 /// `xsd:dateTime`/`xsd:date`-typed literals remain lossy plain strings —
 /// the language tag is dropped and no date object is constructed. Only
 /// `xsd:boolean` and the XSD integer/decimal/float datatype families get a
-/// non-string coercion in this pass; see [`term_to_engine_value`].
+/// non-string coercion in this pass; see `term_to_engine_value`.
 #[derive(Debug, Clone, PartialEq)]
 pub enum EngineValue {
     /// Coerced from an `xsd:boolean` literal.
@@ -773,7 +773,7 @@ pub trait GraphEngine: Send + Sync {
 /// IRIs as the bare IRI, everything else in N-Triples form. (Moved here from
 /// `template.rs` so both the engine impls and the template layer share one
 /// rendering.) Used for [`EngineTriple`] (CONSTRUCT/DESCRIBE) — that path
-/// stays plain-string, unaffected by [`term_to_engine_value`]'s SELECT-row
+/// stays plain-string, unaffected by `term_to_engine_value`'s SELECT-row
 /// coercion; see the module docs on `EngineTriple::object_value`.
 ///
 /// `relabel` is the blank-node canonicalization map from
@@ -823,7 +823,7 @@ const XSD: &str = "http://www.w3.org/2001/XMLSchema#";
 const XSD_BOOLEAN: &str = "http://www.w3.org/2001/XMLSchema#boolean";
 
 /// XSD integer-family datatypes coerced to [`EngineValue::Int`] by
-/// [`term_to_engine_value`] (the XSD 1.1 built-in integer subtypes).
+/// `term_to_engine_value` (the XSD 1.1 built-in integer subtypes).
 const XSD_INTEGER_DATATYPES: &[&str] = &[
     "integer",
     "int",
@@ -841,7 +841,7 @@ const XSD_INTEGER_DATATYPES: &[&str] = &[
 ];
 
 /// XSD decimal/float-family datatypes coerced to [`EngineValue::Float`] by
-/// [`term_to_engine_value`].
+/// `term_to_engine_value`.
 const XSD_FLOAT_DATATYPES: &[&str] = &["decimal", "double", "float"];
 
 /// Datatype-aware coercion of an oxigraph [`Term`] for the SELECT-row

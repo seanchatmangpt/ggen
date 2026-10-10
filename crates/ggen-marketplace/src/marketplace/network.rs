@@ -64,7 +64,7 @@ impl MarketplaceClient {
     ///
     /// # Arguments
     ///
-    /// * `registry_url` - Base URL of the marketplace registry (e.g., "https://registry.ggen.io")
+    /// * `registry_url` - Base URL of the marketplace registry (e.g., `https://registry.ggen.io`)
     ///
     /// # Examples
     ///

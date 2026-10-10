@@ -9,8 +9,8 @@
 //! shapes) cross the boundary. Callers own re-ingestion into their own
 //! store; an implementation never reaches into a caller's store.
 //!
-//! The `pub(crate)` helpers below ([`n3_run`], [`hooks_apply`],
-//! [`shacl_check`], [`shex_check`]) are the single graphlaw call surface;
+//! The `pub(crate)` helpers below (`n3_run`, `hooks_apply`,
+//! `shacl_check`, `shex_check`) are the single graphlaw call surface;
 //! [`crate::graph::GraphLawStore`] reuses them so there is one kernel binding.
 
 use std::collections::BTreeSet;

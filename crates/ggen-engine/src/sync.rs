@@ -68,7 +68,7 @@ pub enum EngineKind {
 
 /// Construct a fresh, empty graph engine for `kind`.
 ///
-/// Shared by [`sync`]'s Stage 1 and [`crate::generation_rules::run`]'s
+/// Shared by [`sync`]'s Stage 1 and `crate::generation_rules::run`'s
 /// Resolve stage, which previously each matched on [`EngineKind`]
 /// independently (byte-identical duplication) — this is the one
 /// authoritative construction point.
@@ -84,7 +84,7 @@ pub fn new_graph_engine(kind: EngineKind) -> Result<Arc<dyn GraphEngine>> {
 
 /// Read one ontology Turtle file relative to `root`, returning
 /// `(label, content)` where `label` is `path`'s root-relative display form
-/// (the same label [`sync`]'s and [`crate::generation_rules::run`]'s input
+/// (the same label [`sync`]'s and `crate::generation_rules::run`'s input
 /// closures key ontology entries by).
 ///
 /// Shared by both `ggen.toml` schemas' ontology-source and
@@ -110,7 +110,7 @@ pub fn read_ontology_file(root: &Path, path: &Path) -> Result<(String, String)> 
 /// Absorb the declarative manifest's optional `[rules]` section
 /// (v26.10.10 §4.1: `rules.n3` / `rules.datalog`) into the declarative-rules
 /// pipeline's existing law stage. Runs at Stage 0, before
-/// [`crate::generation_rules::run`] — the one shared dispatch point every
+/// `crate::generation_rules::run` — the one shared dispatch point every
 /// `GgenManifest` passes through.
 ///
 /// Semantics:
@@ -229,7 +229,7 @@ pub struct SyncReport {
     /// BLAKE3 hex of the post-Enrich canonical graph state.
     pub graph_hash_hex: String,
     /// Root-relative output path → write decision ("written", "injected",
-    /// "skipped: <reason>").
+    /// `"skipped: <reason>"`).
     pub decisions: BTreeMap<String, String>,
     /// Pack name → BLAKE3 hex of the pack's content hash.
     pub packs: BTreeMap<String, String>,

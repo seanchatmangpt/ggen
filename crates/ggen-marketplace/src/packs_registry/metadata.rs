@@ -50,7 +50,7 @@ fn try_get_packs_dir() -> Option<PathBuf> {
 /// Get packs directory, erroring when none can be resolved.
 ///
 /// Use this for operations that target a specific pack (load/show) where an
-/// unresolvable directory is a real failure. Use [`try_get_packs_dir`] for
+/// unresolvable directory is a real failure. Use `try_get_packs_dir` for
 /// listing, where "nothing registered yet" is a valid empty result, not an
 /// error.
 pub fn get_packs_dir() -> Result<PathBuf> {

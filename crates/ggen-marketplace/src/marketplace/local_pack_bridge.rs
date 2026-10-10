@@ -24,8 +24,8 @@ use crate::marketplace::models::{Package, PackageId, PackageMetadata, PackageVer
 ///
 /// # Errors
 ///
-/// * [`Error::InvalidPackageId`] - `pack.id` is not a valid [`PackageId`]
-/// * [`Error::InvalidVersion`] - `pack.version` does not parse as
+/// * `Error::InvalidPackageId` - `pack.id` is not a valid [`PackageId`]
+/// * `Error::InvalidVersion` - `pack.version` does not parse as
 ///   MAJOR.MINOR.PATCH semver (the target model's `PackageVersion` requires
 ///   it; the source `Pack.version` does not). Real ggen packs mostly already
 ///   use dotted 3-part versions (including the `YY.M.D`-shaped release

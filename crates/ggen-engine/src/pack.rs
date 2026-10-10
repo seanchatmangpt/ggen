@@ -944,7 +944,7 @@ fn collect_pack_tmpl_paths(name: &str, dir: &Path, out: &mut Vec<PathBuf>) -> Re
 
 /// Deterministic BLAKE3 content hash of a pack: sorted `(relative_path,
 /// bytes)` pairs over EVERY regular file under `pack.root` (not just
-/// `ontology.ttl` plus templates -- see [`collect_pack_files_sorted`]) plus
+/// `ontology.ttl` plus templates -- see `collect_pack_files_sorted`) plus
 /// any declared extra ontologies. For each pair the path string bytes are
 /// hashed, then the file bytes, in sorted relative-path order.
 ///
@@ -1020,7 +1020,7 @@ pub fn content_hash(pack: &Pack) -> Result<[u8; 32]> {
 ///
 /// # Errors
 /// `[FM-PACK-006]` when a pack file (or directory) becomes unreadable
-/// between resolution and hashing (same contract as [`content_hash`)].
+/// between resolution and hashing (same contract as `content_hash`).
 pub fn pack_digest_sha256(pack: &Pack) -> Result<[u8; 32]> {
     use sha2::Digest as _;
 

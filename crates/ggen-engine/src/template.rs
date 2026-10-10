@@ -5,7 +5,7 @@
 //! `deny_unknown_fields`), so any unrecognized key is a hard error.
 //!
 //! [`build_tera`] produces a Tera environment with a `sparql(query="…")`
-//! function bound to a [`DeterministicGraph`], plus `snake_case` and
+//! function bound to a `DeterministicGraph`, plus `snake_case` and
 //! `pascal_case` filters.
 
 use std::{
@@ -531,11 +531,11 @@ where
 /// Returns `[FM-TPL-015]` only for a structural failure isolating the
 /// `templates/` directory itself (e.g. unreadable, or a genuine
 /// inheritance-chain/macro-import defect spanning multiple files — see
-/// [`load_templates_glob_lenient`]'s doc comment for why a *single* broken
+/// `load_templates_glob_lenient`'s doc comment for why a *single* broken
 /// file's parse error no longer reaches this point at all). Previously a
 /// syntax error in ANY file under `templates/**/*` — including one no
 /// active rule/template references — aborted this call entirely; that
-/// collateral failure mode is what [`load_templates_glob_lenient`] fixes.
+/// collateral failure mode is what `load_templates_glob_lenient` fixes.
 pub fn build_tera(graph: Arc<dyn GraphEngine>) -> Result<Tera> {
     build_tera_with_packs(graph, &[])
 }
@@ -546,7 +546,7 @@ pub fn build_tera(graph: Arc<dyn GraphEngine>) -> Result<Tera> {
 /// Mechanism: Tera 1.x has no public loader trait (its only bulk entry
 /// point is the glob constructor), so pack templates are registered
 /// *eagerly* at build time using the same lenient per-file discipline as
-/// [`load_templates_glob_lenient`]: a file that fails to parse is skipped
+/// `load_templates_glob_lenient`: a file that fails to parse is skipped
 /// with a `WARN` (it still fails loudly at render if something imports it),
 /// never a silent drop. A project template's
 /// `{% import "demolib://macros/util.tera" as u %}` then resolves by plain
@@ -555,11 +555,11 @@ pub fn build_tera(graph: Arc<dyn GraphEngine>) -> Result<Tera> {
 /// Zero drift: `build_tera` delegates with an empty pack slice, so projects
 /// not using URI imports take the identical code path as before — nothing
 /// is registered, nothing is re-checked twice (the empty-slice early return
-/// in [`attach_pack_templates`] skips the post-registration inheritance/
+/// in `attach_pack_templates` skips the post-registration inheritance/
 /// macro re-check too).
 ///
 /// # Errors
-/// Inherits [`load_templates_glob_lenient`]'s `[FM-TPL-015]`, plus the
+/// Inherits `load_templates_glob_lenient`'s `[FM-TPL-015]`, plus the
 /// post-registration re-check mapped to `[FM-TPL-015]` as well (a genuine
 /// inheritance/macro-import defect spanning a project template and a pack
 /// template).
@@ -751,7 +751,7 @@ fn collect_files_recursive(dir: &Path, out: &mut Vec<PathBuf>) -> std::io::Resul
 /// Eagerly register every resolved pack's `templates/` files into `tera`
 /// under `<pack-name>://<subpath>` names, so a project template can
 /// `{% import "demolib://macros/util.tera" as u %}` across packs. Same
-/// lenient per-file discipline as [`load_templates_glob_lenient`]; then
+/// lenient per-file discipline as `load_templates_glob_lenient`; then
 /// re-runs the inheritance/macro checks over the enlarged template set.
 fn attach_pack_templates(tera: &mut Tera, packs: &[crate::pack::Pack]) -> Result<()> {
     if packs.is_empty() {

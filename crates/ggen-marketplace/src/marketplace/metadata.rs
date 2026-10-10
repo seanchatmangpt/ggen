@@ -295,7 +295,7 @@ pub fn parse_trust_tier(s: &str) -> Option<TrustTier> {
 /// 1. `GGEN_PACK_CACHE_DIR` environment variable -- an unconditional override
 ///    (no existence check), matching the one resolver of the previously
 ///    three independent implementations that already honored this var
-///    ([`crate::marketplace::install::Installer::persistent_cache_path`]).
+///    (`Installer::persistent_cache_path`).
 /// 2. The platform cache directory (`dirs::cache_dir()`) joined with
 ///    `ggen/packs` -- e.g. `~/Library/Caches/ggen/packs` on macOS,
 ///    `~/.cache/ggen/packs` on Linux. Falls back to a bare `.cache` root if

@@ -98,7 +98,7 @@ pub fn handle_sync_run(
 ///   touched in this mode — validating arbitrary user Turtle is not linting
 ///   the project's own codegen templates. When `shapes` is non-empty, every
 ///   `files` target is additionally SHACL-validated against the union of
-///   all `shapes` graphs (see [`validate_files`]); with `shapes` empty this
+///   all `shapes` graphs (see `validate_files`); with `shapes` empty this
 ///   branch is byte-for-byte the pre-`--shapes` (parse-only) behavior.
 ///
 /// `files`/`shapes` are each transported as a repeatable option (published

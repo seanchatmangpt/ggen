@@ -67,7 +67,7 @@ impl OntologyLoader {
     ///
     /// # Arguments
     ///
-    /// * `uri` - Namespace URI (e.g., "http://www.w3.org/1999/02/22-rdf-syntax-ns#")
+    /// * `uri` - Namespace URI (e.g., `http://www.w3.org/1999/02/22-rdf-syntax-ns#`)
     /// * `base_path` - Base path for relative file lookups
     ///
     /// # Returns
