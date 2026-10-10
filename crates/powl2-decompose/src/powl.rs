@@ -360,16 +360,9 @@ pub struct ParentChildEdge {
     pub child: WorkflowSocketId,
 }
 
-/// The explicit parent-child closure of a [`Powl`] model (PRD v26.7.11
-/// §7.3). Carries the canonical direct-edge set plus two indices derived
-/// from it (child-list-per-parent, parent-of-child) so repeated queries
-/// don't re-walk the [`Powl`] tree or rescan the flat edge set.
+/// The explicit parent-child closure of a [`Powl`] model (PRD v26.7.11 §7.3).
 ///
-/// # Determinism
-/// Built by a single deterministic DFS over the tree (child order = index
-/// order in `children`/`region`); no hashing, randomness, or wall clock.
-/// The two indices are derived solely from the edges built in the same
-/// pass, so they cannot diverge from `edges()`.
+/// Carries the canonical direct-edge set plus two indices derived from it (child-list-per-parent, parent-of-child) so repeated queries don't re-walk the [`Powl`] tree or rescan the flat edge set.  # Determinism Built by a single deterministic DFS over the tree (child order = index order in `children`/`region`); no hashing, randomness, or wall clock. The two indices are derived solely from the edges built in the same pass, so they cannot diverge from `edges()`.
 #[derive(Debug, Clone, PartialEq, Eq, Default)]
 pub struct ParentChildClosure {
     edges: BTreeSet<ParentChildEdge>,

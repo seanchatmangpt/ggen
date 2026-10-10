@@ -921,16 +921,28 @@ fn relocate_dir(from: &Path, to: &Path) -> std::io::Result<()> {
 const CAPABILITY_CORPUS_ROOTS: [&str; 2] =
     ["/Users/sac/ggen-marketplace/packs", "/Users/sac/ggen/packs"];
 
-/// Locate `<root>/<name>/pack.toml` across [`CAPABILITY_CORPUS_ROOTS`],
-/// marketplace first.
+/// Effective corpus roots. Defaults to [`CAPABILITY_CORPUS_ROOTS`]; the
+/// `GGEN_CAPABILITY_CORPUS_ROOTS` env var (colon-separated) overrides it so
+/// integration tests can point the verb at a real temp corpus without
+/// touching the shared on-disk corpora.
+fn corpus_roots() -> Vec<PathBuf> {
+    match std::env::var("GGEN_CAPABILITY_CORPUS_ROOTS") {
+        Ok(spec) if !spec.is_empty() => spec
+            .split(':')
+            .filter(|s| !s.is_empty())
+            .map(PathBuf::from)
+            .collect(),
+        _ => CAPABILITY_CORPUS_ROOTS.iter().map(PathBuf::from).collect(),
+    }
+}
+
+/// Locate `<root>/<name>/pack.toml` across the effective corpus roots
+/// ([`corpus_roots`]), marketplace first.
 fn find_pack_toml(name: &str) -> Option<PathBuf> {
-    CAPABILITY_CORPUS_ROOTS
-        .iter()
-        .map(PathBuf::from)
-        .find_map(|root| {
-            let candidate = root.join(name).join("pack.toml");
-            candidate.is_file().then_some(candidate)
-        })
+    corpus_roots().into_iter().find_map(|root| {
+        let candidate = root.join(name).join("pack.toml");
+        candidate.is_file().then_some(candidate)
+    })
 }
 
 /// Declared `[capabilities]` of one pack.toml: `provides`/`requires` URN
@@ -984,11 +996,12 @@ fn parse_capabilities(path: &Path) -> Result<Option<DeclaredCapabilities>> {
 /// contribute no provides and no requires.
 fn scan_corpus_capabilities() -> Result<BTreeMap<String, DeclaredCapabilities>> {
     let mut scanned = BTreeMap::new();
-    for root in CAPABILITY_CORPUS_ROOTS {
-        let entries = std::fs::read_dir(root).map_err(|e| {
+    for root in corpus_roots() {
+        let entries = std::fs::read_dir(&root).map_err(|e| {
             NounVerbError::execution_error(format!(
                 "Failed to read pack corpus root {}: {}",
-                root, e
+                root.display(),
+                e
             ))
         })?;
         for entry in entries.flatten() {
@@ -1021,7 +1034,11 @@ pub fn capabilities(#[arg(index = 1)] name: String) -> Result<serde_json::Value>
         NounVerbError::execution_error(format!(
             "Pack '{}' not found in any corpus root: {}",
             name,
-            CAPABILITY_CORPUS_ROOTS.join(", ")
+            corpus_roots()
+                .iter()
+                .map(|p| p.display().to_string())
+                .collect::<Vec<_>>()
+                .join(", ")
         ))
     })?;
 
@@ -1030,14 +1047,90 @@ pub fn capabilities(#[arg(index = 1)] name: String) -> Result<serde_json::Value>
     };
 
     let corpus = scan_corpus_capabilities()?;
+    capability_report(&name, &caps, corpus)
+}
+
+/// Domain logic for `pack capabilities`: two-tier FM-PACK-018 satisfaction
+/// reporting (mirrors `ggen-engine::pack::validate_capability_requirements`,
+/// adjudication H2 2026-10-09). Split out of the `#[verb] capabilities()`
+/// function to satisfy the CLI layer's Poka-Yoke verb complexity guard
+/// (FM-1.1, max complexity 5).
+///
+/// Tier 1 — URN-form requires (`urn:ggen:pack:<name>`) are satisfied iff the
+/// declared pack universe contains `<name>`; Tier 2 — non-URN requires are
+/// satisfied iff a provider exists inside the subject's transitive declared-
+/// dependency closure. Ambient providers are never admitted for Tier 2. The
+/// verb reports; it never refuses — refusal is sync's job.
+fn capability_report(
+    name: &str, caps: &DeclaredCapabilities, corpus: BTreeMap<String, DeclaredCapabilities>,
+) -> Result<serde_json::Value> {
+    use serde_json::json;
+
+    // ggen-engine::pack::validate_capability_requirements, adjudication H2
+    // 2026-10-09): Tier 1 — URN-form requires (`urn:ggen:pack:<name>`) are
+    // satisfied iff the declared pack universe contains <name>; Tier 2 —
+    // non-URN requires are satisfied iff a provider exists inside the
+    // subject's transitive declared-dependency closure. Ambient providers
+    // are never admitted for Tier 2. The verb reports; it never refuses —
+    // refusal is sync's job.
+    let mut universe: std::collections::BTreeSet<&str> =
+        corpus.keys().map(String::as_str).collect();
+    universe.insert(name);
+
+    // Declared dependency edges (name -> dependency names) over the universe.
+    let mut dep_edges: BTreeMap<String, Vec<String>> = BTreeMap::new();
+    for corpus_name in std::iter::once(name).chain(universe.iter().copied()) {
+        if dep_edges.contains_key(corpus_name) {
+            continue;
+        }
+        if let Some(path) = find_pack_toml(corpus_name) {
+            dep_edges.insert(corpus_name.to_string(), parse_dependencies(&path)?);
+        }
+    }
+
+    // Transitive declared-dependency closure of the subject (BFS, universe-
+    // restricted; deterministic because manifests use BTreeMap).
+    let mut closure: std::collections::BTreeSet<String> = std::collections::BTreeSet::new();
+    let mut frontier = vec![name.to_string()];
+    while let Some(current) = frontier.pop() {
+        for dep in dep_edges.get(&current).into_iter().flatten() {
+            if universe.contains(dep.as_str()) && closure.insert(dep.clone()) {
+                frontier.push(dep.clone());
+            }
+        }
+    }
+    let mut closure_provides: std::collections::BTreeSet<&str> =
+        caps.provides.iter().map(String::as_str).collect();
+    for pack_name in closure.iter().chain(std::iter::once(&name.to_string())) {
+        if let Some(c) = corpus.get(pack_name.as_str()) {
+            closure_provides.extend(c.provides.iter().map(String::as_str));
+        }
+    }
+
     let mut satisfied_by = BTreeMap::new();
+    let mut requirements = Vec::new();
     for require in &caps.requires {
         let providers: Vec<&String> = corpus
             .iter()
             .filter(|(_, c)| c.provides.iter().any(|p| p == require))
             .map(|(name, _)| name)
             .collect();
+        let is_urn = require.starts_with("urn:ggen:pack:");
+        let (tier, satisfied) = if is_urn {
+            let provider = require.trim_start_matches("urn:ggen:pack:").trim();
+            ("urn-declaration", universe.contains(provider))
+        } else {
+            (
+                "dependency-closure",
+                closure_provides.contains(require.as_str()),
+            )
+        };
         satisfied_by.insert(require.clone(), providers);
+        requirements.push(json!({
+            "require": require,
+            "tier": tier,
+            "satisfied": satisfied,
+        }));
     }
 
     Ok(json!({
@@ -1045,7 +1138,25 @@ pub fn capabilities(#[arg(index = 1)] name: String) -> Result<serde_json::Value>
         "provides": caps.provides,
         "requires": caps.requires,
         "satisfied_by": satisfied_by,
+        "requirements": requirements,
     }))
+}
+
+/// Extract the declared dependency names from a pack.toml `[dependencies]`
+/// table (keys only — versions are not needed for closure computation).
+/// Absence yields an empty list, never an error.
+fn parse_dependencies(path: &Path) -> Result<Vec<String>> {
+    let content = std::fs::read_to_string(path).map_err(|e| {
+        NounVerbError::execution_error(format!("Failed to read {}: {}", path.display(), e))
+    })?;
+    let value: toml::Value = star_toml::from_str(&content).map_err(|e| {
+        NounVerbError::execution_error(format!("Failed to parse {}: {}", path.display(), e))
+    })?;
+    Ok(value
+        .get("dependencies")
+        .and_then(|d| d.as_table())
+        .map(|t| t.keys().cloned().collect())
+        .unwrap_or_default())
 }
 
 /// Load one named pack from the corpus roots via `pack_file_from_dir`.

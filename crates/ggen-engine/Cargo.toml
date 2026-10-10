@@ -7,7 +7,7 @@
 # "ggen-engine" since the praxis-core/praxis-graphlaw path deps retired
 # (SJIRA-15, 2026-10-09).
 name = "ggen-engine"
-version = "26.10.9"                       # CalVer YY.M.patch
+version = "26.10.10"                      # CalVer YY.M.patch
 edition = "2021"
 rust-version = "1.82"
 authors = ["Sean Chatman <xpointsh@gmail.com>"]
@@ -96,19 +96,19 @@ star-toml = { workspace = true }
 # Cargo.lock) so this never becomes a duplicate-version dependency graph.
 spargebra = "0.4.7"
 graphlaw = { workspace = true }
-ggen-abb-sbb = { path = "../ggen-abb-sbb", version = "26.9.26" }
+ggen-abb-sbb = { path = "../ggen-abb-sbb", version = "26.10.10" }
 # New, deliberate edge (not an undocumented re-export): resolving a `GenerationRule`'s
 # `QuerySource::Pack`/`TemplateSource::Pack` variant means asking "where is this pack
 # installed" -- that knowledge lives in ggen-marketplace's pack registry/lockfile after
 # docs/jira/v26.7.16/06-MARKETPLACE-PACK-REGISTRY-MERGE.md's merge (risk 1). Directionally
 # safe: ggen-marketplace has no dependency back on this crate.
-ggen-marketplace = { path = "../ggen-marketplace", version = "26.10.9" }
+ggen-marketplace = { path = "../ggen-marketplace", version = "26.10.10" }
 # New, deliberate edge (specs/014-ggen-core-replacement, T070): `crate::generation_rules`
 # consumes `ggen_config::manifest::GgenManifest`/`GenerationRule`/`QuerySource`/
 # `TemplateSource`/`GenerationMode` to run the declarative `[[generation.rules]]` sync path
 # alongside (not replacing) the existing frontmatter-per-template-file convention. Directionally
 # safe: ggen-config has no dependency back on this crate.
-ggen-config = { path = "../ggen-config", version = "26.7.4" }
+ggen-config = { path = "../ggen-config", version = "26.10.10" }
 # Raw pre-parse of ggen.toml (`crate::generation_rules::has_generation_rules`) to decide, before
 # any typed parse, whether a project's ggen.toml belongs to this module's declarative-rules
 # schema or `crate::config::GgenConfig`'s frontmatter schema -- same version ggen-config itself

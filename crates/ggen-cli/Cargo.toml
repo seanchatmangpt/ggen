@@ -82,7 +82,7 @@ md5 = "0.8"
 # qlue-ls / rmcp / oxigraph-via-lsp by default). ggen-a2a-mcp and ggen-lsp-mcp
 # were absorbed into ggen-lsp (behind its own mcp/a2a features) in the 2026-07
 # crate-consolidation pass — see CRATE_CONSOLIDATION_ANALYSIS_2026-07-01.md.
-ggen-lsp = { version = "26.10.8", path = "../ggen-lsp", optional = true }
+ggen-lsp = { version = "26.10.10", path = "../ggen-lsp", optional = true }
 blake3.workspace = true
 # Used by scaffolding::transaction::FileTransaction (ported from ggen-core/src/codegen/
 # transaction.rs, Phase 3 non-colliding noun re-points). Was previously only a dev-dependency

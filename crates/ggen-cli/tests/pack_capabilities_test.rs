@@ -201,3 +201,114 @@ fn two_runs_identical_output() {
         "capability output must be deterministic"
     );
 }
+
+// ---- FM-PACK-018 two-tier satisfaction reporting --------------------------
+//
+// The verb reports `tier` + `satisfied` per requirement, mirroring
+// ggen-engine::pack::validate_capability_requirements (adjudication H2):
+// Tier 1 — URN requires are satisfied iff the declared universe contains the
+// referenced pack; Tier 2 — non-URN requires are satisfied iff a provider
+// exists in the subject's transitive declared-dependency closure. The verb
+// reports; it never refuses — refusal is sync's job.
+
+fn requirement<'a>(v: &'a Value, require: &str) -> &'a Value {
+    v["requirements"]
+        .as_array()
+        .unwrap_or_else(|| panic!("requirements array missing"))
+        .iter()
+        .find(|r| r["require"] == *require)
+        .unwrap_or_else(|| panic!("requirements missing entry for {require}"))
+}
+
+/// (a) URN require against the live corpus: the referenced pack is a real
+/// declared pack, so tier is `urn-declaration` and satisfied is true.
+#[test]
+fn urn_require_with_declared_provider_is_urn_tier_satisfied() {
+    let v = run_capabilities_json("a2a-conformance-pack");
+    let r = requirement(&v, "urn:ggen:pack:a2a-durability-pack");
+    assert_eq!(r["tier"], "urn-declaration");
+    assert_eq!(r["satisfied"], true);
+    let r = requirement(&v, "urn:ggen:pack:standing-ladder-pack");
+    assert_eq!(r["tier"], "urn-declaration");
+    assert_eq!(r["satisfied"], true);
+}
+
+/// Build a real minimal pack.toml in a fresh temp corpus directory.
+fn write_temp_pack(root: &std::path::Path, name: &str, body: &str) {
+    let dir = root.join(name);
+    std::fs::create_dir_all(&dir).expect("create temp pack dir");
+    std::fs::write(dir.join("pack.toml"), body).expect("write temp pack.toml");
+}
+
+fn run_with_corpus(corpus: &std::path::Path, name: &str) -> Value {
+    let out = Command::new(ggen_bin())
+        .env("GGEN_CAPABILITY_CORPUS_ROOTS", corpus.display().to_string())
+        .args(["pack", "capabilities", name])
+        .output()
+        .expect("ggen pack capabilities must spawn");
+    assert!(
+        out.status.success(),
+        "exited non-zero: {}",
+        String::from_utf8_lossy(&out.stderr)
+    );
+    serde_json::from_slice(&out.stdout).expect("stdout was not valid JSON")
+}
+
+/// (b) A non-URN require satisfied through a [dependencies]-declared
+/// provider: tier `dependency-closure`, satisfied true — the provider is in
+/// the subject's transitive declared-dependency closure.
+#[test]
+fn non_urn_require_with_declared_dependency_provider_is_satisfied() {
+    let tmp = tempfile::TempDir::new().expect("tempdir");
+    write_temp_pack(
+        tmp.path(),
+        "provider-pack",
+        "[pack]\nname = \"provider-pack\"\nversion = \"0.1.0\"\n\n[capabilities]\nprovides = [\"cap-x\"]\n",
+    );
+    write_temp_pack(
+        tmp.path(),
+        "consumer-pack",
+        "[pack]\nname = \"consumer-pack\"\nversion = \"0.1.0\"\n\n[capabilities]\nrequires = [\"cap-x\"]\n\n[dependencies]\nprovider-pack = \"0.1.0\"\n",
+    );
+
+    let v = run_with_corpus(tmp.path(), "consumer-pack");
+    let r = requirement(&v, "cap-x");
+    assert_eq!(r["tier"], "dependency-closure");
+    assert_eq!(r["satisfied"], true);
+    // satisfied_by still surfaces the closure provider.
+    let providers = v["satisfied_by"]["cap-x"].as_array().expect("providers");
+    assert!(
+        providers.iter().any(|p| p == "provider-pack"),
+        "provider-pack must be listed, got {providers:?}"
+    );
+}
+
+/// (c) Unsatisfied requirements are REPORTED, not refused: an undeclared URN
+/// require (sync would refuse FM-PACK-018) and a non-URN require whose only
+/// provider is ambient (no dependency edge — ambient providers are never
+/// admitted). Both come back satisfied=false with their tier named; exit is
+/// still zero.
+#[test]
+fn unsatisfied_requirements_reported_not_refused() {
+    let tmp = tempfile::TempDir::new().expect("tempdir");
+    write_temp_pack(
+        tmp.path(),
+        "provider-pack",
+        "[pack]\nname = \"provider-pack\"\nversion = \"0.1.0\"\n\n[capabilities]\nprovides = [\"cap-x\"]\n",
+    );
+    // orphan-pack requires cap-x (ambient provider, no dependency edge) and a
+    // URN referencing a pack absent from the corpus.
+    write_temp_pack(
+        tmp.path(),
+        "orphan-pack",
+        "[pack]\nname = \"orphan-pack\"\nversion = \"0.1.0\"\n\n[capabilities]\nrequires = [\"cap-x\", \"urn:ggen:pack:absent-pack\"]\n",
+    );
+
+    let v = run_with_corpus(tmp.path(), "orphan-pack");
+    let ambient = requirement(&v, "cap-x");
+    assert_eq!(ambient["tier"], "dependency-closure");
+    assert_eq!(ambient["satisfied"], false);
+    let undeclared = requirement(&v, "urn:ggen:pack:absent-pack");
+    assert_eq!(undeclared["tier"], "urn-declaration");
+    assert_eq!(undeclared["satisfied"], false);
+}

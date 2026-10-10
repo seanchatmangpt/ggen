@@ -943,9 +943,9 @@ pub fn replay(
     Ok(m)
 }
 
-/// Deterministic scaled fixture: one strategy/capability/ABB, `n_sbbs` candidates each
-/// with `n_artifacts` artifacts, every candidate qualified against the live contract.
-/// Used by tests and the benchmark so both measure the same subject.
+/// Deterministic scaled fixture: one strategy/capability/ABB, `n_sbbs` candidates each with
+///
+/// `n_artifacts` artifacts, every candidate qualified against the live contract. Used by tests and the benchmark so both measure the same subject.
 pub fn synthetic_graph(n_sbbs: usize, n_artifacts: usize) -> EaGraph {
     let contract = ArchitectureContract {
         id: "contract:ingest".into(),
