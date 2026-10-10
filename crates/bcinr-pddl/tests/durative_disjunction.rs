@@ -30,7 +30,7 @@
 //! end-to-end through the one parser-reachable path that exists.
 use bcinr_pddl::{domain_from_pddl, problem_from_pddl, GroundTemporalProblem};
 
-const DOMAIN: &str = r#"
+const DOMAIN: &str = r"
 (define (domain disj-durative)
   (:requirements :durative-actions :typing :disjunctive-preconditions)
   (:predicates (ready-a) (ready-b) (done))
@@ -39,7 +39,7 @@ const DOMAIN: &str = r#"
     :duration (= ?duration 1)
     :condition (and (at start (or (ready-a) (ready-b))))
     :effect (and (at end (done)))))
-"#;
+";
 
 #[test]
 fn or_precondition_admits_when_only_the_second_disjunct_holds() {
@@ -48,10 +48,10 @@ fn or_precondition_admits_when_only_the_second_disjunct_holds() {
     // that (e.g.) checked only the first disjunct, or that degenerated to
     // `And`'s `.all(...)`, would refuse to fire `check-either` here.
     let problem = problem_from_pddl(
-        r#"(define (problem only-b-ready-p)
+        r"(define (problem only-b-ready-p)
              (:domain disj-durative)
              (:init (ready-b))
-             (:goal (done)))"#,
+             (:goal (done)))",
     )
     .unwrap();
     let gtp = GroundTemporalProblem::build(&domain, &problem).unwrap();
@@ -67,10 +67,10 @@ fn or_precondition_admits_when_only_the_second_disjunct_holds() {
 fn or_precondition_blocks_when_neither_disjunct_holds() {
     let domain = domain_from_pddl(DOMAIN).unwrap();
     let problem = problem_from_pddl(
-        r#"(define (problem neither-ready-p)
+        r"(define (problem neither-ready-p)
              (:domain disj-durative)
              (:init )
-             (:goal (done)))"#,
+             (:goal (done)))",
     )
     .unwrap();
     let gtp = GroundTemporalProblem::build(&domain, &problem).unwrap();

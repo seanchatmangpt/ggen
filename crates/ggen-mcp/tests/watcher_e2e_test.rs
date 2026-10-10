@@ -107,7 +107,7 @@ impl McpClient {
     /// (any JSON-RPC *notification*, i.e. no `id`, whose `method` matches),
     /// or time out. Ignores every other frame in between (e.g. late
     /// responses to prior requests).
-    fn wait_for_resource_update(&mut self) -> Value {
+    fn wait_for_resource_update(&self) -> Value {
         loop {
             let frame = self
                 .rx

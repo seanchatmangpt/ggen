@@ -235,6 +235,7 @@ async fn main() -> anyhow::Result<()> {
             // inside a spawned task: a panic here surfaces as a `JoinError`
             // at the `h.await` call site below, which is already handled
             // (logged and skipped), not a process crash.
+            #[allow(clippy::expect_used)] // structural invariant, see comment above
             let _permit = sem.acquire_owned().await.expect("semaphore");
             let name = pack_dir
                 .file_name()

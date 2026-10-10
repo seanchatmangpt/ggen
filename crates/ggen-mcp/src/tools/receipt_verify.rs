@@ -77,6 +77,7 @@ pub struct ReceiptVerifyResult {
 /// because `AppError` has no typed code field to key off of; grabbing only
 /// the `CHAIN` family would silently drop a real code from another family
 /// if one is ever embedded in a receipt-verify message.
+#[allow(clippy::expect_used)] // compile-time-fixed literal regex; Err = programmer error
 static FM_CODE_RE: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"FM-[A-Z]+-\d{3}").expect("static FM code regex is valid"));
 

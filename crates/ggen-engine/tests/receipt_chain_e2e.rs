@@ -874,6 +874,22 @@ fn edit_tail(root: &Path, edit: impl FnOnce(&mut serde_json::Value)) {
         .collect();
     let mut tail: serde_json::Value =
         serde_json::from_str(lines.last().expect("tail")).expect("parse tail");
+    // Re-serializing through a `serde_json::Value` sorts object keys (this
+    // workspace's serde_json has no `preserve_order`), so the payload bytes
+    // that will be stored differ from the bytes `payload_hash_hex` was bound
+    // to at sync time. Rebind the hash to the bytes this fixture actually
+    // stores -- otherwise the verifier's raw-payload-byte check (FM-CHAIN-013)
+    // fires before the chain/downgrade behavior a test is actually targeting.
+    // Done before `edit` so chain recomputes inside the closure hash the
+    // final payload hash.
+    let payload_hash_hex = blake3::hash(
+        serde_json::to_string(&tail["payload"])
+            .expect("payload to string")
+            .as_bytes(),
+    )
+    .to_hex()
+    .to_string();
+    tail["record"]["payload_hash_hex"] = serde_json::Value::String(payload_hash_hex);
     edit(&mut tail);
     let tail_line = serde_json::to_string(&tail).expect("ser tail");
     lines.last_mut().expect("tail").clone_from(&tail_line);

@@ -104,7 +104,7 @@ pub struct AllocStageStats {
 const OPS_MATRIX: [usize; 4] = [8, 16, 32, 64];
 const CAPACITY_MATRIX: [usize; 4] = [1, 2, 4, 8];
 
-const DOMAIN: &str = r#"
+const DOMAIN: &str = r"
 (define (domain dfcm-crown)
   (:requirements :durative-actions :numeric-fluents :typing)
   (:types worker)
@@ -119,7 +119,7 @@ const DOMAIN: &str = r#"
       (at start (not (idle ?w))) (at start (busy ?w))
       (at end (increase (available-workers) 1))
       (at end (not (busy ?w))) (at end (done ?w)))))
-"#;
+";
 
 fn problem_text(n_workers: usize, capacity: usize) -> String {
     let workers: Vec<String> = (1..=n_workers).map(|i| format!("w{i}")).collect();

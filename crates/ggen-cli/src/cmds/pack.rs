@@ -1075,7 +1075,8 @@ fn load_corpus_pack(name: &str) -> Result<ggen_marketplace::packs_registry::type
 /// `ggen pack capabilities` (marketplace first, then /Users/sac/ggen/packs),
 /// runs the deterministic composition kernel
 /// (`ggen_marketplace::packs_registry::composer::compose`) over the set, and
-/// returns the plan as JSON: `{ pack_ids, provides, order, artifact_paths }`.
+/// returns the plan as JSON:
+/// `{ pack_ids, provides, order, artifact_paths, self_satisfied }`.
 /// Typed refusals (duplicate capability, unbound requirement, duplicate
 /// artifact path, cyclic dependencies) surface as the verb's error — non-zero
 /// exit with the refusal text on stderr, never a panic. Duplicate names in
@@ -1118,5 +1119,6 @@ pub fn compose(packs: Vec<String>) -> Result<serde_json::Value> {
         "provides": plan.provides,
         "order": order,
         "artifact_paths": plan.artifact_paths,
+        "self_satisfied": plan.self_satisfied,
     }))
 }

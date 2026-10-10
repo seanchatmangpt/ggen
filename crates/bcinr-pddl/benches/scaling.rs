@@ -9,7 +9,7 @@ fn main() {
 }
 
 fn generate_fixture(n: usize) -> (String, String) {
-    let domain = r#"(define (domain deploy-services)
+    let domain = r"(define (domain deploy-services)
     (:requirements :durative-actions :typing)
     (:types service)
     (:predicates (deployed ?s - service))
@@ -19,7 +19,7 @@ fn generate_fixture(n: usize) -> (String, String) {
         :condition ()
         :effect (and (at end (deployed ?s)))
     )
-)"#
+)"
     .to_string();
 
     let mut objects = String::new();
@@ -30,12 +30,12 @@ fn generate_fixture(n: usize) -> (String, String) {
     }
 
     let problem = format!(
-        r#"(define (problem deploy-n)
+        r"(define (problem deploy-n)
     (:domain deploy-services)
     (:objects {} - service)
     (:init)
     (:goal (and {}))
-)"#,
+)",
         objects.trim(),
         goals.trim()
     );

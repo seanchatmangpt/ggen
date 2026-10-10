@@ -104,6 +104,7 @@ pub fn frontmatter_schema(
     // than silently degrading to an empty key list (which `unwrap_or_default`
     // would do, laundering the failure into a false "zero legal keys"
     // result for the tool whose entire job is enumerating that key set).
+    #[allow(clippy::expect_used)] // fail-loud: see comment above
     let value = serde_json::to_value(&schema)
         .expect("schemars-derived Frontmatter schema must serialize to JSON");
 

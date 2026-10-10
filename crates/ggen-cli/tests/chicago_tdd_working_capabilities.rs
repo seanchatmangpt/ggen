@@ -1,4 +1,9 @@
-#![allow(clippy::unwrap_used, unused_must_use)]
+#![allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
+    unused_must_use
+)] // Chicago TDD: real-IO tests
 
 use assert_cmd::Command;
 use tempfile::TempDir;

@@ -32,7 +32,7 @@ use chicago_tdd_tools::core::governance::{
 };
 use chicago_tdd_tools::observability::ocel::OcelCollector;
 
-const DOMAIN: &str = r#"
+const DOMAIN: &str = r"
 (define (domain capacity-demo)
   (:requirements :durative-actions :numeric-fluents :typing)
   (:types worker)
@@ -47,9 +47,9 @@ const DOMAIN: &str = r#"
       (at start (not (idle ?w))) (at start (busy ?w))
       (at end (increase (available-workers) 1))
       (at end (not (busy ?w))) (at end (done ?w)))))
-"#;
+";
 
-const PROBLEM: &str = r#"
+const PROBLEM: &str = r"
 (define (problem assign-three-workers)
   (:domain capacity-demo)
   (:objects w1 w2 w3 - worker)
@@ -58,7 +58,7 @@ const PROBLEM: &str = r#"
     (= (available-workers) 2))
   (:goal (and (done w1) (done w2) (done w3)))
 )
-"#;
+";
 
 fn diag(run_id: &str, source_module: &'static str, message: String, elapsed_ns: u64) -> Diagnostic {
     Diagnostic {

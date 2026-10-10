@@ -55,7 +55,7 @@ io-github-seanchatmangpt-ggen = { path = "packs/foo" }
     assert!(got.ok);
     assert_eq!(got.schema, "frontmatter");
     assert_eq!(got.code, CONFIG_SCHEMA_SUPPORTED);
-    assert!(got.code == "FM-CONFIG-100");
+    assert_eq!(got.code, "FM-CONFIG-100");
     assert!(got.markers.is_empty(), "no markers on a clean verdict");
     assert!(got.diagnostic.is_none());
     // resolve_root canonicalizes (macOS: /var/folders -> /private/var/folders),

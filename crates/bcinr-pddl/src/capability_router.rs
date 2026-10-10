@@ -84,7 +84,7 @@ use crate::{domain_from_pddl, problem_from_pddl, Pddl8Domain, Pddl8Error};
 use blake3::Hasher;
 use wasm4pm_compat::pddl::TemporalPlan;
 
-const CAPABILITY_DOMAIN: &str = r#"
+const CAPABILITY_DOMAIN: &str = r"
 (define (domain capability-router)
   (:requirements :durative-actions :numeric-fluents :typing)
   (:types file)
@@ -111,7 +111,7 @@ const CAPABILITY_DOMAIN: &str = r#"
     :effect (and
       (at start (decrease (attention) 1)) (at start (locked ?f))
       (at end (increase (attention) 1)) (at end (not (locked ?f))) (at end (drafted ?f)))))
-"#;
+";
 
 /// Static Domain Parsing Cache (PSDP).
 ///
@@ -303,13 +303,13 @@ fn build_problem_text(task: &CapabilityTask) -> String {
     let goal_atoms: Vec<String> = task.desired_effects.iter().map(|e| e.goal_atom()).collect();
 
     format!(
-        r#"
+        r"
 (define (problem capability-route)
   (:domain capability-router)
   (:objects {objects} - file)
   (:init (= (attention) {capacity}))
   (:goal (and {goal})))
-"#,
+",
         objects = objects,
         capacity = task.attention_capacity,
         goal = goal_atoms.join(" ")

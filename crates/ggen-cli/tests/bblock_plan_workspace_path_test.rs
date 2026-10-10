@@ -1,3 +1,4 @@
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)] // Chicago TDD: real-IO tests
 //! Chicago-style integration test for `ggen bblock plan`'s idempotency-check
 //! read path (`docs/jira/v26.9.1/03-FORTUNE5-TESTING-BBLOCK-PORTABILITY.md`
 //! chaos-suite defect: `fortune5-testing-bblock-pack`'s `chaos` suite failed

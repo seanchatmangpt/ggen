@@ -459,15 +459,15 @@ fn hex(b: &[u8; 32]) -> String {
 mod ocel_export_tests {
     use super::*;
 
-    const DOMAIN: &str = r#"(define (domain d)
+    const DOMAIN: &str = r"(define (domain d)
   (:requirements :strips)
   (:predicates (p))
-  (:action a :parameters () :precondition (p) :effect (not (p))))"#;
+  (:action a :parameters () :precondition (p) :effect (not (p))))";
 
-    const PROBLEM: &str = r#"(define (problem pr)
+    const PROBLEM: &str = r"(define (problem pr)
   (:domain d)
   (:init (p))
-  (:goal (not (p))))"#;
+  (:goal (not (p))))";
 
     #[test]
     fn receipt_always_carries_ocel_export() {
@@ -518,15 +518,15 @@ mod domain_witness_tests {
     /// Same domain name ("d"), same requirements (:strips), same predicate
     /// name set/order (p, q), same single action name ("a") — but action
     /// "a"'s precondition/effect reference *different* predicates (p vs q).
-    const DOMAIN_PRECOND_ON_P: &str = r#"(define (domain d)
+    const DOMAIN_PRECOND_ON_P: &str = r"(define (domain d)
   (:requirements :strips)
   (:predicates (p) (q))
-  (:action a :parameters () :precondition (p) :effect (not (p))))"#;
+  (:action a :parameters () :precondition (p) :effect (not (p))))";
 
-    const DOMAIN_PRECOND_ON_Q: &str = r#"(define (domain d)
+    const DOMAIN_PRECOND_ON_Q: &str = r"(define (domain d)
   (:requirements :strips)
   (:predicates (p) (q))
-  (:action a :parameters () :precondition (q) :effect (not (q))))"#;
+  (:action a :parameters () :precondition (q) :effect (not (q))))";
 
     #[test]
     fn domain_witness_detects_same_named_action_with_different_precondition_and_effect() {

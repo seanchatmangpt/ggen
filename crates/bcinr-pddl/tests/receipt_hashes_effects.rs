@@ -83,10 +83,10 @@ fn execute_tape_receipt_detects_tampered_effects_with_identical_labels() {
     );
 }
 
-const TEMPORAL_PROBLEM: &str = r#"(define (problem p)
+const TEMPORAL_PROBLEM: &str = r"(define (problem p)
   (:domain d)
   (:init (ontable a))
-  (:goal (and)))"#;
+  (:goal (and)))";
 
 /// Two domains sharing the same action name/params/precondition-predicate
 /// but whose `pick-up` schema adds a *different* atom (`holding` vs
@@ -95,13 +95,13 @@ const TEMPORAL_PROBLEM: &str = r#"(define (problem p)
 /// only the domain-side effect differs.
 fn domain_with_add_effect(add_pred: &str) -> wasm4pm_compat::pddl::Pddl8Domain {
     let text = format!(
-        r#"(define (domain d)
+        r"(define (domain d)
   (:requirements :strips)
   (:predicates (holding ?x) (grabbed ?x) (ontable ?x))
   (:action pick-up
     :parameters (?x)
     :precondition (ontable ?x)
-    :effect (and ({add_pred} ?x) (not (ontable ?x)))))"#
+    :effect (and ({add_pred} ?x) (not (ontable ?x)))))"
     );
     domain_from_pddl(&text).expect("domain parses")
 }

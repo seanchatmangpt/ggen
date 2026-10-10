@@ -3,7 +3,7 @@ use bcinr_pddl::{domain_from_pddl, problem_from_pddl, GroundProblem};
 
 #[test]
 fn test_differential_grounding() {
-    let domain_pddl = r#"
+    let domain_pddl = r"
         (define (domain logistics)
             (:requirements :typing)
             (:types truck location package city)
@@ -17,8 +17,8 @@ fn test_differential_grounding() {
                 :effect (and (not (at ?pkg ?loc)) (in ?pkg ?veh))
             )
         )
-    "#;
-    let problem_pddl = r#"
+    ";
+    let problem_pddl = r"
         (define (problem log1)
             (:domain logistics)
             (:objects
@@ -34,7 +34,7 @@ fn test_differential_grounding() {
             )
             (:goal (and (in p1 t2) (in p2 t1)))
         )
-    "#;
+    ";
 
     let domain = domain_from_pddl(domain_pddl).unwrap();
     let problem = problem_from_pddl(problem_pddl).unwrap();

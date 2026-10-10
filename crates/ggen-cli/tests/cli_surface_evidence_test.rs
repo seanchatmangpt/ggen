@@ -1,4 +1,4 @@
-#![allow(clippy::unwrap_used, clippy::expect_used)]
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)] // Chicago TDD: real-IO tests
 //! G6 evidence: real subprocess proofs of the `ggen` binary's CLI surface
 //! (products row of `docs/v26.8.1/coverage-matrix.csv`) — spawns the real
 //! compiled binary via `assert_cmd::Command` (same pattern as

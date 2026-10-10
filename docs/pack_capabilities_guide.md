@@ -271,6 +271,17 @@ requirement, duplicate artifact path, cyclic dependency (typed, non-
 zero exit on stderr), plus duplicate input names refused pre-kernel.
 Same input set yields the same plan byte-for-byte.
 
+The plan also carries `self_satisfied` (composer.rs:140): a sorted
+list of packs whose `requires` bind through their own `provides`
+under union semantics. Self-satisfaction is legal — the requirement
+is genuinely bound by the composed set — but it is surfaced for
+audit so consumers can spot packs that silently depend on
+themselves; see the self_satisfied e2e test
+(`pack_composition_e2e_test.rs:535`).
+Gap: the `ggen pack compose` JSON projection (cmds/pack.rs:1116)
+omits `self_satisfied` — the field is kernel-visible only until
+that projection is extended.
+
 MCP surface: the `capability_status` tool
 (`crates/ggen-mcp/src/tools/capability_status.rs`) adds an additive
 `capabilities` key — `{provides, requires, unsatisfied,
@@ -316,6 +327,16 @@ current tree): 403 `pack.toml` manifests (95 `ggen/packs` +
 308 `ggen-marketplace/packs`), 332 unique names, 71 mirror pairs
 (all cross-repo; zero within-repo duplicates). The 72-pair /
 331-name figure in SJIRA-261010-12 is stale.
+
+Count correction (lane census-post-strata, 2026-10-10, supersedes the
+2026-10-09 Residual census counts above): full-tree recount, both keyings,
+two deterministic runs — **444** `pack.toml` (95 `ggen/packs` +
+349 `ggen-marketplace/packs`; 408 top-level + 36 nested), **373** unique
+`[pack].name` (also 373 unique dir basenames), **71** mirror pairs,
+104 top-level requires entries / 71 distinct URNs / **0 dangling**.
+Growth 439 → 444 = the 5 new strata packs; all nested manifests now carry
+`[pack].name` (previously 30 nameless). Canonical numbers live in the
+census-post-strata section of SJIRA-261010-12.
 
 ## Closing consistency pass (verifier V18, 2026-10-09)
 

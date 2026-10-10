@@ -111,7 +111,7 @@ impl McpClient {
     /// Ignores every other frame in between (e.g. late responses, or the
     /// lint watcher's own `ggen-diagnostic://` pushes, which this fixture
     /// does not intentionally trigger but does not rule out either).
-    fn wait_for_sync_refusal_update(&mut self) -> Value {
+    fn wait_for_sync_refusal_update(&self) -> Value {
         loop {
             let frame = self
                 .rx

@@ -1,4 +1,4 @@
-#![allow(clippy::unwrap_used)]
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)] // Chicago TDD: real-IO tests
 //! End-to-End Tests - Complete User Workflows
 //!
 //! Tests full execution paths from CLI invocation to final output.

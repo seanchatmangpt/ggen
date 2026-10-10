@@ -91,6 +91,7 @@ pub struct ContractPredicateSummary {
     pub subject_count: usize,
 }
 
+#[allow(clippy::struct_excessive_bools)] // wire-flat result: each bool is a distinct probe outcome
 #[derive(Debug, Serialize, JsonSchema)]
 pub struct PackCapabilitiesResult {
     pub ok: bool,
@@ -184,13 +185,13 @@ pub fn pack_capabilities(
 }
 
 fn query_classes(graph: &DeterministicGraph) -> Result<Vec<ClassSummary>, McpError> {
-    let sparql = r#"
+    let sparql = r"
         SELECT ?class (COUNT(?individual) AS ?n) WHERE {
             ?individual a ?class .
         }
         GROUP BY ?class
         ORDER BY ?class
-    "#;
+    ";
     let results = GraphEngine::query(graph, sparql)
         .map_err(|e| McpError::new(ErrorCategory::GraphLoadError, e.to_string()))?;
     let EngineQueryResults::Solutions(rows) = results else {
@@ -234,12 +235,12 @@ fn query_contract_predicate(
     let suffix_hash = format!("#{local_name}");
     let suffix_slash = format!("/{local_name}");
     let sparql = format!(
-        r#"
+        r"
         SELECT ?s ?p WHERE {{
             ?s ?p ?o .
             FILTER (STRENDS(STR(?p), {suffix_hash:?}) || STRENDS(STR(?p), {suffix_slash:?}))
         }}
-        "#
+        "
     );
     let results = GraphEngine::query(graph, &sparql)
         .map_err(|e| McpError::new(ErrorCategory::GraphLoadError, e.to_string()))?;

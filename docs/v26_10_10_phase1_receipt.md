@@ -488,3 +488,32 @@ appended 2026-10-10; steps 1-6 executed by cutover lane, GATES-PENDING)
 | `cargo metadata` | OK | DONE |
 | `cargo tree -i praxis-*` | empty (no inverse deps) | DONE |
 | Cutover gates (full build/test/clippy ladder) | owned by cutover-gates lane | **GATES-PENDING** |
+
+## Folded receipts (final wave 2, appended 2026-10-10, lane receipt-fold-3)
+
+| Item | Evidence | Status |
+|---|---|---|
+| Praxis cutover EXECUTED + COMMITTED | main **b97f52dcc** — deps removed, differential golden-only, crates git rm'd (recoverable), publish=true, comment sweep 5 sites, repo-facts.ttl reconstructed (**14 rf:Crates**, counts 13/14 — earlier regex mangle recovered from main) | **DONE + COMMITTED** |
+| Cutover gates | config **178/0**, parity **4/0**, governance **2/0**, `cargo tree -i praxis-*` empty; dry-run progressed to dirty-tree-only; graphlaw versioning completed (graphlaw 26.10.5 → marketplace 26.10.9 → abb-sbb 26.9.26); engine dry-run passes manifest verification; remaining: actual crates.io publish = release-cut execution | **DONE** (publish = release-cut residue) |
+| DoD V-wave gates | V1-V28 summary rows consolidated (V16-V18, V1/V2/V7/V8/V11/V13/V14/V5 VERIFIED; V15 PARTIAL→closeout) | **VERIFIED** |
+| Valve layout reconciliation | stratus **14/0** | **DONE** |
+| Tier-2 smoke | **6/0** (incl. both FM-PACK-018 tiers) | **DONE + VERIFIED** |
+| Topology experiment | KEEP — **4/4** | **DONE** |
+| btree parity + corpus tightening | courts green | **DONE** |
+| FM-PACK-018 two-tier row | **DONE + VERIFIED** — V10/V12/V13 + Tier-2 smoke 6/0 incl. both tiers | **DONE + VERIFIED** |
+
+### Session totals receipt (full arc)
+
+- ggen: **14-crate post-praxis workspace on main** (b97f52dcc).
+- Strata v26.10.10 initial implementation: workspace **59/0**, valve **14/0**,
+  wasm imports = ∅, **5 packs**.
+- Praxis retirement: **EXECUTED** — commit pending on user action for graphlaw
+  publish chain; remaining work = crates.io publishing (release-cut).
+
+### DoD row updates (final wave 2)
+
+| # | DoD item | Was | Now |
+|---|---|---|---|
+| 8 | praxis-core retirement | EXECUTED, GATES-PENDING | **EXECUTED + COMMITTED (main b97f52dcc)** — gates green (config 178/0, parity 4/0, governance 2/0); residual = crates.io publish (release-cut) |
+| 22 | ggen-engine publish=true | flip LANDED, dry-run PENDING | **DONE through dry-run** — manifest verification passes post-versioning; crates.io publish is release-cut execution |
+| 25 | Corpus data-quality | DONE (superseded) | **DONE + VERIFIED** — Tier-2 smoke 6/0; btree parity; corpus tightening landed |

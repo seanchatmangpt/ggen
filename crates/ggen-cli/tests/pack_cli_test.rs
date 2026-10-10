@@ -1,3 +1,4 @@
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)] // Chicago TDD: real-IO tests
 //! Chicago-style integration tests for the live `ggen pack` CLI surface.
 //!
 //! Added 2026-08-24 (`docs/jira/v26.8.16/04-MARKETPLACE-TEST-SUITE-DISABLED.md`) as the

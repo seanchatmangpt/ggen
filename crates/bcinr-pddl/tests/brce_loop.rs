@@ -7,7 +7,7 @@ use bcinr_pddl::{domain_from_pddl, execute_tape, problem_from_pddl, GroundProble
 use std::collections::BTreeSet;
 use wasm4pm_compat::pddl::Pddl8GroundAtom;
 
-const BLOCKSWORLD_DOMAIN: &str = r#"
+const BLOCKSWORLD_DOMAIN: &str = r"
 (define (domain blocksworld)
   (:requirements :strips)
   (:predicates
@@ -33,9 +33,9 @@ const BLOCKSWORLD_DOMAIN: &str = r#"
     :precondition (and (on ?x ?y) (clear ?x) (handempty))
     :effect (and (holding ?x) (clear ?y) (not (on ?x ?y)) (not (clear ?x)) (not (handempty))))
 )
-"#;
+";
 
-const BLOCKSWORLD_PROBLEM: &str = r#"
+const BLOCKSWORLD_PROBLEM: &str = r"
 (define (problem stack-a-on-b)
   (:domain blocksworld)
   (:objects a b)
@@ -45,7 +45,7 @@ const BLOCKSWORLD_PROBLEM: &str = r#"
     (handempty))
   (:goal (on a b))
 )
-"#;
+";
 
 #[test]
 fn blocksworld_brce_full_loop() {

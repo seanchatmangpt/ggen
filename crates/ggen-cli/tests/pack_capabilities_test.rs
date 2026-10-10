@@ -1,3 +1,4 @@
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)] // Chicago TDD: real-IO tests
 //! Chicago-style integration tests for `ggen pack capabilities`.
 //!
 //! Drives the real compiled `ggen` binary against the REAL pack corpora

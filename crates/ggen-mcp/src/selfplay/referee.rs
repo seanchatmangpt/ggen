@@ -517,7 +517,7 @@ mod tests {
             receipt_verified: Some(true),
             second_apply_written: Some(0),
             dry_run_ok: Some(true),
-            dry_run_would_write: Some(["out/wrong.txt".to_string()].into_iter().collect()),
+            dry_run_would_write: Some(std::iter::once("out/wrong.txt".to_string()).collect()),
             ..Default::default()
         };
         let v = referee_verdict(&obs);
@@ -543,7 +543,7 @@ mod tests {
             receipt_verified: Some(true),
             second_apply_written: Some(0),
             dry_run_ok: Some(true),
-            dry_run_would_write: Some(["out/x.txt".to_string()].into_iter().collect()),
+            dry_run_would_write: Some(std::iter::once("out/x.txt".to_string()).collect()),
             ..Default::default()
         };
         let v = referee_verdict(&obs);
@@ -575,7 +575,7 @@ mod tests {
             second_apply_error: None,
             changed_outside_root: Vec::new(),
             dry_run_ok: Some(true),
-            dry_run_would_write: Some(["out/x.txt".to_string()].into_iter().collect()),
+            dry_run_would_write: Some(std::iter::once("out/x.txt".to_string()).collect()),
         };
         let v = referee_verdict(&obs);
         assert!(v.clean(), "expected no violations, got {:?}", v.violations);

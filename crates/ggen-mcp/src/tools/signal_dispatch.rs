@@ -100,6 +100,7 @@ pub fn route_signal(signal_code: &str, root: &Path) -> Result<DispatchRoute, Mcp
 }
 
 #[cfg(test)]
+#[allow(clippy::expect_used)] // Chicago TDD: real tempdir/file IO
 mod tests {
     use super::*;
     use tempfile::TempDir;

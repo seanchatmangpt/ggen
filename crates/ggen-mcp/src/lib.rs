@@ -46,6 +46,7 @@ fn make_tool(
     // an empty `{}` input schema (which `unwrap_or_default` would do,
     // making the tool accept -- or reject -- arguments with no real
     // validation).
+    #[allow(clippy::panic)] // fail-loud startup invariant (see comment below)
     let object = schema.as_object().cloned().unwrap_or_else(|| {
         panic!("tool {name:?}'s schemars-derived schema must be a JSON object, got {schema:?}")
     });
@@ -551,6 +552,7 @@ impl ServerHandler for GgenMcpServer {
 }
 
 #[cfg(test)]
+#[allow(clippy::expect_used, clippy::panic)] // Chicago TDD: real-IO tests
 mod tests {
     use super::*;
 

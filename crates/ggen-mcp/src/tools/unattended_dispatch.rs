@@ -331,6 +331,7 @@ async fn try_unattended_apply_inner(
 }
 
 #[cfg(test)]
+#[allow(clippy::expect_used)] // Chicago TDD: real tempdir/file IO
 mod tests {
     use super::*;
     use std::time::Duration;

@@ -63,11 +63,12 @@ impl Case {
         // Block scalar for the query so arbitrary SPARQL (colons, quotes,
         // braces, newlines) survives YAML without the case format having to
         // escape it — the generator emits hostile text on purpose.
-        let indented: String = self
-            .sparql
-            .lines()
-            .map(|l| format!("    {l}\n"))
-            .collect::<String>();
+        let mut indented = String::new();
+        for l in self.sparql.lines() {
+            indented.push_str("    ");
+            indented.push_str(l);
+            indented.push('\n');
+        }
         format!(
             "---\nto: {}\nsparql:\n  probe: |\n{}---\n{}",
             self.to, indented, self.body

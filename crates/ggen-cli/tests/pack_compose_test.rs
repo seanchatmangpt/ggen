@@ -1,3 +1,4 @@
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)] // Chicago TDD: real-IO tests
 //! Chicago-style integration tests for `ggen pack compose`.
 //!
 //! Drives the real compiled `ggen` binary against the REAL pack corpora
@@ -104,6 +105,15 @@ fn compose_two_compatible_packs_returns_plan_with_both() {
     // order covers exactly the composed set.
     let order = value["order"].as_array().expect("order array");
     assert_eq!(order.len(), 2, "order: {order:?}");
+
+    // self_satisfied is projected: empty for a clean dependency-free compose.
+    let self_satisfied = value["self_satisfied"]
+        .as_array()
+        .expect("self_satisfied array must be present in the compose JSON projection");
+    assert!(
+        self_satisfied.is_empty(),
+        "dependency-free 2-pack compose must have empty self_satisfied: {self_satisfied:?}"
+    );
 }
 
 /// (b) The same pack twice is a typed error, non-zero exit, refusal on stderr.
@@ -217,6 +227,16 @@ fn compose_is_deterministic_across_runs() {
         }),
         "order must be sorted ascending; got: {}",
         va["order"]
+    );
+
+    assert!(
+        va["self_satisfied"].as_array().is_some(),
+        "self_satisfied must be present and identical-shaped across runs; got: {}",
+        va["self_satisfied"]
+    );
+    assert_eq!(
+        va["self_satisfied"], vb["self_satisfied"],
+        "self_satisfied must be identical across runs"
     );
 
     // Full raw stdout: byte-identical across the two runs.

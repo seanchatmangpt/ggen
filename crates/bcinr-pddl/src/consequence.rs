@@ -339,6 +339,7 @@ pub struct ResidualObligation {
 }
 
 /// Computes a [`ResidualDecision`] for one [`ConsequenceHorizon`] type `H`.
+///
 /// Generic over `H` so other horizons can add their own `impl
 /// Residualizer<TheirHorizon> { pub fn residualize(...) }` block later
 /// without this crate needing a trait-object dispatch table — today only

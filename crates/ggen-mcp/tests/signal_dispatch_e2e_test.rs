@@ -112,7 +112,7 @@ impl McpClient {
         resp
     }
 
-    fn wait_for_sync_refusal_update(&mut self) -> Value {
+    fn wait_for_sync_refusal_update(&self) -> Value {
         loop {
             let frame = self
                 .rx
