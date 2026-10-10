@@ -309,6 +309,12 @@ pub struct ReceiptPayload {
     /// receipt even when the rendered outputs happen to be byte-identical.
     #[serde(default)]
     pub closure: BTreeMap<String, String>,
+    /// Build provenance BLAKE3 hex of the `ggen-engine` binary that
+    /// produced this receipt (see [`crate::build_provenance`]). Additive;
+    /// absent (serialized as nothing) only when deserialized from a
+    /// pre-provenance receipt.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub build_provenance: Option<String>,
 }
 
 /// Run the five-stage pipeline rooted at `root` (the directory containing
@@ -3468,6 +3474,7 @@ pub(crate) fn write_receipt(
         packs: report.packs.clone(),
         decisions: report.decisions.clone(),
         closure: report.closure.clone(),
+        build_provenance: Some(crate::build_provenance::BUILD_PROVENANCE_HEX.to_string()),
     };
     let payload_bytes = serde_json::to_vec(&payload)?;
     let payload_hash_hex = blake3::hash(&payload_bytes).to_hex().to_string();

@@ -2986,7 +2986,7 @@ dependencies = [
 
 [[package]]
 name = "graphlaw"
-version = "26.10.5"
+version = "26.10.11"
 dependencies = [
  "blake3",
  "ed25519-dalek 2.2.0",

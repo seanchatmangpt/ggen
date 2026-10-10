@@ -213,7 +213,14 @@ pub async fn cli_match() -> crate::utils::error::Result<()> {
     // Handle --version flag before delegating to clap-noun-verb
     let args: Vec<String> = std::env::args().collect();
     if args.iter().any(|arg| arg == "--version" || arg == "-V") {
-        println!("ggen {}", env!("CARGO_PKG_VERSION"));
+        if args.iter().any(|arg| arg == "--verbose") {
+            // Full build-provenance block (see ggen-engine::build_provenance):
+            // source, commit SHA, strata pack digests, ontology triple count,
+            // and the embedded BLAKE3 digest.
+            println!("{}", ggen_engine::build_provenance::describe());
+        } else {
+            println!("ggen {}", env!("CARGO_PKG_VERSION"));
+        }
         return Ok(());
     }
 

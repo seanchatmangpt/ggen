@@ -166,7 +166,14 @@ use crate::prelude::*;
 pub fn run_cli() -> Result<()> {
     let args: Vec<String> = std::env::args().collect();
     if args.iter().any(|arg| arg == "--version" || arg == "-V") {
-        log::info!("ggen {}", env!("CARGO_PKG_VERSION"));
+        if args.iter().any(|arg| arg == "--verbose") {
+            // Full provenance block: source, commit, strata pack digests,
+            // ontology triple count, embedded BLAKE3 (see
+            // ggen-engine::build_provenance). Plain stdout, not the logger.
+            println!("{}", ggen_engine::build_provenance::describe());
+        } else {
+            log::info!("ggen {}", env!("CARGO_PKG_VERSION"));
+        }
         return Ok(());
     }
     clap_noun_verb::run().map_err(GgenError::from_clap_error)?;
