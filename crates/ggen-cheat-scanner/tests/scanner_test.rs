@@ -208,7 +208,7 @@ fn cheat_t04_does_not_flag_shared_ubiquitous_std_trait() {
 
 #[test]
 fn cheat_scan_ignore_suppresses_annotated_test_only() {
-    let src = r#"
+    let src = r"
 // cheat-scan-ignore: vacuous_suppressed -- pinning detector suppression itself
 #[test]
 fn vacuous_suppressed() {
@@ -219,17 +219,12 @@ fn vacuous_suppressed() {
 fn vacuous_not_suppressed() {
     assert!(true);
 }
-"#;
+";
     let findings =
         scan_source(src, Path::new("inline_ignore.rs")).unwrap_or_else(|e| panic!("parse: {e}"));
-    let t01: Vec<&str> = findings
-        .iter()
-        .filter(|f| f.rule_id == "CHEAT-T01")
-        .map(|f| "hit")
-        .collect();
+    let t01_count = findings.iter().filter(|f| f.rule_id == "CHEAT-T01").count();
     assert_eq!(
-        t01.len(),
-        1,
+        t01_count, 1,
         "exactly one T01 expected (annotated suppressed, unannotated fires): {findings:?}"
     );
     assert!(
@@ -240,13 +235,13 @@ fn vacuous_not_suppressed() {
 
 #[test]
 fn cheat_scan_ignore_requires_exact_fn_name() {
-    let src = r#"
+    let src = r"
 // cheat-scan-ignore: some_other_test -- wrong name must not suppress
 #[test]
 fn vacuous_wrong_name() {
     assert!(true);
 }
-"#;
+";
     let findings = scan_source(src, Path::new("inline_ignore_wrong.rs"))
         .unwrap_or_else(|e| panic!("parse: {e}"));
     assert!(
@@ -257,13 +252,13 @@ fn vacuous_wrong_name() {
 
 #[test]
 fn cheat_scan_ignore_with_reason_after_marker() {
-    let src = r#"
+    let src = r"
 // cheat-scan-ignore: vacuous_reasoned -- asserts at compile time, no runtime assert exists
 #[test]
 fn vacuous_reasoned() {
     assert!(true);
 }
-"#;
+";
     let findings = scan_source(src, Path::new("inline_ignore_reason.rs"))
         .unwrap_or_else(|e| panic!("parse: {e}"));
     assert!(
