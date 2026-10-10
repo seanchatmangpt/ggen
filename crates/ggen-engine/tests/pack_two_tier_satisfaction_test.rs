@@ -43,11 +43,12 @@ fn write_pack(
     }
     let p: Vec<String> = provides.iter().map(|c| format!("\"{c}\"")).collect();
     let r: Vec<String> = requires.iter().map(|c| format!("\"{c}\"")).collect();
-    manifest.push_str(&format!(
+    let _ = write!(
+        manifest,
         "\n[capabilities]\nprovides = [{}]\nrequires = [{}]\n",
         p.join(", "),
         r.join(", ")
-    ));
+    );
     std::fs::write(pack.join("pack.toml"), manifest).expect("pack.toml written");
 
     let subject = name.replace('-', "_");
