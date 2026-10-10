@@ -65,10 +65,10 @@ pub struct SyncPlan {
 /// dependency-free facts (`dep(P, nothing)`) — every existing pack parses
 /// clean under this law.
 pub fn extract_pack_manifest(pack_toml: &str) -> Result<PackManifest, Refusal> {
-    let value: toml::Value = toml::from_str(pack_toml)
-        .map_err(|e| Refusal::MalformedGraph {
-            reason: format!("pack.toml is not valid TOML: {e}"),
-        })?;
+    let value: toml::Value =
+        star_toml::from_str(pack_toml).map_err(|e| Refusal::MalformedGraph {
+        reason: format!("pack.toml is not valid TOML: {e}"),
+    })?;
     let name = value
         .get("pack")
         .and_then(|p| p.get("name"))
@@ -101,10 +101,10 @@ pub fn extract_pack_manifest(pack_toml: &str) -> Result<PackManifest, Refusal> {
 /// Extract [`ConsumerEdges`] from a consumer `ggen.toml` document (optional
 /// `[graph]` table with `name` and `depends_on`).
 pub fn extract_consumer_edges(ggen_toml: &str) -> Result<Option<ConsumerEdges>, Refusal> {
-    let value: toml::Value = toml::from_str(ggen_toml)
-        .map_err(|e| Refusal::MalformedGraph {
-            reason: format!("ggen.toml is not valid TOML: {e}"),
-        })?;
+    let value: toml::Value =
+        star_toml::from_str(ggen_toml).map_err(|e| Refusal::MalformedGraph {
+        reason: format!("ggen.toml is not valid TOML: {e}"),
+    })?;
     let Some(graph) = value.get("graph") else {
         return Ok(None);
     };
@@ -129,8 +129,7 @@ pub fn extract_consumer_edges(ggen_toml: &str) -> Result<Option<ConsumerEdges>, 
 
 /// Resolve the full cross-pack graph: gates, transitive closure, sync order.
 pub fn resolve_sync_order(
-    packs: &[PackManifest],
-    consumer: Option<&ConsumerEdges>,
+    packs: &[PackManifest], consumer: Option<&ConsumerEdges>,
 ) -> Result<SyncPlan, Refusal> {
     let mut by_name: BTreeMap<&str, &PackManifest> = BTreeMap::new();
     for p in packs {
@@ -217,8 +216,10 @@ pub fn resolve_sync_order(
 
     // Gate 4: port completeness — requires(P, T) must be provided by P's
     // transitive deps (or P itself).
-    let provided: BTreeMap<&str, &BTreeSet<String>> =
-        packs.iter().map(|p| (p.name.as_str(), &p.provides)).collect();
+    let provided: BTreeMap<&str, &BTreeSet<String>> = packs
+        .iter()
+        .map(|p| (p.name.as_str(), &p.provides))
+        .collect();
     for p in packs {
         let closure = &transitive[&p.name];
         for port in &p.requires {
@@ -281,16 +282,10 @@ pub fn resolve_sync_order(
 }
 
 /// Reconstruct an actual cycle path ending at `start` (DFS with visited set).
-fn find_cycle(
-    edges: &BTreeMap<String, BTreeSet<String>>,
-    start: &str,
-) -> Vec<String> {
+fn find_cycle(edges: &BTreeMap<String, BTreeSet<String>>, start: &str) -> Vec<String> {
     fn dfs(
-        edges: &BTreeMap<String, BTreeSet<String>>,
-        node: &str,
-        start: &str,
-        path: &mut Vec<String>,
-        visited: &mut BTreeSet<String>,
+        edges: &BTreeMap<String, BTreeSet<String>>, node: &str, start: &str,
+        path: &mut Vec<String>, visited: &mut BTreeSet<String>,
     ) -> Option<Vec<String>> {
         for next in &edges[node] {
             if next.as_str() == start {
@@ -404,7 +399,10 @@ artifacts = ["src/affidavit_catalog.rs"]
             },
         ];
         let err = resolve_sync_order(&packs, None).unwrap_err();
-        assert!(err.to_string().starts_with("CYCLIC_PACK_DEPENDENCY"), "got: {err}");
+        assert!(
+            err.to_string().starts_with("CYCLIC_PACK_DEPENDENCY"),
+            "got: {err}"
+        );
         match err {
             Refusal::CyclicPackDependency { cycle } => {
                 assert_eq!(cycle.first(), cycle.last());
@@ -438,8 +436,7 @@ artifacts = ["src/affidavit_catalog.rs"]
         ];
         let err = resolve_sync_order(&packs, None).unwrap_err();
         assert!(
-            err.to_string()
-                .starts_with("DUPLICATE_ARTIFACT_PATH"),
+            err.to_string().starts_with("DUPLICATE_ARTIFACT_PATH"),
             "got: {err}"
         );
     }

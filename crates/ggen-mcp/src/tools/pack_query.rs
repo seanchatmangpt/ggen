@@ -5,6 +5,7 @@
 //! *project's own graph* (`ggen.toml`/ontology), not the marketplace/pack
 //! registry -- these two tools never overlap in scope.
 //!
+//!
 //! Thin adapter around `ggen_marketplace::packs_registry::sparql_executor::
 //! run_pack_query`, the single implementation shared with the `ggen pack
 //! query` CLI verb (`crates/ggen-cli/src/cmds/pack.rs`).

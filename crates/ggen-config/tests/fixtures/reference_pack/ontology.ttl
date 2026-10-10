@@ -1,0 +1,5 @@
+@prefix ref: <http://example.org/ref#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+ref:thing a ref:Entity ;
+    rdfs:label "reference thing" .

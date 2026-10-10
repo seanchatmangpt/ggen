@@ -793,7 +793,10 @@ impl CompatibilityChecker {
             .map_err(|e| Error::IoError(e))?;
 
         // Parse TOML
-        let toml_value: toml::Value = toml::from_str(&contents)?;
+        // star_toml adds env-var expansion of string values before parsing
+        // (config/manifest context; expansion is acceptable here).
+        let toml_value: toml::Value = star_toml::from_str(&contents)
+            .map_err(|e| Error::Other(format!("TOML parsing error: {e}")))?;
 
         // Extract [ownership.declarations] array
         let ownership_section = toml_value.get("ownership").and_then(|v| v.as_table());
@@ -1116,7 +1119,8 @@ impl CompatibilityChecker {
         file.read_to_string(&mut contents)
             .map_err(|e| Error::IoError(e))?;
 
-        let toml_value: toml::Value = toml::from_str(&contents)?;
+        let toml_value: toml::Value = star_toml::from_str(&contents)
+            .map_err(|e| Error::Other(format!("TOML parsing error: {e}")))?;
 
         let rules_array = toml_value
             .get("policy")
@@ -1581,7 +1585,8 @@ impl CompatibilityChecker {
         file.read_to_string(&mut contents)
             .map_err(|e| Error::IoError(e))?;
 
-        let toml_value: toml::Value = toml::from_str(&contents)?;
+        let toml_value: toml::Value = star_toml::from_str(&contents)
+            .map_err(|e| Error::Other(format!("TOML parsing error: {e}")))?;
 
         let receipt_section = toml_value.get("receipt").and_then(|v| v.as_table());
 

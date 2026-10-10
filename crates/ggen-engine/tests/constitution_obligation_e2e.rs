@@ -1,6 +1,6 @@
 //! L5 condition 13 (義務数が憲法判定後の未解決義務から計算される -- "obligation count is
 //! computed from unresolved obligations post-constitutional-judgment"): proves that
-//! `praxis_core::receipt_epoch::ObligationCount` on a real `ggen sync run` receipt is now a
+//! `ggen_engine::receipt_chain_seam::epoch::ObligationCount` on a real `ggen sync run` receipt is now a
 //! live query over `ccn:Law` individuals in the loaded graph, not merely a query over
 //! gate/sync admission outcomes as it was before (see `crates/ggen-engine/src/sync.rs`'s
 //! `write_receipt` constitution-law admission-items block).
@@ -17,7 +17,8 @@
 use std::path::Path;
 
 use ggen_engine::sync::{sync, SyncOptions, SyncReceipt, RECEIPT_REL_PATH};
-use praxis_core::receipt_epoch::{read_receipt_epoch, ObligationCount};
+use ggen_engine::receipt_chain_seam::epoch::read_receipt_epoch;
+use ggen_engine::receipt_chain_seam::epoch::ObligationCount;
 
 const GGEN_TOML: &str = r#"
 [project]

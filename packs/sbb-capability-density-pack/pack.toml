@@ -8,3 +8,6 @@ evidence evaluation, receipts, and replay. A density unit is one unique Git
 commit with a complete observed manufacturing and falsification evidence chain.
 The pack never self-promotes an SBB beyond PARTIAL_ALIVE.
 """
+
+[capabilities]
+provides = ["urn:ggen:pack:sbb-capability-density-pack"]

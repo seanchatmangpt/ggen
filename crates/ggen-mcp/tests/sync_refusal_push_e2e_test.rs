@@ -7,6 +7,7 @@
 //! Mirrors `watcher_e2e_test.rs`'s real subprocess/stdio harness exactly --
 //! real binary, real newline-delimited JSON-RPC, no mocks, no unit-level
 //! call to `push_sync_refusal_for_root` directly.
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)] // Chicago TDD: real-IO tests
 
 use std::io::{BufRead, BufReader, Write};
 use std::process::{Child, ChildStdin, Command, Stdio};

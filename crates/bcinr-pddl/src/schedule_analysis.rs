@@ -208,7 +208,13 @@ fn max_parallelism(earliest_start: &[f64], earliest_finish: &[f64], n: usize) ->
     // Process ends before starts at the same instant: intervals are
     // half-open [start, end), so an op ending exactly when another starts
     // does not count as overlapping.
-    events.sort_by(|a, b| a.0.partial_cmp(&b.0).unwrap().then(a.1.cmp(&b.1)));
+    // NaN event times must not panic the comparator; treated as equal the
+    // sweep stays total (delta tiebreak still orders ends before starts).
+    events.sort_by(|a, b| {
+        a.0.partial_cmp(&b.0)
+            .unwrap_or(std::cmp::Ordering::Equal)
+            .then(a.1.cmp(&b.1))
+    });
     let mut cur = 0i32;
     let mut max_seen = 0i32;
     for (_, delta) in events {

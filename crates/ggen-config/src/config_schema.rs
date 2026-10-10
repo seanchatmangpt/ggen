@@ -288,6 +288,11 @@ const DECLARATIVE_ONLY_TABLES: &[&str] = &[
     "package",
     "mcp",
     "a2a",
+    // v26.10.10 §4.1: net-new optional GgenManifest sections; neither exists
+    // on GgenConfig (deny_unknown_fields), so each is a weak declarative
+    // marker exactly like the rest of this list.
+    "rules",
+    "pack_sources",
 ];
 
 /// Classify a raw `ggen.toml` document's text against the two schemas this
@@ -862,6 +867,29 @@ provider = "openai"
         // reject this document (proving `DeclarativeRules` would have been
         // an actively wrong classification).
         assert!(ManifestParser::parse_str(raw).is_err());
+    }
+
+    #[test]
+    fn new_optional_sections_are_declarative_only_weak_markers_classifier_does_not_flip() {
+        // v26.10.10 §4.1: `[rules]`/`[pack_sources]` exist only on
+        // GgenManifest, so they are weak declarative markers -- a strong-marker
+        // declarative document gains them without flipping; a frontmatter-shaped
+        // document carrying one is honestly Ambiguous (both typed parses would
+        // fail), and the frontmatter minimum alone never triggers on them.
+        let declarative_plus_new = "[project]\nname = \"x\"\nversion = \"1.0.0\"\n\n\
+            [ontology]\nsource = \"o.ttl\"\n\n[generation]\nrules = []\n\n\
+            [rules]\nn3 = [\"r.n3\"]\n\n[pack_sources.core]\nsource = \"path\"\nlocation = \"p\"\n";
+        assert_eq!(
+            classify_ggen_toml(declarative_plus_new),
+            ConfigSchemaClassification::DeclarativeRules
+        );
+
+        let frontmatter_plus_new = "[project]\nname = \"x\"\n\n[ontology]\nsource = \"o.ttl\"\n\n\
+            [templates]\ndir = \"t\"\n\n[rules]\nn3 = [\"r.n3\"]\n";
+        assert!(matches!(
+            classify_ggen_toml(frontmatter_plus_new),
+            ConfigSchemaClassification::Ambiguous { .. }
+        ));
     }
 
     #[test]

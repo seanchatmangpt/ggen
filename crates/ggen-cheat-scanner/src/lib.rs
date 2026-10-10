@@ -180,7 +180,8 @@ impl<'ast> Visit<'ast> for AssertionCollector {
                 self.any_failure_capable = true;
             }
             // A call to an assertion *helper* fn (conventional `assert_*`
-            // prefix, e.g. `assert_killed_at(...)` in praxis-core's mutation
+            // prefix, e.g. `assert_killed_at(...)` in the retired praxis-core's
+            // mutation
             // tests) delegates the assert!s; the test still fails when the
             // helper's assertion fires.
             Expr::Call(c) => {

@@ -1,3 +1,0 @@
-@prefix : <http://example.org/> .
-
-:doc :partCount 3 .

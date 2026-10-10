@@ -111,7 +111,7 @@
 //! boundary `crate::sync::sync` itself already relies on.
 
 use std::{
-    collections::BTreeMap,
+    collections::{BTreeMap, BTreeSet},
     path::{Path, PathBuf},
     sync::Arc,
     time::Instant,
@@ -131,10 +131,86 @@ use crate::{
         write_receipt, SyncOptions, SyncReport,
     },
     template::{
-        build_tera, classify_tera_render_error, solutions_to_values, tera_error_full_chain,
-        tera_error_location,
+        build_tera_with_packs, classify_tera_render_error, solutions_to_values,
+        tera_error_full_chain, tera_error_location,
     },
 };
+
+// ---------------------------------------------------------------------------
+// `[rules]` ingestion seam — n3/datalog rule-file resolution (v26.10.10)
+// ---------------------------------------------------------------------------
+
+/// Typed failure of [`resolve_rule_sources`]: rule-source resolution is the
+/// ingestion seam only (execution lives in [`crate::law_engine::n3_run`]),
+/// so its only two failure classes are an unreadable file and an
+/// explicitly-unsupported rule kind.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) enum RuleSourceError {
+    /// The referenced rule file could not be read from disk.
+    Unreadable { path: PathBuf, reason: String },
+    /// A `.datalog` file was declared. ggen-engine has no Datalog text
+    /// parser this release (graphlaw exposes no text-`.datalog` reader),
+    /// so this is a loud UNSUPPORTED refusal — never a silent skip and
+    /// never a hand-rolled parser.
+    DatalogUnsupported { path: PathBuf },
+}
+
+impl std::fmt::Display for RuleSourceError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Unreadable { path, reason } => write!(
+                f,
+                "rule file `{}` unreadable: {reason}. \
+                 Remediation: fix the `[rules]` path in ggen.toml.",
+                path.display()
+            ),
+            Self::DatalogUnsupported { path } => write!(
+                f,
+                "UNSUPPORTED: Datalog rule file `{}` cannot be used — \
+                 ggen-engine has no Datalog text parser this release \
+                 (graphlaw exposes N3 only). \
+                 Remediation: translate the rules to N3 and declare them \
+                 under `[rules].n3`.",
+                path.display()
+            ),
+        }
+    }
+}
+
+impl std::error::Error for RuleSourceError {}
+
+/// Ingestion seam for the planned `manifest.rules.n3` /
+/// `manifest.rules.datalog` file-path lists (Lane D's ggen-config schema;
+/// absent = empty). Resolves each relative path against `root` and returns
+/// `(path, contents)` pairs in declaration order. N3 files resolve to their
+/// string contents; execution stays in [`crate::law_engine::n3_run`]. A
+/// `.datalog` file is a typed [`RuleSourceError::DatalogUnsupported`]
+/// refusal (see that variant). An empty input list is a no-op `Ok(vec![])`.
+///
+/// # Errors
+/// [`RuleSourceError::Unreadable`] naming the missing/unreadable file, or
+/// [`RuleSourceError::DatalogUnsupported`] for any `.datalog` path — both
+/// fail closed, never silently skipping an entry.
+pub(crate) fn resolve_rule_sources(
+    root: &Path, rel_paths: &[String],
+) -> std::result::Result<Vec<(PathBuf, String)>, RuleSourceError> {
+    let mut resolved = Vec::with_capacity(rel_paths.len());
+    for rel in rel_paths {
+        let path = root.join(rel);
+        if path
+            .extension()
+            .is_some_and(|ext| ext.eq_ignore_ascii_case("datalog"))
+        {
+            return Err(RuleSourceError::DatalogUnsupported { path });
+        }
+        let contents = std::fs::read_to_string(&path).map_err(|e| RuleSourceError::Unreadable {
+            path: path.clone(),
+            reason: e.to_string(),
+        })?;
+        resolved.push((path, contents));
+    }
+    Ok(resolved)
+}
 
 /// `elapsed.as_millis()` as a `u64` for an OTEL span attribute, saturating
 /// instead of silently wrapping on the practically-unreachable case of a
@@ -449,7 +525,43 @@ pub(crate) fn run(root: &Path, manifest: &GgenManifest, opts: SyncOptions) -> Re
     );
     let generate_guard = generate_span.enter();
 
-    let mut tera = build_tera(Arc::clone(&graph))?;
+    // Same pack-template wiring as sync's frontmatter pipeline: every
+    // manifest `[[packs]]` entry with a local `path` contributes its
+    // `templates/` files under `pack-name://<subpath>` Tera names, so a
+    // rule's template may `{% import "packname://macros/x.tera" %}` exactly
+    // like a frontmatter project's template. The declarative-rules `PackRef`
+    // schema is deliberately lightweight (see this module's doc comment: a
+    // `package.toml`-keyed file lookup, NOT `crate::pack`'s full
+    // pack.toml/ontology.ttl/templates validation — the pipeline's
+    // `resolve_pack_root` already refuses packs the rules actually use), so
+    // the `Pack` values here carry only the two fields
+    // `attach_pack_templates` reads (`name`, `root`). Zero drift: a manifest
+    // with no `[[packs]]` produces an empty pack slice and takes the
+    // identical code path as plain `build_tera` (empty-slice early return in
+    // `attach_pack_templates`).
+    let mut resolved_packs: Vec<crate::pack::Pack> = Vec::new();
+    for pack_ref in &manifest.packs {
+        if let Some(path) = &pack_ref.path {
+            let pack_root = root.join(path);
+            if pack_root.is_dir() {
+                resolved_packs.push(crate::pack::Pack {
+                    name: pack_ref.name.clone(),
+                    version: String::new(),
+                    description: String::new(),
+                    dependencies: BTreeMap::new(),
+                    semantic_types: BTreeSet::new(),
+                    provides: BTreeSet::new(),
+                    requires: BTreeSet::new(),
+                    root: pack_root,
+                    ontology_path: PathBuf::new(),
+                    extra_ontology_paths: Vec::new(),
+                    template_paths: Vec::new(),
+                    lock: false,
+                });
+            }
+        }
+    }
+    let mut tera = build_tera_with_packs(Arc::clone(&graph), &resolved_packs)?;
     let mut skipped: Vec<(PathBuf, String)> = Vec::new();
     let mut decisions: BTreeMap<String, String> = BTreeMap::new();
     let mut pending: Vec<PendingGenWrite> = Vec::new();
@@ -1403,3 +1515,61 @@ mod merge {
 // non-empty-rules, frontmatter-shaped, malformed-TOML) lives in
 // `ggen_config::config_schema`'s own test module and
 // `crate::schema_dispatch`'s test module.
+
+#[cfg(test)]
+#[allow(clippy::unwrap_used, clippy::expect_used)]
+mod rule_kinds_tests {
+    use super::resolve_rule_sources;
+    use std::fs;
+
+    /// In-process run env: tempfile honors `TMPDIR`; the harness exports
+    /// `TMPDIR=/tmp` because the session default is broken.
+    #[test]
+    fn n3_file_resolves_to_its_contents() {
+        let dir = tempfile::TempDir::new().unwrap();
+        fs::write(
+            dir.path().join("r.n3"),
+            "{ ?x a :Cat } => { ?x a :Animal } .",
+        )
+        .unwrap();
+        let out = resolve_rule_sources(dir.path(), &["r.n3".to_string()]).unwrap();
+        assert_eq!(out.len(), 1);
+        assert_eq!(out[0].0, dir.path().join("r.n3"));
+        assert_eq!(out[0].1, "{ ?x a :Cat } => { ?x a :Animal } .");
+    }
+
+    #[test]
+    fn missing_file_is_typed_unreadable_refusal_naming_the_file() {
+        let dir = tempfile::TempDir::new().unwrap();
+        let err = resolve_rule_sources(dir.path(), &["nope.n3".to_string()]).unwrap_err();
+        match &err {
+            super::RuleSourceError::Unreadable { path, .. } => {
+                assert_eq!(path, &dir.path().join("nope.n3"));
+            }
+            other => panic!("expected Unreadable, got {other:?}"),
+        }
+        assert!(err.to_string().contains("nope.n3"));
+    }
+
+    #[test]
+    fn datalog_file_is_typed_unsupported_refusal() {
+        let dir = tempfile::TempDir::new().unwrap();
+        fs::write(dir.path().join("r.datalog"), "animal(X) :- cat(X).").unwrap();
+        let err = resolve_rule_sources(dir.path(), &["r.datalog".to_string()]).unwrap_err();
+        assert_eq!(
+            err,
+            super::RuleSourceError::DatalogUnsupported {
+                path: dir.path().join("r.datalog"),
+            }
+        );
+        assert!(err.to_string().contains("UNSUPPORTED"));
+        assert!(err.to_string().contains("no Datalog text parser"));
+    }
+
+    #[test]
+    fn empty_path_list_is_noop_ok() {
+        let dir = tempfile::TempDir::new().unwrap();
+        let out = resolve_rule_sources(dir.path(), &[]).unwrap();
+        assert!(out.is_empty());
+    }
+}

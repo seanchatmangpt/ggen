@@ -136,7 +136,7 @@ impl PackRepository for FileSystemRepository {
 
         let content = tokio::fs::read_to_string(&pack_path).await?;
 
-        let pack_file: crate::packs_registry::types::PackFile = toml::from_str(&content)
+        let pack_file: crate::packs_registry::types::PackFile = star_toml::from_str(&content)
             .map_err(|e| Error::Other(format!("Failed to parse pack '{}': {}", pack_id, e)))?;
 
         Ok(pack_file.pack)
@@ -158,14 +158,15 @@ impl PackRepository for FileSystemRepository {
                         e
                     ))
                 })?;
-                let pack_file = toml::from_str::<crate::packs_registry::types::PackFile>(&content)
-                    .map_err(|e| {
-                        crate::marketplace::error::Error::Other(format!(
-                            "Failed to parse pack {}: {}",
-                            path.display(),
-                            e
-                        ))
-                    })?;
+                let pack_file =
+                    star_toml::from_str::<crate::packs_registry::types::PackFile>(&content)
+                        .map_err(|e| {
+                            crate::marketplace::error::Error::Other(format!(
+                                "Failed to parse pack {}: {}",
+                                path.display(),
+                                e
+                            ))
+                        })?;
                 let pack = pack_file.pack;
                 if let Some(cat) = category {
                     if pack.category == cat {
@@ -190,7 +191,10 @@ impl PackRepository for FileSystemRepository {
             tokio::fs::create_dir_all(parent).await?;
         }
 
-        let pack_file = crate::packs_registry::types::PackFile { pack: pack.clone() };
+        let pack_file = crate::packs_registry::types::PackFile {
+            pack: pack.clone(),
+            capabilities: None,
+        };
 
         let content = toml::to_string_pretty(&pack_file)
             .map_err(|e| Error::Other(format!("Failed to serialize pack: {}", e)))?;

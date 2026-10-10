@@ -6,6 +6,7 @@
 //! exists (falls through, file untouched), and an eligible rule sitting
 //! inside a project with an unrelated refusal elsewhere (whole-project-clean
 //! requirement holds).
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)] // Chicago TDD: real-IO tests
 
 use ggen_mcp::tools::unattended_dispatch::{
     try_unattended_apply, CircuitBreaker, UnattendedApplyOutcome,

@@ -40,3 +40,7 @@ yet). Rename this directory to `k8s-pack` (dropping `-DESIGN`) only once a real 
 and gate-loosening work land and this ontology has been re-derived from that generator's
 real output, not hand-extended from this hand-authored seed.
 """
+
+[capabilities]
+provides = ["urn:ggen:pack:k8s-pack-DESIGN"]
+requires = []

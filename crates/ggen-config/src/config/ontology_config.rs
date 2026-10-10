@@ -193,7 +193,7 @@ impl OntologyConfig {
 
     /// Load from TOML file section
     pub fn from_toml_section(toml_content: &str) -> Result<Self> {
-        toml::from_str(toml_content).map_err(|e| {
+        star_toml::from_str(toml_content).map_err(|e| {
             crate::config_lib::ConfigError::Validation(format!(
                 "Failed to parse ontology config: {}",
                 e

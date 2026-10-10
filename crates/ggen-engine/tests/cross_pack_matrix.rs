@@ -15,6 +15,57 @@ use ggen_engine::sync::{sync, SyncOptions, SyncReceipt, RECEIPT_REL_PATH};
 use support::copy_tree;
 use tempfile::TempDir;
 
+/// Resolve the real `ggen` binary the same way `cli_boundary.rs::ggen_bin`
+/// does: `CARGO_BIN_EXE_ggen` (set by `cargo test -p ggen-cli-lib`, never by
+/// `-p ggen-engine`/`-p ggen-cli` — the root package is `autobins = false`),
+/// then the workspace `target/{debug,release}/ggen`, then `PATH`. Panics
+/// (loudly) if no candidate resolves, so failure happens at binary
+/// resolution, not at first spawn.
+fn ggen_bin() -> std::path::PathBuf {
+    if let Ok(path) = std::env::var("CARGO_BIN_EXE_ggen") {
+        let p = std::path::PathBuf::from(path);
+        if p.exists() {
+            return p;
+        }
+    }
+
+    let target_root = std::env::var_os("CARGO_TARGET_DIR")
+        .map(std::path::PathBuf::from)
+        .or_else(|| {
+            let manifest_dir =
+                std::env::var_os("CARGO_MANIFEST_DIR").map(std::path::PathBuf::from)?;
+            let mut dir: &std::path::Path = manifest_dir.as_path();
+            loop {
+                if dir.join("Cargo.lock").exists() {
+                    return Some(dir.join("target"));
+                }
+                match dir.parent() {
+                    Some(p) => dir = p,
+                    None => return None,
+                }
+            }
+        });
+
+    if let Some(target) = target_root {
+        for profile in &["debug", "release"] {
+            let candidate = target.join(profile).join("ggen");
+            if candidate.is_file() {
+                return candidate;
+            }
+            let candidate_exe = target.join(profile).join("ggen.exe");
+            if candidate_exe.is_file() {
+                return candidate_exe;
+            }
+        }
+    }
+
+    panic!(
+        "could not resolve the `ggen` binary: CARGO_BIN_EXE_ggen unset and no \
+         target/debug/ggen found; build it with `cargo build -p ggen-cli-lib --bin ggen`"
+    );
+}
+
+
 /// Every framework pack expected under `packs/`, alphabetical, with its
 /// distinctive output file (only that pack's ontology/templates can
 /// produce it).
@@ -108,7 +159,7 @@ fn mega_project_all_packs_sync() {
     let names: Vec<&str> = PACKS.iter().map(|(n, _)| *n).collect();
     let (_dir, project) = scaffold_multi_pack_project(&names);
 
-    let _ = CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::from_path(ggen_bin())
         .args(["sync", "run"])
         .current_dir(&project)
         .run()
@@ -155,13 +206,13 @@ fn mega_project_all_packs_sync() {
     assert_eq!(receipt.payload.packs.len(), PACKS.len());
 
     // receipt verify and doctor run both exit 0 (real binary).
-    let _ = CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::from_path(ggen_bin())
         .args(["receipt", "verify"])
         .current_dir(&project)
         .run()
         .expect("receipt verify")
         .assert_success();
-    let _ = CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::from_path(ggen_bin())
         .args(["doctor", "run"])
         .current_dir(&project)
         .run()
@@ -175,7 +226,7 @@ fn mega_project_all_packs_sync() {
     // byte-identical, and every second-run decision must be a skip (no file
     // was rewritten).
     let lock_1 = lock;
-    let _ = CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::from_path(ggen_bin())
         .args(["sync", "run"])
         .current_dir(&project)
         .run()
@@ -365,7 +416,7 @@ fn corrupting_one_pack_post_lock_fails_closed_naming_only_that_pack() {
     let names: Vec<&str> = PACKS.iter().map(|(n, _)| *n).collect();
     let (dir, project) = scaffold_multi_pack_project(&names);
 
-    let _ = CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::from_path(ggen_bin())
         .args(["sync", "run"])
         .current_dir(&project)
         .run()
@@ -381,7 +432,7 @@ fn corrupting_one_pack_post_lock_fails_closed_naming_only_that_pack() {
     std::fs::write(&ontology, ttl).expect("corrupt ontology");
 
     // Next sync refuses with FM-PACK-008 naming the corrupted pack only.
-    let out = CliHarness::cargo_bin("ggen")
+    let out = CliHarness::from_path(ggen_bin())
         .args(["sync", "run"])
         .current_dir(&project)
         .run()
@@ -401,7 +452,7 @@ fn corrupting_one_pack_post_lock_fails_closed_naming_only_that_pack() {
 
     // No distinctive output was rewritten by the refused sync (fail closed
     // means fail before writing): receipt verify still passes.
-    let _ = CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::from_path(ggen_bin())
         .args(["receipt", "verify"])
         .current_dir(&project)
         .run()
@@ -409,7 +460,7 @@ fn corrupting_one_pack_post_lock_fails_closed_naming_only_that_pack() {
         .assert_success();
 
     // doctor run also exits nonzero naming lockfile_drift.
-    let doctor = CliHarness::cargo_bin("ggen")
+    let doctor = CliHarness::from_path(ggen_bin())
         .args(["doctor", "run"])
         .current_dir(&project)
         .run()
@@ -435,14 +486,14 @@ fn wasm4pm_algorithms_and_cognition_packs_full_coverage() {
     let (_dir, project) =
         scaffold_multi_pack_project(&["wasm4pm-algorithms-pack", "wasm4pm-cognition-pack"]);
 
-    let _ = CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::from_path(ggen_bin())
         .args(["sync", "run"])
         .current_dir(&project)
         .run()
         .expect("run sync")
         .assert_success();
 
-    let _ = CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::from_path(ggen_bin())
         .args(["graph", "validate"])
         .current_dir(&project)
         .run()
@@ -482,7 +533,7 @@ fn wasm4pm_algorithms_and_cognition_packs_full_coverage() {
     let dispatch_1 = dispatch;
     let lock_1 = std::fs::read_to_string(project.join("ggen.lock")).expect("ggen.lock");
 
-    let _ = CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::from_path(ggen_bin())
         .args(["sync", "run"])
         .current_dir(&project)
         .run()

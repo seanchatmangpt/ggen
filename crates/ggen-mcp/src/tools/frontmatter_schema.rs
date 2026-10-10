@@ -4,6 +4,7 @@
 //! `#[serde(deny_unknown_fields)]` and drift-tested against
 //! `crates/ggen-engine/schema/frontmatter-schema.ttl`).
 //!
+//!
 //! Closes a verified friction point: an agent authoring a ggen project used
 //! 3 of the 25 legal keys and never discovered `for_each:` — the fan-out
 //! mechanism its whole redesign turned on — because nothing surfaced the

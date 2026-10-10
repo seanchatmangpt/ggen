@@ -41,7 +41,7 @@ fn scaffold(root: &std::path::Path) {
 
 #[test]
 fn root_help_exits_zero_and_lists_all_nouns() {
-    let output = CliHarness::cargo_bin("ggen")
+    let output = CliHarness::from_path(ggen_bin())
         .args(["--help"])
         .run()
         .expect("run --help");
@@ -59,7 +59,7 @@ fn root_help_exits_zero_and_lists_all_nouns() {
 /// followed by whitespace/newline.
 #[test]
 fn root_help_gives_each_noun_a_non_blank_description() {
-    let output = CliHarness::cargo_bin("ggen")
+    let output = CliHarness::from_path(ggen_bin())
         .args(["--help"])
         .run()
         .expect("run --help");
@@ -96,7 +96,7 @@ fn root_help_gives_each_noun_a_non_blank_description() {
 
 #[test]
 fn root_version_exits_zero() {
-    let output = CliHarness::cargo_bin("ggen")
+    let output = CliHarness::from_path(ggen_bin())
         .args(["--version"])
         .run()
         .expect("run --version");
@@ -107,7 +107,7 @@ fn root_version_exits_zero() {
 fn root_no_args_exits_zero_or_prints_usage() {
     // clap-noun-verb with no subcommand: must not crash, must not silently
     // hang — either succeeds with a usage summary or exits nonzero cleanly.
-    let output = CliHarness::cargo_bin("ggen")
+    let output = CliHarness::from_path(ggen_bin())
         .run()
         .expect("run with no args");
     assert!(
@@ -119,7 +119,7 @@ fn root_no_args_exits_zero_or_prints_usage() {
 
 #[test]
 fn unknown_noun_exits_nonzero() {
-    let output = CliHarness::cargo_bin("ggen")
+    let output = CliHarness::from_path(ggen_bin())
         .args(["totally-unknown-noun-xyz"])
         .run()
         .expect("run unknown noun");
@@ -128,7 +128,7 @@ fn unknown_noun_exits_nonzero() {
 
 #[test]
 fn unknown_flag_exits_nonzero() {
-    let output = CliHarness::cargo_bin("ggen")
+    let output = CliHarness::from_path(ggen_bin())
         .args(["sync", "run", "--this-flag-does-not-exist"])
         .run()
         .expect("run unknown flag");
@@ -141,7 +141,7 @@ fn unknown_flag_exits_nonzero() {
 
 #[test]
 fn sync_noun_help_exits_zero_and_lists_run() {
-    let output = CliHarness::cargo_bin("ggen")
+    let output = CliHarness::from_path(ggen_bin())
         .args(["sync", "--help"])
         .run()
         .expect("run sync --help");
@@ -150,7 +150,7 @@ fn sync_noun_help_exits_zero_and_lists_run() {
 
 #[test]
 fn sync_run_help_lists_dry_run_flag() {
-    let output = CliHarness::cargo_bin("ggen")
+    let output = CliHarness::from_path(ggen_bin())
         .args(["sync", "run", "--help"])
         .run()
         .expect("run sync run --help");
@@ -159,7 +159,7 @@ fn sync_run_help_lists_dry_run_flag() {
 
 #[test]
 fn sync_run_help_lists_watch_flag() {
-    let output = CliHarness::cargo_bin("ggen")
+    let output = CliHarness::from_path(ggen_bin())
         .args(["sync", "run", "--help"])
         .run()
         .expect("run sync run --help");
@@ -174,7 +174,7 @@ fn sync_run_help_lists_watch_flag() {
 /// flag name followed by whitespace/newline.
 #[test]
 fn sync_run_help_gives_each_flag_a_non_blank_description() {
-    let output = CliHarness::cargo_bin("ggen")
+    let output = CliHarness::from_path(ggen_bin())
         .args(["sync", "run", "--help"])
         .run()
         .expect("run sync run --help");
@@ -203,7 +203,7 @@ fn sync_run_generates_expected_file() {
     let dir = TempDir::new().expect("tempdir");
     scaffold(dir.path());
 
-    let output = CliHarness::cargo_bin("ggen")
+    let output = CliHarness::from_path(ggen_bin())
         .args(["sync", "run"])
         .current_dir(dir.path())
         .run()
@@ -224,7 +224,7 @@ fn sync_run_dry_run_writes_nothing() {
     let dir = TempDir::new().expect("tempdir");
     scaffold(dir.path());
 
-    let output = CliHarness::cargo_bin("ggen")
+    let output = CliHarness::from_path(ggen_bin())
         .args(["sync", "run", "--dry-run"])
         .current_dir(dir.path())
         .run()
@@ -250,7 +250,7 @@ fn sync_run_second_invocation_is_idempotent() {
     let dir = TempDir::new().expect("tempdir");
     scaffold(dir.path());
 
-    let _ = CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::from_path(ggen_bin())
         .args(["sync", "run"])
         .current_dir(dir.path())
         .run()
@@ -258,7 +258,7 @@ fn sync_run_second_invocation_is_idempotent() {
         .assert_success();
     let first = std::fs::read_to_string(dir.path().join("out/names.txt")).expect("first output");
 
-    let _ = CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::from_path(ggen_bin())
         .args(["sync", "run"])
         .current_dir(dir.path())
         .run()
@@ -272,7 +272,7 @@ fn sync_run_second_invocation_is_idempotent() {
 #[test]
 fn sync_run_missing_manifest_exits_nonzero() {
     let dir = TempDir::new().expect("tempdir");
-    let output = CliHarness::cargo_bin("ggen")
+    let output = CliHarness::from_path(ggen_bin())
         .args(["sync", "run"])
         .current_dir(dir.path())
         .run()
@@ -332,7 +332,7 @@ fn watch_for_stderr(mut child: std::process::Child, needle: &str, deadline: Dura
     String::from_utf8_lossy(&buf).into_owned()
 }
 
-/// Resolve the compiled `ggen` binary the same way `CliHarness::cargo_bin("ggen")`
+/// Resolve the compiled `ggen` binary the same way `CliHarness::from_path(ggen_bin())`
 /// does (see `chicago-tdd-tools/src/cli_proof/harness.rs`, `resolve_binary`):
 /// this test binary belongs to `ggen-engine`, which builds no `ggen` binary of
 /// its own (`autobins = false`), so `CARGO_BIN_EXE_ggen` is never set by
@@ -462,7 +462,7 @@ fn sync_run_watch_missing_manifest_exits_nonzero_without_hanging() {
     // ever constructed, so the process must exit non-zero promptly instead
     // of hanging in the watch loop.
     let dir = TempDir::new().expect("tempdir");
-    let output = CliHarness::cargo_bin("ggen")
+    let output = CliHarness::from_path(ggen_bin())
         .args(["sync", "run", "--watch"])
         .current_dir(dir.path())
         .run()
@@ -483,7 +483,7 @@ fn sync_run_unbound_template_variable_exits_nonzero() {
     )
     .expect("overwrite template");
 
-    let output = CliHarness::cargo_bin("ggen")
+    let output = CliHarness::from_path(ggen_bin())
         .args(["graph", "validate"])
         .current_dir(dir.path())
         .run()
@@ -499,7 +499,7 @@ fn sync_run_unbound_template_variable_exits_nonzero() {
 fn graph_validate_valid_project_exits_zero() {
     let dir = TempDir::new().expect("tempdir");
     scaffold(dir.path());
-    let output = CliHarness::cargo_bin("ggen")
+    let output = CliHarness::from_path(ggen_bin())
         .args(["graph", "validate"])
         .current_dir(dir.path())
         .run()
@@ -512,7 +512,7 @@ fn graph_validate_valid_project_exits_zero() {
 #[test]
 fn graph_validate_missing_manifest_exits_nonzero() {
     let dir = TempDir::new().expect("tempdir");
-    let output = CliHarness::cargo_bin("ggen")
+    let output = CliHarness::from_path(ggen_bin())
         .args(["graph", "validate"])
         .current_dir(dir.path())
         .run()
@@ -529,7 +529,7 @@ fn graph_validate_malformed_ontology_exits_nonzero() {
         "this is not valid turtle {{{",
     )
     .expect("overwrite ontology");
-    let output = CliHarness::cargo_bin("ggen")
+    let output = CliHarness::from_path(ggen_bin())
         .args(["graph", "validate"])
         .current_dir(dir.path())
         .run()
@@ -544,7 +544,7 @@ fn graph_validate_malformed_ontology_exits_nonzero() {
 #[test]
 fn receipt_verify_missing_receipt_exits_nonzero() {
     let dir = TempDir::new().expect("tempdir");
-    let output = CliHarness::cargo_bin("ggen")
+    let output = CliHarness::from_path(ggen_bin())
         .args(["receipt", "verify"])
         .current_dir(dir.path())
         .run()
@@ -557,14 +557,14 @@ fn receipt_verify_succeeds_after_sync_and_fails_on_tamper() {
     let dir = TempDir::new().expect("tempdir");
     scaffold(dir.path());
 
-    let _ = CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::from_path(ggen_bin())
         .args(["sync", "run"])
         .current_dir(dir.path())
         .run()
         .expect("sync")
         .assert_success();
 
-    let _ = CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::from_path(ggen_bin())
         .args(["receipt", "verify"])
         .current_dir(dir.path())
         .run()
@@ -577,7 +577,7 @@ fn receipt_verify_succeeds_after_sync_and_fails_on_tamper() {
         .expect("read receipt")
         .replace("\"graph_hash\"", "\"graph_hash_tampered_key_x\"");
     std::fs::write(&receipt_path, tampered).expect("write tampered");
-    let _ = CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::from_path(ggen_bin())
         .args(["receipt", "verify"])
         .current_dir(dir.path())
         .run()
@@ -588,7 +588,7 @@ fn receipt_verify_succeeds_after_sync_and_fails_on_tamper() {
 #[test]
 fn receipt_history_missing_log_exits_nonzero() {
     let dir = TempDir::new().expect("tempdir");
-    let output = CliHarness::cargo_bin("ggen")
+    let output = CliHarness::from_path(ggen_bin())
         .args(["receipt", "history"])
         .current_dir(dir.path())
         .run()
@@ -601,7 +601,7 @@ fn receipt_history_after_two_syncs_exits_zero() {
     let dir = TempDir::new().expect("tempdir");
     scaffold(dir.path());
 
-    let _ = CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::from_path(ggen_bin())
         .args(["sync", "run"])
         .current_dir(dir.path())
         .run()
@@ -614,14 +614,14 @@ fn receipt_history_after_two_syncs_exits_zero() {
         "@prefix ex: <http://example.org/> .\nex:alice ex:name \"alice\" .\nex:bob ex:name \"bob\" .\n",
     )
     .expect("mutate ontology");
-    let _ = CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::from_path(ggen_bin())
         .args(["sync", "run"])
         .current_dir(dir.path())
         .run()
         .expect("second sync")
         .assert_success();
 
-    let output = CliHarness::cargo_bin("ggen")
+    let output = CliHarness::from_path(ggen_bin())
         .args(["receipt", "history"])
         .current_dir(dir.path())
         .run()
@@ -642,7 +642,7 @@ fn receipt_history_tampered_middle_record_exits_nonzero() {
             format!("@prefix ex: <http://example.org/> .\nex:alice ex:name \"{name}\" .\n"),
         )
         .expect("mutate ontology");
-        let _ = CliHarness::cargo_bin("ggen")
+        let _ = CliHarness::from_path(ggen_bin())
             .args(["sync", "run"])
             .current_dir(dir.path())
             .run()
@@ -661,7 +661,7 @@ fn receipt_history_tampered_middle_record_exits_nonzero() {
     std::fs::write(&log_path, format!("{tampered_first_line}\n{}\n", lines[1]))
         .expect("write tampered log");
 
-    let output = CliHarness::cargo_bin("ggen")
+    let output = CliHarness::from_path(ggen_bin())
         .args(["receipt", "history"])
         .current_dir(dir.path())
         .run()
@@ -675,7 +675,7 @@ fn receipt_history_tampered_middle_record_exits_nonzero() {
 
 #[test]
 fn introspect_emits_json_schema_and_exits_zero() {
-    let output = CliHarness::cargo_bin("ggen")
+    let output = CliHarness::from_path(ggen_bin())
         .args(["--introspect"])
         .run()
         .expect("run --introspect");
@@ -691,7 +691,7 @@ fn introspect_emits_json_schema_and_exits_zero() {
 fn format_json_flag_produces_parseable_json_on_success() {
     let dir = TempDir::new().expect("tempdir");
     scaffold(dir.path());
-    let output = CliHarness::cargo_bin("ggen")
+    let output = CliHarness::from_path(ggen_bin())
         .args(["--format", "json", "graph", "validate"])
         .current_dir(dir.path())
         .run()

@@ -6,6 +6,8 @@
 use clap_noun_verb::{NounVerbError, Result};
 use clap_noun_verb_macros::verb;
 use serde::Serialize;
+use serde_json::json;
+use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
 
 use ggen_marketplace::marketplace::install::{install_pack_by_id, InstallByIdInput};
@@ -907,4 +909,222 @@ fn relocate_dir(from: &Path, to: &Path) -> std::io::Result<()> {
         std::fs::rename(entry.path(), &dest)?;
     }
     std::fs::remove_dir_all(from)
+}
+
+// ============================================================================
+// Capability Surfacing (SJIRA-261010-08)
+// ============================================================================
+
+/// The two real pack corpora, searched in order: the ggen-marketplace pack
+/// registry first, then ggen's own in-repo packs. One directory per pack,
+/// each holding a `pack.toml`.
+const CAPABILITY_CORPUS_ROOTS: [&str; 2] = [
+    "/Users/sac/ggen-marketplace/packs",
+    "/Users/sac/ggen/packs",
+];
+
+/// Locate `<root>/<name>/pack.toml` across [`CAPABILITY_CORPUS_ROOTS`],
+/// marketplace first.
+fn find_pack_toml(name: &str) -> Option<PathBuf> {
+    CAPABILITY_CORPUS_ROOTS.iter().map(PathBuf::from).find_map(|root| {
+        let candidate = root.join(name).join("pack.toml");
+        candidate.is_file().then_some(candidate)
+    })
+}
+
+/// Declared `[capabilities]` of one pack.toml: `provides`/`requires` URN
+/// lists. `None` means the key is honestly absent (the pack predates the
+/// annotation pass), not zero capabilities.
+#[derive(Debug, Default, serde::Deserialize)]
+struct DeclaredCapabilities {
+    #[serde(default)]
+    provides: Vec<String>,
+    #[serde(default)]
+    requires: Vec<String>,
+}
+
+/// Extract the declared capability surface from a pack.toml, tolerating
+/// absence and any other top-level tables.
+///
+/// Corpus reality (2026-10-09 annotation pass, verified over the live
+/// corpora): `provides` lives under `[capabilities]` while `requires` was
+/// written as a bare `requires = [...]` line preceding the `[capabilities]`
+/// table — which, TOML-wise, lands INSIDE the still-open `[pack]` table.
+/// All three placements are read (`[capabilities].requires` > top-level >
+/// `[pack].requires`); a pack with neither `[capabilities]` nor any
+/// `requires` has no declared capability surface (`None`).
+fn parse_capabilities(path: &Path) -> Result<Option<DeclaredCapabilities>> {
+    let content = std::fs::read_to_string(path).map_err(|e| {
+        NounVerbError::execution_error(format!(
+            "Failed to read {}: {}",
+            path.display(),
+            e
+        ))
+    })?;
+    let value: toml::Value = star_toml::from_str(&content).map_err(|e| {
+        NounVerbError::execution_error(format!(
+            "Failed to parse {}: {}",
+            path.display(),
+            e
+        ))
+    })?;
+    let caps_table = value.get("capabilities");
+    let provides: Vec<String> = caps_table
+        .and_then(|c| c.get("provides"))
+        .and_then(|p| p.clone().try_into().ok())
+        .unwrap_or_default();
+    let requires: Vec<String> = value
+        .get("requires")
+        .or_else(|| caps_table.and_then(|c| c.get("requires")))
+        .or_else(|| value.get("pack").and_then(|p| p.get("requires")))
+        .and_then(|r| r.clone().try_into().ok())
+        .unwrap_or_default();
+    if caps_table.is_none() && requires.is_empty() {
+        return Ok(None);
+    }
+    Ok(Some(DeclaredCapabilities { provides, requires }))
+}
+
+/// Live-scan every annotated pack across both corpora. Returns pack name ->
+/// (provides, requires), sorted by name (BTreeMap) so output is
+/// deterministic. Packs without `[capabilities]` are skipped — they
+/// contribute no provides and no requires.
+fn scan_corpus_capabilities() -> Result<BTreeMap<String, DeclaredCapabilities>> {
+    let mut scanned = BTreeMap::new();
+    for root in CAPABILITY_CORPUS_ROOTS {
+        let entries = std::fs::read_dir(root).map_err(|e| {
+            NounVerbError::execution_error(format!(
+                "Failed to read pack corpus root {}: {}",
+                root, e
+            ))
+        })?;
+        for entry in entries.flatten() {
+            let pack_toml = entry.path().join("pack.toml");
+            if !pack_toml.is_file() {
+                continue;
+            }
+            let name = entry.file_name().to_string_lossy().to_string();
+            if let Some(caps) = parse_capabilities(&pack_toml)? {
+                scanned.insert(name, caps);
+            }
+        }
+    }
+    Ok(scanned)
+}
+
+/// Surface the declared capability surface of one pack against a live scan
+/// of every annotated pack in both corpora.
+///
+/// Returns `{ name, provides, requires, satisfied_by }` where `satisfied_by`
+/// maps each required URN to the sorted list of pack names whose `provides`
+/// cover it. An unknown pack is a typed error naming both searched roots; a
+/// pack without `[capabilities]` returns `{ name, capabilities: null }` —
+/// honest absence, not an error.
+#[verb]
+pub fn capabilities(#[arg(index = 1)] name: String) -> Result<serde_json::Value> {
+    use serde_json::json;
+
+    let pack_path = find_pack_toml(&name).ok_or_else(|| {
+        NounVerbError::execution_error(format!(
+            "Pack '{}' not found in any corpus root: {}",
+            name,
+            CAPABILITY_CORPUS_ROOTS.join(", ")
+        ))
+    })?;
+
+    let Some(caps) = parse_capabilities(&pack_path)? else {
+        return Ok(json!({ "name": name, "capabilities": null }));
+    };
+
+    let corpus = scan_corpus_capabilities()?;
+    let mut satisfied_by = BTreeMap::new();
+    for require in &caps.requires {
+        let providers: Vec<&String> = corpus
+            .iter()
+            .filter(|(_, c)| c.provides.iter().any(|p| p == require))
+            .map(|(name, _)| name)
+            .collect();
+        satisfied_by.insert(require.clone(), providers);
+    }
+
+    Ok(json!({
+        "name": name,
+        "provides": caps.provides,
+        "requires": caps.requires,
+        "satisfied_by": satisfied_by,
+    }))
+}
+
+/// Load one named pack from the corpus roots via `pack_file_from_dir`.
+fn load_corpus_pack(name: &str) -> Result<ggen_marketplace::packs_registry::types::PackFile> {
+    let pack_toml = find_pack_toml(name).ok_or_else(|| {
+        NounVerbError::execution_error(format!(
+            "Pack '{}' not found in any corpus root: {}",
+            name,
+            CAPABILITY_CORPUS_ROOTS.join(", ")
+        ))
+    })?;
+    ggen_marketplace::packs_registry::metadata::pack_file_from_dir(
+        pack_toml
+            .parent()
+            .ok_or_else(|| NounVerbError::execution_error(format!(
+                "Pack '{}' resolved to a path with no parent directory: {}",
+                name,
+                pack_toml.display()
+            )))?,
+    )
+    .map_err(|e| {
+        NounVerbError::execution_error(format!("Failed to load pack '{}': {}", name, e))
+    })
+}
+
+/// Compose a set of named packs into a deterministic composition plan.
+///
+/// Resolves each named pack against the same corpus roots as
+/// `ggen pack capabilities` (marketplace first, then /Users/sac/ggen/packs),
+/// runs the deterministic composition kernel
+/// (`ggen_marketplace::packs_registry::composer::compose`) over the set, and
+/// returns the plan as JSON: `{ pack_ids, provides, order, artifact_paths }`.
+/// Typed refusals (duplicate capability, unbound requirement, duplicate
+/// artifact path, cyclic dependencies) surface as the verb's error — non-zero
+/// exit with the refusal text on stderr, never a panic. Duplicate names in
+/// the input are a typed error before the kernel runs.
+#[verb]
+pub fn compose(packs: Vec<String>) -> Result<serde_json::Value> {
+    use serde_json::json;
+
+    // Duplicate input names: the kernel compares by pack id set, so the same
+    // name twice would silently compose as one — refuse here instead.
+    let mut seen = std::collections::BTreeSet::new();
+    for name in &packs {
+        if !seen.insert(name.as_str()) {
+            return Err(NounVerbError::execution_error(format!(
+                "duplicate pack '{}' in composition input; each pack may appear at most once",
+                name
+            )));
+        }
+    }
+
+    let mut pack_files = Vec::with_capacity(packs.len());
+    for name in &packs {
+        pack_files.push(load_corpus_pack(name)?);
+    }
+
+    let plan = ggen_marketplace::packs_registry::composer::compose(&pack_files).map_err(|refusal| {
+        NounVerbError::execution_error(format!("composition refused: {}", refusal))
+    })?;
+
+    // PackCompositionPlan is not Serialize (marketplace-owned struct); project
+    // it to JSON here so the wire shape stays CLI-owned. The kernel's
+    // topological `order` has unstable tie-breaks among dependency-free packs
+    // (nondeterministic across identical runs), so canonicalize it here:
+    // sorted ascending. Determinism of the wire output is a CLI contract.
+    let mut order = plan.order;
+    order.sort();
+    Ok(json!({
+        "pack_ids": plan.pack_ids,
+        "provides": plan.provides,
+        "order": order,
+        "artifact_paths": plan.artifact_paths,
+    }))
 }

@@ -27,15 +27,13 @@ use std::{
     time::Instant,
 };
 
-use praxis_core::{
-    receipt_epoch::{
+use crate::receipt_chain_seam::{
+    epoch::{
         read_receipt_epoch, AdmissionDecision, AdmissionItem, AdmissionLedger, AndonLevel,
         CeilingLevel, ComponentLevels, EquivalenceMap, EquivalenceStatus, ObservedOutcome,
         ReceiptEpochV2, ReceiptEpochV2Builder, SCHEMA_V2,
     },
-    receipt_record::{
-        ChainStanding, ChainVerification, ReceiptRecord, CHAIN_RULE_V2_FOLD, RECEIPT_RECORD_VERSION,
-    },
+    ChainStanding, ChainVerification, ReceiptRecord, CHAIN_RULE_V2_FOLD, RECEIPT_RECORD_VERSION,
     Andon,
 };
 use serde::Serialize;
@@ -49,7 +47,7 @@ use crate::{
         DeterministicGraph, EngineQueryResults, EngineValue, GraphEngine, GraphLawStore,
         TurtleDocument,
     },
-    template::{build_tera, sparql_to_value, Frontmatter, MatchSpec, Template},
+    template::{build_tera_with_packs, sparql_to_value, Frontmatter, MatchSpec, Template},
     write::{
         plan_write, preflight_checksum_slot, preflight_structured_matchers, validate_match_specs,
         WriteOutcome, MAX_OUTPUT_BYTES,
@@ -109,6 +107,93 @@ pub fn read_ontology_file(root: &Path, path: &Path) -> Result<(String, String)> 
     Ok((rel_display(root, path), content))
 }
 
+/// Absorb the declarative manifest's optional `[rules]` section
+/// (v26.10.10 §4.1: `rules.n3` / `rules.datalog`) into the declarative-rules
+/// pipeline's existing law stage. Runs at Stage 0, before
+/// [`crate::generation_rules::run`] — the one shared dispatch point every
+/// `GgenManifest` passes through.
+///
+/// Semantics:
+/// - Absent `[rules]`, or both lists empty: a strict no-op — the manifest is
+///   byte-for-byte unchanged, so pre-`[rules]` projects drift by zero.
+/// - `[rules].datalog`: every entry is routed through
+///   [`crate::generation_rules::resolve_rule_sources`], which refuses with
+///   the typed UNSUPPORTED text (ggen-engine has no Datalog text parser this
+///   release) — surfaced here as a typed `[FM-LAW-019]` sync refusal, never
+///   a silent skip.
+/// - `[rules].n3`: every entry is resolved (readability + extension checked
+///   through the same seam) and then appended, in declaration order, to
+///   `manifest.law.rules`. The declarative path's law stage — the exact
+///   `GraphEngine::{load_rules, materialize, check_denials}` stage
+///   `sync`'s frontmatter path already runs — then forward-chains the rules
+///   over the loaded ontology facts and folds the derived triples back into
+///   the graph *before* any `[[generation.rules]]` SPARQL query, so
+///   inference is visible to template rendering. A fired `=> false` denial
+///   fuse surfaces from that same stage as the existing `[FM-LAW-016]`
+///   refusal naming the `DENIED: … => false.` fuse line — a fired fuse is a
+///   refusal, never a warning.
+/// - Rule files land in the sync receipt's input closure (the law stage
+///   hashes every loaded rule path), so editing a declared rule changes the
+///   receipt even when outputs are unchanged.
+///
+/// # Errors
+/// Fails closed with `[FM-LAW-019]` on an unreadable `[rules]` path or any
+/// `[rules].datalog` entry.
+fn absorb_manifest_rules(
+    root: &Path, manifest: &mut ggen_config::manifest::GgenManifest,
+) -> Result<()> {
+    let Some(rules) = manifest.rules.take() else {
+        return Ok(());
+    };
+    if rules.n3.is_empty() && rules.datalog.is_empty() {
+        return Ok(());
+    }
+    let as_strings = |paths: &[std::path::PathBuf]| -> Vec<String> {
+        paths
+            .iter()
+            .map(|p| p.to_string_lossy().into_owned())
+            .collect()
+    };
+    // Datalog first or second would both be correct; n3 is resolved first so
+    // an unreadable n3 path is not masked by (or masked as) a datalog
+    // refusal when both sections carry problems.
+    if let Err(e) = crate::generation_rules::resolve_rule_sources(root, &as_strings(&rules.n3)) {
+        return Err(rule_source_refusal(&e));
+    }
+    if let Err(e) = crate::generation_rules::resolve_rule_sources(root, &as_strings(&rules.datalog))
+    {
+        return Err(rule_source_refusal(&e));
+    }
+    manifest.law.rules.extend(rules.n3);
+    Ok(())
+}
+
+/// Map a [`crate::generation_rules::RuleSourceError`] onto sync's typed
+/// `[FM-LAW-019]` refusal shape, preserving the UNSUPPORTED wording for the
+/// Datalog case.
+fn rule_source_refusal(e: &crate::generation_rules::RuleSourceError) -> AppError {
+    match e {
+        crate::generation_rules::RuleSourceError::DatalogUnsupported { path } => AppError::fm_law(
+            19,
+            format!(
+                "UNSUPPORTED: [rules].datalog entry `{}` refused — ggen-engine has no \
+                 Datalog text parser this release (graphlaw exposes N3 only). \
+                 Remediation: translate the rules to N3 and declare them under \
+                 [rules].n3.",
+                path.display()
+            ),
+        ),
+        crate::generation_rules::RuleSourceError::Unreadable { path, reason } => AppError::fm_law(
+            19,
+            format!(
+                "rule file `{}` unreadable: {reason}. Remediation: fix [rules].n3 in \
+                 ggen.toml.",
+                path.display()
+            ),
+        ),
+    }
+}
+
 /// Options controlling a [`sync`] run.
 #[derive(Debug, Clone, Copy, Default)]
 pub struct SyncOptions {
@@ -118,7 +203,7 @@ pub struct SyncOptions {
     pub engine: EngineKind,
     /// Gall CP37-38: provenance tag threaded onto the resulting receipt's
     /// `ReceiptRecord::origin` (descriptive only, never part of the chain
-    /// hash — see `praxis_core::receipt_record::ReceiptRecord::origin`'s own
+    /// hash — see `ReceiptRecord::origin`'s own (graphlaw-backed via `crate::receipt_chain_seam`)
     /// doc comment). `None` (the default) for the ordinary human/LLM-
     /// reviewed path; `Some("unattended-dispatch")` set only by
     /// `ggen-mcp`'s bounded unattended-write dispatcher
@@ -258,7 +343,8 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
     // error).
     let parsed = crate::schema_dispatch::load(root)?;
     let config = match parsed {
-        crate::schema_dispatch::ParsedGgenToml::DeclarativeRules(manifest) => {
+        crate::schema_dispatch::ParsedGgenToml::DeclarativeRules(mut manifest) => {
+            absorb_manifest_rules(root, &mut manifest)?;
             return crate::generation_rules::run(root, &manifest, opts);
         }
         crate::schema_dispatch::ParsedGgenToml::Frontmatter(config) => *config,
@@ -833,9 +919,11 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
         }
         if !pack_manifests.is_empty() {
             let consumer_edges = if manifest_path.is_file() {
-                std::fs::read_to_string(&manifest_path)
-                    .ok()
-                    .and_then(|c| ggen_abb_sbb::depgraph::extract_consumer_edges(&c).ok().flatten())
+                std::fs::read_to_string(&manifest_path).ok().and_then(|c| {
+                    ggen_abb_sbb::depgraph::extract_consumer_edges(&c)
+                        .ok()
+                        .flatten()
+                })
             } else {
                 None
             };
@@ -854,20 +942,29 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
             let content = std::fs::read_to_string(&ea_graph_path).map_err(|e| {
                 AppError::fm_law(
                     15,
-                    format!("ea.graph.json at `{}` unreadable: {e}", ea_graph_path.display()),
+                    format!(
+                        "ea.graph.json at `{}` unreadable: {e}",
+                        ea_graph_path.display()
+                    ),
                 )
             })?;
             let ea_graph = ggen_abb_sbb::parse_graph(&content).map_err(|refusal| {
                 AppError::fm_law(
                     15,
-                    format!("EA graph at `{}` malformed: {refusal}", ea_graph_path.display()),
+                    format!(
+                        "EA graph at `{}` malformed: {refusal}",
+                        ea_graph_path.display()
+                    ),
                 )
             })?;
             // Validate graph integrity
             ea_graph.validate().map_err(|refusal| {
                 AppError::fm_law(
                     15,
-                    format!("EA graph at `{}` failed validation: {refusal}", ea_graph_path.display()),
+                    format!(
+                        "EA graph at `{}` failed validation: {refusal}",
+                        ea_graph_path.display()
+                    ),
                 )
             })?;
             // Admit every candidate SBB defined in the graph
@@ -907,7 +1004,7 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
     );
     let generate_guard = generate_span.enter();
 
-    let mut tera = build_tera(Arc::clone(&graph))?;
+    let mut tera = build_tera_with_packs(Arc::clone(&graph), &packs)?;
 
     // ── Consumer-mode emission filter (OS-13, WP-5 consumer half) ───────
     //
@@ -961,7 +1058,7 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
         let mut overlay_tera_slot;
         let (active_graph, active_tera): (&Arc<dyn GraphEngine>, &mut tera::Tera) = match &overlay {
             Some(og) => {
-                overlay_tera_slot = build_tera(Arc::clone(og))?;
+                overlay_tera_slot = build_tera_with_packs(Arc::clone(og), &packs)?;
                 (og, &mut overlay_tera_slot)
             }
             None => (&graph, &mut tera),
@@ -3053,7 +3150,7 @@ fn read_prev_head(receipt_path: &Path, log_path: &Path) -> Result<Option<SyncRec
 /// record in the receipt log declares a chain rule, a legacy head is a
 /// downgrade (e.g. a fold-sealed head re-sealed under the base rule with
 /// its declaration stripped). Same law as
-/// `praxis_core::receipt_record::ChainRuleMonotonicity`, applied at the
+/// `ChainRuleMonotonicity` (graphlaw-backed via `crate::receipt_chain_seam`), applied at the
 /// head-only call sites (`ggen sync`'s write path and `ggen receipt
 /// verify`) so they fail closed exactly where `ggen receipt history` does.
 ///
@@ -3940,7 +4037,8 @@ pub(crate) fn write_receipt(
 
 /// Escape a plain string for embedding in a Turtle `"..."` literal
 /// (backslash and double-quote only — the values this is used for, hex
-/// hashes and a `{:?}`-formatted [`praxis_core::Andon`], never contain
+/// hashes and a `{:?}`-formatted [`Andon`] (graphlaw-backed via
+/// `crate::receipt_chain_seam`), never contain
 /// literal newlines in the sync-writer's own output, but escaping is
 /// unconditional rather than assumed).
 fn turtle_escape(s: &str) -> String {

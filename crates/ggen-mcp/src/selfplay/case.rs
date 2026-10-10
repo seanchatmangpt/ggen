@@ -12,6 +12,7 @@ use serde::{Deserialize, Serialize};
 /// Gemma-generated one encodes only "this tripped the referee", and
 /// conflating the two would let an LLM's guess masquerade as a
 /// deliberate specification.
+///
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum CaseOrigin {

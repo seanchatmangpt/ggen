@@ -11,6 +11,7 @@
 //! parse as JSON and every assertion here would fail.
 //!
 //! Chicago TDD: real binary, real stdio, real fixture project on disk.
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)] // Chicago TDD: real-IO tests
 
 use std::io::{BufRead, BufReader, Write};
 use std::process::{Child, ChildStdin, Command, Stdio};

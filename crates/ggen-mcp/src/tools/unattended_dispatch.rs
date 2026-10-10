@@ -7,6 +7,7 @@
 //! -- see `/Users/sac/.claude/plans/80-20-gall-test-refactor-cheerful-quokka.md`'s
 //! CP31-36 for the full research trail.
 //!
+//!
 //! **What this is not**: not CP21's original "any declared trigger->action
 //! mapping" dispatcher -- that was assessed and rejected as unsafe. This is
 //! deliberately narrower: a write may fire with zero human/LLM decision step
@@ -37,6 +38,7 @@ use crate::tools::write_apply::{write_apply, WriteApplyParams};
 /// threshold), since an eligible unattended write can never itself "fail" in
 /// the corrupting sense (it can only ever create a nonexistent file); the
 /// risk here is velocity, not failure, so this counts attempts, not errors.
+///
 #[derive(Debug, Clone)]
 pub struct CircuitBreaker {
     inner: Arc<Mutex<VecDeque<Instant>>>,
@@ -95,6 +97,7 @@ impl CircuitBreaker {
 /// real `ggen-mcp` server process is scoped to one project root in every
 /// deployment shape this codebase supports today (`start_stdio` takes no
 /// root-switching API), so in practice this map never grows past one entry.
+///
 /// Revisit with real eviction if that assumption ever changes.
 #[derive(Debug, Clone, Default)]
 pub struct PerRootCircuitBreaker {
@@ -161,6 +164,7 @@ pub enum UnattendedApplyOutcome {
 }
 
 /// Attempt a bounded, zero-decision-step write for `root`. Every one of
+///
 /// these five conditions must hold, checked fresh on every call (never
 /// cached, never trusted from a caller -- the kcj-mustar precedent: the
 /// dispatch boundary re-verifies itself rather than trusting an upstream

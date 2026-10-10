@@ -9,3 +9,6 @@ and use-case matrix. Role policies choose legal moves under explicit utility wei
 authority tokens, guards, invariants, choice groups, and round ceilings. The kernel
 may manufacture BRCE-addressed intent but performs no external actuation.
 """
+
+[capabilities]
+provides = ["urn:ggen:pack:safe-ea-strategy-self-play-pack"]

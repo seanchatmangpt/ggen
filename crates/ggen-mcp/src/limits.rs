@@ -6,10 +6,12 @@
 //! `crates/ggen-lsp/src/mcp/mod.rs`, so a real re-export isn't possible
 //! without a cross-crate API change there. See
 //! `.claude/rules/coding-agent-mistakes.md`'s Contract Drift mistake class.
+//!
 
 /// Server-enforced ceiling on inbound SPARQL query text, matching (by value,
 /// not by import -- see module doc) `ggen-lsp`'s private `MAX_CONTENT_BYTES`
 /// convention for MCP tool input (`crates/ggen-lsp/src/mcp/mod.rs`).
+///
 pub const MAX_QUERY_TEXT_BYTES: usize = 1 << 20; // 1 MiB
 
 /// Ceiling on a `root`/path-shaped parameter, matching (by value, not by

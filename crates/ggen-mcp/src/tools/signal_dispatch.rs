@@ -4,6 +4,7 @@
 //! the first-principles plan's item #1, without reopening item #2's
 //! rejected "any trigger -> any action" CP21 dispatcher.
 //!
+//!
 //! A signal (identified by its own code -- an `FM-*` sync-refusal code, or a
 //! `GGEN-*` diagnostic code) is routed by querying the CONSUMING PROJECT's
 //! own `.specify/repo-facts.ttl` (if present) for an `rf:DiagnosticCode`
@@ -37,6 +38,7 @@ pub enum DispatchRoute {
 /// contains `signal_code` (substring match, since this repo's own facts
 /// wrap codes in markdown bold, e.g. `"**GGEN-TPL-001**"` -- matching by
 /// substring rather than requiring callers to know that formatting detail).
+///
 ///
 /// # Errors
 /// Only for a real Turtle parse failure on an EXISTING facts file (a

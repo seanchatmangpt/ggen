@@ -576,9 +576,10 @@ fn offending_line_hint(sparql: &str, err: &impl std::fmt::Display) -> String {
 
 /// One row of a SELECT result: bound variable name (bare, no `?`) →
 /// datatype-aware [`EngineValue`]. No engine model types cross this seam
-/// (praxis-graphlaw is on oxrdf 0.3.x, this crate's oxigraph is 0.5.9; the
-/// two must never mix) — `EngineValue` is this crate's own neutral scalar,
-/// not an oxigraph or tera type.
+/// (the law kernel — `graphlaw`/Eyeron/PurRDF — and this crate's oxigraph
+/// mirror exchange facts only as N-Triples strings, and oxigraph model
+/// types never leave [`DeterministicGraph`]) — `EngineValue` is this
+/// crate's own neutral scalar, not an oxigraph, purrdf or tera type.
 pub type EngineRow = std::collections::BTreeMap<String, EngineValue>;
 
 /// A datatype-aware scalar value coerced from an RDF term, produced by
@@ -1072,45 +1073,45 @@ impl GraphEngine for DeterministicGraph {
 }
 
 // ---------------------------------------------------------------------------
-// GraphLawStore — praxis-graphlaw as the live law-state engine
+// GraphLawStore — graphlaw as the live law-state engine
 // ---------------------------------------------------------------------------
 
-/// The default [`GraphEngine`]: praxis-graphlaw ("`GraphLaw`", the roxi fork)
-/// as the law-state engine — N3/Datalog rule materialization, SHACL/ShEx
-/// gates, denial checks — layered over a [`DeterministicGraph`] mirror that
-/// answers SPARQL 1.1 and provides the canonical BLAKE3 state hash.
+/// The default [`GraphEngine`]: the `graphlaw` kernel (Eyeron N3 forward
+/// chaining, PurRDF SHACL/ShEx evaluation, SPARQL `kh:` hook packs) as the
+/// law-state engine — N3 rule materialization, SHACL/ShEx gates, denial
+/// checks — layered over a [`DeterministicGraph`] mirror that answers
+/// SPARQL 1.1 and provides the canonical BLAKE3 state hash.
 ///
-/// Division of labor (and why): praxis-graphlaw is on oxrdf 0.3.x while
-/// this crate's oxigraph is 0.5.9, so model types never cross the seam —
-/// facts flow between the two sides only as N-Triples strings. The mirror
-/// is the *queryable* state; the `GraphLaw` reasoner is the *law* state.
-/// Every derived fact enters the mirror exclusively through
-/// [`GraphEngine::materialize`], i.e. through the `GraphLaw` reasoner — a
-/// `when:` ASK that only passes after materialization is proof the
-/// reasoner is in the loop (see `tests/graphlaw_e2e.rs`).
+/// Division of labor (and why): the law kernel and the oxigraph mirror are
+/// one stack now (graphlaw 0.x with purrdf, both workspace path deps), and
+/// facts flow between them only as N-Triples strings — `law_engine.rs`'s
+/// helpers (`n3_run`/`hooks_apply`/`shacl_check`/`shex_check`/
+/// `hook_pack_check`) are the single graphlaw call surface, and no engine
+/// model type crosses the seam. The mirror is the *queryable* state; the
+/// graphlaw kernel is the *law* state. Every derived fact enters the mirror
+/// exclusively through [`GraphEngine::materialize`], i.e. through the
+/// kernel — a `when:` ASK that only passes after materialization is proof
+/// the reasoner is in the loop (see `tests/graphlaw_e2e.rs`).
 pub struct GraphLawStore {
     mirror: DeterministicGraph,
     law: std::sync::Mutex<LawState>,
 }
 
-/// Interior law-side state. `TripleStore` is rebuilt from the mirror's
-/// canonical N-Triples at each `materialize()` so rules always see the
-/// full fact state; it is kept afterwards for `check_denials`/SHACL/ShEx.
+/// Interior law-side state. The kernel is stateless between calls: every
+/// `materialize()`/`validate_*`/`check_denials` re-runs `n3_run`/
+/// `hooks_apply` over the mirror's canonical N-Triples so rules always see
+/// the full fact state.
 #[derive(Default)]
 struct LawState {
     /// Raw N3 rule documents, in load order.
     rules_src: Vec<String>,
     /// Raw `kh:` Knowledge Hook pack documents (Turtle), in load order —
-    /// mirrors `rules_src`'s replay-on-rebuild treatment: `TripleStore` is
-    /// rebuilt from scratch at each `materialize()`/`validate_*`/
-    /// `check_denials` call (see [`GraphLawStore::build_law_store`]), so a
-    /// hook pack loaded via [`GraphEngine::load_hook_pack`] must be replayed
-    /// alongside the rules on every rebuild or it would silently vanish
+    /// replayed at each `materialize()` (via `hooks_apply`) or a hook pack
+    /// loaded via [`GraphEngine::load_hook_pack`] would silently vanish
     /// after the first materialize.
     hooks_src: Vec<String>,
-    /// Reasoner state from the last `materialize()` (None before the first).
-    store: Option<praxis_graphlaw::TripleStore>,
-    /// Number of rules loaded into the reasoner.
+    /// Number of N3 rules (including denial fuses) in the loaded rule
+    /// documents.
     rules_loaded: usize,
 }
 
@@ -1146,30 +1147,6 @@ impl GraphLawStore {
             doc
         }))
     }
-
-    /// Build a fresh `GraphLaw` `TripleStore` over the mirror's facts, the
-    /// loaded rule documents, and the loaded `kh:` hook-pack documents.
-    fn build_law_store(
-        &self, rules_src: &[String], hooks_src: &[String],
-    ) -> Result<(praxis_graphlaw::TripleStore, usize)> {
-        use praxis_graphlaw::parser::Syntax;
-        let nt = self.mirror_ntriples()?;
-        let mut ts = praxis_graphlaw::TripleStore::new();
-        ts.load_triples(&nt, Syntax::NTriples).map_err(|e| {
-            AppError::fm_law(5, format!("GraphLaw fact load (N-Triples) refused: {e}"))
-        })?;
-        for src in rules_src {
-            ts.load_rules(src)
-                .map_err(|e| AppError::fm_law(6, format!("GraphLaw rule load refused: {e}")))?;
-        }
-        for hook_src in hooks_src {
-            ts.load_hook_pack(hook_src).map_err(|e| {
-                AppError::fm_law(16, format!("GraphLaw hook pack load refused: {e}"))
-            })?;
-        }
-        let rules_loaded = ts.rules.len();
-        Ok((ts, rules_loaded))
-    }
 }
 
 impl GraphEngine for GraphLawStore {
@@ -1193,37 +1170,40 @@ impl GraphEngine for GraphLawStore {
 
     fn load_rules(&self, rules: &str) -> Result<usize> {
         // Parse eagerly so a bad rule document is refused at load time,
-        // not at the later materialize call.
-        let mut probe = praxis_graphlaw::TripleStore::new();
-        probe
-            .load_rules(rules)
-            .map_err(|e| AppError::fm_law(6, format!("GraphLaw rule load refused: {e}")))?;
-        let n = probe.rules.len();
+        // not at the later materialize call (same convention as before).
+        let probe = crate::law_engine::n3_run("", &[rules]).map_err(|e| match e {
+            crate::law_engine::N3Failure::Load(m) | crate::law_engine::N3Failure::Reason(m) => {
+                AppError::fm_law(6, format!("GraphLaw rule load refused: {m}"))
+            }
+        })?;
         self.law_state()?.rules_src.push(rules.to_string());
-        Ok(n)
+        Ok(probe.rules)
     }
 
     fn materialize(&self) -> Result<MaterializeOutcome> {
         let mut state = self.law_state()?;
-        let (mut ts, rules_loaded) = self.build_law_store(&state.rules_src, &state.hooks_src)?;
-        let derived = ts
-            .materialize()
-            .map_err(|e| AppError::fm_law(9, format!("Reasoner materialize failed: {e}")))?;
-        if let Some(refused_verdict) = ts.verdicts.iter().find(|v| {
-            v.effect == praxis_graphlaw::hooks::EffectKind::Refuse
-                && v.verdict == praxis_graphlaw::hooks::HookVerdict::Fired
-        }) {
-            let reason = refused_verdict
-                .diagnostics
-                .as_ref()
-                .and_then(|d| d.details.first())
-                .map_or_else(|| "refused by hook".to_string(), |det| det.message.clone());
-            return Err(AppError::fm_law(
-                9,
-                format!("Reasoner materialize failed: {reason}"),
-            ));
+        let nt = self.mirror_ntriples()?;
+        let rules: Vec<&str> = state.rules_src.iter().map(String::as_str).collect();
+        let run = crate::law_engine::n3_run(&nt, &rules).map_err(|e| match e {
+            crate::law_engine::N3Failure::Load(m) => {
+                AppError::fm_law(6, format!("GraphLaw rule load refused: {m}"))
+            }
+            crate::law_engine::N3Failure::Reason(m) => {
+                AppError::fm_law(9, format!("Reasoner materialize failed: {m}"))
+            }
+        })?;
+        state.rules_loaded = run.rules;
+        if let Some(fuse) = run.fuse {
+            // A denial rule fired mid-derivation; Eyeron clears the
+            // derivation in that case (same convention as
+            // `law_engine::check_denials`). The violation itself surfaces
+            // through `check_denials`, which re-runs the same kernel.
+            let _ = fuse;
+            return Ok(MaterializeOutcome {
+                derived: Vec::new(),
+                rules_loaded: run.rules,
+            });
         }
-        let derived_doc = praxis_graphlaw::TripleStore::decode_triples(&derived);
 
         // Fold derived facts back into the mirror through the one canonical
         // door (Turtle/N-Triples parse) — an underived/duplicate line is
@@ -1231,100 +1211,104 @@ impl GraphEngine for GraphLawStore {
         // silently dropped.
         let before: std::collections::BTreeSet<String> =
             self.canonical_quads()?.into_iter().collect();
-        if !derived_doc.is_empty() {
-            self.mirror.insert_turtle(&derived_doc).map_err(|e| {
+        if !run.derived_nt.trim().is_empty() {
+            self.mirror.insert_turtle(&run.derived_nt).map_err(|e| {
                 AppError::fm_law(
                     7,
                     format!(
                         "derived facts from the GraphLaw reasoner are not valid \
-                         N-Triples/Turtle: {e}. Derived document:\n{derived_doc}"
+                         N-Triples/Turtle: {e}. Derived document:\n{}",
+                        run.derived_nt
                     ),
                 )
             })?;
         }
+
+        // Fire the loaded `kh:` hook packs to fixpoint over the
+        // post-derivation state; hook-derived facts enter the mirror
+        // through the same canonical door (idempotent re-insert plus the
+        // new firing markers/facts).
+        if !state.hooks_src.is_empty() {
+            let facts_now = self.mirror_ntriples()?;
+            let hook_outcome = crate::law_engine::hooks_apply(&facts_now, &state.hooks_src)
+                .map_err(|e| {
+                    AppError::fm_law(9, format!("Reasoner materialize failed: {e}"))
+                })?;
+            // A refuse-effect hook's verdict maps onto the same DENIED-class
+            // surface the N3 fuse path produces: fail-closed for sync, naming
+            // the hook and its `kh:reason` — never silently dropped.
+            if !hook_outcome.denied.is_empty() {
+                return Err(AppError::fm_law(
+                    16,
+                    format!(
+                        "GraphLaw hook refuse verdict denied: {}",
+                        hook_outcome.denied.join("; ")
+                    ),
+                ));
+            }
+            self.mirror.insert_turtle(&hook_outcome.state_nt).map_err(|e| {
+                AppError::fm_law(
+                    7,
+                    format!(
+                        "hook-derived facts from the graphlaw kernel are not valid \
+                         N-Triples/Turtle: {e}. Hook state:\n{}",
+                        hook_outcome.state_nt
+                    ),
+                )
+            })?;
+        }
+
         let after = self.canonical_quads()?;
         let derived_new: Vec<String> = after.into_iter().filter(|l| !before.contains(l)).collect();
 
-        state.store = Some(ts);
-        state.rules_loaded = rules_loaded;
         Ok(MaterializeOutcome {
             derived: derived_new,
-            rules_loaded,
+            rules_loaded: run.rules,
         })
     }
 
     fn validate_shacl(&self, shapes_turtle: &str) -> Result<ShaclOutcome> {
         // Validate against the full current fact state (post-materialization
-        // if materialize ran), by building a law store over the mirror.
-        let state = self.law_state()?;
-        let (ts, _) = self.build_law_store(&state.rules_src, &state.hooks_src)?;
-        let report = ts
-            .validate_shacl(shapes_turtle)
-            .map_err(|e| AppError::fm_law(8, format!("SHACL shapes graph refused: {e}")))?;
-        let violations = report
-            .results
-            .iter()
-            .map(|r| {
-                let msg = r.message.as_deref().unwrap_or("constraint violated");
-                format!(
-                    "focus node {}: {msg} (source shape {})",
-                    r.focus_node, r.source_shape
-                )
-            })
-            .collect();
-        Ok(ShaclOutcome {
-            conforms: report.conforms,
-            violations,
-        })
+        // if materialize ran) via the shared kernel helper.
+        let nt = self.mirror_ntriples()?;
+        crate::law_engine::shacl_check(&nt, shapes_turtle)
+            .map_err(|e| AppError::fm_law(8, format!("SHACL shapes graph refused: {e}")))
     }
 
     fn validate_shex(
         &self, schema_shexc: &str, shape_map: &[(String, String)],
     ) -> Result<ShaclOutcome> {
-        let state = self.law_state()?;
-        let (ts, _) = self.build_law_store(&state.rules_src, &state.hooks_src)?;
-        let report = ts
-            .validate_shex_c(schema_shexc, shape_map)
-            .map_err(|e| AppError::fm_law(9, format!("ShExC schema refused: {e}")))?;
-        let violations = report
-            .failures
-            .iter()
-            .map(|f| {
-                format!(
-                    "focus node {}: does not conform to shape {}: {}",
-                    f.node, f.shape, f.reason
-                )
-            })
-            .collect::<Vec<_>>();
-        Ok(ShaclOutcome {
-            conforms: report.conforms,
-            violations,
-        })
+        let nt = self.mirror_ntriples()?;
+        crate::law_engine::shex_check(&nt, schema_shexc, shape_map)
+            .map_err(|e| AppError::fm_law(9, format!("ShExC schema refused: {e}")))
     }
 
     fn check_denials(&self) -> Result<Vec<String>> {
         let state = self.law_state()?;
-        if let Some(ts) = &state.store {
-            Ok(ts.check_denials())
-        } else {
-            // Denials are rules; without a materialize pass there is no
-            // reasoner state. Build one so `law validate` can be called
-            // without an explicit prior derive.
-            let (mut ts, _) = self.build_law_store(&state.rules_src, &state.hooks_src)?;
-            ts.materialize()
-                .map_err(|e| crate::AppError::fm_law(9, format!("Materialize failed: {e}")))?;
-            Ok(ts.check_denials())
-        }
+        let nt = self.mirror_ntriples()?;
+        let rules: Vec<&str> = state.rules_src.iter().map(String::as_str).collect();
+        let run = crate::law_engine::n3_run(&nt, &rules).map_err(|e| match e {
+            crate::law_engine::N3Failure::Load(m) => {
+                AppError::fm_law(6, format!("GraphLaw rule load refused: {m}"))
+            }
+            crate::law_engine::N3Failure::Reason(m) => {
+                AppError::fm_law(9, format!("Reasoner materialize failed: {m}"))
+            }
+        })?;
+        Ok(run.fuse.into_iter().collect())
     }
 
     fn load_hook_pack(&self, hook_ttl: &str) -> Result<()> {
-        // Parse (and hook-compile) eagerly against a throwaway probe so a
-        // bad hook document is refused at load time, not at the later
+        // Parse (and hook-compile) eagerly via the shared kernel helper so
+        // a bad hook document is refused at load time, not at the later
         // materialize call — same convention as `load_rules` above.
-        let mut probe = praxis_graphlaw::TripleStore::new();
-        probe
-            .load_hook_pack(hook_ttl)
-            .map_err(|e| AppError::fm_law(16, format!("GraphLaw hook pack load refused: {e}")))?;
+        crate::law_engine::hook_pack_check(hook_ttl).map_err(|e| {
+            // `kh:effect "refuse"` packs are legal since graphlaw gained
+            // `Effect::Refuse`/`Verdict::Refuse`; their verdicts surface as a
+            // DENIED-class outcome at materialize (fail-closed for sync), so
+            // only a genuinely malformed document is refused here.
+            AppError::fm_law(16, format!("GraphLaw hook pack load refused: {e}"))
+        })?;
         self.law_state()?.hooks_src.push(hook_ttl.to_string());
         Ok(())
     }

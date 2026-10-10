@@ -344,8 +344,7 @@ impl GroundProblem {
                         next.insert(a.clone());
                     }
                     let sorted: Vec<Pddl8GroundAtom> = next.iter().cloned().collect();
-                    if !visited.contains(&sorted) {
-                        visited.insert(sorted);
+                    if visited.insert(sorted) {
                         let mut p2 = path.clone();
                         p2.push(i);
                         queue.push_back((next, p2));

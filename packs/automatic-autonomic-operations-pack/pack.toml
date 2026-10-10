@@ -1,3 +1,7 @@
 [pack]
 name = "automatic-autonomic-operations-pack"
 version = "26.7.31"
+description = "Autonomic operations pack: self-directed operational loops with lawful admission and receipted consequences."
+
+[capabilities]
+provides = ["urn:ggen:pack:automatic-autonomic-operations-pack"]

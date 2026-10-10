@@ -1,4 +1,5 @@
 //! `ggen_pack_capabilities` — read-only introspection over a single ggen
+//!
 //! pack directory (`ontology.ttl` + optional `gates/*.rq` / `shapes.ttl`),
 //! answering three questions an agent asks before consuming or extending an
 //! unfamiliar pack:

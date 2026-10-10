@@ -71,3 +71,7 @@ constructing/executing the real generated dspy objects with zero exceptions
 additionally verified by real Python execution against dspy 3.1.3, not just by inspecting the
 rendered source text).
 """
+
+[capabilities]
+provides = ["urn:ggen:pack:dspy-pack"]
+requires = []

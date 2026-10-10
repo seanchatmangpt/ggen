@@ -169,7 +169,8 @@ pub fn load_pack_metadata(cache_dir: &Path) -> Result<PackMetadata> {
 fn load_from_toml(toml_path: &Path) -> Result<PackMetadata> {
     let content = fs::read_to_string(toml_path).map_err(Error::IoError)?;
 
-    let package_toml: PackageToml = toml::from_str(&content).map_err(Error::TomlError)?;
+    let package_toml: PackageToml = star_toml::from_str(&content)
+        .map_err(|e| Error::ConfigError(format!("Failed to parse {}: {e}", toml_path.display())))?;
 
     let signature = package_toml
         .security

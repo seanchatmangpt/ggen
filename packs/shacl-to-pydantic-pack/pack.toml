@@ -33,3 +33,6 @@ Ships zero individuals (pure law) -- composing this pack injects no pydantic mod
 consumer's generated src/. A consumer supplies its own sp:PydanticModel / sh:NodeShape
 individuals in its own .ttl.
 """
+
+[capabilities]
+provides = ["urn:ggen:pack:shacl-to-pydantic-pack"]

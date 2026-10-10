@@ -11,6 +11,7 @@
 
 pub mod capability_registry;
 pub mod compose;
+pub mod composer;
 pub mod dependency_graph;
 pub mod external_fetcher;
 pub mod generator;

@@ -7,8 +7,8 @@
 
 #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 
-use std::path::Path;
 use ggen_engine::sync::{sync, SyncOptions};
+use std::path::Path;
 use tempfile::TempDir;
 
 const GGEN_TOML: &str = r#"
@@ -44,8 +44,12 @@ fn qualified_ea_graph_admits_cleanly() {
     let ea_json = serde_json::to_string_pretty(&g).expect("serialize EA graph");
     std::fs::write(dir.path().join("ea.graph.json"), ea_json).expect("write ea.graph.json");
 
-    let report = sync(dir.path(), SyncOptions::default()).expect("sync must admit qualified EA graph");
-    assert_eq!(report.written, vec![std::path::PathBuf::from("out/result.txt")]);
+    let report =
+        sync(dir.path(), SyncOptions::default()).expect("sync must admit qualified EA graph");
+    assert_eq!(
+        report.written,
+        vec![std::path::PathBuf::from("out/result.txt")]
+    );
 }
 
 #[test]
@@ -60,8 +64,14 @@ fn unqualified_sbb_refuses_sync() {
 
     let err = sync(dir.path(), SyncOptions::default()).expect_err("unqualified SBB must refuse");
     let msg = err.to_string();
-    assert!(msg.contains("SBB_UNQUALIFIED") || msg.contains("admission refused"), "{msg}");
-    assert!(!dir.path().join("out/result.txt").exists(), "refused sync must write nothing");
+    assert!(
+        msg.contains("SBB_UNQUALIFIED") || msg.contains("admission refused"),
+        "{msg}"
+    );
+    assert!(
+        !dir.path().join("out/result.txt").exists(),
+        "refused sync must write nothing"
+    );
 }
 
 #[test]
@@ -99,8 +109,16 @@ depends_on = ["pack-a"]
     std::fs::write(pack_b.join("ontology.ttl"), "").expect("write pack-b ttl");
     std::fs::create_dir_all(pack_a.join("templates")).expect("mkdir pack-a templates");
     std::fs::create_dir_all(pack_b.join("templates")).expect("mkdir pack-b templates");
-    std::fs::write(pack_a.join("templates/a.tmpl"), "---\nto: out/a.txt\n---\na\n").expect("write a.tmpl");
-    std::fs::write(pack_b.join("templates/b.tmpl"), "---\nto: out/b.txt\n---\nb\n").expect("write b.tmpl");
+    std::fs::write(
+        pack_a.join("templates/a.tmpl"),
+        "---\nto: out/a.txt\n---\na\n",
+    )
+    .expect("write a.tmpl");
+    std::fs::write(
+        pack_b.join("templates/b.tmpl"),
+        "---\nto: out/b.txt\n---\nb\n",
+    )
+    .expect("write b.tmpl");
 
     let ggen_toml = r#"
 [project]
@@ -123,7 +141,10 @@ path = "packs/pack-b"
     let err = sync(dir.path(), SyncOptions::default()).expect_err("cyclic dependency must refuse");
     let msg = err.to_string();
     assert!(msg.contains("CYCLIC_PACK_DEPENDENCY"), "{msg}");
-    assert!(!dir.path().join("out/result.txt").exists(), "refused sync must write nothing");
+    assert!(
+        !dir.path().join("out/result.txt").exists(),
+        "refused sync must write nothing"
+    );
 }
 
 #[test]
@@ -146,7 +167,11 @@ requires = ["port:missing-event-stream"]
     std::fs::write(pack_a.join("pack.toml"), pack_a_toml).expect("write pack-a toml");
     std::fs::write(pack_a.join("ontology.ttl"), "").expect("write pack-a ttl");
     std::fs::create_dir_all(pack_a.join("templates")).expect("mkdir pack-a templates");
-    std::fs::write(pack_a.join("templates/a.tmpl"), "---\nto: out/a.txt\n---\na\n").expect("write a.tmpl");
+    std::fs::write(
+        pack_a.join("templates/a.tmpl"),
+        "---\nto: out/a.txt\n---\na\n",
+    )
+    .expect("write a.tmpl");
 
     let ggen_toml = r#"
 [project]
@@ -166,5 +191,8 @@ path = "packs/pack-a"
     let err = sync(dir.path(), SyncOptions::default()).expect_err("unbound port must refuse");
     let msg = err.to_string();
     assert!(msg.contains("UNBOUND_PORT"), "{msg}");
-    assert!(!dir.path().join("out/result.txt").exists(), "refused sync must write nothing");
+    assert!(
+        !dir.path().join("out/result.txt").exists(),
+        "refused sync must write nothing"
+    );
 }

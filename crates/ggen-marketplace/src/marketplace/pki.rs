@@ -70,7 +70,7 @@ impl PkiManager {
     pub fn load_trusted_keys(&mut self, path: &Path) -> Result<()> {
         let contents = std::fs::read_to_string(path)?;
         let config: TrustedKeysConfig =
-            toml::from_str(&contents).map_err(|e| Error::ConfigError(format!(
+            star_toml::from_str(&contents).map_err(|e| Error::ConfigError(format!(
                 "Failed to parse {}: {}",
                 path.display(),
                 e
@@ -427,7 +427,7 @@ mod tests {
             revoked_keys: vec!["old-key".to_string()],
         };
         let toml_str = toml::to_string(&config).expect("serialize");
-        let back: TrustedKeysConfig = toml::from_str(&toml_str).expect("deserialize");
+        let back: TrustedKeysConfig = star_toml::from_str(&toml_str).expect("deserialize");
         assert_eq!(config, back);
     }
 

@@ -54,9 +54,70 @@ pub struct CapabilityStatusResult {
     /// project -- i.e. `ggen sync run` WILL refuse.
     pub project_is_affected: bool,
     pub inert_fields: Vec<InertField>,
+    /// Declared `[capabilities]` aggregated over the packs THIS project
+    /// references (via `generation.rules[].template.pack`), resolved
+    /// project-locally (`<root>/packs/<name>/pack.toml`) with fallback to
+    /// the shared pack corpora. Absent -- not null -- when no referenced
+    /// pack carries `[capabilities]`, so pre-capability consumers see a
+    /// byte-stable object.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub capabilities: Option<CapabilitiesStatus>,
+}
+
+/// Aggregate declared capability surface of the project's annotated packs.
+/// `unsatisfied` lists `requires` URNs not covered by the union of
+/// `provides` across those same referenced packs.
+#[derive(Debug, Serialize, JsonSchema)]
+pub struct CapabilitiesStatus {
+    pub provides: Vec<String>,
+    pub requires: Vec<String>,
+    pub unsatisfied: Vec<String>,
+    /// Referenced packs whose `pack.toml` carried `[capabilities]`.
+    pub annotated_packs: Vec<String>,
 }
 
 const TRACKED_AT: &str = "specs/014-ggen-core-replacement/tasks.md";
+
+/// Same corpora the `ggen pack capabilities` CLI verb scans (searched in
+/// the same order, project-local `packs/` wins first).
+const CAPABILITY_CORPUS_ROOTS: [&str; 2] = [
+    "/Users/sac/ggen-marketplace/packs",
+    "/Users/sac/ggen/packs",
+];
+
+/// `[capabilities]` of one pack.toml: `provides`/`requires` URN lists.
+/// `None` = the key is honestly absent (pack predates annotation).
+#[derive(Debug, Default, serde::Deserialize)]
+struct DeclaredCapabilities {
+    #[serde(default)]
+    provides: Vec<String>,
+    #[serde(default)]
+    requires: Vec<String>,
+}
+
+/// Locate `<base>/<name>/pack.toml` -- project-local `packs/` first, then
+/// the shared corpora in CLI order.
+fn find_pack_toml(root: &std::path::Path, name: &str) -> Option<std::path::PathBuf> {
+    let mut bases = vec![root.join("packs")];
+    bases.extend(CAPABILITY_CORPUS_ROOTS.iter().map(std::path::PathBuf::from));
+    bases
+        .iter()
+        .find_map(|base| {
+            let candidate = base.join(name).join("pack.toml");
+            candidate.is_file().then_some(candidate)
+        })
+}
+
+/// Parse `[capabilities]` from a pack.toml, tolerating its absence and any
+/// other top-level tables. Read errors are treated as absent -- capability
+/// surfacing is additive and must never turn a status query into an error.
+fn parse_capabilities(path: &std::path::Path) -> Option<DeclaredCapabilities> {
+    let content = std::fs::read_to_string(path).ok()?;
+    let value: toml::Value = star_toml::from_str(&content).ok()?;
+    value
+        .get("capabilities")
+        .and_then(|c| c.clone().try_into().ok())
+}
 
 /// Report inert-capability status for `root`.
 ///
@@ -80,16 +141,18 @@ pub fn capability_status(
     // work even on a project whose ggen.toml the typed parser would reject,
     // since "which inert field am I depending on" is exactly the question
     // an author asks while the file is still being written.
-    let table: toml::Table = raw.parse().map_err(|e| {
+    let value: toml::Value = star_toml::from_str(&raw).map_err(|e| {
         McpError::new(
             ErrorCategory::ConfigError,
             format!("invalid ggen.toml: {e}"),
         )
     })?;
+    let table = value.as_table().cloned().unwrap_or_default();
 
     let mut pack_rules = Vec::new();
     let mut git_rules = Vec::new();
     let mut package_rules = Vec::new();
+    let mut referenced_packs: Vec<String> = Vec::new();
 
     if let Some(rules) = table
         .get("generation")
@@ -105,8 +168,11 @@ pub fn capability_status(
             let Some(template) = rule.get("template") else {
                 continue;
             };
-            if template.get("pack").is_some() {
+            if let Some(pack) = template.get("pack").and_then(|p| p.as_str()) {
                 pack_rules.push(name.clone());
+                if !referenced_packs.contains(&pack.to_string()) {
+                    referenced_packs.push(pack.to_string());
+                }
             }
             if template.get("git").is_some() {
                 git_rules.push(name.clone());
@@ -148,9 +214,54 @@ pub fn capability_status(
     ];
 
     let project_is_affected = inert_fields.iter().any(|f| !f.used_by_rules.is_empty());
+
+    // Capability surface: aggregate `[capabilities]` over the referenced
+    // packs only. No annotated pack => the key is omitted entirely
+    // (backward compat: not null).
+    let mut capabilities = None;
+    let mut annotated = Vec::new();
+    let mut provides: Vec<String> = Vec::new();
+    let mut requires: Vec<String> = Vec::new();
+    for pack in &referenced_packs {
+        let Some(path) = find_pack_toml(&root, pack) else {
+            continue;
+        };
+        let Some(caps) = parse_capabilities(&path) else {
+            continue;
+        };
+        annotated.push(pack.clone());
+        for p in caps.provides {
+            if !provides.contains(&p) {
+                provides.push(p);
+            }
+        }
+        for r in caps.requires {
+            if !requires.contains(&r) {
+                requires.push(r);
+            }
+        }
+    }
+    if !annotated.is_empty() {
+        provides.sort();
+        requires.sort();
+        let unsatisfied: Vec<String> = requires
+            .iter()
+            .filter(|r| !provides.contains(r))
+            .cloned()
+            .collect();
+        annotated.sort();
+        capabilities = Some(CapabilitiesStatus {
+            provides,
+            requires,
+            unsatisfied,
+            annotated_packs: annotated,
+        });
+    }
+
     Ok(CapabilityStatusResult {
         ok: true,
         project_is_affected,
         inert_fields,
+        capabilities,
     })
 }

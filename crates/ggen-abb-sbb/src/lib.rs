@@ -203,7 +203,9 @@ pub enum Refusal {
     DuplicateArtifactPath { path: String },
     #[error("CYCLIC_PACK_DEPENDENCY: {}", cycle.join(" -> "))]
     CyclicPackDependency { cycle: Vec<String> },
-    #[error("UNBOUND_PORT: {port} required by {pack} is not provided by any transitive dependency")]
+    #[error(
+        "UNBOUND_PORT: {port} required by {pack} is not provided by any transitive dependency"
+    )]
     UnboundPort { pack: String, port: String },
     #[error("UNBOUND_PLACEHOLDER: {placeholder} in {path}")]
     UnboundPlaceholder { placeholder: String, path: String },

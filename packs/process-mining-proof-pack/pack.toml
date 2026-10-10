@@ -25,3 +25,7 @@ not a synthetic placeholder. The generated test's three function-name fields
 importlib and asserted callable when run in an environment with autofde-lab on the path --
 proving the declared names are real, not merely well-formed strings.
 """
+
+[capabilities]
+provides = ["urn:ggen:pack:process-mining-proof-pack"]
+requires = []

@@ -291,6 +291,41 @@ impl Validate for GgenManifest {
         if let Some(a2a) = &self.a2a {
             v.field("a2a", |v| a2a.validate(v));
         }
+
+        // -- v26.10.10 §4.1: net-new optional [rules] / [pack_sources] sections.
+        if let Some(rules) = &self.rules {
+            v.field("rules", |v| {
+                for (i, path) in rules.n3.iter().enumerate() {
+                    v.index(i, |v| {
+                        v.check_predicate(
+                            "n3",
+                            !path.as_os_str().is_empty(),
+                            "E0101",
+                            "rule file path must not be empty",
+                        );
+                    });
+                }
+                for (i, path) in rules.datalog.iter().enumerate() {
+                    v.index(i, |v| {
+                        v.check_predicate(
+                            "datalog",
+                            !path.as_os_str().is_empty(),
+                            "E0101",
+                            "rule file path must not be empty",
+                        );
+                    });
+                }
+            });
+        }
+        if let Some(sources) = &self.pack_sources {
+            v.field("pack_sources", |v| {
+                for (name, binding) in sources {
+                    v.field(name, |v| {
+                        v.check_non_empty("location", &binding.location);
+                    });
+                }
+            });
+        }
     }
 }
 
