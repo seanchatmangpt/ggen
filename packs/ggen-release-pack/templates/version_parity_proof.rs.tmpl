@@ -1,0 +1,12 @@
+---
+to: tests/version_parity_proof.rs
+freeze_policy: checksum
+freeze_slots_dir: .ggen/freeze/ggen-release-pack
+sparql:
+  row: |
+    PREFIX grp: <http://seanchatmangpt.github.io/packs/ggen-release#>
+    SELECT ?body WHERE {
+      grp:VersionParityProofArtifact grp:artifactBody ?body .
+    } ORDER BY ?body
+---
+{{ body }}

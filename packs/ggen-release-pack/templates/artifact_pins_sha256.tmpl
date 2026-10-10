@@ -1,0 +1,12 @@
+---
+to: registry/ARTIFACTS.sha256
+freeze_policy: checksum
+freeze_slots_dir: .ggen/freeze/ggen-release-pack
+sparql:
+  row: |
+    PREFIX grp: <http://seanchatmangpt.github.io/packs/ggen-release#>
+    SELECT ?body WHERE {
+      grp:ArtifactPinsArtifact grp:artifactBody ?body .
+    } ORDER BY ?body
+---
+{{ body }}

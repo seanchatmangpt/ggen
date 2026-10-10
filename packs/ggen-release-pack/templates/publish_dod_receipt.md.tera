@@ -1,0 +1,5 @@
+{#- docs/receipt-26.10.10-publish-dod.md — verbatim projection of grp:PublishDodReceiptArtifact's
+    grp:artifactBody (packs/ggen-release-pack/ontology.ttl). Edit the ontology's artifactBody
+    literal, not this file or the generated .md. -#}
+{%- set S = sparql(query='PREFIX grp: <http://seanchatmangpt.github.io/packs/ggen-release#> SELECT ?body WHERE { grp:PublishDodReceiptArtifact grp:artifactBody ?body . }') -%}
+{{ S[0].body }}
