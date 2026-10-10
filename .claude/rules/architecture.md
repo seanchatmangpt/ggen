@@ -13,16 +13,16 @@ Full public API surface derived from LSP `documentSymbol` sweep of all workspace
 
 Use LSP for navigation -- this file is orientation, not a substitute for `LSP workspaceSymbol`.
 
-## Crate Map (14 workspace crates)
+## Crate Map (15 workspace crates)
 
-**Correction (2026-08-12, ERRC elimination pass, verified live):** this 14-total count supersedes
+**Correction (2026-08-12, ERRC elimination pass, verified live):** this 15-total count supersedes
 the prior 18-total count below. Four crates confirmed to have zero real reverse dependencies
 (`cargo tree -i <crate> --workspace`) were deleted: `cpmp` (standalone tool crate, no `[[bin]]`,
 no consumer), `openapi-cnv-reflect` (same — a real, documented tool with no live call site), and
 the self-contained `genesis-types-v2`/`genesis-core-v2` pair (genesis-core-v2 depends on
 genesis-types-v2; nothing outside the pair reaches either). See the "Removed" section below for
-the full record. `grep -c '^  "crates/' Cargo.toml` → 13 array entries + the root `ggen` package =
-14 total.
+the full record. `grep -c '^  "crates/' Cargo.toml` → 14 array entries + the root `ggen` package =
+15 total.
 
 The prior 18-total count (also dated 2026-08-03) was itself re-verified against `Cargo.toml`
 `members = [...]` (17 array entries + the root `ggen` package = 18 total; `grep -c '^  "crates/' Cargo.toml` → 17). That 18-total count supersedes the
