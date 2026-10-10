@@ -303,6 +303,86 @@ const DECLARATIVE_ONLY_TABLES: &[&str] = &[
 /// scope boundary.
 #[must_use]
 pub fn classify_ggen_toml(raw: &str) -> ConfigSchemaClassification {
+    classify_ggen_toml_with_origin(raw, "<unattributed ggen.toml text>")
+}
+
+/// Advisory-only: frontmatter-schema shape evidence that is *too weak to be a
+/// discriminator* (none of these alone would fire a `frontmatter:*` marker in
+/// the decision procedure above) but still suggests the document was written
+/// with the frontmatter schema in mind. Consulted only AFTER a successful
+/// `DeclarativeRules` classification, to emit the non-fatal drift advisory --
+/// it never participates in the outcome itself.
+///
+/// - `templates.dir` on its own is tolerated by GgenManifest's optional,
+///   non-`deny_unknown_fields` `TemplatesConfig` (see
+///   [`satisfies_frontmatter_minimum`]'s doc comment).
+/// - `[law]` with `shapes` IS a discriminator, so it never reaches here for a
+///   `DeclarativeRules` outcome; it is listed for completeness/robustness.
+/// - a `[packs]` table-of-tables is structurally exclusive with the
+///   `[[packs]]` array, so it likewise cannot co-occur with a
+///   `DeclarativeRules` outcome.
+fn frontmatter_advisory_markers(table: &toml::Table) -> Vec<String> {
+    let mut out = Vec::new();
+    let templates_dir = table
+        .get("templates")
+        .and_then(Value::as_table)
+        .is_some_and(|t| t.contains_key("dir"));
+    if templates_dir {
+        out.push("frontmatter:templates_dir_present".to_string());
+    }
+    let law_shapes = table
+        .get("law")
+        .and_then(Value::as_table)
+        .is_some_and(|l| l.contains_key("shapes"));
+    if law_shapes {
+        out.push("frontmatter:law_shapes_present".to_string());
+    }
+    if matches!(table.get("packs"), Some(Value::Table(_))) {
+        out.push("frontmatter:packs_table_shaped".to_string());
+    }
+    out.sort();
+    out
+}
+
+/// Advisory-only symmetric counterpart: declarative-schema shape evidence too
+/// weak to have entered the `declarative:*` marker sets, consulted only after
+/// a successful `Frontmatter` classification. Under today's decision procedure
+/// every known declarative signature ([`DECLARATIVE_ONLY_TABLES`],
+/// `project.version`, `[generation]`, `[[packs]]` array) already fires a
+/// marker, so a `Frontmatter` outcome implies this returns empty today; the
+/// function exists so the advisory stays honest if weak signatures are ever
+/// re-tuned.
+#[allow(dead_code)]
+fn declarative_advisory_markers(table: &toml::Table) -> Vec<String> {
+    let mut out = Vec::new();
+    if table
+        .get("project")
+        .and_then(Value::as_table)
+        .is_some_and(|p| p.contains_key("version"))
+    {
+        out.push("declarative:project_version_present".to_string());
+    }
+    for name in DECLARATIVE_ONLY_TABLES {
+        if table.contains_key(*name) {
+            out.push(format!("declarative:extra_table_present:{name}"));
+        }
+    }
+    out.sort();
+    out
+}
+
+/// [`classify_ggen_toml`], plus a NON-FATAL schema-drift advisory: when the
+/// classification SUCCEEDS (i.e. is [`ConfigSchemaClassification::
+/// DeclarativeRules`] or [`ConfigSchemaClassification::Frontmatter`]) but the
+/// document also carries shape evidence of the non-selected schema, emit one
+/// `tracing::warn!` naming `origin` and both sides' marker names.
+///
+/// Contract: the returned classification is byte-identical to
+/// [`classify_ggen_toml`]'s for the same `raw` -- the advisory never changes
+/// the outcome, never fails, and never fires for `Ambiguous`/`Unsupported`/
+/// `Malformed` (those already refuse loudly).
+#[must_use]
+pub fn classify_ggen_toml_with_origin(raw: &str, origin: &str) -> ConfigSchemaClassification {
     let table: toml::Table = match raw.parse() {
         Ok(t) => t,
         Err(e) => {
@@ -415,8 +495,33 @@ pub fn classify_ggen_toml(raw: &str) -> ConfigSchemaClassification {
         .iter()
         .any(|m| STRONG_DECLARATIVE_MARKERS.contains(&m.as_str()));
 
+    // Schema-drift advisory (advisory-only, after the outcome decision): a
+    // SUCCESSFUL classification whose text still carries the other schema's
+    // shape evidence gets one non-fatal tracing::warn! naming `origin` and
+    // both detected markers. Never fires for Ambiguous/Unsupported/Malformed,
+    // never changes the outcome -- see `classify_ggen_toml_with_origin`.
+    let emit_drift_advisory =
+        |selected: &str, selected_markers: Vec<String>, other_markers: Vec<String>| {
+            if other_markers.is_empty() {
+                return;
+            }
+            tracing::warn!(
+                file = %origin,
+                selected_schema = %selected,
+                selected_markers = %selected_markers.join(", "),
+                other_schema_markers = %other_markers.join(", "),
+                "schema-drift advisory: ggen.toml classified as {selected} but also \
+                 carries shape evidence of the other schema; classification unchanged"
+            );
+        };
+
     match (declarative.is_empty(), frontmatter.is_empty()) {
-        (false, true) if has_strong_declarative => ConfigSchemaClassification::DeclarativeRules,
+        (false, true) if has_strong_declarative => {
+            let selected: Vec<String> = declarative.iter().cloned().collect();
+            let other = frontmatter_advisory_markers(&table);
+            emit_drift_advisory("DeclarativeRules", selected, other);
+            ConfigSchemaClassification::DeclarativeRules
+        }
         (false, true) => {
             // Only weak declarative marker(s) fired and no frontmatter
             // marker fired -- not schema-specific enough to force
@@ -437,7 +542,12 @@ pub fn classify_ggen_toml(raw: &str) -> ConfigSchemaClassification {
                 }
             }
         }
-        (true, false) => ConfigSchemaClassification::Frontmatter,
+        (true, false) => {
+            let selected: Vec<String> = frontmatter.iter().cloned().collect();
+            let other = declarative_advisory_markers(&table);
+            emit_drift_advisory("Frontmatter", selected, other);
+            ConfigSchemaClassification::Frontmatter
+        }
         (false, false) => {
             let mut matched: Vec<String> = declarative.into_iter().collect();
             matched.extend(frontmatter);
@@ -446,6 +556,8 @@ pub fn classify_ggen_toml(raw: &str) -> ConfigSchemaClassification {
         }
         (true, true) => {
             if satisfies_frontmatter_minimum(&table) {
+                let other = declarative_advisory_markers(&table);
+                emit_drift_advisory("Frontmatter", Vec::new(), other);
                 ConfigSchemaClassification::Frontmatter
             } else {
                 ConfigSchemaClassification::Unsupported {

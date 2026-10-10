@@ -41,14 +41,14 @@ fn shared_buffer() -> &'static Arc<Mutex<Vec<u8>>> {
     static BUFFER: std::sync::OnceLock<Arc<Mutex<Vec<u8>>>> = std::sync::OnceLock::new();
     BUFFER.get_or_init(|| {
         let buffer = Arc::new(Mutex::new(Vec::new()));
-        let writer = CaptureWriter(Arc::clone(buffer));
+        let writer = CaptureWriter(Arc::clone(&buffer));
         let _ = tracing_subscriber::fmt()
             .with_max_level(tracing::level_filters::LevelFilter::WARN)
             .with_writer(move || writer.clone())
             .with_target(false)
             .without_time()
             .try_init();
-        Arc::clone(buffer)
+        Arc::clone(&buffer)
     })
 }
 
@@ -57,8 +57,9 @@ fn install_capture() -> &'static Arc<Mutex<Vec<u8>>> {
 }
 
 fn captured(buffer: &Arc<Mutex<Vec<u8>>>) -> String {
-    String::from_utf8(buffer.lock().expect("capture lock poisoned").clone())
-        .expect("subscriber output is UTF-8")
+    let lines = String::from_utf8(buffer.lock().expect("capture lock poisoned").clone())
+        .expect("subscriber output is UTF-8");
+    lines
 }
 
 const CLEAN_DECLARATIVE: &str = r#"
@@ -126,12 +127,21 @@ dir = "templates/"
 foo = "bar"
 "#;
 
+/// Log lines concerning one origin file (the subscriber buffer is
+/// process-wide, so assertions are scoped per file, not per process log).
+fn lines_for(log: &str, file: &str) -> String {
+    log.lines()
+        .filter(|l| l.contains(file))
+        .collect::<Vec<_>>()
+        .join("\n")
+}
+
 #[test]
 fn clean_declarative_emits_no_drift_warning() {
     let buffer = install_capture();
-    let got = classify_ggen_toml_with_origin(CLEAN_DECLARATIVE, "clean.toml");
+    let got = classify_ggen_toml_with_origin(CLEAN_DECLARATIVE, "clean-decl.toml");
     assert_eq!(got, ConfigSchemaClassification::DeclarativeRules);
-    let log = captured(&buffer);
+    let log = lines_for(&captured(buffer), "clean-decl.toml");
     assert!(
         !log.contains("schema-drift advisory"),
         "clean declarative document must not warn; captured:\n{log}"
@@ -144,14 +154,10 @@ fn drifted_declarative_warns_with_file_and_both_markers_but_keeps_class() {
     let got = classify_ggen_toml_with_origin(DRIFTED_DECLARATIVE, "drifted.toml");
     // The advisory NEVER changes the outcome.
     assert_eq!(got, ConfigSchemaClassification::DeclarativeRules);
-    let log = captured(&buffer);
+    let log = lines_for(&captured(buffer), "drifted.toml");
     assert!(
         log.contains("schema-drift advisory"),
-        "expected a drift advisory; captured:\n{log}"
-    );
-    assert!(
-        log.contains("drifted.toml"),
-        "warn must name the file:\n{log}"
+        "expected a drift advisory naming the file; captured:\n{log}"
     );
     // Both sides' marker names present.
     assert!(
@@ -167,9 +173,9 @@ fn drifted_declarative_warns_with_file_and_both_markers_but_keeps_class() {
 #[test]
 fn clean_frontmatter_emits_no_drift_warning() {
     let buffer = install_capture();
-    let got = classify_ggen_toml_with_origin(CLEAN_FRONTMATTER, "fm.toml");
+    let got = classify_ggen_toml_with_origin(CLEAN_FRONTMATTER, "clean-fm.toml");
     assert_eq!(got, ConfigSchemaClassification::Frontmatter);
-    let log = captured(&buffer);
+    let log = lines_for(&captured(buffer), "clean-fm.toml");
     assert!(
         !log.contains("schema-drift advisory"),
         "clean frontmatter document must not warn; captured:\n{log}"
@@ -194,7 +200,7 @@ fn mixed_document_still_refused_ambiguous_without_advisory() {
         other => panic!("expected Ambiguous refusal unchanged, got {other:?}"),
     }
     assert_eq!(got.code(), "FM-CONFIG-101");
-    let log = captured(&buffer);
+    let log = lines_for(&captured(buffer), "mixed.toml");
     assert!(
         !log.contains("schema-drift advisory"),
         "Ambiguous refusals already refuse loudly; advisory must not fire:\n{log}"
