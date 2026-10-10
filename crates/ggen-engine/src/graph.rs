@@ -486,20 +486,22 @@ fn diagnose_bind_rebind(sparql: &str) -> Option<AppError> {
                 _ => continue,
             }
         };
+        // Skip leading '?' or '$' if present in target_name
+        let clean_target_name = target_name.trim_start_matches(['?', '$']);
         if target_name.is_empty() {
             continue;
         }
         // Freshness check: does `?target_name` occur anywhere strictly
         // before the AS keyword (group prefix or the BIND expression)?
         let prefix = &sparql[..as_pos];
-        if var_token_present(prefix, &target_name) {
+        if var_token_present(prefix, clean_target_name) {
             let line_no = sparql[..kw].matches('\n').count() + 1;
             let line_start = prefix_line_start(sparql, kw);
             let line_text = sparql[line_start..].lines().next().unwrap_or("").trim();
             return Some(AppError::fm_graph(
                 13,
                 format!(
-                    "BIND re-binds in-scope variable ?{target_name} (SPARQL 1.1 \
+                    "BIND re-binds in-scope variable ?{clean_target_name} (SPARQL 1.1 \
                      requires a fresh variable); rename the AS target. \
                      [at line {line_no}: {line_text}]"
                 ),
