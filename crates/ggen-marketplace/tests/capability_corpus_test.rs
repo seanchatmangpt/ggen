@@ -188,9 +188,11 @@ fn corpus_composes_and_capability_uris_are_unique() {
     let mismatched: Vec<String> = packs
         .iter()
         .filter(|p| {
-            p.provides_uris
-                .iter()
-                .any(|uri| uri != &format!("urn:ggen:pack:{}", p.pack_file.pack.id))
+            // Self-IRI must be PRESENT; a pack may additionally provide
+            // domain URNs (e.g. strata-protocol-pack's urn:strata:*), which
+            // the global DuplicateCapability check above keeps unique.
+            !p.provides_uris
+                .contains(&format!("urn:ggen:pack:{}", p.pack_file.pack.id))
         })
         .map(|p| p.pack_file.pack.id.clone())
         .collect();
@@ -580,10 +582,12 @@ fn nested_real_pack_capability_uris_do_not_dangle_or_collide_full_tree() {
 }
 
 // ---------------------------------------------------------------------------
-// Strata family (lane S14, 2026-10-10): the 5 real strata-*-pack manifests
-// must compose as a capability chain — strata-protocol-pack is the root;
-// temprun/cas/signer require protocol; stratus requires temprun+protocol.
-// plan.order must place every requirer after its providers.
+// Strata family (lane S14, 2026-10-10; valve added 2026-10-10): the 6 real
+// strata-*-pack manifests must compose as a capability chain —
+// strata-protocol-pack is the root; temprun/cas/signer require protocol;
+// stratus requires temprun+protocol; strata-valve-pack is standalone
+// (refusal taxonomy, no requires). plan.order must place every requirer
+// after its providers.
 // ---------------------------------------------------------------------------
 
 #[test]
@@ -597,7 +601,7 @@ fn strata_five_pack_capability_chain_composes_and_respects_order() {
     strata.sort_by(|a, b| a.pack.id.cmp(&b.pack.id));
     assert_eq!(
         strata.len(),
-        5,
+        6,
         "expected the 5 strata packs in the bound corpus, got {:?}",
         strata.iter().map(|p| &p.pack.id).collect::<Vec<_>>()
     );
