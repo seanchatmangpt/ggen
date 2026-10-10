@@ -1193,7 +1193,14 @@ fn load_corpus_pack(name: &str) -> Result<ggen_marketplace::packs_registry::type
 /// exit with the refusal text on stderr, never a panic. Duplicate names in
 /// the input are a typed error before the kernel runs.
 #[verb]
-pub fn compose(packs: Vec<String>) -> Result<serde_json::Value> {
+///
+/// `--packs` accumulates repeated occurrences (`--packs a --packs b` yields
+/// both); the explicit `action = "append"` is required because clap-noun-verb
+/// 26.9.1 only auto-infers Append from `#[arg(multiple)]`, not from a bare
+/// `Vec<T>` parameter type — without it the flag falls back to Set and
+/// silently keeps only the first occurrence (comma form still works via the
+/// runtime's Vec split).
+pub fn compose(#[arg(action = "append")] packs: Vec<String>) -> Result<serde_json::Value> {
     use serde_json::json;
 
     // Duplicate input names: the kernel compares by pack id set, so the same
