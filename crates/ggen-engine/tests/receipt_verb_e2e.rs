@@ -229,12 +229,16 @@ fn tampered_chain_hash_fails_naming_mismatch() {
     // The on-disk state must carry the flip and the repair.
     let final_doc = read_receipt(dir.path());
     assert_eq!(
-        final_doc["record"]["chain_hash_hex"].as_str().expect("chain"),
+        final_doc["record"]["chain_hash_hex"]
+            .as_str()
+            .expect("chain"),
         flipped,
         "flipped chain hash must be on disk before verify"
     );
     assert_eq!(
-        final_doc["record"]["payload_hash_hex"].as_str().expect("payload hash"),
+        final_doc["record"]["payload_hash_hex"]
+            .as_str()
+            .expect("payload hash"),
         new_payload_hash,
         "repaired payload hash must be on disk before verify"
     );
