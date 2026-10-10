@@ -82,7 +82,7 @@ fn bind_fresh_variable_still_executes() {
 SELECT ?y WHERE {
   ?s :p ?x .
   BIND(STR(?x) AS ?y) .
-";
+}";
     g.query(q).expect("fresh BIND target must not be refused");
 }
 
