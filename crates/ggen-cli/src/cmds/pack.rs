@@ -134,9 +134,8 @@ pub fn add(#[arg(index = 1)] pack_name: String, force: bool) -> Result<AddOutput
     // Verify the pack exists before attempting installation
     if let Err(e) = load_pack_metadata(&pack_name) {
         return Err(NounVerbError::execution_error(format!(
-            "Pack '{}' not found in local registry: {}. \
-             Ensure marketplace/packs/{}.toml exists.",
-            pack_name, e, pack_name
+            "Pack '{pack_name}' not found in local registry: {e}. \
+             Ensure marketplace/packs/{pack_name}.toml exists."
         )));
     }
 
@@ -149,10 +148,10 @@ pub fn add(#[arg(index = 1)] pack_name: String, force: bool) -> Result<AddOutput
     };
 
     let install_result = crate::runtime::block_on(install_pack_by_id(&input)).map_err(|e| {
-        NounVerbError::execution_error(format!("Failed to install pack '{}': {}", pack_name, e))
+        NounVerbError::execution_error(format!("Failed to install pack '{pack_name}': {e}"))
     })?;
     let output = install_result.map_err(|e| {
-        NounVerbError::execution_error(format!("Failed to install pack '{}': {}", pack_name, e))
+        NounVerbError::execution_error(format!("Failed to install pack '{pack_name}': {e}"))
     })?;
 
     // The install only reaches here on success. Emit a provenance receipt that
@@ -175,8 +174,7 @@ pub fn add(#[arg(index = 1)] pack_name: String, force: bool) -> Result<AddOutput
     let receipt_path = crate::cmds::packs_receipt::generate_pack_install_receipt(&closure)
         .map_err(|e| {
             NounVerbError::execution_error(format!(
-                "Pack '{}' installed but receipt emission failed: {}",
-                pack_name, e
+                "Pack '{pack_name}' installed but receipt emission failed: {e}"
             ))
         })?;
 
@@ -207,7 +205,7 @@ pub fn remove(#[arg(index = 1)] pack_name: String) -> Result<RemoveOutput> {
     // Step 1: Resolve lock_path
     let lock_path = std::env::current_dir()
         .map_err(|e| {
-            NounVerbError::execution_error(format!("Cannot resolve project directory: {}", e))
+            NounVerbError::execution_error(format!("Cannot resolve project directory: {e}"))
         })?
         .join(".ggen")
         .join("packs.lock");
@@ -221,13 +219,12 @@ pub fn remove(#[arg(index = 1)] pack_name: String) -> Result<RemoveOutput> {
 
     // Step 3: Load lockfile
     let mut lockfile = PackLockfile::from_file(&lock_path)
-        .map_err(|e| NounVerbError::execution_error(format!("Failed to load lockfile: {}", e)))?;
+        .map_err(|e| NounVerbError::execution_error(format!("Failed to load lockfile: {e}")))?;
 
     // Step 4: Check if pack exists in lockfile
     if lockfile.get_pack(&pack_name).is_none() {
         return Err(NounVerbError::execution_error(format!(
-            "Pack '{}' is not installed",
-            pack_name
+            "Pack '{pack_name}' is not installed"
         )));
     }
 
@@ -236,7 +233,7 @@ pub fn remove(#[arg(index = 1)] pack_name: String) -> Result<RemoveOutput> {
 
     if pack_dir.exists() {
         std::fs::remove_dir_all(&pack_dir).map_err(|e| {
-            NounVerbError::execution_error(format!("Failed to remove pack directory: {}", e))
+            NounVerbError::execution_error(format!("Failed to remove pack directory: {e}"))
         })?;
     }
 
@@ -246,8 +243,7 @@ pub fn remove(#[arg(index = 1)] pack_name: String) -> Result<RemoveOutput> {
     // Step 7: Save lockfile
     lockfile.save(&lock_path).map_err(|e| {
         NounVerbError::execution_error(format!(
-            "Failed to save lockfile (partial removal may have occurred): {}",
-            e
+            "Failed to save lockfile (partial removal may have occurred): {e}"
         ))
     })?;
 
@@ -255,9 +251,8 @@ pub fn remove(#[arg(index = 1)] pack_name: String) -> Result<RemoveOutput> {
         pack_name: pack_name.clone(),
         status: "removed".to_string(),
         message: format!(
-            "Pack '{}' removed successfully. \
-             Run `ggen pack list` to see remaining installed packs.",
-            pack_name
+            "Pack '{pack_name}' removed successfully. \
+             Run `ggen pack list` to see remaining installed packs."
         ),
     })
 }
@@ -270,7 +265,7 @@ pub fn remove(#[arg(index = 1)] pack_name: String) -> Result<RemoveOutput> {
 /// Returns an error if the operation cannot be completed.
 pub fn list(verbose: bool, category: Option<String>) -> Result<ListOutput> {
     let packages = list_packs(None)
-        .map_err(|e| NounVerbError::execution_error(format!("Failed to list packs: {}", e)))?;
+        .map_err(|e| NounVerbError::execution_error(format!("Failed to list packs: {e}")))?;
 
     let is_verbose = verbose;
     let filtered_packages: Vec<_> = if let Some(cat) = category.as_ref() {
@@ -317,7 +312,7 @@ pub fn list(verbose: bool, category: Option<String>) -> Result<ListOutput> {
 /// Returns an error if the operation cannot be completed.
 pub fn show(#[arg(index = 1)] pack_id: String) -> Result<ShowOutput> {
     let detail = show_pack(&pack_id).map_err(|e| {
-        NounVerbError::execution_error(format!("Failed to get pack '{}': {}", pack_id, e))
+        NounVerbError::execution_error(format!("Failed to get pack '{pack_id}': {e}"))
     })?;
 
     let dependencies: Vec<String> = detail
@@ -356,7 +351,7 @@ pub fn search(#[arg(index = 1)] query: String, limit: Option<usize>) -> Result<S
     }
     let results = perform_search(&query, limit)?;
     let total = results.len();
-    log::info!("Found {} result(s) for '{}'", total, query);
+    log::info!("Found {total} result(s) for '{query}'");
 
     Ok(SearchOutput {
         query,
@@ -397,7 +392,7 @@ pub fn related(
         ));
     }
     perform_related_search(seed, by_category, limit.unwrap_or(20))
-        .map_err(|e| NounVerbError::execution_error(format!("{}", e)))
+        .map_err(|e| NounVerbError::execution_error(format!("{e}")))
 }
 
 /// Run a raw SPARQL query over pack RDF facts
@@ -422,7 +417,7 @@ pub fn related(
 /// Returns an error if the operation cannot be completed.
 pub fn query(#[arg(index = 1)] sparql: String, pack_id: Option<String>) -> Result<QueryOutput> {
     let outcome = run_pack_query(&sparql, pack_id.as_deref())
-        .map_err(|e| NounVerbError::execution_error(format!("{}", e)))?;
+        .map_err(|e| NounVerbError::execution_error(format!("{e}")))?;
 
     Ok(QueryOutput {
         scope: outcome.scope,
@@ -506,7 +501,7 @@ fn pack_doctor_report(
     };
 
     let message = if healthy {
-        format!("OK: {} packs cached, lockfile valid", pack_count)
+        format!("OK: {pack_count} packs cached, lockfile valid")
     } else {
         format!("FAIL: {}", checks.join("; "))
     };
@@ -565,17 +560,14 @@ fn lockfile_check(lock_path: &std::path::Path) -> std::result::Result<(String, u
     }
 
     let lockfile =
-        PackLockfile::from_file(lock_path).map_err(|e| format!("packs.lock unreadable: {}", e))?;
+        PackLockfile::from_file(lock_path).map_err(|e| format!("packs.lock unreadable: {e}"))?;
     let pack_count = lockfile.packs.len();
     lockfile
         .validate()
-        .map_err(|e| format!("packs.lock invalid: {}", e))?;
+        .map_err(|e| format!("packs.lock invalid: {e}"))?;
 
     Ok((
-        format!(
-            "packs.lock valid: {} pack(s), no dependency violations",
-            pack_count
-        ),
+        format!("packs.lock valid: {pack_count} pack(s), no dependency violations"),
         pack_count,
     ))
 }
@@ -584,7 +576,7 @@ fn lockfile_check(lock_path: &std::path::Path) -> std::result::Result<(String, u
 fn resolve_lockfile_path() -> Result<PathBuf> {
     Ok(std::env::current_dir()
         .map_err(|e| {
-            NounVerbError::execution_error(format!("Cannot resolve project directory: {}", e))
+            NounVerbError::execution_error(format!("Cannot resolve project directory: {e}"))
         })?
         .join(".ggen")
         .join("packs.lock"))
@@ -596,7 +588,7 @@ fn resolve_lockfile_path() -> Result<PathBuf> {
 
 fn perform_search(query: &str, limit: Option<usize>) -> Result<Vec<SearchResult>> {
     let packages = list_packs(None)
-        .map_err(|e| NounVerbError::execution_error(format!("Failed to list packages: {}", e)))?;
+        .map_err(|e| NounVerbError::execution_error(format!("Failed to list packages: {e}")))?;
 
     let query_lower = query.to_lowercase();
     let max = limit.unwrap_or(20);
@@ -635,8 +627,7 @@ fn perform_related_search(
 ) -> ggen_marketplace::marketplace::error::Result<RelatedOutput> {
     let local_packs = list_packs(None).map_err(|e| {
         ggen_marketplace::marketplace::error::Error::SearchError(format!(
-            "Failed to list packages: {}",
-            e
+            "Failed to list packages: {e}"
         ))
     })?;
 
@@ -682,11 +673,7 @@ fn perform_related_search(
     let total = results.len();
 
     log::info!(
-        "Found {} pack(s) related to '{}' by {} (considered {} local packs)",
-        total,
-        seed,
-        mode,
-        considered
+        "Found {total} pack(s) related to '{seed}' by {mode} (considered {considered} local packs)"
     );
 
     Ok(RelatedOutput {
@@ -1217,7 +1204,7 @@ fn load_corpus_pack(name: &str) -> Result<ggen_marketplace::packs_registry::type
             ))
         },
     )?)
-    .map_err(|e| NounVerbError::execution_error(format!("Failed to load pack '{}': {}", name, e)))
+    .map_err(|e| NounVerbError::execution_error(format!("Failed to load pack '{name}': {e}")))
 }
 
 /// Compose a set of named packs into a deterministic composition plan.
@@ -1253,8 +1240,7 @@ pub fn compose(#[arg(action = "append")] packs: Vec<String>) -> Result<serde_jso
     for name in &packs {
         if !seen.insert(name.as_str()) {
             return Err(NounVerbError::execution_error(format!(
-                "duplicate pack '{}' in composition input; each pack may appear at most once",
-                name
+                "duplicate pack '{name}' in composition input; each pack may appear at most once"
             )));
         }
     }
@@ -1266,7 +1252,7 @@ pub fn compose(#[arg(action = "append")] packs: Vec<String>) -> Result<serde_jso
 
     let plan =
         ggen_marketplace::packs_registry::composer::compose(&pack_files).map_err(|refusal| {
-            NounVerbError::execution_error(format!("composition refused: {}", refusal))
+            NounVerbError::execution_error(format!("composition refused: {refusal}"))
         })?;
 
     // PackCompositionPlan is not Serialize (marketplace-owned struct); project

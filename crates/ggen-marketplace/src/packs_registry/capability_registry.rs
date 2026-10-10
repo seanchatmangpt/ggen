@@ -56,10 +56,9 @@ pub fn resolve_capability_to_packs(
         // Unknown surface
         _ => {
             return Err(format!(
-                "Unknown capability surface '{}'. \
+                "Unknown capability surface '{surface}'. \
                  Available surfaces: mcp, compliance-soc2, web, devops, \
-                 data-science, startup, enterprise",
-                surface
+                 data-science, startup, enterprise"
             ));
         }
     };

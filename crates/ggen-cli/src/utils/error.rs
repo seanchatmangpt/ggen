@@ -281,20 +281,20 @@ impl Error {
     #[must_use]
     pub fn invalid_input(message: impl Into<String>) -> Self {
         let msg = message.into();
-        Self::new(&format!("Invalid input: {}", msg))
+        Self::new(&format!("Invalid input: {msg}"))
     }
 
     /// Create a network error
     #[must_use]
     pub fn network_error(message: impl Into<String>) -> Self {
         let msg = message.into();
-        Self::new(&format!("Network error: {}", msg))
+        Self::new(&format!("Network error: {msg}"))
     }
 
     /// Create a feature not enabled error
     #[must_use]
     pub fn feature_not_enabled(feature: &str, help: &str) -> Self {
-        Self::new(&format!("Feature '{}' not enabled. {}", feature, help))
+        Self::new(&format!("Feature '{feature}' not enabled. {help}"))
     }
 
     /// Create a file not found error
@@ -307,21 +307,21 @@ impl Error {
     #[must_use]
     pub fn io_error(message: impl Into<String>) -> Self {
         let msg = message.into();
-        Self::new(&format!("IO error: {}", msg))
+        Self::new(&format!("IO error: {msg}"))
     }
 
     /// Create an internal error
     #[must_use]
     pub fn internal_error(message: impl Into<String>) -> Self {
         let msg = message.into();
-        Self::new(&format!("Internal error: {}", msg))
+        Self::new(&format!("Internal error: {msg}"))
     }
 
     /// Create an invalid state error
     #[must_use]
     pub fn invalid_state(message: impl Into<String>) -> Self {
         let msg = message.into();
-        Self::new(&format!("Invalid state: {}", msg))
+        Self::new(&format!("Invalid state: {msg}"))
     }
 }
 

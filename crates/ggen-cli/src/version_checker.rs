@@ -143,24 +143,24 @@ fn find_workspace_root_and_target_dir(current_exe: &Path) -> Option<(PathBuf, Pa
 fn format_duration(d: std::time::Duration) -> String {
     let secs = d.as_secs();
     if secs < 60 {
-        format!("{}s", secs)
+        format!("{secs}s")
     } else if secs < 3600 {
         format!("{}m", secs / 60)
     } else if secs < 86400 {
         let hours = secs / 3600;
         let mins = (secs % 3600) / 60;
         if mins > 0 {
-            format!("{}h {}m", hours, mins)
+            format!("{hours}h {mins}m")
         } else {
-            format!("{}h", hours)
+            format!("{hours}h")
         }
     } else {
         let days = secs / 86400;
         let hours = (secs % 86400) / 3600;
         if hours > 0 {
-            format!("{}d {}h", days, hours)
+            format!("{days}d {hours}h")
         } else {
-            format!("{}d", days)
+            format!("{days}d")
         }
     }
 }

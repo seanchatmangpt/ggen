@@ -380,8 +380,7 @@ pub fn install(package: String) -> VerbResult<OntologyInstallOutput> {
         package: package.clone(),
         success: true,
         message: format!(
-            "Ontology package {}@{} installed successfully (Phase 4 placeholder)",
-            package_id, version
+            "Ontology package {package_id}@{version} installed successfully (Phase 4 placeholder)"
         ),
         size_bytes: Some(1024 * 1024), // 1MB example
         digest: Some("abc123def456".to_string()),
@@ -445,7 +444,7 @@ mod tests {
             "rdf", "rdfs", "owl", "schema", "foaf", "dc", "skos", "bigfive",
         ];
         for p in &expected {
-            assert!(prefixes.contains(p), "Missing prefix: {}", p);
+            assert!(prefixes.contains(p), "Missing prefix: {p}");
         }
 
         // Verify some URIs and sources

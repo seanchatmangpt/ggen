@@ -75,11 +75,11 @@ impl ExternalRegistryFetcher for CratesIoFetcher {
             "Fetching metadata for crate '{}' from crates.io",
             package_id
         );
-        let url = format!("https://crates.io/api/v1/crates/{}", package_id);
+        let url = format!("https://crates.io/api/v1/crates/{package_id}");
 
         let response =
             self.client.get(&url).send().await.map_err(|e| {
-                Error::Other(format!("Failed to fetch metadata from crates.io: {}", e))
+                Error::Other(format!("Failed to fetch metadata from crates.io: {e}"))
             })?;
 
         if !response.status().is_success() {
@@ -92,19 +92,20 @@ impl ExternalRegistryFetcher for CratesIoFetcher {
         let data: serde_json::Value = response
             .json()
             .await
-            .map_err(|e| Error::Other(format!("Failed to parse crates.io response: {}", e)))?;
+            .map_err(|e| Error::Other(format!("Failed to parse crates.io response: {e}")))?;
 
         Self::parse_cratesio_response(package_id, data)
     }
 
     async fn fetch_artifact(&self, package_id: &str, version: &str) -> Result<Vec<u8>> {
         let metadata = self.fetch_metadata(package_id).await?;
-        let url = metadata.download_urls.get(version).ok_or_else(|| {
-            Error::Other(format!("Download URL not found for version {}", version))
-        })?;
+        let url = metadata
+            .download_urls
+            .get(version)
+            .ok_or_else(|| Error::Other(format!("Download URL not found for version {version}")))?;
 
         let response = self.client.get(url).send().await.map_err(|e| {
-            Error::Other(format!("Failed to download artifact from crates.io: {}", e))
+            Error::Other(format!("Failed to download artifact from crates.io: {e}"))
         })?;
 
         if !response.status().is_success() {
@@ -117,7 +118,7 @@ impl ExternalRegistryFetcher for CratesIoFetcher {
         let bytes = response
             .bytes()
             .await
-            .map_err(|e| Error::Other(format!("Failed to read artifact bytes: {}", e)))?;
+            .map_err(|e| Error::Other(format!("Failed to read artifact bytes: {e}")))?;
 
         Ok(bytes.to_vec())
     }
@@ -159,7 +160,7 @@ impl CratesIoFetcher {
                     v.get("checksum").and_then(|c| c.as_str()),
                 ) {
                     versions.push(num.to_string());
-                    download_urls.insert(num.to_string(), format!("https://crates.io{}", dl_path));
+                    download_urls.insert(num.to_string(), format!("https://crates.io{dl_path}"));
                     checksums.insert(num.to_string(), checksum.to_string());
                 }
             }
@@ -282,14 +283,14 @@ impl ExternalRegistryFetcher for NpmFetcher {
             "Fetching metadata for package '{}' from npm registry",
             package_id
         );
-        let url = format!("https://registry.npmjs.org/{}", package_id);
+        let url = format!("https://registry.npmjs.org/{package_id}");
 
         let response = self
             .client
             .get(&url)
             .send()
             .await
-            .map_err(|e| Error::Other(format!("Failed to fetch metadata from npm: {}", e)))?;
+            .map_err(|e| Error::Other(format!("Failed to fetch metadata from npm: {e}")))?;
 
         if !response.status().is_success() {
             return Err(Error::Other(format!(
@@ -301,26 +302,29 @@ impl ExternalRegistryFetcher for NpmFetcher {
         let data: serde_json::Value = response
             .json()
             .await
-            .map_err(|e| Error::Other(format!("Failed to parse npm response: {}", e)))?;
+            .map_err(|e| Error::Other(format!("Failed to parse npm response: {e}")))?;
 
         Self::parse_npm_response(package_id, data)
     }
 
     async fn fetch_artifact(&self, package_id: &str, version: &str) -> Result<Vec<u8>> {
         let metadata = self.fetch_metadata(package_id).await?;
-        let url = metadata.download_urls.get(version).ok_or_else(|| {
-            Error::Other(format!("Download URL not found for version {}", version))
-        })?;
+        let url = metadata
+            .download_urls
+            .get(version)
+            .ok_or_else(|| Error::Other(format!("Download URL not found for version {version}")))?;
 
-        let response =
-            self.client.get(url).send().await.map_err(|e| {
-                Error::Other(format!("Failed to download artifact from npm: {}", e))
-            })?;
+        let response = self
+            .client
+            .get(url)
+            .send()
+            .await
+            .map_err(|e| Error::Other(format!("Failed to download artifact from npm: {e}")))?;
 
         let bytes = response
             .bytes()
             .await
-            .map_err(|e| Error::Other(format!("Failed to read artifact bytes: {}", e)))?;
+            .map_err(|e| Error::Other(format!("Failed to read artifact bytes: {e}")))?;
 
         Ok(bytes.to_vec())
     }
@@ -429,14 +433,14 @@ impl PyPiFetcher {
 impl ExternalRegistryFetcher for PyPiFetcher {
     async fn fetch_metadata(&self, package_id: &str) -> Result<Package> {
         info!("Fetching metadata for package '{}' from PyPi", package_id);
-        let url = format!("https://pypi.org/pypi/{}/json", package_id);
+        let url = format!("https://pypi.org/pypi/{package_id}/json");
 
         let response = self
             .client
             .get(&url)
             .send()
             .await
-            .map_err(|e| Error::Other(format!("Failed to fetch metadata from PyPi: {}", e)))?;
+            .map_err(|e| Error::Other(format!("Failed to fetch metadata from PyPi: {e}")))?;
 
         if !response.status().is_success() {
             return Err(Error::Other(format!(
@@ -448,26 +452,29 @@ impl ExternalRegistryFetcher for PyPiFetcher {
         let data: serde_json::Value = response
             .json()
             .await
-            .map_err(|e| Error::Other(format!("Failed to parse PyPi response: {}", e)))?;
+            .map_err(|e| Error::Other(format!("Failed to parse PyPi response: {e}")))?;
 
         Self::parse_pypi_response(package_id, data)
     }
 
     async fn fetch_artifact(&self, package_id: &str, version: &str) -> Result<Vec<u8>> {
         let metadata = self.fetch_metadata(package_id).await?;
-        let url = metadata.download_urls.get(version).ok_or_else(|| {
-            Error::Other(format!("Download URL not found for version {}", version))
-        })?;
+        let url = metadata
+            .download_urls
+            .get(version)
+            .ok_or_else(|| Error::Other(format!("Download URL not found for version {version}")))?;
 
-        let response =
-            self.client.get(url).send().await.map_err(|e| {
-                Error::Other(format!("Failed to download artifact from PyPi: {}", e))
-            })?;
+        let response = self
+            .client
+            .get(url)
+            .send()
+            .await
+            .map_err(|e| Error::Other(format!("Failed to download artifact from PyPi: {e}")))?;
 
         let bytes = response
             .bytes()
             .await
-            .map_err(|e| Error::Other(format!("Failed to read artifact bytes: {}", e)))?;
+            .map_err(|e| Error::Other(format!("Failed to read artifact bytes: {e}")))?;
 
         Ok(bytes.to_vec())
     }
@@ -491,8 +498,7 @@ impl ExternalFetcherFactory {
             "npm" => Ok(Box::new(NpmFetcher::new())),
             "pypi" => Ok(Box::new(PyPiFetcher::new())),
             _ => Err(Error::Other(format!(
-                "Unsupported registry type: {}",
-                registry_type
+                "Unsupported registry type: {registry_type}"
             ))),
         }
     }

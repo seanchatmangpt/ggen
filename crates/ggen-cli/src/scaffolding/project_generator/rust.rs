@@ -84,14 +84,13 @@ impl RustProjectGenerator {
                 let framework = config.framework.as_deref().unwrap_or("axum");
                 format!(
                     r#"tokio = {{ version = "1.0", features = ["full"] }}
-{} = "0.7"
+{framework} = "0.7"
 anyhow = "1.0"
 serde = {{ version = "1.0", features = ["derive"] }}
 serde_json = "1.0"
 tracing = "0.1"
 tracing-subscriber = "0.3"
-"#,
-                    framework
+"#
                 )
             }
             ProjectType::RustCli => r#"clap-noun-verb = "26.5"

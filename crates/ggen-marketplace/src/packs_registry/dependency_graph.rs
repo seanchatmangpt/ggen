@@ -237,9 +237,9 @@ mod tests {
     fn create_test_pack(id: &str, deps: Vec<&str>) -> Pack {
         Pack {
             id: id.to_string(),
-            name: format!("Pack {}", id),
+            name: format!("Pack {id}"),
             version: "1.0.0".to_string(),
-            description: format!("Test pack {}", id),
+            description: format!("Test pack {id}"),
             category: "test".to_string(),
             author: None,
             repository: None,

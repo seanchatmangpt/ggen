@@ -34,8 +34,8 @@ where
     let runtime = match tokio::runtime::Runtime::new() {
         Ok(rt) => rt,
         Err(e) => {
-            let msg = format!("Failed to create Tokio runtime: {}", e);
-            log::error!("{}", msg);
+            let msg = format!("Failed to create Tokio runtime: {e}");
+            log::error!("{msg}");
             return Err(crate::utils::error::Error::new(&msg));
         }
     };
@@ -77,8 +77,8 @@ where
                     let rt = match tokio::runtime::Runtime::new() {
                         Ok(runtime) => runtime,
                         Err(e) => {
-                            let msg = format!("Failed to create Tokio runtime: {}", e);
-                            log::error!("{}", msg);
+                            let msg = format!("Failed to create Tokio runtime: {e}");
+                            log::error!("{msg}");
                             return Err(crate::utils::error::Error::new(&msg));
                         }
                     };
@@ -93,8 +93,8 @@ where
             match tokio::runtime::Runtime::new() {
                 Ok(runtime) => Ok(runtime.block_on(async_op)),
                 Err(e) => {
-                    let msg = format!("Failed to create Tokio runtime: {}", e);
-                    log::error!("{}", msg);
+                    let msg = format!("Failed to create Tokio runtime: {e}");
+                    log::error!("{msg}");
                     Err(crate::utils::error::Error::new(&msg))
                 }
             }

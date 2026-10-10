@@ -216,7 +216,7 @@ impl TemplateGenerator {
             .map(|name| VariableDefinition {
                 name: name.clone(),
                 var_type: VariableType::String,
-                description: format!("Variable: {}", name),
+                description: format!("Variable: {name}"),
                 default: None,
                 required: true,
                 pattern: None,
@@ -277,7 +277,7 @@ impl TemplateGenerator {
         // Pattern validation
         if let Some(pattern) = &var_def.pattern {
             let re = regex::Regex::new(pattern)
-                .map_err(|e| Error::Other(format!("Invalid regex pattern '{}': {}", pattern, e)))?;
+                .map_err(|e| Error::Other(format!("Invalid regex pattern '{pattern}': {e}")))?;
 
             if !re.is_match(value) {
                 return Err(Error::Other(format!(

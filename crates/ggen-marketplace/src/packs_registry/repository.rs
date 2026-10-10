@@ -83,7 +83,7 @@ impl FileSystemRepository {
 
     /// Get pack file path
     fn pack_path(&self, pack_id: &str) -> PathBuf {
-        self.base_path.join(format!("{}.toml", pack_id))
+        self.base_path.join(format!("{pack_id}.toml"))
     }
 
     /// Validate pack ID for safety
@@ -141,7 +141,7 @@ impl PackRepository for FileSystemRepository {
         let content = tokio::fs::read_to_string(&pack_path).await?;
 
         let pack_file: crate::packs_registry::types::PackFile = star_toml::from_str(&content)
-            .map_err(|e| Error::Other(format!("Failed to parse pack '{}': {}", pack_id, e)))?;
+            .map_err(|e| Error::Other(format!("Failed to parse pack '{pack_id}': {e}")))?;
 
         Ok(pack_file.pack)
     }
@@ -201,7 +201,7 @@ impl PackRepository for FileSystemRepository {
         };
 
         let content = toml::to_string_pretty(&pack_file)
-            .map_err(|e| Error::Other(format!("Failed to serialize pack: {}", e)))?;
+            .map_err(|e| Error::Other(format!("Failed to serialize pack: {e}")))?;
 
         tokio::fs::write(&pack_path, content).await?;
 
@@ -223,7 +223,7 @@ impl PackRepository for FileSystemRepository {
         let pack_path = self.pack_path(pack_id);
 
         if !pack_path.exists() {
-            return Err(Error::Other(format!("Pack '{}' not found", pack_id)));
+            return Err(Error::Other(format!("Pack '{pack_id}' not found")));
         }
 
         tokio::fs::remove_file(&pack_path).await?;
@@ -304,10 +304,10 @@ mod tests {
         // Create multiple packs
         for i in 1..=3 {
             let pack = Pack {
-                id: format!("pack{}", i),
-                name: format!("Pack {}", i),
+                id: format!("pack{i}"),
+                name: format!("Pack {i}"),
                 version: "1.0.0".to_string(),
-                description: format!("Pack {}", i),
+                description: format!("Pack {i}"),
                 category: if i == 1 {
                     "web".to_string()
                 } else {

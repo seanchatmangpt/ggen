@@ -28,8 +28,7 @@ use crate::agent::{InstallRequest, PackAgent};
 /// Construct an agent rooted at the current working directory (the project root
 /// for a CLI invocation, matching where `install` writes the lockfile).
 fn agent() -> Result<PackAgent> {
-    PackAgent::new()
-        .map_err(|e| NounVerbError::execution_error(format!("agent init failed: {}", e)))
+    PackAgent::new().map_err(|e| NounVerbError::execution_error(format!("agent init failed: {e}")))
 }
 
 /// Construct an agent at an explicit `--root`, or the current directory if none
@@ -50,7 +49,7 @@ fn lift<T>(r: crate::agent::AgentResult<T>) -> Result<T> {
 /// agent-parseable result.
 fn json<T: serde::Serialize>(value: T) -> Result<serde_json::Value> {
     serde_json::to_value(value)
-        .map_err(|e| NounVerbError::execution_error(format!("serialization failed: {}", e)))
+        .map_err(|e| NounVerbError::execution_error(format!("serialization failed: {e}")))
 }
 
 // ── discovery (read-only) ───────────────────────────────────────────────────

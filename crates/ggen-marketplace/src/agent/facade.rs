@@ -273,7 +273,7 @@ impl PackAgent {
             if load_pack_metadata(&id).is_ok() {
                 resolved.push(id);
             } else {
-                install_hints.push(format!("ggen pack add {}", id));
+                install_hints.push(format!("ggen pack add {id}"));
                 missing.push(id);
             }
         }
@@ -342,7 +342,7 @@ impl PackAgent {
         }
 
         let lockfile = PackLockfile::from_file(&lockfile_path)
-            .map_err(|e| AgentError::Io(format!("cannot read lockfile: {}", e)))?;
+            .map_err(|e| AgentError::Io(format!("cannot read lockfile: {e}")))?;
 
         let installed = lockfile
             .packs
@@ -471,7 +471,7 @@ impl PackAgent {
         }
 
         let mut lockfile = PackLockfile::from_file(&lockfile_path)
-            .map_err(|e| AgentError::Io(format!("cannot read lockfile: {}", e)))?;
+            .map_err(|e| AgentError::Io(format!("cannot read lockfile: {e}")))?;
 
         if lockfile.get_pack(pack_id).is_none() {
             return Err(AgentError::NotInstalled(pack_id.to_string()));
@@ -480,7 +480,7 @@ impl PackAgent {
         let removed = lockfile.remove_pack(pack_id);
         lockfile
             .save(&lockfile_path)
-            .map_err(|e| AgentError::Io(format!("cannot save lockfile: {}", e)))?;
+            .map_err(|e| AgentError::Io(format!("cannot save lockfile: {e}")))?;
 
         let remaining = lockfile.packs.keys().cloned().collect();
 
@@ -578,8 +578,7 @@ fn validate_pack_name(pack_id: &str) -> AgentResult<()> {
     }
     if pack_id.contains("..") || pack_id.contains('/') || pack_id.contains('\\') {
         return Err(AgentError::InvalidRequest(format!(
-            "pack id '{}' must not contain path separators or traversal sequences",
-            pack_id
+            "pack id '{pack_id}' must not contain path separators or traversal sequences"
         )));
     }
     let valid = pack_id
@@ -587,8 +586,7 @@ fn validate_pack_name(pack_id: &str) -> AgentResult<()> {
         .all(|c| c.is_alphanumeric() || matches!(c, '-' | '_' | '.' | ':'));
     if !valid {
         return Err(AgentError::InvalidRequest(format!(
-            "pack id '{}' contains invalid characters",
-            pack_id
+            "pack id '{pack_id}' contains invalid characters"
         )));
     }
     Ok(())

@@ -31,7 +31,7 @@ pub type Result<T> = std::result::Result<T, PackReceiptError>;
 /// input/output-hash closure binding.
 pub fn generate_pack_install_receipt(closure: &PackInstallClosure<'_>) -> Result<PathBuf> {
     let root = std::env::current_dir().map_err(|e| {
-        PackReceiptError::Runtime(format!("Failed to resolve project directory: {}", e))
+        PackReceiptError::Runtime(format!("Failed to resolve project directory: {e}"))
     })?;
     crate::agent::emit_install_receipt(&root, closure)
 }

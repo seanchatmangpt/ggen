@@ -284,7 +284,7 @@ impl PackLockfile {
         }
 
         let json = serde_json::to_string_pretty(self)
-            .map_err(|e| Error::Other(format!("Failed to serialize lockfile: {}", e)))?;
+            .map_err(|e| Error::Other(format!("Failed to serialize lockfile: {e}")))?;
 
         fs::write(path, json).map_err(|e| {
             Error::Other(format!(
@@ -373,8 +373,7 @@ impl PackLockfile {
             for dep_id in &pack.dependencies {
                 if !self.packs.contains_key(dep_id) {
                     return Err(Error::Other(format!(
-                        "Pack '{}' depends on '{}' which is not in lockfile",
-                        pack_id, dep_id
+                        "Pack '{pack_id}' depends on '{dep_id}' which is not in lockfile"
                     )));
                 }
             }
@@ -441,8 +440,7 @@ impl PackLockfile {
             // version: non-empty (after trimming surrounding whitespace).
             if pack.version.trim().is_empty() {
                 return Err(Error::Other(format!(
-                    "Lockfile invariant violation: pack '{}' has an empty version",
-                    pack_id
+                    "Lockfile invariant violation: pack '{pack_id}' has an empty version"
                 )));
             }
 
@@ -461,16 +459,14 @@ impl PackLockfile {
             match &pack.integrity {
                 None => {
                     return Err(Error::Other(format!(
-                        "Lockfile invariant violation: pack '{}' is missing an integrity digest",
-                        pack_id
+                        "Lockfile invariant violation: pack '{pack_id}' is missing an integrity digest"
                     )));
                 }
                 Some(integrity) => {
                     if !is_valid_sha256_integrity(integrity) {
                         return Err(Error::Other(format!(
-                            "Lockfile invariant violation: pack '{}' has a malformed integrity \
-                             digest '{}'; expected the shape 'sha256-<64 hex chars>'",
-                            pack_id, integrity
+                            "Lockfile invariant violation: pack '{pack_id}' has a malformed integrity \
+                             digest '{integrity}'; expected the shape 'sha256-<64 hex chars>'"
                         )));
                     }
                 }
@@ -536,7 +532,7 @@ impl fmt::Display for PackLockfile {
             writeln!(f, "  {} @ {}", pack_id, pack.version)?;
             writeln!(f, "    Source: {}", pack.source)?;
             if let Some(integrity) = &pack.integrity {
-                writeln!(f, "    Integrity: {}", integrity)?;
+                writeln!(f, "    Integrity: {integrity}")?;
             }
             if !pack.dependencies.is_empty() {
                 writeln!(f, "    Dependencies: {}", pack.dependencies.join(", "))?;
@@ -550,9 +546,9 @@ impl fmt::Display for PackLockfile {
 impl fmt::Display for PackSource {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            PackSource::Registry { url } => write!(f, "Registry({})", url),
+            PackSource::Registry { url } => write!(f, "Registry({url})"),
             PackSource::GitHub { org, repo, branch } => {
-                write!(f, "GitHub({}/{}@{})", org, repo, branch)
+                write!(f, "GitHub({org}/{repo}@{branch})")
             }
             PackSource::Local { path } => write!(f, "Local({})", path.display()),
         }

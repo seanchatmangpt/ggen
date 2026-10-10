@@ -125,7 +125,7 @@ impl FileTransaction {
         use std::io::Write;
         temp_file
             .write_all(content.as_bytes())
-            .map_err(|e| Error::new(&format!("Failed to write to temporary file: {}", e)))?;
+            .map_err(|e| Error::new(&format!("Failed to write to temporary file: {e}")))?;
 
         // Atomic rename (this is the critical atomic operation)
         temp_file.persist(path).map_err(|e| {

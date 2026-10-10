@@ -55,7 +55,7 @@ impl CliLayerGenerator {
         let cli_src = cli_dir.join("src");
 
         std::fs::create_dir_all(&cli_src).map_err(|e| {
-            GgenError::FileError(format!("Failed to create CLI src directory: {}", e))
+            GgenError::FileError(format!("Failed to create CLI src directory: {e}"))
         })?;
 
         let mut context = Context::new();
@@ -177,7 +177,7 @@ impl CliLayerGenerator {
 
     fn render_template(&self, template: &str, context: &Context, output: &Path) -> Result<()> {
         let content = self.tera.render(template, context).map_err(|e| {
-            GgenError::TemplateError(format!("Failed to render template: {}: {}", template, e))
+            GgenError::TemplateError(format!("Failed to render template: {template}: {e}"))
         })?;
 
         if let Some(parent) = output.parent() {

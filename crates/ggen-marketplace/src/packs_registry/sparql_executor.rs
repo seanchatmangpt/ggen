@@ -96,10 +96,10 @@ pub fn run_pack_query(sparql: &str, pack_id: Option<&str>) -> Result<PackQueryOu
 
     if let Some(id) = pack_id {
         let pack = crate::packs_registry::metadata::load_pack_metadata(id)
-            .map_err(|e| Error::Other(format!("Pack '{}' not found: {}", id, e)))?;
+            .map_err(|e| Error::Other(format!("Pack '{id}' not found: {e}")))?;
         let result = executor.execute_query(&pack, sparql)?;
         Ok(PackQueryOutcome {
-            scope: format!("pack:{}", id),
+            scope: format!("pack:{id}"),
             packs_queried: 1,
             result,
         })
@@ -259,10 +259,7 @@ impl SparqlExecutor {
         let ggen_ns = "https://ggen.io/marketplace/";
 
         // Pack basic properties
-        triples.push(format!(
-            "<{}> <{}type> <{}Pack> .",
-            pack_ns, rdf_ns, ggen_ns
-        ));
+        triples.push(format!("<{pack_ns}> <{rdf_ns}type> <{ggen_ns}Pack> ."));
         triples.push(format!(
             "<{}> <{}label> \"{}\" .",
             pack_ns,
@@ -316,11 +313,8 @@ impl SparqlExecutor {
 
         // Packages
         for (idx, package) in pack.packages.iter().enumerate() {
-            let pkg_uri = format!("{}package/{}", pack_ns, idx);
-            triples.push(format!(
-                "<{}> <{}hasPackage> <{}> .",
-                pack_ns, ggen_ns, pkg_uri
-            ));
+            let pkg_uri = format!("{pack_ns}package/{idx}");
+            triples.push(format!("<{pack_ns}> <{ggen_ns}hasPackage> <{pkg_uri}> ."));
             triples.push(format!(
                 "<{}> <{}label> \"{}\" .",
                 pkg_uri,
@@ -331,11 +325,8 @@ impl SparqlExecutor {
 
         // Templates
         for (idx, template) in pack.templates.iter().enumerate() {
-            let tmpl_uri = format!("{}template/{}", pack_ns, idx);
-            triples.push(format!(
-                "<{}> <{}hasTemplate> <{}> .",
-                pack_ns, ggen_ns, tmpl_uri
-            ));
+            let tmpl_uri = format!("{pack_ns}template/{idx}");
+            triples.push(format!("<{pack_ns}> <{ggen_ns}hasTemplate> <{tmpl_uri}> ."));
             triples.push(format!(
                 "<{}> <{}label> \"{}\" .",
                 tmpl_uri,
@@ -358,10 +349,9 @@ impl SparqlExecutor {
 
         // Dependencies
         for (idx, dep) in pack.dependencies.iter().enumerate() {
-            let dep_uri = format!("{}dependency/{}", pack_ns, idx);
+            let dep_uri = format!("{pack_ns}dependency/{idx}");
             triples.push(format!(
-                "<{}> <{}hasDependency> <{}> .",
-                pack_ns, ggen_ns, dep_uri
+                "<{pack_ns}> <{ggen_ns}hasDependency> <{dep_uri}> ."
             ));
             triples.push(format!(
                 "<{}> <{}packId> \"{}\" .",
@@ -454,7 +444,7 @@ impl SparqlExecutor {
 
                 for solution in solutions {
                     let solution = solution
-                        .map_err(|e| Error::Other(format!("Failed to process solution: {}", e)))?;
+                        .map_err(|e| Error::Other(format!("Failed to process solution: {e}")))?;
 
                     let mut row = Vec::new();
                     for var in &vars {
@@ -502,7 +492,7 @@ impl SparqlExecutor {
                     Value::String(value.to_string())
                 }
             }
-            Term::Triple(t) => Value::String(format!("{}", t)),
+            Term::Triple(t) => Value::String(format!("{t}")),
         }
     }
 

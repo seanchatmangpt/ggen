@@ -40,7 +40,7 @@ pub fn create_runtime() -> Result<Runtime, String> {
                 .to_string(),
         );
     }
-    Runtime::new().map_err(|e| format!("Failed to create async runtime: {}", e))
+    Runtime::new().map_err(|e| format!("Failed to create async runtime: {e}"))
 }
 
 /// Execute an async function in a sync context
@@ -79,17 +79,16 @@ where
                 s.spawn(|| {
                     // Create a new runtime in this thread
                     let rt = Runtime::new()
-                        .map_err(|e| format!("Failed to create async runtime: {}", e))?;
+                        .map_err(|e| format!("Failed to create async runtime: {e}"))?;
                     rt.block_on(future)
                 })
                 .join()
-                .unwrap_or_else(|e| Err(format!("Thread panicked: {:?}", e)))
+                .unwrap_or_else(|e| Err(format!("Thread panicked: {e:?}")))
             })
         }
         Err(_) => {
             // No runtime, create one
-            let rt =
-                Runtime::new().map_err(|e| format!("Failed to create async runtime: {}", e))?;
+            let rt = Runtime::new().map_err(|e| format!("Failed to create async runtime: {e}"))?;
             rt.block_on(future)
         }
     }
@@ -133,8 +132,7 @@ where
                     // Create a new runtime in this thread
                     let rt = Runtime::new().map_err(|e| {
                         clap_noun_verb::NounVerbError::execution_error(format!(
-                            "Failed to create async runtime: {}",
-                            e
+                            "Failed to create async runtime: {e}"
                         ))
                     })?;
                     rt.block_on(future)
@@ -143,8 +141,7 @@ where
                 .join()
                 .unwrap_or_else(|e| {
                     Err(clap_noun_verb::NounVerbError::execution_error(format!(
-                        "Thread panicked: {:?}",
-                        e
+                        "Thread panicked: {e:?}"
                     )))
                 })
             })
@@ -153,8 +150,7 @@ where
             // No runtime, create one
             let rt = Runtime::new().map_err(|e| {
                 clap_noun_verb::NounVerbError::execution_error(format!(
-                    "Failed to create async runtime: {}",
-                    e
+                    "Failed to create async runtime: {e}"
                 ))
             })?;
             rt.block_on(future)

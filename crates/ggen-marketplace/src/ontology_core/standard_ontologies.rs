@@ -306,11 +306,10 @@ mod tests {
             let entry = namespaces
                 .iter()
                 .find(|n| n.uri == core_uri)
-                .unwrap_or_else(|| panic!("missing {}", core_uri));
+                .unwrap_or_else(|| panic!("missing {core_uri}"));
             assert_eq!(
                 entry.source, "bundled-standard",
-                "core stub {} should be promoted to bundled-standard after dedup",
-                core_uri
+                "core stub {core_uri} should be promoted to bundled-standard after dedup",
             );
         }
 

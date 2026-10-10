@@ -90,8 +90,7 @@ impl SafeCommand {
         // Check for dangerous characters
         if program.chars().any(|c| Self::DANGEROUS_CHARS.contains(&c)) {
             return Err(CommandError::InvalidCommand(format!(
-                "Command contains dangerous characters: {}",
-                program
+                "Command contains dangerous characters: {program}"
             ))
             .into());
         }
@@ -99,8 +98,7 @@ impl SafeCommand {
         // Check whitelist
         if !Self::ALLOWED_COMMANDS.contains(&program) {
             return Err(CommandError::NotAllowed(format!(
-                "Command '{}' is not in allowed list",
-                program
+                "Command '{program}' is not in allowed list"
             ))
             .into());
         }
@@ -122,8 +120,7 @@ impl SafeCommand {
         // Validate argument
         if arg.chars().any(|c| Self::DANGEROUS_CHARS.contains(&c)) {
             return Err(CommandError::InvalidArgument(format!(
-                "Argument contains dangerous characters: {}",
-                arg
+                "Argument contains dangerous characters: {arg}"
             ))
             .into());
         }

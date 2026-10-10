@@ -78,7 +78,7 @@ pub fn load_pack_metadata(pack_id: &str) -> Result<Pack> {
     }
 
     let packs_dir = get_packs_dir()?;
-    let pack_path = packs_dir.join(format!("{}.toml", pack_id));
+    let pack_path = packs_dir.join(format!("{pack_id}.toml"));
 
     if !pack_path.exists() {
         // Report the resolved absolute path (matching what `pack doctor`/`pack
@@ -98,10 +98,7 @@ pub fn load_pack_metadata(pack_id: &str) -> Result<Pack> {
 
     let content = fs::read_to_string(&pack_path)?;
     let pack_file: PackFile = star_toml::from_str(&content).map_err(|e| {
-        crate::marketplace::error::Error::Other(format!(
-            "Failed to parse pack '{}': {}",
-            pack_id, e
-        ))
+        crate::marketplace::error::Error::Other(format!("Failed to parse pack '{pack_id}': {e}"))
     })?;
 
     Ok(pack_file.pack)

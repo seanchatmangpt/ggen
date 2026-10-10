@@ -200,7 +200,7 @@ mod tests {
     fn create_test_pack(id: &str) -> Pack {
         Pack {
             id: id.to_string(),
-            name: format!("Pack {}", id),
+            name: format!("Pack {id}"),
             version: "1.0.0".to_string(),
             description: "Test pack".to_string(),
             category: "test".to_string(),

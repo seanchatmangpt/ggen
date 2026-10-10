@@ -229,11 +229,11 @@ pub async fn cli_match() -> crate::utils::error::Result<()> {
     let args = expand_json_flag(inject_default_verbs(std::env::args().collect()));
     let registry_mutex = clap_noun_verb::cli::CommandRegistry::get();
     let registry = registry_mutex.lock().map_err(|e| {
-        crate::utils::error::Error::new(&format!("Failed to lock CLI registry: {}", e))
+        crate::utils::error::Error::new(&format!("Failed to lock CLI registry: {e}"))
     })?;
     registry
         .run(args)
-        .map_err(|e| crate::utils::error::Error::new(&format!("CLI execution failed: {}", e)))?;
+        .map_err(|e| crate::utils::error::Error::new(&format!("CLI execution failed: {e}")))?;
     Ok(())
 }
 
@@ -490,7 +490,7 @@ pub async fn run_for_node(args: Vec<String>) -> crate::utils::error::Result<RunR
             None // known — proceed
         } else {
             // Unknown subcommand — report error and return non-zero
-            log::error!("error: unrecognized subcommand '{}'", first);
+            log::error!("error: unrecognized subcommand '{first}'");
             Some(1)
         }
     } else {
@@ -527,7 +527,7 @@ pub async fn run_for_node(args: Vec<String>) -> crate::utils::error::Result<RunR
         let code = match cmds::run_cli() {
             Ok(()) => 0,
             Err(err) => {
-                log::error!("{}", err);
+                log::error!("{err}");
                 1
             }
         };
@@ -538,7 +538,7 @@ pub async fn run_for_node(args: Vec<String>) -> crate::utils::error::Result<RunR
         code
     })
     .await
-    .map_err(|e| crate::utils::error::Error::new(&format!("Failed to execute CLI: {}", e)))?;
+    .map_err(|e| crate::utils::error::Error::new(&format!("Failed to execute CLI: {e}")))?;
 
     // Retrieve captured output, handle mutex poisoning gracefully
     let stdout = match stdout_buffer.lock() {

@@ -158,8 +158,7 @@ impl GenerationPlanner {
 
             if self.has_cycle(task, graph, &mut visited, &mut rec_stack) {
                 return Err(crate::utils::error::Error::new(&format!(
-                    "Circular dependency detected involving task: {}",
-                    task
+                    "Circular dependency detected involving task: {task}"
                 )));
             }
         }
@@ -280,7 +279,7 @@ mod tests {
             let full_name = if name.ends_with(".tmpl") {
                 name.to_string()
             } else {
-                format!("{}.tmpl", name)
+                format!("{name}.tmpl")
             };
             let path = create_test_template(&template_dir, &full_name, content);
             let key = name.strip_suffix(".tmpl").unwrap_or(name).to_string();

@@ -98,8 +98,7 @@ impl std::str::FromStr for ProjectType {
             "nextjs" => Ok(ProjectType::NextJs),
             "nuxt" => Ok(ProjectType::Nuxt),
             _ => Err(GgenError::InvalidInput(format!(
-                "Unsupported project type: {}",
-                s
+                "Unsupported project type: {s}"
             ))),
         }
     }
@@ -211,9 +210,7 @@ impl GitInitializer {
             .arg("init")?
             .current_dir(path)?
             .execute()
-            .map_err(|e| {
-                GgenError::ExternalServiceError(format!("Failed to run git init: {}", e))
-            })?;
+            .map_err(|e| GgenError::ExternalServiceError(format!("Failed to run git init: {e}")))?;
 
         if !output.status.success() {
             return Err(GgenError::ExternalServiceError(format!(
@@ -263,7 +260,7 @@ impl DependencyInstaller {
             .current_dir(path)?
             .execute()
             .map_err(|e| {
-                GgenError::ExternalServiceError(format!("Failed to run cargo fetch: {}", e))
+                GgenError::ExternalServiceError(format!("Failed to run cargo fetch: {e}"))
             })?;
 
         if !output.status.success() {
@@ -272,7 +269,7 @@ impl DependencyInstaller {
                 "cargo fetch failed: {}",
                 String::from_utf8_lossy(&output.stderr)
             );
-            eprintln!("⚠️  {}", error_msg);
+            eprintln!("⚠️  {error_msg}");
         }
 
         Ok(())

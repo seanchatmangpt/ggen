@@ -783,9 +783,9 @@ mod tests {
     fn create_test_pack(id: &str, packages: Vec<&str>, templates: Vec<&str>) -> Pack {
         Pack {
             id: id.to_string(),
-            name: format!("Pack {}", id),
+            name: format!("Pack {id}"),
             version: "1.0.0".to_string(),
-            description: format!("Test pack {}", id),
+            description: format!("Test pack {id}"),
             category: "test".to_string(),
             author: None,
             repository: None,
@@ -796,8 +796,8 @@ mod tests {
                 .into_iter()
                 .map(|name| PackTemplate {
                     name: name.to_string(),
-                    path: format!("templates/{}.tmpl", name),
-                    description: format!("Template {}", name),
+                    path: format!("templates/{name}.tmpl"),
+                    description: format!("Template {name}"),
                     variables: vec![],
                 })
                 .collect(),

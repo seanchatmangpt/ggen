@@ -90,7 +90,7 @@ pub fn is_directory_empty(path: &Path) -> Result<bool> {
     }
 
     let entries = std::fs::read_dir(path)
-        .map_err(|e| GgenError::FileError(format!("Failed to read directory: {}", e)))?;
+        .map_err(|e| GgenError::FileError(format!("Failed to read directory: {e}")))?;
 
     Ok(entries.count() == 0)
 }

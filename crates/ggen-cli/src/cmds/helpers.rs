@@ -63,8 +63,7 @@ where
 pub fn log_operation(location: &str, message: &str, data: Value) {
     debug!(
         target: "ggen::cli",
-        "location={location} message={message} payload={}",
-        data
+        "location={location} message={message} payload={data}"
     );
 }
 

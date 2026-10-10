@@ -68,14 +68,14 @@ impl PreFlightValidator {
 
         // Check 1: Disk space
         if let Err(e) = self.check_disk_space() {
-            result.failures.push(format!("Disk space: {}", e));
+            result.failures.push(format!("Disk space: {e}"));
         } else {
             result.passed_checks.push("Disk space".to_string());
         }
 
         // Check 2: Permissions
         if let Err(e) = self.check_permissions() {
-            result.failures.push(format!("Permissions: {}", e));
+            result.failures.push(format!("Permissions: {e}"));
         } else {
             result.passed_checks.push("Permissions".to_string());
         }
@@ -99,7 +99,7 @@ impl PreFlightValidator {
                 result.failures.len(),
                 result.failures
                     .iter()
-                    .map(|f| format!("    - {}", f))
+                    .map(|f| format!("    - {f}"))
                     .collect::<Vec<_>>()
                     .join("\n")
             );

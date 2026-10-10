@@ -275,7 +275,7 @@ pub fn install_git_hooks(
     match install_hook(&hooks_dir, "pre-commit", PRE_COMMIT_HOOK) {
         Ok(result) => hooks_installed.push(result),
         Err(e) => {
-            warnings.push(format!("Failed to install pre-commit hook: {}", e));
+            warnings.push(format!("Failed to install pre-commit hook: {e}"));
         }
     }
 
@@ -283,7 +283,7 @@ pub fn install_git_hooks(
     match install_hook(&hooks_dir, "pre-push", PRE_PUSH_HOOK) {
         Ok(result) => hooks_installed.push(result),
         Err(e) => {
-            warnings.push(format!("Failed to install pre-push hook: {}", e));
+            warnings.push(format!("Failed to install pre-push hook: {e}"));
         }
     }
 

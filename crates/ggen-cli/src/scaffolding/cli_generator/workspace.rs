@@ -185,21 +185,20 @@ impl WorkspaceGenerator {
         let workspace_cargo = output_dir.join("Cargo.toml");
         self.render_template(WORKSPACE_CARGO_TEMPLATE, &context, &workspace_cargo)
             .map_err(|e| {
-                GgenError::TemplateError(format!("Failed to generate workspace Cargo.toml: {}", e))
+                GgenError::TemplateError(format!("Failed to generate workspace Cargo.toml: {e}"))
             })?;
 
         // Create crates directory
         let crates_dir = output_dir.join("crates");
-        std::fs::create_dir_all(&crates_dir).map_err(|e| {
-            GgenError::FileError(format!("Failed to create crates directory: {}", e))
-        })?;
+        std::fs::create_dir_all(&crates_dir)
+            .map_err(|e| GgenError::FileError(format!("Failed to create crates directory: {e}")))?;
 
         Ok(())
     }
 
     fn render_template(&self, template: &str, context: &Context, output: &Path) -> Result<()> {
         let content = self.tera.render(template, context).map_err(|e| {
-            GgenError::TemplateError(format!("Failed to render template: {}: {}", template, e))
+            GgenError::TemplateError(format!("Failed to render template: {template}: {e}"))
         })?;
 
         // Create parent directory if needed
