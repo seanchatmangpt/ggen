@@ -12,7 +12,7 @@ pub fn pack() -> RulePack {
                 id:            "EXAMPLE-001".to_string(),
                 name:          "no-unwrap".to_string(),
                 severity:      "error".to_string(),
-                pattern:       "\\.(unwrap|expect)\\(\\)".to_string(),
+                pattern:       "\.(unwrap|expect)\(\)".to_string(),
                 message:       "Replace unwrap()/expect() with ? or map_err".to_string(),
                 rationale:     "Panics abort async tasks; use Result propagation".to_string(),
                 eval_budget:   EvalBudget::Sync,

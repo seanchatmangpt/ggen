@@ -150,11 +150,21 @@ pub fn capability_status(
     let mut package_rules = Vec::new();
     let mut referenced_packs: Vec<String> = Vec::new();
 
-    if let Some(rules) = table
-        .get("generation")
-        .and_then(|g| g.get("rules"))
-        .and_then(|r| r.as_array())
-    {
+    if let Some(rules_value) = table.get("generation").and_then(|g| g.get("rules")) {
+        // Fail-closed shape check: `[generation.rules]` (dotted table) is
+        // valid TOML but not the array-of-tables form the pipeline
+        // consumes. Accepting it silently would report zero rules while
+        // the author believes rules are declared -- refuse with a typed
+        // error naming the key instead.
+        let Some(rules) = rules_value.as_array() else {
+            return Err(McpError::new(
+                ErrorCategory::ConfigError,
+                "generation.rules must be an array of tables ([[generation.rules]]); \
+                 found a table. Did you mean [[generation.rules]] instead of \
+                 [generation.rules]?"
+                    .to_string(),
+            ));
+        };
         for rule in rules {
             let name = rule
                 .get("name")

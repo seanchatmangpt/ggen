@@ -20,8 +20,25 @@ gates or BRCE, and they never grant execution authority.
 
 ## The URN convention
 
-Capability strings use the form `urn:ggen:pack:<pack-name>` — one URN per
-pack identity. Corpus examples (all under `packs/`):
+Capability strings use the form `urn:ggen:pack:<pack-name>`. The corpus
+invariant (landed 03ebdaee4,
+`crates/ggen-marketplace/tests/capability_corpus_test.rs`) is: every pack's
+`provides` MUST contain its own self-IRI
+`urn:ggen:pack:<id>`, and every provides URN must be globally unique
+(the `DuplicateCapability` check). A pack MAY additionally provide
+non-self domain URNs in other URN spaces — e.g. the strata family:
+
+```toml
+# packs (marketplace)/strata-protocol-pack/pack.toml — real, verified
+[capabilities]
+provides = ["urn:ggen:pack:strata-protocol-pack",
+            "urn:strata:protocol:clap-pdu-v1",
+            "urn:strata:protocol:refusal-receipt"]
+```
+
+The earlier equality invariant (provides == {self-IRI} exactly) wrongly
+banned these domain URNs; it was corrected to self-IRI-presence +
+global-uniqueness. Corpus examples (all under `packs/`):
 
 ```toml
 # packs/fortune5-required-capabilities-pack/pack.toml
@@ -50,10 +67,17 @@ fails.
 
 ## Strict schema: deny_unknown_fields
 
-`PackCapabilities` is `#[serde(deny_unknown_fields)]`. Any key other than
+Both parsers are strict and identical in semantics (parity landed
+2026-10-10): the engine's `PackCapabilities` and the marketplace's
+`PackCapabilitiesFile` each use `BTreeSet<String>` fields (duplicate
+URNs within one list dedup deterministically) and
+`#[serde(deny_unknown_fields)]` — any key other than
 `types`/`provides`/`requires` inside `[capabilities]` is a hard parse
-error. Note the asymmetry: the top-level `pack` table and unknown
-top-level tables are open (collected into `extra`, informational only) —
+error on BOTH sides. Differential court:
+`crates/ggen-engine/tests/pack_capabilities_parser_diff_test.rs`
+(corpus differential over the real corpora + edge fixtures). Note the
+remaining asymmetry: the top-level `pack` table and unknown top-level
+tables are open (collected into `extra`, informational only) —
 only `[capabilities]` is closed.
 
 Pitfall — the fortune5 path-map history: the
@@ -254,33 +278,36 @@ over the merged graph that pack capabilities were compiled into.
 
 `ggen pack capabilities <name>` exists in
 `crates/ggen-cli/src/cmds/pack.rs` (`#[verb] pub fn capabilities`): it
-prints one pack's `provides`/`requires` URNs plus `satisfied_by`, a live
-scan mapping each required URN to the packs whose `provides` cover it
-across both corpus roots. A pack without `[capabilities]` returns
-`capabilities: null`; an unknown pack is a typed error. Engine-side
-refusals (`[FM-PACK-018]`, composer refusals) still surface through
-normal resolve/sync behavior.
+prints one pack's `provides`/`requires` URNs, a `satisfied_by` live scan
+mapping each required URN to the packs whose `provides` cover it across
+both corpus roots, AND a `requirements` array reporting each require's
+tier and satisfaction: `"tier": "urn-declaration"` (Tier 1 — satisfied
+iff the consumer's declared universe contains the named pack) or
+`"tier": "dependency-closure"` (Tier 2 — satisfied iff a provider exists
+in the subject's transitive declared-dependency closure). The verb
+reports; it never refuses — refusal is sync's job. A pack without
+`[capabilities]` returns `capabilities: null`; an unknown pack is a
+typed error. Engine-side refusals (`[FM-PACK-018]`, composer refusals)
+still surface through normal resolve/sync behavior.
 
-`ggen pack compose <a> <b> ...` (same file, `#[verb] pub fn compose`)
-takes packs as positional args — verified against the clap signature
-(`packs: Vec<String>`, no `--packs` flag, no comma delimiter). It
-resolves names against the same corpus roots, runs the deterministic
-composition kernel, and prints `{pack_ids, provides, order,
-artifact_paths}` JSON. Refusal classes: duplicate capability, unbound
-requirement, duplicate artifact path, cyclic dependency (typed, non-
-zero exit on stderr), plus duplicate input names refused pre-kernel.
-Same input set yields the same plan byte-for-byte.
+`ggen pack compose --packs <a> [--packs <b> ...]` (same file,
+`#[verb] pub fn compose`) takes packs via a repeatable `--packs` flag
+(accumulates; a comma-delimited single value also works — verified
+live). Positional args are refused. It resolves names against the same
+corpus roots (marketplace first, then ggen/packs), runs the
+deterministic composition kernel, and prints `{pack_ids, provides,
+order, artifact_paths, self_satisfied}` JSON. Refusal classes: duplicate
+capability, unbound requirement, duplicate artifact path, cyclic
+dependency (typed, non-zero exit on stderr), plus duplicate input names
+refused pre-kernel. Same input set yields the same plan byte-for-byte.
 
-The plan also carries `self_satisfied` (composer.rs:140): a sorted
-list of packs whose `requires` bind through their own `provides`
-under union semantics. Self-satisfaction is legal — the requirement
-is genuinely bound by the composed set — but it is surfaced for
-audit so consumers can spot packs that silently depend on
-themselves; see the self_satisfied e2e test
-(`pack_composition_e2e_test.rs:535`).
-Gap: the `ggen pack compose` JSON projection (cmds/pack.rs:1116)
-omits `self_satisfied` — the field is kernel-visible only until
-that projection is extended.
+The plan's `self_satisfied` field (composer.rs:140, now projected into
+the CLI JSON — the earlier kernel-only gap is closed): a sorted list of
+packs whose `requires` bind through their own `provides` under union
+semantics. Self-satisfaction is legal — the requirement is genuinely
+bound by the composed set — but it is surfaced for audit so consumers
+can spot packs that silently depend on themselves; see the
+self_satisfied e2e test (`pack_composition_e2e_test.rs:535`).
 
 MCP surface: the `capability_status` tool
 (`crates/ggen-mcp/src/tools/capability_status.rs`) adds an additive
@@ -361,6 +388,11 @@ fixtures), not new top-level packs. Canonical numbers live in
 SJIRA-261010-12 census re-count section.
 
 ## End-to-end walkthrough (executed 2026-10-09, ggen@26.10.8 debug build)
+
+NOTE: the Step 1 output below predates the `requirements`/`tier` fields;
+current output also carries a `requirements` array with
+`urn-declaration`/`dependency-closure` tier labels — see the 2026-10-10
+worked example below for the current shape, captured live.
 
 Every block below is copied from a real run: `cargo build -p ggen-cli-lib
 --bin ggen`, then the commands executed in a `tempfile`-style throwaway
@@ -580,3 +612,126 @@ test `unsatisfied_capability_requires_refuse_with_fm_pack_018`
 (`crates/ggen-engine/tests/annotated_pack_sync_smoke.rs`). Remediation
 is in the message: declare the provider in `[packs]` (Tier 1), add a
 providing dependency (Tier 2), or drop the requirement.
+
+## Worked example: two-tier satisfaction + domain URNs (executed 2026-10-10, ggen@26.10.10 debug build)
+
+Every block below is pasted from a real run of
+`/Users/sac/ggen/target/debug/ggen` (exit codes shown). No edits.
+
+### Example 1 — `mcpp-pack` requires `clap-noun-verb-pack` (Tier 1)
+
+```text
+$ ggen pack capabilities mcpp-pack
+{
+  "name": "mcpp-pack",
+  "provides": [
+    "urn:ggen:pack:mcpp-pack"
+  ],
+  "requirements": [
+    {
+      "require": "urn:ggen:pack:clap-noun-verb-pack",
+      "satisfied": true,
+      "tier": "urn-declaration"
+    }
+  ],
+  "requires": [
+    "urn:ggen:pack:clap-noun-verb-pack"
+  ],
+  "satisfied_by": {
+    "urn:ggen:pack:clap-noun-verb-pack": [
+      "clap-noun-verb-pack"
+    ]
+  }
+}
+EXIT:0
+```
+
+The provider itself chains further (also real):
+
+```text
+$ ggen pack capabilities clap-noun-verb-pack
+{
+  "name": "clap-noun-verb-pack",
+  "provides": ["urn:ggen:pack:clap-noun-verb-pack"],
+  "requirements": [
+    {"require": "urn:ggen:pack:praxis-core-pack", "satisfied": true, "tier": "urn-declaration"},
+    {"require": "urn:ggen:pack:star-toml-pack", "satisfied": true, "tier": "urn-declaration"}
+  ],
+  "requires": ["urn:ggen:pack:praxis-core-pack", "urn:ggen:pack:star-toml-pack"],
+  "satisfied_by": {"urn:ggen:pack:praxis-core-pack": ["praxis-core-pack"],
+                    "urn:ggen:pack:star-toml-pack": ["star-toml-pack"]}
+}
+EXIT:0
+```
+
+### Example 2 — domain URNs in provides (strata family)
+
+```text
+$ ggen pack capabilities strata-protocol-pack
+{
+  "name": "strata-protocol-pack",
+  "provides": [
+    "urn:ggen:pack:strata-protocol-pack",
+    "urn:strata:protocol:clap-pdu-v1",
+    "urn:strata:protocol:refusal-receipt"
+  ],
+  "requirements": [],
+  "requires": [],
+  "satisfied_by": {}
+}
+EXIT:0
+```
+
+Non-self domain URNs ride alongside the self-IRI; global uniqueness is
+enforced by the composer's `DuplicateCapability` check, and the corpus
+invariant is self-IRI membership (commit 03ebdaee4).
+
+### Example 3 — six-pack strata chain composes
+
+```text
+$ ggen pack compose --packs strata-protocol-pack --packs strata-temprun-pack \
+    --packs strata-cas-pack --packs strata-signer-pack --packs strata-stratus-pack \
+    --packs strata-valve-pack
+{
+  "artifact_paths": {},
+  "order": [
+    "strata-cas-pack", "strata-protocol-pack", "strata-signer-pack",
+    "strata-stratus-pack", "strata-temprun-pack", "strata-valve-pack"
+  ],
+  "pack_ids": [
+    "strata-cas-pack", "strata-protocol-pack", "strata-signer-pack",
+    "strata-stratus-pack", "strata-temprun-pack", "strata-valve-pack"
+  ],
+  "provides": {
+    "urn:ggen:pack:strata-cas-pack": ["strata-cas-pack"],
+    "urn:ggen:pack:strata-protocol-pack": ["strata-protocol-pack"],
+    "urn:ggen:pack:strata-signer-pack": ["strata-signer-pack"],
+    "urn:ggen:pack:strata-stratus-pack": ["strata-stratus-pack"],
+    "urn:ggen:pack:strata-temprun-pack": ["strata-temprun-pack"],
+    "urn:ggen:pack:strata-valve-pack": ["strata-valve-pack"],
+    "urn:strata:protocol:clap-pdu-v1": ["strata-protocol-pack"],
+    "urn:strata:protocol:refusal-receipt": ["strata-protocol-pack"],
+    "urn:strata:valve:refusal-taxonomy": ["strata-valve-pack"]
+  },
+  "self_satisfied": []
+}
+EXIT:0
+```
+
+Domain URNs appear in the composed provides universe; `self_satisfied`
+is empty (no pack binds its own requirement). A requirer in the chain
+(also real):
+
+```text
+$ ggen pack capabilities strata-temprun-pack
+{
+  "name": "strata-temprun-pack",
+  "provides": ["urn:ggen:pack:strata-temprun-pack"],
+  "requirements": [
+    {"require": "urn:ggen:pack:strata-protocol-pack", "satisfied": true, "tier": "urn-declaration"}
+  ],
+  "requires": ["urn:ggen:pack:strata-protocol-pack"],
+  "satisfied_by": {"urn:ggen:pack:strata-protocol-pack": ["strata-protocol-pack"]}
+}
+EXIT:0
+```

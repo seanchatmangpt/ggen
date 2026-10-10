@@ -1,0 +1,10 @@
+[[rules]]
+id         = "ANTI-LLM-OCEL-002"
+name       = "no-ocel-trigger-002"
+severity   = "error"
+pattern    = 'ANTI-LLM-OCEL-002-TRIGGER'
+message    = "Receipt claim exists without OCEL object/event binding"
+rationale  = "Receipt claims require a bound OCEL object to be admissible"
+eval_budget = "background"
+path_globs   = []
+exclude_globs = []

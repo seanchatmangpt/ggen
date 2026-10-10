@@ -1,0 +1,10 @@
+[[rules]]
+id         = "ANTI-LLM-RECEIPT-003"
+name       = "no-routing-claim"
+severity   = "error"
+pattern    = 'Routing to PackPlan'
+message    = "Route log treated as route execution — a print of the route does not prove execution"
+rationale  = "Route logs are observational; execution requires a receipt"
+eval_budget = "sync"
+path_globs   = []
+exclude_globs = []

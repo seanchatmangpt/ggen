@@ -1,0 +1,10 @@
+[[rules]]
+id         = "ANTI-LLM-SURFACE-001"
+name       = "no-tower-lsp"
+severity   = "error"
+pattern    = 'tower-lsp'
+message    = "Plain tower-lsp found — all LSP hosts must use lsp-max"
+rationale  = "tower-lsp lacks the ConformanceVector, max/ protocol, and receipt infrastructure"
+eval_budget = "sync"
+path_globs   = []
+exclude_globs = []

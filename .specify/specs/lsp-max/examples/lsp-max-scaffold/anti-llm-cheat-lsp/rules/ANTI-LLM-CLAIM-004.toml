@@ -1,0 +1,10 @@
+[[rules]]
+id         = "ANTI-LLM-CLAIM-004"
+name       = "no-successfully-proven"
+severity   = "error"
+pattern    = 'successfully proven'
+message    = "Forbidden proof claim: 'successfully proven'"
+rationale  = "Proof requires a receipt chain, not a string assertion"
+eval_budget = "sync"
+path_globs   = []
+exclude_globs = []

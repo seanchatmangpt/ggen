@@ -23,7 +23,7 @@ pub fn pack() -> RulePack {
                 id:            "ANTI-LLM-RECEIPT-002".to_string(),
                 name:          "no-bypassed-compat".to_string(),
                 severity:      "error".to_string(),
-                pattern:       "[\\x22]bypassed_compat[\\x22]: true".to_string(),
+                pattern:       "[\x22]bypassed_compat[\x22]: true".to_string(),
                 message:       "Compatibility bypass flag found in receipt or config".to_string(),
                 rationale:     "bypassed_compat:true invalidates the receipt chain".to_string(),
                 eval_budget:   EvalBudget::Sync,

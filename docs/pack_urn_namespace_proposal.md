@@ -122,3 +122,26 @@ would surface the first real cross-corpus collision.
   URNs), lower than any figure quoted in this proposal; 0 dangling, 0 bare — so the option-c
   breakage surface ("~297 edges", line 91) is stale and should be re-derived from 104 before any
   future decision on option c.
+
+## Status re-check (2026-10-10, after the two-tier + domain-URN landing)
+
+The 2026-10-10 landings do not change this proposal's conclusions:
+
+- **Two-tier satisfaction (FM-PACK-018 H2)** — Tier 1 URN requires are
+  consumer-declaration-satisfied, Tier 2 non-URN requires are
+  dependency-closure-satisfied; capability edges order-only (cycle-
+  deterministic drop). This is orthogonal to the cross-corpus
+  DuplicateCapability collision: the collision is a composer-surface
+  fact about same-URN provides in two live corpora, untouched by tier
+  semantics.
+- **Domain-URN provides (commit 03ebdaee4)** — packs may provide
+  non-self domain URNs (strata family `urn:strata:*`); corpus invariant
+  is self-IRI membership + global uniqueness. This widens the provides
+  universe slightly but keeps the per-name self-IRI convention, so the
+  collision analysis (71 cross-repo mirror pairs sharing
+  `urn:ggen:pack:<name>`) is unchanged.
+- **Recommendation stands: defer** (mirror-collapse (e) when a real
+  cross-corpus consumer appears; strict `DuplicateCapability` as
+  tripwire). Verified live 2026-10-10: the six-pack strata chain
+  composes clean (exit 0) with domain URNs in the plan; no new
+  collision surface.

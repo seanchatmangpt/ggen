@@ -1,0 +1,10 @@
+[[rules]]
+id         = "ANTI-LLM-STRANGE-001"
+name       = "no-clap-debug"
+severity   = "error"
+pattern    = 'CLAP-DEBUG'
+message    = "Debug diagnostic name found in admissible path"
+rationale  = "CLAP-DEBUG constructs are test scaffolding and must not appear in production paths"
+eval_budget = "sync"
+path_globs   = []
+exclude_globs = []
