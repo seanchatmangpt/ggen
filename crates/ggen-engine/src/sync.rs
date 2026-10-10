@@ -2571,8 +2571,12 @@ fn admit_shape_files(
                 ),
             )
         })?;
+        // resolve_target canonicalizes (e.g. /tmp -> /private/tmp on macOS),
+        // so strip against the canonicalized root or the key leaks the
+        // absolute path and the closure map stops being project-relative.
+        let closure_root = root.canonicalize().unwrap_or_else(|_| root.to_path_buf());
         closure.insert(
-            rel_display(root, &shape_path),
+            rel_display(&closure_root, &shape_path),
             blake3::hash(&bytes).to_hex().to_string(),
         );
         let text = String::from_utf8(bytes).map_err(|error| {
