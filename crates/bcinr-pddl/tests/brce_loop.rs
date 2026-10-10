@@ -3,6 +3,8 @@
 //!
 //! Falsification: deny one step via policy and confirm StepDenied error.
 
+// Chicago TDD (.claude/rules/rust/testing.md): unwrap/expect/panic allowed in test code.
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 use bcinr_pddl::{domain_from_pddl, execute_tape, problem_from_pddl, GroundProblem, Pddl8Error};
 use std::collections::BTreeSet;
 use wasm4pm_compat::pddl::Pddl8GroundAtom;

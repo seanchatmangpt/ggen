@@ -20,6 +20,8 @@
 //! propose -> admit -> schedule -> receipt pipeline produces an actual
 //! object-centric event log, not just prose.
 
+// Chicago TDD (.claude/rules/rust/testing.md): unwrap/expect/panic allowed in test code.
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 use std::collections::HashMap;
 use std::path::PathBuf;
 

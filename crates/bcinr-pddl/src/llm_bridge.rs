@@ -452,7 +452,12 @@ fn refused_receipt() -> TemporalExecutionReceipt {
 }
 
 fn hex(b: &[u8; 32]) -> String {
-    b.iter().map(|x| format!("{x:02x}")).collect()
+    use std::fmt::Write as _;
+    let mut s = String::with_capacity(64);
+    for x in b {
+        let _ = write!(s, "{x:02x}");
+    }
+    s
 }
 
 #[cfg(test)]

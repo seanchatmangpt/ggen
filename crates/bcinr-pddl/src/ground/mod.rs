@@ -1773,8 +1773,7 @@ mod quantifier_tests {
         ));
 
         // Break the ring (only a->b, no b->a): now ?i=b has no matching ?j.
-        let broken_state: BTreeSet<Pddl8GroundAtom> = [("a", "b")]
-            .iter()
+        let broken_state: BTreeSet<Pddl8GroundAtom> = std::iter::once(&("a", "b"))
             .map(|(x, y)| Pddl8GroundAtom {
                 pred: "paired".to_string(),
                 args: vec![x.to_string(), y.to_string()],

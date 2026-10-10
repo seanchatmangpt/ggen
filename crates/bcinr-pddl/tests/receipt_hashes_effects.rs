@@ -11,6 +11,8 @@
 //! timing) but differs only in effect content, and asserts the receipts
 //! now differ.
 
+// Chicago TDD (.claude/rules/rust/testing.md): unwrap/expect/panic allowed in test code.
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 use bcinr_pddl::execute::{execute_temporal_plan, execute_temporal_plan_instrumented};
 use bcinr_pddl::{domain_from_pddl, execute_tape, problem_from_pddl};
 use std::collections::BTreeSet;

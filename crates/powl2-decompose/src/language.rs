@@ -19,8 +19,8 @@ use crate::powl::Language;
 #[must_use]
 pub fn language_upto(net: &WfNet, max_len: usize) -> Language {
     let mut out = Language::new();
-    let start: BTreeSet<String> = [net.source().to_string()].into_iter().collect();
-    let sink_marking: BTreeSet<String> = [net.sink().to_string()].into_iter().collect();
+    let start: BTreeSet<String> = std::iter::once(net.source().to_string()).collect();
+    let sink_marking: BTreeSet<String> = std::iter::once(net.sink().to_string()).collect();
     let mut trace = Vec::new();
     // Guard against silent-only cycles inflating a single run without adding
     // labels: bound the number of *fired transitions*, not the trace length.

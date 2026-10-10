@@ -9,6 +9,8 @@
 //! 4. `depgraph::resolve_sync_order` — topological pack sync order.
 //! 5. Refusal paths — cycle, unbound port, and a tampered SBB digest, as typed errors.
 
+// Chicago TDD (.claude/rules/rust/testing.md): unwrap/expect/panic allowed in test code.
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 use ggen_abb_sbb::depgraph::{resolve_sync_order, ConsumerEdges, PackManifest};
 use ggen_abb_sbb::{admit, manufacture, plan, synthetic_graph, Authority, Generator, Request};
 use std::collections::BTreeSet;
@@ -77,7 +79,7 @@ fn main() {
     ];
     let consumer = ConsumerEdges {
         name: "app".into(),
-        depends_on: ["top".to_string()].into_iter().collect(),
+        depends_on: std::iter::once("top".to_string()).collect(),
     };
     let sp = resolve_sync_order(&packs, Some(&consumer)).expect("clean graph resolves");
     println!("\n== depgraph resolve_sync_order ==");

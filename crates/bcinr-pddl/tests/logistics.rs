@@ -3,6 +3,8 @@
 //! Domain: load a package onto a truck at loc_a, drive to loc_b, unload.
 //! Goal: at(pkg1, loc_b).
 
+// Chicago TDD (.claude/rules/rust/testing.md): unwrap/expect/panic allowed in test code.
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 use bcinr_pddl::{domain_from_pddl, execute_tape, problem_from_pddl, GroundProblem};
 use std::collections::BTreeSet;
 use wasm4pm_compat::pddl::Pddl8GroundAtom;

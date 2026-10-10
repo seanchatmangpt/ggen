@@ -173,6 +173,7 @@ fn convert_child(
     net: &WfNet, part: &BTreeSet<String>, project: fn(&WfNet, &BTreeSet<String>) -> WfNet,
     depth: usize, budget: usize,
 ) -> Result<Powl, Refusal> {
+    #[allow(clippy::expect_used)] // invariant: part.len() == 1 checked above
     if part.len() == 1 {
         let t = part.iter().next().expect("singleton");
         return Ok(Powl::Leaf(net.label(t)));
@@ -579,6 +580,7 @@ fn project_sm(net: &WfNet, part: &BTreeSet<String>) -> WfNet {
 /// Normalization: add a fresh source (via a silent transition) if `ps` has
 /// incoming arcs, and a fresh sink if `pe` has outgoing arcs, so the result
 /// is a valid WF-net (Def 3.3).
+#[allow(clippy::expect_used)] // fail-loud invariant: projection + normalization yields a valid WF-net by construction
 fn normalize(
     mut places: BTreeSet<String>, mut transitions: BTreeMap<String, crate::net::Label>,
     mut pt: BTreeSet<(String, String)>, mut tp: BTreeSet<(String, String)>, ps: String, pe: String,

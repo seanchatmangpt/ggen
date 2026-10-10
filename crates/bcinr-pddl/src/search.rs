@@ -85,6 +85,8 @@ impl<'a> ExactBfsRail<'a> {
 }
 
 impl ExactSearchRail for ExactBfsRail<'_> {
+    /// Fail-loud invariant: result is set on every path above; Result would complicate the step API.
+    #[allow(clippy::expect_used)]
     fn step(&mut self) -> ExactStepOutcome {
         if self.result.is_none() {
             let outcome = match self.problem.find_plan() {
@@ -172,6 +174,8 @@ impl<'a> QLensRail<'a> {
 }
 
 impl ExploitSearchRail for QLensRail<'_> {
+    /// Fail-loud invariants: non-empty distribution, finite weights (PositiveDistribution refuses empty/NaN).
+    #[allow(clippy::unwrap_used, clippy::expect_used)]
     fn step(&mut self) -> ExploitStepOutcome {
         if self.done {
             return ExploitStepOutcome::Idle;

@@ -22,6 +22,9 @@
 //! `crate::ground::quantifier_tests` instead (see that module's doc comment
 //! for the full accounting) — this file only claims what it can prove
 //! end-to-end.
+
+// Chicago TDD (.claude/rules/rust/testing.md): unwrap/expect/panic allowed in test code.
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 use bcinr_pddl::{domain_from_pddl, problem_from_pddl, GroundTemporalProblem};
 
 const DOMAIN: &str = r"

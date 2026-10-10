@@ -8,6 +8,8 @@
 //! Fixture files are intentionally NOT compiled (`.rs` files under tests/
 //! are not auto-built by cargo; only `tests/*.rs` integration targets are).
 
+// Chicago TDD (.claude/rules/rust/testing.md): unwrap/expect/panic allowed in test code.
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 use ggen_cheat_scanner::{collect_impls, find_mock_substitutes, scan_source};
 use std::fs;
 use std::path::{Path, PathBuf};

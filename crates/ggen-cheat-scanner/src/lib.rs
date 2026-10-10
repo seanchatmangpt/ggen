@@ -23,6 +23,8 @@
 //! [`find_mock_substitutes`], run once per crate root by the binary (and
 //! directly by tests).
 
+#![cfg_attr(test, allow(clippy::unwrap_used, clippy::expect_used, clippy::panic))] // Chicago TDD (.claude/rules/rust/testing.md): unwrap/expect/panic allowed in test code
+
 use std::path::{Path, PathBuf};
 use syn::visit::{self, Visit};
 use syn::{Expr, ImplItemFn, ItemFn, ItemImpl, ItemUse};
@@ -507,9 +509,11 @@ fn is_mock_or_fake_name(name: &str) -> bool {
     name.starts_with("Mock") || name.starts_with("Fake")
 }
 
-/// T04 (cross-file half): given every impl record collected across a crate,
-/// flag a `MockXxx`/`FakeXxx` type that implements a trait ALSO implemented
-/// by a differently-named (real production) type in the same crate.
+/// T04 (cross-file half): flag a `MockXxx`/`FakeXxx` type that implements a
+/// trait ALSO implemented by a differently-named (real production) type in
+/// the same crate.
+///
+/// Input: every impl record collected across a crate.
 ///
 /// This deliberately does not flag a `MockXxx`/`FakeXxx` type whose trait has
 /// no other implementer (e.g. a pure trait-shape stub with nothing to

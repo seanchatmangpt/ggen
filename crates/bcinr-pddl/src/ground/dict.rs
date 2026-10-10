@@ -47,6 +47,8 @@ impl Dict {
     }
 
     /// Intern `s`, returning its stable ID. Idempotent.
+    /// Fail-loud invariant guard (>u32::MAX terms); Result propagation would change the public API.
+    #[allow(clippy::expect_used)]
     pub fn intern(&mut self, s: &str) -> SymId {
         if let Some(&id) = self.index.get(s) {
             return SymId(id);

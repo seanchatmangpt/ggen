@@ -3,6 +3,8 @@
 //! Covers the full LLM first-mile manufacturing loop:
 //! domain text → admit → problem text → admit → manufacture_world → receipt → POWL tape.
 
+// Chicago TDD (.claude/rules/rust/testing.md): unwrap/expect/panic allowed in test code.
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 use bcinr_pddl::powl_bridge::temporal_plan_to_powl_tape;
 use bcinr_pddl::{admit_candidate_domain, manufacture_world};
 

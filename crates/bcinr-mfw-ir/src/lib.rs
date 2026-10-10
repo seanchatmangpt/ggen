@@ -40,6 +40,7 @@
 //! authorship.
 
 #![forbid(unsafe_code)]
+#![cfg_attr(test, allow(clippy::unwrap_used, clippy::expect_used, clippy::panic))] // Chicago TDD (.claude/rules/rust/testing.md): unwrap/expect/panic allowed in test code
 
 pub mod causal;
 pub mod concurrency;

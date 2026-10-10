@@ -4,6 +4,8 @@
 //! clean fixture (mirrors the fixture-test discipline in
 //! `~/bcinr/tools/bcinr-cheat-scanner`'s `tests/test_scanner.rs`).
 
+// Chicago TDD (.claude/rules/rust/testing.md): unwrap/expect/panic allowed in test code.
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 use ggen_cheat_scanner::{collect_impls, find_mock_substitutes, scan_source};
 use std::fs;
 use std::path::Path;

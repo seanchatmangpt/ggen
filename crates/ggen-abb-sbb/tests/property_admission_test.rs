@@ -12,6 +12,8 @@
 //! 5. Idempotence: admit is pure (`admit(x) == admit(x)`); replay reproduces the receipt.
 //! 6. Degenerate inputs (0 packs, self-edge, duplicate edges) -> typed outcomes, no panic.
 
+// Chicago TDD (.claude/rules/rust/testing.md): unwrap/expect/panic allowed in test code.
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 use ggen_abb_sbb::depgraph::{resolve_sync_order, ConsumerEdges, PackManifest};
 use ggen_abb_sbb::{
     admit, canonical_digest, manufacture, synthetic_graph, Authority, Generator, Request,

@@ -330,7 +330,12 @@ fn route_chain_hash(problem_text: &str, plan: &TemporalPlan, cost: &CostVector) 
 }
 
 fn hex(b: &[u8; 32]) -> String {
-    b.iter().map(|x| format!("{x:02x}")).collect()
+    use std::fmt::Write as _;
+    let mut s = String::with_capacity(64);
+    for x in b {
+        let _ = write!(s, "{x:02x}");
+    }
+    s
 }
 
 /// Route a [`CapabilityTask`] to a schedulable, cost-ordered plan over the
@@ -535,7 +540,7 @@ mod tests {
     fn test_psdp_cache_concurrency_determinism() {
         use std::thread;
 
-        let handles: Vec<_> = (0..10)
+        let results: Vec<_> = (0..10)
             .map(|_| {
                 thread::spawn(|| {
                     let task = CapabilityTask {
@@ -547,10 +552,10 @@ mod tests {
                     };
                     route_capability_plan(&task).expect("parallel route should succeed")
                 })
+                .join()
             })
+            .map(|joined| joined.expect("worker thread must not panic"))
             .collect();
-
-        let results: Vec<_> = handles.into_iter().map(|h| h.join().unwrap()).collect();
         let reference_receipt = &results[0];
         for receipt in &results[1..] {
             assert_eq!(

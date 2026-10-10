@@ -27,6 +27,7 @@
 //! `Pddl8Tape`, `Pddl8GroundAction`, etc. without pulling in the parser.
 
 #![feature(once_cell_try)]
+#![cfg_attr(test, allow(clippy::unwrap_used, clippy::expect_used, clippy::panic))] // Chicago TDD (.claude/rules/rust/testing.md): unwrap/expect/panic allowed in test code
 
 pub mod alloc_counter;
 pub mod capability;

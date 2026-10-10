@@ -519,11 +519,10 @@ mod tests {
 
     #[test]
     fn residualizer_reports_no_work_when_goal_already_holds() {
-        let init: BTreeSet<Pddl8GroundAtom> = [Pddl8GroundAtom {
+        let init: BTreeSet<Pddl8GroundAtom> = std::iter::once(Pddl8GroundAtom {
             pred: "q".to_string(),
             args: vec![],
-        }]
-        .into_iter()
+        })
         .collect();
         let goal = vec![Pddl8GroundAtom {
             pred: "q".to_string(),

@@ -348,16 +348,16 @@ artifacts = ["src/affidavit_catalog.rs"]
     fn resolves_topological_order_through_transitive_chain() {
         let consumer = ConsumerEdges {
             name: "consumer:app".into(),
-            depends_on: ["a".to_string()].into_iter().collect(),
+            depends_on: std::iter::once("a".to_string()).collect(),
         };
         let packs = vec![
             manifest("a"),
             PackManifest {
-                depends_on: ["a".to_string()].into_iter().collect(),
+                depends_on: std::iter::once("a".to_string()).collect(),
                 ..manifest("b")
             },
             PackManifest {
-                depends_on: ["b".to_string()].into_iter().collect(),
+                depends_on: std::iter::once("b".to_string()).collect(),
                 ..manifest("c")
             },
         ];
@@ -371,15 +371,15 @@ artifacts = ["src/affidavit_catalog.rs"]
     fn refuses_cycle_with_real_path() {
         let packs = vec![
             PackManifest {
-                depends_on: ["b".to_string()].into_iter().collect(),
+                depends_on: std::iter::once("b".to_string()).collect(),
                 ..manifest("a")
             },
             PackManifest {
-                depends_on: ["c".to_string()].into_iter().collect(),
+                depends_on: std::iter::once("c".to_string()).collect(),
                 ..manifest("b")
             },
             PackManifest {
-                depends_on: ["a".to_string()].into_iter().collect(),
+                depends_on: std::iter::once("a".to_string()).collect(),
                 ..manifest("c")
             },
         ];
@@ -400,7 +400,7 @@ artifacts = ["src/affidavit_catalog.rs"]
     #[test]
     fn refuses_dangling_dependency() {
         let packs = vec![PackManifest {
-            depends_on: ["ghost".to_string()].into_iter().collect(),
+            depends_on: std::iter::once("ghost".to_string()).collect(),
             ..manifest("a")
         }];
         let err = resolve_sync_order(&packs, None).unwrap_err();
@@ -411,11 +411,11 @@ artifacts = ["src/affidavit_catalog.rs"]
     fn refuses_duplicate_artifact_path_across_packs() {
         let packs = vec![
             PackManifest {
-                artifacts: ["src/shared.rs".to_string()].into_iter().collect(),
+                artifacts: std::iter::once("src/shared.rs".to_string()).collect(),
                 ..manifest("a")
             },
             PackManifest {
-                artifacts: ["src/shared.rs".to_string()].into_iter().collect(),
+                artifacts: std::iter::once("src/shared.rs".to_string()).collect(),
                 ..manifest("b")
             },
         ];
@@ -430,12 +430,12 @@ artifacts = ["src/affidavit_catalog.rs"]
     fn refuses_unbound_port() {
         let packs = vec![
             PackManifest {
-                provides: ["receipt".to_string()].into_iter().collect(),
+                provides: std::iter::once("receipt".to_string()).collect(),
                 ..manifest("a")
             },
             PackManifest {
-                depends_on: ["a".to_string()].into_iter().collect(),
-                requires: ["hashing".to_string()].into_iter().collect(),
+                depends_on: std::iter::once("a".to_string()).collect(),
+                requires: std::iter::once("hashing".to_string()).collect(),
                 ..manifest("b")
             },
         ];
@@ -447,16 +447,16 @@ artifacts = ["src/affidavit_catalog.rs"]
     fn bound_port_through_transitive_dep_passes() {
         let packs = vec![
             PackManifest {
-                provides: ["hashing".to_string()].into_iter().collect(),
+                provides: std::iter::once("hashing".to_string()).collect(),
                 ..manifest("base")
             },
             PackManifest {
-                depends_on: ["base".to_string()].into_iter().collect(),
+                depends_on: std::iter::once("base".to_string()).collect(),
                 ..manifest("mid")
             },
             PackManifest {
-                depends_on: ["mid".to_string()].into_iter().collect(),
-                requires: ["hashing".to_string()].into_iter().collect(),
+                depends_on: std::iter::once("mid".to_string()).collect(),
+                requires: std::iter::once("hashing".to_string()).collect(),
                 ..manifest("top")
             },
         ];
@@ -469,7 +469,7 @@ artifacts = ["src/affidavit_catalog.rs"]
         let packs = vec![manifest("a")];
         let consumer = ConsumerEdges {
             name: "app".into(),
-            depends_on: ["ghost".to_string()].into_iter().collect(),
+            depends_on: std::iter::once("ghost".to_string()).collect(),
         };
         let err = resolve_sync_order(&packs, Some(&consumer)).unwrap_err();
         assert!(err.to_string().contains("DANGLING_REFERENCE"));

@@ -8,6 +8,8 @@
 //! assigned at a time, forcing the two `assign-worker` steps to run
 //! sequentially. With capacity 2, both workers can be assigned concurrently.
 
+// Chicago TDD (.claude/rules/rust/testing.md): unwrap/expect/panic allowed in test code.
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 use bcinr_pddl::{
     analyze_schedule, domain_from_pddl, execute::execute_temporal_plan, problem_from_pddl,
     GroundTemporalProblem,

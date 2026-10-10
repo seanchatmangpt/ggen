@@ -3,6 +3,8 @@
 //! process, so they hold on a contended host or in a debug build; the absolute bound is
 //! deliberately loose and only catches order-of-magnitude regressions.
 
+// Chicago TDD (.claude/rules/rust/testing.md): unwrap/expect/panic allowed in test code.
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 use ggen_abb_sbb::*;
 use std::time::{Duration, Instant};
 

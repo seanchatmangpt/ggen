@@ -1,4 +1,5 @@
 #![forbid(unsafe_code)]
+#![cfg_attr(test, allow(clippy::unwrap_used, clippy::expect_used, clippy::panic))] // Chicago TDD (.claude/rules/rust/testing.md): unwrap/expect/panic allowed in test code
 //! ABB/SBB manufacture admission kernel (RFC `docs/rfc/v26.9.26/abb-sbb-implementation.md`).
 //!
 //! ggen is the manufacturing function `A = mu(O*)`. This crate is the pure, IO-free
@@ -336,6 +337,7 @@ fn sha256_hex(bytes: &[u8]) -> String {
 
 /// Canonical digest of any serializable value: serde_json maps are key-sorted
 /// (no `preserve_order`), so digests are independent of field order.
+#[allow(clippy::expect_used)] // fail-loud invariant: kernel values always serialize; Result would leak serde into the public API
 pub fn canonical_digest<T: Serialize>(value: &T) -> String {
     let v: Value = serde_json::to_value(value).expect("kernel values serialize");
     sha256_hex(v.to_string().as_bytes())
@@ -490,6 +492,7 @@ pub fn contract_digest(k: &ArchitectureContract) -> String {
     canonical_digest(k)
 }
 
+#[allow(clippy::expect_used)] // fail-loud invariant: contract/capability references validated before this point; Result would change internal admission signature
 fn admit_sbb(
     g: &EaGraph, graph_digest: &str, abb: &Abb, sbb_id: &str,
 ) -> Result<Admitted, Refusal> {
@@ -676,6 +679,7 @@ pub fn admit(g: &EaGraph, req: &Request) -> Result<Admitted, Refusal> {
 /// Planning selects, so it requires at least SELECT authority: a request at NONE is
 /// refused with `INSUFFICIENT_AUTHORITY` instead of returning a SELECT decision the
 /// caller was never granted. DO is refused with `AUTHORITY_EXCEEDED`.
+#[allow(clippy::expect_used)] // fail-loud invariant: contract reference validated during admit; Result would duplicate the Refusal path
 pub fn plan(g: &EaGraph, abb: &str, authority: Authority) -> Result<Decision, Refusal> {
     let (a, digest) = admit_common(g, abb, authority, None)?;
     if authority < Authority::Select {
