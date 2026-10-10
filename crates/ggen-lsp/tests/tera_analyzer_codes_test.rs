@@ -238,6 +238,18 @@ template = { file = "row.tera" }
         "QUERY-002 is the WARNING advisory"
     );
     assert!(d.message.contains("starred"), "{}", d.message);
+    // Corrected semantics: with SELECT *, the projection set is unknowable, so
+    // unboundness cannot be proven — TPL-001 must be SUPPRESSED for this rule
+    // (QUERY-002 is the sole advisory), even though the template consumes `name`.
+    assert_eq!(
+        count_code(&report, "GGEN-TPL-001"),
+        0,
+        "SELECT * must suppress TPL-001 (unsound without provision knowledge): {report:?}"
+    );
+    assert_eq!(
+        report.error_count, 0,
+        "the SELECT * fixture is warnings-only: {report:?}"
+    );
 }
 
 // ─── 6. Negative: a fully clean fixture reports zero diagnostics ────────────

@@ -14,5 +14,23 @@ use clap_noun_verb::Result;
 /// * `consumer_mode` - Suppress installer emission of outputs derived from `fixtureOnly`-marked specs (OS-13 consumer mode).
 #[clap_noun_verb_macros::verb("run")]
 fn sync_run(dry_run: bool, watch: bool, consumer_mode: bool) -> Result<serde_json::Value> {
-    crate::verbs::handlers::handle_sync_run(dry_run, watch, consumer_mode)
+    // HAND-EDITED (lane dryrun-written, 2026-10-10): dry-run reports renamed
+    // the `written` key to `planned_writes` and gained `dry_run: true`. The
+    // engine's `SyncReport` still serializes `written` (typed API surface,
+    // many consumers); this verb-level transform is the CLI honesty fix — a
+    // dry-run names what WOULD be written, never claims writes happened.
+    // Consumers grepping `written` on dry-run stdout get nothing (fail-visible).
+    // NOTE: this hand edit lives below the GENERATED routing annotation and
+    // must be re-applied if `mode = Overwrite` regeneration ever rewrites
+    // this file.
+    let mut report = crate::verbs::handlers::handle_sync_run(dry_run, watch, consumer_mode)?;
+    if dry_run {
+        if let Some(obj) = report.as_object_mut() {
+            if let Some(planned) = obj.remove("written") {
+                obj.insert("planned_writes".to_string(), planned);
+            }
+            obj.insert("dry_run".to_string(), serde_json::Value::Bool(true));
+        }
+    }
+    Ok(report)
 }

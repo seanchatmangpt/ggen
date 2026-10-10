@@ -7,9 +7,10 @@
 //!    fixture it exits 0 and writes outputs; on a manifest-less dir it fails
 //!    with FM-CONFIG-001 (proving the run verb executed, not a usage error).
 //! 2. `ggen sync run --dry-run` exits 0, writes NO template outputs and NO
-//!    `.ggen-v2/` receipt; JSON reports `"planned: write (dry-run)"`. (The
-//!    JSON `written` array still lists the filename — a cosmetic quirk, NOT
-//!    evidence of disk writes; this test pins the disk state.)
+//!    `.ggen-v2/` receipt; JSON reports `"planned: write (dry-run)"` under
+//!    `planned_writes` with `dry_run: true` — no `written` key (renamed from
+//!    the old misleading `written` list, 2026-10-10). This test pins the
+//!    disk state.
 //! 3. `ggen sync run` exits 0, writes outputs + `.ggen-v2/receipt.json`.
 //! 4. `ggen sync run --watch` starts a real watch loop and does not exit on
 //!    its own: spawned with a try_wait poll, still running after 3s (no
@@ -128,11 +129,31 @@ fn bare_sync_without_manifest_is_run_verb_config_error() {
 #[test]
 fn dry_run_exits_zero_and_writes_nothing() {
     let dir = scaffold();
-    ggen(dir.path())
+    let assert = ggen(dir.path())
         .args(["sync", "run", "--dry-run"])
         .assert()
         .success()
         .stdout(predicates::str::contains("planned: write (dry-run)"));
+    // Honesty pin (lane dryrun-written, 2026-10-10): the dry-run report names
+    // planned writes under `planned_writes` with an explicit `dry_run: true`
+    // marker, and carries NO `written` key — a consumer grepping `written`
+    // on a dry-run gets nothing (fail-visible) instead of a misleading list
+    // that reads as "these files were written".
+    let stdout = String::from_utf8_lossy(&assert.get_output().stdout).to_string();
+    let report: serde_json::Value = serde_json::from_str(&stdout).expect("dry-run stdout is JSON");
+    assert!(
+        report.get("planned_writes").is_some(),
+        "dry-run report must carry planned_writes: {report}"
+    );
+    assert_eq!(
+        report.get("dry_run").and_then(serde_json::Value::as_bool),
+        Some(true),
+        "dry-run report must carry dry_run: true: {report}"
+    );
+    assert!(
+        report.get("written").is_none(),
+        "dry-run report must NOT carry a `written` key: {report}"
+    );
     assert!(
         !output_written(dir.path()),
         "dry-run must not write outputs"
@@ -147,11 +168,22 @@ fn dry_run_exits_zero_and_writes_nothing() {
 #[test]
 fn real_run_writes_outputs_and_receipt() {
     let dir = scaffold();
-    ggen(dir.path())
+    let assert = ggen(dir.path())
         .args(["sync", "run"])
         .assert()
         .success()
         .stdout(predicates::str::contains("graph_hash_hex"));
+    // Real runs keep the `written` key and carry no dry-run marker.
+    let stdout = String::from_utf8_lossy(&assert.get_output().stdout).to_string();
+    let report: serde_json::Value = serde_json::from_str(&stdout).expect("run stdout is JSON");
+    assert!(
+        report.get("written").is_some(),
+        "real-run report must carry `written`: {report}"
+    );
+    assert!(
+        report.get("planned_writes").is_none(),
+        "real-run report must NOT carry `planned_writes`: {report}"
+    );
     assert!(output_written(dir.path()));
     assert!(receipt_written(dir.path()));
 }

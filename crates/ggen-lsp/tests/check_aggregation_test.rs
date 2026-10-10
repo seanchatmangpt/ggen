@@ -260,3 +260,44 @@ fn malformed_rq_is_surfaced_not_dropped() {
     assert!(report.has_errors());
     assert_eq!(report.exit_code(), 1);
 }
+
+/// (5) SELECT * interplay: a rule whose query is `SELECT *` and whose FILE
+/// template consumes a query variable must raise ONLY the GGEN-QUERY-002
+/// warning — GGEN-TPL-001 is suppressed for that rule (the projection set is
+/// unknowable, so unboundness cannot be proven; the check would be unsound).
+#[test]
+fn select_star_template_var_raises_query_002_only_no_tpl_001() {
+    let dir = tempfile::TempDir::new().expect("tempdir");
+    let root = dir.path();
+    let manifest = format!(
+        r#"{BASE_MANIFEST_TAIL}
+[[generation.rules]]
+name = "starred"
+output_file = "starred.rs"
+query = {{ file = "star.rq" }}
+template = {{ file = "row.tera" }}
+"#
+    );
+    fs::write(root.join("ggen.toml"), manifest).expect("write manifest");
+    fs::write(root.join("star.rq"), "SELECT * WHERE { ?s ?p ?o }").expect("write star.rq");
+    fs::write(root.join("row.tera"), "{{ name }}").expect("write template");
+
+    let report = check_files_in_root(
+        root,
+        &[root.join("row.tera"), root.join("ggen.toml")],
+        false,
+    );
+
+    assert!(
+        has_code(&report, "GGEN-QUERY-002"),
+        "QUERY-002 advisory must fire; got codes {:?}",
+        codes_of(&report)
+    );
+    assert!(
+        !has_code(&report, "GGEN-TPL-001"),
+        "TPL-001 must be suppressed under SELECT *; got codes {:?}",
+        codes_of(&report)
+    );
+    assert_eq!(report.error_count, 0, "warnings-only: {report:?}");
+    assert_eq!(report.exit_code(), 0);
+}
