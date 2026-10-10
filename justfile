@@ -767,7 +767,11 @@ LSP_MAX_SCAFFOLD := ".specify/specs/lsp-max/examples/lsp-max-scaffold"
 lsp-max-new:
     #!/usr/bin/env bash
     set -euo pipefail
-    {{GGEN}} sync --manifest {{LSP_MAX_MANIFEST}}
+    # `ggen sync` has no --manifest flag (confirmed live: `ggen sync --help`
+    # lists only --format/--select/--introspect/--structured-errors/--autonomic;
+    # `sync run` takes only --dry-run/--watch/--consumer-mode) -- the manifest is
+    # resolved from the cwd, so run from the lsp-max spec directory.
+    cd "$(dirname {{LSP_MAX_MANIFEST}})" && {{GGEN}} sync run
     for toml in {{LSP_MAX_SCAFFOLD}}/*/Cargo.toml; do
         name=$(basename "$(dirname "$toml")")
         echo "checking $name..."

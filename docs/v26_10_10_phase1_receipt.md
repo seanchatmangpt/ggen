@@ -517,3 +517,21 @@ appended 2026-10-10; steps 1-6 executed by cutover lane, GATES-PENDING)
 | 8 | praxis-core retirement | EXECUTED, GATES-PENDING | **EXECUTED + COMMITTED (main b97f52dcc)** — gates green (config 178/0, parity 4/0, governance 2/0); residual = crates.io publish (release-cut) |
 | 22 | ggen-engine publish=true | flip LANDED, dry-run PENDING | **DONE through dry-run** — manifest verification passes post-versioning; crates.io publish is release-cut execution |
 | 25 | Corpus data-quality | DONE (superseded) | **DONE + VERIFIED** — Tier-2 smoke 6/0; btree parity; corpus tightening landed |
+
+## Final closeout (2026-10-10, lane ggen-docs)
+
+Re-verified end-state at HEAD 8b03d25ad (commands in the twin closeout in
+`docs/v26_10_10_repo_state_and_library_usage_report.md`):
+
+| Claim | Grounding |
+|---|---|
+| star-toml = **3** documented exceptions (ggen-lsp analyzer/formatter) | raw `toml::from_str` grep, star_toml-excluded → exactly 3 hits, all in `crates/ggen-lsp` |
+| FM-PACK-018 two-tier landed | `crates/ggen-engine/src/pack.rs:538` two-tier adjudication comment |
+| Praxis retirement executed | no praxis-* members/deps; sibling `graphlaw = { path = "../graphlaw", version = "26.10.5" }` at `Cargo.toml:140` |
+| Version surface 26.10.10 | `Cargo.toml:2` + `cargo metadata` (ggen, ggen-engine, ggen-abb-sbb all 26.10.10) |
+| abb-sbb Stage 2c | `ggen_abb_sbb` call sites, `crates/ggen-engine/src/sync.rs:913-971` |
+| Publish chain abb-sbb → engine PENDING | user-gated crates.io credentials; release-cut execution only |
+| Quickstart current | `ggen sync run --help` exit 0, `--dry-run` present |
+
+Supersedes any earlier in-receipt counts of 9 or 11 star-toml exception sites
+(those intermediates were subsequently reduced to 3).

@@ -528,3 +528,36 @@ Latest landed receipts folded; the two receipts above are superseded on these po
 
 DoD rows updated in `docs/v26_10_10_phase1_receipt.md`: FM-PACK-018 two-tier →
 DONE+VERIFIED (V10/V12/V13 + smoke 4/0); DoD 25 capabilities → corpus data-quality DONE.
+
+## Final closeout (2026-10-10, lane ggen-docs)
+
+End-state verified by commands run at HEAD 8b03d25ad on main:
+
+- **Workspace = 14 crates, praxis retired.** `grep -c '^  "crates/' Cargo.toml`
+  → `13` member paths + root `ggen` package = 14;
+  `cargo metadata --no-deps` → 14 packages, with `ggen:26.10.10`,
+  `ggen-engine:26.10.10`, `ggen-abb-sbb:26.10.10`. Workspace `version` in
+  `Cargo.toml:2` = `26.10.10`. No `praxis-core`/`praxis-graphlaw` members or
+  path deps remain; graph backend is the sibling crate
+  (`Cargo.toml:140`: `graphlaw = { path = "../graphlaw", version = "26.10.5" }`).
+- **star-toml migration closed at 3 documented exceptions.**
+  `grep -rn "toml::from_str" crates --include='*.rs' | grep -v star_toml` →
+  exactly 3 sites, all ggen-lsp: `src/analyzers/toml_analyzer.rs:85` and
+  `src/features/formatting.rs:86,196` (analyzer + formatter). 0 undocumented.
+  (Earlier receipt states of 9→11 sites are superseded: exceptions were
+  subsequently reduced to these 3.)
+- **FM-PACK-018 two-tier landed**: `crates/ggen-engine/src/pack.rs:538`
+  ("Two-tier satisfaction (FM-PACK-018 adjudication H2, 2026-10-09)").
+- **abb-sbb wired as engine Stage 2c**: `ggen_abb_sbb::depgraph::*` +
+  `ggen_abb_sbb::parse_graph`/`Request` call sites in
+  `crates/ggen-engine/src/sync.rs:913-971`.
+- **Quickstart verified**: `cargo run -p ggen-cli-lib --bin ggen -- sync run
+  --help` exits 0, exposes `--dry-run` ("Resolve and render but do not write
+  any files to disk"), reports `version="26.10.10"`. README quickstart form is
+  current.
+- **Publish chain abb-sbb → engine still pending**: user-gated crates.io
+  credentials (release-cut execution); everything through dry-run is DONE per
+  the phase1 receipt's final wave-2 fold.
+- README.md corrected this lane: embedded version `26.10.8` → `26.10.10`.
+  README makes no crate-count or praxis claim of its own, so no other edit
+  was needed.
