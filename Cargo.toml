@@ -204,15 +204,15 @@ rig-core = "0.42.0"
 # crates/ggen-core/ no longer exists on disk (git history retains the code;
 # corrected 2026-10-09, the previous text here wrongly said the directory was
 # "untouched on disk").
-ggen-cli-lib = { path = "crates/ggen-cli", version = "26.10.8" }
-ggen-graph = { path = "crates/ggen-graph", version = "26.10.8" }
+ggen-cli-lib = { path = "crates/ggen-cli", version = "26.10.10" }
+ggen-graph = { path = "crates/ggen-graph", version = "26.10.10" }
 # ggen-core replacement engine dependencies (specs/014-ggen-core-replacement,
 # docs/jira/v26.7.16/10-ROOT-PACKAGE-TEST-MIGRATION.md, T051-T053): root
 # package/tests/examples/benches re-point away from ggen_core:: onto these,
 # file by file, as each file's specific symbols land a real port destination.
-ggen-config = { path = "crates/ggen-config", version = "26.10.8" }
-ggen-marketplace = { path = "crates/ggen-marketplace", version = "26.10.8" }
-ggen-engine = { path = "crates/ggen-engine", version = "26.7.13" }
+ggen-config = { path = "crates/ggen-config", version = "26.10.10" }
+ggen-marketplace = { path = "crates/ggen-marketplace", version = "26.10.10" }
+ggen-engine = { path = "crates/ggen-engine", version = "26.10.10" }
 
 # A2A Protocol Integration (Agent-to-Agent protocol) - using local a2a-generated
 # The vendor a2a-rs is for reference only - we use our generated types
