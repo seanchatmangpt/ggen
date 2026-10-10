@@ -366,7 +366,7 @@ fn non_urn_requires_without_closure_provider_refuse_with_fm_pack_018() {
     );
 }
 
-/// Tier-2 TRANSITIVE (ScopeDepth::Transitive): a 3-pack chain A [dependencies]
+/// Tier-2 TRANSITIVE (`ScopeDepth::Transitive`): a 3-pack chain A [dependencies]
 /// B, B [dependencies] C, where C (not B) provides the non-URN capability A's
 /// `requires` names. No shipped corpus pack forms such a chain, so the trio is
 /// authored as REAL on-disk packs in the test's `TempDir` — real pack.toml
@@ -377,7 +377,7 @@ const B_PACK: &str = "tier2-transitive-middle-pack";
 const C_PACK: &str = "tier2-transitive-root-pack";
 
 /// Write three real sibling packs: A requires the non-URN capability and
-/// depends on B; B depends on C; C provides (with_capability) or withholds
+/// depends on B; B depends on C; C provides (`with_capability`) or withholds
 /// the capability. A does NOT depend on C directly.
 fn write_transitive_packs(root: &Path, with_capability: bool) {
     let c_provides = if with_capability {
@@ -484,7 +484,7 @@ fn write_project_transitive(root: &Path, with_root: bool) {
 
 /// THE Tier-2 transitive positive proof: A's non-URN requirement is satisfied
 /// two hops away through the declared dependency closure (A→B→C), which the
-/// FM-PACK-018 adjudication walks at ScopeDepth::Transitive — the sync goes
+/// FM-PACK-018 adjudication walks at `ScopeDepth::Transitive` — the sync goes
 /// green even though neither A's own deps nor the project's direct packs
 /// other than C's declaration provide the capability.
 #[test]

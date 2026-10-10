@@ -175,7 +175,7 @@ fn self_satisfied_pack_composes_alone() {
     );
 }
 
-/// (3a) DuplicateCapability refusal: two differing-id packs claim the same
+/// (3a) `DuplicateCapability` refusal: two differing-id packs claim the same
 /// capability URN.
 #[test]
 fn refusal_duplicate_capability() {
@@ -204,7 +204,7 @@ fn refusal_duplicate_capability() {
     );
 }
 
-/// (3b) UnboundRequirement refusal: a required provider URN absent from the
+/// (3b) `UnboundRequirement` refusal: a required provider URN absent from the
 /// composed set.
 #[test]
 fn refusal_unbound_requirement() {
@@ -231,7 +231,7 @@ fn refusal_unbound_requirement() {
     );
 }
 
-/// (3c) DuplicateArtifactPath refusal: two packs write the same template
+/// (3c) `DuplicateArtifactPath` refusal: two packs write the same template
 /// output path.
 #[test]
 fn refusal_duplicate_artifact_path() {
@@ -261,7 +261,7 @@ fn refusal_duplicate_artifact_path() {
     );
 }
 
-/// (3d) CyclicDependencies refusal: inter-pack `dependencies` edges form a
+/// (3d) `CyclicDependencies` refusal: inter-pack `dependencies` edges form a
 /// cycle — composition has no install order.
 #[test]
 fn refusal_cyclic_dependencies() {

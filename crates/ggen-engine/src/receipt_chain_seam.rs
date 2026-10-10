@@ -53,18 +53,34 @@ pub mod epoch {
 
 /// Rule-aware verification of a record's stored chain hash.
 /// Wraps [`ReceiptRecord::verify_chain`].
+///
+/// # Errors
+///
+/// Returns [`CoreError`] when the stored chain hash fails rule-aware
+/// verification (hash mismatch, unsupported rule version, or a
+/// monotonicity violation against the record's rule history).
 pub fn verify_chain(record: &ReceiptRecord) -> Result<ChainVerification, CoreError> {
     record.verify_chain()
 }
 
 /// Strict emission-side chain-hash recompute.
 /// Wraps [`ReceiptRecord::recompute_chain_hash`].
+///
+/// # Errors
+///
+/// Returns [`CoreError`] when the recomputed chain hash cannot be
+/// derived from the record (e.g. malformed rule history).
 pub fn recompute_chain_hash(record: &ReceiptRecord) -> Result<[u8; 32], CoreError> {
     record.recompute_chain_hash()
 }
 
 /// Downgrade-guard observation in ledger order.
 /// Wraps [`ChainRuleMonotonicity::observe`].
+///
+/// # Errors
+///
+/// Returns [`CoreError`] when observing `record` at `idx` would violate
+/// chain-rule monotonicity (a downgrade or out-of-order emission).
 pub fn observe_monotonicity(
     tracker: &mut ChainRuleMonotonicity, idx: usize, record: &ReceiptRecord,
     standing: ChainStanding,
