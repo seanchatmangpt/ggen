@@ -1082,3 +1082,4 @@ _build-lane*/
 target-lane*/
 .oclnr-cache/
 .oclnr-cache/
+erl_crash.dump
