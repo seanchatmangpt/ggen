@@ -5,7 +5,12 @@
 //! 3. Cyclic pack dependencies refuse sync fail-closed.
 //! 4. Unbound required port across packs refuses sync fail-closed.
 
-#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+#![allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
+    clippy::similar_names
+)]
 
 use ggen_engine::sync::{sync, SyncOptions};
 use std::path::Path;

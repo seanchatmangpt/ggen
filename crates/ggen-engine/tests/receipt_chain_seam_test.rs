@@ -1,3 +1,9 @@
+#![allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
+    clippy::match_wildcard_for_single_variants
+)] // Chicago TDD (.claude/rules/rust/testing.md): unwrap/expect/panic allowed in test code
 //! Seam pin for `ggen_engine::receipt_chain_seam` (praxis retirement prep,
 //! `docs/v26_10_10_praxis_retirement_plan.md`). Builds a real
 //! `ReceiptRecord` chain in memory with real praxis hashing, verifies it

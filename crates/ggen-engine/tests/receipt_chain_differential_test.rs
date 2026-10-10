@@ -1,3 +1,4 @@
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)] // Chicago TDD (.claude/rules/rust/testing.md): unwrap/expect/panic allowed in test code
 //! Golden court for the receipt chain (post praxis-core retirement).
 //!
 //! The pre-retirement differential court compared the seam against the
@@ -74,6 +75,8 @@ struct Case {
 }
 
 /// Build a fresh, untampered record from seeded parameters.
+/// Truncations are safe: `rng.below()` bounds every value well within the target width.
+#[allow(clippy::cast_possible_truncation)]
 fn generate_record(rng: &mut Lcg, index: usize) -> ReceiptRecord {
     let instruction_id = rng.next();
     let activity_idx = rng.below(64) as u16;
@@ -178,7 +181,7 @@ fn seal(mut record: ReceiptRecord, rule: ChainRule, declare: bool) -> ReceiptRec
 /// The generated case matrix: >= 20 deterministic cases covering both chain
 /// rules, declared and undeclared, v1 and v2, valid and tampered.
 fn case_matrix() -> Vec<Case> {
-    let mut rng = Lcg(0xBADC0FFE_D15EA5E);
+    let mut rng = Lcg(0x0BAD_C0FF_ED15_EA5E);
     let mut cases = Vec::new();
 
     for i in 0..24 {
@@ -187,6 +190,8 @@ fn case_matrix() -> Vec<Case> {
 
         // Cycle rule/declaration choices lawfully: base is only sealable on
         // records without a v2 payload.
+        // Deliberate per-index case matrix; identical arm bodies are intentional coverage pins.
+        #[allow(clippy::match_same_arms)]
         let (rule, declare) = match i % 4 {
             0 => (ChainRule::V2Fold, true),
             1 => (ChainRule::V2Fold, false),
@@ -197,6 +202,7 @@ fn case_matrix() -> Vec<Case> {
         };
         let sealed = seal(record, rule, declare);
 
+        #[allow(clippy::match_same_arms)]
         let kind = match i % 6 {
             0 => CaseKind::Valid,
             1 => CaseKind::TamperedPayload,
@@ -496,16 +502,14 @@ fn error_classification_agrees() {
     let wire = serde_json::to_value(&record).expect("serialize");
     let p_err = record
         .verify_chain()
-        .err()
-        .expect("base-on-v2 must be refused")
+        .expect_err("base-on-v2 must be refused")
         .name()
         .to_string();
     let g: graphlaw::receipt_chain::ReceiptRecord =
         serde_json::from_value(wire).expect("graphlaw parses");
     let g_err = g
         .verify_chain()
-        .err()
-        .expect("graphlaw must also refuse base-on-v2")
+        .expect_err("graphlaw must also refuse base-on-v2")
         .name()
         .to_string();
     assert_eq!(p_err, g_err, "base-on-v2 refusal classification diverged");

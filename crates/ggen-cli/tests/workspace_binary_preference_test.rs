@@ -1,3 +1,4 @@
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)] // Chicago TDD (.claude/rules/rust/testing.md): unwrap/expect/panic allowed in test code
 //! Workspace-binary-preference guard for the test harness `ggen_bin()`
 //! resolution used across `crates/ggen-cli/tests/`.
 //!

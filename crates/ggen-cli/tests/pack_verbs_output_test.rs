@@ -71,7 +71,6 @@ fn capabilities_tier_vocabulary_over_live_corpus() {
         "praxis-core-pack",
     ];
 
-    let mut rows_checked = 0usize;
     let mut urn_rows = 0usize;
     let mut closure_rows = 0usize;
 
@@ -103,7 +102,6 @@ fn capabilities_tier_vocabulary_over_live_corpus() {
                 req["satisfied"].is_boolean(),
                 "{name}: requirement {require} must carry boolean satisfied"
             );
-            rows_checked += 1;
             if is_urn {
                 urn_rows += 1;
             } else {

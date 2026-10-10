@@ -1,3 +1,4 @@
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)] // Chicago TDD (.claude/rules/rust/testing.md): unwrap/expect/panic allowed in test code
 //! LSP/engine schema-classification parity (`GGEN-TPL-001` / specs/014
 //! correction 2).
 //!

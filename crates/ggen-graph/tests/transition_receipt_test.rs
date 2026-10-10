@@ -1,3 +1,4 @@
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)] // Chicago TDD (.claude/rules/rust/testing.md): unwrap/expect/panic allowed in test code
 //! Transition-receipt court: determinism, tamper-evidence, replay, chain linkage,
 //! and refusal for `DeterministicGraph::apply_delta` / `GraphReceipt`.
 

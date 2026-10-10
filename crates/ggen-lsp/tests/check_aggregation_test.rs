@@ -1,3 +1,4 @@
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)] // Chicago TDD (.claude/rules/rust/testing.md): unwrap/expect/panic allowed in test code
 //! Aggregation-layer tests for the headless check gate
 //! (`ggen_lsp::check::check_files_in_root`).
 //!

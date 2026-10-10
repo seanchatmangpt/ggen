@@ -1,3 +1,4 @@
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)] // Chicago TDD (.claude/rules/rust/testing.md): unwrap/expect/panic allowed in test code
 //! Experiment: capability-topology ordering edges (cap-topology, 2026-10-09).
 //!
 //! URN-form `requires` (`urn:ggen:pack:<name>`) between packs of the declared
@@ -7,7 +8,8 @@
 //! `[dependencies]` cycle still refuses via sync.
 
 use std::collections::{BTreeMap, BTreeSet};
-use std::path::PathBuf;
+use std::fmt::Write as _;
+use std::path::{Path, PathBuf};
 
 use tempfile::TempDir;
 
@@ -72,7 +74,7 @@ fn mutual_urn_requires_do_not_refuse_and_fall_back_to_dependency_order() {
 }
 
 /// Minimal on-disk pack with an empty ontology and one template.
-fn write_pack(root: &PathBuf, name: &str, dependencies: &[&str], requires: &[&str]) -> PathBuf {
+fn write_pack(root: &Path, name: &str, dependencies: &[&str], requires: &[&str]) -> PathBuf {
     let dir = root.join("packs").join(name);
     std::fs::create_dir_all(dir.join("templates")).expect("mkdir pack");
     let mut toml =
@@ -80,7 +82,7 @@ fn write_pack(root: &PathBuf, name: &str, dependencies: &[&str], requires: &[&st
     if !dependencies.is_empty() {
         toml.push_str("\n[dependencies]\n");
         for dependency in dependencies {
-            toml.push_str(&format!("{dependency} = \"1.0.0\"\n"));
+            writeln!(toml, "{dependency} = \"1.0.0\"").unwrap();
         }
     }
     if !requires.is_empty() {
@@ -104,7 +106,7 @@ fn write_manifest(dir: &TempDir, pack_names: &[&str]) {
         "[project]\nname = \"cap-topology-exp\"\n\n[ontology]\nsource = \"ontology.ttl\"\n\n[templates]\ndir = \"templates\"\n",
     );
     for name in pack_names {
-        manifest.push_str(&format!("\n[packs.{name}]\npath = \"packs/{name}\"\n"));
+        write!(manifest, "\n[packs.{name}]\npath = \"packs/{name}\"\n").unwrap();
     }
     std::fs::write(dir.path().join("ggen.toml"), manifest).expect("write ggen.toml");
     std::fs::write(dir.path().join("ontology.ttl"), "").expect("write ontology.ttl");
@@ -115,13 +117,13 @@ fn write_manifest(dir: &TempDir, pack_names: &[&str]) {
 fn mutual_urn_requires_sync_green() {
     let dir = TempDir::new().expect("tempdir");
     write_pack(
-        &dir.path().to_path_buf(),
+        dir.path(),
         "self-monitoring",
         &[],
         &[&urn("dogfood-lifecycle")],
     );
     write_pack(
-        &dir.path().to_path_buf(),
+        dir.path(),
         "dogfood-lifecycle",
         &[],
         &[&urn("self-monitoring")],
@@ -135,8 +137,8 @@ fn mutual_urn_requires_sync_green() {
 #[test]
 fn declared_dependency_cycle_still_refuses() {
     let dir = TempDir::new().expect("tempdir");
-    write_pack(&dir.path().to_path_buf(), "p1", &["p2"], &[]);
-    write_pack(&dir.path().to_path_buf(), "p2", &["p1"], &[]);
+    write_pack(dir.path(), "p1", &["p2"], &[]);
+    write_pack(dir.path(), "p2", &["p1"], &[]);
     write_manifest(&dir, &["p1", "p2"]);
     let err = sync(dir.path(), SyncOptions::default())
         .expect_err("declared dependency cycle must refuse");

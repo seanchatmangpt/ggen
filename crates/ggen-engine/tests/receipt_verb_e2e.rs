@@ -169,7 +169,7 @@ fn verify_after_real_sync_succeeds() {
         .success();
 }
 
-/// 2. Flip a byte in the stored chain hash and REPAIR payload_hash_hex to
+/// 2. Flip a byte in the stored chain hash and REPAIR `payload_hash_hex` to
 ///    match the new raw document, so the failure is attributable to the
 ///    chain-integrity check itself, not the earlier payload check. The
 ///    error must name the mismatch (stored vs recomputed) and exit non-zero.
@@ -209,12 +209,14 @@ fn tampered_chain_hash_fails_naming_mismatch() {
     // the raw text (a re-serialization would change the payload bytes the
     // hash is computed over, the same reason `stored_payload_hash` borrows
     // raw bytes).
-    let raw = std::fs::read_to_string(receipt_path(dir.path())).expect("read raw receipt");
+    // Borrowing probe must sit next to its use of `raw` for the borrow region to read clearly.
+    #[allow(clippy::items_after_statements)]
     #[derive(serde::Deserialize)]
     struct Probe<'a> {
         #[serde(borrow)]
         payload: &'a serde_json::value::RawValue,
     }
+    let raw = std::fs::read_to_string(receipt_path(dir.path())).expect("read raw receipt");
     let probe: Probe<'_> = serde_json::from_str(&raw).expect("probe payload");
     let new_payload_hash = blake3::hash(probe.payload.get().as_bytes())
         .to_hex()
@@ -255,7 +257,7 @@ fn tampered_chain_hash_fails_naming_mismatch() {
 }
 
 /// 3. Tamper a field inside the payload (receipt stays valid JSON) without
-///    touching any hash: the stored payload_hash_hex no longer matches the
+///    touching any hash: the stored `payload_hash_hex` no longer matches the
 ///    stored payload bytes, so the payload-binding check fails closed.
 #[test]
 fn tampered_payload_fails_payload_binding() {

@@ -44,9 +44,9 @@ ex:rex a ex:Dog ; ex:name "Rex" .
 // ASK (true = violation). The graph holds no ex:Forbidden individual, so
 // the gate passes -- but its bytes still join the closure as a governing
 // input.
-const GATE_ALLOW: &str = r#"
+const GATE_ALLOW: &str = r"
 ASK WHERE { ?s a <http://example.org/Forbidden> . }
-"#;
+";
 
 // Conforms: ex:rex carries the required ex:name.
 const SHAPE_POLICY: &str = r"

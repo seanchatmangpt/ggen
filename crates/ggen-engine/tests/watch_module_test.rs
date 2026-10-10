@@ -1,3 +1,4 @@
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)] // Chicago TDD (.claude/rules/rust/testing.md): unwrap/expect/panic allowed in test code
 //! Integration courts for `ggen_engine::watch` (the `sync --watch` mode).
 //!
 //! What the public API actually is (read from `src/watch.rs`): a single
@@ -98,7 +99,9 @@ fn wait_for_content(out: &Path, needle: &str, deadline: Duration) -> bool {
 /// the pipeline and writes the template output, within a bounded window.
 #[test]
 fn watch_performs_initial_sync_writing_outputs() {
-    let _guard = WATCH_LOCK.lock().unwrap_or_else(|e| e.into_inner());
+    let _guard = WATCH_LOCK
+        .lock()
+        .unwrap_or_else(std::sync::PoisonError::into_inner);
     let dir = TempDir::new().expect("tempdir");
     let root = dir.path().to_path_buf();
     seed_fixture(&root);
@@ -122,7 +125,9 @@ fn watch_performs_initial_sync_writing_outputs() {
 /// event payload.
 #[test]
 fn watch_resyncs_on_watched_file_change() {
-    let _guard = WATCH_LOCK.lock().unwrap_or_else(|e| e.into_inner());
+    let _guard = WATCH_LOCK
+        .lock()
+        .unwrap_or_else(std::sync::PoisonError::into_inner);
     let dir = TempDir::new().expect("tempdir");
     let root = dir.path().to_path_buf();
     seed_fixture(&root);
@@ -162,7 +167,9 @@ fn watch_resyncs_on_watched_file_change() {
 /// the burst settles — distinct observed contents <= 2.
 #[test]
 fn rapid_writes_within_debounce_window_coalesce() {
-    let _guard = WATCH_LOCK.lock().unwrap_or_else(|e| e.into_inner());
+    let _guard = WATCH_LOCK
+        .lock()
+        .unwrap_or_else(std::sync::PoisonError::into_inner);
     let dir = TempDir::new().expect("tempdir");
     let root = dir.path().to_path_buf();
     seed_fixture(&root);
@@ -205,7 +212,7 @@ fn rapid_writes_within_debounce_window_coalesce() {
     while Instant::now() < end {
         if let Ok(s) = fs::read_to_string(&out) {
             let last = observed.last();
-            if last.map(|l| l != &s).unwrap_or(true) {
+            if last.is_none_or(|l| l != &s) {
                 observed.push(s);
             }
         }
@@ -233,7 +240,9 @@ fn rapid_writes_within_debounce_window_coalesce() {
 /// subsequent real edit still re-syncs (the watcher survived).
 #[test]
 fn genv2_only_writes_do_not_resync() {
-    let _guard = WATCH_LOCK.lock().unwrap_or_else(|e| e.into_inner());
+    let _guard = WATCH_LOCK
+        .lock()
+        .unwrap_or_else(std::sync::PoisonError::into_inner);
     let dir = TempDir::new().expect("tempdir");
     let root = dir.path().to_path_buf();
     seed_fixture(&root);

@@ -1,3 +1,4 @@
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)] // Chicago TDD (.claude/rules/rust/testing.md): unwrap/expect/panic allowed in test code
 //! Lane W `graphlawstore-repoint` e2e: `GraphLawStore` must keep its public
 //! `GraphEngine` API byte-compatible after its internals were repointed from
 //! `praxis_graphlaw::TripleStore` to the `graphlaw` kernel (the same

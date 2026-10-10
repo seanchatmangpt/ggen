@@ -7,15 +7,14 @@
 //! binary from each fixture's cwd. Output format observed and pinned
 //! 2026-10-10 at v26.10.10:
 //!
-//! - healthy project   -> exit 0, stdout = pretty JSON with `healthy: true`
-//!                        and `checks.{lockfile_drift,orphaned_artifacts,receipt_staleness}`
-//!                        (`lockfile_drift` is a documented `skip` on the
-//!                        declarative-rules schema)
-//! - missing ontology  -> exit 1, stderr names the missing file
-//!                        (`[FM-CONFIG-003] ... Ontology source not found: ...`)
-//! - malformed TOML    -> exit 1, typed `[FM-CONFIG-103]` parse error
-//! - empty directory   -> exit 1, graceful typed `[FM-CONFIG-001]`
-//!                        "ggen.toml not found" (no panic)
+//! - healthy project -> exit 0, stdout = pretty JSON with `healthy: true`
+//!   and `checks.{lockfile_drift,orphaned_artifacts,receipt_staleness}`
+//!   (`lockfile_drift` is a documented `skip` on the declarative-rules schema)
+//! - missing ontology -> exit 1, stderr names the missing file
+//!   (`[FM-CONFIG-003] ... Ontology source not found: ...`)
+//! - malformed TOML -> exit 1, typed `[FM-CONFIG-103]` parse error
+//! - empty directory -> exit 1, graceful typed `[FM-CONFIG-001]`
+//!   "ggen.toml not found" (no panic)
 //!
 //! No mocks, no stubs: real binary, real files, state-based assertions.
 

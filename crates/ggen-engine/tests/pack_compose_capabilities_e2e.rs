@@ -1,3 +1,4 @@
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)] // Chicago TDD (.claude/rules/rust/testing.md): unwrap/expect/panic allowed in test code
 //! End-to-end tests for the capability-aware `ggen pack compose` path.
 //!
 //! Two layers exercised, both real:
@@ -43,10 +44,7 @@ fn corpus_pack(name: &str) -> PackFile {
 fn fixture_pack(root: &Path, id: &str, capabilities: Option<&str>, extra: Option<&str>) -> PathBuf {
     let dir = root.join(id);
     std::fs::create_dir_all(&dir).expect("fixture dir created");
-    let mut toml = format!(
-        "[pack]\nid = \"{}\"\nname = \"{}\"\npackages = []\n",
-        id, id
-    );
+    let mut toml = format!("[pack]\nid = \"{id}\"\nname = \"{id}\"\npackages = []\n");
     if let Some(caps) = capabilities {
         toml.push_str(caps);
     }
@@ -58,8 +56,8 @@ fn fixture_pack(root: &Path, id: &str, capabilities: Option<&str>, extra: Option
 }
 
 fn fixture_caps(provides: &[&str], requires: &[&str]) -> String {
-    let p: Vec<String> = provides.iter().map(|u| format!("\"{}\"", u)).collect();
-    let r: Vec<String> = requires.iter().map(|u| format!("\"{}\"", u)).collect();
+    let p: Vec<String> = provides.iter().map(|u| format!("\"{u}\"")).collect();
+    let r: Vec<String> = requires.iter().map(|u| format!("\"{u}\"")).collect();
     format!(
         "\n[capabilities]\nprovides = [{}]\nrequires = [{}]\n",
         p.join(", "),
@@ -132,8 +130,7 @@ fn compose_real_dependency_chain_orders_provider_before_consumer() {
         .expect("self_satisfied field present");
     assert!(
         sat.is_empty(),
-        "cross-satisfied chain has no self-satisfied members; got {:?}",
-        sat
+        "cross-satisfied chain has no self-satisfied members; got {sat:?}"
     );
 }
 
@@ -199,8 +196,7 @@ fn refusal_duplicate_capability() {
     assert!(
         refusal.to_string().contains("duplicate capability")
             && refusal.to_string().contains("urn:ggen:pack:dup-urn"),
-        "typed DuplicateCapability refusal; got: {}",
-        refusal
+        "typed DuplicateCapability refusal; got: {refusal}"
     );
 }
 
@@ -226,8 +222,7 @@ fn refusal_unbound_requirement() {
             && refusal
                 .to_string()
                 .contains("urn:ggen:pack:missing-provider-urn"),
-        "typed UnboundRequirement refusal; got: {}",
-        refusal
+        "typed UnboundRequirement refusal; got: {refusal}"
     );
 }
 
@@ -256,8 +251,7 @@ fn refusal_duplicate_artifact_path() {
     assert!(
         refusal.to_string().contains("duplicate artifact path")
             && refusal.to_string().contains("shared/generated/out.rs"),
-        "typed DuplicateArtifactPath refusal; got: {}",
-        refusal
+        "typed DuplicateArtifactPath refusal; got: {refusal}"
     );
 }
 
@@ -266,10 +260,7 @@ fn refusal_duplicate_artifact_path() {
 #[test]
 fn refusal_cyclic_dependencies() {
     let dep_on = |other: &str| {
-        format!(
-            "\n[[pack.dependencies]]\npack_id = \"{}\"\nversion = \"1.0.0\"\n",
-            other
-        )
+        format!("\n[[pack.dependencies]]\npack_id = \"{other}\"\nversion = \"1.0.0\"\n")
     };
     let tmp = tempfile::tempdir().expect("tempdir");
     fixture_pack(
@@ -290,8 +281,7 @@ fn refusal_cyclic_dependencies() {
     let refusal = compose(&[a, b]).expect_err("cyclic dependency edges must be refused");
     assert!(
         refusal.to_string().contains("cyclic"),
-        "typed CyclicDependencies refusal; got: {}",
-        refusal
+        "typed CyclicDependencies refusal; got: {refusal}"
     );
 }
 
@@ -315,8 +305,7 @@ fn compose_order_is_deterministic_across_iterations() {
         let again = compose(&packs).expect("corpus set composes");
         assert_eq!(
             first.order, again.order,
-            "iteration {} diverged from the first plan order",
-            i
+            "iteration {i} diverged from the first plan order"
         );
         assert_eq!(first.self_satisfied, again.self_satisfied);
     }

@@ -1517,7 +1517,12 @@ mod merge {
 // `crate::schema_dispatch`'s test module.
 
 #[cfg(test)]
-#[allow(clippy::unwrap_used, clippy::expect_used)]
+#[allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
+    clippy::match_wildcard_for_single_variants
+)] // Chicago TDD test module
 mod rule_kinds_tests {
     use super::resolve_rule_sources;
     use std::fs;

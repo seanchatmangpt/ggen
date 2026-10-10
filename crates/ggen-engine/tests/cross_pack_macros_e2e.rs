@@ -1,3 +1,4 @@
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)] // Chicago TDD (.claude/rules/rust/testing.md): unwrap/expect/panic allowed in test code
 //! Cross-pack Tera macro imports (`<pack-name>://<subpath>` template URIs).
 //!
 //! Chicago: a real project tree on disk (`TempDir`), a real pack resolved via

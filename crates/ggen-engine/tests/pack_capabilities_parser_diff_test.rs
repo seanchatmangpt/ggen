@@ -21,7 +21,12 @@
 //!
 //! Chicago TDD: real files, real parsers, real resolve. No mocks.
 
-#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+#![allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
+    clippy::ref_option
+)]
 
 use std::collections::BTreeSet;
 use std::path::{Path, PathBuf};

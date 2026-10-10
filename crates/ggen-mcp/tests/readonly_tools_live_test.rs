@@ -325,12 +325,12 @@ fn pack_capabilities_live_introspects_a_real_pack_dir() {
     std::fs::create_dir_all(pack.join("gates")).expect("mkdir gates");
     std::fs::write(
         pack.join("ontology.ttl"),
-        r#"
+        r"
 @prefix ex: <http://example.org/> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 ex:Widget a rdfs:Class .
 ex:widgetA a ex:Widget .
-"#,
+",
     )
     .expect("write ontology.ttl");
     std::fs::write(

@@ -15,6 +15,7 @@
 
 #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 
+use std::fmt::Write as _;
 use std::path::Path;
 
 use ggen_engine::sync::{sync, SyncOptions};
@@ -44,10 +45,10 @@ fn write(root: &Path, rel: &str, content: &str) {
 fn packs_table(extra: Option<&str>) -> String {
     let mut t = String::from("[packs]\n");
     for p in OK_PACKS {
-        t.push_str(&format!("{p} = {{ path = \"{MARKETPLACE}/{p}\" }}\n"));
+        writeln!(t, "{p} = {{ path = \"{MARKETPLACE}/{p}\" }}").unwrap();
     }
     if let Some(p) = extra {
-        t.push_str(&format!("{p} = {{ path = \"{MARKETPLACE}/{p}\" }}\n"));
+        writeln!(t, "{p} = {{ path = \"{MARKETPLACE}/{p}\" }}").unwrap();
     }
     t
 }
@@ -134,7 +135,7 @@ const PROVIDER_DEPS: [&str; 2] = ["praxis-core-pack", "star-toml-pack"];
 fn packs_table_multi(packs: &[&str]) -> String {
     let mut t = String::from("[packs]\n");
     for p in packs {
-        t.push_str(&format!("{p} = {{ path = \"{MARKETPLACE}/{p}\" }}\n"));
+        writeln!(t, "{p} = {{ path = \"{MARKETPLACE}/{p}\" }}").unwrap();
     }
     t
 }

@@ -15,7 +15,7 @@
 //!
 //! Real BLAKE3 chain hashing, real serde round trips, no mocks.
 
-#![allow(clippy::unwrap_used, clippy::expect_used)]
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 
 use proptest::prelude::*;
 
@@ -137,7 +137,7 @@ fn migrate_twice(
     (
         serde_json::to_vec(&a).expect("serialize migration a"),
         serde_json::to_vec(&b).expect("serialize migration b"),
-        a.resulting_ceiling.clone(),
+        a.resulting_ceiling,
     )
 }
 
@@ -243,8 +243,9 @@ fn fixed_chain() -> Vec<ReceiptRecord> {
     let mut chain = Vec::new();
     let mut prev = "0".repeat(64);
     for i in 0u64..6 {
+        #[allow(clippy::cast_possible_truncation)] // i < 6, fits u32
         let record = legacy_record(i + 1, 1_000 + i, Andon::Green, i as u32, "law:fixed", &prev);
-        prev = record.chain_hash_hex.clone();
+        prev.clone_from(&record.chain_hash_hex);
         chain.push(record);
     }
     chain
@@ -315,7 +316,7 @@ fn mixed_chain(n: usize) -> Vec<ReceiptRecord> {
             "law:mixed",
             &prev,
         );
-        prev = record.chain_hash_hex.clone();
+        prev.clone_from(&record.chain_hash_hex);
         chain.push(record);
     }
     chain

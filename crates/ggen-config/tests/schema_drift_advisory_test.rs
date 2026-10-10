@@ -1,3 +1,4 @@
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)] // Chicago TDD (.claude/rules/rust/testing.md): unwrap/expect/panic allowed in test code
 //! Schema-drift advisory guard (drift-guard lane, 2026-10-10).
 //!
 //! Chicago tests: real `classify_ggen_toml_with_origin` calls over real TOML

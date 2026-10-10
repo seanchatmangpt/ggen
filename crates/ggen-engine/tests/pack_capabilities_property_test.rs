@@ -26,7 +26,14 @@
 //! Real filesystem (`tempfile::TempDir`), real TOML parsing, real pack
 //! resolution — no mocks (Chicago).
 
-#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+#![allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
+    clippy::struct_excessive_bools,
+    clippy::trivially_copy_pass_by_ref,
+    clippy::cast_possible_truncation
+)]
 
 use std::fmt::Write as _;
 use std::path::{Path, PathBuf};

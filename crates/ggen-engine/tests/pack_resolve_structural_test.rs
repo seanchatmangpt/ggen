@@ -66,7 +66,7 @@ fn engine_resolve(pack_key: &str, pack_dir: &Path) -> Result<Vec<ggen_engine::pa
 }
 
 /// A full valid pack dir (pack.toml + ontology.ttl + one template) in a
-/// TempDir, with optional extra text appended to pack.toml and optional
+/// `TempDir`, with optional extra text appended to pack.toml and optional
 /// capability-table text.
 struct FixturePack {
     _dir: TempDir,
@@ -99,6 +99,7 @@ fn fixture_pack_with(
     }
 }
 
+#[allow(dead_code)] // kept as the minimal-fixture variant for future cases
 fn valid_fixture() -> FixturePack {
     fixture_pack_with(
         "",
@@ -236,19 +237,19 @@ fn valid_pack_resolves_with_capability_fields_round_tripped() {
 
     let expect_types: std::collections::BTreeSet<String> = ["ex:Widget", "ex:Gadget"]
         .iter()
-        .map(|s| s.to_string())
+        .map(std::string::ToString::to_string)
         .collect();
     assert_eq!(pack.semantic_types, expect_types, "types round-trip");
 
     let expect_provides: std::collections::BTreeSet<String> = ["urn:ggen:cap:render"]
         .iter()
-        .map(|s| s.to_string())
+        .map(std::string::ToString::to_string)
         .collect();
     assert_eq!(pack.provides, expect_provides, "provides round-trip");
 
     let expect_requires: std::collections::BTreeSet<String> = ["urn:ggen:cap:render"]
         .iter()
-        .map(|s| s.to_string())
+        .map(std::string::ToString::to_string)
         .collect();
     assert_eq!(pack.requires, expect_requires, "requires round-trip");
 

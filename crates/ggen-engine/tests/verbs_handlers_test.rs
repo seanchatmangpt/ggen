@@ -1,5 +1,5 @@
 //! Chicago-TDD unit court for the hand-written handlers behind the generated
-//! clap-noun-verb routes (`ggen_engine::verbs::handlers`): real TempDir
+//! clap-noun-verb routes (`ggen_engine::verbs::handlers`): real `TempDir`
 //! fixtures, real handler calls — no mocks, no CLI subprocess.
 //!
 //! Covered: `handle_graph_validate` (file mode, parse-only), `handle_doctor`
@@ -8,7 +8,7 @@
 //!
 //! Known coupling (deliberate, not refactored here): every verb handler
 //! resolves its project root from the PROCESS cwd (`project_root()`), so
-//! each test chdirs into its TempDir. That is process-global state, so every
+//! each test chdirs into its `TempDir`. That is process-global state, so every
 //! test in this file serializes on one mutex.
 //!
 //! Pins per handler: happy-path result shape over a real fixture, typed
@@ -36,7 +36,9 @@ static CWD_LOCK: Mutex<()> = Mutex::new(());
 fn with_cwd<T>(dir: &Path, f: impl FnOnce() -> T) -> T {
     // unwrap_or_else(into_inner): a panic in one test poisons the mutex;
     // later tests only need mutual exclusion, not the poisoned verdict.
-    let _guard = CWD_LOCK.lock().unwrap_or_else(|e| e.into_inner());
+    let _guard = CWD_LOCK
+        .lock()
+        .unwrap_or_else(std::sync::PoisonError::into_inner);
     let prev = std::env::current_dir().expect("read cwd");
     std::env::set_current_dir(dir).expect("chdir tempdir");
     // Restore cwd even when `f` panics: a leaked cwd into a TempDir makes
@@ -263,7 +265,7 @@ fn law_validate_conforms_with_derive_rule() {
     let dir = TempDir::new().expect("tempdir");
     scaffold_with_law(dir.path(), DERIVE_RULE_N3);
 
-    let report = with_cwd(dir.path(), || handle_law_validate()).expect("derive rule conforms");
+    let report = with_cwd(dir.path(), handle_law_validate).expect("derive rule conforms");
     assert_eq!(report["conforms"], true);
     assert_eq!(report["rules_loaded"], 1);
     assert_eq!(report["denials"], 0);

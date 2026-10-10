@@ -127,7 +127,7 @@ impl McpClient {
     /// `ggen-sync-refusal://` push from the sibling dry-run check, none of
     /// which this fixture intentionally triggers but none of which rule
     /// this test out either).
-    fn wait_for_chain_refusal_update(&mut self) -> Value {
+    fn wait_for_chain_refusal_update(&self) -> Value {
         loop {
             let frame = self.rx.recv_timeout(READ_TIMEOUT).expect(
                 "timed out waiting for a ggen-sync-refusal://...#chain resources/updated push",

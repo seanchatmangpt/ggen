@@ -46,13 +46,13 @@ ex:rex a ex:Dog ; ex:name "Rex" .
 // ASK (true = violation); the graph holds neither forbidden individual, so
 // both gates pass — but their bytes still join the closure as governing
 // inputs.
-const GATE_A: &str = r#"
+const GATE_A: &str = r"
 ASK WHERE { ?s a <http://example.org/ForbiddenA> . }
-"#;
+";
 
-const GATE_B: &str = r#"
+const GATE_B: &str = r"
 ASK WHERE { ?s a <http://example.org/ForbiddenB> . }
-"#;
+";
 
 const TEMPLATE: &str = "---\nto: out.txt\n---\ndog: rex\n";
 

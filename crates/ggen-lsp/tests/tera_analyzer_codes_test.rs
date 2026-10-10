@@ -1,3 +1,4 @@
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)] // Chicago TDD (.claude/rules/rust/testing.md): unwrap/expect/panic allowed in test code
 //! Chicago court for the five GGEN-* tera_analyzer law codes, run through the
 //! REAL headless gate (`check_files_in_root`) against REAL fixture projects in
 //! TempDirs (ggen.toml + templates + inline SPARQL). No mocks, no doubles:

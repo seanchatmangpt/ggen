@@ -1,3 +1,4 @@
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)] // Chicago TDD (.claude/rules/rust/testing.md): unwrap/expect/panic allowed in test code
 //! Corpus smoke: every pack.toml in the local and marketplace pack dirs must
 //! parse through the STRICT loader shape that `ggen sync` uses
 //! (`crates/ggen-engine/src/pack.rs` `PackToml` -> `star_toml`).

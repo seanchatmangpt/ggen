@@ -1,3 +1,4 @@
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)] // Chicago TDD (.claude/rules/rust/testing.md): unwrap/expect/panic allowed in test code
 //! INIT-MINE-LIB-1 — Chicago tests for the library entries `ggen_lsp::init_project`,
 //! `ggen_lsp::mine`, and `ggen_lsp::check_files_in_root` over real fixture projects
 //! in `TempDir`s. Asserts on on-disk state and grounded report contents, never on
@@ -121,7 +122,7 @@ fn check_aggregates_known_code_from_fixture() {
     let rq = dir.path().join("q.rq");
     fs::write(&rq, E0015_SRC).expect("write fixture");
 
-    let report = check_files_in_root(dir.path(), &[rq.clone()], false);
+    let report = check_files_in_root(dir.path(), std::slice::from_ref(&rq), false);
     assert_eq!(report.error_count, 0, "E0015 is a warning");
     assert_eq!(report.warning_count, 1);
     let file = report
