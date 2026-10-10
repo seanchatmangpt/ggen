@@ -343,11 +343,6 @@ prod:fm_LAW_4 a prod:DiagnosticCode ;
     prod:number "4"^^xsd:integer ;
     prod:citation "crates/ggen-engine/src/graph.rs:812" .
 
-prod:fm_LAW_5 a prod:DiagnosticCode ;
-    prod:family "LAW" ;
-    prod:number "5"^^xsd:integer ;
-    prod:citation "crates/ggen-engine/src/graph.rs:834" .
-
 prod:fm_LAW_6 a prod:DiagnosticCode ;
     prod:family "LAW" ;
     prod:number "6"^^xsd:integer ;
@@ -387,11 +382,6 @@ prod:fm_LAW_13 a prod:DiagnosticCode ;
     prod:family "LAW" ;
     prod:number "13"^^xsd:integer ;
     prod:citation "crates/ggen-engine/src/sync.rs:545" .
-
-prod:fm_LAW_14 a prod:DiagnosticCode ;
-    prod:family "LAW" ;
-    prod:number "14"^^xsd:integer ;
-    prod:citation "crates/ggen-engine/src/law_engine.rs:151" .
 
 prod:fm_LAW_15 a prod:DiagnosticCode ;
     prod:family "LAW" ;
@@ -796,6 +786,11 @@ prod:fm_TPL_27 a prod:DiagnosticCode ;
     prod:family "TPL" ;
     prod:number "27"^^xsd:integer ;
     prod:citation "crates/ggen-engine/src/template.rs:384" .
+
+prod:fm_TPL_28 a prod:DiagnosticCode ;
+    prod:family "TPL" ;
+    prod:number "28"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/template.rs:852" .
 
 prod:fm_GRAPH_13 a prod:DiagnosticCode ;
     prod:family "GRAPH" ;

@@ -66,8 +66,8 @@ fn marketplace_parse(dir_name: &str, raw: &str) -> Result<PackFile, String> {
 }
 
 /// Lenient reading as `Option<BTreeSet<String>>` (None = table/field absent).
-fn mkt_set(v: &Option<Vec<String>>) -> Option<BTreeSet<String>> {
-    v.as_ref().map(|list| list.iter().cloned().collect())
+fn mkt_set(v: &Option<std::collections::BTreeSet<String>>) -> Option<BTreeSet<String>> {
+    v.clone()
 }
 
 // ---------------------------------------------------------------------------
@@ -289,9 +289,9 @@ fn edge_pack(capabilities_table: &str) -> EdgePack {
 }
 
 /// Semantic difference (documented by assertion): the strict engine side
-/// stores `BTreeSet<String>` — duplicate URNs dedup; the lenient marketplace
-/// side stores `Vec<String>` — duplicates preserve. Content as a SET agrees;
-/// cardinality does not.
+/// Former divergence, now parity: BOTH sides store `BTreeSet<String>` —
+/// duplicate URNs dedup on both (marketplace parity landed 2026-10-10,
+/// caps-btree-parity). Content and cardinality agree.
 #[test]
 fn duplicate_urn_in_provides_dedup_vs_preserve() {
     let fx = edge_pack("[capabilities]\nprovides = [\"urn:ggen:pack:x\", \"urn:ggen:pack:x\"]\n");
@@ -304,8 +304,8 @@ fn duplicate_urn_in_provides_dedup_vs_preserve() {
         .expect("marketplace saw provides");
     assert_eq!(
         mkt_provides.len(),
-        2,
-        "marketplace Vec preserves duplicates"
+        1,
+        "marketplace BTreeSet dedups (parity with engine)"
     );
 
     let engine = engine_resolve("edge-pack", &fx.pack_dir).expect("engine accepts duplicates");
@@ -343,7 +343,10 @@ fn empty_arrays_agree_as_empty() {
 
     let mkt = marketplace_parse("edge-fixture", &fx.raw).expect("marketplace accepts empty arrays");
     let caps = mkt.capabilities.as_ref().expect("capabilities present");
-    assert_eq!(caps.provides.as_ref().map(Vec::len), Some(0));
+    assert_eq!(
+        caps.provides.as_ref().map(std::collections::BTreeSet::len),
+        Some(0)
+    );
 
     let engine = engine_resolve("edge-pack", &fx.pack_dir).expect("engine accepts empty arrays");
     assert!(engine.semantic_types.is_empty());

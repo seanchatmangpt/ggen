@@ -579,6 +579,61 @@ fn nested_real_pack_capability_uris_do_not_dangle_or_collide_full_tree() {
     }
 }
 
+// ---------------------------------------------------------------------------
+// Strata family (lane S14, 2026-10-10): the 5 real strata-*-pack manifests
+// must compose as a capability chain — strata-protocol-pack is the root;
+// temprun/cas/signer require protocol; stratus requires temprun+protocol.
+// plan.order must place every requirer after its providers.
+// ---------------------------------------------------------------------------
+
+#[test]
+fn strata_five_pack_capability_chain_composes_and_respects_order() {
+    let (all_packs, _errors) = load_corpus();
+    let mut strata: Vec<PackFile> = all_packs
+        .iter()
+        .filter(|p| p.pack_file.pack.id.starts_with("strata-"))
+        .map(|p| p.pack_file.clone())
+        .collect();
+    strata.sort_by(|a, b| a.pack.id.cmp(&b.pack.id));
+    assert_eq!(
+        strata.len(),
+        5,
+        "expected the 5 strata packs in the bound corpus, got {:?}",
+        strata.iter().map(|p| &p.pack.id).collect::<Vec<_>>()
+    );
+
+    let plan = compose(&strata)
+        .unwrap_or_else(|e| panic!("strata 5-pack capability chain must compose, got {e:?}"));
+    let pos = |id: &str| {
+        plan.order
+            .iter()
+            .position(|p| p == id)
+            .expect("pack in plan.order")
+    };
+    let protocol = pos("strata-protocol-pack");
+    let temprun = pos("strata-temprun-pack");
+    assert!(
+        protocol < temprun,
+        "temprun after protocol, got {:?}",
+        plan.order
+    );
+    assert!(
+        protocol < pos("strata-cas-pack") && protocol < pos("strata-signer-pack"),
+        "cas/signer after protocol, got {:?}",
+        plan.order
+    );
+    assert!(
+        temprun < pos("strata-stratus-pack") && protocol < pos("strata-stratus-pack"),
+        "stratus after temprun and protocol, got {:?}",
+        plan.order
+    );
+
+    // Deterministic: pure function of the pack set.
+    let mut reversed = strata.clone();
+    reversed.reverse();
+    assert_eq!(plan, compose(&reversed).expect("reversed strata compose"));
+}
+
 // Re-export to silence unused warnings if types drift.
 #[allow(dead_code)]
 fn _type_witness(_t: PackTemplate) {}

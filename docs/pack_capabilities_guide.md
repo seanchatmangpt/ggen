@@ -170,6 +170,27 @@ providers are not admitted as hidden dependencies.
 Remediation: add a dependency that provides the capability, declare
 the required pack in ggen.toml `[packs]`, or remove the requirement.
 
+### Capability ordering vs satisfaction
+
+Satisfaction and ordering are separate concerns. URN-form Tier 1
+requires between packs of the declared universe also feed
+`admitted_capability_edges` (`crates/ggen-engine/src/pack.rs`), which
+orders candidate scope resolution: providers are enqueued after their
+requirers alongside ordinary `dependencies` edges. Two invariants:
+
+- Capability edges order but never refuse. If adding them to the
+  declared dependency graph would form a cycle, the edges are
+  deterministically dropped (empty vector) and scoping falls back to
+  the dependencies-only order — no error, no refusal.
+- H2 is preserved: cycle refusal remains on the dependencies-only
+  graph, so mutual URN requires (consumer-advice) can never create a
+  dependency cycle.
+
+Satisfaction itself is unchanged: Tier 1 stays
+consumer-declaration-based and Tier 2 stays dependency-closure-based.
+Verified in `crates/ggen-engine/tests/capability_topology_exp.rs`
+(4 tests).
+
 Status (landed, VERIFIED 11/0): SJIRA-10 part 2 extends the
 composer's surfaces from `packages`/`dependencies` to also consume
 `[capabilities]` (`PackCapabilitySurface::from_pack`,

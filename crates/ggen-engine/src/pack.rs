@@ -338,9 +338,10 @@ pub fn dependency_scope<'a>(
         ScopeDepth::Global => unreachable!("handled above"),
     };
 
-    // Experiment (cap-topology, 2026-10-09): when admitted, URN-form
-    // capability requires order providers after requirers in the candidate
-    // scope. Satisfaction semantics are unchanged.
+    // Capability ordering: when admitted, URN-form capability requires order
+    // providers after requirers in the candidate scope. Satisfaction
+    // semantics are unchanged (see `admitted_capability_edges` and
+    // tests/capability_topology_exp.rs).
     let capability_edges: BTreeMap<String, Vec<String>> = {
         let mut map: BTreeMap<String, Vec<String>> = BTreeMap::new();
         for (requirer, provider) in admitted_capability_edges(packs) {
@@ -464,11 +465,12 @@ fn validate_dependency_graph(packs: &[Pack]) -> Result<()> {
             ),
         )
     })?;
-    // Experiment (cap-topology, 2026-10-09): URN-form capability requires
-    // between packs of the declared universe may add ORDERING edges. Cycle
-    // refusal above stays on the dependencies-only graph (H2: mutual URN
+    // URN-form capability requires between packs of the declared universe
+    // may add ORDERING edges via `admitted_capability_edges`. Cycle refusal
+    // above stays on the dependencies-only graph (H2 invariant: mutual URN
     // requires are consumer-advice, never closure). If capability edges
-    // would form a cycle, they are deterministically ignored, never refused.
+    // would form a cycle, they are deterministically dropped, never refused.
+    // Verified in tests/capability_topology_exp.rs.
     let _capability_edges = admitted_capability_edges(packs);
     validate_capability_requirements(packs)
 }
@@ -477,7 +479,7 @@ fn validate_dependency_graph(packs: &[Pack]) -> Result<()> {
 /// (`urn:ggen:pack:<name>`) where both endpoints are in the declared pack
 /// universe. Deduplicated, self-edges excluded.
 ///
-/// EXPERIMENT: these edges order candidate scope only. They never affect
+/// These edges order candidate scope resolution only. They never affect
 /// FM-PACK-018 satisfaction, which stays consumer-declaration-based
 /// (`validate_capability_requirements` Tier 1).
 fn urn_capability_edges(packs: &[Pack]) -> Vec<(String, String)> {

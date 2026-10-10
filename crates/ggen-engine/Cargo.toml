@@ -96,13 +96,13 @@ star-toml = { workspace = true }
 # Cargo.lock) so this never becomes a duplicate-version dependency graph.
 spargebra = "0.4.7"
 graphlaw = { workspace = true }
-ggen-abb-sbb = { path = "../ggen-abb-sbb" }
+ggen-abb-sbb = { path = "../ggen-abb-sbb", version = "26.9.26" }
 # New, deliberate edge (not an undocumented re-export): resolving a `GenerationRule`'s
 # `QuerySource::Pack`/`TemplateSource::Pack` variant means asking "where is this pack
 # installed" -- that knowledge lives in ggen-marketplace's pack registry/lockfile after
 # docs/jira/v26.7.16/06-MARKETPLACE-PACK-REGISTRY-MERGE.md's merge (risk 1). Directionally
 # safe: ggen-marketplace has no dependency back on this crate.
-ggen-marketplace = { path = "../ggen-marketplace" }
+ggen-marketplace = { path = "../ggen-marketplace", version = "26.10.9" }
 # New, deliberate edge (specs/014-ggen-core-replacement, T070): `crate::generation_rules`
 # consumes `ggen_config::manifest::GgenManifest`/`GenerationRule`/`QuerySource`/
 # `TemplateSource`/`GenerationMode` to run the declarative `[[generation.rules]]` sync path
