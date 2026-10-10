@@ -221,9 +221,9 @@ delete-and-regenerate consumer path; see `.specify/pack-l5-promotion.ttl`'s per-
 
 | Standing | Pack count | Packs |
 |---|---|---|
+| counted, not yet adjudicated against the 12-capability bar | 6 | dogfood-lifecycle-pack, ma-case-study-pack, claude-code-pack, gh-terraform-pack, github-actions-pack, level-five-book-pack |
 | furthest-advanced pack(s); source of reusable promotion machinery, itself not yet full Level5 | 2 | ggen-verify-pack, tcps-core-pack |
 | promotion actively underway; ≥1 capability closed, ≥1 open | 27 | tcps-cli-pack, tcps-ffi-pack, tcps-release-pack, tcps-std-pack, tcps-wasm-pack, clap-noun-verb-pack, wasm4pm-algorithms-pack, wasm4pm-facts-pack, chicago-tdd-tools-pack, wasm4pm-cognition-pack, wasm4pm-compat-pack, affidavit-pack, anti-llm-cheat-lsp-pack, cargo-cicd-pack, lsp-max-pack, mcpp-pack, mfact-pack, mfw-pack, mfw-pcp-level5-pack, osx-clnr-pack, praxis-core-pack, rmcp-pack, star-toml-pack, wasm4pm-pack, self-monitoring-pack, ggen-constitution-pack, ggen-release-pack |
-| counted, not yet adjudicated against the 12-capability bar | 6 | dogfood-lifecycle-pack, ma-case-study-pack, claude-code-pack, gh-terraform-pack, github-actions-pack, level-five-book-pack |
 
 
 ## 9. Incompatibility and supersession ledger

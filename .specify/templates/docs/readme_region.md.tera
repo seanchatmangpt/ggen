@@ -4,10 +4,9 @@
     crates/ggen-engine/src/generation_rules.rs. -#}
 {%- set vrows = sparql(query='PREFIX rf: <http://ggen.org/repo-facts#> SELECT ?wv ?tc WHERE { rf:doc rf:workspaceVersion ?wv ; rf:toolchainChannel ?tc . } ORDER BY ?wv') -%}
 {%- set v = sparql_first(rows=vrows) -%}
-{%- set grows = sparql(query='PREFIX rf: <http://ggen.org/repo-facts#> SELECT ?o ?name WHERE { ?g a rf:Gate ; rf:order ?o ; rf:name ?name . } ORDER BY ?o') -%}
-{%- set gnames = sparql_values(rows=grows, column="name") -%}
 Current version: `{{ v.wv }}` (workspace version in `Cargo.toml`; nightly Rust toolchain
 `{{ v.tc }}`, pinned via `rust-toolchain.toml`). The Definition of Done is `just
-pre-commit`, which chains {{ grows | length }} gates: {{ gnames | join(sep=" → ") }}. This project is
+pre-commit`; its full gate list is the `pre-commit:` dependency line in `justfile` (the sole
+source of truth — it has drifted before, do not restate a count here). This project is
 under active, fast-moving development — see [Maturity & Known Limitations](#maturity--known-limitations)
 before depending on it for anything production-critical.

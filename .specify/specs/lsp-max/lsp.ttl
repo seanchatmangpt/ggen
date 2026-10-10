@@ -340,7 +340,7 @@ lsp:CheatTest002
     lsp:ruleId     "ANTI-LLM-VERSION-001"^^xsd:string ;
     lsp:ruleName   "no-default-version"^^xsd:string ;
     lsp:severity   "warning"^^xsd:string ;
-    lsp:pattern    "version = [\\x22]1\\.0\\.0[\\x22]"^^xsd:string ;
+    lsp:pattern    "version = [\\x22]1[.]0[.]0[\\x22]"^^xsd:string ;
     lsp:message    "Default template version '1.0.0' found in project configuration"^^xsd:string ;
     lsp:rationale  "Default versions indicate a project was never properly versioned"^^xsd:string ;
     lsp:evalBudget "sync"^^xsd:string .
