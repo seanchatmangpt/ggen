@@ -8,8 +8,8 @@ subjects named; anything not re-verified at write time is marked as-of-date.
 
 | Subject | Branch | HEAD | State |
 |---|---|---|---|
-| ggen main | `main` | `a1c4a26f9` (FINAL 2026-10-10: `just pre-commit` GREEN end-to-end; full census 3251+/26→adjudicated & fixed incl. abb-sbb canonical_digest feature-stability fix `12b096484`; tree clean) | CLEAN |
-| strata | `main` | `88ee588`+ (waves 1-4: protocol 122/0, stratus 58/0, temprun 55/0, clippy gate green, CI receipt, SOAK_LOG, RELEASE.md) | CLEAN |
+| ggen main | `main` | `919315ccb` (FINAL 2026-10-10: pre-commit GREEN; census adjudicated; abb-sbb digest-stability fix; build-provenance attestation vector eec9fd05d; DfLSS/court wave f90d03f..; tree clean) | CLEAN |
+| strata | `main` | `0ba949d` (FINAL 2026-10-10: waves 1-4 + Chicago court 20/20 resolved + 10 cross-product courts + DfLSS artifacts (Gauge R&R %GRR 1.00, SPC N=1000, DFMEA, Poka-Yoke) + field-delta packing 2.577 B/quad + STRA tripwire + acyclicity enforcement; census 342/0; clippy 0; mix 94/0; dialyzer/credo 0) | CLEAN |
 | ggen-marketplace | `hdit-v2-structs` | `eec4782d7`+ (annotations, 6 strata packs drift-corrected, README capabilities section, crash-dump purged) | CLEAN |
 | graphlaw | `docs/doc-hdit-scaffold-gl` | `e1059f1` + dirty (3-commit split USER-GATED; prep doc ready; re-baselined gate: `cargo test -p graphlaw --all-features` 412/0) | DIRTY by design |
 
