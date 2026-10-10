@@ -2,6 +2,7 @@
 name = "risk-management"
 version = "1.0.0"
 description = "Comprehensive risk management system with VaR calculation, stress testing, credit risk, and market risk analysis"
+repository = "https://github.com/seanchatmangpt/ggen"
 category = "finance"
 author = "ggen Marketplace"
 license = "MIT"
@@ -32,4 +33,4 @@ relations = ["exposes_to", "hedges", "correlates_with", "breaches", "monitors"]
 complexity = "very_high"
 
 [marketplace]
-production_ready = false
+production_ready = true

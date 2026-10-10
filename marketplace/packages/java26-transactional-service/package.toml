@@ -2,6 +2,7 @@
 name = "java26-transactional-service"
 version = "1.0.0"
 description = "TRANSACTIONAL SERVICE — Generate @Service classes with @Transactional, command records, and read/write separation"
+repository = "https://github.com/seanchatmangpt/ggen"
 authors = ["ggen marketplace"]
 license = "MIT"
 keywords = ["java26", "service", "transactional", "spring-boot", "command-pattern"]
@@ -10,4 +11,4 @@ pattern_number = 19
 pattern_name = "TRANSACTIONAL SERVICE"
 
 [marketplace]
-production_ready = false
+production_ready = true

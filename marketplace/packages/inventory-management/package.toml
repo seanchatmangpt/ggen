@@ -49,4 +49,4 @@ tracking_features = ["lot-batch", "serial-number", "expiration", "barcode", "rfi
 location_types = ["warehouse", "distribution-center", "retail-store", "zone", "bin"]
 
 [marketplace]
-production_ready = false
+production_ready = true

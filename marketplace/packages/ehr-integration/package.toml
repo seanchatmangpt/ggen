@@ -2,6 +2,7 @@
 name = "ehr-integration"
 version = "1.0.0"
 description = "EHR integration with Epic/Cerner connectors and SMART on FHIR support"
+repository = "https://github.com/seanchatmangpt/ggen"
 category = "healthcare"
 tags = ["ehr", "epic", "cerner", "fhir", "smart-on-fhir", "patient-portal"]
 license = "MIT"
@@ -24,4 +25,4 @@ gdpr = true
 fda = false
 
 [marketplace]
-production_ready = false
+production_ready = true

@@ -2,6 +2,7 @@
 name = "java26-record-value-object"
 version = "1.0.0"
 description = "RECORD VALUE OBJECT — Generate immutable Java records as domain value objects"
+repository = "https://github.com/seanchatmangpt/ggen"
 authors = ["ggen Contributors"]
 license = "MIT"
 keywords = ["java26", "records", "value-object", "ddd", "immutable"]
@@ -16,4 +17,4 @@ prefix = "java26"
 required = ["java26-core"]
 
 [marketplace]
-production_ready = false
+production_ready = true

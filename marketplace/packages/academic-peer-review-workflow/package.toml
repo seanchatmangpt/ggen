@@ -115,4 +115,4 @@ requires = ["paper.rdf", "reviewers.json"]
 stages_required = ["reviewer-assignment", "review-period", "decision-compilation"]
 
 [marketplace]
-production_ready = false
+production_ready = true

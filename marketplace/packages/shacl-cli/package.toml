@@ -96,4 +96,4 @@ opt-level = 0
 opt-level = 1
 
 [marketplace]
-production_ready = false
+production_ready = true

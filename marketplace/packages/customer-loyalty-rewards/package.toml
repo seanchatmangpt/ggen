@@ -2,6 +2,7 @@
 name = "customer-loyalty-rewards"
 version = "1.0.0"
 description = "Comprehensive loyalty program with points, tiers, and gamification"
+repository = "https://github.com/seanchatmangpt/ggen"
 authors = ["ggen Marketplace"]
 license = "MIT"
 keywords = ["e-commerce", "loyalty", "rewards", "gamification", "rdf"]
@@ -86,4 +87,4 @@ complements = [
 ]
 
 [marketplace]
-production_ready = false
+production_ready = true

@@ -27,4 +27,4 @@ keywords = ["api-gateway", "kubernetes", "authentication", "rate-limiting", "rou
 categories = ["development-tools", "api-gateway", "infrastructure"]
 
 [marketplace]
-production_ready = false
+production_ready = true

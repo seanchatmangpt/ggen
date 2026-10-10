@@ -79,4 +79,4 @@ opt-level = 0
 debug = true
 
 [marketplace]
-production_ready = false
+production_ready = true

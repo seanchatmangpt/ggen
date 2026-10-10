@@ -64,4 +64,4 @@ features = "CRUD operations, validation, error handling, rate limiting, security
 frameworks = "Axum, OpenAPI 3.0"
 
 [marketplace]
-production_ready = false
+production_ready = true

@@ -26,4 +26,4 @@ keywords = ["support", "customer-service", "case-routing", "hooks", "automation"
 categories = ["development-tools", "customer-support", "automation"]
 
 [marketplace]
-production_ready = false
+production_ready = true

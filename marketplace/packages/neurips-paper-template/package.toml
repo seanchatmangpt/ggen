@@ -86,4 +86,4 @@ features = "Anonymization, appendices, algorithm environment, strict validation"
 use_cases = "NeurIPS submissions, machine learning conferences, deep learning research"
 
 [marketplace]
-production_ready = false
+production_ready = true

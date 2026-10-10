@@ -2,6 +2,7 @@
 name = "iso-20022-payments"
 version = "1.0.0"
 description = "ISO 20022 Payment Messages - RDF ontology, SPARQL templates, and multi-language implementation"
+repository = "https://github.com/seanchatmangpt/ggen"
 category = "finance"
 tags = ["iso20022", "payments", "sepa", "banking", "fintech", "rdf", "sparql"]
 author = "ggen Marketplace"
@@ -49,4 +50,4 @@ standards = ["ISO 20022", "SEPA", "EPC"]
 regulations = ["PSD2", "SWIFT"]
 
 [marketplace]
-production_ready = false
+production_ready = true

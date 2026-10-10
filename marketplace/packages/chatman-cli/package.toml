@@ -57,4 +57,4 @@ output_formats = ["json", "yaml", "markdown", "text", "colored-terminal"]
 integration_modes = ["standalone", "library", "plugin", "embedded"]
 
 [marketplace]
-production_ready = false
+production_ready = true

@@ -183,4 +183,4 @@ requires = ["project_name", "domain_rdf"]
 formats_supported = ["ttl", "rdf", "turtle"]
 
 [marketplace]
-production_ready = false
+production_ready = true

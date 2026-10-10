@@ -2,6 +2,7 @@
 name = "crm-customer-management"
 version = "1.0.0"
 description = "CRM system for sales pipeline, customer relationships, and opportunity tracking"
+repository = "https://github.com/seanchatmangpt/ggen"
 author = "GGEN Marketplace"
 license = "MIT"
 category = "enterprise"
@@ -43,4 +44,4 @@ rdf_classes = 30
 sparql_queries = 12
 
 [marketplace]
-production_ready = false
+production_ready = true

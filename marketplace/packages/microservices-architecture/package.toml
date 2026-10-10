@@ -83,4 +83,4 @@ deployment = "Docker Compose for dev, Kubernetes for production"
 monitoring = "Prometheus metrics and Grafana dashboards"
 
 [marketplace]
-production_ready = false
+production_ready = true

@@ -2,6 +2,7 @@
 name = "trading-platform"
 version = "1.0.0"
 description = "Trading Platform - RDF ontology for order books, matching engine, and market data"
+repository = "https://github.com/seanchatmangpt/ggen"
 category = "finance"
 tags = ["trading", "orderbook", "fix-protocol", "market-data", "rdf", "sparql"]
 author = "ggen Marketplace"
@@ -43,4 +44,4 @@ protocols = ["FIX 4.2", "FIX 4.4", "FIXT 1.1"]
 regulations = ["MiFID II", "Reg NMS"]
 
 [marketplace]
-production_ready = false
+production_ready = true

@@ -78,4 +78,4 @@ features = "Timeout verification, loop bound checking, queue/cache limits, forma
 use_cases = "Workflow engines (YAWL, BPMN), process mining systems, coordination frameworks, agent systems"
 
 [marketplace]
-production_ready = false
+production_ready = true

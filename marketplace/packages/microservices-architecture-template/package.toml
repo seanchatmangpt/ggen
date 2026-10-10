@@ -2,6 +2,7 @@
 name = "microservices-architecture-template"
 version = "1.0.0"
 description = "Production-grade microservices architecture with distributed tracing, circuit breakers, and comprehensive observability"
+repository = "https://github.com/seanchatmangpt/ggen"
 authors = ["GGEN Team"]
 license = "MIT"
 keywords = ["microservices", "architecture", "distributed-systems", "docker", "kubernetes", "observability"]
@@ -93,4 +94,4 @@ message_queue = true
 event_streaming = true
 
 [marketplace]
-production_ready = false
+production_ready = true

@@ -2,6 +2,7 @@
 name = "enterprise-erp-core"
 version = "1.0.0"
 description = "Comprehensive ERP and accounting system with double-entry bookkeeping"
+repository = "https://github.com/seanchatmangpt/ggen"
 author = "GGEN Marketplace"
 license = "MIT"
 category = "enterprise"
@@ -71,4 +72,4 @@ rdf_classes = 35
 sparql_queries = 15
 
 [marketplace]
-production_ready = false
+production_ready = true

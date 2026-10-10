@@ -49,4 +49,4 @@ subscription_tiers = ["free", "basic", "pro", "enterprise"]
 security_features = ["data-residency", "encryption", "compliance", "audit-logs"]
 
 [marketplace]
-production_ready = false
+production_ready = true

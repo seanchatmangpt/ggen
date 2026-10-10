@@ -2,6 +2,7 @@
 name = "business-intelligence-reporting"
 version = "1.0.0"
 description = "Business Intelligence and Reporting with OLAP, dashboards, KPIs, and dimensional modeling"
+repository = "https://github.com/seanchatmangpt/ggen"
 authors = ["GGEN Marketplace"]
 license = "MIT"
 category = "Enterprise"
@@ -39,4 +40,4 @@ readme = "README.md"
 guides = ["docs/USER_GUIDE.md", "docs/INTEGRATION.md", "docs/BI_PATTERNS.md", "docs/OLAP.md"]
 
 [marketplace]
-production_ready = false
+production_ready = true

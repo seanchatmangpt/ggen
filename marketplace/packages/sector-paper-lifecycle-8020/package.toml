@@ -26,4 +26,4 @@ keywords = ["academic", "paper", "latex", "publishing", "research", "submission"
 categories = ["development-tools", "academic", "publishing"]
 
 [marketplace]
-production_ready = false
+production_ready = true

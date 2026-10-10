@@ -91,4 +91,4 @@ requires = ["paper.rdf", "references.bib"]
 arxiv_categories = ["cs.AI", "cs.CL", "cs.LG", "math.AT", "physics.quant-ph"]
 
 [marketplace]
-production_ready = false
+production_ready = true

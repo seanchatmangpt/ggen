@@ -2,6 +2,7 @@
 name = "java26-virtual-thread-dao"
 version = "1.0.0"
 description = "VIRTUAL THREAD DAO — Generate DAO classes using Project Loom virtual threads"
+repository = "https://github.com/seanchatmangpt/ggen"
 authors = ["ggen Contributors"]
 license = "MIT"
 keywords = ["java26", "virtual-threads", "dao", "loom", "jdbc"]
@@ -16,4 +17,4 @@ prefix = "java26"
 required = ["java26-core"]
 
 [marketplace]
-production_ready = false
+production_ready = true

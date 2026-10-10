@@ -131,4 +131,4 @@ name = "pipeline_benchmark"
 harness = false
 
 [marketplace]
-production_ready = false
+production_ready = true
