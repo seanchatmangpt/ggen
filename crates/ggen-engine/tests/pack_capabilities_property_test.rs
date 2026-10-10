@@ -109,7 +109,9 @@ fn write_pack(
 /// Deterministic scenario description.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 struct Scenario {
-    /// `a` requires `urn:ggen:pack:c` — declared: Tier-1 must pass.
+    /// `a` requires `urn:ggen:pack:c-leaf` — declared: Tier-1 must pass
+    /// (satisfied by consumer [packs] declaration alone; see
+    /// `pack_two_tier_satisfaction_test` and FM-PACK-018).
     urn_ok: bool,
     /// `a` requires `urn:ggen:pack:ghost-p` — undeclared: Tier-1 must fail.
     urn_bad: bool,
@@ -139,7 +141,7 @@ impl Scenario {
     fn a_requires(&self) -> Vec<String> {
         let mut r = Vec::new();
         if self.urn_ok {
-            r.push("urn:ggen:pack:c".to_string());
+            r.push("urn:ggen:pack:c-leaf".to_string());
         }
         if self.urn_bad {
             r.push("urn:ggen:pack:ghost-p".to_string());
