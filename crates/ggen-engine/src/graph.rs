@@ -457,15 +457,16 @@ fn diagnose_bind_rebind(sparql: &str) -> Option<AppError> {
                     }
                     depth -= 1;
                 }
-                b'A' | b'a' if depth == 1
-                    && sparql[i..].len() >= 2
+                b'A' | b'a'
+                    if depth == 1
+                        && sparql[i..].len() >= 2
                         && sparql[i + 1..].starts_with(['S', 's'])
                         && !is_name_char(bytes[i - 1])
-                        && bytes.get(i + 2).is_none_or(|&c| !is_name_char(c))
-                    => {
-                        as_pos = Some(i);
-                        break;
-                    }
+                        && bytes.get(i + 2).is_none_or(|&c| !is_name_char(c)) =>
+                {
+                    as_pos = Some(i);
+                    break;
+                }
                 _ => {}
             }
             i += 1;
@@ -492,8 +493,10 @@ fn diagnose_bind_rebind(sparql: &str) -> Option<AppError> {
             continue;
         }
         // Freshness check: does `?target_name` occur anywhere strictly
-        // before the AS keyword (group prefix or the BIND expression)?
-        let prefix = &sparql[..as_pos];
+        // before the AS keyword within the current group graph pattern
+        // (after the opening `{` of the pattern, or start of query if none)?
+        let group_start = sparql[..kw].rfind('{').map_or(0, |p| p + 1);
+        let prefix = &sparql[group_start..as_pos];
         if var_token_present(prefix, clean_target_name) {
             let line_no = sparql[..kw].matches('\n').count() + 1;
             let line_start = prefix_line_start(sparql, kw);
