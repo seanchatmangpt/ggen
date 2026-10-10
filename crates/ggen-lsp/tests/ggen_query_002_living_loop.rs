@@ -8,9 +8,9 @@
 //! GGEN-QUERY-002 — SELECT * blindspot advisory living-loop proof.
 //!
 //! Proves that `check_files_in_root` surfaces GGEN-QUERY-002 (WARNING) when a
-//! rule's inline query uses `SELECT *`, and crucially that `SELECT *` suppresses
-//! GGEN-TPL-001 detection (the blindspot: unbound template vars are invisible
-//! when the SPARQL projection is a wildcard).
+//! rule's inline query uses `SELECT *`, and that `SELECT *` suppresses
+//! GGEN-TPL-001 detection entirely (no false-positive flood): QUERY-002 is the
+//! sole advisory, and an explicit SELECT restores the TPL-001 guard.
 //!
 //! Chicago TDD: real TempDir, real ggen.toml, real headless gate. No mocks.
 
@@ -182,22 +182,20 @@ fn explicit_select_does_not_raise_query_002() {
 }
 
 // ---------------------------------------------------------------------------
-// Test 3 — SELECT * causes TPL-001 false-positive flood (the blindspot proof)
+// Test 3 — SELECT * suppresses TPL-001 (QUERY-002 is the only signal)
 // ---------------------------------------------------------------------------
 
 /// A rule using `SELECT *` paired with a template that references `{{ name }}`
-/// (a legitimate var that WOULD be bound at runtime) STILL produces GGEN-TPL-001
-/// diagnostics — because with no explicit projection, the cross-surface guard
-/// treats ALL template vars as unbound.
+/// (a legitimate var that WOULD be bound at runtime) must NOT produce
+/// GGEN-TPL-001 diagnostics. The wildcard projection is not introspectable, so
+/// the cross-surface guard suppresses TPL-001 entirely instead of flooding with
+/// false positives (fix in analyzers/mod.rs, ebaebc55f).
 ///
-/// This is the behavioral proof of WHY QUERY-002 matters: `SELECT *` causes the
-/// TPL-001 guard to flood with false-positive errors for every template variable,
-/// including ones that are genuinely bound. The blindspot is that you cannot
-/// distinguish real unbound vars from false positives — the advisory signal is
-/// drowned in noise. QUERY-002 warns: "switch to explicit SELECT to restore
-/// meaningful TPL-001 reporting."
+/// QUERY-002 remains the sole signal: it warns that the TPL-001 / OUT-001
+/// cross-surface guards are disabled for this rule and an explicit SELECT is
+/// needed to restore them (see Test 4).
 #[test]
-fn select_star_causes_tpl_001_false_positive_flood_blindspot_proven() {
+fn select_star_suppresses_tpl_001_query_002_is_the_only_signal() {
     let tmp = tempfile::tempdir().expect("create tempdir");
     let root = tmp.path();
 
@@ -221,15 +219,15 @@ fn select_star_causes_tpl_001_false_positive_flood_blindspot_proven() {
         report.files
     );
 
-    // TPL-001 ALSO fires (false positive) — the guard sees `name` as unbound
-    // because the wildcard projection is not introspectable.
+    // TPL-001 must NOT fire — under a wildcard projection the guard cannot
+    // distinguish bound vars from unbound, so it suppresses rather than floods
+    // with false positives. QUERY-002 carries the advisory instead.
     let tpl_001_count = count_diag(&report, is_tpl_001);
-    assert!(
-        tpl_001_count >= 1,
-        "GGEN-TPL-001 must fire for `{{ name }}` when SELECT * is used — \
-         this is the false-positive blindspot: the guard cannot distinguish \
-         bound vars from unbound when the projection is a wildcard. \
-         tpl_001_count={tpl_001_count}. report.files: {:#?}",
+    assert_eq!(
+        tpl_001_count, 0,
+        "GGEN-TPL-001 must be suppressed under SELECT * — the wildcard \
+         projection makes the guard non-introspectable, and QUERY-002 is the \
+         sole advisory. tpl_001_count={tpl_001_count}. report.files: {:#?}",
         report.files
     );
 }

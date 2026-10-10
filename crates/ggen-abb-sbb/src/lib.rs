@@ -340,7 +340,32 @@ fn sha256_hex(bytes: &[u8]) -> String {
 #[allow(clippy::expect_used)] // fail-loud invariant: kernel values always serialize; Result would leak serde into the public API
 pub fn canonical_digest<T: Serialize>(value: &T) -> String {
     let v: Value = serde_json::to_value(value).expect("kernel values serialize");
-    sha256_hex(v.to_string().as_bytes())
+    sha256_hex(&canonical_json_bytes(&v))
+}
+
+/// Serialize a JSON value with object keys recursively sorted, independent of the
+/// `serde_json/preserve_order` feature. Under that feature `serde_json::Map` is an
+/// insertion-ordered IndexMap instead of a sorted BTreeMap, so a bare
+/// `Value::to_string()` produces different bytes (and therefore different digests)
+/// depending on which crates in the build enable the feature. Sorting explicitly
+/// keeps digests stable across feature unification.
+fn canonical_json_bytes(v: &Value) -> Vec<u8> {
+    fn sorted(v: Value) -> Value {
+        match v {
+            Value::Object(map) => {
+                let mut entries: Vec<(String, Value)> = map.into_iter().collect();
+                entries.sort_by(|a, b| a.0.cmp(&b.0));
+                let mut out = serde_json::Map::new();
+                for (k, val) in entries {
+                    out.insert(k, sorted(val));
+                }
+                Value::Object(out)
+            }
+            Value::Array(items) => Value::Array(items.into_iter().map(sorted).collect()),
+            other => other,
+        }
+    }
+    sorted(v.clone()).to_string().into_bytes()
 }
 
 thread_local! {
