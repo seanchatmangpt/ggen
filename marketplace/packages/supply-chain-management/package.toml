@@ -2,6 +2,7 @@
 name = "supply-chain-management"
 version = "1.0.0"
 description = "Supply chain optimization with procurement, logistics, and warehouse management"
+repository = "https://github.com/seanchatmangpt/ggen"
 author = "GGEN Marketplace"
 license = "MIT"
 category = "enterprise"
@@ -42,4 +43,4 @@ rdf_classes = 32
 sparql_queries = 12
 
 [marketplace]
-production_ready = false
+production_ready = true

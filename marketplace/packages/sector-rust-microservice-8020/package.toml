@@ -27,4 +27,4 @@ keywords = ["microservice", "rust", "service-architecture", "scaffolding", "prod
 categories = ["development-tools", "microservices", "web-programming"]
 
 [marketplace]
-production_ready = false
+production_ready = true

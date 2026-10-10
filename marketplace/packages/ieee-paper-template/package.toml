@@ -97,4 +97,4 @@ requires = ["paper.rdf", "references.bib"]
 checks = ["metadata", "citations", "formatting", "compliance"]
 
 [marketplace]
-production_ready = false
+production_ready = true

@@ -1,7 +1,7 @@
 {
   "version": "1.0.0",
   "registry_url": "https://github.com/seanchatmangpt/ggen",
-  "updated_at": "2026-06-18T06:37:36.215081Z",
+  "updated_at": "2026-10-10T19:22:26.558907Z",
   "package_count": 77,
   "categories": {
     "academic-tools": 1,
@@ -58,7 +58,7 @@
       "dependencies": [],
       "path": "marketplace/packages/academic-bibliography-manager",
       "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "becfae4c580cbf26cc871a44925b584f6c8ded54d6627c89c965d12b906ff186"
+      "checksum": "989f81a402b12ef9d25118a5e5140fa3bf9923bf07e04c18c0e5a20e60dfbb14"
     },
     {
       "name": "academic-peer-review-workflow",
@@ -88,7 +88,7 @@
       ],
       "path": "marketplace/packages/academic-peer-review-workflow",
       "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "4f1f9f45574492a11942780bec92192e91c09e15a36e6e6f9ae915009f5807e1"
+      "checksum": "e1b9c00054dc7d7c469968b9c16538c426dae418e86ad853539aa77756df3130"
     },
     {
       "name": "advanced-rust-project",
@@ -120,7 +120,7 @@
       "dependencies": [],
       "path": "marketplace/packages/advanced-rust-project",
       "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "91f8c3f5b702abe0bb6336a4921f56db59020b49ad5ebec053f3cafdb65c668e"
+      "checksum": "c5fe32fafdedd450dc796570e1fe57c96476fa83bca8dba9dd3b3bfe5a8e129a"
     },
     {
       "name": "agent-cli-copilot",
@@ -149,11 +149,11 @@
       "license": "MIT",
       "downloads": 0,
       "stars": 0,
-      "production_ready": false,
+      "production_ready": true,
       "dependencies": [],
       "path": "marketplace/packages/agent-cli-copilot",
       "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "7864099ab33c67ccf3238bdf13f81b02659c803c2ee036bc0412aa4cc4485251"
+      "checksum": "fa79d8067b807d9cd0c35b9a01f8eec617637302b81c03d7bf08d6e775960d14"
     },
     {
       "name": "agent-context-crafter",
@@ -181,13 +181,13 @@
       "license": "MIT",
       "downloads": 0,
       "stars": 0,
-      "production_ready": false,
+      "production_ready": true,
       "dependencies": [
         "agent-memory-forge"
       ],
       "path": "marketplace/packages/agent-context-crafter",
       "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "aeb930eeb106d4a025577fdd035b1a2f43135840597e56361f48058065885fef"
+      "checksum": "20dd8cb77f75e20e5cd289a2a4193e3ca640e128fb6c71eb48fb9033531513d9"
     },
     {
       "name": "agent-editor",
@@ -217,11 +217,11 @@
       "license": "MIT",
       "downloads": 0,
       "stars": 0,
-      "production_ready": false,
+      "production_ready": true,
       "dependencies": [],
       "path": "marketplace/packages/agent-editor",
       "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "4ddfa8e952714ead0f0bdff6469c7c3412e209bb479d2c611eea925c6d10df23"
+      "checksum": "4164023acc9ea172e0b5adde396ace04f59b44fe37c5a5ad902cdb0a76d3c48f"
     },
     {
       "name": "agent-memory-forge",
@@ -250,11 +250,11 @@
       "license": "MIT",
       "downloads": 0,
       "stars": 0,
-      "production_ready": false,
+      "production_ready": true,
       "dependencies": [],
       "path": "marketplace/packages/agent-memory-forge",
       "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "472272eaebf224a5b2416ddc666e29b72b04d7bec4adc6218f6c140ee9488e12"
+      "checksum": "ef6ee21c5fdda27f87edf4363c0c69627f36a7e85a068488f5ee269ab5e99415"
     },
     {
       "name": "agent-reasoning-mcp",
@@ -284,14 +284,14 @@
       "license": "MIT",
       "downloads": 0,
       "stars": 0,
-      "production_ready": false,
+      "production_ready": true,
       "dependencies": [
         "agent-memory-forge",
         "agent-context-crafter"
       ],
       "path": "marketplace/packages/agent-reasoning-mcp",
       "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "e572cc8e0856bef9770e9f3eea1e7f53b27c7a42fd398b88b3a0c6604fdd3091"
+      "checksum": "840306d02103e3402b0330ca19dd760d3ce5618b59cfa888618c5c2d8fff6efa"
     },
     {
       "name": "ai-code-generation",
@@ -316,7 +316,7 @@
       "license": "MIT",
       "downloads": 0,
       "stars": 0,
-      "production_ready": true,
+      "production_ready": false,
       "dependencies": [],
       "path": "marketplace/packages/ai-code-generation",
       "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
@@ -349,7 +349,7 @@
       "dependencies": [],
       "path": "marketplace/packages/ai-microservice",
       "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "3465b0d21a6ae3c82d60f0f32f2671168c766cb85097b8a2b518e6a0db0bdaa5"
+      "checksum": "66232604af50e4e54468d3f36d2dc230c95a86da8ee937967948b1c7c0bef684"
     },
     {
       "name": "api-endpoint",
@@ -378,7 +378,7 @@
       "dependencies": [],
       "path": "marketplace/packages/api-endpoint",
       "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "575aec8af7c619dc3ed421a8466a6583651b5f4229beb4c62ff0fc612a9a4830"
+      "checksum": "002719449dbee6e0bb40f95afd249459cd88dea7274cf9c988e26c9705026846"
     },
     {
       "name": "armstrong-compliance-dod",
@@ -410,7 +410,7 @@
       "dependencies": [],
       "path": "marketplace/packages/armstrong-compliance-dod",
       "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "5da65564bc1e6afe7af0985e56d24676cb2e031986e4194f906d157bae501c37"
+      "checksum": "a0912ff36a92b836a3a4e71f8fc708ad90b561bd871cc98eb4f7693b727d2766"
     },
     {
       "name": "arxiv-paper-template",
@@ -439,7 +439,7 @@
       "dependencies": [],
       "path": "marketplace/packages/arxiv-paper-template",
       "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "779a0ad86630db6883152926b891ee241396fe9e3c692e20123587b4c4d3af2a"
+      "checksum": "95479c9e280da17ff938ea7993478cc475c5043ebdf3f9f634c33c26cb3bc089"
     },
     {
       "name": "asset-management",
@@ -465,7 +465,7 @@
       "dependencies": [],
       "path": "marketplace/packages/asset-management",
       "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "c3ffd380aafcc7f0e35fda7ac6fd23e1a7cdadf27a4706e4d2912d6a07b6c767"
+      "checksum": "3d37eb2acd97c76012442f528775946bb34035278c1ce537e4383e20c3147314"
     },
     {
       "name": "banking-core",
@@ -489,7 +489,7 @@
       "dependencies": [],
       "path": "marketplace/packages/banking-core",
       "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "acadf2a303a38071c522eb2eceba1ac4724c93faaff0541dfd5e584189ad5d35"
+      "checksum": "9b2c0a4752b6e4b6cfed4107e18350e1f8a16e2eac07b94416f3fa64ac335b57"
     },
     {
       "name": "business-intelligence-reporting",
@@ -515,7 +515,7 @@
       "dependencies": [],
       "path": "marketplace/packages/business-intelligence-reporting",
       "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "edd1db346b3d4334cbb1d8a74a4077eb8043e8670c892c55b758a66b76c3cbd8"
+      "checksum": "1328f9c4fa5b42e7612737666452d960cb8603d14ca762b1a24bfe8c01b30751"
     },
     {
       "name": "chatman-cli",
@@ -545,11 +545,11 @@
       "license": "MIT OR Apache-2.0",
       "downloads": 0,
       "stars": 0,
-      "production_ready": false,
+      "production_ready": true,
       "dependencies": [],
       "path": "marketplace/packages/chatman-cli",
       "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "b788cb1cb8dcc9742daa48aeedd44c58e119471d4dc9d9c2ead37859086afd65"
+      "checksum": "78ddb57d186ff9a675a455eda1dcce9b4654f41b7a4cf4df1f3bdbb4eecb809f"
     },
     {
       "name": "clap-noun-verb",
@@ -566,7 +566,7 @@
       "dependencies": [],
       "path": "marketplace/packages/clap-noun-verb",
       "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "186ae74a185bf31f1170c120d0037f4a8f54ca9631c6bce46229392137594206"
+      "checksum": "8fb665bb91b20ce25dd45d8162450dc9c80509c6d80df1d4efc807217699ceb9"
     },
     {
       "name": "cli-application-template",
@@ -583,7 +583,7 @@
       "dependencies": [],
       "path": "marketplace/packages/cli-application-template",
       "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "2a10a3a98bdb9123ff4748eafda46a3435fd0d1d2dde5c9db1867a4421a6ddbe"
+      "checksum": "399868a0d3e8a44affb914d6f85f2effac41ccbb136bd320de0b8ce8c76c4588"
     },
     {
       "name": "clinical-trials-management",
@@ -606,7 +606,7 @@
       "dependencies": [],
       "path": "marketplace/packages/clinical-trials-management",
       "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "0ceaa7a310f639a9cd4f65eecc5e8de919071ccb398119fce644ec7981e6fa03"
+      "checksum": "2fd7fb5e522f7cc94fcfc6c9ac5693803c70ea5397597784bf33f8fbff534420"
     },
     {
       "name": "comprehensive-rust-showcase",
@@ -639,7 +639,7 @@
       "dependencies": [],
       "path": "marketplace/packages/comprehensive-rust-showcase",
       "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "4d537b47d5097a56ceca23c463eb4d9af13e01e0b2f35e6f0ecffc29d6a7e54c"
+      "checksum": "7e750f5edaefc1d85d2e810e7ad8e7b6ff2c3ecc3b78543f142ac1fb39130956"
     },
     {
       "name": "crm-customer-management",
@@ -662,7 +662,7 @@
       "dependencies": [],
       "path": "marketplace/packages/crm-customer-management",
       "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "92b32b85d7d0537caba253ea6cc75189702313e5ad4271d78d8ad616f62caa3c"
+      "checksum": "8b89781a2e9761df05a6ea94447d7775658986df2711e5e63c7c24c77de047e1"
     },
     {
       "name": "cryptocurrency-exchange",
@@ -686,7 +686,7 @@
       "dependencies": [],
       "path": "marketplace/packages/cryptocurrency-exchange",
       "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "8f0c6bcced8fe0eb35ab22785df9433f837c4a6bd4000cc0775ac8941017dadb"
+      "checksum": "d8055a1cc39308768c9544d7a9ca3ff5014a1feb23d107ec1d7cc00dd46999c1"
     },
     {
       "name": "customer-loyalty-rewards",
@@ -709,7 +709,7 @@
       "dependencies": [],
       "path": "marketplace/packages/customer-loyalty-rewards",
       "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "7c09626f205e544ac15e68697e9daed46ea45ca6aa8cff6b6bee81e7caa240ec"
+      "checksum": "afbe60371d4711e6ae8ae1d9db1fd11258acbee1d7c938386a15f6ea2dc7c2d8"
     },
     {
       "name": "data-pipeline-cli",
@@ -733,7 +733,7 @@
       "dependencies": [],
       "path": "marketplace/packages/data-pipeline-cli",
       "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "4524f02269378337a0424847beb07efc4e99cff1169fc0064225f71af8f9960b"
+      "checksum": "486c05e4649034423c4639af8e80cfcd9c3f5c9aebde819db5972c3db3d4ff8a"
     },
     {
       "name": "database-schema-generator",
@@ -760,7 +760,7 @@
       "dependencies": [],
       "path": "marketplace/packages/database-schema-generator",
       "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "44d66e3dceb9f1ac048f307ea6809502c5da0a9af04027e3bc9242b1662c0125"
+      "checksum": "e2614e324b352ef574354e2f56fa6814b5df8d26692a7f87d3a6b75ae0cd7b20"
     },
     {
       "name": "dlss-curriculum",
@@ -792,11 +792,11 @@
       "license": "MIT",
       "downloads": 0,
       "stars": 0,
-      "production_ready": true,
+      "production_ready": false,
       "dependencies": [],
       "path": "marketplace/packages/dlss-curriculum",
       "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "72733d6fe1512e146d0135893989f66e2eb23b57a68b59095abe7d87a788adfd"
+      "checksum": "14c85a06c593ffa243d6f325aaa322bfe39e9603e7622e31ef3823a6bf2da98d"
     },
     {
       "name": "document-management-system",
@@ -821,7 +821,7 @@
       "dependencies": [],
       "path": "marketplace/packages/document-management-system",
       "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "eba4d50e6a881c91b83470e64def53c0d8071932a9be33df3ff5510e50236eeb"
+      "checksum": "3bb5be2d5fffd6f5e0a62aec20956d8b6b0b67d4d745ea72e994b09937b7265e"
     },
     {
       "name": "ehr-integration",
@@ -845,7 +845,7 @@
       "dependencies": [],
       "path": "marketplace/packages/ehr-integration",
       "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "554dcbec4522c98f560e3af619fdd6d435179df562ebc712681068b8296389cc"
+      "checksum": "79e82ddfd3ae46b372b90dcb58b77b51694362ccec1d50ff78298d6ce362a60f"
     },
     {
       "name": "enterprise-erp-core",
@@ -868,7 +868,7 @@
       "dependencies": [],
       "path": "marketplace/packages/enterprise-erp-core",
       "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "283a264f2eb761e6be5629f5a5aa716d82e07424bae342ddf12ff5323998324c"
+      "checksum": "779b6ab1968adff551ec343a39a543a51db5896325e035fcc618874c42f11042"
     },
     {
       "name": "graphql-api-template",
@@ -892,7 +892,7 @@
       "dependencies": [],
       "path": "marketplace/packages/graphql-api-template",
       "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "00ae787b38984221fa132eba94f7c7aebe5caf050f38c64a5d3d28a005564361"
+      "checksum": "812f5c46168a6f10a8674ed36710c1038ef948bb8ef6a11aba415392f77b7ddf"
     },
     {
       "name": "healthcare-analytics",
@@ -915,7 +915,7 @@
       "dependencies": [],
       "path": "marketplace/packages/healthcare-analytics",
       "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "423b1fde4c6863ebb68f2e4c3d3410f7e5cb75b1139f8b5ee75d01706e7ee828"
+      "checksum": "30953948ea273ceba8cbb83bc7ad1d77b87338c1fa91979109f3f2a8f9bc5df4"
     },
     {
       "name": "hello-world",
@@ -942,7 +942,7 @@
       "dependencies": [],
       "path": "marketplace/packages/hello-world",
       "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "256d2b7689daa68c0f9c796382f45d911444b9f9c3d4ef660206d136c5e5b456"
+      "checksum": "3f90577a939f56582b10710b1a0dfdcc810390d51f74beb9027624d198e00dfd"
     },
     {
       "name": "human-resources-management",
@@ -968,7 +968,7 @@
       "dependencies": [],
       "path": "marketplace/packages/human-resources-management",
       "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "1023d165cc66de2e7fb55fd862955e7b20429379cf4d62bf404f6d15a48df566"
+      "checksum": "8d23718b4dd6338bc3e980cd3db1dab687d9de0475e8db6ed6fb62125f4ac4ab"
     },
     {
       "name": "ieee-paper-template",
@@ -997,7 +997,7 @@
       "dependencies": [],
       "path": "marketplace/packages/ieee-paper-template",
       "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "9584015e8840d400745c5c1d01fbedca3c7f2f877fd5639b2366f15fbe6394f0"
+      "checksum": "d1295262a65afbdd21ed5dadb5c272454aa4f371fa61d1a0978e4203a9ccf67b"
     },
     {
       "name": "inventory-management",
@@ -1027,11 +1027,11 @@
       "license": "MIT",
       "downloads": 0,
       "stars": 0,
-      "production_ready": false,
+      "production_ready": true,
       "dependencies": [],
       "path": "marketplace/packages/inventory-management",
       "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "9600100ca99437ea525064314156d9715fa7378ffa8de56c362e6e328ce5688d"
+      "checksum": "f37803cfb634ed5d25922246d51d8c5df7b004db1fbbd219b76d84cbaafb81cc"
     },
     {
       "name": "io.ggen.nextjs.ontology-crud",
@@ -1056,7 +1056,7 @@
       "dependencies": [],
       "path": "marketplace/packages/io.ggen.nextjs.ontology-crud",
       "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "0a3d10ad2b33d73a684ff05576cc8adf113628336ba12347c30af7f814e40d30"
+      "checksum": "f6120765256df6257fa595f350cfb3773e25cb71325145ebe443708b2a06172c"
     },
     {
       "name": "iso-20022-payments",
@@ -1081,7 +1081,7 @@
       "dependencies": [],
       "path": "marketplace/packages/iso-20022-payments",
       "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "1c579c66bc3c48ed6af25f95afe286e49f3b3b8c31bd5e2e0b18e854473a7269"
+      "checksum": "b01bcddcd17d622c33cf51fd02c84bc5b6fb9c2ff085e74e10d6c3174917349a"
     },
     {
       "name": "java26-core",
@@ -1105,7 +1105,7 @@
       "dependencies": [],
       "path": "marketplace/packages/java26-core",
       "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "1c49fb77bd265777b950d08031467971bf50432e2e39ffaf3573af688c176c1f"
+      "checksum": "20392dfc86d460706cd3bb1fb81f6d3266d00424cf0554fdb29f2bc2fd41e7dc"
     },
     {
       "name": "java26-pattern-matched-controller",
@@ -1129,7 +1129,7 @@
       "dependencies": [],
       "path": "marketplace/packages/java26-pattern-matched-controller",
       "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "49ce0c53710380bf476d795a17727d7d5610d76677a3ee8207b8ce68cd619e14"
+      "checksum": "66f26bcdd49d393cbbdcd53f48120a860b7ad5085d916cd6dae4bb3a84e0e758"
     },
     {
       "name": "java26-record-value-object",
@@ -1152,7 +1152,7 @@
       "dependencies": [],
       "path": "marketplace/packages/java26-record-value-object",
       "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "58f2ea53498e4d8cd4c0848ceb804e44765afab395213b7b0b04d451ff781697"
+      "checksum": "65817943152afbc02f75095d4f7f09edd3b63011936f41fe7e3e7f2123cad782"
     },
     {
       "name": "java26-sealed-domain",
@@ -1175,7 +1175,7 @@
       "dependencies": [],
       "path": "marketplace/packages/java26-sealed-domain",
       "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "0e130dd2f6d4459333001d6cf7a719f49884440fb1a53a56b5d4c05000243e6e"
+      "checksum": "7c9b29278559b79fe62e9fe4eea3e6dfbfe0f34a3ea6a0e33ba9890f3f40108e"
     },
     {
       "name": "java26-transactional-service",
@@ -1198,7 +1198,7 @@
       "dependencies": [],
       "path": "marketplace/packages/java26-transactional-service",
       "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "4ab4b894886d8568d4fe96b3ad5686f6bad475f9e949e704e1585ac5c2a7c4b4"
+      "checksum": "9b77717fa0be902c32648ee1a307aad770a604a5de8022eacbb35eed49df8c31"
     },
     {
       "name": "java26-virtual-thread-dao",
@@ -1221,7 +1221,7 @@
       "dependencies": [],
       "path": "marketplace/packages/java26-virtual-thread-dao",
       "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "3d57de4b78f1b1cb8b0473f905b295c1c42e5e339e8d1bffb876fd1f3763e7a3"
+      "checksum": "885e2d02e41027364fb57f330e5159455263d1672a1ea117fd98ea2719a09885"
     },
     {
       "name": "knowledge-graph-cli",
@@ -1244,7 +1244,7 @@
       "dependencies": [],
       "path": "marketplace/packages/knowledge-graph-cli",
       "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "5f231eb2d4b3302407733c13fcb3ab4390ebcafab065c5f72b403d9b24c52616"
+      "checksum": "72357b46879586a89140fb38db14663d9cdb6931f965c29bfb25cd93efc00f01"
     },
     {
       "name": "kyc-aml-compliance",
@@ -1269,7 +1269,7 @@
       "dependencies": [],
       "path": "marketplace/packages/kyc-aml-compliance",
       "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "ebfe2f839a8c0f46d693e2f0bf8145eda74bddc7f425e7854b17809716dbd59e"
+      "checksum": "1110e97c6aa511fdf1eebaee979a7ffcba40fbe658c15959a8effa56eb9221dc"
     },
     {
       "name": "laboratory-information-system",
@@ -1292,7 +1292,7 @@
       "dependencies": [],
       "path": "marketplace/packages/laboratory-information-system",
       "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "ad63c60f827d74939a01ed970fed5af73342f44e0135e6e6602f5c159b85bdbf"
+      "checksum": "6ce28eaf5043490d8b37a271a460c296203a42cb7d3c462330aada33e777777e"
     },
     {
       "name": "medical-billing",
@@ -1315,7 +1315,7 @@
       "dependencies": [],
       "path": "marketplace/packages/medical-billing",
       "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "354a28c742b8e05642960be02bae322f0e16e50b9930c6e6aafc9795f3c00aee"
+      "checksum": "a99e1bd0667beef8694048eafa68283cd069e9428114bd973c0e656f14c708ac"
     },
     {
       "name": "microservices-architecture",
@@ -1344,7 +1344,7 @@
       "dependencies": [],
       "path": "marketplace/packages/microservices-architecture",
       "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "79fceafa6981692aead87cce0eb7c1a48a29a0a4ae0a69a5836bdfb2eb32930f"
+      "checksum": "860fa4383e69c0452cc5eec163fa317bcddc65399eaffe3835022832409876f8"
     },
     {
       "name": "microservices-architecture-template",
@@ -1368,7 +1368,7 @@
       "dependencies": [],
       "path": "marketplace/packages/microservices-architecture-template",
       "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "1bac25ca043077ead8ff2ae88528f2247cdf2728a457d3a4793486af3d21d6f0"
+      "checksum": "2750f785f5c9c40f5dd713412002608da30b67608578d98866e51a948e65d745"
     },
     {
       "name": "multi-tenant-saas",
@@ -1398,11 +1398,11 @@
       "license": "MIT",
       "downloads": 0,
       "stars": 0,
-      "production_ready": false,
+      "production_ready": true,
       "dependencies": [],
       "path": "marketplace/packages/multi-tenant-saas",
       "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "4a3e81d5bc6b39b53904f1bf92ebc639ff188c80f00b6e760a2a932005b80745"
+      "checksum": "78496ac5ddf5878759c5802d0fd5e87ec39886e0c7417610c5a4da5db5e60de0"
     },
     {
       "name": "neurips-paper-template",
@@ -1431,7 +1431,7 @@
       "dependencies": [],
       "path": "marketplace/packages/neurips-paper-template",
       "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "d8c694252e4768ba58d59da069dbba245557aba8754a0ce6c17e2e1906d79baf"
+      "checksum": "9bac471772ebb396e72a970f6d0cc5f95603e15fc5f3af0e6fff4b61849195da"
     },
     {
       "name": "order-management-system",
@@ -1454,7 +1454,7 @@
       "dependencies": [],
       "path": "marketplace/packages/order-management-system",
       "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "2b323ca55153d756d24ea16ef8a192890541786e1bdb346e249a038f9ef994bc"
+      "checksum": "7728e58e62c22aaf9e805141efb93cc00360e19eb1d123c422ab7dba5f50a36a"
     },
     {
       "name": "payment-admission",
@@ -1476,7 +1476,7 @@
       "dependencies": [],
       "path": "marketplace/packages/payment-admission",
       "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "02c767c9598753565a97b46ab0a2c8b39d38beb0e8b56a9c793291d8d1b1919c"
+      "checksum": "ccd45d7c804d2d0600c95637975e2345f91c30647fb3d2a888be7335574485fe"
     },
     {
       "name": "pharmacy-management",
@@ -1499,7 +1499,7 @@
       "dependencies": [],
       "path": "marketplace/packages/pharmacy-management",
       "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "84cb6967a32696f6dea1ef93a523818fdfc738cd670a83b27efc2a633457a1b3"
+      "checksum": "96f93d9c9253a641a9ec7c790d96a4f28c41713aab3929926d08d60d35563279"
     },
     {
       "name": "phd-thesis-template",
@@ -1528,7 +1528,7 @@
       "dependencies": [],
       "path": "marketplace/packages/phd-thesis-template",
       "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "1a1fc4c0126e01db1df0889aabb5c486ca291b990f921fbd03063fe03459d7ed"
+      "checksum": "31c9ce61c92687fba70ced237d41aa3a1b2b097601b2f40055510fa6775a2d19"
     },
     {
       "name": "product-recommendations",
@@ -1556,11 +1556,11 @@
       "license": "MIT",
       "downloads": 0,
       "stars": 0,
-      "production_ready": false,
+      "production_ready": true,
       "dependencies": [],
       "path": "marketplace/packages/product-recommendations",
       "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "1b1e2882b617c89177e9c20446c111c5a31bf5c3ee822ae6152a762e29113fc0"
+      "checksum": "fd3af3bbd506ffd4d0eb1933bc7c255e7092932df9ea5159f821011ee25881f1"
     },
     {
       "name": "project-management",
@@ -1586,7 +1586,7 @@
       "dependencies": [],
       "path": "marketplace/packages/project-management",
       "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "79031391805fa48937874be1fc2accdb2af1bea38efa1a5766e2b305830cbc05"
+      "checksum": "adc69ebf7b44321b20b99a5b3306851a97ff0a4e0a00d7d640f9266b74e9e64d"
     },
     {
       "name": "reasoner-cli",
@@ -1610,7 +1610,7 @@
       "dependencies": [],
       "path": "marketplace/packages/reasoner-cli",
       "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "db08a5d58972eb117ea2dc123ca37f7a6252079b1fa2633ded36c7f556e8e6fc"
+      "checksum": "14abe57e3a866731aa56f7999c7d6eb8af1680c7d987ff652672c5eacfe82661"
     },
     {
       "name": "rest-api-template",
@@ -1636,7 +1636,7 @@
       "dependencies": [],
       "path": "marketplace/packages/rest-api-template",
       "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "cd12ea997f3d211c334c227ceb48fe6efc2f1083246b7fc558ee31db195e0773"
+      "checksum": "20dc5a5d9427ac93f963a00264a7156c557399baf8d7d232edddf446c76bdf94"
     },
     {
       "name": "risk-management",
@@ -1660,7 +1660,7 @@
       "dependencies": [],
       "path": "marketplace/packages/risk-management",
       "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "d52df0e6a662cf31867ac6a4e8d576b8ee14abe816409b71a4a9dd2b9ed7c3f7"
+      "checksum": "1c5cbbbca05eb480f382b6605582c76bc8cb7506546f8f6307830b3cbda52e1c"
     },
     {
       "name": "robo-advisor",
@@ -1683,7 +1683,7 @@
       "dependencies": [],
       "path": "marketplace/packages/robo-advisor",
       "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "0306542f881226c8427c0f377cce9cf85059b98b9a88a9960eecfff3ca4c92d5"
+      "checksum": "18bb1d519982eee5e7d6c2a5cfeb1524572a6adf72b52c4022c45537a961b614"
     },
     {
       "name": "schema-forge-cli",
@@ -1706,7 +1706,7 @@
       "dependencies": [],
       "path": "marketplace/packages/schema-forge-cli",
       "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "28b6ee839815c23b6d4c6ed53b76dd885b5eab8f11000a31ca78c9eb3ecee0aa"
+      "checksum": "f81e5ed2505ac7edfc7fcdb329cfbbf585f781a0898fcf741b0f59cdfee37354"
     },
     {
       "name": "sector-api-gateway-8020",
@@ -1723,7 +1723,7 @@
       "dependencies": [],
       "path": "marketplace/packages/sector-api-gateway-8020",
       "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "6ee5d8a848abd5bfcf2d6958c4e0cc1b3c08edc5ecc9827066ce5cd173e31851"
+      "checksum": "c23f57d3aa84dc01554faf0eee26303fd822aa984854614a522bf8e2794ffee5"
     },
     {
       "name": "sector-observability-8020",
@@ -1740,7 +1740,7 @@
       "dependencies": [],
       "path": "marketplace/packages/sector-observability-8020",
       "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "724c4e5c1ece67739e5984f53c06ecb647330cce0aebf320a3a2f347027ebc82"
+      "checksum": "e671c2e64649a175092b79a60601bd67212a852647f55ef04641b05a6cd4aab9"
     },
     {
       "name": "sector-paper-lifecycle-8020",
@@ -1757,7 +1757,7 @@
       "dependencies": [],
       "path": "marketplace/packages/sector-paper-lifecycle-8020",
       "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "c2a6d8e50431a5a7fa4d7de84da347c1ba768ef49173a0c3d25f16b40f592e5c"
+      "checksum": "18064ffab84de991bc1788f9299572196f67be7c3018095b4fe8ad8a09c00b70"
     },
     {
       "name": "sector-rust-microservice-8020",
@@ -1774,7 +1774,7 @@
       "dependencies": [],
       "path": "marketplace/packages/sector-rust-microservice-8020",
       "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "ac64c55c89a87cda309da21dbe3e9099ea9ce64229b7bdbe6e9e7dbbf08fb3cf"
+      "checksum": "a2d7c3e2a4962b6b3b346edecb7da29cea660f370e4140f29f8984201dcbce28"
     },
     {
       "name": "sector-support-hooks-8020",
@@ -1791,7 +1791,7 @@
       "dependencies": [],
       "path": "marketplace/packages/sector-support-hooks-8020",
       "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "0698981fd9c3149bc633acf6e32cd82e38d8b9fcf664fb97df99d88c93042181"
+      "checksum": "e11e5a77c54bed043eb730839540c3bb1b874ced5399d0233aabfb8d85c418c4"
     },
     {
       "name": "semantic-cli",
@@ -1815,7 +1815,7 @@
       "dependencies": [],
       "path": "marketplace/packages/semantic-cli",
       "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "acb1163ace8882f2a29e0e6797933b1f2894e518425c26ba8710b002e02e4a8f"
+      "checksum": "49d9055b85c12f31a44e0d78e219ae1dc7eb71114f8508d1872ce3d449c33f3b"
     },
     {
       "name": "shacl-cli",
@@ -1839,7 +1839,7 @@
       "dependencies": [],
       "path": "marketplace/packages/shacl-cli",
       "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "9df7d1951c454d3760a8ff8d8024848fc4db0ccdbabdd74020ad21cfa3a91fa0"
+      "checksum": "fdee4e9ed1c453883901fb85a1f5b6bb3bbbc090efcbde00fbc74d7aa108c7fa"
     },
     {
       "name": "sparql-cli",
@@ -1863,7 +1863,7 @@
       "dependencies": [],
       "path": "marketplace/packages/sparql-cli",
       "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "77e3542338e55d4655e22a667781b7439c7183acb5b9c565fb8719ecde6f69dc"
+      "checksum": "df422cbe40789e0e2c0642298c28a3977d5edb83420d105b27496c60d0047fd9"
     },
     {
       "name": "supply-chain-management",
@@ -1886,7 +1886,7 @@
       "dependencies": [],
       "path": "marketplace/packages/supply-chain-management",
       "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "0b9faac28eb09ad5225516ff42001c5ec6ecc5903a46ac11c22565a969d6001d"
+      "checksum": "241a8656ce7f9912226a2d08b1331c1514fc4ddf8a8ffbd6928559e28112b594"
     },
     {
       "name": "telemedicine-platform",
@@ -1909,7 +1909,7 @@
       "dependencies": [],
       "path": "marketplace/packages/telemedicine-platform",
       "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "d384e1ed4438731ae4697f99f3948805f199097e50db24630b00d12ff22b55d9"
+      "checksum": "893fcad725c3863ff61c41114eceafdab10232b73917a570d6aee595e5d5b65e"
     },
     {
       "name": "three-layer-verification-dod",
@@ -1942,7 +1942,7 @@
       "dependencies": [],
       "path": "marketplace/packages/three-layer-verification-dod",
       "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "55666fa10443d53264ec8dcabd9cfc4a0c41773ce0e971c6aaa6e356d191f277"
+      "checksum": "c6861e4dc73019cf3c43f321848d52b63d57ba365e5e462daa4b19576ab96c3c"
     },
     {
       "name": "trading-platform",
@@ -1966,7 +1966,7 @@
       "dependencies": [],
       "path": "marketplace/packages/trading-platform",
       "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "deb837df4719f198abcc89ab995f27b873cace0c662825e4cf760090a4658293"
+      "checksum": "c45c3d0f464626e70cd7a800585d30166b8abb2c00d1fd0d11ae15268272d831"
     },
     {
       "name": "workflow-engine-cli",
@@ -1990,7 +1990,7 @@
       "dependencies": [],
       "path": "marketplace/packages/workflow-engine-cli",
       "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "2cb5957730864964a048b73b71518422005ab609b4d254e75633a14f460a6b83"
+      "checksum": "2ad7e1b53a6cbb9f41320f70bf27a75ec11e24f026795d0cfecb535cf3ba2454"
     },
     {
       "name": "wvda-soundness-dod",
@@ -2024,7 +2024,7 @@
       "dependencies": [],
       "path": "marketplace/packages/wvda-soundness-dod",
       "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "9dd5fee6a6af8e2a2df313fba68ab7b1cf593480d1a78ca498dadcb734c6f6df"
+      "checksum": "be6c1d9d1affb0792aff86582b1d779e952e923b7ba2fff38c4edf05af998e6f"
     }
   ],
   "search_index": {
@@ -3642,504 +3642,5 @@
     "deadlock-freedom": [
       "wvda-soundness-dod"
     ]
-  },
-  "o_crates": [
-    {
-      "id": "kgn",
-      "version": "1.0.0",
-      "ontologyCount": 51,
-      "queryCount": 3,
-      "blake3Hash": "801e07f7fd96069d793062a0c79e5bbe81dd1a4fa8c1aa36c1f302e27a0c32cf",
-      "path": "ontology_catalogue/kgn"
-    },
-    {
-      "id": "mcpp",
-      "version": "1.0.0",
-      "ontologyCount": 37,
-      "queryCount": 0,
-      "blake3Hash": "d4e28067271532535b7278295b40a3b3772c9574700430904542f17171ba8430",
-      "path": "ontology_catalogue/mcpp"
-    },
-    {
-      "id": "bitactor",
-      "version": "1.0.0",
-      "ontologyCount": 52,
-      "queryCount": 0,
-      "blake3Hash": "04f4205fd2258af407719e54cec4feb4d9a72227854cc08766a1777e33039b3d",
-      "path": "ontology_catalogue/bitactor"
-    },
-    {
-      "id": "clnrm",
-      "version": "1.0.0",
-      "ontologyCount": 3,
-      "queryCount": 0,
-      "blake3Hash": "6d5112c80e49ac1a49b50bb4d946c05a1285110f0d08a402aa1775317592c960",
-      "path": "ontology_catalogue/clnrm"
-    },
-    {
-      "id": "gitvan",
-      "version": "1.0.0",
-      "ontologyCount": 125,
-      "queryCount": 0,
-      "blake3Hash": "6cb85cd67123ed07f9ef41db234db36fc2f6c0cacc7f306d550732892ecdd2d2",
-      "path": "ontology_catalogue/gitvan"
-    },
-    {
-      "id": "jotp",
-      "version": "1.0.0",
-      "ontologyCount": 12,
-      "queryCount": 11,
-      "blake3Hash": "51d96be4457a8adc8d3371cf135638a0520c8db7b8ae2dc805ef0c8ac2648eda",
-      "path": "ontology_catalogue/jotp"
-    },
-    {
-      "id": "truex",
-      "version": "1.0.0",
-      "ontologyCount": 1,
-      "queryCount": 0,
-      "blake3Hash": "86ffbe59637ce30b46a8bf43ea22ee81bd7394f87be04a97b86c10468922b4ee",
-      "path": "ontology_catalogue/truex"
-    },
-    {
-      "id": "wasm4pm-wt-p4",
-      "version": "1.0.0",
-      "ontologyCount": 27,
-      "queryCount": 7,
-      "blake3Hash": "97300f88641b927df85f7e6651484c9b362c7b36ebd6a14afdcdab4501b06c7e",
-      "path": "ontology_catalogue/wasm4pm-wt-p4"
-    },
-    {
-      "id": "wasm4pm-wt-p3",
-      "version": "1.0.0",
-      "ontologyCount": 27,
-      "queryCount": 7,
-      "blake3Hash": "0f0d1cfb70539c373b0024a4af296e74823c45860bb5e4fad3188ae5bb1c8e17",
-      "path": "ontology_catalogue/wasm4pm-wt-p3"
-    },
-    {
-      "id": "dteam",
-      "version": "1.0.0",
-      "ontologyCount": 4,
-      "queryCount": 4,
-      "blake3Hash": "7a87d84812c263a139fdadf20265951a26469c4ddb82f5679b55ab5d26ef52da",
-      "path": "ontology_catalogue/dteam"
-    },
-    {
-      "id": "wasm4pm",
-      "version": "1.0.0",
-      "ontologyCount": 33,
-      "queryCount": 9,
-      "blake3Hash": "c24f1d39be7813909922f28fba9f93f2a204cb956e0a5e15f6213ee15fd6ea5c",
-      "path": "ontology_catalogue/wasm4pm"
-    },
-    {
-      "id": "a2a-rs",
-      "version": "1.0.0",
-      "ontologyCount": 8,
-      "queryCount": 3,
-      "blake3Hash": "2294b1e558f335add67e234ad24140fa81a0cc1f8e9d1b161223e7f391376b48",
-      "path": "ontology_catalogue/a2a-rs"
-    },
-    {
-      "id": "rocket-craft",
-      "version": "1.0.0",
-      "ontologyCount": 1,
-      "queryCount": 0,
-      "blake3Hash": "e49dad73d9c381669339707b93f69cea0f08be149298f9c611172208d48bcc62",
-      "path": "ontology_catalogue/rocket-craft"
-    },
-    {
-      "id": "erlmcp",
-      "version": "1.0.0",
-      "ontologyCount": 26,
-      "queryCount": 19,
-      "blake3Hash": "c48836646264e0e3c00e29d026713c8ed6f52129fa3f54ac0fa9adcdd12f6598",
-      "path": "ontology_catalogue/erlmcp"
-    },
-    {
-      "id": "wasm4pm-wt-p2",
-      "version": "1.0.0",
-      "ontologyCount": 27,
-      "queryCount": 7,
-      "blake3Hash": "3a43e7306accbce2394321d738eae416f4870384d43a4fd5c9ef702cbb2ef1bc",
-      "path": "ontology_catalogue/wasm4pm-wt-p2"
-    },
-    {
-      "id": "unrdf",
-      "version": "1.0.0",
-      "ontologyCount": 133,
-      "queryCount": 10,
-      "blake3Hash": "8c1a0fc23b016e9afacdfee79a6e8818ed0c53840a3d0bd2ea666ed4cd655b0a",
-      "path": "ontology_catalogue/unrdf"
-    },
-    {
-      "id": "unibit",
-      "version": "1.0.0",
-      "ontologyCount": 104,
-      "queryCount": 1,
-      "blake3Hash": "1cfc2d1b5647afe61bc240aec77eb92f981939548422e30eafcaf034b7b563ac",
-      "path": "ontology_catalogue/unibit"
-    },
-    {
-      "id": "stpnt",
-      "version": "1.0.0",
-      "ontologyCount": 2,
-      "queryCount": 0,
-      "blake3Hash": "01ba18674039a251a0a839a0068b7e78ba567ee8dfeaf4a539662ae605b5aaa7",
-      "path": "ontology_catalogue/stpnt"
-    },
-    {
-      "id": "A2A",
-      "version": "1.0.0",
-      "ontologyCount": 19,
-      "queryCount": 0,
-      "blake3Hash": "37ca6195f7a295616d97fde93fe52c5c6559ca561e91cb0f4275be4fb063e3f3",
-      "path": "ontology_catalogue/A2A"
-    },
-    {
-      "id": "cre",
-      "version": "1.0.0",
-      "ontologyCount": 28,
-      "queryCount": 0,
-      "blake3Hash": "15ee9d405bf11163c196a426ea87e7a89fd2e75bdb73044818542f1c2da498c6",
-      "path": "ontology_catalogue/cre"
-    },
-    {
-      "id": "chatmangpt",
-      "version": "1.0.0",
-      "ontologyCount": 145,
-      "queryCount": 273,
-      "blake3Hash": "f0269c795e4bd303cd8bb41e96c270fe6fb479ee275923219e2eb9798ac1ea3b",
-      "path": "ontology_catalogue/chatmangpt"
-    },
-    {
-      "id": "knowd",
-      "version": "1.0.0",
-      "ontologyCount": 13,
-      "queryCount": 3,
-      "blake3Hash": "9c62f20eaa70cdbc61ad2fda3d5437a52929cdd0009ca5789e93260a0039f235",
-      "path": "ontology_catalogue/knowd"
-    },
-    {
-      "id": "zoeapp",
-      "version": "1.0.0",
-      "ontologyCount": 18,
-      "queryCount": 1,
-      "blake3Hash": "598af266df862e91e934a686e3a32aa07151eb27f69bbdb033fb7ed2f07156c8",
-      "path": "ontology_catalogue/zoeapp"
-    },
-    {
-      "id": "remo",
-      "version": "1.0.0",
-      "ontologyCount": 23,
-      "queryCount": 0,
-      "blake3Hash": "df7294e5f4203a0383c6d8dafdbd4071e57d85699f2747d59248b21424787387",
-      "path": "ontology_catalogue/remo"
-    },
-    {
-      "id": "affidavit",
-      "version": "1.0.0",
-      "ontologyCount": 2,
-      "queryCount": 0,
-      "blake3Hash": "6efe0bcd634e4c10e760f0dbbbc7ca71b869b9b5db941afe25ed5f5403da35b9",
-      "path": "ontology_catalogue/affidavit"
-    },
-    {
-      "id": "bytestar",
-      "version": "1.0.0",
-      "ontologyCount": 429,
-      "queryCount": 0,
-      "blake3Hash": "b85e03f06c98e1fc01482d8a26028449ad8ec0eab0a715d87bb0e4bacd050aa9",
-      "path": "ontology_catalogue/bytestar"
-    },
-    {
-      "id": "wasm4pm-compat",
-      "version": "1.0.0",
-      "ontologyCount": 21,
-      "queryCount": 52,
-      "blake3Hash": "f6701bb47e8bd66765afc5f0a669c2f00e3bc3a8b848dab9f9131d4a277bcd83",
-      "path": "ontology_catalogue/wasm4pm-compat"
-    },
-    {
-      "id": "lsp-max",
-      "version": "1.0.0",
-      "ontologyCount": 5,
-      "queryCount": 0,
-      "blake3Hash": "9ca112e787cdb9e0254dcaed5ba31ed4687eaab7dd4084aad0833c2bd59f2644",
-      "path": "ontology_catalogue/lsp-max"
-    },
-    {
-      "id": "chicago-tdd-tools",
-      "version": "1.0.0",
-      "ontologyCount": 3,
-      "queryCount": 0,
-      "blake3Hash": "96c497d69e87315e0d2c74a9639de65500f4a9cf24bab404808f4df26c1da564",
-      "path": "ontology_catalogue/chicago-tdd-tools"
-    },
-    {
-      "id": "teleport",
-      "version": "1.0.0",
-      "ontologyCount": 166,
-      "queryCount": 48,
-      "blake3Hash": "264a92497350ff919d19a9390f12b9a79edda005106606a5e1a35370c496c2b0",
-      "path": "ontology_catalogue/teleport"
-    },
-    {
-      "id": "yawl",
-      "version": "1.0.0",
-      "ontologyCount": 52,
-      "queryCount": 0,
-      "blake3Hash": "05ec950e6e2668a222301103bb457d2f839541527de325a8ccc07bfc5dcae883",
-      "path": "ontology_catalogue/yawl"
-    },
-    {
-      "id": "process-intelligence",
-      "version": "1.0.0",
-      "ontologyCount": 27,
-      "queryCount": 77,
-      "blake3Hash": "b797c56d6d63cd811549d50d9c3dad8051e21692cfb881df2fefdf6a8acd4457",
-      "path": "ontology_catalogue/process-intelligence"
-    },
-    {
-      "id": "clap-noun-verb",
-      "version": "1.0.0",
-      "ontologyCount": 20,
-      "queryCount": 11,
-      "blake3Hash": "bb28228e8d624986f9e8e6ec1767cebbb2a16f9c7420a8c22b91aac8c1385fd8",
-      "path": "ontology_catalogue/clap-noun-verb"
-    },
-    {
-      "id": "speckit-ralph",
-      "version": "1.0.0",
-      "ontologyCount": 5,
-      "queryCount": 0,
-      "blake3Hash": "c4f8b2b8fbb911c6b130b86b6a936d1cec3fd3c1e57f84f5669d7da985ece176",
-      "path": "ontology_catalogue/speckit-ralph"
-    },
-    {
-      "id": "pcp",
-      "version": "1.0.0",
-      "ontologyCount": 2,
-      "queryCount": 0,
-      "blake3Hash": "df99e6e7f642d9646d589a4c61570cff72db4a528d9b5ce3ba6f430da0be4e72",
-      "path": "ontology_catalogue/pcp"
-    },
-    {
-      "id": "cns",
-      "version": "1.0.0",
-      "ontologyCount": 421,
-      "queryCount": 6,
-      "blake3Hash": "f93c504c11d9882f54d284efe2a80db625fc03b7de846e62fd2e3af51bcd2943",
-      "path": "ontology_catalogue/cns"
-    },
-    {
-      "id": "wasm4pm-wt-abstractions",
-      "version": "1.0.0",
-      "ontologyCount": 27,
-      "queryCount": 7,
-      "blake3Hash": "c9776270a47d74f151b71fd89533c425058cd0b2df484526565f7c85ebbfd5e9",
-      "path": "ontology_catalogue/wasm4pm-wt-abstractions"
-    },
-    {
-      "id": "cargo-cicd",
-      "version": "1.0.0",
-      "ontologyCount": 14,
-      "queryCount": 9,
-      "blake3Hash": "ec9d9994ad2649d15574b5da74b2c1d817bf0ed76feae668b4d37212c90120a1",
-      "path": "ontology_catalogue/cargo-cicd"
-    },
-    {
-      "id": "autotel",
-      "version": "1.0.0",
-      "ontologyCount": 66,
-      "queryCount": 0,
-      "blake3Hash": "c875843a761c6bfba4b9906a297b2c3584c7e4e4e7692d376a189a1443f68a18",
-      "path": "ontology_catalogue/autotel"
-    },
-    {
-      "id": "ggen",
-      "version": "1.0.0",
-      "ontologyCount": 376,
-      "queryCount": 142,
-      "blake3Hash": "81da77f4fa43e23a21dc6060e3d7dcba00668f50a4c41dd79fab783ad265ae34",
-      "path": "ontology_catalogue/ggen"
-    },
-    {
-      "id": "storehouse-infrastructure",
-      "version": "1.0.0",
-      "ontologyCount": 1,
-      "queryCount": 0,
-      "blake3Hash": "b6803ba2ad616d0cc0a3614ffc05b6078f65017b8677d59f1e950029a64e4de1",
-      "path": "ontology_catalogue/storehouse-infrastructure"
-    },
-    {
-      "id": "open-ontologies",
-      "version": "1.0.0",
-      "ontologyCount": 164,
-      "queryCount": 6,
-      "blake3Hash": "a6dba0f737b91ad28051019e41fd2553dff47544d6b31474e0d4df1384afcf35",
-      "path": "ontology_catalogue/open-ontologies"
-    },
-    {
-      "id": "bitstar",
-      "version": "1.0.0",
-      "ontologyCount": 75,
-      "queryCount": 0,
-      "blake3Hash": "f1bba0bc4189c68c844efdde3ac40fe2755e1073153a6a1c4828e34c609a6797",
-      "path": "ontology_catalogue/bitstar"
-    },
-    {
-      "id": "obsr",
-      "version": "1.0.0",
-      "ontologyCount": 0,
-      "queryCount": 3,
-      "blake3Hash": "528c84e39b409f23cabbddfc8b6be7c036990ea0ae496de544e0b3d2e15961c6",
-      "path": "ontology_catalogue/obsr"
-    },
-    {
-      "id": "optimus",
-      "version": "1.0.0",
-      "ontologyCount": 3,
-      "queryCount": 0,
-      "blake3Hash": "17e5de239f5587e6ffe2bc9d136ea9d5a5479daaefb5523258673cbd335ea1b6",
-      "path": "ontology_catalogue/optimus"
-    },
-    {
-      "id": "knhk",
-      "version": "1.0.0",
-      "ontologyCount": 93,
-      "queryCount": 5,
-      "blake3Hash": "4abed72fa996f3a5c89b981fea573a3b4d00ea664d4beb0e308a87304baf4b1a",
-      "path": "ontology_catalogue/knhk"
-    },
-    {
-      "id": "seth",
-      "version": "1.0.0",
-      "ontologyCount": 29,
-      "queryCount": 0,
-      "blake3Hash": "93f97a8bc1cf6feafb6ab6daf31edeb8c58edaeeaa89db2c5bf3e8bd499ad97c",
-      "path": "ontology_catalogue/seth"
-    },
-    {
-      "id": "ggen-mcp",
-      "version": "1.0.0",
-      "ontologyCount": 333,
-      "queryCount": 68,
-      "blake3Hash": "7aa646fe8d141de469c293c87fd2225563769d608cfd2e125543b3e33dc7d3d1",
-      "path": "ontology_catalogue/ggen-mcp"
-    },
-    {
-      "id": "dis",
-      "version": "1.0.0",
-      "ontologyCount": 4,
-      "queryCount": 0,
-      "blake3Hash": "8b1b087eeea2a8e04987228be912c1ede891f38798d9c2cea724cf6a184b9319",
-      "path": "ontology_catalogue/dis"
-    },
-    {
-      "id": "semantic_bit",
-      "version": "1.0.0",
-      "ontologyCount": 2,
-      "queryCount": 0,
-      "blake3Hash": "33ded9c4a8db54d4f8cc0ec9b73e7b0cb045161cf13fa8012ea0ba6587087cd9",
-      "path": "ontology_catalogue/semantic_bit"
-    },
-    {
-      "id": "dogturk",
-      "version": "1.0.0",
-      "ontologyCount": 12,
-      "queryCount": 0,
-      "blake3Hash": "0759d5f2bad7e0273ee205bf3acbbf24bc645a1706c4b17c293cd26ce009f27d",
-      "path": "ontology_catalogue/dogturk"
-    },
-    {
-      "id": "wasm4pm-wt-p1",
-      "version": "1.0.0",
-      "ontologyCount": 27,
-      "queryCount": 7,
-      "blake3Hash": "2587ae3aa826b14a5505f080d1cbcb2db81ef3acc588139a2c5480450fc4eded",
-      "path": "ontology_catalogue/wasm4pm-wt-p1"
-    },
-    {
-      "id": "intvw",
-      "version": "1.0.0",
-      "ontologyCount": 1,
-      "queryCount": 0,
-      "blake3Hash": "97024590e12a97a0d527abc580caee1b20d09b233218dabf9d61e537e446551c",
-      "path": "ontology_catalogue/intvw"
-    },
-    {
-      "id": "hive-queen",
-      "version": "1.0.0",
-      "ontologyCount": 5,
-      "queryCount": 0,
-      "blake3Hash": "8750e451cc03b68f5f43c50fdbab263bf3a6ed57f8aad1b0951e8da9c39508cb",
-      "path": "ontology_catalogue/hive-queen"
-    },
-    {
-      "id": "powlv2lsp",
-      "version": "1.0.0",
-      "ontologyCount": 1,
-      "queryCount": 0,
-      "blake3Hash": "3b15311f726d3562a7c45cfc295de8ed97727e55a588623bd075ffde1b418469",
-      "path": "ontology_catalogue/powlv2lsp"
-    },
-    {
-      "id": "neako",
-      "version": "1.0.0",
-      "ontologyCount": 4,
-      "queryCount": 0,
-      "blake3Hash": "b60816339fb1436b554f4e290a6a49fb620edff6903ea42baaa88c6553de7790",
-      "path": "ontology_catalogue/neako"
-    },
-    {
-      "id": "wasm4pm-wt-integration",
-      "version": "1.0.0",
-      "ontologyCount": 27,
-      "queryCount": 7,
-      "blake3Hash": "840eee1c0e40aafdbe6ea29be324b7e6bd45ac83ba613aa3768c2346735bbe3e",
-      "path": "ontology_catalogue/wasm4pm-wt-integration"
-    },
-    {
-      "id": "sos",
-      "version": "1.0.0",
-      "ontologyCount": 3,
-      "queryCount": 3,
-      "blake3Hash": "7810a215c762da50e83352f1b21db5bdf9d54a9c0401cc91deee2c0b118a8076",
-      "path": "ontology_catalogue/sos"
-    },
-    {
-      "id": "unjucks",
-      "version": "1.0.0",
-      "ontologyCount": 175,
-      "queryCount": 0,
-      "blake3Hash": "52ff5169542909fd4cbe3cea1115fc9883e55dc8b7a4d2a095dd1c8ebe076ab8",
-      "path": "ontology_catalogue/unjucks"
-    },
-    {
-      "id": "unrdf-clean",
-      "version": "1.0.0",
-      "ontologyCount": 53,
-      "queryCount": 3,
-      "blake3Hash": "82a8fffec2af21878970ff41e5200e02be582458c32788bc4c3cf12772f428ad",
-      "path": "ontology_catalogue/unrdf-clean"
-    },
-    {
-      "id": "tower-lsp-composition",
-      "version": "1.0.0",
-      "ontologyCount": 1,
-      "queryCount": 0,
-      "blake3Hash": "f425676a6d1c712d11607536b17174bd82860b5c60730e220a61121e0fd45ee5",
-      "path": "ontology_catalogue/tower-lsp-composition"
-    },
-    {
-      "id": "ggen-spec-kit",
-      "version": "1.0.0",
-      "ontologyCount": 25,
-      "queryCount": 27,
-      "blake3Hash": "536e2d1d778cbb6e3c13ad63cb949cf3e1d9444dfc37862597fe35b85962d686",
-      "path": "ontology_catalogue/ggen-spec-kit"
-    }
-  ],
-  "o_crate_count": 62
+  }
 }

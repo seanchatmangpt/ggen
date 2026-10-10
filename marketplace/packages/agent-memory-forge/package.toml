@@ -51,4 +51,4 @@ retrieval_methods = ["sparql", "similarity-search", "temporal", "importance"]
 consolidation = ["importance-scoring", "decay-curves", "clustering", "summarization"]
 
 [marketplace]
-production_ready = false
+production_ready = true

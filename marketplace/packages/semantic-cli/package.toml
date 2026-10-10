@@ -29,7 +29,7 @@ thiserror = "1.0"
 anyhow = "1.0"
 
 [marketplace]
-production_ready = false
+production_ready = true
 category = "cli-tools"
 subcategory = "semantic-web"
 tags = ["rdf", "owl", "sparql", "ontology", "semantic", "clap-noun-verb"]

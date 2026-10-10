@@ -2,6 +2,7 @@
 name = "database-schema-generator"
 version = "1.0.0"
 description = "Multi-database schema generator from RDF ontology using SPARQL"
+repository = "https://github.com/seanchatmangpt/ggen"
 author = "ggen.io"
 license = "MIT"
 category = "database"
@@ -38,4 +39,4 @@ enable_indexes = true
 enable_fulltext = true
 
 [marketplace]
-production_ready = false
+production_ready = true

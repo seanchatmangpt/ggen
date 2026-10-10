@@ -27,4 +27,4 @@ keywords = ["observability", "OTEL", "telemetry", "metrics", "spans", "logs", "S
 categories = ["development-tools", "observability", "monitoring"]
 
 [marketplace]
-production_ready = false
+production_ready = true

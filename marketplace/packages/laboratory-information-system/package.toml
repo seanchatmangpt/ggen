@@ -2,6 +2,7 @@
 name = "laboratory-information-system"
 version = "1.0.0"
 description = "Laboratory information system with test ordering, specimen tracking, and results reporting"
+repository = "https://github.com/seanchatmangpt/ggen"
 category = "healthcare"
 tags = ["laboratory", "lab-tests", "specimen-tracking", "results", "pathology"]
 license = "MIT"
@@ -23,4 +24,4 @@ gdpr = true
 clia = true
 
 [marketplace]
-production_ready = false
+production_ready = true

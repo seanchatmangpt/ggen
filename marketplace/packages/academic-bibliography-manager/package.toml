@@ -102,4 +102,4 @@ requires = ["references.bib"]
 formats_supported = ["bibtex", "csl-json", "ris", "mods", "json-ld"]
 
 [marketplace]
-production_ready = false
+production_ready = true

@@ -2,6 +2,7 @@
 name = "cryptocurrency-exchange"
 version = "1.0.0"
 description = "Cryptocurrency exchange platform with wallet management, order matching, blockchain integration, and DeFi protocols"
+repository = "https://github.com/seanchatmangpt/ggen"
 category = "finance"
 author = "ggen Marketplace"
 license = "MIT"
@@ -32,4 +33,4 @@ relations = ["owns", "trades", "deposits", "withdraws", "stakes", "provides_liqu
 complexity = "high"
 
 [marketplace]
-production_ready = false
+production_ready = true

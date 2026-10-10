@@ -2,6 +2,7 @@
 name = "java26-pattern-matched-controller"
 version = "1.0.0"
 description = "PATTERN-MATCHED CONTROLLER — Generate @RestController using Java 26 switch expressions with type patterns for exhaustive dispatch"
+repository = "https://github.com/seanchatmangpt/ggen"
 authors = ["ggen marketplace"]
 license = "MIT"
 keywords = ["java26", "rest", "controller", "pattern-matching", "switch-expression", "sealed"]
@@ -10,4 +11,4 @@ pattern_number = 22
 pattern_name = "PATTERN-MATCHED CONTROLLER"
 
 [marketplace]
-production_ready = false
+production_ready = true

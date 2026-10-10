@@ -2,6 +2,7 @@
 name = "order-management-system"
 version = "1.0.0"
 description = "Production-ready order processing and fulfillment system with comprehensive RDF ontology"
+repository = "https://github.com/seanchatmangpt/ggen"
 authors = ["ggen Marketplace"]
 license = "MIT"
 keywords = ["e-commerce", "order-management", "fulfillment", "rdf", "sparql"]
@@ -79,4 +80,4 @@ complements = [
 ]
 
 [marketplace]
-production_ready = false
+production_ready = true

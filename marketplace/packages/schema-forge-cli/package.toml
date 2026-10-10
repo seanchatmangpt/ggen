@@ -27,7 +27,7 @@ anyhow = "1.0"
 indexmap = "2.0"
 
 [marketplace]
-production_ready = false
+production_ready = true
 category = "cli-tools"
 subcategory = "data-modeling"
 tags = ["schema", "json-schema", "sql", "graphql", "validation", "clap-noun-verb"]

@@ -51,4 +51,4 @@ semantic_features = ["ontology-based", "reasoning", "inference", "summarization"
 sharing_features = ["multi-agent", "permissions", "encryption", "versioning"]
 
 [marketplace]
-production_ready = false
+production_ready = true

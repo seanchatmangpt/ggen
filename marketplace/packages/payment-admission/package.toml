@@ -3,6 +3,7 @@ name = "payment-admission"
 full_name = "payment-admission-discipline"
 version = "1.0.0"
 description = "Vision 2030: Compiled admission discipline for high-value payments"
+repository = "https://github.com/seanchatmangpt/ggen"
 category = "financial"
 author = "ggen"
 license = "MIT"
@@ -16,4 +17,4 @@ type = "semantic_os"
 ontology = "ontology/payment.ttl"
 
 [marketplace]
-production_ready = false
+production_ready = true

@@ -2,6 +2,7 @@
 name = "graphql-api-template"
 version = "1.0.0"
 description = "Production-ready GraphQL API template with DataLoaders, subscriptions, and multi-language support"
+repository = "https://github.com/seanchatmangpt/ggen"
 author = "ggen-marketplace"
 license = "MIT"
 category = "api"
@@ -52,4 +53,4 @@ min_pass_rate = 100
 performance_budget_ms = 100
 
 [marketplace]
-production_ready = false
+production_ready = true

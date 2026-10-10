@@ -99,4 +99,4 @@ codegen-units = 1
 strip = true
 
 [marketplace]
-production_ready = false
+production_ready = true

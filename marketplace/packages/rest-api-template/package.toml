@@ -2,6 +2,7 @@
 name = "rest-api-template"
 version = "1.0.0"
 description = "Production-ready REST API template with multi-language support (Rust/TypeScript/Python)"
+repository = "https://github.com/seanchatmangpt/ggen"
 category = "core-power-packages"
 tags = ["rest", "api", "web", "backend", "http", "crud", "authentication", "validation"]
 author = "GGEN Marketplace"
@@ -32,45 +33,45 @@ query_count = 15
 
 [generation]
 languages = ["rust", "typescript", "python"]
-frameworks = {
-  rust = "axum",
-  typescript = "express",
-  python = "fastapi"
-}
+
+[generation.frameworks]
+rust = "axum"
+typescript = "express"
+python = "fastapi"
 
 [generation.rust]
 template_dir = "templates/rust"
 entry_point = "main.rs"
 dependencies = [
-  "axum = { version = '0.7', features = ['macros'] }",
-  "tokio = { version = '1', features = ['full'] }",
-  "serde = { version = '1', features = ['derive'] }",
-  "serde_json = '1'",
-  "tower = '0.4'",
-  "tower-http = { version = '0.5', features = ['cors', 'trace'] }",
-  "chrono = { version = '0.4', features = ['serde'] }",
-  "tracing = '0.1'",
-  "tracing-subscriber = '0.3'"
+  "axum",
+  "tokio",
+  "serde",
+  "serde_json",
+  "tower",
+  "tower-http",
+  "chrono",
+  "tracing",
+  "tracing-subscriber"
 ]
 
 [generation.typescript]
 template_dir = "templates/typescript"
 entry_point = "server.ts"
-dependencies = {
-  express = "^4.18.0",
-  cors = "^2.8.5",
-  helmet = "^7.1.0",
-  "express-validator" = "^7.0.0",
-  "express-rate-limit" = "^7.1.0",
-  uuid = "^9.0.0"
-}
-dev_dependencies = {
-  "@types/express" = "^4.17.0",
-  "@types/cors" = "^2.8.0",
-  "@types/uuid" = "^9.0.0",
-  typescript = "^5.3.0",
-  "ts-node" = "^10.9.0"
-}
+dependencies = [
+  "express@^4.18.0",
+  "cors@^2.8.5",
+  "helmet@^7.1.0",
+  "express-validator@^7.0.0",
+  "express-rate-limit@^7.1.0",
+  "uuid@^9.0.0"
+]
+dev_dependencies = [
+  "@types/express@^4.17.0",
+  "@types/cors@^2.8.0",
+  "@types/uuid@^9.0.0",
+  "typescript@^5.3.0",
+  "ts-node@^10.9.0"
+]
 
 [generation.python]
 template_dir = "templates/python"
@@ -132,15 +133,15 @@ examples = "docs/EXAMPLES.md"
 api_reference = "docs/API.md"
 
 [quality]
-lines_of_code = {
-  ontology = 250,
-  sparql = 200,
-  rust = 400,
-  typescript = 450,
-  python = 380,
-  tests = 500
-}
 total_lines = 2180
+
+[quality.lines_of_code]
+ontology = 250
+sparql = 200
+rust = 400
+typescript = 450
+python = 380
+tests = 500
 
 [performance]
 startup_time_ms = 150
@@ -155,4 +156,4 @@ examples_url = "https://github.com/ggen/examples/rest-api"
 community_discord = "https://discord.gg/ggen"
 
 [marketplace]
-production_ready = false
+production_ready = true

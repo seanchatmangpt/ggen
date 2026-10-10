@@ -2,6 +2,7 @@
 name = "robo-advisor"
 version = "1.0.0"
 description = "Automated investment advisor with portfolio allocation, rebalancing, tax-loss harvesting, and risk tolerance assessment"
+repository = "https://github.com/seanchatmangpt/ggen"
 category = "finance"
 author = "ggen Marketplace"
 license = "MIT"
@@ -32,4 +33,4 @@ relations = ["has_goal", "invests_in", "rebalances_to", "harvests", "optimizes"]
 complexity = "high"
 
 [marketplace]
-production_ready = false
+production_ready = true

@@ -78,4 +78,4 @@ features = "Supervision tree audit, shared state detection, exception handling r
 use_cases = "Erlang/OTP systems, Elixir Phoenix apps, fault-tolerant microservices, distributed systems"
 
 [marketplace]
-production_ready = false
+production_ready = true

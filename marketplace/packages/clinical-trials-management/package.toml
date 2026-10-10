@@ -2,6 +2,7 @@
 name = "clinical-trials-management"
 version = "1.0.0"
 description = "Clinical trials management with protocol management, patient recruitment, and data collection"
+repository = "https://github.com/seanchatmangpt/ggen"
 category = "healthcare"
 tags = ["clinical-trials", "research", "protocol-management", "patient-recruitment", "data-collection"]
 license = "MIT"
@@ -25,4 +26,4 @@ fda = true
 gcp = true
 
 [marketplace]
-production_ready = false
+production_ready = true
