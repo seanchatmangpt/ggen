@@ -300,6 +300,8 @@ fn genv2_only_writes_do_not_resync() {
 /// synthetic assertion is possible without a non-public seam, so none is
 /// fabricated.
 #[test]
+// cheat-scan-ignore: watch_has_no_public_shutdown_process_exit_is_the_shutdown --
+// asserts at compile time (fn-signature binding), no runtime assert exists
 fn watch_has_no_public_shutdown_process_exit_is_the_shutdown() {
     // README.md is NOT in the ignore list (only .ggen-v2/.git are), so an
     // irrelevant-file write is expected to re-sync; that behavior is a

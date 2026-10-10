@@ -313,6 +313,29 @@ fn impl_item_fn_line(i: &ImplItemFn) -> usize {
 struct ScanVisitor<'a> {
     file: &'a Path,
     findings: Vec<Finding>,
+    /// Test fn names carrying a `// cheat-scan-ignore: <fn_name>` source
+    /// comment. Suppression is comment-based (not an attribute) so it
+    /// survives the syn parse without needing a tool attribute registered
+    /// in the scanned crate.
+    ignored: std::collections::BTreeSet<String>,
+}
+
+/// Names listed on `// cheat-scan-ignore: <name> [<name>...]` comment lines.
+/// One name per occurrence, whitespace-separated after the marker; the rest
+/// of the line may carry a reason after `--`.
+fn scan_ignored_fns(src: &str) -> std::collections::BTreeSet<String> {
+    let mut out = std::collections::BTreeSet::new();
+    for line in src.lines() {
+        let Some(idx) = line.find("// cheat-scan-ignore:") else {
+            continue;
+        };
+        let rest = line[idx + "// cheat-scan-ignore:".len()..].trim();
+        let names = rest.split("--").next().unwrap_or("");
+        for name in names.split_whitespace() {
+            out.insert(name.to_string());
+        }
+    }
+    out
 }
 
 fn check_test_fn_body(
@@ -362,7 +385,8 @@ fn check_test_fn_body(
 
 impl<'ast> Visit<'ast> for ScanVisitor<'_> {
     fn visit_item_fn(&mut self, i: &'ast ItemFn) {
-        if is_test_fn(&i.attrs) {
+        let name = i.sig.ident.to_string();
+        if is_test_fn(&i.attrs) && !self.ignored.contains(&name) {
             check_test_fn_body(
                 &i.sig.ident.to_string(),
                 item_fn_line(i),
@@ -376,7 +400,8 @@ impl<'ast> Visit<'ast> for ScanVisitor<'_> {
     }
 
     fn visit_impl_item_fn(&mut self, i: &'ast ImplItemFn) {
-        if is_test_fn(&i.attrs) {
+        let name = i.sig.ident.to_string();
+        if is_test_fn(&i.attrs) && !self.ignored.contains(&name) {
             check_test_fn_body(
                 &i.sig.ident.to_string(),
                 impl_item_fn_line(i),
@@ -442,6 +467,7 @@ pub fn scan_source(src: &str, path: &Path) -> Result<Vec<Finding>, syn::Error> {
     let mut v = ScanVisitor {
         file: path,
         findings: Vec::new(),
+        ignored: scan_ignored_fns(src),
     };
     v.visit_file(&syntax);
     findings.extend(v.findings);

@@ -41,6 +41,26 @@ fn expect_verdict(name: &str, expected: &[&'static str]) {
     );
 }
 
+// The fixture-verdict assertions live in the shared expect_verdict()
+// helper, which this detector cannot see; every #[test] below is
+// failure-capable through that helper. Suppressed per-fn:
+// cheat-scan-ignore: pos_t01_vacuous_assert
+// cheat-scan-ignore: pos_t02_tautology_standalone
+// cheat-scan-ignore: pos_t02_tautology_inside_assert
+// cheat-scan-ignore: pos_t03_no_assertion
+// cheat-scan-ignore: pos_t04_mockall_import
+// cheat-scan-ignore: pos_t04_automock_trait
+// cheat-scan-ignore: neg_computed_assert_eq
+// cheat-scan-ignore: neg_side_effect_free_predicate
+// cheat-scan-ignore: neg_comments_contain_forbidden_words
+// cheat-scan-ignore: neg_string_literals_not_imports
+// cheat-scan-ignore: neg_cfg_test_boundary_non_test_fn
+// cheat-scan-ignore: neg_assert_true_alongside_real_assert
+// cheat-scan-ignore: neg_unwrap_expect_chain
+// cheat-scan-ignore: neg_single_branch_is_ok
+// cheat-scan-ignore: neg_helper_assert_macros
+// cheat-scan-ignore: neg_tokio_async_test
+
 // ---------- Positives: every rule class genuinely fires ----------
 
 #[test]
