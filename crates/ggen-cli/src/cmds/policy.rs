@@ -195,7 +195,9 @@ fn load_pack_config_from_cache(cache_dir: &std::path::Path) -> (bool, Option<Str
         Err(_) => return (false, None),
     };
 
-    let value: toml::Value = match toml::from_str(&content) {
+    // star_toml adds env-var expansion of string values before parsing
+    // (pack.toml manifest context; expansion is acceptable here).
+    let value: toml::Value = match star_toml::from_str(&content) {
         Ok(v) => v,
         Err(_) => return (false, None),
     };

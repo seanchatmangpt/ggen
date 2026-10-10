@@ -49,3 +49,6 @@ automatically and autonomically" is still far larger than what any one pack clos
 this pack closes three named, verifiable connections from one real paper, against real
 data already admitted in this workspace.
 """
+
+[capabilities]
+provides = ["urn:ggen:pack:process-intelligence-rag-pack"]

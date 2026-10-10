@@ -537,7 +537,37 @@ where
 /// active rule/template references — aborted this call entirely; that
 /// collateral failure mode is what [`load_templates_glob_lenient`] fixes.
 pub fn build_tera(graph: Arc<dyn GraphEngine>) -> Result<Tera> {
+    build_tera_with_packs(graph, &[])
+}
+
+/// [`build_tera`], plus eager registration of every resolved pack's
+/// `templates/` files under `<pack-name>://<subpath>` names.
+///
+/// Mechanism: Tera 1.x has no public loader trait (its only bulk entry
+/// point is the glob constructor), so pack templates are registered
+/// *eagerly* at build time using the same lenient per-file discipline as
+/// [`load_templates_glob_lenient`]: a file that fails to parse is skipped
+/// with a `WARN` (it still fails loudly at render if something imports it),
+/// never a silent drop. A project template's
+/// `{% import "demolib://macros/util.tera" as u %}` then resolves by plain
+/// Tera name lookup, exactly like any same-directory import.
+///
+/// Zero drift: `build_tera` delegates with an empty pack slice, so projects
+/// not using URI imports take the identical code path as before — nothing
+/// is registered, nothing is re-checked twice (the empty-slice early return
+/// in [`attach_pack_templates`] skips the post-registration inheritance/
+/// macro re-check too).
+///
+/// # Errors
+/// Inherits [`load_templates_glob_lenient`]'s `[FM-TPL-015]`, plus the
+/// post-registration re-check mapped to `[FM-TPL-015]` as well (a genuine
+/// inheritance/macro-import defect spanning a project template and a pack
+/// template).
+pub fn build_tera_with_packs(
+    graph: Arc<dyn GraphEngine>, packs: &[crate::pack::Pack],
+) -> Result<Tera> {
     let mut tera = load_templates_glob_lenient(Path::new("templates"))?;
+    attach_pack_templates(&mut tera, packs)?;
     tera.register_function("sparql", move |args: &HashMap<String, Value>| {
         let query = args
             .get("query")
@@ -716,6 +746,141 @@ fn collect_files_recursive(dir: &Path, out: &mut Vec<PathBuf>) -> std::io::Resul
         }
     }
     Ok(())
+}
+
+/// Eagerly register every resolved pack's `templates/` files into `tera`
+/// under `<pack-name>://<subpath>` names, so a project template can
+/// `{% import "demolib://macros/util.tera" as u %}` across packs. Same
+/// lenient per-file discipline as [`load_templates_glob_lenient`]; then
+/// re-runs the inheritance/macro checks over the enlarged template set.
+fn attach_pack_templates(tera: &mut Tera, packs: &[crate::pack::Pack]) -> Result<()> {
+    if packs.is_empty() {
+        return Ok(());
+    }
+    for pack in packs {
+        let templates_dir = pack.root.join("templates");
+        if !templates_dir.is_dir() {
+            continue;
+        }
+        let canonical_root = templates_dir.canonicalize().map_err(|e| {
+            AppError::fm_tpl(
+                15,
+                format!(
+                    "pack `{}` templates directory `{}` unreadable: {e}",
+                    pack.name,
+                    templates_dir.display()
+                ),
+            )
+        })?;
+        let mut files: Vec<PathBuf> = Vec::new();
+        collect_files_recursive(&canonical_root, &mut files).map_err(|e| {
+            AppError::fm_tpl(
+                15,
+                format!(
+                    "walking pack `{}` templates `{}` failed: {e}",
+                    pack.name,
+                    templates_dir.display()
+                ),
+            )
+        })?;
+        // Deterministic registration order.
+        files.sort();
+        for path in files {
+            let rel = path
+                .strip_prefix(&canonical_root)
+                .unwrap_or(&path)
+                .to_string_lossy()
+                .replace('\\', "/");
+            let registered_name = format!("{}://{}", pack.name, rel);
+            let content = match std::fs::read_to_string(&path) {
+                Ok(c) => c,
+                Err(e) => {
+                    tracing::warn!(
+                        template.name = %registered_name,
+                        template.error = %e,
+                        "pack templates: skipping unreadable pack template file",
+                    );
+                    continue;
+                }
+            };
+            match tera::Template::new(
+                &registered_name,
+                Some(path.to_string_lossy().to_string()),
+                &content,
+            ) {
+                Ok(tpl) => {
+                    tera.templates.insert(registered_name, tpl);
+                }
+                Err(e) => {
+                    tracing::warn!(
+                        template.name = %registered_name,
+                        template.error = %e,
+                        "pack templates: skipping unparseable pack template file \
+                         (it will still fail loudly if a rule or include actually uses it)",
+                    );
+                }
+            }
+        }
+    }
+    tera.build_inheritance_chains().map_err(|e| {
+        AppError::fm_tpl(
+            15,
+            format!("Tera inheritance chain build failed across project+pack templates: {e}"),
+        )
+    })?;
+    tera.check_macro_files().map_err(|e| {
+        AppError::fm_tpl(
+            15,
+            format!("Tera macro import check failed across project+pack templates: {e}"),
+        )
+    })?;
+    Ok(())
+}
+
+/// Resolve a `<pack-name>://<subpath>` template URI to the on-disk file
+/// `<pack.root>/templates/<subpath>` against the already-resolved pack set.
+///
+/// Fail closed with a typed `[FM-TPL-028]` error naming both the URI and
+/// the searched path: not-a-URI, unknown pack (listing the resolved pack
+/// names), `..` traversal, and missing file each refuse with the URI and
+/// the searched filesystem path in the message.
+///
+/// # Errors
+/// `[FM-TPL-028]` for every refusal above.
+pub fn resolve_pack_template(uri: &str, packs: &[crate::pack::Pack]) -> Result<PathBuf> {
+    let Some((pack_name, subpath)) = uri.split_once("://") else {
+        return Err(AppError::fm_tpl(
+            28,
+            format!("`{uri}` is not a `<pack-name>://<subpath>` template URI"),
+        ));
+    };
+    let Some(pack) = packs.iter().find(|p| p.name == pack_name) else {
+        let names: Vec<&str> = packs.iter().map(|p| p.name.as_str()).collect();
+        return Err(AppError::fm_tpl(
+            28,
+            format!(
+                "template URI `{uri}` names unknown pack `{pack_name}`; resolved packs: [{}]",
+                names.join(", ")
+            ),
+        ));
+    };
+    if subpath.split('/').any(|seg| seg == "..") {
+        return Err(AppError::fm_tpl(
+            28,
+            format!("template URI `{uri}` contains a `..` segment; traversal refused"),
+        ));
+    }
+    let searched = pack.root.join("templates").join(subpath.replace('\\', "/"));
+    if !searched.is_file() {
+        return Err(AppError::fm_tpl(
+            28,
+            format!(
+                "template URI `{uri}` does not exist: searched `{}`",
+                searched.display()
+            ),
+        ));
+    }
+    Ok(searched)
 }
 
 /// Walk a `tera::Error`'s `source()` chain and join every level's `Display`

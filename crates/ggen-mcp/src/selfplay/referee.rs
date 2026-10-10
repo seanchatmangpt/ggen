@@ -110,6 +110,7 @@ impl Verdict {
 /// anything) so a verdict is a pure function of observations — the same
 /// observations always yield the same ruling, which is what makes corpus
 /// replay meaningful.
+///
 #[derive(Debug, Clone, Default)]
 pub struct Observation {
     /// `Some(true)` = query tool reported success, `Some(false)` = typed
@@ -309,6 +310,7 @@ pub fn referee_verdict(obs: &Observation) -> Verdict {
 }
 
 /// Recursive (relative path -> BLAKE3) fingerprint of a directory tree.
+///
 /// Shared by the harness so "did anything change" is answered by hashing
 /// real bytes rather than by trusting mtimes or tool self-reports.
 #[must_use]

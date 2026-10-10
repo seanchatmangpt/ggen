@@ -1,0 +1,8 @@
+[pack]
+name = "multi-projection-pack"
+version = "0.1.0"
+description = "Manufacture language/schema projections (Rust, Python, TypeScript, SQL, Protobuf, GraphQL, JSON Schema, JSON-LD context, manifest) from one RDF ProjectionSpec. Consumed by examples/cs2-projections/ggen.toml."
+
+[capabilities]
+provides = ["urn:ggen:pack:multi-projection-pack"]
+requires = []

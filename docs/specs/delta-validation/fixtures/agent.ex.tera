@@ -1,0 +1,15 @@
+defmodule {{ moduleName }} do
+  @moduledoc """
+  Generated agent module. Version {{ version }}.
+  """
+
+  @doc "Echo handler"
+  def handle_message(message) do
+    {:ok, message}
+  end
+
+  @doc "Init"
+  def init(opts) do
+    {:ok, %{config: opts}}
+  end
+end

@@ -74,6 +74,7 @@ const SYNC_DEBOUNCE_WINDOW: Duration = Duration::from_secs(2);
 /// proof (`tpl_001_diagnostic_reaches_a_real_mcp_client`) already exercises
 /// `GGEN-TPL-001`; reusing it here means this watcher is wiring, not new
 /// diagnostic-code work.
+///
 pub const WATCHED_CODES: [&str; 1] = ["GGEN-TPL-001"];
 
 /// Start watching `root` in a dedicated OS thread, pushing real diagnostics

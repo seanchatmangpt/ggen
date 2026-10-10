@@ -48,3 +48,7 @@ Ships zero individuals (pure law, matching dspy-pack's own convention) -- compos
 injects no signature, model, or shape into a consumer's generated output. A consumer supplies
 its own sh:NodeShape / sp:derivedFromShape individuals in its own .ttl.
 """
+
+[capabilities]
+provides = ["urn:ggen:pack:shacl-projection-pack"]
+requires = []

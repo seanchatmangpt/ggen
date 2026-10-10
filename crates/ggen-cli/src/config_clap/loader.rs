@@ -26,7 +26,7 @@ pub fn load_ggen_config<P: AsRef<Path>>(path: P) -> Result<GgenConfig> {
     let config_str = std::fs::read_to_string(path.as_ref())
         .map_err(|e| ConfigClapError::LoadError(format!("Failed to read ggen.toml: {e}")))?;
 
-    let config: GgenConfig = toml::from_str(&config_str)
+    let config: GgenConfig = star_toml::from_str(&config_str)
         .map_err(|e| ConfigClapError::ParseError(format!("Failed to parse ggen.toml: {e}")))?;
 
     Ok(config)

@@ -1,4 +1,0 @@
-@prefix : <http://example.org/> .
-
-:alice :uncle :carol .
-:carol :nephew :alice .

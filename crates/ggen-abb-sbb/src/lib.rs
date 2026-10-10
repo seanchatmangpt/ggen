@@ -22,6 +22,8 @@ use sha2::{Digest, Sha256};
 use std::collections::{BTreeMap, BTreeSet};
 use thiserror::Error;
 
+pub mod depgraph;
+
 pub const GRAPH_SCHEMA: &str = "ggen.ea.graph.v1";
 pub const RECEIPT_SCHEMA: &str = "ggen.abb-sbb.manufacture-receipt.v1";
 
@@ -199,6 +201,12 @@ pub enum Refusal {
     UnsafeArtifactPath { path: String },
     #[error("DUPLICATE_ARTIFACT_PATH: {path}")]
     DuplicateArtifactPath { path: String },
+    #[error("CYCLIC_PACK_DEPENDENCY: {}", cycle.join(" -> "))]
+    CyclicPackDependency { cycle: Vec<String> },
+    #[error(
+        "UNBOUND_PORT: {port} required by {pack} is not provided by any transitive dependency"
+    )]
+    UnboundPort { pack: String, port: String },
     #[error("UNBOUND_PLACEHOLDER: {placeholder} in {path}")]
     UnboundPlaceholder { placeholder: String, path: String },
     #[error("RECEIPT_TAMPERED: declared {declared}, actual {actual}")]
@@ -421,7 +429,7 @@ impl EaGraph {
         canonical_digest(&self.canonical())
     }
 
-    fn validate(&self) -> Result<(), Refusal> {
+    pub fn validate(&self) -> Result<(), Refusal> {
         if self.schema != GRAPH_SCHEMA {
             return Err(Refusal::MalformedGraph {
                 reason: format!("schema {} != {GRAPH_SCHEMA}", self.schema),

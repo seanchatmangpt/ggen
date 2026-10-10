@@ -1,0 +1,77 @@
+diff --git a/crates/ggen-engine/src/graph.rs b/crates/ggen-engine/src/graph.rs
+index c02bdac24..1f572b03f 100644
+--- a/crates/ggen-engine/src/graph.rs
++++ b/crates/ggen-engine/src/graph.rs
+@@ -457,16 +457,15 @@ fn diagnose_bind_rebind(sparql: &str) -> Option<AppError> {
+                     }
+                     depth -= 1;
+                 }
+-                b'A' | b'a' if depth == 1 => {
+-                    if sparql[i..].len() >= 2
++                b'A' | b'a' if depth == 1
++                    && sparql[i..].len() >= 2
+                         && sparql[i + 1..].starts_with(['S', 's'])
+                         && !is_name_char(bytes[i - 1])
+                         && bytes.get(i + 2).is_none_or(|&c| !is_name_char(c))
+-                    {
++                    => {
+                         as_pos = Some(i);
+                         break;
+                     }
+-                }
+                 _ => {}
+             }
+             i += 1;
+@@ -480,7 +479,7 @@ fn diagnose_bind_rebind(sparql: &str) -> Option<AppError> {
+         let target_name: String = {
+             let mut cs = sparql[target_abs..].chars();
+             match cs.next() {
+-                Some('?') | Some('$') => cs
++                Some('?' | '$') => cs
+                     .by_ref()
+                     .take_while(|c| c.is_alphanumeric() || *c == '_')
+                     .collect(),
+@@ -512,7 +511,7 @@ fn diagnose_bind_rebind(sparql: &str) -> Option<AppError> {
+ 
+ /// Byte offset of the start of the line containing byte offset `at`.
+ fn prefix_line_start(sparql: &str, at: usize) -> usize {
+-    sparql[..at].rfind('\n').map(|p| p + 1).unwrap_or(0)
++    sparql[..at].rfind('\n').map_or(0, |p| p + 1)
+ }
+ 
+ /// True when the variable token `?name` (or `$name`) appears in `text` with
+diff --git a/crates/ggen-engine/src/sync.rs b/crates/ggen-engine/src/sync.rs
+index e886a0f77..cf286f953 100644
+--- a/crates/ggen-engine/src/sync.rs
++++ b/crates/ggen-engine/src/sync.rs
+@@ -671,10 +671,9 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
+                     AppError::fm_law(
+                         12,
+                         format!(
+-                            "SPARQL gate `{}` is not a gate query: it must be an ASK \
++                            "SPARQL gate `{rel_disp}` is not a gate query: it must be an ASK \
+                              (true = violation) or a SELECT (any row = violation), not \
+-                             a CONSTRUCT/DESCRIBE. Remediation: fix [law].gates.",
+-                            rel_disp
++                             a CONSTRUCT/DESCRIBE. Remediation: fix [law].gates."
+                         ),
+                     ),
+                 ));
+@@ -1645,13 +1644,15 @@ fn fixture_only_subjects(
+             .collect()),
+         // A marker query is a SELECT by construction; the other result
+         // shapes cannot arise from this query text.
+-        EngineQueryResults::Graph(_) | EngineQueryResults::Boolean(_) => Ok(Default::default()),
++        EngineQueryResults::Graph(_) | EngineQueryResults::Boolean(_) => {
++            Ok(std::collections::BTreeSet::default())
++        }
+     }
+ }
+ 
+ /// Consumer-mode (OS-13): does this rendered row/named-result JSON name a
+ /// `fixtureOnly`-marked subject? Returns the first matched subject IRI (in
+-/// BTreeSet order, so the skip reason is deterministic) for the typed skip
++/// `BTreeSet` order, so the skip reason is deterministic) for the typed skip
+ /// log.
+ fn fixture_reference_in(
+     value: &serde_json::Value, subjects: &std::collections::BTreeSet<String>,

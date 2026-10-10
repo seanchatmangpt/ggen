@@ -673,7 +673,7 @@ pub fn load_a2a_from_file(path: &Path) -> Result<A2aConfig> {
         ))
     })?;
 
-    toml::from_str(&content).map_err(|e| {
+    star_toml::from_str(&content).map_err(|e| {
         ConfigError::Validation(format!(
             "Failed to parse A2A config from {}: {}\nSuggestion: Check TOML syntax",
             path.display(),

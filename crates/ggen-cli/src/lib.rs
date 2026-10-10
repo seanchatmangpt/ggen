@@ -151,7 +151,8 @@ pub async fn cli_match() -> crate::utils::error::Result<()> {
     let mut telemetry_config = None;
     if std::path::Path::new(&manifest_path).exists() {
         if let Ok(content) = std::fs::read_to_string(&manifest_path) {
-            if let Ok(config) = toml::from_str::<ggen_config::config_lib::GgenConfig>(&content) {
+            if let Ok(config) = star_toml::from_str::<ggen_config::config_lib::GgenConfig>(&content)
+            {
                 if let Some(ref tel) = config.telemetry {
                     telemetry_config = Some(crate::telemetry::TelemetryConfig {
                         endpoint: tel.endpoint.clone(),
@@ -221,7 +222,7 @@ pub async fn cli_match() -> crate::utils::error::Result<()> {
     // `std::env::args()` itself with no way to pass a rewritten vector, so this
     // calls the registry directly with the rewritten args, same as
     // `clap_noun_verb::cli::run()`'s own body.
-    let args = inject_default_verbs(std::env::args().collect());
+    let args = expand_json_flag(inject_default_verbs(std::env::args().collect()));
     let registry_mutex = clap_noun_verb::cli::CommandRegistry::get();
     let registry = registry_mutex.lock().map_err(|e| {
         crate::utils::error::Error::new(&format!("Failed to lock CLI registry: {}", e))
@@ -343,6 +344,83 @@ mod inject_default_verbs_tests {
     }
 }
 
+/// Expand the convenience global flag `--json` into clap-noun-verb's native
+/// `--format json` (compact machine-readable output; see `clap_noun_verb::format`
+/// and the global `format` arg registered in `clap_noun_verb::cli::registry`).
+///
+/// An explicit `--format <value>` anywhere on the command line always wins; in
+/// that case `--json` is dropped and the explicit format is left untouched.
+/// With no `--json` present the args vector is returned unchanged, so default
+/// (JsonPretty) output is byte-identical to the pre-`--json` behavior.
+///
+/// Modeled on `inject_default_verbs` above: a thin argv preprocessor before
+/// `CommandRegistry::run` (which reads no env/argv of its own beyond what we
+/// pass it).
+fn expand_json_flag(args: Vec<String>) -> Vec<String> {
+    let has_json = args.iter().any(|a| a == "--json");
+    if !has_json {
+        return args;
+    }
+    let has_explicit_format = args.iter().any(|a| a == "--format");
+    // Strip every `--json`; an explicit `--format <value>` always wins.
+    let mut expanded: Vec<String> = args.into_iter().filter(|a| a != "--json").collect();
+    if !has_explicit_format {
+        // Insert after the program name (index 0), before noun/verb.
+        expanded.insert(1, "--format".to_string());
+        expanded.insert(2, "json".to_string());
+    }
+    expanded
+}
+
+#[cfg(test)]
+mod expand_json_flag_tests {
+    use super::expand_json_flag;
+
+    fn v(args: &[&str]) -> Vec<String> {
+        args.iter().map(|s| s.to_string()).collect()
+    }
+
+    #[test]
+    fn no_json_flag_leaves_args_unchanged() {
+        assert_eq!(
+            expand_json_flag(v(&["ggen", "doctor", "run"])),
+            v(&["ggen", "doctor", "run"])
+        );
+    }
+
+    #[test]
+    fn json_flag_becomes_global_format_json() {
+        assert_eq!(
+            expand_json_flag(v(&["ggen", "--json", "doctor", "run"])),
+            v(&["ggen", "--format", "json", "doctor", "run"])
+        );
+    }
+
+    #[test]
+    fn trailing_json_flag_moves_to_front_as_format_json() {
+        assert_eq!(
+            expand_json_flag(v(&["ggen", "doctor", "run", "--json"])),
+            v(&["ggen", "--format", "json", "doctor", "run"])
+        );
+    }
+
+    #[test]
+    fn explicit_format_wins_and_json_is_dropped() {
+        assert_eq!(
+            expand_json_flag(v(&["ggen", "--json", "--format", "yaml", "doctor", "run"])),
+            v(&["ggen", "--format", "yaml", "doctor", "run"])
+        );
+    }
+
+    #[test]
+    fn multiple_json_flags_all_removed() {
+        assert_eq!(
+            expand_json_flag(v(&["ggen", "--json", "doctor", "--json", "run"])),
+            v(&["ggen", "--format", "json", "doctor", "run"])
+        );
+    }
+}
+
 /// Structured result for programmatic CLI execution (used by Node addon)
 #[derive(Debug, Clone)]
 pub struct RunResult {
@@ -388,6 +466,7 @@ pub async fn run_for_node(args: Vec<String>) -> crate::utils::error::Result<RunR
         "--version",
         "-V",
         "--format",
+        "--json",
         "--select",
         "--introspect",
         "--structured-errors",

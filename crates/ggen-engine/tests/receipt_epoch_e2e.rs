@@ -1,5 +1,5 @@
 //! Chicago-TDD proofs for the receipt schema v1 -> v2 epoch migration
-//! (`praxis_core::receipt_epoch`): dual-read/single-write, the admission
+//! (`receipt_chain_seam::epoch`, graphlaw-backed): dual-read/single-write, the admission
 //! ledger's Red>Yellow>Green precedence, the closed 8-class equivalence map,
 //! obligation accounting computed after admission processing, the ceiling
 //! monotonicity rule, and the `M_1_to_2` migration receipt. Real `sync()` runs
@@ -11,17 +11,20 @@
 
 use std::path::Path;
 
-use ggen_engine::sync::{sync, SyncOptions, RECEIPT_REL_PATH};
-use praxis_core::{
-    error::CoreError,
-    law::Andon,
-    receipt_epoch::{
+use ggen_engine::receipt_chain_seam::{
+    epoch::{
         read_receipt_epoch, AdmissionDecision, AdmissionItem, AdmissionLedger, AndonLevel,
-        CeilingLevel, ComponentLevels, EquivalenceMap, EquivalenceStatus, MigrationReceipt,
-        ObligationCount, ObservedOutcome, ReceiptEpochV2, ReceiptEpochV2Builder,
-        ReceiptRecordV1Legacy, MIGRATION_LAW_1_TO_2, SCHEMA_V1, SCHEMA_V2,
+        CeilingLevel, ComponentLevels, EquivalenceMap, EquivalenceStatus, ObligationCount,
+        ObservedOutcome, ReceiptEpochV2, ReceiptEpochV2Builder, SCHEMA_V1, SCHEMA_V2,
     },
-    receipt_record::{ReceiptRecord, RECEIPT_RECORD_VERSION},
+    Andon, CoreError, ReceiptRecord, RECEIPT_RECORD_VERSION,
+};
+use ggen_engine::sync::{sync, SyncOptions, RECEIPT_REL_PATH};
+// Migration-epoch types, graphlaw-backed through the seam (praxis-core
+// retirement: no direct praxis_core imports remain).
+use ggen_engine::receipt_chain_seam::epoch::CeilingLevel as MigrationCeilingLevel;
+use ggen_engine::receipt_chain_seam::epoch::{
+    MigrationReceipt, ReceiptRecordV1Legacy, MIGRATION_LAW_1_TO_2,
 };
 use tempfile::TempDir;
 
@@ -313,7 +316,10 @@ fn migration_receipt_links_a_real_v1_hash_to_a_real_v2_hash() {
     assert_eq!(migration.to_schema, SCHEMA_V2);
     assert_eq!(migration.final_v1_chain_hash_hex, v1.chain_hash_hex);
     assert_eq!(migration.first_v2_chain_hash_hex, v2.chain_hash_hex);
-    assert_eq!(migration.resulting_ceiling, CeilingLevel::LegacyObserved);
+    assert_eq!(
+        migration.resulting_ceiling,
+        MigrationCeilingLevel::LegacyObserved
+    );
     assert!(migration.becomes_unknown.contains(&"admission".to_string()));
     assert!(migration
         .carries_forward

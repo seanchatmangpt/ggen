@@ -62,6 +62,7 @@ members = [
   "crates/ggen-config",
   "crates/ggen-marketplace",
   "crates/ggen-cli",
+  "crates/ggen-abb-sbb",
   "crates/ggen-graph",
   "crates/ggen-lsp",
   # ggen-core replacement engine (docs/jira/v26.7.16/): vendored, renamed copy
@@ -86,8 +87,6 @@ members = [
   # down in this file. That narrow, still-true statement is what this comment used to overstate
   # into "no consumer references them yet".
   "crates/ggen-engine",
-  "crates/praxis-core",
-  "crates/praxis-graphlaw",
   "crates/powl2-decompose",
   "crates/bcinr-pddl",
   "crates/bcinr-mfw-ir",
@@ -119,12 +118,9 @@ members = [
 # is: to make the "why isn't this one of the workspace's crates" answer discoverable in the one
 # file a reader would check first, not left to be re-derived from scratch.
 #
-# `crates/ggen-abb-sbb` (2026-09-26, RFC docs/rfc/v26.9.26/abb-sbb-implementation.md): excluded
-# for the same reason as `crates/ggen-architecture` -- it declares its own `[workspace]` and ships
-# its own `Cargo.lock`, so it is an independent workspace root that cannot be a member here. Its
-# court is `.github/workflows/abb-sbb-manufacture.yml`; no root member depends on it yet (seed
-# standing PARTIAL_ALIVE, not wired into ggen-cli/sync).
-exclude = ["examples/7-agent-validation", "crates/ggen-architecture", "crates/ggen-abb-sbb"]
+# `crates/ggen-abb-sbb` (RFC docs/rfc/v26.9.26/abb-sbb-implementation.md): integrated
+# into workspace members in v26.10.9.
+exclude = ["examples/7-agent-validation", "crates/ggen-architecture"]
 resolver = "2" # Use new resolver for better dependency resolution
 
 # Workspace-wide dependencies for version consistency
@@ -141,6 +137,7 @@ anyhow = "1.0"
 chrono = { version = "0.4", features = ["serde"] }
 thiserror = "2.0"
 async-trait = "0.1"
+graphlaw = { path = "../graphlaw", default-features = false, features = ["abi"] }
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = [
   "env-filter",
@@ -173,6 +170,7 @@ indexmap = { version = "2.14", features = ["serde"] }
 tera = "1.20"
 oxigraph = { version = "0.5.11", features = ["rdf-12"] }
 toml = "1.1.6"
+star-toml = "26.7.3"
 serde_yaml = "0.9"
 hex = "0.4"
 sha2 = "0.11"
@@ -200,20 +198,20 @@ rig-core = "0.42.0"
 
 # Workspace-local crates (use workspace = true pattern in workspace members)
 # NOTE: v26.5.29 unified release
-# ggen-core (2026-07-16, ggen-core disconnect, T054-T058): removed. ggen-core
-# is no longer a workspace member (see [workspace] exclude above) and no
-# remaining workspace member has a real dependency edge on it -- every real
-# consumer was ported or gated behind the `ggen-core-retired` feature (see
-# cmds/mod.rs and crates/ggen-cli/Cargo.toml). crates/ggen-core/ itself is
-# untouched on disk, per this project's fix-forward / non-deletion doctrine.
-ggen-cli-lib = { path = "crates/ggen-cli", version = "26.7.2" }
-ggen-graph = { path = "crates/ggen-graph", version = "26.7.2" }
+# ggen-core (2026-07-16, ggen-core disconnect, T054-T058; deleted 2026-07-17,
+# see [workspace] comment above and docs/jira/v26.7.16/14-GGEN-CORE-REMOVAL-PROPOSAL.md):
+# fully deleted -- no workspace member has a dependency edge on it and
+# crates/ggen-core/ no longer exists on disk (git history retains the code;
+# corrected 2026-10-09, the previous text here wrongly said the directory was
+# "untouched on disk").
+ggen-cli-lib = { path = "crates/ggen-cli", version = "26.10.8" }
+ggen-graph = { path = "crates/ggen-graph", version = "26.10.8" }
 # ggen-core replacement engine dependencies (specs/014-ggen-core-replacement,
 # docs/jira/v26.7.16/10-ROOT-PACKAGE-TEST-MIGRATION.md, T051-T053): root
 # package/tests/examples/benches re-point away from ggen_core:: onto these,
 # file by file, as each file's specific symbols land a real port destination.
-ggen-config = { path = "crates/ggen-config", version = "26.7.2" }
-ggen-marketplace = { path = "crates/ggen-marketplace", version = "26.7.2" }
+ggen-config = { path = "crates/ggen-config", version = "26.10.8" }
+ggen-marketplace = { path = "crates/ggen-marketplace", version = "26.10.8" }
 ggen-engine = { path = "crates/ggen-engine", version = "26.7.13" }
 
 # A2A Protocol Integration (Agent-to-Agent protocol) - using local a2a-generated
@@ -303,7 +301,7 @@ sqlx = { version = "0.9", features = ["sqlite", "runtime-tokio-rustls", "chrono"
 # Note: Individual lint configuration is done via attributes in code
 # This section sets global lint levels
 [workspace.lints.rust]
-warnings = "allow"  # Warn-first mode: inventory before enforcing
+warnings = "warn"  # Honest warnings: rustc-level warnings visible workspace-wide
 unsafe_code = "warn"
 missing_docs = "allow"  # Allow missing docs during warn-first phase
 dead_code = "allow"
@@ -466,7 +464,6 @@ equatable_if_let = "allow"
 explicit_auto_deref = "allow"
 flat_map_option = "allow"
 format_in_format_args = "allow"
-from_iter_instead_of_collect = "allow"
 implied_bounds_in_impls = "allow"
 inconsistent_struct_constructor = "allow"
 invalid_upcast_comparisons = "allow"
@@ -677,16 +674,20 @@ otel = []
 ggen-config = { workspace = true }
 ggen-marketplace = { workspace = true }
 # ggen-engine intentionally NOT a dependency here (removed 2026-07-16, discovered via
-# `cargo publish --dry-run -p ggen`): ggen-engine -> praxis-core/praxis-graphlaw carry hard
-# absolute-path deps on sibling repos (/Users/sac/bcinr/crates/*, /Users/sac/wasm4pm-compat)
-# that only exist on this machine, so ggen-engine is `publish = false` and can never resolve
-# on crates.io. A real dependency edge here broke `cargo publish --dry-run -p ggen` with
-# "no matching package named `ggen-engine` found". Confirmed zero internal consumers (grep
-# for `ggen::core::` across src/tests/examples/benches/crates returned nothing) before
-# removing -- the T051 `pub use ggen_engine as core;` re-export in src/lib.rs is reverted
-# alongside this for the same reason. ggen-cli (workspace = true below) still needs
-# ggen-engine directly for the CLI routing flip; that crate's own publishability is a
-# separate, still-open question (see docs/jira/v26.7.16/ tickets 01/02).
+# `cargo publish --dry-run -p ggen`; re-measured 2026-10-09, SJIRA-16): ggen-engine is
+# `publish = false` on the root package; ggen-engine itself flipped to
+# `publish = true` (SJIRA-15, 2026-10-09) after the praxis-core /
+# praxis-graphlaw path deps were retired. Its remaining path deps
+# (ggen-abb-sbb, ggen-marketplace, bcinr-pddl, bcinr-mfw-ir, powl2-decompose)
+# are workspace-relative and version-less, so crates.io publication of
+# ggen-engine still requires versioned deps there. A real dependency edge here broke
+# `cargo publish --dry-run -p ggen` with "no matching package named `ggen-engine` found".
+# Confirmed zero internal consumers (grep for `ggen::core::` across
+# src/tests/examples/benches/crates returned nothing) before removing -- the T051
+# `pub use ggen_engine as core;` re-export in src/lib.rs is reverted alongside this for
+# the same reason. ggen-cli (workspace = true below) still needs ggen-engine directly for
+# the CLI routing flip; that crate's own publishability is a separate, still-open question
+# (see docs/jira/v26.7.16/ tickets 01/02).
 chrono = { workspace = true }
 human-panic = "2.0.8"
 better-panic = "0.3.0"

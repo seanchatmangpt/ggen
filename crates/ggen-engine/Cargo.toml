@@ -3,7 +3,9 @@
 # package (also "ggen"), already published on crates.io. See
 # docs/jira/v26.7.16/01-PUBLISH-SAFETY-AND-CRATE-RENAME.md. This crate is a
 # vendored copy (not a live path dependency back to ~/praxis) and must never
-# be published under any name from this workspace.
+# be published under the colliding "ggen" name. Publishable under
+# "ggen-engine" since the praxis-core/praxis-graphlaw path deps retired
+# (SJIRA-15, 2026-10-09).
 name = "ggen-engine"
 version = "26.10.9"                       # CalVer YY.M.patch
 edition = "2021"
@@ -20,7 +22,7 @@ readme = "README.md"
 keywords = ["codegen", "rdf", "sparql", "tera"]
 categories = ["development-tools"]
 exclude = ["/.github", "/fixtures", "/docs"]
-publish = false
+publish = true
 # `main.rs`/the clap-noun-verb CLI-dispatch layer are not built here -- see
 # the `verbs` module comment in src/lib.rs. Without autobins = false, Cargo
 # would still auto-discover src/main.rs as an implicit `ggen-engine` binary
@@ -82,7 +84,7 @@ notify-debouncer-full = "0.6"
 serde_yaml = "0.9"
 regex = "1"
 semver = "1.0" # pack.toml [dependencies] version requirement admission
-star-toml = "26.7.3"
+star-toml = { workspace = true }
 # Direct dep purely for structural (AST-level) pre-flight query inspection
 # in `graph::DeterministicGraph::query()` (GRAPH/SERVICE-clause detection,
 # specs/014-ggen-core-replacement Phase 7): oxigraph 0.5.9 depends on this
@@ -93,8 +95,8 @@ star-toml = "26.7.3"
 # Pinned to the exact version oxigraph 0.5.9 already resolves (see
 # Cargo.lock) so this never becomes a duplicate-version dependency graph.
 spargebra = "0.4.7"
-praxis-core = { path = "../praxis-core" }
-praxis-graphlaw = { path = "../praxis-graphlaw" }
+graphlaw = { workspace = true }
+ggen-abb-sbb = { path = "../ggen-abb-sbb" }
 # New, deliberate edge (not an undocumented re-export): resolving a `GenerationRule`'s
 # `QuerySource::Pack`/`TemplateSource::Pack` variant means asking "where is this pack
 # installed" -- that knowledge lives in ggen-marketplace's pack registry/lockfile after

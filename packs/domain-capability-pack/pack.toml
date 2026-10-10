@@ -29,3 +29,6 @@ ERRC constraints implemented here:
 This pack does not acquire SELECT or DO authority. A generated projection is data/construct output;
 selection belongs to its separate SELECT owner and consequential execution remains broker-owned.
 """
+
+[capabilities]
+provides = ["urn:ggen:pack:domain-capability-pack"]

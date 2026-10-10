@@ -17,3 +17,6 @@ freshness gate binds evidence to the latest ggenr:Sync receipt, so it
 requires [law] reflexive = true in the consumer; staleness detection lags
 one sync by construction (documented in gates/030_evidence_fresh.rq).
 """
+
+[capabilities]
+provides = ["urn:ggen:pack:ggen-verify-pack"]

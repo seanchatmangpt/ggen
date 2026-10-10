@@ -5,6 +5,51 @@ All notable changes to ggen will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 26.10.10 - 2026-10-09
+
+### Added
+- **ggen.toml schema: optional `[rules]` and `[pack_sources]` tables** — `[rules]` (n3/datalog)
+  and `[pack_sources]` are accepted by the manifest schema; classifier dispatch verified across
+  all call sites.
+- **Native N3 rules in sync** — `[rules].n3` forward-chains into template SPARQL; a rule denial
+  fuses the run with typed refusal `FM-LAW-016`; `.datalog` rules are typed `UNSUPPORTED` with
+  refusal `FM-LAW-019`.
+- **Law seam** — `resolve_rule_sources` + `receipt_chain_seam`: swapping praxis-graphlaw for
+  graphlaw is a one-file change.
+- **CLI `--json` alias** — alias for the native `--format json` output flag.
+- **Marketplace composer revived** — with a 4-refusal taxonomy; `PackFile` capabilities
+  plumbing is landing on this branch (in flight).
+- **Pack capabilities corpus** — 401 pack.tomls annotated with evidence-based `[capabilities]`
+  sections; guards and guide documentation landed alongside.
+- **Composer consumes `[capabilities]`** — capabilities-aware arbitration; `DuplicateCapability`
+  tripwire on cross-corpus mirrors is intentional, within-corpus composition stays clean.
+- **`pack_file_from_dir` public loader** — real-corpus packs load into `PackFile` with
+  capability preservation.
+- **Corpus data quality** — 403 pack.tomls annotated with evidence-based capabilities;
+  297→37 requires after the prose-only purge; 0 dangling; deterministic integrity court;
+  403-pack strict-loader smoke run with 0 refusals.
+- **`pack capabilities` + `pack compose` CLI verbs**.
+- **PackCapabilitiesFile parser** — permissive `Vec` semantics; divergences from the engine's
+  strict `BTreeSet` documented in tests.
+
+### Changed
+- **star-toml migration complete** — 18 typed sites migrated from `toml`; 9 documented
+  exceptions remain on the `toml` crate in analyzer/formatter paths.
+- **GraphLawStore repointed to graphlaw** (Eyeron/PurRDF); praxis-graphlaw now has zero engine
+  consumers; refuse-effect hook support upstream and consumer closure are landing on this
+  branch (in flight).
+- **Version alignment** — workspace path+version declarations aligned at 26.10.8 (residual
+  engine edges are cutover-coupled).
+- **Workspace hygiene** — workspace lints wired into 5 vendored crates; rustc warnings moved
+  from allow to warn (0 warnings outstanding); `.specify/repo-facts.ttl` and
+  `.claude/rules/architecture.md` aligned at 16 crates; stale ggen-core comment corrected.
+
+### Fixed
+- **bcinr-pddl defect fixes** — 5 fixes covering NaN-panic comparator paths and fail-open
+  lookups in `crates/bcinr-pddl/src/`.
+- **capability_corpus_test synthetic-clone capabilities leak** fixed.
+- **fortune5 path-map `[capabilities]` schema collision** — renamed to `capability_paths`.
+
 ## [Unreleased]
 
 _Nothing unreleased._

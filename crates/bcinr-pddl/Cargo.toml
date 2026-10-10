@@ -48,6 +48,9 @@ bcinr-mfw-ir = { path = "../bcinr-mfw-ir", version = "26.6.26" }
 # workspace, not vendored copies at a sibling path, so `../bcinr-powl` /
 # `../bcinr-powl-receipt` wouldn't resolve here anyway.
 
+[lints]
+workspace = true
+
 [features]
 # Surface 7 (docs/DFCM_CONTRACT.md): per-stage allocation attribution for the
 # DfCM crown suite via a global counting allocator (see src/alloc_counter.rs).

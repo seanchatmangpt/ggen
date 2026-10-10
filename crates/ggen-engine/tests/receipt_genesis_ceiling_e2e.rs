@@ -13,10 +13,10 @@
 
 use std::path::Path;
 
-use ggen_engine::sync::{sync, SyncOptions, SyncReceipt, RECEIPT_LOG_REL_PATH};
-use praxis_core::receipt_epoch::{
+use ggen_engine::receipt_chain_seam::epoch::{
     AdmissionLedger, AndonLevel, CeilingLevel, EquivalenceStatus, ObservedOutcome,
 };
+use ggen_engine::sync::{sync, SyncOptions, SyncReceipt, RECEIPT_LOG_REL_PATH};
 use tempfile::TempDir;
 
 const GGEN_TOML: &str = r#"

@@ -1,0 +1,11 @@
+# NOTE: deliberately unwired by design — README self-describes this pack as
+# experimental research, not wired into ggen sync/CI. This manifest registers
+# identity/capabilities only; wiring happens exclusively through consumers.
+[pack]
+name = "rust-dialect-pack"
+version = "0.1.0"
+description = "EXPERIMENTAL (not wired into ggen sync/CI): RDF/SHACL/SPARQL encoding of a decidable subset of GEC (ggen-emitted-core) Rust for graph-checker pre-screening before cargo build. 55 classes, 30 SHACL shapes, 12 SPARQL boundary rules over a 109-template corpus sweep."
+
+[capabilities]
+provides = ["urn:ggen:pack:rust-dialect-pack"]
+requires = []

@@ -46,6 +46,7 @@ pub fn resolve_root(root: &str) -> Result<PathBuf, McpError> {
 
 /// Resolve `rel` (a path the caller claims is relative to `root`, e.g. a
 /// `template_path` parameter) safely under the already-resolved `root`.
+///
 /// Delegates directly to `ggen_engine::write::resolve_target` -- the exact
 /// function `to:`/`from:` frontmatter resolution already uses -- so this
 /// crate can never drift from the CLI's own traversal-safety guarantee.

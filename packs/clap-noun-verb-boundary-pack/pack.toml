@@ -2,3 +2,7 @@
 name = "clap-noun-verb-boundary-pack"
 version = "1.0.0"
 description = "Generates bounded, safe Rust adapters for admitted CLI actuation. The initial implementation provides relative-root JSON filesystem read/write operations, atomic creation, symlink refusal, deterministic ordering, and BLAKE3 receipts."
+
+[capabilities]
+provides = ["urn:ggen:pack:clap-noun-verb-boundary-pack"]
+requires = []

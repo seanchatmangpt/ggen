@@ -1,0 +1,3 @@
+# Ontology-declared surface: ex:echoAgent ex:export "init/1", "handle_message/1"
+Demo.Agents.Echo.handle_message/1
+Demo.Agents.Echo.init/1

@@ -10,3 +10,6 @@ production_ready = true
 [pack.metadata]
 tags = ["ggen", "autofde-lab", "docs", "capability-catalog"]
 keywords = ["ggen", "pack", "sparql", "ontology", "markdown"]
+
+[capabilities]
+provides = ["urn:ggen:pack:autofde-lab-capabilities-pack"]

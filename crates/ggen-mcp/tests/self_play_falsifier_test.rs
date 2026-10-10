@@ -7,6 +7,7 @@
 //! These tests deliberately inject each failure mode and assert it is
 //! caught. They are the negative controls that make the positive result
 //! evidence rather than decoration.
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)] // Chicago TDD: real-IO tests
 
 use std::path::{Path, PathBuf};
 

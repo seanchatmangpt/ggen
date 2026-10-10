@@ -23,3 +23,4 @@
 //! built as real `doctor` subcommands first -- restoring this file's assertions without
 //! that implementation would just recreate the removed-subcommand failures this archival
 //! fixes.
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)] // Chicago TDD: real-IO tests

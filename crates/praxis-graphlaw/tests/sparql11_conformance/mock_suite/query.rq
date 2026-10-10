@@ -1,5 +1,0 @@
-SELECT ?title ?price
-WHERE {
-    ?book <http://purl.org/dc/elements/1.1/title> ?title .
-    ?book <http://purl.org/dc/elements/1.1/price> ?price .
-}

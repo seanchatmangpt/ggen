@@ -25,6 +25,7 @@ use crate::project_root::resolve_root;
 /// gate (which only ever answers "is this write correct/fresh"). Threaded
 /// straight into the resulting receipt's `origin` field (CP37).
 ///
+///
 /// This enum alone provides no enforcement -- any code in this crate could
 /// write `CallerOrigin::UnattendedDispatch` directly if nothing else
 /// restricted it. The real enforcement point is `WriteApplyParams`'s

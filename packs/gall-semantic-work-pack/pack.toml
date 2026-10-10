@@ -13,3 +13,6 @@ carries authority NONE and is never an authority grant. The marketplace index en
 (marketplace/packs/gall-semantic-work.toml) mirrors this pack's template contract
 for the registry surface; the canonical templates live in this pack.
 """
+
+[capabilities]
+provides = ["urn:ggen:pack:gall-semantic-work-pack"]

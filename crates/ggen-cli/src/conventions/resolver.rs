@@ -147,7 +147,7 @@ impl ConventionResolver {
                 crate::utils::error::Error::new(&format!("Failed to read conventions.toml: {}", e))
             })?;
             let overrides: ConventionOverrides = Context::context(
-                toml::from_str(&content).map_err(|e| {
+                star_toml::from_str(&content).map_err(|e| {
                     crate::utils::error::Error::new(&format!(
                         "Failed to parse conventions.toml: {}",
                         e

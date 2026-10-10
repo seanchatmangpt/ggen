@@ -11,3 +11,7 @@ superseded_by = [
     "clap-noun-verb-boundary-pack",
     "clap-noun-verb-verification-pack",
 ]
+
+[capabilities]
+provides = ["urn:ggen:pack:clap-noun-verb-pack"]
+requires = []

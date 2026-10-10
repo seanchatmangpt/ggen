@@ -76,6 +76,12 @@ impl TomlAnalyzer {
     #[must_use]
     pub fn diagnostics(&self) -> Vec<lsp_max_protocol::MaxDiagnostic> {
         // Syntax first: a parse failure means nothing else can be trusted.
+        //
+        // Deliberate exception to the star-toml migration: this analyzes the
+        // user's raw file, and star-toml's only public parse path expands
+        // `$VAR`/`${VAR}` before parsing (its non-expanding `parse_str` is
+        // private), which would both mask and misreport parse diagnostics on
+        // literal `$` content.
         if let Err(err) = toml::from_str::<toml::Value>(&self.source) {
             let (line, col) = err
                 .span()

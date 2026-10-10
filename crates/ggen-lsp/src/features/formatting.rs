@@ -77,6 +77,11 @@ pub fn format_range(file_type: FileType, content: &str, _range: Range) -> Option
 /// non-table top levels and lets `to_string_pretty` order scalars before
 /// sub-tables, which is the canonical pretty layout. Returns `None` on any parse
 /// or serialization error so an invalid file is left untouched.
+///
+/// Deliberate exception to the star-toml migration: this formatter rewrites the
+/// user's raw file bytes, and star-toml's only public parse path expands
+/// `$VAR`/`${VAR}` before parsing (its non-expanding `parse_str` is private),
+/// which would silently corrupt literal `$` content in user TOML.
 fn format_toml(content: &str) -> Option<String> {
     let table: toml::Table = toml::from_str(content).ok()?;
     toml::to_string_pretty(&table).ok()
@@ -185,7 +190,9 @@ mod tests {
         let out =
             formatted_text(format_document(FileType::Toml, messy)).expect("valid TOML formats");
         assert_ne!(out, messy, "messy input must actually change");
-        // Output is still valid TOML carrying the same data.
+        // Output is still valid TOML carrying the same data. (Plain `toml` on
+        // purpose: the formatter must not env-expand user content — see
+        // `format_toml` docs.)
         let reparsed: toml::Table = toml::from_str(&out).expect("formatted TOML re-parses");
         assert_eq!(reparsed["logging"]["level"].as_str(), Some("info"));
         assert_eq!(reparsed["logging"]["format"].as_str(), Some("json"));

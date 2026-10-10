@@ -1,6 +1,7 @@
 //! Chicago TDD for the pipeline-touching tools. Real projects, real sync,
 //! real files on disk -- including a real filesystem snapshot proving the
 //! dry-run tool writes nothing.
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)] // Chicago TDD: real-IO tests
 
 mod common;
 

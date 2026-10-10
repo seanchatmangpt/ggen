@@ -7,3 +7,6 @@ DX/QoL/Doctor diagnostic lenses, horizon gates, authority boundaries, external
 acceptance, 1000x SBB distribution measurement, receipts, and replay. Catalog
 entries remain DESIGNED until exact evidence and independent acceptance exist.
 """
+
+[capabilities]
+provides = ["urn:ggen:pack:vision-2030-phase-change-pack"]

@@ -14,6 +14,7 @@
 //!
 //! No LLM, no network, no GPU. Gemma's role is to *grow* `tests/corpus/`
 //! offline (see `ggen-selfplay-explore`); it is never in the assertion path.
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)] // Chicago TDD: real-IO tests
 
 use std::path::{Path, PathBuf};
 

@@ -9,6 +9,56 @@ use assert_cmd::Command;
 use predicates::prelude::*;
 use tempfile::TempDir;
 
+/// Resolve the real `ggen` binary the same way `cli_boundary.rs::ggen_bin`
+/// does: `CARGO_BIN_EXE_ggen` (set by `cargo test -p ggen-cli-lib`, never by
+/// `-p ggen-engine`/`-p ggen-cli` — the root package is `autobins = false`),
+/// then the workspace `target/{debug,release}/ggen`, then `PATH`. Panics
+/// (loudly) if no candidate resolves, so failure happens at binary
+/// resolution, not at first spawn.
+fn ggen_bin() -> std::path::PathBuf {
+    if let Ok(path) = std::env::var("CARGO_BIN_EXE_ggen") {
+        let p = std::path::PathBuf::from(path);
+        if p.exists() {
+            return p;
+        }
+    }
+
+    let target_root = std::env::var_os("CARGO_TARGET_DIR")
+        .map(std::path::PathBuf::from)
+        .or_else(|| {
+            let manifest_dir =
+                std::env::var_os("CARGO_MANIFEST_DIR").map(std::path::PathBuf::from)?;
+            let mut dir: &std::path::Path = manifest_dir.as_path();
+            loop {
+                if dir.join("Cargo.lock").exists() {
+                    return Some(dir.join("target"));
+                }
+                match dir.parent() {
+                    Some(p) => dir = p,
+                    None => return None,
+                }
+            }
+        });
+
+    if let Some(target) = target_root {
+        for profile in &["debug", "release"] {
+            let candidate = target.join(profile).join("ggen");
+            if candidate.is_file() {
+                return candidate;
+            }
+            let candidate_exe = target.join(profile).join("ggen.exe");
+            if candidate_exe.is_file() {
+                return candidate_exe;
+            }
+        }
+    }
+
+    panic!(
+        "could not resolve the `ggen` binary: CARGO_BIN_EXE_ggen unset and no \
+         target/debug/ggen found; build it with `cargo build -p ggen-cli-lib --bin ggen`"
+    );
+}
+
 /// Positive witness: `ggen receipt verify` with no explicit verb given
 /// (relying on the ontology-declared default-verb compatibility binding,
 /// `receipt` -> `verify`, `crates/ggen-cli/src/generated_commands.rs`)
@@ -19,7 +69,7 @@ use tempfile::TempDir;
 fn receipt_noun_with_no_receipt_present_fails_closed_with_actionable_message() {
     let temp = TempDir::new().unwrap();
 
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::new(ggen_bin());
     let assert = cmd.current_dir(temp.path()).arg("receipt").assert();
     assert
         .failure()
@@ -38,14 +88,12 @@ fn receipt_noun_with_no_receipt_present_fails_closed_with_actionable_message() {
 fn receipt_default_verb_and_explicit_verb_are_equivalent_at_the_binary_boundary() {
     let temp = TempDir::new().unwrap();
 
-    let default_verb_output = Command::cargo_bin("ggen")
-        .unwrap()
+    let default_verb_output = Command::new(ggen_bin())
         .current_dir(temp.path())
         .arg("receipt")
         .output()
         .expect("run `ggen receipt`");
-    let explicit_verb_output = Command::cargo_bin("ggen")
-        .unwrap()
+    let explicit_verb_output = Command::new(ggen_bin())
         .current_dir(temp.path())
         .args(["receipt", "verify"])
         .output()
@@ -83,7 +131,7 @@ fn sync_run_fails_closed_on_corrupt_manifest() {
     let temp = TempDir::new().unwrap();
     std::fs::write(temp.path().join("ggen.toml"), "[project\nbroken = true").unwrap();
 
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::new(ggen_bin());
     cmd.current_dir(temp.path())
         .args(["sync", "run"])
         .assert()
@@ -119,11 +167,11 @@ fn sync_run_fails_closed_on_corrupt_manifest() {
 fn doctor_default_verb_matches_the_live_run_verb_not_the_dead_check_mapping() {
     let temp = TempDir::new().unwrap();
 
-    let mut default_cmd = Command::cargo_bin("ggen").unwrap();
+    let mut default_cmd = Command::new(ggen_bin());
     let default_assert = default_cmd.current_dir(temp.path()).arg("doctor").assert();
     let default_output = default_assert.get_output().clone();
 
-    let mut explicit_cmd = Command::cargo_bin("ggen").unwrap();
+    let mut explicit_cmd = Command::new(ggen_bin());
     let explicit_assert = explicit_cmd
         .current_dir(temp.path())
         .args(["doctor", "run"])
@@ -139,7 +187,7 @@ fn doctor_default_verb_matches_the_live_run_verb_not_the_dead_check_mapping() {
     // Confirm the dead "check" mapping really would fail at the binary
     // boundary, grounding the module-doc finding above in a real run
     // rather than just static analysis of the source.
-    let mut broken_cmd = Command::cargo_bin("ggen").unwrap();
+    let mut broken_cmd = Command::new(ggen_bin());
     broken_cmd
         .current_dir(temp.path())
         .args(["doctor", "check"])

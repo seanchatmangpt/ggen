@@ -114,7 +114,7 @@ impl LockfileManager {
             crate::config_lib::ConfigError::Validation(format!("Failed to read lock file: {}", e))
         })?;
 
-        let lockfile: OntologyLockfile = toml::from_str(&content).map_err(|e| {
+        let lockfile: OntologyLockfile = star_toml::from_str(&content).map_err(|e| {
             crate::config_lib::ConfigError::Validation(format!("Failed to parse lock file: {}", e))
         })?;
 

@@ -4,6 +4,9 @@ version = "26.10.6"
 edition = "2021"
 description = "Thin cargo wrapper around the pm4pytest binary (PATH or PM4PYTEST_BIN)"
 
+[lints]
+workspace = true
+
 [[bin]]
 name = "pm4pytest"
 path = "src/main.rs"

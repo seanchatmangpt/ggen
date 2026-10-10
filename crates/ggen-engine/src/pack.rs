@@ -338,6 +338,17 @@ pub fn dependency_scope<'a>(
         ScopeDepth::Global => unreachable!("handled above"),
     };
 
+    // Experiment (cap-topology, 2026-10-09): when admitted, URN-form
+    // capability requires order providers after requirers in the candidate
+    // scope. Satisfaction semantics are unchanged.
+    let capability_edges: BTreeMap<String, Vec<String>> = {
+        let mut map: BTreeMap<String, Vec<String>> = BTreeMap::new();
+        for (requirer, provider) in admitted_capability_edges(packs) {
+            map.entry(requirer).or_default().push(provider);
+        }
+        map
+    };
+
     let mut scoped = Vec::new();
     let mut seen = BTreeSet::new();
     let mut queue = VecDeque::from([(subject.to_string(), 0usize)]);
@@ -360,6 +371,11 @@ pub fn dependency_scope<'a>(
         }
         for dependency in pack.dependencies.keys() {
             queue.push_back((dependency.clone(), current_depth.saturating_add(1)));
+        }
+        if let Some(providers) = capability_edges.get(name.as_str()) {
+            for provider in providers {
+                queue.push_back(((*provider).to_string(), current_depth.saturating_add(1)));
+            }
         }
     }
     Ok(scoped)
@@ -448,7 +464,64 @@ fn validate_dependency_graph(packs: &[Pack]) -> Result<()> {
             ),
         )
     })?;
+    // Experiment (cap-topology, 2026-10-09): URN-form capability requires
+    // between packs of the declared universe may add ORDERING edges. Cycle
+    // refusal above stays on the dependencies-only graph (H2: mutual URN
+    // requires are consumer-advice, never closure). If capability edges
+    // would form a cycle, they are deterministically ignored, never refused.
+    let _capability_edges = admitted_capability_edges(packs);
     validate_capability_requirements(packs)
+}
+
+/// Requirer -> provider edges induced by URN-form capability requires
+/// (`urn:ggen:pack:<name>`) where both endpoints are in the declared pack
+/// universe. Deduplicated, self-edges excluded.
+///
+/// EXPERIMENT: these edges order candidate scope only. They never affect
+/// FM-PACK-018 satisfaction, which stays consumer-declaration-based
+/// (`validate_capability_requirements` Tier 1).
+fn urn_capability_edges(packs: &[Pack]) -> Vec<(String, String)> {
+    let declared: BTreeSet<&str> = packs.iter().map(|p| p.name.as_str()).collect();
+    let mut edges = BTreeSet::new();
+    for pack in packs {
+        for required in &pack.requires {
+            let Some(provider) = required.strip_prefix("urn:ggen:pack:") else {
+                continue;
+            };
+            let provider = provider.trim();
+            if provider == pack.name || !declared.contains(provider) {
+                continue;
+            }
+            edges.insert((pack.name.clone(), provider.to_string()));
+        }
+    }
+    edges.into_iter().collect()
+}
+
+/// Return the capability ordering edges only when adding them to the
+/// declared dependency graph keeps it acyclic; otherwise return an empty
+/// vector (edges ignored, deterministic fallback — never a refusal).
+fn admitted_capability_edges(packs: &[Pack]) -> Vec<(String, String)> {
+    let capability_edges = urn_capability_edges(packs);
+    if capability_edges.is_empty() {
+        return capability_edges;
+    }
+    let mut graph = DependencyGraph::new();
+    for pack in packs {
+        graph.add_node(&pack.name);
+    }
+    for pack in packs {
+        for dependency in pack.dependencies.keys() {
+            graph.add_edge(&pack.name, dependency);
+        }
+    }
+    for (requirer, provider) in &capability_edges {
+        graph.add_edge(requirer, provider);
+    }
+    if graph.detect_cycles().is_err() {
+        return Vec::new();
+    }
+    capability_edges
 }
 
 /// Admit capability requirements only from the pack's declared dependency
@@ -460,19 +533,50 @@ fn validate_dependency_graph(packs: &[Pack]) -> Result<()> {
 /// - FM-PACK-018 when a required capability has no provider in the pack's
 ///   own transitive dependency closure
 fn validate_capability_requirements(packs: &[Pack]) -> Result<()> {
+    // Two-tier satisfaction (FM-PACK-018 adjudication H2, 2026-10-09):
+    // Tier 1 — URN-form requires (`urn:ggen:pack:<name>`) are consumer-advice
+    //   annotations, satisfied iff the CONSUMER's declared pack universe
+    //   contains `<name>`. They are not dependency-closure edges: mutual
+    //   URN requires between packs (e.g. self-monitoring <-> dogfood-lifecycle)
+    //   would otherwise fabricate dependency cycles.
+    // Tier 2 — non-URN requires keep the strict declared-dependency-closure
+    //   scope below, fail-closed (ambient providers are never admitted).
+    let declared: BTreeSet<&str> = packs.iter().map(|p| p.name.as_str()).collect();
     for pack in packs {
         if pack.requires.is_empty() {
             continue;
+        }
+        let (urn_requires, closure_requires): (Vec<&str>, Vec<&str>) = pack
+            .requires
+            .iter()
+            .map(String::as_str)
+            .partition(|required| required.starts_with("urn:ggen:pack:"));
+        let unsatisfied_urn: Vec<&str> = urn_requires
+            .iter()
+            .filter(|required| !declared.contains(required.trim_start_matches("urn:ggen:pack:")))
+            .copied()
+            .collect();
+        if !unsatisfied_urn.is_empty() {
+            return Err(AppError::fm_pack(
+                18,
+                format!(
+                    "pack '{}' requires capability/capabilities [{}], but the consuming \
+                     project does not declare the referenced pack(s). Remediation: add the \
+                     pack(s) to this project's [packs] table or remove the unsatisfied \
+                     requirement.",
+                    pack.name,
+                    unsatisfied_urn.join(", ")
+                ),
+            ));
         }
         let closure = dependency_scope(packs, &pack.name, ScopeDepth::Transitive)?;
         let available: BTreeSet<&str> = closure
             .iter()
             .flat_map(|candidate| candidate.provides.iter().map(String::as_str))
             .collect();
-        let missing: Vec<&str> = pack
-            .requires
+        let missing: Vec<&str> = closure_requires
             .iter()
-            .map(String::as_str)
+            .copied()
             .filter(|required| !available.contains(required))
             .collect();
         if !missing.is_empty() {

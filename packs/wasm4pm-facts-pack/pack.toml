@@ -16,3 +16,7 @@ description = "Admitted wasm4pm graph facts: 55 compat:CognitionBreed and 60 pi:
 # force a consumer's [law] table to exist (that table lives in the
 # consumer's own ggen.toml, which this pack's templates cannot write to),
 # so activating it remains a one-line manual step today; see WIRING.md.
+
+[capabilities]
+provides = ["urn:ggen:pack:wasm4pm-facts-pack"]
+requires = []

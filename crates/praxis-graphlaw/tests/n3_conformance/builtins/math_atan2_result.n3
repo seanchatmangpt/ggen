@@ -1,3 +1,0 @@
-@prefix : <http://example.org/> .
-
-:a :atan2Value 0 .

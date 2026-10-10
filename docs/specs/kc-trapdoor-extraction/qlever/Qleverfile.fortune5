@@ -1,0 +1,35 @@
+# Qleverfile for the fortune5 knowledge-cryptography trapdoor index.
+# Corpus identity: qlever-fortune5-test, builder git-hash 1075455, 203 triples.
+# This file adapts the REAL Qleverfile at
+# /Users/sac/qlever-fortune5-test/Qleverfile; only [runtime] differs.
+
+[data]
+NAME = fortune5
+DESCRIPTION = Fortune5 operational SHACL shapes (ash_r2rml test ontology)
+
+[index]
+INPUT_FILES = fortune5.ttl
+CAT_INPUT_FILES  = cat ${INPUT_FILES}
+SETTINGS_JSON    = { "ascii-prefixes-only": true, "num-triples-per-batch": 1000000 }
+# Buffer sizing is stated as SPEC-PROPOSED: the 203-triple smoke index never
+# exercised buffer pressure, so all values below are TARGET, not measured.
+# HAS_ALL_PERMUTATIONS is confirmed MEASURED (all six .index.* permutations
+# present on disk for builder 1075455).
+
+[server]
+PORT = 7020
+ACCESS_TOKEN = fortune5_test
+
+[runtime]
+SYSTEM = docker
+IMAGE = adfreiburg/qlever:latest
+# Fuel budgets (SPEC-PROPOSED, enforced at admission gate + engine timeout):
+#   KC_FUEL_UNANCHORED   = 0   ; un-anchored (f5:connects)+ refused outright
+#   KC_FUEL_ANCHORED     = 1000 answers ; LIMIT clause in every anchored traversal
+#   KC_TIMEOUT_MS        = 50  ; TARGET, unmeasured on this corpus
+# Engine-side caps (SPEC-PROPOSED, verify flags against builder 1075455 image):
+#   docker run adfreiburg/qlever:latest ServerMain
+#     -i fortune5.index.pso/.pos/... --timeout 50 ...
+# Buffer/cache caps (SPEC-PROPOSED):
+#   CACHE-MAXSIZE            = 4 GB
+#   CACHE-MAXSIZE-SINGLE-ENTRY = 1 GB

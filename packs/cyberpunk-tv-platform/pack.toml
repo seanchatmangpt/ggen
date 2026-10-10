@@ -8,3 +8,6 @@ generated_outputs_are_authority = false
 receipt_algorithm = "blake3-256"
 runtime_body = "rust-wasm"
 projection_surfaces = ["unrdf", "mermaid", "deck.gl"]
+
+[capabilities]
+provides = ["urn:ggen:pack:cyberpunk-tv-platform"]

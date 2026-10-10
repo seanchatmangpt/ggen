@@ -41,6 +41,7 @@ pub mod portable_receipt;
 // consumed by `ggen-mcp`'s ad-hoc query tools. See its own doc comment.
 pub mod project_graph;
 /// GALL-001 clean replay verification for portable semantic-pack receipts.
+pub mod receipt_chain_seam;
 pub mod replay;
 // The single dispatch point deciding which of ggen.toml's two schemas a project uses
 // (specs/014-ggen-core-replacement, correction 2 / Blocker A part 2). Not `pub`: consumed by

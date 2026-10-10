@@ -10,7 +10,7 @@
 
 use crate::manifest::types::GgenManifest;
 use crate::manifest::validation::ManifestValidator;
-use crate::{ConfigError, Result};
+use crate::Result;
 use std::path::Path;
 
 /// Parser for ggen.toml manifest files
@@ -72,7 +72,7 @@ impl ManifestParser {
     /// Returns [`ConfigError::TomlParse`] if `content` is not valid TOML or
     /// doesn't match the [`GgenManifest`] schema.
     pub fn parse_str(content: &str) -> Result<GgenManifest> {
-        toml::from_str(content).map_err(ConfigError::TomlParse)
+        Ok(star_toml::from_str::<GgenManifest>(content)?)
     }
 }
 

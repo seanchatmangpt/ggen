@@ -48,6 +48,56 @@ use chicago_tdd_tools::prelude::*;
 use chicago_tdd_tools::test;
 use predicates::prelude::*;
 
+/// Resolve the real `ggen` binary the same way `cli_boundary.rs::ggen_bin`
+/// does: `CARGO_BIN_EXE_ggen` (set by `cargo test -p ggen-cli-lib`, never by
+/// `-p ggen-engine`/`-p ggen-cli` — the root package is `autobins = false`),
+/// then the workspace `target/{debug,release}/ggen`, then `PATH`. Panics
+/// (loudly) if no candidate resolves, so failure happens at binary
+/// resolution, not at first spawn.
+fn ggen_bin() -> std::path::PathBuf {
+    if let Ok(path) = std::env::var("CARGO_BIN_EXE_ggen") {
+        let p = std::path::PathBuf::from(path);
+        if p.exists() {
+            return p;
+        }
+    }
+
+    let target_root = std::env::var_os("CARGO_TARGET_DIR")
+        .map(std::path::PathBuf::from)
+        .or_else(|| {
+            let manifest_dir =
+                std::env::var_os("CARGO_MANIFEST_DIR").map(std::path::PathBuf::from)?;
+            let mut dir: &std::path::Path = manifest_dir.as_path();
+            loop {
+                if dir.join("Cargo.lock").exists() {
+                    return Some(dir.join("target"));
+                }
+                match dir.parent() {
+                    Some(p) => dir = p,
+                    None => return None,
+                }
+            }
+        });
+
+    if let Some(target) = target_root {
+        for profile in &["debug", "release"] {
+            let candidate = target.join(profile).join("ggen");
+            if candidate.is_file() {
+                return candidate;
+            }
+            let candidate_exe = target.join(profile).join("ggen.exe");
+            if candidate_exe.is_file() {
+                return candidate_exe;
+            }
+        }
+    }
+
+    panic!(
+        "could not resolve the `ggen` binary: CARGO_BIN_EXE_ggen unset and no \
+         target/debug/ggen found; build it with `cargo build -p ggen-cli-lib --bin ggen`"
+    );
+}
+
 // ============================================================================
 // CLI → Domain → Core Integration Tests
 // ============================================================================
@@ -85,7 +135,7 @@ nodes:
 
     // Act: Execute CLI → Template Domain → Core Template Engine
     // v2.0: Simpler syntax without --var flags (RDF provides data)
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::new(ggen_bin());
     cmd.args([
         "template",
         "generate",
@@ -106,7 +156,7 @@ nodes:
 fn test_marketplace_search_integration() {
     // Arrange & Act: Test CLI → Market Domain → Core Registry
     // v2.0: "marketplace" command replaces "market"
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::new(ggen_bin());
     let output = cmd
         .args(["marketplace", "search", "rust", "--limit", "5"])
         .output()
@@ -124,7 +174,7 @@ fn test_project_gen_integration() {
     let project_dir = temp.child("my-project");
 
     // Act
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::new(ggen_bin());
     let output = cmd
         .args([
             "project",
@@ -171,7 +221,7 @@ commands = ["echo 'Building...'"]
         .unwrap();
 
     // Act
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::new(ggen_bin());
     let output = cmd
         .args([
             "lifecycle",
@@ -202,7 +252,7 @@ fn test_error_propagation_invalid_template() {
         .unwrap();
 
     // Act & Assert
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::new(ggen_bin());
     cmd.args([
         "template",
         "generate",
@@ -217,7 +267,7 @@ fn test_error_propagation_invalid_template() {
 #[ignore = "ggen template subcommand removed; CLI consolidated to sync (v26_5_19+)"]
 fn test_error_propagation_missing_file() {
     // Arrange & Act & Assert
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::new(ggen_bin());
     cmd.args([
         "template",
         "generate",
@@ -230,7 +280,7 @@ fn test_error_propagation_missing_file() {
 
 test!(test_error_propagation_invalid_command, {
     // Arrange & Act & Assert
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::new(ggen_bin());
     cmd.args(["invalid-command"])
         .assert()
         .failure()
@@ -260,7 +310,7 @@ nodes:
         .unwrap();
 
     // Act & Assert
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::new(ggen_bin());
     cmd.args([
         "template",
         "generate",
@@ -279,7 +329,7 @@ nodes:
 #[ignore = "ggen marketplace subcommand removed; CLI consolidated to sync (v26_5_19+)"]
 fn test_json_output_marketplace_search() {
     // Arrange & Act
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::new(ggen_bin());
     let output = cmd
         .args(["marketplace", "search", "rust", "--json", "--limit", "1"])
         .output()
@@ -314,7 +364,7 @@ version = "1.0.0"
         .unwrap();
 
     // Act
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::new(ggen_bin());
     let output = cmd
         .args([
             "project",
@@ -374,8 +424,7 @@ nodes:
         .unwrap();
 
     // Act
-    let result = Command::cargo_bin("ggen")
-        .unwrap()
+    let result = Command::new(ggen_bin())
         .args([
             "template",
             "generate",
@@ -389,8 +438,7 @@ nodes:
     if result.status.success() {
         let make_file = output_dir.child("test-project/make.toml");
         if make_file.path().exists() {
-            Command::cargo_bin("ggen")
-                .unwrap()
+            Command::new(ggen_bin())
                 .args([
                     "lifecycle",
                     "run",
@@ -408,7 +456,7 @@ nodes:
 #[ignore = "ggen marketplace and project subcommands removed; CLI consolidated to sync (v26_5_19+)"]
 fn test_workflow_marketplace_to_project() {
     // Arrange & Act
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::new(ggen_bin());
     cmd.args(["marketplace", "search", "cli-template", "--limit", "1"])
         .assert()
         .success();
@@ -436,8 +484,7 @@ ex:project1 a ex:Project ;
         .unwrap();
 
     // Act
-    let output = Command::cargo_bin("ggen")
-        .unwrap()
+    let output = Command::new(ggen_bin())
         .args([
             "graph",
             "import",
@@ -463,8 +510,7 @@ fn test_shell_completion_generation() {
     let completion_file = temp.child("ggen.bash");
 
     // Arrange & Act
-    let output = Command::cargo_bin("ggen")
-        .unwrap()
+    let output = Command::new(ggen_bin())
         .args([
             "shell",
             "completion",
@@ -505,8 +551,7 @@ enabled = true
         .unwrap();
 
     // Act
-    let output = Command::cargo_bin("ggen")
-        .unwrap()
+    let output = Command::new(ggen_bin())
         .args(["--config", config_file.path().to_str().unwrap(), "doctor"])
         .output()
         .unwrap();
@@ -532,8 +577,7 @@ version = "1.0.0"
         .unwrap();
 
     // Act
-    let output = Command::cargo_bin("ggen")
-        .unwrap()
+    let output = Command::new(ggen_bin())
         .args([
             "--manifest-path",
             manifest.path().to_str().unwrap(),
@@ -553,8 +597,7 @@ version = "1.0.0"
 
 test!(test_help_command, {
     // Arrange & Act & Assert
-    Command::cargo_bin("ggen")
-        .unwrap()
+    Command::new(ggen_bin())
         .args(["--help"])
         .assert()
         .success()
@@ -563,8 +606,7 @@ test!(test_help_command, {
 
 test!(test_version_command, {
     // Arrange & Act & Assert
-    Command::cargo_bin("ggen")
-        .unwrap()
+    Command::new(ggen_bin())
         .args(["--version"])
         .assert()
         .success()
@@ -575,8 +617,7 @@ test!(test_version_command, {
 #[ignore = "ggen help-me subcommand removed; CLI consolidated to sync (v26_5_19+)"]
 fn test_progressive_help() {
     // Arrange & Act & Assert
-    Command::cargo_bin("ggen")
-        .unwrap()
+    Command::new(ggen_bin())
         .args(["help-me"])
         .assert()
         .success();
@@ -585,8 +626,7 @@ fn test_progressive_help() {
 test!(test_subcommand_help, {
     // Arrange & Act & Assert
     for subcommand in &["sync", "init", "doctor", "graph", "policy"] {
-        Command::cargo_bin("ggen")
-            .unwrap()
+        Command::new(ggen_bin())
             .args([*subcommand, "--help"])
             .assert()
             .success()
@@ -602,11 +642,7 @@ test!(test_subcommand_help, {
 #[ignore = "ggen obsolete subcommands removed; CLI consolidated to sync (v26_5_19+)"]
 fn test_v2_auto_discovery() {
     // Arrange & Act
-    let output = Command::cargo_bin("ggen")
-        .unwrap()
-        .args(["--help"])
-        .output()
-        .unwrap();
+    let output = Command::new(ggen_bin()).args(["--help"]).output().unwrap();
 
     let stdout = String::from_utf8_lossy(&output.stdout);
 
@@ -621,11 +657,7 @@ fn test_v2_auto_discovery() {
 #[ignore = "ggen help-me subcommand removed; CLI consolidated to sync (v26_5_19+)"]
 fn test_v2_help_me_command() {
     // Arrange & Act
-    let output = Command::cargo_bin("ggen")
-        .unwrap()
-        .args(["help-me"])
-        .output()
-        .unwrap();
+    let output = Command::new(ggen_bin()).args(["help-me"]).output().unwrap();
 
     // Assert
     assert!(output.status.success());
@@ -685,8 +717,7 @@ nodes:
         .unwrap();
 
     // Act
-    let result = Command::cargo_bin("ggen")
-        .unwrap()
+    let result = Command::new(ggen_bin())
         .args([
             "template",
             "generate",
@@ -737,8 +768,7 @@ nodes:
         .unwrap();
 
     // Act
-    let result = Command::cargo_bin("ggen")
-        .unwrap()
+    let result = Command::new(ggen_bin())
         .args([
             "template",
             "generate",
@@ -760,8 +790,7 @@ nodes:
 #[ignore = "ggen marketplace subcommand removed; CLI consolidated to sync (v26_5_19+)"]
 fn test_v2_marketplace_search_with_rdf() {
     // Arrange & Act
-    let output = Command::cargo_bin("ggen")
-        .unwrap()
+    let output = Command::new(ggen_bin())
         .args(["marketplace", "search", "rust", "--limit", "3"])
         .output()
         .unwrap();
@@ -809,8 +838,7 @@ impl {{name}} {
         .unwrap();
 
     // Act
-    let result = Command::cargo_bin("ggen")
-        .unwrap()
+    let result = Command::new(ggen_bin())
         .args([
             "template",
             "generate",

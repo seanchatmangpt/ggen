@@ -1,5 +1,6 @@
 //! `ggen_receipt_verify` — read `.ggen-v2/receipt.json`, recompute the
-//! BLAKE3 chain hash via `praxis-core`, and check the ed25519 signature
+//! BLAKE3 chain hash via the graphlaw receipt chain (praxis-core retired
+//! per SJIRA-15, 2026-10-09), and check the ed25519 signature
 //! when present.
 //!
 //! Wraps `ggen_engine::verbs::handlers::handle_receipt_verify_in`, which is

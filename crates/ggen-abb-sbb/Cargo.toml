@@ -12,6 +12,9 @@ rfc = "docs/rfc/v26.9.26/abb-sbb-implementation.md"
 authority = "NONE"
 ceiling = "CONSTRUCT"
 
+[lints]
+workspace = true
+
 [lib]
 path = "src/lib.rs"
 
@@ -20,6 +23,8 @@ serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 sha2 = "0.10"
 thiserror = "2.0"
+toml = { workspace = true }
+star-toml = { workspace = true }
 
 [dev-dependencies]
 criterion = { version = "0.5", default-features = false }
@@ -27,9 +32,3 @@ criterion = { version = "0.5", default-features = false }
 [[bench]]
 name = "manufacture"
 harness = false
-
-# Independent workspace root (same pattern as crates/ggen-architecture): the kernel
-# builds and tests without resolving the root workspace's sibling [patch] paths.
-[workspace]
-members = ["."]
-resolver = "2"

@@ -678,7 +678,13 @@ pub fn execute_temporal_plan_instrumented(
     validate_case_id(case_id)?;
 
     let mut steps = plan.steps.clone();
-    steps.sort_by(|a, b| a.start_time.partial_cmp(&b.start_time).unwrap());
+    // NaN start_time must not panic the comparator; ordering NaN steps as
+    // equal keeps the sort total instead of aborting admission.
+    steps.sort_by(|a, b| {
+        a.start_time
+            .partial_cmp(&b.start_time)
+            .unwrap_or(std::cmp::Ordering::Equal)
+    });
 
     let mut substage = SubstageNs::default();
 
@@ -984,7 +990,13 @@ pub fn execute_temporal_plan(
 
     // Sort steps by start_time
     let mut steps = plan.steps.clone();
-    steps.sort_by(|a, b| a.start_time.partial_cmp(&b.start_time).unwrap());
+    // NaN start_time must not panic the comparator; ordering NaN steps as
+    // equal keeps the sort total instead of aborting admission.
+    steps.sort_by(|a, b| {
+        a.start_time
+            .partial_cmp(&b.start_time)
+            .unwrap_or(std::cmp::Ordering::Equal)
+    });
 
     // Initialize Prolog8 admission gate — mirrors execute_tape lines 121-133.
     let mut ctx = Ctx::new();

@@ -29,8 +29,8 @@ rf:doc a rf:Doc ;
     rf:workspaceVersion "26.10.9" ;
     rf:projectManifestVersion "26.7.1" ;
     rf:toolchainChannel "nightly-2026-06-22" ;
-    rf:memberCount "18" ;
-    rf:crateCount "19" ;
+    rf:memberCount "13" ;
+    rf:crateCount "14" ;
     rf:packCount "93" ;
     rf:gateCount "10" ;
     rf:crateMapIntro "Verified against `Cargo.toml`'s `[workspace] members = [...]` array (17 entries) plus the root `ggen` package = 18 total (`grep -c '^  \"crates/' Cargo.toml` → 17). Trimmed from 17 packages / 24 disk dirs to 10 packages / 9 disk dirs by the 2026-07 crate-consolidation pass — see `CRATE_CONSOLIDATION_ANALYSIS_2026-07-01.md` for that pass's evidence base and history. The workspace then gained three more members for the ggen-core-replacement migration (`docs/jira/v26.7.16/`): `ggen-engine`, `praxis-core`, `praxis-graphlaw`. PR #255 (2026-07-17) added 4 more — `powl2-decompose`, `chicago-tdd-tools`, `bcinr-pddl`, `bcinr-mfw-ir` — vendored to eliminate every absolute `/Users/sac/...` Cargo path dependency in the workspace (they only resolved on one machine, breaking CI). `chicago-tdd-tools` was removed again on 2026-08-03 once chicago-tdd-tools 26.8.3 (including the `cli-proof` feature) was published to crates.io, dropping the vendor and pointing every consumer at the registry version instead — net member count 18, not 19. PR #257 (2026-07-17) added a 17th member, `ggen-cheat-scanner`; `ggen-mcp` (an MCP server exposing ggen's SPARQL/frontmatter/diagnostic introspection surface as tool calls) followed as an 18th member, present in `Cargo.toml` since before 2026-08-03 but only added to this facts file on that date once `crates/ggen-config/tests/system_crate_map_parity_test.rs` caught the divergence (see Agent & LSP surface table in `.claude/rules/architecture.md`). `crates/ggen-architecture/` is deliberately not one of these 19: it declares its own `[workspace]` table (and carries its own `Cargo.lock`), so Cargo treats it as an independent nested workspace, not a member of this one — it is listed in root `Cargo.toml`'s `[workspace] exclude` for that reason, alongside `examples/7-agent-validation`. For the fuller, actively-refreshed breakdown (Praxis-kernel split, per-crate detail, the license note on `wasm4pm-cognition`) see `.claude/rules/architecture.md`; this table is a lighter top-level summary.\n\n`ggen-core` is **fully deleted, not merely disconnected** (PR #255 retired it from the default path; PR #259 deleted the crate outright, 2026-07-17). `crates/ggen-core/` does not exist on disk. No workspace member depends on it; `ggen sync`/`doctor`/`graph`/`receipt` route to `ggen-engine` instead (`crates/ggen-cli/src/lib.rs`'s `inject_default_verbs`). The experimental, default-off `ggen wizard`/`sigma`/`inverse_sync` commands, which used to import `ggen_core::` symbols, were deleted in the same pass rather than re-pointed — see `crates/ggen-cli/src/cmds/mod.rs`'s \"REMOVED\" comments and `docs/jira/v26.7.16/14-GGEN-CORE-REMOVAL-PROPOSAL.md` (marked superseded/executed)." ;
@@ -46,7 +46,6 @@ rf:crate_ggen_engine a rf:Crate ;
     rf:summaryPurpose "The live code-generation pipeline behind `ggen sync` (vendored, renamed from `~/praxis/crates/ggen`; `docs/jira/v26.7.16/`). Five stages in `src/sync.rs` (OTEL spans `pipeline.load`/`extract`/`validate`/`generate`/`emit`); GENERATED clap-noun-verb CLI routing in `src/verbs/` (hand-written logic only in `verbs::handlers`). `publish = false`" ;
     rf:archPurpose "SPARQL-in-Tera code generation engine (vendored, renamed from `~/praxis/crates/ggen`; `docs/jira/v26.7.16/`). Now the live pipeline behind `ggen sync`: five stages (Resolve → Enrich → Extract → Render → Write) in `src/sync.rs`, GENERATED clap-noun-verb CLI routing in `src/verbs/` (hand-written logic in `verbs::handlers` only), plus `config`/`graph`/`template`/`write`/`watch`/`pack`/`lint`/`law_engine`/`repl` modules. `publish = false`." .
 
-rf:crate_praxis_core a rf:Crate ;
     rf:order "002" ;
     rf:dir "praxis-core" ;
     rf:package "praxis-core" ;
@@ -55,8 +54,6 @@ rf:crate_praxis_core a rf:Crate ;
     rf:cargoDescription "Fused Law Object abstraction: obligation + lifecycle + receipt + OCEL." ;
     rf:summaryPurpose "`ggen-engine`'s direct dependency: fused Law Object abstraction (obligation + lifecycle + receipt + OCEL) — `LawObject`, `Obligation`, `ReceiptRecord`. Vendored from `~/praxis/crates/praxis-core`; `publish = false`" ;
     rf:archPurpose "Fused Law Object abstraction: obligation + lifecycle + receipt + OCEL (`LawObject`, `Obligation`, `Andon`, `ReceiptRecord`). No longer exposes `ArazzoProjectionReceipt`/`arazzo` (removed 2026-07-17, PR #255 — dead weight, zero downstream consumers)" .
-
-rf:crate_praxis_graphlaw a rf:Crate ;
     rf:order "003" ;
     rf:dir "praxis-graphlaw" ;
     rf:package "praxis-graphlaw" ;
@@ -65,7 +62,6 @@ rf:crate_praxis_graphlaw a rf:Crate ;
     rf:cargoDescription "Praxis GraphLaw law-state engine: native N3, Datalog, SPARQL 1.1, SHACL, ShEx (fork of pbonte/roxi)" ;
     rf:summaryPurpose "`ggen-engine`'s direct dependency and default graph backend: native N3/Datalog/SPARQL 1.1/SHACL/ShEx engine (fork of `pbonte/roxi`). Vendored from `~/praxis/crates/praxis-graphlaw`; `publish = false`" ;
     rf:archPurpose "Praxis GraphLaw law-state engine: native N3, Datalog, SPARQL 1.1, SHACL, ShEx (fork of `pbonte/roxi`) — `ggen-engine`'s default `EngineKind::GraphLaw` graph backend" .
-
 rf:crate_ggen_cli a rf:Crate ;
     rf:order "004" ;
     rf:dir "ggen-cli" ;
@@ -184,6 +180,16 @@ rf:crate_ggen a rf:Crate ;
     rf:group "root" ;
     rf:cargoDescription "Workspace root package (pure library crate since v26.7.16; the ggen binary builds from ggen-cli-lib)" ;
     rf:summaryPurpose "Workspace root package" .
+
+rf:crate_ggen_abb_sbb a rf:Crate ;
+    rf:order "021" ;
+    rf:dir "ggen-abb-sbb" ;
+    rf:package "ggen-abb-sbb" ;
+    rf:version "26.10.8" ;
+    rf:group "sovereign-admission" ;
+    rf:cargoDescription "IO-free ABB/SBB admission kernel: SELECT existing SBB || MANUFACTURE missing realization, never DO" ;
+    rf:summaryPurpose "IO-free ABB/SBB admission kernel per RFC docs/rfc/v26.9.26/abb-sbb-implementation.md: admit()/plan()/depgraph (transitive closure, cycle + unbound-port refusals). Integrated into the root workspace in v26.10.9; wired as ggen-engine's Stage 2c admission gate. publish = false" ;
+    rf:archPurpose "SELECT-or-MANUFACTURE admission over EA graphs (ABBs, contracts, SBBs, qualifications) with authority ceilings (DO clamped to CONSTRUCT), typed refusals, and byte-identical manufacture receipts; consumed by ggen-engine sync and the ggen sbb CLI noun" .
 
 rf:pack_affidavit_pack a rf:Pack ;
     rf:order "001" ;

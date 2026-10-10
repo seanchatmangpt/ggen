@@ -116,7 +116,7 @@ impl TemplateConfig {
     /// Load configuration from file
     pub fn load(path: &PathBuf) -> crate::config_lib::Result<Self> {
         let content = std::fs::read_to_string(path)?;
-        let config: Self = toml::from_str(&content)?;
+        let config: Self = star_toml::from_str(&content)?;
         Ok(config)
     }
 

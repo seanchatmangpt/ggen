@@ -1,3 +1,7 @@
 [pack]
 name = "certification-assist-evidence-control-pack"
 version = "26.7.31"
+description = "Certification-assist evidence control pack: evidence chains, control mappings, and qualification gates for certification flows."
+
+[capabilities]
+provides = ["urn:ggen:pack:certification-assist-evidence-control-pack"]

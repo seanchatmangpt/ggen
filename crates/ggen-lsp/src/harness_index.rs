@@ -140,7 +140,7 @@ impl HarnessIndex {
         };
 
         let doc: toml::Value =
-            toml::from_str(&raw).map_err(|e| HarnessIndexError::ManifestParse {
+            star_toml::from_str(&raw).map_err(|e| HarnessIndexError::ManifestParse {
                 path: manifest_path.clone(),
                 message: e.to_string(),
             })?;

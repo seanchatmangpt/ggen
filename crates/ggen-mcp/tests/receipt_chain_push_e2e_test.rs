@@ -13,6 +13,7 @@
 //! comment describes: `push_sync_refusal_for_root` alone can never surface
 //! `FM-CHAIN-*` (it only ever runs a dry-run sync), so this test exercises
 //! the sibling push path instead.
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)] // Chicago TDD: real-IO tests
 
 mod common;
 

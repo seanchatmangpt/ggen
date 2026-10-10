@@ -15,3 +15,7 @@ prompts as authored literals (same sourceText discipline as
 tcps-core-pack). The gate refuses any workflow that lacks a verify
 phase -- the discipline is law, not convention.
 """
+
+[capabilities]
+provides = ["urn:ggen:pack:claude-code-pack"]
+requires = []

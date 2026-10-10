@@ -1,0 +1,47 @@
+# Needle-vs-Haystack SBB/ABB realization CONSTRUCT.
+# Corpus: qlever-fortune5-test, index fortune5, builder git-hash 1075455, 203 triples.
+# Anchored on real index relations only (f5 SHACL surface).
+# Performance: <50ms is a TARGET (unmeasured on this corpus).
+
+PREFIX f5:     <https://enterprise.fortune5.com/ontology/>
+PREFIX f5shape:<https://enterprise.fortune5.com/shapes/>
+PREFIX sh:     <http://www.w3.org/ns/shacl#>
+PREFIX xsd:    <http://www.w3.org/2001/XMLSchema#>
+PREFIX kc:     <https://ggen.io/ontology/kc-trapdoor#>
+
+# Inputs bound off-band (supplied as literal constants by the key holder):
+#   ?kc:needleHash : BLAKE3(keyed, salt = key K) over the canonical subject IRI
+#   ?kc:saltPred   : BLAKE3 over the salted predicate IRI
+
+CONSTRUCT {
+  ?shape   a sh:NodeShape ;
+           sh:targetClass ?class ;
+           sh:property ?ps .
+  ?ps      sh:path ?path ;
+           sh:minCount ?minC ;
+           sh:datatype ?dt .
+  ?needle  kc:realizes ?ps ;
+           kc:coordinate ?needleHash .
+}
+WHERE {
+  # --- Coordinate 1: exact-subject keyed point lookup (O(log N) in PSO/POS) ---
+  BIND("blake3:k=<hex-key>|subject=<canonical-iri>" AS ?needleHash)
+  BIND(IRI(CONCAT("https://ggen.io/kc/needle/", ?needleHash)) AS ?needle)
+
+  # --- Coordinate 2: keyed salt predicate resolution -------------------------
+  BIND("blake3:k=<hex-key>|predicate=<salted-iri>" AS ?saltPred)
+  BIND(IRI(CONCAT("https://ggen.io/kc/salt/", ?saltPred)) AS ?salt)
+
+  # Needle joins only pre-sorted index arrays; no unbounded scans.
+  ?needle  kc:salt          ?salt .
+  ?salt    kc:resolvesTo    ?path .          # -> f5:serviceId / f5:region / ...
+  ?shape   sh:targetClass   ?class ;
+           sh:property      ?ps .
+  ?ps      sh:path          ?path ;
+           sh:minCount      ?minC ;
+           sh:datatype      ?dt .
+
+  # --- Realization edge (SBB: single-binding binding) -------------------------
+  ?subject ?path           ?value .
+  FILTER(BOUND(?subject) && BOUND(?value))
+}

@@ -1,0 +1,27 @@
+[project]
+name = "delta-rust-demo"
+version = "0.1.0"
+
+[ontology]
+source = "ontology.ttl"
+base_iri = "http://example.org/delta-rust-demo#"
+
+[ontology.prefixes]
+ex = "http://example.org/delta-rust-demo#"
+
+[generation]
+output_dir = "out"
+
+[[generation.rules]]
+name = "demo-agent-rs"
+query = { inline = """
+PREFIX ex: <http://example.org/delta-rust-demo#>
+SELECT ?agent ?crateName ?version WHERE {
+  ?agent a ex:Agent ;
+         ex:crateName ?crateName ;
+         ex:version ?version .
+} ORDER BY ?crateName
+""" }
+template = { file = "templates/demo_agent.rs.tera" }
+output_file = "{{ crateName }}.rs"
+mode = "Overwrite"

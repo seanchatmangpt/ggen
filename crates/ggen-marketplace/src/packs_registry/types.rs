@@ -1,7 +1,7 @@
 //! Core types for packs domain
 
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
+use std::collections::{BTreeSet, HashMap};
 
 /// Pack definition
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -101,4 +101,33 @@ pub enum CompositionStrategy {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PackFile {
     pub pack: Pack,
+
+    /// Declared capability surface (`[capabilities]` table in pack.toml).
+    ///
+    /// `None` for all pre-annotation packs — the table is optional and defaults
+    /// to absent so every existing pack.toml parses unchanged (zero drift).
+    #[serde(default)]
+    pub capabilities: Option<PackCapabilitiesFile>,
+}
+
+/// Declared capability surface from a pack.toml `[capabilities]` table.
+///
+/// Mirrors the engine's shape exactly: `provides`/`requires`/`types` are
+/// string arrays of `urn:ggen:pack:*` URNs deserialized into `BTreeSet`
+/// (sorted, deduped — duplicate URNs collapse silently, matching the engine's
+/// `ggen-engine::pack::PackCapabilities` set semantics). Unknown keys are
+/// refused (`deny_unknown_fields`): a typo'd key (`provide = [...]`) is a
+/// parse error, never a silent drop.
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct PackCapabilitiesFile {
+    /// Capability types declared by this pack
+    #[serde(default)]
+    pub types: Option<BTreeSet<String>>,
+    /// Capability URNs this pack provides
+    #[serde(default)]
+    pub provides: Option<BTreeSet<String>>,
+    /// Capability URNs this pack depends on
+    #[serde(default)]
+    pub requires: Option<BTreeSet<String>>,
 }

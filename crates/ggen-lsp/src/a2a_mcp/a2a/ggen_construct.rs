@@ -284,7 +284,8 @@ pub fn execute(input: GgenConstructInput) -> GgenConstructOutput {
     }
 
     // Real μ₁–μ₅ actuation: load ggen.toml + ontology, enrich/extract, render
-    // via Tera, write outputs, and chain a praxis-core receipt over the
+    // via Tera, write outputs, and chain a receipt (graphlaw-backed since
+    // the praxis-core retirement, SJIRA-15) over the
     // payload at `.ggen-v2/receipt.json`. Same engine entrypoint as the
     // MCP-side handler — one route engine, two transports, no drift.
     let sync_started = Instant::now();

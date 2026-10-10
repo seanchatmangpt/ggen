@@ -16,6 +16,56 @@ use chicago_tdd_tools::cli_proof::CliHarness;
 use support::scaffold_pack;
 use tempfile::TempDir;
 
+/// Resolve the real `ggen` binary the same way `cli_boundary.rs::ggen_bin`
+/// does: `CARGO_BIN_EXE_ggen` (set by `cargo test -p ggen-cli-lib`, never by
+/// `-p ggen-engine`/`-p ggen-cli` — the root package is `autobins = false`),
+/// then the workspace `target/{debug,release}/ggen`, then `PATH`. Panics
+/// (loudly) if no candidate resolves, so failure happens at binary
+/// resolution, not at first spawn.
+fn ggen_bin() -> std::path::PathBuf {
+    if let Ok(path) = std::env::var("CARGO_BIN_EXE_ggen") {
+        let p = std::path::PathBuf::from(path);
+        if p.exists() {
+            return p;
+        }
+    }
+
+    let target_root = std::env::var_os("CARGO_TARGET_DIR")
+        .map(std::path::PathBuf::from)
+        .or_else(|| {
+            let manifest_dir =
+                std::env::var_os("CARGO_MANIFEST_DIR").map(std::path::PathBuf::from)?;
+            let mut dir: &std::path::Path = manifest_dir.as_path();
+            loop {
+                if dir.join("Cargo.lock").exists() {
+                    return Some(dir.join("target"));
+                }
+                match dir.parent() {
+                    Some(p) => dir = p,
+                    None => return None,
+                }
+            }
+        });
+
+    if let Some(target) = target_root {
+        for profile in &["debug", "release"] {
+            let candidate = target.join(profile).join("ggen");
+            if candidate.is_file() {
+                return candidate;
+            }
+            let candidate_exe = target.join(profile).join("ggen.exe");
+            if candidate_exe.is_file() {
+                return candidate_exe;
+            }
+        }
+    }
+
+    panic!(
+        "could not resolve the `ggen` binary: CARGO_BIN_EXE_ggen unset and no \
+         target/debug/ggen found; build it with `cargo build -p ggen-cli-lib --bin ggen`"
+    );
+}
+
 /// Repository `packs/` directory (relative to this crate's manifest).
 fn packs_dir() -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR")).join("../../packs")
@@ -35,7 +85,7 @@ fn wasm4pm_compat_pack_syncs() {
     let (_dir, project) = scaffold_pack_project("wasm4pm-compat-pack");
 
     // (1) First sync via the real binary succeeds.
-    let output = CliHarness::cargo_bin("ggen")
+    let output = CliHarness::from_path(ggen_bin())
         .args(["sync", "run"])
         .current_dir(&project)
         .run()
@@ -90,7 +140,7 @@ fn wasm4pm_compat_pack_syncs() {
     assert!(lock.contains("content_hash = \"blake3:"), "lock: {lock}");
 
     // (4) Static lints pass on the project (pack templates included).
-    let _ = CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::from_path(ggen_bin())
         .args(["graph", "validate"])
         .current_dir(&project)
         .run()
@@ -99,7 +149,7 @@ fn wasm4pm_compat_pack_syncs() {
 
     // (5) Second sync is idempotent: exit 0, outputs byte-identical.
     let before = std::fs::read_to_string(&events).expect("events.rs");
-    let _ = CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::from_path(ggen_bin())
         .args(["sync", "run"])
         .current_dir(&project)
         .run()
@@ -122,7 +172,7 @@ fn lsp_max_pack_syncs() {
     let (_dir, project) = scaffold_pack_project("lsp-max-pack");
 
     // (1) First sync via the real binary succeeds.
-    let _ = CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::from_path(ggen_bin())
         .args(["sync", "run"])
         .current_dir(&project)
         .run()
@@ -174,7 +224,7 @@ fn lsp_max_pack_syncs() {
     assert!(lock.contains("content_hash = \"blake3:"), "lock: {lock}");
 
     // (4) Static lints pass on the project (pack templates included).
-    let _ = CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::from_path(ggen_bin())
         .args(["graph", "validate"])
         .current_dir(&project)
         .run()
@@ -183,7 +233,7 @@ fn lsp_max_pack_syncs() {
 
     // (5) Second sync is idempotent: exit 0, outputs byte-identical.
     let before = std::fs::read(&unwrap_rule).expect("rule bytes");
-    let _ = CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::from_path(ggen_bin())
         .args(["sync", "run"])
         .current_dir(&project)
         .run()
@@ -205,7 +255,7 @@ fn star_toml_pack_syncs() {
     let (_dir, project) = scaffold_pack_project("star-toml-pack");
 
     // (1) First sync via the real binary succeeds.
-    let _ = CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::from_path(ggen_bin())
         .args(["sync", "run"])
         .current_dir(&project)
         .run()
@@ -266,7 +316,7 @@ fn star_toml_pack_syncs() {
     assert!(lock.contains("content_hash = \"blake3:"), "lock: {lock}");
 
     // (4) Static lints pass on the project (pack templates included).
-    let _ = CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::from_path(ggen_bin())
         .args(["graph", "validate"])
         .current_dir(&project)
         .run()
@@ -275,7 +325,7 @@ fn star_toml_pack_syncs() {
 
     // (5) Second sync is idempotent: exit 0, outputs byte-identical.
     let module_before = std::fs::read(&module).expect("module bytes");
-    let _ = CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::from_path(ggen_bin())
         .args(["sync", "run"])
         .current_dir(&project)
         .run()
@@ -302,7 +352,7 @@ fn chicago_tdd_tools_pack_syncs() {
     let (_dir, project) = scaffold_pack_project("chicago-tdd-tools-pack");
 
     // (1) First sync via the real binary succeeds.
-    let _ = CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::from_path(ggen_bin())
         .args(["sync", "run"])
         .current_dir(&project)
         .run()
@@ -363,7 +413,7 @@ fn chicago_tdd_tools_pack_syncs() {
     assert!(lock.contains("content_hash = \"blake3:"), "lock: {lock}");
 
     // (4) Static lints pass on the project (pack templates included).
-    let _ = CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::from_path(ggen_bin())
         .args(["graph", "validate"])
         .current_dir(&project)
         .run()
@@ -371,7 +421,7 @@ fn chicago_tdd_tools_pack_syncs() {
         .assert_success();
 
     // (5) Second sync is idempotent: exit 0, outputs byte-identical.
-    let _ = CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::from_path(ggen_bin())
         .args(["sync", "run"])
         .current_dir(&project)
         .run()
@@ -395,7 +445,7 @@ fn clap_noun_verb_pack_syncs() {
     let (_dir, project) = scaffold_pack_project("clap-noun-verb-pack");
 
     // (1) First sync via the real binary succeeds.
-    let _ = CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::from_path(ggen_bin())
         .args(["sync", "run"])
         .current_dir(&project)
         .run()
@@ -462,7 +512,7 @@ fn clap_noun_verb_pack_syncs() {
     assert!(lock.contains("content_hash = \"blake3:"), "lock: {lock}");
 
     // (4) Static lints pass on the project (pack templates included).
-    let _ = CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::from_path(ggen_bin())
         .args(["graph", "validate"])
         .current_dir(&project)
         .run()
@@ -470,7 +520,7 @@ fn clap_noun_verb_pack_syncs() {
         .assert_success();
 
     // (5) Second sync is idempotent: exit 0, outputs byte-identical.
-    let _ = CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::from_path(ggen_bin())
         .args(["sync", "run"])
         .current_dir(&project)
         .run()
@@ -493,7 +543,7 @@ fn praxis_core_pack_syncs() {
 
     // (1) First sync via the real binary writes both taxonomy artifacts in
     // place under the consumer project (no generated/ dir).
-    let _ = CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::from_path(ggen_bin())
         .args(["sync", "run"])
         .current_dir(&project)
         .run()
@@ -546,7 +596,7 @@ fn praxis_core_pack_syncs() {
     assert!(lock.contains("content_hash = \"blake3:"), "lock: {lock}");
 
     // (3) Static lints pass on the project (pack templates included).
-    let _ = CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::from_path(ggen_bin())
         .args(["graph", "validate"])
         .current_dir(&project)
         .run()
@@ -555,7 +605,7 @@ fn praxis_core_pack_syncs() {
 
     // (4) Second sync is idempotent: exit 0, outputs byte-identical.
     let before = std::fs::read(&rs_path).expect("table bytes");
-    let _ = CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::from_path(ggen_bin())
         .args(["sync", "run"])
         .current_dir(&project)
         .run()
@@ -585,7 +635,7 @@ fn wasm4pm_cognition_pack_syncs() {
     let (_dir, project) = scaffold_pack_project("wasm4pm-cognition-pack");
 
     // (1) First sync via the real binary succeeds.
-    let _ = CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::from_path(ggen_bin())
         .args(["sync", "run"])
         .current_dir(&project)
         .run()
@@ -683,7 +733,7 @@ fn wasm4pm_cognition_pack_syncs() {
     assert!(lock.contains("content_hash = \"blake3:"), "lock: {lock}");
 
     // (4) Static lints pass on the project (pack templates included).
-    let _ = CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::from_path(ggen_bin())
         .args(["graph", "validate"])
         .current_dir(&project)
         .run()
@@ -692,7 +742,7 @@ fn wasm4pm_cognition_pack_syncs() {
 
     // (5) Second sync is idempotent: exit 0, outputs byte-identical.
     let before = std::fs::read(&catalog_path).expect("catalog bytes");
-    let _ = CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::from_path(ggen_bin())
         .args(["sync", "run"])
         .current_dir(&project)
         .run()
@@ -720,7 +770,7 @@ fn wasm4pm_algorithms_pack_syncs() {
     let (_dir, project) = scaffold_pack_project("wasm4pm-algorithms-pack");
 
     // (1) First sync via the real binary succeeds.
-    let _ = CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::from_path(ggen_bin())
         .args(["sync", "run"])
         .current_dir(&project)
         .run()
@@ -792,7 +842,7 @@ fn wasm4pm_algorithms_pack_syncs() {
     assert!(lock.contains("content_hash = \"blake3:"), "lock: {lock}");
 
     // (4) Static lints pass on the project (pack templates included).
-    let _ = CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::from_path(ggen_bin())
         .args(["graph", "validate"])
         .current_dir(&project)
         .run()
@@ -801,7 +851,7 @@ fn wasm4pm_algorithms_pack_syncs() {
 
     // (5) Second sync is idempotent: exit 0, outputs byte-identical.
     let before = std::fs::read(&catalog_path).expect("catalog bytes");
-    let _ = CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::from_path(ggen_bin())
         .args(["sync", "run"])
         .current_dir(&project)
         .run()
@@ -935,7 +985,7 @@ ex:t1 ex:val "diverged-in-consumer" .
     )
     .expect("write violating consumer ontology");
 
-    let output = CliHarness::cargo_bin("ggen")
+    let output = CliHarness::from_path(ggen_bin())
         .args(["sync", "run"])
         .current_dir(&project)
         .run()
@@ -952,7 +1002,7 @@ ex:t1 ex:val "diverged-in-consumer" .
     // Remove the divergent consumer fact -> the same project syncs clean.
     std::fs::write(project.join("ontology.ttl"), "").expect("clear consumer ontology");
     std::fs::remove_file(project.join("ggen.lock")).ok();
-    let _ = CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::from_path(ggen_bin())
         .args(["sync", "run"])
         .current_dir(&project)
         .run()
@@ -981,7 +1031,7 @@ fn legacy_pack_shapes_ttl_is_refused_loudly() {
     .expect("write legacy shapes.ttl");
     let project = scaffold_synthetic_consumer(dir.path(), &["legacy-pack"], false);
 
-    let output = CliHarness::cargo_bin("ggen")
+    let output = CliHarness::from_path(ggen_bin())
         .args(["sync", "run"])
         .current_dir(&project)
         .run()
@@ -999,7 +1049,7 @@ fn legacy_pack_shapes_ttl_is_refused_loudly() {
     // Deleting the legacy file clears the refusal: the same project syncs.
     std::fs::remove_file(dir.path().join("legacy-pack/shapes.ttl")).expect("rm shapes.ttl");
     std::fs::remove_file(project.join("ggen.lock")).ok();
-    let _ = CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::from_path(ggen_bin())
         .args(["sync", "run"])
         .current_dir(&project)
         .run()
@@ -1045,7 +1095,7 @@ fn aggregate_modules_emits_one_engine_owned_aggregator() {
     }
 
     let project = scaffold_synthetic_consumer(dir.path(), &["pack-alpha", "pack-beta"], true);
-    let _ = CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::from_path(ggen_bin())
         .args(["sync", "run"])
         .current_dir(&project)
         .run()
@@ -1076,7 +1126,7 @@ fn aggregate_modules_emits_one_engine_owned_aggregator() {
 
     // Idempotent: second sync leaves it byte-identical.
     let before = std::fs::read(&aggregator_path).expect("bytes");
-    let _ = CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::from_path(ggen_bin())
         .args(["sync", "run"])
         .current_dir(&project)
         .run()
@@ -1102,7 +1152,7 @@ fn aggregate_modules_off_by_default_emits_no_aggregator() {
     .expect("write module template");
 
     let project = scaffold_synthetic_consumer(dir.path(), &["pack-alpha"], false);
-    let _ = CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::from_path(ggen_bin())
         .args(["sync", "run"])
         .current_dir(&project)
         .run()

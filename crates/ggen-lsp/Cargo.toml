@@ -46,9 +46,9 @@ tracing-subscriber = { workspace = true }
 # ggen-marketplace respectively -- see the `publish = false` comment above this table for why
 # this edge makes the crate unpublishable, and why that mirrors ggen-cli-lib's prior fix.
 ggen-engine = { path = "../ggen-engine", version = "26.7.13" }
-ggen-marketplace = { path = "../ggen-marketplace", version = "26.7.4" }
-ggen-config = { path = "../ggen-config", version = "26.7.1" }
-ggen-graph = { path = "../ggen-graph", version = "26.7.1" }
+ggen-marketplace = { path = "../ggen-marketplace", version = "26.10.8" }
+ggen-config = { path = "../ggen-config", version = "26.10.8" }
+ggen-graph = { path = "../ggen-graph", version = "26.10.8" }
 # CP8: parses a template's frontmatter YAML block the same way
 # `ggen_engine::template::Frontmatter` does, so `frontmatter_shacl_analyzer`
 # can call `ggen_engine::frontmatter_rdf::validate_frontmatter_shacl` against
@@ -56,6 +56,7 @@ ggen-graph = { path = "../ggen-graph", version = "26.7.1" }
 serde_yaml = { workspace = true }
 tera = { workspace = true }
 toml = { workspace = true }
+star-toml = { workspace = true }
 # Canonical RDF/SPARQL formatting (parse + reserialize). Matches the
 # workspace oxigraph version and rdf-12 feature used by ggen-core.
 oxigraph = { workspace = true }

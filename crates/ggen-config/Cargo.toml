@@ -24,7 +24,7 @@ workspace = true
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-star-toml = "26.7.3"
+star-toml = { workspace = true }
 toml = "1.1.6"
 # JsonSchema derive for the `[[generation.rules]]` types consumed by ggen-engine's
 # declarative-rules sync path (specs/014-ggen-core-replacement, T070) -- load-bearing for

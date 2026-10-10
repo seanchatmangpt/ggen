@@ -1,0 +1,4 @@
+// Placeholder Datalog rule file. The DeclarativeRules schema accepts the
+// path in [rules].datalog, but the engine refuses to execute Datalog rules
+// (FM-LAW-019: UNSUPPORTED). Present only to document that refusal contract.
+derived_entity(X) :- entity(X).

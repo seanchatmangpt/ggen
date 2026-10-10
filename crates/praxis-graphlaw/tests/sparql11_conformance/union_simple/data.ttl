@@ -1,3 +1,0 @@
-@prefix ex: <http://example.org/> .
-ex:a ex:name "Alice" .
-ex:b ex:title "Bob's Book" .
