@@ -121,6 +121,10 @@ pub struct ProjectStructure {
 
 /// Trait for project generators
 pub trait ProjectGenerator: Send + Sync {
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the operation cannot be completed.
     fn generate(&self, config: &ProjectConfig) -> Result<ProjectStructure>;
     fn supported_types(&self) -> Vec<ProjectType>;
 }
@@ -129,6 +133,10 @@ pub trait ProjectGenerator: Send + Sync {
 pub struct GeneratorFactory;
 
 impl GeneratorFactory {
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the operation cannot be completed.
     pub fn create(project_type: &ProjectType) -> Result<Box<dyn ProjectGenerator>> {
         match project_type {
             ProjectType::RustWeb | ProjectType::RustCli | ProjectType::RustLib => {
@@ -153,12 +161,20 @@ impl FileSystemWriter {
         Self
     }
 
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the operation cannot be completed.
     pub fn write_file(&self, path: &Path, content: &str) -> Result<()> {
         std::fs::write(path, content).map_err(|e| {
             GgenError::FileError(format!("Failed to write file {}: {}", path.display(), e))
         })
     }
 
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the operation cannot be completed.
     pub fn create_directory(&self, path: &Path) -> Result<()> {
         std::fs::create_dir_all(path).map_err(|e| {
             GgenError::FileError(format!(
@@ -184,6 +200,10 @@ impl GitInitializer {
         Self
     }
 
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the operation cannot be completed.
     pub fn initialize(&self, path: &Path) -> Result<()> {
         use crate::scaffolding::project_generator::safe_command::SafeCommand;
 
@@ -220,6 +240,10 @@ impl DependencyInstaller {
         Self
     }
 
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the operation cannot be completed.
     pub fn install(&self, path: &Path, project_type: &ProjectType) -> Result<()> {
         match project_type {
             ProjectType::RustWeb | ProjectType::RustCli | ProjectType::RustLib => {
@@ -275,6 +299,10 @@ impl DependencyInstaller {
     }
 }
 
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 /// Main entry point for creating new projects
 pub async fn create_new_project(config: &ProjectConfig) -> Result<()> {
     let project_path = config.path.join(&config.name);

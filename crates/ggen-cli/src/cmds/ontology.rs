@@ -170,6 +170,10 @@ pub struct NamespaceEntry {
 ///   ggen ontology list
 ///   ggen ontology list --embedded
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn list(#[arg(default_value = "true")] embedded: bool) -> VerbResult<OntologyListOutput> {
     if !embedded {
         return Ok(OntologyListOutput {
@@ -200,6 +204,10 @@ pub fn list(#[arg(default_value = "true")] embedded: bool) -> VerbResult<Ontolog
 /// Usage:
 ///   ggen ontology namespaces
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn namespaces() -> VerbResult<NamespacesListOutput> {
     let standard_ns = ggen_marketplace::ontology_core::get_standard_namespaces();
     let namespaces: Vec<NamespaceEntry> = standard_ns
@@ -221,6 +229,10 @@ pub fn namespaces() -> VerbResult<NamespacesListOutput> {
 ///   `ggen ontology status http://www.w3.org/1999/02/22-rdf-syntax-ns#`
 ///   `ggen ontology status <uri>`
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn status(uri: String) -> VerbResult<OntologyStatusOutput> {
     let is_embedded = OntologyLoader::is_embedded(&uri);
 
@@ -264,6 +276,10 @@ pub fn status(uri: String) -> VerbResult<OntologyStatusOutput> {
 ///   `ggen ontology info http://www.w3.org/1999/02/22-rdf-syntax-ns#`
 ///   `ggen ontology info <uri>`
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn info(uri: String) -> VerbResult<OntologyInfoOutput> {
     // Try to get metadata from core bundle
     if let Some(metadata) = OntologyLoader::get_metadata(&uri) {
@@ -303,6 +319,10 @@ pub fn info(uri: String) -> VerbResult<OntologyInfoOutput> {
 ///
 /// Note: This is a placeholder for marketplace integration.
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn search(query: String) -> VerbResult<OntologySearchOutput> {
     // Placeholder: In Phase 4, this will query the marketplace
     let message = Some(format!(
@@ -330,6 +350,10 @@ pub fn search(query: String) -> VerbResult<OntologySearchOutput> {
 /// 4. Downloads and caches packages
 /// 5. Updates the lock file
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn install(package: String) -> VerbResult<OntologyInstallOutput> {
     // Parse package@version format
     let parts: Vec<&str> = package.split('@').collect();
@@ -376,6 +400,10 @@ pub fn install(package: String) -> VerbResult<OntologyInstallOutput> {
 /// 3. Creates .ggen/lock file with deterministic entries
 /// 4. Reports summary (count, total size, hashes)
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn lock() -> VerbResult<OntologyLockOutput> {
     // NOTE: Phase 4 implementation - this is a placeholder that shows the structure.
     // The actual lock file creation will be done with:

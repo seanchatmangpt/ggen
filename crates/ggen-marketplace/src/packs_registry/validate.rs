@@ -23,6 +23,10 @@ pub struct ValidationCheck {
     pub message: String,
 }
 
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 /// Validate a pack
 pub fn validate_pack(pack_id: &str) -> Result<ValidationResult> {
     let pack = load_pack_metadata(pack_id)?;

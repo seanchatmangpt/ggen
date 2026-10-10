@@ -178,7 +178,7 @@ fn load_pack_contexts_from_project() -> crate::Result<LoadedPackContexts> {
 // Verb Functions
 // ============================================================================
 
-/// Load template_defaults and runtime from pack.toml in the cache directory.
+/// Load `template_defaults` and runtime from pack.toml in the cache directory.
 ///
 /// Reads the `[pack]` section for `use_defaults` and `runtime` fields.
 /// Returns `(use_template_defaults, runtime)` tuple.
@@ -219,6 +219,10 @@ fn load_pack_config_from_cache(cache_dir: &std::path::Path) -> (bool, Option<Str
 
 /// List all available policy profiles
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn list(verbose: bool) -> VerbResult<ListOutput> {
     let profiles = predefined_profiles();
 
@@ -359,12 +363,20 @@ fn run_policy_enforcement(profile_id: String) -> VerbResult<ValidateOutput> {
 
 /// Validate current project against a policy profile
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn validate(profile: String) -> VerbResult<ValidateOutput> {
     run_policy_enforcement(profile)
 }
 
 /// Show detailed profile information
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn show(profile_id: String) -> VerbResult<ShowOutput> {
     let profile =
         ggen_marketplace::marketplace::profile::get_profile(&profile_id).map_err(|e| {
@@ -426,6 +438,10 @@ pub fn show(profile_id: String) -> VerbResult<ShowOutput> {
 
 /// Check current environment against default profile
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn check() -> VerbResult<ValidateOutput> {
     // Use enterprise-strict as the default/hardcoded profile.
     run_policy_enforcement("enterprise-strict".to_string())

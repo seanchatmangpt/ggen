@@ -82,6 +82,10 @@ pub struct PackQueryOutcome {
     pub result: SparqlResult,
 }
 
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 /// Run a SPARQL query over one pack's RDF facts, or over every pack in the registry.
 ///
 /// `pack_id = Some(id)` scopes to that one pack's facts; `pack_id = None` unions every pack
@@ -112,6 +116,10 @@ pub fn run_pack_query(sparql: &str, pack_id: Option<&str>) -> Result<PackQueryOu
 }
 
 impl SparqlExecutor {
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the operation cannot be completed.
     /// Create new SPARQL executor
     pub fn new() -> Result<Self> {
         Ok(Self {
@@ -122,6 +130,10 @@ impl SparqlExecutor {
         })
     }
 
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the operation cannot be completed.
     /// Execute SPARQL query on a single pack's metadata.
     ///
     /// # Arguments
@@ -173,6 +185,10 @@ impl SparqlExecutor {
         Ok(sparql_result)
     }
 
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the operation cannot be completed.
     /// Execute one SPARQL query over the union of several packs' RDF -- the machine-facing
     /// "search the whole marketplace" surface: load every pack's facts into one shared store
     /// (idempotent per pack id) and run a single query across all of them at once, rather than
@@ -206,6 +222,10 @@ impl SparqlExecutor {
     /// # Returns
     /// Compiled query ready for execution
     #[allow(dead_code)]
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the operation cannot be completed.
     pub fn compile_query(&self, query: &str) -> Result<CompiledQuery> {
         // Basic validation
         if query.trim().is_empty() {
@@ -217,6 +237,10 @@ impl SparqlExecutor {
         })
     }
 
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the operation cannot be completed.
     /// Convert pack to RDF graph, as real N-Triples lines (`<s> <p> "o" .` / `<s> <p> <o> .`),
     /// suitable for direct parsing via `Store::load_from_reader(RdfFormat::NTriples, ...)`.
     ///

@@ -158,6 +158,10 @@ fn register_wizard_noun() {
 
 use crate::prelude::*;
 
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 /// Setup and run the command router using clap-noun-verb auto-discovery.
 pub fn run_cli() -> Result<()> {
     let args: Vec<String> = std::env::args().collect();

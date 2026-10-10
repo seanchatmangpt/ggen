@@ -468,7 +468,7 @@ mod tests {
 
     /// Sabotage §5 row 2: writing garbage to packs.lock then calling --locked
     /// must hard-fail.  The lockfile EXISTS (so the file-presence check passes)
-    /// but the content is invalid.  validate_sync_preconditions only checks
+    /// but the content is invalid.  `validate_sync_preconditions` only checks
     /// presence; the corrupt-content rejection is the responsibility of the
     /// sync command's lockfile parser.  This test therefore exercises the
     /// precondition layer: with a *present* but garbage lockfile the precondition

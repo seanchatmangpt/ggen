@@ -69,6 +69,10 @@ fn validate_pack_id(pack_id: &str) -> Result<()> {
 /// digest and emit a receipt, so the lockfile invariant (non-empty digest) and
 /// provenance hold either way.
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn install(pack_id: String) -> Result<Value> {
     validate_pack_id(&pack_id)?;
     let root = project_root()?;
@@ -126,6 +130,10 @@ pub fn install(pack_id: String) -> Result<Value> {
 
 /// List the packs recorded in the project lockfile.
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn list() -> Result<Value> {
     let root = project_root()?;
     let lock_path = lockfile_path(&root);
@@ -150,6 +158,10 @@ pub fn list() -> Result<Value> {
 /// Validate a pack. A pack absent from the registry is reported
 /// `is_valid: false` rather than erroring (the workflow is lenient).
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn validate(pack_id: String) -> Result<Value> {
     validate_pack_id(&pack_id)?;
     let (is_valid, score, errors) = match validate_pack(&pack_id) {
@@ -166,6 +178,10 @@ pub fn validate(pack_id: String) -> Result<Value> {
 
 /// Show pack detail. Graceful: an unknown pack returns `found: false` (exit 0).
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn show(pack_id: String) -> Result<Value> {
     validate_pack_id(&pack_id)?;
     match show_pack(&pack_id) {

@@ -26,6 +26,10 @@ pub mod validate;
 use crate::marketplace::error::Error;
 use serde::Serialize;
 
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 /// Check compatibility between packs
 pub async fn check_packs_compatibility(
     pack_ids: &[String],

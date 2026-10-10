@@ -19,6 +19,10 @@ pub use crate::agent::{PackInstallClosure, PackReceiptError};
 /// Result type for pack receipt operations (alias over the core error).
 pub type Result<T> = std::result::Result<T, PackReceiptError>;
 
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 /// Generate a cryptographic receipt for a SUCCESSFUL pack installation, rooted
 /// at the current working directory (the project root for a CLI `pack add`).
 ///

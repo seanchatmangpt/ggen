@@ -9,6 +9,10 @@
 
 use crate::packs_registry::metadata::load_pack_metadata;
 
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 /// Resolve a capability triple (surface, projection, runtime) to a list of
 /// real marketplace pack IDs.
 ///

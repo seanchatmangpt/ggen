@@ -193,6 +193,10 @@ fn report_digest(report: &Report) -> Result<String> {
 
 /// Return the machine-readable SBB density contract.
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn schema() -> Result<Value> {
     Ok(json!({
         "manifest_schema": MANIFEST_SCHEMA,
@@ -211,6 +215,10 @@ pub fn schema() -> Result<Value> {
 
 /// Inspect the complete density report without mutation.
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn inspect(manifest: String) -> Result<Value> {
     serde_json::to_value(evaluation::evaluate(Path::new(&manifest))?).map_err(|error| {
         NounVerbError::execution_error(format!("cannot encode density report: {error}"))
@@ -219,6 +227,10 @@ pub fn inspect(manifest: String) -> Result<Value> {
 
 /// Validate threshold attainment and external-admission eligibility.
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn validate(manifest: String) -> Result<Value> {
     let report = evaluation::evaluate(Path::new(&manifest))?;
     Ok(json!({
@@ -236,6 +248,10 @@ pub fn validate(manifest: String) -> Result<Value> {
 
 /// Calculate the combinatorial distribution surface.
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn distribution(manifest: String) -> Result<Value> {
     let report = evaluation::evaluate(Path::new(&manifest))?;
     Ok(json!({
@@ -253,12 +269,20 @@ pub fn distribution(manifest: String) -> Result<Value> {
 
 /// Emit the deterministic report and chained intent/result receipts.
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn receipt(manifest: String, output: String) -> Result<Value> {
     receipts::issue(Path::new(&manifest), Path::new(&output))
 }
 
 /// Replay the report and receipt chain against exact manifest and Git evidence.
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn replay(manifest: String, output: String) -> Result<Value> {
     receipts::replay(Path::new(&manifest), Path::new(&output))
 }

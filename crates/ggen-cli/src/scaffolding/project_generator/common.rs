@@ -41,6 +41,10 @@
 use crate::error::{GgenError, Result};
 use std::path::Path;
 
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 /// Validates project name
 pub fn validate_project_name(name: &str) -> Result<()> {
     if name.is_empty() {
@@ -75,6 +79,10 @@ pub fn validate_project_name(name: &str) -> Result<()> {
     Ok(())
 }
 
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 /// Checks if a directory is empty
 pub fn is_directory_empty(path: &Path) -> Result<bool> {
     if !path.exists() {

@@ -10,12 +10,20 @@ use super::maximalism;
 
 /// Diagnose the complete admissible-work program and prescribe deterministic remediation.
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn inspect(manifest: String) -> Result<Value> {
     maximalism::doctor_report(Path::new(&manifest))
 }
 
 /// Inspect accepted Doctor-domain capability closure.
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn domain(manifest: String) -> Result<Value> {
     maximalism::doctor_domain(Path::new(&manifest))
 }

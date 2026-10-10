@@ -67,6 +67,10 @@ fn require_surface(surface: &str) -> Result<()> {
 /// Enable a capability: expand it to atomic packs and record them in the project
 /// lockfile, returning the expansion as JSON.
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn enable(
     #[arg(index = 1)] surface: String, projection: Option<String>, runtime: Option<String>,
 ) -> Result<Value> {
@@ -127,6 +131,10 @@ pub fn enable(
 
 /// List the known capability surfaces.
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn list() -> Result<Value> {
     let caps: Vec<Value> = list_capabilities()
         .into_iter()
@@ -151,6 +159,10 @@ pub fn list() -> Result<Value> {
 /// `atomic_packs_for` now propagates `resolve_capability_to_packs`'s "unknown
 /// surface" error instead of discarding it, so this is safe to re-enable.
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn inspect(#[arg(index = 1)] surface: String) -> Result<Value> {
     require_surface(&surface)?;
     let packs = atomic_packs_for(&surface, None, None)?;

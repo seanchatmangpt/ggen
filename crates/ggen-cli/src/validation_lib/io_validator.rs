@@ -36,6 +36,10 @@ impl IoValidator {
         Self { permission_model }
     }
 
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the operation cannot be completed.
     /// Validate a read operation
     ///
     /// Checks:
@@ -71,6 +75,10 @@ impl IoValidator {
         Ok(())
     }
 
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the operation cannot be completed.
     /// Validate a write operation
     ///
     /// Checks:
@@ -105,6 +113,10 @@ impl IoValidator {
         Ok(())
     }
 
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the operation cannot be completed.
     /// Validate multiple read operations
     pub fn validate_reads(&self, paths: &[&Path]) -> Result<Vec<PathValidation>> {
         Ok(paths
@@ -120,6 +132,10 @@ impl IoValidator {
             .collect())
     }
 
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the operation cannot be completed.
     /// Validate multiple write operations
     pub fn validate_writes(&self, paths: &[&Path]) -> Result<Vec<PathValidation>> {
         Ok(paths

@@ -13,7 +13,7 @@ use std::path::Path;
 
 /// Enhanced ontology parser for 2026 CLI generation
 ///
-/// This is a placeholder that will delegate to ggen-ai::rdf when integrated.
+/// This is a placeholder that will delegate to `ggen-ai::rdf` when integrated.
 /// The actual implementation will:
 /// 1. Load the RDF schema (cli-schema-2026.ttl)
 /// 2. Parse the TTL file
@@ -22,9 +22,13 @@ use std::path::Path;
 pub struct OntologyParser;
 
 impl OntologyParser {
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the operation cannot be completed.
     /// Parse RDF/TTL file and extract CLI project structure with 2026 extensions
     ///
-    /// This function will be implemented using ggen-ai::rdf::QueryExecutor
+    /// This function will be implemented using `ggen-ai::rdf::QueryExecutor`
     /// to extract the project structure.
     pub fn parse(_ttl_file: &Path) -> Result<crate::scaffolding::cli_generator::types::CliProject> {
         // FUTURE: Implement using ggen-ai RDF parser when integrated

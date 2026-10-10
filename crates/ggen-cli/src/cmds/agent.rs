@@ -58,18 +58,30 @@ fn json<T: serde::Serialize>(value: T) -> Result<serde_json::Value> {
 /// Describe the agent's operations and capability surfaces — the discovery entry
 /// point an agent calls first to learn the contract.
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn capabilities() -> Result<serde_json::Value> {
     json(agent()?.capabilities())
 }
 
 /// Relevance-rank packs in the local registry by a text query.
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn search(#[arg(index = 1)] query: String, limit: Option<usize>) -> Result<serde_json::Value> {
     json(lift(agent()?.search(&query, limit))?)
 }
 
 /// List all packs in the local registry, optionally filtered by category.
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn list(category: Option<String>) -> Result<serde_json::Value> {
     json(lift(agent()?.list(category.as_deref()))?)
 }
@@ -77,6 +89,10 @@ pub fn list(category: Option<String>) -> Result<serde_json::Value> {
 /// Full detail for one pack: metadata, packages, templates, dependencies, and
 /// the validation (quality-gate) result.
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn show(#[arg(index = 1)] pack_id: String) -> Result<serde_json::Value> {
     json(lift(agent()?.show(&pack_id))?)
 }
@@ -84,6 +100,10 @@ pub fn show(#[arg(index = 1)] pack_id: String) -> Result<serde_json::Value> {
 /// Resolve a capability surface (e.g. `mcp`, `web`) to concrete pack IDs,
 /// optionally narrowed by `--projection` and `--runtime`.
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn resolve(
     #[arg(index = 1)] surface: String, projection: Option<String>, runtime: Option<String>,
 ) -> Result<serde_json::Value> {
@@ -98,6 +118,10 @@ pub fn resolve(
 /// (overlapping packages or unloadable packs). The pre-flight before a
 /// multi-pack install.
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn compatibility(#[arg(index = 1)] packs: String) -> Result<serde_json::Value> {
     let a = agent()?;
     let ids: Vec<String> = packs
@@ -115,6 +139,10 @@ pub fn compatibility(#[arg(index = 1)] packs: String) -> Result<serde_json::Valu
 /// Report installed packs from the project lockfile (`--root` to inspect another
 /// project; default is the current directory).
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn status(root: Option<String>) -> Result<serde_json::Value> {
     json(lift(agent_at(root)?.status())?)
 }
@@ -122,6 +150,10 @@ pub fn status(root: Option<String>) -> Result<serde_json::Value> {
 /// Verify a provenance receipt against its signing key. Fail-closed: a missing
 /// key, malformed receipt, or bad signature yields `is_valid: false`.
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn verify(
     #[arg(index = 1)] receipt_path: String, root: Option<String>,
 ) -> Result<serde_json::Value> {
@@ -139,6 +171,10 @@ pub fn verify(
 /// matching the project-local lockfile — no dependency on unrelated global
 /// machine state.
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn install(
     #[arg(index = 1)] pack_id: String, force: Option<bool>, dry_run: Option<bool>,
 ) -> Result<serde_json::Value> {
@@ -165,6 +201,10 @@ fn install_impl(
 /// Remove a pack from the project lockfile. Fail-closed: a missing lockfile or
 /// an absent pack errors and leaves the lockfile intact.
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn remove(#[arg(index = 1)] pack_id: String) -> Result<serde_json::Value> {
     json(lift(agent()?.remove(&pack_id))?)
 }

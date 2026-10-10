@@ -54,6 +54,10 @@ impl PreFlightValidator {
         }
     }
 
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the operation cannot be completed.
     /// Run pre-flight checks (disk space + permissions).
     ///
     /// Returns `Ok(PreFlightResult)` if all checks pass, or an `Error` with a clear message

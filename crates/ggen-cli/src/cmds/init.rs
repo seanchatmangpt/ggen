@@ -17,7 +17,7 @@
 //!
 //! ## Atomic Initialization
 //!
-//! Uses FileTransaction for atomic file operations with automatic rollback on failure.
+//! Uses `FileTransaction` for atomic file operations with automatic rollback on failure.
 //! Either all files are created successfully, or no changes are made.
 
 #![allow(clippy::unused_unit)] // clap-noun-verb macro generates this
@@ -443,6 +443,10 @@ echo "   using schema.org in 5 minutes. Stay disciplined. Use standards first."
 ///
 #[allow(clippy::unused_unit)]
 #[verb("init", "root")]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn init(
     path: Option<String>, force: Option<String>, skip_hooks: Option<String>, name: Option<String>,
     version: Option<String>, description: Option<String>,
@@ -539,12 +543,12 @@ fn parse_bool_flag(flag_name: &str, raw: Option<&str>) -> std::result::Result<bo
 /// ## Atomic Initialization Strategy
 ///
 /// 1. Pre-flight checks (directory exists, artifacts present, permissions)
-/// 2. Create FileTransaction for atomic file operations
+/// 2. Create `FileTransaction` for atomic file operations
 /// 3. Create directories (tracked separately, not part of transaction)
 /// 4. Write all files via transaction (automatic backup of existing files)
 /// 5. Set permissions on startup.sh
 /// 6. Commit transaction (point of no return)
-/// 7. Build InitOutput from TransactionReceipt
+/// 7. Build `InitOutput` from `TransactionReceipt`
 ///
 /// Any error before commit triggers automatic rollback via Drop trait.
 fn perform_init(
@@ -956,6 +960,10 @@ pub struct InitSelfOutput {
 /// hand-edited project-local self-pack is never silently clobbered.
 #[allow(clippy::unused_unit)]
 #[verb("init-self", "root")]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn init_self(path: Option<String>, force: Option<String>) -> VerbResult<InitSelfOutput> {
     let project_dir = path.unwrap_or_else(|| ".".to_string());
     let force = parse_bool_flag("force", force.as_deref())?;

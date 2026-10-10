@@ -6,9 +6,9 @@
 //!
 //! ## Supported Project Types
 //!
-//! - **RustWeb**: Web applications using async frameworks (Axum, Actix, etc.)
-//! - **RustCli**: Command-line interface applications using clap
-//! - **RustLib**: Library crates for reusable code
+//! - **`RustWeb`**: Web applications using async frameworks (Axum, Actix, etc.)
+//! - **`RustCli`**: Command-line interface applications using clap
+//! - **`RustLib`**: Library crates for reusable code
 //!
 //! ## Features
 //!

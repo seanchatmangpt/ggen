@@ -14,6 +14,10 @@ pub struct DomainLayerGenerator {
 }
 
 impl DomainLayerGenerator {
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the operation cannot be completed.
     /// Create a new domain layer generator
     pub fn new(template_dir: &Path) -> Result<Self> {
         let pattern = format!("{}/**/*.tmpl", template_dir.display());
@@ -28,6 +32,10 @@ impl DomainLayerGenerator {
         Ok(Self { tera })
     }
 
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the operation cannot be completed.
     /// Generate domain layer
     ///
     /// Creates:

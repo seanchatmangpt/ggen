@@ -88,11 +88,11 @@ use std::path::{Path, PathBuf};
 ///
 /// This structure represents the `.ggen/packs.lock` file, which tracks
 /// all installed packs, their versions, sources, and dependencies.
-/// PartialEq without Eq: updated_at (`DateTime<Utc>`) field does not implement Eq
+/// `PartialEq` without Eq: `updated_at` (`DateTime<Utc>`) field does not implement Eq
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct PackLockfile {
     /// Map of pack IDs to their locked versions
-    /// Uses BTreeMap for deterministic ordering
+    /// Uses `BTreeMap` for deterministic ordering
     pub packs: BTreeMap<String, LockedPack>,
 
     /// When the lockfile was last updated
@@ -111,7 +111,7 @@ pub struct PackLockfile {
 ///
 /// Contains all information needed to reproduce a pack installation,
 /// including source, version, integrity checksum, and dependencies.
-/// PartialEq without Eq: installed_at (`DateTime<Utc>`) field does not implement Eq
+/// `PartialEq` without Eq: `installed_at` (`DateTime<Utc>`) field does not implement Eq
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct LockedPack {
     /// Semantic version of the pack (e.g., "1.0.0")
@@ -140,7 +140,7 @@ pub struct LockedPack {
 /// - Registry: Official ggen registry
 /// - GitHub: Direct from GitHub repository
 /// - Local: Local filesystem path
-/// PartialEq without Eq: All fields (String) implement Eq
+/// `PartialEq` without Eq: All fields (String) implement Eq
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(tag = "type")]
 pub enum PackSource {
@@ -188,6 +188,10 @@ impl PackLockfile {
         }
     }
 
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the operation cannot be completed.
     /// Load lockfile from file
     ///
     /// Reads and deserializes a lockfile from the given path.
@@ -239,6 +243,10 @@ impl PackLockfile {
         Ok(lockfile)
     }
 
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the operation cannot be completed.
     /// Save lockfile to file
     ///
     /// Serializes the lockfile to JSON and writes it to the given path.
@@ -348,6 +356,10 @@ impl PackLockfile {
         removed
     }
 
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the operation cannot be completed.
     /// Validate the lockfile for consistency
     ///
     /// Checks:
@@ -376,6 +388,10 @@ impl PackLockfile {
         Ok(())
     }
 
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the operation cannot be completed.
     /// Validate per-entry lockfile invariants (coding-agent-mistakes.md §4.1).
     ///
     /// Enforces, for every entry in `packs`, the contract that prevents

@@ -350,6 +350,10 @@ pub(super) fn report_digest(report: &Report) -> Result<String> {
 }
 
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn schema() -> Result<Value> {
     Ok(json!({
         "manifest_schema": MANIFEST_SCHEMA,
@@ -369,31 +373,55 @@ pub fn schema() -> Result<Value> {
 }
 
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn inspect(manifest: String) -> Result<Value> {
     evaluation::as_value(Path::new(&manifest))
 }
 
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn validate(manifest: String) -> Result<Value> {
     evaluation::validation(Path::new(&manifest))
 }
 
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn combinations(manifest: String) -> Result<Value> {
     evaluation::combinations(Path::new(&manifest))
 }
 
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn outcomes(manifest: String) -> Result<Value> {
     evaluation::outcome_report(Path::new(&manifest))
 }
 
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn receipt(manifest: String, output: String) -> Result<Value> {
     receipts::issue(Path::new(&manifest), Path::new(&output))
 }
 
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn replay(manifest: String, output: String) -> Result<Value> {
     receipts::replay(Path::new(&manifest), Path::new(&output))
 }

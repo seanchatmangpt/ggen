@@ -110,6 +110,10 @@ impl ConventionResolver {
         }
     }
 
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the operation cannot be completed.
     /// Discover project conventions by scanning the file system
     pub fn discover(&self) -> Result<ProjectConventions> {
         // Load overrides if they exist

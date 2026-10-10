@@ -22,6 +22,10 @@ pub struct ProjectWatcher {
 }
 
 impl ProjectWatcher {
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the operation cannot be completed.
     /// Create a new project watcher with default 300ms debounce
     pub fn new(project_root: PathBuf) -> Result<Self> {
         Self::with_debounce(project_root, 300)
@@ -55,6 +59,10 @@ impl ProjectWatcher {
         })
     }
 
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the operation cannot be completed.
     /// Start watching the project directories
     pub fn watch(&mut self) -> Result<()> {
         // Get conventions to determine watch directories
@@ -79,12 +87,20 @@ impl ProjectWatcher {
         Ok(())
     }
 
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the operation cannot be completed.
     /// Stop watching (drops the watcher)
     pub fn stop(self) -> Result<()> {
         drop(self.debouncer);
         Ok(())
     }
 
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the operation cannot be completed.
     /// Process pending file system events
     pub fn process_events(&mut self) -> Result<Vec<GenerationPlan>> {
         let mut plans = Vec::new();
@@ -167,6 +183,10 @@ impl ProjectWatcher {
         }
     }
 
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the operation cannot be completed.
     /// Regenerate a specific template
     pub fn regenerate_template(&self, template: &str) -> Result<()> {
         // In a real implementation, this would call the template engine

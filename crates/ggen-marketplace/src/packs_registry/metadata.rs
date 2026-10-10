@@ -47,6 +47,10 @@ fn try_get_packs_dir() -> Option<PathBuf> {
     None
 }
 
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 /// Get packs directory, erroring when none can be resolved.
 ///
 /// Use this for operations that target a specific pack (load/show) where an
@@ -61,6 +65,10 @@ pub fn get_packs_dir() -> Result<PathBuf> {
     })
 }
 
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 /// Load pack from TOML file
 pub fn load_pack_metadata(pack_id: &str) -> Result<Pack> {
     if pack_id.is_empty() {
@@ -99,6 +107,10 @@ pub fn load_pack_metadata(pack_id: &str) -> Result<Pack> {
     Ok(pack_file.pack)
 }
 
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 /// List all available packs
 ///
 /// A packs directory that cannot be resolved at all (no `GGEN_PACKS_DIR`, no
@@ -143,11 +155,19 @@ pub fn list_packs(category: Option<&str>) -> Result<Vec<Pack>> {
     Ok(packs)
 }
 
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 /// Show pack details
 pub fn show_pack(pack_id: &str) -> Result<Pack> {
     load_pack_metadata(pack_id)
 }
 
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 /// Load a `pack.toml` from a pack directory, bridging the on-disk corpus shape
 /// to the full [`PackFile`] model.
 ///
@@ -348,7 +368,7 @@ mod tests {
 
     // ── Sabotage tests (coding-agent-mistakes.md §5) ─────────────────────────
 
-    /// Sabotage §5 row 5: with GGEN_PACKS_DIR pointing at an EMPTY directory,
+    /// Sabotage §5 row 5: with `GGEN_PACKS_DIR` pointing at an EMPTY directory,
     /// `load_pack_metadata("acme/base")` must return Err referencing "not found".
     ///
     /// This proves Fail-Open (Mistake Class 1.3) is absent: a missing pack does

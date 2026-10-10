@@ -1,4 +1,4 @@
-//! External registry fetchers for crates.io, npm, and PyPi
+//! External registry fetchers for crates.io, npm, and `PyPi`
 //!
 //! This module provides traits and implementations for fetching package metadata
 //! and artifacts from external registries.
@@ -128,6 +128,10 @@ impl ExternalRegistryFetcher for CratesIoFetcher {
 }
 
 impl CratesIoFetcher {
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the operation cannot be completed.
     pub fn parse_cratesio_response(package_id: &str, data: serde_json::Value) -> Result<Package> {
         let crate_data = data.get("crate").ok_or_else(|| {
             Error::Other("Missing 'crate' field in crates.io response".to_string())
@@ -208,6 +212,10 @@ impl Default for NpmFetcher {
 }
 
 impl NpmFetcher {
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the operation cannot be completed.
     pub fn parse_npm_response(package_id: &str, data: serde_json::Value) -> Result<Package> {
         let name = data
             .get("name")
@@ -322,7 +330,7 @@ impl ExternalRegistryFetcher for NpmFetcher {
     }
 }
 
-/// Fetcher for PyPi
+/// Fetcher for `PyPi`
 pub struct PyPiFetcher {
     client: reqwest::Client,
 }
@@ -342,6 +350,10 @@ impl Default for PyPiFetcher {
 }
 
 impl PyPiFetcher {
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the operation cannot be completed.
     pub fn parse_pypi_response(package_id: &str, data: serde_json::Value) -> Result<Package> {
         let info = data
             .get("info")
@@ -469,6 +481,10 @@ impl ExternalRegistryFetcher for PyPiFetcher {
 pub struct ExternalFetcherFactory;
 
 impl ExternalFetcherFactory {
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the operation cannot be completed.
     pub fn get_fetcher(registry_type: &str) -> Result<Box<dyn ExternalRegistryFetcher>> {
         match registry_type {
             "cratesio" | "crates.io" => Ok(Box::new(CratesIoFetcher::new())),
@@ -481,6 +497,10 @@ impl ExternalFetcherFactory {
         }
     }
 
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the operation cannot be completed.
     pub fn get_fetcher_by_prefix(
         package_id: &str,
     ) -> Result<(Box<dyn ExternalRegistryFetcher>, String)> {

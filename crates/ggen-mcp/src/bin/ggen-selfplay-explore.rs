@@ -1,6 +1,6 @@
 //! `ggen-selfplay-explore` — grow the self-play corpus with a local LLM.
 //!
-//! Reads each pack's REAL ontology, asks a local Gemma (TurboFieldfare's
+//! Reads each pack's REAL ontology, asks a local Gemma (`TurboFieldfare`'s
 //! OpenAI-compatible server, Metal/GPU) to write SPARQL designed to break
 //! ggen, plays every proposal through the deterministic referee, and writes
 //! any case that trips an invariant into `tests/corpus/`.

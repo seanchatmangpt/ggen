@@ -14,6 +14,10 @@ pub struct CliLayerGenerator {
 }
 
 impl CliLayerGenerator {
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the operation cannot be completed.
     /// Create a new CLI layer generator
     pub fn new(template_dir: &Path) -> Result<Self> {
         let pattern = format!("{}/**/*.tmpl", template_dir.display());
@@ -28,6 +32,10 @@ impl CliLayerGenerator {
         Ok(Self { tera })
     }
 
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the operation cannot be completed.
     /// Generate CLI layer
     ///
     /// Creates:

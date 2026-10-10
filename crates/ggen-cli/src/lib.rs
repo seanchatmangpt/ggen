@@ -107,9 +107,13 @@ pub use clap_noun_verb::{run, Result as ClapNounVerbResult};
 // Re-export Result type for use in cmds
 pub use crate::utils::error::Result;
 
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 /// Main entry point using clap-noun-verb v26.5.19 auto-discovery
 ///
-/// This function delegates to clap-noun-verb::run() which automatically discovers
+/// This function delegates to `clap-noun-verb::run()` which automatically discovers
 /// all `\[verb\]` functions in the cmds module and its submodules.
 /// The version flag is handled automatically by clap-noun-verb.
 pub async fn cli_match() -> crate::utils::error::Result<()> {
@@ -351,7 +355,7 @@ mod inject_default_verbs_tests {
 /// An explicit `--format <value>` anywhere on the command line always wins; in
 /// that case `--json` is dropped and the explicit format is left untouched.
 /// With no `--json` present the args vector is returned unchanged, so default
-/// (JsonPretty) output is byte-identical to the pre-`--json` behavior.
+/// (`JsonPretty`) output is byte-identical to the pre-`--json` behavior.
 ///
 /// Modeled on `inject_default_verbs` above: a thin argv preprocessor before
 /// `CommandRegistry::run` (which reads no env/argv of its own beyond what we
@@ -429,6 +433,10 @@ pub struct RunResult {
     pub stderr: String,
 }
 
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 /// Programmatic entrypoint to execute the CLI with provided arguments and capture output.
 /// This avoids spawning a new process and preserves deterministic behavior.
 pub async fn run_for_node(args: Vec<String>) -> crate::utils::error::Result<RunResult> {

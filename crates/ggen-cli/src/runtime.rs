@@ -6,6 +6,10 @@
 use crate::utils::error::Result;
 use std::future::Future;
 
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 /// Execute an async function in a sync context
 ///
 /// This creates a new Tokio runtime and blocks on the provided future.
@@ -39,6 +43,10 @@ where
     runtime.block_on(future)
 }
 
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 /// Block on an async function with a generic return type
 ///
 /// Similar to `execute` but supports any return type, not just Result<()>.

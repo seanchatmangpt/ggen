@@ -24,7 +24,7 @@ use tracing::{info, warn};
 ///
 /// - provides universe = `packages` entries ∪ `capabilities.provides` URNs
 ///   (a package name or capability URN is the unit two packs can ambiguously
-///   both claim; DuplicateCapability covers both channels).
+///   both claim; `DuplicateCapability` covers both channels).
 /// - requires universe = non-optional `dependencies` pack ids ∪
 ///   `capabilities.requires` URNs. A requirement is bound when some pack in
 ///   the set carries the id OR provides the capability.
@@ -36,11 +36,11 @@ use tracing::{info, warn};
 /// (zero drift). Cross-corpus composition (the same logical pack mirrored in
 /// two corpus directories) merges silently: same-named mirror packs dedupe by
 /// pack id before the provider set is built, so duplicate self-URNs never
-/// reach DuplicateCapability (composition collapses 403 -> 332 providers —
-/// observed in cross_corpus_tripwire_test.rs). DuplicateCapability fires only
+/// reach `DuplicateCapability` (composition collapses 403 -> 332 providers —
+/// observed in `cross_corpus_tripwire_test.rs`). `DuplicateCapability` fires only
 /// for differing-id packs claiming the same URN. This silent merge-collapse is
 /// the intended mirror handling per the falsified-dedup decision
-/// (docs/pack_urn_namespace_proposal.md, FALSIFIED section).
+/// (`docs/pack_urn_namespace_proposal.md`, FALSIFIED section).
 struct PackCapabilitySurface<'a> {
     pack_id: &'a str,
     provides: Vec<&'a str>,
@@ -123,7 +123,7 @@ pub enum CompositionRefusal {
 /// Deterministic multi-pack composition plan.
 ///
 /// Content is a pure function of the input pack set: BTreeMap/BTreeSet
-/// throughout, topological order with BTreeSet tie-breaking.
+/// throughout, topological order with `BTreeSet` tie-breaking.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct PackCompositionPlan {
     /// All pack IDs in the composed set.
@@ -140,11 +140,15 @@ pub struct PackCompositionPlan {
     pub self_satisfied: Vec<String>,
 }
 
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 /// Compose a set of packs into a deterministic plan, refusing unsound
 /// compositions with typed refusals.
 ///
-/// Refusal checks run in fixed order: DuplicateCapability, UnboundRequirement,
-/// DuplicateArtifactPath, CyclicDependencies.
+/// Refusal checks run in fixed order: `DuplicateCapability`, `UnboundRequirement`,
+/// `DuplicateArtifactPath`, `CyclicDependencies`.
 pub fn compose(packs: &[PackFile]) -> std::result::Result<PackCompositionPlan, CompositionRefusal> {
     let surfaces: Vec<PackCapabilitySurface> =
         packs.iter().map(PackCapabilitySurface::from_pack).collect();
@@ -254,7 +258,7 @@ pub fn compose(packs: &[PackFile]) -> std::result::Result<PackCompositionPlan, C
     })
 }
 
-/// Capability-derived ordering edges: (provider_pack_id, requirer_pack_id)
+/// Capability-derived ordering edges: (`provider_pack_id`, `requirer_pack_id`)
 /// pairs. A capabilities.requires URN bound by exactly one other pack's
 /// provides (union channel — packages or capabilities.provides) yields
 /// requirer-after-provider. Self-edges (a pack bound by its own provides)
@@ -279,12 +283,12 @@ fn capability_order_edges(
 }
 
 /// Re-order the plan over dependencies ∪ kept capability edges with
-/// deterministic Kahn (BTreeSet tie-break by pack id). Capability edges that
+/// deterministic Kahn (`BTreeSet` tie-break by pack id). Capability edges that
 /// would close a cycle are dropped BEFORE the sort: an edge (provider ->
 /// requirer) is dropped iff the requirer already precedes the provider in the
 /// before-graph built from dependency edges plus the OTHER candidate
 /// capability edges. Cycle REFUSAL stays dependencies-only (checked above via
-/// DependencyGraph::detect_cycles); capability edges never refuse, they only
+/// `DependencyGraph::detect_cycles`); capability edges never refuse, they only
 /// order or get dropped.
 ///
 /// Defensive fallback: the kept set is acyclic by construction, so Kahn
@@ -425,12 +429,20 @@ impl PackComposer {
         Self { repository }
     }
 
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the operation cannot be completed.
     /// Create composer with default filesystem repository
     pub fn with_default_repo() -> Result<Self> {
         let repo = FileSystemRepository::discover()?;
         Ok(Self::new(Box::new(repo)))
     }
 
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the operation cannot be completed.
     /// Compose multiple packs into a single project
     pub async fn compose(
         &self, pack_ids: &[String], project_name: &str, options: &CompositionOptions,

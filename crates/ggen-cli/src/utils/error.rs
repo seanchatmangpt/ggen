@@ -237,13 +237,21 @@ impl From<toml::ser::Error> for Error {
     }
 }
 
-/// Extension trait for adding context to Results, similar to anyhow::Context
+/// Extension trait for adding context to Results, similar to `anyhow::Context`
 pub trait Context<T> {
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the operation cannot be completed.
     /// Add context to an error result
     fn context<C>(self, context: C) -> Result<T>
     where
         C: fmt::Display + Send + Sync + 'static;
 
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the operation cannot be completed.
     /// Add context to an error result using a closure
     fn with_context<C, F>(self, f: F) -> Result<T>
     where

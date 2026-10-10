@@ -12,7 +12,7 @@ use std::collections::{HashMap, HashSet, VecDeque};
 /// Dependency graph for resolving pack installation order
 #[derive(Debug, Clone)]
 pub struct DependencyGraph {
-    /// Adjacency list: pack_id -> list of dependent pack_ids
+    /// Adjacency list: `pack_id` -> list of dependent `pack_ids`
     edges: HashMap<String, Vec<String>>,
     /// All pack IDs in the graph
     nodes: HashSet<String>,
@@ -27,6 +27,10 @@ impl DependencyGraph {
         }
     }
 
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the operation cannot be completed.
     /// Create dependency graph from packs
     pub fn from_packs(packs: &[Pack]) -> Result<Self> {
         let mut graph = Self::new();
@@ -64,6 +68,10 @@ impl DependencyGraph {
             .push(to.to_string());
     }
 
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the operation cannot be completed.
     /// Detect circular dependencies using DFS
     pub fn detect_cycles(&self) -> Result<()> {
         let mut visited = HashSet::new();
@@ -115,6 +123,10 @@ impl DependencyGraph {
         Ok(())
     }
 
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the operation cannot be completed.
     /// Get topological sort order for installation
     ///
     /// Returns pack IDs in order where dependencies come before dependents
@@ -176,6 +188,10 @@ impl DependencyGraph {
         self.edges.get(pack_id).cloned().unwrap_or_else(Vec::new)
     }
 
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the operation cannot be completed.
     /// Get all transitive dependencies of a pack
     pub fn transitive_dependencies(&self, pack_id: &str) -> Result<HashSet<String>> {
         let mut result = HashSet::new();

@@ -60,6 +60,10 @@ pub trait ConventionPreset {
     /// Name of this preset
     fn name(&self) -> &str;
 
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the operation cannot be completed.
     /// Create the project structure in the given root directory
     fn create_structure(&self, root: &Path) -> Result<()>;
 

@@ -66,6 +66,10 @@ pub struct PackInstallClosure<'a> {
     pub artifact_paths: &'a [PathBuf],
 }
 
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 /// Generates a cryptographic receipt for a SUCCESSFUL pack installation, rooted
 /// at `root` (the project directory whose `.ggen/` holds receipts and keys).
 ///

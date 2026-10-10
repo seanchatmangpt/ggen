@@ -42,6 +42,10 @@ pub struct FileTransaction {
 }
 
 impl FileTransaction {
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the operation cannot be completed.
     /// Create a new transaction
     pub fn new() -> Result<Self> {
         Ok(Self {
@@ -51,6 +55,10 @@ impl FileTransaction {
         })
     }
 
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the operation cannot be completed.
     /// Create a new transaction with backup directory
     pub fn with_backup_dir(backup_dir: impl AsRef<Path>) -> Result<Self> {
         let backup_path = backup_dir.as_ref().to_path_buf();
@@ -69,6 +77,10 @@ impl FileTransaction {
         })
     }
 
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the operation cannot be completed.
     /// Write file atomically - either succeeds completely or has no effect
     ///
     /// Uses temp file + rename for atomic operation:
@@ -172,6 +184,10 @@ impl FileTransaction {
         Ok(backup_path)
     }
 
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the operation cannot be completed.
     /// Commit transaction - mark as successful
     ///
     /// After commit, backups are kept but rollback is disabled
@@ -262,6 +278,10 @@ pub struct TransactionReceipt {
 }
 
 impl TransactionReceipt {
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the operation cannot be completed.
     /// Clean up backups after successful operation
     pub fn clean_backups(&self) -> Result<()> {
         for backup in self.backups.values() {

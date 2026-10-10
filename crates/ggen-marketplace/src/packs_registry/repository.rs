@@ -52,6 +52,10 @@ impl FileSystemRepository {
         }
     }
 
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the operation cannot be completed.
     /// Create repository with automatic path discovery
     ///
     /// Tries multiple common paths to find the packs directory

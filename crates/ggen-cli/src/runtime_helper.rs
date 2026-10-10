@@ -25,8 +25,8 @@ use tokio::runtime::Runtime;
 /// Create a new tokio runtime for async operations in sync context
 ///
 /// IMPORTANT: This function detects if we're already inside a tokio runtime
-/// (e.g., when using #[tokio::main]) and returns an error in that case.
-/// Use execute_async() or execute_async_verb() instead, which handle this properly.
+/// (e.g., when using #[`tokio::main`]) and returns an error in that case.
+/// Use `execute_async()` or `execute_async_verb()` instead, which handle this properly.
 ///
 /// # Errors
 ///
@@ -45,7 +45,7 @@ pub fn create_runtime() -> Result<Runtime, String> {
 
 /// Execute an async function in a sync context
 ///
-/// Detects if we're already in a tokio runtime and uses Handle::current() if so,
+/// Detects if we're already in a tokio runtime and uses `Handle::current()` if so,
 /// otherwise creates a new runtime. This prevents nested runtime panics.
 ///
 /// # Examples
@@ -95,11 +95,15 @@ where
     }
 }
 
-/// Execute an async function and convert errors to clap_noun_verb::NounVerbError
 ///
-/// Detects if we're already in a tokio runtime and uses Handle::current() if so,
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
+/// Execute an async function and convert errors to `clap_noun_verb::NounVerbError`
+///
+/// Detects if we're already in a tokio runtime and uses `Handle::current()` if so,
 /// otherwise creates a new runtime. Automatically converts anyhow errors to
-/// NounVerbError for use in verb functions.
+/// `NounVerbError` for use in verb functions.
 ///
 /// # Examples
 ///

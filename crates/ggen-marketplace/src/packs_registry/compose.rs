@@ -29,6 +29,10 @@ pub struct ComposePacksOutput {
     pub composition_strategy: String,
 }
 
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 /// Compose multiple packs into a single project
 pub async fn compose_packs(input: &ComposePacksInput) -> Result<ComposePacksOutput> {
     if input.pack_ids.is_empty() {

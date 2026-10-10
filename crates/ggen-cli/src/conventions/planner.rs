@@ -8,7 +8,7 @@ use std::path::{Path, PathBuf};
 use super::ProjectConventions;
 
 /// Metadata extracted from template comments
-/// PartialEq without Eq: All fields (`String`, `Vec<String>`) implement Eq
+/// `PartialEq` without Eq: All fields (`String`, `Vec<String>`) implement Eq
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Debug, Clone, PartialEq)]
 pub struct TemplateMetadata {
@@ -19,6 +19,10 @@ pub struct TemplateMetadata {
 }
 
 impl TemplateMetadata {
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the operation cannot be completed.
     /// Parse template metadata from file content
     pub fn parse(content: &str) -> Result<Self> {
         let mut output = None;
@@ -83,6 +87,10 @@ impl GenerationPlanner {
         Self { conventions }
     }
 
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the operation cannot be completed.
     /// Create a generation plan by analyzing all templates
     pub fn plan(&self) -> Result<GenerationPlan> {
         let mut tasks = Vec::new();

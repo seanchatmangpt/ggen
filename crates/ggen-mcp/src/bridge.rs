@@ -37,7 +37,7 @@
 //! minimal fixture shape (one `ggen.toml`, one `.tera` template with an
 //! unbound var) this module's own test reuses verbatim, rather than inventing
 //! a new one; (3) `GGEN-FM-SHACL-001` (CP8) requires a SHACL shape file and
-//! the GraphLaw engine wired in, which is more moving parts for the same
+//! the `GraphLaw` engine wired in, which is more moving parts for the same
 //! proof of the push path. Nothing here is specific to TPL-001's code path,
 //! though -- `codes` is a caller-supplied allowlist, so wiring
 //! `GGEN-OUT-001`/`GGEN-FM-SHACL-001` later is an argument change, not a

@@ -52,12 +52,13 @@ cd "$(git rev-parse --show-toplevel)"
 # rather than duplicating this script.
 CONSUMERS=(
     "examples/receiptctl"
-    "examples/praxis-core-verify"
     "examples/star-toml-verify"
     "examples/cargo-cicd-verify"
     "examples/rmcp-verify"
     "examples/ggen-cli-verify"
 )
+# examples/praxis-core-verify removed 2026-10-10 with the praxis-core
+# retirement (SJIRA-15); the dir no longer exists on disk.
 
 GGEN_BIN="target/release/ggen"
 if [[ ! -x "$GGEN_BIN" ]]; then

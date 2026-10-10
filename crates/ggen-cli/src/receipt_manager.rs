@@ -37,6 +37,10 @@ pub struct ReceiptManager {
 }
 
 impl ReceiptManager {
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the operation cannot be completed.
     /// Create a new receipt manager
     ///
     /// # Arguments
@@ -63,6 +67,10 @@ impl ReceiptManager {
         })
     }
 
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the operation cannot be completed.
     /// Load or generate Ed25519 keypair
     ///
     /// Keys are stored in .ggen/keys/ directory:
@@ -139,6 +147,10 @@ impl ReceiptManager {
         Ok(self.verifying_key.as_ref().expect("just assigned above"))
     }
 
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the operation cannot be completed.
     /// Generate a receipt for a pack installation
     ///
     /// # Arguments
@@ -207,6 +219,10 @@ impl ReceiptManager {
         Ok(receipt_path)
     }
 
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the operation cannot be completed.
     /// Verify a receipt file
     ///
     /// # Arguments
@@ -285,6 +301,10 @@ impl ReceiptManager {
         &self.keys_dir
     }
 
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the operation cannot be completed.
     /// Generate a receipt for capability composition
     ///
     /// # Arguments

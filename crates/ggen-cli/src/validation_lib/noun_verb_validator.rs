@@ -45,6 +45,10 @@ impl NounVerbValidator {
         self.dependencies.insert(command, deps);
     }
 
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the operation cannot be completed.
     /// Validate a command sequence for circular dependencies
     pub fn validate_sequence(&self, commands: &[String]) -> Result<()> {
         for command in commands {
@@ -73,6 +77,10 @@ impl NounVerbValidator {
         Ok(())
     }
 
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the operation cannot be completed.
     /// Validate command structure
     pub fn validate_command_structure(&self, noun: &str, verb: &str) -> Result<()> {
         // Check noun is not empty

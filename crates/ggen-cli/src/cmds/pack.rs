@@ -125,6 +125,10 @@ pub struct InstallOutput {
 
 /// Add (install) a pack by name
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn add(#[arg(index = 1)] pack_name: String, force: bool) -> Result<AddOutput> {
     validate_pack_name(&pack_name)?;
     // Verify the pack exists before attempting installation
@@ -193,6 +197,10 @@ pub fn add(#[arg(index = 1)] pack_name: String, force: bool) -> Result<AddOutput
 
 /// Remove an installed pack
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn remove(#[arg(index = 1)] pack_name: String) -> Result<RemoveOutput> {
     validate_pack_name(&pack_name)?;
 
@@ -256,6 +264,10 @@ pub fn remove(#[arg(index = 1)] pack_name: String) -> Result<RemoveOutput> {
 
 /// List all available packs
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn list(verbose: bool, category: Option<String>) -> Result<ListOutput> {
     let packages = list_packs(None)
         .map_err(|e| NounVerbError::execution_error(format!("Failed to list packs: {}", e)))?;
@@ -299,6 +311,10 @@ pub fn list(verbose: bool, category: Option<String>) -> Result<ListOutput> {
 
 /// Show detailed pack information
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn show(#[arg(index = 1)] pack_id: String) -> Result<ShowOutput> {
     let detail = show_pack(&pack_id).map_err(|e| {
         NounVerbError::execution_error(format!("Failed to get pack '{}': {}", pack_id, e))
@@ -328,6 +344,10 @@ pub fn show(#[arg(index = 1)] pack_id: String) -> Result<ShowOutput> {
 
 /// Search for packs
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn search(#[arg(index = 1)] query: String, limit: Option<usize>) -> Result<SearchOutput> {
     if let Some(0) = limit {
         return Err(NounVerbError::argument_error(
@@ -364,6 +384,10 @@ pub fn search(#[arg(index = 1)] query: String, limit: Option<usize>) -> Result<S
 // version) is skipped with a warning, not treated as a fatal error for the
 // whole batch -- see `local_pack_to_marketplace_package`'s own doc comment.
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn related(
     #[arg(index = 1)] seed: String, by_category: bool, limit: Option<usize>,
 ) -> Result<RelatedOutput> {
@@ -392,6 +416,10 @@ pub fn related(
 // this same file: the clap-noun-verb macro derives `--help` text from the doc comment, and a
 // long `///` block here leaked this whole rationale into `ggen pack --help`'s one-line listing.
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn query(#[arg(index = 1)] sparql: String, pack_id: Option<String>) -> Result<QueryOutput> {
     let outcome = run_pack_query(&sparql, pack_id.as_deref())
         .map_err(|e| NounVerbError::execution_error(format!("{}", e)))?;
@@ -434,6 +462,10 @@ pub fn query(#[arg(index = 1)] sparql: String, pack_id: Option<String>) -> Resul
 // block leaked this whole rationale into `ggen pack --help`'s subcommand listing, out of step
 // with sibling verbs' one-line summaries.
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn doctor() -> Result<serde_json::Value> {
     let cache_dir = resolve_cache_dir()?;
     let lock_path = resolve_lockfile_path()?;
@@ -745,6 +777,10 @@ fn ttl_escape(s: &str) -> String {
 /// copy embedded in the `ggen` binary, so project-local edits to the
 /// constructor are honored).
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn new(
     #[arg(index = 1)] pack_name: String, description: Option<String>, namespace: Option<String>,
     version: Option<String>, category: Option<String>,
@@ -991,7 +1027,7 @@ fn parse_capabilities(path: &Path) -> Result<Option<DeclaredCapabilities>> {
 }
 
 /// Live-scan every annotated pack across both corpora. Returns pack name ->
-/// (provides, requires), sorted by name (BTreeMap) so output is
+/// (provides, requires), sorted by name (`BTreeMap`) so output is
 /// deterministic. Packs without `[capabilities]` are skipped — they
 /// contribute no provides and no requires.
 fn scan_corpus_capabilities() -> Result<BTreeMap<String, DeclaredCapabilities>> {
@@ -1027,6 +1063,10 @@ fn scan_corpus_capabilities() -> Result<BTreeMap<String, DeclaredCapabilities>> 
 /// pack without `[capabilities]` returns `{ name, capabilities: null }` —
 /// honest absence, not an error.
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn capabilities(#[arg(index = 1)] name: String) -> Result<serde_json::Value> {
     use serde_json::json;
 
@@ -1193,6 +1233,10 @@ fn load_corpus_pack(name: &str) -> Result<ggen_marketplace::packs_registry::type
 /// exit with the refusal text on stderr, never a panic. Duplicate names in
 /// the input are a typed error before the kernel runs.
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 ///
 /// `--packs` accumulates repeated occurrences (`--packs a --packs b` yields
 /// both); the explicit `action = "append"` is required because clap-noun-verb

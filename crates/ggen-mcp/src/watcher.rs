@@ -16,7 +16,7 @@
 //! `ggen-lsp`'s live in-memory document/analyzer state at all. It re-runs
 //! `ggen_lsp::check::check_files_in_root` (the same *headless*, file-reading
 //! gate the CLI and CI use) as a library call, scoped to the paths it is
-//! given. So bridging "a real did_change fires inside a running `ggen-lsp`
+//! given. So bridging "a real `did_change` fires inside a running `ggen-lsp`
 //! process" to "a real notification reaches an MCP client" would require
 //! building a new cross-process channel from scratch (e.g. `ggen-lsp`
 //! shelling out to, or IPC-ing into, a specific `ggen-mcp` process) -- a much

@@ -30,6 +30,10 @@ pub const DEFAULT_SEARCH_OFFSET: usize = 0;
 /// Default registry capacity for marketplace operations
 pub const DEFAULT_REGISTRY_CAPACITY: u64 = 1000;
 
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 /// Execute async operation with timeout and error handling
 ///
 /// Standardized async execution pattern for CLI commands.

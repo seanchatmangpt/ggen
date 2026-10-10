@@ -82,6 +82,10 @@ impl Drop for TelemetryGuard {
     }
 }
 
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 /// Initialize OpenTelemetry with OTLP gRPC exporter
 ///
 /// This sets up:

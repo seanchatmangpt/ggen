@@ -6,13 +6,13 @@
 //!
 //! ## Supported Project Types
 //!
-//! - **NextJs**: React-based framework with server-side rendering
+//! - **`NextJs`**: React-based framework with server-side rendering
 //! - **Nuxt**: Vue.js-based framework with server-side rendering
 //!
 //! ## Features
 //!
 //! - **TypeScript support**: Full TypeScript configuration
-//! - **ESLint integration**: Pre-configured ESLint rules
+//! - **`ESLint` integration**: Pre-configured `ESLint` rules
 //! - **Modern tooling**: Latest versions of frameworks and dependencies
 //! - **Development setup**: Ready-to-run development scripts
 //!

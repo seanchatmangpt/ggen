@@ -34,7 +34,7 @@ pub struct InertField {
     /// The real per-rule message
     /// (`ggen_engine::generation_rules::resolve_template_source`)
     /// additionally names the offending rule and the pack/git/package
-    /// identifier (e.g. "rule `{name}`: TemplateSource::Pack (pack
+    /// identifier (e.g. "rule `{name}`: `TemplateSource::Pack` (pack
     /// `{pack}`) is not implemented yet. Remediation: ..."); this field is
     /// a fixed summary shared across every rule that triggers the same
     /// variant.

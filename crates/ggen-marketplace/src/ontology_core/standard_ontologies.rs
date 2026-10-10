@@ -256,11 +256,11 @@ mod tests {
         assert!(namespaces.contains("http://xmlns.com/foaf/0.1/"));
     }
 
-    /// Chicago-TDD proof (real data, no mocks) that the ported ontology_core trio produces the
+    /// Chicago-TDD proof (real data, no mocks) that the ported `ontology_core` trio produces the
     /// expected namespace set end-to-end: core stubs (rdf/rdfs/owl) + standard registry
     /// (schema.org/FOAF/Dublin Core/SKOS/Big Five), deduplicated to 8 total entries with every
-    /// namespace's `source` correctly attributed to "bundled-standard" (both CoreOntologyBundle
-    /// and StandardOntology namespaces get promoted over the raw "core-stub" duplicate).
+    /// namespace's `source` correctly attributed to "bundled-standard" (both `CoreOntologyBundle`
+    /// and `StandardOntology` namespaces get promoted over the raw "core-stub" duplicate).
     #[test]
     fn test_get_standard_namespaces_end_to_end() {
         let namespaces = get_standard_namespaces();
