@@ -8,10 +8,10 @@ subjects named; anything not re-verified at write time is marked as-of-date.
 
 | Subject | Branch | HEAD | State |
 |---|---|---|---|
-| ggen main | `main` | `a303d16f6` (a303d16f60f7f3593f0c2800449cbb8cce8b0a45) | 17 modified files uncommitted in engine/marketplace (lane residue, not asserted clean) |
-| strata | `main` | `a20440e` ("docs: standing table post-waves — protocol + valve ALIVE, zero known-red") | `stratus/mix.exs` modified; `docs/RELEASE.md`, `temprun/tests/clock_module_test.rs` untracked |
-| ggen-marketplace | `hdit-v2-structs` | `aeca8a5a2` ("chore: drop committed erl_crash.dump") | clean-ish at spot-check |
-| graphlaw | `docs/doc-hdit-scaffold-gl` | `e1059f1` ("docs: regen scaffolded skeletons with backticked identifiers") | DIRTY: Cargo.toml/Cargo.lock, src/hooks.rs, src/lib.rs, README.md + others |
+| ggen main | `main` | `a1c4a26f9` (FINAL 2026-10-10: `just pre-commit` GREEN end-to-end; full census 3251+/26→adjudicated & fixed incl. abb-sbb canonical_digest feature-stability fix `12b096484`; tree clean) | CLEAN |
+| strata | `main` | `88ee588`+ (waves 1-4: protocol 122/0, stratus 58/0, temprun 55/0, clippy gate green, CI receipt, SOAK_LOG, RELEASE.md) | CLEAN |
+| ggen-marketplace | `hdit-v2-structs` | `eec4782d7`+ (annotations, 6 strata packs drift-corrected, README capabilities section, crash-dump purged) | CLEAN |
+| graphlaw | `docs/doc-hdit-scaffold-gl` | `e1059f1` + dirty (3-commit split USER-GATED; prep doc ready; re-baselined gate: `cargo test -p graphlaw --all-features` 412/0) | DIRTY by design |
 
 30 commits landed on ggen main on 2026-10-10 (session wave merge `8e92df31f`/`7ff3b0337`
 through `a303d16f6`).
