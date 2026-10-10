@@ -772,7 +772,9 @@ lsp-max-new:
     # `sync run` takes only --dry-run/--watch/--consumer-mode) -- the manifest is
     # resolved from the cwd, so run from the lsp-max spec directory.
     cd "$(dirname {{LSP_MAX_MANIFEST}})" && {{GGEN}} sync run
-    for toml in {{LSP_MAX_SCAFFOLD}}/*/Cargo.toml; do
+    # Scaffold paths must be absolute: the cwd above is now the manifest dir,
+    # so a repo-relative glob silently fails to expand (verified live 2026-10-10).
+    for toml in "{{justfile_directory()}}/{{LSP_MAX_SCAFFOLD}}"/*/Cargo.toml; do
         name=$(basename "$(dirname "$toml")")
         echo "checking $name..."
         cargo check --manifest-path "$toml"
