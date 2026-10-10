@@ -21,6 +21,7 @@ struct SmokePackToml {
     #[allow(dead_code)]
     dependencies: BTreeMap<String, String>,
     #[serde(default)]
+    #[allow(dead_code)]
     capabilities: SmokePackCapabilities,
     #[serde(flatten)]
     #[allow(dead_code)]

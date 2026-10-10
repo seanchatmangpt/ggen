@@ -29,6 +29,9 @@ use tempfile::TempDir;
 /// then the workspace `target/{debug,release}/ggen`, then `PATH`. Panics
 /// (loudly) if no candidate resolves, so failure happens at binary
 /// resolution, not at first spawn.
+/// Preserved deliberately: sole callers are in the commented-out test block
+/// below (pending ggen-cli binary wiring) — see that block's doc comment.
+#[allow(dead_code)]
 fn ggen_bin() -> std::path::PathBuf {
     if let Ok(path) = std::env::var("CARGO_BIN_EXE_ggen") {
         let p = std::path::PathBuf::from(path);
