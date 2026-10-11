@@ -210,8 +210,8 @@ ggen-graph = { path = "crates/ggen-graph", version = "26.10.10" }
 # docs/jira/v26.7.16/10-ROOT-PACKAGE-TEST-MIGRATION.md, T051-T053): root
 # package/tests/examples/benches re-point away from ggen_core:: onto these,
 # file by file, as each file's specific symbols land a real port destination.
-ggen-config = { path = "crates/ggen-config", version = "26.10.10" }
-ggen-marketplace = { path = "crates/ggen-marketplace", version = "26.10.10" }
+ggen-config = { path = "crates/ggen-config", version = ">=26.10.10, <26.15" }
+ggen-marketplace = { path = "crates/ggen-marketplace", version = ">=26.10.10, <26.15" }
 ggen-engine = { path = "crates/ggen-engine", version = "26.10.10" }
 
 # A2A Protocol Integration (Agent-to-Agent protocol) - using local a2a-generated

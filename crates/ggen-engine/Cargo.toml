@@ -102,13 +102,13 @@ ggen-abb-sbb = { path = "../ggen-abb-sbb", version = "26.10.10" }
 # installed" -- that knowledge lives in ggen-marketplace's pack registry/lockfile after
 # docs/jira/v26.7.16/06-MARKETPLACE-PACK-REGISTRY-MERGE.md's merge (risk 1). Directionally
 # safe: ggen-marketplace has no dependency back on this crate.
-ggen-marketplace = { path = "../ggen-marketplace", version = "26.10.10" }
+ggen-marketplace = { path = "../ggen-marketplace", version = ">=26.10.10, <26.15" }
 # New, deliberate edge (specs/014-ggen-core-replacement, T070): `crate::generation_rules`
 # consumes `ggen_config::manifest::GgenManifest`/`GenerationRule`/`QuerySource`/
 # `TemplateSource`/`GenerationMode` to run the declarative `[[generation.rules]]` sync path
 # alongside (not replacing) the existing frontmatter-per-template-file convention. Directionally
 # safe: ggen-config has no dependency back on this crate.
-ggen-config = { path = "../ggen-config", version = "26.10.10" }
+ggen-config = { path = "../ggen-config", version = ">=26.10.10, <26.15" }
 # Raw pre-parse of ggen.toml (`crate::generation_rules::has_generation_rules`) to decide, before
 # any typed parse, whether a project's ggen.toml belongs to this module's declarative-rules
 # schema or `crate::config::GgenConfig`'s frontmatter schema -- same version ggen-config itself
