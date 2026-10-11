@@ -4,6 +4,24 @@ All notable changes to ggen are documented here.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [26.10.11] — crates.io Release Chain, ABB-SBB Admission Gate, and Lint Closure (2026-10-10)
+
+### Removed
+- **`praxis-core`/`praxis-graphlaw` vendored members retired** (SJIRA-15) — `ggen-engine`'s default graph backend is now the sibling `graphlaw` crate, moved to the registry pin 26.10.10 (was the `../graphlaw` path dep, 5847a3d08); workspace drops to 14 crates. Deleted members never existed in published form; consumers were re-locked after the `star-toml` wave (3ec6047fe).
+
+### Added
+- **`ggen-abb-sbb` integrated as ggen-engine's Stage 2c admission gate** (v26.10.9) — IO-free ABB/SBB `admit()`/`plan()`/`depgraph` kernel (transitive closure, cycle + unbound-port refusals); `canonical_digest` made feature-unification-stable via sorted-key JSON (12b096484).
+- **Build provenance attestation vector** — BLAKE3(commit+packs+ontology) via fail-soft `build.rs` (eec9fd05d).
+
+### Changed
+- **crates.io release chain** — `ggen-engine` `publish = true`; `ggen-abb-sbb` publish lifted 2026-10-10 (dcbf333).
+- **Pack ecosystem** — `ggen-release-pack` v0.3.0 with parametrized integrity templates (v0.2.0 release-discipline standards, a10ea7c2a); `cargo-cicd-pack` Round-6 re-audit — 24 nouns/56 verbs (9883a433f).
+- **CI pins `cargo-cicd` to crates.io 26.10.10** (was git `--rev 852a2d9`, 592fa43e8).
+
+### Fixed
+- **Workspace clippy `-D warnings` gate green** — TECH-DEBT-002 closed (892d349c5); last 459 clippy errors closed (68cddf958); `just lint` exits 0; rustdoc link warnings 37 → 0 (acaf8714f).
+- **ggen-mcp tool-surface parity** — court-pinned exact set equality; 12 tools, not nine (ggen_pack_capabilities/ggen_pack_query/ggen_receipt_verify added to docs).
+
 ## [26.10.6] — v26.10.5 Convergence Closure (2026-10-06)
 
 ### Fixed

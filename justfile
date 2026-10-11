@@ -825,3 +825,15 @@ docs-sync:
 # Creates and deletes a throwaway private repo. Ignored in normal test runs.
 tf-acceptance:
     cargo test -p ggen-engine --test gh_terraform_acceptance_e2e -- --ignored --nocapture
+
+# ── Release promotion ─────────────────────────────────────────────────────────
+
+# Promote the ambient release binary to ~/.local/bin/ggen. Builds the ggen-cli-lib
+# release binary (the sole producer of the "ggen" bin since v26.7.16), installs it,
+# and prints the installed version.
+promote:
+    cargo build --release -p ggen-cli-lib --bin ggen
+    mkdir -p ~/.local/bin
+    cp target/release/ggen ~/.local/bin/ggen
+    chmod +x ~/.local/bin/ggen
+    @echo "promoted: $(~/.local/bin/ggen --version)"

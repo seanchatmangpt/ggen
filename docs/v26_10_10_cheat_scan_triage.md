@@ -1,4 +1,4 @@
-# Cheat-Scan Triage — v26.10.10 (2026-10-10)
+# Cheat-Scan Triage — v26.10.11 (2026-10-10)
 
 Lane: cheat-triage (read-only). HEAD `dcbf33333`, branch `main`.
 

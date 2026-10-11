@@ -5,6 +5,9 @@ edition = "2021"
 license = "MIT"
 repository = "https://github.com/seanchatmangpt/ggen"
 description = "IO-free ABB/SBB manufacture admission kernel: SELECT existing SBB || MANUFACTURE missing realization, never DO."
+readme = "README.md"
+keywords = ["admission", "planning", "dependency-graph", "code-generation", "rdf"]
+categories = ["development-tools", "algorithms"]
 
 [package.metadata.ggen]
 rfc = "docs/rfc/v26.9.26/abb-sbb-implementation.md"

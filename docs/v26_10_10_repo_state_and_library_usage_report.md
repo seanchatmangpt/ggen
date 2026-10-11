@@ -1,4 +1,4 @@
-# v26.10.10 Repo State and Library Usage Report
+# v26.10.11 Repo State and Library Usage Report
 
 Audit date: 2026-10-09 · Branch: `spec-integration` @ 4619246cc · Read-only audit; no code changed.
 Every count in this report was re-measured on this checkout (commands quoted inline as receipts).
@@ -379,7 +379,7 @@ gets cheaper after 7.
 # 7. Phase 1 execution delta (2026-10-09)
 
 Phase 1 (hygiene + schema-dispatch verification + star-toml migration) executed on this branch.
-Full receipt: `docs/v26_10_10_phase1_receipt.md`.
+Full receipt: `docs/v26_10_11_phase1_receipt.md`.
 
 - **Step 1 (hygiene)**: root `Cargo.toml` ggen-core comment corrected (was "untouched on
   disk"); `star-toml = "26.7.3"` added to `[workspace.dependencies]`; ggen-config +
@@ -430,7 +430,7 @@ Full receipt: `docs/v26_10_10_phase1_receipt.md`.
   Residual census now **66 refs / 14 files**, all in ggen-engine. The
   receipt-chain family remains the dominant blocker (no graphlaw equivalent);
   the verbatim-port retirement design is recorded in
-  `docs/v26_10_10_praxis_retirement_plan.md`.
+  `docs/v26_10_11_praxis_retirement_plan.md`.
 - **Lint findings refined**: ggen-graph is structurally clean under
   pedantic+nursery; the blanket-allow cost is concentrated in the vendored
   crates (praxis-graphlaw 22-lint allow), and **bcinr-pddl lacks
@@ -441,9 +441,9 @@ Full receipt: `docs/v26_10_10_phase1_receipt.md`.
   scratch candidates awaiting user review. TMPDIR root cause resolved
   (`~/.uvrc:4` export dangled by the `~/.cache` wipe; dir restored,
   self-heals on new shells).
-- **DoD checklist added**: the full v26.10.10 modernization Definition-of-Done
+- **DoD checklist added**: the full v26.10.11 modernization Definition-of-Done
   checklist (23 items with evidence tallies, DONE/PARTIAL/PENDING) now lives in
-  `docs/v26_10_10_phase1_receipt.md` ("Definition of Done" section) — see that
+  `docs/v26_10_11_phase1_receipt.md` ("Definition of Done" section) — see that
   table for the authoritative status of star-toml migration, schema
   drift-guard, N3 rules, GraphLawStore repoint, praxis-core prune/retirement,
   OCEL determinism, lint wiring, crate-count alignment, bcinr-pddl fixes, CLI
@@ -457,7 +457,7 @@ repointed off `praxis_graphlaw::TripleStore` — 0 residual hits; star-toml raw 
 11 sites = 9 documented + 2 new corpus-test sites; 87 pack.toml modified by the
 capability-annotation fan-out; BC/BD/BE/BG lanes still in flight) are itemized in the
 "Closing drift reconciliation (2026-10-09)" section appended to
-`docs/v26_10_10_phase1_receipt.md`. That section is authoritative over this report's
+`docs/v26_10_11_phase1_receipt.md`. That section is authoritative over this report's
 stale counts.
 
 ### Final session delta (2026-10-09, end of session)
@@ -471,7 +471,7 @@ gates pending disk-recovery); publish-safety corrected to zero absolute sibling-
 only 4 in-workspace path-only deps blocking; ggen-cli nested test targets adjudicated
 archive/DEAD/DEAD with 261-site harness migration and 6 targets fixed; 403-manifest strict
 PackToml smoke = 0 refusals. Full evidence: "Final session deltas" section of
-`docs/v26_10_10_phase1_receipt.md` (authoritative for DoD rows 15/19/22/25).
+`docs/v26_10_11_phase1_receipt.md` (authoritative for DoD rows 15/19/22/25).
 
 ## Closing consistency pass (verifier V18, 2026-10-09)
 
@@ -497,7 +497,7 @@ Two courts landed after the final-session delta above and supersede parts of it:
   repaired into `[capabilities]` — corpus now 403 manifests / 104
   in-capabilities requires / 0 dangling / 0 bare / 0 swallowed.
 
-Full evidence: "V14 closure" section of `docs/v26_10_10_phase1_receipt.md`
+Full evidence: "V14 closure" section of `docs/v26_10_11_phase1_receipt.md`
 (authoritative for these courts).
 
 ## Appended: docs-fold-2 lane receipts (2026-10-09)
@@ -526,7 +526,7 @@ Latest landed receipts folded; the two receipts above are superseded on these po
   missing mid-session (disk-full fallout); reinstalled via `rustup component add` by the
   smoke-declared lane.
 
-DoD rows updated in `docs/v26_10_10_phase1_receipt.md`: FM-PACK-018 two-tier →
+DoD rows updated in `docs/v26_10_11_phase1_receipt.md`: FM-PACK-018 two-tier →
 DONE+VERIFIED (V10/V12/V13 + smoke 4/0); DoD 25 capabilities → corpus data-quality DONE.
 
 ## Final closeout (2026-10-10, lane ggen-docs)
@@ -535,9 +535,9 @@ End-state verified by commands run at HEAD 8b03d25ad on main:
 
 - **Workspace = 14 crates, praxis retired.** `grep -c '^  "crates/' Cargo.toml`
   → `13` member paths + root `ggen` package = 14;
-  `cargo metadata --no-deps` → 14 packages, with `ggen:26.10.10`,
-  `ggen-engine:26.10.10`, `ggen-abb-sbb:26.10.10`. Workspace `version` in
-  `Cargo.toml:2` = `26.10.10`. No `praxis-core`/`praxis-graphlaw` members or
+  `cargo metadata --no-deps` → 14 packages, with `ggen:26.10.11`,
+  `ggen-engine:26.10.11`, `ggen-abb-sbb:26.10.11`. Workspace `version` in
+  `Cargo.toml:2` = `26.10.11`. No `praxis-core`/`praxis-graphlaw` members or
   path deps remain; graph backend is the sibling crate
   (`Cargo.toml:140`: `graphlaw = { path = "../graphlaw", version = "26.10.5" }`).
 - **star-toml migration closed at 3 documented exceptions.**
@@ -553,11 +553,11 @@ End-state verified by commands run at HEAD 8b03d25ad on main:
   `crates/ggen-engine/src/sync.rs:913-971`.
 - **Quickstart verified**: `cargo run -p ggen-cli-lib --bin ggen -- sync run
   --help` exits 0, exposes `--dry-run` ("Resolve and render but do not write
-  any files to disk"), reports `version="26.10.10"`. README quickstart form is
+  any files to disk"), reports `version="26.10.11"`. README quickstart form is
   current.
 - **Publish chain abb-sbb → engine still pending**: user-gated crates.io
   credentials (release-cut execution); everything through dry-run is DONE per
   the phase1 receipt's final wave-2 fold.
-- README.md corrected this lane: embedded version `26.10.8` → `26.10.10`.
+- README.md corrected this lane: embedded version `26.10.8` → `26.10.11`.
   README makes no crate-count or praxis claim of its own, so no other edit
   was needed.

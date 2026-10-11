@@ -1,6 +1,7 @@
-# v26.10.10 Release Receipt
+# v26.10.11 Release Receipt
 
-Manufacturing receipt for the 2026-10-10 closeout. Status vocabulary per
+Manufacturing receipt for the 2026-10-10 closeout, updated 2026-10-10/11 for post-merge
+standing (PRs #800/#801). Status vocabulary per
 `~/.claude/rules/operating-doctrine.md`: ALIVE items below were witnessed on the exact
 subjects named; anything not re-verified at write time is marked as-of-date.
 
@@ -8,19 +9,20 @@ subjects named; anything not re-verified at write time is marked as-of-date.
 
 | Subject | Branch | HEAD | State |
 |---|---|---|---|
-| ggen main | `main` | `919315ccb` (FINAL 2026-10-10: pre-commit GREEN; census adjudicated; abb-sbb digest-stability fix; build-provenance attestation vector eec9fd05d; DfLSS/court wave f90d03f..; tree clean) | CLEAN |
+| ggen main | `main` | `ba58d6c86` (2026-10-10/11: PR #801 pack round-6 merged; PR #800 release-pin updates merged — graphlaw path dep dropped for registry 26.10.11 pin at `Cargo.toml:140`, cargo-cicd pinned to crates.io 26.10.11 at `592fa43e8`; workspace clippy `-D warnings` clean at `3a731c6fb`; prior FINAL head was `919315ccb`) | DIRTY (publish-prep edits: abb-sbb/ggen-graph Cargo.toml, CHANGELOG, abb-sbb README) |
+| graphlaw | registry | published to crates.io through 26.10.12 (eyeron 0.7.8); no longer a sibling path dep of ggen | ALIVE |
 | strata | `main` | `0ba949d` (FINAL 2026-10-10: waves 1-4 + Chicago court 20/20 resolved + 10 cross-product courts + DfLSS artifacts (Gauge R&R %GRR 1.00, SPC N=1000, DFMEA, Poka-Yoke) + field-delta packing 2.577 B/quad + STRA tripwire + acyclicity enforcement; census 342/0; clippy 0; mix 94/0; dialyzer/credo 0) | CLEAN |
 | ggen-marketplace | `hdit-v2-structs` | `eec4782d7`+ (annotations, 6 strata packs drift-corrected, README capabilities section, crash-dump purged) | CLEAN |
-| graphlaw | `docs/doc-hdit-scaffold-gl` | `e1059f1` + dirty (3-commit split USER-GATED; prep doc ready; re-baselined gate: `cargo test -p graphlaw --all-features` 412/0) | DIRTY by design |
+| graphlaw (superseded row) | `docs/doc-hdit-scaffold-gl` | `e1059f1` + dirty — superseded: published to crates.io 2026-10-10/11; ggen consumes the registry pin, branch split moot | ALIVE (registry) |
 
 30 commits landed on ggen main on 2026-10-10 (session wave merge `8e92df31f`/`7ff3b0337`
-through `a303d16f6`).
+through `a303d16f6`), followed by the PR #800/#801 merge sequence to `ba58d6c86`.
 
 ## 2. Consequence (changed vs session start)
 
 - **Praxis retirement**: vendored `praxis-core`/`praxis-graphlaw` workspace members retired;
   replaced by sibling `graphlaw` crate (SJIRA-15; commit `37958ed93` retired praxis rows,
-  aligned root dep pins to 26.10.10).
+  aligned root dep pins to 26.10.11).
 - **star-toml migration**: in-code exceptions reduced 9 → 3 (commit `b40476da4`,
   "toml exceptions 9→3"). `star_toml::Validate`/`Validator` now the primary validation path
   in `crates/ggen-config/src/manifest/validation.rs`.
@@ -36,7 +38,7 @@ through `a303d16f6`).
 - **G4 root cause + golden locks**: shape-closure keys made project-relative (`5c9da7a3e`);
   golden lock courts exist at `crates/ggen-engine/tests/sync_closure_golden_test.rs` and
   `receipt_chain_differential_test.rs`.
-- **Version surface**: workspace at `26.10.10` (root `Cargo.toml:2`, internal dep pins
+- **Version surface**: workspace at `26.10.11` (root `Cargo.toml:2`, internal dep pins
   aligned).
 - **abb-sbb publish-ready**: `publish = false` lifted (`dcbf33333`) for the crates.io chain.
 - **~40 new courts**: courts landed across commits including `b177c4b24` (property/e2e
@@ -53,7 +55,7 @@ through `a303d16f6`).
   above are the auditable trace. Not re-executed for this receipt.
 - **Witness adjudication**: churn-era failures re-adjudicated green at HEAD — auditable via
   `crates/ggen-graph/audit/transcripts/*` (e.g. `13_adjudicate_gall_promotion.stdout`:
-  `test result: ok. 31 passed; 0 failed`) and `v26_10_10_phase1_receipt.md` (verifier V18
+  `test result: ok. 31 passed; 0 failed`) and `v26_10_11_phase1_receipt.md` (verifier V18
   closing pass, all gates PASS, 4 discrepancies found and reconciled incl. the
   `ggen_bin()` invocation fix, suite 11 passed / 0 failed).
 - **Feature matrix 6/6** — session-reported, not re-executed for this receipt.
@@ -88,15 +90,27 @@ cargo publish -p ggen-abb-sbb --dry-run
 cargo publish -p ggen-engine --dry-run    # after abb-sbb lands on crates.io
 ```
 
-## 5. Standing + Remaining Sequence (all USER GATED)
+## 5. Standing + Remaining Sequence (updated 2026-10-10/11)
+
+Completed since the original receipt:
+
+| Step | Standing | Evidence |
+|---|---|---|
+| graphlaw published to crates.io | DONE — registry through 26.10.12 (eyeron 0.7.8) | crates.io; ggen `Cargo.toml:140` pin `version = "26.10.11"`, path dep dropped (`5847a3d08`, PR #800) |
+| ggen workspace clippy `-D warnings` clean (pre-push gate) | DONE | commit `3a731c6fb`, pre-push gate run before push |
+| Pre-push gates green + ggen main pushed | DONE | PRs #800/#801 merged via GitHub (merge commits `c25358196`, `ba58d6c86`) |
+| cargo-cicd 26.10.11 published + CI pin updated | DONE | commit `592fa43e8` (`.github/workflows/release.yml` pins crates.io 26.10.11, was git `--rev 852a2d9`) |
+| Packs round-6 (cargo-cicd-pack 24 nouns/56 verbs; ggen-release-pack v0.3.0) | DONE | commit `9883a433f`, PR #801 merged |
+| graphlaw 3-commit branch split | DONE (superseded by direct registry publish) | superseded row in Section 1 |
+
+Remaining:
 
 | Step | Standing | Gate | Prep doc |
 |---|---|---|---|
-| 1. Publish `ggen-abb-sbb` to crates.io | ALIVE (court-tested, `publish` lifted) | USER GATED | `docs/v26_10_10_repo_state_and_library_usage_report.md` |
-| 2. Publish `ggen-engine` (depends on 1) | BLOCKED on step 1 | USER GATED | same |
-| 3. graphlaw 3-commit split + updated gate | PARTIAL_ALIVE (e1059f1+dirty) | USER GATED | graphlaw `docs/branch-disposition.md` |
-| 4. Tag v26.10.10 + push ggen main | BLOCKED on 1-2 | USER GATED | `docs/v26_10_10_phase1_receipt.md` |
-| 5. Ambient ggen reinstall | BLOCKED on 4 | USER GATED | `aa20c07f3` workspace-binary preference guard is the regression court |
+| 1. Publish ggen crate chain to crates.io (`ggen-abb-sbb` first, then dependents) | IN PROGRESS (coordinator; abb-sbb `publish` lifted at `dcbf33333`, publish-prep edits dirty in tree) | USER GATED | `docs/v26_10_11_repo_state_and_library_usage_report.md` |
+| 2. Tag v26.10.11 + push tag | BLOCKED on 1 | USER GATED | `docs/v26_10_11_phase1_receipt.md` |
+| 3. Ambient ggen promotion (`~/.local/bin/ggen` from `target/release`) | BLOCKED on 2; currently a stale symlink to `/opt/homebrew/bin/ggen` (witnessed 2026-10-10/11) | USER GATED | `aa20c07f3` workspace-binary preference guard is the regression court |
+| 4. README first-principles rewrite | IN PROGRESS (separate lane) | — | — |
 
 ## Falsifiers
 
