@@ -7,7 +7,7 @@
 # "ggen-engine" since the praxis-core/praxis-graphlaw path deps retired
 # (SJIRA-15, 2026-10-09).
 name = "ggen-engine"
-version = "26.10.10"                      # CalVer YY.M.patch
+version = "26.10.11"                      # CalVer YY.M.patch
 edition = "2021"
 rust-version = "1.82"
 authors = ["Sean Chatman <xpointsh@gmail.com>"]
