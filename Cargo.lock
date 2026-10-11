@@ -2764,7 +2764,7 @@ dependencies = [
  "proptest",
  "regex",
  "rmcp 2.2.0",
- "rmcp-macros 2.2.0",
+ "rmcp-macros 3.5.0",
  "rustyline",
  "schemars 1.2.2",
  "semver",
