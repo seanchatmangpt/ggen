@@ -11,7 +11,7 @@ ontology + templates + policy → admitted graph → deterministic artifacts →
 MIT licensed. Rust workspace. The pinned toolchain and verified build path are documented in [Getting Started](docs/GETTING_STARTED.md).
 
 <<<<<<< GENERATED
-Current version: `26.10.10` (workspace version in `Cargo.toml`; nightly Rust toolchain
+Current version: `26.10.11` (workspace version in `Cargo.toml`; nightly Rust toolchain
 `nightly-2026-06-22`, pinned via `rust-toolchain.toml`). The Definition of Done is `just
 pre-commit`; its full gate list is the `pre-commit:` dependency line in `justfile` (the sole
 source of truth — it has drifted before, do not restate a count here). This project is
