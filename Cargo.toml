@@ -137,7 +137,7 @@ anyhow = "1.0"
 chrono = { version = "0.4", features = ["serde"] }
 thiserror = "2.0"
 async-trait = "0.1"
-graphlaw = { path = "../graphlaw", default-features = false, features = ["abi"], version = "26.10.5" }
+graphlaw = { default-features = false, features = ["abi"], version = "26.10.10" }
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = [
   "env-filter",

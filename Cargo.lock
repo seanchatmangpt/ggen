@@ -2986,7 +2986,9 @@ dependencies = [
 
 [[package]]
 name = "graphlaw"
-version = "26.10.11"
+version = "26.10.12"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "094d6c9c1251a40607ecf0c5d69947f8adfe92547274e9e08d8d25cd5c41b3e7"
 dependencies = [
  "blake3",
  "ed25519-dalek 2.2.0",
@@ -3001,6 +3003,8 @@ dependencies = [
 [[package]]
 name = "graphlaw-eyeron"
 version = "0.7.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "054d0a3ce9f85e1416da9baf03d8e53f52a421c99d3e2fc9ca4ec056d6adea87"
 dependencies = [
  "num-bigint 0.5.1",
  "num-traits",
