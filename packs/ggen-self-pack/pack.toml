@@ -11,3 +11,6 @@ production_ready = false
 [pack.metadata]
 tags = ["ggen", "meta-pack", "constructor", "self-pack", "bootstrap"]
 keywords = ["ggen", "pack", "scaffold", "constructor", "ontology-first"]
+
+[capabilities]
+provides = ["urn:ggen:pack:ggen-self-pack"]

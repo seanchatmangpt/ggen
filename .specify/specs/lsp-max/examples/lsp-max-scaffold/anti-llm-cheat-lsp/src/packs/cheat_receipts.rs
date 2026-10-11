@@ -1,4 +1,4 @@
-use lsp_max::{EvalBudget, Rule, RulePack};
+use lsp_max::rule_pack_server::{EvalBudget, Rule, RulePack};
 
 /// Rule pack `cheat-receipts@1.0.0` v1.0.0 — compiled from lsp.ttl.
 /// Rules baked into the binary; no runtime TOML loading.
@@ -23,7 +23,7 @@ pub fn pack() -> RulePack {
                 id:            "ANTI-LLM-RECEIPT-002".to_string(),
                 name:          "no-bypassed-compat".to_string(),
                 severity:      "error".to_string(),
-                pattern:       "[\\x22]bypassed_compat[\\x22]: true".to_string(),
+                pattern:       "[\x22]bypassed_compat[\x22]: true".to_string(),
                 message:       "Compatibility bypass flag found in receipt or config".to_string(),
                 rationale:     "bypassed_compat:true invalidates the receipt chain".to_string(),
                 eval_budget:   EvalBudget::Sync,

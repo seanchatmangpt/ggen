@@ -1,0 +1,5 @@
+{#- registry/ARTIFACTS.sha256 — verbatim projection of grp:ArtifactPinsArtifact's
+    grp:artifactBody (packs/ggen-release-pack/ontology.ttl). Edit the ontology's artifactBody
+    literal, not this file or the generated pin file. -#}
+{%- set S = sparql(query='PREFIX grp: <http://seanchatmangpt.github.io/packs/ggen-release#> SELECT ?body WHERE { grp:ArtifactPinsArtifact grp:artifactBody ?body . }') -%}
+{{ S[0].body }}

@@ -10,12 +10,20 @@ use super::maximalism;
 
 /// Inspect accepted Wizard-domain capability closure.
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn inspect(manifest: String) -> Result<Value> {
     maximalism::wizard_domain(Path::new(&manifest))
 }
 
 /// Construct a bounded, dependency-ordered production-cell plan.
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn plan(manifest: String, capability: String) -> Result<Value> {
     maximalism::wizard_plan(Path::new(&manifest), &capability)
 }

@@ -1,0 +1,10 @@
+[[rules]]
+id         = "ANTI-LLM-CLAIM-002"
+name       = "no-fully-admitted"
+severity   = "error"
+pattern    = 'fully admitted'
+message    = "Forbidden completion claim: 'fully admitted'"
+rationale  = "Completion claims without process evidence violate AGENTS.md bounded-status rules"
+eval_budget = "sync"
+path_globs   = []
+exclude_globs = []

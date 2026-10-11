@@ -79,12 +79,20 @@ fn collect_files_recursive(dir: &Path, out: &mut Vec<PathBuf>) -> Result<()> {
 }
 
 impl TemplateGenerator {
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the operation cannot be completed.
     /// Create new template generator
     pub fn new() -> Result<Self> {
         let tera = Tera::default();
         Ok(Self { tera })
     }
 
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the operation cannot be completed.
     /// List available templates in a pack
     ///
     /// # Arguments
@@ -96,6 +104,10 @@ impl TemplateGenerator {
         Ok(pack.templates.clone())
     }
 
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the operation cannot be completed.
     /// Generate code from a template
     ///
     /// # Arguments
@@ -157,6 +169,10 @@ impl TemplateGenerator {
         })
     }
 
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the operation cannot be completed.
     /// Validate template variables
     ///
     /// # Arguments
@@ -200,7 +216,7 @@ impl TemplateGenerator {
             .map(|name| VariableDefinition {
                 name: name.clone(),
                 var_type: VariableType::String,
-                description: format!("Variable: {}", name),
+                description: format!("Variable: {name}"),
                 default: None,
                 required: true,
                 pattern: None,
@@ -261,7 +277,7 @@ impl TemplateGenerator {
         // Pattern validation
         if let Some(pattern) = &var_def.pattern {
             let re = regex::Regex::new(pattern)
-                .map_err(|e| Error::Other(format!("Invalid regex pattern '{}': {}", pattern, e)))?;
+                .map_err(|e| Error::Other(format!("Invalid regex pattern '{pattern}': {e}")))?;
 
             if !re.is_match(value) {
                 return Err(Error::Other(format!(
@@ -430,6 +446,10 @@ impl TemplateGenerator {
         target_dir.join("package.json").exists()
     }
 
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the operation cannot be completed.
     /// Non-interactive variable resolution: fills each required variable from its declared
     /// `default`, or a documented synthetic placeholder (`value_for_<name>`) when no default
     /// exists. Does **not** read from stdin — there is currently no interactive-prompt code

@@ -350,7 +350,7 @@ mod tests {
     #[test]
     fn test_metadata_debug() {
         let meta = CoreOntologyBundle::by_name("rdf").expect("RDF should exist");
-        let debug_str = format!("{:?}", meta);
+        let debug_str = format!("{meta:?}");
 
         assert!(debug_str.contains("rdf"));
         assert!(debug_str.contains("namespace"));

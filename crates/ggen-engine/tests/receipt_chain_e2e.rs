@@ -10,6 +10,56 @@ use chicago_tdd_tools::cli_proof::CliHarness;
 use ggen_engine::sync::{sync, SyncOptions, SyncReceipt, RECEIPT_LOG_REL_PATH, RECEIPT_REL_PATH};
 use tempfile::TempDir;
 
+/// Resolve the real `ggen` binary the same way `cli_boundary.rs::ggen_bin`
+/// does: `CARGO_BIN_EXE_ggen` (set by `cargo test -p ggen-cli-lib`, never by
+/// `-p ggen-engine`/`-p ggen-cli` — the root package is `autobins = false`),
+/// then the workspace `target/{debug,release}/ggen`, then `PATH`. Panics
+/// (loudly) if no candidate resolves, so failure happens at binary
+/// resolution, not at first spawn.
+fn ggen_bin() -> std::path::PathBuf {
+    if let Ok(path) = std::env::var("CARGO_BIN_EXE_ggen") {
+        let p = std::path::PathBuf::from(path);
+        if p.exists() {
+            return p;
+        }
+    }
+
+    let target_root = std::env::var_os("CARGO_TARGET_DIR")
+        .map(std::path::PathBuf::from)
+        .or_else(|| {
+            let manifest_dir =
+                std::env::var_os("CARGO_MANIFEST_DIR").map(std::path::PathBuf::from)?;
+            let mut dir: &std::path::Path = manifest_dir.as_path();
+            loop {
+                if dir.join("Cargo.lock").exists() {
+                    return Some(dir.join("target"));
+                }
+                match dir.parent() {
+                    Some(p) => dir = p,
+                    None => return None,
+                }
+            }
+        });
+
+    if let Some(target) = target_root {
+        for profile in &["debug", "release"] {
+            let candidate = target.join(profile).join("ggen");
+            if candidate.is_file() {
+                return candidate;
+            }
+            let candidate_exe = target.join(profile).join("ggen.exe");
+            if candidate_exe.is_file() {
+                return candidate_exe;
+            }
+        }
+    }
+
+    panic!(
+        "could not resolve the `ggen` binary: CARGO_BIN_EXE_ggen unset and no \
+         target/debug/ggen found; build it with `cargo build -p ggen-cli-lib --bin ggen`"
+    );
+}
+
 const GGEN_TOML: &str = r#"
 [project]
 name = "demo"
@@ -127,7 +177,7 @@ fn three_syncs_form_a_verifiable_chain() {
     assert_eq!(head.record.chain_hash_hex, log[2].record.chain_hash_hex);
 
     // Full-history verification passes at the CLI boundary.
-    let _ = CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::from_path(ggen_bin())
         .args(["receipt", "history"])
         .current_dir(dir.path())
         .run()
@@ -180,7 +230,7 @@ fn tampering_middle_line_payload_fails_naming_index_1() {
     lines[1] = serde_json::to_string(&mid).expect("serialize mid");
     std::fs::write(&log_path, lines.join("\n") + "\n").expect("write tampered");
 
-    let output = CliHarness::cargo_bin("ggen")
+    let output = CliHarness::from_path(ggen_bin())
         .args(["receipt", "history"])
         .current_dir(dir.path())
         .run()
@@ -233,7 +283,7 @@ fn removing_or_reordering_lines_fails_history_verification() {
     // Drop the middle line: record 0's chain hash no longer matches
     // record 2's prev — broken link at index 0.
     std::fs::write(&log_path, format!("{}\n{}\n", lines[0], lines[2])).expect("truncate");
-    let _ = CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::from_path(ggen_bin())
         .args(["receipt", "history"])
         .current_dir(dir.path())
         .run()
@@ -246,7 +296,7 @@ fn removing_or_reordering_lines_fails_history_verification() {
         format!("{}\n{}\n{}\n", lines[1], lines[0], lines[2]),
     )
     .expect("reorder");
-    let _ = CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::from_path(ggen_bin())
         .args(["receipt", "history"])
         .current_dir(dir.path())
         .run()
@@ -261,7 +311,7 @@ fn missing_or_empty_log_fails_closed() {
     scaffold(dir.path(), &["alice"]);
 
     // No sync ever ran: log missing.
-    let output = CliHarness::cargo_bin("ggen")
+    let output = CliHarness::from_path(ggen_bin())
         .args(["receipt", "history"])
         .current_dir(dir.path())
         .run()
@@ -273,7 +323,7 @@ fn missing_or_empty_log_fails_closed() {
     // Empty log file.
     std::fs::create_dir_all(dir.path().join(".ggen-v2")).expect("mkdir");
     std::fs::write(dir.path().join(RECEIPT_LOG_REL_PATH), "").expect("write empty");
-    let output = CliHarness::cargo_bin("ggen")
+    let output = CliHarness::from_path(ggen_bin())
         .args(["receipt", "history"])
         .current_dir(dir.path())
         .run()
@@ -355,7 +405,7 @@ fn missing_receipt_json_chains_from_log_tail() {
         log[1].record.prev_chain_hash_hex,
         log[0].record.chain_hash_hex
     );
-    let _ = CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::from_path(ggen_bin())
         .args(["receipt", "history"])
         .current_dir(dir.path())
         .run()
@@ -370,8 +420,8 @@ fn missing_receipt_json_chains_from_log_tail() {
 fn legacy_payload_without_optional_fields_verifies() {
     use std::fmt::Write as _;
 
-    use praxis_core::receipt_record::{ReceiptRecord, RECEIPT_RECORD_VERSION};
-    use praxis_core::Andon;
+    use ggen_engine::receipt_chain_seam::Andon;
+    use ggen_engine::receipt_chain_seam::{ReceiptRecord, RECEIPT_RECORD_VERSION};
 
     let dir = TempDir::new().expect("tempdir");
     scaffold(dir.path(), &["alice"]);
@@ -396,7 +446,7 @@ fn legacy_payload_without_optional_fields_verifies() {
         andon: Andon::Green,
         obligation_count: 0,
         signature_hex: None,
-        schema: praxis_core::receipt_epoch::SCHEMA_V1.to_string(),
+        schema: ggen_engine::receipt_chain_seam::epoch::SCHEMA_V1.to_string(),
         v2: None,
         chain_rule: None,
     };
@@ -413,7 +463,7 @@ fn legacy_payload_without_optional_fields_verifies() {
     std::fs::create_dir_all(dir.path().join(".ggen-v2")).expect("mkdir");
     std::fs::write(dir.path().join(RECEIPT_LOG_REL_PATH), line).expect("write log");
 
-    let _ = CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::from_path(ggen_bin())
         .args(["receipt", "history"])
         .current_dir(dir.path())
         .run()
@@ -563,7 +613,7 @@ fn sign_then_verify_reports_signed_and_signature_valid_true() {
     assert_eq!(signing_key_hex.trim().len(), 64);
     assert_eq!(verifying_key_hex.trim().len(), 64);
 
-    let _ = CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::from_path(ggen_bin())
         .args(["receipt", "verify"])
         .current_dir(dir.path())
         .run()
@@ -593,7 +643,7 @@ fn ggen_signing_key_env_var_takes_precedence_over_key_file() {
 
     let env_key_hex = "33".repeat(32);
 
-    let _ = CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::from_path(ggen_bin())
         .args(["sync", "run"])
         .current_dir(dir.path())
         .env("GGEN_SIGNING_KEY", &env_key_hex)
@@ -603,7 +653,7 @@ fn ggen_signing_key_env_var_takes_precedence_over_key_file() {
 
     // Verifying WITH the same env var (which the implementation must derive
     // the matching verifying key from) must succeed.
-    let _ = CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::from_path(ggen_bin())
         .args(["receipt", "verify"])
         .current_dir(dir.path())
         .env("GGEN_SIGNING_KEY", &env_key_hex)
@@ -616,7 +666,7 @@ fn ggen_signing_key_env_var_takes_precedence_over_key_file() {
     // Verifying WITHOUT the env var falls back to the (deliberately
     // mismatched) file verifying key and must fail closed -- proof the
     // receipt was actually signed by the env-var key, not the file key.
-    let _ = CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::from_path(ggen_bin())
         .args(["receipt", "verify"])
         .current_dir(dir.path())
         .run()
@@ -633,7 +683,7 @@ fn malformed_ggen_signing_key_env_var_errors_loudly() {
     let dir = TempDir::new().expect("tempdir");
     scaffold(dir.path(), &["alice"]);
 
-    let _ = CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::from_path(ggen_bin())
         .args(["sync", "run"])
         .current_dir(dir.path())
         .env("GGEN_SIGNING_KEY", "not-hex-and-also-the-wrong-length")
@@ -678,7 +728,7 @@ fn tampered_chain_hash_fails_closed_and_is_distinguished_from_signature_failure(
     assert_eq!(raw.matches(&orig_chain_hash).count(), 1);
     std::fs::write(&receipt_path, raw.replace(&orig_chain_hash, &flipped)).expect("tamper");
 
-    let _ = CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::from_path(ggen_bin())
         .args(["receipt", "verify"])
         .current_dir(dir.path())
         .run()
@@ -720,7 +770,7 @@ fn tampered_signature_fails_closed_and_is_distinguished_from_chain_failure() {
     assert_eq!(raw.matches(&orig_sig).count(), 1);
     std::fs::write(&receipt_path, raw.replace(&orig_sig, &flipped)).expect("tamper");
 
-    let _ = CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::from_path(ggen_bin())
         .args(["receipt", "verify"])
         .current_dir(dir.path())
         .run()
@@ -737,8 +787,8 @@ fn tampered_signature_fails_closed_and_is_distinguished_from_chain_failure() {
 fn legacy_unsigned_receipt_still_chain_verifies_with_signed_false() {
     use std::fmt::Write as _;
 
-    use praxis_core::receipt_record::{ReceiptRecord, RECEIPT_RECORD_VERSION};
-    use praxis_core::Andon;
+    use ggen_engine::receipt_chain_seam::Andon;
+    use ggen_engine::receipt_chain_seam::{ReceiptRecord, RECEIPT_RECORD_VERSION};
 
     let dir = TempDir::new().expect("tempdir");
     scaffold(dir.path(), &["alice"]);
@@ -761,7 +811,7 @@ fn legacy_unsigned_receipt_still_chain_verifies_with_signed_false() {
         andon: Andon::Green,
         obligation_count: 0,
         signature_hex: None, // legacy: predates signing
-        schema: praxis_core::receipt_epoch::SCHEMA_V1.to_string(),
+        schema: ggen_engine::receipt_chain_seam::epoch::SCHEMA_V1.to_string(),
         v2: None,
         chain_rule: None,
     };
@@ -778,7 +828,7 @@ fn legacy_unsigned_receipt_still_chain_verifies_with_signed_false() {
     std::fs::create_dir_all(dir.path().join(".ggen-v2")).expect("mkdir");
     std::fs::write(dir.path().join(RECEIPT_REL_PATH), &doc).expect("write receipt");
 
-    let _ = CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::from_path(ggen_bin())
         .args(["receipt", "verify"])
         .current_dir(dir.path())
         .run()
@@ -824,6 +874,22 @@ fn edit_tail(root: &Path, edit: impl FnOnce(&mut serde_json::Value)) {
         .collect();
     let mut tail: serde_json::Value =
         serde_json::from_str(lines.last().expect("tail")).expect("parse tail");
+    // Re-serializing through a `serde_json::Value` sorts object keys (this
+    // workspace's serde_json has no `preserve_order`), so the payload bytes
+    // that will be stored differ from the bytes `payload_hash_hex` was bound
+    // to at sync time. Rebind the hash to the bytes this fixture actually
+    // stores -- otherwise the verifier's raw-payload-byte check (FM-CHAIN-013)
+    // fires before the chain/downgrade behavior a test is actually targeting.
+    // Done before `edit` so chain recomputes inside the closure hash the
+    // final payload hash.
+    let payload_hash_hex = blake3::hash(
+        serde_json::to_string(&tail["payload"])
+            .expect("payload to string")
+            .as_bytes(),
+    )
+    .to_hex()
+    .to_string();
+    tail["record"]["payload_hash_hex"] = serde_json::Value::String(payload_hash_hex);
     edit(&mut tail);
     let tail_line = serde_json::to_string(&tail).expect("ser tail");
     lines.last_mut().expect("tail").clone_from(&tail_line);
@@ -836,7 +902,7 @@ fn edit_tail(root: &Path, edit: impl FnOnce(&mut serde_json::Value)) {
 /// tcps-generated head is one). A test fixture built in a temp dir by the
 /// real praxis-core base rule -- never an edit of a committed chain.
 fn make_tail_legacy_base_sealed(root: &Path) {
-    use praxis_core::receipt_record::{ChainRule, ReceiptRecord};
+    use ggen_engine::receipt_chain_seam::{ChainRule, ReceiptRecord};
     edit_tail(root, |tail| {
         let mut record: ReceiptRecord =
             serde_json::from_value(tail["record"].clone()).expect("record");
@@ -850,7 +916,7 @@ fn make_tail_legacy_base_sealed(root: &Path) {
     });
 }
 
-fn tail_record(root: &Path) -> praxis_core::receipt_record::ReceiptRecord {
+fn tail_record(root: &Path) -> ggen_engine::receipt_chain_seam::ReceiptRecord {
     read_log(root).pop().expect("non-empty log").record
 }
 
@@ -859,7 +925,7 @@ fn tail_record(root: &Path) -> praxis_core::receipt_record::ReceiptRecord {
 /// to its stored `chain_hash_hex` (under the base rule that sealed it).
 #[test]
 fn committed_tcps_generated_head_recomputes_to_its_stored_chain_hash() {
-    use praxis_core::receipt_record::{ChainRule, ChainStanding, ChainVerification};
+    use ggen_engine::receipt_chain_seam::{ChainRule, ChainStanding, ChainVerification};
 
     let dir = committed_tcps_ggen_v2();
     let head: SyncReceipt = serde_json::from_str(
@@ -908,8 +974,8 @@ fn committed_tcps_generated_head_recomputes_to_its_stored_chain_hash() {
 /// the legacy head's v2 payload was never bound.
 #[test]
 fn sync_extends_the_committed_tcps_generated_chain_with_capped_standing() {
-    use praxis_core::receipt_epoch::CeilingLevel;
-    use praxis_core::receipt_record::CHAIN_RULE_V2_FOLD;
+    use ggen_engine::receipt_chain_seam::epoch::CeilingLevel;
+    use ggen_engine::receipt_chain_seam::CHAIN_RULE_V2_FOLD;
 
     let dir = TempDir::new().expect("tempdir");
     scaffold(dir.path(), &["alice"]);
@@ -938,7 +1004,7 @@ fn sync_extends_the_committed_tcps_generated_chain_with_capped_standing() {
     assert_eq!(verify["valid"], serde_json::json!(true));
     assert_eq!(verify["chain_standing"], serde_json::json!("fully-bound"));
 
-    let _ = CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::from_path(ggen_bin())
         .args(["receipt", "history"])
         .current_dir(dir.path())
         .run()
@@ -1003,8 +1069,8 @@ fn declared_base_rule_on_a_v2_head_is_refused() {
 /// capped at `LegacyObserved`, and `receipt history` reports the legacy record.
 #[test]
 fn legacy_head_v2_payload_is_never_consumed_as_bound_evidence() {
-    use praxis_core::receipt_epoch::CeilingLevel;
-    use praxis_core::receipt_record::{ChainStanding, ChainVerification};
+    use ggen_engine::receipt_chain_seam::epoch::CeilingLevel;
+    use ggen_engine::receipt_chain_seam::{ChainStanding, ChainVerification};
 
     let dir = TempDir::new().expect("tempdir");
     scaffold(dir.path(), &["alice"]);
@@ -1033,7 +1099,7 @@ fn legacy_head_v2_payload_is_never_consumed_as_bound_evidence() {
         ChainVerification::Verified(ChainStanding::FullyBound)
     );
 
-    let _ = CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::from_path(ggen_bin())
         .args(["receipt", "history"])
         .current_dir(dir.path())
         .run()
@@ -1054,7 +1120,7 @@ fn legacy_head_v2_payload_is_never_consumed_as_bound_evidence() {
 /// It must be refused, naming the index.
 #[test]
 fn history_refuses_a_legacy_record_after_a_declared_one() {
-    use praxis_core::receipt_record::{ChainStanding, ChainVerification};
+    use ggen_engine::receipt_chain_seam::{ChainStanding, ChainVerification};
 
     let dir = TempDir::new().expect("tempdir");
     scaffold(dir.path(), &["alice"]);
@@ -1082,7 +1148,7 @@ fn history_refuses_a_legacy_record_after_a_declared_one() {
     assert!(err.contains("chain-rule downgrade"), "{err}");
     assert!(err.contains("FM-CHAIN-007"), "{err}");
 
-    let _ = CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::from_path(ggen_bin())
         .args(["receipt", "history"])
         .current_dir(dir.path())
         .run()
@@ -1103,7 +1169,7 @@ fn history_refuses_a_legacy_record_after_a_declared_one() {
 /// untouched by the refused sync.
 #[test]
 fn sync_and_verify_refuse_a_downgraded_head_after_a_declared_record() {
-    use praxis_core::receipt_record::{ChainStanding, ChainVerification};
+    use ggen_engine::receipt_chain_seam::{ChainStanding, ChainVerification};
 
     let dir = TempDir::new().expect("tempdir");
     scaffold(dir.path(), &["alice"]);
@@ -1185,7 +1251,7 @@ fn history_refuses_a_duplicated_record() {
         ggen_engine::verbs::handlers::handle_receipt_history_in(dir.path()).is_err(),
         "in-process history must refuse the duplicate"
     );
-    let _ = CliHarness::cargo_bin("ggen")
+    let _ = CliHarness::from_path(ggen_bin())
         .args(["receipt", "history"])
         .current_dir(dir.path())
         .run()

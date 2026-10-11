@@ -45,3 +45,6 @@ now guarantees this pack's sync refuses to admit a state where the two sibling
 packs' hand-maintained copies have silently diverged, closing the actual risk named
 above. The underlying hand-maintained duplication itself is unchanged.
 """
+
+[capabilities]
+provides = ["urn:ggen:pack:wasm4pm-breed-provenance-pack"]

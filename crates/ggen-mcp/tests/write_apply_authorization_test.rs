@@ -3,6 +3,7 @@
 //! the resulting receipt's `origin` field (CP37) -- an ordinary external-MCP
 //! call and the bounded unattended dispatcher produce distinguishable
 //! receipts, not identical ones.
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)] // Chicago TDD: real-IO tests
 
 use ggen_mcp::tools::sync_dry_run::{sync_dry_run, SyncDryRunParams};
 use ggen_mcp::tools::unattended_dispatch::{

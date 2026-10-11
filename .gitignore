@@ -1080,3 +1080,6 @@ crates/pm4pytest-cli/tests/fixtures/
 _build/
 _build-lane*/
 target-lane*/
+.oclnr-cache/
+.oclnr-cache/
+erl_crash.dump

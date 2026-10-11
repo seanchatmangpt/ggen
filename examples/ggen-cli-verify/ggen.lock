@@ -2,4 +2,4 @@
 
 [packs.chicago-tdd-tools-pack]
 source = "path:../../packs/chicago-tdd-tools-pack"
-content_hash = "blake3:b722238941b5b4fb775b148f8676ce290c3ec3b52e190d6fea21421458a60377"
+content_hash = "blake3:4dbdd8424cfed6da2013a82036a4d851ba716b28295d745b4160cb9b6d472cdd"

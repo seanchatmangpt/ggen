@@ -27,16 +27,14 @@ use std::{
     time::Instant,
 };
 
-use praxis_core::{
-    receipt_epoch::{
+use crate::receipt_chain_seam::{
+    epoch::{
         read_receipt_epoch, AdmissionDecision, AdmissionItem, AdmissionLedger, AndonLevel,
         CeilingLevel, ComponentLevels, EquivalenceMap, EquivalenceStatus, ObservedOutcome,
         ReceiptEpochV2, ReceiptEpochV2Builder, SCHEMA_V2,
     },
-    receipt_record::{
-        ChainStanding, ChainVerification, ReceiptRecord, CHAIN_RULE_V2_FOLD, RECEIPT_RECORD_VERSION,
-    },
-    Andon,
+    Andon, ChainStanding, ChainVerification, ReceiptRecord, CHAIN_RULE_V2_FOLD,
+    RECEIPT_RECORD_VERSION,
 };
 use serde::Serialize;
 use tera::Value;
@@ -49,7 +47,7 @@ use crate::{
         DeterministicGraph, EngineQueryResults, EngineValue, GraphEngine, GraphLawStore,
         TurtleDocument,
     },
-    template::{build_tera, sparql_to_value, Frontmatter, MatchSpec, Template},
+    template::{build_tera_with_packs, sparql_to_value, Frontmatter, MatchSpec, Template},
     write::{
         plan_write, preflight_checksum_slot, preflight_structured_matchers, validate_match_specs,
         WriteOutcome, MAX_OUTPUT_BYTES,
@@ -70,7 +68,7 @@ pub enum EngineKind {
 
 /// Construct a fresh, empty graph engine for `kind`.
 ///
-/// Shared by [`sync`]'s Stage 1 and [`crate::generation_rules::run`]'s
+/// Shared by [`sync`]'s Stage 1 and `crate::generation_rules::run`'s
 /// Resolve stage, which previously each matched on [`EngineKind`]
 /// independently (byte-identical duplication) — this is the one
 /// authoritative construction point.
@@ -86,7 +84,7 @@ pub fn new_graph_engine(kind: EngineKind) -> Result<Arc<dyn GraphEngine>> {
 
 /// Read one ontology Turtle file relative to `root`, returning
 /// `(label, content)` where `label` is `path`'s root-relative display form
-/// (the same label [`sync`]'s and [`crate::generation_rules::run`]'s input
+/// (the same label [`sync`]'s and `crate::generation_rules::run`'s input
 /// closures key ontology entries by).
 ///
 /// Shared by both `ggen.toml` schemas' ontology-source and
@@ -109,6 +107,93 @@ pub fn read_ontology_file(root: &Path, path: &Path) -> Result<(String, String)> 
     Ok((rel_display(root, path), content))
 }
 
+/// Absorb the declarative manifest's optional `[rules]` section
+/// (v26.10.10 §4.1: `rules.n3` / `rules.datalog`) into the declarative-rules
+/// pipeline's existing law stage. Runs at Stage 0, before
+/// `crate::generation_rules::run` — the one shared dispatch point every
+/// `GgenManifest` passes through.
+///
+/// Semantics:
+/// - Absent `[rules]`, or both lists empty: a strict no-op — the manifest is
+///   byte-for-byte unchanged, so pre-`[rules]` projects drift by zero.
+/// - `[rules].datalog`: every entry is routed through
+///   [`crate::generation_rules::resolve_rule_sources`], which refuses with
+///   the typed UNSUPPORTED text (ggen-engine has no Datalog text parser this
+///   release) — surfaced here as a typed `[FM-LAW-019]` sync refusal, never
+///   a silent skip.
+/// - `[rules].n3`: every entry is resolved (readability + extension checked
+///   through the same seam) and then appended, in declaration order, to
+///   `manifest.law.rules`. The declarative path's law stage — the exact
+///   `GraphEngine::{load_rules, materialize, check_denials}` stage
+///   `sync`'s frontmatter path already runs — then forward-chains the rules
+///   over the loaded ontology facts and folds the derived triples back into
+///   the graph *before* any `[[generation.rules]]` SPARQL query, so
+///   inference is visible to template rendering. A fired `=> false` denial
+///   fuse surfaces from that same stage as the existing `[FM-LAW-016]`
+///   refusal naming the `DENIED: … => false.` fuse line — a fired fuse is a
+///   refusal, never a warning.
+/// - Rule files land in the sync receipt's input closure (the law stage
+///   hashes every loaded rule path), so editing a declared rule changes the
+///   receipt even when outputs are unchanged.
+///
+/// # Errors
+/// Fails closed with `[FM-LAW-019]` on an unreadable `[rules]` path or any
+/// `[rules].datalog` entry.
+fn absorb_manifest_rules(
+    root: &Path, manifest: &mut ggen_config::manifest::GgenManifest,
+) -> Result<()> {
+    let Some(rules) = manifest.rules.take() else {
+        return Ok(());
+    };
+    if rules.n3.is_empty() && rules.datalog.is_empty() {
+        return Ok(());
+    }
+    let as_strings = |paths: &[std::path::PathBuf]| -> Vec<String> {
+        paths
+            .iter()
+            .map(|p| p.to_string_lossy().into_owned())
+            .collect()
+    };
+    // Datalog first or second would both be correct; n3 is resolved first so
+    // an unreadable n3 path is not masked by (or masked as) a datalog
+    // refusal when both sections carry problems.
+    if let Err(e) = crate::generation_rules::resolve_rule_sources(root, &as_strings(&rules.n3)) {
+        return Err(rule_source_refusal(&e));
+    }
+    if let Err(e) = crate::generation_rules::resolve_rule_sources(root, &as_strings(&rules.datalog))
+    {
+        return Err(rule_source_refusal(&e));
+    }
+    manifest.law.rules.extend(rules.n3);
+    Ok(())
+}
+
+/// Map a [`crate::generation_rules::RuleSourceError`] onto sync's typed
+/// `[FM-LAW-019]` refusal shape, preserving the UNSUPPORTED wording for the
+/// Datalog case.
+fn rule_source_refusal(e: &crate::generation_rules::RuleSourceError) -> AppError {
+    match e {
+        crate::generation_rules::RuleSourceError::DatalogUnsupported { path } => AppError::fm_law(
+            19,
+            format!(
+                "UNSUPPORTED: [rules].datalog entry `{}` refused — ggen-engine has no \
+                 Datalog text parser this release (graphlaw exposes N3 only). \
+                 Remediation: translate the rules to N3 and declare them under \
+                 [rules].n3.",
+                path.display()
+            ),
+        ),
+        crate::generation_rules::RuleSourceError::Unreadable { path, reason } => AppError::fm_law(
+            19,
+            format!(
+                "rule file `{}` unreadable: {reason}. Remediation: fix [rules].n3 in \
+                 ggen.toml.",
+                path.display()
+            ),
+        ),
+    }
+}
+
 /// Options controlling a [`sync`] run.
 #[derive(Debug, Clone, Copy, Default)]
 pub struct SyncOptions {
@@ -118,7 +203,7 @@ pub struct SyncOptions {
     pub engine: EngineKind,
     /// Gall CP37-38: provenance tag threaded onto the resulting receipt's
     /// `ReceiptRecord::origin` (descriptive only, never part of the chain
-    /// hash — see `praxis_core::receipt_record::ReceiptRecord::origin`'s own
+    /// hash — see `ReceiptRecord::origin`'s own (graphlaw-backed via `crate::receipt_chain_seam`)
     /// doc comment). `None` (the default) for the ordinary human/LLM-
     /// reviewed path; `Some("unattended-dispatch")` set only by
     /// `ggen-mcp`'s bounded unattended-write dispatcher
@@ -144,7 +229,7 @@ pub struct SyncReport {
     /// BLAKE3 hex of the post-Enrich canonical graph state.
     pub graph_hash_hex: String,
     /// Root-relative output path → write decision ("written", "injected",
-    /// "skipped: <reason>").
+    /// `"skipped: <reason>"`).
     pub decisions: BTreeMap<String, String>,
     /// Pack name → BLAKE3 hex of the pack's content hash.
     pub packs: BTreeMap<String, String>,
@@ -224,6 +309,12 @@ pub struct ReceiptPayload {
     /// receipt even when the rendered outputs happen to be byte-identical.
     #[serde(default)]
     pub closure: BTreeMap<String, String>,
+    /// Build provenance BLAKE3 hex of the `ggen-engine` binary that
+    /// produced this receipt (see [`crate::build_provenance`]). Additive;
+    /// absent (serialized as nothing) only when deserialized from a
+    /// pre-provenance receipt.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub build_provenance: Option<String>,
 }
 
 /// Run the five-stage pipeline rooted at `root` (the directory containing
@@ -258,7 +349,8 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
     // error).
     let parsed = crate::schema_dispatch::load(root)?;
     let config = match parsed {
-        crate::schema_dispatch::ParsedGgenToml::DeclarativeRules(manifest) => {
+        crate::schema_dispatch::ParsedGgenToml::DeclarativeRules(mut manifest) => {
+            absorb_manifest_rules(root, &mut manifest)?;
             return crate::generation_rules::run(root, &manifest, opts);
         }
         crate::schema_dispatch::ParsedGgenToml::Frontmatter(config) => *config,
@@ -810,6 +902,94 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
         duration_ms(validate_start.elapsed()),
     );
 
+    // ── Stage 2c: EA Graph (ABB/SBB) & Depgraph Admission ──────────────
+    //
+    // If an EA graph (strategy/capabilities/abbs/contracts/sbbs/qualifications)
+    // is declared in the project, admit every candidate SBB against the
+    // architecture contract before proceeding to template rendering.
+    // In addition, if packs define [graph] dependencies or ports, resolve
+    // cross-pack DAG, cycles, and port completeness.
+    {
+        // 1. Pack-level dependency/port resolution
+        let mut pack_manifests = Vec::new();
+        for pack in &packs {
+            let manifest_path = pack.root.join("pack.toml");
+            if manifest_path.is_file() {
+                if let Ok(content) = std::fs::read_to_string(&manifest_path) {
+                    if let Ok(pm) = ggen_abb_sbb::depgraph::extract_pack_manifest(&content) {
+                        pack_manifests.push(pm);
+                    }
+                }
+            }
+        }
+        if !pack_manifests.is_empty() {
+            let consumer_edges = if manifest_path.is_file() {
+                std::fs::read_to_string(&manifest_path).ok().and_then(|c| {
+                    ggen_abb_sbb::depgraph::extract_consumer_edges(&c)
+                        .ok()
+                        .flatten()
+                })
+            } else {
+                None
+            };
+            ggen_abb_sbb::depgraph::resolve_sync_order(&pack_manifests, consumer_edges.as_ref())
+                .map_err(|refusal| {
+                    AppError::fm_pack(
+                        15,
+                        format!("Cross-pack dependency graph admission refused: {refusal}"),
+                    )
+                })?;
+        }
+
+        // 2. EA graph admission: if ea.graph.json exists or is embedded
+        let ea_graph_path = root.join("ea.graph.json");
+        if ea_graph_path.is_file() {
+            let content = std::fs::read_to_string(&ea_graph_path).map_err(|e| {
+                AppError::fm_law(
+                    15,
+                    format!(
+                        "ea.graph.json at `{}` unreadable: {e}",
+                        ea_graph_path.display()
+                    ),
+                )
+            })?;
+            let ea_graph = ggen_abb_sbb::parse_graph(&content).map_err(|refusal| {
+                AppError::fm_law(
+                    15,
+                    format!(
+                        "EA graph at `{}` malformed: {refusal}",
+                        ea_graph_path.display()
+                    ),
+                )
+            })?;
+            // Validate graph integrity
+            ea_graph.validate().map_err(|refusal| {
+                AppError::fm_law(
+                    15,
+                    format!(
+                        "EA graph at `{}` failed validation: {refusal}",
+                        ea_graph_path.display()
+                    ),
+                )
+            })?;
+            // Admit every candidate SBB defined in the graph
+            for sbb in &ea_graph.candidate_sbbs {
+                let req = ggen_abb_sbb::Request {
+                    abb: sbb.abb.clone(),
+                    sbb: sbb.id.clone(),
+                    requested_authority: ggen_abb_sbb::Authority::Construct,
+                    expected_graph_digest: None,
+                };
+                ggen_abb_sbb::admit(&ea_graph, &req).map_err(|refusal| {
+                    AppError::fm_law(
+                        15,
+                        format!("EA SBB admission refused for `{}`: {refusal}", sbb.id),
+                    )
+                })?;
+            }
+        }
+    }
+
     let graph_hash_hex = hex32(&graph.state_hash()?);
 
     // ── Stages 3–4: Extract, Render every template into memory ──────────
@@ -829,7 +1009,7 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
     );
     let generate_guard = generate_span.enter();
 
-    let mut tera = build_tera(Arc::clone(&graph))?;
+    let mut tera = build_tera_with_packs(Arc::clone(&graph), &packs)?;
 
     // ── Consumer-mode emission filter (OS-13, WP-5 consumer half) ───────
     //
@@ -883,7 +1063,7 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
         let mut overlay_tera_slot;
         let (active_graph, active_tera): (&Arc<dyn GraphEngine>, &mut tera::Tera) = match &overlay {
             Some(og) => {
-                overlay_tera_slot = build_tera(Arc::clone(og))?;
+                overlay_tera_slot = build_tera_with_packs(Arc::clone(og), &packs)?;
                 (og, &mut overlay_tera_slot)
             }
             None => (&graph, &mut tera),
@@ -2397,8 +2577,12 @@ fn admit_shape_files(
                 ),
             )
         })?;
+        // resolve_target canonicalizes (e.g. /tmp -> /private/tmp on macOS),
+        // so strip against the canonicalized root or the key leaks the
+        // absolute path and the closure map stops being project-relative.
+        let closure_root = root.canonicalize().unwrap_or_else(|_| root.to_path_buf());
         closure.insert(
-            rel_display(root, &shape_path),
+            rel_display(&closure_root, &shape_path),
             blake3::hash(&bytes).to_hex().to_string(),
         );
         let text = String::from_utf8(bytes).map_err(|error| {
@@ -2977,7 +3161,7 @@ fn read_prev_head(receipt_path: &Path, log_path: &Path) -> Result<Option<SyncRec
 /// record in the receipt log declares a chain rule, a legacy head is a
 /// downgrade (e.g. a fold-sealed head re-sealed under the base rule with
 /// its declaration stripped). Same law as
-/// `praxis_core::receipt_record::ChainRuleMonotonicity`, applied at the
+/// `ChainRuleMonotonicity` (graphlaw-backed via `crate::receipt_chain_seam`), applied at the
 /// head-only call sites (`ggen sync`'s write path and `ggen receipt
 /// verify`) so they fail closed exactly where `ggen receipt history` does.
 ///
@@ -3290,6 +3474,7 @@ pub(crate) fn write_receipt(
         packs: report.packs.clone(),
         decisions: report.decisions.clone(),
         closure: report.closure.clone(),
+        build_provenance: Some(crate::build_provenance::BUILD_PROVENANCE_HEX.to_string()),
     };
     let payload_bytes = serde_json::to_vec(&payload)?;
     let payload_hash_hex = blake3::hash(&payload_bytes).to_hex().to_string();
@@ -3864,7 +4049,8 @@ pub(crate) fn write_receipt(
 
 /// Escape a plain string for embedding in a Turtle `"..."` literal
 /// (backslash and double-quote only — the values this is used for, hex
-/// hashes and a `{:?}`-formatted [`praxis_core::Andon`], never contain
+/// hashes and a `{:?}`-formatted [`Andon`] (graphlaw-backed via
+/// `crate::receipt_chain_seam`), never contain
 /// literal newlines in the sync-writer's own output, but escaping is
 /// unconditional rather than assumed).
 fn turtle_escape(s: &str) -> String {

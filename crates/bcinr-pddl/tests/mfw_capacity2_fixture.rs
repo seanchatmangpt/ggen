@@ -56,6 +56,13 @@
 //! slot indices chosen to line up by construction — not through any real
 //! bridge, because none exists.
 
+// TECH-DEBT-002: `mfw-planner` is deliberately absent from bcinr-pddl's
+// `[features]` (dropped in PR #255), so this cfg is "unexpected" — the same
+// pre-existing gap justfile's clippy `-A unexpected_cfgs` carve-out covers.
+
+// Chicago TDD (.claude/rules/rust/testing.md): unwrap/expect/panic allowed in test code.
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+#![allow(unexpected_cfgs)]
 #![cfg(feature = "mfw-planner")]
 
 use std::collections::BTreeMap;

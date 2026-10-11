@@ -12,6 +12,7 @@ use clap_noun_verb::{NounVerbError, Result};
 use crate::config::GgenConfig;
 use crate::error::AppError;
 use crate::graph::{DeterministicGraph, GraphEngine, TurtleDocument};
+use crate::receipt_chain_seam as receipt_record;
 use crate::sync::{sync, SyncOptions, SyncReceipt, RECEIPT_LOG_REL_PATH, RECEIPT_REL_PATH};
 
 /// Resolve the project root: the process working directory.
@@ -97,7 +98,7 @@ pub fn handle_sync_run(
 ///   touched in this mode — validating arbitrary user Turtle is not linting
 ///   the project's own codegen templates. When `shapes` is non-empty, every
 ///   `files` target is additionally SHACL-validated against the union of
-///   all `shapes` graphs (see [`validate_files`]); with `shapes` empty this
+///   all `shapes` graphs (see `validate_files`); with `shapes` empty this
 ///   branch is byte-for-byte the pre-`--shapes` (parse-only) behavior.
 ///
 /// `files`/`shapes` are each transported as a repeatable option (published
@@ -444,7 +445,7 @@ pub fn handle_receipt_verify_in(root: &std::path::Path) -> Result<serde_json::Va
     //    check runs -- `recompute_chain_hash`'s `build_admission_frame`
     //    construction is only guaranteed to match the emission path for the
     //    version it was built against.
-    if receipt.record.version != praxis_core::receipt_record::RECEIPT_RECORD_VERSION {
+    if receipt.record.version != receipt_record::RECEIPT_RECORD_VERSION {
         return Err(exec_err(AppError::fm_chain(
             12,
             format!(
@@ -452,7 +453,7 @@ pub fn handle_receipt_verify_in(root: &std::path::Path) -> Result<serde_json::Va
                  {}). Remediation: re-sync with a matching ggen version, or upgrade/downgrade \
                  to a binary that supports this receipt's schema version.",
                 receipt.record.version,
-                praxis_core::receipt_record::RECEIPT_RECORD_VERSION
+                receipt_record::RECEIPT_RECORD_VERSION
             ),
         )));
     }
@@ -481,8 +482,8 @@ pub fn handle_receipt_verify_in(root: &std::path::Path) -> Result<serde_json::Va
         .verify_chain()
         .map_err(|e| exec_err(AppError::fm_chain(14, e.to_string())))?
     {
-        praxis_core::receipt_record::ChainVerification::Verified(standing) => standing,
-        praxis_core::receipt_record::ChainVerification::Mismatch { rule, recomputed } => {
+        receipt_record::ChainVerification::Verified(standing) => standing,
+        receipt_record::ChainVerification::Mismatch { rule, recomputed } => {
             let stored_chain_hash = &receipt.record.chain_hash_hex;
             let recomputed_hex = crate::sync::hex32(&recomputed);
             return Err(exec_err(AppError::fm_chain(
@@ -501,7 +502,7 @@ pub fn handle_receipt_verify_in(root: &std::path::Path) -> Result<serde_json::Va
     // 2b. Chain-rule downgrade guard (FM-CHAIN-009): a legacy head is lawful
     //     only when no record in the log declared a chain rule -- the same
     //     monotonicity law `receipt history` applies record by record.
-    if chain_standing == praxis_core::receipt_record::ChainStanding::LegacyV2Unbound {
+    if chain_standing == receipt_record::ChainStanding::LegacyV2Unbound {
         let log_path = root.join(RECEIPT_LOG_REL_PATH);
         if let Some(first) =
             crate::sync::first_declared_chain_rule_in_log(&log_path, 14).map_err(exec_err)?
@@ -513,7 +514,7 @@ pub fn handle_receipt_verify_in(root: &std::path::Path) -> Result<serde_json::Va
                      but receipt log record {first} declared a chain rule. Remediation: the \
                      head was re-sealed under the legacy base rule -- restore from `receipt \
                      history`/git.",
-                    praxis_core::receipt_record::ChainStanding::LegacyV2Unbound.as_str()
+                    receipt_record::ChainStanding::LegacyV2Unbound.as_str()
                 ),
             )));
         }
@@ -657,19 +658,19 @@ pub fn handle_receipt_history_in(root: &std::path::Path) -> Result<serde_json::V
     let mut legacy_v2_unbound = 0usize;
     // Chain-rule downgrade guard: a legacy base-rule record is lawful only
     // in the pre-F1 prefix, never after a record that declared its rule.
-    let mut rule_monotonicity = praxis_core::receipt_record::ChainRuleMonotonicity::new();
+    let mut rule_monotonicity = receipt_record::ChainRuleMonotonicity::new();
     for (idx, (receipt, line)) in receipts.iter().enumerate() {
         // 0. Schema version: refuse a record whose schema this binary
         //    doesn't know how to interpret before trusting any hash it
         //    carries (mirrors `handle_receipt_verify`'s check 0).
-        if receipt.record.version != praxis_core::receipt_record::RECEIPT_RECORD_VERSION {
+        if receipt.record.version != receipt_record::RECEIPT_RECORD_VERSION {
             return Err(exec_err(AppError::fm_chain(
                 7,
                 format!(
                     "history invalid at index {idx}: unsupported receipt schema version {} \
                      (this binary supports {})",
                     receipt.record.version,
-                    praxis_core::receipt_record::RECEIPT_RECORD_VERSION
+                    receipt_record::RECEIPT_RECORD_VERSION
                 ),
             )));
         }
@@ -694,7 +695,7 @@ pub fn handle_receipt_history_in(root: &std::path::Path) -> Result<serde_json::V
                 format!("history invalid at index {idx}: chain recompute failed: {e}"),
             ))
         })? {
-            praxis_core::receipt_record::ChainVerification::Verified(standing) => {
+            receipt_record::ChainVerification::Verified(standing) => {
                 rule_monotonicity
                     .observe(idx, &receipt.record, standing)
                     .map_err(|e| {
@@ -703,11 +704,11 @@ pub fn handle_receipt_history_in(root: &std::path::Path) -> Result<serde_json::V
                             format!("history invalid at index {idx}: {e}"),
                         ))
                     })?;
-                if standing == praxis_core::receipt_record::ChainStanding::LegacyV2Unbound {
+                if standing == receipt_record::ChainStanding::LegacyV2Unbound {
                     legacy_v2_unbound += 1;
                 }
             }
-            praxis_core::receipt_record::ChainVerification::Mismatch { rule, recomputed } => {
+            receipt_record::ChainVerification::Mismatch { rule, recomputed } => {
                 let recomputed_hex = crate::sync::hex32(&recomputed);
                 return Err(exec_err(AppError::fm_chain(
                     7,

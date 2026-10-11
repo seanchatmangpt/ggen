@@ -3,9 +3,11 @@
 # package (also "ggen"), already published on crates.io. See
 # docs/jira/v26.7.16/01-PUBLISH-SAFETY-AND-CRATE-RENAME.md. This crate is a
 # vendored copy (not a live path dependency back to ~/praxis) and must never
-# be published under any name from this workspace.
+# be published under the colliding "ggen" name. Publishable under
+# "ggen-engine" since the praxis-core/praxis-graphlaw path deps retired
+# (SJIRA-15, 2026-10-09).
 name = "ggen-engine"
-version = "26.10.9"                       # CalVer YY.M.patch
+version = "26.10.10"                      # CalVer YY.M.patch
 edition = "2021"
 rust-version = "1.82"
 authors = ["Sean Chatman <xpointsh@gmail.com>"]
@@ -20,7 +22,7 @@ readme = "README.md"
 keywords = ["codegen", "rdf", "sparql", "tera"]
 categories = ["development-tools"]
 exclude = ["/.github", "/fixtures", "/docs"]
-publish = false
+publish = true
 # `main.rs`/the clap-noun-verb CLI-dispatch layer are not built here -- see
 # the `verbs` module comment in src/lib.rs. Without autobins = false, Cargo
 # would still auto-discover src/main.rs as an implicit `ggen-engine` binary
@@ -82,7 +84,7 @@ notify-debouncer-full = "0.6"
 serde_yaml = "0.9"
 regex = "1"
 semver = "1.0" # pack.toml [dependencies] version requirement admission
-star-toml = "26.7.3"
+star-toml = { workspace = true }
 # Direct dep purely for structural (AST-level) pre-flight query inspection
 # in `graph::DeterministicGraph::query()` (GRAPH/SERVICE-clause detection,
 # specs/014-ggen-core-replacement Phase 7): oxigraph 0.5.9 depends on this
@@ -93,20 +95,20 @@ star-toml = "26.7.3"
 # Pinned to the exact version oxigraph 0.5.9 already resolves (see
 # Cargo.lock) so this never becomes a duplicate-version dependency graph.
 spargebra = "0.4.7"
-praxis-core = { path = "../praxis-core" }
-praxis-graphlaw = { path = "../praxis-graphlaw" }
+graphlaw = { workspace = true }
+ggen-abb-sbb = { path = "../ggen-abb-sbb", version = "26.10.10" }
 # New, deliberate edge (not an undocumented re-export): resolving a `GenerationRule`'s
 # `QuerySource::Pack`/`TemplateSource::Pack` variant means asking "where is this pack
 # installed" -- that knowledge lives in ggen-marketplace's pack registry/lockfile after
 # docs/jira/v26.7.16/06-MARKETPLACE-PACK-REGISTRY-MERGE.md's merge (risk 1). Directionally
 # safe: ggen-marketplace has no dependency back on this crate.
-ggen-marketplace = { path = "../ggen-marketplace" }
+ggen-marketplace = { path = "../ggen-marketplace", version = "26.10.10" }
 # New, deliberate edge (specs/014-ggen-core-replacement, T070): `crate::generation_rules`
 # consumes `ggen_config::manifest::GgenManifest`/`GenerationRule`/`QuerySource`/
 # `TemplateSource`/`GenerationMode` to run the declarative `[[generation.rules]]` sync path
 # alongside (not replacing) the existing frontmatter-per-template-file convention. Directionally
 # safe: ggen-config has no dependency back on this crate.
-ggen-config = { path = "../ggen-config", version = "26.7.4" }
+ggen-config = { path = "../ggen-config", version = "26.10.10" }
 # Raw pre-parse of ggen.toml (`crate::generation_rules::has_generation_rules`) to decide, before
 # any typed parse, whether a project's ggen.toml belongs to this module's declarative-rules
 # schema or `crate::config::GgenConfig`'s frontmatter schema -- same version ggen-config itself
@@ -124,6 +126,11 @@ clap-noun-verb = { workspace = true }
 clap-noun-verb-macros = { workspace = true }
 linkme = "0.3" # required by clap-noun-verb's #[verb] for distributed verb registration
 Inflector = "0.11.4"
+
+# Build-time provenance hashing (build.rs): BLAKE3 over commit SHA +
+# strata pack digests + ontology triple count.
+[build-dependencies]
+blake3 = "1"
 
 [dev-dependencies]
 chicago-tdd-tools = { workspace = true, features = ["cli-proof"] }

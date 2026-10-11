@@ -17,16 +17,16 @@ pub struct ErrorEnhancer;
 impl ErrorEnhancer {
     /// Generate a helpful error message with fix suggestions
     pub fn enhance_error(err: &GgenError, context: &ErrorContext) -> String {
-        let mut msg = format!("❌ Error: {}\n\n", err);
+        let mut msg = format!("❌ Error: {err}\n\n");
 
         // Context-aware suggestions
         if let Some(suggestion) = Self::suggest_fix(err, context) {
-            msg.push_str(&format!("💡 Suggestion: {}\n\n", suggestion));
+            msg.push_str(&format!("💡 Suggestion: {suggestion}\n\n"));
         }
 
         // Show related documentation
         if let Some(doc_link) = Self::get_doc_link(context) {
-            msg.push_str(&format!("📚 Documentation: {}\n", doc_link));
+            msg.push_str(&format!("📚 Documentation: {doc_link}\n"));
         }
 
         msg
@@ -86,12 +86,11 @@ impl CodeHints {
         let function_path = verb.domain_function.as_deref().unwrap_or(&default_path);
 
         format!(
-            "/// Domain function reference: `{}`\n\
+            "/// Domain function reference: `{function_path}`\n\
              /// Expected signature:\n\
              /// ```rust\n\
              /// pub async fn execute(input: Input) -> Result<Output>;\n\
-             /// ```",
-            function_path
+             /// ```"
         )
     }
 

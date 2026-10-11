@@ -1,5 +1,6 @@
 //! Chicago TDD for the read-only introspection tools: real `TempDir`, real
 //! `ggen.toml`, real ontology, real templates. No mocks.
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)] // Chicago TDD: real-IO tests
 
 mod common;
 
@@ -422,4 +423,107 @@ fn capability_status_reasons_name_the_field_and_say_not_implemented() {
         );
         assert_eq!(entry.code, "FM-GEN-007");
     }
+}
+
+/// A project whose referenced packs (resolved project-locally under
+/// `<root>/packs/`) carry `[capabilities]` gets an additive `capabilities`
+/// object: unioned provides/requires, `unsatisfied` = requires not covered
+/// by the union of provides across those same referenced packs.
+#[test]
+fn capability_status_surfaces_capabilities_for_annotated_packs() {
+    let dir = tempfile::tempdir().expect("tempdir");
+    let root = dir.path();
+    std::fs::create_dir_all(root.join("packs/mcs-provider-pack")).expect("mkdir pack");
+    std::fs::write(
+        root.join("packs/mcs-provider-pack/pack.toml"),
+        "[name]\nvalue = \"provider\"\n\n[capabilities]\nprovides = \
+         [\"urn:ggen:mcs:cap-shared\", \"urn:ggen:mcs:cap-only\"]\n",
+    )
+    .expect("write provider pack.toml");
+    std::fs::create_dir_all(root.join("packs/mcs-consumer-pack")).expect("mkdir pack");
+    std::fs::write(
+        root.join("packs/mcs-consumer-pack/pack.toml"),
+        "[name]\nvalue = \"consumer\"\n\n[capabilities]\nprovides = \
+         [\"urn:ggen:mcs:cap-consumer\"]\nrequires = \
+         [\"urn:ggen:mcs:cap-shared\", \"urn:ggen:mcs:cap-missing\"]\n",
+    )
+    .expect("write consumer pack.toml");
+    let toml = r#"
+[project]
+name = "cap-demo"
+
+[[generation.rules]]
+name = "uses-provider"
+query = { inline = "SELECT ?name WHERE { ?s <http://example.org/hasName> ?name }" }
+template = { pack = "mcs-provider-pack", file = "tpl.tera" }
+output_file = "out/a.txt"
+
+[[generation.rules]]
+name = "uses-consumer"
+query = { inline = "SELECT ?name WHERE { ?s <http://example.org/hasName> ?name }" }
+template = { pack = "mcs-consumer-pack", file = "tpl.tera" }
+output_file = "out/b.txt"
+"#;
+    std::fs::write(root.join("ggen.toml"), toml).expect("write ggen.toml");
+    std::fs::write(root.join("ontology.ttl"), common::ONTOLOGY).expect("write ontology");
+
+    let got = capability_status(&CapabilityStatusParams {
+        root: root.display().to_string(),
+    })
+    .expect("capability status");
+
+    let caps = got
+        .capabilities
+        .expect("capabilities object must be present");
+    assert_eq!(
+        caps.provides,
+        vec![
+            "urn:ggen:mcs:cap-consumer".to_string(),
+            "urn:ggen:mcs:cap-only".to_string(),
+            "urn:ggen:mcs:cap-shared".to_string(),
+        ]
+    );
+    assert_eq!(
+        caps.requires,
+        vec![
+            "urn:ggen:mcs:cap-missing".to_string(),
+            "urn:ggen:mcs:cap-shared".to_string(),
+        ]
+    );
+    // cap-shared is provided by the provider pack; cap-missing by nobody
+    // in the project's referenced set.
+    assert_eq!(
+        caps.unsatisfied,
+        vec!["urn:ggen:mcs:cap-missing".to_string()]
+    );
+    assert_eq!(
+        caps.annotated_packs,
+        vec![
+            "mcs-consumer-pack".to_string(),
+            "mcs-provider-pack".to_string()
+        ]
+    );
+}
+
+/// A project with no `[capabilities]` on any referenced pack must NOT emit
+/// the key at all -- absence, not null -- so pre-capability JSON consumers
+/// stay byte-stable.
+#[test]
+fn capability_status_omits_capabilities_key_when_no_pack_is_annotated() {
+    let dir = tempfile::tempdir().expect("tempdir");
+    write_frontmatter_project(dir.path());
+    let got = capability_status(&CapabilityStatusParams {
+        root: dir.path().display().to_string(),
+    })
+    .expect("capability status");
+
+    assert!(got.capabilities.is_none(), "no annotated pack => None");
+    let json = serde_json::to_string(&got).expect("serialize");
+    assert!(
+        !json.contains("capabilities"),
+        "key must be absent from the wire JSON, got: {json}"
+    );
+    // Backward compat: the original fields are still all present.
+    assert!(got.ok);
+    assert!(!got.inert_fields.is_empty());
 }

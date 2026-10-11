@@ -46,6 +46,7 @@ fn make_tool(
     // an empty `{}` input schema (which `unwrap_or_default` would do,
     // making the tool accept -- or reject -- arguments with no real
     // validation).
+    #[allow(clippy::panic)] // fail-loud startup invariant (see comment below)
     let object = schema.as_object().cloned().unwrap_or_else(|| {
         panic!("tool {name:?}'s schemars-derived schema must be a JSON object, got {schema:?}")
     });
@@ -219,7 +220,7 @@ tool_defs! {
     "ggen_receipt_verify" => (
         tools::receipt_verify::ReceiptVerifyParams,
         read_only("Verify a sync receipt's chain hash and signature"),
-        "Read `.ggen-v2/receipt.json`, recompute the BLAKE3 chain hash via praxis-core, \
+        "Read `.ggen-v2/receipt.json`, recompute the BLAKE3 chain hash via graphlaw's receipt chain, \
          and check the ed25519 signature when present. Reports `valid:false` (never an \
          error) plus the engine's own refusal message and, when the message embeds one, \
          a typed `fm_code` (a `FM-CHAIN-0NN`-shaped code) on a tampered or malformed \
@@ -551,6 +552,7 @@ impl ServerHandler for GgenMcpServer {
 }
 
 #[cfg(test)]
+#[allow(clippy::expect_used, clippy::panic)] // Chicago TDD: real-IO tests
 mod tests {
     use super::*;
 

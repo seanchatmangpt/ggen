@@ -9,6 +9,7 @@
 //!
 //! A red team wanting a green suite that tests nothing would arrange exactly
 //! that. These tests measure real coverage and fail if it collapses.
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)] // Chicago TDD: real-IO tests
 
 use std::path::{Path, PathBuf};
 

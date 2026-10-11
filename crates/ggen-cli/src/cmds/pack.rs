@@ -6,6 +6,8 @@
 use clap_noun_verb::{NounVerbError, Result};
 use clap_noun_verb_macros::verb;
 use serde::Serialize;
+use serde_json::json;
+use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
 
 use ggen_marketplace::marketplace::install::{install_pack_by_id, InstallByIdInput};
@@ -123,14 +125,17 @@ pub struct InstallOutput {
 
 /// Add (install) a pack by name
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn add(#[arg(index = 1)] pack_name: String, force: bool) -> Result<AddOutput> {
     validate_pack_name(&pack_name)?;
     // Verify the pack exists before attempting installation
     if let Err(e) = load_pack_metadata(&pack_name) {
         return Err(NounVerbError::execution_error(format!(
-            "Pack '{}' not found in local registry: {}. \
-             Ensure marketplace/packs/{}.toml exists.",
-            pack_name, e, pack_name
+            "Pack '{pack_name}' not found in local registry: {e}. \
+             Ensure marketplace/packs/{pack_name}.toml exists."
         )));
     }
 
@@ -143,10 +148,10 @@ pub fn add(#[arg(index = 1)] pack_name: String, force: bool) -> Result<AddOutput
     };
 
     let install_result = crate::runtime::block_on(install_pack_by_id(&input)).map_err(|e| {
-        NounVerbError::execution_error(format!("Failed to install pack '{}': {}", pack_name, e))
+        NounVerbError::execution_error(format!("Failed to install pack '{pack_name}': {e}"))
     })?;
     let output = install_result.map_err(|e| {
-        NounVerbError::execution_error(format!("Failed to install pack '{}': {}", pack_name, e))
+        NounVerbError::execution_error(format!("Failed to install pack '{pack_name}': {e}"))
     })?;
 
     // The install only reaches here on success. Emit a provenance receipt that
@@ -169,8 +174,7 @@ pub fn add(#[arg(index = 1)] pack_name: String, force: bool) -> Result<AddOutput
     let receipt_path = crate::cmds::packs_receipt::generate_pack_install_receipt(&closure)
         .map_err(|e| {
             NounVerbError::execution_error(format!(
-                "Pack '{}' installed but receipt emission failed: {}",
-                pack_name, e
+                "Pack '{pack_name}' installed but receipt emission failed: {e}"
             ))
         })?;
 
@@ -191,13 +195,17 @@ pub fn add(#[arg(index = 1)] pack_name: String, force: bool) -> Result<AddOutput
 
 /// Remove an installed pack
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn remove(#[arg(index = 1)] pack_name: String) -> Result<RemoveOutput> {
     validate_pack_name(&pack_name)?;
 
     // Step 1: Resolve lock_path
     let lock_path = std::env::current_dir()
         .map_err(|e| {
-            NounVerbError::execution_error(format!("Cannot resolve project directory: {}", e))
+            NounVerbError::execution_error(format!("Cannot resolve project directory: {e}"))
         })?
         .join(".ggen")
         .join("packs.lock");
@@ -211,13 +219,12 @@ pub fn remove(#[arg(index = 1)] pack_name: String) -> Result<RemoveOutput> {
 
     // Step 3: Load lockfile
     let mut lockfile = PackLockfile::from_file(&lock_path)
-        .map_err(|e| NounVerbError::execution_error(format!("Failed to load lockfile: {}", e)))?;
+        .map_err(|e| NounVerbError::execution_error(format!("Failed to load lockfile: {e}")))?;
 
     // Step 4: Check if pack exists in lockfile
     if lockfile.get_pack(&pack_name).is_none() {
         return Err(NounVerbError::execution_error(format!(
-            "Pack '{}' is not installed",
-            pack_name
+            "Pack '{pack_name}' is not installed"
         )));
     }
 
@@ -226,7 +233,7 @@ pub fn remove(#[arg(index = 1)] pack_name: String) -> Result<RemoveOutput> {
 
     if pack_dir.exists() {
         std::fs::remove_dir_all(&pack_dir).map_err(|e| {
-            NounVerbError::execution_error(format!("Failed to remove pack directory: {}", e))
+            NounVerbError::execution_error(format!("Failed to remove pack directory: {e}"))
         })?;
     }
 
@@ -236,8 +243,7 @@ pub fn remove(#[arg(index = 1)] pack_name: String) -> Result<RemoveOutput> {
     // Step 7: Save lockfile
     lockfile.save(&lock_path).map_err(|e| {
         NounVerbError::execution_error(format!(
-            "Failed to save lockfile (partial removal may have occurred): {}",
-            e
+            "Failed to save lockfile (partial removal may have occurred): {e}"
         ))
     })?;
 
@@ -245,18 +251,21 @@ pub fn remove(#[arg(index = 1)] pack_name: String) -> Result<RemoveOutput> {
         pack_name: pack_name.clone(),
         status: "removed".to_string(),
         message: format!(
-            "Pack '{}' removed successfully. \
-             Run `ggen pack list` to see remaining installed packs.",
-            pack_name
+            "Pack '{pack_name}' removed successfully. \
+             Run `ggen pack list` to see remaining installed packs."
         ),
     })
 }
 
 /// List all available packs
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn list(verbose: bool, category: Option<String>) -> Result<ListOutput> {
     let packages = list_packs(None)
-        .map_err(|e| NounVerbError::execution_error(format!("Failed to list packs: {}", e)))?;
+        .map_err(|e| NounVerbError::execution_error(format!("Failed to list packs: {e}")))?;
 
     let is_verbose = verbose;
     let filtered_packages: Vec<_> = if let Some(cat) = category.as_ref() {
@@ -297,9 +306,13 @@ pub fn list(verbose: bool, category: Option<String>) -> Result<ListOutput> {
 
 /// Show detailed pack information
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn show(#[arg(index = 1)] pack_id: String) -> Result<ShowOutput> {
     let detail = show_pack(&pack_id).map_err(|e| {
-        NounVerbError::execution_error(format!("Failed to get pack '{}': {}", pack_id, e))
+        NounVerbError::execution_error(format!("Failed to get pack '{pack_id}': {e}"))
     })?;
 
     let dependencies: Vec<String> = detail
@@ -326,6 +339,10 @@ pub fn show(#[arg(index = 1)] pack_id: String) -> Result<ShowOutput> {
 
 /// Search for packs
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn search(#[arg(index = 1)] query: String, limit: Option<usize>) -> Result<SearchOutput> {
     if let Some(0) = limit {
         return Err(NounVerbError::argument_error(
@@ -334,7 +351,7 @@ pub fn search(#[arg(index = 1)] query: String, limit: Option<usize>) -> Result<S
     }
     let results = perform_search(&query, limit)?;
     let total = results.len();
-    log::info!("Found {} result(s) for '{}'", total, query);
+    log::info!("Found {total} result(s) for '{query}'");
 
     Ok(SearchOutput {
         query,
@@ -362,6 +379,10 @@ pub fn search(#[arg(index = 1)] query: String, limit: Option<usize>) -> Result<S
 // version) is skipped with a warning, not treated as a fatal error for the
 // whole batch -- see `local_pack_to_marketplace_package`'s own doc comment.
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn related(
     #[arg(index = 1)] seed: String, by_category: bool, limit: Option<usize>,
 ) -> Result<RelatedOutput> {
@@ -371,7 +392,7 @@ pub fn related(
         ));
     }
     perform_related_search(seed, by_category, limit.unwrap_or(20))
-        .map_err(|e| NounVerbError::execution_error(format!("{}", e)))
+        .map_err(|e| NounVerbError::execution_error(format!("{e}")))
 }
 
 /// Run a raw SPARQL query over pack RDF facts
@@ -390,9 +411,13 @@ pub fn related(
 // this same file: the clap-noun-verb macro derives `--help` text from the doc comment, and a
 // long `///` block here leaked this whole rationale into `ggen pack --help`'s one-line listing.
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn query(#[arg(index = 1)] sparql: String, pack_id: Option<String>) -> Result<QueryOutput> {
     let outcome = run_pack_query(&sparql, pack_id.as_deref())
-        .map_err(|e| NounVerbError::execution_error(format!("{}", e)))?;
+        .map_err(|e| NounVerbError::execution_error(format!("{e}")))?;
 
     Ok(QueryOutput {
         scope: outcome.scope,
@@ -432,6 +457,10 @@ pub fn query(#[arg(index = 1)] sparql: String, pack_id: Option<String>) -> Resul
 // block leaked this whole rationale into `ggen pack --help`'s subcommand listing, out of step
 // with sibling verbs' one-line summaries.
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn doctor() -> Result<serde_json::Value> {
     let cache_dir = resolve_cache_dir()?;
     let lock_path = resolve_lockfile_path()?;
@@ -472,7 +501,7 @@ fn pack_doctor_report(
     };
 
     let message = if healthy {
-        format!("OK: {} packs cached, lockfile valid", pack_count)
+        format!("OK: {pack_count} packs cached, lockfile valid")
     } else {
         format!("FAIL: {}", checks.join("; "))
     };
@@ -531,17 +560,14 @@ fn lockfile_check(lock_path: &std::path::Path) -> std::result::Result<(String, u
     }
 
     let lockfile =
-        PackLockfile::from_file(lock_path).map_err(|e| format!("packs.lock unreadable: {}", e))?;
+        PackLockfile::from_file(lock_path).map_err(|e| format!("packs.lock unreadable: {e}"))?;
     let pack_count = lockfile.packs.len();
     lockfile
         .validate()
-        .map_err(|e| format!("packs.lock invalid: {}", e))?;
+        .map_err(|e| format!("packs.lock invalid: {e}"))?;
 
     Ok((
-        format!(
-            "packs.lock valid: {} pack(s), no dependency violations",
-            pack_count
-        ),
+        format!("packs.lock valid: {pack_count} pack(s), no dependency violations"),
         pack_count,
     ))
 }
@@ -550,7 +576,7 @@ fn lockfile_check(lock_path: &std::path::Path) -> std::result::Result<(String, u
 fn resolve_lockfile_path() -> Result<PathBuf> {
     Ok(std::env::current_dir()
         .map_err(|e| {
-            NounVerbError::execution_error(format!("Cannot resolve project directory: {}", e))
+            NounVerbError::execution_error(format!("Cannot resolve project directory: {e}"))
         })?
         .join(".ggen")
         .join("packs.lock"))
@@ -562,7 +588,7 @@ fn resolve_lockfile_path() -> Result<PathBuf> {
 
 fn perform_search(query: &str, limit: Option<usize>) -> Result<Vec<SearchResult>> {
     let packages = list_packs(None)
-        .map_err(|e| NounVerbError::execution_error(format!("Failed to list packages: {}", e)))?;
+        .map_err(|e| NounVerbError::execution_error(format!("Failed to list packages: {e}")))?;
 
     let query_lower = query.to_lowercase();
     let max = limit.unwrap_or(20);
@@ -601,8 +627,7 @@ fn perform_related_search(
 ) -> ggen_marketplace::marketplace::error::Result<RelatedOutput> {
     let local_packs = list_packs(None).map_err(|e| {
         ggen_marketplace::marketplace::error::Error::SearchError(format!(
-            "Failed to list packages: {}",
-            e
+            "Failed to list packages: {e}"
         ))
     })?;
 
@@ -648,11 +673,7 @@ fn perform_related_search(
     let total = results.len();
 
     log::info!(
-        "Found {} pack(s) related to '{}' by {} (considered {} local packs)",
-        total,
-        seed,
-        mode,
-        considered
+        "Found {total} pack(s) related to '{seed}' by {mode} (considered {considered} local packs)"
     );
 
     Ok(RelatedOutput {
@@ -743,6 +764,10 @@ fn ttl_escape(s: &str) -> String {
 /// copy embedded in the `ggen` binary, so project-local edits to the
 /// constructor are honored).
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn new(
     #[arg(index = 1)] pack_name: String, description: Option<String>, namespace: Option<String>,
     version: Option<String>, category: Option<String>,
@@ -907,4 +932,341 @@ fn relocate_dir(from: &Path, to: &Path) -> std::io::Result<()> {
         std::fs::rename(entry.path(), &dest)?;
     }
     std::fs::remove_dir_all(from)
+}
+
+// ============================================================================
+// Capability Surfacing (SJIRA-261010-08)
+// ============================================================================
+
+/// The two real pack corpora, searched in order: the ggen-marketplace pack
+/// registry first, then ggen's own in-repo packs. One directory per pack,
+/// each holding a `pack.toml`.
+const CAPABILITY_CORPUS_ROOTS: [&str; 2] =
+    ["/Users/sac/ggen-marketplace/packs", "/Users/sac/ggen/packs"];
+
+/// Effective corpus roots. Defaults to [`CAPABILITY_CORPUS_ROOTS`]; the
+/// `GGEN_CAPABILITY_CORPUS_ROOTS` env var (colon-separated) overrides it so
+/// integration tests can point the verb at a real temp corpus without
+/// touching the shared on-disk corpora.
+fn corpus_roots() -> Vec<PathBuf> {
+    match std::env::var("GGEN_CAPABILITY_CORPUS_ROOTS") {
+        Ok(spec) if !spec.is_empty() => spec
+            .split(':')
+            .filter(|s| !s.is_empty())
+            .map(PathBuf::from)
+            .collect(),
+        _ => CAPABILITY_CORPUS_ROOTS.iter().map(PathBuf::from).collect(),
+    }
+}
+
+/// Locate `<root>/<name>/pack.toml` across the effective corpus roots
+/// ([`corpus_roots`]), marketplace first.
+fn find_pack_toml(name: &str) -> Option<PathBuf> {
+    corpus_roots().into_iter().find_map(|root| {
+        let candidate = root.join(name).join("pack.toml");
+        candidate.is_file().then_some(candidate)
+    })
+}
+
+/// Declared `[capabilities]` of one pack.toml: `provides`/`requires` URN
+/// lists. `None` means the key is honestly absent (the pack predates the
+/// annotation pass), not zero capabilities.
+#[derive(Debug, Default, serde::Deserialize)]
+struct DeclaredCapabilities {
+    #[serde(default)]
+    provides: Vec<String>,
+    #[serde(default)]
+    requires: Vec<String>,
+}
+
+/// Extract the declared capability surface from a pack.toml, tolerating
+/// absence and any other top-level tables.
+///
+/// Corpus reality (2026-10-09 annotation pass, verified over the live
+/// corpora): `provides` lives under `[capabilities]` while `requires` was
+/// written as a bare `requires = [...]` line preceding the `[capabilities]`
+/// table — which, TOML-wise, lands INSIDE the still-open `[pack]` table.
+/// All three placements are read (`[capabilities].requires` > top-level >
+/// `[pack].requires`); a pack with neither `[capabilities]` nor any
+/// `requires` has no declared capability surface (`None`).
+fn parse_capabilities(path: &Path) -> Result<Option<DeclaredCapabilities>> {
+    let content = std::fs::read_to_string(path).map_err(|e| {
+        NounVerbError::execution_error(format!("Failed to read {}: {}", path.display(), e))
+    })?;
+    let value: toml::Value = star_toml::from_str(&content).map_err(|e| {
+        NounVerbError::execution_error(format!("Failed to parse {}: {}", path.display(), e))
+    })?;
+    let caps_table = value.get("capabilities");
+    let provides: Vec<String> = caps_table
+        .and_then(|c| c.get("provides"))
+        .and_then(|p| p.clone().try_into().ok())
+        .unwrap_or_default();
+    let requires: Vec<String> = value
+        .get("requires")
+        .or_else(|| caps_table.and_then(|c| c.get("requires")))
+        .or_else(|| value.get("pack").and_then(|p| p.get("requires")))
+        .and_then(|r| r.clone().try_into().ok())
+        .unwrap_or_default();
+    if caps_table.is_none() && requires.is_empty() {
+        return Ok(None);
+    }
+    Ok(Some(DeclaredCapabilities { provides, requires }))
+}
+
+/// Live-scan every annotated pack across both corpora. Returns pack name ->
+/// (provides, requires), sorted by name (`BTreeMap`) so output is
+/// deterministic. Packs without `[capabilities]` are skipped — they
+/// contribute no provides and no requires.
+fn scan_corpus_capabilities() -> Result<BTreeMap<String, DeclaredCapabilities>> {
+    let mut scanned = BTreeMap::new();
+    for root in corpus_roots() {
+        let entries = std::fs::read_dir(&root).map_err(|e| {
+            NounVerbError::execution_error(format!(
+                "Failed to read pack corpus root {}: {}",
+                root.display(),
+                e
+            ))
+        })?;
+        for entry in entries.flatten() {
+            let pack_toml = entry.path().join("pack.toml");
+            if !pack_toml.is_file() {
+                continue;
+            }
+            let name = entry.file_name().to_string_lossy().to_string();
+            if let Some(caps) = parse_capabilities(&pack_toml)? {
+                scanned.insert(name, caps);
+            }
+        }
+    }
+    Ok(scanned)
+}
+
+/// Surface the declared capability surface of one pack against a live scan
+/// of every annotated pack in both corpora.
+///
+/// Returns `{ name, provides, requires, satisfied_by }` where `satisfied_by`
+/// maps each required URN to the sorted list of pack names whose `provides`
+/// cover it. An unknown pack is a typed error naming both searched roots; a
+/// pack without `[capabilities]` returns `{ name, capabilities: null }` —
+/// honest absence, not an error.
+#[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
+pub fn capabilities(#[arg(index = 1)] name: String) -> Result<serde_json::Value> {
+    use serde_json::json;
+
+    let pack_path = find_pack_toml(&name).ok_or_else(|| {
+        NounVerbError::execution_error(format!(
+            "Pack '{}' not found in any corpus root: {}",
+            name,
+            corpus_roots()
+                .iter()
+                .map(|p| p.display().to_string())
+                .collect::<Vec<_>>()
+                .join(", ")
+        ))
+    })?;
+
+    let Some(caps) = parse_capabilities(&pack_path)? else {
+        return Ok(json!({ "name": name, "capabilities": null }));
+    };
+
+    let corpus = scan_corpus_capabilities()?;
+    capability_report(&name, &caps, corpus)
+}
+
+/// Domain logic for `pack capabilities`: two-tier FM-PACK-018 satisfaction
+/// reporting (mirrors `ggen-engine::pack::validate_capability_requirements`,
+/// adjudication H2 2026-10-09). Split out of the `#[verb] capabilities()`
+/// function to satisfy the CLI layer's Poka-Yoke verb complexity guard
+/// (FM-1.1, max complexity 5).
+///
+/// Tier 1 — URN-form requires (`urn:ggen:pack:<name>`) are satisfied iff the
+/// declared pack universe contains `<name>`; Tier 2 — non-URN requires are
+/// satisfied iff a provider exists inside the subject's transitive declared-
+/// dependency closure. Ambient providers are never admitted for Tier 2. The
+/// verb reports; it never refuses — refusal is sync's job.
+fn capability_report(
+    name: &str, caps: &DeclaredCapabilities, corpus: BTreeMap<String, DeclaredCapabilities>,
+) -> Result<serde_json::Value> {
+    use serde_json::json;
+
+    // ggen-engine::pack::validate_capability_requirements, adjudication H2
+    // 2026-10-09): Tier 1 — URN-form requires (`urn:ggen:pack:<name>`) are
+    // satisfied iff the declared pack universe contains <name>; Tier 2 —
+    // non-URN requires are satisfied iff a provider exists inside the
+    // subject's transitive declared-dependency closure. Ambient providers
+    // are never admitted for Tier 2. The verb reports; it never refuses —
+    // refusal is sync's job.
+    let mut universe: std::collections::BTreeSet<&str> =
+        corpus.keys().map(String::as_str).collect();
+    universe.insert(name);
+
+    // Declared dependency edges (name -> dependency names) over the universe.
+    let mut dep_edges: BTreeMap<String, Vec<String>> = BTreeMap::new();
+    for corpus_name in std::iter::once(name).chain(universe.iter().copied()) {
+        if dep_edges.contains_key(corpus_name) {
+            continue;
+        }
+        if let Some(path) = find_pack_toml(corpus_name) {
+            dep_edges.insert(corpus_name.to_string(), parse_dependencies(&path)?);
+        }
+    }
+
+    // Transitive declared-dependency closure of the subject (BFS, universe-
+    // restricted; deterministic because manifests use BTreeMap).
+    let mut closure: std::collections::BTreeSet<String> = std::collections::BTreeSet::new();
+    let mut frontier = vec![name.to_string()];
+    while let Some(current) = frontier.pop() {
+        for dep in dep_edges.get(&current).into_iter().flatten() {
+            if universe.contains(dep.as_str()) && closure.insert(dep.clone()) {
+                frontier.push(dep.clone());
+            }
+        }
+    }
+    let mut closure_provides: std::collections::BTreeSet<&str> =
+        caps.provides.iter().map(String::as_str).collect();
+    for pack_name in closure.iter().chain(std::iter::once(&name.to_string())) {
+        if let Some(c) = corpus.get(pack_name.as_str()) {
+            closure_provides.extend(c.provides.iter().map(String::as_str));
+        }
+    }
+
+    let mut satisfied_by = BTreeMap::new();
+    let mut requirements = Vec::new();
+    for require in &caps.requires {
+        let providers: Vec<&String> = corpus
+            .iter()
+            .filter(|(_, c)| c.provides.iter().any(|p| p == require))
+            .map(|(name, _)| name)
+            .collect();
+        let is_urn = require.starts_with("urn:ggen:pack:");
+        let (tier, satisfied) = if is_urn {
+            let provider = require.trim_start_matches("urn:ggen:pack:").trim();
+            ("urn-declaration", universe.contains(provider))
+        } else {
+            (
+                "dependency-closure",
+                closure_provides.contains(require.as_str()),
+            )
+        };
+        satisfied_by.insert(require.clone(), providers);
+        requirements.push(json!({
+            "require": require,
+            "tier": tier,
+            "satisfied": satisfied,
+        }));
+    }
+
+    Ok(json!({
+        "name": name,
+        "provides": caps.provides,
+        "requires": caps.requires,
+        "satisfied_by": satisfied_by,
+        "requirements": requirements,
+    }))
+}
+
+/// Extract the declared dependency names from a pack.toml `[dependencies]`
+/// table (keys only — versions are not needed for closure computation).
+/// Absence yields an empty list, never an error.
+fn parse_dependencies(path: &Path) -> Result<Vec<String>> {
+    let content = std::fs::read_to_string(path).map_err(|e| {
+        NounVerbError::execution_error(format!("Failed to read {}: {}", path.display(), e))
+    })?;
+    let value: toml::Value = star_toml::from_str(&content).map_err(|e| {
+        NounVerbError::execution_error(format!("Failed to parse {}: {}", path.display(), e))
+    })?;
+    Ok(value
+        .get("dependencies")
+        .and_then(|d| d.as_table())
+        .map(|t| t.keys().cloned().collect())
+        .unwrap_or_default())
+}
+
+/// Load one named pack from the corpus roots via `pack_file_from_dir`.
+fn load_corpus_pack(name: &str) -> Result<ggen_marketplace::packs_registry::types::PackFile> {
+    let pack_toml = find_pack_toml(name).ok_or_else(|| {
+        NounVerbError::execution_error(format!(
+            "Pack '{}' not found in any corpus root: {}",
+            name,
+            CAPABILITY_CORPUS_ROOTS.join(", ")
+        ))
+    })?;
+    ggen_marketplace::packs_registry::metadata::pack_file_from_dir(pack_toml.parent().ok_or_else(
+        || {
+            NounVerbError::execution_error(format!(
+                "Pack '{}' resolved to a path with no parent directory: {}",
+                name,
+                pack_toml.display()
+            ))
+        },
+    )?)
+    .map_err(|e| NounVerbError::execution_error(format!("Failed to load pack '{name}': {e}")))
+}
+
+/// Compose a set of named packs into a deterministic composition plan.
+///
+/// Resolves each named pack against the same corpus roots as
+/// `ggen pack capabilities` (marketplace first, then /Users/sac/ggen/packs),
+/// runs the deterministic composition kernel
+/// (`ggen_marketplace::packs_registry::composer::compose`) over the set, and
+/// returns the plan as JSON:
+/// `{ pack_ids, provides, order, artifact_paths, self_satisfied }`.
+/// Typed refusals (duplicate capability, unbound requirement, duplicate
+/// artifact path, cyclic dependencies) surface as the verb's error — non-zero
+/// exit with the refusal text on stderr, never a panic. Duplicate names in
+/// the input are a typed error before the kernel runs.
+#[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
+///
+/// `--packs` accumulates repeated occurrences (`--packs a --packs b` yields
+/// both); the explicit `action = "append"` is required because clap-noun-verb
+/// 26.9.1 only auto-infers Append from `#[arg(multiple)]`, not from a bare
+/// `Vec<T>` parameter type — without it the flag falls back to Set and
+/// silently keeps only the first occurrence (comma form still works via the
+/// runtime's Vec split).
+pub fn compose(#[arg(action = "append")] packs: Vec<String>) -> Result<serde_json::Value> {
+    use serde_json::json;
+
+    // Duplicate input names: the kernel compares by pack id set, so the same
+    // name twice would silently compose as one — refuse here instead.
+    let mut seen = std::collections::BTreeSet::new();
+    for name in &packs {
+        if !seen.insert(name.as_str()) {
+            return Err(NounVerbError::execution_error(format!(
+                "duplicate pack '{name}' in composition input; each pack may appear at most once"
+            )));
+        }
+    }
+
+    let mut pack_files = Vec::with_capacity(packs.len());
+    for name in &packs {
+        pack_files.push(load_corpus_pack(name)?);
+    }
+
+    let plan =
+        ggen_marketplace::packs_registry::composer::compose(&pack_files).map_err(|refusal| {
+            NounVerbError::execution_error(format!("composition refused: {refusal}"))
+        })?;
+
+    // PackCompositionPlan is not Serialize (marketplace-owned struct); project
+    // it to JSON here so the wire shape stays CLI-owned. The kernel's
+    // topological `order` has unstable tie-breaks among dependency-free packs
+    // (nondeterministic across identical runs), so canonicalize it here:
+    // sorted ascending. Determinism of the wire output is a CLI contract.
+    let mut order = plan.order;
+    order.sort();
+    Ok(json!({
+        "pack_ids": plan.pack_ids,
+        "provides": plan.provides,
+        "order": order,
+        "artifact_paths": plan.artifact_paths,
+        "self_satisfied": plan.self_satisfied,
+    }))
 }

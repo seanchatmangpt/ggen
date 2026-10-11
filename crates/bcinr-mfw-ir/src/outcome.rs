@@ -44,10 +44,9 @@ pub enum PlannerOutcome<T> {
     Inconsistent(InconsistencyWitness),
 }
 
-/// The non-`Found` half of `PlannerOutcome<T>`, as a standalone error type
-/// for `Result`-based call sites. Carries exactly the same witnesses as the
-/// `PlannerOutcome` variant it came from — `into_result` does not summarize
-/// or discard any witness field.
+/// The non-`Found` half of `PlannerOutcome<T>`, as a standalone error type for `Result`-based call
+///
+/// sites. Carries exactly the same witnesses as the `PlannerOutcome` variant it came from — `into_result` does not summarize or discard any witness field.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum PlannerFailure {
     Exhausted(ExhaustionWitness),
@@ -136,9 +135,8 @@ pub struct BoundHit {
 }
 
 /// A named, free-text feature that a stage refuses (by design) to support.
-/// `feature_name` is intentionally a free string rather than an enum here:
-/// pddl-specific feature enums (e.g. a `PddlFeature`) live in `bcinr-pddl`,
-/// not in this crate, so producers pass their own `Debug`/`Display` string.
+///
+/// `feature_name` is intentionally a free string rather than an enum here: pddl-specific feature enums (e.g. a `PddlFeature`) live in `bcinr-pddl`, not in this crate, so producers pass their own `Debug`/`Display` string.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct UnsupportedFeature {
     pub feature_name: String,

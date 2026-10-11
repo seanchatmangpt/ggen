@@ -1,4 +1,4 @@
-use lsp_max::{EvalBudget, Rule, RulePack};
+use lsp_max::rule_pack_server::{EvalBudget, Rule, RulePack};
 
 /// Rule pack `cheat-tests@1.0.0` v1.0.0 — compiled from lsp.ttl.
 /// Rules baked into the binary; no runtime TOML loading.
@@ -12,7 +12,7 @@ pub fn pack() -> RulePack {
                 id:            "ANTI-LLM-VERSION-001".to_string(),
                 name:          "no-default-version".to_string(),
                 severity:      "warning".to_string(),
-                pattern:       "version = [\\x22]1\\.0\\.0[\\x22]".to_string(),
+                pattern:       "version = [\x22]1[.]0[.]0[\x22]".to_string(),
                 message:       "Default template version '1.0.0' found in project configuration".to_string(),
                 rationale:     "Default versions indicate a project was never properly versioned".to_string(),
                 eval_budget:   EvalBudget::Sync,

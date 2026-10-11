@@ -1,0 +1,10 @@
+---
+to: docs/receipt-26.10.10-publish-dod.md
+sparql:
+  row: |
+    PREFIX grp: <http://seanchatmangpt.github.io/packs/ggen-release#>
+    SELECT ?body WHERE {
+      grp:PublishDodReceiptArtifact grp:artifactBody ?body .
+    } ORDER BY ?body
+---
+{{ body }}

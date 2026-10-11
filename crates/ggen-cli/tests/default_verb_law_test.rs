@@ -1,4 +1,4 @@
-#![allow(clippy::unwrap_used, clippy::expect_used)]
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)] // Chicago TDD: real-IO tests
 //! G6 evidence for the "products" row: default-verb compatibility law.
 //!
 //! Mission brief asked for the pass/fail state of

@@ -11,8 +11,11 @@
 use std::fs;
 use std::path::Path;
 
-use praxis_core::receipt_epoch::{read_receipt_epoch, AndonLevel, CeilingLevel, MigrationReceipt};
-use praxis_core::receipt_record::ReceiptRecord;
+use ggen_engine::receipt_chain_seam::epoch::{read_receipt_epoch, AndonLevel, CeilingLevel};
+// MigrationReceipt, graphlaw-backed through the seam (praxis-core
+// retirement: no direct praxis_core imports remain).
+use ggen_engine::receipt_chain_seam::epoch::MigrationReceipt;
+use ggen_engine::receipt_chain_seam::ReceiptRecord;
 use serde_json::Value;
 
 const RECEIPT_LOG_PATH: &str = "../../.ggen-v2/receipt-log.jsonl";
@@ -71,7 +74,7 @@ fn replaying_this_repos_own_real_receipt_chain_twice_is_deterministic() {
     let records = load_real_records();
     let boundary = records
         .iter()
-        .position(|r| r.schema == praxis_core::receipt_epoch::SCHEMA_V2)
+        .position(|r| r.schema == ggen_engine::receipt_chain_seam::epoch::SCHEMA_V2)
         .expect("this repo's real log contains at least one v2 record");
     assert!(
         boundary > 0,

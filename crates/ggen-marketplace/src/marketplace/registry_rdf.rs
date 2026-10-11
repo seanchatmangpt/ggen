@@ -78,7 +78,7 @@ impl RdfRegistry {
     ///
     /// # Errors
     ///
-    /// * [`Error::RdfStoreError`] - When the on-disk store cannot be opened
+    /// * `Error::RdfStoreError` - When the on-disk store cannot be opened
     ///   (e.g. permissions, corruption, or another process holding an
     ///   exclusive lock on it)
     pub fn open(path: impl AsRef<std::path::Path>) -> Result<Self> {

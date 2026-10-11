@@ -1,0 +1,10 @@
+[[rules]]
+id         = "ANTI-LLM-RECEIPT-001"
+name       = "no-test-result-as-receipt"
+severity   = "error"
+pattern    = 'test result: ok'
+message    = "Test stdout treated as receipt — test output is not a cryptographically signed receipt"
+rationale  = "receipts require Ed25519 signature and BLAKE3 input/output hashes"
+eval_budget = "sync"
+path_globs   = []
+exclude_globs = []

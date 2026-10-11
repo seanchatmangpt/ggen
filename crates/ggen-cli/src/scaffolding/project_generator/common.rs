@@ -41,6 +41,10 @@
 use crate::error::{GgenError, Result};
 use std::path::Path;
 
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 /// Validates project name
 pub fn validate_project_name(name: &str) -> Result<()> {
     if name.is_empty() {
@@ -75,6 +79,10 @@ pub fn validate_project_name(name: &str) -> Result<()> {
     Ok(())
 }
 
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 /// Checks if a directory is empty
 pub fn is_directory_empty(path: &Path) -> Result<bool> {
     if !path.exists() {
@@ -82,7 +90,7 @@ pub fn is_directory_empty(path: &Path) -> Result<bool> {
     }
 
     let entries = std::fs::read_dir(path)
-        .map_err(|e| GgenError::FileError(format!("Failed to read directory: {}", e)))?;
+        .map_err(|e| GgenError::FileError(format!("Failed to read directory: {e}")))?;
 
     Ok(entries.count() == 0)
 }

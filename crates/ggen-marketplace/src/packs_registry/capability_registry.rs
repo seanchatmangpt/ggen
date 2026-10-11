@@ -9,6 +9,10 @@
 
 use crate::packs_registry::metadata::load_pack_metadata;
 
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 /// Resolve a capability triple (surface, projection, runtime) to a list of
 /// real marketplace pack IDs.
 ///
@@ -52,10 +56,9 @@ pub fn resolve_capability_to_packs(
         // Unknown surface
         _ => {
             return Err(format!(
-                "Unknown capability surface '{}'. \
+                "Unknown capability surface '{surface}'. \
                  Available surfaces: mcp, compliance-soc2, web, devops, \
-                 data-science, startup, enterprise",
-                surface
+                 data-science, startup, enterprise"
             ));
         }
     };

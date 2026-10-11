@@ -61,20 +61,16 @@ runs:
 
     - name: Install cargo-cicd
       if: contains(inputs.tools, 'cicd')
-      # Pinned via --rev (was --branch main, a floating ref): this repo's own
-      # release gate depends on cargo-cicd's evidence-writer output shape and
-      # exit behavior, both of which live entirely in an external, ggen-
-      # uncontrolled repository. With a floating branch, any upstream push to
-      # cargo-cicd changes this workflow's behavior with zero ggen-side
-      # commit -- exactly the failure-cause-keeps-moving pattern behind
-      # retrofit:ReleaseGateBrokenForWeeks (.tcps/retrofit/ggen/load-path.ttl).
-      # Pinning makes a release-gate failure reproducible and attributable to
-      # a named, fixed external commit instead of "whatever main happens to
-      # be right now" -- bump this --rev deliberately when cargo-cicd ships a
-      # real fix, not as a side effect of CI re-running.
+      # Pinned to the crates.io release (was --rev on a git checkout, before
+      # that a floating branch): this repo's own release gate depends on
+      # cargo-cicd's evidence-writer output shape and exit behavior, both of
+      # which live in an external, ggen-uncontrolled repository. Pinning makes
+      # a release-gate failure reproducible and attributable to a named,
+      # fixed version -- bump this --version deliberately when cargo-cicd
+      # ships a real fix, not as a side effect of CI re-running.
       run: |
         for attempt in 1 2 3; do
-          cargo install --git https://github.com/seanchatmangpt/cargo-cicd cargo-cicd --rev 852a2d96550e6285b02245c054d3d4ac8c32198d --features autonomic,affidavit --locked && break
+          cargo install cargo-cicd --version 26.10.10 --features autonomic,affidavit --locked && break
           echo "cargo-cicd install attempt $attempt failed (likely crates.io HTTP flake), retrying in $((attempt * 8))s..."
           sleep $((attempt * 8))
         done

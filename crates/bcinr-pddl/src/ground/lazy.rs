@@ -418,8 +418,7 @@ impl IndexedGroundProblem {
                         next.insert(a.clone());
                     }
                     let sorted: Vec<Pddl8GroundAtom> = next.iter().cloned().collect();
-                    if !visited.contains(&sorted) {
-                        visited.insert(sorted);
+                    if visited.insert(sorted) {
                         let mut p2 = path.clone();
                         p2.push(i);
                         queue.push_back((next, p2));
@@ -579,9 +578,14 @@ fn try_extend(
 
 /// Fill every still-`None` parameter of `b` over its candidate list, pushing
 /// each complete binding (as IDs) to `out`.
+#[allow(clippy::expect_used)] // invariant: position(is_none) returned None, so every slot is Some
 fn expand_unbound(b: &Binding, plan: &SchemaPlan, out: &mut Vec<Vec<u32>>) {
     match b.iter().position(Option::is_none) {
-        None => out.push(b.iter().map(|o| o.unwrap()).collect()),
+        None => out.push(
+            b.iter()
+                .map(|o| o.expect("position(is_none) found no None"))
+                .collect(),
+        ),
         Some(pi) => {
             for &cand in &plan.cand_ids[pi] {
                 let mut nb = b.clone();

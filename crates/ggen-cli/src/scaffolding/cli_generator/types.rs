@@ -1,8 +1,8 @@
 //! Type definitions for CLI generation
 //!
-//! These types mirror ggen_ai::rdf::types but are defined here
+//! These types mirror `ggen_ai::rdf::types` but are defined here
 //! to avoid circular dependencies. When integrated, they should
-//! match the types in ggen-ai::rdf::types.
+//! match the types in `ggen-ai::rdf::types`.
 //!
 //! ## Features
 //!

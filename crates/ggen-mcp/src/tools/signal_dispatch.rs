@@ -1,8 +1,10 @@
 //! Gall CP39: the general dispatcher, scoped to route only into CP33's
+//!
 //! already-reviewed bounded path -- never a new, broader write path. Closes
 //! the "nothing consumes a pushed signal to trigger an action" gap named in
 //! the first-principles plan's item #1, without reopening item #2's
 //! rejected "any trigger -> any action" CP21 dispatcher.
+//!
 //!
 //! A signal (identified by its own code -- an `FM-*` sync-refusal code, or a
 //! `GGEN-*` diagnostic code) is routed by querying the CONSUMING PROJECT's
@@ -33,10 +35,12 @@ pub enum DispatchRoute {
 }
 
 /// Query `root/.specify/repo-facts.ttl` (if present) for the declared
+///
 /// `rf:dispatchRoute` of the `rf:DiagnosticCode` individual whose `rf:code`
 /// contains `signal_code` (substring match, since this repo's own facts
 /// wrap codes in markdown bold, e.g. `"**GGEN-TPL-001**"` -- matching by
 /// substring rather than requiring callers to know that formatting detail).
+///
 ///
 /// # Errors
 /// Only for a real Turtle parse failure on an EXISTING facts file (a
@@ -98,6 +102,7 @@ pub fn route_signal(signal_code: &str, root: &Path) -> Result<DispatchRoute, Mcp
 }
 
 #[cfg(test)]
+#[allow(clippy::expect_used)] // Chicago TDD: real tempdir/file IO
 mod tests {
     use super::*;
     use tempfile::TempDir;

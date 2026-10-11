@@ -2,9 +2,11 @@
 //! type-compatible objects instead of cross-producting every object against
 //! every parameter slot regardless of declared `:types`.
 
+// Chicago TDD (.claude/rules/rust/testing.md): unwrap/expect/panic allowed in test code.
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 use bcinr_pddl::{domain_from_pddl, problem_from_pddl, GroundProblem};
 
-const DOMAIN: &str = r#"
+const DOMAIN: &str = r"
 (define (domain typed-logistics)
   (:requirements :strips :typing)
   (:types package truck location)
@@ -24,9 +26,9 @@ const DOMAIN: &str = r#"
     :precondition (and (in ?pkg ?truck) (at ?truck ?loc))
     :effect (and (at ?pkg ?loc) (not (in ?pkg ?truck))))
 )
-"#;
+";
 
-const PROBLEM: &str = r#"
+const PROBLEM: &str = r"
 (define (problem typed-get-pkgs)
   (:domain typed-logistics)
   (:objects
@@ -38,7 +40,7 @@ const PROBLEM: &str = r#"
     (at truck1 loc_a) (at truck2 loc_a))
   (:goal (and (at pkg1 loc_b) (at pkg2 loc_b)))
 )
-"#;
+";
 
 #[test]
 fn typed_grounding_restricts_to_type_compatible_bindings() {

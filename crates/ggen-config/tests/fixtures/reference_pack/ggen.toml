@@ -1,0 +1,31 @@
+# REFERENCE PACK MANIFEST — DeclarativeRules schema (GgenManifest)
+# Copy this file as your pack's ggen.toml starting point.
+# See README.md in this directory for section-by-section guidance.
+
+[project]
+name = "reference-pack"
+version = "1.0.0"
+
+[ontology]
+source = "ontology.ttl"
+
+[[generation.rules]]
+name = "emit-greeting"
+query = { inline = "SELECT ?s ?label WHERE { ?s <http://example.org/ref#label> ?label }" }
+template = { inline = "// generated for {{ s }}: {{ label }}" }
+output_file = "src/generated/greeting.txt"
+
+[rules]
+n3 = ["rules.n3"]
+# Datalog entries are ACCEPTED by the schema but the engine REFUSES to
+# execute them (FM-LAW-019 UNSUPPORTED). Kept here to document that
+# contract; remove if you do not want the refusal at sync time.
+datalog = ["rules.datalog"]
+
+[pack_sources.core]
+source = "path"
+location = "../core-pack"
+
+[pack_sources.remote]
+source = "git"
+location = "https://example.com/pack.git"

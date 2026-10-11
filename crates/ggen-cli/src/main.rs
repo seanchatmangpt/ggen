@@ -12,7 +12,7 @@ async fn main() {
         }
         Err(e) => {
             // Error occurred - print error and exit with code 1
-            eprintln!("ERROR: {}", e);
+            eprintln!("ERROR: {e}");
             std::process::exit(1);
         }
     }

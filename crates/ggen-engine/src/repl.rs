@@ -1,8 +1,8 @@
 //! Interactive REPL for `ggen`.
 //!
 //! Enabled via the `repl` Cargo feature. Rebuild with `--features repl` to
-//! activate. Provides a [`Repl`] struct backed by [`rustyline`] with a
-//! [`ReplHelper`] that offers noun/verb tab-completion.
+//! activate. Provides a `Repl` struct backed by `rustyline` with a
+//! `ReplHelper` that offers noun/verb tab-completion.
 
 // ---------------------------------------------------------------------------
 // Quote-aware shell word splitter (always compiled)

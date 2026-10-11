@@ -1,0 +1,10 @@
+[[rules]]
+id         = "ANTI-LLM-TEST-001"
+name       = "no-static-scan-as-proof"
+severity   = "error"
+pattern    = 'static scan as route proof'
+message    = "Static scan substituted for route proof"
+rationale  = "Absence of bad strings does not prove mutation was safely routed"
+eval_budget = "sync"
+path_globs   = []
+exclude_globs = []

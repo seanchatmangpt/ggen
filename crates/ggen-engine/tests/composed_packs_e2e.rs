@@ -33,6 +33,56 @@ use chicago_tdd_tools::cli_proof::CliHarness;
 use support::{copy_tree, scaffold_multi_pack};
 use tempfile::TempDir;
 
+/// Resolve the real `ggen` binary the same way `cli_boundary.rs::ggen_bin`
+/// does: `CARGO_BIN_EXE_ggen` (set by `cargo test -p ggen-cli-lib`, never by
+/// `-p ggen-engine`/`-p ggen-cli` — the root package is `autobins = false`),
+/// then the workspace `target/{debug,release}/ggen`, then `PATH`. Panics
+/// (loudly) if no candidate resolves, so failure happens at binary
+/// resolution, not at first spawn.
+fn ggen_bin() -> std::path::PathBuf {
+    if let Ok(path) = std::env::var("CARGO_BIN_EXE_ggen") {
+        let p = std::path::PathBuf::from(path);
+        if p.exists() {
+            return p;
+        }
+    }
+
+    let target_root = std::env::var_os("CARGO_TARGET_DIR")
+        .map(std::path::PathBuf::from)
+        .or_else(|| {
+            let manifest_dir =
+                std::env::var_os("CARGO_MANIFEST_DIR").map(std::path::PathBuf::from)?;
+            let mut dir: &std::path::Path = manifest_dir.as_path();
+            loop {
+                if dir.join("Cargo.lock").exists() {
+                    return Some(dir.join("target"));
+                }
+                match dir.parent() {
+                    Some(p) => dir = p,
+                    None => return None,
+                }
+            }
+        });
+
+    if let Some(target) = target_root {
+        for profile in &["debug", "release"] {
+            let candidate = target.join(profile).join("ggen");
+            if candidate.is_file() {
+                return candidate;
+            }
+            let candidate_exe = target.join(profile).join("ggen.exe");
+            if candidate_exe.is_file() {
+                return candidate_exe;
+            }
+        }
+    }
+
+    panic!(
+        "could not resolve the `ggen` binary: CARGO_BIN_EXE_ggen unset and no \
+         target/debug/ggen found; build it with `cargo build -p ggen-cli-lib --bin ggen`"
+    );
+}
+
 /// The 30 composed packs (see module doc for provenance of each group).
 const COMPOSED_PACKS: [&str; 30] = [
     // 23 previously-proven framework packs
@@ -116,7 +166,7 @@ fn thirty_packs_compose_into_one_consumer() {
     let (_dir, project) = scaffold_composed_project();
 
     // (1) One sync over the union graph of all 30 packs succeeds.
-    let output = CliHarness::cargo_bin("ggen")
+    let output = CliHarness::from_path(ggen_bin())
         .args(["sync", "run"])
         .current_dir(&project)
         .run()
@@ -191,7 +241,7 @@ fn thirty_packs_compose_into_one_consumer() {
     // reports mode=Overwrite files as "written" even when identical, so the
     // proof is byte identity, not the written-count.)
     let before = tree_digest(&project);
-    let output2 = CliHarness::cargo_bin("ggen")
+    let output2 = CliHarness::from_path(ggen_bin())
         .args(["sync", "run"])
         .current_dir(&project)
         .run()
@@ -308,7 +358,7 @@ fn thirty_one_packs_compose_with_verify_gates_active() {
     assert_bootstrap_evidence(&project, &stub_bin, &bootstrap);
 
     // ── Phase 2: sync over the 31-pack union, verify gates ACTIVE ────────
-    let output = CliHarness::cargo_bin("ggen")
+    let output = CliHarness::from_path(ggen_bin())
         .args(["sync", "run"])
         .current_dir(&project)
         .run()
@@ -328,7 +378,7 @@ fn thirty_one_packs_compose_with_verify_gates_active() {
     // ── Phase 3: steady state — generated emitter re-run, resync green ───
     let (code, out) = run_script(&project, &stub_bin, &generated_emitter);
     assert_eq!(code, 0, "generated emitter must exit 0: {out}");
-    let output2 = CliHarness::cargo_bin("ggen")
+    let output2 = CliHarness::from_path(ggen_bin())
         .args(["sync", "run"])
         .current_dir(&project)
         .run()
@@ -381,7 +431,7 @@ fn assert_lock_covers_composed_packs(project: &Path) {
 /// with the same typed refusal, so the retry cannot mask a real gate break.
 fn assert_sabotage_refusal_is_fm_pack_013(project: &Path) {
     let run_sabotage = || {
-        CliHarness::cargo_bin("ggen")
+        CliHarness::from_path(ggen_bin())
             .args(["sync", "run"])
             .current_dir(project)
             .run()

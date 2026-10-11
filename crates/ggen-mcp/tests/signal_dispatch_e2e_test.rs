@@ -16,6 +16,7 @@
 //! function with the real code, observable via the real, shared
 //! `.ggen/unattended-dispatch-log.jsonl` audit log CP33 already writes to
 //! every attempt, not just successes.
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)] // Chicago TDD: real-IO tests
 
 use std::io::{BufRead, BufReader, Write};
 use std::process::{Child, ChildStdin, Command, Stdio};
@@ -111,7 +112,7 @@ impl McpClient {
         resp
     }
 
-    fn wait_for_sync_refusal_update(&mut self) -> Value {
+    fn wait_for_sync_refusal_update(&self) -> Value {
         loop {
             let frame = self
                 .rx

@@ -26,18 +26,34 @@ grp:PublishCandidateWorkflow a grp:CiWorkflow ;
     grp:triggerEvent "push" ;
     grp:triggerBranch "main" ;
     grp:permission "contents:write" ;
-    grp:workflowBody """name: Publish Candidate
+    grp:workflowBody """
+name: Publish Candidate
+
+# v26.10.10 release-discipline standard (distilled from graphlaw's release.yml +
+# docs/receipt-2026-10-10-publish-dod.md). Two trigger lanes in one workflow:
+#   - push to main: full self-verification, then an IDEMPOTENT plan step
+#     (cargo metadata --no-deps + crates.io sparse-index check) that decides
+#     whether a release tag is actually needed; a run with nothing to release
+#     exits in seconds.
+#   - tag push (v*): a tags-only release job that builds, uploads every
+#     release artifact with a generated .sha256 sidecar, and publishes
+#     workspace crates in dependency order (leaf crates first).
+# HOLD: while the RELEASE_HOLD repository variable is `true`, every tag/publish
+# step is skipped (nothing is tagged, released, or published). Release =
+# delete/unset the variable, then re-run.
+# CREDENTIALS: CI never holds long-lived registry credentials beyond the
+# CARGO_REGISTRY_TOKEN repository secret; without it the publish step fails
+# LOUDLY with setup instructions instead of silently skipping.
 
 on:
   push:
     branches: [main]
+    tags: ['v*']
+  workflow_dispatch:
 
 env:
   CARGO_TERM_COLOR: always
 
-# This workflow only ever reads repo state and (on an all-green run) creates+pushes a tag —
-# it never uploads release assets itself. Tag creation fires the existing tags-only
-# .github/workflows/release.yml, which does the asset build/upload under its own permissions.
 permissions:
   contents: write
 
@@ -48,22 +64,22 @@ concurrency:
 jobs:
   publish-candidate:
     name: Verify and tag release candidate
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 60
+    env:
+      RELEASE_HOLD: ${{ vars.RELEASE_HOLD }}
     steps:
       - name: Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           fetch-depth: 0
 
-      # Corrected (post-first-run failure): this workspace's root Cargo.toml carries
-      # [patch.crates-io] path deps to sibling checkouts, and .cargo/config.toml
-      # unconditionally sets `rustc-wrapper = "sccache"` -- a bare dtolnay/rust-toolchain
-      # step (this workflow's original approach, modeled on release.yml's simpler binary
-      # build) fails immediately with "could not execute process 'sccache ... rustc -vV'"
-      # because sccache was never installed and the sibling repos were never provisioned.
-      # ci.yml's own jobs all go through this shared composite action for exactly that
-      # reason -- reuse it here instead of re-deriving toolchain setup.
+      # This workspace's root Cargo.toml carries [patch.crates-io] path deps to
+      # sibling checkouts, and .cargo/config.toml unconditionally sets
+      # `rustc-wrapper = "sccache"` -- a bare dtolnay/rust-toolchain step fails
+      # immediately. ci.yml's own jobs all go through this shared composite
+      # action for exactly that reason -- reuse it here.
       - name: Setup ggen build
         uses: ./.github/actions/setup-ggen-build
 
@@ -78,12 +94,7 @@ jobs:
           just docs-sync
           # Excludes receipt/evidence/lock artifacts that change EVERY sync run
           # BY DESIGN (timestamps, chained hashes) -- not content drift in the
-          # actual generated docs this gate exists to catch. Discovered live:
-          # the first real run of this workflow (from #285/#287's merges)
-          # false-positived on exactly this churn even though every generated
-          # doc/markdown file was byte-identical. See justfile's verify-tcps
-          # recipe comment for the same "changes every run by design" property
-          # on the evidence side of this pair.
+          # actual generated docs this gate exists to catch.
           DRIFT_PATHSPEC=(
             .
             ':!.ggen-v2/**'
@@ -117,11 +128,45 @@ jobs:
       - name: Version consistency check
         run: ./scripts/ci/guard-version-consistency.sh
 
-      - name: Create and push release tag
-        if: success()
+      # Idempotent plan step (graphlaw release.yml pattern): cargo metadata for
+      # the version, crates.io sparse-index check for whether it is already
+      # published, tag check. outputs.work == 'no' means the tag already
+      # exists AND the version is already on the registry (or RELEASE_HOLD is
+      # set) -- the remaining steps are no-ops and the run exits in seconds.
+      - name: Plan (idempotent — is this version unreleased?)
+        id: plan
         run: |
           set -euo pipefail
-          VERSION="$(grep -m1 '^version' Cargo.toml | sed -E 's/version *= *\"([^\"]+)\"/\\1/')"
+          meta=$(cargo metadata --no-deps --format-version 1)
+          VERSION="$(echo "$meta" | python3 -c "import json,sys; print(json.load(sys.stdin)['packages'][0]['version'])")"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          on_registry() { # crate-name version -> yes/no via sparse index
+            local n="$1" v="$2" p
+            if [ "${#n}" -le 3 ]; then p="${#n}/$n"; else p="${n:0:2}/${n:2:2}/$n"; fi
+            local idx; idx=$(curl -fsS "https://index.crates.io/$p" 2>/dev/null || true)
+            if grep -q "\\"vers\\":\\"$v\\"" <<<"$idx"; then echo yes; else echo no; fi
+          }
+          tag=no
+          if [ -n "$(git ls-remote --tags origin "refs/tags/v$VERSION")" ]; then tag=yes; fi
+          published=$(on_registry ggen "$VERSION")
+          work=no
+          if [ "${RELEASE_HOLD:-}" = true ]; then
+            echo "RELEASE_HOLD is true: skipping tag creation"
+            tag=yes; published=yes
+          fi
+          if [ "$tag" = no ] || [ "$published" = no ]; then work=yes; fi
+          {
+            echo "tag_exists=$tag"
+            echo "published=$published"
+            echo "work=$work"
+          } >> "$GITHUB_OUTPUT"
+          cat "$GITHUB_OUTPUT"
+
+      - name: Create and push release tag (skipped when held or already tagged)
+        if: steps.plan.outputs.work == 'yes' && steps.plan.outputs.tag_exists == 'no'
+        run: |
+          set -euo pipefail
+          VERSION="${{ steps.plan.outputs.version }}"
           TAG="v${VERSION}"
           if git rev-parse "refs/tags/${TAG}" >/dev/null 2>&1; then
             echo "tag ${TAG} already exists — nothing to do"
@@ -131,7 +176,95 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git tag -a "${TAG}" -m "Release candidate ${TAG}: publish-candidate all-green"
           git push origin "${TAG}"
-          echo "pushed ${TAG} — this fires .github/workflows/release.yml"
+          echo "pushed ${TAG} — this fires this workflow's tags-only 'release' job below"
+
+  # Tags-only release job (fired by the tag push above, or any v* tag push).
+  # Builds the release binary, uploads EVERY release artifact with a
+  # generated .sha256 sidecar, then publishes workspace crates in dependency
+  # order (leaf crates first). Honors RELEASE_HOLD by refusing loudly.
+  release:
+    name: Tagged release (sha256-attested artifacts, leaf-first publish)
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      GH_TOKEN: ${{ github.token }}
+      RELEASE_HOLD: ${{ vars.RELEASE_HOLD }}
+    steps:
+      - name: Checkout tag
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.ref }}
+
+      - name: Setup ggen build
+        uses: ./.github/actions/setup-ggen-build
+
+      - name: HOLD — refuse to release while RELEASE_HOLD is true
+        if: env.RELEASE_HOLD == 'true'
+        run: |
+          echo "RELEASE_HOLD is true: refusing to release ${{ github.ref_name }}."
+          echo "Release = unset the RELEASE_HOLD repository variable, then re-run this job."
+          exit 1
+
+      - name: Build release binary
+        run: cargo build --locked --release -p ggen-cli-lib --bin ggen
+
+      - name: Collect release artifacts with .sha256 sidecars
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          cp target/release/ggen "dist/ggen-${{ runner.os }}-${{ runner.arch }}"
+          (cd dist && for f in *; do shasum -a 256 "$f" > "$f.sha256"; done)
+          ls -la dist
+
+      - name: Create (or reuse) the GitHub release with all artifacts
+        run: |
+          set -euo pipefail
+          TAG="${GITHUB_REF_NAME}"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "release ${TAG} already exists — uploading artifacts idempotently"
+            gh release upload "$TAG" dist/* --clobber
+          else
+            gh release create "$TAG" dist/* \\
+              --target "$GITHUB_SHA" --generate-notes --title "ggen ${TAG}"
+          fi
+
+      - name: Publish to crates.io (dependency order, leaf crates first)
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [ -z "${CARGO_REGISTRY_TOKEN:-}" ]; then
+            echo "ERROR: Add the CARGO_REGISTRY_TOKEN repository secret once"
+            echo "(Settings > Secrets and variables > Actions > New repository secret),"
+            echo "then re-run this job. CI publishes with the token from that secret;"
+            echo "it is deliberately absent from this workflow's env/plumbing otherwise."
+            exit 1
+          fi
+          meta=$(cargo metadata --no-deps --format-version 1)
+          # Dependency-ordered publish list: Kahn's algorithm over the
+          # workspace-internal dependency graph, publishable crates only
+          # (publish=false members excluded), leaf crates (no internal
+          # dependencies) first so every crate's deps are on the registry
+          # before the crate itself.
+          ORDER="$(echo "$meta" | python3 -c "exec('import json,sys\\nm=json.load(sys.stdin)\\nP=\\'packages\\';N=\\'name\\';D=\\'dependencies\\';U=\\'publish\\'\\npub=[p for p in m[P] if p.get(U) is not False]\\nnames={p[N] for p in pub}\\ndep={p[N]:{d[N] for d in p[D] if d[N] in names} for p in pub}\\norder=[]\\nwhile dep:\\n    ready=sorted(n for n,d in dep.items() if d<=set(order))\\n    assert ready, \\'dependency cycle\\'\\n    order+=ready\\n    for n in ready: del dep[n]\\nprint(\\' \\'.join(order))')")"
+          echo "publish order (leaf first): $ORDER"
+          on_registry() { # crate-name version -> yes/no via sparse index
+            local n="$1" v="$2" p
+            if [ "${#n}" -le 3 ]; then p="${#n}/$n"; else p="${n:0:2}/${n:2:2}/$n"; fi
+            local idx; idx=$(curl -fsS "https://index.crates.io/$p" 2>/dev/null || true)
+            if grep -q "\\"vers\\":\\"$v\\"" <<<"$idx"; then echo yes; else echo no; fi
+          }
+          VERSION="$(echo "$meta" | python3 -c "import json,sys; print(json.load(sys.stdin)['packages'][0]['version'])")"
+          for c in $ORDER; do
+            if [ "$(on_registry "$c" "$VERSION")" = yes ]; then
+              echo "skip $c: $c $VERSION already on crates.io (idempotent)"
+              continue
+            fi
+            echo "publishing $c"
+            cargo publish -p "$c" --locked
+          done
+
 """ .
 
 # Condition-1 narrowing (全製品面が意味図式から生成される): chosen as the SIMPLEST of the 23
@@ -424,4 +557,130 @@ This 23-row table WAS individually re-walked on 2026-08-07 (see each row's own "
 table had gone unaudited since 2026-07-20 while only the workspace version number moved. Treat
 every Status/Basis cell's own cited date as its real freshness signal; two rows (7, 16) remain
 honestly un-re-audited and are marked as such in their own text.
+""" .
+
+#################################################################
+# v26.10.10 release-discipline artifacts (graphlaw release-engineering
+# standards: publish-dod receipt shape, ARTIFACTS.sha256 pin contract,
+# version-parity proof test)
+#################################################################
+
+grp:PublishDodReceiptArtifact a grp:ReleaseArtifact ;
+    rdfs:label "ggen publish definition-of-done receipt (Markdown, graphlaw receipt shape)" ;
+    grp:artifactPath "docs/receipt-26.10.10-publish-dod.md" ;
+    grp:artifactBody """# v26.10.10 Publish — Definition-of-Done Receipt (skeleton)
+
+GENERATED by `ggen sync` from `packs/ggen-release-pack/ontology.ttl`
+(grp:PublishDodReceiptArtifact), following the receipt shape of
+`graphlaw/docs/receipt-2026-10-10-publish-dod.md`. Fill each row with real,
+dated evidence before claiming it — an unexecuted check is stated as not yet
+run, never silently assumed green.
+
+## 1. Verified claims (checked against tree, <date>)
+
+| Claim | Evidence |
+|---|---|
+| Workspace version is 26.10.10 | `<fill: grep -m1 '^version' Cargo.toml, real output>` |
+| publish-candidate workflow carries the idempotent plan step + RELEASE_HOLD gate | `<fill: real grep of .github/workflows/publish-candidate.yml>` |
+| Every release artifact uploads with a .sha256 sidecar | `<fill: real grep of the release job's dist step>` |
+| CI publishes only via CARGO_REGISTRY_TOKEN repository secret | `<fill: real grep of the publish step>` |
+| Test suite green | `<fill: real cargo test tally, e.g. N passed, 0 failed, M ignored>` |
+| ARTIFACTS.sha256 pins regenerated after the last src/ change | `<fill: real shasum re-run or explicit "not yet run">` |
+
+## 2. Stale / corrected claims
+
+| Claim | Status | Evidence |
+|---|---|---|
+| <claim inherited from a prior receipt> | CORRECTED / RESOLVED / MOOT | <what re-derivation actually found, with real command output> |
+
+## 3. Remaining human-gated steps to publish
+
+1. <step, or state "none — all steps automated in publish-candidate.yml">
+2. Confirm the RELEASE_HOLD repository variable is unset (HOLD skips every
+   tag/publish step by design).
+3. Merge to `main` (no rebase/force-push; merge only). publish-candidate runs
+   its verification chain, plans idempotently, and pushes `v26.10.10` only on
+   an all-green, unheld, unreleased run.
+4. The tag push fires the tags-only release job: artifacts upload with .sha256
+   sidecars, then workspace crates publish leaf-first via
+   CARGO_REGISTRY_TOKEN.
+5. Verify on crates.io and record the release run URL in the standing block.
+
+Standing: UNKNOWN until section 1's rows carry real dated evidence.
+""" .
+
+grp:ArtifactPinsArtifact a grp:ReleaseArtifact ;
+    rdfs:label "registry/ARTIFACTS.sha256 working-tree artifact pin file (graphlaw pin contract)" ;
+    grp:artifactPath "registry/ARTIFACTS.sha256" ;
+    grp:artifactBody """# ggen working-tree artifact pins
+# Format: <kind> <sha256> <bytes> <name>
+#
+# Contract (transcribed from graphlaw/registry/ARTIFACTS.sha256):
+#   Regenerate after any src/ change; the pin is not a live check -- a stale
+#   pin is a FINDING to be adjudicated, not a guard that fires by itself.
+#
+# Regeneration commands (run from the repo root, record observed date):
+#   binary pin:
+#     cargo build --locked --release -p ggen-cli-lib --bin ggen
+#     shasum -a 256 target/release/ggen
+#   book/docs manifest pin:
+#     python3 book/scripts/assemble_book.py
+#     python3 book/scripts/build_static_html.py
+#     python3 book/scripts/generate_manifest.py
+#     shasum -a 256 book/dist/MANIFEST.sha256
+#
+# This file is freeze_policy: checksum -- a hand-edit is refused by the next
+# sync (manual edit detected) rather than silently clobbered; regenerate via
+# the commands above, then delete this file to let the sync re-project it.
+# Append observed pin lines below in the <kind> <sha256> <bytes> <name> form.
+""" .
+
+grp:VersionParityProofArtifact a grp:ReleaseArtifact ;
+    rdfs:label "tests/version_parity_proof.rs — built binary --version equals CARGO_PKG_VERSION" ;
+    grp:artifactPath "tests/version_parity_proof.rs" ;
+    grp:artifactBody """//! GENERATED by ggen-release-pack (tests/version_parity_proof.rs). Edit
+//! packs/ggen-release-pack/ontology.ttl's grp:VersionParityProofArtifact, not
+//! this file.
+//!
+//! Version-parity proof (v26.10.10 release-discipline standard, distilled from
+//! graphlaw's release engineering): the actually-built package binary's
+//! `--version` output must equal the version Cargo.toml declares for the
+//! package under test (CARGO_PKG_VERSION). A mismatch means a release tag,
+//! a generated standing doc, or the shipped binary is describing different
+//! versions -- exactly the drift the publish-dod receipt exists to catch.
+//! Asserts on real subprocess output (Chicago: real collaborator, state-based).
+
+use std::process::Command;
+
+#[test]
+fn package_binary_version_equals_cargo_pkg_version() {
+    // Consumer-agnostic: cargo sets CARGO_BIN_EXE_<bin> for every bin target of
+    // the package under test; resolve the primary bin from CARGO_PKG_NAME at
+    // runtime so this proof compiles in any consumer without edits.
+    let bin_name = std::env::var("CARGO_PKG_NAME").expect("CARGO_PKG_NAME is set by cargo");
+    let bin = std::env::var_os(format!("CARGO_BIN_EXE_{bin_name}"))
+        .unwrap_or_else(|| {
+            panic!("CARGO_BIN_EXE_{bin_name} not set -- is there a [[bin]] named after the package?")
+        });
+    let out = Command::new(&bin)
+        .arg("--version")
+        .output()
+        .unwrap_or_else(|e| panic!("binary {bin_name:?} should build and run: {e}"));
+    assert!(
+        out.status.success(),
+        "ggen --version exited non-zero: {:?}",
+        out.status
+    );
+    let stdout = String::from_utf8(out.stdout).expect("--version stdout is utf-8");
+    let expected = env!("CARGO_PKG_VERSION");
+    let reported = stdout.trim().rsplit(' ').next().unwrap_or_default();
+    assert!(
+        !reported.is_empty(),
+        "could not parse a version token from --version output: {stdout:?}"
+    );
+    assert_eq!(
+        reported, expected,
+        "binary --version ({reported}) does not equal CARGO_PKG_VERSION ({expected}) -- version drift between built binary and Cargo.toml"
+    );
+}
 """ .

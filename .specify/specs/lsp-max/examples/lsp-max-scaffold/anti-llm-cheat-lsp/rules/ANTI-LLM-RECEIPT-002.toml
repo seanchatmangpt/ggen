@@ -1,0 +1,10 @@
+[[rules]]
+id         = "ANTI-LLM-RECEIPT-002"
+name       = "no-bypassed-compat"
+severity   = "error"
+pattern    = '[\x22]bypassed_compat[\x22]: true'
+message    = "Compatibility bypass flag found in receipt or config"
+rationale  = "bypassed_compat:true invalidates the receipt chain"
+eval_budget = "sync"
+path_globs   = []
+exclude_globs = []

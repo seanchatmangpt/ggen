@@ -18,6 +18,8 @@
 //! gets silently pruned (`if path.len() > PDDL8_MAX_PLAN_DEPTH { continue }`)
 //! before it can reach the goal.
 
+// Chicago TDD (.claude/rules/rust/testing.md): unwrap/expect/panic allowed in test code.
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 use bcinr_mfw_ir::PlannerOutcome;
 use bcinr_pddl::ground::GroundProblem;
 use bcinr_pddl::parse::{domain_from_pddl, problem_from_pddl};

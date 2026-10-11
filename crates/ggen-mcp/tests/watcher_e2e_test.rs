@@ -5,6 +5,7 @@
 //!
 //! Mirrors `mcp_protocol_test.rs`'s subprocess/stdio harness -- real binary,
 //! real newline-delimited JSON-RPC, no mocks.
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)] // Chicago TDD: real-IO tests
 
 use std::io::{BufRead, BufReader, Write};
 use std::process::{Child, ChildStdin, Command, Stdio};
@@ -106,7 +107,7 @@ impl McpClient {
     /// (any JSON-RPC *notification*, i.e. no `id`, whose `method` matches),
     /// or time out. Ignores every other frame in between (e.g. late
     /// responses to prior requests).
-    fn wait_for_resource_update(&mut self) -> Value {
+    fn wait_for_resource_update(&self) -> Value {
         loop {
             let frame = self
                 .rx

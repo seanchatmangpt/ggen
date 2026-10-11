@@ -1,0 +1,4 @@
+# Forward N3 rule: derive a derived-class triple from the ontology fixture.
+@prefix ref: <http://example.org/ref#> .
+@prefix log: <http://www.w3.org/2000/10/swap/log#> .
+{ ?x a ref:Entity . } => { ?x a ref:DerivedEntity } .

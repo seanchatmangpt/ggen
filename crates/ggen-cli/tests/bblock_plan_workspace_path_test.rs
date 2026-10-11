@@ -1,3 +1,4 @@
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)] // Chicago TDD: real-IO tests
 //! Chicago-style integration test for `ggen bblock plan`'s idempotency-check
 //! read path (`docs/jira/v26.9.1/03-FORTUNE5-TESTING-BBLOCK-PORTABILITY.md`
 //! chaos-suite defect: `fortune5-testing-bblock-pack`'s `chaos` suite failed
@@ -14,10 +15,58 @@
 //! on real stdout/stderr and the real receipt file on disk. No mocks, no
 //! stubs of any collaborator.
 
-#![allow(clippy::unwrap_used, clippy::expect_used)]
-
 use assert_cmd::Command;
 use std::fs;
+
+/// Resolve the real `ggen` binary the same way `cli_boundary.rs::ggen_bin`
+/// does: `CARGO_BIN_EXE_ggen` (set by `cargo test -p ggen-cli-lib`, never by
+/// `-p ggen-engine`/`-p ggen-cli` — the root package is `autobins = false`),
+/// then the workspace `target/{debug,release}/ggen`, then `PATH`. Panics
+/// (loudly) if no candidate resolves, so failure happens at binary
+/// resolution, not at first spawn.
+fn ggen_bin() -> std::path::PathBuf {
+    if let Ok(path) = std::env::var("CARGO_BIN_EXE_ggen") {
+        let p = std::path::PathBuf::from(path);
+        if p.exists() {
+            return p;
+        }
+    }
+
+    let target_root = std::env::var_os("CARGO_TARGET_DIR")
+        .map(std::path::PathBuf::from)
+        .or_else(|| {
+            let manifest_dir =
+                std::env::var_os("CARGO_MANIFEST_DIR").map(std::path::PathBuf::from)?;
+            let mut dir: &std::path::Path = manifest_dir.as_path();
+            loop {
+                if dir.join("Cargo.lock").exists() {
+                    return Some(dir.join("target"));
+                }
+                match dir.parent() {
+                    Some(p) => dir = p,
+                    None => return None,
+                }
+            }
+        });
+
+    if let Some(target) = target_root {
+        for profile in &["debug", "release"] {
+            let candidate = target.join(profile).join("ggen");
+            if candidate.is_file() {
+                return candidate;
+            }
+            let candidate_exe = target.join(profile).join("ggen.exe");
+            if candidate_exe.is_file() {
+                return candidate_exe;
+            }
+        }
+    }
+
+    panic!(
+        "could not resolve the `ggen` binary: CARGO_BIN_EXE_ggen unset and no \
+         target/debug/ggen found; build it with `cargo build -p ggen-cli-lib --bin ggen`"
+    );
+}
 
 /// Two real `ggen bblock plan` invocations from the same real, non-`/workspace`
 /// cwd: the first writes `.ggen/bblocks/receipts/aws/testing-plan-result.json`
@@ -48,8 +97,7 @@ fn bblock_plan_idempotency_read_resolves_real_cwd_not_literal_workspace() {
     // First invocation: writes the plan + intent + result receipts relative
     // to the real cwd (GENESIS predecessor digest, since no prior receipt
     // exists yet).
-    let first = Command::cargo_bin("ggen")
-        .expect("ggen binary must be built for tests")
+    let first = Command::new(ggen_bin())
         .current_dir(&root)
         .args([
             "bblock",
@@ -86,8 +134,7 @@ fn bblock_plan_idempotency_read_resolves_real_cwd_not_literal_workspace() {
     // the idempotency-check read. Before the fix this failed with a literal
     // `/workspace/...` ENOENT even though the real receipt sat at
     // `<root>/.ggen/bblocks/receipts/aws/fortune5-complete-plan-result.json`.
-    let second = Command::cargo_bin("ggen")
-        .expect("ggen binary must be built for tests")
+    let second = Command::new(ggen_bin())
         .current_dir(&root)
         .args([
             "bblock",

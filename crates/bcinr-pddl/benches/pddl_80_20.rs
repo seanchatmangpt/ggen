@@ -1,3 +1,5 @@
+// Chicago TDD (.claude/rules/rust/testing.md): unwrap/expect/panic allowed in test code.
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 use bcinr_pddl::{
     domain_from_pddl, powl_bridge::temporal_plan_to_powl_tape, problem_from_pddl, GroundProblem,
     GroundTemporalProblem,
@@ -31,8 +33,7 @@ fn measure_and_prove_times(domain_pddl: &str, problem_pddl: &str, is_temporal: b
         t_solve = t2.elapsed();
 
         let t3 = Instant::now();
-        let _powl = temporal_plan_to_powl_tape(&plan);
-        if _powl.is_err() {
+        if temporal_plan_to_powl_tape(&plan).is_err() {
             return;
         }
         t3.elapsed()

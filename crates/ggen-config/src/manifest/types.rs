@@ -101,7 +101,7 @@ impl PackageToml {
         let Ok(content) = std::fs::read_to_string(&path) else {
             return Self::default();
         };
-        toml::from_str(&content).unwrap_or_default()
+        star_toml::from_str(&content).unwrap_or_default()
     }
 
     /// Resolve an output key to its directory path, or return the key itself as fallback.
@@ -197,6 +197,18 @@ pub struct GgenManifest {
     #[serde(default)]
     pub law: Law,
 
+    /// `[rules]` — v26.10.10 §4.1: net-new optional section referencing
+    /// external N3/Datalog rule files. Absent/empty = no rules. Distinct
+    /// from `[law].rules` (engine law-state inputs) and
+    /// `[[generation.rules]]` (inline SPARQL CONSTRUCT codegen rules).
+    #[serde(default)]
+    pub rules: Option<RulesConfig>,
+
+    /// `[pack_sources]` — v26.10.10 §4.1: net-new optional map of pack name
+    /// → external source binding. Absent = no external sources.
+    #[serde(default)]
+    pub pack_sources: Option<BTreeMap<String, PackSourceBinding>>,
+
     /// Unreconciled, unread passthrough — see the struct-level doc comment.
     #[serde(default)]
     pub sync: Option<toml::Value>,
@@ -262,6 +274,44 @@ pub struct GgenManifest {
     /// as `build` above.
     #[serde(default)]
     pub a2a: Option<crate::config_lib::A2AConfig>,
+}
+
+/// `[rules]` — v26.10.10 §4.1: references to external N3/Datalog rule
+/// files, relative to the manifest.
+///
+/// Optional; absent or empty arrays = no rules. Paths are validated
+/// non-empty by `manifest::validation`'s `Validate` impl.
+#[derive(Debug, Clone, Serialize, Deserialize, Default, PartialEq, Eq)]
+#[serde(deny_unknown_fields)]
+pub struct RulesConfig {
+    /// N3 rule file paths (relative, non-empty).
+    #[serde(default)]
+    pub n3: Vec<PathBuf>,
+    /// Datalog rule file paths (relative, non-empty).
+    #[serde(default)]
+    pub datalog: Vec<PathBuf>,
+}
+
+/// The kind of an external pack source binding — `"path"` (local filesystem)
+/// or `"git"` (repository URL). Serializes as the lowercase TOML string.
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "lowercase")]
+pub enum PackSourceKind {
+    /// Local filesystem path.
+    Path,
+    /// Git repository.
+    Git,
+}
+
+/// One entry of `[pack_sources]`: `name -> { source = "path"|"git", location = "..." }`.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(deny_unknown_fields)]
+pub struct PackSourceBinding {
+    /// Source kind: `"path"` or `"git"`.
+    pub source: PackSourceKind,
+    /// Location string (filesystem path or repository URL); non-empty,
+    /// validated by `manifest::validation`'s `Validate` impl.
+    pub location: String,
 }
 
 /// `[law]` — law-state inputs for a `praxis-graphlaw`-backed sync pipeline.
@@ -686,6 +736,8 @@ impl Default for GgenManifest {
             validation: ValidationConfig::default(),
             packs: vec![],
             law: Law::default(),
+            rules: None,
+            pack_sources: None,
             sync: None,
             output: None,
             rdf: None,

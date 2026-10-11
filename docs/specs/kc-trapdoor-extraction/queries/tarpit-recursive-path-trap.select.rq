@@ -1,0 +1,17 @@
+# Algorithmic tar pit 2: recursive path trap with strict fuel budget.
+# Corpus: qlever-fortune5-test, index fortune5, builder 1075455, 203 triples.
+# Demonstrates the abort discipline for un-anchored transitiveConnects*
+# traversals: the ONLY permitted form is root-anchored with an explicit LIMIT.
+
+PREFIX f5: <https://enterprise.fortune5.com/ontology/>
+PREFIX kc: <https://ggen.io/ontology/kc-trapdoor#>
+
+SELECT ?src ?dst
+WHERE {
+  BIND(IRI(CONCAT("https://ggen.io/kc/needle/",
+      "blake3:k=<hex-key>|subject=<canonical-iri>")) AS ?root)
+  ?root a kc:Needle .
+  ?src (f5:connects)+ ?dst .   # transitiveConnects-class traversal, ANCHORED
+  ?src f5:serviceId ?sid .
+}
+LIMIT 1000

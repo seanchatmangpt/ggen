@@ -1,0 +1,10 @@
+[[rules]]
+id         = "ANTI-LLM-STRANGE-002"
+name       = "no-content-leak"
+severity   = "error"
+pattern    = 'Content was:'
+message    = "Raw content leak found — diagnostic leaks document text into message"
+rationale  = "Leaking raw content through diagnostics exposes user source to log infrastructure"
+eval_budget = "sync"
+path_globs   = []
+exclude_globs = []

@@ -1,6 +1,7 @@
 //! Chicago TDD: real `TempDir` + real `ggen.toml` + real ontology, no mocks.
 //! `query_preview` is called directly (in-process), not through the rmcp
 //! wire protocol -- that's covered separately by `mcp_protocol_test.rs`.
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)] // Chicago TDD: real-IO tests
 
 use std::path::Path;
 

@@ -10,3 +10,6 @@ an architecture catalog, dependency DAG, and control matrix. SPARQL gates refuse
 missing Tier 0/1 controls, incomplete security or reliability policy, invalid
 promotion law, and any ontology-declared direct actuation surface.
 """
+
+[capabilities]
+provides = ["urn:ggen:pack:fortune5-architecture-pack"]

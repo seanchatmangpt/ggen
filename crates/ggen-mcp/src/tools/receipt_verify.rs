@@ -1,5 +1,7 @@
 //! `ggen_receipt_verify` — read `.ggen-v2/receipt.json`, recompute the
-//! BLAKE3 chain hash via `praxis-core`, and check the ed25519 signature
+//!
+//! BLAKE3 chain hash via the graphlaw receipt chain (praxis-core retired
+//! per SJIRA-15, 2026-10-09), and check the ed25519 signature
 //! when present.
 //!
 //! Wraps `ggen_engine::verbs::handlers::handle_receipt_verify_in`, which is
@@ -76,6 +78,7 @@ pub struct ReceiptVerifyResult {
 /// because `AppError` has no typed code field to key off of; grabbing only
 /// the `CHAIN` family would silently drop a real code from another family
 /// if one is ever embedded in a receipt-verify message.
+#[allow(clippy::expect_used)] // compile-time-fixed literal regex; Err = programmer error
 static FM_CODE_RE: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"FM-[A-Z]+-\d{3}").expect("static FM code regex is valid"));
 

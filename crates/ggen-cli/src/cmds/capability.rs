@@ -21,9 +21,8 @@ use ggen_marketplace::packs_registry::capability_registry::{
 // ── helpers ─────────────────────────────────────────────────────────────────
 
 fn project_root() -> Result<PathBuf> {
-    let dir = std::env::current_dir().map_err(|e| {
-        NounVerbError::execution_error(format!("cannot resolve project dir: {}", e))
-    })?;
+    let dir = std::env::current_dir()
+        .map_err(|e| NounVerbError::execution_error(format!("cannot resolve project dir: {e}")))?;
     if !dir.join("ggen.toml").exists() {
         return Err(NounVerbError::argument_error(format!(
             "not a ggen project: no ggen.toml found in {} (run `ggen init` first)",
@@ -45,7 +44,7 @@ fn atomic_packs_for(
     let mut packs = resolve_capability_to_packs(surface, projection, runtime)
         .map_err(NounVerbError::argument_error)?;
     if let Some(p) = projection {
-        let projection_pack = format!("projection-{}", p);
+        let projection_pack = format!("projection-{p}");
         if !packs.contains(&projection_pack) {
             packs.push(projection_pack);
         }
@@ -67,6 +66,10 @@ fn require_surface(surface: &str) -> Result<()> {
 /// Enable a capability: expand it to atomic packs and record them in the project
 /// lockfile, returning the expansion as JSON.
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn enable(
     #[arg(index = 1)] surface: String, projection: Option<String>, runtime: Option<String>,
 ) -> Result<Value> {
@@ -84,7 +87,7 @@ pub fn enable(
     // on the `packs install` path).
     for pid in &packs {
         ggen_marketplace::marketplace::models::PackageId::new(pid).map_err(|e| {
-            NounVerbError::argument_error(format!("invalid atomic pack id '{}': {}", pid, e))
+            NounVerbError::argument_error(format!("invalid atomic pack id '{pid}': {e}"))
         })?;
     }
 
@@ -93,12 +96,12 @@ pub fn enable(
     let lock_path = root.join(".ggen").join("packs.lock");
     let mut lockfile = if lock_path.exists() {
         PackLockfile::from_file(&lock_path)
-            .map_err(|e| NounVerbError::execution_error(format!("cannot read lockfile: {}", e)))?
+            .map_err(|e| NounVerbError::execution_error(format!("cannot read lockfile: {e}")))?
     } else {
         PackLockfile::new(env!("CARGO_PKG_VERSION"))
     };
     for pid in &packs {
-        let digest = crate::utils::sha256_hex(format!("{}@0.0.0", pid).as_bytes());
+        let digest = crate::utils::sha256_hex(format!("{pid}@0.0.0").as_bytes());
         lockfile.add_pack(
             pid,
             LockedPack {
@@ -106,7 +109,7 @@ pub fn enable(
                 source: PackSource::Registry {
                     url: "https://registry.ggen.io".to_string(),
                 },
-                integrity: Some(format!("sha256-{}", digest)),
+                integrity: Some(format!("sha256-{digest}")),
                 installed_at: chrono::Utc::now(),
                 dependencies: Vec::new(),
             },
@@ -114,7 +117,7 @@ pub fn enable(
     }
     lockfile
         .save(&lock_path)
-        .map_err(|e| NounVerbError::execution_error(format!("cannot write lockfile: {}", e)))?;
+        .map_err(|e| NounVerbError::execution_error(format!("cannot write lockfile: {e}")))?;
 
     Ok(json!({
         "capability": surface,
@@ -127,6 +130,10 @@ pub fn enable(
 
 /// List the known capability surfaces.
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn list() -> Result<Value> {
     let caps: Vec<Value> = list_capabilities()
         .into_iter()
@@ -151,6 +158,10 @@ pub fn list() -> Result<Value> {
 /// `atomic_packs_for` now propagates `resolve_capability_to_packs`'s "unknown
 /// surface" error instead of discarding it, so this is safe to re-enable.
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn inspect(#[arg(index = 1)] surface: String) -> Result<Value> {
     require_surface(&surface)?;
     let packs = atomic_packs_for(&surface, None, None)?;

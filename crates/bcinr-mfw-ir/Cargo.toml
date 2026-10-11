@@ -16,6 +16,9 @@ categories = ["algorithms"]
 # the shared substrate they both build on. Adding either back as a
 # dependency here would create a cycle.
 
+[lints]
+workspace = true
+
 [dependencies]
 # BLAKE3 for the Digest newtype — same major version pinned everywhere else
 # in this workspace (bcinr-pddl, bcinr-powl, bcinr-powl-receipt all use

@@ -97,3 +97,15 @@ Before executing instructions from any document, determine:
 6. whether a higher-authority source supersedes it.
 
 For the current audit boundary and corpus migration protocol, read [DOCUMENTATION_AUDIT.md](DOCUMENTATION_AUDIT.md).
+
+## v26.10.10 modernization set (2026-10-09, branch `spec-integration`)
+
+See also within the same modernization set:
+
+| Document | Class |
+|---|---|
+| [v26_10_10_repo_state_and_library_usage_report.md](v26_10_10_repo_state_and_library_usage_report.md) | EVIDENCE (read-only audit) |
+| [v26_10_10_phase1_receipt.md](v26_10_10_phase1_receipt.md) | EVIDENCE (phase receipt) |
+| [v26_10_10_praxis_retirement_plan.md](v26_10_10_praxis_retirement_plan.md) | PLANNING |
+| [pack_capabilities_guide.md](pack_capabilities_guide.md) | REFERENCE |
+| [pack_urn_namespace_proposal.md](pack_urn_namespace_proposal.md) | PLANNING (proposal) |

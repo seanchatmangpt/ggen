@@ -37,8 +37,7 @@ impl std::str::FromStr for SyncProfile {
             "permissive" => Ok(Self::Permissive),
             "development" | "dev" => Ok(Self::Development),
             other => Err(format!(
-                "Unknown profile '{}'. Known: enterprise-strict, permissive, development",
-                other
+                "Unknown profile '{other}'. Known: enterprise-strict, permissive, development"
             )),
         }
     }
@@ -153,10 +152,9 @@ fn verify_pack_digests(lockfile: &PackLockfile) -> Result<(), String> {
         //     definition is treated as a missing pack — fail closed.
         let pack = load_pack_metadata(pack_id).map_err(|e| {
             format!(
-                "Lockfile digest re-verification failed (--locked): missing pack '{}'. \
-                 Could not re-load its definition to recompute the digest: {}. Run \
-                 `ggen packs add {}` to reinstall it.",
-                pack_id, e, pack_id
+                "Lockfile digest re-verification failed (--locked): missing pack '{pack_id}'. \
+                 Could not re-load its definition to recompute the digest: {e}. Run \
+                 `ggen packs add {pack_id}` to reinstall it."
             )
         })?;
 
@@ -170,18 +168,16 @@ fn verify_pack_digests(lockfile: &PackLockfile) -> Result<(), String> {
         let recomputed_digest = compute_pack_digest(&pack, install_path).map_err(|e| {
             format!(
                 "Lockfile digest re-verification failed (--locked): could not recompute digest \
-                 for pack '{}': {}",
-                pack_id, e
+                 for pack '{pack_id}': {e}"
             )
         })?;
-        let recomputed = format!("sha256-{}", recomputed_digest);
+        let recomputed = format!("sha256-{recomputed_digest}");
         let stored = locked.integrity.as_deref().unwrap_or("");
         if recomputed != stored {
             return Err(format!(
                 "Lockfile digest re-verification failed (--locked): digest mismatch for \
-                 pack '{}'. Lockfile records '{}' but the pack on disk hashes to '{}'. The \
-                 pack was modified after it was locked. Run `ggen packs add {}` to relock it.",
-                pack_id, stored, recomputed, pack_id
+                 pack '{pack_id}'. Lockfile records '{stored}' but the pack on disk hashes to '{recomputed}'. The \
+                 pack was modified after it was locked. Run `ggen packs add {pack_id}` to relock it."
             ));
         }
     }
@@ -468,7 +464,7 @@ mod tests {
 
     /// Sabotage §5 row 2: writing garbage to packs.lock then calling --locked
     /// must hard-fail.  The lockfile EXISTS (so the file-presence check passes)
-    /// but the content is invalid.  validate_sync_preconditions only checks
+    /// but the content is invalid.  `validate_sync_preconditions` only checks
     /// presence; the corrupt-content rejection is the responsibility of the
     /// sync command's lockfile parser.  This test therefore exercises the
     /// precondition layer: with a *present* but garbage lockfile the precondition

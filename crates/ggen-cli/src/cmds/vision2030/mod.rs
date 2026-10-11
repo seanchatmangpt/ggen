@@ -372,6 +372,10 @@ fn verify_signature(public_key_hex: &str, signature_hex: &str, message: &[u8]) -
 
 /// Return the executable Vision 2030 contract.
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn schema() -> Result<Value> {
     Ok(json!({
         "manifest_schema": MANIFEST_SCHEMA,
@@ -396,54 +400,90 @@ pub fn schema() -> Result<Value> {
 
 /// Inspect the complete program report without mutation.
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn inspect(manifest: String) -> Result<Value> {
     evaluation::as_value(Path::new(&manifest))
 }
 
 /// Validate achievement, standing, coverage, and measured multiplier.
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn validate(manifest: String) -> Result<Value> {
     evaluation::validation(Path::new(&manifest))
 }
 
 /// Return horizon gates and missing accepted capability counts.
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn roadmap(manifest: String) -> Result<Value> {
     evaluation::roadmap(Path::new(&manifest))
 }
 
 /// Return Blue Ocean ERRC coverage.
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn blue_ocean(manifest: String) -> Result<Value> {
     evaluation::blue_ocean(Path::new(&manifest))
 }
 
 /// Diagnose the developer-experience capability surface.
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn dx(manifest: String) -> Result<Value> {
     evaluation::lens(Path::new(&manifest), "dx")
 }
 
 /// Diagnose the quality-of-life capability surface.
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn qol(manifest: String) -> Result<Value> {
     evaluation::lens(Path::new(&manifest), "qol")
 }
 
 /// Diagnose defects and deterministic remediations without actuation.
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn doctor(manifest: String) -> Result<Value> {
     evaluation::doctor(Path::new(&manifest))
 }
 
 /// Emit the deterministic report and chained receipts.
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn receipt(manifest: String, output: String) -> Result<Value> {
     receipts::issue(Path::new(&manifest), Path::new(&output))
 }
 
 /// Replay the report and receipt chain against exact evidence.
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn replay(manifest: String, output: String) -> Result<Value> {
     receipts::replay(Path::new(&manifest), Path::new(&output))
 }

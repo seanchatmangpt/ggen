@@ -2,6 +2,9 @@
 //! `cargo bench --manifest-path crates/ggen-abb-sbb/Cargo.toml`
 //! Recorded numbers and the committed regression bound: `bench/receipt.json`,
 //! enforced by `tests/bench_bound.rs`.
+
+// Chicago TDD (.claude/rules/rust/testing.md): unwrap/expect/panic allowed in test code.
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion};
 use ggen_abb_sbb::*;
 

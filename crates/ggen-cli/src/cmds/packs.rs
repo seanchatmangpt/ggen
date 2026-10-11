@@ -24,7 +24,7 @@ use ggen_marketplace::packs_registry::validate::validate_pack;
 
 fn project_root() -> Result<PathBuf> {
     std::env::current_dir()
-        .map_err(|e| NounVerbError::execution_error(format!("cannot resolve project dir: {}", e)))
+        .map_err(|e| NounVerbError::execution_error(format!("cannot resolve project dir: {e}")))
 }
 
 fn lockfile_path(root: &Path) -> PathBuf {
@@ -34,7 +34,7 @@ fn lockfile_path(root: &Path) -> PathBuf {
 fn load_or_new_lockfile(path: &Path) -> Result<PackLockfile> {
     if path.exists() {
         PackLockfile::from_file(path)
-            .map_err(|e| NounVerbError::execution_error(format!("cannot read lockfile: {}", e)))
+            .map_err(|e| NounVerbError::execution_error(format!("cannot read lockfile: {e}")))
     } else {
         Ok(PackLockfile::new(env!("CARGO_PKG_VERSION")))
     }
@@ -52,9 +52,8 @@ fn load_or_new_lockfile(path: &Path) -> Result<PackLockfile> {
 /// checking on read -- a validation asymmetry between two paths sharing one
 /// lockfile. Enforcing the same rule at the point of entry closes that gap.
 fn validate_pack_id(pack_id: &str) -> Result<()> {
-    ggen_marketplace::marketplace::models::PackageId::new(pack_id).map_err(|e| {
-        NounVerbError::argument_error(format!("invalid pack id '{}': {}", pack_id, e))
-    })?;
+    ggen_marketplace::marketplace::models::PackageId::new(pack_id)
+        .map_err(|e| NounVerbError::argument_error(format!("invalid pack id '{pack_id}': {e}")))?;
     Ok(())
 }
 
@@ -69,6 +68,10 @@ fn validate_pack_id(pack_id: &str) -> Result<()> {
 /// digest and emit a receipt, so the lockfile invariant (non-empty digest) and
 /// provenance hold either way.
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn install(pack_id: String) -> Result<Value> {
     validate_pack_id(&pack_id)?;
     let root = project_root()?;
@@ -82,7 +85,7 @@ pub fn install(pack_id: String) -> Result<Value> {
     };
 
     // Deterministic, non-empty digest binding the declared identity.
-    let digest = crate::utils::sha256_hex(format!("{}@{}", pack_id, version).as_bytes());
+    let digest = crate::utils::sha256_hex(format!("{pack_id}@{version}").as_bytes());
 
     let mut lockfile = load_or_new_lockfile(&lock_path)?;
     lockfile.add_pack(
@@ -92,14 +95,14 @@ pub fn install(pack_id: String) -> Result<Value> {
             source: PackSource::Registry {
                 url: "https://registry.ggen.io".to_string(),
             },
-            integrity: Some(format!("sha256-{}", digest)),
+            integrity: Some(format!("sha256-{digest}")),
             installed_at: chrono::Utc::now(),
             dependencies: Vec::new(),
         },
     );
     lockfile
         .save(&lock_path)
-        .map_err(|e| NounVerbError::execution_error(format!("cannot write lockfile: {}", e)))?;
+        .map_err(|e| NounVerbError::execution_error(format!("cannot write lockfile: {e}")))?;
 
     // Witness the declaration with a signed receipt rooted at the project.
     let artifacts = vec![lock_path.clone()];
@@ -112,7 +115,7 @@ pub fn install(pack_id: String) -> Result<Value> {
         artifact_paths: &artifacts,
     };
     let receipt = emit_install_receipt(&root, &closure)
-        .map_err(|e| NounVerbError::execution_error(format!("receipt emission failed: {}", e)))?;
+        .map_err(|e| NounVerbError::execution_error(format!("receipt emission failed: {e}")))?;
 
     Ok(json!({
         "pack_id": pack_id,
@@ -126,6 +129,10 @@ pub fn install(pack_id: String) -> Result<Value> {
 
 /// List the packs recorded in the project lockfile.
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn list() -> Result<Value> {
     let root = project_root()?;
     let lock_path = lockfile_path(&root);
@@ -150,6 +157,10 @@ pub fn list() -> Result<Value> {
 /// Validate a pack. A pack absent from the registry is reported
 /// `is_valid: false` rather than erroring (the workflow is lenient).
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn validate(pack_id: String) -> Result<Value> {
     validate_pack_id(&pack_id)?;
     let (is_valid, score, errors) = match validate_pack(&pack_id) {
@@ -166,6 +177,10 @@ pub fn validate(pack_id: String) -> Result<Value> {
 
 /// Show pack detail. Graceful: an unknown pack returns `found: false` (exit 0).
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn show(pack_id: String) -> Result<Value> {
     validate_pack_id(&pack_id)?;
     match show_pack(&pack_id) {

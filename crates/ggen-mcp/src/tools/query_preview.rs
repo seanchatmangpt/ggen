@@ -1,9 +1,11 @@
 //! `ggen_query_preview` — the flagship tool. Direct fix for the verified
+//!
 //! failure that motivated this crate: a SPARQL query with a mandatory
 //! (non-OPTIONAL) triple on a predicate used zero times in the graph
 //! silently returned 0 of 113 expected rows, with no tool able to ask
 //! "does my query return rows, and how many" before it was committed to a
 //! template. See crates/ggen-mcp/README.md.
+//!
 
 use std::collections::BTreeSet;
 use std::path::Path;
@@ -87,8 +89,10 @@ pub struct QueryPreviewResult {
 }
 
 /// Validate and execute `params.sparql` against `params.root`'s project
+///
 /// graph. Pure function: no MCP/rmcp types in the signature, so this is
 /// independently testable and reusable by the wire-protocol adapter.
+///
 ///
 /// # Errors
 /// - `ErrorCategory::InputTooLarge` if `sparql` exceeds

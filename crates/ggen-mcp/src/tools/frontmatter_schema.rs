@@ -1,8 +1,10 @@
 //! `ggen_frontmatter_schema` — enumerate every legal template frontmatter
+//!
 //! key, from the `schemars::JsonSchema` derive on
 //! `ggen_engine::template::Frontmatter` (the same struct that is
 //! `#[serde(deny_unknown_fields)]` and drift-tested against
 //! `crates/ggen-engine/schema/frontmatter-schema.ttl`).
+//!
 //!
 //! Closes a verified friction point: an agent authoring a ggen project used
 //! 3 of the 25 legal keys and never discovered `for_each:` — the fan-out
@@ -103,6 +105,7 @@ pub fn frontmatter_schema(
     // than silently degrading to an empty key list (which `unwrap_or_default`
     // would do, laundering the failure into a false "zero legal keys"
     // result for the tool whose entire job is enumerating that key set).
+    #[allow(clippy::expect_used)] // fail-loud: see comment above
     let value = serde_json::to_value(&schema)
         .expect("schemars-derived Frontmatter schema must serialize to JSON");
 

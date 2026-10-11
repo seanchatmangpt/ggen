@@ -4,6 +4,7 @@
 //!
 //! Real collaborator: the actual generated table compiled into the workspace
 //! binary — no mocks, no fixtures.
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)] // Chicago TDD: real-IO tests
 
 use ggen_cli_lib::generated_commands::{describe_command, COMMANDS_REFERENCE};
 

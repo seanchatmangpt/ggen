@@ -18,3 +18,6 @@ duplicate or shared automation authority; manual standing; incomplete crowns;
 missing or red evidence; non-independent replay; stale receipts; evidence drift;
 and ticket order that violates proof order.
 """
+
+[capabilities]
+provides = ["urn:ggen:pack:gall-core-pack"]

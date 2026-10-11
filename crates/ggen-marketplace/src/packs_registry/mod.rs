@@ -11,6 +11,7 @@
 
 pub mod capability_registry;
 pub mod compose;
+pub mod composer;
 pub mod dependency_graph;
 pub mod external_fetcher;
 pub mod generator;
@@ -25,6 +26,10 @@ pub mod validate;
 use crate::marketplace::error::Error;
 use serde::Serialize;
 
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 /// Check compatibility between packs
 pub async fn check_packs_compatibility(
     pack_ids: &[String],
@@ -36,7 +41,7 @@ pub async fn check_packs_compatibility(
     for pack_id in pack_ids {
         match load_pack(pack_id).await {
             Ok(pack) => packs.push(pack),
-            Err(e) => load_errors.push(format!("Failed to load pack '{}': {}", pack_id, e)),
+            Err(e) => load_errors.push(format!("Failed to load pack '{pack_id}': {e}")),
         }
     }
 
@@ -58,10 +63,7 @@ pub async fn check_packs_compatibility(
     for pack in &packs {
         for package in &pack.packages {
             if !all_packages.insert(package.clone()) {
-                conflicts.push(format!(
-                    "Package '{}' is included in multiple packs",
-                    package
-                ));
+                conflicts.push(format!("Package '{package}' is included in multiple packs"));
             }
         }
     }
@@ -93,7 +95,7 @@ pub async fn check_packs_compatibility(
 /// compatibility checks pass against data that never existed.)
 async fn load_pack(pack_id: &str) -> Result<LoadedPack, Error> {
     let pack = metadata::show_pack(pack_id)
-        .map_err(|e| Error::Other(format!("Failed to load pack '{}': {}", pack_id, e)))?;
+        .map_err(|e| Error::Other(format!("Failed to load pack '{pack_id}': {e}")))?;
     Ok(LoadedPack {
         id: pack.id,
         name: pack.name,

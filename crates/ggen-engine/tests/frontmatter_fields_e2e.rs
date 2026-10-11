@@ -7,8 +7,8 @@
 
 use std::path::Path;
 
+use ggen_engine::receipt_chain_seam::ReceiptRecord;
 use ggen_engine::sync::{sync, SyncOptions, RECEIPT_REL_PATH};
-use praxis_core::receipt_record::ReceiptRecord;
 use tempfile::TempDir;
 
 const GGEN_TOML: &str = r#"
@@ -276,8 +276,8 @@ fn freeze_always_drift_is_quarantined_and_creates_an_obligation_in_the_real_rece
     let v2 = record.v2.expect("v2 epoch present");
 
     let admission_items = match &v2.admission {
-        praxis_core::receipt_epoch::AdmissionLedger::Recorded(items) => items,
-        praxis_core::receipt_epoch::AdmissionLedger::LegacyUnrecorded => {
+        ggen_engine::receipt_chain_seam::epoch::AdmissionLedger::Recorded(items) => items,
+        ggen_engine::receipt_chain_seam::epoch::AdmissionLedger::LegacyUnrecorded => {
             panic!("expected a recorded v2 admission ledger")
         }
     };
@@ -287,12 +287,12 @@ fn freeze_always_drift_is_quarantined_and_creates_an_obligation_in_the_real_rece
         .expect("out.txt has an admission item");
     assert_eq!(
         out_item.decision,
-        praxis_core::receipt_epoch::AdmissionDecision::Quarantined,
+        ggen_engine::receipt_chain_seam::epoch::AdmissionDecision::Quarantined,
         "drifted frozen file must be Quarantined, not Admitted: {out_item:?}"
     );
     assert_eq!(
         out_item.observed_outcome,
-        praxis_core::receipt_epoch::ObservedOutcome::Fail
+        ggen_engine::receipt_chain_seam::epoch::ObservedOutcome::Fail
     );
     assert_eq!(
         out_item.obligations_created,
@@ -305,7 +305,7 @@ fn freeze_always_drift_is_quarantined_and_creates_an_obligation_in_the_real_rece
     // not just an unread field.
     assert_ne!(
         v2.andon,
-        praxis_core::receipt_epoch::AndonLevel::Green,
+        ggen_engine::receipt_chain_seam::epoch::AndonLevel::Green,
         "a quarantined frozen-drift item must not leave Andon at Green"
     );
 }
@@ -341,8 +341,8 @@ fn freeze_always_no_drift_stays_admitted_with_no_obligation() {
     let record: ReceiptRecord = serde_json::from_value(record_json).expect("parse record");
     let v2 = record.v2.expect("v2 epoch present");
     let admission_items = match &v2.admission {
-        praxis_core::receipt_epoch::AdmissionLedger::Recorded(items) => items,
-        praxis_core::receipt_epoch::AdmissionLedger::LegacyUnrecorded => {
+        ggen_engine::receipt_chain_seam::epoch::AdmissionLedger::Recorded(items) => items,
+        ggen_engine::receipt_chain_seam::epoch::AdmissionLedger::LegacyUnrecorded => {
             panic!("expected a recorded v2 admission ledger")
         }
     };
@@ -352,7 +352,7 @@ fn freeze_always_no_drift_stays_admitted_with_no_obligation() {
         .expect("out.txt has an admission item");
     assert_eq!(
         out_item.decision,
-        praxis_core::receipt_epoch::AdmissionDecision::Admitted
+        ggen_engine::receipt_chain_seam::epoch::AdmissionDecision::Admitted
     );
     assert!(out_item.obligations_created.is_empty());
     assert!(!out_item.reason.contains("DRIFT:"), "{}", out_item.reason);

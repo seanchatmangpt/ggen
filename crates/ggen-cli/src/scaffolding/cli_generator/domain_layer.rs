@@ -14,6 +14,10 @@ pub struct DomainLayerGenerator {
 }
 
 impl DomainLayerGenerator {
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the operation cannot be completed.
     /// Create a new domain layer generator
     pub fn new(template_dir: &Path) -> Result<Self> {
         let pattern = format!("{}/**/*.tmpl", template_dir.display());
@@ -28,6 +32,10 @@ impl DomainLayerGenerator {
         Ok(Self { tera })
     }
 
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the operation cannot be completed.
     /// Generate domain layer
     ///
     /// Creates:
@@ -44,7 +52,7 @@ impl DomainLayerGenerator {
         let core_src = core_dir.join("src");
 
         std::fs::create_dir_all(&core_src).map_err(|e| {
-            GgenError::FileError(format!("Failed to create domain src directory: {}", e))
+            GgenError::FileError(format!("Failed to create domain src directory: {e}"))
         })?;
 
         let mut context = Context::new();
@@ -132,7 +140,7 @@ impl DomainLayerGenerator {
 
     fn render_template(&self, template: &str, context: &Context, output: &Path) -> Result<()> {
         let content = self.tera.render(template, context).map_err(|e| {
-            GgenError::TemplateError(format!("Failed to render template: {}: {}", template, e))
+            GgenError::TemplateError(format!("Failed to render template: {template}: {e}"))
         })?;
 
         if let Some(parent) = output.parent() {

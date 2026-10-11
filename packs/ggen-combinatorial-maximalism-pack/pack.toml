@@ -8,3 +8,6 @@ actuation, manufactures an executable Rust broker and verifier, and proves
 coverage, authority separation, filesystem actuation, BLAKE3 receipts, replay,
 and byte-identical regeneration through a real consumer.
 """
+
+[capabilities]
+provides = ["urn:ggen:pack:ggen-combinatorial-maximalism-pack"]

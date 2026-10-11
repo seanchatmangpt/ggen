@@ -110,6 +110,10 @@ impl ConventionResolver {
         }
     }
 
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the operation cannot be completed.
     /// Discover project conventions by scanning the file system
     pub fn discover(&self) -> Result<ProjectConventions> {
         // Load overrides if they exist
@@ -144,13 +148,12 @@ impl ConventionResolver {
 
         if override_path.exists() {
             let content = std::fs::read_to_string(&override_path).map_err(|e| {
-                crate::utils::error::Error::new(&format!("Failed to read conventions.toml: {}", e))
+                crate::utils::error::Error::new(&format!("Failed to read conventions.toml: {e}"))
             })?;
             let overrides: ConventionOverrides = Context::context(
-                toml::from_str(&content).map_err(|e| {
+                star_toml::from_str(&content).map_err(|e| {
                     crate::utils::error::Error::new(&format!(
-                        "Failed to parse conventions.toml: {}",
-                        e
+                        "Failed to parse conventions.toml: {e}"
                     ))
                 }),
                 "Failed to parse conventions.toml",
@@ -180,7 +183,7 @@ impl ConventionResolver {
                 ))
             })? {
                 files.push(entry.map_err(|e| {
-                    crate::utils::error::Error::new(&format!("Failed to read glob entry: {}", e))
+                    crate::utils::error::Error::new(&format!("Failed to read glob entry: {e}"))
                 })?);
             }
         }
@@ -214,7 +217,7 @@ impl ConventionResolver {
                 ))
             })? {
                 let path = entry.map_err(|e| {
-                    crate::utils::error::Error::new(&format!("Failed to read glob entry: {}", e))
+                    crate::utils::error::Error::new(&format!("Failed to read glob entry: {e}"))
                 })?;
 
                 // Convert nested path to template name
@@ -266,7 +269,7 @@ impl ConventionResolver {
                 ))
             })? {
                 let path = entry.map_err(|e| {
-                    crate::utils::error::Error::new(&format!("Failed to read glob entry: {}", e))
+                    crate::utils::error::Error::new(&format!("Failed to read glob entry: {e}"))
                 })?;
 
                 // Read query content

@@ -1,6 +1,8 @@
 //! Chicago-style falsifiers for RFC v26.9.26 ABB/SBB manufacture (real kernel values,
 //! state assertions only). Each test names the RFC DoD item it can falsify.
 
+// Chicago TDD (.claude/rules/rust/testing.md): unwrap/expect/panic allowed in test code.
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 use ggen_abb_sbb::*;
 
 const FIXTURE: &str = include_str!("../fixtures/ea-graph.json");
@@ -629,7 +631,7 @@ fn plan_falls_back_to_manufacture_with_every_refusal_recorded() {
             assert!(missing_ports.is_empty(), "{missing_ports:?}");
             assert_eq!(required_ports.len(), 2);
         }
-        other => panic!("expected MANUFACTURE, got {other:?}"),
+        other @ Decision::Select { .. } => panic!("expected MANUFACTURE, got {other:?}"),
     }
 }
 
@@ -653,7 +655,7 @@ fn manufacture_decision_reports_only_ports_no_candidate_provides() {
                 .iter()
                 .all(|r| matches!(r, Refusal::StaleQualification { .. })));
         }
-        other => panic!("expected MANUFACTURE, got {other:?}"),
+        other @ Decision::Select { .. } => panic!("expected MANUFACTURE, got {other:?}"),
     }
     // No candidate provides port:receipts-out: exactly that port is missing.
     let mut g = graph();
@@ -670,7 +672,7 @@ fn manufacture_decision_reports_only_ports_no_candidate_provides() {
             missing_ports,
             std::collections::BTreeSet::from(["port:receipts-out".to_string()])
         ),
-        other => panic!("expected MANUFACTURE, got {other:?}"),
+        other @ Decision::Select { .. } => panic!("expected MANUFACTURE, got {other:?}"),
     }
 }
 
@@ -697,7 +699,9 @@ fn assert_not_selected(g: &EaGraph) {
             let ad = admit(g, &req(g, &sbb)).unwrap();
             assert!(manufacture(&ad, &gen()).is_ok());
         }
-        other => panic!("expected SELECT of sbb:ingest-0001, got {other:?}"),
+        other @ Decision::Manufacture { .. } => {
+            panic!("expected SELECT of sbb:ingest-0001, got {other:?}")
+        }
     }
 }
 

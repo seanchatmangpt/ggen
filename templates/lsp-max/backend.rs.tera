@@ -1,6 +1,6 @@
 use lsp_max::ast::AutoLspAdapter;
-use lsp_max::rule_pack_server::{RulePack, RulePackServer, WorkspaceIndex};
-use lsp_max::{Client, LanguageServer, LspService, Server};
+use lsp_max::rule_pack_server::{RulePackServer, ValidatedRulePackSet, WorkspaceIndex};
+use lsp_max::{Client, LanguageServer};
 use lsp_max::lsp_types_max::*;
 use std::sync::Arc;
 use tokio::sync::RwLock;
@@ -11,7 +11,7 @@ use crate::workspace;
 pub struct {{ server_name | pascal }}Backend {
     client:         Client,
     adapter:        lsp_max::ast::AutoLspAdapter,
-    packs:          Vec<RulePack>,
+    packs:          ValidatedRulePackSet,
     index:          WorkspaceIndex,
     workspace_root: Arc<RwLock<Option<std::path::PathBuf>>>,
 }
@@ -21,7 +21,8 @@ impl {{ server_name | pascal }}Backend {
         Self {
             client,
             adapter:        AutoLspAdapter::new_default(),
-            packs:          packs::all_packs(),
+            packs:          ValidatedRulePackSet::new(&packs::all_packs())
+                                .expect("compiled-in rule packs must be conflict-free"),
             index:          WorkspaceIndex::new(),
             workspace_root: Arc::new(RwLock::new(None)),
         }
@@ -29,20 +30,39 @@ impl {{ server_name | pascal }}Backend {
 }
 
 impl RulePackServer for {{ server_name | pascal }}Backend {
-    fn rule_packs(&self)  -> &[RulePack]     { &self.packs }
+    fn rule_packs(&self)  -> &ValidatedRulePackSet { &self.packs }
     fn grammar(&self)     -> tree_sitter::Language { tree_sitter_rust::LANGUAGE.into() }
     fn server_name(&self) -> &'static str    { "{{ diagnostic_source_id }}" }
     fn client(&self)      -> &Client         { &self.client }
     fn adapter(&self)     -> &AutoLspAdapter { &self.adapter }
     fn workspace_index(&self) -> Option<&WorkspaceIndex> { Some(&self.index) }
-    fn file_globs(&self)  -> &[&'static str] { workspace::FILE_GLOBS }
+}
+
+impl {{ server_name | pascal }}Backend {
+    /// Walk the workspace root and log the aggregate finding count.
+    async fn scan_workspace(&self, root: &std::path::Path) {
+        let mut findings = 0usize;
+        for path in workspace::workspace_files(root) {
+            let Ok(content) = std::fs::read_to_string(&path) else { continue };
+            for pack in self.packs.packs() {
+                for rule in &pack.rules {
+                    if let Ok(re) = regex::Regex::new(&rule.pattern) {
+                        findings += re.find_iter(&content).count();
+                    }
+                }
+            }
+        }
+        self.client.log_message(MessageType::INFO,
+            format!("workspace scan of {} — {} finding(s)", root.display(), findings)).await;
+    }
 }
 
 #[lsp_max::async_trait]
 impl LanguageServer for {{ server_name | pascal }}Backend {
     async fn initialize(&self, params: InitializeParams) -> lsp_max::jsonrpc::Result<InitializeResult> {
         let root = params.root_uri
-            .and_then(|u| u.to_file_path().ok())
+            .map(|u| std::path::PathBuf::from(
+                u.as_str().strip_prefix("file://").unwrap_or(u.as_str())))
             .or_else(|| params.root_path.map(std::path::PathBuf::from));
         if let Some(r) = root {
             *self.workspace_root.write().await = Some(r);

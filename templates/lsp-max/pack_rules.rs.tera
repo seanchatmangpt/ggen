@@ -1,4 +1,4 @@
-use lsp_max::{EvalBudget, Rule, RulePack};
+use lsp_max::rule_pack_server::{EvalBudget, Rule, RulePack};
 
 /// Rule pack `{{ pack_id }}` v{{ pack_version }} — compiled from lsp.ttl.
 /// Rules baked into the binary; no runtime TOML loading.

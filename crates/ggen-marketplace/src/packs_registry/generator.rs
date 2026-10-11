@@ -26,6 +26,10 @@ pub struct GenerateOutput {
     pub output_path: PathBuf,
 }
 
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 /// Generate project from pack templates
 pub async fn generate_from_pack(input: &GenerateInput) -> Result<GenerateOutput> {
     // Load pack metadata

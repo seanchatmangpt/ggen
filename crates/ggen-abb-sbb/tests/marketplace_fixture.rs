@@ -1,6 +1,8 @@
 //! Cross-repository witness: ggen consumes the exact marketplace projection.
 //! The source lock binds this vendored fixture to ggen-marketplace PR #506.
 
+// Chicago TDD (.claude/rules/rust/testing.md): unwrap/expect/panic allowed in test code.
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 use ggen_abb_sbb::*;
 use sha2::{Digest, Sha256};
 

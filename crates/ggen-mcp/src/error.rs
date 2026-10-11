@@ -12,8 +12,10 @@
 use serde::Serialize;
 
 /// Closed set of error categories a ggen-mcp tool can report. Adding a new
+///
 /// tool means picking from this set or, if genuinely novel, adding a new
 /// variant here -- never stringly-typing a category inline at a call site.
+///
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum ErrorCategory {

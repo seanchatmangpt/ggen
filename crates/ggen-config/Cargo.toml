@@ -24,7 +24,7 @@ workspace = true
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-star-toml = "26.7.3"
+star-toml = { workspace = true }
 toml = "1.1.6"
 # JsonSchema derive for the `[[generation.rules]]` types consumed by ggen-engine's
 # declarative-rules sync path (specs/014-ggen-core-replacement, T070) -- load-bearing for
@@ -33,6 +33,8 @@ toml = "1.1.6"
 # tests/ggen_toml_schema_match.rs.
 schemars = { version = "1.2", features = ["derive"] }
 thiserror = "2.0"
+# Non-fatal schema-drift advisory in `config_schema::classify_ggen_toml_with_origin`.
+tracing = { workspace = true }
 tokio = { version = "1.53", features = ["sync"] }
 chrono = { version = "0.4", features = ["serde"] }
 # User-level MCP/A2A config file resolution (~/.ggen/mcp/config.json, ~/.ggen/a2a.toml) --
@@ -52,6 +54,8 @@ log = { workspace = true }
 
 [dev-dependencies]
 tempfile = "3"
+# Captures the schema-drift advisory warn! output in tests/schema_drift_advisory_test.rs.
+tracing-subscriber = { workspace = true }
 # `#[tokio::test]` (used in hive_coordinator + ontology_integration tests) needs
 # the macros + runtime features; the production `tokio` dep above intentionally
 # keeps only `sync` to stay lean. Cargo unifies these for the test build.

@@ -33,18 +33,30 @@ pub struct HooksInstallOutput {
     pub warnings: Vec<String>,
 }
 
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 /// Check if a directory is a git repository
 pub fn is_git_repo(path: &Path) -> Result<bool, std::io::Error> {
     let git_dir = path.join(".git");
     Ok(git_dir.exists() && git_dir.is_dir())
 }
 
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 /// Get the .git/hooks directory path
 pub fn get_hooks_dir(project_path: &Path) -> Result<PathBuf, std::io::Error> {
     let hooks_dir = project_path.join(".git").join("hooks");
     Ok(hooks_dir)
 }
 
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 /// Check if a hook is already installed
 pub fn is_hook_installed(hooks_dir: &Path, hook_name: &str) -> Result<bool, std::io::Error> {
     let hook_path = hooks_dir.join(hook_name);
@@ -175,6 +187,10 @@ echo "All gates passed. Push will proceed."
 exit 0
 "#;
 
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 /// Install a single git hook
 pub fn install_hook(
     hooks_dir: &Path, hook_name: &str, hook_content: &str,
@@ -219,6 +235,10 @@ pub fn install_hook(
     })
 }
 
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 /// Install all git hooks
 pub fn install_git_hooks(
     project_path: &Path, skip_hooks: bool,
@@ -255,7 +275,7 @@ pub fn install_git_hooks(
     match install_hook(&hooks_dir, "pre-commit", PRE_COMMIT_HOOK) {
         Ok(result) => hooks_installed.push(result),
         Err(e) => {
-            warnings.push(format!("Failed to install pre-commit hook: {}", e));
+            warnings.push(format!("Failed to install pre-commit hook: {e}"));
         }
     }
 
@@ -263,7 +283,7 @@ pub fn install_git_hooks(
     match install_hook(&hooks_dir, "pre-push", PRE_PUSH_HOOK) {
         Ok(result) => hooks_installed.push(result),
         Err(e) => {
-            warnings.push(format!("Failed to install pre-push hook: {}", e));
+            warnings.push(format!("Failed to install pre-push hook: {e}"));
         }
     }
 

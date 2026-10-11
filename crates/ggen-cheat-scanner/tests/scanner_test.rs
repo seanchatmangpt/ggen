@@ -4,6 +4,8 @@
 //! clean fixture (mirrors the fixture-test discipline in
 //! `~/bcinr/tools/bcinr-cheat-scanner`'s `tests/test_scanner.rs`).
 
+// Chicago TDD (.claude/rules/rust/testing.md): unwrap/expect/panic allowed in test code.
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 use ggen_cheat_scanner::{collect_impls, find_mock_substitutes, scan_source};
 use std::fs;
 use std::path::Path;
@@ -199,5 +201,68 @@ fn cheat_t04_does_not_flag_shared_ubiquitous_std_trait() {
     assert!(
         findings.is_empty(),
         "did not expect CHEAT-T04 when a Fake* type shares only `Default` with a production type, got: {findings:?}"
+    );
+}
+
+// ---------- cheat-scan-ignore suppression convention ----------
+
+#[test]
+fn cheat_scan_ignore_suppresses_annotated_test_only() {
+    let src = r"
+// cheat-scan-ignore: vacuous_suppressed -- pinning detector suppression itself
+#[test]
+fn vacuous_suppressed() {
+    assert!(true);
+}
+
+#[test]
+fn vacuous_not_suppressed() {
+    assert!(true);
+}
+";
+    let findings =
+        scan_source(src, Path::new("inline_ignore.rs")).unwrap_or_else(|e| panic!("parse: {e}"));
+    let t01_count = findings.iter().filter(|f| f.rule_id == "CHEAT-T01").count();
+    assert_eq!(
+        t01_count, 1,
+        "exactly one T01 expected (annotated suppressed, unannotated fires): {findings:?}"
+    );
+    assert!(
+        findings.iter().all(|f| f.line > 3),
+        "the surviving T01 must be the unannotated test: {findings:?}"
+    );
+}
+
+#[test]
+fn cheat_scan_ignore_requires_exact_fn_name() {
+    let src = r"
+// cheat-scan-ignore: some_other_test -- wrong name must not suppress
+#[test]
+fn vacuous_wrong_name() {
+    assert!(true);
+}
+";
+    let findings = scan_source(src, Path::new("inline_ignore_wrong.rs"))
+        .unwrap_or_else(|e| panic!("parse: {e}"));
+    assert!(
+        rule_ids(&findings).contains(&"CHEAT-T01"),
+        "a non-matching ignore name must not suppress: {findings:?}"
+    );
+}
+
+#[test]
+fn cheat_scan_ignore_with_reason_after_marker() {
+    let src = r"
+// cheat-scan-ignore: vacuous_reasoned -- asserts at compile time, no runtime assert exists
+#[test]
+fn vacuous_reasoned() {
+    assert!(true);
+}
+";
+    let findings = scan_source(src, Path::new("inline_ignore_reason.rs"))
+        .unwrap_or_else(|e| panic!("parse: {e}"));
+    assert!(
+        !rule_ids(&findings).contains(&"CHEAT-T01"),
+        "reason-after-`--` form must still suppress: {findings:?}"
     );
 }

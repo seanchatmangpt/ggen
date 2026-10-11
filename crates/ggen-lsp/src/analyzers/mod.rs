@@ -62,6 +62,14 @@ pub fn detect_tpl_001(
         let Some(template) = entry.template_content.as_deref() else {
             continue;
         };
+        // SELECT * (or a missing query) leaves `selected_vars` empty: the
+        // projection set is unknowable at author time, so unboundness cannot
+        // be PROVEN — the check is unsound without provision knowledge and
+        // GGEN-QUERY-002 (already emitted by detect_query_002) is the sole
+        // advisory for this rule. Mirrors detect_out_001's guard below.
+        if entry.selected_vars.is_empty() {
+            continue;
+        }
         let diags = unbound_projection_diagnostics(template, &entry.selected_vars);
         if !diags.is_empty() {
             out.push((entry.template_path.clone().unwrap_or_default(), diags));

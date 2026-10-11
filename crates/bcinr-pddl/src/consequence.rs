@@ -59,10 +59,9 @@ use wasm4pm_compat::pddl::{Pddl8GroundAction, Pddl8GroundAtom, Pddl8Tape};
 // PlanningResult
 // ---------------------------------------------------------------------
 
-/// Enough structure from a completed plan for a [`ConsequenceHorizon`] to
-/// observe, without forcing every horizon to depend on `Pddl8Tape` vs
-/// `TemporalPlan` specifically (both a classical and a temporal caller can
-/// build one of these).
+/// Enough structure from a completed plan for a [`ConsequenceHorizon`] to observe, without forcing
+///
+/// every horizon to depend on `Pddl8Tape` vs `TemporalPlan` specifically (both a classical and a temporal caller can build one of these).
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct PlanningResult {
     pub final_state: BTreeSet<Pddl8GroundAtom>,
@@ -139,10 +138,9 @@ pub trait ConsequenceHorizon {
     fn observe(&self, result: &PlanningResult) -> Self::Consequence;
 }
 
-/// Did the plan's final state satisfy every goal atom? Real inspection —
-/// `observe` checks `result.final_state` against `result.goal`, it does not
-/// assume `Found` implies the goal held (a caller could, in principle, feed
-/// in a `PlanningResult` built from a non-goal-directed replay).
+/// Did the plan's final state satisfy every goal atom?
+///
+/// Real inspection — `observe` checks `result.final_state` against `result.goal`, it does not assume `Found` implies the goal held (a caller could, in principle, feed in a `PlanningResult` built from a non-goal-directed replay).
 #[derive(Debug, Clone, Copy, Default)]
 pub struct GoalReachabilityHorizon;
 
@@ -168,11 +166,9 @@ pub struct MakespanObservation {
 }
 
 /// How long did the plan actually take? Real inspection — `observe`
-/// copies `result.step_count`/`result.makespan_milli` verbatim (see
-/// [`MakespanObservation`]'s doc comment above), it does not derive or
-/// estimate a minimum from anything else the way the name's "minimum"
-/// might suggest; this horizon just makes the plan's own observed
-/// makespan cacheable and comparable, it does not search for a better one.
+/// copies `result.step_count`/`result.makespan_milli` verbatim (see [`MakespanObservation`]'s doc
+///
+/// comment above), it does not derive or estimate a minimum from anything else the way the name's "minimum" might suggest; this horizon just makes the plan's own observed makespan cacheable and comparable, it does not search for a better one.
 #[derive(Debug, Clone, Copy, Default)]
 pub struct MinimumMakespanHorizon;
 
@@ -195,20 +191,9 @@ impl ConsequenceHorizon for MinimumMakespanHorizon {
 // Exact-match semantic cache
 // ---------------------------------------------------------------------
 
-/// The (only, mandatory) cache profile: an exact `(state, theory, horizon)`
-/// triple. Two calls with the same key are, by construction, asking the same
-/// question of the same *digest* in the same state — a standing hit is
-/// exactly as sound as re-running the search **only insofar as
-/// `theory_digest` actually distinguishes theories that differ**. This
-/// holds today for theories differing in action bodies, durations, or
-/// `:init`/`:goal` content (see
-/// [`crate::capability::domain_problem_digest`], which computes the
-/// `theory_digest` every caller of this cache is expected to supply), but
-/// not yet for theories differing only in `:constraints`/`:preferences`/
-/// `:metric`/PDDL+ `:process`/`:event` — two such theories still collide on
-/// `theory_digest` and this cache cannot tell them apart. `ExactStateKey`
-/// itself does no theory hashing; it is exactly as sound as whatever digest
-/// its caller hands it.
+/// The (only, mandatory) cache profile: an exact `(state, theory, horizon)` triple.
+///
+/// Two calls with the same key are, by construction, asking the same question of the same *digest* in the same state — a standing hit is exactly as sound as re-running  the search **only insofar as `theory_digest` actually distinguishes theories that differ**. This holds today for theories differing in action bodies, durations, or `:init`/`:goal` content (see [`crate::capability::domain_problem_digest`], which computes the `theory_digest` every caller of this cache is expected to supply), but not yet for theories differing only in `:constraints`/`:preferences`/ `:metric`/PDDL+ `:process`/`:event` — two such theories still collide on `theory_digest` and this cache cannot tell them apart. `ExactStateKey` itself does no theory hashing; it is exactly as sound as whatever digest its caller hands it.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub struct ExactStateKey {
     pub state_digest: Digest,
@@ -274,15 +259,9 @@ impl<H: ConsequenceHorizon> StandingConsequenceCache<H> {
     }
 }
 
-/// Look up a standing consequence for `(state_digest, theory_digest)` under
-/// `cache`'s horizon *before* calling `search` at all; only calls `search`
-/// (a classical BFS, typically `GroundProblem::find_plan`) on a genuine
-/// cache miss. This is the actual "zero search on a standing hit" mechanism
-/// — see `tests::second_call_is_a_standing_hit_and_never_calls_search` for
-/// the call-counter proof, not just this doc comment's claim.
+/// Look up a standing consequence for `(state_digest, theory_digest)` under `cache`'s horizon *before*
 ///
-/// Returns `None` if there is neither a standing hit nor a found plan (a
-/// real search miss — `search` returned something other than `Found`).
+/// calling `search` at all; only calls `search` (a classical BFS, typically `GroundProblem::find_plan`) on a genuine cache miss.  This is the actual "zero search on a standing hit" mechanism — see `tests::second_call_is_a_standing_hit_and_never_calls_search` for the call-counter proof, not just this doc comment's claim.  Returns `None` if there is neither a standing hit nor a found plan (a real search miss — `search`  returned something other than `Found`).
 pub fn plan_with_standing_cache<H: ConsequenceHorizon>(
     cache: &mut StandingConsequenceCache<H>, state_digest: Digest, theory_digest: Digest,
     initial_state: &BTreeSet<Pddl8GroundAtom>, goal: &[Pddl8GroundAtom],
@@ -339,6 +318,7 @@ pub struct ResidualObligation {
 }
 
 /// Computes a [`ResidualDecision`] for one [`ConsequenceHorizon`] type `H`.
+///
 /// Generic over `H` so other horizons can add their own `impl
 /// Residualizer<TheirHorizon> { pub fn residualize(...) }` block later
 /// without this crate needing a trait-object dispatch table — today only
@@ -539,11 +519,10 @@ mod tests {
 
     #[test]
     fn residualizer_reports_no_work_when_goal_already_holds() {
-        let init: BTreeSet<Pddl8GroundAtom> = [Pddl8GroundAtom {
+        let init: BTreeSet<Pddl8GroundAtom> = std::iter::once(Pddl8GroundAtom {
             pred: "q".to_string(),
             args: vec![],
-        }]
-        .into_iter()
+        })
         .collect();
         let goal = vec![Pddl8GroundAtom {
             pred: "q".to_string(),

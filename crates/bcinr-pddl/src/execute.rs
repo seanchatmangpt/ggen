@@ -402,7 +402,12 @@ fn load_may_fire_rule(
 }
 
 fn hex(b: &[u8; 32]) -> String {
-    b.iter().map(|x| format!("{x:02x}")).collect()
+    use std::fmt::Write as _;
+    let mut s = String::with_capacity(64);
+    for x in b {
+        let _ = write!(s, "{x:02x}");
+    }
+    s
 }
 
 fn hash_strings(items: &[String]) -> String {
@@ -661,13 +666,9 @@ pub struct SubstageNs {
     pub trace_build_ns: u128,
 }
 
-/// Bench-only instrumented variant of `execute_temporal_plan`, duplicating
-/// its logic with `Instant::now()` checkpoints around each L3 substage.
-/// Exists *only* so DfCM crown-suite benchmarking can attribute
-/// admission/replay cost by substage without adding timing overhead to
-/// `execute_temporal_plan` itself, which every production caller uses.
-/// Keep this in sync with `execute_temporal_plan` if that function's
-/// structure changes.
+/// Bench-only instrumented variant of `execute_temporal_plan`, duplicating its logic with
+///
+/// `Instant::now()` checkpoints around each L3 substage. Exists *only* so DfCM crown-suite benchmarking can attribute admission/replay cost by substage without adding timing overhead to `execute_temporal_plan` itself, which every production caller uses. Keep this in sync with `execute_temporal_plan` if that function's structure changes.
 pub fn execute_temporal_plan_instrumented(
     plan: &TemporalPlan, domain: &Pddl8Domain, problem: &Pddl8Problem, case_id: &str,
     policy_rules: &[(&str, Vec<&str>)],
@@ -678,7 +679,13 @@ pub fn execute_temporal_plan_instrumented(
     validate_case_id(case_id)?;
 
     let mut steps = plan.steps.clone();
-    steps.sort_by(|a, b| a.start_time.partial_cmp(&b.start_time).unwrap());
+    // NaN start_time must not panic the comparator; ordering NaN steps as
+    // equal keeps the sort total instead of aborting admission.
+    steps.sort_by(|a, b| {
+        a.start_time
+            .partial_cmp(&b.start_time)
+            .unwrap_or(std::cmp::Ordering::Equal)
+    });
 
     let mut substage = SubstageNs::default();
 
@@ -984,7 +991,13 @@ pub fn execute_temporal_plan(
 
     // Sort steps by start_time
     let mut steps = plan.steps.clone();
-    steps.sort_by(|a, b| a.start_time.partial_cmp(&b.start_time).unwrap());
+    // NaN start_time must not panic the comparator; ordering NaN steps as
+    // equal keeps the sort total instead of aborting admission.
+    steps.sort_by(|a, b| {
+        a.start_time
+            .partial_cmp(&b.start_time)
+            .unwrap_or(std::cmp::Ordering::Equal)
+    });
 
     // Initialize Prolog8 admission gate — mirrors execute_tape lines 121-133.
     let mut ctx = Ctx::new();

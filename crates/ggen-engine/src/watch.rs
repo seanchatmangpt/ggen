@@ -4,7 +4,7 @@
 //! [`watch`] performs one synchronous [`crate::sync::sync`] up front, then
 //! watches `root` (recursively) and re-runs the pipeline on every debounced
 //! batch of filesystem events. A debounced batch whose paths *all* fall
-//! under `root/.ggen-v2` or `root/.git` is ignored (see [`should_ignore`]) —
+//! under `root/.ggen-v2` or `root/.git` is ignored (see `should_ignore`) —
 //! otherwise sync's own receipt/log writes would retrigger themselves,
 //! looping forever.
 //!

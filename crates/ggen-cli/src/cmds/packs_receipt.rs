@@ -19,6 +19,10 @@ pub use crate::agent::{PackInstallClosure, PackReceiptError};
 /// Result type for pack receipt operations (alias over the core error).
 pub type Result<T> = std::result::Result<T, PackReceiptError>;
 
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 /// Generate a cryptographic receipt for a SUCCESSFUL pack installation, rooted
 /// at the current working directory (the project root for a CLI `pack add`).
 ///
@@ -27,7 +31,7 @@ pub type Result<T> = std::result::Result<T, PackReceiptError>;
 /// input/output-hash closure binding.
 pub fn generate_pack_install_receipt(closure: &PackInstallClosure<'_>) -> Result<PathBuf> {
     let root = std::env::current_dir().map_err(|e| {
-        PackReceiptError::Runtime(format!("Failed to resolve project directory: {}", e))
+        PackReceiptError::Runtime(format!("Failed to resolve project directory: {e}"))
     })?;
     crate::agent::emit_install_receipt(&root, closure)
 }

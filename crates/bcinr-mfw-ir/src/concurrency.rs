@@ -107,10 +107,9 @@ impl ExecutableConcurrencyComplex {
     }
 }
 
-/// Produces an `ExecutableConcurrencyComplex` from a `CausalPlan`'s
-/// independence/causal structure. Generic over `Epoch` so `bcinr-pddl` can
-/// implement this trait against its own `GroundedPlanningEpoch` without
-/// this crate knowing pddl's types.
+/// Produces an `ExecutableConcurrencyComplex` from a `CausalPlan`'s independence/causal structure.
+///
+/// Generic over `Epoch` so `bcinr-pddl` can implement this trait against its own `GroundedPlanningEpoch` without this crate knowing pddl's types.
 pub trait ConcurrencyAnalyzer {
     type Epoch;
     type Error;

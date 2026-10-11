@@ -1,0 +1,9 @@
+@prefix ex: <http://example.org/delta-demo#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+ex:echoAgent a ex:Agent ;
+    ex:moduleName "Demo.Agents.Echo" ;
+    ex:version "1.0.0" ;
+    ex:export "init/1" ;
+    ex:export "handle_message/1" .

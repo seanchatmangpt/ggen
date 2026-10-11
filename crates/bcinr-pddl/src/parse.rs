@@ -362,7 +362,7 @@ fn lower_action(a: &pddl::ActionDefinition) -> Result<Pddl8ActionSchema, Pddl8Er
         });
     }
 
-    let (add_effects, del_effects) = lower_effects(a.effect())?;
+    let (add_effects, del_effects) = lower_effects(a.effect().as_ref())?;
 
     // Extended fields
     let typed_params = lower_typed_variables(a.parameters());
@@ -374,7 +374,7 @@ fn lower_action(a: &pddl::ActionDefinition) -> Result<Pddl8ActionSchema, Pddl8Er
             _ => Some(c),
         }
     };
-    let effects = lower_effect_list(a.effect());
+    let effects = lower_effect_list(a.effect().as_ref());
 
     Ok(Pddl8ActionSchema {
         name: a.symbol().to_string(),
@@ -467,7 +467,7 @@ fn collect_gd(gd: &GoalDefinition, out: &mut Vec<Pddl8Atom>) {
 }
 
 fn lower_effects(
-    eff: &Option<pddl::Effects>,
+    eff: Option<&pddl::Effects>,
 ) -> Result<(Vec<Pddl8Atom>, Vec<Pddl8Atom>), Pddl8Error> {
     let Some(effects) = eff else {
         return Ok((vec![], vec![]));
@@ -690,7 +690,7 @@ fn type_to_string(t: &pddl::Type) -> String {
 fn lower_action31(a: &pddl::ActionDefinition) -> Pddl31Action {
     let params = lower_typed_variables(a.parameters());
     let precondition = lower_precond_defs_full(a.precondition());
-    let effect = lower_effect_list(a.effect());
+    let effect = lower_effect_list(a.effect().as_ref());
     Pddl31Action {
         name: a.symbol().to_string(),
         params,
@@ -699,15 +699,20 @@ fn lower_action31(a: &pddl::ActionDefinition) -> Pddl31Action {
     }
 }
 
+#[allow(clippy::expect_used)] // invariant: match arm guarantees len == 1
 fn lower_precond_defs_full(defs: &pddl::PreconditionGoalDefinitions) -> PddlCondition {
     let conjuncts: Vec<PddlCondition> = defs.iter().map(lower_precond_def_full).collect();
     match conjuncts.len() {
         0 => PddlCondition::And(vec![]),
-        1 => conjuncts.into_iter().next().unwrap(),
+        1 => conjuncts
+            .into_iter()
+            .next()
+            .expect("match arm guarantees len == 1"),
         _ => PddlCondition::And(conjuncts),
     }
 }
 
+#[allow(clippy::expect_used)] // invariant: match arm guarantees len == 1
 fn lower_precond_def_full(def: &PreconditionGoalDefinition) -> PddlCondition {
     match def {
         PreconditionGoalDefinition::Preference(pref) => lower_pref_gd_full(pref),
@@ -716,7 +721,10 @@ fn lower_precond_def_full(def: &PreconditionGoalDefinition) -> PddlCondition {
             let body_parts: Vec<_> = inner.iter().map(lower_precond_def_full).collect();
             let body_cond = match body_parts.len() {
                 0 => PddlCondition::And(vec![]),
-                1 => body_parts.into_iter().next().unwrap(),
+                1 => body_parts
+                    .into_iter()
+                    .next()
+                    .expect("match arm guarantees len == 1"),
                 _ => PddlCondition::And(body_parts),
             };
             PddlCondition::Forall {
@@ -831,7 +839,7 @@ fn lower_goal_full(defs: &pddl::PreconditionGoalDefinitions) -> PddlCondition {
     lower_precond_defs_full(defs)
 }
 
-fn lower_effect_list(eff: &Option<pddl::Effects>) -> Vec<PddlEffect> {
+fn lower_effect_list(eff: Option<&pddl::Effects>) -> Vec<PddlEffect> {
     let Some(effects) = eff else {
         return vec![];
     };
@@ -1101,6 +1109,7 @@ fn lower_duration_value(val: &DurationValue) -> NumericExpr {
     }
 }
 
+#[allow(clippy::expect_used)] // invariant: match arm guarantees len == 1
 fn lower_da_gd(gd: &DurativeActionGoalDefinition) -> Vec<PddlCondition> {
     match gd {
         DurativeActionGoalDefinition::Timed(pref_timed) => {
@@ -1112,7 +1121,10 @@ fn lower_da_gd(gd: &DurativeActionGoalDefinition) -> Vec<PddlCondition> {
             let body_parts = lower_da_gd(inner);
             let body = match body_parts.len() {
                 0 => PddlCondition::And(vec![]),
-                1 => body_parts.into_iter().next().unwrap(),
+                1 => body_parts
+                    .into_iter()
+                    .next()
+                    .expect("match arm guarantees len == 1"),
                 _ => PddlCondition::And(body_parts),
             };
             vec![PddlCondition::Forall {
@@ -1170,11 +1182,15 @@ fn lower_da_effect(effect: &DurativeActionEffect) -> Vec<PddlEffect> {
     }
 }
 
+#[allow(clippy::expect_used)] // invariant: match arm guarantees len == 1
 fn lower_da_gd_condition(gd: &DurativeActionGoalDefinition) -> PddlCondition {
     let parts = lower_da_gd(gd);
     match parts.len() {
         0 => PddlCondition::And(vec![]),
-        1 => parts.into_iter().next().unwrap(),
+        1 => parts
+            .into_iter()
+            .next()
+            .expect("match arm guarantees len == 1"),
         _ => PddlCondition::And(parts),
     }
 }

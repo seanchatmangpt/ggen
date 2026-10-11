@@ -153,12 +153,20 @@ impl PackAgent {
 
     // ── Read-only registry operations ──────────────────────────────────────
 
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the operation cannot be completed.
     /// List all packs in the local registry, optionally filtered by `category`.
     pub fn list(&self, category: Option<&str>) -> AgentResult<Vec<PackRef>> {
         let packs = list_packs(category).map_err(|e| AgentError::Internal(e.to_string()))?;
         Ok(packs.into_iter().map(pack_ref).collect())
     }
 
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the operation cannot be completed.
     /// Relevance-rank packs by a text query (name > id > description), highest
     /// first, capped at `limit` (default 20). An empty query is rejected.
     pub fn search(&self, query: &str, limit: Option<usize>) -> AgentResult<Vec<SearchHit>> {
@@ -190,6 +198,10 @@ impl PackAgent {
         Ok(hits)
     }
 
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the operation cannot be completed.
     /// Full detail for one pack: metadata, packages, templates, dependency
     /// edges, and the validation (quality-gate) result.
     pub fn show(&self, pack_id: &str) -> AgentResult<PackDetail> {
@@ -236,6 +248,10 @@ impl PackAgent {
         })
     }
 
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the operation cannot be completed.
     /// Resolve a capability surface (e.g. `mcp`, `web`) — optionally narrowed by
     /// `projection` and `runtime` — to concrete pack IDs, splitting them into
     /// `resolved` (present in the registry) and `missing` (with install hints).
@@ -257,7 +273,7 @@ impl PackAgent {
             if load_pack_metadata(&id).is_ok() {
                 resolved.push(id);
             } else {
-                install_hints.push(format!("ggen pack add {}", id));
+                install_hints.push(format!("ggen pack add {id}"));
                 missing.push(id);
             }
         }
@@ -272,6 +288,10 @@ impl PackAgent {
         })
     }
 
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the operation cannot be completed.
     /// Check whether a set of packs can be composed without conflicts, by
     /// loading each pack's real metadata and detecting overlapping package sets.
     ///
@@ -304,6 +324,10 @@ impl PackAgent {
         })
     }
 
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the operation cannot be completed.
     /// Read installed-pack state from the project lockfile. A missing lockfile
     /// is reported honestly (`lockfile_present == false`), not as an error.
     pub fn status(&self) -> AgentResult<AgentStatus> {
@@ -318,7 +342,7 @@ impl PackAgent {
         }
 
         let lockfile = PackLockfile::from_file(&lockfile_path)
-            .map_err(|e| AgentError::Io(format!("cannot read lockfile: {}", e)))?;
+            .map_err(|e| AgentError::Io(format!("cannot read lockfile: {e}")))?;
 
         let installed = lockfile
             .packs
@@ -355,6 +379,10 @@ impl PackAgent {
 
     // ── Mutating lifecycle operations ──────────────────────────────────────
 
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the operation cannot be completed.
     /// Install a pack. On a real (non-dry-run) install this writes the project
     /// lockfile with a non-empty digest and, when `emit_receipt` is set, emits a
     /// signed provenance receipt — both bound into the returned [`InstallOutcome`]
@@ -424,6 +452,10 @@ impl PackAgent {
         })
     }
 
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the operation cannot be completed.
     /// Remove a pack from the project lockfile. Fail-closed: a missing lockfile
     /// or an absent pack returns a typed error and leaves the lockfile intact.
     pub fn remove(&self, pack_id: &str) -> AgentResult<RemoveOutcome> {
@@ -439,7 +471,7 @@ impl PackAgent {
         }
 
         let mut lockfile = PackLockfile::from_file(&lockfile_path)
-            .map_err(|e| AgentError::Io(format!("cannot read lockfile: {}", e)))?;
+            .map_err(|e| AgentError::Io(format!("cannot read lockfile: {e}")))?;
 
         if lockfile.get_pack(pack_id).is_none() {
             return Err(AgentError::NotInstalled(pack_id.to_string()));
@@ -448,7 +480,7 @@ impl PackAgent {
         let removed = lockfile.remove_pack(pack_id);
         lockfile
             .save(&lockfile_path)
-            .map_err(|e| AgentError::Io(format!("cannot save lockfile: {}", e)))?;
+            .map_err(|e| AgentError::Io(format!("cannot save lockfile: {e}")))?;
 
         let remaining = lockfile.packs.keys().cloned().collect();
 
@@ -546,8 +578,7 @@ fn validate_pack_name(pack_id: &str) -> AgentResult<()> {
     }
     if pack_id.contains("..") || pack_id.contains('/') || pack_id.contains('\\') {
         return Err(AgentError::InvalidRequest(format!(
-            "pack id '{}' must not contain path separators or traversal sequences",
-            pack_id
+            "pack id '{pack_id}' must not contain path separators or traversal sequences"
         )));
     }
     let valid = pack_id
@@ -555,8 +586,7 @@ fn validate_pack_name(pack_id: &str) -> AgentResult<()> {
         .all(|c| c.is_alphanumeric() || matches!(c, '-' | '_' | '.' | ':'));
     if !valid {
         return Err(AgentError::InvalidRequest(format!(
-            "pack id '{}' contains invalid characters",
-            pack_id
+            "pack id '{pack_id}' contains invalid characters"
         )));
     }
     Ok(())

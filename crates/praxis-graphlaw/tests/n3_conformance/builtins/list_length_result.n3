@@ -1,3 +1,0 @@
-@prefix : <http://example.org/> .
-
-:shoppingCart :itemCount 4 .

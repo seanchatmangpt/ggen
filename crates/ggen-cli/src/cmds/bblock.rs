@@ -617,6 +617,10 @@ fn enable_plan(root: &Path, plan: &BlockPlan) -> Result<Value> {
 
 /// List supported globally available cloud providers and aliases.
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn providers() -> Result<Value> {
     let root = project_root()?;
     let (catalog, catalog_digest) = load_catalog(&root)?;
@@ -630,6 +634,10 @@ pub fn providers() -> Result<Value> {
 
 /// List every atomic building block and composite pack group.
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn list() -> Result<Value> {
     let root = project_root()?;
     let (catalog, catalog_digest) = load_catalog(&root)?;
@@ -649,6 +657,10 @@ pub fn list() -> Result<Value> {
 
 /// Inspect one group after provider normalization and dependency expansion.
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn inspect(group_id: String, provider: String) -> Result<Value> {
     let root = project_root()?;
     let (catalog, catalog_digest) = load_catalog(&root)?;
@@ -660,12 +672,20 @@ pub fn inspect(group_id: String, provider: String) -> Result<Value> {
 
 /// Resolve a group-of-packs without writing project state.
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn group(group_id: String, provider: String) -> Result<Value> {
     inspect(group_id, provider)
 }
 
 /// Manufacture a deterministic local deployment plan and chained receipts.
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn plan(group_id: String, provider: String) -> Result<Value> {
     let root = project_root()?;
     let (catalog, catalog_digest) = load_catalog(&root)?;
@@ -675,6 +695,10 @@ pub fn plan(group_id: String, provider: String) -> Result<Value> {
 
 /// Enable a group by materializing directories, a plan, receipts, and lockfile entries.
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn enable(group_id: String, provider: String) -> Result<Value> {
     let root = project_root()?;
     let (catalog, catalog_digest) = load_catalog(&root)?;
@@ -684,6 +708,10 @@ pub fn enable(group_id: String, provider: String) -> Result<Value> {
 
 /// Validate provider closure, pack identifiers, paths, and dependency acyclicity.
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn validate() -> Result<Value> {
     let root = project_root()?;
     let (catalog, catalog_digest) = load_catalog(&root)?;

@@ -16,7 +16,7 @@
 //! `ggen-lsp`'s live in-memory document/analyzer state at all. It re-runs
 //! `ggen_lsp::check::check_files_in_root` (the same *headless*, file-reading
 //! gate the CLI and CI use) as a library call, scoped to the paths it is
-//! given. So bridging "a real did_change fires inside a running `ggen-lsp`
+//! given. So bridging "a real `did_change` fires inside a running `ggen-lsp`
 //! process" to "a real notification reaches an MCP client" would require
 //! building a new cross-process channel from scratch (e.g. `ggen-lsp`
 //! shelling out to, or IPC-ing into, a specific `ggen-mcp` process) -- a much
@@ -71,9 +71,11 @@ const DEBOUNCE_WINDOW: Duration = Duration::from_millis(500);
 const SYNC_DEBOUNCE_WINDOW: Duration = Duration::from_secs(2);
 
 /// Diagnostic codes this watcher pushes on. `crate::bridge`'s own end-to-end
+///
 /// proof (`tpl_001_diagnostic_reaches_a_real_mcp_client`) already exercises
 /// `GGEN-TPL-001`; reusing it here means this watcher is wiring, not new
 /// diagnostic-code work.
+///
 pub const WATCHED_CODES: [&str; 1] = ["GGEN-TPL-001"];
 
 /// Start watching `root` in a dedicated OS thread, pushing real diagnostics

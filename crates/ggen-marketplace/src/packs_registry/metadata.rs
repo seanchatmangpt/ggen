@@ -47,10 +47,14 @@ fn try_get_packs_dir() -> Option<PathBuf> {
     None
 }
 
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 /// Get packs directory, erroring when none can be resolved.
 ///
 /// Use this for operations that target a specific pack (load/show) where an
-/// unresolvable directory is a real failure. Use [`try_get_packs_dir`] for
+/// unresolvable directory is a real failure. Use `try_get_packs_dir` for
 /// listing, where "nothing registered yet" is a valid empty result, not an
 /// error.
 pub fn get_packs_dir() -> Result<PathBuf> {
@@ -61,6 +65,10 @@ pub fn get_packs_dir() -> Result<PathBuf> {
     })
 }
 
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 /// Load pack from TOML file
 pub fn load_pack_metadata(pack_id: &str) -> Result<Pack> {
     if pack_id.is_empty() {
@@ -70,7 +78,7 @@ pub fn load_pack_metadata(pack_id: &str) -> Result<Pack> {
     }
 
     let packs_dir = get_packs_dir()?;
-    let pack_path = packs_dir.join(format!("{}.toml", pack_id));
+    let pack_path = packs_dir.join(format!("{pack_id}.toml"));
 
     if !pack_path.exists() {
         // Report the resolved absolute path (matching what `pack doctor`/`pack
@@ -89,16 +97,17 @@ pub fn load_pack_metadata(pack_id: &str) -> Result<Pack> {
     }
 
     let content = fs::read_to_string(&pack_path)?;
-    let pack_file: PackFile = toml::from_str(&content).map_err(|e| {
-        crate::marketplace::error::Error::Other(format!(
-            "Failed to parse pack '{}': {}",
-            pack_id, e
-        ))
+    let pack_file: PackFile = star_toml::from_str(&content).map_err(|e| {
+        crate::marketplace::error::Error::Other(format!("Failed to parse pack '{pack_id}': {e}"))
     })?;
 
     Ok(pack_file.pack)
 }
 
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 /// List all available packs
 ///
 /// A packs directory that cannot be resolved at all (no `GGEN_PACKS_DIR`, no
@@ -122,7 +131,7 @@ pub fn list_packs(category: Option<&str>) -> Result<Vec<Pack>> {
                     e
                 ))
             })?;
-            let pack_file = toml::from_str::<PackFile>(&content).map_err(|e| {
+            let pack_file = star_toml::from_str::<PackFile>(&content).map_err(|e| {
                 crate::marketplace::error::Error::Other(format!(
                     "Failed to parse pack {}: {}",
                     path.display(),
@@ -143,9 +152,94 @@ pub fn list_packs(category: Option<&str>) -> Result<Vec<Pack>> {
     Ok(packs)
 }
 
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 /// Show pack details
 pub fn show_pack(pack_id: &str) -> Result<Pack> {
     load_pack_metadata(pack_id)
+}
+
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
+/// Load a `pack.toml` from a pack directory, bridging the on-disk corpus shape
+/// to the full [`PackFile`] model.
+///
+/// Real corpus pack.tomls (~400 across `~/ggen/packs` and
+/// `~/ggen-marketplace/packs`) carry `[pack] name/version/description` and an
+/// optional `[capabilities]` table, but predate the marketplace `Pack` model's
+/// required fields. This function injects the canonical defaults for absent
+/// required fields, matching how the registry resolves pack identity:
+///
+/// - `id`: the pack **directory name** (only if `[pack]` omits it)
+/// - `name`: empty string if absent
+/// - `version`: `"0.0.0"` if absent
+/// - `description`: empty string if absent
+/// - `category`: `"uncategorized"` if absent
+/// - `packages`: empty if absent (the corpus does not carry a packages list;
+///   the capability surface lives in `[capabilities]`, preserved verbatim as
+///   `PackFile::capabilities`)
+///
+/// Present fields are never overwritten. Deterministic: the same directory
+/// always yields an identical `PackFile`. IO and parse failures are typed
+/// errors (`crate::marketplace::error::Error`).
+pub fn pack_file_from_dir(dir: &std::path::Path) -> Result<PackFile> {
+    let pack_path = dir.join("pack.toml");
+    let raw = fs::read_to_string(&pack_path).map_err(|e| {
+        crate::marketplace::error::Error::Other(format!(
+            "Failed to read {}: {}",
+            pack_path.display(),
+            e
+        ))
+    })?;
+    let mut value: toml::Value = star_toml::from_str(&raw).map_err(|e| {
+        crate::marketplace::error::Error::Other(format!(
+            "Failed to parse {}: {}",
+            pack_path.display(),
+            e
+        ))
+    })?;
+    let dir_name = dir
+        .file_name()
+        .map(|n| n.to_string_lossy().to_string())
+        .ok_or_else(|| {
+            crate::marketplace::error::Error::Other(format!(
+                "{}: path has no file-name component",
+                dir.display()
+            ))
+        })?;
+    let pack_table = value
+        .get_mut("pack")
+        .and_then(|p| p.as_table_mut())
+        .ok_or_else(|| {
+            crate::marketplace::error::Error::Other(format!(
+                "{}: missing [pack] table",
+                pack_path.display()
+            ))
+        })?;
+    let defaults: &[(&str, toml::Value)] = &[
+        ("id", toml::Value::String(dir_name)),
+        ("name", toml::Value::String(String::new())),
+        ("version", toml::Value::String("0.0.0".into())),
+        ("description", toml::Value::String(String::new())),
+        ("category", toml::Value::String("uncategorized".into())),
+        ("packages", toml::Value::Array(vec![])),
+    ];
+    for (key, default) in defaults {
+        pack_table
+            .entry(key.to_string())
+            .or_insert_with(|| default.clone());
+    }
+    value.try_into().map_err(|e| {
+        crate::marketplace::error::Error::Other(format!(
+            "Failed to deserialize {}: {}",
+            pack_path.display(),
+            e
+        ))
+    })
 }
 
 #[cfg(test)]
@@ -271,7 +365,7 @@ mod tests {
 
     // ── Sabotage tests (coding-agent-mistakes.md §5) ─────────────────────────
 
-    /// Sabotage §5 row 5: with GGEN_PACKS_DIR pointing at an EMPTY directory,
+    /// Sabotage §5 row 5: with `GGEN_PACKS_DIR` pointing at an EMPTY directory,
     /// `load_pack_metadata("acme/base")` must return Err referencing "not found".
     ///
     /// This proves Fail-Open (Mistake Class 1.3) is absent: a missing pack does

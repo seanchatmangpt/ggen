@@ -1,5 +1,6 @@
 //! Chicago TDD for `ggen_receipt_verify` — real project, real sync, real
 //! `.ggen-v2/receipt.json` on disk, real tampering.
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)] // Chicago TDD: real-IO tests
 
 mod common;
 
@@ -95,7 +96,8 @@ fn tampered_chain_hash_is_reported_as_invalid_with_verbatim_message() {
     let value: serde_json::Value = serde_json::from_str(&raw).expect("parse real receipt");
 
     // Drift-injection: flip one hex character of the stored chain hash so
-    // it no longer matches what praxis-core recomputes from the (still
+    // it no longer matches what the graphlaw receipt chain (praxis-core
+    // retired per SJIRA-15) recomputes from the (still
     // payload-hash-consistent) record -- a real tamper, not a synthetic
     // error path.
     //

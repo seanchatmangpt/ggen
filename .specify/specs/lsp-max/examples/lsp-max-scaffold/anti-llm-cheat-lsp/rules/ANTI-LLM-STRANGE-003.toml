@@ -1,0 +1,10 @@
+[[rules]]
+id         = "ANTI-LLM-STRANGE-003"
+name       = "no-path-leak"
+severity   = "error"
+pattern    = 'Path was:'
+message    = "Raw path leak found — diagnostic leaks filesystem path into message"
+rationale  = "Leaking paths through diagnostics exposes local filesystem layout"
+eval_budget = "sync"
+path_globs   = []
+exclude_globs = []

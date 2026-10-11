@@ -432,7 +432,8 @@ impl ProfileLoader {
         }
 
         let content = std::fs::read_to_string(path)?;
-        let config: ProfileConfig = toml::from_str(&content)?;
+        let config: ProfileConfig = star_toml::from_str(&content)
+            .map_err(|e| Error::ConfigError(format!("Failed to parse {}: {e}", path.display())))?;
 
         for (section_key, entry) in config.profiles {
             if all_profiles.iter().any(|p| p.id.as_str() == section_key) {
@@ -461,7 +462,8 @@ impl ProfileLoader {
     /// # Errors
     /// Returns an error if the TOML cannot be parsed.
     pub fn parse_str(content: &str) -> Result<ProfileConfig> {
-        let config: ProfileConfig = toml::from_str(content)?;
+        let config: ProfileConfig =
+            star_toml::from_str(content).map_err(|e| Error::ConfigError(format!("{e}")))?;
         Ok(config)
     }
 }

@@ -1,3 +1,7 @@
 [pack]
 name = "ontostar-mustar-powlv2-agent-pack"
 version = "26.7.30"
+description = "OntoStar/MU-Star POWL v2 agent pack: process-modeling ontology alignment for POWL 2.0 agent workflows."
+
+[capabilities]
+provides = ["urn:ggen:pack:ontostar-mustar-powlv2-agent-pack"]

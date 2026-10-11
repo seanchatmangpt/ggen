@@ -67,7 +67,7 @@ impl OntologyLoader {
     ///
     /// # Arguments
     ///
-    /// * `uri` - Namespace URI (e.g., "http://www.w3.org/1999/02/22-rdf-syntax-ns#")
+    /// * `uri` - Namespace URI (e.g., `http://www.w3.org/1999/02/22-rdf-syntax-ns#`)
     /// * `base_path` - Base path for relative file lookups
     ///
     /// # Returns
@@ -245,14 +245,13 @@ mod tests {
 
         for (_name, uri) in embedded {
             let meta = OntologyLoader::get_metadata(uri);
-            assert!(meta.is_some(), "Should have metadata for {}", uri);
+            assert!(meta.is_some(), "Should have metadata for {uri}");
 
             if let Some(m) = meta {
-                assert!(m.size > 0, "Size should be non-zero for {}", uri);
+                assert!(m.size > 0, "Size should be non-zero for {uri}");
                 assert!(
                     !m.content.is_empty(),
-                    "Content should not be empty for {}",
-                    uri
+                    "Content should not be empty for {uri}",
                 );
                 assert_eq!(m.size, m.content.len(), "Size should match content length");
             }
@@ -265,7 +264,7 @@ mod tests {
 
         for (_name, uri) in embedded {
             let content = OntologyLoader::load_content(uri, Path::new("."));
-            assert!(content.is_some(), "Should load content for {}", uri);
+            assert!(content.is_some(), "Should load content for {uri}");
             assert!(
                 !content.unwrap().is_empty(),
                 "Content should not be empty for {}",
@@ -345,8 +344,8 @@ mod tests {
         let mut uris = std::collections::HashSet::new();
 
         for (name, uri) in embedded {
-            assert!(names.insert(name), "Duplicate name found: {}", name);
-            assert!(uris.insert(uri), "Duplicate URI found: {}", uri);
+            assert!(names.insert(name), "Duplicate name found: {name}");
+            assert!(uris.insert(uri), "Duplicate URI found: {uri}");
         }
     }
 

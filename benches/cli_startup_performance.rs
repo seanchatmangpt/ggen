@@ -14,7 +14,7 @@ fn bench_cli_startup(c: &mut Criterion) {
 
     // Ensure binary is built
     let build_status = Command::new("cargo")
-        .args(&["build", "--release", "--bin", "ggen"])
+        .args(&["build", "--release", "--bin", "ggen", "-p", "ggen-cli-lib"])
         .stdout(Stdio::null())
         .stderr(Stdio::null())
         .status();

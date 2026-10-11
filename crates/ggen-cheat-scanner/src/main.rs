@@ -125,9 +125,8 @@ fn main() {
     findings.sort_by(|a, b| (&a.file, a.line, a.rule_id).cmp(&(&b.file, b.line, b.rule_id)));
     findings.dedup();
 
-    let mut should_fail = false;
-
-    if !findings.is_empty() {
+    let should_fail = !findings.is_empty();
+    if should_fail {
         for f in &findings {
             eprintln!("{f}");
         }
@@ -136,7 +135,6 @@ fn main() {
             findings.len(),
             total_files
         );
-        should_fail = true;
     }
 
     if parse_errors > 0 {
@@ -145,8 +143,8 @@ fn main() {
              patterns. A clean result cannot be trusted while any file was skipped -- fix the \
              parse error(s) above before committing."
         );
-        should_fail = true;
     }
+    let should_fail = should_fail || parse_errors > 0;
 
     if should_fail {
         process::exit(1);

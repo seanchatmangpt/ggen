@@ -1120,7 +1120,7 @@ impl<R: AsyncRepository> Installer<R> {
 }
 
 /// Core trust-tier decision logic (Fortune 5 CISO requirement), factored out
-/// of [`Installer::verify_trust_tier`] so both the marketplace-registry
+/// of `Installer::verify_trust_tier` so both the marketplace-registry
 /// install path (`Installer::install_pack`) and the local/external
 /// pack-by-id install path ([`install_pack_by_id_with_profile`]) enforce the
 /// exact same gate over the exact same [`Profile`]/[`TrustTier`]/
@@ -1440,7 +1440,7 @@ pub struct InstallByIdOutput {
     /// Directory the pack was installed into.
     pub install_path: PathBuf,
     /// SHA-256 hex digest (64 chars) of the pack identity AND its installed
-    /// content (see [`compute_pack_digest`]) bound into the lockfile
+    /// content (see `compute_pack_digest`) bound into the lockfile
     /// `integrity` field as `sha256-<digest>`. Empty only for `dry_run`,
     /// where no durable state is written (lockfile invariant 4.1).
     pub digest: String,
@@ -1646,7 +1646,7 @@ fn write_lockfile_entry(
 /// dev checkout (no embedding, ambiguous root resolution) -- a bounded scope
 /// decision, not an oversight.
 ///
-/// Does not touch [`compute_pack_digest`], which hashes only pack identity
+/// Does not touch `compute_pack_digest`, which hashes only pack identity
 /// (id/version/packages/dependency ids), never file content -- adding real
 /// files here does not change the digest `sync --locked` re-derives.
 fn materialize_local_pack(
@@ -1691,7 +1691,7 @@ fn materialize_local_pack(
 /// preserving this function's original signature and behavior for its
 /// existing callers (`ggen pack add` via `crates/ggen-cli/src/cmds/pack.rs`,
 /// `PackAgent::install` via `crate::agent::facade`). `None` matches
-/// [`Installer::verify_trust_tier`]'s own documented "no profile" default:
+/// `Installer::verify_trust_tier`'s own documented "no profile" default:
 /// allow everything except a pack explicitly marked `Blocked`.
 ///
 /// # Errors
@@ -1703,8 +1703,8 @@ pub async fn install_pack_by_id(input: &InstallByIdInput) -> Result<InstallByIdO
 /// Install a pack by bare string ID, enforcing an optional Fortune-5-CISO trust-tier profile.
 ///
 /// The [`Profile`] is enforced via the SAME `Profile`/[`TrustTier`]/[`RegistryClass`] system
-/// [`Installer::verify_trust_tier`] enforces for the marketplace-registry install path (both
-/// call the shared [`evaluate_trust_tier`]), not a second, independently-invented gate.
+/// `Installer::verify_trust_tier` enforces for the marketplace-registry install path (both
+/// call the shared `evaluate_trust_tier`), not a second, independently-invented gate.
 ///
 /// Bare-id (local) and `<prefix>:id` (external) packs carry no attested
 /// trust-tier metadata of their own (`packs_registry::types::Pack` has no

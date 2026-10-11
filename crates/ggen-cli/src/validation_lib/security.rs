@@ -70,6 +70,10 @@ impl PermissionModel {
         self
     }
 
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the operation cannot be completed.
     /// Check if a path is allowed for the given permission
     pub fn check_permission(&self, path: &Path, permission: Permission) -> Result<()> {
         // First check path traversal
@@ -160,7 +164,7 @@ impl PermissionModel {
     }
 
     /// Check if path matches any allowed patterns
-    /// Empty allowed_paths means allow all (permissive default)
+    /// Empty `allowed_paths` means allow all (permissive default)
     fn is_path_allowed(&self, path: &Path, allowed_paths: &[PathBuf]) -> bool {
         if allowed_paths.is_empty() {
             return true; // Permissive default

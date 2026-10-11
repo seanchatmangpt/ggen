@@ -8,10 +8,12 @@
 use serde::{Deserialize, Serialize};
 
 /// Where a case came from. Recorded because provenance changes how a
+///
 /// finding is read: a hand-written case encodes a human's intent, a
 /// Gemma-generated one encodes only "this tripped the referee", and
 /// conflating the two would let an LLM's guess masquerade as a
 /// deliberate specification.
+///
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum CaseOrigin {
@@ -62,11 +64,12 @@ impl Case {
         // Block scalar for the query so arbitrary SPARQL (colons, quotes,
         // braces, newlines) survives YAML without the case format having to
         // escape it — the generator emits hostile text on purpose.
-        let indented: String = self
-            .sparql
-            .lines()
-            .map(|l| format!("    {l}\n"))
-            .collect::<String>();
+        let mut indented = String::new();
+        for l in self.sparql.lines() {
+            indented.push_str("    ");
+            indented.push_str(l);
+            indented.push('\n');
+        }
         format!(
             "---\nto: {}\nsparql:\n  probe: |\n{}---\n{}",
             self.to, indented, self.body

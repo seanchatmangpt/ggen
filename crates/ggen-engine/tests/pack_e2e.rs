@@ -15,6 +15,56 @@ use ggen_engine::sync::{sync, SyncOptions, SyncReceipt, RECEIPT_REL_PATH};
 use support::{copy_tree, write_pack, write_single_pack_project, write_two_pack_project};
 use tempfile::TempDir;
 
+/// Resolve the real `ggen` binary the same way `cli_boundary.rs::ggen_bin`
+/// does: `CARGO_BIN_EXE_ggen` (set by `cargo test -p ggen-cli-lib`, never by
+/// `-p ggen-engine`/`-p ggen-cli` — the root package is `autobins = false`),
+/// then the workspace `target/{debug,release}/ggen`, then `PATH`. Panics
+/// (loudly) if no candidate resolves, so failure happens at binary
+/// resolution, not at first spawn.
+fn ggen_bin() -> std::path::PathBuf {
+    if let Ok(path) = std::env::var("CARGO_BIN_EXE_ggen") {
+        let p = std::path::PathBuf::from(path);
+        if p.exists() {
+            return p;
+        }
+    }
+
+    let target_root = std::env::var_os("CARGO_TARGET_DIR")
+        .map(std::path::PathBuf::from)
+        .or_else(|| {
+            let manifest_dir =
+                std::env::var_os("CARGO_MANIFEST_DIR").map(std::path::PathBuf::from)?;
+            let mut dir: &std::path::Path = manifest_dir.as_path();
+            loop {
+                if dir.join("Cargo.lock").exists() {
+                    return Some(dir.join("target"));
+                }
+                match dir.parent() {
+                    Some(p) => dir = p,
+                    None => return None,
+                }
+            }
+        });
+
+    if let Some(target) = target_root {
+        for profile in &["debug", "release"] {
+            let candidate = target.join(profile).join("ggen");
+            if candidate.is_file() {
+                return candidate;
+            }
+            let candidate_exe = target.join(profile).join("ggen.exe");
+            if candidate_exe.is_file() {
+                return candidate_exe;
+            }
+        }
+    }
+
+    panic!(
+        "could not resolve the `ggen` binary: CARGO_BIN_EXE_ggen unset and no \
+         target/debug/ggen found; build it with `cargo build -p ggen-cli-lib --bin ggen`"
+    );
+}
+
 fn examples_dir() -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR")).join("examples")
 }
@@ -101,8 +151,7 @@ fn pack_sync_end_to_end() {
     );
 
     // (3) Receipt verify passes via the NEW binary (spawned subprocess).
-    assert_cmd::Command::cargo_bin("ggen")
-        .expect("ggen binary")
+    assert_cmd::Command::new(ggen_bin())
         .current_dir(&project)
         .args(["receipt", "verify"])
         .assert()
@@ -233,8 +282,7 @@ fn tampered_receipt_decision_fails_verification() {
     )
     .expect("write tampered");
 
-    let output = assert_cmd::Command::cargo_bin("ggen")
-        .expect("ggen binary")
+    let output = assert_cmd::Command::new(ggen_bin())
         .current_dir(&project)
         .args(["receipt", "verify"])
         .assert()
@@ -475,8 +523,7 @@ fn two_packs_disjoint_outputs_both_succeed() {
         report.packs
     );
 
-    assert_cmd::Command::cargo_bin("ggen")
-        .expect("ggen binary")
+    assert_cmd::Command::new(ggen_bin())
         .current_dir(&project)
         .args(["receipt", "verify"])
         .assert()

@@ -18,6 +18,9 @@
 //! 6. missing required field                                    -> field-specific typed error
 //! 7. unknown field (rejected downstream of a clean classification) -> typed error
 //! 8. `ggen doctor` on each supported schema                     -> correct diagnostic
+//! 9. `ggen graph validate` on each supported schema             -> dispatches both
+//! 10. `ggen graph validate` on ambiguous schema                 -> typed refusal
+//! 11. `ggen law load` on each supported schema / ambiguous      -> dispatch + typed refusal
 
 #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 
@@ -32,6 +35,56 @@ fn write(root: &Path, rel: &str, content: &str) {
         std::fs::create_dir_all(parent).expect("mkdir parent");
     }
     std::fs::write(path, content).expect("write file");
+}
+
+/// Resolve the real `ggen` binary the same way `cli_boundary.rs::ggen_bin`
+/// does: `CARGO_BIN_EXE_ggen` (set by `cargo test -p ggen-cli-lib`, never by
+/// `-p ggen-engine` — the root package is `autobins = false`), then the
+/// workspace `target/{debug,release}/ggen`, then `PATH`. Hard-failing on the
+/// env var alone made these tests fail spuriously under
+/// `cargo test -p ggen-engine`.
+fn ggen_bin() -> std::path::PathBuf {
+    if let Ok(path) = std::env::var("CARGO_BIN_EXE_ggen") {
+        let p = std::path::PathBuf::from(path);
+        if p.exists() {
+            return p;
+        }
+    }
+
+    let target_root = std::env::var_os("CARGO_TARGET_DIR")
+        .map(std::path::PathBuf::from)
+        .or_else(|| {
+            let manifest_dir =
+                std::env::var_os("CARGO_MANIFEST_DIR").map(std::path::PathBuf::from)?;
+            let mut dir: &std::path::Path = manifest_dir.as_path();
+            loop {
+                if dir.join("Cargo.lock").exists() {
+                    return Some(dir.join("target"));
+                }
+                match dir.parent() {
+                    Some(p) => dir = p,
+                    None => return None,
+                }
+            }
+        });
+
+    if let Some(target) = target_root {
+        for profile in &["debug", "release"] {
+            let candidate = target.join(profile).join("ggen");
+            if candidate.is_file() {
+                return candidate;
+            }
+            let candidate_exe = target.join(profile).join("ggen.exe");
+            if candidate_exe.is_file() {
+                return candidate_exe;
+            }
+        }
+    }
+
+    panic!(
+        "could not resolve the `ggen` binary: CARGO_BIN_EXE_ggen unset and no \
+         target/debug/ggen found; build it with `cargo build -p ggen-cli-lib --bin ggen`"
+    );
 }
 
 // ---------------------------------------------------------------------------
@@ -296,8 +349,7 @@ fn doctor_succeeds_with_correct_diagnostic_on_each_supported_schema() {
     );
     std::fs::create_dir_all(frontmatter_dir.path().join("templates")).expect("mkdir templates");
 
-    let frontmatter_assert = assert_cmd::Command::cargo_bin("ggen")
-        .expect("ggen binary")
+    let frontmatter_assert = assert_cmd::Command::new(ggen_bin())
         .current_dir(frontmatter_dir.path())
         .args(["doctor", "run"])
         .assert()
@@ -331,8 +383,7 @@ fn doctor_succeeds_with_correct_diagnostic_on_each_supported_schema() {
         "@prefix ex: <http://example.org/> .\nex:a ex:name \"a\" .\n",
     );
 
-    let declarative_assert = assert_cmd::Command::cargo_bin("ggen")
-        .expect("ggen binary")
+    let declarative_assert = assert_cmd::Command::new(ggen_bin())
         .current_dir(declarative_dir.path())
         .args(["doctor", "run"])
         .assert()
@@ -352,5 +403,157 @@ fn doctor_succeeds_with_correct_diagnostic_on_each_supported_schema() {
     assert_eq!(
         declarative_json["checks"]["receipt_staleness"]["status"], "pass",
         "{declarative_json}"
+    );
+}
+
+// ---------------------------------------------------------------------------
+// 9. `ggen graph validate` on each supported schema -> dispatches both.
+// ---------------------------------------------------------------------------
+
+/// `ggen graph validate` (project mode, no `files`) dispatches through
+/// `crate::schema_dispatch::load` for BOTH supported schemas: each valid
+/// fixture validates cleanly (real oxigraph parse of the real ontology),
+/// proving neither branch hardcodes the other schema.
+#[test]
+fn graph_validate_dispatches_on_each_supported_schema() {
+    // -- Frontmatter --
+    let frontmatter_dir = TempDir::new().expect("tempdir");
+    write(
+        frontmatter_dir.path(),
+        "ggen.toml",
+        "[project]\nname = \"demo\"\n\n[ontology]\nsource = \"ontology.ttl\"\n\n[templates]\ndir = \"templates\"\n",
+    );
+    write(
+        frontmatter_dir.path(),
+        "ontology.ttl",
+        "@prefix ex: <http://example.org/> .\nex:a ex:name \"a\" .\n",
+    );
+    std::fs::create_dir_all(frontmatter_dir.path().join("templates")).expect("mkdir templates");
+
+    assert_cmd::Command::new(ggen_bin())
+        .current_dir(frontmatter_dir.path())
+        .args(["graph", "validate"])
+        .assert()
+        .success();
+
+    // -- Declarative-rules --
+    let declarative_dir = TempDir::new().expect("tempdir");
+    write(
+        declarative_dir.path(),
+        "ggen.toml",
+        "[project]\nname = \"demo\"\nversion = \"1.0.0\"\n\n[ontology]\nsource = \"ontology.ttl\"\n\n[[generation.rules]]\nname = \"x\"\nquery = { inline = \"SELECT * WHERE { ?s ?p ?o } ORDER BY ?s ?p ?o\" }\ntemplate = { inline = \"hi\" }\noutput_file = \"out.txt\"\n",
+    );
+    write(
+        declarative_dir.path(),
+        "ontology.ttl",
+        "@prefix ex: <http://example.org/> .\nex:a ex:name \"a\" .\n",
+    );
+
+    assert_cmd::Command::new(ggen_bin())
+        .current_dir(declarative_dir.path())
+        .args(["graph", "validate"])
+        .assert()
+        .success();
+}
+
+// ---------------------------------------------------------------------------
+// 10. `ggen graph validate` on ambiguous schema -> typed refusal.
+// ---------------------------------------------------------------------------
+
+/// An ambiguous `ggen.toml` (both schemas' markers) is refused by
+/// `ggen graph validate` with `ggen_config::CONFIG_SCHEMA_AMBIGUOUS` in the
+/// stderr -- the classifier, not a schema-specific parser, is the gate.
+#[test]
+fn graph_validate_refuses_ambiguous_schema_with_typed_code() {
+    let dir = TempDir::new().expect("tempdir");
+    write(
+        dir.path(),
+        "ggen.toml",
+        "[project]\nname = \"demo\"\n\n[ontology]\nsource = \"ontology.ttl\"\n\n[templates]\ndir = \"templates\"\n\n[ai]\nprovider = \"openai\"\n",
+    );
+
+    let assert = assert_cmd::Command::new(ggen_bin())
+        .current_dir(dir.path())
+        .args(["graph", "validate"])
+        .assert()
+        .failure();
+    let stderr = String::from_utf8_lossy(&assert.get_output().stderr);
+    assert!(
+        stderr.contains(ggen_config::CONFIG_SCHEMA_AMBIGUOUS),
+        "{stderr}"
+    );
+}
+
+// ---------------------------------------------------------------------------
+// 11. `ggen law load` on each supported schema / ambiguous -> dispatch +
+//     typed refusal.
+// ---------------------------------------------------------------------------
+
+/// `ggen law load` dispatches through `build_law_engine`'s
+/// `schema_dispatch::load` for BOTH supported schemas (real ontology parse,
+/// zero `[law].rules` -> empty per-file map), and refuses an ambiguous
+/// schema with `ggen_config::CONFIG_SCHEMA_AMBIGUOUS` -- covering all five
+/// `law *` verbs' shared dispatch point in one transport.
+#[test]
+fn law_load_dispatches_on_each_supported_schema_and_refuses_ambiguous() {
+    // -- Frontmatter --
+    let frontmatter_dir = TempDir::new().expect("tempdir");
+    write(
+        frontmatter_dir.path(),
+        "ggen.toml",
+        "[project]\nname = \"demo\"\n\n[ontology]\nsource = \"ontology.ttl\"\n\n[templates]\ndir = \"templates\"\n",
+    );
+    write(
+        frontmatter_dir.path(),
+        "ontology.ttl",
+        "@prefix ex: <http://example.org/> .\nex:a ex:name \"a\" .\n",
+    );
+    std::fs::create_dir_all(frontmatter_dir.path().join("templates")).expect("mkdir templates");
+
+    let fm_assert = assert_cmd::Command::new(ggen_bin())
+        .current_dir(frontmatter_dir.path())
+        .args(["law", "load"])
+        .assert()
+        .success();
+    let fm_json: serde_json::Value =
+        serde_json::from_slice(&fm_assert.get_output().stdout).expect("law load stdout is JSON");
+    assert_eq!(fm_json["rule_files"], 0, "{fm_json}");
+
+    // -- Declarative-rules --
+    let declarative_dir = TempDir::new().expect("tempdir");
+    write(
+        declarative_dir.path(),
+        "ggen.toml",
+        "[project]\nname = \"demo\"\nversion = \"1.0.0\"\n\n[ontology]\nsource = \"ontology.ttl\"\n\n[[generation.rules]]\nname = \"x\"\nquery = { inline = \"SELECT * WHERE { ?s ?p ?o } ORDER BY ?s ?p ?o\" }\ntemplate = { inline = \"hi\" }\noutput_file = \"out.txt\"\n",
+    );
+    write(
+        declarative_dir.path(),
+        "ontology.ttl",
+        "@prefix ex: <http://example.org/> .\nex:a ex:name \"a\" .\n",
+    );
+
+    assert_cmd::Command::new(ggen_bin())
+        .current_dir(declarative_dir.path())
+        .args(["law", "load"])
+        .assert()
+        .success();
+
+    // -- Ambiguous -> typed refusal --
+    let ambiguous_dir = TempDir::new().expect("tempdir");
+    write(
+        ambiguous_dir.path(),
+        "ggen.toml",
+        "[project]\nname = \"demo\"\n\n[ontology]\nsource = \"ontology.ttl\"\n\n[templates]\ndir = \"templates\"\n\n[ai]\nprovider = \"openai\"\n",
+    );
+
+    let ambiguous_assert = assert_cmd::Command::new(ggen_bin())
+        .current_dir(ambiguous_dir.path())
+        .args(["law", "load"])
+        .assert()
+        .failure();
+    let stderr = String::from_utf8_lossy(&ambiguous_assert.get_output().stderr);
+    assert!(
+        stderr.contains(ggen_config::CONFIG_SCHEMA_AMBIGUOUS),
+        "{stderr}"
     );
 }

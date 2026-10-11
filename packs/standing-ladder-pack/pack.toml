@@ -40,3 +40,6 @@ admits or refuses a claim's CURRENT declared standing against the evidence
 chain a human or agent supplies. Promotion tooling is a real, separate gap
 this pack does not close.
 """
+
+[capabilities]
+provides = ["urn:ggen:pack:standing-ladder-pack"]

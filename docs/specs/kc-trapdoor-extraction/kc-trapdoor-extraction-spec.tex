@@ -1,0 +1,140 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage[T1]{fontenc}
+
+\definecolor{codegray}{rgb}{0.95,0.95,0.95}
+\lstset{
+  basicstyle=\ttfamily\small,
+  backgroundcolor=\color{codegray},
+  breaklines=true,
+  frame=single,
+  language=,
+  showstringspaces=false
+}
+
+\newcommand{\TARGET}{\textsf{TARGET}}
+
+\title{Knowledge-Cryptography Trapdoor Extraction over Native QLever Indexes\\
+\large Operational Specification (Spec-Proposed; Empirical Tier Labeled \TARGET{}---Unmeasured)}
+\author{ggen / kc-trapdoor work order}
+\date{2026-10-08}
+
+\begin{document}
+\maketitle
+
+\section{Scope and Epistemic Status}
+
+This spec is grounded in exactly one real artifact:
+\texttt{/Users/sac/qlever-fortune5-test}, index \texttt{fortune5},
+builder \texttt{git-hash 1075455}, \textbf{203 triples}, 47 subjects,
+140 objects, 22+7 predicates, all six index permutations on disk
+(\texttt{.spo/.pso/.pos/.osp/.sop} and internal \texttt{.pso/.pos}
+variants), built
+2026-08-26. Everything else---buffer sizes, timeouts, latency---is
+spec-proposed and labeled \TARGET{} (unmeasured). No benchmark number in
+this document was produced by execution against this corpus. The
+billion-triple regime is future work; nothing here claims it.
+
+\section{The Needle-vs-Haystack Invariant}
+
+\subsection{Statement}
+Let $G$ be the realization graph (SBB = single-binding-bound, ABB =
+all-bindings-bound realizations of the SHACL surface). The invariant:
+\emph{realization of a needle must be parameterized by exact cryptographic
+coordinates, never by open pattern matching.} Concretely, a needle is
+addressed only by the pair
+\[
+\bigl(\,H_s = \mathrm{BLAKE3}_K(\mathrm{canonical}(s))\,,\;
+       P_\sigma = \mathrm{BLAKE3}_K(\mathrm{salted}(p))\,\bigr)
+\]
+where $K$ is a key held outside the query plane and the hash is computed
+off-band. Any query whose WHERE clause leaves a transitive-reachability
+variable un-anchored (free $src$/$dst$ of a $^{+}$ path) violates the
+invariant and is refused at the admission gate (Section~\ref{sec:tarpits}).
+
+\subsection{CONSTRUCT via merge joins over pre-sorted arrays}
+QLever's six permutations (\texttt{fortune5.index.spo}, \texttt{.pso},
+\texttt{.pos}, \texttt{.osp}, \texttt{.sop}) are pre-sorted ID arrays.
+A keyed coordinate lookup is a binary search: $O(\log N)$ per bound term,
+then a merge join across the two operand permutations. The operational
+CONSTRUCT is \texttt{queries/needle-realization.construct.rq}: it binds
+the needle and salt IRIs from off-band BLAKE3 literals, resolves
+$\texttt{kc:salt} \rightarrow \texttt{sh:path}$ against the real index
+relations (\texttt{f5:serviceId}, \texttt{f5:region},
+\texttt{f5:maxReplicationLagMs}, \texttt{f5:lastRotatedAt},
+\texttt{f5:maxAgeDays}, \texttt{f5:P95Latency}, \texttt{f5:P99Latency},
+\texttt{f5:availabilitySlaTarget}, \texttt{f5:rotateCredential}), then
+joins the SHACL shape surface. The \textbf{<50ms end-to-end latency is a
+$\TARGET$}: it has not been measured on this corpus.
+
+\section{Complexity-Asymmetry Argument}
+
+Keyed retrieval is binary search over a sorted permutation:
+$O(\log N)$, cheap, per-coordinate. The unkeyed alternative---recovering a
+needle by subgraph-isomorphism search over the open graph---is
+NP-complete in general \cite{gareyjohnson79}, and the practical adversary
+cost is dominated by join-order search over un-anchored transitive
+closures. The asymmetry is the security property: holders of $K$ pay
+$\log N$; non-holders pay isomorphism. That is the trapdoor.
+
+\begin{thebibliography}{1}
+\bibitem{gareyjohnson79} M.~R. Garey and D.~S. Johnson,
+\emph{Computers and Intractability}. Freeman, 1979.
+\end{thebibliography}
+
+\section{Algorithmic Tar Pits and Fuel Budgets}
+\label{sec:tarpits}
+
+\subsection{Saturated cyclic cliques ($b > 100$)}
+A trap predicate (here \texttt{f5:rotateCredential}, present in the index
+in \texttt{sh:path} position) can be laid out cyclically so that the
+$b$-clique closure is saturated. Fuel rule: clique enumeration runs only
+for a keyed root (\texttt{queries/tarpit-clique-guard.select.rq}) with
+$\mathrm{HAVING}(\ldots > 100)$ as the saturation detector; the
+un-anchored closure over the same predicate is refused.
+
+\subsection{Recursive path traps}
+The only permitted form of a $^{+}$ traversal is \emph{root-anchored with
+explicit \texttt{LIMIT}} (\texttt{queries/tarpit-recursive-path-trap.select.rq},
+\texttt{LIMIT 1000}). The refused form is recorded in
+\texttt{queries/unanchored-traversal-refusal.select.rq}: a free-variable
+$(f5:connects)^+$ enumerates the full closure before any join reduction;
+it must be rejected at the admission gate before the engine sees it.
+
+\subsection{QLever configuration parameters}
+Buffer sizes, cache caps, and timeouts in
+\texttt{qlever/Qleverfile.fortune5} are spec-proposed; the only measured
+facts it carries forward from the real Qleverfile are \texttt{NAME},
+\texttt{INPUT\_FILES}, \texttt{PORT 7020}, \texttt{ACCESS\_TOKEN}, and
+\texttt{SETTINGS\_JSON} (with \texttt{ascii-prefixes-only} changed; the
+change is flagged inline). Fuel enforcement is two-layer: (1) admission
+gate refuses un-anchored closures with
+$\mathrm{KC\_FUEL\_UNANCHORED} = 0$; (2) anchored traversals carry an
+explicit \texttt{LIMIT 1000} and a server timeout
+$\mathrm{KC\_TIMEOUT\_MS} = 50$, both \TARGET{}.
+
+\section{Zero-Oxigraph Guarantee}
+
+The execution plane is native QLever index artifacts only: reads go to
+\texttt{fortune5.index.*} and \texttt{fortune5.internal.index.*} via the
+QLever server for index \texttt{fortune5} (builder 1075455). No Oxigraph
+library, binary, or embedded store appears in the query path; no RDFlib
+fallback execution is permitted for these queries. Any ticket that routes
+a KC-trapdoor query through a non-QLever engine is out of scope and
+refused.
+
+\section{Falsifiers}
+\begin{itemize}
+  \item A measured p50 $> 50$ms for the anchored CONSTRUCT on this corpus
+        falsifies the \TARGET{} label (and would need re-scoping).
+  \item An un-anchored $(f5:connects)^+$ query admitted for execution
+        falsifies the fuel-budget invariant (Section~\ref{sec:tarpits}).
+  \item Any query artifact executing against a non-native store falsifies
+        the zero-Oxigraph guarantee (Section 5).
+\end{itemize}
+
+\end{document}

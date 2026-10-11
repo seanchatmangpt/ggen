@@ -8,12 +8,14 @@
 //! assigned at a time, forcing the two `assign-worker` steps to run
 //! sequentially. With capacity 2, both workers can be assigned concurrently.
 
+// Chicago TDD (.claude/rules/rust/testing.md): unwrap/expect/panic allowed in test code.
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 use bcinr_pddl::{
     analyze_schedule, domain_from_pddl, execute::execute_temporal_plan, problem_from_pddl,
     GroundTemporalProblem,
 };
 
-const DOMAIN: &str = r#"
+const DOMAIN: &str = r"
 (define (domain capacity-demo)
   (:requirements :durative-actions :numeric-fluents :typing)
   (:types worker)
@@ -28,11 +30,11 @@ const DOMAIN: &str = r#"
       (at start (not (idle ?w))) (at start (busy ?w))
       (at end (increase (available-workers) 1))
       (at end (not (busy ?w))) (at end (done ?w)))))
-"#;
+";
 
 fn problem_with_capacity(capacity: u32) -> String {
     format!(
-        r#"
+        r"
 (define (problem assign-two-workers)
   (:domain capacity-demo)
   (:objects w1 w2 - worker)
@@ -41,7 +43,7 @@ fn problem_with_capacity(capacity: u32) -> String {
     (= (available-workers) {capacity}))
   (:goal (and (done w1) (done w2)))
 )
-"#
+"
     )
 }
 
@@ -229,7 +231,7 @@ fn duplicate_action_labels_admit_identically_to_a_single_label() {
 /// worker object and a capacity-2 resource, with `worker-b` shorter than
 /// `worker-a` so its completion frees capacity while `worker-a` is still
 /// running — exactly the interleaving that triggered the bug.
-const DOUBLE_SCHEDULE_DOMAIN: &str = r#"
+const DOUBLE_SCHEDULE_DOMAIN: &str = r"
 (define (domain double-schedule-regression)
   (:requirements :durative-actions :numeric-fluents :typing)
   (:types worker)
@@ -245,15 +247,15 @@ const DOUBLE_SCHEDULE_DOMAIN: &str = r#"
     :duration (= ?duration 2)
     :condition (at start (>= (cap) 1))
     :effect (and (at start (decrease (cap) 1)) (at end (increase (cap) 1)) (at end (done-b ?w)))))
-"#;
+";
 
-const DOUBLE_SCHEDULE_PROBLEM: &str = r#"
+const DOUBLE_SCHEDULE_PROBLEM: &str = r"
 (define (problem double-schedule-regression-problem)
   (:domain double-schedule-regression)
   (:objects w1 - worker)
   (:init (= (cap) 2))
   (:goal (and (done-a w1) (done-b w1))))
-"#;
+";
 
 #[test]
 fn same_instance_is_never_scheduled_twice_while_in_flight() {

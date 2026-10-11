@@ -106,10 +106,12 @@ impl Verdict {
 }
 
 /// Everything observed while playing one case, handed to the referee as
+///
 /// plain data. Kept as an owned record (rather than the referee re-running
 /// anything) so a verdict is a pure function of observations — the same
 /// observations always yield the same ruling, which is what makes corpus
 /// replay meaningful.
+///
 #[derive(Debug, Clone, Default)]
 pub struct Observation {
     /// `Some(true)` = query tool reported success, `Some(false)` = typed
@@ -309,6 +311,7 @@ pub fn referee_verdict(obs: &Observation) -> Verdict {
 }
 
 /// Recursive (relative path -> BLAKE3) fingerprint of a directory tree.
+///
 /// Shared by the harness so "did anything change" is answered by hashing
 /// real bytes rather than by trusting mtimes or tool self-reports.
 #[must_use]
@@ -515,7 +518,7 @@ mod tests {
             receipt_verified: Some(true),
             second_apply_written: Some(0),
             dry_run_ok: Some(true),
-            dry_run_would_write: Some(["out/wrong.txt".to_string()].into_iter().collect()),
+            dry_run_would_write: Some(std::iter::once("out/wrong.txt".to_string()).collect()),
             ..Default::default()
         };
         let v = referee_verdict(&obs);
@@ -541,7 +544,7 @@ mod tests {
             receipt_verified: Some(true),
             second_apply_written: Some(0),
             dry_run_ok: Some(true),
-            dry_run_would_write: Some(["out/x.txt".to_string()].into_iter().collect()),
+            dry_run_would_write: Some(std::iter::once("out/x.txt".to_string()).collect()),
             ..Default::default()
         };
         let v = referee_verdict(&obs);
@@ -573,7 +576,7 @@ mod tests {
             second_apply_error: None,
             changed_outside_root: Vec::new(),
             dry_run_ok: Some(true),
-            dry_run_would_write: Some(["out/x.txt".to_string()].into_iter().collect()),
+            dry_run_would_write: Some(std::iter::once("out/x.txt".to_string()).collect()),
         };
         let v = referee_verdict(&obs);
         assert!(v.clean(), "expected no violations, got {:?}", v.violations);

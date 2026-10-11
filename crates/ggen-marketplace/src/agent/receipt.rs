@@ -34,7 +34,7 @@ pub enum PackReceiptError {
 impl std::fmt::Display for PackReceiptError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            PackReceiptError::Runtime(msg) => write!(f, "{}", msg),
+            PackReceiptError::Runtime(msg) => write!(f, "{msg}"),
         }
     }
 }
@@ -66,6 +66,10 @@ pub struct PackInstallClosure<'a> {
     pub artifact_paths: &'a [PathBuf],
 }
 
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 /// Generates a cryptographic receipt for a SUCCESSFUL pack installation, rooted
 /// at `root` (the project directory whose `.ggen/` holds receipts and keys).
 ///
@@ -98,11 +102,10 @@ pub fn emit_install_receipt(root: &Path, closure: &PackInstallClosure<'_>) -> Re
     let keys_dir = root.join(".ggen").join("keys");
 
     fs::create_dir_all(&receipts_dir).map_err(|e| {
-        PackReceiptError::Runtime(format!("Failed to create receipts directory: {}", e))
+        PackReceiptError::Runtime(format!("Failed to create receipts directory: {e}"))
     })?;
-    fs::create_dir_all(&keys_dir).map_err(|e| {
-        PackReceiptError::Runtime(format!("Failed to create keys directory: {}", e))
-    })?;
+    fs::create_dir_all(&keys_dir)
+        .map_err(|e| PackReceiptError::Runtime(format!("Failed to create keys directory: {e}")))?;
 
     // Load or generate the Ed25519 keypair under the project root.
     let private_key_path = keys_dir.join("private.pem");
@@ -139,7 +142,7 @@ pub fn emit_install_receipt(root: &Path, closure: &PackInstallClosure<'_>) -> Re
         closure.pack_id, closure.pack_version, closure.pack_digest
     ));
     for package in closure.packages_installed {
-        input_hashes.push(format!("package:{}", package));
+        input_hashes.push(format!("package:{package}"));
     }
 
     // output_hashes: bind the REAL installed artifacts by hashing on-disk
@@ -150,7 +153,7 @@ pub fn emit_install_receipt(root: &Path, closure: &PackInstallClosure<'_>) -> Re
         let display = path.display();
         match read_artifact_bytes(path) {
             Some(bytes) => output_hashes.push(format!("{}:{}", display, hash_data(&bytes))),
-            None => output_hashes.push(format!("{}:MISSING", display)),
+            None => output_hashes.push(format!("{display}:MISSING")),
         }
     }
     // Guarantee a non-empty witnessed output even if no artifact paths were
@@ -161,7 +164,7 @@ pub fn emit_install_receipt(root: &Path, closure: &PackInstallClosure<'_>) -> Re
 
     let receipt = Receipt::new(operation_id, input_hashes, output_hashes, None)
         .sign(&signing_key)
-        .map_err(|e| PackReceiptError::Runtime(format!("Failed to sign receipt: {}", e)))?;
+        .map_err(|e| PackReceiptError::Runtime(format!("Failed to sign receipt: {e}")))?;
 
     let receipt_filename = format!(
         "pack-{}-{}.json",
@@ -171,10 +174,10 @@ pub fn emit_install_receipt(root: &Path, closure: &PackInstallClosure<'_>) -> Re
     let receipt_path = receipts_dir.join(&receipt_filename);
 
     let receipt_json = serde_json::to_string_pretty(&receipt)
-        .map_err(|e| PackReceiptError::Runtime(format!("Failed to serialize receipt: {}", e)))?;
+        .map_err(|e| PackReceiptError::Runtime(format!("Failed to serialize receipt: {e}")))?;
 
     fs::write(&receipt_path, receipt_json)
-        .map_err(|e| PackReceiptError::Runtime(format!("Failed to write receipt: {}", e)))?;
+        .map_err(|e| PackReceiptError::Runtime(format!("Failed to write receipt: {e}")))?;
 
     Ok(receipt_path)
 }
@@ -193,7 +196,7 @@ fn read_artifact_bytes(path: &Path) -> Option<Vec<u8>> {
             .map(|e| {
                 let name = e.file_name().to_string_lossy().into_owned();
                 let len = e.metadata().map(|m| m.len()).unwrap_or(0);
-                format!("{}:{}", name, len)
+                format!("{name}:{len}")
             })
             .collect();
         entries.sort();
@@ -208,13 +211,12 @@ fn load_keypair(private_key_path: &Path) -> Result<(SigningKey, VerifyingKey)> {
     use ed25519_dalek::SECRET_KEY_LENGTH;
 
     let private_key_raw = fs::read(private_key_path)
-        .map_err(|e| PackReceiptError::Runtime(format!("Failed to read private key: {}", e)))?;
+        .map_err(|e| PackReceiptError::Runtime(format!("Failed to read private key: {e}")))?;
     let private_key_hex = std::str::from_utf8(&private_key_raw)
         .map_err(|_| PackReceiptError::Runtime("Private key file is not valid UTF-8".to_string()))?
         .trim();
-    let private_key_bytes = hex::decode(private_key_hex).map_err(|e| {
-        PackReceiptError::Runtime(format!("Failed to hex-decode private key: {}", e))
-    })?;
+    let private_key_bytes = hex::decode(private_key_hex)
+        .map_err(|e| PackReceiptError::Runtime(format!("Failed to hex-decode private key: {e}")))?;
 
     if private_key_bytes.len() != SECRET_KEY_LENGTH {
         return Err(PackReceiptError::Runtime(
@@ -237,11 +239,11 @@ fn save_keypair(
 ) -> Result<()> {
     let private_key_hex = hex::encode(signing_key.to_bytes());
     fs::write(private_key_path, private_key_hex)
-        .map_err(|e| PackReceiptError::Runtime(format!("Failed to write private key: {}", e)))?;
+        .map_err(|e| PackReceiptError::Runtime(format!("Failed to write private key: {e}")))?;
 
     let public_key_hex = hex::encode(verifying_key.to_bytes());
     fs::write(public_key_path, public_key_hex)
-        .map_err(|e| PackReceiptError::Runtime(format!("Failed to write public key: {}", e)))?;
+        .map_err(|e| PackReceiptError::Runtime(format!("Failed to write public key: {e}")))?;
 
     Ok(())
 }
@@ -259,12 +261,12 @@ pub fn verify_install_receipt(
 
     let receipt_bytes = match fs::read(receipt_path) {
         Ok(b) => b,
-        Err(e) => return (false, None, Some(format!("cannot read receipt: {}", e))),
+        Err(e) => return (false, None, Some(format!("cannot read receipt: {e}"))),
     };
 
     let receipt: Receipt = match serde_json::from_slice(&receipt_bytes) {
         Ok(r) => r,
-        Err(e) => return (false, None, Some(format!("malformed receipt: {}", e))),
+        Err(e) => return (false, None, Some(format!("malformed receipt: {e}"))),
     };
     let operation_id = Some(receipt.operation_id.clone());
 
@@ -280,11 +282,7 @@ pub fn verify_install_receipt(
 
     match receipt.verify(&verifying_key) {
         Ok(()) => (true, operation_id, None),
-        Err(e) => (
-            false,
-            operation_id,
-            Some(format!("signature invalid: {}", e)),
-        ),
+        Err(e) => (false, operation_id, Some(format!("signature invalid: {e}"))),
     }
 }
 
@@ -300,10 +298,10 @@ fn load_verifying_key(public_key_path: &Path) -> std::result::Result<VerifyingKe
     let hex_str = std::str::from_utf8(&raw)
         .map_err(|_| "public key file is not valid UTF-8".to_string())?
         .trim();
-    let bytes = hex::decode(hex_str).map_err(|e| format!("cannot hex-decode public key: {}", e))?;
+    let bytes = hex::decode(hex_str).map_err(|e| format!("cannot hex-decode public key: {e}"))?;
     let arr: [u8; 32] = bytes
         .as_slice()
         .try_into()
         .map_err(|_| "public key is not 32 bytes".to_string())?;
-    VerifyingKey::from_bytes(&arr).map_err(|e| format!("invalid public key: {}", e))
+    VerifyingKey::from_bytes(&arr).map_err(|e| format!("invalid public key: {e}"))
 }

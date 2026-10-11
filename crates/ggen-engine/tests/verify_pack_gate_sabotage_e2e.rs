@@ -25,15 +25,15 @@
 //! same "real external file, hand-sabotaged between syncs" pattern already
 //! used by `verify_pack_evidence_loop_e2e.rs` against `evidence/ontology.ttl`
 //! and by `receipt_genesis_ceiling_e2e.rs` against `ontology.ttl` — using
-//! `praxis_core`'s own record types and its own `recompute_chain_hash` so
+//! the seam's record types and `recompute_chain_hash` so
 //! the forged entry is chain-valid, not merely textually similar.
 
 #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 
 use std::path::{Path, PathBuf};
 
+use ggen_engine::receipt_chain_seam::Andon;
 use ggen_engine::sync::{sync, SyncOptions, SyncReceipt, RECEIPT_LOG_REL_PATH};
-use praxis_core::law::Andon;
 use tempfile::TempDir;
 
 fn packs_dir() -> PathBuf {
@@ -266,7 +266,7 @@ fn latest_andon_green_gate_passes_on_a_healthy_chain() {
 /// today (see the module doc above), so this forges one the same way the
 /// house sabotage pattern forges other external state -- by directly
 /// editing the persisted, real `.ggen-v2/receipt-log.jsonl` file between
-/// syncs. The forged entry is built from `praxis_core`'s own
+/// syncs. The forged entry is built from the seam's own
 /// `ReceiptRecord`/`Andon` types and its own `recompute_chain_hash`, so the
 /// forged line is chain-valid (the next real sync's tamper check on
 /// `prev_head` passes) and only the `andon` field differs from what the

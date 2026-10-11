@@ -1,0 +1,10 @@
+[[rules]]
+id         = "ANTI-LLM-CLAIM-001"
+name       = "no-victory-confirmed"
+severity   = "error"
+pattern    = 'Victory confirmed'
+message    = "Forbidden victory claim: 'Victory confirmed'"
+rationale  = "Completion claims without process evidence violate AGENTS.md bounded-status rules"
+eval_budget = "sync"
+path_globs   = []
+exclude_globs = []

@@ -22,9 +22,12 @@
 //! `crate::ground::quantifier_tests` instead (see that module's doc comment
 //! for the full accounting) — this file only claims what it can prove
 //! end-to-end.
+
+// Chicago TDD (.claude/rules/rust/testing.md): unwrap/expect/panic allowed in test code.
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 use bcinr_pddl::{domain_from_pddl, problem_from_pddl, GroundTemporalProblem};
 
-const DOMAIN: &str = r#"
+const DOMAIN: &str = r"
 (define (domain quant-durative)
   (:requirements :durative-actions :typing)
   (:types item)
@@ -34,17 +37,17 @@ const DOMAIN: &str = r#"
     :duration (= ?duration 1)
     :condition (and (at start (forall (?i - item) (ready ?i))))
     :effect (and (at end (all-ready)))))
-"#;
+";
 
 #[test]
 fn forall_precondition_admits_when_every_item_is_ready() {
     let domain = domain_from_pddl(DOMAIN).unwrap();
     let problem = problem_from_pddl(
-        r#"(define (problem all-ready-p)
+        r"(define (problem all-ready-p)
              (:domain quant-durative)
              (:objects a b - item)
              (:init (ready a) (ready b))
-             (:goal (all-ready)))"#,
+             (:goal (all-ready)))",
     )
     .unwrap();
     let gtp = GroundTemporalProblem::build(&domain, &problem).unwrap();
@@ -60,11 +63,11 @@ fn forall_precondition_admits_when_every_item_is_ready() {
 fn forall_precondition_blocks_when_one_item_is_not_ready() {
     let domain = domain_from_pddl(DOMAIN).unwrap();
     let problem = problem_from_pddl(
-        r#"(define (problem one-not-ready-p)
+        r"(define (problem one-not-ready-p)
              (:domain quant-durative)
              (:objects a b - item)
              (:init (ready a))
-             (:goal (all-ready)))"#,
+             (:goal (all-ready)))",
     )
     .unwrap();
     let gtp = GroundTemporalProblem::build(&domain, &problem).unwrap();

@@ -18,6 +18,8 @@
 //! manifest generator classifies it as a true negative control, not a
 //! second positive witness): `verification_scanner_rejects_a_false_positive_on_clean_code`.
 
+// Chicago TDD (.claude/rules/rust/testing.md): unwrap/expect/panic allowed in test code.
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 use ggen_cheat_scanner::scan_source;
 use std::path::PathBuf;
 
@@ -29,23 +31,23 @@ fn rule_ids(findings: &[ggen_cheat_scanner::Finding]) -> Vec<&'static str> {
 /// fresh in this file rather than reused from `tests/fixtures/` -- proves
 /// the scanner's detection is not merely re-confirming one hardcoded
 /// fixture the scanner was tuned against.
-const PLANTED_BAD_TEST: &str = r#"
+const PLANTED_BAD_TEST: &str = r"
 #[test]
 fn some_feature_definitely_works() {
     let _result = compute_something();
     assert!(true);
 }
-"#;
+";
 
 /// A genuinely good test with a real, content-sensitive assertion -- must
 /// NOT be flagged.
-const PLANTED_GOOD_TEST: &str = r#"
+const PLANTED_GOOD_TEST: &str = r"
 #[test]
 fn compute_something_returns_expected_sum() {
     let result = compute_something();
     assert_eq!(result, 42);
 }
-"#;
+";
 
 #[test]
 fn verification_scanner_detects_a_freshly_planted_cheat_pattern() {
@@ -78,12 +80,12 @@ fn verification_scanner_rejects_a_false_positive_on_clean_code() {
 #[test]
 fn verification_scanner_does_not_conflate_t01_with_a_missing_assertion() {
     let path = PathBuf::from("verification_subsystem_evidence_test::no_assert_at_all");
-    let src = r#"
+    let src = r"
 #[test]
 fn some_feature_probably_works() {
     let _ = compute_something();
 }
-"#;
+";
     let findings =
         scan_source(src, &path).unwrap_or_else(|e| panic!("src must parse as valid Rust: {e}"));
     assert!(

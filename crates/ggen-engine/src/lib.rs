@@ -6,6 +6,10 @@
 // unsafe this crate introduces).
 #![warn(unsafe_code)]
 
+// Build-time provenance digest (BLAKE3 over commit SHA + 6 strata pack
+// digests + ontology triple count), embedded by `build.rs`. Fail-soft:
+// absent inputs are represented in-band, never a build failure.
+pub mod build_provenance;
 pub mod config;
 pub mod error;
 // Declarative `[[generation.rules]]` sync path (specs/014-ggen-core-replacement, T070),
@@ -41,6 +45,7 @@ pub mod portable_receipt;
 // consumed by `ggen-mcp`'s ad-hoc query tools. See its own doc comment.
 pub mod project_graph;
 /// GALL-001 clean replay verification for portable semantic-pack receipts.
+pub mod receipt_chain_seam;
 pub mod replay;
 // The single dispatch point deciding which of ggen.toml's two schemas a project uses
 // (specs/014-ggen-core-replacement, correction 2 / Blocker A part 2). Not `pub`: consumed by

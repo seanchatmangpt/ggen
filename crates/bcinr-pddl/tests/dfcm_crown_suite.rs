@@ -3,6 +3,8 @@
 //! matrix — topology, planning, analysis, admission, receipt, replay, all
 //! within the 8/64 bound — composes inside one fixed wall-clock envelope.
 
+// Chicago TDD (.claude/rules/rust/testing.md): unwrap/expect/panic allowed in test code.
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 use bcinr_pddl::run_dfcm_crown_suite;
 
 #[test]

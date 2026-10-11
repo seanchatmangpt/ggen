@@ -15,7 +15,7 @@ use sha2::{Digest, Sha256};
 /// `.ggen/receipts/pack-*.json` — one-shot install provenance for that
 /// single package.
 ///
-/// The other mechanism is `praxis_core::receipt_record::ReceiptRecord`
+/// The other mechanism is `ggen_engine::receipt_chain_seam::ReceiptRecord`
 /// (chained BLAKE3 hashing), emitted on every non-dry-run `ggen sync` by
 /// `ggen_engine::sync::write_receipt` to `.ggen-v2/receipt.json` — a
 /// continuous chain-of-custody ledger across syncs, not a single event.

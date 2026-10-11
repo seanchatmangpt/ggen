@@ -82,6 +82,7 @@ fn normalize(path: &Path) -> PathBuf {
 }
 
 #[cfg(test)]
+#[allow(clippy::expect_used)] // Chicago TDD: real tempdir/file IO
 mod tests {
     use super::*;
     use tempfile::TempDir;

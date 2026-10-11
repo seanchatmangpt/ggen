@@ -1,0 +1,7 @@
+delta-validation report (wasm)
+subject: /Users/sac/wasm4pm/wasm4pm/pkg/wasm4pm_bg.wasm
+G_original (expected surface): 730 exports
+G_recovered (wat export surface): 730 exports
+Delta(G) = G_recovered \ G_original =
+  (none)
+VERDICT: ALIVE (Delta(G) = 0)

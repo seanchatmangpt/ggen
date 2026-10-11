@@ -3,11 +3,13 @@
 //! Domain: load a package onto a truck at loc_a, drive to loc_b, unload.
 //! Goal: at(pkg1, loc_b).
 
+// Chicago TDD (.claude/rules/rust/testing.md): unwrap/expect/panic allowed in test code.
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 use bcinr_pddl::{domain_from_pddl, execute_tape, problem_from_pddl, GroundProblem};
 use std::collections::BTreeSet;
 use wasm4pm_compat::pddl::Pddl8GroundAtom;
 
-const DOMAIN: &str = r#"
+const DOMAIN: &str = r"
 (define (domain logistics)
   (:requirements :strips :typing)
   (:predicates
@@ -26,9 +28,9 @@ const DOMAIN: &str = r#"
     :precondition (and (in ?pkg ?truck) (at ?truck ?loc))
     :effect (and (at ?pkg ?loc) (not (in ?pkg ?truck))))
 )
-"#;
+";
 
-const PROBLEM: &str = r#"
+const PROBLEM: &str = r"
 (define (problem get-pkg1-to-loc_b)
   (:domain logistics)
   (:objects pkg1 truck1 loc_a loc_b)
@@ -37,7 +39,7 @@ const PROBLEM: &str = r#"
     (at truck1 loc_a))
   (:goal (at pkg1 loc_b))
 )
-"#;
+";
 
 #[test]
 fn logistics_plan_found_and_executed() {
@@ -152,14 +154,14 @@ fn logistics_plan_fails_without_truck_at_pickup() {
     let domain = domain_from_pddl(DOMAIN).unwrap();
     // Problem where truck is at loc_b, not loc_a — cannot load at loc_a
     let problem_no_truck = problem_from_pddl(
-        r#"
+        r"
         (define (problem impossible)
           (:domain logistics)
           (:objects pkg1 truck1 loc_a loc_b)
           (:init (at pkg1 loc_a) (at truck1 loc_b))
           (:goal (at pkg1 loc_b))
         )
-    "#,
+    ",
     )
     .unwrap();
     let gp = GroundProblem::build(&domain, &problem_no_truck, None).unwrap();

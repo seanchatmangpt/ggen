@@ -1,3 +1,5 @@
+// Chicago TDD (.claude/rules/rust/testing.md): unwrap/expect/panic allowed in test code.
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 use bcinr_pddl::{domain_from_pddl, problem_from_pddl, GroundProblem};
 
 // BLOCKED, pre-existing, unrelated to the Phase 2 PlannerOutcome/capability

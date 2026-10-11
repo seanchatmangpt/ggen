@@ -1,0 +1,10 @@
+[[rules]]
+id         = "ANTI-LLM-CLAIM-003"
+name       = "no-all-gaps-resolved"
+severity   = "error"
+pattern    = 'all gaps resolved'
+message    = "Forbidden completion claim: 'all gaps resolved'"
+rationale  = "Gap claims require process evidence; text assertions are insufficient"
+eval_budget = "sync"
+path_globs   = []
+exclude_globs = []

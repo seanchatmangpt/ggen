@@ -5,14 +5,14 @@
 //!
 //! # Exit Codes
 //! - 0: Success - operation completed successfully
-//! - 1: ValidationError - RDF/SHACL/type validation failed
-//! - 2: SparqlError - SPARQL query syntax/termination error
-//! - 3: TemplateError - Template rendering failed
-//! - 4: OutputInvalid - Generated code failed validation (not valid Rust)
+//! - 1: `ValidationError` - RDF/SHACL/type validation failed
+//! - 2: `SparqlError` - SPARQL query syntax/termination error
+//! - 3: `TemplateError` - Template rendering failed
+//! - 4: `OutputInvalid` - Generated code failed validation (not valid Rust)
 //! - 5: Timeout - Operation exceeded time limit
-//! - 6: FileError - File system operation failed
-//! - 7: NetworkError - Network operation failed
-//! - 8: ConfigError - Configuration validation failed
+//! - 6: `FileError` - File system operation failed
+//! - 7: `NetworkError` - Network operation failed
+//! - 8: `ConfigError` - Configuration validation failed
 //! - 127: Unknown - Unexpected error
 
 use thiserror::Error;
@@ -72,15 +72,15 @@ pub enum GgenError {
     #[error("Internal error: {0}")]
     Internal(String),
 
-    /// PaaS operation error (converted from PaasError)
+    /// `PaaS` operation error (converted from `PaasError`)
     #[error("PaaS error: {0}")]
     PaasError(String),
 
-    /// Pack receipt error (converted from PackReceiptError)
+    /// Pack receipt error (converted from `PackReceiptError`)
     #[error("Pack receipt error: {0}")]
     PackReceiptError(String),
 
-    /// Validation error (converted from ValidationError)
+    /// Validation error (converted from `ValidationError`)
     #[error("Validation error: {0}")]
     InvalidInput(String),
 }
@@ -115,17 +115,17 @@ impl GgenError {
         GgenError::CommandError(err.to_string())
     }
 
-    /// Convert from PaasError
+    /// Convert from `PaasError`
     pub fn from_paas_error(err: impl std::fmt::Display) -> Self {
         GgenError::PaasError(err.to_string())
     }
 
-    /// Convert from PackReceiptError
+    /// Convert from `PackReceiptError`
     pub fn from_pack_receipt_error(err: impl std::fmt::Display) -> Self {
         GgenError::PackReceiptError(err.to_string())
     }
 
-    /// Convert from ValidationError
+    /// Convert from `ValidationError`
     pub fn from_validation_error(err: impl std::fmt::Display) -> Self {
         GgenError::InvalidInput(err.to_string())
     }
@@ -186,7 +186,11 @@ pub type Result<T> = std::result::Result<T, GgenError>;
 
 /// Extension trait for easy error conversion
 pub trait GgenResultExt<T> {
-    /// Convert any result to GgenError using appropriate conversion
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the operation cannot be completed.
+    /// Convert any result to `GgenError` using appropriate conversion
     fn to_ggen_result(self) -> Result<T>;
 }
 

@@ -123,7 +123,7 @@ fn load_pack_contexts_from_project() -> crate::Result<LoadedPackContexts> {
     }
 
     let lockfile = PackLockfile::from_file(lockfile_path)
-        .map_err(|e| crate::utils::error::Error::new(&format!("Failed to load lockfile: {}", e)))?;
+        .map_err(|e| crate::utils::error::Error::new(&format!("Failed to load lockfile: {e}")))?;
 
     let mut pack_contexts = Vec::new();
     let mut malformed = Vec::new();
@@ -137,10 +137,8 @@ fn load_pack_contexts_from_project() -> crate::Result<LoadedPackContexts> {
                 // failure mode was exactly this: check/validate crashed on
                 // one bad identifier before compliance logic ran at all.
                 log::warn!(
-                    "Skipping malformed pack identifier '{}' from .ggen/packs.lock \
-                     (excluded from policy evaluation): {}",
-                    pack_id,
-                    e
+                    "Skipping malformed pack identifier '{pack_id}' from .ggen/packs.lock \
+                     (excluded from policy evaluation): {e}"
                 );
                 malformed.push((pack_id.clone(), e.to_string()));
                 continue;
@@ -151,8 +149,7 @@ fn load_pack_contexts_from_project() -> crate::Result<LoadedPackContexts> {
 
         let metadata = load_pack_metadata(&cache_dir).map_err(|e| {
             crate::utils::error::Error::new(&format!(
-                "Failed to load metadata for pack {}: {}",
-                pack_id, e
+                "Failed to load metadata for pack {pack_id}: {e}"
             ))
         })?;
 
@@ -178,7 +175,7 @@ fn load_pack_contexts_from_project() -> crate::Result<LoadedPackContexts> {
 // Verb Functions
 // ============================================================================
 
-/// Load template_defaults and runtime from pack.toml in the cache directory.
+/// Load `template_defaults` and runtime from pack.toml in the cache directory.
 ///
 /// Reads the `[pack]` section for `use_defaults` and `runtime` fields.
 /// Returns `(use_template_defaults, runtime)` tuple.
@@ -195,7 +192,9 @@ fn load_pack_config_from_cache(cache_dir: &std::path::Path) -> (bool, Option<Str
         Err(_) => return (false, None),
     };
 
-    let value: toml::Value = match toml::from_str(&content) {
+    // star_toml adds env-var expansion of string values before parsing
+    // (pack.toml manifest context; expansion is acceptable here).
+    let value: toml::Value = match star_toml::from_str(&content) {
         Ok(v) => v,
         Err(_) => return (false, None),
     };
@@ -217,6 +216,10 @@ fn load_pack_config_from_cache(cache_dir: &std::path::Path) -> (bool, Option<Str
 
 /// List all available policy profiles
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn list(verbose: bool) -> VerbResult<ListOutput> {
     let profiles = predefined_profiles();
 
@@ -266,18 +269,18 @@ pub fn list(verbose: bool) -> VerbResult<ListOutput> {
 fn run_policy_enforcement(profile_id: String) -> VerbResult<ValidateOutput> {
     let profile_obj =
         ggen_marketplace::marketplace::profile::get_profile(&profile_id).map_err(|e| {
-            clap_noun_verb::NounVerbError::argument_error(format!("Profile not found: {}", e))
+            clap_noun_verb::NounVerbError::argument_error(format!("Profile not found: {e}"))
         })?;
 
     // Load pack contexts from project (never aborts on a malformed identifier
     // alone -- see `load_pack_contexts_from_project`).
     let loaded = load_pack_contexts_from_project()
-        .map_err(|e| clap_noun_verb::NounVerbError::argument_error(format!("{}", e)))?;
+        .map_err(|e| clap_noun_verb::NounVerbError::argument_error(format!("{e}")))?;
 
     // Enforce policy over the valid subset -- this is "reaching the policy
     // engine" even when malformed entries were skipped above.
     let report = profile_obj.enforce(&loaded.contexts).map_err(|e| {
-        clap_noun_verb::NounVerbError::execution_error(format!("Policy enforcement failed: {}", e))
+        clap_noun_verb::NounVerbError::execution_error(format!("Policy enforcement failed: {e}"))
     })?;
 
     // Format violations
@@ -299,7 +302,7 @@ fn run_policy_enforcement(profile_id: String) -> VerbResult<ValidateOutput> {
             loaded.malformed.len()
         );
         for (id, err) in &loaded.malformed {
-            log::error!("    - {}: {}", id, err);
+            log::error!("    - {id}: {err}");
         }
         problems.push(format!(
             "{} malformed pack identifier(s) in .ggen/packs.lock were excluded from policy \
@@ -308,16 +311,16 @@ fn run_policy_enforcement(profile_id: String) -> VerbResult<ValidateOutput> {
             loaded
                 .malformed
                 .iter()
-                .map(|(id, err)| format!("{} ({})", id, err))
+                .map(|(id, err)| format!("{id} ({err})"))
                 .collect::<Vec<_>>()
                 .join(", ")
         ));
     }
 
     if report.passed {
-        log::info!("✓ Profile '{}' validation passed", profile_id);
+        log::info!("✓ Profile '{profile_id}' validation passed");
     } else {
-        log::error!("✗ Profile '{}' validation failed", profile_id);
+        log::error!("✗ Profile '{profile_id}' validation failed");
         log::error!("  Violations: {}", report.violation_count());
         for violation in &violations {
             log::error!("    - {}: {}", violation.pack_id, violation.description);
@@ -357,16 +360,24 @@ fn run_policy_enforcement(profile_id: String) -> VerbResult<ValidateOutput> {
 
 /// Validate current project against a policy profile
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn validate(profile: String) -> VerbResult<ValidateOutput> {
     run_policy_enforcement(profile)
 }
 
 /// Show detailed profile information
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn show(profile_id: String) -> VerbResult<ShowOutput> {
     let profile =
         ggen_marketplace::marketplace::profile::get_profile(&profile_id).map_err(|e| {
-            clap_noun_verb::NounVerbError::argument_error(format!("Profile not found: {}", e))
+            clap_noun_verb::NounVerbError::argument_error(format!("Profile not found: {e}"))
         })?;
 
     log::info!("Profile: {} ({})", profile.id.as_str(), profile.name);
@@ -424,6 +435,10 @@ pub fn show(profile_id: String) -> VerbResult<ShowOutput> {
 
 /// Check current environment against default profile
 #[verb]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn check() -> VerbResult<ValidateOutput> {
     // Use enterprise-strict as the default/hardcoded profile.
     run_policy_enforcement("enterprise-strict".to_string())

@@ -1,0 +1,10 @@
+[[rules]]
+id         = "ANTI-LLM-OCEL-001"
+name       = "no-ocel-trigger-001"
+severity   = "error"
+pattern    = 'ANTI-LLM-OCEL-001-TRIGGER'
+message    = "Diagnostic emitted without corresponding OCEL process event"
+rationale  = "Every diagnostic must be traceable to an OCEL event in the process log"
+eval_budget = "background"
+path_globs   = []
+exclude_globs = []

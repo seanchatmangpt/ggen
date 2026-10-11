@@ -1,3 +1,5 @@
+// Chicago TDD (.claude/rules/rust/testing.md): unwrap/expect/panic allowed in test code.
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 use bcinr_pddl::{
     domain_from_pddl, powl_bridge::temporal_plan_to_powl_tape, problem_from_pddl,
     GroundTemporalProblem,
@@ -9,7 +11,7 @@ fn main() {
 }
 
 fn generate_fixture(n: usize) -> (String, String) {
-    let domain = r#"(define (domain deploy-services)
+    let domain = r"(define (domain deploy-services)
     (:requirements :durative-actions :typing)
     (:types service)
     (:predicates (deployed ?s - service))
@@ -19,7 +21,7 @@ fn generate_fixture(n: usize) -> (String, String) {
         :condition ()
         :effect (and (at end (deployed ?s)))
     )
-)"#
+)"
     .to_string();
 
     let mut objects = String::new();
@@ -30,12 +32,12 @@ fn generate_fixture(n: usize) -> (String, String) {
     }
 
     let problem = format!(
-        r#"(define (problem deploy-n)
+        r"(define (problem deploy-n)
     (:domain deploy-services)
     (:objects {} - service)
     (:init)
     (:goal (and {}))
-)"#,
+)",
         objects.trim(),
         goals.trim()
     );

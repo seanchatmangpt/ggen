@@ -32,7 +32,7 @@ pub struct Blake3Hash(pub String);
 impl Blake3Hash {
     /// Compute the BLAKE3 digest of `bytes` and return it as a hex-encoded hash.
     ///
-    /// This is the primary constructor for new digests. Use [`from_hex`] only
+    /// This is the primary constructor for new digests. Use `from_hex` only
     /// when deserializing a digest that was previously computed.
     #[must_use]
     pub fn content_address(bytes: &[u8]) -> Self {

@@ -42,9 +42,9 @@
 
 use std::collections::BTreeMap;
 
-/// Validated exponent for `L_q`. Must be finite — `NaN`/`±Inf` would make
-/// `p^q` undefined or degenerate for every `p`, so construction refuses them
-/// up front rather than letting a bad `q` propagate into every weight.
+/// Validated exponent for `L_q`.
+///
+/// Must be finite — `NaN`/`±Inf` would make `p^q` undefined or degenerate for every `p`, so construction refuses them up front rather than letting a bad `q` propagate into every weight.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct QValue(f64);
 
@@ -61,11 +61,9 @@ impl QValue {
     }
 }
 
-/// Validated positive mass: finite and strictly greater than zero. Used both
-/// for [`PositiveDistribution`]'s raw input masses and for
-/// [`WeightedDistribution`]'s normalized output weights — a weight that
-/// underflowed to exactly `0.0` (extreme `q`, extreme input masses) is
-/// refused at construction rather than silently accepted as "positive."
+/// Validated positive mass: finite and strictly greater than zero.
+///
+/// Used both for [`PositiveDistribution`]'s raw input masses and for [`WeightedDistribution`]'s normalized output weights — a weight that underflowed to exactly `0.0` (extreme `q`, extreme input masses) is refused at construction rather than silently accepted as "positive."
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct PositiveMass(f64);
 
@@ -142,9 +140,9 @@ impl<K> PositiveDistribution<K> {
 }
 
 /// A normalized `L_q`-weighted distribution over keys `K` — the output of
-/// [`q_lens`]. Every weight is a [`PositiveMass`], and the weights sum to
-/// `1.0` within float tolerance (see `q_lens`'s doc comment and the
-/// `weights_sum_to_one_within_tolerance` proptest).
+/// [`q_lens`].
+///
+/// Every weight is a [`PositiveMass`], and the weights sum to `1.0` within float tolerance (see `q_lens`'s doc comment and the `weights_sum_to_one_within_tolerance` proptest).
 #[derive(Debug, Clone)]
 pub struct WeightedDistribution<K> {
     entries: Vec<(K, PositiveMass)>,
@@ -164,16 +162,9 @@ impl<K> WeightedDistribution<K> {
     }
 }
 
-/// `L_q(i) = p_i^q / sum_j p_j^q` — real normalization, real error handling
-/// for every degenerate case named in [`QLensError`]. See the module doc
-/// comment for this function's formal standing
-/// (`bcinr_mfw_ir::contracts::LAW_QLENS_RATIO`, `Proven`).
+/// `L_q(i) = p_i^q / sum_j p_j^q` — real normalization, real error handling for every degenerate case
 ///
-/// # Complexity
-///
-/// O(n) in `distribution.entries().len()` — two linear passes (one
-/// `powf` + collect, one normalize), each entry doing one `powf()` call
-/// and one division.
+/// named in [`QLensError`]. See the module doc comment for this function's formal standing (`bcinr_mfw_ir::contracts::LAW_QLENS_RATIO`, `Proven`).  # Complexity  O(n) in `distribution.entries().len()` — two linear passes (one `powf` + collect, one normalize), each entry doing one `powf()` call and one division.
 pub fn q_lens<K: Clone>(
     q: QValue, distribution: &PositiveDistribution<K>,
 ) -> Result<WeightedDistribution<K>, QLensError> {
@@ -232,19 +223,17 @@ impl MassVector {
     }
 }
 
-/// Produces a [`MassVector`] for one frontier box. Implemented by whatever
-/// PDDL-specific type represents a candidate expansion (e.g. a partially
-/// expanded state in a portfolio rail) — kept generic here so this module
-/// has no dependency on `crate::search`'s rail types.
+/// Produces a [`MassVector`] for one frontier box.
+///
+/// Implemented by whatever PDDL-specific type represents a candidate expansion (e.g. a partially expanded state in a portfolio rail) — kept generic here so this module has no dependency on `crate::search`'s rail types.
 pub trait FrontierMeasure {
     fn measure(&self) -> MassVector;
 }
 
 /// A named collection of frontier boxes and their projected masses — used
 /// by `crate::search`'s exploit rail to rank candidates via [`q_lens`].
-/// `BTreeMap` (not `HashMap`) for deterministic iteration order, matching
-/// this workspace's determinism discipline wherever ordering could feed a
-/// digest or a reproducible search trace.
+///
+/// `BTreeMap` (not `HashMap`) for deterministic iteration order, matching this workspace's determinism discipline wherever ordering could feed a digest or a reproducible search trace.
 #[derive(Debug, Clone, Default)]
 pub struct FrontierBoxes<K: Ord> {
     boxes: BTreeMap<K, MassVector>,

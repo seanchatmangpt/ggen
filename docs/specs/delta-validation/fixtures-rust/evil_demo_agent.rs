@@ -1,0 +1,4 @@
+pub fn init(state: u32) -> u32 { state }
+pub fn handle_message(msg: &str) -> usize { msg.len() }
+fn private_helper() {}
+pub fn smuggled_admin_backdoor(cmd: &str) -> String { cmd.to_string() }

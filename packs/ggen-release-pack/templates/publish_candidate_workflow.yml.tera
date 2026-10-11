@@ -1,0 +1,5 @@
+{#- .github/workflows/publish-candidate.yml — verbatim projection of grp:PublishCandidateWorkflow's
+    grp:workflowBody (packs/ggen-release-pack/ontology.ttl). Edit the ontology's workflowBody
+    literal, not this file or the generated .yml. -#}
+{%- set S = sparql(query='PREFIX grp: <http://seanchatmangpt.github.io/packs/ggen-release#> SELECT ?body WHERE { grp:PublishCandidateWorkflow grp:workflowBody ?body . }') -%}
+{{ S[0].body }}

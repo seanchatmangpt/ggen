@@ -1,0 +1,27 @@
+[project]
+name = "delta-demo"
+version = "0.1.0"
+
+[ontology]
+source = "ontology.ttl"
+base_iri = "http://example.org/delta-demo#"
+
+[ontology.prefixes]
+ex = "http://example.org/delta-demo#"
+
+[generation]
+output_dir = "out"
+
+[[generation.rules]]
+name = "echo-agent"
+query = { inline = """
+PREFIX ex: <http://example.org/delta-demo#>
+SELECT ?agent ?moduleName ?version WHERE {
+  ?agent a ex:Agent ;
+         ex:moduleName ?moduleName ;
+         ex:version ?version .
+} ORDER BY ?moduleName
+""" }
+template = { file = "templates/agent.ex.tera" }
+output_file = "{{ moduleName }}.ex"
+mode = "Overwrite"

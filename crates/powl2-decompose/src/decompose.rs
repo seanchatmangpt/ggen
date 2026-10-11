@@ -1,22 +1,6 @@
-//! Stage-1 decomposition: `ConvertNetToPOWL` (Algorithm 3) with its two
-//! partitioners `PartitionMG` (Algorithm 1, conflict-hiding → partial order)
-//! and `PartitionSM` (Algorithm 2, concurrency-hiding → choice graph).
+//! Stage-1 decomposition: `ConvertNetToPOWL` (Algorithm 3) with its two partitioners `PartitionMG`
 //!
-//! # Separability is the admission predicate
-//!
-//! Algorithm 3's fall-through branch — *neither a base case, nor a
-//! conflict-hiding partition, nor a concurrency-hiding partition exists* — is
-//! the paper's completeness boundary: the algorithm is complete exactly on
-//! **separable** WF-nets (Def 3.13). We do not approximate the fall-through;
-//! we **refuse** it, emitting a [`Refusal`] carrying a machine reason and a
-//! BLAKE3 receipt over the offending (sub-)net.
-//!
-//! This is a Rice-style boundary for process models: "is this WF-net
-//! expressible in POWL 2.0?" is answered constructively (a decomposition) or
-//! refused with evidence — never silently approximated. Non-free-choice nets
-//! are refused up front (every separable net is free-choice, Def 3.13
-//! corollary), and irreducible free-choice fragments are refused at the
-//! recursion level where both partitioners fail.
+//! (Algorithm 1, conflict-hiding → partial order) and `PartitionSM` (Algorithm 2, concurrency-hiding → choice graph).  # Separability is the admission predicate  Algorithm 3's fall-through branch — *neither a base case, nor a conflict-hiding partition, nor a concurrency-hiding partition exists* — is the paper's completeness boundary: the algorithm is complete exactly on **separable** WF-nets (Def 3.13). We do not approximate the fall-through; we **refuse** it, emitting a [`Refusal`] carrying a machine reason and a BLAKE3 receipt over the offending (sub-)net.  This is a Rice-style boundary for process models: "is this WF-net expressible in POWL 2.0?" is answered constructively (a decomposition) or refused with evidence — never silently approximated. Non-free-choice nets are refused up front (every separable net is free-choice, Def 3.13 corollary), and irreducible free-choice fragments are refused at the recursion level where both partitioners fail.
 
 use std::collections::{BTreeMap, BTreeSet};
 
@@ -189,6 +173,7 @@ fn convert_child(
     net: &WfNet, part: &BTreeSet<String>, project: fn(&WfNet, &BTreeSet<String>) -> WfNet,
     depth: usize, budget: usize,
 ) -> Result<Powl, Refusal> {
+    #[allow(clippy::expect_used)] // invariant: part.len() == 1 checked above
     if part.len() == 1 {
         let t = part.iter().next().expect("singleton");
         return Ok(Powl::Leaf(net.label(t)));
@@ -595,6 +580,7 @@ fn project_sm(net: &WfNet, part: &BTreeSet<String>) -> WfNet {
 /// Normalization: add a fresh source (via a silent transition) if `ps` has
 /// incoming arcs, and a fresh sink if `pe` has outgoing arcs, so the result
 /// is a valid WF-net (Def 3.3).
+#[allow(clippy::expect_used)] // fail-loud invariant: projection + normalization yields a valid WF-net by construction
 fn normalize(
     mut places: BTreeSet<String>, mut transitions: BTreeMap<String, crate::net::Label>,
     mut pt: BTreeSet<(String, String)>, mut tp: BTreeSet<(String, String)>, ps: String, pe: String,

@@ -22,6 +22,10 @@ pub struct ProjectWatcher {
 }
 
 impl ProjectWatcher {
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the operation cannot be completed.
     /// Create a new project watcher with default 300ms debounce
     pub fn new(project_root: PathBuf) -> Result<Self> {
         Self::with_debounce(project_root, 300)
@@ -39,7 +43,7 @@ impl ProjectWatcher {
             },
         )
         .map_err(|e| {
-            crate::utils::error::Error::new(&format!("Failed to create file watcher: {}", e))
+            crate::utils::error::Error::new(&format!("Failed to create file watcher: {e}"))
         })?;
 
         let resolver = ConventionResolver::new(project_root.clone());
@@ -55,6 +59,10 @@ impl ProjectWatcher {
         })
     }
 
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the operation cannot be completed.
     /// Start watching the project directories
     pub fn watch(&mut self) -> Result<()> {
         // Get conventions to determine watch directories
@@ -79,12 +87,20 @@ impl ProjectWatcher {
         Ok(())
     }
 
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the operation cannot be completed.
     /// Stop watching (drops the watcher)
     pub fn stop(self) -> Result<()> {
         drop(self.debouncer);
         Ok(())
     }
 
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the operation cannot be completed.
     /// Process pending file system events
     pub fn process_events(&mut self) -> Result<Vec<GenerationPlan>> {
         let mut plans = Vec::new();
@@ -100,7 +116,7 @@ impl ProjectWatcher {
                 }
                 Err(errors) => {
                     for error in errors {
-                        log::error!("Watch error: {:?}", error);
+                        log::error!("Watch error: {error:?}");
                     }
                 }
             }
@@ -157,21 +173,22 @@ impl ProjectWatcher {
         match self.resolver.discover() {
             Ok(conventions) => conventions.templates.keys().cloned().collect(),
             Err(e) => {
-                log::warn!(
-                    "Failed to discover conventions for affected templates: {}",
-                    e
-                );
+                log::warn!("Failed to discover conventions for affected templates: {e}");
                 // Return empty list on error - safer than continuing with stale data
                 Vec::new()
             }
         }
     }
 
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the operation cannot be completed.
     /// Regenerate a specific template
     pub fn regenerate_template(&self, template: &str) -> Result<()> {
         // In a real implementation, this would call the template engine
         // For now, we just log it
-        log::info!("Regenerating template: {}", template);
+        log::info!("Regenerating template: {template}");
         Ok(())
     }
 

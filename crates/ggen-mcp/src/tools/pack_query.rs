@@ -1,9 +1,11 @@
 //! `ggen_pack_query` — the machine-facing surface for querying the LOCAL
+//!
 //! PACK REGISTRY via SPARQL: either one pack's own RDF facts (`pack_id`
 //! given) or the union of every pack currently in the local registry
 //! (`pack_id` omitted). Distinct from `ggen_query_preview`, which queries a
 //! *project's own graph* (`ggen.toml`/ontology), not the marketplace/pack
 //! registry -- these two tools never overlap in scope.
+//!
 //!
 //! Thin adapter around `ggen_marketplace::packs_registry::sparql_executor::
 //! run_pack_query`, the single implementation shared with the `ggen pack

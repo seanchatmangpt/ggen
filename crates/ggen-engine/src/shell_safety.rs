@@ -39,7 +39,7 @@ const DANGEROUS_PATTERNS: &[&str] = &[
 ///
 /// # Errors
 /// Returns `[FM-SHELL-001]` when `cmd` matches an entry in
-/// [`DANGEROUS_PATTERNS`].
+/// `DANGEROUS_PATTERNS`.
 pub fn check_shell_command_safe(cmd: &str) -> Result<()> {
     let lower = cmd.to_ascii_lowercase();
     for pattern in DANGEROUS_PATTERNS {

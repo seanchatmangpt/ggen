@@ -84,7 +84,7 @@ use crate::{domain_from_pddl, problem_from_pddl, Pddl8Domain, Pddl8Error};
 use blake3::Hasher;
 use wasm4pm_compat::pddl::TemporalPlan;
 
-const CAPABILITY_DOMAIN: &str = r#"
+const CAPABILITY_DOMAIN: &str = r"
 (define (domain capability-router)
   (:requirements :durative-actions :numeric-fluents :typing)
   (:types file)
@@ -111,7 +111,7 @@ const CAPABILITY_DOMAIN: &str = r#"
     :effect (and
       (at start (decrease (attention) 1)) (at start (locked ?f))
       (at end (increase (attention) 1)) (at end (not (locked ?f))) (at end (drafted ?f)))))
-"#;
+";
 
 /// Static Domain Parsing Cache (PSDP).
 ///
@@ -281,9 +281,9 @@ impl Ord for CostVector {
     }
 }
 
-/// The router's output: the plan it found, the schedule analysis that
-/// justified it, its cost, and a BLAKE3 chain binding all three together —
-/// same witnessing pattern as `WorldManufactureReceipt`, not a new format.
+/// The router's output: the plan it found, the schedule analysis that justified it, its cost, and a
+///
+/// BLAKE3 chain binding all three together — same witnessing pattern as `WorldManufactureReceipt`, not a new format.
 #[derive(Debug, Clone)]
 pub struct CapabilityRouteReceipt {
     pub admitted: bool,
@@ -303,13 +303,13 @@ fn build_problem_text(task: &CapabilityTask) -> String {
     let goal_atoms: Vec<String> = task.desired_effects.iter().map(|e| e.goal_atom()).collect();
 
     format!(
-        r#"
+        r"
 (define (problem capability-route)
   (:domain capability-router)
   (:objects {objects} - file)
   (:init (= (attention) {capacity}))
   (:goal (and {goal})))
-"#,
+",
         objects = objects,
         capacity = task.attention_capacity,
         goal = goal_atoms.join(" ")
@@ -330,7 +330,12 @@ fn route_chain_hash(problem_text: &str, plan: &TemporalPlan, cost: &CostVector) 
 }
 
 fn hex(b: &[u8; 32]) -> String {
-    b.iter().map(|x| format!("{x:02x}")).collect()
+    use std::fmt::Write as _;
+    let mut s = String::with_capacity(64);
+    for x in b {
+        let _ = write!(s, "{x:02x}");
+    }
+    s
 }
 
 /// Route a [`CapabilityTask`] to a schedulable, cost-ordered plan over the
@@ -535,7 +540,7 @@ mod tests {
     fn test_psdp_cache_concurrency_determinism() {
         use std::thread;
 
-        let handles: Vec<_> = (0..10)
+        let results: Vec<_> = (0..10)
             .map(|_| {
                 thread::spawn(|| {
                     let task = CapabilityTask {
@@ -547,10 +552,10 @@ mod tests {
                     };
                     route_capability_plan(&task).expect("parallel route should succeed")
                 })
+                .join()
             })
+            .map(|joined| joined.expect("worker thread must not panic"))
             .collect();
-
-        let results: Vec<_> = handles.into_iter().map(|h| h.join().unwrap()).collect();
         let reference_receipt = &results[0];
         for receipt in &results[1..] {
             assert_eq!(

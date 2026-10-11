@@ -163,6 +163,8 @@ impl Builder {
         (s, k)
     }
 
+    /// Fail-loud invariant: the recomposed net is a valid WF-net by construction.
+    #[allow(clippy::expect_used)]
     fn finish(self, source: String, sink: String) -> WfNet {
         WfNet::new(
             self.places,

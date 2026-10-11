@@ -17,7 +17,7 @@
 //!
 //! ## Atomic Initialization
 //!
-//! Uses FileTransaction for atomic file operations with automatic rollback on failure.
+//! Uses `FileTransaction` for atomic file operations with automatic rollback on failure.
 //! Either all files are created successfully, or no changes are made.
 
 #![allow(clippy::unused_unit)] // clap-noun-verb macro generates this
@@ -443,6 +443,10 @@ echo "   using schema.org in 5 minutes. Stay disciplined. Use standards first."
 ///
 #[allow(clippy::unused_unit)]
 #[verb("init", "root")]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn init(
     path: Option<String>, force: Option<String>, skip_hooks: Option<String>, name: Option<String>,
     version: Option<String>, description: Option<String>,
@@ -539,12 +543,12 @@ fn parse_bool_flag(flag_name: &str, raw: Option<&str>) -> std::result::Result<bo
 /// ## Atomic Initialization Strategy
 ///
 /// 1. Pre-flight checks (directory exists, artifacts present, permissions)
-/// 2. Create FileTransaction for atomic file operations
+/// 2. Create `FileTransaction` for atomic file operations
 /// 3. Create directories (tracked separately, not part of transaction)
 /// 4. Write all files via transaction (automatic backup of existing files)
 /// 5. Set permissions on startup.sh
 /// 6. Commit transaction (point of no return)
-/// 7. Build InitOutput from TransactionReceipt
+/// 7. Build `InitOutput` from `TransactionReceipt`
 ///
 /// Any error before commit triggers automatic rollback via Drop trait.
 fn perform_init(
@@ -594,7 +598,7 @@ fn perform_init(
             files_overwritten: None,
             files_preserved: None,
             directories_created: vec![],
-            error: Some(format!("Failed to create project directory: {}", e)),
+            error: Some(format!("Failed to create project directory: {e}")),
             warning: None,
             next_steps: vec![],
             transaction: None,
@@ -612,7 +616,7 @@ fn perform_init(
             files_overwritten: None,
             files_preserved: None,
             directories_created: vec![],
-            error: Some(format!("{}", e)),
+            error: Some(format!("{e}")),
             warning: None,
             next_steps: vec![
                 "Ensure you have at least 100MB of free disk space".to_string(),
@@ -637,7 +641,7 @@ fn perform_init(
                 files_overwritten: None,
                 files_preserved: None,
                 directories_created: vec![],
-                error: Some(format!("No write permission in project directory: {}", e)),
+                error: Some(format!("No write permission in project directory: {e}")),
                 warning: None,
                 next_steps: vec![
                     "Check directory permissions or try a different location".to_string()
@@ -650,7 +654,7 @@ fn perform_init(
 
     // Create FileTransaction for atomic file operations
     let tx = FileTransaction::new().map_err(|e| {
-        GgenError::CommandError(format!("Failed to initialize file transaction: {}", e))
+        GgenError::CommandError(format!("Failed to initialize file transaction: {e}"))
     })?;
 
     let mut directories_created = vec![];
@@ -663,7 +667,7 @@ fn perform_init(
         let dir_path = base_path.join(dir);
         let existed = dir_path.exists();
         fs::create_dir_all(&dir_path).map_err(|e| {
-            GgenError::CommandError(format!("Failed to create directory {}: {}", dir, e))
+            GgenError::CommandError(format!("Failed to create directory {dir}: {e}"))
         })?;
         if !existed {
             directories_created.push(dir.to_string());
@@ -689,48 +693,43 @@ fn perform_init(
     // Create ggen.toml
     let toml_path = base_path.join("ggen.toml");
     let manifest_content = GGEN_TOML
-        .replace(
-            "name = \"my-ggen-project\"",
-            &format!("name = \"{}\"", name),
-        )
-        .replace("version = \"0.1.0\"", &format!("version = \"{}\"", version))
+        .replace("name = \"my-ggen-project\"", &format!("name = \"{name}\""))
+        .replace("version = \"0.1.0\"", &format!("version = \"{version}\""))
         .replace(
             "description = \"A ggen project initialized with default templates\"",
-            &format!("description = \"{}\"", description),
+            &format!("description = \"{description}\""),
         );
 
     tx.write_file(&toml_path, &manifest_content)
-        .map_err(|e| GgenError::CommandError(format!("Failed to write ggen.toml: {}", e)))?;
+        .map_err(|e| GgenError::CommandError(format!("Failed to write ggen.toml: {e}")))?;
 
     // Create schema/domain.ttl
     let schema_path = base_path.join("schema").join("domain.ttl");
-    tx.write_file(&schema_path, DOMAIN_TTL).map_err(|e| {
-        GgenError::CommandError(format!("Failed to write schema/domain.ttl: {}", e))
-    })?;
+    tx.write_file(&schema_path, DOMAIN_TTL)
+        .map_err(|e| GgenError::CommandError(format!("Failed to write schema/domain.ttl: {e}")))?;
 
     // Create Makefile
     let makefile_path = base_path.join("Makefile");
     tx.write_file(&makefile_path, MAKEFILE)
-        .map_err(|e| GgenError::CommandError(format!("Failed to write Makefile: {}", e)))?;
+        .map_err(|e| GgenError::CommandError(format!("Failed to write Makefile: {e}")))?;
 
     // Create example template (templates/example.txt.tera)
     let template_path = base_path.join("templates").join("example.txt.tera");
     tx.write_file(&template_path, EXAMPLE_TEMPLATE)
         .map_err(|e| {
-            GgenError::CommandError(format!("Failed to write templates/example.txt.tera: {}", e))
+            GgenError::CommandError(format!("Failed to write templates/example.txt.tera: {e}"))
         })?;
 
     // Create scripts/startup.sh
     let startup_sh_path = base_path.join("scripts").join("startup.sh");
-    tx.write_file(&startup_sh_path, STARTUP_SH).map_err(|e| {
-        GgenError::CommandError(format!("Failed to write scripts/startup.sh: {}", e))
-    })?;
+    tx.write_file(&startup_sh_path, STARTUP_SH)
+        .map_err(|e| GgenError::CommandError(format!("Failed to write scripts/startup.sh: {e}")))?;
 
     // Create .gitignore (only if it doesn't exist - preserve user's gitignore)
     if !gitignore_exists {
         let gitignore_content = "# ggen outputs\n.ggen/\n";
         tx.write_file(&gitignore_path, gitignore_content)
-            .map_err(|e| GgenError::CommandError(format!("Failed to write .gitignore: {}", e)))?;
+            .map_err(|e| GgenError::CommandError(format!("Failed to write .gitignore: {e}")))?;
     }
 
     // Create README.md (only if it doesn't exist - preserve user's README)
@@ -768,7 +767,7 @@ ggen mcp setup
 ```";
     if !readme_exists {
         tx.write_file(&readme_path, readme_content)
-            .map_err(|e| GgenError::CommandError(format!("Failed to write README.md: {}", e)))?;
+            .map_err(|e| GgenError::CommandError(format!("Failed to write README.md: {e}")))?;
     }
 
     // Set executable permissions on startup.sh before commit
@@ -778,8 +777,7 @@ ggen mcp setup
         fs::set_permissions(&startup_sh_path, std::fs::Permissions::from_mode(0o755)).map_err(
             |e| {
                 GgenError::CommandError(format!(
-                    "Failed to set execute permissions on startup.sh: {}",
-                    e
+                    "Failed to set execute permissions on startup.sh: {e}"
                 ))
             },
         )?;
@@ -787,9 +785,9 @@ ggen mcp setup
 
     // Commit transaction - this is the point of no return
     // After this, all changes are permanent and rollback is disabled
-    let receipt = tx.commit().map_err(|e| {
-        GgenError::CommandError(format!("Failed to commit file transaction: {}", e))
-    })?;
+    let receipt = tx
+        .commit()
+        .map_err(|e| GgenError::CommandError(format!("Failed to commit file transaction: {e}")))?;
 
     // Install git hooks after successful file creation
     let git_hooks_result = super::git_hooks::install_git_hooks(base_path, skip_hooks).ok(); // Convert to Option, don't fail init if hooks fail
@@ -956,6 +954,10 @@ pub struct InitSelfOutput {
 /// hand-edited project-local self-pack is never silently clobbered.
 #[allow(clippy::unused_unit)]
 #[verb("init-self", "root")]
+///
+/// # Errors
+///
+/// Returns an error if the operation cannot be completed.
 pub fn init_self(path: Option<String>, force: Option<String>) -> VerbResult<InitSelfOutput> {
     let project_dir = path.unwrap_or_else(|| ".".to_string());
     let force = parse_bool_flag("force", force.as_deref())?;

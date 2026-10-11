@@ -1,14 +1,6 @@
-//! Bounded schedule analyzer: reads a `TemporalPlan` + its POWL partial-order
-//! tape and derives structure — critical path, slack, parallelism, binding
-//! resources, and capacity sensitivity — without introducing a new planner,
-//! LP solver, or polytope representation. Everything here is either a direct
-//! graph computation over the existing `pred_mask`/`succ_mask` DAG (bounded by
-//! the 64-op tape cap) or a finite-difference re-run of the existing greedy
-//! `find_temporal_plan`.
+//! Bounded schedule analyzer: reads a `TemporalPlan` + its POWL partial-order tape and derives
 //!
-//! This is deliberately *not* sensitivity over an optimal scheduler, and not
-//! a feasible-region boundary/polytope. It explains the one schedule the
-//! planner already found.
+//! structure — critical path, slack, parallelism, binding resources, and capacity sensitivity — without introducing a new planner, LP solver, or polytope representation. Everything here is either a direct graph computation over the existing `pred_mask`/`succ_mask` DAG (bounded by the 64-op tape cap) or a finite-difference re-run of the existing greedy `find_temporal_plan`.  This is deliberately *not* sensitivity over an optimal scheduler, and not a feasible-region boundary/polytope. It explains the one schedule the planner already found.
 
 use crate::ground::GroundTemporalProblem;
 use crate::powl_bridge::{temporal_plan_to_powl_tape, PowlOpSpec};
@@ -65,23 +57,18 @@ pub struct ScheduleAnalysis64 {
     pub capacity_delta: Option<CapacityDelta>,
 }
 
-/// Analyze the schedule `gtp.find_temporal_plan()` produces, plus capacity
-/// sensitivity for the named numeric-fluent resources (e.g. `"available-workers"`,
-/// matching the key format `fn_key`/`eval_numeric` use for zero-param functions).
+/// Analyze the schedule `gtp.find_temporal_plan()` produces, plus capacity sensitivity for the named
 ///
-/// `resource_keys` is capped at 64 entries (bitmask width); extras are ignored.
+/// numeric-fluent resources (e.g. `"available-workers"`, matching the key format `fn_key`/`eval_numeric` use for zero-param functions).  `resource_keys` is capped at 64 entries (bitmask width); extras are ignored.
 pub fn analyze_schedule(
     gtp: &GroundTemporalProblem, resource_keys: &[String],
 ) -> Result<ScheduleAnalysis64, Pddl8Error> {
     analyze_schedule_instrumented(gtp, resource_keys).map(|(result, _substage)| result)
 }
 
-/// Same as `analyze_schedule`, but also returns L3 substage timing
-/// (`AnalysisSubstageNs`). The extra `Instant::now()` checkpoints are cheap
-/// relative to `analyze_schedule`'s ~3-6 total sub-calls (unlike
-/// `execute_temporal_plan`'s per-step hot loop, which needed a separate
-/// bench-only duplicate to avoid adding overhead) — `analyze_schedule`
-/// delegates to this function directly rather than duplicating it.
+/// Same as `analyze_schedule`, but also returns L3 substage timing (`AnalysisSubstageNs`).
+///
+/// The extra `Instant::now()` checkpoints are cheap relative to `analyze_schedule`'s ~3-6 total sub-calls (unlike `execute_temporal_plan`'s per-step  hot loop, which needed a separate bench-only duplicate to avoid adding overhead) — `analyze_schedule` delegates to this function directly rather than duplicating it.
 pub fn analyze_schedule_instrumented(
     gtp: &GroundTemporalProblem, resource_keys: &[String],
 ) -> Result<(ScheduleAnalysis64, AnalysisSubstageNs), Pddl8Error> {
@@ -208,7 +195,13 @@ fn max_parallelism(earliest_start: &[f64], earliest_finish: &[f64], n: usize) ->
     // Process ends before starts at the same instant: intervals are
     // half-open [start, end), so an op ending exactly when another starts
     // does not count as overlapping.
-    events.sort_by(|a, b| a.0.partial_cmp(&b.0).unwrap().then(a.1.cmp(&b.1)));
+    // NaN event times must not panic the comparator; treated as equal the
+    // sweep stays total (delta tiebreak still orders ends before starts).
+    events.sort_by(|a, b| {
+        a.0.partial_cmp(&b.0)
+            .unwrap_or(std::cmp::Ordering::Equal)
+            .then(a.1.cmp(&b.1))
+    });
     let mut cur = 0i32;
     let mut max_seen = 0i32;
     for (_, delta) in events {

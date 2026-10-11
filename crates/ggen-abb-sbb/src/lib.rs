@@ -1,4 +1,5 @@
 #![forbid(unsafe_code)]
+#![cfg_attr(test, allow(clippy::unwrap_used, clippy::expect_used, clippy::panic))] // Chicago TDD (.claude/rules/rust/testing.md): unwrap/expect/panic allowed in test code
 //! ABB/SBB manufacture admission kernel (RFC `docs/rfc/v26.9.26/abb-sbb-implementation.md`).
 //!
 //! ggen is the manufacturing function `A = mu(O*)`. This crate is the pure, IO-free
@@ -21,6 +22,8 @@ use serde_json::Value;
 use sha2::{Digest, Sha256};
 use std::collections::{BTreeMap, BTreeSet};
 use thiserror::Error;
+
+pub mod depgraph;
 
 pub const GRAPH_SCHEMA: &str = "ggen.ea.graph.v1";
 pub const RECEIPT_SCHEMA: &str = "ggen.abb-sbb.manufacture-receipt.v1";
@@ -199,6 +202,12 @@ pub enum Refusal {
     UnsafeArtifactPath { path: String },
     #[error("DUPLICATE_ARTIFACT_PATH: {path}")]
     DuplicateArtifactPath { path: String },
+    #[error("CYCLIC_PACK_DEPENDENCY: {}", cycle.join(" -> "))]
+    CyclicPackDependency { cycle: Vec<String> },
+    #[error(
+        "UNBOUND_PORT: {port} required by {pack} is not provided by any transitive dependency"
+    )]
+    UnboundPort { pack: String, port: String },
     #[error("UNBOUND_PLACEHOLDER: {placeholder} in {path}")]
     UnboundPlaceholder { placeholder: String, path: String },
     #[error("RECEIPT_TAMPERED: declared {declared}, actual {actual}")]
@@ -227,46 +236,9 @@ pub enum Decision {
     },
 }
 
-/// Output of [`admit`]. Sealed: fields are private and the only constructor is the
-/// admission gate, so `manufacture` (mu) is type-restricted to admitted input (O*).
-/// A hand-built or edited value cannot exist outside this crate:
+/// Output of [`admit`].
 ///
-/// ```compile_fail
-/// // Falsifier for the sealed constructor: forging an Admitted outside the crate fails
-/// // to compile (private fields), so mu cannot be applied to unadmitted input.
-/// let g = ggen_abb_sbb::synthetic_graph(1, 1);
-/// let forged = ggen_abb_sbb::Admitted {
-///     graph_digest: g.digest(),
-///     qualification: "qual:does-not-exist".into(),
-/// };
-/// ```
-///
-/// ```compile_fail
-/// // Falsifier: an admitted value cannot be edited in place either.
-/// let g = ggen_abb_sbb::synthetic_graph(1, 1);
-/// let req = ggen_abb_sbb::Request {
-///     abb: "abb:event-ingest".into(),
-///     sbb: "sbb:ingest-0000".into(),
-///     requested_authority: ggen_abb_sbb::Authority::Construct,
-///     expected_graph_digest: None,
-/// };
-/// let mut ad = ggen_abb_sbb::admit(&g, &req).unwrap();
-/// ad.qualification = "qual:does-not-exist".into();
-/// ```
-///
-/// ```
-/// // Positive control for the two compile_fail blocks above: the same setup compiles
-/// // and admits through the gate, so they fail only on the forgery itself.
-/// let g = ggen_abb_sbb::synthetic_graph(1, 1);
-/// let req = ggen_abb_sbb::Request {
-///     abb: "abb:event-ingest".into(),
-///     sbb: "sbb:ingest-0000".into(),
-///     requested_authority: ggen_abb_sbb::Authority::Construct,
-///     expected_graph_digest: None,
-/// };
-/// let ad = ggen_abb_sbb::admit(&g, &req).unwrap();
-/// assert_eq!(ad.qualification(), "qual:ingest-0000");
-/// ```
+/// Sealed: fields are private and the only constructor is the admission gate, so `manufacture` (mu) is type-restricted to admitted input (O*). A hand-built or edited value cannot exist outside this crate:  ```compile_fail // Falsifier for the sealed constructor: forging an Admitted outside the crate fails // to compile (private fields), so mu cannot be applied to unadmitted input. let g = ggen_abb_sbb::synthetic_graph(1, 1); let forged = ggen_abb_sbb::Admitted { graph_digest: g.digest(), qualification: "qual:does-not-exist".into(), }; ```  ```compile_fail // Falsifier: an admitted value cannot be edited in place either. let g = ggen_abb_sbb::synthetic_graph(1, 1); let req = ggen_abb_sbb::Request { abb: "abb:event-ingest".into(), sbb: "sbb:ingest-0000".into(), requested_authority: ggen_abb_sbb::Authority::Construct, expected_graph_digest: None, }; let mut ad = ggen_abb_sbb::admit(&g, &req).unwrap(); ad.qualification = "qual:does-not-exist".into(); ```  ``` // Positive control for the two compile_fail blocks above: the same setup compiles // and admits through the gate, so they fail only on the forgery itself. let g = ggen_abb_sbb::synthetic_graph(1, 1); let req = ggen_abb_sbb::Request { abb: "abb:event-ingest".into(), sbb: "sbb:ingest-0000".into(), requested_authority: ggen_abb_sbb::Authority::Construct, expected_graph_digest: None, }; let ad = ggen_abb_sbb::admit(&g, &req).unwrap(); assert_eq!(ad.qualification(), "qual:ingest-0000"); ```
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Admitted {
     graph_digest: String,
@@ -365,9 +337,35 @@ fn sha256_hex(bytes: &[u8]) -> String {
 
 /// Canonical digest of any serializable value: serde_json maps are key-sorted
 /// (no `preserve_order`), so digests are independent of field order.
+#[allow(clippy::expect_used)] // fail-loud invariant: kernel values always serialize; Result would leak serde into the public API
 pub fn canonical_digest<T: Serialize>(value: &T) -> String {
     let v: Value = serde_json::to_value(value).expect("kernel values serialize");
-    sha256_hex(v.to_string().as_bytes())
+    sha256_hex(&canonical_json_bytes(&v))
+}
+
+/// Serialize a JSON value with object keys recursively sorted, independent of the
+/// `serde_json/preserve_order` feature. Under that feature `serde_json::Map` is an
+/// insertion-ordered IndexMap instead of a sorted BTreeMap, so a bare
+/// `Value::to_string()` produces different bytes (and therefore different digests)
+/// depending on which crates in the build enable the feature. Sorting explicitly
+/// keeps digests stable across feature unification.
+fn canonical_json_bytes(v: &Value) -> Vec<u8> {
+    fn sorted(v: Value) -> Value {
+        match v {
+            Value::Object(map) => {
+                let mut entries: Vec<(String, Value)> = map.into_iter().collect();
+                entries.sort_by(|a, b| a.0.cmp(&b.0));
+                let mut out = serde_json::Map::new();
+                for (k, val) in entries {
+                    out.insert(k, sorted(val));
+                }
+                Value::Object(out)
+            }
+            Value::Array(items) => Value::Array(items.into_iter().map(sorted).collect()),
+            other => other,
+        }
+    }
+    sorted(v.clone()).to_string().into_bytes()
 }
 
 thread_local! {
@@ -421,7 +419,7 @@ impl EaGraph {
         canonical_digest(&self.canonical())
     }
 
-    fn validate(&self) -> Result<(), Refusal> {
+    pub fn validate(&self) -> Result<(), Refusal> {
         if self.schema != GRAPH_SCHEMA {
             return Err(Refusal::MalformedGraph {
                 reason: format!("schema {} != {GRAPH_SCHEMA}", self.schema),
@@ -519,6 +517,7 @@ pub fn contract_digest(k: &ArchitectureContract) -> String {
     canonical_digest(k)
 }
 
+#[allow(clippy::expect_used)] // fail-loud invariant: contract/capability references validated before this point; Result would change internal admission signature
 fn admit_sbb(
     g: &EaGraph, graph_digest: &str, abb: &Abb, sbb_id: &str,
 ) -> Result<Admitted, Refusal> {
@@ -705,6 +704,7 @@ pub fn admit(g: &EaGraph, req: &Request) -> Result<Admitted, Refusal> {
 /// Planning selects, so it requires at least SELECT authority: a request at NONE is
 /// refused with `INSUFFICIENT_AUTHORITY` instead of returning a SELECT decision the
 /// caller was never granted. DO is refused with `AUTHORITY_EXCEEDED`.
+#[allow(clippy::expect_used)] // fail-loud invariant: contract reference validated during admit; Result would duplicate the Refusal path
 pub fn plan(g: &EaGraph, abb: &str, authority: Authority) -> Result<Decision, Refusal> {
     let (a, digest) = admit_common(g, abb, authority, None)?;
     if authority < Authority::Select {
@@ -972,9 +972,9 @@ pub fn replay(
     Ok(m)
 }
 
-/// Deterministic scaled fixture: one strategy/capability/ABB, `n_sbbs` candidates each
-/// with `n_artifacts` artifacts, every candidate qualified against the live contract.
-/// Used by tests and the benchmark so both measure the same subject.
+/// Deterministic scaled fixture: one strategy/capability/ABB, `n_sbbs` candidates each with
+///
+/// `n_artifacts` artifacts, every candidate qualified against the live contract. Used by tests and the benchmark so both measure the same subject.
 pub fn synthetic_graph(n_sbbs: usize, n_artifacts: usize) -> EaGraph {
     let contract = ArchitectureContract {
         id: "contract:ingest".into(),

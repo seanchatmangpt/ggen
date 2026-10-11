@@ -1,6 +1,9 @@
 //! External-crate-perspective regression test for
 //! `SemanticOptimizationContract`'s construction guarantee.
 //!
+
+// Chicago TDD (.claude/rules/rust/testing.md): unwrap/expect/panic allowed in test code.
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 //! `contracts.rs`'s own module doc comment claims the type is
 //! "constructible only when the cited FormalLawRef is Proven" — before this
 //! fix that was false as written: every field was `pub`, so any downstream

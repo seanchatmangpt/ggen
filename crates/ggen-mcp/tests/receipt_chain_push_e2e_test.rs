@@ -13,6 +13,7 @@
 //! comment describes: `push_sync_refusal_for_root` alone can never surface
 //! `FM-CHAIN-*` (it only ever runs a dry-run sync), so this test exercises
 //! the sibling push path instead.
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)] // Chicago TDD: real-IO tests
 
 mod common;
 
@@ -126,7 +127,7 @@ impl McpClient {
     /// `ggen-sync-refusal://` push from the sibling dry-run check, none of
     /// which this fixture intentionally triggers but none of which rule
     /// this test out either).
-    fn wait_for_chain_refusal_update(&mut self) -> Value {
+    fn wait_for_chain_refusal_update(&self) -> Value {
         loop {
             let frame = self.rx.recv_timeout(READ_TIMEOUT).expect(
                 "timed out waiting for a ggen-sync-refusal://...#chain resources/updated push",

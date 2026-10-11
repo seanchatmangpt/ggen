@@ -3,6 +3,8 @@
 //! net that must be refused), plus the differential round-trip
 //! `L(N) == L(decompose(N)) == L(recompose(decompose(N)))`.
 
+// Chicago TDD (.claude/rules/rust/testing.md): unwrap/expect/panic allowed in test code.
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 use std::collections::BTreeSet;
 
 use powl2_decompose::language::language_upto;
