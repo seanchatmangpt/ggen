@@ -26,13 +26,8 @@ rf:dispatchRoute a owl:DatatypeProperty ;
     rdfs:domain rf:DiagnosticCode .
 
 rf:doc a rf:Doc ;
-<<<<<<< HEAD
     rf:workspaceVersion "26.10.11" ;
-    rf:projectManifestVersion "26.7.1" ;
-=======
-    rf:workspaceVersion "26.10.10" ;
-    rf:projectManifestVersion "26.10.10" ;
->>>>>>> 4f027e287 (docs(release): v26.10.10 release prep — README rewrite, chain receipts, publish runbook)
+    rf:projectManifestVersion "26.10.11" ;
     rf:toolchainChannel "nightly-2026-06-22" ;
     rf:memberCount "13" ;
     rf:crateCount "14" ;

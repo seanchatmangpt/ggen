@@ -1,8 +1,8 @@
-# v26.10.10 Phase 1 Receipt
+# v26.10.11 Phase 1 Receipt
 
 Phase 1 (hygiene + schema-dispatch verification + star-toml migration) on
 `/Users/sac/ggen`, branch `spec-integration`. Companion to
-`docs/v26_10_10_repo_state_and_library_usage_report.md` (§7 delta). Date: 2026-10-09.
+`docs/v26_10_11_repo_state_and_library_usage_report.md` (§7 delta). Date: 2026-10-09.
 
 ## What changed since the audit
 
@@ -65,7 +65,7 @@ Phase 1 (hygiene + schema-dispatch verification + star-toml migration) on
 | TMPDIR root cause | `~/.uvrc:4` exports `TMPDIR=$HOME/.cache/tmp`; today's `~/.cache` wipe dangled it for running sessions; dir restored; self-heals on new shells | RESOLVED |
 | Disk cleanup | osx-clnr cache-clean freed **78.82 GB** (7 lane build roots); oclnr plan `/tmp/oclnr-lane-plan.json` holds ~35 GB older scratch candidates AWAITING user review | DONE / REVIEW PENDING |
 | `ggen sync run` stale collateral | rendered stale output, reverted via `git show HEAD:` swaps — disclosed | REVERTED |
-| Praxis retirement plan | Lane Z design ported: `docs/v26_10_10_praxis_retirement_plan.md` (blocker = no graphlaw receipt-chain equivalent; verbatim port build order) | WRITTEN |
+| Praxis retirement plan | Lane Z design ported: `docs/v26_10_11_praxis_retirement_plan.md` (blocker = no graphlaw receipt-chain equivalent; verbatim port build order) | WRITTEN |
 
 ## Deferred / pending
 
@@ -87,7 +87,7 @@ Independent-verifier report: all gates PASS, no breakage. Four discrepancies fou
 
 Compile-fix disclosures folded in: `law_engine.rs:189` (`format!("{e:?}")` for `check_structure` Vec error), `composer.rs` `registry_type` initializer unblocks (Lanes W/Y, also converged on by Lane AA's rewrite), Lane O's `cargo fmt` churn on `law_engine.rs`/`generation_rules.rs` (fmt-only).
 
-## Definition of Done — v26.10.10 modernization checklist
+## Definition of Done — v26.10.11 modernization checklist
 
 Status marked strictly from session-verified facts. Running lanes = PENDING.
 
@@ -132,7 +132,7 @@ only — original text above is retained as-written).
 | DoD 15: composer corpus arbitration data | DONE (revival only) | **IN PROGRESS — annotation fan-out landing**: 87 `pack.toml` files modified per `git status --short` (20-lane capability annotation wave) | `git status --short \| grep -c pack.toml` → 87 |
 | DoD 17: rustc warnings → "allow" flip | PARTIAL (in flight) | still in flight (this repo's lane) — upstream, not reconcilable here | unchanged |
 | DoD 6: refuse-effect hook upstream support | PENDING | still in flight (BD lane) | unchanged |
-| DoD 8: receipt_chain port to graphlaw | PARTIAL | still in flight in `~/graphlaw` (BE lane) — upstream of this repo; blueprint `docs/v26_10_10_praxis_retirement_plan.md` | unchanged |
+| DoD 8: receipt_chain port to graphlaw | PARTIAL | still in flight in `~/graphlaw` (BE lane) — upstream of this repo; blueprint `docs/v26_10_11_praxis_retirement_plan.md` | unchanged |
 | DoD 19: engine all-targets clean-machine rerun | PENDING | still in flight (BG harness lane) | unchanged |
 | Verifier finding 1 (grep 10→9 fix at `cross_pack_macros_e2e.rs:75`) | reconciled in § above | confirmed present in this receipt | § "Independent verification" item 1 |
 | Verifier finding 2 (gate-b fragility, ggen_bin() fallback) | reconciled | confirmed present | § item 2 |
@@ -231,7 +231,7 @@ become `requires`.
 
 Steps 1-4 (record/chain/epoch/Andon, validator, store) **DONE upstream** in `~/graphlaw`.
 Remaining for full retirement: differential court, engine seam rewire, cutover
-(blueprint: `docs/v26_10_10_praxis_retirement_plan.md`).
+(blueprint: `docs/v26_10_11_praxis_retirement_plan.md`).
 
 ### (c) CLI `pack capabilities` verb — LANDED
 
@@ -420,7 +420,7 @@ Two court results landed after the last docs pass:
 Independent verifier ran CLOSING_VERIFIER_BRIEF claims: **15 VERIFIED, 8 PENDING-IN-FLIGHT, 2 FAILED-as-observed, 1 PARTIAL.**
 
 - FAILED A8 (pack_composition 10/1): mid-flight churn from the corpus-bind lane; re-verified 11/0 twice post-settle.
-- FAILED A18 (workspace version 26.10.8 ≠ 26.10.10): real — the version BUMP is a release-cut action (SJIRA-22), not yet performed; expected red at this stage.
+- FAILED A18 (workspace version 26.10.8 ≠ 26.10.11): real — the version BUMP is a release-cut action (SJIRA-22), not yet performed; expected red at this stage.
 - PENDING: differential court bg run, graphlaw workspace 432/0 independent, parser court (lock-blocked), composer corpus court, config suite (lock-blocked), workspace check/clippy, version gates, B4 census re-key.
 - PARTIAL B4: naive-grep census (347 unique/15 mirror-mentions) disagrees with name-keyed census (332/71); name-keyed corpus court is authoritative.
 - New finding: 5 post-snapshot `toml::from_str` sites (compose verb's load_corpus_pack, mcp capability_status:116, capability_corpus_test:63, parser_diff_test:47,64) — cleanup lane in flight.
@@ -505,7 +505,7 @@ appended 2026-10-10; steps 1-6 executed by cutover lane, GATES-PENDING)
 ### Session totals receipt (full arc)
 
 - ggen: **14-crate post-praxis workspace on main** (b97f52dcc).
-- Strata v26.10.10 initial implementation: workspace **59/0**, valve **14/0**,
+- Strata v26.10.11 initial implementation: workspace **59/0**, valve **14/0**,
   wasm imports = ∅, **5 packs**.
 - Praxis retirement: **EXECUTED** — commit pending on user action for graphlaw
   publish chain; remaining work = crates.io publishing (release-cut).
@@ -521,14 +521,14 @@ appended 2026-10-10; steps 1-6 executed by cutover lane, GATES-PENDING)
 ## Final closeout (2026-10-10, lane ggen-docs)
 
 Re-verified end-state at HEAD 8b03d25ad (commands in the twin closeout in
-`docs/v26_10_10_repo_state_and_library_usage_report.md`):
+`docs/v26_10_11_repo_state_and_library_usage_report.md`):
 
 | Claim | Grounding |
 |---|---|
 | star-toml = **3** documented exceptions (ggen-lsp analyzer/formatter) | raw `toml::from_str` grep, star_toml-excluded → exactly 3 hits, all in `crates/ggen-lsp` |
 | FM-PACK-018 two-tier landed | `crates/ggen-engine/src/pack.rs:538` two-tier adjudication comment |
 | Praxis retirement executed | no praxis-* members/deps; sibling `graphlaw = { path = "../graphlaw", version = "26.10.5" }` at `Cargo.toml:140` |
-| Version surface 26.10.10 | `Cargo.toml:2` + `cargo metadata` (ggen, ggen-engine, ggen-abb-sbb all 26.10.10) |
+| Version surface 26.10.11 | `Cargo.toml:2` + `cargo metadata` (ggen, ggen-engine, ggen-abb-sbb all 26.10.11) |
 | abb-sbb Stage 2c | `ggen_abb_sbb` call sites, `crates/ggen-engine/src/sync.rs:913-971` |
 | Publish chain abb-sbb → engine PENDING | user-gated crates.io credentials; release-cut execution only |
 | Quickstart current | `ggen sync run --help` exit 0, `--dry-run` present |

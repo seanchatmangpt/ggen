@@ -4,7 +4,7 @@ All notable changes to ggen are documented here.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [26.10.10] — crates.io Release Chain, ABB-SBB Admission Gate, and Lint Closure (2026-10-10)
+## [26.10.11] — crates.io Release Chain, ABB-SBB Admission Gate, and Lint Closure (2026-10-10)
 
 ### Removed
 - **`praxis-core`/`praxis-graphlaw` vendored members retired** (SJIRA-15) — `ggen-engine`'s default graph backend is now the sibling `graphlaw` crate, moved to the registry pin 26.10.10 (was the `../graphlaw` path dep, 5847a3d08); workspace drops to 14 crates. Deleted members never existed in published form; consumers were re-locked after the `star-toml` wave (3ec6047fe).

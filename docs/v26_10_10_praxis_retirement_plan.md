@@ -1,8 +1,8 @@
-# v26.10.10 Praxis Retirement Plan
+# v26.10.11 Praxis Retirement Plan
 
 Design for retiring `praxis-core` (receipt-chain family) into `praxis-graphlaw`
 (graphlaw modules). Source: Lane Z analysis, 2026-10-09. Companion to
-`docs/v26_10_10_phase1_receipt.md` and `docs/v26_10_10_repo_state_and_library_usage_report.md` §7.
+`docs/v26_10_11_phase1_receipt.md` and `docs/v26_10_11_repo_state_and_library_usage_report.md` §7.
 
 ## Blocker
 

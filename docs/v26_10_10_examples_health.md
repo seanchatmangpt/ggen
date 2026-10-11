@@ -1,4 +1,4 @@
-# Examples Health Receipt — v26.10.10
+# Examples Health Receipt — v26.10.11
 
 Lane: examples-health. Subject: /Users/sac/ggen @ main, HEAD acaf8714f+ (uncommitted lane edits elsewhere in tree; examples/ and packs/ clean per `git status --porcelain`). Date: 2026-10-10.
 
