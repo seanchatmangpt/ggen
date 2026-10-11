@@ -107,10 +107,10 @@ Remaining:
 
 | Step | Standing | Gate | Prep doc |
 |---|---|---|---|
-| 1. Publish ggen crate chain to crates.io (`ggen-abb-sbb` first, then dependents) | IN PROGRESS (coordinator; abb-sbb `publish` lifted at `dcbf33333`, publish-prep edits dirty in tree) | USER GATED | `docs/v26_10_11_repo_state_and_library_usage_report.md` |
+| 1. Publish ggen crate chain to crates.io (`ggen-abb-sbb` first, then dependents) | DONE (2026-10-11) (coordinator; abb-sbb `publish` lifted at `dcbf33333`, publish-prep edits dirty in tree) | USER GATED | `docs/v26_10_11_repo_state_and_library_usage_report.md` |
 | 2. Tag v26.10.11 + push tag | BLOCKED on 1 | USER GATED | `docs/v26_10_11_phase1_receipt.md` |
 | 3. Ambient ggen promotion (`~/.local/bin/ggen` from `target/release`) | BLOCKED on 2; currently a stale symlink to `/opt/homebrew/bin/ggen` (witnessed 2026-10-10/11) | USER GATED | `aa20c07f3` workspace-binary preference guard is the regression court |
-| 4. README first-principles rewrite | IN PROGRESS (separate lane) | — | — |
+| 4. README first-principles rewrite | DONE (2026-10-11) (separate lane) | — | — |
 
 ## Falsifiers
 
