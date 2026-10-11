@@ -1,14 +1,12 @@
 # ggen
 
-**ggen deterministically manufactures software artifacts from admitted knowledge graphs.**
-
-An RDF/Turtle ontology supplies the domain model. Tera templates carry SPARQL frontmatter. `ggen sync run` resolves the graph, enriches it, extracts bindings, renders outputs in memory, applies write semantics, and emits a BLAKE3-chained receipt describing the graph and resulting artifacts.
+**Generate, don't hand-write.** ggen is an RDF/ontology-driven code-generation engine: you model your domain as a Turtle ontology, bind Tera templates with SPARQL, and `ggen sync run` deterministically manufactures code, tests, and docs — then proves what ran with a BLAKE3-chained receipt.
 
 ```text
-ontology + templates + policy → admitted graph → deterministic artifacts → receipt
+ontology + templates + ggen.toml → 5-stage sync → generated artifacts → receipt
 ```
 
-MIT licensed. Rust workspace. The pinned toolchain and verified build path are documented in [Getting Started](docs/GETTING_STARTED.md).
+MIT licensed. Rust workspace (14 crates). Pinned nightly toolchain (`rust-toolchain.toml`).
 
 <<<<<<< GENERATED
 Current version: `26.10.10` (workspace version in `Cargo.toml`; nightly Rust toolchain
@@ -22,96 +20,72 @@ before depending on it for anything production-critical.
 <!-- Manual notes for the generated version block go here; this section and everything outside the markers is preserved byte-for-byte by the merge engine. -->
 >>>>>>> MANUAL
 
-## System contract
+## Install
 
-The live sync pipeline is:
-
-```text
-Resolve → Enrich → Extract → Render → Write → Receipt
-```
-
-1. **Resolve** loads project and pack ontologies into the selected graph backend.
-2. **Enrich** applies template `construct:` queries to derive admitted graph facts.
-3. **Extract** executes `when:` and `sparql:` selection queries.
-4. **Render** evaluates Tera templates entirely in memory.
-5. **Write** applies create, inject, skip, merge, or overwrite semantics.
-6. **Receipt** records graph and output hashes in `.ggen-v2/receipt.json` and the append-only receipt log; every non-dry-run frontmatter-schema sync additionally writes a portable receipt envelope at `.ggen-v2/receipt-portable.json` (schema, subject `{pack, version, sha256 pack_digest}`, dependencies, `graph.canonical_digest`, admission gates/refusals, consequences, replay status, and standing `ALIVE | PARTIAL_ALIVE | REFUSED:<code>`). A gate-refused sync also emits the envelope (typed `REFUSED:GATE_VIOLATION` / `REFUSED:GATE_INVALID`) before the error propagates; dry-run writes nothing.
-
-The documentation must not collapse these stages into an unobserved claim. Current stage-to-span differences and implementation caveats are tracked in [FAQ](docs/FAQ.md).
-
-## Quickstart
+Source build only — there is no supported `cargo install ggen` path for the complete CLI:
 
 ```bash
 git clone https://github.com/seanchatmangpt/ggen
 cd ggen
 cargo build --workspace
-cargo run -p ggen-cli-lib --bin ggen -- --help
 ```
 
-The CLI is built from `ggen-cli-lib`; there is no supported `cargo install ggen` path for the complete CLI. Use the source build above or the repository's canonical `just` recipes.
+## Quickstart
 
-For a full build, sync, receipt verification, failure map, and replay path, use [Getting Started](docs/GETTING_STARTED.md).
+```bash
+ggen init my-project       # scaffold: ggen.toml + schema/domain.ttl + templates/
+cd my-project              # edit the ontology, add a rule to ggen.toml
+ggen sync run              # 5-stage pipeline; writes artifacts + .ggen-v2/receipt.json
+ggen receipt verify        # verify the BLAKE3 chain hash of the receipt
+```
 
-## What ggen owns
+## The pipeline
 
-- deterministic graph-backed artifact generation;
-- ontology and template loading;
-- SPARQL-driven enrichment and extraction;
-- bounded filesystem actuation through explicit write modes;
-- cryptographic generation receipts and replay evidence;
-- pack composition and validation gates;
-- command surfaces for sync, graph, doctor, receipt, pack, policy, ontology, capability, law, and agent workflows.
+`ggen sync run` executes five stages (`crates/ggen-engine/src/sync.rs`), each an OTEL span:
 
-## Explicit boundary
+1. **Load** — load project + pack ontologies into the graph backend.
+2. **Extract** — run SPARQL selection queries over the graph.
+3. **Validate** — SHACL/graph validation; violations refuse the sync.
+4. **Generate** — render Tera templates in memory.
+5. **Emit** — apply write semantics (create/inject/merge/overwrite) and record the receipt.
 
-ggen emits process evidence. It does not own process discovery, conformance, fitness, precision, or variant analysis. Those analysis surfaces belong to `wasm4pm-compat` and `wasm4pm`. The enforced ownership boundary is defined in `CLAUDE.md` and repository guards.
+Author-time diagnostics (`ggen-lsp`): `GGEN-TPL-001`, `GGEN-OUT-001`, `GGEN-YIELD-001`, `GGEN-RULE-001`, `GGEN-QUERY-002`; sync-time hard errors `E0010`/`E0011`/`E0013`/`E0014`/`E0015` in `crates/ggen-config/src/manifest/validation.rs`. Full table: [CLAUDE.md](CLAUDE.md).
 
-## Pack ecosystem
+## Packs
 
-A pack combines an ontology, templates, gates, and metadata into a reusable manufacturing unit. Packs can generate implementation modules, tests, documentation, and receipts for consumer projects.
+A pack is a reusable manufacturing unit: ontology + templates + gates + metadata. The repo ships **95 packs** (`packs/*/pack.toml`) — agent/workflow codegen, TCPS, domain catalogs, release/CI. `ggen packs` manages lockfile-oriented multi-pack projects; `ggen pack` is the singular alias.
 
-A pack's `pack.toml` may declare `[dependencies]` (`pack-name = "semver-req"`) and `[capabilities]` (`types`, `provides`, `requires`). Resolution validates the declared graph and refuses: `[FM-PACK-014]` dependency not consumer-declared/resolved, `[FM-PACK-015]` malformed/unsatisfied semver requirement, `[FM-PACK-016]` dependency cycle, `[FM-PACK-017]` scope subject not a resolved pack, `[FM-PACK-018]` required capability with no provider in the transitive closure. The diagnostic-code ledger lives in `.specify/ggen-product.ttl`.
+## Commands
 
-Pack maturity is not inferred from directory presence or isolated passing tests. The Level-5 promotion program records per-capability standing; no prose summary outranks the executable claims and proof gates.
+| Command | Purpose |
+|---|---|
+| `ggen init` | Scaffold a new project |
+| `ggen sync run` | Run the 5-stage pipeline (front door) |
+| `ggen receipt verify` | Verify receipt chain hash |
+| `ggen graph validate` | SHACL-validate ontologies |
+| `ggen law validate` | Validate law gates on the project graph |
+| `ggen doctor` | Non-actuating diagnostics + remediation evidence |
+| `ggen packs` | Multi-pack project management |
+| `ggen ontology` / `ggen capability` / `ggen agent` | Ontology, capability, and agent surfaces |
 
-## Capability standing
-
-Use the repository standing vocabulary precisely:
-
-- `ALIVE` — observed execution produced the claimed consequence.
-- `PARTIAL_ALIVE` — a bounded checkpoint passed; the crown claim remains open.
-- `BLOCKED` — an admitted dependency prevents execution.
-- `BUILD_BROKEN` — the relevant verifier cannot currently be reached.
-- `UNKNOWN` — observation is absent, stale, or contradictory.
-- `UNSUPPORTED` — the capability is outside the admitted boundary.
-
-The authoritative release-relevant claim ledger is [`docs/aps/claims.toml`](docs/aps/claims.toml). Re-run its falsifiers rather than relying on prose snapshots.
+There is no bare `ggen validate` noun. MCP introspection ships separately (`ggen-mcp` crate).
 
 ## Known limitations
 
-- The workspace requires a pinned nightly Rust toolchain.
-- The full CLI is source-built and is not available through `cargo install ggen`.
-- Some repository recipes and benchmark surfaces have documented drift; consult the claims ledger and [Performance Quick Start](docs/PERFORMANCE_QUICK_START.md) before treating an exit code as proof of every sub-check.
-- Pack Level-5 promotion remains in progress.
-- Generated/manual merge targets require their merge markers. Removing them can change whole-file write behavior; use dry-run and preserve generated boundaries.
-- Fast CalVer releases make embedded versions, counts, timings, and command transcripts revision-bound evidence rather than permanent contracts.
+- Two incompatible `ggen.toml` schemas exist by raw-text pre-parse; no drift guard.
+- `just sync` / `just sync-dry` recipes are broken — use `ggen sync run` directly.
+- `wizard`/`sigma`/`inverse_sync` were removed from the default path.
+- Requires a pinned nightly toolchain; generated/manual merge targets require their markers intact.
 
 ## Documentation
 
-Start here:
-
-| Need | Canonical surface |
+| Need | Surface |
 |---|---|
 | Build, execute, verify, replay | [Getting Started](docs/GETTING_STARTED.md) |
-| Repository questions and implementation caveats | [FAQ](docs/FAQ.md) |
-| Current capability standing | [Claims ledger](docs/aps/README.md) |
-| Documentation authority and writing law | [Core-Team Documentation Standard](docs/CORE_TEAM_DOCUMENTATION_STANDARD.md) |
-| Documentation audit and migration standing | [Documentation Audit Ledger](docs/DOCUMENTATION_AUDIT.md) |
-| Full documentation routing | [Documentation Index](docs/README.md) |
-| Contribution and verification workflow | [CONTRIBUTING.md](CONTRIBUTING.md) |
-| Repository implementation doctrine | [CLAUDE.md](CLAUDE.md) |
-| Vulnerability reporting | [SECURITY.md](SECURITY.md) |
-| Release history | [CHANGELOG.md](CHANGELOG.md) |
+| FAQ + implementation caveats | [docs/FAQ.md](docs/FAQ.md) |
+| Capability standing ledger | [docs/aps/claims.toml](docs/aps/claims.toml) |
+| Contribution workflow | [CONTRIBUTING.md](CONTRIBUTING.md) |
+| Full routing | [docs/README.md](docs/README.md) |
 
 ## License
 
