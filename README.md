@@ -9,7 +9,7 @@ ontology + templates + ggen.toml → 5-stage sync → generated artifacts → re
 MIT licensed. Rust workspace (14 crates). Pinned nightly toolchain (`rust-toolchain.toml`).
 
 <<<<<<< GENERATED
-Current version: `26.10.11` (workspace version in `Cargo.toml`; nightly Rust toolchain
+Current version: `26.10.12` (workspace version in `Cargo.toml`; nightly Rust toolchain
 `nightly-2026-06-22`, pinned via `rust-toolchain.toml`). The Definition of Done is `just
 pre-commit`; its full gate list is the `pre-commit:` dependency line in `justfile` (the sole
 source of truth — it has drifted before, do not restate a count here). This project is
