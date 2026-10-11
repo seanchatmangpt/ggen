@@ -62,6 +62,19 @@
 # set was not re-derivable from this machine's copy of clap-noun-verb in the
 # time budget for this round) -- that remains the next real audit target,
 # not invented here.
+#
+# ROUND-6 RE-AUDIT (2026-10-10, cargo-cicd v26.7.7 on disk at ~/cargo-cicd):
+# re-enumerated every `#[verb(...)]` attribute across all 24
+# `~/cargo-cicd/src/nouns/*.rs` files: 57 attributed verbs total, of which 56
+# are in the DEFAULT build surface -- `lsp.rs`'s single `lsp check` verb is
+# behind `#[cfg(feature = "anti-llm-cheat")]` in src/nouns/mod.rs and is
+# therefore NOT a default-surface command row (documented here, not minted,
+# so the live catalog stays at the true default surface: 56 commands across
+# 23 nouns). Six new rows added: cc:ci-run, cc:deploy-schema, cc:deploy-mcp,
+# cc:ocel-export, cc:trybuild-full (trybuild regained `full` alongside
+# `changed`/`update`/`review`), plus the ci and deploy nouns for the first
+# time. All new `cmd_*` handlers confirmed to return
+# `clap_noun_verb::Result<()>`, matching the Round-4 uniform contract.
 
 @prefix cnv: <http://seanchatmangpt.github.io/packs/clap-noun-verb#> .
 @prefix cc:  <http://seanchatmangpt.github.io/packs/cargo-cicd#> .
@@ -120,6 +133,7 @@ cc:doctor-bare a cnv:Command ; cnv:noun "doctor" ; cnv:verb "" ; rdfs:comment "D
 cc:trybuild-changed a cnv:Command ; cnv:noun "trybuild" ; cnv:verb "changed" ; rdfs:comment "Runs trybuild compile-fail/compile-pass fixtures for crates changed since the last green commit." ; cc:sourceFile "src/nouns/trybuild.rs" ; cc:targetOntologyConcept ccup:TrybuildChanged ; cc:argCount 0 .
 cc:trybuild-update  a cnv:Command ; cnv:noun "trybuild" ; cnv:verb "update"  ; cc:sourceFile "src/nouns/trybuild.rs" ; cc:argCount 0 .
 cc:trybuild-review  a cnv:Command ; cnv:noun "trybuild" ; cnv:verb "review"  ; cc:sourceFile "src/nouns/trybuild.rs" ; cc:argCount 0 .
+cc:trybuild-full    a cnv:Command ; cnv:noun "trybuild" ; cnv:verb "full"    ; cc:sourceFile "src/nouns/trybuild.rs" ; cc:argCount 0 .
 
 # ── pipeline (source: src/nouns/pipeline.rs) -- NEW, added 2026-07-18 ─────
 cc:pipeline-run      a cnv:Command ; cnv:noun "pipeline" ; cnv:verb "run"      ; rdfs:comment "Runs the workspace's CI/CD pipeline definition." ; cc:sourceFile "src/nouns/pipeline.rs" ; cc:argCount 0 .
@@ -143,6 +157,19 @@ cc:certification-show a cnv:Command ; cnv:noun "certification" ; cnv:verb "show"
 
 # ── ocel (source: src/nouns/ocel.rs) -- NEW, added 2026-07-18 ────────────
 cc:ocel-replay a cnv:Command ; cnv:noun "ocel" ; cnv:verb "replay" ; rdfs:comment "Replays recorded OCEL process-evidence events." ; cc:sourceFile "src/nouns/ocel.rs" ; cc:argCount 2 ; cc:args "repo:Option<String>;json:bool" .
+cc:ocel-export a cnv:Command ; cnv:noun "ocel" ; cnv:verb "export" ; rdfs:comment "Exports recorded evidence as an OCEL log." ; cc:sourceFile "src/nouns/ocel.rs" ; cc:argCount 3 ; cc:args "repo:Option<String>;out:String;json:bool" .
+
+# ── ci (source: src/nouns/ci.rs) -- added 2026-10-10 Round-6 re-audit ────
+cc:ci-run a cnv:Command ; cnv:noun "ci" ; cnv:verb "run" ; rdfs:comment "Runs the configured CI workflow (mode/workflow/watch/dry-run)." ; cc:sourceFile "src/nouns/ci.rs" ; cc:argCount 4 ; cc:args "mode:Option<String>;workflow:Option<String>;watch:bool;dry_run:bool" .
+
+# ── deploy (source: src/nouns/deploy.rs) -- added 2026-10-10 Round-6 re-audit
+cc:deploy-schema a cnv:Command ; cnv:noun "deploy" ; cnv:verb "schema" ; rdfs:comment "Prints the deployment schema." ; cc:sourceFile "src/nouns/deploy.rs" ; cc:argCount 0 .
+cc:deploy-mcp    a cnv:Command ; cnv:noun "deploy" ; cnv:verb "mcp"    ; rdfs:comment "Serves the deployment MCP server." ; cc:sourceFile "src/nouns/deploy.rs" ; cc:argCount 0 .
+
+# ── lsp (source: src/nouns/lsp.rs) -- NOT minted as a command row: its only
+# verb (`lsp check`) is behind `#[cfg(feature = "anti-llm-cheat")]` in
+# src/nouns/mod.rs, so it is not part of the default build surface. See the
+# Round-6 header note.
 
 # ── receipt (source: src/nouns/receipt.rs) -- NEW, added 2026-07-18 ──────
 cc:receipt-verify a cnv:Command ; cnv:noun "receipt" ; cnv:verb "verify" ; rdfs:comment "Verifies a recorded receipt's integrity." ; cc:sourceFile "src/nouns/receipt.rs" ; cc:argCount 2 ; cc:args "repo:Option<String>;json:bool" .
@@ -172,9 +199,9 @@ cc:claude-context-show a cnv:Command ; cnv:noun "claude_context" ; cnv:verb "sho
 #
 # Re-audited against the real dependency this time: `~/clap-noun-verb`
 # (v26.6.2+, `src/error.rs`), not `~/cargo-cicd` itself -- confirmed every
-# `#[verb(...)]`-annotated `pub fn cmd_*` across all 21 `~/cargo-cicd/src/nouns/*.rs`
+# `#[verb(...)]`-annotated `pub fn cmd_*` across all 24 `~/cargo-cicd/src/nouns/*.rs`
 # files returns exactly `clap_noun_verb::Result<()>` (`type Result<T> =
-# std::result::Result<T, NounVerbError>`), i.e. every one of the 51 live
+# std::result::Result<T, NounVerbError>`), i.e. every one of the 56 live
 # commands can fail with any variant of the SAME error enum -- a real,
 # uniform, source-verified relation between the whole command catalog and
 # one error type, not per-command variance. Verified two ways: (1) grep for
@@ -198,7 +225,7 @@ cc:claude-context-show a cnv:Command ; cnv:noun "claude_context" ; cnv:verb "sho
 # proven via a real reversible edit to this file).
 cc:CommandContract a cc:ErrorContract ;
   cc:returnType "clap_noun_verb::Result<()>" ;
-  cc:returnTypeSourceFile "src/nouns/*.rs (all 21 files, ~/cargo-cicd v26.7.6)" ;
+  cc:returnTypeSourceFile "src/nouns/*.rs (all 24 files, ~/cargo-cicd v26.7.7)" ;
   cc:errorEnum "NounVerbError" ;
   cc:errorEnumSourceFile "src/error.rs (~/clap-noun-verb, lines 11-51)" ;
   cc:errorEnumNonExhaustive true ;

@@ -27,13 +27,13 @@ use cargo_cicd_catalog::{
 };
 
 /// Exact row count, sourced from the same SPARQL query as the catalog
-/// (`52` rows at generation time) -- not a hand-counted
+/// (`57` rows at generation time) -- not a hand-counted
 /// literal, so this assertion never goes stale relative to `ontology.ttl`.
 #[test]
 fn catalog_row_count_matches_ontology_query() {
     assert_eq!(
         CARGO_CICD_COMMANDS.len(),
-        52,
+        57,
         "catalog row count drifted from the generating SPARQL query"
     );
 }
@@ -56,12 +56,36 @@ fn every_queried_row_is_present_with_matching_fields() {
         assert_eq!(row.args, "", "args mismatch for certification/show");
     }
     {
+        let row = find_command("ci", "run")
+            .unwrap_or_else(|| panic!("missing row noun={:?} verb={:?}", "ci", "run"));
+        assert_eq!(row.doc, "Runs the configured CI workflow (mode/workflow/watch/dry-run).", "doc mismatch for ci/run");
+        assert_eq!(row.source_file, "src/nouns/ci.rs", "source_file mismatch for ci/run");
+        assert_eq!(row.arg_count, 4, "arg_count mismatch for ci/run");
+        assert_eq!(row.args, "mode:Option<String>;workflow:Option<String>;watch:bool;dry_run:bool", "args mismatch for ci/run");
+    }
+    {
         let row = find_command("claude_context", "show")
             .unwrap_or_else(|| panic!("missing row noun={:?} verb={:?}", "claude_context", "show"));
         assert_eq!(row.doc, "Shows the Claude agent context snapshot for the current repository.", "doc mismatch for claude_context/show");
         assert_eq!(row.source_file, "src/nouns/claude_context.rs", "source_file mismatch for claude_context/show");
         assert_eq!(row.arg_count, 1, "arg_count mismatch for claude_context/show");
         assert_eq!(row.args, "repo:Option<String>", "args mismatch for claude_context/show");
+    }
+    {
+        let row = find_command("deploy", "mcp")
+            .unwrap_or_else(|| panic!("missing row noun={:?} verb={:?}", "deploy", "mcp"));
+        assert_eq!(row.doc, "Serves the deployment MCP server.", "doc mismatch for deploy/mcp");
+        assert_eq!(row.source_file, "src/nouns/deploy.rs", "source_file mismatch for deploy/mcp");
+        assert_eq!(row.arg_count, 0, "arg_count mismatch for deploy/mcp");
+        assert_eq!(row.args, "", "args mismatch for deploy/mcp");
+    }
+    {
+        let row = find_command("deploy", "schema")
+            .unwrap_or_else(|| panic!("missing row noun={:?} verb={:?}", "deploy", "schema"));
+        assert_eq!(row.doc, "Prints the deployment schema.", "doc mismatch for deploy/schema");
+        assert_eq!(row.source_file, "src/nouns/deploy.rs", "source_file mismatch for deploy/schema");
+        assert_eq!(row.arg_count, 0, "arg_count mismatch for deploy/schema");
+        assert_eq!(row.args, "", "args mismatch for deploy/schema");
     }
     {
         let row = find_command("doctor", "")
@@ -214,6 +238,14 @@ fn every_queried_row_is_present_with_matching_fields() {
         assert_eq!(row.source_file, "src/nouns/hooks.rs", "source_file mismatch for hooks/uninstall");
         assert_eq!(row.arg_count, 3, "arg_count mismatch for hooks/uninstall");
         assert_eq!(row.args, "repo:Option<String>;provider:Option<String>;json:bool", "args mismatch for hooks/uninstall");
+    }
+    {
+        let row = find_command("ocel", "export")
+            .unwrap_or_else(|| panic!("missing row noun={:?} verb={:?}", "ocel", "export"));
+        assert_eq!(row.doc, "Exports recorded evidence as an OCEL log.", "doc mismatch for ocel/export");
+        assert_eq!(row.source_file, "src/nouns/ocel.rs", "source_file mismatch for ocel/export");
+        assert_eq!(row.arg_count, 3, "arg_count mismatch for ocel/export");
+        assert_eq!(row.args, "repo:Option<String>;out:String;json:bool", "args mismatch for ocel/export");
     }
     {
         let row = find_command("ocel", "replay")
@@ -406,6 +438,14 @@ fn every_queried_row_is_present_with_matching_fields() {
         assert_eq!(row.source_file, "src/nouns/trybuild.rs", "source_file mismatch for trybuild/changed");
         assert_eq!(row.arg_count, 0, "arg_count mismatch for trybuild/changed");
         assert_eq!(row.args, "", "args mismatch for trybuild/changed");
+    }
+    {
+        let row = find_command("trybuild", "full")
+            .unwrap_or_else(|| panic!("missing row noun={:?} verb={:?}", "trybuild", "full"));
+        assert_eq!(row.doc, "", "doc mismatch for trybuild/full");
+        assert_eq!(row.source_file, "src/nouns/trybuild.rs", "source_file mismatch for trybuild/full");
+        assert_eq!(row.arg_count, 0, "arg_count mismatch for trybuild/full");
+        assert_eq!(row.args, "", "args mismatch for trybuild/full");
     }
     {
         let row = find_command("trybuild", "review")
@@ -631,7 +671,7 @@ fn no_empty_or_duplicate_error_variants() {
 
 /// Every command in the catalog shares the same documented return contract
 /// (`clap_noun_verb::Result<()>` / `NounVerbError`) -- source-verified
-/// uniform relation across all 51 live rows (see ontology.ttl Round 4
+/// uniform relation across all 56 live rows (see ontology.ttl Round 4
 /// comment for the grep evidence).
 #[test]
 fn return_contract_is_populated_and_uniform() {

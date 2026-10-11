@@ -9,7 +9,10 @@ retained-for-compatibility deprecated row. `Args` is real, source-verified
 | Noun | Verb | Doc | Source | Args |
 |---|---|---|---|---|
 | `certification` | `show` | IEC 61508 / ISO 26262 compliance summary for cargo-cicd certification. | src/nouns/certification.rs |  |
+| `ci` | `run` | Runs the configured CI workflow (mode/workflow/watch/dry-run). | src/nouns/ci.rs | mode:Option<String>;workflow:Option<String>;watch:bool;dry_run:bool |
 | `claude_context` | `show` | Shows the Claude agent context snapshot for the current repository. | src/nouns/claude_context.rs | repo:Option<String> |
+| `deploy` | `mcp` | Serves the deployment MCP server. | src/nouns/deploy.rs |  |
+| `deploy` | `schema` | Prints the deployment schema. | src/nouns/deploy.rs |  |
 | `doctor` | `` | DEPRECATED 2026-07-18: superseded by cc:doctor-repo/cc:doctor-evidence/cc:doctor-diff -- source audit found doctor is not actually a bare noun with an empty verb; retained only so previously-generated literal shapes do not silently vanish. |  |  |
 | `doctor` | `diff` | Diffs current repository health against a previously written baseline. | src/nouns/doctor.rs | repo:Option<String>;baseline:Option<String> |
 | `doctor` | `evidence` |  | src/nouns/doctor.rs | json:bool |
@@ -29,6 +32,7 @@ retained-for-compatibility deprecated row. `Args` is real, source-verified
 | `hooks` | `install` | Installs git hooks that integrate cargo-cicd with an external CI provider. | src/nouns/hooks.rs | repo:Option<String>;provider:Option<String>;json:bool |
 | `hooks` | `pre-tool-use` |  | src/nouns/hooks.rs | repo:Option<String>;json:bool |
 | `hooks` | `uninstall` |  | src/nouns/hooks.rs | repo:Option<String>;provider:Option<String>;json:bool |
+| `ocel` | `export` | Exports recorded evidence as an OCEL log. | src/nouns/ocel.rs | repo:Option<String>;out:String;json:bool |
 | `ocel` | `replay` | Replays recorded OCEL process-evidence events. | src/nouns/ocel.rs | repo:Option<String>;json:bool |
 | `pipeline` | `run` | Runs the workspace's CI/CD pipeline definition. | src/nouns/pipeline.rs |  |
 | `pipeline` | `status` |  | src/nouns/pipeline.rs |  |
@@ -53,6 +57,7 @@ retained-for-compatibility deprecated row. `Args` is real, source-verified
 | `test` | `run` |  | src/nouns/test.rs |  |
 | `trace` | `profile` | Profiles and reports timing traces for cargo-cicd operations. | src/nouns/trace.rs | repo:Option<String>;profile:String;json:bool |
 | `trybuild` | `changed` | Runs trybuild compile-fail/compile-pass fixtures for crates changed since the last green commit. | src/nouns/trybuild.rs |  |
+| `trybuild` | `full` |  | src/nouns/trybuild.rs |  |
 | `trybuild` | `review` |  | src/nouns/trybuild.rs |  |
 | `trybuild` | `update` |  | src/nouns/trybuild.rs |  |
 | `verify` | `repo` | Verifies a repository against configured checks, including semver compatibility. | src/nouns/verify.rs | repo:Option<String>;json:bool |

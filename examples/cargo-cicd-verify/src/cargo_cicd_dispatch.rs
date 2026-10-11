@@ -15,7 +15,7 @@
 //! handler gap is not fully zero: `cargo-cicd`'s own behavior still lives
 //! in its binary, not in ontology-specified logic or another pack's
 //! generated code. But no hand-written Rust handler function is required
-//! for any of the 51 per-command wrappers to exist or compile; they are
+//! for any of the 56 per-command wrappers to exist or compile; they are
 //! 100% ontology-driven.
 //!
 //! `Command::new("cargo-cicd")` invokes the real binary directly (confirmed
@@ -65,9 +65,24 @@ pub fn certification_show(extra_args: &[String]) -> std::io::Result<std::process
     dispatch("certification", "show", extra_args)
 }
 
+/// `cargo-cicd ci run` -- generated wrapper, ontology-driven.
+pub fn ci_run(extra_args: &[String]) -> std::io::Result<std::process::Output> {
+    dispatch("ci", "run", extra_args)
+}
+
 /// `cargo-cicd claude_context show` -- generated wrapper, ontology-driven.
 pub fn claude_context_show(extra_args: &[String]) -> std::io::Result<std::process::Output> {
     dispatch("claude_context", "show", extra_args)
+}
+
+/// `cargo-cicd deploy mcp` -- generated wrapper, ontology-driven.
+pub fn deploy_mcp(extra_args: &[String]) -> std::io::Result<std::process::Output> {
+    dispatch("deploy", "mcp", extra_args)
+}
+
+/// `cargo-cicd deploy schema` -- generated wrapper, ontology-driven.
+pub fn deploy_schema(extra_args: &[String]) -> std::io::Result<std::process::Output> {
+    dispatch("deploy", "schema", extra_args)
 }
 
 /// `cargo-cicd doctor diff` -- generated wrapper, ontology-driven.
@@ -158,6 +173,11 @@ pub fn hooks_pre_tool_use(extra_args: &[String]) -> std::io::Result<std::process
 /// `cargo-cicd hooks uninstall` -- generated wrapper, ontology-driven.
 pub fn hooks_uninstall(extra_args: &[String]) -> std::io::Result<std::process::Output> {
     dispatch("hooks", "uninstall", extra_args)
+}
+
+/// `cargo-cicd ocel export` -- generated wrapper, ontology-driven.
+pub fn ocel_export(extra_args: &[String]) -> std::io::Result<std::process::Output> {
+    dispatch("ocel", "export", extra_args)
 }
 
 /// `cargo-cicd ocel replay` -- generated wrapper, ontology-driven.
@@ -278,6 +298,11 @@ pub fn trace_profile(extra_args: &[String]) -> std::io::Result<std::process::Out
 /// `cargo-cicd trybuild changed` -- generated wrapper, ontology-driven.
 pub fn trybuild_changed(extra_args: &[String]) -> std::io::Result<std::process::Output> {
     dispatch("trybuild", "changed", extra_args)
+}
+
+/// `cargo-cicd trybuild full` -- generated wrapper, ontology-driven.
+pub fn trybuild_full(extra_args: &[String]) -> std::io::Result<std::process::Output> {
+    dispatch("trybuild", "full", extra_args)
 }
 
 /// `cargo-cicd trybuild review` -- generated wrapper, ontology-driven.
