@@ -84,32 +84,14 @@ jobs:
         uses: ./.github/actions/setup-ggen-build
 
       - name: Build debug binary
-        run: cargo build -p ggen-cli-lib --bin ggen
+        run: __BUILD_GATE__
 
       - name: Self-hosted verification loop (verify-tcps)
-        run: just verify-tcps
+        run: __VERIFY_RUN__
 
       - name: Docs-through-ggen drift gate (docs-sync)
         run: |
-          just docs-sync
-          # Excludes receipt/evidence/lock artifacts that change EVERY sync run
-          # BY DESIGN (timestamps, chained hashes) -- not content drift in the
-          # actual generated docs this gate exists to catch.
-          DRIFT_PATHSPEC=(
-            .
-            ':!.ggen-v2/**'
-            ':!**/.ggen-v2/**'
-            ':!examples/tcps-generated/evidence/**'
-            ':!examples/tcps-generated/receipts/**'
-            ':!examples/tcps-generated/ggen.lock'
-          )
-          if ! git diff --quiet -- "${DRIFT_PATHSPEC[@]}"; then
-            echo "ANDON: docs-sync produced changes not already committed — drift detected"
-            git status --porcelain -- "${DRIFT_PATHSPEC[@]}"
-            git diff --stat -- "${DRIFT_PATHSPEC[@]}"
-            exit 1
-          fi
-          echo "docs-sync: no drift"
+__DOCS_SYNC_RUN__
 
       - name: Book gates (check_book / check_level_five)
         run: |
@@ -148,7 +130,7 @@ jobs:
           }
           tag=no
           if [ -n "$(git ls-remote --tags origin "refs/tags/v$VERSION")" ]; then tag=yes; fi
-          published=$(on_registry ggen "$VERSION")
+          published=$(on_registry __BIN_NAME__ "$VERSION")
           work=no
           if [ "${RELEASE_HOLD:-}" = true ]; then
             echo "RELEASE_HOLD is true: skipping tag creation"
@@ -207,13 +189,13 @@ jobs:
           exit 1
 
       - name: Build release binary
-        run: cargo build --locked --release -p ggen-cli-lib --bin ggen
+        run: cargo build --locked --release -p __BIN_PACKAGE__ --bin __BIN_NAME__
 
       - name: Collect release artifacts with .sha256 sidecars
         run: |
           set -euo pipefail
           mkdir -p dist
-          cp target/release/ggen "dist/ggen-${{ runner.os }}-${{ runner.arch }}"
+          cp target/release/__BIN_NAME__ "dist/__BIN_NAME__-${{ runner.os }}-${{ runner.arch }}"
           (cd dist && for f in *; do shasum -a 256 "$f" > "$f.sha256"; done)
           ls -la dist
 
@@ -226,7 +208,7 @@ jobs:
             gh release upload "$TAG" dist/* --clobber
           else
             gh release create "$TAG" dist/* \\
-              --target "$GITHUB_SHA" --generate-notes --title "ggen ${TAG}"
+              --target "$GITHUB_SHA" --generate-notes --title "__BIN_NAME__ ${TAG}"
           fi
 
       - name: Publish to crates.io (dependency order, leaf crates first)
@@ -265,6 +247,38 @@ jobs:
             cargo publish -p "$c" --locked
           done
 
+""" ;
+    # Parameter defaults for grp:PublishCandidateWorkflow's __VERIFY_RUN__ and
+    # __DOCS_SYNC_RUN__ markers. Used byte-for-byte when the consumer asserts no
+    # grp:verifyCmd / grp:docsSyncCmd; when it does, the template substitutes a
+    # single-line guarded shell `if` that runs the command only if the just
+    # recipe exists, else skips with a ::notice::.
+    # Other optional parameters (assert on grp:PublishCandidateWorkflow in the
+    # consumer's own ontology): grp:binName (default "ggen"), grp:binPackage
+    # (default "ggen-cli-lib"), grp:buildGate (single-line shell command,
+    # default the historical ggen debug-build line), grp:verifyCmd,
+    # grp:docsSyncCmd. With none asserted, the render is byte-identical to
+    # pack 0.2.0's ggen-shaped body.
+    grp:verifyRun "just verify-tcps" ;
+    grp:docsSyncRun """          just docs-sync
+          # Excludes receipt/evidence/lock artifacts that change EVERY sync run
+          # BY DESIGN (timestamps, chained hashes) -- not content drift in the
+          # actual generated docs this gate exists to catch.
+          DRIFT_PATHSPEC=(
+            .
+            ':!.ggen-v2/**'
+            ':!**/.ggen-v2/**'
+            ':!examples/tcps-generated/evidence/**'
+            ':!examples/tcps-generated/receipts/**'
+            ':!examples/tcps-generated/ggen.lock'
+          )
+          if ! git diff --quiet -- "${DRIFT_PATHSPEC[@]}"; then
+            echo "ANDON: docs-sync produced changes not already committed — drift detected"
+            git status --porcelain -- "${DRIFT_PATHSPEC[@]}"
+            git diff --stat -- "${DRIFT_PATHSPEC[@]}"
+            exit 1
+          fi
+          echo "docs-sync: no drift"
 """ .
 
 # Condition-1 narrowing (全製品面が意味図式から生成される): chosen as the SIMPLEST of the 23

@@ -23,7 +23,7 @@ pub use cargo_cicd_catalog::{
 // real, generated, callable std::process::Command dispatch shim -- see
 // cargo_cicd_dispatch.rs.tmpl's module doc for what this does and does not
 // close. `pub mod` (not a `pub use` allowlist, unlike the catalog above)
-// because the 51 per-command wrapper functions are individually named and
+// because the 56 per-command wrapper functions are individually named and
 // generated -- callers reach them as `cargo_cicd_dispatch::git_status(&[])`,
 // mirroring mcpp-pack's identical `pub mod mcpp_dispatch;` choice in
 // mcpp_mod_wiring.rs.tmpl.

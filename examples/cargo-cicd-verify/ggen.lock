@@ -2,4 +2,4 @@
 
 [packs.cargo-cicd-pack]
 source = "path:../../packs/cargo-cicd-pack"
-content_hash = "blake3:364cf73c48517c92ef0573255fe71c6f53659523309fd6ec31fe34961436bc6e"
+content_hash = "blake3:6e4ed3dab0288d49af5e12032004acbaeb23771b279bc3462d28b1be59d54dcf"

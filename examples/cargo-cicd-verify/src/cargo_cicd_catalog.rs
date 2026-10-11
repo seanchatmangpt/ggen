@@ -29,7 +29,10 @@ pub struct CargoCicdCommand {
 /// The full catalog, ordered by (noun, verb).
 pub const CARGO_CICD_COMMANDS: &[CargoCicdCommand] = &[
     CargoCicdCommand { noun: "certification", verb: "show", doc: "IEC 61508 / ISO 26262 compliance summary for cargo-cicd certification.", source_file: "src/nouns/certification.rs", arg_count: 0, args: "" },
+    CargoCicdCommand { noun: "ci", verb: "run", doc: "Runs the configured CI workflow (mode/workflow/watch/dry-run).", source_file: "src/nouns/ci.rs", arg_count: 4, args: "mode:Option<String>;workflow:Option<String>;watch:bool;dry_run:bool" },
     CargoCicdCommand { noun: "claude_context", verb: "show", doc: "Shows the Claude agent context snapshot for the current repository.", source_file: "src/nouns/claude_context.rs", arg_count: 1, args: "repo:Option<String>" },
+    CargoCicdCommand { noun: "deploy", verb: "mcp", doc: "Serves the deployment MCP server.", source_file: "src/nouns/deploy.rs", arg_count: 0, args: "" },
+    CargoCicdCommand { noun: "deploy", verb: "schema", doc: "Prints the deployment schema.", source_file: "src/nouns/deploy.rs", arg_count: 0, args: "" },
     CargoCicdCommand { noun: "doctor", verb: "", doc: "DEPRECATED 2026-07-18: superseded by cc:doctor-repo/cc:doctor-evidence/cc:doctor-diff -- source audit found doctor is not actually a bare noun with an empty verb; retained only so previously-generated literal shapes do not silently vanish.", source_file: "", arg_count: 0, args: "" },
     CargoCicdCommand { noun: "doctor", verb: "diff", doc: "Diffs current repository health against a previously written baseline.", source_file: "src/nouns/doctor.rs", arg_count: 2, args: "repo:Option<String>;baseline:Option<String>" },
     CargoCicdCommand { noun: "doctor", verb: "evidence", doc: "", source_file: "src/nouns/doctor.rs", arg_count: 1, args: "json:bool" },
@@ -49,6 +52,7 @@ pub const CARGO_CICD_COMMANDS: &[CargoCicdCommand] = &[
     CargoCicdCommand { noun: "hooks", verb: "install", doc: "Installs git hooks that integrate cargo-cicd with an external CI provider.", source_file: "src/nouns/hooks.rs", arg_count: 3, args: "repo:Option<String>;provider:Option<String>;json:bool" },
     CargoCicdCommand { noun: "hooks", verb: "pre-tool-use", doc: "", source_file: "src/nouns/hooks.rs", arg_count: 2, args: "repo:Option<String>;json:bool" },
     CargoCicdCommand { noun: "hooks", verb: "uninstall", doc: "", source_file: "src/nouns/hooks.rs", arg_count: 3, args: "repo:Option<String>;provider:Option<String>;json:bool" },
+    CargoCicdCommand { noun: "ocel", verb: "export", doc: "Exports recorded evidence as an OCEL log.", source_file: "src/nouns/ocel.rs", arg_count: 3, args: "repo:Option<String>;out:String;json:bool" },
     CargoCicdCommand { noun: "ocel", verb: "replay", doc: "Replays recorded OCEL process-evidence events.", source_file: "src/nouns/ocel.rs", arg_count: 2, args: "repo:Option<String>;json:bool" },
     CargoCicdCommand { noun: "pipeline", verb: "run", doc: "Runs the workspace's CI/CD pipeline definition.", source_file: "src/nouns/pipeline.rs", arg_count: 0, args: "" },
     CargoCicdCommand { noun: "pipeline", verb: "status", doc: "", source_file: "src/nouns/pipeline.rs", arg_count: 0, args: "" },
@@ -73,6 +77,7 @@ pub const CARGO_CICD_COMMANDS: &[CargoCicdCommand] = &[
     CargoCicdCommand { noun: "test", verb: "run", doc: "", source_file: "src/nouns/test.rs", arg_count: 0, args: "" },
     CargoCicdCommand { noun: "trace", verb: "profile", doc: "Profiles and reports timing traces for cargo-cicd operations.", source_file: "src/nouns/trace.rs", arg_count: 3, args: "repo:Option<String>;profile:String;json:bool" },
     CargoCicdCommand { noun: "trybuild", verb: "changed", doc: "Runs trybuild compile-fail/compile-pass fixtures for crates changed since the last green commit.", source_file: "src/nouns/trybuild.rs", arg_count: 0, args: "" },
+    CargoCicdCommand { noun: "trybuild", verb: "full", doc: "", source_file: "src/nouns/trybuild.rs", arg_count: 0, args: "" },
     CargoCicdCommand { noun: "trybuild", verb: "review", doc: "", source_file: "src/nouns/trybuild.rs", arg_count: 0, args: "" },
     CargoCicdCommand { noun: "trybuild", verb: "update", doc: "", source_file: "src/nouns/trybuild.rs", arg_count: 0, args: "" },
     CargoCicdCommand { noun: "verify", verb: "repo", doc: "Verifies a repository against configured checks, including semver compatibility.", source_file: "src/nouns/verify.rs", arg_count: 2, args: "repo:Option<String>;json:bool" },
@@ -132,7 +137,7 @@ pub fn args_are_consistent() -> bool {
 
 /// Round 4: the real return type shared by every `cmd_*` function backing
 /// every command in `CARGO_CICD_COMMANDS`, source-verified against
-/// `~/cargo-cicd/src/nouns/*.rs` (all 21 files).
+/// `~/cargo-cicd/src/nouns/*.rs` (all 24 files).
 pub const CARGO_CICD_RETURN_TYPE: &str = "clap_noun_verb::Result<()>";
 
 /// Real error enum name every command's return type is parameterized over

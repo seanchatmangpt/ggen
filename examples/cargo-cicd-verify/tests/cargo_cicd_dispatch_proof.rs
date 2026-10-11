@@ -13,7 +13,7 @@
 //! The per-wrapper existence/shape check below is sourced from the SAME
 //! `rows` SPARQL query as `cargo_cicd_dispatch.rs` itself (a for-loop, not a
 //! hand-typed sample of a few rows): unlike a hand-picked subset, this
-//! covers all 51 real commands and would fail if the ontology ever adds,
+//! covers all 56 real commands and would fail if the ontology ever adds,
 //! removes, or renames a row without the generated wrapper set following in
 //! lockstep. What keeps this non-tautological, in the same sense
 //! `cargo_cicd_catalog_proof.rs`'s own header explains: every case below
@@ -60,7 +60,7 @@ fn build_command_with_no_extra_args_is_exactly_noun_verb() {
 /// SPARQL query making every loop-based assertion below vacuously true.
 #[test]
 fn rows_query_returned_at_least_one_command() {
-    let case_count: usize = 51;
+    let case_count: usize = 56;
     assert!(
         case_count > 0,
         "the `rows` SPARQL query (filtered to `?verb != \"\"`) returned zero cargo-cicd \
@@ -79,7 +79,7 @@ fn rows_query_returned_at_least_one_command() {
 /// construction.
 #[test]
 fn dispatch_row_count_is_catalog_row_count_minus_deprecated_bare_verb_rows() {
-    let case_count: usize = 51;
+    let case_count: usize = 56;
     let catalog_non_deprecated = CARGO_CICD_COMMANDS
         .iter()
         .filter(|c| !c.verb.is_empty())
@@ -95,7 +95,7 @@ fn dispatch_row_count_is_catalog_row_count_minus_deprecated_bare_verb_rows() {
     );
 }
 
-/// Each of the 51 generated per-command wrapper functions must build a
+/// Each of the 56 generated per-command wrapper functions must build a
 /// command whose program/args match its documented `cargo-cicd <noun> <verb>`
 /// invocation exactly -- real, executable evidence the ontology-to-code
 /// projection for every catalog row (minus the deprecated bare-verb row) is
@@ -108,7 +108,10 @@ fn dispatch_row_count_is_catalog_row_count_minus_deprecated_bare_verb_rows() {
 fn every_generated_wrapper_builds_its_documented_noun_verb_pair() {
     let cases: &[(&str, &str, fn(&[String]) -> std::io::Result<std::process::Output>)] = &[
         ("certification", "show", certification_show),
+        ("ci", "run", ci_run),
         ("claude_context", "show", claude_context_show),
+        ("deploy", "mcp", deploy_mcp),
+        ("deploy", "schema", deploy_schema),
         ("doctor", "diff", doctor_diff),
         ("doctor", "evidence", doctor_evidence),
         ("doctor", "repo", doctor_repo),
@@ -127,6 +130,7 @@ fn every_generated_wrapper_builds_its_documented_noun_verb_pair() {
         ("hooks", "install", hooks_install),
         ("hooks", "pre-tool-use", hooks_pre_tool_use),
         ("hooks", "uninstall", hooks_uninstall),
+        ("ocel", "export", ocel_export),
         ("ocel", "replay", ocel_replay),
         ("pipeline", "run", pipeline_run),
         ("pipeline", "status", pipeline_status),
@@ -151,6 +155,7 @@ fn every_generated_wrapper_builds_its_documented_noun_verb_pair() {
         ("test", "run", test_run),
         ("trace", "profile", trace_profile),
         ("trybuild", "changed", trybuild_changed),
+        ("trybuild", "full", trybuild_full),
         ("trybuild", "review", trybuild_review),
         ("trybuild", "update", trybuild_update),
         ("verify", "repo", verify_repo),
@@ -159,7 +164,7 @@ fn every_generated_wrapper_builds_its_documented_noun_verb_pair() {
         ("workspace", "sync", workspace_sync),
         ("workspace", "validate", workspace_validate),
     ];
-    assert_eq!(cases.len(), 51);
+    assert_eq!(cases.len(), 56);
     for (noun, verb, wrapper) in cases {
         // Build the same command the wrapper would build, without spawning
         // it, by reconstructing it via the public build_command entry

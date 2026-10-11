@@ -1,5 +1,37 @@
 {#- .github/workflows/publish-candidate.yml — verbatim projection of grp:PublishCandidateWorkflow's
     grp:workflowBody (packs/ggen-release-pack/ontology.ttl). Edit the ontology's workflowBody
-    literal, not this file or the generated .yml. -#}
-{%- set S = sparql(query='PREFIX grp: <http://seanchatmangpt.github.io/packs/ggen-release#> SELECT ?body WHERE { grp:PublishCandidateWorkflow grp:workflowBody ?body . }') -%}
-{{ S[0].body }}
+    literal, not this file or the generated .yml.
+    NOTE: only templates/*.tmpl files are collected by the sync pipeline (crates/ggen-engine/
+    src/pack.rs); this .tera twin is kept in logical parity for readers.
+    Parametrization: consumers assert optional properties on grp:PublishCandidateWorkflow in
+    their OWN ontology (merged graph) — grp:binName ("ggen"), grp:binPackage ("ggen-cli-lib"),
+    grp:buildGate (historical ggen debug-build line), grp:verifyCmd / grp:docsSyncCmd (guarded
+    single-line shell if when set; defaults come from grp:verifyRun / grp:docsSyncRun).
+    No vars asserted => byte-identical to pack 0.2.0's render. -#}
+{%- set S = sparql(query='PREFIX grp: <http://seanchatmangpt.github.io/packs/ggen-release#> SELECT ?body ?binName ?binPackage ?buildGate ?verifyCmd ?docsSyncCmd ?verifyRun ?docsSyncRun WHERE { grp:PublishCandidateWorkflow grp:workflowBody ?body . OPTIONAL { grp:PublishCandidateWorkflow grp:binName ?binName } OPTIONAL { grp:PublishCandidateWorkflow grp:binPackage ?binPackage } OPTIONAL { grp:PublishCandidateWorkflow grp:buildGate ?buildGate } OPTIONAL { grp:PublishCandidateWorkflow grp:verifyCmd ?verifyCmd } OPTIONAL { grp:PublishCandidateWorkflow grp:docsSyncCmd ?docsSyncCmd } grp:PublishCandidateWorkflow grp:verifyRun ?verifyRun . grp:PublishCandidateWorkflow grp:docsSyncRun ?docsSyncRun . } ORDER BY ?body') -%}
+{%- set bin_name = S[0].binName | default(value="ggen") -%}
+{%- set bin_package = S[0].binPackage | default(value="ggen-cli-lib") -%}
+{%- set build_gate = S[0].buildGate | default(value="cargo build -p ggen-cli-lib --bin ggen") -%}
+{%- set verify_cmd = S[0].verifyCmd | default(value="") -%}
+{%- set docs_sync_cmd = S[0].docsSyncCmd | default(value="") -%}
+{%- if verify_cmd == "" -%}
+{%- set verify_run = S[0].verifyRun -%}
+{%- else -%}
+{%- set vparts = verify_cmd | split(pat=" ") -%}
+{%- set vrecipe = vparts[1] -%}
+{%- set verify_run = "          if command -v just >/dev/null 2>&1 && just --list 2>/dev/null | grep -q '" ~ vrecipe ~ "'; then " ~ verify_cmd ~ "; else echo '::notice::just recipe " ~ vrecipe ~ " not found - skipping verify'; fi" -%}
+{%- endif -%}
+{%- if docs_sync_cmd == "" -%}
+{%- set docs_run = S[0].docsSyncRun | trim_end -%}
+{%- else -%}
+{%- set dparts = docs_sync_cmd | split(pat=" ") -%}
+{%- set drecipe = dparts[1] -%}
+{%- set docs_run = "          if command -v just >/dev/null 2>&1 && just --list 2>/dev/null | grep -q '" ~ drecipe ~ "'; then " ~ docs_sync_cmd ~ "; else echo '::notice::just recipe " ~ drecipe ~ " not found - skipping docs-sync'; fi" -%}
+{%- endif -%}
+{%- set body = S[0].body
+    | replace(from="__VERIFY_RUN__", to=verify_run)
+    | replace(from="__DOCS_SYNC_RUN__", to=docs_run)
+    | replace(from="__BUILD_GATE__", to=build_gate)
+    | replace(from="__BIN_PACKAGE__", to=bin_package)
+    | replace(from="__BIN_NAME__", to=bin_name) -%}
+{{ body }}
