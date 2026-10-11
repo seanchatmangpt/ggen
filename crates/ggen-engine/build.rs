@@ -117,13 +117,12 @@ fn main() {
     let triple_count = strata_root
         .as_ref()
         .and_then(|root| std::fs::read_to_string(root.join("ontology.ttl")).ok())
-        .map(|ttl| {
+        .map_or(0, |ttl| {
             ttl.lines()
                 .filter(|line| !line.trim_start().starts_with('#'))
                 .filter(|line| line.trim_end().ends_with('.') && !line.trim().is_empty())
                 .count()
-        })
-        .unwrap_or(0);
+        });
     println!("cargo:rustc-env=GGEN_BUILD_ONTOLOGY_TRIPLES={triple_count}");
     if let Some(root) = &strata_root {
         println!("cargo:rerun-if-changed={}", root.join("ontology.ttl").display());

@@ -42,6 +42,7 @@ const fn parse_u32(s: &str) -> u32 {
 }
 
 /// Human-readable multi-line provenance block for `ggen --version --verbose`.
+#[must_use]
 pub fn describe() -> String {
     format!(
         "ggen {}\nsource: {}\ncommit: {}\nstrata_packs: {}\nontology_triples: {}\nbuild_provenance_blake3: {}",
@@ -79,7 +80,12 @@ mod tests {
 
     #[test]
     fn const_round_trips_through_hex() {
-        let hex = BUILD_PROVENANCE_BLAKE3.iter().map(|b| format!("{b:02x}")).collect::<String>();
+        const HEX_DIGITS: &[u8; 16] = b"0123456789abcdef";
+        let mut hex = String::with_capacity(64);
+        for b in BUILD_PROVENANCE_BLAKE3 {
+            hex.push(HEX_DIGITS[(b >> 4) as usize] as char);
+            hex.push(HEX_DIGITS[(b & 0x0f) as usize] as char);
+        }
         assert_eq!(hex, BUILD_PROVENANCE_HEX);
     }
 }
