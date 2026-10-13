@@ -1,6 +1,6 @@
 [package]
 name = "ggen-mcp"
-version = "26.10.10"
+version.workspace = true
 edition = "2021"
 publish = false
 default-run = "ggen-mcp"
