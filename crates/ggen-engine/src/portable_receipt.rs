@@ -565,4 +565,102 @@ mod tests {
         assert_eq!(subject.version, "UNKNOWN");
         assert_eq!(subject.pack_digest, "UNKNOWN");
     }
+
+    /// The serialized envelope's top-level shape must stay in lockstep with
+    /// the published JSON Schema
+    /// (`schema/receipt-portable.schema.json`). Drift here breaks every
+    /// non-Rust validator, so the test fails closed on any field added,
+    /// removed, or renamed. Also emits the real serialized envelope to
+    /// `/tmp/ggen-portable-receipt-fixture.json` for the Python schema court
+    /// (`scripts/validate_receipt_schema.py`).
+    #[test]
+    fn envelope_serialization_matches_published_schema() {
+        let envelope = PortableReceiptEnvelope {
+            schema: PORTABLE_RECEIPT_SCHEMA,
+            spec: PORTABLE_RECEIPT_SPEC,
+            engine: PortableEngine {
+                name: "ggen",
+                version: env!("CARGO_PKG_VERSION"),
+            },
+            toolchain: PortableToolchain {
+                rustc: "rustc 1.0.0 test".to_string(),
+                cargo: "cargo 1.0.0 test".to_string(),
+            },
+            environment: PortableEnvironment {
+                os: std::env::consts::OS,
+                arch: std::env::consts::ARCH,
+                family: std::env::consts::FAMILY,
+                variables_count: 2,
+                variables_sha256: format!(
+                    "sha256:{}",
+                    crate::sync::hex32(&[0u8; 32])
+                ),
+            },
+            subject: PortableSubject {
+                pack: "fixture-pack".to_string(),
+                version: "0.1.0".to_string(),
+                pack_digest: format!("sha256:{}", crate::sync::hex32(&[1u8; 32])),
+            },
+            dependencies: vec![PortableDependency {
+                name: "fixture-dep".to_string(),
+                version: "0.2.0".to_string(),
+                digest: format!("sha256:{}", crate::sync::hex32(&[2u8; 32])),
+                scope: vec!["SEMANTICS", "LAW", "PROJECTION"],
+            }],
+            composition: PortableComposition {
+                resolved_packs: vec![PortablePackIdentity {
+                    name: "fixture-pack".to_string(),
+                    version: "0.1.0".to_string(),
+                    digest: format!("sha256:{}", crate::sync::hex32(&[1u8; 32])),
+                }],
+            },
+            graph: PortableGraph {
+                canonical_digest: crate::sync::hex32(&[3u8; 32]),
+            },
+            admission: PortableAdmission {
+                gates_attempted: vec!["fixture-gate".to_string()],
+                refusals: Vec::new(),
+            },
+            consequences: vec![PortableConsequence {
+                target: "generated/fixture.txt".to_string(),
+                operation: "MANAGED_WRITE",
+                sha256: crate::sync::hex32(&[4u8; 32]),
+            }],
+            work_order: PortableWorkOrder {
+                source: "work-order.ttl".to_string(),
+                canonical_digest: crate::sync::hex32(&[5u8; 32]),
+            },
+            replay: PortableReplay {
+                status: "UNKNOWN".to_string(),
+            },
+            standing: PortableStanding::Alive.to_string(),
+        };
+
+        let value = serde_json::to_value(&envelope).expect("serialize envelope");
+        let expected_fields: &[&str] = &[
+            "schema",
+            "spec",
+            "engine",
+            "toolchain",
+            "environment",
+            "subject",
+            "dependencies",
+            "composition",
+            "graph",
+            "admission",
+            "consequences",
+            "work_order",
+            "replay",
+            "standing",
+        ];
+        let obj = value.as_object().expect("envelope is a JSON object");
+        let mut actual: Vec<&str> = obj.keys().map(String::as_str).collect();
+        actual.sort_unstable();
+        let mut expected: Vec<&str> = expected_fields.to_vec();
+        expected.sort_unstable();
+        assert_eq!(actual, expected, "envelope fields drifted from the published schema");
+
+        let path = std::env::temp_dir().join("ggen-portable-receipt-fixture.json");
+        std::fs::write(&path, serde_json::to_vec(&value).expect("re-serialize")).expect("write fixture");
+    }
 }
