@@ -1012,6 +1012,59 @@ fn static_rule_multi_row_query_uses_first_row_values() {
     );
 }
 
+/// L114 regression (2026-10-13, strata-cas-pack escalation): a multi-row
+/// static rule where row 2 leaves an OPTIONAL binding unbound must NOT
+/// render row 1's value on row 2. Pre-fix, the static branch aliased the
+/// first row's `parent` at top level and Tera's loop-variable fallback
+/// (`row.parent` -> top-level `row`) leaked it onto the unbound row.
+/// Post-fix (cross-row key intersection), the render fails LOUDLY naming
+/// `row.parent`, and row 1's value never reaches any output.
+#[test]
+fn static_rule_optional_unbound_binding_does_not_leak_first_row_value() {
+    let dir = TempDir::new().expect("tempdir");
+    write_manifest(
+        dir.path(),
+        "[[generation.rules]]\nname = \"commits\"\nquery = { inline = \"PREFIX ex: <http://example.org/> SELECT ?name ?parent WHERE { ?c ex:name ?name . OPTIONAL { ?c ex:parent ?p . ?p ex:name ?parent . } } ORDER BY ?name\" }\ntemplate = { inline = \"{% for row in results %}{{ row.name }}={{ row.parent }};{% endfor %}\\n\" }\noutput_file = \"out/chain.txt\"\n",
+    );
+    write_ontology(
+        dir.path(),
+        "@prefix ex: <http://example.org/> .\nex:child ex:name \"child\" ; ex:parent ex:root .\nex:root ex:name \"root\" .\n",
+    );
+
+    let err = sync(dir.path(), SyncOptions::default())
+        .expect_err("unbound `row.parent` on the root row must fail loudly, never leak child's parent");
+    let msg = err.to_string();
+    assert!(
+        msg.contains("row.parent"),
+        "typed failure must name the unbound variable: {msg}"
+    );
+}
+
+/// L114 companion: the OBSERVABLE-ABSENCE idiom for heterogeneous rows is
+/// Tera's `default` filter — an unbound OPTIONAL renders the default, not
+/// a sibling row's binding.
+#[test]
+fn static_rule_optional_unbound_binding_renders_default_filter_value() {
+    let dir = TempDir::new().expect("tempdir");
+    write_manifest(
+        dir.path(),
+        "[[generation.rules]]\nname = \"commits\"\nquery = { inline = \"PREFIX ex: <http://example.org/> SELECT ?name ?parent WHERE { ?c ex:name ?name . OPTIONAL { ?c ex:parent ?p . ?p ex:name ?parent . } } ORDER BY ?name\" }\ntemplate = { inline = \"{% for row in results %}{{ row.name }}={{ row.parent | default(value=\\\"-\\\") }};{% endfor %}\\n\" }\noutput_file = \"out/chain.txt\"\n",
+    );
+    write_ontology(
+        dir.path(),
+        "@prefix ex: <http://example.org/> .\nex:child ex:name \"child\" ; ex:parent ex:root .\nex:root ex:name \"root\" .\n",
+    );
+
+    let _report = sync(dir.path(), SyncOptions::default())
+        .expect("default-filter idiom renders heterogeneous rows");
+    let content =
+        std::fs::read_to_string(dir.path().join("out/chain.txt")).expect("read output");
+    assert_eq!(
+        content, "child=root;root=-;\n",
+        "unbound parent renders the default, never the sibling row's binding: {content}"
+    );
+}
+
 /// Zero rows: the static branch must insert nothing extra (no `row`, no
 /// flattened keys) and keep the current refusal behavior — a template
 /// referencing a missing variable must still be a loud render failure, not

@@ -1789,4 +1789,169 @@ mod tests {
         let err = GraphEngine::validate_shacl(&g, "").expect_err("must refuse");
         assert!(err.to_string().contains("FM-LAW-002"), "{err}");
     }
+
+    #[test]
+    fn optional_unbound_binding_does_not_leak_across_rows() {
+        // Regression (L93 escalation): an OPTIONAL binding bound on one row
+        // must stay unbound on later rows that fail the OPTIONAL match.
+        let g = DeterministicGraph::new().expect("graph");
+        GraphEngine::insert_turtle(
+            &g,
+            "@prefix ex: <http://example.org/> .
+             ex:c1 a ex:Commit ; ex:parent ex:c0 .
+             ex:c2 a ex:Commit .",
+        )
+        .expect("ttl");
+        let rows = match GraphEngine::query(
+            &g,
+            "PREFIX ex: <http://example.org/>
+             SELECT ?c ?parent WHERE {
+                 ?c a ex:Commit .
+                 OPTIONAL { ?c ex:parent ?parent }
+             } ORDER BY ?c",
+        )
+        .expect("query")
+        {
+            EngineQueryResults::Solutions(rows) => rows,
+            other => panic!("expected solutions, got {other:?}"),
+        };
+        assert_eq!(rows.len(), 2, "two commits: {rows:?}");
+        // Row 1 (ex:c1) binds ?parent; row 2 (ex:c2, the genesis commit) must
+        // NOT carry ex:c1's parent -- the binding is absent, not inherited.
+        assert_eq!(
+            rows[0].get("parent"),
+            Some(&EngineValue::String("http://example.org/c0".to_string())),
+            "row 1 binds ?parent: {rows:?}"
+        );
+        assert!(
+            rows[1].get("parent").is_none(),
+            "genesis row must leave ?parent unbound, got {:?}",
+            rows[1].get("parent")
+        );
+    }
+
+    #[test]
+    fn optional_unbound_binding_does_not_leak_in_union_branch() {
+        // Same regression through the cas-pack query shape: OPTIONAL bound
+        // inside a UNION branch, projected var bound directly in the
+        // OPTIONAL, ORDER BY over the projection (pre-workaround commits.rq).
+        let g = DeterministicGraph::new().expect("graph");
+        GraphEngine::insert_turtle(
+            &g,
+            "@prefix ex: <http://example.org/> .
+             ex:c1 a ex:Commit ; ex:root \"r1\" ; ex:parent ex:c0 .
+             ex:c0 a ex:Commit ; ex:root \"r0\" .
+             ex:c2 a ex:Commit ; ex:root \"r2\" .",
+        )
+        .expect("ttl");
+        let rows = match GraphEngine::query(
+            &g,
+            "PREFIX ex: <http://example.org/>
+             SELECT ?root ?parent WHERE {
+               { ?c a ex:Commit ; ex:root ?root .
+                 OPTIONAL { ?c ex:parent ?p . ?p ex:root ?parent . }
+               } UNION { ?c a ex:Commit ; ex:root ?root ; ex:extra ?parent . }
+             } ORDER BY ?root",
+        )
+        .expect("query")
+        {
+            EngineQueryResults::Solutions(rows) => rows,
+            other => panic!("expected solutions, got {other:?}"),
+        };
+        // Rows ordered r0, r1, r2. r0 has no parent (unbound), r1 -> r0,
+        // r2 matches the UNION branch with parent bound to "extra".
+        let parent_of = |r: usize| rows[r].get("parent").cloned();
+        assert_eq!(
+            parent_of(1),
+            Some(EngineValue::String("r0".to_string())),
+            "child row binds ?parent: {rows:?}"
+        );
+        assert!(
+            parent_of(0).is_none() && parent_of(2).is_none(),
+            "no cross-row leakage: {rows:?}"
+        );
+    }
+
+    #[test]
+    fn optional_unbound_binding_does_not_leak_on_cas_pack_ontology() {
+        // Exact-subject regression: strata-cas-pack ontology.ttl (commit
+        // chain commit-001..003, genesis commit-001 with NO st:commitParent)
+        // + the pre-workaround commits.rq shape, run through the same
+        // engine entry the sync pipeline uses.
+        let g = DeterministicGraph::new().expect("graph");
+        GraphEngine::insert_turtle(
+            &g,
+            "@prefix st: <https://strata.chatman.ai/ontology#> .
+             @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+             st:commit-001 a st:MerkleCommit ;
+                 st:merkleRoot \"fd9fc6c86d8f666da7059851d9e6e45df1c288c3035f5d9475a1d871ec4ec33c\" ;
+                 st:canonicalPayload \"genesis\" .
+             st:commit-002 a st:MerkleCommit ;
+                 st:merkleRoot \"f0575860c272837d9f63e43c098b9e74638a24d8760feaafb9f58fcf0cca3386\" ;
+                 st:commitParent st:commit-001 ;
+                 st:canonicalPayload \"append 002\" .
+             st:commit-003 a st:MerkleCommit ;
+                 st:merkleRoot \"18d53c1eaa279405b194c9ae5983652e0d89f3bd50b62e87e1278a71a4af3037\" ;
+                 st:commitParent st:commit-002 ;
+                 st:canonicalPayload \"append 003\" .",
+        )
+        .expect("ttl");
+        let rows = match GraphEngine::query(
+            &g,
+            "PREFIX st: <https://strata.chatman.ai/ontology#>
+             SELECT ?kind ?root ?parent ?payload WHERE {
+               { ?c a st:MerkleCommit ; st:merkleRoot ?root ; st:canonicalPayload ?payload .
+                 OPTIONAL { ?c st:commitParent ?p . ?p st:merkleRoot ?parent . }
+                 BIND(\"commit\" AS ?kind)
+               } UNION {
+                 ?w a st:KnowledgeWormhole ; st:sourceDigest ?src ; st:targetDigest ?root ;
+                    st:canonicalSourcePayload ?payload .
+                 BIND(\"wormhole\" AS ?kind)
+               }
+             } ORDER BY ?kind ?root",
+        )
+        .expect("query")
+        {
+            EngineQueryResults::Solutions(rows) => rows,
+            other => panic!("expected solutions, got {other:?}"),
+        };
+        let genesis_root = EngineValue::String(
+            "fd9fc6c86d8f666da7059851d9e6e45df1c288c3035f5d9475a1d871ec4ec33c".to_string(),
+        );
+        let genesis = rows
+            .iter()
+            .find(|r| r.get("root") == Some(&genesis_root))
+            .expect("genesis row present");
+        assert!(
+            genesis.get("parent").is_none(),
+            "genesis row must leave ?parent unbound, got {:?} in {rows:?}",
+            genesis.get("parent")
+        );
+        // And every bound parent matches its own row's chain, never a
+        // neighbor's.
+        let parent_of = |root: &str| -> Option<String> {
+            let target = EngineValue::String(root.to_string());
+            rows.iter()
+                .find(|r| r.get("root") == Some(&target))
+                .and_then(|r| r.get("parent").cloned())
+                .map(|v| match v {
+                    EngineValue::String(s) => s,
+                    other => panic!("unexpected parent value {other:?}"),
+                })
+        };
+        assert_eq!(
+            parent_of(
+                "f0575860c272837d9f63e43c098b9e74638a24d8760feaafb9f58fcf0cca3386"
+            )
+            .as_deref(),
+            Some("fd9fc6c86d8f666da7059851d9e6e45df1c288c3035f5d9475a1d871ec4ec33c"),
+        );
+        assert_eq!(
+            parent_of(
+                "18d53c1eaa279405b194c9ae5983652e0d89f3bd50b62e87e1278a71a4af3037"
+            )
+            .as_deref(),
+            Some("f0575860c272837d9f63e43c098b9e74638a24d8760feaafb9f58fcf0cca3386"),
+        );
+    }
 }
