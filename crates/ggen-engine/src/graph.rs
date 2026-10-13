@@ -1824,7 +1824,7 @@ mod tests {
             "row 1 binds ?parent: {rows:?}"
         );
         assert!(
-            rows[1].get("parent").is_none(),
+            !rows[1].contains_key("parent"),
             "genesis row must leave ?parent unbound, got {:?}",
             rows[1].get("parent")
         );
