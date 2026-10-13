@@ -91,6 +91,7 @@ pub struct EnvelopeView {
     pub consequences: Vec<ConsequenceView>,
 }
 
+/// Deserialized view of one manufactured consequence for re-hashing.
 #[derive(Debug, Clone, Deserialize)]
 pub struct ConsequenceView {
     /// Root-relative target path.
@@ -122,7 +123,7 @@ pub fn execute_replay_court(root: &Path, envelope_path: &Path) -> Result<ReplayV
             ),
         )
     })?;
-    Ok(verdict_for(&root, &envelope))
+    Ok(verdict_for(root, &envelope))
 }
 
 /// The promotion rule, pure: no I/O beyond the consequence re-hash reads.
@@ -143,6 +144,7 @@ pub fn verdict_for(root: &Path, envelope: &EnvelopeView) -> ReplayVerdict {
 
     let mut digests = Vec::with_capacity(envelope.consequences.len());
     for consequence in &envelope.consequences {
+        use sha2::Digest as _;
         let path = root.join(&consequence.target);
         let bytes = match std::fs::read(&path) {
             Ok(bytes) => bytes,
