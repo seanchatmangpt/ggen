@@ -424,8 +424,10 @@ fn dry_run_writes_no_portable_envelope_even_on_refusal() {
 }
 
 /// Ordinary manufacture never promotes replay standing. Even a second clean
-/// manufacture of the same semantic subject remains UNKNOWN until the explicit
-/// replay court executes.
+/// manufacture of the same semantic subject remains UNKNOWN; promotion happens
+/// only when the explicit replay court
+/// (`ggen_engine::replay_court::execute_and_persist`, tests in
+/// `replay_court_test.rs`) re-hashes every bound consequence off disk.
 #[test]
 fn ordinary_second_sync_does_not_self_promote_replay_status() {
     let fx = write_fixture(false, true);
@@ -457,8 +459,9 @@ fn ordinary_second_sync_does_not_self_promote_replay_status() {
 }
 
 /// A changed graph under ordinary manufacture also remains UNKNOWN. Mismatch
-/// is evidence only when the explicit clean-state court actually compares the
-/// old and reconstructed identities.
+/// is evidence only when the explicit clean-state court
+/// (`ggen_engine::replay_court`) actually compares the old and reconstructed
+/// identities.
 #[test]
 fn changed_graph_without_replay_court_remains_unknown() {
     let fx = write_fixture(false, false);

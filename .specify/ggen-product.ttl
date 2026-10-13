@@ -153,6 +153,17 @@ prod:fm_CHAIN_11 a prod:DiagnosticCode ;
     prod:number "11"^^xsd:integer ;
     prod:citation "crates/ggen-engine/src/sync.rs:1911" .
 
+# Replay court (clean-state reconstruction, crates/ggen-engine/src/replay_court.rs).
+prod:fm_CHAIN_19 a prod:DiagnosticCode ;
+    prod:family "CHAIN" ;
+    prod:number "19"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/replay_court.rs:108" .
+
+prod:fm_CHAIN_20 a prod:DiagnosticCode ;
+    prod:family "CHAIN" ;
+    prod:number "20"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/replay_court.rs:216" .
+
 prod:fm_CONFIG_1 a prod:DiagnosticCode ;
     prod:family "CONFIG" ;
     prod:number "1"^^xsd:integer ;

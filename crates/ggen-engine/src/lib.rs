@@ -47,6 +47,10 @@ pub mod project_graph;
 /// GALL-001 clean replay verification for portable semantic-pack receipts.
 pub mod receipt_chain_seam;
 pub mod replay;
+// Clean-state replay court: promotes ALIVE portable-receipt envelopes to
+// replay PASS only after every bound consequence digest re-hashes equally
+// off disk (RFC §53/§57). See the module's own doc comment.
+pub mod replay_court;
 // The single dispatch point deciding which of ggen.toml's two schemas a project uses
 // (specs/014-ggen-core-replacement, correction 2 / Blocker A part 2). Not `pub`: consumed by
 // `sync::sync` and `verbs::handlers` only -- every other caller already goes through one of
