@@ -746,20 +746,18 @@ pub(crate) fn run(root: &Path, manifest: &GgenManifest, opts: SyncOptions) -> Re
                 })
                 .reduce(|a, b| a.intersection(&b).copied().collect())
                 .unwrap_or_default();
-            if let Some(first) = row_values.first() {
-                if let Value::Object(map) = first {
-                    let mut alias = tera::Map::new();
-                    for (k, v) in map {
-                        if common_keys.contains(k) {
-                            ctx.insert(k, v);
-                            alias.insert(k.clone(), v.clone());
-                        }
+            if let Some(Value::Object(map)) = row_values.first() {
+                let mut alias = tera::Map::new();
+                for (k, v) in map {
+                    if common_keys.contains(k) {
+                        ctx.insert(k, v);
+                        alias.insert(k.clone(), v.clone());
                     }
-                    // Alias so static templates can use `{{ row.name }}` exactly
-                    // as fan-out templates do (first-row-wins for multi-row
-                    // queries — legacy renderer semantics, see Cluster D).
-                    ctx.insert("row", &alias);
                 }
+                // Alias so static templates can use `{{ row.name }}` exactly
+                // as fan-out templates do (first-row-wins for multi-row
+                // queries — legacy renderer semantics, see Cluster D).
+                ctx.insert("row", &alias);
             }
             let body = render_template(
                 &mut tera,
