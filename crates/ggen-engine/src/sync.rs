@@ -2448,6 +2448,7 @@ pub fn discover_templates(
 fn load_templates(dir: &Path) -> Result<Vec<(PathBuf, Template)>> {
     let mut paths: Vec<PathBuf> = Vec::new();
     collect_tmpl_paths(dir, &mut paths)?;
+    crate::pack::prefer_tera_templates(&mut paths);
     paths.sort();
     let mut out = Vec::with_capacity(paths.len());
     for path in paths {
@@ -2798,7 +2799,9 @@ fn check_determinism_rows_agree_empty(
     Ok(())
 }
 
-/// Recursively collect `*.tmpl` files. A missing templates dir fails closed.
+/// Recursively collect `*.tera`/`*.tmpl` files (`.tera` preferred over a
+/// same-stem `.tmpl`; see `crate::pack::prefer_tera_templates`). A missing
+/// templates dir fails closed.
 fn collect_tmpl_paths(dir: &Path, out: &mut Vec<PathBuf>) -> Result<()> {
     let entries = std::fs::read_dir(dir).map_err(|e| {
         AppError::fm_config(
@@ -2814,7 +2817,7 @@ fn collect_tmpl_paths(dir: &Path, out: &mut Vec<PathBuf>) -> Result<()> {
         let path = entry.path();
         if path.is_dir() {
             collect_tmpl_paths(&path, out)?;
-        } else if path.extension().is_some_and(|e| e == "tmpl") {
+        } else if path.extension().is_some_and(|e| e == "tmpl" || e == "tera") {
             out.push(path);
         }
     }

@@ -72,7 +72,8 @@ pub struct Pack {
     /// `ontology.ttl`, in declaration order; each joins the pack content
     /// hash paired with its declared (manifest-relative) path string.
     pub extra_ontology_paths: Vec<(String, PathBuf)>,
-    /// Sorted paths of the pack's `templates/*.tmpl` files.
+    /// Sorted paths of the pack's `templates/*.{tera,tmpl}` files (`.tera`
+    /// preferred over a same-stem `.tmpl`; see `prefer_tera_templates`).
     pub template_paths: Vec<PathBuf>,
     /// Whether this pack participates in `ggen.lock` content-hash pinning
     /// (`PackRef::Path`'s `lock` field; always `true` for `PackRef::Git`
@@ -850,13 +851,15 @@ fn resolve_pack_dir(name: &str, root: &Path) -> Result<Pack> {
     if templates_dir.is_dir() {
         collect_pack_tmpl_paths(name, &templates_dir, &mut template_paths)?;
     }
+    crate::pack::prefer_tera_templates(&mut template_paths);
     template_paths.sort();
     if template_paths.is_empty() {
         return Err(AppError::fm_pack(
             5,
             format!(
                 "pack `{name}`: zero templates under `{}`. \
-                 Remediation: a pack must ship at least one templates/*.tmpl.",
+                 Remediation: a pack must ship at least one templates/*.tera \
+                 (or unmigrated templates/*.tmpl).",
                 templates_dir.display()
             ),
         ));
@@ -899,7 +902,7 @@ fn resolve_pack_dir(name: &str, root: &Path) -> Result<Pack> {
     })
 }
 
-/// Recursively collect every `*.tmpl` file under a pack's `templates/`
+/// Recursively collect every `*.tera`/`*.tmpl` file under a pack's `templates/`
 /// directory. Packs are free to organize templates into subdirectories
 /// (e.g. `templates/generated/`, `templates/src/bin/`) exactly like a
 /// consumer project's own `[templates].dir` does (see `sync::
@@ -935,11 +938,36 @@ fn collect_pack_tmpl_paths(name: &str, dir: &Path, out: &mut Vec<PathBuf>) -> Re
         let path = entry.path();
         if path.is_dir() {
             collect_pack_tmpl_paths(name, &path, out)?;
-        } else if path.is_file() && path.extension().is_some_and(|e| e == "tmpl") {
+        } else if path.is_file() && path.extension().is_some_and(|e| e == "tmpl" || e == "tera") {
             out.push(path);
         }
     }
     Ok(())
+}
+
+/// Drop every `.tmpl` path that has a same-stem `.tera` sibling in the same
+/// directory. The marketplace v2 migration (commit `edadceced` upstream)
+/// renamed pack templates from `*.tmpl` to `*.tera`; a pack carrying both
+/// (mid-migration) would otherwise yield the same template twice. `.tera`
+/// wins so migrated packs always resolve to the migrated file.
+pub(crate) fn prefer_tera_templates(paths: &mut Vec<PathBuf>) {
+    let tera_stems: std::collections::BTreeSet<(PathBuf, String)> = paths
+        .iter()
+        .filter(|p| p.extension().is_some_and(|e| e == "tera"))
+        .map(|p| {
+            (
+                p.parent().unwrap_or_else(|| Path::new(".")).to_path_buf(),
+                p.file_stem().unwrap_or_default().to_string_lossy().into_owned(),
+            )
+        })
+        .collect();
+    paths.retain(|p| {
+        !(p.extension().is_some_and(|e| e == "tmpl")
+            && tera_stems.contains(&(
+                p.parent().unwrap_or_else(|| Path::new(".")).to_path_buf(),
+                p.file_stem().unwrap_or_default().to_string_lossy().into_owned(),
+            )))
+    });
 }
 
 /// Deterministic BLAKE3 content hash of a pack: sorted `(relative_path,
@@ -1897,5 +1925,75 @@ consequential_do = false
             format!("{err}").contains("FM-PACK-003"),
             "expected FM-PACK-003, got: {err}"
         );
+    }
+
+    /// Marketplace v2 migration (upstream commit `edadceced`) moved pack
+    /// templates from `*.tmpl` to `*.tera` + `[[generation.rules]]`. A
+    /// migrated `.tera`-only pack must resolve cleanly — the consumer-side
+    /// glob used to be `.tmpl`-only, refusing every migrated pack with
+    /// `[FM-PACK-005]` (zero templates).
+    #[test]
+    fn resolve_pack_dir_accepts_tera_only_pack() {
+        let dir = TempDir::new().expect("tempdir");
+        std::fs::write(
+            dir.path().join("pack.toml"),
+            r#"[pack]
+name = "widget"
+version = "1.0.0"
+description = "d"
+"#,
+        )
+        .expect("write pack.toml");
+        std::fs::write(dir.path().join("ontology.ttl"), "").expect("write ontology");
+        std::fs::create_dir_all(dir.path().join("templates").join("nested")).expect("mkdir");
+        std::fs::write(
+            dir.path().join("templates").join("nested").join("t.tera"),
+            "{#- rules-consumed, no frontmatter -#}\n{{ project.name }}",
+        )
+        .expect("write template");
+
+        let pack = resolve_pack_dir("widget", dir.path())
+            .expect("a .tera-only pack must resolve like a .tmpl pack");
+        assert_eq!(pack.template_paths.len(), 1);
+        assert_eq!(pack.template_paths[0].extension().unwrap(), "tera");
+    }
+
+    /// A pack whose `templates/` dir is empty (or absent) must still refuse
+    /// with `[FM-PACK-005]` — learning `.tera` must not relax the
+    /// at-least-one-template invariant.
+    #[test]
+    fn resolve_pack_dir_still_refuses_template_less_pack_with_fm_pack_005() {
+        let dir = TempDir::new().expect("tempdir");
+        std::fs::write(
+            dir.path().join("pack.toml"),
+            r#"[pack]
+name = "widget"
+version = "1.0.0"
+description = "d"
+"#,
+        )
+        .expect("write pack.toml");
+        std::fs::write(dir.path().join("ontology.ttl"), "").expect("write ontology");
+        std::fs::create_dir_all(dir.path().join("templates")).expect("mkdir templates");
+
+        let err = resolve_pack_dir("widget", dir.path())
+            .expect_err("a template-less pack must still refuse");
+        assert!(
+            format!("{err}").contains("FM-PACK-005"),
+            "expected FM-PACK-005, got: {err}"
+        );
+    }
+
+    /// A mid-migration pack carrying both `t.tera` and `t.tmpl` (same stem,
+    /// same directory) must resolve to exactly the `.tera` file — not render
+    /// the same template twice under both extensions.
+    #[test]
+    fn prefer_tera_templates_drops_tmpl_duplicate_when_same_stem_tera_exists() {
+        let tera = PathBuf::from("/p/t.tera");
+        let tmpl = PathBuf::from("/p/t.tmpl");
+        let other = PathBuf::from("/p/u.tmpl");
+        let mut paths = vec![tera.clone(), tmpl.clone(), other.clone()];
+        prefer_tera_templates(&mut paths);
+        assert_eq!(paths, vec![tera, other]);
     }
 }
