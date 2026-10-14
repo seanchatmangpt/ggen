@@ -51,7 +51,6 @@
 #![deny(warnings)]
 #![allow(unexpected_cfgs)]
 #![allow(unused_imports)]
-#![allow(dead_code)]
 // Poka-Yoke: Prevent warnings at compile time - compiler enforces correctness
 // Crate-level clippy exceptions for CLI conventions and test code:
 // - expect_used: explicit panic messages improve diagnostics in CLI error paths

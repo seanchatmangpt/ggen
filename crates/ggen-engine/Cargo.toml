@@ -96,7 +96,7 @@ star-toml = { workspace = true }
 # Cargo.lock) so this never becomes a duplicate-version dependency graph.
 spargebra = "0.4.7"
 graphlaw = { workspace = true }
-ggen-abb-sbb = { path = "../ggen-abb-sbb", version = "26.10.10" }
+ggen-abb-sbb = { path = "../ggen-abb-sbb", version = "26.10.11" }
 # New, deliberate edge (not an undocumented re-export): resolving a `GenerationRule`'s
 # `QuerySource::Pack`/`TemplateSource::Pack` variant means asking "where is this pack
 # installed" -- that knowledge lives in ggen-marketplace's pack registry/lockfile after

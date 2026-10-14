@@ -1734,4 +1734,44 @@ mod tests {
             "identical to the mapping-form test `parse_and_render_with_sparql_against_graph`"
         );
     }
+
+    #[test]
+    fn tera_loop_row_falls_back_to_top_level_row_alias() {
+        // L114 root-cause witness (2026-10-13): Tera resolves `row.parent`
+        // inside `{% for row in results %}` against the loop binding first,
+        // then falls back to the top-level `row` alias when the loop row
+        // lacks the key. This is why generation_rules' static branch must
+        // alias `row` only with the cross-row key intersection: a partial
+        // first row aliased at top level leaked one row's OPTIONAL binding
+        // onto later rows that left it unbound (strata-cas-pack genesis
+        // commit rendered a sibling's parent root). If Tera ever changes
+        // this resolution semantics, this witness trips and the
+        // intersection restriction in generation_rules can be revisited.
+        let mut first = tera::Map::new();
+        first.insert(
+            "parent".into(),
+            tera::Value::String("FIRST_ROW_PARENT".into()),
+        );
+        let mut second = tera::Map::new();
+        second.insert("kind".into(), tera::Value::String("g".into()));
+        let mut context = tera::Context::new();
+        context.insert("results", &vec![first, second]);
+        let mut top = tera::Map::new();
+        top.insert(
+            "parent".into(),
+            tera::Value::String("FIRST_ROW_PARENT".into()),
+        );
+        context.insert("row", &top);
+        let out = tera::Tera::one_off(
+            "{% for row in results %}[{{ row.parent }}]{% endfor %}",
+            &context,
+            false,
+        )
+        .expect("fallback renders");
+        assert_eq!(
+            out, "[FIRST_ROW_PARENT][FIRST_ROW_PARENT]",
+            "second row must NOT silently fall back to its own distinct value — \
+             this pins the Tera fallback that motivates the intersection fix"
+        );
+    }
 }

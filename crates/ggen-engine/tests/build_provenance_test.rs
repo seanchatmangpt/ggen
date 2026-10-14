@@ -36,8 +36,13 @@ fn is_git_build() -> bool {
 #[test]
 fn provenance_digest_present_nonzero_and_hex() {
     assert_eq!(BUILD_PROVENANCE_HEX.len(), 64);
-    assert!(BUILD_PROVENANCE_HEX.chars().all(|c| c.is_ascii_hexdigit() && !c.is_ascii_uppercase()));
-    assert_ne!(BUILD_PROVENANCE_BLAKE3, [0u8; 32], "all-zero digest means build.rs hashing failed");
+    assert!(BUILD_PROVENANCE_HEX
+        .chars()
+        .all(|c| c.is_ascii_hexdigit() && !c.is_ascii_uppercase()));
+    assert_ne!(
+        BUILD_PROVENANCE_BLAKE3, [0u8; 32],
+        "all-zero digest means build.rs hashing failed"
+    );
 }
 
 /// Source/sha honesty pairing: git build ⇒ 40-hex real SHA; non-git build
@@ -59,9 +64,22 @@ fn source_and_sha_pairing_is_honest() {
 /// digest (real BLAKE3 or the documented zero placeholder).
 #[test]
 fn strata_pack_bindings_well_formed() {
-    let mut names: Vec<&str> = BUILD_STRATA_PACKS.split(';').map(|b| b.split('=').next().unwrap()).collect();
+    let mut names: Vec<&str> = BUILD_STRATA_PACKS
+        .split(';')
+        .map(|b| b.split('=').next().unwrap())
+        .collect();
     names.sort_unstable();
-    assert_eq!(names, ["strata-cas-pack", "strata-protocol-pack", "strata-signer-pack", "strata-stratus-pack", "strata-temprun-pack", "strata-valve-pack"]);
+    assert_eq!(
+        names,
+        [
+            "strata-cas-pack",
+            "strata-protocol-pack",
+            "strata-signer-pack",
+            "strata-stratus-pack",
+            "strata-temprun-pack",
+            "strata-valve-pack"
+        ]
+    );
     for binding in BUILD_STRATA_PACKS.split(';') {
         let hex = binding.split('=').nth(1).expect("binding has =");
         assert_eq!(hex.len(), 64);
@@ -93,10 +111,20 @@ fn verbose_surface_prints_provenance() {
         .map(|root| root.join("target/debug/ggen"))
         .filter(|p| p.exists());
     if let Some(bin) = bin {
-        let out = std::process::Command::new(&bin).args(["--version", "--verbose"]).output().expect("spawn ggen");
-        assert!(out.status.success(), "ggen --version --verbose exited {:?}", out.status);
+        let out = std::process::Command::new(&bin)
+            .args(["--version", "--verbose"])
+            .output()
+            .expect("spawn ggen");
+        assert!(
+            out.status.success(),
+            "ggen --version --verbose exited {:?}",
+            out.status
+        );
         let stdout = String::from_utf8_lossy(&out.stdout);
-        assert!(stdout.contains(BUILD_PROVENANCE_HEX), "binary stdout missing provenance hex");
+        assert!(
+            stdout.contains(BUILD_PROVENANCE_HEX),
+            "binary stdout missing provenance hex"
+        );
     }
 }
 
@@ -133,6 +161,8 @@ fn receipt_carries_build_provenance_after_real_sync() {
 
     let raw = std::fs::read_to_string(root.join(".ggen-v2/receipt.json")).expect("read receipt");
     let json: serde_json::Value = serde_json::from_str(&raw).expect("parse receipt");
-    let provenance = json["payload"]["build_provenance"].as_str().expect("build_provenance field present");
+    let provenance = json["payload"]["build_provenance"]
+        .as_str()
+        .expect("build_provenance field present");
     assert_eq!(provenance, BUILD_PROVENANCE_HEX);
 }
