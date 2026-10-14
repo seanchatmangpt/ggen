@@ -24,7 +24,9 @@ fn sha256_hex(bytes: &[u8]) -> String {
     hex::encode(sha2::Sha256::digest(bytes))
 }
 
-fn write_envelope(root: &std::path::Path, standing: &str, consequences: &[(&str, &str)]) -> std::path::PathBuf {
+fn write_envelope(
+    root: &std::path::Path, standing: &str, consequences: &[(&str, &str)],
+) -> std::path::PathBuf {
     let envelope = serde_json::json!({
         "schema": "https://ggen.dev/receipt/pack/v1",
         "spec": "RFC-GPACK-001-v26.9.17",
@@ -101,12 +103,16 @@ fn replay_court_passes_on_clean_state_reconstruction() {
     assert_eq!(digest.bound_sha256, digest.recomputed_sha256);
 }
 
-/// Corrupt one byte of a landed consequence -> typed REPLAY_MISMATCH, never
+/// Corrupt one byte of a landed consequence -> typed `REPLAY_MISMATCH`, never
 /// a silent pass.
 #[test]
 fn replay_court_refuses_typed_on_corrupted_byte() {
     let fx = fixture(true);
-    fs::write(fx.root.join("generated/widget.rs"), b"pub struct Widget;\n// tampered\n").unwrap();
+    fs::write(
+        fx.root.join("generated/widget.rs"),
+        b"pub struct Widget;\n// tampered\n",
+    )
+    .unwrap();
     let verdict = execute_replay_court(&fx.root, &fx.envelope_path).unwrap();
     assert_eq!(
         verdict,
@@ -119,7 +125,7 @@ fn replay_court_refuses_typed_on_corrupted_byte() {
     assert!(!verdict.is_pass());
 }
 
-/// Consequence missing from disk -> typed REPLAY_ABSENT.
+/// Consequence missing from disk -> typed `REPLAY_ABSENT`.
 #[test]
 fn replay_court_refuses_typed_on_missing_file() {
     let fx = fixture(true);
@@ -132,7 +138,7 @@ fn replay_court_refuses_typed_on_missing_file() {
     assert_eq!(target.as_deref(), Some("generated/widget.rs"));
 }
 
-/// PARTIAL_ALIVE never promotes: the court reports UNKNOWN, not PASS, and
+/// `PARTIAL_ALIVE` never promotes: the court reports UNKNOWN, not PASS, and
 /// touches no consequence on disk even if those consequences would match.
 #[test]
 fn partial_alive_envelope_never_promotes() {
@@ -166,9 +172,16 @@ fn refused_standing_never_promotes() {
 fn sabotage_twin_envelope_never_becomes_pass() {
     let fx = fixture(true);
     // Overwrite the envelope with fabricated digests over the real landed file.
-    write_envelope(&fx.root, "ALIVE", &[("generated/widget.rs", &"0".repeat(64))]);
+    write_envelope(
+        &fx.root,
+        "ALIVE",
+        &[("generated/widget.rs", &"0".repeat(64))],
+    );
     let verdict = execute_and_persist(&fx.root, &fx.envelope_path).unwrap();
-    assert!(!verdict.is_pass(), "sabotaged twin must not pass: {verdict:?}");
+    assert!(
+        !verdict.is_pass(),
+        "sabotaged twin must not pass: {verdict:?}"
+    );
 
     // And the persisted envelope was not rewritten to PASS.
     let persisted = fs::read_to_string(&fx.envelope_path).unwrap();

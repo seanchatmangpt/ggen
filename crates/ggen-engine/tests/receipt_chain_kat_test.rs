@@ -59,8 +59,7 @@ const SHARED_KAT_HEAD_HEX: &str =
 /// graphlaw admission-frame fold over `FIXTURE` (fail-closed literal;
 /// byte-identical to `graphlaw/tests/insa_chain_differential.rs`
 /// `GRAPHLAW_HEAD_HEX`).
-const GRAPHLAW_HEAD_HEX: &str =
-    "95163f2a6b24bebdfd19bf77cc60553640b8c9f5f5c54bc415c3b0da77e77598";
+const GRAPHLAW_HEAD_HEX: &str = "95163f2a6b24bebdfd19bf77cc60553640b8c9f5f5c54bc415c3b0da77e77598";
 
 /// BLAKE3 digest of the 99-byte admission frame for `FIXTURE[0]` under the
 /// deterministic entry mapping below (captured once, pinned; see module
@@ -71,7 +70,7 @@ const KAT_ENTRY_1_FRAME_DIGEST_HEX: &str =
 const GENESIS: [u8; 32] = [0u8; 32];
 
 fn hex32(bytes: &[u8; 32]) -> String {
-    bytes.iter().map(|b| format!("{b:02x}")).collect()
+    bytes.iter().fold(String::new(), |acc, b| format!("{acc}{b:02x}"))
 }
 
 // ---------------------------------------------------------------------------
@@ -114,11 +113,13 @@ fn payload_commitment(pn: u64, ocel: u64) -> [u8; 32] {
     *blake3::hash(&b).as_bytes()
 }
 
-fn frame_for(entry: (u64, u64), idx: usize, prev: [u8; 32]) -> ggen_engine::receipt_chain_seam::OcelCausalFrame {
+fn frame_for(
+    entry: (u64, u64), idx: usize, prev: [u8; 32],
+) -> ggen_engine::receipt_chain_seam::OcelCausalFrame {
     let (pn, ocel) = entry;
     let meta = ReceiptMeta {
         instruction_id: pn,
-        activity_idx: idx as u16,
+        activity_idx: u16::try_from(idx).unwrap_or(u16::MAX),
         node_kind: 0,
         ts_ns: None,
         denial: DenialPolarity::ADMITTED,

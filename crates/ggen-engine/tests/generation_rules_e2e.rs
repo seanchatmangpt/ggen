@@ -1031,8 +1031,9 @@ fn static_rule_optional_unbound_binding_does_not_leak_first_row_value() {
         "@prefix ex: <http://example.org/> .\nex:child ex:name \"child\" ; ex:parent ex:root .\nex:root ex:name \"root\" .\n",
     );
 
-    let err = sync(dir.path(), SyncOptions::default())
-        .expect_err("unbound `row.parent` on the root row must fail loudly, never leak child's parent");
+    let err = sync(dir.path(), SyncOptions::default()).expect_err(
+        "unbound `row.parent` on the root row must fail loudly, never leak child's parent",
+    );
     let msg = err.to_string();
     assert!(
         msg.contains("row.parent"),
@@ -1057,8 +1058,7 @@ fn static_rule_optional_unbound_binding_renders_default_filter_value() {
 
     let _report = sync(dir.path(), SyncOptions::default())
         .expect("default-filter idiom renders heterogeneous rows");
-    let content =
-        std::fs::read_to_string(dir.path().join("out/chain.txt")).expect("read output");
+    let content = std::fs::read_to_string(dir.path().join("out/chain.txt")).expect("read output");
     assert_eq!(
         content, "child=root;root=-;\n",
         "unbound parent renders the default, never the sibling row's binding: {content}"

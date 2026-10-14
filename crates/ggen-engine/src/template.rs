@@ -1748,13 +1748,19 @@ mod tests {
         // this resolution semantics, this witness trips and the
         // intersection restriction in generation_rules can be revisited.
         let mut first = tera::Map::new();
-        first.insert("parent".into(), tera::Value::String("FIRST_ROW_PARENT".into()));
+        first.insert(
+            "parent".into(),
+            tera::Value::String("FIRST_ROW_PARENT".into()),
+        );
         let mut second = tera::Map::new();
         second.insert("kind".into(), tera::Value::String("g".into()));
         let mut context = tera::Context::new();
         context.insert("results", &vec![first, second]);
         let mut top = tera::Map::new();
-        top.insert("parent".into(), tera::Value::String("FIRST_ROW_PARENT".into()));
+        top.insert(
+            "parent".into(),
+            tera::Value::String("FIRST_ROW_PARENT".into()),
+        );
         context.insert("row", &top);
         let out = tera::Tera::one_off(
             "{% for row in results %}[{{ row.parent }}]{% endfor %}",

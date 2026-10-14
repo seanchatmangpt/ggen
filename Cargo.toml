@@ -1005,3 +1005,12 @@ unused-shlibs = []
 # that temporarily replaced it is gone too -- chicago-tdd-tools 26.8.3 is published
 # with cli-proof included, so every consumer depends on the registry version directly
 # (see the workspace.dependencies entry above).
+
+# 2026-10-14: [patch.crates-io] graphlaw -> /Users/sac/graphlaw. Interim mechanism:
+# the SHACL MAX_SHACL_VALIDATION_DEPTH guard (graphlaw 085e878) is on graphlaw main
+# but not yet on the published 26.10.12 registry crate this workspace pins.
+# Upgrade path: bump the `graphlaw` pin in [workspace.dependencies] above and
+# DELETE this patch section as soon as graphlaw releases >= the guard (>= 26.10.13
+# post-085e878). Never widen the pin while this patch is in place.
+[patch.crates-io]
+graphlaw = { path = "/Users/sac/graphlaw" }

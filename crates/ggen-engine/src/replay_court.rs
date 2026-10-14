@@ -170,7 +170,6 @@ pub fn verdict_for(root: &Path, envelope: &EnvelopeView) -> ReplayVerdict {
                 }
             }
         };
-        use sha2::Digest as _;
         let recomputed = hex::encode(sha2::Sha256::digest(&bytes));
         if recomputed != consequence.sha256 {
             return ReplayVerdict::Refused {
@@ -182,7 +181,7 @@ pub fn verdict_for(root: &Path, envelope: &EnvelopeView) -> ReplayVerdict {
                      envelope's bound identity",
                     consequence.target, consequence.sha256, recomputed
                 ),
-            }
+            };
         }
         digests.push(VerifiedConsequence {
             target: consequence.target.clone(),

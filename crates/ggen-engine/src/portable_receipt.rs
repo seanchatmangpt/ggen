@@ -591,10 +591,7 @@ mod tests {
                 arch: std::env::consts::ARCH,
                 family: std::env::consts::FAMILY,
                 variables_count: 2,
-                variables_sha256: format!(
-                    "sha256:{}",
-                    crate::sync::hex32(&[0u8; 32])
-                ),
+                variables_sha256: format!("sha256:{}", crate::sync::hex32(&[0u8; 32])),
             },
             subject: PortableSubject {
                 pack: "fixture-pack".to_string(),
@@ -658,9 +655,13 @@ mod tests {
         actual.sort_unstable();
         let mut expected: Vec<&str> = expected_fields.to_vec();
         expected.sort_unstable();
-        assert_eq!(actual, expected, "envelope fields drifted from the published schema");
+        assert_eq!(
+            actual, expected,
+            "envelope fields drifted from the published schema"
+        );
 
         let path = std::env::temp_dir().join("ggen-portable-receipt-fixture.json");
-        std::fs::write(&path, serde_json::to_vec(&value).expect("re-serialize")).expect("write fixture");
+        std::fs::write(&path, serde_json::to_vec(&value).expect("re-serialize"))
+            .expect("write fixture");
     }
 }

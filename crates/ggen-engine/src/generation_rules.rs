@@ -596,7 +596,6 @@ pub(crate) fn run(root: &Path, manifest: &GgenManifest, opts: SyncOptions) -> Re
         let query_text =
             resolve_query_source(root, &manifest.packs, rule, &rule.query, &mut closure)?;
         let rows = match graph.query(&query_text)? {
-
             EngineQueryResults::Solutions(rows) => rows,
             EngineQueryResults::Boolean(_) => {
                 return Err(AppError::fm_gen(
@@ -741,7 +740,9 @@ pub(crate) fn run(root: &Path, manifest: &GgenManifest, opts: SyncOptions) -> Re
             let common_keys: std::collections::BTreeSet<&String> = row_values
                 .iter()
                 .filter_map(|r| match r {
-                    Value::Object(map) => Some(map.keys().collect::<std::collections::BTreeSet<_>>()),
+                    Value::Object(map) => {
+                        Some(map.keys().collect::<std::collections::BTreeSet<_>>())
+                    }
                     _ => None,
                 })
                 .reduce(|a, b| a.intersection(&b).copied().collect())

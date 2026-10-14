@@ -957,7 +957,10 @@ pub(crate) fn prefer_tera_templates(paths: &mut Vec<PathBuf>) {
         .map(|p| {
             (
                 p.parent().unwrap_or_else(|| Path::new(".")).to_path_buf(),
-                p.file_stem().unwrap_or_default().to_string_lossy().into_owned(),
+                p.file_stem()
+                    .unwrap_or_default()
+                    .to_string_lossy()
+                    .into_owned(),
             )
         })
         .collect();
@@ -965,7 +968,10 @@ pub(crate) fn prefer_tera_templates(paths: &mut Vec<PathBuf>) {
         !(p.extension().is_some_and(|e| e == "tmpl")
             && tera_stems.contains(&(
                 p.parent().unwrap_or_else(|| Path::new(".")).to_path_buf(),
-                p.file_stem().unwrap_or_default().to_string_lossy().into_owned(),
+                p.file_stem()
+                    .unwrap_or_default()
+                    .to_string_lossy()
+                    .into_owned(),
             )))
     });
 }

@@ -1940,17 +1940,13 @@ mod tests {
                 })
         };
         assert_eq!(
-            parent_of(
-                "f0575860c272837d9f63e43c098b9e74638a24d8760feaafb9f58fcf0cca3386"
-            )
-            .as_deref(),
+            parent_of("f0575860c272837d9f63e43c098b9e74638a24d8760feaafb9f58fcf0cca3386")
+                .as_deref(),
             Some("fd9fc6c86d8f666da7059851d9e6e45df1c288c3035f5d9475a1d871ec4ec33c"),
         );
         assert_eq!(
-            parent_of(
-                "18d53c1eaa279405b194c9ae5983652e0d89f3bd50b62e87e1278a71a4af3037"
-            )
-            .as_deref(),
+            parent_of("18d53c1eaa279405b194c9ae5983652e0d89f3bd50b62e87e1278a71a4af3037")
+                .as_deref(),
             Some("f0575860c272837d9f63e43c098b9e74638a24d8760feaafb9f58fcf0cca3386"),
         );
     }
