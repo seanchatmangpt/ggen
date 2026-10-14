@@ -140,11 +140,18 @@ fn all_eight_framework_packs_exist_on_disk() {
             root.join("ontology.ttl").is_file(),
             "{name}: ontology.ttl missing"
         );
-        let has_tmpl = std::fs::read_dir(root.join("templates"))
+        // Accept both `.tmpl` and `.tera`: the marketplace v2 migration
+        // (edadceced) renames templates to `.tera`; a `.tmpl`-only check
+        // would falsely fail every migrated framework pack.
+        let has_template = std::fs::read_dir(root.join("templates"))
             .expect("templates dir")
             .filter_map(std::result::Result::ok)
-            .any(|e| e.path().extension().is_some_and(|x| x == "tmpl"));
-        assert!(has_tmpl, "{name}: zero templates");
+            .any(|e| {
+                e.path()
+                    .extension()
+                    .is_some_and(|x| x == "tmpl" || x == "tera")
+            });
+        assert!(has_template, "{name}: zero templates");
     }
 }
 
