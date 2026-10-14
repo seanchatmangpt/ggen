@@ -199,13 +199,17 @@ impl ConventionResolver {
         &self, overrides: &ConventionOverrides,
     ) -> Result<HashMap<String, PathBuf>> {
         let patterns = if overrides.templates.patterns.is_empty() {
-            vec!["templates/**/*.tmpl".to_string()]
+            // Accept both template extensions; `.tera` is preferred over a
+            // same-stem `.tmpl` (see `prefer_tera_paths`).
+            vec![
+                "templates/**/*.tera".to_string(),
+                "templates/**/*.tmpl".to_string(),
+            ]
         } else {
             overrides.templates.patterns.clone()
         };
 
-        let mut templates = HashMap::new();
-        let templates_base = self.project_root.join("templates");
+        let mut paths = Vec::new();
 
         for pattern in patterns {
             let full_pattern = self.project_root.join(&pattern);
@@ -219,30 +223,39 @@ impl ConventionResolver {
                 let path = entry.map_err(|e| {
                     crate::utils::error::Error::new(&format!("Failed to read glob entry: {e}"))
                 })?;
-
-                // Convert nested path to template name
-                // e.g., templates/api/user.tmpl -> api/user
-                let name = if let Ok(rel_path) = path.strip_prefix(&templates_base) {
-                    rel_path
-                        .with_extension("") // Remove .tmpl extension
-                        .to_string_lossy()
-                        .to_string()
-                } else {
-                    // Fallback: use file stem with proper error handling
-                    match path.file_stem().and_then(|s| s.to_str()) {
-                        Some(stem) => stem.to_string(),
-                        None => {
-                            log::warn!(
-                                "Could not extract template name from path: {}",
-                                path.display()
-                            );
-                            continue; // Skip templates with invalid names
-                        }
-                    }
-                };
-
-                templates.insert(name, path);
+                paths.push(path);
             }
+        }
+
+        paths.sort();
+        prefer_tera_paths(&mut paths);
+
+        let mut templates = HashMap::new();
+        let templates_base = self.project_root.join("templates");
+
+        for path in paths {
+            // Convert nested path to template name
+            // e.g., templates/api/user.tmpl -> api/user
+            let name = if let Ok(rel_path) = path.strip_prefix(&templates_base) {
+                rel_path
+                    .with_extension("") // Remove .tera/.tmpl extension
+                    .to_string_lossy()
+                    .to_string()
+            } else {
+                // Fallback: use file stem with proper error handling
+                match path.file_stem().and_then(|s| s.to_str()) {
+                    Some(stem) => stem.to_string(),
+                    None => {
+                        log::warn!(
+                            "Could not extract template name from path: {}",
+                            path.display()
+                        );
+                        continue; // Skip templates with invalid names
+                    }
+                }
+            };
+
+            templates.insert(name, path);
         }
 
         Ok(templates)
@@ -320,6 +333,41 @@ impl ConventionResolver {
             self.project_root.clone()
         }
     }
+}
+
+/// Drop every `.tmpl` path that has a same-stem `.tera` sibling in the same
+/// directory. Mirrors the engine's `prefer_tera_templates`
+/// (`crates/ggen-engine/src/pack.rs`): the marketplace v2 migration renamed
+/// templates `*.tmpl` -> `*.tera`; a directory carrying both (mid-migration)
+/// must resolve to the migrated `.tera` file, not the stale `.tmpl`.
+fn prefer_tera_paths(paths: &mut Vec<PathBuf>) {
+    let tera_stems: std::collections::BTreeSet<(PathBuf, String)> = paths
+        .iter()
+        .filter(|p| p.extension().is_some_and(|e| e == "tera"))
+        .map(|p| {
+            (
+                p.parent()
+                    .unwrap_or_else(|| std::path::Path::new("."))
+                    .to_path_buf(),
+                p.file_stem()
+                    .unwrap_or_default()
+                    .to_string_lossy()
+                    .into_owned(),
+            )
+        })
+        .collect();
+    paths.retain(|p| {
+        !(p.extension().is_some_and(|e| e == "tmpl")
+            && tera_stems.contains(&(
+                p.parent()
+                    .unwrap_or_else(|| std::path::Path::new("."))
+                    .to_path_buf(),
+                p.file_stem()
+                    .unwrap_or_default()
+                    .to_string_lossy()
+                    .into_owned(),
+            )))
+    });
 }
 
 #[cfg(test)]
@@ -577,6 +625,51 @@ patterns = ["sparql/**/*.sparql"]
 
         assert_eq!(conventions.templates.len(), 1);
         assert!(conventions.templates.contains_key("api/v1/user"));
+    }
+
+    /// Consumer regression mirroring engine FM-PACK-005 (commit 8bb154627):
+    /// a consumer project whose own templates are `.tera`-only (post
+    /// marketplace v2 migration) must resolve — the default glob used to be
+    /// `.tmpl`-only and discovered zero templates.
+    #[test]
+    fn test_discover_templates_tera_only() {
+        let temp_dir = TempDir::new().unwrap();
+        let root = temp_dir.path();
+
+        fs::create_dir_all(root.join("templates/api")).unwrap();
+        fs::write(root.join("templates/main.tera"), "Hello {{ name }}").unwrap();
+        fs::write(root.join("templates/api/user.tera"), "User API").unwrap();
+
+        let resolver = ConventionResolver::new(root);
+        let conventions = resolver.discover().unwrap();
+
+        assert_eq!(conventions.templates.len(), 2);
+        assert!(conventions.templates.contains_key("main"));
+        assert!(conventions.templates.contains_key("api/user"));
+        assert!(conventions.templates["main"].ends_with("templates/main.tera"));
+    }
+
+    /// Mixed case: when both `.tera` and `.tmpl` exist for the same stem
+    /// (mid-migration), the migrated `.tera` wins; distinct-stem `.tmpl`
+    /// templates are unaffected.
+    #[test]
+    fn test_discover_templates_prefers_tera_over_same_stem_tmpl() {
+        let temp_dir = TempDir::new().unwrap();
+        let root = temp_dir.path();
+
+        fs::create_dir_all(root.join("templates")).unwrap();
+        fs::write(root.join("templates/main.tera"), "migrated").unwrap();
+        fs::write(root.join("templates/main.tmpl"), "stale").unwrap();
+        fs::write(root.join("templates/legacy.tmpl"), "unmigrated").unwrap();
+
+        let resolver = ConventionResolver::new(root);
+        let conventions = resolver.discover().unwrap();
+
+        assert_eq!(conventions.templates.len(), 2);
+        assert!(conventions.templates.contains_key("main"));
+        assert!(conventions.templates.contains_key("legacy"));
+        assert!(conventions.templates["main"].ends_with("templates/main.tera"));
+        assert!(conventions.templates["legacy"].ends_with("templates/legacy.tmpl"));
     }
 
     #[test]
