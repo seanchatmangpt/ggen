@@ -181,7 +181,7 @@ marker = "thirty_one_packs_compose_with_verify_gates_active"
 
 [evidence."real-cli-harness"]
 path = "crates/ggen-engine/tests/composed_packs_e2e.rs"
-marker = "CliHarness"
+marker = "CliHarness::cargo_bin"
 
 [evidence."sabotage-refusal"]
 path = "crates/ggen-engine/tests/composed_packs_e2e.rs"

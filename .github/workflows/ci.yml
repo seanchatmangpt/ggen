@@ -90,7 +90,7 @@ jobs:
           persist-credentials: false
       - name: Reclaim runner space
         if: matrix.lane == 'integration_deep'
-        run: sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc /usr/local/share/boost /opt/hostedtoolcache || true
+        run: sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc || true
       - name: Set up Rust evidence lane
         if: contains(fromJSON('["core_deep","integration_deep","quality_deep","security_deep","lsp_deep"]'), matrix.lane)
         uses: ./.github/actions/setup-ggen-build
