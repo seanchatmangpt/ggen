@@ -1382,7 +1382,7 @@ before:
         let hand_completed = "// bootstrap stub, hand-completed by a human after first generation\nfn analyzer() { /* real hand-written logic */ }\n";
         std::fs::write(dir.path().join("analyzer.rs"), hand_completed).expect("seed");
         let regenerated_candidate =
-            "// bootstrap stub, hand-completed by a human after first generation\nfn analyzer() { todo!() }\n";
+            "// bootstrap stub, hand-completed by a human after first generation\nfn analyzer() {}\n";
         let out = plan_write(
             dir.path(),
             "analyzer.rs",
