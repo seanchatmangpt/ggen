@@ -258,14 +258,13 @@ async fn test_btree_index_performance() {
         CREATE INDEX idx_search_term ON search_data USING btree (search_term);
     "#).execute(&pool).await.unwrap();
 
-    // Insert 10,000 records
-    for i in 0..10_000 {
-        sqlx::query("INSERT INTO search_data (search_term) VALUES ($1)")
-            .bind(format!("term_{}", i))
-            .execute(&pool)
-            .await
-            .unwrap();
-    }
+    // Insert 10,000 records using batch insert (UNNEST array)
+    let terms: Vec<String> = (0..10_000).map(|i| format!("term_{}", i)).collect();
+    sqlx::query("INSERT INTO search_data (search_term) SELECT * FROM UNNEST($1::text[])")
+        .bind(&terms)
+        .execute(&pool)
+        .await
+        .unwrap();
 
     // Measure query performance with index
     let start = Instant::now();
