@@ -6,7 +6,7 @@ Enterprise multi-channel notification system
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import Dict, List, Optional, Protocol
+from typing import Dict, List, Optional, Protocol, Union
 from abc import ABC, abstractmethod
 import asyncio
 
@@ -335,8 +335,49 @@ class NotificationHub:
 
         return results
 
-    async def get_queue_depth(self, channel: Channel) -> int:
-        """Get queue depth for channel"""
+    async def get_queue_depth(
+        self,
+        channel: Union[Channel, List[Channel]],
+        chunk_size: int = 10,
+    ) -> Union[int, Dict[Channel, int]]:
+        """Get queue depth for a single channel or multiple channels with chunk processing."""
+        if isinstance(channel, (list, tuple, set)):
+            return await self.get_queue_depths(channels=list(channel), chunk_size=chunk_size)
+        queue = self.queues.get(channel)
+        return await queue.depth() if queue else 0
+
+    async def get_queue_depths(
+        self,
+        channels: Optional[List[Channel]] = None,
+        chunk_size: int = 10,
+    ) -> Dict[Channel, int]:
+        """Get queue depths for multiple channels using chunk processing.
+
+        Args:
+            channels: List of channels to check. If None, checks all registered queues.
+            chunk_size: Maximum number of channels to query concurrently in a batch.
+
+        Returns:
+            Dict mapping each channel to its queue depth.
+        """
+        if channels is None:
+            channels = list(self.queues.keys())
+
+        if not channels:
+            return {}
+
+        results: Dict[Channel, int] = {}
+        for i in range(0, len(channels), chunk_size):
+            chunk = channels[i : i + chunk_size]
+            tasks = [self._fetch_single_queue_depth(ch) for ch in chunk]
+            depths = await asyncio.gather(*tasks)
+            for ch, depth in zip(chunk, depths):
+                results[ch] = depth
+
+        return results
+
+    async def _fetch_single_queue_depth(self, channel: Channel) -> int:
+        """Helper to get depth for a single channel."""
         queue = self.queues.get(channel)
         return await queue.depth() if queue else 0
 
