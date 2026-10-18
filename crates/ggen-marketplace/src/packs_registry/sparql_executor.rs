@@ -405,9 +405,10 @@ impl SparqlExecutor {
     /// packs already present in `loaded_pack_ids` are skipped, while new packs have their RDF
     /// concatenated and loaded into `self.store` together in one `load_from_reader` call.
     fn load_packs_rdf(&mut self, packs: &[Pack]) -> Result<()> {
+        let mut seen = std::collections::HashSet::new();
         let packs_to_load: Vec<&Pack> = packs
             .iter()
-            .filter(|p| !self.loaded_pack_ids.contains(&p.id))
+            .filter(|p| !self.loaded_pack_ids.contains(&p.id) && seen.insert(&p.id))
             .collect();
 
         if packs_to_load.is_empty() {
@@ -450,7 +451,7 @@ impl SparqlExecutor {
         info!(
             "Loaded {} total triples across {} packs in batch",
             total_triples,
-            packs.len()
+            loaded_ids.len()
         );
 
         Ok(())
@@ -698,12 +699,16 @@ mod tests {
             packs.push(pack);
         }
 
-        let query = "PREFIX ggen: <https://ggen.io/marketplace/> SELECT ?label WHERE { ?pack a ggen:Pack ; rdfs:label ?label }";
+        let query = "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> \
+                     PREFIX ggen: <https://ggen.io/marketplace/> \
+                     SELECT ?label WHERE { ?pack a ggen:Pack ; rdfs:label ?label }";
 
         // Test batched execution
         let mut batch_executor = SparqlExecutor::new().unwrap();
         let start_batch = Instant::now();
-        let batch_result = batch_executor.execute_query_over_packs(&packs, query).unwrap();
+        let batch_result = batch_executor
+            .execute_query_over_packs(&packs, query)
+            .unwrap();
         let batch_duration = start_batch.elapsed();
 
         assert_eq!(batch_result.rows.len(), 100);
