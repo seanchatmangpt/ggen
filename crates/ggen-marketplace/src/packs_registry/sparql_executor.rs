@@ -204,9 +204,7 @@ impl SparqlExecutor {
             .parse_query(query)
             .map_err(|e| Error::Other(format!("SPARQL query failed: {e}")))?;
 
-        for pack in packs {
-            self.load_pack_rdf(pack)?;
-        }
+        self.load_packs_rdf(packs)?;
         let results = prepared
             .on_store(&self.store)
             .execute()
@@ -403,32 +401,64 @@ impl SparqlExecutor {
     /// version of this function built the triple strings and only logged them via `debug!`,
     /// which meant every query in this executor silently ran against an empty store (Decorative
     /// Completion: `get_pack_rdf` looked real, but no fact it produced was ever queryable).
-    fn load_pack_rdf(&mut self, pack: &Pack) -> Result<()> {
-        if self.loaded_pack_ids.contains(&pack.id) {
-            debug!(
-                "Pack '{}' already loaded into SPARQL store; skipping",
-                pack.id
-            );
+    /// Load multiple packs' RDF into the store in a single batch pass. Idempotent per pack id:
+    /// packs already present in `loaded_pack_ids` are skipped, while new packs have their RDF
+    /// concatenated and loaded into `self.store` together in one `load_from_reader` call.
+    fn load_packs_rdf(&mut self, packs: &[Pack]) -> Result<()> {
+        let mut seen = std::collections::HashSet::new();
+        let packs_to_load: Vec<&Pack> = packs
+            .iter()
+            .filter(|p| !self.loaded_pack_ids.contains(&p.id) && seen.insert(&p.id))
+            .collect();
+
+        if packs_to_load.is_empty() {
             return Ok(());
         }
 
-        let triples = self.get_pack_rdf(pack)?;
-        let triple_count = triples.len();
-        let document = triples.join("\n");
+        let mut all_triples = Vec::new();
+        let mut loaded_ids = Vec::with_capacity(packs_to_load.len());
+
+        for pack in packs_to_load {
+            let triples = self.get_pack_rdf(pack)?;
+            all_triples.extend(triples);
+            loaded_ids.push(pack.id.clone());
+        }
+
+        if all_triples.is_empty() {
+            for id in loaded_ids {
+                self.loaded_pack_ids.insert(id);
+            }
+            return Ok(());
+        }
+
+        let total_triples = all_triples.len();
+        let num_loaded = loaded_ids.len();
+        let document = all_triples.join("\n");
 
         self.store
             .load_from_reader(RdfFormat::NTriples, document.as_bytes())
             .map_err(|e| {
                 Error::Other(format!(
-                    "Failed to parse/insert RDF for pack '{}': {}",
-                    pack.id, e
+                    "Failed to parse/insert batched RDF for {} packs: {}",
+                    num_loaded, e
                 ))
             })?;
 
-        self.loaded_pack_ids.insert(pack.id.clone());
-        info!("Loaded {} triples for pack '{}'", triple_count, pack.id);
+        for id in loaded_ids {
+            self.loaded_pack_ids.insert(id);
+        }
+
+        info!(
+            "Loaded {} total triples across {} packs in batch",
+            total_triples, num_loaded
+        );
 
         Ok(())
+    }
+
+    /// Load single pack RDF into the store by delegating to [`load_packs_rdf`].
+    fn load_pack_rdf(&mut self, pack: &Pack) -> Result<()> {
+        self.load_packs_rdf(std::slice::from_ref(pack))
     }
 
     /// Convert oxigraph results to our format
@@ -656,6 +686,46 @@ mod tests {
             })
             .collect();
         assert_eq!(labels, vec!["Pack A".to_string(), "Pack B".to_string()]);
+    }
+
+    #[test]
+    fn batch_loading_performance_test() {
+        let mut packs = Vec::new();
+        for i in 0..100 {
+            let mut pack = create_test_pack();
+            pack.id = format!("pack-{i}");
+            pack.name = format!("Pack {i}");
+            packs.push(pack);
+        }
+
+        let query = "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> \
+                     PREFIX ggen: <https://ggen.io/marketplace/> \
+                     SELECT ?label WHERE { ?pack a ggen:Pack ; rdfs:label ?label }";
+
+        // Test batched execution
+        let mut batch_executor = SparqlExecutor::new().unwrap();
+        let start_batch = Instant::now();
+        let batch_result = batch_executor
+            .execute_query_over_packs(&packs, query)
+            .unwrap();
+        let batch_duration = start_batch.elapsed();
+
+        assert_eq!(batch_result.rows.len(), 100);
+
+        // Test loop execution (simulating old behavior)
+        let mut loop_executor = SparqlExecutor::new().unwrap();
+        let start_loop = Instant::now();
+        for pack in &packs {
+            loop_executor.load_pack_rdf(pack).unwrap();
+        }
+        let prepared = SparqlEvaluator::new().parse_query(query).unwrap();
+        let _loop_result = prepared.on_store(&loop_executor.store).execute().unwrap();
+        let loop_duration = start_loop.elapsed();
+
+        println!(
+            "Batched loading time for 100 packs: {:?}, Unbatched loop loading time: {:?}",
+            batch_duration, loop_duration
+        );
     }
 
     /// A literal containing characters that would corrupt a naively-interpolated N-Triples
