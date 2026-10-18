@@ -440,8 +440,7 @@ impl SparqlExecutor {
             .map_err(|e| {
                 Error::Other(format!(
                     "Failed to parse/insert batched RDF for {} packs: {}",
-                    num_loaded,
-                    e
+                    num_loaded, e
                 ))
             })?;
 
@@ -451,8 +450,7 @@ impl SparqlExecutor {
 
         info!(
             "Loaded {} total triples across {} packs in batch",
-            total_triples,
-            num_loaded
+            total_triples, num_loaded
         );
 
         Ok(())
