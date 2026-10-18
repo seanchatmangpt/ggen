@@ -432,6 +432,7 @@ impl SparqlExecutor {
         }
 
         let total_triples = all_triples.len();
+        let num_loaded = loaded_ids.len();
         let document = all_triples.join("\n");
 
         self.store
@@ -439,7 +440,7 @@ impl SparqlExecutor {
             .map_err(|e| {
                 Error::Other(format!(
                     "Failed to parse/insert batched RDF for {} packs: {}",
-                    loaded_ids.len(),
+                    num_loaded,
                     e
                 ))
             })?;
@@ -451,7 +452,7 @@ impl SparqlExecutor {
         info!(
             "Loaded {} total triples across {} packs in batch",
             total_triples,
-            loaded_ids.len()
+            num_loaded
         );
 
         Ok(())
