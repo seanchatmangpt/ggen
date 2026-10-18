@@ -258,14 +258,13 @@ async fn test_btree_index_performance() {
         CREATE INDEX idx_search_term ON search_data USING btree (search_term);
     "#).execute(&pool).await.unwrap();
 
-    // Insert 10,000 records
-    for i in 0..10_000 {
-        sqlx::query("INSERT INTO search_data (search_term) VALUES ($1)")
-            .bind(format!("term_{}", i))
-            .execute(&pool)
-            .await
-            .unwrap();
-    }
+    // Insert 10,000 records using batch insert (UNNEST array)
+    let terms: Vec<String> = (0..10_000).map(|i| format!("term_{}", i)).collect();
+    sqlx::query("INSERT INTO search_data (search_term) SELECT * FROM UNNEST($1::text[])")
+        .bind(&terms)
+        .execute(&pool)
+        .await
+        .unwrap();
 
     // Measure query performance with index
     let start = Instant::now();
@@ -602,15 +601,18 @@ async fn test_composite_index() {
         CREATE INDEX idx_orders_user_status ON orders (user_id, status);
     "#).execute(&pool).await.unwrap();
 
-    // Insert test data
-    for i in 1..=100 {
-        sqlx::query("INSERT INTO orders (user_id, status) VALUES ($1, $2)")
-            .bind(i % 10)
-            .bind(if i % 2 == 0 { "completed" } else { "pending" })
-            .execute(&pool)
-            .await
-            .unwrap();
-    }
+    // Insert test data using UNNEST batch insert
+    let user_ids: Vec<i32> = (1..=100).map(|i| i % 10).collect();
+    let statuses: Vec<&str> = (1..=100)
+        .map(|i| if i % 2 == 0 { "completed" } else { "pending" })
+        .collect();
+
+    sqlx::query("INSERT INTO orders (user_id, status) SELECT * FROM UNNEST($1::int[], $2::text[])")
+        .bind(&user_ids)
+        .bind(&statuses)
+        .execute(&pool)
+        .await
+        .unwrap();
 
     // Query using composite index
     let start = Instant::now();
