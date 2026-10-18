@@ -601,15 +601,18 @@ async fn test_composite_index() {
         CREATE INDEX idx_orders_user_status ON orders (user_id, status);
     "#).execute(&pool).await.unwrap();
 
-    // Insert test data
-    for i in 1..=100 {
-        sqlx::query("INSERT INTO orders (user_id, status) VALUES ($1, $2)")
-            .bind(i % 10)
-            .bind(if i % 2 == 0 { "completed" } else { "pending" })
-            .execute(&pool)
-            .await
-            .unwrap();
-    }
+    // Insert test data using UNNEST batch insert
+    let user_ids: Vec<i32> = (1..=100).map(|i| i % 10).collect();
+    let statuses: Vec<&str> = (1..=100)
+        .map(|i| if i % 2 == 0 { "completed" } else { "pending" })
+        .collect();
+
+    sqlx::query("INSERT INTO orders (user_id, status) SELECT * FROM UNNEST($1::int[], $2::text[])")
+        .bind(&user_ids)
+        .bind(&statuses)
+        .execute(&pool)
+        .await
+        .unwrap();
 
     // Query using composite index
     let start = Instant::now();
