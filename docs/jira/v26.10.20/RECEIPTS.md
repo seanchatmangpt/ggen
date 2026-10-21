@@ -1,5 +1,18 @@
 # v26.10.20 Integration Receipt (wave 2 + dialect wave)
 
+**RELEASED (2026-10-20/21):**
+- Pushed: graphlaw main 2798b61; ggen wave landed via PR #819 (MERGED),
+  main = b6c170b98 (direct main pushes are ruleset-blocked — PR path only).
+- Published to crates.io: graphlaw 26.10.13, ggen-abb-sbb 26.10.12,
+  ggen-config 26.10.12, ggen-marketplace 26.10.12, ggen-graph 26.10.12,
+  ggen-engine 26.10.12, ggen 26.10.12. Ladder complete, in dependency order.
+- Late packaging finds (fixed + committed in-wave): caret req resolved
+  registry ggen-graph 26.15.2 (stale train) → exact-pin =26.10.12;
+  templates/ missing from engine tarball (court include_str!) → include
+  added; generated/ modules untracked in VCS → force-added (fresh-clone
+  E0583 closed at the git layer, not just packaging).
+
+
 **FINAL STATE (all lanes landed):** `just pre-commit` exit 0 — 20 gates GREEN,
 1723 tests passed, 194s hot (H07 run 7). TECH-DEBT-001 (cheat-scan ~464
 findings) and TECH-DEBT-002 (workspace clippy errors) both CLOSED during
