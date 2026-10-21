@@ -172,7 +172,7 @@ sha2 = "0.10"
 chrono = { workspace = true } # pack_lock_determinism_court: stamping LockedPack.installed_at
 insta = { version = "1", features = ["json"] }
 proptest = "1"
-criterion = { version = "0.7", features = ["html_reports"] }
+criterion = { version = "0.8", features = ["html_reports"] }
 divan = "0.1"
 
 [[bin]]
