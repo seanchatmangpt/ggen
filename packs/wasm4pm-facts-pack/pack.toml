@@ -20,3 +20,11 @@ description = "Admitted wasm4pm graph facts: 55 compat:CognitionBreed and 60 pi:
 [capabilities]
 provides = ["urn:ggen:pack:wasm4pm-facts-pack"]
 requires = []
+
+[[capabilities.dialects]]
+glob = "*.ttl"
+dialect = "turtle"
+
+[[capabilities.dialects]]
+glob = "*.n3"
+dialect = "n3"

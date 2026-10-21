@@ -323,6 +323,7 @@ fn annotated_pack(id: &str, packages: &[&str], provides: &[&str], requires: &[&s
             types: None,
             provides: Some(provides.iter().map(|s| s.to_string()).collect()),
             requires: Some(requires.iter().map(|s| s.to_string()).collect()),
+            dialects: Vec::new(),
         }),
     }
 }

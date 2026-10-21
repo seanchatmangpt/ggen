@@ -557,6 +557,11 @@ pub(crate) fn run(root: &Path, manifest: &GgenManifest, opts: SyncOptions) -> Re
                     extra_ontology_paths: Vec::new(),
                     template_paths: Vec::new(),
                     lock: false,
+                    // Minimal unblock (lane V01, disclosed): new `Pack`
+                    // field added for pack.toml dialect declarations; this
+                    // lightweight constructor carries the backward-compatible
+                    // default (`*.ttl -> turtle`).
+                    dialects: crate::pack::default_dialects(),
                 });
             }
         }

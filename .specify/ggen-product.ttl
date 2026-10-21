@@ -812,3 +812,13 @@ prod:fm_CONFIG_14 a prod:DiagnosticCode ;
     prod:family "CONFIG" ;
     prod:number "14"^^xsd:integer ;
     prod:citation "crates/ggen-engine/src/sync.rs:1532" .
+
+prod:fm_GRAPH_14 a prod:DiagnosticCode ;
+    prod:family "GRAPH" ;
+    prod:number "14"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/graph.rs:1397" .
+
+prod:fm_PACK_21 a prod:DiagnosticCode ;
+    prod:family "PACK" ;
+    prod:number "21"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/pack.rs:192" .

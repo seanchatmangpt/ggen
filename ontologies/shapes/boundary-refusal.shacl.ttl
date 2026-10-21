@@ -1,0 +1,341 @@
+@prefix sh:    <http://www.w3.org/ns/shacl#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix owl:   <http://www.w3.org/2002/07/owl#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix br:    <https://ggen.io/ontology/boundary-refusal#> .
+
+# ---------------------------------------------------------------------------
+# TypedBoundaryRefusal registry (v26.10.20, wave-1 lane L13)
+#
+# Canonical vocabulary for typed boundary refusals: every refusal code emitted
+# across ggen surfaces (envelope, lease, court, census) is registered here with
+# a fixture IRI pointing at the court/test that witnesses the refusal.
+# scripts/gen_boundary_refusals.py SPARQLs this file to generate
+# docs/BOUNDARY_REFUSALS.md and verify enum<->TTL parity.
+#
+# Surfaces declare their code prefixes; a SPARQL constraint refuses any
+# individual whose code does not start with one of its surface's declared
+# prefixes (closure: a code cannot migrate surfaces silently).
+# ---------------------------------------------------------------------------
+
+<https://ggen.io/ontology/boundary-refusal>
+    a owl:Ontology ;
+    dcterms:title "Typed Boundary Refusal Registry Shapes" ;
+    dcterms:description "SHACL shape + individual registry for typed boundary refusal codes across ggen surfaces." ;
+    owl:versionInfo "1.0" .
+
+# ---------------------------------------------------------------------------
+# Classes
+# ---------------------------------------------------------------------------
+
+br:BoundaryRefusal a rdfs:Class ;
+    rdfs:label "BoundaryRefusal" ;
+    rdfs:comment "A registered typed refusal code on a boundary surface." .
+
+br:Surface a rdfs:Class ;
+    rdfs:label "Refusal Surface" ;
+    rdfs:comment "A boundary surface (envelope, lease, court, census) that emits typed refusals." .
+
+# ---------------------------------------------------------------------------
+# Surface individuals with declared code prefixes
+# ---------------------------------------------------------------------------
+
+br:surface-envelope a br:Surface ;
+    rdfs:label "envelope" ;
+    br:name "envelope" ;
+    br:codePrefix "E-ENVELOPE" ;
+    rdfs:comment "FM envelope refusals (ggen-engine error.rs, sync.rs)." .
+
+br:surface-lease a br:Surface ;
+    rdfs:label "lease" ;
+    br:name "lease" ;
+    br:codePrefix "REFUSED" ;
+    rdfs:comment "Lease/admission refusals (ggen-abb-sbb Refusal enum; non-ABB mirrors FM-WRITE-012)." .
+
+br:surface-court a br:Surface ;
+    rdfs:label "court" ;
+    br:name "court" ;
+    br:codePrefix "VACUOUS", "CONTROL", "RESTORE", "WITNESS" ;
+    rdfs:comment "Adversarial-court refusals (replay/shim courts; exit 1=VACUOUS GATE, 2=COURT_BLOCKED, 3=SKIP-loud)." .
+
+br:surface-dialect a br:Surface ;
+    rdfs:label "dialect" ;
+    br:name "dialect" ;
+    br:codePrefix "FD-" ;
+    rdfs:comment "Input-dialect refusals (v26.10.20 dialect slice 1, lane V02): undeclared dialects, disallowed dialect features, malformed dialect syntax, remote contexts." .
+
+br:surface-parse a br:Surface ;
+    rdfs:label "parse" ;
+    br:name "parse" ;
+    br:codePrefix "E-PARSE" ;
+    rdfs:comment "Structured RDF parse refusals (v26.10.20 gap-closure lane H15, from V15): N3/Turtle/N-Triples syntax errors crossing the LawEngine seam, formatted by law_engine.rs's E-PARSE helpers." .
+
+br:surface-census a br:Surface ;
+    rdfs:label "census" ;
+    br:name "census" ;
+    br:codePrefix "CENSUS" ;
+    rdfs:comment "Test-census refusals (compile-abort vs real-failure distinction, W672)." .
+
+# ---------------------------------------------------------------------------
+# BoundaryCrossingShape — closed shape over refusal individuals
+# ---------------------------------------------------------------------------
+
+br:BoundaryCrossingShape
+    a sh:NodeShape ;
+    sh:name "Boundary Crossing Shape" ;
+    sh:description "Every registered refusal code must declare its surface, input class, fixture IRI, retryability, owner, and fix hint. Codes must carry their surface's declared prefix." ;
+    sh:targetClass br:BoundaryRefusal ;
+    sh:closed true ;
+    sh:severity sh:Violation ;
+    sh:ignoredProperties ( rdf:type rdfs:label br:seeAlso ) ;
+
+    sh:property [
+        sh:name     "surface-required" ;
+        sh:path     br:surface ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern  "^[a-z][a-z0-9-]*$" ;
+        sh:message  "Exactly one br:surface literal matching ^[a-z][a-z0-9-]*$ is required (e.g. \"envelope\", \"lease\", \"court\", \"census\")." ;
+        sh:severity sh:Violation ;
+    ] ;
+
+    sh:property [
+        sh:name     "inputClass-required" ;
+        sh:path     br:inputClass ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:message  "Exactly one br:inputClass IRI is required — the native typed home of the refusal (enum variant / error variant)." ;
+        sh:severity sh:Violation ;
+    ] ;
+
+    sh:property [
+        sh:name     "code-required" ;
+        sh:path     br:code ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern  "^[A-Z][A-Z0-9]*((-[A-Z0-9]+)|(_[A-Z0-9]+))*$" ;
+        sh:message  "Exactly one br:code literal is required: uppercase segments joined by _ (REFUSED_STALE_LEASE) or - (E-ENVELOPE-UNDECLARED envelope style). Note: the plan's base pattern ^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$ is extended with dash segments because the L13 vocabulary decision canonically names E-ENVELOPE-UNDECLARED; generated enum identifiers map - to _." ;
+        sh:severity sh:Violation ;
+    ] ;
+
+    sh:property [
+        sh:name     "fixture-required" ;
+        sh:path     br:fixture ;
+        sh:minCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:message  "At least one br:fixture IRI is required — the court/test file that witnesses this refusal (a refusal with no fixture is unverified by construction)." ;
+        sh:severity sh:Violation ;
+    ] ;
+
+    sh:property [
+        sh:name     "retryable-required" ;
+        sh:path     br:retryable ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:boolean ;
+        sh:message  "Exactly one br:retryable xsd:boolean is required." ;
+        sh:severity sh:Violation ;
+    ] ;
+
+    sh:property [
+        sh:name     "owner-required" ;
+        sh:path     br:owner ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message  "Exactly one br:owner literal is required (owning lane/crate)." ;
+        sh:severity sh:Violation ;
+    ] ;
+
+    sh:property [
+        sh:name     "fixHint-required" ;
+        sh:path     br:fixHint ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message  "Exactly one br:fixHint literal is required — the typed repair path for the refusal." ;
+        sh:severity sh:Violation ;
+    ] ;
+
+    # Closure law: code prefix must match the surface's declared prefixes.
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "Refusal code must start with one of its surface's declared br:codePrefix values." ;
+        sh:select """
+            PREFIX br: <https://ggen.io/ontology/boundary-refusal#>
+            SELECT $this ?code ?surfaceName
+            WHERE {
+                $this br:code ?code ;
+                      br:surface ?surfaceName .
+                FILTER NOT EXISTS {
+                    ?surface a br:Surface ;
+                             br:name ?surfaceName ;
+                             br:codePrefix ?prefix .
+                    FILTER(STRSTARTS(?code, ?prefix))
+                }
+            }
+        """ ;
+    ] .
+
+# ---------------------------------------------------------------------------
+# Registered refusal individuals (wave-1: L13 registry)
+# ---------------------------------------------------------------------------
+
+br:E-ENVELOPE-UNDECLARED a br:BoundaryRefusal ;
+    rdfs:label "E-ENVELOPE-UNDECLARED" ;
+    br:code "E-ENVELOPE-UNDECLARED" ;
+    br:surface "envelope" ;
+    br:inputClass br:EnvelopeUndeclared ;
+    br:fixture <file://crates/ggen-engine/tests/envelope_refusal_court.rs> ;
+    br:retryable false ;
+    br:owner "A02" ;
+    br:fixHint "Declare the missing surface in the FM envelope CapTable and re-run sync; the envelope constructor fm_() refuses undeclared surfaces fail-closed." ;
+    br:seeAlso "docs/jira/v26.10.20/RESOLUTIONS.md" .
+
+br:REFUSED_STALE_LEASE a br:BoundaryRefusal ;
+    rdfs:label "REFUSED_STALE_LEASE" ;
+    br:code "REFUSED_STALE_LEASE" ;
+    br:surface "lease" ;
+    br:inputClass br:Refusal ;
+    br:fixture <file://crates/ggen-abb-sbb/tests/property_admission_test.rs> ;
+    br:retryable true ;
+    br:owner "A07" ;
+    br:fixHint "Refresh the generation counter from .ggen-v2/receipt-log.jsonl tail and re-admit with Request.generation > StaleLease.baseline; non-ABB mirror is FM-WRITE-012." ;
+    br:seeAlso "docs/jira/v26.10.20/RESOLUTIONS.md" .
+
+br:VACUOUS_COURT a br:BoundaryRefusal ;
+    rdfs:label "VACUOUS_COURT" ;
+    br:code "VACUOUS_COURT" ;
+    br:surface "court" ;
+    br:inputClass br:CourtVerdict ;
+    br:fixture <file://crates/ggen-engine/tests/replay_court_test.rs> ;
+    br:retryable false ;
+    br:owner "A12" ;
+    br:fixHint "A court that cannot flip is vacuous: harden the mutation or the assertion until the court exits 1 (VACUOUS GATE) on the anti-vacuity shim." ;
+    br:seeAlso "docs/jira/v26.10.20/RESOLUTIONS.md" .
+
+br:CONTROL_REFUSED a br:BoundaryRefusal ;
+    rdfs:label "CONTROL_REFUSED" ;
+    br:code "CONTROL_REFUSED" ;
+    br:surface "court" ;
+    br:inputClass br:CourtVerdict ;
+    br:fixture <file://crates/ggen-engine/tests/replay_court_test.rs> ;
+    br:retryable true ;
+    br:owner "A12" ;
+    br:fixHint "Positive-control run refused: verify the control fixture matches the court's expected baseline (sha256) before re-running; a refused control means the court harness, not the subject, is broken." ;
+    br:seeAlso "docs/jira/v26.10.20/RESOLUTIONS.md" .
+
+br:RESTORE_TAMPER a br:BoundaryRefusal ;
+    rdfs:label "RESTORE_TAMPER" ;
+    br:code "RESTORE_TAMPER" ;
+    br:surface "court" ;
+    br:inputClass br:CourtVerdict ;
+    br:fixture <file://crates/ggen-engine/tests/replay_court_test.rs> ;
+    br:retryable false ;
+    br:owner "A13" ;
+    br:fixHint "Restore-detection fired: the post-court sha256 differs from baseline. Diff against the tampered copy, find the non-restoring mutation, and fail-closed — never proceed on a corrupted restore." ;
+    br:seeAlso "docs/jira/v26.10.20/RESOLUTIONS.md" .
+
+br:WITNESS_STALE a br:BoundaryRefusal ;
+    rdfs:label "WITNESS_STALE" ;
+    br:code "WITNESS_STALE" ;
+    br:surface "court" ;
+    br:inputClass br:CourtVerdict ;
+    br:fixture <file://crates/ggen-engine/tests/replay_court_test.rs> ;
+    br:retryable true ;
+    br:owner "A13" ;
+    br:fixHint "Witness receipt predates the shim mtime (KD-COVERS flip gate): re-run the PASS witness on the current subject so the receipt postdates the shim, then re-apply the flip." ;
+    br:seeAlso "docs/jira/v26.10.20/RESOLUTIONS.md" .
+
+br:CENSUS_STALE a br:BoundaryRefusal ;
+    rdfs:label "CENSUS_STALE" ;
+    br:code "CENSUS_STALE" ;
+    br:surface "census" ;
+    br:inputClass br:CensusVerdict ;
+    br:fixture <file://scripts/ci/census_tool.py> ;
+    br:retryable true ;
+    br:owner "A17" ;
+    br:fixHint "Census output predates the current tree state: distinguish compile-abort (exit 1, 0 tests executed — report the broken file) from real failures, then re-run the census." ;
+    br:seeAlso "docs/jira/v26.10.20/RESOLUTIONS.md" .
+
+br:FD-UNDECLARED_INPUT_DIALECT a br:BoundaryRefusal ;
+    rdfs:label "FD-UNDECLARED_INPUT_DIALECT" ;
+    br:code "FD-UNDECLARED_INPUT_DIALECT" ;
+    br:surface "dialect" ;
+    br:inputClass br:DialectRefusal ;
+    br:fixture <file://crates/ggen-engine/tests/dialect_refusal_court.rs> ;
+    br:retryable true ;
+    br:owner "V02" ;
+    br:fixHint "The input names a dialect not present in the declared dialect registry: register the dialect (or correct its name) and re-admit; retryable because declaring the dialect makes the same input lawful." ;
+    br:seeAlso "docs/jira/v26.10.20/RESOLUTIONS.md" .
+
+br:FD-DIALECT_FEATURE_DISALLOWED a br:BoundaryRefusal ;
+    rdfs:label "FD-DIALECT_FEATURE_DISALLOWED" ;
+    br:code "FD-DIALECT_FEATURE_DISALLOWED" ;
+    br:surface "dialect" ;
+    br:inputClass br:DialectRefusal ;
+    br:fixture <file://crates/ggen-engine/tests/dialect_refusal_court.rs> ;
+    br:retryable false ;
+    br:owner "V02" ;
+    br:fixHint "The input uses a feature the named dialect does not allow: rewrite the input within the dialect's feature set or switch to a dialect that admits the feature — never widen the dialect to accept the input silently." ;
+    br:seeAlso "docs/jira/v26.10.20/RESOLUTIONS.md" .
+
+br:FD-MALFORMED_SYNTAX a br:BoundaryRefusal ;
+    rdfs:label "FD-MALFORMED_SYNTAX" ;
+    br:code "FD-MALFORMED_SYNTAX" ;
+    br:surface "dialect" ;
+    br:inputClass br:DialectRefusal ;
+    br:fixture <file://crates/ggen-engine/tests/dialect_refusal_court.rs> ;
+    br:retryable false ;
+    br:owner "V02" ;
+    br:fixHint "The input fails the dialect's grammar: fix the syntax at the reported offset and re-admit; a parse error is not retryable as-is — the input must change." ;
+    br:seeAlso "docs/jira/v26.10.20/RESOLUTIONS.md" .
+
+br:FD-REMOTE_CONTEXT_FORBIDDEN a br:BoundaryRefusal ;
+    rdfs:label "FD-REMOTE_CONTEXT_FORBIDDEN" ;
+    br:code "FD-REMOTE_CONTEXT_FORBIDDEN" ;
+    br:surface "dialect" ;
+    br:inputClass br:DialectRefusal ;
+    br:fixture <file://crates/ggen-engine/tests/dialect_refusal_court.rs> ;
+    br:retryable false ;
+    br:owner "V02" ;
+    br:fixHint "The input references a remote context (network IRI dereference) where only local contexts are admitted: vendor the context locally and reference it by local path — remote resolution is refused fail-closed." ;
+    br:seeAlso "docs/jira/v26.10.20/RESOLUTIONS.md" .
+
+br:E-PARSE-N3 a br:BoundaryRefusal ;
+    rdfs:label "E-PARSE-N3" ;
+    br:code "E-PARSE-N3" ;
+    br:surface "parse" ;
+    br:inputClass br:ParseRefusal ;
+    br:fixture <file://crates/ggen-engine/tests/law_engine_parse_errors_test.rs> ;
+    br:retryable true ;
+    br:owner "V15" ;
+    br:fixHint "N3 input fails the Eyeron parser: fix the syntax at the reported line:col; the LawEngine formats the refusal through format_eyeron_parse (law_engine.rs) — retryable because correcting the input makes it parse." ;
+    br:seeAlso "docs/jira/v26.10.20/RESOLUTIONS.md" .
+
+br:E-PARSE-TURTLE a br:BoundaryRefusal ;
+    rdfs:label "E-PARSE-TURTLE" ;
+    br:code "E-PARSE-TURTLE" ;
+    br:surface "parse" ;
+    br:inputClass br:ParseRefusal ;
+    br:fixture <file://crates/ggen-engine/tests/law_engine_parse_errors_test.rs> ;
+    br:retryable true ;
+    br:owner "V15" ;
+    br:fixHint "Turtle input fails the PurRDF parser: fix the syntax at the reported line:col; the LawEngine formats the refusal through format_rdf_diagnostic (law_engine.rs) — retryable because correcting the input makes it parse." ;
+    br:seeAlso "docs/jira/v26.10.20/RESOLUTIONS.md" .
+
+br:E-PARSE-NTRIPLES a br:BoundaryRefusal ;
+    rdfs:label "E-PARSE-NTRIPLES" ;
+    br:code "E-PARSE-NTRIPLES" ;
+    br:surface "parse" ;
+    br:inputClass br:ParseRefusal ;
+    br:fixture <file://crates/ggen-engine/tests/law_engine_parse_errors_test.rs> ;
+    br:retryable true ;
+    br:owner "V15" ;
+    br:fixHint "N-Triples input fails the PurRDF parser: fix the syntax at the reported line:col; the LawEngine formats the refusal through format_rdf_diagnostic (law_engine.rs) — retryable because correcting the input makes it parse." ;
+    br:seeAlso "docs/jira/v26.10.20/RESOLUTIONS.md" .

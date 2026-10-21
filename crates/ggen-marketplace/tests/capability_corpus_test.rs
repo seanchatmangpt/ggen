@@ -599,10 +599,16 @@ fn strata_five_pack_capability_chain_composes_and_respects_order() {
         .map(|p| p.pack_file.clone())
         .collect();
     strata.sort_by(|a, b| a.pack.id.cmp(&b.pack.id));
+    // Count updated 6 -> 16 (F04 closure lane, 2026-10-20): 10 real strata
+    // packs joined the marketplace corpus — strata-audit-pack, strata-chain-pack,
+    // strata-consensus-pack, strata-governance-pack, strata-hash-pack,
+    // strata-ledger-pack, strata-net-pack, strata-pn64-pack, strata-store-pack,
+    // strata-tx-pack — on top of the original 6 (protocol, temprun, cas,
+    // signer, stratus, valve). The full 16-pack set must still compose.
     assert_eq!(
         strata.len(),
-        6,
-        "expected the 5 strata packs in the bound corpus, got {:?}",
+        16,
+        "expected the 16 strata packs in the bound corpus, got {:?}",
         strata.iter().map(|p| &p.pack.id).collect::<Vec<_>>()
     );
 

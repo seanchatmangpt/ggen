@@ -1,0 +1,53 @@
+# bounded-resource-envelope-pack ontology — v26.10.20 pattern pack (lane A20).
+# sourceText below is a BYTE-EXACT transcription of the cited file at the cited
+# line range, located by symbol on the 2026-10-20 tree (concurrent lanes shift
+# line numbers; prov:sha256 over the exact quoted bytes is the pin). Verify:
+#   sed -n 'LO,HI;p' <file> | shasum -a 256   # compare to prov:sha256
+#
+# NOTE: lane order cited abb-sbb lib.rs:598 for DEFAULT_MAX_ARTIFACTS; the real
+# home on the current tree is the range recorded below. Symbol-located,
+# checksum-pinned.
+@prefix res: <http://seanchatmangpt.github.io/packs/bounded-resource-envelope#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+res:Envelope a rdfs:Class ; rdfs:label "Bounded resource envelope" ;
+    rdfs:comment "Every actuation surface declares its resource ceilings as named cap constants; a run is admitted only inside the declared envelope. Caps compose by min(), so a default can only tighten, never loosen, a declared contract." .
+
+res:SyncCapConstants
+    a res:SourceTranscript ;
+    rdfs:label "crates/ggen-engine/src/sync.rs:247-260" ;
+    prov:atLocation "crates/ggen-engine/src/sync.rs" ;
+    prov:startedAtLine "247"^^xsd:integer ;
+    prov:endedAtLine "260"^^xsd:integer ;
+    prov:sha256 "2d4780ac1e1781ba066215764fb2edf7a14e071c0b6721e32a0056e70c7b71ff" ;
+    res:sourceText """/// Maximum rows admitted from any one named SPARQL result. This bounds
+/// semantic fan-out before Tera rendering or shell/filesystem actuation.
+/// Built-in default only: an envelope-declared run resolves its effective
+/// ceiling through `crate::envelope::extract_caps`/`cap_for` (tighten-only).
+pub const MAX_QUERY_RESULT_ROWS: usize = crate::envelope::DEFAULT_MAX_QUERY_RESULT_ROWS;
+
+/// Maximum materialized outputs admitted in one sync, including the
+/// engine-owned module aggregator. Built-in default only — see
+/// [`MAX_QUERY_RESULT_ROWS`].
+pub const MAX_PENDING_OUTPUTS: usize = crate::envelope::DEFAULT_MAX_PENDING_OUTPUTS;
+
+/// Maximum combined rendered body bytes admitted across one sync.
+/// Built-in default only — see [`MAX_QUERY_RESULT_ROWS`].
+pub const MAX_TOTAL_RENDERED_BYTES: usize = crate::envelope::DEFAULT_MAX_TOTAL_RENDERED_BYTES;
+""" .
+
+res:AbbSbbDefaultMaxArtifacts
+    a res:SourceTranscript ;
+    rdfs:label "crates/ggen-abb-sbb/src/lib.rs:34-38" ;
+    prov:atLocation "crates/ggen-abb-sbb/src/lib.rs" ;
+    prov:startedAtLine "34"^^xsd:integer ;
+    prov:endedAtLine "38"^^xsd:integer ;
+    prov:sha256 "43a18e6cb4e27998aba60844957d87fee6e33746b46a7a3d968c857695aa554d" ;
+    res:sourceText """/// Default artifact ceiling used when a caller supplies no [`EnvelopeCaps`]
+/// override. A contract's own `max_artifacts` always additionally caps (the
+/// effective ceiling is the minimum of the two), so this default can only
+/// tighten, never loosen, a declared contract.
+pub const DEFAULT_MAX_ARTIFACTS: usize = 64;
+""" .

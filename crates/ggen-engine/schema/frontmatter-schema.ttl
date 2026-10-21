@@ -51,7 +51,20 @@ ggenspec:Frontmatter
         ggenspec:Frontmatter-rdf ,
         ggenspec:Frontmatter-rdf_inline ,
         ggenspec:Frontmatter-prefixes ,
-        ggenspec:Frontmatter-base .
+        ggenspec:Frontmatter-base ,
+        ggenspec:Frontmatter-receipt_generation ,
+        ggenspec:Frontmatter-envelope ,
+        ggenspec:Frontmatter-canonical_identity .
+
+ggenspec:Frontmatter-receipt_generation
+    a ggenspec:Field ; ggenspec:name "receipt_generation" ; ggenspec:type xsd:nonNegativeInteger ;
+    ggenspec:required false ;
+    rdfs:comment "Receipt generation epoch carried by the write request (FreshEpochLease, v26.10.20 lane A06/L08). Set by the sync pipeline from the admission receipt — never authored in template frontmatter. Defaults to 0." .
+
+ggenspec:Frontmatter-envelope
+    a ggenspec:Field ; ggenspec:name "envelope" ; ggenspec:type xsd:string ;
+    ggenspec:required false ;
+    rdfs:comment "Envelope IRI governing this template's sync-run capability caps (v26.10.20 wave-2, lane A05). Absent runs under the built-in Fortune-5 ceilings; a declared IRI resolves tighten-only cap overrides through crate::envelope::extract_caps against <root>/.ggen-v2/envelope.json." .
 
 ggenspec:Frontmatter-to
     a ggenspec:Field ; ggenspec:name "to" ; ggenspec:type xsd:string ;
@@ -192,6 +205,27 @@ ggenspec:Frontmatter-base
     a ggenspec:Field ; ggenspec:name "base" ; ggenspec:type xsd:string ;
     ggenspec:required false ;
     rdfs:comment "RDF base IRI (@base) prepended before parsing rdf:/rdf_inline: content." .
+
+ggenspec:Frontmatter-canonical_identity
+    a ggenspec:Field ; ggenspec:name "canonical_identity" ; ggenspec:type ggenspec:CanonicalIdentity ;
+    ggenspec:required false ;
+    rdfs:comment "Optional canonical-identity declaration (v26.10.20, canon: vocabulary per L04): opts this template's subject into a reproducible canonical form and a domain-separated BLAKE3 digest over it. Defaults to absent (no canonical identity computed)." .
+
+ggenspec:CanonicalIdentity
+    a ggenspec:ObjectType ;
+    ggenspec:requiredField "form" , "digest" ;
+    rdfs:comment "form selects the canonical serialization (rdfc1 | sortedKeyJson | btreeOrder); digest pins the digest recipe." .
+
+ggenspec:CanonicalForm
+    a ggenspec:EnumType ;
+    ggenspec:enumValue "rdfc1" , "sortedKeyJson" , "btreeOrder" ;
+    rdfs:comment "rdfc1: RDF Dataset Canonicalization (RDFC-1.0, W3C); sortedKeyJson: JSON with lexicographically sorted keys; btreeOrder: ggen BTreeMap iteration order." .
+
+ggenspec:DigestSpec
+    a ggenspec:ObjectType ;
+    ggenspec:requiredField "algo" , "domain" ;
+    ggenspec:optionalField "keyed" ;
+    rdfs:comment "algo: only blake3 is defined. domain: mandatory domain-separation tag mixed into the hash (domain-separated digests differ across domains with identical payloads). keyed: whether a BLAKE3 key is supplied (default false)." .
 
 ggenspec:MapOfString  a ggenspec:MapType ; ggenspec:valueType xsd:string .
 ggenspec:ListOfString a ggenspec:ListType ; ggenspec:valueType xsd:string .

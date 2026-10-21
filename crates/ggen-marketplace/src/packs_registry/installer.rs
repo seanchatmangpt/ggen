@@ -213,7 +213,7 @@ impl PackInstaller {
                     path: install_path.join(&pack.id),
                 },
                 integrity: None,
-                installed_at: chrono::Utc::now(),
+                installed_at: None,
                 dependencies: pack.dependencies.iter().map(|d| d.pack_id.clone()).collect(),
             };
 

@@ -181,6 +181,10 @@
     "standing": {
       "type": "string",
       "pattern": "^(ALIVE|PARTIAL_ALIVE|BLOCKED|BUILD_BROKEN|UNSUPPORTED|REFUSED:[A-Z0-9_]+)$"
+    },
+    "generation": {
+      "type": "integer",
+      "minimum": 0
     }
   }
 }

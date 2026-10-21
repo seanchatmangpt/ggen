@@ -45,12 +45,93 @@ pub(crate) struct N3Run {
     pub rules: usize,
 }
 
+// ---- structured parse-refusal formatting (E-PARSE registry prefix) ----
+//
+// `E-PARSE-{DIALECT}` is registered in the boundary-refusal registry (V02
+// slice; surface=parse, codes E-PARSE-N3 / E-PARSE-TURTLE /
+// E-PARSE-NTRIPLES). Every graphlaw parse refusal crossing the `LawEngine`
+// seam is formatted through the helpers below —
+// `[E-PARSE-{DIALECT}] {reason} at {line}:{col}: {message}` (position
+// omitted when the owning engine reports none) — instead of the previous
+// lossy `{:?}`/`Display` stringification, which discarded the structured
+// `RdfDiagnostic`/`EyeronError`/`Refusal` fields. V07's `ParseRefusal`
+// variant has NOT landed in the sibling graphlaw checkout (checked
+// 2026-10-20); these helpers work against the existing `dialect::Refusal`
+// shape, which carries no line/col.
+
+fn offset_line_col(source: &str, offset: usize) -> (usize, usize) {
+    let mut line = 1usize;
+    let mut col = 1usize;
+    for (i, ch) in source.char_indices() {
+        if i >= offset {
+            break;
+        }
+        if ch == '\n' {
+            line += 1;
+            col = 1;
+        } else {
+            col += 1;
+        }
+    }
+    (line, col)
+}
+
+/// Eyeron (N3) parse error → prefixed, positioned message.
+fn format_eyeron_parse(source: &str, err: &n3::EyeronError) -> String {
+    match err.offset {
+        Some(offset) => {
+            let (l, c) = offset_line_col(source, offset);
+            format!("[E-PARSE-N3] syntax error at {l}:{c}: {}", err.message)
+        }
+        None => format!("[E-PARSE-N3] syntax error: {}", err.message),
+    }
+}
+
+/// `PurRDF` diagnostic (Turtle/N-Triples family) → prefixed, positioned message.
+fn format_rdf_diagnostic(dialect: &str, d: &graphlaw::purrdf::RdfDiagnostic) -> String {
+    let detail = d.detail.as_deref().unwrap_or("");
+    if let Some(loc) = &d.location {
+        if let (Some(line), Some(col)) = (loc.line, loc.column) {
+            let base = format!(
+                "[E-PARSE-{dialect}] {} at {line}:{col}: {}",
+                d.code, d.message
+            );
+            return if detail.is_empty() {
+                base
+            } else {
+                format!("{base} ({detail})")
+            };
+        }
+    }
+    format!("[E-PARSE-{dialect}] {}: {}", d.code, d.message)
+}
+
+/// A `graphlaw::dialect::Refusal` (kind/dialect/engine/message; no position)
+/// → prefixed message naming the refusal class and dialect.
+fn format_law_refusal(dialect: &str, r: &graphlaw::dialect::Refusal) -> String {
+    let dialect_name = match r.dialect {
+        Some(d) => match d {
+            graphlaw::dialect::Dialect::N3 => "N3".to_string(),
+            graphlaw::dialect::Dialect::Turtle => "TURTLE".to_string(),
+            graphlaw::dialect::Dialect::NTriples => "NTRIPLES".to_string(),
+            other => format!("{other:?}").to_uppercase(),
+        },
+        None => dialect.to_string(),
+    };
+    let message = if r.message.is_empty() {
+        format!("{:?}", r.kind)
+    } else {
+        format!("{:?}: {}", r.kind, r.message)
+    };
+    format!("[E-PARSE-{dialect_name}] {message}")
+}
+
 fn to_ntriples(n3_text: &str) -> std::result::Result<String, String> {
     if n3_text.trim().is_empty() {
         return Ok(String::new());
     }
     let ds = graphlaw::purrdf::parse_dataset(n3_text.as_bytes(), "text/turtle", None)
-        .map_err(|e| format!("derived facts are not valid Turtle: {e:?}"))?;
+        .map_err(|e| format_rdf_diagnostic("TURTLE", &e))?;
     let bytes = graphlaw::purrdf::serialize_dataset(
         ds.as_ref(),
         "application/n-quads",
@@ -73,7 +154,8 @@ pub(crate) fn n3_run(facts_nt: &str, rules: &[&str]) -> std::result::Result<N3Ru
         text.push_str(rule);
         text.push('\n');
     }
-    let doc = n3::parse_n3(&text, None).map_err(|e| N3Failure::Load(e.to_string()))?;
+    let doc =
+        n3::parse_n3(&text, None).map_err(|e| N3Failure::Load(format_eyeron_parse(&text, &e)))?;
     let options = n3::ReasonerOptions {
         include_explicit: false,
         max_iterations: graphlaw::law::N3_MAX_ITERATIONS,
@@ -107,13 +189,14 @@ pub(crate) fn n3_run(facts_nt: &str, rules: &[&str]) -> std::result::Result<N3Ru
 }
 
 fn parse_state(facts_nt: &str) -> std::result::Result<LawState, String> {
-    LawState::parse(facts_nt.as_bytes(), Dialect::NTriples, None).map_err(|e| e.to_string())
+    LawState::parse(facts_nt.as_bytes(), Dialect::NTriples, None)
+        .map_err(|e| format_law_refusal("NTRIPLES", &e))
 }
 
 /// Validate a `kh:` hook pack document (Turtle) without running it.
 pub(crate) fn hook_pack_check(hook_ttl: &str) -> std::result::Result<(), String> {
-    let pack_state =
-        LawState::parse(hook_ttl.as_bytes(), Dialect::Turtle, None).map_err(|e| e.to_string())?;
+    let pack_state = LawState::parse(hook_ttl.as_bytes(), Dialect::Turtle, None)
+        .map_err(|e| format_law_refusal("TURTLE", &e))?;
     HookPack::load(&pack_state)
         .map(|_| ())
         .map_err(|e| e.to_string())
@@ -139,7 +222,7 @@ pub(crate) fn hooks_apply(
     let mut denied = Vec::new();
     for hook_ttl in hooks {
         let pack_state = LawState::parse(hook_ttl.as_bytes(), Dialect::Turtle, None)
-            .map_err(|e| e.to_string())?;
+            .map_err(|e| format_law_refusal("TURTLE", &e))?;
         let pack = HookPack::load(&pack_state).map_err(|e| e.to_string())?;
         let m = pack.materialize(&state).map_err(|e| e.to_string())?;
         for v in &m.verdicts {
@@ -316,6 +399,14 @@ impl LawEngine for GraphLawEngine {
     }
 
     fn validate_shacl(&self, facts_ntriples: &str, shapes_ttl: &str) -> Result<ShaclOutcome> {
+        // Envelope-shape gate (v26.10.20 wave-2): before SHACL runs, every
+        // envelope reference in the fact graph must be declared. An
+        // undeclared envelope IRI is a typed E-ENVELOPE-UNDECLARED refusal
+        // (boundary-refusal registry L13, surface=envelope) — never a
+        // silent pass through the shapes evaluation.
+        if let Some(iri) = crate::envelope::undeclared_envelope(facts_ntriples) {
+            return Err(AppError::fm_envelope_undeclared(iri));
+        }
         shacl_check(facts_ntriples, shapes_ttl)
             .map_err(|e| AppError::fm_law(13, format!("SHACL shapes graph refused: {e}")))
     }

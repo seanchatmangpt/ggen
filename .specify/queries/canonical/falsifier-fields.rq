@@ -1,0 +1,44 @@
+# falsifier-fields.rq — enumerate the mutation-falsifier obligations per
+# CanonicalType: one mutant closure per serialized field, plus reordering
+# mutants over sortKeys lists (court lanes L06/A06 consume this).
+#
+# Rows: (type, derivation, field, mutantKind) where mutantKind is
+# "field-flip" for each identity-bearing field value and "sortkey-reorder"
+# for each adjacent sortKeys swap.
+
+PREFIX canon: <urn:ggen:canonical:>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?type ?derivation ?field ?mutantKind
+WHERE {
+  ?type a canon:CanonicalType ;
+        canon:digestKeyDerivation ?derivation ;
+        canon:requiresExhaustiveMutationFalsifier true .
+  {
+    # Form discriminator mutant
+    ?type canon:canonicalForm ?form .
+    BIND("canonicalForm" AS ?field)
+    BIND("field-flip" AS ?mutantKind)
+  }
+  UNION
+  {
+    # Digest derivation domain-separation mutant
+    ?type canon:digestKeyDerivation ?d .
+    BIND("digestKeyDerivation" AS ?field)
+    BIND("field-flip" AS ?mutantKind)
+  }
+  UNION
+  {
+    # Sort-key reordering mutants: swap each adjacent pair in the list
+    ?type canon:sortKeys ?keys .
+    ?keys rdf:rest*/rdf:first ?k1 .
+    ?k1Cell rdf:first ?k1 .
+    ?k1Cell rdf:rest ?k1Rest .
+    ?k1Rest rdf:first ?k2 .
+    FILTER(isLiteral(?k2))
+    BIND(CONCAT("sortKeys[", STR(?k1), ",", STR(?k2), "]") AS ?field)
+    BIND("sortkey-reorder" AS ?mutantKind)
+  }
+}
+ORDER BY ?type ?field

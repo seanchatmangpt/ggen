@@ -148,6 +148,7 @@ fn generate_record(rng: &mut Lcg, index: usize) -> ReceiptRecord {
         );
         if index % 8 == 5 {
             builder = builder.admission_item(AdmissionItem {
+                generation: 0,
                 evidence_id: format!("out/evidence-{index}.txt"),
                 observed_outcome: ObservedOutcome::Fail,
                 decision: AdmissionDecision::Refused,

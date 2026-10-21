@@ -45,7 +45,7 @@
 # inherent to declaring precedence against another pack's hook IRI by name,
 # not a defect unique to this file.
 
-@prefix kh:   <http://seanchatmangpt.github.io/praxis/kh#> .
+@prefix kh:   <http://seanchatmangpt.github.io/graphlaw/kh#> .
 @prefix dfl:  <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#> .
 @prefix smon: <http://seanchatmangpt.github.io/packs/self-monitoring#> .
 

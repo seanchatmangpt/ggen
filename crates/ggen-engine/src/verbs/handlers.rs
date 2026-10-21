@@ -562,19 +562,122 @@ pub fn handle_receipt_verify_in(root: &std::path::Path) -> Result<serde_json::Va
         }
     };
 
-    let mut out = serde_json::json!({
-        "valid": true,
-        "chain_hash": receipt.record.chain_hash_hex,
-        "payload_hash": receipt.record.payload_hash_hex,
-        "graph_hash": receipt.payload.graph_hash,
-        "outputs": receipt.payload.outputs.len(),
-        "signed": signed,
-        "chain_standing": chain_standing.as_str(),
-    });
-    if let Some(v) = signature_valid {
-        out["signature_valid"] = serde_json::json!(v);
+    // 4. Head-vs-log binding (v26.10.20, lane G04 closing A19's gap): the
+    //    receipt head must be the log tail. A head whose chain hash differs
+    //    from the last appended log record certifies a tree that no longer
+    //    exists (stale restore, reverted tamper) and is refused with a typed
+    //    error naming both hashes. A missing/empty log is NOT a failure —
+    //    receipts written before the log existed have nothing to compare
+    //    against — but the skip is loud in the output, never a silent pass.
+    //    Generation is read through A05's `read_receipt_log_generation`
+    //    machinery so there is one tail-parsing implementation.
+    let log_path = root.join(RECEIPT_LOG_REL_PATH);
+    let log_exists = log_path.metadata().is_ok_and(|m| m.len() > 0);
+    if log_exists {
+        let tail_generation = crate::sync::read_receipt_log_generation(root).map_err(exec_err)?;
+        let tail_receipt = read_receipt_log_tail(&log_path)?;
+        if tail_receipt.record.chain_hash_hex != receipt.record.chain_hash_hex {
+            return Err(exec_err(AppError::fm_chain(
+                18,
+                format!(
+                    "receipt invalid: head-vs-log mismatch -- receipt head chain hash {} \
+                     does not equal receipt-log tail chain hash {} at `{}`. The verified \
+                     receipt does not certify the current tree (stale restore or tampered \
+                     head/log). Remediation: re-sync to append the current head, or restore \
+                     the matching head from `receipt history`/git.",
+                    receipt.record.chain_hash_hex,
+                    tail_receipt.record.chain_hash_hex,
+                    log_path.display()
+                ),
+            )));
+        }
+        let mut out = serde_json::json!({
+            "valid": true,
+            "chain_hash": receipt.record.chain_hash_hex,
+            "payload_hash": receipt.record.payload_hash_hex,
+            "graph_hash": receipt.payload.graph_hash,
+            "outputs": receipt.payload.outputs.len(),
+            "signed": signed,
+            "chain_standing": chain_standing.as_str(),
+            "log_head_match": true,
+        });
+        if let Some(v) = signature_valid {
+            out["signature_valid"] = serde_json::json!(v);
+        }
+        if let Some(gen) = tail_generation {
+            out["log_tail_generation"] = serde_json::json!(gen);
+        }
+        Ok(out)
+    } else {
+        eprintln!(
+            "SKIP: no receipt log at `{}` (receipt predates the log or the log was \
+             removed); head-vs-log comparison skipped -- only the receipt's internal \
+             chain/signature checks ran.",
+            log_path.display()
+        );
+        let mut out = serde_json::json!({
+            "valid": true,
+            "chain_hash": receipt.record.chain_hash_hex,
+            "payload_hash": receipt.record.payload_hash_hex,
+            "graph_hash": receipt.payload.graph_hash,
+            "outputs": receipt.payload.outputs.len(),
+            "signed": signed,
+            "chain_standing": chain_standing.as_str(),
+            "log_check": format!(
+                "SKIP: no receipt log at `{}`; head-vs-log comparison skipped",
+                log_path.display()
+            ),
+        });
+        if let Some(v) = signature_valid {
+            out["signature_valid"] = serde_json::json!(v);
+        }
+        Ok(out)
     }
-    Ok(out)
+}
+
+/// Read and deserialize the last non-empty line of the receipt log — the
+/// tail record the head is compared against. Corrupt tail = typed
+/// `[FM-CHAIN-010]` (same code [`crate::sync::read_receipt_log_generation`]
+/// uses), never a guessed comparison.
+///
+/// # Errors
+/// `[FM-CHAIN-010]` when the tail line does not deserialize.
+fn read_receipt_log_tail(log_path: &std::path::Path) -> Result<SyncReceipt> {
+    let raw = std::fs::read_to_string(log_path).map_err(|e| {
+        exec_err(AppError::fm_chain(
+            9,
+            format!(
+                "receipt log `{}` unreadable during head-vs-log comparison: {e}. \
+                 Remediation: fix the file's permissions.",
+                log_path.display()
+            ),
+        ))
+    })?;
+    let tail = raw
+        .lines()
+        .rev()
+        .find(|l| !l.trim().is_empty())
+        .ok_or_else(|| {
+            exec_err(AppError::fm_chain(
+                10,
+                format!(
+                    "receipt log `{}` is empty during head-vs-log comparison; the log tail \
+                 is undecidable. Remediation: re-sync to seed the log.",
+                    log_path.display()
+                ),
+            ))
+        })?;
+    serde_json::from_str(tail).map_err(|e| {
+        exec_err(AppError::fm_chain(
+            10,
+            format!(
+                "receipt-log tail at `{}` does not deserialize ({e}); the head-vs-log \
+                 comparison is undecidable. Remediation: repair or truncate the corrupted \
+                 tail line, then re-run sync.",
+                log_path.display()
+            ),
+        ))
+    })
 }
 
 /// `ggen receipt history` — verify the full chain of sync receipts in

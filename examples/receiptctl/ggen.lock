@@ -22,4 +22,4 @@ content_hash = "blake3:890e96fb3df315b3d8f2fefa1b057d52f1eb8a77f7e1ee18249b46864
 
 [packs.wasm4pm-facts-pack]
 source = "path:../../packs/wasm4pm-facts-pack"
-content_hash = "blake3:ab76d98ed359be541d08816b33953173c58a00db91ef1e2cef209b208acffecb"
+content_hash = "blake3:7531919fb46cd98df03dea287b5683666e1ad3f04e2e1981d1029cecaf87f3a8"

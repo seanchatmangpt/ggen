@@ -924,3 +924,23 @@ cli:DoctorCommand
   dcterms:created "2026-07-21T00:00:00Z" ;
   cli:version "26.15.0" ;
   .
+
+# ============================================================================
+# v26.10.20: VacuityCourtCompiler surface — non-vacuous falsification courts.
+# `ggen court compile --catalog <ttl> --out <dir>` (crates/ggen-cli/src/cmds/court.rs,
+# registered via cmds/mod.rs). Exits: 0 PASS / 1 VACUOUS GATE / 2 COURT_BLOCKED /
+# 3 SKIP-loud.
+# ============================================================================
+
+cli:CourtCommand
+  a cli:Command ;
+  rdfs:label "court" ;
+  rdfs:comment "Compile adversarial falsification courts from vc: mutant catalogs; proves gates fail under sabotage (non-vacuous metrology)" ;
+  cli:category cli:CategoryValidation ;
+  cli:examples """
+    ggen court compile --catalog .specify/gates/my-gate.court.ttl --out .ggen-v2/courts/my-gate
+    """ ;
+  cli:handler "crates/ggen-cli/src/cmds/court.rs" ;
+  dcterms:created "2026-10-20T00:00:00Z" ;
+  cli:version "26.10.20" ;
+  .

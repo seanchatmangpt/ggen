@@ -115,15 +115,32 @@ def tracked_rust_files(root: Path) -> list[Path]:
     """Every `git ls-files`-tracked `*.rs` path under root, resolved to
     absolute paths. Using `git ls-files` (not `Path.glob`) means target/,
     vendored worktrees, and anything else .gitignore'd are excluded for
-    free, and there is no subdirectory to go stale if source moves again."""
+    free, and there is no subdirectory to go stale if source moves again.
+    Outside a git repo (e.g. a test fixture temp dir) returns [] -- the
+    generated-roots pass covers untracked content separately."""
     out = subprocess.run(
         ["git", "ls-files", "*.rs"],
         cwd=root,
         capture_output=True,
         text=True,
-        check=True,
+        check=False,
     )
+    if out.returncode != 0:
+        return []
     return sorted(root / rel for rel in out.stdout.splitlines())
+
+
+def generated_rust_files(root: Path) -> list[Path]:
+    """Every `*.rs` file under root found on disk regardless of git tracking.
+
+    Generated output surfaces (examples/*/src, examples/*/gen/, packs/*/) may
+    be untracked -- `git ls-files` cannot see a file that has not been added,
+    which is exactly when the fail-open shape is cheapest to introduce and
+    most likely to slip through review. This pass is therefore tracking-blind
+    by construction."""
+    if not root.exists():
+        return []
+    return sorted(p for p in root.rglob("*.rs") if p.is_file())
 
 
 def main() -> int:
@@ -133,13 +150,32 @@ def main() -> int:
         default=str(Path(__file__).resolve().parents[2]),
         help="Repository root to scan (default: this script's repo root).",
     )
+    parser.add_argument(
+        "--generated-roots",
+        action="append",
+        default=[],
+        help=(
+            "Additional directory to scan tracking-blind (every *.rs on disk, "
+            "untracked included). Repeatable. Defaults, resolved under --root, "
+            "are always scanned: examples/*/src, examples/*/gen, packs/*."
+        ),
+    )
     args = parser.parse_args()
     root = Path(args.root).resolve()
 
+    generated_roots = [Path(p).resolve() for p in args.generated_roots]
+    if not generated_roots:
+        generated_roots = sorted(root.glob("examples/*/src")) + sorted(root.glob("examples/*/gen")) + sorted(root.glob("packs/*"))
+
+    scanned: set[Path] = set()
     all_violations: list[tuple[Path, int, str]] = []
-    for rs_file in tracked_rust_files(root):
+    for rs_file in tracked_rust_files(root) + [f for g in generated_roots for f in generated_rust_files(g)]:
+        if rs_file in scanned:
+            continue
+        scanned.add(rs_file)
+        rel = rs_file.relative_to(root) if rs_file.is_relative_to(root) else rs_file
         for line_no, line in find_violations(rs_file):
-            all_violations.append((rs_file.relative_to(root), line_no, line))
+            all_violations.append((rel, line_no, line))
 
     if all_violations:
         print(f"FAIL_OPEN_SUBPROCESS_HANDLING: {len(all_violations)} site(s) found")

@@ -1,0 +1,17 @@
+[pack]
+name = "legacy-equivalence-verifier-pack"
+version = "0.1.0"
+description = """
+Legacy-equivalence verifier pack (stub, v26.10.20 dialect-court slice): ships
+ggen signing keypairs only; no RDF surface today. pack.toml stub added so the
+dialect declaration court (R05) can walk the pack root -- the default
+`*.ttl -> turtle` dialect applies vacuously (zero RDF files).
+"""
+
+[capabilities]
+provides = ["urn:ggen:pack:legacy-equivalence-verifier-pack"]
+requires = []
+
+[[capabilities.dialects]]
+glob = "*.ttl"
+dialect = "turtle"

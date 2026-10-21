@@ -1,0 +1,104 @@
+# typed-boundary-refusal-pack ontology — v26.10.20 pattern pack (lane A20).
+# sourceText below is a BYTE-EXACT transcription of the cited file at the cited
+# line range, located by symbol on the 2026-10-20 tree (concurrent lanes shift
+# line numbers; prov:sha256 over the exact quoted bytes is the pin). Verify:
+#   sed -n 'LO,HI;p' <file> | shasum -a 256   # compare to prov:sha256
+#
+@prefix bref: <http://seanchatmangpt.github.io/packs/typed-boundary-refusal#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+bref:TypedRefusal a rdfs:Class ; rdfs:label "Typed boundary refusal" ;
+    rdfs:comment "A refusal is a variant of a sealed enum with structured evidence fields and thiserror-displayed code -- never a bare string. Per RESOLUTIONS.md the abb-sbb Refusal enum is the canonical typed home for admission refusals; ggen-engine mirrors codes as REFUSED:<CODE> strings via PortableStanding." .
+
+bref:SealedRefusalEnum
+    a bref:SourceTranscript ;
+    rdfs:label "crates/ggen-abb-sbb/src/lib.rs:181-262" ;
+    prov:atLocation "crates/ggen-abb-sbb/src/lib.rs" ;
+    prov:startedAtLine "181"^^xsd:integer ;
+    prov:endedAtLine "262"^^xsd:integer ;
+    prov:sha256 "7712bf48c7790cabeef47c1545fbe8b8fab4d23076c905e6e4c8d087ff27ae9e" ;
+    bref:sourceText """#[derive(Debug, Clone, PartialEq, Eq, Error, Serialize, Deserialize)]
+#[serde(tag = "refusal", rename_all = "SCREAMING_SNAKE_CASE")]
+pub enum Refusal {
+    #[error("MALFORMED_GRAPH: {reason}")]
+    MalformedGraph { reason: String },
+    #[error("DUPLICATE_ELEMENT: {id}")]
+    DuplicateElement { id: String },
+    #[error("DANGLING_REFERENCE: {from} -> {to}")]
+    DanglingReference { from: String, to: String },
+    #[error("GRAPH_DIGEST_MISMATCH: expected {expected}, actual {actual}")]
+    GraphDigestMismatch { expected: String, actual: String },
+    #[error("AUTHORITY_EXCEEDED: requested {requested:?}, ceiling CONSTRUCT")]
+    AuthorityExceeded { requested: Authority },
+    #[error("INSUFFICIENT_AUTHORITY: requested {admitted:?}, below the authority the call requires (plan: SELECT, admit: CONSTRUCT)")]
+    InsufficientAuthority { admitted: Authority },
+    #[error("PACK_CONFLATION: {id}")]
+    PackConflation { id: String },
+    #[error("UNKNOWN_ABB: {id}")]
+    UnknownAbb { id: String },
+    #[error("UNKNOWN_SBB: {id}")]
+    UnknownSbb { id: String },
+    #[error("SBB_ABB_MISMATCH: {sbb} realizes {actual}, not {expected}")]
+    SbbAbbMismatch {
+        sbb: String,
+        expected: String,
+        actual: String,
+    },
+    #[error("SBB_IDENTITY_UNKNOWN: {sbb}")]
+    SbbIdentityUnknown { sbb: String },
+    #[error("SBB_MUTABLE: {sbb}")]
+    SbbMutable { sbb: String },
+    #[error("SBB_DIGEST_MISMATCH: {sbb} declared {declared}, actual {actual}")]
+    SbbDigestMismatch {
+        sbb: String,
+        declared: String,
+        actual: String,
+    },
+    #[error("SBB_UNQUALIFIED: {sbb}")]
+    SbbUnqualified { sbb: String },
+    #[error("STALE_QUALIFICATION: {qualification} bound {bound}, SBB now {current}")]
+    StaleQualification {
+        qualification: String,
+        bound: String,
+        current: String,
+    },
+    #[error("CONTRACT_CHANGED: {qualification} bound {bound}, contract now {current}")]
+    ContractChanged {
+        qualification: String,
+        bound: String,
+        current: String,
+    },
+    #[error("EXCEEDS_CONTRACT: {reason}")]
+    ExceedsContract { reason: String },
+    #[error("EXCEEDS_AUTHORITY_CEILING: {sbb} {authority:?} > {ceiling:?}")]
+    ExceedsAuthorityCeiling {
+        sbb: String,
+        authority: Authority,
+        ceiling: Authority,
+    },
+    #[error("UNSAFE_ARTIFACT_PATH: {path}")]
+    UnsafeArtifactPath { path: String },
+    #[error("DUPLICATE_ARTIFACT_PATH: {path}")]
+    DuplicateArtifactPath { path: String },
+    #[error("CYCLIC_PACK_DEPENDENCY: {}", cycle.join(" -> "))]
+    CyclicPackDependency { cycle: Vec<String> },
+    #[error(
+        "UNBOUND_PORT: {port} required by {pack} is not provided by any transitive dependency"
+    )]
+    UnboundPort { pack: String, port: String },
+    #[error("UNBOUND_PLACEHOLDER: {placeholder} in {path}")]
+    UnboundPlaceholder { placeholder: String, path: String },
+    #[error("REFUSED_STALE_LEASE: {evidence_id} receipt generation {receipt}, artifact baseline {baseline}")]
+    StaleLease {
+        evidence_id: String,
+        receipt: u64,
+        baseline: u64,
+    },
+    #[error("RECEIPT_TAMPERED: declared {declared}, actual {actual}")]
+    ReceiptTampered { declared: String, actual: String },
+    #[error("REPLAY_MISMATCH: {field}")]
+    ReplayMismatch { field: String },
+}
+""" .

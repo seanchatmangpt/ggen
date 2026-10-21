@@ -1,0 +1,14 @@
+[pack]
+name = "vacuity-court-pack"
+version = "0.1.0"
+description = """
+Vacuity-court pattern (v26.10.20): every gate must be proven non-vacuous by an anti-vacuity mutation -- a court that cannot flip is FAIL, a skip is loud. vc: schema per RESOLUTIONS.md (VACUOUS GATE exit 1, COURT_BLOCKED exit 2, SKIP-loud exit 3). sourceText transcribes the shim-court 5-step protocol (BASELINE sha256 -> BEFORE -> SHIM -> AFTER -> RESTORE byte-exact fail-closed) byte-exact from the landed canonical source scripts/shim_court_lib.sh (A17; full-file transcript, sha256-pinned and round-trip verified against parsed RDF).
+"""
+
+[capabilities]
+provides = ["urn:ggen:pack:vacuity-court-pack"]
+requires = []
+
+[[capabilities.dialects]]
+glob = "*.ttl"
+dialect = "turtle"

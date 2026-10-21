@@ -172,6 +172,65 @@ pub struct Frontmatter {
     /// content. Ignored when both `rdf:` and `rdf_inline:` are empty.
     #[serde(default)]
     pub base: Option<String>,
+    /// Receipt generation epoch carried by the write request (`FreshEpochLease`,
+    /// v26.10.20 lane A06/L08). Set by the sync pipeline from the admission
+    /// receipt — never authored in template frontmatter. Defaults to 0
+    /// (migration: a 0 receipt admits against any baseline and the first
+    /// successful write records generation 1). A generation-0 receipt against
+    /// a non-zero baseline is stale and refused (`FM-WRITE-012`).
+    #[serde(default)]
+    pub receipt_generation: u64,
+    /// Envelope IRI governing this template's sync-run capability caps
+    /// (v26.10.20 wave-2, lane A05). `None` (the default) runs under the
+    /// built-in Fortune-5 ceilings; a declared IRI resolves its overrides
+    /// through `crate::envelope::extract_caps` (tighten-only).
+    #[serde(default)]
+    pub envelope: Option<String>,
+    /// Optional canonical-identity declaration (v26.10.20, canon: vocabulary
+    /// per L04; schema mirror `schema/frontmatter-schema.ttl`). When set, the
+    /// template's subject opts into a reproducible canonical serialization
+    /// (`form`) and a domain-separated BLAKE3 digest over it (`digest`).
+    /// `None` (the default) computes no canonical identity.
+    #[serde(default)]
+    pub canonical_identity: Option<CanonicalIdentity>,
+}
+
+/// Canonical form selected for a template subject's serialization
+/// (`canonical_identity.form`).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Deserialize, JsonSchema)]
+#[serde(rename_all = "camelCase")]
+pub enum CanonicalForm {
+    /// RDF Dataset Canonicalization (RDFC-1.0, W3C).
+    Rdfc1,
+    /// JSON with lexicographically sorted keys.
+    SortedKeyJson,
+    /// ggen `BTreeMap` iteration order.
+    BtreeOrder,
+}
+
+/// Digest recipe (`canonical_identity.digest`). `domain` is mandatory:
+/// domain-separated digests differ across domains even with identical
+/// payloads.
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct CanonicalDigest {
+    /// Digest algorithm. Only `blake3` is defined.
+    pub algo: String,
+    /// Domain-separation tag mixed into the hash.
+    pub domain: String,
+    /// Whether a BLAKE3 key is supplied. Defaults to false.
+    #[serde(default)]
+    pub keyed: bool,
+}
+
+/// Canonical-identity declaration (`canonical_identity`).
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct CanonicalIdentity {
+    /// Canonical serialization form.
+    pub form: CanonicalForm,
+    /// Digest recipe.
+    pub digest: CanonicalDigest,
 }
 
 /// Backward-compatible textual selector used by `before`, `after`, and

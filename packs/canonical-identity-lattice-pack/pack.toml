@@ -1,0 +1,14 @@
+[pack]
+name = "canonical-identity-lattice-pack"
+version = "0.1.0"
+description = """
+Canonical-identity pattern (v26.10.20): identity = digest over canonical bytes, proven non-vacuous by an exhaustive single-field mutation falsifier. Verbatim sourceText transcribes ggen-abb-sbb's canonical_digest/canonical_json_bytes (crates/ggen-abb-sbb/src/lib.rs:391-421, feature-unification-stable key-sorted canonicalization) and the every_single_field_mutation_of_the_fixture_changes_the_graph_digest falsifier (crates/ggen-abb-sbb/tests/falsifiers.rs:836-860). canon: vocabulary per docs/jira/v26.10.20/RESOLUTIONS.md.
+"""
+
+[capabilities]
+provides = ["urn:ggen:pack:canonical-identity-lattice-pack"]
+requires = []
+
+[[capabilities.dialects]]
+glob = "*.ttl"
+dialect = "turtle"

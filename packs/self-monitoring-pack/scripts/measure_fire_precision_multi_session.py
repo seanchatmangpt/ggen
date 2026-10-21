@@ -72,7 +72,7 @@ except ImportError:  # pragma: no cover
     print("ERROR: rdflib is required (pip install rdflib)", file=sys.stderr)
     sys.exit(1)
 
-KH = rdflib.Namespace("http://seanchatmangpt.github.io/praxis/kh#")
+KH = rdflib.Namespace("http://seanchatmangpt.github.io/graphlaw/kh#")
 
 
 def extract_hook_actions(hook_ttl_path: Path) -> list[tuple[str, str]]:

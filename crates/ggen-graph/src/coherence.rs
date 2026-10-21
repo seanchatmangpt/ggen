@@ -87,7 +87,7 @@ impl CoherenceChecker {
     /// Each element of `triples` is treated as one canonical item. The BLAKE3 hash
     /// is computed over the byte representation of each triple string in order.
     pub fn fingerprint_ontology(triples: &[&str]) -> PoleState {
-        let (hash, item_count) = Self::blake3_of_strings(triples);
+        let (hash, item_count) = Self::blake3_of_strings("ggen/pole/O", triples);
         PoleState {
             pole: Pole::Ontology,
             hash,
@@ -101,7 +101,8 @@ impl CoherenceChecker {
     /// Both the path string and the little-endian byte encoding of the length are
     /// fed into the hasher for each artifact.
     pub fn fingerprint_artifacts(artifacts: &[(&str, u64)]) -> PoleState {
-        let mut hasher = blake3::Hasher::new();
+        let key = blake3::derive_key("ggen/pole/A", &[]);
+        let mut hasher = blake3::Hasher::new_keyed(&key);
         for (path, size) in artifacts {
             hasher.update(path.as_bytes());
             hasher.update(&size.to_le_bytes());
@@ -120,7 +121,7 @@ impl CoherenceChecker {
     /// Each element is treated as one canonical event. The BLAKE3 hash is computed
     /// over the byte representation of each JSON string in order.
     pub fn fingerprint_event_log(events: &[&str]) -> PoleState {
-        let (hash, item_count) = Self::blake3_of_strings(events);
+        let (hash, item_count) = Self::blake3_of_strings("ggen/pole/L", events);
         PoleState {
             pole: Pole::EventLog,
             hash,
@@ -324,9 +325,17 @@ impl CoherenceChecker {
 
     // ── private helpers ────────────────────────────────────────────────────────
 
-    /// Feed each string through a BLAKE3 hasher and return `(hex_hash, count)`.
-    fn blake3_of_strings(items: &[&str]) -> (String, usize) {
-        let mut hasher = blake3::Hasher::new();
+    /// Feed each string through a domain-separated keyed BLAKE3 hasher and
+    /// return `(hex_hash, count)`.
+    ///
+    /// The `domain` label (`"ggen/pole/O"`, `"ggen/pole/L"`, ...) is expanded
+    /// via `blake3::derive_key` so identical item bytes under different poles
+    /// (or against any unkeyed BLAKE3 surface) can never produce the same
+    /// digest. Output remains 64-char lowercase hex, preserving drift-report
+    /// compatibility.
+    fn blake3_of_strings(domain: &str, items: &[&str]) -> (String, usize) {
+        let key = blake3::derive_key(domain, &[]);
+        let mut hasher = blake3::Hasher::new_keyed(&key);
         for item in items {
             hasher.update(item.as_bytes());
         }

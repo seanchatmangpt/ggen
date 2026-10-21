@@ -41,6 +41,9 @@ struct SmokePackCapabilities {
     #[serde(default)]
     #[allow(dead_code)]
     requires: Vec<String>,
+    #[serde(default)]
+    #[allow(dead_code)]
+    dialects: Vec<BTreeMap<String, String>>,
 }
 
 fn corpus_roots() -> Vec<&'static Path> {

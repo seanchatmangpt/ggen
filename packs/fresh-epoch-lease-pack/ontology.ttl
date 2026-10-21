@@ -1,0 +1,263 @@
+# fresh-epoch-lease-pack ontology — v26.10.20 pattern pack (lane A20).
+# sourceText below is a BYTE-EXACT transcription of the cited file at the cited
+# line range, located by symbol on the 2026-10-20 tree (concurrent lanes shift
+# line numbers; prov:sha256 over the exact quoted bytes is the pin). Verify:
+#   sed -n 'LO,HI;p' <file> | shasum -a 256   # compare to prov:sha256
+#
+# Transcribed AFTER lane A06's lease machinery landed in write.rs.
+# Admit rule: write admitted only when receipt generation is strictly fresher
+# than the persisted baseline; missing slot = baseline 0 (admits once, bumps to
+# 1); unreadable/corrupt slot fails closed FM-WRITE-012 (REFUSED_STALE_LEASE).
+@prefix lease: <http://seanchatmangpt.github.io/packs/fresh-epoch-lease#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+lease:LeaseSlot a rdfs:Class ; rdfs:label "Lease slot" ;
+    rdfs:comment "Per-target generation baseline at <root>/.ggen-v2/lease/<blake3-hex(rel_to)>, decimal u64 payload." .
+
+lease:CheckFreezeAdmitRule
+    a lease:SourceTranscript ;
+    rdfs:label "crates/ggen-engine/src/write.rs:226-289" ;
+    prov:atLocation "crates/ggen-engine/src/write.rs" ;
+    prov:startedAtLine "226"^^xsd:integer ;
+    prov:endedAtLine "289"^^xsd:integer ;
+    prov:sha256 "7e718a95d0b01d4c6bd4ff2ba299050a04008f2bab22712588d3ff36aaedf740" ;
+    lease:sourceText """/// Evaluate `frontmatter.freeze_policy` against the current on-disk state.
+/// Returns `Some(reason)` when the write must be skipped on freeze grounds.
+///
+/// `rendered_body` is the candidate content this run would have written had
+/// freeze not intervened. It is used ONLY to observe and report drift for
+/// `FreezePolicy::Always` (see that arm) -- never written to disk. Freeze
+/// semantics are unchanged: an `Always`-frozen target is never overwritten,
+/// drifted or not.
+fn check_freeze(
+    root: &Path, rel_to: &str, existing: Option<&str>, rendered_body: &str,
+    frontmatter: &Frontmatter,
+) -> Result<Option<String>> {
+    let Some(policy) = frontmatter.freeze_policy else {
+        return Ok(None);
+    };
+    match policy {
+        FreezePolicy::Never => Ok(None),
+        FreezePolicy::Always => match existing {
+            None => Ok(None),
+            Some(content) if content == rendered_body => Ok(Some(
+                "frozen: freeze_policy=always, target already exists (up to date, no drift)"
+                    .to_string(),
+            )),
+            Some(_) => Ok(Some(
+                "frozen: freeze_policy=always, target already exists -- DRIFT: candidate \\
+                 content would differ from the on-disk (frozen) file, meaning the source \\
+                 ontology/template has changed since this file was last generated or \\
+                 hand-completed, but the frozen file was NOT updated to reflect it. \\
+                 Remediation: review the drift and hand-update the frozen file, or drop \\
+                 freeze_policy if it should track generation again."
+                    .to_string(),
+            )),
+        },
+        FreezePolicy::Checksum => {
+            let Some(content) = existing else {
+                return Ok(None);
+            };
+            let slots_dir = freeze_slots_dir(frontmatter)?;
+            let checksum_path = freeze_checksum_path(root, slots_dir, rel_to)?;
+            match std::fs::read_to_string(&checksum_path) {
+                Ok(stored) => {
+                    let current = blake3::hash(content.as_bytes()).to_hex().to_string();
+                    if stored.trim() == current {
+                        Ok(None) // untouched since last generation; safe to regenerate
+                    } else {
+                        Ok(Some(
+                            "frozen: freeze_policy=checksum, on-disk content no longer matches \\
+                             ggen's last-recorded checksum (manual edit detected)"
+                                .to_string(),
+                        ))
+                    }
+                }
+                Err(error) if error.kind() == std::io::ErrorKind::NotFound => Ok(None),
+        Err(error) => Err(AppError::fm_write(
+            11,
+            format!(
+                "checksum ownership slot `{}` is unreadable: {error}. Refusing to                  treat an unknown ownership state as unfrozen. Remediation: repair or                  remove the slot after reviewing the target.",
+                checksum_path.display()
+            ),
+        )),
+            }
+        }
+    }
+}
+""" .
+
+lease:RecordFreezeSlot
+    a lease:SourceTranscript ;
+    rdfs:label "crates/ggen-engine/src/write.rs:291-309" ;
+    prov:atLocation "crates/ggen-engine/src/write.rs" ;
+    prov:startedAtLine "291"^^xsd:integer ;
+    prov:endedAtLine "309"^^xsd:integer ;
+    prov:sha256 "5510859bb024a6f4abcec5b2bbde6201c23cf6a4758c37ea85cce5da45307d7c" ;
+    lease:sourceText """/// After a successful write under `freeze_policy: checksum`, record the new
+/// content's BLAKE3 checksum so the next run can detect manual edits.
+fn record_freeze_checksum(
+    root: &Path, rel_to: &str, written_content: &str, frontmatter: &Frontmatter,
+) -> Result<()> {
+    if frontmatter.freeze_policy != Some(FreezePolicy::Checksum) {
+        return Ok(());
+    }
+    let slots_dir = freeze_slots_dir(frontmatter)?;
+    let checksum_path = freeze_checksum_path(root, slots_dir, rel_to)?;
+    if let Some(parent) = checksum_path.parent() {
+        std::fs::create_dir_all(parent)?;
+    }
+    let hash = blake3::hash(written_content.as_bytes())
+        .to_hex()
+        .to_string();
+    std::fs::write(&checksum_path, hash)?;
+    Ok(())
+}
+""" .
+
+lease:LeaseSlotPath
+    a lease:SourceTranscript ;
+    rdfs:label "crates/ggen-engine/src/write.rs:311-323" ;
+    prov:atLocation "crates/ggen-engine/src/write.rs" ;
+    prov:startedAtLine "311"^^xsd:integer ;
+    prov:endedAtLine "323"^^xsd:integer ;
+    prov:sha256 "a06cd03b92c7a67660f16a8e7ad1ae605343f0c7ff79048b21bf9991ac1715f8" ;
+    lease:sourceText """/// FreshEpochLease slot path: `<root>/.ggen-v2/lease/<blake3-hex(rel_to)>`.
+///
+/// Keyed by the BLAKE3 hex of the canonical `rel_to` string (mirroring how
+/// `freeze_checksum_path` derives a per-output slot under a fixed root
+/// directory, but content-addressed rather than path-shaped so the lease dir
+/// stays flat and collision-free). `rel_to` is safety-validated through
+/// [`resolve_target`] first so a traversal-shaped path can never influence
+/// slot placement.
+fn lease_slot_path(root: &Path, rel_to: &str) -> Result<PathBuf> {
+    resolve_target(root, rel_to)?;
+    let hex = blake3::hash(rel_to.as_bytes()).to_hex().to_string();
+    Ok(root.join(".ggen-v2").join("lease").join(hex))
+}
+""" .
+
+lease:ReadLeaseBaseline
+    a lease:SourceTranscript ;
+    rdfs:label "crates/ggen-engine/src/write.rs:325-359" ;
+    prov:atLocation "crates/ggen-engine/src/write.rs" ;
+    prov:startedAtLine "325"^^xsd:integer ;
+    prov:endedAtLine "359"^^xsd:integer ;
+    prov:sha256 "1d202a39f6a50d3c5a4192b2b8385ae4b4001f77988364bd017db3204270b004" ;
+    lease:sourceText """/// Read the persisted lease generation baseline for `rel_to`.
+///
+/// Missing slot = baseline 0 (migration: nothing has ever been written under
+/// lease control here, so any request admits once and then records
+/// generation 1). Any read error OTHER than NotFound — permission denied, a
+/// directory where the slot should be, a corrupt non-decimal payload — is an
+/// unknown lease-authority state and fails closed with `FM-WRITE-012`,
+/// mirroring the checksum-slot arm above: we never treat an unreadable
+/// authority record as "no constraint".
+fn read_lease_baseline(lease_path: &Path) -> Result<u64> {
+    match std::fs::read_to_string(lease_path) {
+        Ok(stored) => stored.trim().parse::<u64>().map_err(|error| {
+            AppError::fm_write(
+                12,
+                format!(
+                    "REFUSED_STALE_LEASE: lease slot `{}` is corrupt (expected decimal \\
+                     u64): {error}. Refusing to treat an unknown lease state as fresh. \\
+                     Remediation: repair or remove the slot after reviewing the target's \\
+                     owning generation.",
+                    lease_path.display()
+                ),
+            )
+        }),
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => Ok(0),
+        Err(error) => Err(AppError::fm_write(
+            12,
+            format!(
+                "REFUSED_STALE_LEASE: lease slot `{}` is unreadable: {error}. Refusing to \\
+                 treat an unknown lease state as fresh. Remediation: repair or remove the \\
+                 slot after reviewing the target's owning generation.",
+                lease_path.display()
+            ),
+        )),
+    }
+}
+""" .
+
+lease:LeaseFreshnessGate
+    a lease:SourceTranscript ;
+    rdfs:label "crates/ggen-engine/src/write.rs:361-395" ;
+    prov:atLocation "crates/ggen-engine/src/write.rs" ;
+    prov:startedAtLine "361"^^xsd:integer ;
+    prov:endedAtLine "395"^^xsd:integer ;
+    prov:sha256 "adac29b5e00299fe25121142d8f2cdff8fca3a2bb5b92a32a297d90123d7b4b2" ;
+    lease:sourceText """/// FreshEpochLease gate: refuse the write unless the request's receipt
+/// generation is strictly fresher than the persisted baseline.
+///
+/// Rationale (lane L08 plan, v26.10.20): after an epoch rotation (ontology
+/// regeneration, pack re-admission, restore from snapshot) a pre-rotation
+/// admission receipt can still be replayed verbatim against the same target
+/// path. The unchanged-content skip and freeze checks both admit on byte
+/// equality, which a replayed receipt trivially satisfies. The lease gate
+/// instead compares EPOCHS: every successful `Written`/`Injected` bumps the
+/// persisted baseline to `prev + 1`, so a replayed old receipt
+/// (`receipt_generation <= baseline`) is refused with `FM-WRITE-012` /
+/// `REFUSED_STALE_LEASE` even when its rendered content is byte-identical to
+/// what is on disk.
+///
+/// Migration: a missing slot reads as baseline 0, and the gate only engages
+/// when `baseline > 0`, so the first write under this regime admits and
+/// records generation 1; a generation-0 receipt against a non-zero baseline
+/// is by definition pre-rotation and is refused.
+fn check_lease_generation(root: &Path, rel_to: &str, receipt_generation: u64) -> Result<()> {
+    let lease_path = lease_slot_path(root, rel_to)?;
+    let baseline = read_lease_baseline(&lease_path)?;
+    if baseline > 0 && receipt_generation <= baseline {
+        return Err(AppError::fm_write(
+            12,
+            format!(
+                "REFUSED_STALE_LEASE: receipt generation {receipt_generation} is not fresher \\
+                 than the recorded lease baseline {baseline} for `{rel_to}`. The admission \\
+                 receipt predates the last write under lease control (stale epoch / replayed \\
+                 receipt). Remediation: re-admit against the current ontology to obtain a \\
+                 fresher receipt generation.",
+            ),
+        ));
+    }
+    Ok(())
+}
+""" .
+
+lease:RecordLeaseGeneration
+    a lease:SourceTranscript ;
+    rdfs:label "crates/ggen-engine/src/write.rs:397-422" ;
+    prov:atLocation "crates/ggen-engine/src/write.rs" ;
+    prov:startedAtLine "397"^^xsd:integer ;
+    prov:endedAtLine "422"^^xsd:integer ;
+    prov:sha256 "e56758f9d26667ea89566b40f51cb893b1f03d3dec3be5f00208f0b45eb25416" ;
+    lease:sourceText """/// After a successful `Written`/`Injected`, bump the persisted lease baseline
+/// to `prev + 1` so the next request must carry at least that generation.
+/// Missing slot (baseline 0) migrates to generation 1. A corrupt/unreadable
+/// slot discovered here also fails closed (`FM-WRITE-012`) — the write has
+/// already landed, but the run must not report success while the lease state
+/// is unknown; the caller surfaces the error in the stage-failure receipt.
+fn record_lease_generation(root: &Path, rel_to: &str, _receipt_generation: u64) -> Result<()> {
+    let lease_path = lease_slot_path(root, rel_to)?;
+    let prev = read_lease_baseline(&lease_path)?;
+    let next = prev
+        .checked_add(1)
+        .ok_or_else(|| {
+            AppError::fm_write(
+                12,
+                format!(
+                    "REFUSED_STALE_LEASE: lease generation for `{rel_to}` would overflow u64. \\
+                     Remediation: reset the lease directory after a full re-admission."
+                ),
+            )
+        })?;
+    if let Some(parent) = lease_path.parent() {
+        std::fs::create_dir_all(parent)?;
+    }
+    std::fs::write(&lease_path, format!("{next}\\n"))?;
+    Ok(())
+}
+""" .

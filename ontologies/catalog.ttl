@@ -688,3 +688,13 @@ gcat:capability a rdf:Property ; rdfs:label "capability" ; rdfs:range xsd:string
     gcat:embeddedPath "ontologies/project/decision-mining.ttl" ;
     gcat:authority "ggen" ;
     gcat:capability "process-mining" .
+
+<https://ggen.io/ontology/boundary-refusal>
+    a dcat:Dataset ;
+    dcterms:title "Typed Boundary Refusal Registry" ;
+    dcterms:description "SHACL shape + individual registry for typed boundary refusal codes across ggen surfaces (envelope, lease, court, census). Source for docs/BOUNDARY_REFUSALS.md via scripts/gen_boundary_refusals.py." ;
+    gcat:tier gcat:Core ;
+    gcat:prefix "br" ;
+    gcat:embeddedPath "ontologies/shapes/boundary-refusal.shacl.ttl" ;
+    gcat:authority "ggen" ;
+    gcat:capability "typed-refusal-registry" .

@@ -44,8 +44,8 @@ use crate::{
     error::{AppError, Result},
     generation_rules::duration_ms,
     graph::{
-        DeterministicGraph, EngineQueryResults, EngineValue, GraphEngine, GraphLawStore,
-        TurtleDocument,
+        dialect_for_path, DeterministicGraph, EngineQueryResults, EngineValue, GraphEngine,
+        GraphLawStore, TurtleDocument,
     },
     template::{build_tera_with_packs, sparql_to_value, Frontmatter, MatchSpec, Template},
     write::{
@@ -246,14 +246,18 @@ pub const RECEIPT_REL_PATH: &str = ".ggen-v2/receipt.json";
 
 /// Maximum rows admitted from any one named SPARQL result. This bounds
 /// semantic fan-out before Tera rendering or shell/filesystem actuation.
-pub const MAX_QUERY_RESULT_ROWS: usize = 4_096;
+/// Built-in default only: an envelope-declared run resolves its effective
+/// ceiling through `crate::envelope::extract_caps`/`cap_for` (tighten-only).
+pub const MAX_QUERY_RESULT_ROWS: usize = crate::envelope::DEFAULT_MAX_QUERY_RESULT_ROWS;
 
 /// Maximum materialized outputs admitted in one sync, including the
-/// engine-owned module aggregator.
-pub const MAX_PENDING_OUTPUTS: usize = 8_192;
+/// engine-owned module aggregator. Built-in default only — see
+/// [`MAX_QUERY_RESULT_ROWS`].
+pub const MAX_PENDING_OUTPUTS: usize = crate::envelope::DEFAULT_MAX_PENDING_OUTPUTS;
 
 /// Maximum combined rendered body bytes admitted across one sync.
-pub const MAX_TOTAL_RENDERED_BYTES: usize = 64 * 1024 * 1024;
+/// Built-in default only — see [`MAX_QUERY_RESULT_ROWS`].
+pub const MAX_TOTAL_RENDERED_BYTES: usize = crate::envelope::DEFAULT_MAX_TOTAL_RENDERED_BYTES;
 
 /// One fully-rendered template awaiting `apply` — the boundary between the
 /// "may fail" render pass and the write pass, which by construction only
@@ -315,6 +319,13 @@ pub struct ReceiptPayload {
     /// pre-provenance receipt.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub build_provenance: Option<String>,
+    /// Monotonic receipt-generation epoch (v26.10.20 wave-2, Stage-2c
+    /// gate): 1 for a project's first receipt, then prior + 1 read from
+    /// the `.ggen-v2/receipt-log.jsonl` tail. Additive; `None` only when
+    /// deserialized from a pre-epoch receipt (read as generation 0, which
+    /// admits against any baseline).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub generation: Option<u64>,
 }
 
 /// Run the five-stage pipeline rooted at `root` (the directory containing
@@ -393,17 +404,36 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
     };
     let lock_entries = crate::pack::lock_entries(&config, &packs)?;
     crate::pack::check_lock(root, &lock_entries)?;
-    let mut ontology_sources = Vec::with_capacity(
+    let mut ontology_sources: Vec<(String, String, String)> = Vec::with_capacity(
         2 + packs
             .iter()
             .map(|pack| 1 + pack.extra_ontology_paths.len())
             .sum::<usize>(),
     );
-    ontology_sources.push((ontology_label, ttl));
+    // Dialect slice 1 (V03): every ontology/pack input resolves its declared
+    // dialect from its file extension before admission — no raw assume-Turtle
+    // path remains. Turtle inputs still go through the atomic document batch;
+    // quad-dialect inputs (ntriples/nquads/trig) are admitted through
+    // `graph::load_declared`, and n3/rdf-xml/json-ld are typed refusals
+    // pointing at the graphlaw routing.
+    ontology_sources.push((
+        ontology_label,
+        ttl,
+        dialect_for_path(&ontology_path)?.to_string(),
+    ));
     for import in &config.ontology.imports {
-        ontology_sources.push(read_ontology_file(root, &root.join(import))?);
+        let import_path = root.join(import);
+        let (label, content) = read_ontology_file(root, &import_path)?;
+        ontology_sources.push((label, content, dialect_for_path(&import_path)?.to_string()));
     }
     for pack in &packs {
+        // Pack inputs resolve their dialect through the pack's declared
+        // `[[capabilities.dialects]]` globs (first match wins) — pack root is
+        // the ontology path's parent directory.
+        let pack_root = pack.ontology_path.parent().unwrap_or(root);
+        let pack_dialect = |path: &std::path::Path| -> Result<String> {
+            crate::graph::dialect_for_pack_globs(&pack.name, pack_root, path, &pack.dialects)
+        };
         let pack_ttl = std::fs::read_to_string(&pack.ontology_path).map_err(|e| {
             AppError::fm_pack(
                 4,
@@ -414,7 +444,11 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
                 ),
             )
         })?;
-        ontology_sources.push((rel_display(root, &pack.ontology_path), pack_ttl));
+        ontology_sources.push((
+            rel_display(root, &pack.ontology_path),
+            pack_ttl,
+            pack_dialect(&pack.ontology_path)?,
+        ));
         for (declared, extra_path) in &pack.extra_ontology_paths {
             let extra_ttl = std::fs::read_to_string(extra_path).map_err(|e| {
                 AppError::fm_pack(
@@ -426,20 +460,41 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
                     ),
                 )
             })?;
-            ontology_sources.push((declared.clone(), extra_ttl));
+            ontology_sources.push((declared.clone(), extra_ttl, pack_dialect(extra_path)?));
         }
     }
     // Compile declared dependency/type/requires/provides facts into the same
     // canonical graph consumed by gates and templates. The projection uses
     // public Schema.org/Dublin Core predicates and is empty for legacy packs,
-    // preserving their graph identity.
+    // preserving their graph identity. (Generated — always Turtle.)
     let pack_topology_ttl = crate::pack_scope::topology_turtle(&packs);
     if !pack_topology_ttl.is_empty() {
-        ontology_sources.push(("urn:ggen:pack-topology".to_string(), pack_topology_ttl));
+        ontology_sources.push((
+            "urn:ggen:pack-topology".to_string(),
+            pack_topology_ttl,
+            "turtle".to_string(),
+        ));
     }
-    let ontology_documents: Vec<TurtleDocument<'_>> = ontology_sources
+    // Turtle documents go through the atomic per-document-attribution batch;
+    // non-Turtle declared-dialect documents are admitted one by one through
+    // `load_declared` BEFORE the batch (their quads are in the store before
+    // the batch receipt is computed, so `inserted_quads` counts stay true).
+    let (turtle_sources, quad_sources): (Vec<_>, Vec<_>) = ontology_sources
         .iter()
-        .map(|(label, content)| TurtleDocument::new(label, content))
+        .map(|(label, content, dialect)| (label.as_str(), content.as_str(), dialect.as_str()))
+        .partition(|(_, _, dialect)| *dialect == "turtle");
+    for (label, content, dialect) in &quad_sources {
+        let inserted = crate::graph::load_declared(graph.as_ref(), label, content, dialect)?;
+        tracing::debug!(
+            ontology.label = %label,
+            ontology.dialect = dialect,
+            ontology.inserted_quads = inserted,
+            "declared-dialect ontology document admitted"
+        );
+    }
+    let ontology_documents: Vec<TurtleDocument<'_>> = turtle_sources
+        .iter()
+        .map(|(label, content, _)| TurtleDocument::new(label, content))
         .collect();
     let ontology_receipt = graph.insert_turtle_documents(&ontology_documents)?;
     tracing::debug!(
@@ -618,8 +673,31 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
         "operation.type" = "pipeline",
         "pipeline.stage" = "validate",
         "pipeline.duration_ms" = tracing::field::Empty,
+        "envelope.iri" = tracing::field::Empty,
     );
     let validate_guard = validate_span.enter();
+
+    // Envelope-declaration gate (v26.10.20, always-on, lane I1): every
+    // envelope IRI referenced via the envelope predicate anywhere in the
+    // union graph must be declared as a subject in the same graph. The
+    // typed `E-ENVELOPE-UNDECLARED` refusal previously lived only inside
+    // `GraphLawEngine::validate_shacl`, so a project with no `[law]`
+    // configuration sailed through with a dangling envelope reference;
+    // undeclared authority is a graph-level defect, not a law-config
+    // defect, so the gate runs unconditionally here.
+    {
+        let facts_nt = graph
+            .canonical_quads()?
+            .iter()
+            .fold(String::new(), |mut doc, line| {
+                use std::fmt::Write as _;
+                let _ = writeln!(doc, "{line} .");
+                doc
+            });
+        if let Some(iri) = crate::envelope::undeclared_envelope(&facts_nt) {
+            return Err(AppError::fm_envelope_undeclared(iri));
+        }
+    }
 
     // [law].rules: load every declared N3/Datalog rule file. Always
     // attempted (an empty `rules` list is simply a no-op loop) — splitting
@@ -902,6 +980,30 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
         duration_ms(validate_start.elapsed()),
     );
 
+    // ── Stage 2c-epoch: receipt-generation lease gate (v26.10.20) ────────
+    //
+    // Establish this run's generation from the `.ggen-v2/receipt-log.jsonl`
+    // tail BEFORE any downstream consumer (EA admission requests below,
+    // receipt assembly in Stage 5) reads or bumps it. A tail that exists
+    // but cannot be honestly parsed is an undecidable lease baseline: it
+    // is refused with `REFUSED_STALE_LEASE` and the refusal envelope is
+    // chained here, so even a refused sync leaves an honest refusal
+    // receipt (never a silent pass, never a fabricated baseline). A
+    // missing log (first sync) or a legacy pre-epoch tail (`generation`
+    // absent → 0) admits, with this run becoming generation 1.
+    let prior_generation = read_receipt_log_generation(root).map_err(|original| {
+        refuse_with_portable_envelope(
+            root,
+            &packs,
+            graph.as_ref(),
+            &gates_attempted,
+            "REFUSED_STALE_LEASE",
+            opts.dry_run,
+            original,
+        )
+    })?;
+    let next_generation = prior_generation.unwrap_or(0) + 1;
+
     // ── Stage 2c: EA Graph (ABB/SBB) & Depgraph Admission ──────────────
     //
     // If an EA graph (strategy/capabilities/abbs/contracts/sbbs/qualifications)
@@ -979,6 +1081,8 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
                     sbb: sbb.id.clone(),
                     requested_authority: ggen_abb_sbb::Authority::Construct,
                     expected_graph_digest: None,
+                    receipt_generation: prior_generation.unwrap_or(0),
+                    artifact_baseline_generation: 0,
                 };
                 ggen_abb_sbb::admit(&ea_graph, &req).map_err(|refusal| {
                     AppError::fm_law(
@@ -989,6 +1093,20 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
             }
         }
     }
+
+    // ── Stage 2c-caps: envelope CapTable extraction (v26.10.20) ─────────
+    //
+    // The first (deterministically smallest) envelope IRI declared across
+    // this run's templates governs the Fortune-5 caps applied in the render
+    // loop below. No declared envelope → built-in defaults, byte-identical
+    // to the pre-envelope pipeline. An envelope can only tighten a ceiling
+    // (`crate::envelope::extract_caps` clamps), never loosen one.
+    let envelope_iri: Option<String> = templates
+        .iter()
+        .filter_map(|(_, t)| t.frontmatter.envelope.clone())
+        .min();
+    let caps = crate::envelope::extract_caps(root, envelope_iri.as_deref());
+    validate_span.record("envelope.iri", envelope_iri.as_deref().unwrap_or("NONE"));
 
     let graph_hash_hex = hex32(&graph.state_hash()?);
 
@@ -1421,6 +1539,11 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
                 rdf_inline: Vec::new(),
                 prefixes: BTreeMap::new(),
                 base: None,
+                // Lane A06 minimal unblock: aggregator write is not
+                // epoch-gated; A05 owns the real generation plumbing.
+                receipt_generation: 0,
+                canonical_identity: None,
+                envelope: None,
             };
             pending.push(PendingWrite {
                 to: AGGREGATOR_REL_PATH.to_string(),
@@ -1433,11 +1556,12 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
     // Admit the complete prospective write set before any hook or write.
     // This is the Fortune 5 boundary: bounded count/bytes, safe canonical
     // targets, and no aliasing of one filesystem object through two spellings.
-    if pending.len() > MAX_PENDING_OUTPUTS {
+    let max_pending_outputs = crate::envelope::cap_for(&caps, crate::envelope::Cap::PendingOutputs);
+    if pending.len() > max_pending_outputs {
         return Err(AppError::fm_tpl(
             22,
             format!(
-                "sync materialized {} outputs, over the Fortune 5 limit of                  {MAX_PENDING_OUTPUTS}. Remediation: partition the ontology view or                  aggregate rows into bounded artifacts.",
+                "sync materialized {} outputs, over the pending-outputs Fortune 5 cap                  of {max_pending_outputs}. Remediation: partition the ontology view or                  aggregate rows into bounded artifacts.",
                 pending.len()
             ),
         ));
@@ -1445,13 +1569,58 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
     let total_rendered_bytes = pending
         .iter()
         .fold(0usize, |total, pw| total.saturating_add(pw.body.len()));
-    if total_rendered_bytes > MAX_TOTAL_RENDERED_BYTES {
+    let max_total_rendered_bytes =
+        crate::envelope::cap_for(&caps, crate::envelope::Cap::TotalRenderedBytes);
+    if total_rendered_bytes > max_total_rendered_bytes {
         return Err(AppError::fm_tpl(
             22,
             format!(
-                "sync rendered {total_rendered_bytes} body bytes, over the Fortune 5                  limit of {MAX_TOTAL_RENDERED_BYTES}. Remediation: reduce selected                  knowledge, split the run, or aggregate more compactly."
+                "sync rendered {total_rendered_bytes} body bytes, over the Fortune 5                  limit of {max_total_rendered_bytes}. Remediation: reduce selected                  knowledge, split the run, or aggregate more compactly."
             ),
         ));
+    }
+
+    // ── Stage 2c-lease: pre-write stale-lease comparison (v26.10.20, lane I1)
+    //
+    // Thread this run's receipt generation into every rendered write request
+    // (FreshEpochLease wire field, lane A06's `check_lease_generation`): the
+    // field is pipeline-set, never template-authored, so a still-0 request
+    // means "unset by the pipeline". The aggregator projection above is the
+    // deliberate exception — it stays at 0 and is not epoch-gated (see its
+    // own comment).
+    for pw in &mut pending {
+        if pw.frontmatter.receipt_generation == 0 {
+            pw.frontmatter.receipt_generation = next_generation;
+        }
+    }
+    // Then compare against each target artifact's persisted lease baseline:
+    // a run whose generation is not strictly fresher than a target's
+    // baseline is a replayed/stale epoch and is refused HERE — with the
+    // portable `REFUSED_STALE_LEASE` envelope — before any rendered output
+    // lands on disk, not just by the per-write gate with a bare error.
+    for pw in &pending {
+        let baseline = crate::write::lease_baseline_for(root, &pw.to)?;
+        if baseline > 0 && pw.frontmatter.receipt_generation <= baseline {
+            return Err(refuse_with_portable_envelope(
+                root,
+                &packs,
+                graph.as_ref(),
+                &gates_attempted,
+                "REFUSED_STALE_LEASE",
+                opts.dry_run,
+                AppError::fm_write(
+                    12,
+                    format!(
+                        "REFUSED_STALE_LEASE: lease baseline {baseline} for `{}` is not \
+                         older than this run's receipt generation {}. The target's lease \
+                         postdates the epoch this run would write under. Remediation: \
+                         re-run sync so the receipt advances past the recorded lease \
+                         baseline.",
+                        pw.to, pw.frontmatter.receipt_generation
+                    ),
+                ),
+            ));
+        }
     }
     {
         let mut seen: BTreeMap<PathBuf, (String, usize)> = BTreeMap::new();
@@ -1926,6 +2095,50 @@ fn expand_gate_glob(root: &Path, pattern: &str) -> Result<Vec<String>> {
     files.retain(|f| match_components(&pat_parts, f.split('/').collect::<Vec<_>>().as_slice()));
     files.sort();
     Ok(files)
+}
+
+/// Read the receipt generation recorded by the last receipt in
+/// `<root>/{RECEIPT_LOG_REL_PATH}`: `Ok(None)` when no log exists, it is
+/// empty, or the tail predates the generation epoch (pre-v26.10.20
+/// receipts deserialize with `generation: None`, read as baseline 0). A
+/// tail line that exists but fails to deserialize is `Err` — an
+/// undecidable lease baseline is refused (`REFUSED_STALE_LEASE` at the
+/// Stage-2c gate), never guessed.
+///
+/// # Errors
+/// `[FM-CHAIN-009]` when the log is unreadable, `[FM-CHAIN-010]` when the
+/// tail line is corrupt.
+pub(crate) fn read_receipt_log_generation(root: &Path) -> Result<Option<u64>> {
+    let log_path = root.join(RECEIPT_LOG_REL_PATH);
+    let raw = match std::fs::read_to_string(&log_path) {
+        Ok(raw) => raw,
+        Err(e) if e.kind() == std::io::ErrorKind::NotFound => return Ok(None),
+        Err(e) => {
+            return Err(AppError::fm_chain(
+                9,
+                format!(
+                    "receipt log `{}` unreadable while establishing the generation \
+                     baseline: {e}. Remediation: fix the file's permissions.",
+                    log_path.display()
+                ),
+            ))
+        }
+    };
+    let Some(tail) = raw.lines().rev().find(|l| !l.trim().is_empty()) else {
+        return Ok(None);
+    };
+    let receipt: SyncReceipt = serde_json::from_str(tail).map_err(|e| {
+        AppError::fm_chain(
+            10,
+            format!(
+                "receipt-log tail at `{}` does not deserialize ({e}); the generation \
+                 baseline is undecidable. Remediation: repair or truncate the corrupted \
+                 tail line, then re-run sync.",
+                log_path.display()
+            ),
+        )
+    })?;
+    Ok(receipt.payload.generation)
 }
 
 /// Emit the portable refusal envelope (RFC-GPACK-001 §54/§55) for a
@@ -3445,6 +3658,12 @@ pub(crate) fn write_receipt(
 ) -> Result<()> {
     use std::io::Write as _;
 
+    // This run's receipt-generation epoch, established from the log tail
+    // (first sync = 1). The Stage-2c gate already verified the tail is
+    // honest; the same baseline is recorded into the payload and every
+    // admission-ledger item so the wire generation is monotonic per project.
+    let run_generation = read_receipt_log_generation(root)?.map_or(1, |g| g + 1);
+
     // Bind every decision target that exists on disk (written this run or
     // skipped-unchanged), so a no-op re-sync produces the identical payload.
     // A target that is absent is fine (e.g. a false `when` guard whose file
@@ -3478,6 +3697,7 @@ pub(crate) fn write_receipt(
         decisions: report.decisions.clone(),
         closure: report.closure.clone(),
         build_provenance: Some(crate::build_provenance::BUILD_PROVENANCE_HEX.to_string()),
+        generation: Some(run_generation),
     };
     let payload_bytes = serde_json::to_vec(&payload)?;
     let payload_hash_hex = blake3::hash(&payload_bytes).to_hex().to_string();
@@ -3569,6 +3789,7 @@ pub(crate) fn write_receipt(
         .map(|(path, reason)| {
             if reason.contains("DRIFT:") {
                 AdmissionItem {
+                    generation: run_generation,
                     evidence_id: path.clone(),
                     observed_outcome: ObservedOutcome::Fail,
                     decision: AdmissionDecision::Quarantined,
@@ -3578,6 +3799,7 @@ pub(crate) fn write_receipt(
                 }
             } else {
                 AdmissionItem {
+                    generation: run_generation,
                     evidence_id: path.clone(),
                     observed_outcome: ObservedOutcome::Pass,
                     decision: AdmissionDecision::Admitted,
@@ -3619,6 +3841,7 @@ pub(crate) fn write_receipt(
             let mechanized = matches!(row.get("mech"), Some(EngineValue::Bool(true)));
             admission_items.push(if mechanized {
                 AdmissionItem {
+                    generation: run_generation,
                     evidence_id: format!("constitution:{law_id}"),
                     observed_outcome: ObservedOutcome::Pass,
                     decision: AdmissionDecision::Admitted,
@@ -3631,6 +3854,7 @@ pub(crate) fn write_receipt(
                 }
             } else {
                 AdmissionItem {
+                    generation: run_generation,
                     evidence_id: format!("constitution:{law_id}"),
                     observed_outcome: ObservedOutcome::Fail,
                     decision: AdmissionDecision::Admitted,
@@ -3683,6 +3907,7 @@ pub(crate) fn write_receipt(
         let pass = *exit == 0;
         let allowlisted = allowlisted_divergences.contains(name);
         admission_items.push(AdmissionItem {
+            generation: run_generation,
             evidence_id: format!("ver:{name}"),
             observed_outcome: if pass {
                 ObservedOutcome::Pass
@@ -3792,6 +4017,7 @@ pub(crate) fn write_receipt(
         |items: &mut Vec<AdmissionItem>, class: &str, fact: &ClassProducerFact, what: &str| {
             let pass = fact.exit == 0;
             items.push(AdmissionItem {
+                generation: run_generation,
                 evidence_id: format!("class:{class}:{}", fact.identity),
                 observed_outcome: if pass {
                     ObservedOutcome::Pass
@@ -3827,6 +4053,7 @@ pub(crate) fn write_receipt(
         // Explicit Unknown marker: the producer RAN and chose --skip.
         // Distinguished from absence (no marker at all) honestly.
         admission_items.push(AdmissionItem {
+            generation: run_generation,
             evidence_id: "class:compiled_binary:skipped".to_string(),
             observed_outcome: ObservedOutcome::Unknown,
             decision: AdmissionDecision::Admitted,

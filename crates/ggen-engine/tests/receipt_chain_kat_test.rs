@@ -70,7 +70,9 @@ const KAT_ENTRY_1_FRAME_DIGEST_HEX: &str =
 const GENESIS: [u8; 32] = [0u8; 32];
 
 fn hex32(bytes: &[u8; 32]) -> String {
-    bytes.iter().fold(String::new(), |acc, b| format!("{acc}{b:02x}"))
+    bytes
+        .iter()
+        .fold(String::new(), |acc, b| format!("{acc}{b:02x}"))
 }
 
 // ---------------------------------------------------------------------------

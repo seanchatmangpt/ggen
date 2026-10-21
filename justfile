@@ -519,7 +519,19 @@ slo-check:
 # Full pre-commit gate, in sequence, fail fast. The dependency list on the recipe line below
 # IS the canonical gate list and count -- do not restate a number in a comment here or in any
 # doc; every prior count has gone stale within days of a gate being added or removed.
-pre-commit: fmt-check check lint test-lib coherence-check guard-process-intelligence-boundary guard-cheat-scan guard-short-test-timeout guard-fail-open-subprocess guard-claims-schema guard-pack-proofs guard-generation-hash-pin guard-pack-count guard-gate-count guard-pack-e2e-coverage guard-ggen-toml-schema-parity self-play
+# G07 promotion (v26.10.20): court-canonical (exit 0, 44.6s), court-vacuity
+# (exit 0, 32.6s), court-envelope (exit 0, 18.2s) each witnessed GREEN under
+# 60s on 2026-10-20 before wiring. court-typed-refusal promotion (F01,
+# v26.10.20): the refusal_compile_fail compile-fail probes were batched into
+# ONE cargo invocation (both crates' doctests in a single compilation graph;
+# per-crate anti-vacuity on libtest's path-labelled result lines), dropping
+# intrinsic runtime under the bar — `just court-typed-refusal` witnessed
+# exit 0, 32.2s, on 2026-10-20 before wiring. court-fresh-epoch promotion
+# (F02, v26.10.20): the shim-court BLOCKED rows cleared once the tree compiled —
+# `bash scripts/fresh_epoch_lease_court.sh` witnessed exit 0, 10.2s,
+# non-vacuous (BEFORE green pristine, AFTER FAILED under SHIM-COURT gate
+# disable, restore sha256 byte-exact) on 2026-10-20 before wiring.
+pre-commit: fmt-check check lint test-lib coherence-check guard-process-intelligence-boundary guard-cheat-scan guard-short-test-timeout guard-fail-open-subprocess guard-claims-schema guard-pack-proofs guard-generation-hash-pin guard-pack-count guard-gate-count guard-pack-e2e-coverage guard-ggen-toml-schema-parity self-play court-canonical court-vacuity court-envelope court-typed-refusal court-fresh-epoch
     #!/usr/bin/env bash
     set -euo pipefail
     echo "✅ Pre-commit gate complete (fmt, check, lint, tests, coherence, boundary guard, cheat scan, claims schema, pack proofs, generation hash-pin, pack e2e coverage report)"
@@ -598,6 +610,54 @@ guard-pack-count:
 # guard-pack-count closes for rf:packCount. See scripts/ci/guard-gate-count.sh.
 guard-gate-count:
     ./scripts/ci/guard-gate-count.sh
+
+# ============================================================================
+# v26.10.20 lithographic courts (wave-2 lanes A03/A06/A10/A12/A15/A16/A17).
+# Deliberately NOT wired into `pre-commit` until each court's GREEN run is
+# witnessed (TECH-DEBT-001 precedent: never add a red gate to the commit path).
+# Promotion condition per court: full GREEN run below, then append the recipe
+# name to the pre-commit dependency line (line ~522).
+# ============================================================================
+
+# Envelope falsifier courts (A03 + I1/I2 seam completion).
+court-envelope:
+    cargo test -p ggen-abb-sbb --test envelope_courts
+    cargo test -p ggen-engine --test envelope_undeclared_cap_e2e
+    cargo test -p ggen-engine --test envelope_caps_e2e
+    cargo test -p ggen-engine --test envelope_receipt_binding_test
+
+# Canonical identity courts (A10) + codegen contract (A09/I3).
+court-canonical:
+    cargo test -p ggen-config --test canonical_identity_courts_test --test generated_mutation_court
+    cargo test -p ggen-engine --test canonical_identity_codegen_test
+    cargo test -p ggen-engine --test frontmatter_canonical_schema_test
+
+# FreshEpochLease: Rust courts + the shim-court non-vacuity protocol
+# (0 nonvacuous / 1 VACUOUS GATE / 2 BLOCKED / 3 SKIP-loud).
+court-fresh-epoch:
+    cargo test -p ggen-engine --test fresh_epoch_lease_court_test
+    cargo test -p ggen-engine --test fresh_lease_write_test
+    bash scripts/fresh_epoch_lease_court.sh
+
+# VacuityCourtCompiler: KAT, fail-closed runner, witness ordering, self-ref.
+court-vacuity:
+    cargo test -p ggen-engine --test court_compiler_kat_test --test court_runner_fail_closed --test court_witness_ordering
+    cargo test -p ggen-engine --test vacuity_court_selfref_test
+
+# TypedBoundaryRefusal: compile-fail + census + fail-open generated surfaces.
+court-typed-refusal:
+    cargo test -p ggen-engine --test refusal_compile_fail --test generated_shell_safety_test
+    python3 scripts/ci/guard_wire_code_census.py
+    python3 scripts/ci/test_guard_wire_code_census.py
+    python3 scripts/ci/guard_fail_open_subprocess.py
+    python3 scripts/ci/test_guard_fail_open_generated.py
+
+# All five pattern courts.
+courts: court-envelope court-canonical court-fresh-epoch court-vacuity court-typed-refusal
+
+# Census staleness gate (L15): registry TTL vs generated census; exit 2 = CENSUS_STALE.
+guard-wire-code-census:
+    python3 scripts/ci/guard_wire_code_census.py
 
 # SPARQL law-gate enforcement (.specify/gates/*.rq): re-parses every gate file
 # with the real oxigraph SPARQL parser and re-executes six gates
@@ -837,3 +897,12 @@ promote:
     cp target/release/ggen ~/.local/bin/ggen
     chmod +x ~/.local/bin/ggen
     @echo "promoted: $(~/.local/bin/ggen --version)"
+
+# ── H19: guard against gitignored `generated` paths breaking cargo publish ────
+# Any `generated` file/dir under crates/ is checked: src/ paths must be covered
+# by their crate's explicit [package] include; others must be in the script's
+# ALLOWED set. Closes the H09 class (repo .gitignore `generated/` dropped
+# src/generated/*.rs from publish tarballs -> E0583). Not yet on the
+# pre-commit line — promotion is an operator decision.
+guard-generated-paths:
+    python3 scripts/ci/guard_generated_paths.py

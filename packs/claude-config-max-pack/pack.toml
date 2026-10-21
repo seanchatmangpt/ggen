@@ -1,0 +1,17 @@
+[pack]
+name = "claude-config-max-pack"
+version = "0.1.0"
+description = """
+Claude Code configuration pack (stub, v26.10.20 dialect-court slice): ships
+signed consumer example keys only; no RDF surface today. pack.toml stub added
+so the dialect declaration court (R05) can walk the pack root -- the default
+`*.ttl -> turtle` dialect applies vacuously (zero RDF files).
+"""
+
+[capabilities]
+provides = ["urn:ggen:pack:claude-config-max-pack"]
+requires = []
+
+[[capabilities.dialects]]
+glob = "*.ttl"
+dialect = "turtle"

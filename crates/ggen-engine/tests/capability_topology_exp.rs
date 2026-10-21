@@ -33,6 +33,9 @@ fn exp_pack(name: &str, dependencies: &[&str], requires: &[&str]) -> Pack {
         extra_ontology_paths: Vec::new(),
         template_paths: Vec::new(),
         lock: true,
+        // V02 compile-freeze unblock (disclosed): `default_dialects()` is
+        // pub(crate); empty Vec is the neutral dialect set for this fixture.
+        dialects: Vec::new(),
     }
 }
 

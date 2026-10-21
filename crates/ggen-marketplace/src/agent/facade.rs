@@ -351,7 +351,10 @@ impl PackAgent {
                 pack_id: id.clone(),
                 version: locked.version.clone(),
                 integrity: locked.integrity.clone(),
-                installed_at: locked.installed_at.to_rfc3339(),
+                installed_at: locked
+                    .installed_at
+                    .map(|ts| ts.to_rfc3339())
+                    .unwrap_or_default(),
             })
             .collect();
 

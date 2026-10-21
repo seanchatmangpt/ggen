@@ -1,0 +1,18 @@
+# Vacuity court rule (v26.10.20, wave-1 lane L10).
+# A gate run is court_nonvacuous iff the mutant produced a typed observed-refusal
+# AND the control (pristine subject) passed. A court whose mutant does not
+# refuse, or whose control refuses, is VACUOUS — it carries no bits.
+
+@prefix log: <http://www.w3.org/2000/10/swap/log#> .
+@prefix vc: <http://ggen.io/vacuity-court#> .
+
+{
+    ?gate a vc:InvariantGate .
+    ?run vc:gate ?gate ;
+         vc:observed-refusal ?refusal .
+    ?control vc:gate ?gate ;
+         vc:subject vc:pristine ;
+         vc:outcome vc:passes .
+} log:implies {
+    ?run a vc:court_nonvacuous .
+} .

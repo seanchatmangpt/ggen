@@ -1,0 +1,15 @@
+# Vacuity receipts directory marker (v26.10.20, lane A11).
+#
+# Per-court receipt graphs are written here by the court runner as
+# vacuity-receipts-<gate-id>.ttl (RESOLUTIONS.md, "Vacuity schema ns vc:" row).
+#
+# RECEIPTS ARE RUNNER-WRITTEN, NEVER HAND-EDITED.
+# A hand-edited receipt is contract drift: it no longer describes what ran.
+# Verify, do not modify: ggen receipt verify / the L13 refusal registry.
+
+@prefix vc: <http://ggen.io/vacuity-court#> .
+
+vc:receipts-directory
+    vc:writer "court-runner" ;
+    vc:hand-edit "forbidden" ;
+    vc:naming "vacuity-receipts-<gate-id>.ttl" .

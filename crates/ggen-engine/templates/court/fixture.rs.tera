@@ -1,0 +1,33 @@
+//! GENERATED fixture for vacuity court {{ gate_id }} — do not edit;
+//! recompile from the vc: catalog with `ggen court compile`.
+//!
+//! Consumed by the ggen-cheat-scanner output gates (T01–T04): the fixture
+//! carries real assertions on catalog identity, never tautological checks.
+
+/// Gate identity pinned by the vc: catalog.
+pub const GATE_ID: &str = "{{ gate_id }}";
+/// Root-relative target file the shim patches.
+pub const TARGET: &str = "{{ target }}";
+/// Mutation operator kind (L10 enum).
+pub const MUTANT_KIND: &str = "{{ mutant_kind }}";
+/// Expected SHA-256 hex of the target after the shim lands.
+pub const EXPECTED_POST_HASH: &str = "{{ expected_post_hash }}";
+/// Compiled court verdict over the witness/shim ordering.
+pub const COURT_STATUS: &str = "{{ status }}";
+
+/// The fixture pins real catalog identity: an empty field anywhere means
+/// the compiler defaulted a required catalog field, which it must never do.
+#[test]
+fn fixture_identity_pins_catalog() {
+    assert!(!GATE_ID.is_empty(), "gate_id must not be defaulted");
+    assert!(!TARGET.is_empty(), "target must not be defaulted");
+    assert!(!MUTANT_KIND.is_empty(), "mutant_kind must not be defaulted");
+    assert!(
+        !EXPECTED_POST_HASH.is_empty(),
+        "expected_post_hash must not be defaulted"
+    );
+    assert!(
+        COURT_STATUS == "PASS" || COURT_STATUS == "REFUSED" || COURT_STATUS == "UNKNOWN",
+        "court status must use the Pass/Refused/Unknown vocabulary, got {COURT_STATUS}"
+    );
+}

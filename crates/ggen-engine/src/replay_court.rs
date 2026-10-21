@@ -2,7 +2,8 @@
 //!
 //! Ordinary manufacture reports `replay.status = UNKNOWN` forever ("reports
 //! standing, does not confer it"). Only this court promotes: it independently
-//! re-hashes every consequence named in an [`PortableReceiptEnvelope`]
+//! re-hashes every consequence named in a
+//! [`PortableReceiptEnvelope`](crate::portable_receipt::PortableReceiptEnvelope)
 //! straight off disk and compares against the bound digest. Promotion rule:
 //!
 //! * `standing == "ALIVE"` **and** every consequence re-hashes equally

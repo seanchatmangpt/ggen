@@ -138,6 +138,7 @@ fn synthetic_pack(
         ontology_path: PathBuf::new(),
         extra_ontology_paths: Vec::new(),
         template_paths: Vec::new(),
+        dialects: Vec::new(),
         lock: false,
     }
 }

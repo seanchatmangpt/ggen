@@ -1,0 +1,85 @@
+{# falsifiers.rs.tera — exhaustive mutation-falsifier closure generation.
+   One mutant closure per identity-bearing field; reordering mutants for each
+   adjacent sortKeys pair. Consumed from falsifier-fields.rq over
+   canonical-identity-lattice.ttl. A digest that survives any mutant fails
+   the court (non-canonical form). Court lanes L06/A06 consume. #}
+// GENERATED from .specify/canonical-identity-lattice.ttl — do not hand-edit.
+// Regenerate: ggen sync run
+//
+// Exhaustive mutation falsifier: for every (field, mutantKind) row emitted by
+// .specify/queries/canonical/falsifier-fields.rq, mutating that field in the
+// subject MUST change to_hash_bytes output. A surviving mutant is a
+// NON-CANONICAL form — the court refuses, not skips.
+
+#[derive(Debug, Clone)]
+pub enum CanonicalMutant {
+    /// Flip one serialized field to a distinct value.
+    FieldFlip { field: &'static str, value: String },
+    /// Swap two adjacent entries in the sortKeys ordering.
+    SortKeyReorder { swap: (&'static str, &'static str) },
+}
+
+#[derive(Debug, Clone)]
+pub struct FalsifierObligation {
+    pub type_name: &'static str,
+    pub derivation: &'static str,
+    pub mutant: CanonicalMutant,
+}
+
+pub const FALSIFIER_OBLIGATIONS: &[FalsifierObligation] = &[
+    {% for row in falsifier_fields %}
+    FalsifierObligation {
+        type_name: "{{ row.type }}",
+        derivation: "{{ row.derivation }}",
+        mutant: {% if row.mutantKind == "field-flip" %}CanonicalMutant::FieldFlip {
+            field: "{{ row.field }}",
+            value: "MUTANT-FLIPPED".to_string(),
+        }{% else %}CanonicalMutant::SortKeyReorder {
+            swap: {% raw %}({% endraw %}"{{ row.sortKeys_reorder_a }}", "{{ row.sortKeys_reorder_b }}"{% raw %}){% endraw %},
+        }{% endif %},
+    },
+    {% endfor %}
+];
+
+/// Court entry point: apply every mutant and assert digest divergence.
+/// Returns the list of surviving mutants; empty = closure is exhaustive and
+/// the canonical identity is admitted. A digest that fails to change under a
+/// field flip proves the field is not covered by the canonical form.
+pub fn run_exhaustive_mutation_falsifier(
+    identity: &CanonicalIdentity,
+    subject: &dyn CanonicalSubject,
+    apply_mutant: &dyn Fn(&dyn CanonicalSubject, &CanonicalMutant) -> Box<dyn CanonicalSubject>,
+) -> Result<Vec<CanonicalMutant>, CanonicalError> {
+    let baseline = identity.to_hash_bytes(subject)?;
+    let mut survivors = Vec::new();
+    for obligation in FALSIFIER_OBLIGATIONS {
+        if obligation.type_name != identity.type_name {
+            continue;
+        }
+        let mutated = apply_mutant(subject, &obligation.mutant);
+        let mutated_hash = identity.to_hash_bytes(mutated.as_ref())?;
+        if mutated_hash == baseline {
+            // SURVIVING MUTANT: the field flip did not change the digest —
+            // the canonical form does not cover this field. Court refuses.
+            survivors.push(obligation.mutant.clone());
+        }
+    }
+    Ok(survivors)
+}
+
+/// Two-pass determinism check: canonicalize twice, hashes must agree.
+/// Nondeterministic canonicalization (HashMap iteration, unstable sort) is a
+/// refusal, not a pass.
+pub fn run_two_pass_determinism_check(
+    identity: &CanonicalIdentity,
+    subject: &dyn CanonicalSubject,
+) -> Result<(), CanonicalError> {
+    let first = identity.to_hash_bytes(subject)?;
+    let second = identity.to_hash_bytes(subject)?;
+    assert_eq!(
+        first, second,
+        "nondeterministic canonical form for {} — two passes disagree",
+        identity.type_name
+    );
+    Ok(())
+}

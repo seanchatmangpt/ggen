@@ -81,6 +81,10 @@ pub struct Pack {
     /// `version`). `false` means [`lock_entries`] omits this pack entirely:
     /// it is never checked against `ggen.lock` and never written to it.
     pub lock: bool,
+    /// RDF dialect globs declared by the pack's `pack.toml`
+    /// (`[[capabilities.dialects]]`). Absent key synthesizes the default
+    /// `[*.ttl -> turtle]`. Validated at resolve time (`[FM-PACK-021]`).
+    pub dialects: Vec<DialectGlob>,
 }
 
 /// On-disk `pack.toml` schema. `pack`/`dependencies`/`capabilities` are the
@@ -111,7 +115,7 @@ struct PackToml {
 /// These facts are compiled into the canonical RDF graph by
 /// `crate::pack_scope::topology_turtle`. They narrow SELECT candidates only;
 /// they do not bypass GraphLaw/SHACL/gates or BRCE.
-#[derive(Debug, Default, Deserialize)]
+#[derive(Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
 struct PackCapabilities {
     /// Semantic type/class labels understood by the caller's public ontology.
@@ -124,6 +128,93 @@ struct PackCapabilities {
     /// dependency closure.
     #[serde(default)]
     requires: BTreeSet<String>,
+    /// RDF dialect globs this pack declares. Absent key synthesizes the
+    /// backward-compatible default `[*.ttl -> turtle]` (see
+    /// [`default_dialects`]); an explicitly empty list is refused
+    /// `[FM-PACK-021]` — a pack that declares `dialects` must declare at
+    /// least one glob, never silence.
+    #[serde(default = "default_dialects")]
+    dialects: Vec<DialectGlob>,
+}
+
+/// Manual `Default` (not derived) so both absence paths — no
+/// `[capabilities]` table at all (serde struct default) and no `dialects`
+/// key within it — synthesize the same backward-compatible
+/// `[*.ttl -> turtle]` default.
+impl Default for PackCapabilities {
+    fn default() -> Self {
+        Self {
+            types: BTreeSet::new(),
+            provides: BTreeSet::new(),
+            requires: BTreeSet::new(),
+            dialects: default_dialects(),
+        }
+    }
+}
+
+/// One `[[capabilities.dialects]]` entry: a template-style glob over the
+/// pack's ontology files and the graphlaw dialect each match parses as.
+#[derive(Debug, Clone, PartialEq, Eq, serde::Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct DialectGlob {
+    /// Glob pattern matched against pack ontology file paths/names
+    /// (e.g. `*.ttl`, `shapes/*.trig`).
+    pub glob: String,
+    /// Lowercase graphlaw `Dialect` variant name. Closed vocabulary:
+    /// `turtle`, `trig`, `ntriples`, `nquads`, `n3`, `rdf-xml`, `json-ld`.
+    pub dialect: String,
+}
+
+/// The closed vocabulary of lowercase graphlaw `Dialect` variant names a
+/// `dialects` entry may declare.
+const DIALECT_NAMES: &[&str] = &[
+    "turtle", "trig", "ntriples", "nquads", "n3", "rdf-xml", "json-ld",
+];
+
+/// Backward-compatible default for a pack.toml with no `dialects` key:
+/// every `.ttl` file parses as Turtle — exactly the pre-dialect behavior,
+/// so existing packs are byte-identical in semantics.
+pub(crate) fn default_dialects() -> Vec<DialectGlob> {
+    vec![DialectGlob {
+        glob: "*.ttl".to_string(),
+        dialect: "turtle".to_string(),
+    }]
+}
+
+/// Validate a parsed `dialects` list: non-empty, and every `dialect` a
+/// lowercase graphlaw dialect name.
+///
+/// # Errors
+/// - `[FM-PACK-021]` empty list, or a `dialect` outside
+///   [`DIALECT_NAMES`] (case-sensitive — `Turtle` is refused).
+fn validate_dialects(name: &str, dialects: &[DialectGlob]) -> Result<()> {
+    if dialects.is_empty() {
+        return Err(AppError::fm_pack(
+            21,
+            format!(
+                "pack `{name}`: capabilities.dialects is empty. \
+                 Remediation: declare at least one `[[capabilities.dialects]]` \
+                 entry (glob + lowercase dialect), or remove the key to get the \
+                 default `*.ttl -> turtle`."
+            ),
+        ));
+    }
+    for entry in dialects {
+        if !DIALECT_NAMES.contains(&entry.dialect.as_str()) {
+            return Err(AppError::fm_pack(
+                21,
+                format!(
+                    "pack `{name}`: capabilities.dialects entry (glob `{}`) names \
+                     unknown dialect `{}`. Remediation: use one of the lowercase \
+                     graphlaw dialect names: {}.",
+                    entry.glob,
+                    entry.dialect,
+                    DIALECT_NAMES.join(", ")
+                ),
+            ));
+        }
+    }
+    Ok(())
 }
 
 /// `[pack]` table of `pack.toml` (open key set for author metadata; see
@@ -172,6 +263,8 @@ struct PackMeta {
 /// - `[FM-PACK-003]` `pack.toml` invalid TOML or unknown keys
 /// - `[FM-PACK-004]` `ontology.ttl` missing
 /// - `[FM-PACK-005]` zero templates under `templates/`
+/// - `[FM-PACK-021]` `capabilities.dialects` empty or names an unknown
+///   dialect (see [`validate_dialects`])
 /// - `[FM-PACK-010]` `git` not on `$PATH`, or `git clone` failed
 /// - `[FM-PACK-011]` `git checkout <version>` failed
 pub fn resolve(config: &GgenConfig, config_root: &Path) -> Result<Vec<Pack>> {
@@ -879,6 +972,7 @@ fn resolve_pack_dir(name: &str, root: &Path) -> Result<Pack> {
     // the pack that actually failed.
     let _ = &manifest.pack.deprecated;
     let _ = &manifest.pack.superseded_by;
+    validate_dialects(name, &manifest.capabilities.dialects)?;
     // Author-declared extension metadata: informational only, never
     // consulted by resolution/generation/admission.
     let _ = &manifest.pack.extra;
@@ -899,6 +993,7 @@ fn resolve_pack_dir(name: &str, root: &Path) -> Result<Pack> {
         // `PackRef::Path` arm overwrites this from the declared `lock`
         // field; `PackRef::Git` packs (no opt-out) keep this default.
         lock: true,
+        dialects: manifest.capabilities.dialects,
     })
 }
 
@@ -1393,6 +1488,9 @@ mod tests {
             extra_ontology_paths: Vec::new(),
             template_paths: Vec::new(),
             lock: true,
+            // V02 compile-freeze unblock (disclosed): neutral default dialect set
+            // for this test fixture.
+            dialects: default_dialects(),
         }
     }
 
