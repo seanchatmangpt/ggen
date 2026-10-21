@@ -137,7 +137,7 @@ anyhow = "1.0"
 chrono = { version = "0.4", features = ["serde"] }
 thiserror = "2.0"
 async-trait = "0.1"
-graphlaw = { default-features = false, features = ["abi"], version = "26.10.12" }
+graphlaw = { default-features = false, features = ["abi"], version = "26.10.13" }
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = [
   "env-filter",
@@ -1012,5 +1012,7 @@ unused-shlibs = []
 # Upgrade path: bump the `graphlaw` pin in [workspace.dependencies] above and
 # DELETE this patch section as soon as graphlaw releases >= the guard (>= 26.10.13
 # post-085e878). Never widen the pin while this patch is in place.
-[patch.crates-io]
-graphlaw = { path = "/Users/sac/graphlaw" }
+# 2026-10-20: RETIRED per the upgrade path above — graphlaw 26.10.13 published
+# to crates.io with the depth guard + all v26.10.20 wave APIs (tier, ParseRefusal,
+# quads_for Result); pin bumped to "26.10.13". Re-add only for local development
+# against an unreleased graphlaw, and never while a versioned pin is widened.
