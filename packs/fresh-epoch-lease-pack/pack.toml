@@ -1,0 +1,14 @@
+[pack]
+name = "fresh-epoch-lease-pack"
+version = "0.1.0"
+description = """
+Fresh-epoch lease pattern (v26.10.20): a write is admitted only against a fresh lease slot; unknown ownership state fails closed. Verbatim sourceText transcribes ggen-engine's freeze machinery -- check_freeze (crates/ggen-engine/src/write.rs:210-272, the admit rule: checksum slot match admits, mismatch refuses, unreadable slot is FM-WRITE-011 fail-closed) and record_freeze_checksum + slot path resolution (write.rs:274-317, the per-target slot semantics the RESOLUTIONS lease design generalizes to .ggen-v2/lease/<blake3> decimal generation slots).
+"""
+
+[capabilities]
+provides = ["urn:ggen:pack:fresh-epoch-lease-pack"]
+requires = []
+
+[[capabilities.dialects]]
+glob = "*.ttl"
+dialect = "turtle"

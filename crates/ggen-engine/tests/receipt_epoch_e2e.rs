@@ -197,6 +197,7 @@ fn full_v2_receipt_round_trips_with_all_fields_intact() {
     let components = ComponentLevels::uniform(AndonLevel::Yellow);
     let epoch = ReceiptEpochV2Builder::new(CeilingLevel::Green, components)
         .admission_item(AdmissionItem {
+            generation: 0,
             evidence_id: "out/a.txt".to_string(),
             observed_outcome: ObservedOutcome::Pass,
             decision: AdmissionDecision::Admitted,
@@ -205,6 +206,7 @@ fn full_v2_receipt_round_trips_with_all_fields_intact() {
             obligations_created: vec!["ob:1".to_string(), "ob:2".to_string()],
         })
         .admission_item(AdmissionItem {
+            generation: 0,
             evidence_id: "out/b.txt".to_string(),
             observed_outcome: ObservedOutcome::Fail,
             decision: AdmissionDecision::Quarantined,
@@ -295,6 +297,7 @@ fn migration_receipt_links_a_real_v1_hash_to_a_real_v2_hash() {
     let components = ComponentLevels::uniform(AndonLevel::Green);
     let epoch = ReceiptEpochV2Builder::new(CeilingLevel::LegacyObserved, components)
         .admission_item(AdmissionItem {
+            generation: 0,
             evidence_id: "out/a.txt".to_string(),
             observed_outcome: ObservedOutcome::Pass,
             decision: AdmissionDecision::Admitted,
@@ -382,6 +385,7 @@ fn quarantined_admission_item_derives_yellow_and_blocks_promotion() {
     let components = ComponentLevels::uniform(AndonLevel::Yellow);
     let epoch = ReceiptEpochV2Builder::new(CeilingLevel::Green, components)
         .admission_item(AdmissionItem {
+            generation: 0,
             evidence_id: "out/b.txt".to_string(),
             observed_outcome: ObservedOutcome::Unknown,
             decision: AdmissionDecision::Quarantined,
@@ -406,6 +410,7 @@ fn refused_admission_item_derives_red() {
     let components = ComponentLevels::uniform(AndonLevel::Green);
     let epoch = ReceiptEpochV2Builder::new(CeilingLevel::Green, components)
         .admission_item(AdmissionItem {
+            generation: 0,
             evidence_id: "out/c.txt".to_string(),
             observed_outcome: ObservedOutcome::Fail,
             decision: AdmissionDecision::Refused,
@@ -414,6 +419,7 @@ fn refused_admission_item_derives_red() {
             obligations_created: vec![],
         })
         .admission_item(AdmissionItem {
+            generation: 0,
             evidence_id: "out/d.txt".to_string(),
             observed_outcome: ObservedOutcome::Pass,
             decision: AdmissionDecision::Admitted,
@@ -511,6 +517,7 @@ fn replaying_a_mixed_chain_twice_is_deterministic() {
         ComponentLevels::uniform(AndonLevel::Green),
     )
     .admission_item(AdmissionItem {
+        generation: 0,
         evidence_id: "out/a.txt".to_string(),
         observed_outcome: ObservedOutcome::Pass,
         decision: AdmissionDecision::Admitted,
@@ -536,6 +543,7 @@ fn replaying_a_mixed_chain_twice_is_deterministic() {
         ComponentLevels::uniform(AndonLevel::Yellow),
     )
     .admission_item(AdmissionItem {
+        generation: 0,
         evidence_id: "out/b.txt".to_string(),
         observed_outcome: ObservedOutcome::Unknown,
         decision: AdmissionDecision::Quarantined,

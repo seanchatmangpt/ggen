@@ -11,3 +11,11 @@ projection_surfaces = ["unrdf", "mermaid", "deck.gl"]
 
 [capabilities]
 provides = ["urn:ggen:pack:cyberpunk-tv-platform"]
+
+[[capabilities.dialects]]
+glob = "*.ttl"
+dialect = "turtle"
+
+[[capabilities.dialects]]
+glob = "*.n3"
+dialect = "n3"

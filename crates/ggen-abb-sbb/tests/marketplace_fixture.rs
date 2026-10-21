@@ -58,6 +58,8 @@ fn marketplace_fixture_is_the_exact_admitted_projection() {
         sbb: "sbb:ingest-0000".into(),
         requested_authority: Authority::Construct,
         expected_graph_digest: Some(graph.digest()),
+        receipt_generation: 0,
+        artifact_baseline_generation: 0,
     };
     let admitted = admit(&graph, &request).expect("marketplace SBB qualifies");
     let manufactured = manufacture(

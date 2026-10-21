@@ -13,6 +13,7 @@ pub mod a2a;
 pub mod agent;
 pub mod bblock;
 pub mod capability;
+pub mod court;
 pub mod doctor;
 #[cfg(feature = "experimental")]
 pub mod framework;
@@ -60,6 +61,15 @@ fn register_capability_noun() {
     register_noun(
         "capability",
         "Capability noun — resolve and enable capability surfaces (`ggen capability <verb>`).",
+    );
+}
+
+#[linkme::distributed_slice(::clap_noun_verb::cli::registry::__NOUN_REGISTRY)]
+static REGISTER_COURT_NOUN: fn() = register_court_noun;
+fn register_court_noun() {
+    register_noun(
+        "court",
+        "Vacuity-court compiler: compile vc: mutant catalogs into shim-court artifacts with typed exits.",
     );
 }
 

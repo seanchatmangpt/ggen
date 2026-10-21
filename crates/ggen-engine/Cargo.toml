@@ -21,7 +21,26 @@ homepage = "https://github.com/seanchatmangpt/ggen"
 readme = "README.md"
 keywords = ["codegen", "rdf", "sparql", "tera"]
 categories = ["development-tools"]
-exclude = ["/.github", "/fixtures", "/docs"]
+# `include` is load-bearing for publish (H09 class, H19 guard): the repo-wide
+# .gitignore pattern `generated/` excludes src/generated/{mod,refusals}.rs from
+# `cargo package`, which breaks `cargo publish` with E0583 ("file not found for
+# module `generated`"). An explicit include list overrides ignore rules, forcing
+# the generated sealed-enum module into the tarball. schema/ is included because
+# src/ embeds schema/frontmatter-schema.ttl via include_str!. benches/ is
+# included because the [[bench]] targets must resolve inside the package.
+# templates/ is included because src/court/compile.rs include_str!s the court
+# runner/register/fixture templates (publish-verify E0432/E0583 class otherwise).
+# tests/, examples/, ontology/ are deliberately excluded (not needed by
+# consumers). Supersedes the previous `exclude` list.
+include = [
+    "Cargo.toml",
+    "README.md",
+    "build.rs",
+    "src/**/*",
+    "schema/**/*",
+    "templates/**/*",
+    "benches/**/*",
+]
 publish = true
 # `main.rs`/the clap-noun-verb CLI-dispatch layer are not built here -- see
 # the `verbs` module comment in src/lib.rs. Without autobins = false, Cargo
@@ -96,7 +115,13 @@ star-toml = { workspace = true }
 # Cargo.lock) so this never becomes a duplicate-version dependency graph.
 spargebra = "0.4.7"
 graphlaw = { workspace = true }
-ggen-abb-sbb = { path = "../ggen-abb-sbb", version = "26.10.10" }
+ggen-abb-sbb = { path = "../ggen-abb-sbb", version = "26.10.11" }
+# Receipt→dataset bridge (v26.10.20 slice 2, lane G15): opt-in projection of sync
+# receipt identity facts into ggen-graph's intent-segregated DatasetStore. Versioned
+# path edge (same pattern as ggen-abb-sbb/ggen-marketplace above) so `cargo publish
+# -p ggen-engine` stays resolvable; ggen-graph depends on this crate only as a
+# DEV-dependency, so no normal-dependency cycle exists.
+ggen-graph = { path = "../ggen-graph", version = "=26.10.12" }
 # New, deliberate edge (not an undocumented re-export): resolving a `GenerationRule`'s
 # `QuerySource::Pack`/`TemplateSource::Pack` variant means asking "where is this pack
 # installed" -- that knowledge lives in ggen-marketplace's pack registry/lockfile after
@@ -144,6 +169,7 @@ assert_cmd = "2"
 predicates = "3"
 tempfile = "3"
 sha2 = "0.10"
+chrono = { workspace = true } # pack_lock_determinism_court: stamping LockedPack.installed_at
 insta = { version = "1", features = ["json"] }
 proptest = "1"
 criterion = { version = "0.7", features = ["html_reports"] }

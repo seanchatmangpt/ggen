@@ -110,7 +110,7 @@ pub fn enable(
                     url: "https://registry.ggen.io".to_string(),
                 },
                 integrity: Some(format!("sha256-{digest}")),
-                installed_at: chrono::Utc::now(),
+                installed_at: None,
                 dependencies: Vec::new(),
             },
         );

@@ -13,7 +13,7 @@
 use std::collections::{BTreeSet, HashMap, HashSet};
 
 use oxigraph::{
-    io::RdfFormat,
+    io::{JsonLdProfileSet, RdfFormat},
     model::{BlankNode, GraphName, NamedOrBlankNode, Quad, Term},
     sparql::{QueryResults, SparqlEvaluator},
     store::Store,
@@ -56,6 +56,29 @@ impl DeterministicGraph {
         self.store
             .load_from_slice(RdfFormat::Turtle, ttl)
             .map_err(|e| AppError::fm_graph(2, format!("turtle load failed: {e}")))?;
+        let after = self
+            .store
+            .len()
+            .map_err(|e| AppError::fm_graph(2, format!("store length unavailable: {e}")))?;
+        let inserted = after.saturating_sub(before);
+        self.canonicalize_blank_nodes()?;
+        Ok(inserted)
+    }
+
+    /// Parse and insert content under an explicit [`RdfFormat`], returning
+    /// the number of quads added. Shared body behind the
+    /// [`GraphEngine::insert_quad_format`] implementations.
+    ///
+    /// # Errors
+    /// Returns `[FM-GRAPH-002]` on parse or storage errors.
+    pub(crate) fn insert_format(&self, format: RdfFormat, content: &str) -> Result<usize> {
+        let before = self
+            .store
+            .len()
+            .map_err(|e| AppError::fm_graph(2, format!("store length unavailable: {e}")))?;
+        self.store
+            .load_from_slice(format, content)
+            .map_err(|e| AppError::fm_graph(2, format!("load failed: {e}")))?;
         let after = self
             .store
             .len()
@@ -698,6 +721,15 @@ pub trait GraphEngine: Send + Sync {
         &self, documents: &[TurtleDocument<'_>],
     ) -> Result<OntologyBatchReceipt>;
 
+    /// Parse and insert content under an explicitly given oxigraph
+    /// [`RdfFormat`] (the quad-dialect input seam behind
+    /// [`load_declared`]). Implementations must fail closed on parse errors
+    /// and canonicalize blank nodes exactly like [`GraphEngine::insert_turtle`].
+    ///
+    /// # Errors
+    /// Fails closed on syntax or storage errors.
+    fn insert_quad_format(&self, format: RdfFormat, content: &str) -> Result<usize>;
+
     /// Execute a SPARQL query, returning engine-neutral results.
     ///
     /// # Errors
@@ -960,6 +992,10 @@ impl GraphEngine for DeterministicGraph {
         ontology_batch::insert_documents(self, documents)
     }
 
+    fn insert_quad_format(&self, format: RdfFormat, content: &str) -> Result<usize> {
+        self.insert_format(format, content)
+    }
+
     fn query(&self, sparql: &str) -> Result<EngineQueryResults> {
         match DeterministicGraph::query(self, sparql)? {
             QueryResults::Boolean(b) => Ok(EngineQueryResults::Boolean(b)),
@@ -1160,6 +1196,10 @@ impl GraphEngine for GraphLawStore {
         ontology_batch::insert_documents(&self.mirror, documents)
     }
 
+    fn insert_quad_format(&self, format: RdfFormat, content: &str) -> Result<usize> {
+        self.mirror.insert_format(format, content)
+    }
+
     fn query(&self, sparql: &str) -> Result<EngineQueryResults> {
         GraphEngine::query(&self.mirror, sparql)
     }
@@ -1312,6 +1352,249 @@ impl GraphEngine for GraphLawStore {
         self.law_state()?.hooks_src.push(hook_ttl.to_string());
         Ok(())
     }
+}
+
+// ---------------------------------------------------------------------------
+// Declared-dialect input resolution (v26.10.20 dialect slice 1, lane V03)
+// ---------------------------------------------------------------------------
+
+/// Typed failure codes for the declared-dialect input path. These ride in the
+/// message of the existing [`AppError::fm_graph`] variant until V01's
+/// dedicated error struct lands (disclosed minimal unblock — see the lane
+/// receipt); the literal codes are the stable contract, not the variant.
+pub const FD_UNDECLARED_INPUT_DIALECT: &str = "FD-UNDECLARED_INPUT_DIALECT";
+/// Refusal code for a dialect the engine intentionally does not admit
+/// (N3 rules are graphlaw-engine routing territory).
+pub const FD_DIALECT_FEATURE_DISALLOWED: &str = "FD-DIALECT_FEATURE_DISALLOWED";
+/// Refusal code for JSON-LD content whose top-level `@context` references a
+/// remote IRI — remote fetch is forbidden offline, fail-closed (guard pattern
+/// copied from `graphlaw::dialect::jsonld_remote_context`).
+pub const FD_REMOTE_CONTEXT_FORBIDDEN: &str = "FD-REMOTE_CONTEXT_FORBIDDEN";
+/// Refusal code for content that fails to parse under its *declared* dialect.
+pub const FD_MALFORMED_SYNTAX: &str = "FD-MALFORMED_SYNTAX";
+
+/// Resolve the declared input dialect for an ontology/pack file path from its
+/// extension (V01's `dialects` globs have not landed; extension dispatch is
+/// the disclosed minimal unblock — first match wins, `*.ttl` → `turtle` is
+/// the default and everything else must be a *declared* dialect extension or
+/// the input is refused, never sniffed).
+///
+/// # Errors
+/// `[FD-UNDECLARED_INPUT_DIALECT]` when the extension maps to no known
+/// dialect — a file with an undeclared extension is refused, fail-closed.
+pub fn dialect_for_path(path: &std::path::Path) -> Result<&'static str> {
+    let ext = path
+        .extension()
+        .and_then(|e| e.to_str())
+        .map(str::to_ascii_lowercase);
+    match ext.as_deref() {
+        Some("ttl") => Ok("turtle"),
+        Some("nt") => Ok("ntriples"),
+        Some("nq") => Ok("nquads"),
+        Some("trig") => Ok("trig"),
+        Some("rdf" | "xml" | "owl") => Ok("rdf-xml"),
+        Some("jsonld" | "json") => Ok("json-ld"),
+        Some("n3") => Err(AppError::fm_graph(
+            14,
+            format!(
+                "{FD_DIALECT_FEATURE_DISALLOWED}: dialect `n3` is not admitted by this \
+                 engine's input path (N3 rule documents route through the graphlaw law \
+                 engine via `GraphEngine::load_rules`, not the fact-input path); file \
+                 `{}`. Remediation: declare the file under the law `rules:` section, or \
+                 convert it to Turtle/N-Triples.",
+                path.display()
+            ),
+        )),
+        other => Err(AppError::fm_graph(
+            14,
+            format!(
+                "{FD_UNDECLARED_INPUT_DIALECT}: no declared dialect for extension \
+                 `{}` on file `{}` (declared: .ttl=turtle, .nt=ntriples, .nq=nquads, \
+                 .trig=trig, .rdf/.xml/.owl=rdf-xml, .jsonld/.json=json-ld; .n3 is \
+                 disallowed — see graphlaw routing). Remediation: rename/convert the \
+                 file to a declared dialect.",
+                other.unwrap_or("<none>"),
+                path.display()
+            ),
+        )),
+    }
+}
+
+/// Template-style glob match of `pattern` against `path`: `*` matches any
+/// run of non-`/` characters, `**` matches any run including `/`. `?`
+/// matches one non-`/` character. Everything else is literal.
+#[must_use]
+pub fn glob_matches(pattern: &str, path: &str) -> bool {
+    fn go(p: &[u8], t: &[u8]) -> bool {
+        match p.first() {
+            None => t.is_empty(),
+            Some(b'*') => {
+                let rest = &p[1..];
+                if rest.first() == Some(&b'*') {
+                    let rest2 = &rest[1..];
+                    go(rest2, t) || (!t.is_empty() && go(p, &t[1..]))
+                } else {
+                    go(rest, t) || (!t.is_empty() && t[0] != b'/' && go(p, &t[1..]))
+                }
+            }
+            Some(b'?') => !t.is_empty() && t[0] != b'/' && go(&p[1..], &t[1..]),
+            Some(&c) => !t.is_empty() && t[0] == c && go(&p[1..], &t[1..]),
+        }
+    }
+    go(pattern.as_bytes(), path.as_bytes())
+}
+
+/// Resolve the declared dialect for a pack ontology file through the pack's
+/// `[[capabilities.dialects]]` globs — declaration order, first match wins.
+/// The glob is matched against the file's path relative to the pack root and
+/// against the bare file name (V01's contract: "pack ontology file
+/// paths/names"), so `*.ttl` matches both `ont.ttl` and `shapes/ont.ttl`.
+///
+/// # Errors
+/// `[FD-UNDECLARED_INPUT_DIALECT]` when no declared glob matches — an input
+/// the pack has not declared a dialect for is refused, never sniffed.
+pub fn dialect_for_pack_globs(
+    pack_name: &str, pack_root: &std::path::Path, path: &std::path::Path,
+    globs: &[crate::pack::DialectGlob],
+) -> Result<String> {
+    let name = path
+        .file_name()
+        .and_then(|s| s.to_str())
+        .unwrap_or_default();
+    let rel = path
+        .strip_prefix(pack_root)
+        .ok()
+        .and_then(|p| p.to_str())
+        .unwrap_or(name);
+    for entry in globs {
+        if glob_matches(&entry.glob, rel) || glob_matches(&entry.glob, name) {
+            return Ok(entry.dialect.clone());
+        }
+    }
+    let declared = globs
+        .iter()
+        .map(|g| format!("{} -> {}", g.glob, g.dialect))
+        .collect::<Vec<_>>()
+        .join(", ");
+    Err(AppError::fm_graph(
+        14,
+        format!(
+            "{FD_UNDECLARED_INPUT_DIALECT}: file `{}` matches no dialect glob declared \
+             by pack `{pack_name}` (declared: {declared}). Remediation: add a \
+             `[[capabilities.dialects]]` entry for this file, or convert it to a \
+             declared dialect.",
+            path.display()
+        ),
+    ))
+}
+
+/// Parse and insert `content` under its *declared* dialect:
+/// - `turtle` → the existing [`GraphEngine::insert_turtle`] path,
+/// - `ntriples` / `nquads` / `trig` / `rdf-xml` / `json-ld` → the
+///   corresponding oxigraph `RdfFormat` parser (JSON-LD is admitted only
+///   after the remote-`@context` guard: a top-level string or array context
+///   containing `://` is a typed [`FD_REMOTE_CONTEXT_FORBIDDEN`] refusal —
+///   offline fail-closed, guard pattern from `graphlaw::dialect::
+///   jsonld_remote_context`),
+/// - `n3` → typed [`FD_DIALECT_FEATURE_DISALLOWED`] refusal (logic-tier rule
+///   documents route through the graphlaw law engine),
+/// - anything else → typed [`FD_UNDECLARED_INPUT_DIALECT`] refusal.
+///
+/// A parse failure under a declared dialect is a typed
+/// [`FD_MALFORMED_SYNTAX`] refusal naming the declared dialect, the file
+/// label, and the underlying parser error — never a silent skip.
+///
+/// # Errors
+/// As above; fails closed on every undeclared/disallowed/malformed input.
+pub fn load_declared(
+    graph: &dyn GraphEngine, label: &str, content: &str, dialect: &str,
+) -> Result<usize> {
+    match dialect {
+        "turtle" => graph.insert_turtle(content),
+        "ntriples" => insert_quad_format(graph, RdfFormat::NTriples, label, dialect, content),
+        "nquads" => insert_quad_format(graph, RdfFormat::NQuads, label, dialect, content),
+        "trig" => insert_quad_format(graph, RdfFormat::TriG, label, dialect, content),
+        "rdf-xml" | "rdfxml" => {
+            insert_quad_format(graph, RdfFormat::RdfXml, label, dialect, content)
+        }
+        "json-ld" | "jsonld" => {
+            if jsonld_has_remote_context(content) {
+                return Err(AppError::fm_graph(
+                    14,
+                    format!(
+                        "{FD_REMOTE_CONTEXT_FORBIDDEN}: JSON-LD `@context` of file \
+                         `{label}` references a remote IRI; remote fetch is forbidden \
+                         (offline fail-closed). Remediation: inline or vendor the \
+                         context."
+                    ),
+                ));
+            }
+            insert_quad_format(
+                graph,
+                RdfFormat::JsonLd {
+                    profile: JsonLdProfileSet::empty(),
+                },
+                label,
+                dialect,
+                content,
+            )
+        }
+        "n3" => Err(AppError::fm_graph(
+            14,
+            format!(
+                "{FD_DIALECT_FEATURE_DISALLOWED}: dialect `n3` is not admitted by \
+                 this engine's input path (N3 rule documents route through the \
+                 graphlaw law engine via `GraphEngine::load_rules`, not the \
+                 fact-input path); file `{label}`."
+            ),
+        )),
+        other => Err(AppError::fm_graph(
+            14,
+            format!(
+                "{FD_UNDECLARED_INPUT_DIALECT}: `{other}` is not a declared dialect \
+                 (declared: turtle, ntriples, nquads, trig, rdf-xml, json-ld; \
+                 n3 disallowed); file `{label}`."
+            ),
+        )),
+    }
+}
+
+/// True when the JSON-LD document's top-level `@context` references a remote
+/// IRI. Guard pattern copied from `graphlaw::dialect::jsonld_remote_context`
+/// (graphlaw src/dialect.rs): only string contexts (and arrays containing
+/// string contexts) that contain `://` count; inline object mappings are
+/// local by definition and are not recursed into (a term may legitimately map
+/// to an absolute IRI in-document). Undecodable JSON is left to the backend
+/// parser for classification.
+fn jsonld_has_remote_context(content: &str) -> bool {
+    fn is_remote(ctx: &serde_json::Value) -> bool {
+        match ctx {
+            serde_json::Value::String(s) => s.contains("://"),
+            serde_json::Value::Array(items) => items.iter().any(is_remote),
+            _ => false,
+        }
+    }
+    let Ok(v) = serde_json::from_str::<serde_json::Value>(content) else {
+        return false;
+    };
+    v.get("@context").is_some_and(is_remote)
+}
+
+/// Insert `content` parsed under a quad-capable [`RdfFormat`], wrapping any
+/// parse/storage failure as [`FD_MALFORMED_SYNTAX`] naming the declared
+/// dialect and file label.
+fn insert_quad_format(
+    graph: &dyn GraphEngine, format: RdfFormat, label: &str, dialect: &str, content: &str,
+) -> Result<usize> {
+    graph.insert_quad_format(format, content).map_err(|e| {
+        AppError::fm_graph(
+            2,
+            format!(
+                "{FD_MALFORMED_SYNTAX}: content of file `{label}` does not parse as its \
+                 declared dialect `{dialect}`: {e}"
+            ),
+        )
+    })
 }
 
 /// A set difference between two graph states, expressed as canonical
@@ -1788,5 +2071,166 @@ mod tests {
         assert!(err.to_string().contains("FM-LAW-001"), "{err}");
         let err = GraphEngine::validate_shacl(&g, "").expect_err("must refuse");
         assert!(err.to_string().contains("FM-LAW-002"), "{err}");
+    }
+
+    #[test]
+    fn optional_unbound_binding_does_not_leak_across_rows() {
+        // Regression (L93 escalation): an OPTIONAL binding bound on one row
+        // must stay unbound on later rows that fail the OPTIONAL match.
+        let g = DeterministicGraph::new().expect("graph");
+        GraphEngine::insert_turtle(
+            &g,
+            "@prefix ex: <http://example.org/> .
+             ex:c1 a ex:Commit ; ex:parent ex:c0 .
+             ex:c2 a ex:Commit .",
+        )
+        .expect("ttl");
+        let rows = match GraphEngine::query(
+            &g,
+            "PREFIX ex: <http://example.org/>
+             SELECT ?c ?parent WHERE {
+                 ?c a ex:Commit .
+                 OPTIONAL { ?c ex:parent ?parent }
+             } ORDER BY ?c",
+        )
+        .expect("query")
+        {
+            EngineQueryResults::Solutions(rows) => rows,
+            other => panic!("expected solutions, got {other:?}"),
+        };
+        assert_eq!(rows.len(), 2, "two commits: {rows:?}");
+        // Row 1 (ex:c1) binds ?parent; row 2 (ex:c2, the genesis commit) must
+        // NOT carry ex:c1's parent -- the binding is absent, not inherited.
+        assert_eq!(
+            rows[0].get("parent"),
+            Some(&EngineValue::String("http://example.org/c0".to_string())),
+            "row 1 binds ?parent: {rows:?}"
+        );
+        assert!(
+            !rows[1].contains_key("parent"),
+            "genesis row must leave ?parent unbound, got {:?}",
+            rows[1].get("parent")
+        );
+    }
+
+    #[test]
+    fn optional_unbound_binding_does_not_leak_in_union_branch() {
+        // Same regression through the cas-pack query shape: OPTIONAL bound
+        // inside a UNION branch, projected var bound directly in the
+        // OPTIONAL, ORDER BY over the projection (pre-workaround commits.rq).
+        let g = DeterministicGraph::new().expect("graph");
+        GraphEngine::insert_turtle(
+            &g,
+            "@prefix ex: <http://example.org/> .
+             ex:c1 a ex:Commit ; ex:root \"r1\" ; ex:parent ex:c0 .
+             ex:c0 a ex:Commit ; ex:root \"r0\" .
+             ex:c2 a ex:Commit ; ex:root \"r2\" .",
+        )
+        .expect("ttl");
+        let rows = match GraphEngine::query(
+            &g,
+            "PREFIX ex: <http://example.org/>
+             SELECT ?root ?parent WHERE {
+               { ?c a ex:Commit ; ex:root ?root .
+                 OPTIONAL { ?c ex:parent ?p . ?p ex:root ?parent . }
+               } UNION { ?c a ex:Commit ; ex:root ?root ; ex:extra ?parent . }
+             } ORDER BY ?root",
+        )
+        .expect("query")
+        {
+            EngineQueryResults::Solutions(rows) => rows,
+            other => panic!("expected solutions, got {other:?}"),
+        };
+        // Rows ordered r0, r1, r2. r0 has no parent (unbound), r1 -> r0,
+        // r2 matches the UNION branch with parent bound to "extra".
+        let parent_of = |r: usize| rows[r].get("parent").cloned();
+        assert_eq!(
+            parent_of(1),
+            Some(EngineValue::String("r0".to_string())),
+            "child row binds ?parent: {rows:?}"
+        );
+        assert!(
+            parent_of(0).is_none() && parent_of(2).is_none(),
+            "no cross-row leakage: {rows:?}"
+        );
+    }
+
+    #[test]
+    fn optional_unbound_binding_does_not_leak_on_cas_pack_ontology() {
+        // Exact-subject regression: strata-cas-pack ontology.ttl (commit
+        // chain commit-001..003, genesis commit-001 with NO st:commitParent)
+        // + the pre-workaround commits.rq shape, run through the same
+        // engine entry the sync pipeline uses.
+        let g = DeterministicGraph::new().expect("graph");
+        GraphEngine::insert_turtle(
+            &g,
+            "@prefix st: <https://strata.chatman.ai/ontology#> .
+             @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+             st:commit-001 a st:MerkleCommit ;
+                 st:merkleRoot \"fd9fc6c86d8f666da7059851d9e6e45df1c288c3035f5d9475a1d871ec4ec33c\" ;
+                 st:canonicalPayload \"genesis\" .
+             st:commit-002 a st:MerkleCommit ;
+                 st:merkleRoot \"f0575860c272837d9f63e43c098b9e74638a24d8760feaafb9f58fcf0cca3386\" ;
+                 st:commitParent st:commit-001 ;
+                 st:canonicalPayload \"append 002\" .
+             st:commit-003 a st:MerkleCommit ;
+                 st:merkleRoot \"18d53c1eaa279405b194c9ae5983652e0d89f3bd50b62e87e1278a71a4af3037\" ;
+                 st:commitParent st:commit-002 ;
+                 st:canonicalPayload \"append 003\" .",
+        )
+        .expect("ttl");
+        let rows = match GraphEngine::query(
+            &g,
+            "PREFIX st: <https://strata.chatman.ai/ontology#>
+             SELECT ?kind ?root ?parent ?payload WHERE {
+               { ?c a st:MerkleCommit ; st:merkleRoot ?root ; st:canonicalPayload ?payload .
+                 OPTIONAL { ?c st:commitParent ?p . ?p st:merkleRoot ?parent . }
+                 BIND(\"commit\" AS ?kind)
+               } UNION {
+                 ?w a st:KnowledgeWormhole ; st:sourceDigest ?src ; st:targetDigest ?root ;
+                    st:canonicalSourcePayload ?payload .
+                 BIND(\"wormhole\" AS ?kind)
+               }
+             } ORDER BY ?kind ?root",
+        )
+        .expect("query")
+        {
+            EngineQueryResults::Solutions(rows) => rows,
+            other => panic!("expected solutions, got {other:?}"),
+        };
+        let genesis_root = EngineValue::String(
+            "fd9fc6c86d8f666da7059851d9e6e45df1c288c3035f5d9475a1d871ec4ec33c".to_string(),
+        );
+        let genesis = rows
+            .iter()
+            .find(|r| r.get("root") == Some(&genesis_root))
+            .expect("genesis row present");
+        assert!(
+            genesis.get("parent").is_none(),
+            "genesis row must leave ?parent unbound, got {:?} in {rows:?}",
+            genesis.get("parent")
+        );
+        // And every bound parent matches its own row's chain, never a
+        // neighbor's.
+        let parent_of = |root: &str| -> Option<String> {
+            let target = EngineValue::String(root.to_string());
+            rows.iter()
+                .find(|r| r.get("root") == Some(&target))
+                .and_then(|r| r.get("parent").cloned())
+                .map(|v| match v {
+                    EngineValue::String(s) => s,
+                    other => panic!("unexpected parent value {other:?}"),
+                })
+        };
+        assert_eq!(
+            parent_of("f0575860c272837d9f63e43c098b9e74638a24d8760feaafb9f58fcf0cca3386")
+                .as_deref(),
+            Some("fd9fc6c86d8f666da7059851d9e6e45df1c288c3035f5d9475a1d871ec4ec33c"),
+        );
+        assert_eq!(
+            parent_of("18d53c1eaa279405b194c9ae5983652e0d89f3bd50b62e87e1278a71a4af3037")
+                .as_deref(),
+            Some("f0575860c272837d9f63e43c098b9e74638a24d8760feaafb9f58fcf0cca3386"),
+        );
     }
 }

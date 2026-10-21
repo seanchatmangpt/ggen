@@ -1,0 +1,69 @@
+# Pack dialect capability surface (v26.10.20, finisher lane G06)
+# Namespace pd: http://ggen.io/pack-dialect#
+# RDF spec twin of `[[capabilities.dialects]]` in pack.toml, mirroring
+# crates/ggen-engine/src/pack.rs (DialectGlob, DIALECT_NAMES,
+# default_dialects, validate_dialects). Edit this RDF, never the doc.
+#
+# Semantics (must stay in lockstep with pack.rs):
+# - Each entry = one glob (over pack ontology file paths/names) plus the
+#   lowercase graphlaw dialect each match parses as.
+# - Closed dialect vocabulary (case-sensitive): turtle, trig, ntriples,
+#   nquads, n3, rdf-xml, json-ld.
+# - Default: a pack.toml with no `dialects` key (or no `[capabilities]`
+#   table) synthesizes `*.ttl -> turtle` — pre-dialect behavior,
+#   byte-identical in semantics.
+# - [FM-PACK-021] an explicitly empty `dialects` list is refused, as is
+#   any dialect outside the closed vocabulary (`Turtle` is refused —
+#   case-sensitive).
+# - [FM-PACK-003] unknown keys anywhere in pack.toml are refused
+#   (`deny_unknown_fields` / closed schema).
+
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix pd: <http://ggen.io/pack-dialect#> .
+
+pd:DialectVocabulary
+    rdf:type sh:NodeShape ;
+    rdfs:comment "Closed vocabulary of lowercase graphlaw Dialect variant names (case-sensitive)." ;
+    sh:targetObjectsOf pd:dialect ;
+    sh:datatype xsd:string ;
+    sh:in ( "turtle" "trig" "ntriples" "nquads" "n3" "rdf-xml" "json-ld" ) ;
+.
+
+pd:DialectGlobShape
+    rdf:type sh:NodeShape ;
+    rdfs:comment "One [[capabilities.dialects]] entry: glob + dialect. Closed schema — no other properties admitted [FM-PACK-003]." ;
+    sh:closed true ;
+    sh:ignoredProperties ( rdf:type ) ;
+    sh:targetClass pd:DialectGlob ;
+    sh:property [
+        sh:path pd:glob ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:name "glob" ;
+        rdfs:comment "Glob pattern matched against pack ontology file paths/names (e.g. *.ttl, shapes/*.trig)." ;
+    ] ;
+    sh:property [
+        sh:path pd:dialect ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:name "dialect" ;
+        rdfs:comment "Lowercase graphlaw dialect name; membership in the closed vocabulary enforced by pd:DialectVocabulary. Violation = [FM-PACK-021]." ;
+    ] ;
+.
+
+pd:PackCapabilitiesShape
+    rdf:type sh:NodeShape ;
+    rdfs:comment "The dialects list must be non-empty when declared; absence synthesizes the default *.ttl -> turtle [FM-PACK-021]." ;
+    sh:targetClass pd:PackCapabilities ;
+    sh:property [
+        sh:path pd:dialects ;
+        sh:minCount 1 ;
+        sh:name "dialects" ;
+        rdfs:comment "At least one DialectGlob entry. An absent pd:dialects on a capabilities node means the serde default (*.ttl -> turtle), not an empty list." ;
+    ] ;
+.

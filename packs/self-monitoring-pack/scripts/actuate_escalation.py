@@ -53,7 +53,7 @@ except ImportError:  # pragma: no cover
     print("ERROR: rdflib is required (pip install rdflib)", file=sys.stderr)
     sys.exit(1)
 
-KH = rdflib.Namespace("http://seanchatmangpt.github.io/praxis/kh#")
+KH = rdflib.Namespace("http://seanchatmangpt.github.io/graphlaw/kh#")
 PACK_DIR = Path(__file__).resolve().parent.parent
 
 

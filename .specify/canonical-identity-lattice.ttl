@@ -1,0 +1,192 @@
+@prefix canon: <urn:ggen:canonical:> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# ============================================================================
+# CanonicalIdentityLattice (wave-2 v26.10.20, lane L04 plan / lane A04 impl)
+#
+# Canonical form ontology rules: every identity-bearing artifact (receipt,
+# receipt chain, pack proof, court fixture) is serialized through exactly one
+# canonical form, digested with a domain-separated keyed BLAKE3, and falsified
+# by an exhaustive per-field mutation closure before its identity is admitted.
+#
+# Classes: canon:CanonicalType (the lattice nodes)
+# Properties: canonicalForm, digestAlgorithm, digestKeyDerivation, sortKeys,
+#             requiresExhaustiveMutationFalsifier
+# SHACL closure shapes: every CanonicalType carries exactly one of each
+# required property (cardinality 1, closed shape).
+# ============================================================================
+
+canon: a owl:Ontology ;
+  rdfs:label "Canonical Identity Lattice" ;
+  rdfs:comment "Ontology of canonical serialization forms, domain-separated digest derivation, sort-key orderings, and exhaustive mutation falsifier requirements for ggen identity-bearing artifacts." ;
+  dcterms:created "2026-10-20"^^xsd:date ;
+  owl:versionInfo "v26.10.20" .
+
+# ----------------------------------------------------------------------------
+# Classes
+# ----------------------------------------------------------------------------
+
+canon:CanonicalType a owl:Class ;
+  rdfs:label "CanonicalType" ;
+  rdfs:comment "A type whose identity is defined by a canonical serialization form plus a domain-separated digest. Instances declare: one canonicalForm, one digestAlgorithm, one digestKeyDerivation label, sortKeys for ordered forms, and whether an exhaustive per-field mutation falsifier is required." .
+
+# ----------------------------------------------------------------------------
+# Canonical form individuals (the enum)
+# ----------------------------------------------------------------------------
+
+canon:Rdfc10NQuads a canon:CanonicalFormIndividual ;
+  rdfs:label "RDFC-10 N-Quads" ;
+  rdfs:comment "RDF Dataset Canonicalization (RDFC-10) emitted as N-Quads — the canonical form for graph/receipt subjects. Deterministic blank-node identification + sorted quad output." .
+
+canon:SortedKeyCompactJson a canon:CanonicalFormIndividual ;
+  rdfs:label "Sorted-Key Compact JSON" ;
+  rdfs:comment "JSON with lexicographically sorted object keys, no insignificant whitespace — the canonical form for envelope/frontmatter subjects." .
+
+canon:BTreeOrderedCollection a canon:CanonicalFormIndividual ;
+  rdfs:label "BTree-Ordered Collection" ;
+  rdfs:comment "Collection serialization with BTreeMap/BTreeSet ordering — the canonical form for collections whose identity depends on member order being the sorted order, not insertion order." .
+
+# ----------------------------------------------------------------------------
+# Properties
+# ----------------------------------------------------------------------------
+
+canon:canonicalForm a owl:ObjectProperty ;
+  rdfs:label "canonicalForm" ;
+  rdfs:comment "Exactly one canonical serialization form per CanonicalType. Members: canon:Rdfc10NQuads, canon:SortedKeyCompactJson, canon:BTreeOrderedCollection." ;
+  rdfs:domain canon:CanonicalType .
+
+canon:digestAlgorithm a owl:ObjectProperty ;
+  rdfs:label "digestAlgorithm" ;
+  rdfs:comment "Exactly one digest algorithm per CanonicalType. Pinned enum value: canon:Blake3Keyed (keyed BLAKE3; unkeyed BLAKE3 is not admissible — a keyless digest is forgeable by any party who can compute it)." ;
+  rdfs:domain canon:CanonicalType ;
+  rdfs:range canon:DigestAlgorithmIndividual .
+
+canon:Blake3Keyed a canon:DigestAlgorithmIndividual ;
+  rdfs:label "Blake3Keyed" ;
+  rdfs:comment "Keyed BLAKE3 (32-byte key), derived per-subject via blake3::derive_key with the CanonicalType's digestKeyDerivation label as the context string." .
+
+canon:digestKeyDerivation a owl:DatatypeProperty ;
+  rdfs:label "digestKeyDerivation" ;
+  rdfs:comment "Exactly one domain-separation context string per CanonicalType, e.g. \"ggen/graph/v1\". Passed to blake3::derive_key(context, canonical_bytes). Distinct subjects MUST use distinct context strings — sharing a context across subjects is a domain-separation violation." ;
+  rdfs:domain canon:CanonicalType ;
+  rdfs:range xsd:string .
+
+canon:sortKeys a owl:ObjectProperty ;
+  rdfs:label "sortKeys" ;
+  rdfs:comment "Exactly one rdf:List of sort-key terms per CanonicalType whose canonical form requires member ordering (SortedKeyCompactJson, BTreeOrderedCollection). The list order defines the lexicographic comparison cascade. Reordering the list changes the canonical form — hence the reordering-mutant falsifier obligation." ;
+  rdfs:domain canon:CanonicalType .
+
+canon:requiresExhaustiveMutationFalsifier a owl:DatatypeProperty ;
+  rdfs:label "requiresExhaustiveMutationFalsifier" ;
+  rdfs:comment "Exactly one boolean per CanonicalType. When true, the identity definition is admitted only with a court proving that flipping each serialized field (and reordering each sortKeys list) changes the digest — a one-mutant-per-field closure. A canonical form that survives a field mutation is not canonical." ;
+  rdfs:domain canon:CanonicalType ;
+  rdfs:range xsd:boolean .
+
+# ----------------------------------------------------------------------------
+# Example CanonicalType instances (consumed by queries/templates)
+# ----------------------------------------------------------------------------
+
+canon:GraphReceipt a canon:CanonicalType ;
+  rdfs:label "GraphReceipt canonical identity" ;
+  canon:canonicalForm canon:Rdfc10NQuads ;
+  canon:digestAlgorithm canon:Blake3Keyed ;
+  canon:digestKeyDerivation "ggen/graph/v1" ;
+  canon:requiresExhaustiveMutationFalsifier true .
+
+canon:Envelope a canon:CanonicalType ;
+  rdfs:label "BoundedResourceEnvelope canonical identity" ;
+  canon:canonicalForm canon:SortedKeyCompactJson ;
+  canon:digestAlgorithm canon:Blake3Keyed ;
+  canon:digestKeyDerivation "ggen/envelope/v1" ;
+  canon:sortKeys ( "resource_id" "caps" "generation" "issued_at" ) ;
+  canon:requiresExhaustiveMutationFalsifier true .
+
+canon:PackProofCollection a canon:CanonicalType ;
+  rdfs:label "Pack proof collection canonical identity" ;
+  canon:canonicalForm canon:BTreeOrderedCollection ;
+  canon:digestAlgorithm canon:Blake3Keyed ;
+  canon:digestKeyDerivation "ggen/pack-proof/v1" ;
+  canon:sortKeys ( "pack_iri" "proof_hash" ) ;
+  canon:requiresExhaustiveMutationFalsifier true .
+
+# ----------------------------------------------------------------------------
+# SHACL closure shapes — cardinality exactly 1 on every identity-bearing
+# property; the shape is closed so an undeclared identity property is a
+# validation failure, not a silent default.
+# ----------------------------------------------------------------------------
+
+canon:CanonicalTypeShape a sh:NodeShape ;
+  sh:targetClass canon:CanonicalType ;
+  sh:closed true ;
+  sh:ignoredProperties ( rdf:type rdfs:label rdfs:comment ) ;
+  sh:property [
+    sh:path canon:canonicalForm ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:in ( canon:Rdfc10NQuads canon:SortedKeyCompactJson canon:BTreeOrderedCollection ) ;
+    sh:message "CanonicalType MUST declare exactly one canonicalForm from the pinned enum." ;
+  ] ;
+  sh:property [
+    sh:path canon:digestAlgorithm ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:hasValue canon:Blake3Keyed ;
+    sh:message "CanonicalType MUST pin exactly one digestAlgorithm, and it MUST be canon:Blake3Keyed." ;
+  ] ;
+  sh:property [
+    sh:path canon:digestKeyDerivation ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:minLength 1 ;
+    sh:message "CanonicalType MUST declare exactly one non-empty digestKeyDerivation context string." ;
+  ] ;
+  sh:property [
+    sh:path canon:requiresExhaustiveMutationFalsifier ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:boolean ;
+    sh:hasValue true ;
+    sh:message "CanonicalType MUST require an exhaustive mutation falsifier (pinned true)." ;
+  ] .
+
+canon:SortKeysShape a sh:NodeShape ;
+  sh:targetClass canon:CanonicalType ;
+  sh:property [
+    sh:path canon:sortKeys ;
+    sh:maxCount 1 ;
+    sh:message "CanonicalType MUST declare at most one sortKeys rdf:List." ;
+  ] ;
+  sh:property [
+    sh:path rdf:first ;
+    sh:datatype xsd:string ;
+    sh:minCount 0 ;
+    sh:message "sortKeys list members MUST be xsd:string field names." ;
+  ] .
+
+# Conditional: SortedKeyCompactJson / BTreeOrderedCollection forms REQUIRE
+# sortKeys; Rdfc10NQuads does not (RDFC-10 ordering is derived from the graph).
+canon:OrderedFormRequiresSortKeysShape a sh:NodeShape ;
+  sh:targetClass canon:CanonicalType ;
+  sh:sparql [
+    a sh:SPARQLConstraint ;
+    sh:message "CanonicalType with an ordering-sensitive canonicalForm MUST declare exactly one sortKeys rdf:List." ;
+    sh:select """
+      PREFIX canon: <urn:ggen:canonical:>
+      PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+      SELECT $this ?form
+      WHERE {
+        $this canon:canonicalForm ?form .
+        FILTER(?form IN (canon:SortedKeyCompactJson, canon:BTreeOrderedCollection))
+        FILTER NOT EXISTS {
+          $this canon:sortKeys ?keys .
+          ?keys rdf:first ?firstKey .
+        }
+      }
+    """ ;
+  ] .

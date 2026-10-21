@@ -62,7 +62,7 @@
 @prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
-@prefix kh:      <http://seanchatmangpt.github.io/praxis/kh#> .
+@prefix kh:      <http://seanchatmangpt.github.io/graphlaw/kh#> .
 @prefix ma:      <http://seanchatmangpt.github.io/packs/ma-case-study#> .
 
 # ── ma: term this file mints (beyond ontology.ttl's own disclosed set) ────
@@ -98,7 +98,7 @@ ma:derive_ma_regulatory_filing_obligation
 
 ma:derive_ma_regulatory_filing_obligation_action
     a kh:Action ;
-    kh:handler <http://seanchatmangpt.github.io/praxis/handler#sparql-construct> ;
+    kh:handler <http://seanchatmangpt.github.io/graphlaw/handler#sparql-construct> ;
     kh:query """CONSTRUCT { ?deal <http://seanchatmangpt.github.io/packs/ma-case-study#hasRegulatoryFilingObligation> <http://seanchatmangpt.github.io/packs/ma-case-study#hsr-act-notification-obligation> . } WHERE { ?deal a <https://spec.edmcouncil.org/fibo/ontology/CAE/CorporateEvents/CorporateActions/MergerAcquisition> . ?deal <https://schema.org/amount> ?amt . ?amt <https://schema.org/value> ?val . FILTER(?val >= 100000000) }""" .
 
 # ── A SECOND, independent obligation-deriving hook, added in the 2026-07-19
@@ -151,5 +151,5 @@ ma:derive_ma_second_request_review_obligation
 
 ma:derive_ma_second_request_review_obligation_action
     a kh:Action ;
-    kh:handler <http://seanchatmangpt.github.io/praxis/handler#sparql-construct> ;
+    kh:handler <http://seanchatmangpt.github.io/graphlaw/handler#sparql-construct> ;
     kh:query """CONSTRUCT { ?deal <http://seanchatmangpt.github.io/packs/ma-case-study#hasRegulatoryFilingObligation> <http://seanchatmangpt.github.io/packs/ma-case-study#second-request-review-obligation> . } WHERE { ?deal a <https://spec.edmcouncil.org/fibo/ontology/CAE/CorporateEvents/CorporateActions/MergerAcquisition> . ?deal <https://schema.org/amount> ?amt . ?amt <https://schema.org/value> ?val . FILTER(?val >= 1000000000) }""" .

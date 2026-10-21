@@ -40,6 +40,14 @@ pub use graphlaw::receipt_chain::{
     CHAIN_RULE_V2_FOLD, RECEIPT_RECORD_VERSION,
 };
 
+pub use graphlaw::receipt_chain::frame::{DenialPolarity, OcelCausalFrame};
+/// Frame-construction surface (`build_admission_frame` /
+/// `chain_from_frame`), re-exported so the shared chain-law KAT court
+/// (`tests/receipt_chain_kat_test.rs`) folds the witnessed entries through
+/// the same seam as every other consumer rather than reaching into
+/// `graphlaw` directly.
+pub use graphlaw::receipt_chain::{build_admission_frame, chain_from_frame, ReceiptMeta};
+
 /// Re-export of the epoch surface `sync.rs` consumes today, now
 /// graphlaw-backed.
 pub mod epoch {

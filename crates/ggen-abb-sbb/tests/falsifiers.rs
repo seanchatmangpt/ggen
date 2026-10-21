@@ -20,6 +20,8 @@ fn req(g: &EaGraph, sbb: &str) -> Request {
         sbb: sbb.into(),
         requested_authority: Authority::Construct,
         expected_graph_digest: Some(g.digest()),
+        receipt_generation: 0,
+        artifact_baseline_generation: 0,
     }
 }
 
@@ -116,6 +118,8 @@ fn duplicate_element_delivery_is_refused() {
         &g,
         &Request {
             expected_graph_digest: None,
+            receipt_generation: 0,
+            artifact_baseline_generation: 0,
             ..req(&graph(), "sbb:ingest-0000")
         },
     )
@@ -420,6 +424,8 @@ fn dangling_references_are_refused() {
             &g,
             &Request {
                 expected_graph_digest: None,
+                receipt_generation: 0,
+                artifact_baseline_generation: 0,
                 ..req(&graph(), "sbb:ingest-0000")
             }
         )
@@ -439,6 +445,8 @@ fn contract_binding_a_nonexistent_abb_is_a_dangling_reference() {
     g.contracts.push(orphan);
     let r = Request {
         expected_graph_digest: None,
+        receipt_generation: 0,
+        artifact_baseline_generation: 0,
         ..req(&graph(), "sbb:ingest-0000")
     };
     assert_eq!(
@@ -522,6 +530,8 @@ fn pack_named_as_abb_or_sbb_is_refused() {
             &g,
             &Request {
                 expected_graph_digest: None,
+                receipt_generation: 0,
+                artifact_baseline_generation: 0,
                 ..req(&graph(), "sbb:ingest-0000")
             }
         )
@@ -535,6 +545,8 @@ fn pack_named_as_abb_or_sbb_is_refused() {
             &g,
             &Request {
                 expected_graph_digest: None,
+                receipt_generation: 0,
+                artifact_baseline_generation: 0,
                 ..req(&graph(), "sbb:ingest-0000")
             }
         )
@@ -859,4 +871,97 @@ fn every_single_field_mutation_of_the_fixture_changes_the_graph_digest() {
         m(&mut g);
         assert_ne!(g.digest(), base, "mutant {i} left the digest unchanged");
     }
+}
+
+// --- stale-lease gate (v26.10.20 wave-2) ----------------------------------------
+
+#[test]
+fn stale_lease_refused_when_receipt_generation_at_or_below_tracked_baseline() {
+    let g = graph();
+    // Baseline tracked (2), receipt stale (2 <= 2): REFUSED_STALE_LEASE.
+    let r = Request {
+        receipt_generation: 2,
+        artifact_baseline_generation: 2,
+        ..req(&g, "sbb:ingest-0000")
+    };
+    assert_eq!(
+        admit(&g, &r).unwrap_err(),
+        Refusal::StaleLease {
+            evidence_id: "sbb:ingest-0000".into(),
+            receipt: 2,
+            baseline: 2,
+        }
+    );
+    // Strictly behind the baseline also refuses.
+    let r = Request {
+        receipt_generation: 1,
+        artifact_baseline_generation: 3,
+        ..req(&g, "sbb:ingest-0000")
+    };
+    assert!(matches!(
+        admit(&g, &r).unwrap_err(),
+        Refusal::StaleLease { .. }
+    ));
+}
+
+#[test]
+fn fresh_lease_admitted_when_ahead_of_baseline_or_baseline_untracked() {
+    let g = graph();
+    // Receipt strictly ahead of a tracked baseline admits, and the granted
+    // generation flows into the Admitted value and the manufacture receipt.
+    let r = Request {
+        receipt_generation: 5,
+        artifact_baseline_generation: 2,
+        ..req(&g, "sbb:ingest-0000")
+    };
+    let ad = admit(&g, &r).unwrap();
+    assert_eq!(ad.generation(), 5);
+    let m = manufacture(&ad, &gen()).unwrap();
+    assert_eq!(m.receipt.generation, 5);
+    verify_receipt(&m.receipt).unwrap();
+    // Baseline 0 (untracked / fresh artifact) never refuses, even at generation 0.
+    let r = Request {
+        receipt_generation: 0,
+        artifact_baseline_generation: 0,
+        ..req(&g, "sbb:ingest-0000")
+    };
+    assert!(admit(&g, &r).is_ok());
+}
+
+#[test]
+fn envelope_caps_override_tightens_artifact_ceiling_never_loosens() {
+    let g = synthetic_graph(1, 8);
+    let contract_max = g.contracts[0].max_artifacts;
+    assert!(contract_max >= 8, "fixture contract must allow 8 artifacts");
+    // Override tighter than the contract: refused at the tighter ceiling.
+    let caps = EnvelopeCaps { max_artifacts: 2 };
+    let r = req(&g, "sbb:ingest-0000");
+    let err = admit_with_caps(&g, &r, Some(&caps)).unwrap_err();
+    assert!(
+        matches!(err, Refusal::ExceedsContract { .. }),
+        "expected EXCEEDS_CONTRACT at the tighter ceiling, got {err:?}"
+    );
+    // Override looser than the contract cannot loosen it: the contract still caps.
+    let loose = EnvelopeCaps {
+        max_artifacts: DEFAULT_MAX_ARTIFACTS,
+    };
+    let g_small = synthetic_graph(1, 3);
+    let r = req(&g_small, "sbb:ingest-0000");
+    assert!(admit_with_caps(&g_small, &r, Some(&loose)).is_ok());
+    // g_small contract allows 3; a 4-artifact SBB stays refused even with a
+    // loose override because the effective ceiling is the minimum.
+    let mut g4 = synthetic_graph(1, 3);
+    let tmpl = g4.candidate_sbbs[0].artifacts[0].template.clone();
+    g4.candidate_sbbs[0].artifacts.push(ArtifactSpec {
+        path: "gen/0000/module_0003.rs".into(),
+        template: tmpl,
+    });
+    resign(&mut g4.candidate_sbbs[0]);
+    g4.qualifications[0].sbb_digest = g4.candidate_sbbs[0].digest.clone().unwrap();
+    let r = req(&g4, "sbb:ingest-0000");
+    assert!(matches!(
+        admit_with_caps(&g4, &r, Some(&loose)).unwrap_err(),
+        Refusal::ExceedsContract { .. }
+    ));
+    assert_eq!(g4.contracts[0].max_artifacts, contract_max.min(3));
 }

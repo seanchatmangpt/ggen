@@ -1,0 +1,38 @@
+# canonical-types.rq — extract CanonicalType identity definitions for the
+# serializer generator (crates/ggen-engine, lane L05/A05 template consumption).
+#
+# CONSTRUCT output is flat key/value triples for Tera consumption
+# (Vec<BTreeMap<String, String>>), matching repo query conventions.
+#
+# Usage:
+#   ggen graph query --file .specify/queries/canonical/canonical-types.rq \
+#                    --data .specify/canonical-identity-lattice.ttl
+
+PREFIX canon: <urn:ggen:canonical:>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?type ?typeLabel ?form ?derivation ?requiresFalsifier ?sortKey ?sortKeyIndex
+WHERE {
+  ?type a canon:CanonicalType ;
+        canon:canonicalForm ?form ;
+        canon:digestAlgorithm canon:Blake3Keyed ;
+        canon:digestKeyDerivation ?derivation ;
+        canon:requiresExhaustiveMutationFalsifier ?requiresFalsifier .
+  OPTIONAL { ?type rdfs:label ?typeLabel }
+  OPTIONAL {
+    ?type canon:sortKeys ?keys .
+    {
+      SELECT ?keys ?cell (COUNT(?earlier) AS ?idx)
+      WHERE {
+        ?keys rdf:rest* ?cell .
+        OPTIONAL { ?keys rdf:rest* ?earlier . ?earlier rdf:rest+ ?cell . }
+      }
+      GROUP BY ?keys ?cell
+    }
+    ?cell rdf:first ?sortKey .
+    BIND(xsd:integer(?idx) AS ?sortKeyIndex)
+  }
+}
+ORDER BY ?type ?sortKeyIndex

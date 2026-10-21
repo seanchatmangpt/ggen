@@ -190,6 +190,9 @@ fn frontmatter_for(
         rdf_inline: Vec::new(),
         prefixes: BTreeMap::new(),
         base: None,
+        receipt_generation: 0,
+        canonical_identity: None,
+        envelope: None,
     }
 }
 

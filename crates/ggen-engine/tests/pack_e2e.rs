@@ -222,9 +222,25 @@ fn pack_sync_end_to_end() {
     let receipt3_raw = std::fs::read(project.join(RECEIPT_REL_PATH)).expect("receipt 3");
     let receipt2: SyncReceipt = serde_json::from_slice(&receipt2_raw).expect("receipt 2 parses");
     let receipt3: SyncReceipt = serde_json::from_slice(&receipt3_raw).expect("receipt 3 parses");
+    // v26.10.20 epoch law: every sync carries a monotonic receipt generation
+    // in its payload, so the RAW payload hash legitimately differs between
+    // two no-op runs. The determinism law is now scoped to the
+    // generation-stripped payload: with the epoch field normalized away,
+    // identical runs still hash identically — and the epoch itself must
+    // advance by exactly one per run.
     assert_eq!(
-        receipt3.record.payload_hash_hex, receipt2.record.payload_hash_hex,
-        "identical runs must yield identical payload hashes"
+        receipt3.payload.generation,
+        receipt2.payload.generation.map(|g| g + 1),
+        "receipt generation must advance by exactly one per sync"
+    );
+    let mut payload2 = receipt2.payload.clone();
+    let mut payload3 = receipt3.payload.clone();
+    payload2.generation = None;
+    payload3.generation = None;
+    assert_eq!(
+        blake3::hash(&serde_json::to_vec(&payload3).expect("serialize payload 3")).to_hex(),
+        blake3::hash(&serde_json::to_vec(&payload2).expect("serialize payload 2")).to_hex(),
+        "identical runs must yield identical generation-stripped payload hashes"
     );
     assert_eq!(
         receipt3.record.prev_chain_hash_hex, receipt2.record.chain_hash_hex,

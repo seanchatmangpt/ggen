@@ -31,10 +31,16 @@ pub type TransitionReceipt = GraphReceipt;
 
 impl GraphReceipt {
     /// Generate a cryptographically bound transition receipt.
+    ///
+    /// Emits **v2** receipts: the binding hash is a domain-separated keyed
+    /// BLAKE3 — `BLAKE3(derive_key("ggen.graph.receipt.v2") ||
+    /// version || pre || post || delta || timestamp-rfc3339)` — so a v2
+    /// digest can never collide with a raw-concatenation v1 digest or with
+    /// any other unkeyed BLAKE3 surface in the workspace.
     pub fn new(pre_state_hash: [u8; 32], post_state_hash: [u8; 32], delta_hash: [u8; 32]) -> Self {
         let timestamp = Utc::now();
-        let version = 1;
-        let mut hasher = blake3::Hasher::new();
+        let version: u8 = 2;
+        let mut hasher = blake3::Hasher::new_keyed(&Self::v2_key());
         hasher.update(&[version]);
         hasher.update(&pre_state_hash);
         hasher.update(&post_state_hash);
@@ -67,12 +73,35 @@ impl GraphReceipt {
         self
     }
 
-    /// Verifies the cryptographic integrity of the receipt.
+    /// Domain-separation key for v2 receipts (32 bytes from BLAKE3 key
+    /// derivation over the receipt-version label).
+    fn v2_key() -> [u8; 32] {
+        blake3::derive_key("ggen.graph.receipt.v2", &[])
+    }
+
+    /// Compute the v2 binding hash over the receipt's fields.
+    fn v2_hash(&self) -> [u8; 32] {
+        let mut hasher = blake3::Hasher::new_keyed(&Self::v2_key());
+        hasher.update(&[2u8]);
+        hasher.update(&self.pre_state_hash);
+        hasher.update(&self.post_state_hash);
+        hasher.update(&self.delta_hash);
+        hasher.update(self.timestamp.to_rfc3339().as_bytes());
+        hasher.finalize().into()
+    }
+
+    /// Legacy v1 verification: raw unkeyed BLAKE3 concatenation of
+    /// `version || pre || post || delta || timestamp-rfc3339`.
     ///
-    /// # Errors
-    ///
-    /// Returns `GraphError::VerificationFailed` if signature verification fails.
-    pub fn verify(&self) -> Result<(), GraphError> {
+    /// Retained ONLY so historical v1 receipts remain verifiable. Do not use
+    /// for new receipts; v1 concatenation is domain-ambiguous (same byte
+    /// stream can be replayed as any other unkeyed BLAKE3 in the workspace).
+    #[doc(hidden)]
+    #[deprecated(
+        since = "26.10.20",
+        note = "v1 raw-concatenation path; use v2 domain-separated receipts"
+    )]
+    pub fn legacy_verify_v1(&self) -> Result<(), GraphError> {
         let mut hasher = blake3::Hasher::new();
         hasher.update(&[self.version]);
         hasher.update(&self.pre_state_hash);
@@ -80,6 +109,43 @@ impl GraphReceipt {
         hasher.update(&self.delta_hash);
         hasher.update(self.timestamp.to_rfc3339().as_bytes());
         let expected_hash: [u8; 32] = hasher.finalize().into();
+
+        if self.signature_or_hash != expected_hash {
+            return Err(GraphError::VerificationFailed(
+                "Cryptographic signature mismatch on GraphReceipt (v1 legacy path)".to_string(),
+            ));
+        }
+
+        Ok(())
+    }
+
+    /// Verifies the cryptographic integrity of the receipt.
+    ///
+    /// Dispatches on the stored version byte: v2 receipts verify via the
+    /// domain-separated keyed BLAKE3 path; v1 receipts verify via the
+    /// deprecated legacy raw-concatenation path. Any other version is a
+    /// typed refusal (fail-closed on unknown versions).
+    ///
+    /// # Errors
+    ///
+    /// Returns `GraphError::VerificationFailed` if signature verification fails
+    /// or the version byte is unrecognized.
+    pub fn verify(&self) -> Result<(), GraphError> {
+        let expected_hash: [u8; 32] = match self.version {
+            2 => self.v2_hash(),
+            1 => {
+                #[allow(deprecated)]
+                {
+                    self.legacy_verify_v1()?;
+                }
+                return Ok(());
+            }
+            other => {
+                return Err(GraphError::VerificationFailed(format!(
+                    "Unsupported GraphReceipt version: {other}"
+                )));
+            }
+        };
 
         if self.signature_or_hash != expected_hash {
             return Err(GraphError::VerificationFailed(

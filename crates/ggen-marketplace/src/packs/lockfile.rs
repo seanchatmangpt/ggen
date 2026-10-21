@@ -25,11 +25,9 @@
 //!         "Registry": { "url": "https://registry.ggen.io" }
 //!       },
 //!       "integrity": "sha256-abc123...",
-//!       "installed_at": "2024-01-01T00:00:00Z",
 //!       "dependencies": ["io.ggen.macros.std"]
 //!     }
 //!   },
-//!   "updated_at": "2024-01-01T00:00:00Z",
 //!   "ggen_version": "4.0.0"
 //! }
 //! ```
@@ -45,7 +43,7 @@
 //!
 //! let mut lockfile = PackLockfile {
 //!     packs: BTreeMap::new(),
-//!     updated_at: Utc::now(),
+//!     updated_at: None,
 //!     ggen_version: "4.0.0".to_string(),
 //!     profile: None,
 //! };
@@ -56,7 +54,7 @@
 //!         url: "https://registry.ggen.io".to_string()
 //!     },
 //!     integrity: Some("sha256-abc123".to_string()),
-//!     installed_at: Utc::now(),
+//!     installed_at: None,
 //!     dependencies: vec!["io.ggen.macros.std".to_string()],
 //! };
 //!
@@ -96,7 +94,13 @@ pub struct PackLockfile {
     pub packs: BTreeMap<String, LockedPack>,
 
     /// When the lockfile was last updated
-    pub updated_at: DateTime<Utc>,
+    ///
+    /// DETERMINISM: `None` by default. Wall-clock stamping is opt-in via
+    /// [`PackLockfile::touch`] / direct assignment; two identical add+save
+    /// sequences must serialize to byte-identical output. Old lockfiles that
+    /// carry a timestamp still parse (serde default; value is preserved).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub updated_at: Option<DateTime<Utc>>,
 
     /// Version of ggen that created this lockfile
     pub ggen_version: String,
@@ -126,7 +130,12 @@ pub struct LockedPack {
     pub integrity: Option<String>,
 
     /// Timestamp when the pack was installed
-    pub installed_at: DateTime<Utc>,
+    ///
+    /// DETERMINISM: `None` by default (unknown install time). Callers with a
+    /// genuine, reproducible need for wall-clock install time supply
+    /// `Some(...)` explicitly. Old lockfiles carrying a timestamp still parse.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub installed_at: Option<DateTime<Utc>>,
 
     /// List of pack IDs this pack depends on
     /// Empty vector if no dependencies
@@ -182,10 +191,16 @@ impl PackLockfile {
     pub fn new(ggen_version: impl Into<String>) -> Self {
         Self {
             packs: BTreeMap::new(),
-            updated_at: Utc::now(),
+            updated_at: None,
             ggen_version: ggen_version.into(),
             profile: None,
         }
+    }
+
+    /// Opt-in wall-clock stamp: record `Utc::now()` as the lockfile update
+    /// time. Deterministic callers simply never call this.
+    pub fn touch(&mut self) {
+        self.updated_at = Some(Utc::now());
     }
 
     ///
@@ -283,7 +298,16 @@ impl PackLockfile {
             })?;
         }
 
-        let json = serde_json::to_string_pretty(self)
+        // DETERMINISM: serialize a normalized copy whose `PackSource::Local`
+        // paths are relative to the lockfile's own directory, so two identical
+        // add+save sequences at different absolute roots emit identical bytes.
+        // In-memory state is untouched; only the on-disk form is normalized.
+        let mut normalized = self.clone();
+        if let Some(root) = path.parent() {
+            normalized.relativize_local_paths(root);
+        }
+
+        let json = serde_json::to_string_pretty(&normalized)
             .map_err(|e| Error::Other(format!("Failed to serialize lockfile: {e}")))?;
 
         fs::write(path, json).map_err(|e| {
@@ -319,7 +343,7 @@ impl PackLockfile {
     ///         url: "https://registry.ggen.io".to_string()
     ///     },
     ///     integrity: None,
-    ///     installed_at: Utc::now(),
+    ///     installed_at: None,
     ///     dependencies: vec![],
     /// };
     /// lockfile.packs.insert("test.pack".to_string(), pack);
@@ -333,7 +357,8 @@ impl PackLockfile {
 
     /// Add or update a pack in the lockfile
     ///
-    /// Updates the `updated_at` timestamp when adding a pack.
+    /// DETERMINISM: this method performs NO timestamp stamping. Callers that
+    /// want a wall-clock update time call [`PackLockfile::touch`] explicitly.
     ///
     /// # Arguments
     ///
@@ -341,19 +366,13 @@ impl PackLockfile {
     /// * `pack` - The locked pack to add
     pub fn add_pack(&mut self, pack_id: impl Into<String>, pack: LockedPack) {
         self.packs.insert(pack_id.into(), pack);
-        self.updated_at = Utc::now();
     }
 
     /// Remove a pack from the lockfile
     ///
     /// Returns true if the pack was removed, false if it didn't exist.
-    /// Updates the `updated_at` timestamp when removing a pack.
     pub fn remove_pack(&mut self, pack_id: &str) -> bool {
-        let removed = self.packs.remove(pack_id).is_some();
-        if removed {
-            self.updated_at = Utc::now();
-        }
-        removed
+        self.packs.remove(pack_id).is_some()
     }
 
     ///
@@ -429,7 +448,7 @@ impl PackLockfile {
     ///             url: "https://registry.ggen.io".to_string(),
     ///         },
     ///         integrity: Some(format!("sha256-{}", "a".repeat(64))),
-    ///         installed_at: Utc::now(),
+    ///         installed_at: None,
     ///         dependencies: vec![],
     ///     },
     /// );
@@ -444,13 +463,15 @@ impl PackLockfile {
                 )));
             }
 
-            // installed_at: must be a real timestamp, not the Unix epoch / default.
-            // `DateTime::<Utc>::default()` is 1970-01-01T00:00:00Z (timestamp 0);
-            // negative timestamps are pre-epoch and equally invalid.
-            if pack.installed_at.timestamp() <= 0 {
+            // installed_at: when present, must be a real timestamp, not the
+            // Unix epoch / default (`DateTime::<Utc>::default()` is
+            // 1970-01-01T00:00:00Z, timestamp 0); negative timestamps are
+            // pre-epoch and equally invalid. `None` (unknown install time) is
+            // the deterministic default and is valid.
+            if pack.installed_at.is_some_and(|ts| ts.timestamp() <= 0) {
                 return Err(Error::Other(format!(
                     "Lockfile invariant violation: pack '{}' has a non-real installed_at \
-                     timestamp ({}); expected a populated timestamp, not the Unix epoch / default",
+                     timestamp ({:?}); expected a populated timestamp, not the Unix epoch / default",
                     pack_id, pack.installed_at
                 )));
             }
@@ -474,6 +495,20 @@ impl PackLockfile {
         }
 
         Ok(())
+    }
+
+    /// Rewrite every `PackSource::Local` path that lives under `root` to a
+    /// root-relative path. Absolute paths outside `root` and already-relative
+    /// paths are left untouched, so parsing an old lockfile round-trips
+    /// unchanged. Called by `save()` against the lockfile's own directory.
+    pub fn relativize_local_paths(&mut self, root: &Path) {
+        for pack in self.packs.values_mut() {
+            if let PackSource::Local { path } = &mut pack.source {
+                if let Ok(rel) = path.strip_prefix(root) {
+                    *path = rel.to_path_buf();
+                }
+            }
+        }
     }
 
     /// Recursively check for circular dependencies
@@ -520,11 +555,10 @@ fn is_valid_sha256_integrity(integrity: &str) -> bool {
 impl fmt::Display for PackLockfile {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "Pack Lockfile (ggen v{})", self.ggen_version)?;
-        writeln!(
-            f,
-            "Updated: {}",
-            self.updated_at.format("%Y-%m-%d %H:%M:%S UTC")
-        )?;
+        match self.updated_at {
+            Some(ts) => writeln!(f, "Updated: {}", ts.format("%Y-%m-%d %H:%M:%S UTC"))?,
+            None => writeln!(f, "Updated: (unknown)")?,
+        }
         writeln!(f, "Packs: {}", self.packs.len())?;
         writeln!(f)?;
 
@@ -566,7 +600,7 @@ mod tests {
                 url: "https://registry.ggen.io".to_string(),
             },
             integrity: Some("sha256-test".to_string()),
-            installed_at: Utc::now(),
+            installed_at: None,
             dependencies: deps,
         }
     }
@@ -643,7 +677,7 @@ mod tests {
                 url: "https://registry.ggen.io".to_string(),
             },
             integrity: Some(valid_integrity()),
-            installed_at: Utc::now(),
+            installed_at: None,
             dependencies: vec![],
         }
     }
@@ -784,11 +818,12 @@ mod tests {
         );
     }
 
-    /// `installed_at` at the Unix epoch / default sentinel fails §4.1.
+    /// `installed_at` at the Unix epoch / default sentinel fails §4.1; the
+    /// deterministic default (`None`) passes.
     #[test]
     fn test_validate_invariants_rejects_epoch_installed_at() {
         let mut pack = valid_invariant_pack();
-        pack.installed_at = DateTime::<Utc>::default();
+        pack.installed_at = Some(DateTime::<Utc>::default());
 
         let mut lockfile = PackLockfile::new("4.0.0");
         lockfile.add_pack("io.ggen.rust.cli", pack);

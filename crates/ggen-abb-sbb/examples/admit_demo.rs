@@ -25,6 +25,8 @@ fn main() {
         sbb: "sbb:ingest-0000".into(),
         requested_authority: Authority::Construct,
         expected_graph_digest: None,
+        receipt_generation: 0,
+        artifact_baseline_generation: 0,
     };
     let ad = admit(&g, &req).expect("fixture admits");
     println!("== admit ==");

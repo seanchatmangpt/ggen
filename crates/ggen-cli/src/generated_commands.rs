@@ -5,6 +5,7 @@
 
 /// (command IRI, label, description) rows, ontology-ordered by label.
 pub const COMMANDS_REFERENCE: &[(&str, &str, &str)] = &[
+    ("http://ggen.org/cli#CourtCommand", "court", "Compile adversarial falsification courts from vc: mutant catalogs; proves gates fail under sabotage (non-vacuous metrology)"),
     ("http://ggen.org/cli#DeployCommand", "deploy", "Deploy infrastructure to target environment"),
     ("http://ggen.org/cli#DescribeCommand", "describe", "Describe a resource (service, datastore, etc.) in detail"),
     ("http://ggen.org/cli#DoctorCommand", "doctor", "Run fast local health checks over the project (manifest, ontology, generated outputs)"),

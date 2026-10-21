@@ -557,6 +557,11 @@ pub(crate) fn run(root: &Path, manifest: &GgenManifest, opts: SyncOptions) -> Re
                     extra_ontology_paths: Vec::new(),
                     template_paths: Vec::new(),
                     lock: false,
+                    // Minimal unblock (lane V01, disclosed): new `Pack`
+                    // field added for pack.toml dialect declarations; this
+                    // lightweight constructor carries the backward-compatible
+                    // default (`*.ttl -> turtle`).
+                    dialects: crate::pack::default_dialects(),
                 });
             }
         }
@@ -724,16 +729,41 @@ pub(crate) fn run(root: &Path, manifest: &GgenManifest, opts: SyncOptions) -> Re
             // already uses), matching the per-row branch's behavior for
             // the common one-row/static-output-file case (Cluster D,
             // `examples/llm-full-integration`'s bare `{{ agent_name }}`).
-            if let Some(first) = row_values.first() {
+            //
+            // L114 (2026-10-13): only keys present in EVERY row are
+            // flattened/aliased. Tera resolves `row.parent` inside a
+            // `{% for row in results %}` loop against the loop binding
+            // first, then FALLS BACK to the top-level `row` alias when
+            // the loop row lacks the key — so aliasing a partial first
+            // row leaked one row's OPTIONAL binding onto later rows that
+            // left it unbound (witnessed: strata-cas-pack genesis commit
+            // rendered a sibling's parent root). Restricting the alias
+            // to the cross-row key intersection keeps the documented
+            // first-row-wins contract for homogeneous rows while turning
+            // the heterogeneous-row leak into Tera's typed
+            // "variable not found" failure instead of silent wrong data.
+            let common_keys: std::collections::BTreeSet<&String> = row_values
+                .iter()
+                .filter_map(|r| match r {
+                    Value::Object(map) => {
+                        Some(map.keys().collect::<std::collections::BTreeSet<_>>())
+                    }
+                    _ => None,
+                })
+                .reduce(|a, b| a.intersection(&b).copied().collect())
+                .unwrap_or_default();
+            if let Some(Value::Object(map)) = row_values.first() {
+                let mut alias = tera::Map::new();
+                for (k, v) in map {
+                    if common_keys.contains(k) {
+                        ctx.insert(k, v);
+                        alias.insert(k.clone(), v.clone());
+                    }
+                }
                 // Alias so static templates can use `{{ row.name }}` exactly
                 // as fan-out templates do (first-row-wins for multi-row
                 // queries — legacy renderer semantics, see Cluster D).
-                ctx.insert("row", first);
-                if let Value::Object(map) = first {
-                    for (k, v) in map {
-                        ctx.insert(k, v);
-                    }
-                }
+                ctx.insert("row", &alias);
             }
             let body = render_template(
                 &mut tera,

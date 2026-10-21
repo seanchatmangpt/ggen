@@ -151,7 +151,7 @@ fn scaffold_synthetic_consumer(
 /// header documents (double-quoted literals embedded in a `kh:query`
 /// string get one quote stripped by the engine's term-cleaning pass).
 const HOOK_TTL: &str = r#"
-@prefix kh: <http://seanchatmangpt.github.io/praxis/kh#> .
+@prefix kh: <http://seanchatmangpt.github.io/graphlaw/kh#> .
 
 <http://example.org/gap#derive_fired>
     a kh:Hook ;
@@ -164,7 +164,7 @@ const HOOK_TTL: &str = r#"
 
 <http://example.org/gap#derive_fired_action>
     a kh:Action ;
-    kh:handler <http://seanchatmangpt.github.io/praxis/handler#sparql-construct> ;
+    kh:handler <http://seanchatmangpt.github.io/graphlaw/handler#sparql-construct> ;
     kh:query """CONSTRUCT { <http://example.org/gap#derived> <http://example.org/gap#flag> 'fired' } WHERE { ?t a <http://example.org/gap#TriggerClass> }""" .
 "#;
 

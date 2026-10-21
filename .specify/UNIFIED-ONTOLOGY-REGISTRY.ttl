@@ -1,4 +1,9 @@
 @prefix chatman: <https://chatmangpt.io/ontology/> .
+@prefix lkif: <http://www.estrellaproject.org/lkif-core/2019/07/lkif-core#> .
+@prefix coda: <urn:ggen:registry:coda:> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix stix: <http://purl.org/cyber/stix#> .
+@prefix tosca: <http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes#> .
 @prefix legal: <https://chatmangpt.io/ontology/legal/> .
 @prefix it: <https://chatmangpt.io/ontology/it/> .
 @prefix security: <https://chatmangpt.io/ontology/security/> .
@@ -885,11 +890,34 @@ chatman:OntologyRegistryScope a rdfs:Resource ;
   rdfs:label "ChatmanGPT Ontology Registry Scope" ;
   rdfs:comment "Complete coverage of legal, IT, security, cloud domains" ;
   rdf:value [
-    "Legal: Policies, compliance, contracts, audit requirements, data classification" ;
-    "IT: Services, SLAs, configurations, deployments, teams, skills" ;
-    "Security: Threats, vulnerabilities, mitigations, access controls, audits" ;
-    "Cloud: Compute, storage, network, pricing, topology" ;
-    "Integration: Maps enterprise ontology to all domains" ;
-    "Providers: AWS, GCP, Azure bindings for each domain" ;
-    "Example: HIPAA-compliant application shows end-to-end integration"
+    rdf:first "Legal: Policies, compliance, contracts, audit requirements, data classification" ;
+    rdf:rest [
+      rdf:first "IT: Services, SLAs, configurations, deployments, teams, skills" ;
+      rdf:rest [
+        rdf:first "Security: Threats, vulnerabilities, mitigations, access controls, audits" ;
+        rdf:rest [
+          rdf:first "Cloud: Compute, storage, network, pricing, topology" ;
+          rdf:rest [
+            rdf:first "Integration: Maps enterprise ontology to all domains" ;
+            rdf:rest [
+              rdf:first "Providers: AWS, GCP, Azure bindings for each domain" ;
+              rdf:rest [
+                rdf:first "Example: HIPAA-compliant application shows end-to-end integration" ;
+                rdf:rest rdf:nil
+              ]
+            ]
+          ]
+        ]
+      ]
+    ]
   ] .
+
+# ============================================================================
+# CanonicalIdentityLattice registration (wave-2 v26.10.20, lane L04/A04)
+# ============================================================================
+
+chatman:CanonicalIdentityLatticeOntology a rdfs:Resource ;
+  rdfs:label "Canonical Identity Lattice Ontology" ;
+  rdfs:comment "Canonical serialization forms, domain-separated keyed BLAKE3 digest derivation, sort-key orderings, and exhaustive mutation falsifier obligations for identity-bearing artifacts. Namespace: urn:ggen:canonical:. Source file: .specify/canonical-identity-lattice.ttl" ;
+  dcterms:isReferencedBy <file:.specify/canonical-identity-lattice.ttl> ;
+  dcterms:created "2026-10-20"^^xsd:date .

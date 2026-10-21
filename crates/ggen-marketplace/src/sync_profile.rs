@@ -260,7 +260,6 @@ pub fn validate_sync_preconditions(
 mod tests {
     use super::*;
     use crate::packs::lockfile::{LockedPack, PackLockfile, PackSource};
-    use chrono::Utc;
     use std::fs;
     use tempfile::TempDir;
 
@@ -288,7 +287,7 @@ mod tests {
                     "sha256-e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
                         .to_string(),
                 ),
-                installed_at: Utc::now(),
+                installed_at: None,
                 dependencies: vec![],
             },
         );
@@ -308,7 +307,7 @@ mod tests {
                     url: "https://registry.ggen.io".to_string(),
                 },
                 integrity: None,
-                installed_at: Utc::now(),
+                installed_at: None,
                 dependencies: vec![],
             },
         );
@@ -605,7 +604,7 @@ packages = ["{id}-core"]
                     path: install_path.to_path_buf(),
                 },
                 integrity: Some(integrity.to_string()),
-                installed_at: Utc::now(),
+                installed_at: None,
                 dependencies: vec![],
             },
         );

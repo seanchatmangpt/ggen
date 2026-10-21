@@ -72,7 +72,7 @@
 # self-monitoring-pack/hook.ttl discipline this file follows.
 
 @prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
-@prefix kh:      <http://seanchatmangpt.github.io/praxis/kh#> .
+@prefix kh:      <http://seanchatmangpt.github.io/graphlaw/kh#> .
 @prefix dfl:     <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#> .
 @prefix smon:    <http://seanchatmangpt.github.io/packs/self-monitoring#> .
 @prefix dcterms: <http://purl.org/dc/terms/> .
@@ -121,7 +121,7 @@ dfl:derive_review_obligation
 # CONSTRUCT emits.
 dfl:derive_review_obligation_action
     a kh:Action ;
-    kh:handler <http://seanchatmangpt.github.io/praxis/handler#sparql-construct> ;
+    kh:handler <http://seanchatmangpt.github.io/graphlaw/handler#sparql-construct> ;
     kh:query """CONSTRUCT { _:ob <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#Obligation> . _:ob <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#derivedFrom> ?event . _:ob <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#obligationTarget> ?agent . _:ob <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#severity> <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#High> . _:ob <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#deadline> 'PT24H'^^<http://www.w3.org/2001/XMLSchema#duration> . } WHERE { ?event a <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#ToolEvent> ; <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#outcome> <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#Blocked> ; <http://www.w3.org/ns/prov#wasAssociatedWith> ?agent . }""" .
 
 # NOTE ON THE MISSING "FILTER NOT EXISTS" GUARD (engine limitation found and
@@ -156,7 +156,7 @@ dfl:discharge_review_obligation
 
 dfl:discharge_review_obligation_action
     a kh:Action ;
-    kh:handler <http://seanchatmangpt.github.io/praxis/handler#sparql-construct> ;
+    kh:handler <http://seanchatmangpt.github.io/graphlaw/handler#sparql-construct> ;
     kh:query """CONSTRUCT { ?ob <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#dischargedBy> ?e2 . ?ob <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#obligationStatus> <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#Discharged> . } WHERE { ?ob a <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#Obligation> ; <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#derivedFrom> ?e1 ; <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#obligationTarget> ?agent . ?e1 <http://www.w3.org/ns/prov#wasAssociatedWith> ?agent ; <http://purl.org/dc/terms/isPartOf> ?session ; <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#sequenceIndex> ?i1 . ?e2 a <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#ToolEvent> ; <http://www.w3.org/ns/prov#wasAssociatedWith> ?agent ; <http://purl.org/dc/terms/isPartOf> ?session ; <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#sequenceIndex> ?i2 ; <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#outcome> <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#Ok> . FILTER(?i2 > ?i1) }""" .
 
 # ── THIRD HOOK (v26.7.19, Obligation-lifecycle L3->L4): escalate_overdue_
@@ -204,5 +204,5 @@ dfl:escalate_overdue_obligation
 
 dfl:escalate_overdue_obligation_action
     a kh:Action ;
-    kh:handler <http://seanchatmangpt.github.io/praxis/handler#sparql-construct> ;
+    kh:handler <http://seanchatmangpt.github.io/graphlaw/handler#sparql-construct> ;
     kh:query """CONSTRUCT { ?ob <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#escalatedBy> ?e3 . } WHERE { ?ob a <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#Obligation> ; <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#derivedFrom> ?e1 ; <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#obligationTarget> ?agent . ?e1 <http://purl.org/dc/terms/isPartOf> ?session ; <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#sequenceIndex> ?i1 . ?ea a <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#ToolEvent> ; <http://www.w3.org/ns/prov#wasAssociatedWith> ?agent ; <http://purl.org/dc/terms/isPartOf> ?session ; <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#sequenceIndex> ?ia . ?eb a <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#ToolEvent> ; <http://www.w3.org/ns/prov#wasAssociatedWith> ?agent ; <http://purl.org/dc/terms/isPartOf> ?session ; <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#sequenceIndex> ?ib . ?e3 a <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#ToolEvent> ; <http://www.w3.org/ns/prov#wasAssociatedWith> ?agent ; <http://purl.org/dc/terms/isPartOf> ?session ; <http://seanchatmangpt.github.io/packs/dogfood-lifecycle#sequenceIndex> ?i3 . FILTER(?ia > ?i1) FILTER(?ib > ?ia) FILTER(?i3 > ?ib) }""" .

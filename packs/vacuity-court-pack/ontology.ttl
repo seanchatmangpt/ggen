@@ -1,0 +1,218 @@
+# vacuity-court-pack ontology — v26.10.20 pattern pack (lanes A20/G16).
+# sourceText below is a BYTE-EXACT transcription of the cited file over the full
+# file extent, located by symbol on the 2026-10-20 tree (concurrent lanes shift
+# line numbers; prov:sha256 over the exact file bytes is the pin). Verify:
+#   shasum -a 256 <file>                        # compare to prov:sha256
+#   (extract vc:sourceText from parsed RDF and byte-compare against the file)
+#
+# PROVENANCE: scripts/shim_court_lib.sh (lane A17) has LANDED; the transcript
+# was re-sourced from the real script bytes (G16, 2026-10-20), replacing the
+# interim transcription from ~/.claude/rules/testing-chicago-style.md.
+@prefix vc: <http://seanchatmangpt.github.io/packs/vacuity-court#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+vc:VacuityCourt a rdfs:Class ; rdfs:label "Vacuity court" ;
+    rdfs:comment "A gate whose non-vacuity is proven by an anti-vacuity mutation: a court that cannot flip is FAIL; a skip is loud, never a faked pass." .
+
+vc:VacuousGate a rdfs:Class ; rdfs:label "VACUOUS GATE refusal" ;
+    rdfs:comment "Exit-1 refusal: a gate accepted an anti-vacuity shim it should have refused." .
+
+vc:CourtBlocked a rdfs:Class ; rdfs:label "COURT_BLOCKED" ;
+    rdfs:comment "Exit-2: court could not run (missing substrate); typed, not silent." .
+
+vc:SkipLoud a rdfs:Class ; rdfs:label "SKIP-loud" ;
+    rdfs:comment "Exit-3: a skipped court must print [SKIP] <reason>, never read as a pass." .
+
+vc:ShimCourtProtocol
+    a vc:SourceTranscript ;
+    rdfs:label "scripts/shim_court_lib.sh:1-183" ;
+    prov:atLocation "scripts/shim_court_lib.sh" ;
+    prov:startedAtLine "1"^^xsd:integer ;
+    prov:endedAtLine "183"^^xsd:integer ;
+    prov:sha256 "4ebb57379e679086d2fee8f127d759e3e2df4ff3f18f9406f7ba3fa44689c057" ;
+    vc:sourceText """#!/usr/bin/env bash
+# scripts/shim_court_lib.sh — ggen-vendored shim-court protocol
+# (v26.10.20, lane A17). Semantics vendored from smalt
+# `scripts/shim_court/lib.sh` (2026-10-16, R190 class); deliberately NOT
+# sourced from smalt — this copy is the ggen-canonical home
+# (docs/jira/v26.10.20/RESOLUTIONS.md: \"Shim-court lib vendored to
+# scripts/shim_court_lib.sh, no smalt sourcing, self-check first\").
+#
+# A \"shim court\" proves a gate or behavior is NON-VACUOUS by transiently
+# replacing a subject file's behavior:
+#
+#   1. SHA-BASELINE   sha256 the subject file.
+#   2. BEFORE         run the before-witness against the UNMODIFIED file;
+#                     exit 0 = the OLD signature holds.
+#   3. SHIM           call the caller-defined `apply_shim` hook (must edit
+#                     <file> in place, marking edits with \"SHIM-COURT\").
+#   4. AFTER          run the after-witness against the SHIMMED file;
+#                     exit 0 = the NEW outcome holds. This flip IS the
+#                     non-vacuity proof.
+#   5. RESTORE        restore from backup; sha256 must equal the baseline
+#                     byte-exact. The court FAILS CLOSED on any mismatch.
+#
+# Exit 0 only if every phase passes. Typed FAIL lines per phase:
+#   [FAIL:BASELINE] [FAIL:BEFORE] [FAIL:SHIM] [FAIL:AFTER] [FAIL:RESTORE]
+#
+# Contract for court scripts:
+#   - `set -euo pipefail`, then `source \"$(dirname \"$0\")/shim_court_lib.sh\"`.
+#   - Define `apply_shim` (edits $SHIM_FILE in place) BEFORE calling with_shim.
+#   - Pass witness commands as args 2 and 3 (run via bash -uc).
+#   - A leg needing a missing environment must SKIP LOUDLY with a reason via
+#     `shim_court_skip \"reason\"` (exit 3) — never fake a pass.
+#   - Court-level BLOCKED (e.g. subject cannot build) exits 2; a court whose
+#     AFTER witness PASSES under the shim exits 1 = VACUOUS GATE.
+
+SHIM_COURT_NAME=\"$(basename \"${0:-shim_court}\" .sh)\"
+SHIM_FILE=\"\"            # set by with_shim; visible to apply_shim
+SHIM_BACKUP=\"\"          # mktemp backup of the pristine file
+SHIM_BASELINE_SHA=\"\"    # sha256 of the pristine file
+SHIM_PHASE=\"INIT\"
+
+shim_court_log() { printf '[%s] %s\\n' \"$1\" \"$2\"; }
+
+shim_court_fail() {
+    # shim_court_fail <PHASE> <detail> — typed FAIL line, then exit 1.
+    printf '[FAIL:%s] %s\\n' \"$1\" \"$2\" >&2
+    exit 1
+}
+
+shim_court_blocked() {
+    # Court-level BLOCKED: the subject cannot even be exercised (compile
+    # failure, missing binary). Exit 2 — recorded as BLOCKED, never PASS.
+    printf '[BLOCKED] %s: %s\\n' \"$SHIM_COURT_NAME\" \"$1\" >&2
+    exit 2
+}
+
+shim_court_skip() {
+    # SKIP-loud-with-reason: exit 3, recorded as SKIP (never PASS).
+    printf '[SKIP] %s: %s\\n' \"$SHIM_COURT_NAME\" \"$1\"
+    exit 3
+}
+
+shim_court_sha() { shasum -a 256 \"$1\" 2>/dev/null | awk '{print $1}'; }
+
+shim_court_self_check() {
+    # Real temp-copy exercise (no mocks): prove the sha256 restore rule
+    # DETECTS a corrupted restore. Run once per court invocation. The check
+    # corrupts a restore on a real mktemp copy to prove restore-detection is
+    # not vacuous.
+    local dir backup base good corrupt
+    dir=\"$(mktemp -d \"${TMPDIR:-/tmp}/shim_court_selfcheck.XXXXXX\")\" || return 1
+    local tmp=\"$dir/subject.txt\"
+    printf 'subject-body\\n' > \"$tmp\"
+    backup=\"$dir/backup\"
+    cp \"$tmp\" \"$backup\"
+    base=\"$(shim_court_sha \"$tmp\")\"
+    printf 'SHIM-COURT body\\n' > \"$tmp\"
+    cp \"$backup\" \"$tmp\"                      # clean restore
+    good=\"$(shim_court_sha \"$tmp\")\"
+    cp \"$backup\" \"$tmp\"
+    printf 'x' | dd of=\"$tmp\" bs=1 seek=3 conv=notrunc status=none 2>/dev/null
+    corrupt=\"$(shim_court_sha \"$tmp\")\"
+    rm -rf \"$dir\"
+    if [ \"$good\" = \"$base\" ] && [ \"$corrupt\" != \"$base\" ]; then
+        printf '[self-check] sha256 restore-detection verified\\n'
+        return 0
+    fi
+    printf '[FAIL:SELF-CHECK] restore-detection self-check failed\\n' >&2
+    return 1
+}
+
+shim_court_trap() {
+    # Interrupt safety: if we die mid-shim, still attempt a byte-exact
+    # restore before exiting nonzero.
+    if [ -n \"${SHIM_BACKUP:-}\" ] && [ -f \"${SHIM_BACKUP:-}\" ] && \\
+       [ -n \"${SHIM_FILE:-}\" ] && [ -f \"${SHIM_FILE:-}\" ] && \\
+       [ \"$SHIM_PHASE\" = \"AFTER\" ]; then
+        cp \"$SHIM_BACKUP\" \"$SHIM_FILE\"
+        if [ \"$(shim_court_sha \"$SHIM_FILE\")\" != \"$SHIM_BASELINE_SHA\" ]; then
+            printf '[FAIL:RESTORE] interrupt path: restore did not verify\\n' >&2
+        fi
+    fi
+}
+
+# Witnesses run under `bash -uc`: a witness referencing an unset variable
+# fails LOUD with \"unbound variable\" instead of silently expanding to empty
+# and passing vacuously.
+
+with_shim() {
+    # with_shim <file> <before-cmd> <after-cmd>  (witnesses run via bash -uc)
+    local file=\"$1\" before_cmd=\"$2\" after_cmd=\"$3\"
+
+    # --- Phase 1: BASELINE ---------------------------------------------------
+    SHIM_PHASE=\"BASELINE\"
+    if [ ! -f \"$file\" ]; then
+        shim_court_fail BASELINE \"subject file not found: $file\"
+    fi
+    SHIM_FILE=\"$file\"
+    SHIM_BASELINE_SHA=\"$(shim_court_sha \"$file\")\"
+    if [ -z \"$SHIM_BASELINE_SHA\" ]; then
+        shim_court_fail BASELINE \"could not sha256 $file\"
+    fi
+    shim_court_log SHIM \"baseline sha256($file) = $SHIM_BASELINE_SHA\"
+
+    # --- Phase 2: BEFORE (old signature must hold) ---------------------------
+    SHIM_PHASE=\"BEFORE\"
+    if ! bash -uc \"$before_cmd\"; then
+        shim_court_blocked \\
+            \"before-witness failed against UNMODIFIED $file — subject not exercisable (compile failure or missing signature); court BLOCKED, refusing to shim\"
+    fi
+    shim_court_log SHIM \"BEFORE witness passed (old signature holds)\"
+
+    # --- Phase 3: SHIM ---------------------------------------------------------
+    SHIM_PHASE=\"SHIM\"
+    if ! declare -F apply_shim >/dev/null; then
+        shim_court_fail SHIM \"apply_shim() not defined by court script\"
+    fi
+    SHIM_BACKUP=\"$(mktemp \"${TMPDIR:-/tmp}/shim_court.orig.XXXXXX\")\"
+    cp \"$file\" \"$SHIM_BACKUP\"
+    if ! apply_shim; then
+        cp \"$SHIM_BACKUP\" \"$file\"
+        rm -f \"$SHIM_BACKUP\"; SHIM_BACKUP=\"\"
+        shim_court_fail SHIM \"apply_shim failed; file restored from backup\"
+    fi
+    if ! grep -q 'SHIM-COURT' \"$file\"; then
+        cp \"$SHIM_BACKUP\" \"$file\"
+        rm -f \"$SHIM_BACKUP\"; SHIM_BACKUP=\"\"
+        shim_court_fail SHIM \\
+            \"shimmed $file carries no 'SHIM-COURT' marker; refusing to continue\"
+    fi
+    shim_court_log SHIM \"shim applied to $file (SHIM-COURT marker present)\"
+
+    # --- Phase 4: AFTER (new outcome must hold) --------------------------------
+    SHIM_PHASE=\"AFTER\"
+    trap shim_court_trap EXIT INT TERM
+    if ! bash -uc \"$after_cmd\"; then
+        cp \"$SHIM_BACKUP\" \"$file\"
+        if [ \"$(shim_court_sha \"$file\")\" != \"$SHIM_BASELINE_SHA\" ]; then
+            shim_court_fail RESTORE \\
+                \"restore after AFTER-witness failure did NOT verify byte-exact (baseline $SHIM_BASELINE_SHA)\"
+        fi
+        rm -f \"$SHIM_BACKUP\"; SHIM_BACKUP=\"\"
+        trap - EXIT INT TERM
+        shim_court_fail AFTER \\
+            \"after-witness failed against SHIMMED $file — new outcome absent (gate vacuous or shim inert); file restored+verified\"
+    fi
+    shim_court_log SHIM \"AFTER witness passed (new outcome holds under shim)\"
+
+    # --- Phase 5: RESTORE (byte-exact) ------------------------------------------
+    SHIM_PHASE=\"RESTORE\"
+    cp \"$SHIM_BACKUP\" \"$file\"
+    local actual; actual=\"$(shim_court_sha \"$file\")\"
+    rm -f \"$SHIM_BACKUP\"; SHIM_BACKUP=\"\"
+    trap - EXIT INT TERM
+    if [ \"$actual\" != \"$SHIM_BASELINE_SHA\" ]; then
+        shim_court_fail RESTORE \\
+            \"sha256 mismatch after restore: got $actual, baseline $SHIM_BASELINE_SHA — $file CORRUPTED\"
+    fi
+    shim_court_log SHIM \"RESTORE verified byte-exact (sha256 match)\"
+
+    printf '[PASS] %s: non-vacuous (BEFORE old-signature, AFTER new-outcome, restore verified)\\n' \\
+        \"$SHIM_COURT_NAME\"
+    return 0
+}
+""" .

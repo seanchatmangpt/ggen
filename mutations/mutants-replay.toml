@@ -7,5 +7,19 @@
 #   check_determinism_rows_agree_empty / hash_file_or_missing
 # so this config examines the whole sync.rs file (the law's home) and relies on the
 # determinism test suite as the killing oracle.
-examine_globs = ["crates/ggen-engine/src/sync.rs"]
+examine_globs = [
+    # Pass A/B originals (MU3, v26.10.18 lane): the replay-idempotency law's home.
+    "crates/ggen-engine/src/sync.rs",
+    # v26.10.20 wave-2 surfaces (A19 lane addition; see README pass notes):
+    # envelope extraction/cap lookup (A02), lease-slot IO in the write pass
+    # (A06), court compiler seam (A12), generated refusal enums (L13 registry
+    # surface). Killing oracles: pass B sync-named tests plus
+    # envelope_receipt_binding_test (its test names carry no "determinism"/
+    # "sync" token — dispatch it explicitly, e.g. cargo-mutants
+    # `-- envelope_receipt_binding`, until a pass filter covers it).
+    "crates/ggen-engine/src/envelope.rs",
+    "crates/ggen-engine/src/write.rs",
+    "crates/ggen-engine/src/court/*.rs",
+    "crates/ggen-engine/src/generated/*.rs",
+]
 exclude_re = ["fn main"]

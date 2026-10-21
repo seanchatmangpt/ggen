@@ -1,0 +1,99 @@
+{# serializer.rs.tera — canonical serializer generation for CanonicalType
+   instances. Consumed by ggen sync from .specify/canonical-identity-lattice.ttl
+   via .specify/queries/canonical/canonical-types.rq.
+   Emits to_canonical_bytes / to_hash_bytes dispatching on canonicalForm with
+   domain-separated keyed BLAKE3 (blake3::derive_key). Lane L04/A04 sketch;
+   engine lane (L05/A05) owns final integration. #}
+// GENERATED from .specify/canonical-identity-lattice.ttl — do not hand-edit.
+// Regenerate: ggen sync run
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum CanonicalForm {
+    Rdfc10NQuads,
+    SortedKeyCompactJson,
+    BTreeOrderedCollection,
+}
+
+#[derive(Debug, Clone)]
+pub struct CanonicalIdentity {
+    pub type_name: &'static str,
+    pub form: CanonicalForm,
+    pub derivation: &'static str,
+    pub sort_keys: &'static [&'static str],
+}
+
+pub const CANONICAL_IDENTITIES: &[CanonicalIdentity] = &[
+    {% for row in canonical_types %}
+    CanonicalIdentity {
+        type_name: "{{ row.type }}",
+        form: {% if row.form == "urn:ggen:canonical:Rdfc10NQuads" %}CanonicalForm::Rdfc10NQuads{% elif row.form == "urn:ggen:canonical:SortedKeyCompactJson" %}CanonicalForm::SortedKeyCompactJson{% else %}CanonicalForm::BTreeOrderedCollection{% endif %},
+        derivation: "{{ row.derivation }}",
+        sort_keys: &[{% if row.sortKey %}"{{ row.sortKey }}",{% endif %}],
+    },
+    {% endfor %}
+];
+
+impl CanonicalIdentity {
+    /// Canonical serialization. Dispatch is total over the pinned form enum.
+    pub fn to_canonical_bytes(&self, subject: &dyn CanonicalSubject) -> Result<Vec<u8>, CanonicalError> {
+        match self.form {
+            // RDFC-10 canonicalization emitted as N-Quads (sorted quads,
+            // deterministic blank-node identifiers).
+            CanonicalForm::Rdfc10NQuads => subject.to_rdfc10_nquads(),
+            // JSON with lexicographically sorted keys, compact separators.
+            CanonicalForm::SortedKeyCompactJson => {
+                let value = subject.to_json_value()?;
+                Ok(sorted_key_compact_json(&value)?)
+            }
+            // Collections serialized in BTree (sorted) member order.
+            CanonicalForm::BTreeOrderedCollection => {
+                let mut members = subject.to_collection_members()?;
+                members.sort();
+                let mut out = Vec::new();
+                for m in &members {
+                    out.extend_from_slice(m.as_bytes());
+                    out.push(b'\n');
+                }
+                Ok(out)
+            }
+        }
+    }
+
+    /// Domain-separated keyed BLAKE3 over the canonical bytes.
+    /// blake3::derive_key(self.derivation, canonical_bytes) — distinct
+    /// CanonicalTypes MUST hold distinct derivation context strings.
+    pub fn to_hash_bytes(&self, subject: &dyn CanonicalSubject) -> Result<[u8; 32], CanonicalError> {
+        let canonical = self.to_canonical_bytes(subject)?;
+        let keyed = blake3::derive_key(self.derivation, &canonical);
+        Ok(keyed)
+    }
+}
+
+/// Compact JSON with lexicographically sorted object keys (recursively).
+fn sorted_key_compact_json(value: &serde_json::Value) -> Result<Vec<u8>, CanonicalError> {
+    match value {
+        serde_json::Value::Object(map) => {
+            let sorted: serde_json::Map<String, serde_json::Value> = map
+                .iter()
+                .collect::<serde_json::Map<String, serde_json::Value>>()
+                .into_iter()
+                .collect();
+            serde_json::to_vec(&sorted).map_err(CanonicalError::Json)
+        }
+        other => serde_json::to_vec(other).map_err(CanonicalError::Json),
+    }
+}
+
+#[derive(Debug, thiserror::Error)]
+pub enum CanonicalError {
+    #[error("json canonicalization failed: {0}")]
+    Json(#[from] serde_json::Error),
+    #[error("rdfc10 canonicalization failed: {0}")]
+    Rdfc10(String),
+}
+
+/// Real collaborator surface implemented by each identity-bearing subject.
+pub trait CanonicalSubject {
+    fn to_rdfc10_nquads(&self) -> Result<Vec<u8>, CanonicalError>;
+    fn to_json_value(&self) -> Result<serde_json::Value, CanonicalError>;
+    fn to_collection_members(&self) -> Result<Vec<String>, CanonicalError>;
+}

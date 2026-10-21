@@ -1,0 +1,130 @@
+# envelope-shapes.ttl — BoundedResourceEnvelope reticle (v26.10.20, lane A01 / plan L01).
+#
+# Declares the res:Envelope SHACL node shape: every code-generation surface must
+# carry exactly one envelope declaring its resource bounds, and every bound is a
+# positive xsd:unsignedLong. A default envelope individual mirrors today's
+# hand-written constants so engine lanes (A05 sync.rs, A06 write.rs, A07
+# ggen-abb-sbb) can consume the graph instead of the literals.
+#
+# Provenance of seeded values (read from source 2026-10-20):
+#   maxQueryRows       = crates/ggen-engine/src/sync.rs:249   MAX_QUERY_RESULT_ROWS    = 4096
+#   maxPendingOutputs  = crates/ggen-engine/src/sync.rs:253   MAX_PENDING_OUTPUTS      = 8192
+#   maxTotalBytes      = crates/ggen-engine/src/sync.rs:256   MAX_TOTAL_RENDERED_BYTES = 67108864 (64 MiB)
+#   maxInputBytes / maxOutputBytes                             maxOutputBytes = crates/ggen-engine/src/write.rs:42
+#                                                              MAX_OUTPUT_BYTES = 10485760 (10 MiB)
+#   NOTE: the wave dispatch named maxTotalBytes 68719476736 ("64MiB"); the live
+#   constant is 64 * 1024 * 1024 = 67108864. Code is the referent; 67108864 seeded.
+#   maxArtifacts: ggen-abb-sbb has NO repo-wide constant (ArchitectureContract
+#   field, contract-supplied; A07 will introduce DEFAULT_MAX_ARTIFACTS). The
+#   default individual seeds 8192 provisionally, aligned with MAX_PENDING_OUTPUTS,
+#   and is flagged below for revisit when A07 lands.
+
+@prefix res:  <http://ggen.org/envelope#> .
+@prefix sh:   <http://www.w3.org/ns/shacl#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+res:Envelope a rdfs:Class , sh:NodeShape ;
+    rdfs:label "BoundedResourceEnvelope" ;
+    rdfs:comment """
+        Closed resource-bounds envelope attached 1..1 to every generation surface.
+        Every bound property is xsd:unsignedLong, minInclusive 1 (an envelope that
+        permits zero of anything is not an envelope, it is a denial).
+        Consumers: ggen-engine sync (Stage-2c admission, A05), write gating (A06),
+        ggen-abb-sbb artifact cap (A07). Undefined-envelope surfaces refuse with
+        E-ENVELOPE-UNDECLARED (see ontologies/shapes/boundary-refusal.shacl.ttl).
+    """ ;
+    sh:closed true ;
+    sh:ignoredProperties ( rdf:type ) ;
+    sh:property
+        res:Envelope-surface ,
+        res:Envelope-maxInputBytes ,
+        res:Envelope-maxDepth ,
+        res:Envelope-maxDerivedFacts ,
+        res:Envelope-maxSteps ,
+        res:Envelope-maxAnswers ,
+        res:Envelope-maxArtifacts ,
+        res:Envelope-maxTotalBytes .
+
+res:Envelope-surface a sh:PropertyShape ;
+    sh:path res:surface ;
+    sh:name "surface IRI" ;
+    sh:description "The generation surface this envelope bounds. Exactly one per envelope; minCount and maxCount both 1." ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:nodeKind sh:IRI .
+
+res:Envelope-maxInputBytes a sh:PropertyShape ;
+    sh:path res:maxInputBytes ;
+    sh:name "max input bytes" ;
+    sh:description "Upper bound on bytes of declared input consumed for one surface invocation (mirrors write.rs MAX_OUTPUT_BYTES semantics for inputs)." ;
+    sh:datatype xsd:unsignedLong ;
+    sh:minInclusive 1 ;
+    sh:maxCount 1 .
+
+res:Envelope-maxDepth a sh:PropertyShape ;
+    sh:path res:maxDepth ;
+    sh:name "max depth" ;
+    sh:description "Upper bound on template/pack resolution recursion depth." ;
+    sh:datatype xsd:unsignedLong ;
+    sh:minInclusive 1 ;
+    sh:maxCount 1 .
+
+res:Envelope-maxDerivedFacts a sh:PropertyShape ;
+    sh:path res:maxDerivedFacts ;
+    sh:name "max derived facts" ;
+    sh:description "Upper bound on facts materialized by SPARQL CONSTRUCT during extract." ;
+    sh:datatype xsd:unsignedLong ;
+    sh:minInclusive 1 ;
+    sh:maxCount 1 .
+
+res:Envelope-maxSteps a sh:PropertyShape ;
+    sh:path res:maxSteps ;
+    sh:name "max steps" ;
+    sh:description "Upper bound on pipeline steps (rule applications) for one sync." ;
+    sh:datatype xsd:unsignedLong ;
+    sh:minInclusive 1 ;
+    sh:maxCount 1 .
+
+res:Envelope-maxAnswers a sh:PropertyShape ;
+    sh:path res:maxAnswers ;
+    sh:name "max answers" ;
+    sh:description "Upper bound on SPARQL SELECT solution rows per named query (mirrors sync.rs MAX_QUERY_RESULT_ROWS)." ;
+    sh:datatype xsd:unsignedLong ;
+    sh:minInclusive 1 ;
+    sh:maxCount 1 .
+
+res:Envelope-maxArtifacts a sh:PropertyShape ;
+    sh:path res:maxArtifacts ;
+    sh:name "max artifacts" ;
+    sh:description "Upper bound on artifacts one surface may emit (abb-sbb ArchitectureContract.max_artifacts class)." ;
+    sh:datatype xsd:unsignedLong ;
+    sh:minInclusive 1 ;
+    sh:maxCount 1 .
+
+res:Envelope-maxTotalBytes a sh:PropertyShape ;
+    sh:path res:maxTotalBytes ;
+    sh:name "max total bytes" ;
+    sh:description "Upper bound on cumulative rendered bytes across all outputs of one sync (mirrors sync.rs MAX_TOTAL_RENDERED_BYTES)." ;
+    sh:datatype xsd:unsignedLong ;
+    sh:minInclusive 1 ;
+    sh:maxCount 1 .
+
+# ---------------------------------------------------------------------------
+# Default envelope individual — mirrors today's in-code constants.
+# ---------------------------------------------------------------------------
+
+res:envelope-default a res:Envelope ;
+    rdfs:label "ggen default envelope (v26.10.20 constants)" ;
+    rdfs:seeAlso
+        <https://github.com/seanchatmangpt/ggen/blob/main/crates/ggen-engine/src/sync.rs> ,
+        <https://github.com/seanchatmangpt/ggen/blob/main/crates/ggen-engine/src/write.rs> ;
+    res:surface <http://ggen.org/surface/sync-run> ;
+    res:maxInputBytes 10485760 ;        # 10 MiB — mirrors write.rs MAX_OUTPUT_BYTES
+    res:maxDepth 64 ;                   # provisional: no in-code depth constant today
+    res:maxDerivedFacts 65536 ;         # provisional: no in-code derived-fact constant today
+    res:maxSteps 4096 ;                 # provisional: no in-code step constant today
+    res:maxAnswers 4096 ;               # sync.rs MAX_QUERY_RESULT_ROWS
+    res:maxArtifacts 8192 ;             # PROVISIONAL — abb-sbb is contract-supplied; revisit at A07 DEFAULT_MAX_ARTIFACTS
+    res:maxTotalBytes 67108864 .        # sync.rs MAX_TOTAL_RENDERED_BYTES = 64 MiB

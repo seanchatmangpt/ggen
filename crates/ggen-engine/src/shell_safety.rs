@@ -56,6 +56,30 @@ pub fn check_shell_command_safe(cmd: &str) -> Result<()> {
     Ok(())
 }
 
+/// Check every shell command rendered onto a generated surface.
+///
+/// Generated output (pack/`ggen sync` renderings that carry `sh_before` /
+/// `sh_after` hooks) is template-controlled input, exactly like frontmatter,
+/// and must pass the same denylist before anything executes it. Refuses on
+/// the FIRST offending command, naming its index so the generated file and
+/// template can be located from the error alone.
+///
+/// # Errors
+/// Returns `[FM-SHELL-001]` (via [`check_shell_command_safe`]) when any
+/// command matches a denylisted pattern.
+pub fn check_generated_surface<I, S>(cmds: I) -> Result<()>
+where
+    I: IntoIterator<Item = S>,
+    S: AsRef<str>,
+{
+    for (idx, cmd) in cmds.into_iter().enumerate() {
+        check_shell_command_safe(cmd.as_ref()).map_err(|e| {
+            AppError::fm_shell(1, format!("generated surface command #{idx} refused: {e}"))
+        })?;
+    }
+    Ok(())
+}
+
 #[cfg(test)]
 #[allow(clippy::unwrap_used, clippy::expect_used)]
 mod tests {

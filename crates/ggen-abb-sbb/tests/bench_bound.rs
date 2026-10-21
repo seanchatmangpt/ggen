@@ -61,6 +61,8 @@ fn req(g: &EaGraph, sbb: &str) -> Request {
         sbb: sbb.into(),
         requested_authority: Authority::Construct,
         expected_graph_digest: Some(g.digest()),
+        receipt_generation: 0,
+        artifact_baseline_generation: 0,
     }
 }
 

@@ -513,6 +513,60 @@ fn sync_run_unbound_template_variable_exits_nonzero() {
     let _ = output.assert_failure().assert_stderr_contains("FM-TPL-003");
 }
 
+/// Stale-lease fixture (v26.10.20, lane A17; integration lane I1 rewrite):
+/// the scaffold's single template writes `out/names.txt`; a first sync
+/// admits against the missing lease slot (baseline migrates to 1, run
+/// generation becomes 1). A later writer then advances the artifact's lease
+/// baseline under the project's feet (the concurrent-writer scenario of
+/// `fresh_epoch_lease_court_test::generation_bump_between_compute_and_write`
+/// — a real slot write, not a mock): the next sync's run generation (2) is
+/// no longer fresher than that baseline, so the CLI must refuse with
+/// `REFUSED_STALE_LEASE` / `FM-WRITE-012` and map it to exit code 5
+/// (v26.10.20 refusal envelope mapping). The original "second sync still
+/// carries generation 0" premise was falsified by A05's landed generation
+/// plumbing — the pipeline threads the real run generation into every write
+/// request, so a plain re-sync legitimately admits.
+#[test]
+fn sync_run_stale_lease_refusal_exits_five() {
+    let dir = TempDir::new().expect("tempdir");
+    scaffold(dir.path());
+
+    // First sync: admits (missing lease slot = baseline 0, admits once).
+    let _ = CliHarness::from_path(ggen_bin())
+        .args(["sync", "run"])
+        .current_dir(dir.path())
+        .run()
+        .expect("first sync")
+        .assert_success();
+    assert!(
+        dir.path().join(".ggen-v2/lease").exists(),
+        "first sync must record a lease slot under .ggen-v2/lease"
+    );
+
+    // A concurrent writer advances the target's lease baseline far past the
+    // next run's generation (2): the classic lost-epoch bump.
+    let target_rel = "out/names.txt";
+    let slot = dir
+        .path()
+        .join(".ggen-v2/lease")
+        .join(blake3::hash(target_rel.as_bytes()).to_hex().to_string());
+    assert!(slot.exists(), "lease slot for {target_rel} must exist");
+    std::fs::write(&slot, "7\n").expect("bump lease baseline to 7");
+
+    // Next sync: run generation 2 <= baseline 7 — stale.
+    let output = CliHarness::from_path(ggen_bin())
+        .args(["sync", "run"])
+        .current_dir(dir.path())
+        .run()
+        .expect("second sync (stale receipt)");
+    assert_eq!(
+        output.exit_code, 5,
+        "REFUSED_STALE_LEASE must exit 5 at the CLI boundary, got {} with stderr:\n{}",
+        output.exit_code, output.stderr
+    );
+    let _ = output.assert_stderr_contains("REFUSED_STALE_LEASE");
+}
+
 // ---------------------------------------------------------------------
 // graph validate
 // ---------------------------------------------------------------------

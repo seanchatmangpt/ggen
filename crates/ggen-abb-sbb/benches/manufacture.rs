@@ -22,6 +22,8 @@ fn bench(c: &mut Criterion) {
             sbb: last.clone(),
             requested_authority: Authority::Construct,
             expected_graph_digest: Some(g.digest()),
+            receipt_generation: 0,
+            artifact_baseline_generation: 0,
         };
         let label = format!("{sbbs}x{arts}");
         group.bench_with_input(BenchmarkId::new("graph_digest", &label), &g, |b, g| {

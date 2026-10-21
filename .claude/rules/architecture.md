@@ -23,11 +23,18 @@ v26.10.9; ggen-engine's Stage 2c gate) · `pm4pytest-cli` (`cargo` wrapper aroun
 
 Removed (ERRC 2026-08-12): `cpmp`, `openapi-cnv-reflect`, `genesis-{types,core}-v2`.
 
-**~90 packs** (`packs/*/pack.toml`): agent/workflow codegen, TCPS production, constitutional/
+**102 packs** (`packs/*/pack.toml`): agent/workflow codegen, TCPS production, constitutional/
 DfCM, Fortune-5, domain catalogs, release/CI, diagrams. Full table: `ggen sync run`.
 
+**v26.10.20 engine surfaces**: `ggen court` noun + court module in `ggen-engine`
+(adversarial non-vacuity courts); SPARQL envelope reticle (`BoundedResourceEnvelope`)
+replacing the JSON sidecar; canonical identity module (digest-over-canonical-bytes);
+`receipt_dialect` ground-tier verifier; dataset intent seam; dialect dispatch matrix
+(turtle/ntriples/nquads/trig/rdf-xml/json-ld) with remote-context resolution fail-closed.
+
 **Patterns**: `Result<T,E>` via `thiserror`; builder+typestate+newtype in `ggen-marketplace`;
-RDF/SPARQL everywhere; chained-BLAKE3 receipts via `graphlaw`/`ggen-graph`.
+RDF/SPARQL everywhere; chained-BLAKE3 receipts via `graphlaw`/`ggen-graph`;
+RDFC-1.0 cross-dialect canonicalization; intent-segregated dataset digests.
 
 Navigation: `workspaceSymbol`→`goToDefinition`→`findReferences`→`goToImplementation`
 ([[rust/lsp]]).

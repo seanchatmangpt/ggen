@@ -1,7 +1,7 @@
 ---
 auto_load: true
 priority: high
-version: 6.0.0
+version: 7.0.0
 ---
 
 # 🔧 Development Workflow (4 Steps)
@@ -11,8 +11,20 @@ version: 6.0.0
    `ggen sync run --dry-run` (preview; `--dry_run true` doesn't work).
 2. **Chicago TDD**: write failing test in `crates/ggen-engine/tests/` (RED, `ggen-engine` is
    live, `ggen-core` deleted) → `just test` (fails; `test-lib` is `--lib` only) → implement →
-   `just test` (GREEN) → `just pre-commit` (refactor, maintain GREEN).
+   `just test` (GREEN) → `just pre-commit` (refactor, maintain GREEN). The `pre-commit:`
+   dependency line in the `justfile` is the sole source of truth for the gate list. As of
+   v26.10.20 it ends with three promoted courts — `court-canonical court-vacuity
+   court-envelope` (each witnessed GREEN under 60s before wiring). Not promoted:
+   `court-typed-refusal` (green, withheld pending compile-fail probe batching) and
+   `court-fresh-epoch` (contains the shim-court protocol, BLOCKED-class by design).
+   Standalone: `just courts` runs all five.
 3. **Generate**: `ggen sync run --dry-run` (preview) → `ggen sync run` (full sync w/ receipt;
-   `just sync`/`sync-dry` currently run broken internal commands — use `ggen sync run` directly).
+   `just sync`/`sync-dry` currently run broken internal commands — use `ggen sync run`
+   directly). Gate authoring: `ggen court compile` compiles a mutant catalog (TTL, one
+   `vc:Mutant` per catalog) into shim-court artifacts with typed exits.
 4. **Commit with evidence**: `just pre-commit` → commit message citing real gate/test counts,
    e.g. `[Receipt] just pre-commit: ✓ N/N gates`, `[Receipt] just test: ✓ N/N tests`.
+   Refusals are typed and fail closed: parse errors surface as `[E-PARSE-{DIALECT}]`
+   (position-bearing) and `[FD-*]` codes; a stale/unreadable FreshEpochLease slot refuses
+   with `[FM-WRITE-012]`, mirrored by the CLI as exit code 5. Treat any exit-5 output as an
+   Andon signal, not a retryable warning.

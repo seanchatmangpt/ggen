@@ -76,6 +76,10 @@ pub enum WriteOutcome {
 /// - `[FM-WRITE-007]` rendered body exceeds [`MAX_OUTPUT_BYTES`].
 /// - `[FM-WRITE-008]` invalid or oversized matcher, zero-width file regex,
 ///   or unsatisfied structured cardinality.
+/// - `[FM-WRITE-012]` stale or unreadable `FreshEpochLease` slot: the request's
+///   `receipt_generation` is not strictly greater than the persisted baseline
+///   (when a non-zero baseline exists), or the lease slot itself is corrupt/
+///   unreadable (unknown lease state fails closed, never admits).
 /// - I/O errors from reading/writing the filesystem.
 pub fn plan_write(
     root: &Path, rel_to: &str, rendered_body: &str, frontmatter: &Frontmatter,
@@ -134,6 +138,15 @@ pub fn plan_write(
         return Ok(WriteOutcome::Skipped(skip_reason));
     }
 
+    // FreshEpochLease gate (v26.10.20, lanes A06/L08): immediately after the
+    // freeze decision and BEFORE the unchanged-content skip. A stale epoch
+    // must refuse even when the rendered content happens to match what is on
+    // disk — "unchanged" is not evidence the lease is current, and admitting
+    // would let a replayed pre-rotation receipt re-assert authority over a
+    // file whose owning generation has since advanced. See
+    // `check_lease_generation` for the refusal semantics.
+    check_lease_generation(root, rel_to, frontmatter.receipt_generation)?;
+
     if frontmatter.inject {
         let content = existing.ok_or_else(|| {
             AppError::fm_write(
@@ -145,20 +158,7 @@ pub fn plan_write(
                 ),
             )
         })?;
-        let injected = inject_into(&content, rendered_body, frontmatter)?;
-        if injected.len() > MAX_OUTPUT_BYTES {
-            return Err(AppError::fm_write(
-                7,
-                format!(
-                    "injected output for `{rel_to}` is {} bytes, over the                      {MAX_OUTPUT_BYTES}-byte cap. Remediation: split the host artifact                      or reduce the injected projection.",
-                    injected.len()
-                ),
-            ));
-        }
-        maybe_backup(&target, &content, frontmatter)?;
-        std::fs::write(&target, &injected)?;
-        record_freeze_checksum(root, rel_to, &injected, frontmatter)?;
-        return Ok(WriteOutcome::Injected);
+        return write_injected(root, rel_to, &target, &content, rendered_body, frontmatter);
     }
 
     match existing {
@@ -166,6 +166,7 @@ pub fn plan_write(
             ensure_parent(&target)?;
             std::fs::write(&target, rendered_body)?;
             record_freeze_checksum(root, rel_to, rendered_body, frontmatter)?;
+            record_lease_generation(root, rel_to, frontmatter.receipt_generation)?;
             Ok(WriteOutcome::Written)
         }
         // Content-equality is checked BEFORE the `force` arm (2026-08-03,
@@ -194,6 +195,7 @@ pub fn plan_write(
             maybe_backup(&target, content, frontmatter)?;
             std::fs::write(&target, rendered_body)?;
             record_freeze_checksum(root, rel_to, rendered_body, frontmatter)?;
+            record_lease_generation(root, rel_to, frontmatter.receipt_generation)?;
             Ok(WriteOutcome::Written)
         }
         Some(_) => Err(AppError::fm_write(
@@ -215,6 +217,33 @@ pub fn plan_write(
 /// `FreezePolicy::Always` (see that arm) -- never written to disk. Freeze
 /// semantics are unchanged: an `Always`-frozen target is never overwritten,
 /// drifted or not.
+/// Execute the `inject: true` write path: inject `rendered_body` into the
+/// existing `content` at `target`, enforcing the byte cap, backup, freeze,
+/// and lease-generation records. Split out of [`plan_write`] for lint
+/// hygiene; behavior is identical to the former inline block.
+fn write_injected(
+    root: &Path, rel_to: &str, target: &Path, content: &str, rendered_body: &str,
+    frontmatter: &Frontmatter,
+) -> Result<WriteOutcome> {
+    let injected = inject_into(content, rendered_body, frontmatter)?;
+    if injected.len() > MAX_OUTPUT_BYTES {
+        return Err(AppError::fm_write(
+            7,
+            format!(
+                "injected output for `{rel_to}` is {} bytes, over the                      \
+                 {MAX_OUTPUT_BYTES}-byte cap. Remediation: split the host artifact           \
+                 or reduce the injected projection.",
+                injected.len()
+            ),
+        ));
+    }
+    maybe_backup(target, content, frontmatter)?;
+    std::fs::write(target, &injected)?;
+    record_freeze_checksum(root, rel_to, &injected, frontmatter)?;
+    record_lease_generation(root, rel_to, frontmatter.receipt_generation)?;
+    Ok(WriteOutcome::Injected)
+}
+
 fn check_freeze(
     root: &Path, rel_to: &str, existing: Option<&str>, rendered_body: &str,
     frontmatter: &Frontmatter,
@@ -289,6 +318,131 @@ fn record_freeze_checksum(
         .to_hex()
         .to_string();
     std::fs::write(&checksum_path, hash)?;
+    Ok(())
+}
+
+/// `FreshEpochLease` slot path: `<root>/.ggen-v2/lease/<blake3-hex(rel_to)>`.
+///
+/// Keyed by the BLAKE3 hex of the canonical `rel_to` string (mirroring how
+/// `freeze_checksum_path` derives a per-output slot under a fixed root
+/// directory, but content-addressed rather than path-shaped so the lease dir
+/// stays flat and collision-free). `rel_to` is safety-validated through
+/// [`resolve_target`] first so a traversal-shaped path can never influence
+/// slot placement.
+fn lease_slot_path(root: &Path, rel_to: &str) -> Result<PathBuf> {
+    resolve_target(root, rel_to)?;
+    let hex = blake3::hash(rel_to.as_bytes()).to_hex().to_string();
+    Ok(root.join(".ggen-v2").join("lease").join(hex))
+}
+
+/// Read the persisted lease generation baseline for `rel_to`.
+///
+/// Missing slot = baseline 0 (migration: nothing has ever been written under
+/// lease control here, so any request admits once and then records
+/// generation 1). Any read error OTHER than `NotFound` — permission denied, a
+/// directory where the slot should be, a corrupt non-decimal payload — is an
+/// unknown lease-authority state and fails closed with `FM-WRITE-012`,
+/// mirroring the checksum-slot arm above: we never treat an unreadable
+/// authority record as "no constraint".
+/// Stage-2c seam (v26.10.20 integration lane I1): the persisted lease
+/// baseline for `rel_to`, for the sync pipeline's pre-write stale-lease
+/// comparison — the same slot, baseline, and fail-closed semantics the
+/// write-path gate ([`check_lease_generation`]) enforces, exposed so the
+/// refusal fires with the portable `REFUSED_STALE_LEASE` envelope BEFORE
+/// any rendered output lands on disk.
+///
+/// # Errors
+/// Propagates [`read_lease_baseline`]'s fail-closed `FM-WRITE-012` on any
+/// corrupt/unreadable slot.
+pub(crate) fn lease_baseline_for(root: &Path, rel_to: &str) -> Result<u64> {
+    read_lease_baseline(&lease_slot_path(root, rel_to)?)
+}
+
+fn read_lease_baseline(lease_path: &Path) -> Result<u64> {
+    match std::fs::read_to_string(lease_path) {
+        Ok(stored) => stored.trim().parse::<u64>().map_err(|error| {
+            AppError::fm_write(
+                12,
+                format!(
+                    "REFUSED_STALE_LEASE: lease slot `{}` is corrupt (expected decimal \
+                     u64): {error}. Refusing to treat an unknown lease state as fresh. \
+                     Remediation: repair or remove the slot after reviewing the target's \
+                     owning generation.",
+                    lease_path.display()
+                ),
+            )
+        }),
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => Ok(0),
+        Err(error) => Err(AppError::fm_write(
+            12,
+            format!(
+                "REFUSED_STALE_LEASE: lease slot `{}` is unreadable: {error}. Refusing to \
+                 treat an unknown lease state as fresh. Remediation: repair or remove the \
+                 slot after reviewing the target's owning generation.",
+                lease_path.display()
+            ),
+        )),
+    }
+}
+
+/// `FreshEpochLease` gate: refuse the write unless the request's receipt
+/// generation is strictly fresher than the persisted baseline.
+///
+/// Rationale (lane L08 plan, v26.10.20): after an epoch rotation (ontology
+/// regeneration, pack re-admission, restore from snapshot) a pre-rotation
+/// admission receipt can still be replayed verbatim against the same target
+/// path. The unchanged-content skip and freeze checks both admit on byte
+/// equality, which a replayed receipt trivially satisfies. The lease gate
+/// instead compares EPOCHS: every successful `Written`/`Injected` bumps the
+/// persisted baseline to `prev + 1`, so a replayed old receipt
+/// (`receipt_generation <= baseline`) is refused with `FM-WRITE-012` /
+/// `REFUSED_STALE_LEASE` even when its rendered content is byte-identical to
+/// what is on disk.
+///
+/// Migration: a missing slot reads as baseline 0, and the gate only engages
+/// when `baseline > 0`, so the first write under this regime admits and
+/// records generation 1; a generation-0 receipt against a non-zero baseline
+/// is by definition pre-rotation and is refused.
+fn check_lease_generation(root: &Path, rel_to: &str, receipt_generation: u64) -> Result<()> {
+    let lease_path = lease_slot_path(root, rel_to)?;
+    let baseline = read_lease_baseline(&lease_path)?;
+    if baseline > 0 && receipt_generation <= baseline {
+        return Err(AppError::fm_write(
+            12,
+            format!(
+                "REFUSED_STALE_LEASE: receipt generation {receipt_generation} is not fresher \
+                 than the recorded lease baseline {baseline} for `{rel_to}`. The admission \
+                 receipt predates the last write under lease control (stale epoch / replayed \
+                 receipt). Remediation: re-admit against the current ontology to obtain a \
+                 fresher receipt generation.",
+            ),
+        ));
+    }
+    Ok(())
+}
+
+/// After a successful `Written`/`Injected`, bump the persisted lease baseline
+/// to `prev + 1` so the next request must carry at least that generation.
+/// Missing slot (baseline 0) migrates to generation 1. A corrupt/unreadable
+/// slot discovered here also fails closed (`FM-WRITE-012`) — the write has
+/// already landed, but the run must not report success while the lease state
+/// is unknown; the caller surfaces the error in the stage-failure receipt.
+fn record_lease_generation(root: &Path, rel_to: &str, _receipt_generation: u64) -> Result<()> {
+    let lease_path = lease_slot_path(root, rel_to)?;
+    let prev = read_lease_baseline(&lease_path)?;
+    let next = prev.checked_add(1).ok_or_else(|| {
+        AppError::fm_write(
+            12,
+            format!(
+                "REFUSED_STALE_LEASE: lease generation for `{rel_to}` would overflow u64. \
+                     Remediation: reset the lease directory after a full re-admission."
+            ),
+        )
+    })?;
+    if let Some(parent) = lease_path.parent() {
+        std::fs::create_dir_all(parent)?;
+    }
+    std::fs::write(&lease_path, format!("{next}\n"))?;
     Ok(())
 }
 

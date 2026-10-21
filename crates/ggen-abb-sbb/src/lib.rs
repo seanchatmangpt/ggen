@@ -24,9 +24,78 @@ use std::collections::{BTreeMap, BTreeSet};
 use thiserror::Error;
 
 pub mod depgraph;
+pub mod envelope_court;
+
+pub use envelope_court::{envelope_court, envelope_digest};
+
+// L13 registry-projected closed refusal vocabulary, abb-sbb mirror (v26.10.20 lane A15).
+pub mod generated;
 
 pub const GRAPH_SCHEMA: &str = "ggen.ea.graph.v1";
 pub const RECEIPT_SCHEMA: &str = "ggen.abb-sbb.manufacture-receipt.v1";
+
+/// Default artifact ceiling used when a caller supplies no [`EnvelopeCaps`]
+/// override.
+///
+/// A contract's own `max_artifacts` always additionally caps (the
+/// effective ceiling is the minimum of the two), so this default can only
+/// tighten, never loosen, a declared contract.
+pub const DEFAULT_MAX_ARTIFACTS: usize = 64;
+
+/// Per-call envelope capability override, mapped by ggen-engine from the
+/// caller's `res:Envelope` at call time (v26.10.20 wave-2 seam).
+///
+/// SEAM NOTE: this struct lives here rather than in `ggen-engine` to avoid a
+/// dependency edge (ggen-engine already depends on this crate, not the
+/// reverse). ggen-engine (A02/A05) is the sole translator
+/// `res:Envelope -> EnvelopeCaps`; this kernel only consumes the projected
+/// values and never parses envelopes itself.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct EnvelopeCaps {
+    pub max_artifacts: usize,
+}
+
+impl Default for EnvelopeCaps {
+    fn default() -> Self {
+        EnvelopeCaps {
+            max_artifacts: DEFAULT_MAX_ARTIFACTS,
+        }
+    }
+}
+
+/// Declared cap ceilings bound into an [`Envelope`]: cap id -> maximum value.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, Default)]
+pub struct CapTable {
+    pub caps: BTreeMap<String, u64>,
+}
+
+/// Bounded-resource envelope binding an ontology hash, a graph digest, a
+/// declared [`CapTable`], and the manufacture [`ManufactureReceipt`] it covers.
+///
+/// Field order in the digest is irrelevant — see
+/// [`envelope_digest`](envelope_court::envelope_digest).
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct Envelope {
+    pub ontology_hash: String,
+    pub graph_digest: String,
+    pub cap_table: CapTable,
+    pub receipt: ManufactureReceipt,
+}
+
+/// Verdict of [`envelope_court`](envelope_court::envelope_court).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum ReplayVerdict {
+    /// Every consumed cap is declared and exactly binds the receipt.
+    Pass,
+    /// The receipt consumed a cap id absent from the declared cap table —
+    /// vacuity, never a pass. Exit 1.
+    VacuousGate {
+        undeclared: Option<String>,
+        detail: String,
+    },
+    /// A declared cap does not match the receipt-bound ceiling. Exit 2.
+    Refused { code: String, detail: String },
+}
 
 /// Authority lattice. Manufacture never exceeds `Construct`; `Do` is always refused.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
@@ -130,13 +199,22 @@ pub struct Generator {
     pub version: String,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Request {
     pub abb: String,
     pub sbb: String,
     pub requested_authority: Authority,
     /// Digest of the graph the caller admitted; `Some` binds the request to that subject.
     pub expected_graph_digest: Option<String>,
+    /// Generation of the lease/receipt evidence the caller holds. `0` = no
+    /// tracked generation (legacy callers); the stale-lease gate only fires
+    /// when an artifact baseline is actually tracked (see `admit`).
+    #[serde(default)]
+    pub receipt_generation: u64,
+    /// Baseline generation of the artifact on disk. `0` = untracked (fresh
+    /// artifact): the first admission over it never refuses as stale.
+    #[serde(default)]
+    pub artifact_baseline_generation: u64,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Error, Serialize, Deserialize)]
@@ -210,6 +288,12 @@ pub enum Refusal {
     UnboundPort { pack: String, port: String },
     #[error("UNBOUND_PLACEHOLDER: {placeholder} in {path}")]
     UnboundPlaceholder { placeholder: String, path: String },
+    #[error("REFUSED_STALE_LEASE: {evidence_id} receipt generation {receipt}, artifact baseline {baseline}")]
+    StaleLease {
+        evidence_id: String,
+        receipt: u64,
+        baseline: u64,
+    },
     #[error("RECEIPT_TAMPERED: declared {declared}, actual {actual}")]
     ReceiptTampered { declared: String, actual: String },
     #[error("REPLAY_MISMATCH: {field}")]
@@ -238,7 +322,7 @@ pub enum Decision {
 
 /// Output of [`admit`].
 ///
-/// Sealed: fields are private and the only constructor is the admission gate, so `manufacture` (mu) is type-restricted to admitted input (O*). A hand-built or edited value cannot exist outside this crate:  ```compile_fail // Falsifier for the sealed constructor: forging an Admitted outside the crate fails // to compile (private fields), so mu cannot be applied to unadmitted input. let g = ggen_abb_sbb::synthetic_graph(1, 1); let forged = ggen_abb_sbb::Admitted { graph_digest: g.digest(), qualification: "qual:does-not-exist".into(), }; ```  ```compile_fail // Falsifier: an admitted value cannot be edited in place either. let g = ggen_abb_sbb::synthetic_graph(1, 1); let req = ggen_abb_sbb::Request { abb: "abb:event-ingest".into(), sbb: "sbb:ingest-0000".into(), requested_authority: ggen_abb_sbb::Authority::Construct, expected_graph_digest: None, }; let mut ad = ggen_abb_sbb::admit(&g, &req).unwrap(); ad.qualification = "qual:does-not-exist".into(); ```  ``` // Positive control for the two compile_fail blocks above: the same setup compiles // and admits through the gate, so they fail only on the forgery itself. let g = ggen_abb_sbb::synthetic_graph(1, 1); let req = ggen_abb_sbb::Request { abb: "abb:event-ingest".into(), sbb: "sbb:ingest-0000".into(), requested_authority: ggen_abb_sbb::Authority::Construct, expected_graph_digest: None, }; let ad = ggen_abb_sbb::admit(&g, &req).unwrap(); assert_eq!(ad.qualification(), "qual:ingest-0000"); ```
+/// Sealed: fields are private and the only constructor is the admission gate, so `manufacture` (mu) is type-restricted to admitted input (O*). A hand-built or edited value cannot exist outside this crate:  ```compile_fail // Falsifier for the sealed constructor: forging an Admitted outside the crate fails // to compile (private fields), so mu cannot be applied to unadmitted input. let g = ggen_abb_sbb::synthetic_graph(1, 1); let forged = ggen_abb_sbb::Admitted { graph_digest: g.digest(), qualification: "qual:does-not-exist".into(), }; ```  ```compile_fail // Falsifier: an admitted value cannot be edited in place either. let g = ggen_abb_sbb::synthetic_graph(1, 1); let req = ggen_abb_sbb::Request { abb: "abb:event-ingest".into(), sbb: "sbb:ingest-0000".into(), requested_authority: ggen_abb_sbb::Authority::Construct, expected_graph_digest: None, receipt_generation: 0, artifact_baseline_generation: 0, }; let mut ad = ggen_abb_sbb::admit(&g, &req).unwrap(); ad.qualification = "qual:does-not-exist".into(); ```  ``` // Positive control for the two compile_fail blocks above: the same setup compiles // and admits through the gate, so they fail only on the forgery itself. let g = ggen_abb_sbb::synthetic_graph(1, 1); let req = ggen_abb_sbb::Request { abb: "abb:event-ingest".into(), sbb: "sbb:ingest-0000".into(), requested_authority: ggen_abb_sbb::Authority::Construct, expected_graph_digest: None, receipt_generation: 0, artifact_baseline_generation: 0, }; let ad = ggen_abb_sbb::admit(&g, &req).unwrap(); assert_eq!(ad.qualification(), "qual:ingest-0000"); ```
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Admitted {
     graph_digest: String,
@@ -250,6 +334,7 @@ pub struct Admitted {
     sbb: CandidateSbb,
     sbb_digest: String,
     qualification: String,
+    generation: u64,
 }
 
 impl Admitted {
@@ -280,6 +365,11 @@ impl Admitted {
     pub fn qualification(&self) -> &str {
         &self.qualification
     }
+    /// Lease/receipt generation this admission was granted at (the caller's
+    /// `receipt_generation` from the [`Request`]).
+    pub fn generation(&self) -> u64 {
+        self.generation
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -309,6 +399,10 @@ pub struct ManufactureReceipt {
     pub sbb_digest: String,
     pub pack: String,
     pub qualification: String,
+    /// Lease generation this manufacture was granted at; `0` for legacy
+    /// receipts serialized before the field existed.
+    #[serde(default)]
+    pub generation: u64,
     pub generator: Generator,
     pub templates_digest: String,
     pub outputs: Vec<OutputDigest>,
@@ -519,7 +613,8 @@ pub fn contract_digest(k: &ArchitectureContract) -> String {
 
 #[allow(clippy::expect_used)] // fail-loud invariant: contract/capability references validated before this point; Result would change internal admission signature
 fn admit_sbb(
-    g: &EaGraph, graph_digest: &str, abb: &Abb, sbb_id: &str,
+    g: &EaGraph, graph_digest: &str, abb: &Abb, sbb_id: &str, generation: u64,
+    max_artifacts_ceiling: usize,
 ) -> Result<Admitted, Refusal> {
     let sbb = g
         .candidate_sbbs
@@ -595,13 +690,10 @@ fn admit_sbb(
             reason: format!("{} realizes no artifacts", sbb.id),
         });
     }
-    if sbb.artifacts.len() > contract.max_artifacts {
+    let max_artifacts = contract.max_artifacts.min(max_artifacts_ceiling);
+    if sbb.artifacts.len() > max_artifacts {
         return Err(Refusal::ExceedsContract {
-            reason: format!(
-                "{} artifacts > max {}",
-                sbb.artifacts.len(),
-                contract.max_artifacts
-            ),
+            reason: format!("{} artifacts > max {}", sbb.artifacts.len(), max_artifacts),
         });
     }
     let missing: Vec<&String> = contract
@@ -648,6 +740,7 @@ fn admit_sbb(
         sbb: sbb.clone(),
         sbb_digest: actual,
         qualification: quals[0].id.clone(),
+        generation,
     })
 }
 
@@ -681,6 +774,18 @@ fn admit_common<'g>(
 
 /// Admit one selected SBB for manufacture, or refuse with a typed reason.
 pub fn admit(g: &EaGraph, req: &Request) -> Result<Admitted, Refusal> {
+    admit_with_caps(g, req, None)
+}
+
+/// [`admit`] with an optional per-call [`EnvelopeCaps`] override (mapped by
+/// ggen-engine from the caller's `res:Envelope`).
+///
+/// `None` uses [`DEFAULT_MAX_ARTIFACTS`]; the effective artifact ceiling is the
+/// minimum of the contract's declared `max_artifacts` and the override, so a
+/// call can only tighten what the contract already allows.
+pub fn admit_with_caps(
+    g: &EaGraph, req: &Request, caps: Option<&EnvelopeCaps>,
+) -> Result<Admitted, Refusal> {
     let (abb, digest) = admit_common(
         g,
         &req.abb,
@@ -695,7 +800,29 @@ pub fn admit(g: &EaGraph, req: &Request) -> Result<Admitted, Refusal> {
             admitted: req.requested_authority,
         });
     }
-    admit_sbb(g, &digest, abb, &req.sbb)
+    // Stale-lease gate: a receipt held at or before the artifact's current
+    // baseline generation is evidence of a stale lease — the artifact moved
+    // under the caller's feet. Only fires when a baseline is actually tracked
+    // (`baseline > 0`), so generation-less legacy callers and fresh artifacts
+    // (baseline 0) are never refused here.
+    if req.receipt_generation <= req.artifact_baseline_generation
+        && req.artifact_baseline_generation > 0
+    {
+        return Err(Refusal::StaleLease {
+            evidence_id: req.sbb.clone(),
+            receipt: req.receipt_generation,
+            baseline: req.artifact_baseline_generation,
+        });
+    }
+    let max_artifacts_ceiling = caps.map_or(DEFAULT_MAX_ARTIFACTS, |c| c.max_artifacts);
+    admit_sbb(
+        g,
+        &digest,
+        abb,
+        &req.sbb,
+        req.receipt_generation,
+        max_artifacts_ceiling,
+    )
 }
 
 /// `SELECT existing SBB || MANUFACTURE missing realization`, separate from DO.
@@ -723,7 +850,7 @@ pub fn plan(g: &EaGraph, abb: &str, authority: Authority) -> Result<Decision, Re
         provided.extend(s.provides_ports.iter().cloned());
     }
     for s in candidates {
-        match admit_sbb(g, &digest, a, &s.id) {
+        match admit_sbb(g, &digest, a, &s.id, 0, DEFAULT_MAX_ARTIFACTS) {
             Ok(ad) => {
                 return Ok(Decision::Select {
                     abb: a.id.clone(),
@@ -888,6 +1015,7 @@ pub fn manufacture(ad: &Admitted, generator: &Generator) -> Result<Manufactured,
         sbb_digest: ad.sbb_digest.clone(),
         pack: ad.sbb.pack.clone(),
         qualification: ad.qualification.clone(),
+        generation: ad.generation,
         generator: generator.clone(),
         templates_digest: canonical_digest(&specs),
         outputs: artifacts
@@ -937,6 +1065,8 @@ pub fn replay(
         sbb: r.sbb.clone(),
         requested_authority: Authority::Construct,
         expected_graph_digest: Some(r.graph_digest.clone()),
+        receipt_generation: r.generation,
+        artifact_baseline_generation: 0,
     };
     let ad = admit(g, &req).map_err(|e| match e {
         Refusal::GraphDigestMismatch { .. } => Refusal::ReplayMismatch {
@@ -945,13 +1075,14 @@ pub fn replay(
         other => other,
     })?;
     let m = manufacture(&ad, generator)?;
-    let fields: [(&str, bool); 8] = [
+    let fields: [(&str, bool); 9] = [
         (
             "contract_digest",
             m.receipt.contract_digest == r.contract_digest,
         ),
         ("sbb_digest", m.receipt.sbb_digest == r.sbb_digest),
         ("qualification", m.receipt.qualification == r.qualification),
+        ("generation", m.receipt.generation == r.generation),
         ("generator", m.receipt.generator == r.generator),
         (
             "templates_digest",

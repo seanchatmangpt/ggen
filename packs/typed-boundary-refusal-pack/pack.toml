@@ -1,0 +1,14 @@
+[pack]
+name = "typed-boundary-refusal-pack"
+version = "0.1.0"
+description = """
+Typed-boundary-refusal pattern (v26.10.20): refusals are a sealed, typed enum -- not strings -- with per-variant structured evidence fields and thiserror-displayed codes. Verbatim sourceText transcribes the tail of ggen-abb-sbb's Refusal enum (crates/ggen-abb-sbb/src/lib.rs:239-265) including StaleLease{evidence_id,receipt,baseline}, ReceiptTampered, and ReplayMismatch; the enum is the canonical typed home for admission refusals per RESOLUTIONS.md (ggen-engine mirrors codes as REFUSED:<CODE> strings via PortableStanding).
+"""
+
+[capabilities]
+provides = ["urn:ggen:pack:typed-boundary-refusal-pack"]
+requires = []
+
+[[capabilities.dialects]]
+glob = "*.ttl"
+dialect = "turtle"

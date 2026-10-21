@@ -1,0 +1,14 @@
+[pack]
+name = "bounded-resource-envelope-pack"
+version = "0.1.0"
+description = """
+Bounded-resource envelope pattern (v26.10.20): declare resource ceilings as named cap constants and refuse undeclared envelope surfaces. Verbatim sourceText transcribes the real cap constants from ggen-engine's sync pipeline (MAX_QUERY_RESULT_ROWS / MAX_PENDING_OUTPUTS / MAX_TOTAL_RENDERED_BYTES, crates/ggen-engine/src/sync.rs:249-256) and ggen-abb-sbb's DEFAULT_MAX_ARTIFACTS default ceiling (crates/ggen-abb-sbb/src/lib.rs:31-35; the lane order cited lib.rs:598, which had drifted -- the constant's real home is lines 31-35 on the current tree). Each transcript carries a prov:sha256 over the exact quoted byte range.
+"""
+
+[capabilities]
+provides = ["urn:ggen:pack:bounded-resource-envelope-pack"]
+requires = []
+
+[[capabilities.dialects]]
+glob = "*.ttl"
+dialect = "turtle"

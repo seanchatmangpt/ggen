@@ -24,6 +24,19 @@ pub enum AppError {
     /// Configuration (ggen.toml) failure. Messages carry an FM-CONFIG-* code.
     #[error("config error: {0}")]
     Config(String),
+
+    /// A resource IRI was used without a declared resource envelope —
+    /// refused, never defaulted (fail-closed budget admission).
+    #[error(
+        "[E-ENVELOPE-UNDECLARED] resource `{iri}` has no declared envelope. \
+         Remediation: declare a res:Envelope for this resource \
+         (res:resource, res:memoryBytes, res:cpuMs) in the graph, or use \
+         a resource that already has one."
+    )]
+    EnvelopeUndeclared {
+        /// The resource IRI lacking a declared envelope.
+        iri: String,
+    },
 }
 
 impl AppError {
@@ -259,6 +272,13 @@ impl AppError {
     /// generating/persisting a fresh keypair.
     pub fn fm_key(code: u16, msg: impl Into<String>) -> Self {
         Self::Validation(format!("[FM-KEY-{code:03}] {}", msg.into()))
+    }
+
+    /// Typed constructor for [`AppError::EnvelopeUndeclared`]: `iri` was
+    /// consumed without a declared resource envelope. Fail-closed by
+    /// design — no default budget is ever minted.
+    pub fn fm_envelope_undeclared(iri: impl Into<String>) -> Self {
+        Self::EnvelopeUndeclared { iri: iri.into() }
     }
 }
 

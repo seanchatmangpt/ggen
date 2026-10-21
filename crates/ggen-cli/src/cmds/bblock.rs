@@ -580,7 +580,7 @@ fn enable_plan(root: &Path, plan: &BlockPlan) -> Result<Value> {
                     url: REGISTRY_URL.to_string(),
                 },
                 integrity: Some(format!("blake3-{integrity}")),
-                installed_at: chrono::Utc::now(),
+                installed_at: None,
                 dependencies: Vec::new(),
             },
         );

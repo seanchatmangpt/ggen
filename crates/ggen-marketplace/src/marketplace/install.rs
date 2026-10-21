@@ -1586,7 +1586,9 @@ fn collect_files_sorted(root: &Path, dir: &Path, out: &mut Vec<PathBuf>) -> Resu
 /// targets `<cwd>/.ggen/packs.lock` -- the same path read by `pack remove`/
 /// `policy validate` in `ggen-cli` -- so the format is compatible by
 /// construction. The entry carries a NON-EMPTY `integrity` digest, the resolved
-/// `version`, and a real `installed_at` timestamp (lockfile invariant 4.1).
+/// `version`; `installed_at` is left `None` (lockfile determinism: two identical
+/// installs at different roots must write identical bytes; `save()`
+/// relativizes the local source path at serialization time).
 fn write_lockfile_entry(
     pack: &crate::packs_registry::types::Pack, install_path: &Path, digest: &str,
 ) -> Result<PathBuf> {
@@ -1608,7 +1610,7 @@ fn write_lockfile_entry(
             path: install_path.to_path_buf(),
         },
         integrity: Some(format!("sha256-{}", digest)),
-        installed_at: chrono::Utc::now(),
+        installed_at: None,
         // Dependencies are recorded only when they are also present in the
         // lockfile; an install of a single pack records no dep edges to avoid
         // tripping the lockfile's referential-integrity validation.

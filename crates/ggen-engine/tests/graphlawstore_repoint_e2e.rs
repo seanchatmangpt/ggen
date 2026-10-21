@@ -132,7 +132,7 @@ fn repoint_refuse_pack_loads_and_denial_surfaces_at_materialize() {
 
     // The refuse hook loads — no load-time FM-LAW-016 refusal anymore.
     let refuse_hook = r#"
-        @prefix kh: <http://seanchatmangpt.github.io/praxis/kh#> .
+        @prefix kh: <http://seanchatmangpt.github.io/graphlaw/kh#> .
         <http://example.org/h#deny> a kh:Hook ;
             kh:name "deny" ; kh:kind "sparql" ;
             kh:query "SELECT ?s WHERE { ?s a <http://example.org/Dog> }" ;
@@ -140,7 +140,7 @@ fn repoint_refuse_pack_loads_and_denial_surfaces_at_materialize() {
             kh:reason "dogs must not be materialized" ;
             kh:action <http://example.org/h#a> ; kh:priority 1 .
         <http://example.org/h#a> a kh:Action ;
-            kh:handler <http://seanchatmangpt.github.io/praxis/handler#sparql-construct> ;
+            kh:handler <http://seanchatmangpt.github.io/graphlaw/handler#sparql-construct> ;
             kh:query "CONSTRUCT { ?s <http://example.org/flag> 'x' } WHERE { ?s a <http://example.org/Dog> }" .
     "#;
     GraphEngine::load_hook_pack(&store, refuse_hook).expect("refuse-effect pack now loads");
@@ -184,14 +184,14 @@ fn repoint_emit_delta_pack_still_fires_and_derives() {
     .expect("insert facts");
 
     let emit_hook = r#"
-        @prefix kh: <http://seanchatmangpt.github.io/praxis/kh#> .
+        @prefix kh: <http://seanchatmangpt.github.io/graphlaw/kh#> .
         <http://example.org/h#emit> a kh:Hook ;
             kh:name "emit" ; kh:kind "sparql" ;
             kh:query "SELECT ?s WHERE { ?s a <http://example.org/Dog> }" ;
             kh:effect "emit-delta" ;
             kh:action <http://example.org/h#a> ; kh:priority 1 .
         <http://example.org/h#a> a kh:Action ;
-            kh:handler <http://seanchatmangpt.github.io/praxis/handler#sparql-construct> ;
+            kh:handler <http://seanchatmangpt.github.io/graphlaw/handler#sparql-construct> ;
             kh:query "CONSTRUCT { ?s a <http://example.org/Hooked> } WHERE { ?s a <http://example.org/Dog> }" .
     "#;
     GraphEngine::load_hook_pack(&store, emit_hook).expect("emit-delta pack loads");

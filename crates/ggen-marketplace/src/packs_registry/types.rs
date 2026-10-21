@@ -130,4 +130,67 @@ pub struct PackCapabilitiesFile {
     /// Capability URNs this pack depends on
     #[serde(default)]
     pub requires: Option<BTreeSet<String>>,
+    /// RDF dialect globs declared via `[[capabilities.dialects]]`.
+    ///
+    /// Parity with `ggen_engine::pack::PackCapabilities::dialects` (v26.10.20
+    /// wave): absent key parses as an empty vec here (the marketplace layer
+    /// does not synthesize the engine's `*.ttl -> turtle` default — that is
+    /// engine-side semantic defaulting, not parsing). Declaring the key with
+    /// zero entries or an unknown `dialect` name is refused at deserialize
+    /// time (`validate_dialects`), matching the engine's `[FM-PACK-021]`
+    /// closed-vocabulary refusal so the two parsers never disagree on
+    /// accept/refuse.
+    // skip_serializing_if: an empty vec must serialize as an absent key — a
+    // written `dialects = []` is refused on deserialize ([FM-PACK-021]), so
+    // emitting it would make serialize->re-parse round trips impossible.
+    #[serde(
+        default,
+        deserialize_with = "deserialize_dialects",
+        skip_serializing_if = "Vec::is_empty"
+    )]
+    pub dialects: Vec<PackDialectGlob>,
+}
+
+/// Closed vocabulary of lowercase graphlaw dialect names — must stay in lockstep
+/// with `ggen_engine::pack::DIALECT_NAMES`.
+const DIALECT_NAMES: &[&str] = &[
+    "turtle", "trig", "ntriples", "nquads", "n3", "rdf-xml", "json-ld",
+];
+
+/// Refuse a present-but-empty `dialects` list or an entry whose `dialect` is
+/// outside [`DIALECT_NAMES`] — engine parity for `[FM-PACK-021]`.
+fn deserialize_dialects<'de, D>(deserializer: D) -> Result<Vec<PackDialectGlob>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    let dialects = Vec::<PackDialectGlob>::deserialize(deserializer)?;
+    if dialects.is_empty() {
+        return Err(serde::de::Error::custom(
+            "capabilities.dialects is empty: declare at least one \
+             [[capabilities.dialects]] entry (glob + lowercase dialect), or remove \
+             the key to get the default `*.ttl -> turtle` [FM-PACK-021]",
+        ));
+    }
+    for entry in &dialects {
+        if !DIALECT_NAMES.contains(&entry.dialect.as_str()) {
+            return Err(serde::de::Error::custom(format!(
+                "unknown dialect `{}` (expected one of {DIALECT_NAMES:?}) [FM-PACK-021]",
+                entry.dialect
+            )));
+        }
+    }
+    Ok(dialects)
+}
+
+/// One `[[capabilities.dialects]]` entry. Mirrors
+/// `ggen_engine::pack::DialectGlob` (glob + lowercase graphlaw dialect name,
+/// closed vocabulary).
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct PackDialectGlob {
+    /// Glob pattern matched against pack ontology file paths/names.
+    pub glob: String,
+    /// Lowercase graphlaw dialect name (`turtle`, `trig`, `ntriples`,
+    /// `nquads`, `n3`, `rdf-xml`, `json-ld`).
+    pub dialect: String,
 }

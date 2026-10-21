@@ -1,0 +1,85 @@
+# Vacuity Court schema (v26.10.20, wave-1 lane L10 reticle)
+# Namespace vc: http://ggen.io/vacuity-court#
+# Mutant-catalog schema for the VacuityCourtCompiler (seam: A12/A13,
+# crates/ggen-engine/src/court/). Edit this RDF, never generated outputs.
+
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix vc: <http://ggen.io/vacuity-court#> .
+
+vc:InvariantGateShape
+    rdf:type sh:NodeShape ;
+    sh:targetClass vc:InvariantGate ;
+    sh:property [
+        sh:path vc:gate-id ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[a-z0-9-]+$" ;
+        sh:name "gate-id" ;
+    ] ;
+    sh:property [
+        sh:path vc:gate-target ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:name "gate-target" ;
+    ] ;
+    sh:property [
+        sh:path vc:mutant ;
+        sh:minCount 1 ;
+        sh:name "mutant" ;
+    ] ;
+    sh:property [
+        sh:path vc:control-expectation ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( "pristine-passes" ) ;
+        sh:name "control-expectation" ;
+    ] ;
+    sh:property [
+        sh:path vc:runner-protocol ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( "shim-court-libsh" ) ;
+        sh:name "runner-protocol" ;
+    ] .
+
+vc:MutantShape
+    rdf:type sh:NodeShape ;
+    sh:targetClass vc:Mutant ;
+    sh:property [
+        sh:path vc:mutation-op ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in (
+            "drop-filter-bound"
+            "relax-anchor"
+            "neutralize-refutation"
+            "empty-projection"
+            "corrupt-contract"
+            "always-ok-patch"
+        ) ;
+        sh:name "mutation-op" ;
+    ] ;
+    sh:property [
+        sh:path vc:target ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:name "target" ;
+    ] ;
+    sh:property [
+        sh:path vc:required-refusal-code ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( "unbound_facts" "gate_cardinality" "invalid_contract" "BLOCKED" ) ;
+        sh:name "required-refusal-code" ;
+    ] ;
+    sh:property [
+        sh:path vc:transform-spec ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:name "transform-spec" ;
+    ] .

@@ -1,0 +1,84 @@
+# canonical-identity-lattice-pack ontology — v26.10.20 pattern pack (lane A20).
+# sourceText below is a BYTE-EXACT transcription of the cited file at the cited
+# line range, located by symbol on the 2026-10-20 tree (concurrent lanes shift
+# line numbers; prov:sha256 over the exact quoted bytes is the pin). Verify:
+#   sed -n 'LO,HI;p' <file> | shasum -a 256   # compare to prov:sha256
+#
+# canon: vocabulary per docs/jira/v26.10.20/RESOLUTIONS.md (L04).
+@prefix canon: <http://seanchatmangpt.github.io/packs/canonical-identity-lattice#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+canon:CanonicalIdentity a rdfs:Class ; rdfs:label "Canonical identity" ;
+    rdfs:comment "Identity = sha256 over canonical bytes: JSON serialized with object keys recursively sorted, independent of the serde_json preserve_order feature. Proven non-vacuous by an exhaustive single-field mutation falsifier: every guarded fixture field must move the digest." .
+
+canon:CanonicalDigestSource
+    a canon:SourceTranscript ;
+    rdfs:label "crates/ggen-abb-sbb/src/lib.rs:396-424" ;
+    prov:atLocation "crates/ggen-abb-sbb/src/lib.rs" ;
+    prov:startedAtLine "396"^^xsd:integer ;
+    prov:endedAtLine "424"^^xsd:integer ;
+    prov:sha256 "e7e93162602756cb3ef623e4f98e673c38ec4930073a3b981329bf0a3a935b6a" ;
+    canon:sourceText """pub fn canonical_digest<T: Serialize>(value: &T) -> String {
+    let v: Value = serde_json::to_value(value).expect("kernel values serialize");
+    sha256_hex(&canonical_json_bytes(&v))
+}
+
+/// Serialize a JSON value with object keys recursively sorted, independent of the
+/// `serde_json/preserve_order` feature. Under that feature `serde_json::Map` is an
+/// insertion-ordered IndexMap instead of a sorted BTreeMap, so a bare
+/// `Value::to_string()` produces different bytes (and therefore different digests)
+/// depending on which crates in the build enable the feature. Sorting explicitly
+/// keeps digests stable across feature unification.
+fn canonical_json_bytes(v: &Value) -> Vec<u8> {
+    fn sorted(v: Value) -> Value {
+        match v {
+            Value::Object(map) => {
+                let mut entries: Vec<(String, Value)> = map.into_iter().collect();
+                entries.sort_by(|a, b| a.0.cmp(&b.0));
+                let mut out = serde_json::Map::new();
+                for (k, val) in entries {
+                    out.insert(k, sorted(val));
+                }
+                Value::Object(out)
+            }
+            Value::Array(items) => Value::Array(items.into_iter().map(sorted).collect()),
+            other => other,
+        }
+    }
+    sorted(v.clone()).to_string().into_bytes()
+}
+""" .
+
+canon:ExhaustiveMutationFalsifier
+    a canon:SourceTranscript ;
+    rdfs:label "crates/ggen-abb-sbb/tests/falsifiers.rs:852-874" ;
+    prov:atLocation "crates/ggen-abb-sbb/tests/falsifiers.rs" ;
+    prov:startedAtLine "852"^^xsd:integer ;
+    prov:endedAtLine "874"^^xsd:integer ;
+    prov:sha256 "c99498b048d3c9aa9aafc0c3192c48ebb0378444036382071bb88ceb4333ee50" ;
+    canon:sourceText """#[test]
+fn every_single_field_mutation_of_the_fixture_changes_the_graph_digest() {
+    let base = graph().digest();
+    let mutants: [fn(&mut EaGraph); 8] = [
+        |g| g.strategy.id.push('x'),
+        |g| g.capabilities[0].id.push('x'),
+        |g| g.abbs[0].contract.push('x'),
+        |g| g.contracts[0].max_artifacts += 1,
+        |g| g.contracts[0].authority_ceiling = Authority::Select,
+        |g| g.candidate_sbbs[1].pack.push('x'),
+        |g| g.qualifications[1].verdict = Verdict::Refuted,
+        |g| {
+            g.packs.push(Pack {
+                id: "pack:extra".into(),
+            })
+        },
+    ];
+    for (i, m) in mutants.iter().enumerate() {
+        let mut g = graph();
+        m(&mut g);
+        assert_ne!(g.digest(), base, "mutant {i} left the digest unchanged");
+    }
+}
+""" .

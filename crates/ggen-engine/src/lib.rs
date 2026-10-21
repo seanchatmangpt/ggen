@@ -10,8 +10,14 @@
 // digests + ontology triple count), embedded by `build.rs`. Fail-soft:
 // absent inputs are represented in-band, never a build failure.
 pub mod build_provenance;
+pub mod canonical;
+// L13 registry-projected closed refusal vocabulary (v26.10.20 lane A15).
 pub mod config;
+pub mod court;
+pub mod dataset_bridge;
+pub mod envelope;
 pub mod error;
+pub mod generated;
 // Declarative `[[generation.rules]]` sync path (specs/014-ggen-core-replacement, T070),
 // wired into `sync::sync` additively alongside the pre-existing frontmatter convention. Not
 // `pub`: its entry point (`run`) is `pub(crate)` and consumed only by `sync::sync` -- external
@@ -46,7 +52,14 @@ pub mod portable_receipt;
 pub mod project_graph;
 /// GALL-001 clean replay verification for portable semantic-pack receipts.
 pub mod receipt_chain_seam;
+// Ground-Data-Tier streaming N-Triples/N-Quads receipt verification (lane V16,
+// v26.10.20 dialect slice 1): O(1)-memory line verification, no graph build.
+pub mod receipt_dialect;
 pub mod replay;
+// Clean-state replay court: promotes ALIVE portable-receipt envelopes to
+// replay PASS only after every bound consequence digest re-hashes equally
+// off disk (RFC §53/§57). See the module's own doc comment.
+pub mod replay_court;
 // The single dispatch point deciding which of ggen.toml's two schemas a project uses
 // (specs/014-ggen-core-replacement, correction 2 / Blocker A part 2). Not `pub`: consumed by
 // `sync::sync` and `verbs::handlers` only -- every other caller already goes through one of
@@ -56,6 +69,7 @@ mod schema_dispatch;
 pub mod shell_safety;
 pub mod sync;
 pub mod template;
+pub mod typed_boundary_census;
 pub mod types;
 pub mod write;
 

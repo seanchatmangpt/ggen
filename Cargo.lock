@@ -786,9 +786,9 @@ dependencies = [
 
 [[package]]
 name = "chicago-tdd-tools"
-version = "26.8.9"
+version = "26.10.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9c2a73444d211e0137bf7de7a6cc19e327e1a25a44fbd0b7ea641385844ef758"
+checksum = "8b77d220cc8bf6472c975c6ede711b53813d0510733b57503dc68c800f332a3d"
 dependencies = [
  "arbitrary",
  "blake3",
@@ -803,23 +803,21 @@ dependencies = [
  "proptest",
  "serde",
  "serde_json",
- "serde_yaml",
+ "serde_yaml_ng",
  "sha2 0.10.9",
  "tempfile",
  "testcontainers",
  "thiserror 2.0.21",
- "tokio",
  "toml 1.1.6+spec-1.1.0",
  "tracing",
- "uuid",
  "wasm4pm-compat",
 ]
 
 [[package]]
 name = "chicago-tdd-tools-proc-macros"
-version = "26.8.9"
+version = "26.10.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c4eba308a1e96b15e633982aa534ae8da3e221971debfc1042841c60a3942db4"
+checksum = "383431407b2c816932351920733d5ebe436c8e0cef0deea38fce415150ee8540"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -2611,7 +2609,7 @@ dependencies = [
 
 [[package]]
 name = "ggen-abb-sbb"
-version = "26.10.10"
+version = "26.10.12"
 dependencies = [
  "criterion 0.5.1",
  "serde",
@@ -2742,6 +2740,7 @@ dependencies = [
  "blake3",
  "camino",
  "chicago-tdd-tools",
+ "chrono",
  "clap",
  "clap-noun-verb",
  "clap-noun-verb-macros",
@@ -2751,6 +2750,7 @@ dependencies = [
  "getrandom 0.4.3",
  "ggen-abb-sbb",
  "ggen-config",
+ "ggen-graph",
  "ggen-marketplace",
  "graphlaw",
  "hex",
@@ -2893,7 +2893,7 @@ dependencies = [
 
 [[package]]
 name = "ggen-mcp"
-version = "26.10.10"
+version = "26.10.12"
 dependencies = [
  "anyhow",
  "assert_cmd",
@@ -2986,9 +2986,9 @@ dependencies = [
 
 [[package]]
 name = "graphlaw"
-version = "26.10.12"
+version = "26.10.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "094d6c9c1251a40607ecf0c5d69947f8adfe92547274e9e08d8d25cd5c41b3e7"
+checksum = "d0a2ebbd6299b235068c10345f3f298bc6b125596b9eca3ae3e31962abbb8114"
 dependencies = [
  "blake3",
  "ed25519-dalek 2.2.0",
@@ -2997,7 +2997,6 @@ dependencies = [
  "purrdf",
  "serde",
  "serde_json",
- "sha2 0.11.0",
 ]
 
 [[package]]

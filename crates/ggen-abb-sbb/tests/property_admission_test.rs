@@ -101,6 +101,8 @@ fn ingest_request() -> Request {
         sbb: "sbb:ingest-0000".into(),
         requested_authority: Authority::Construct,
         expected_graph_digest: None,
+        receipt_generation: 0,
+        artifact_baseline_generation: 0,
     }
 }
 
@@ -389,6 +391,8 @@ fn degenerate_admit_inputs_are_typed_not_panics() {
         sbb: "sbb:ingest-0000".into(),
         requested_authority: Authority::Construct,
         expected_graph_digest: None,
+        receipt_generation: 0,
+        artifact_baseline_generation: 0,
     };
     assert!(matches!(
         admit(&g, &unknown_abb),
@@ -399,6 +403,8 @@ fn degenerate_admit_inputs_are_typed_not_panics() {
         sbb: "sbb:nope".into(),
         requested_authority: Authority::Construct,
         expected_graph_digest: None,
+        receipt_generation: 0,
+        artifact_baseline_generation: 0,
     };
     assert!(matches!(
         admit(&g, &unknown_sbb),
@@ -409,6 +415,8 @@ fn degenerate_admit_inputs_are_typed_not_panics() {
         sbb: "sbb:ingest-0000".into(),
         requested_authority: Authority::None,
         expected_graph_digest: None,
+        receipt_generation: 0,
+        artifact_baseline_generation: 0,
     };
     assert!(matches!(
         admit(&g, &low_auth),
@@ -419,6 +427,8 @@ fn degenerate_admit_inputs_are_typed_not_panics() {
         sbb: "sbb:ingest-0000".into(),
         requested_authority: Authority::Construct,
         expected_graph_digest: Some("sha256:deadbeef".into()),
+        receipt_generation: 0,
+        artifact_baseline_generation: 0,
     };
     assert!(matches!(
         admit(&g, &bad_digest),

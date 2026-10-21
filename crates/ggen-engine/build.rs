@@ -36,8 +36,10 @@ fn main() {
     println!("cargo:rerun-if-changed=build.rs");
 
     let manifest_dir = PathBuf::from(std::env::var("CARGO_MANIFEST_DIR").unwrap_or_default());
-    let strata_root = std::env::var("GGEN_STRATA_ROOT").ok().map(PathBuf::from).or_else(
-        || {
+    let strata_root = std::env::var("GGEN_STRATA_ROOT")
+        .ok()
+        .map(PathBuf::from)
+        .or_else(|| {
             // Canonical checkout layout: /Users/sac/ggen/crates/ggen-engine →
             // /Users/sac (3 ancestors) → sibling /Users/sac/strata.
             manifest_dir
@@ -45,8 +47,7 @@ fn main() {
                 .nth(3)
                 .map(|p| p.join("strata"))
                 .filter(|p| p.is_dir())
-        },
-    );
+        });
 
     // ── Commit SHA ──────────────────────────────────────────────────────
     let (commit_sha, source) = match Command::new("git")
@@ -76,7 +77,10 @@ fn main() {
         .as_ref()
         .map(|root| {
             let mut v = vec![root.join("packs")];
-            if let Some(mkt) = root.parent().map(|p| p.join("ggen-marketplace").join("packs")) {
+            if let Some(mkt) = root
+                .parent()
+                .map(|p| p.join("ggen-marketplace").join("packs"))
+            {
                 v.push(mkt);
             }
             v
@@ -125,7 +129,10 @@ fn main() {
         });
     println!("cargo:rustc-env=GGEN_BUILD_ONTOLOGY_TRIPLES={triple_count}");
     if let Some(root) = &strata_root {
-        println!("cargo:rerun-if-changed={}", root.join("ontology.ttl").display());
+        println!(
+            "cargo:rerun-if-changed={}",
+            root.join("ontology.ttl").display()
+        );
     }
 
     hasher.update(triple_count.to_string().as_bytes());
