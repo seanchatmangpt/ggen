@@ -28,14 +28,17 @@ categories = ["development-tools"]
 # the generated sealed-enum module into the tarball. schema/ is included because
 # src/ embeds schema/frontmatter-schema.ttl via include_str!. benches/ is
 # included because the [[bench]] targets must resolve inside the package.
-# tests/, examples/, ontology/, templates/ are deliberately excluded (not
-# needed by consumers). Supersedes the previous `exclude` list.
+# templates/ is included because src/court/compile.rs include_str!s the court
+# runner/register/fixture templates (publish-verify E0432/E0583 class otherwise).
+# tests/, examples/, ontology/ are deliberately excluded (not needed by
+# consumers). Supersedes the previous `exclude` list.
 include = [
     "Cargo.toml",
     "README.md",
     "build.rs",
     "src/**/*",
     "schema/**/*",
+    "templates/**/*",
     "benches/**/*",
 ]
 publish = true
@@ -118,7 +121,7 @@ ggen-abb-sbb = { path = "../ggen-abb-sbb", version = "26.10.11" }
 # path edge (same pattern as ggen-abb-sbb/ggen-marketplace above) so `cargo publish
 # -p ggen-engine` stays resolvable; ggen-graph depends on this crate only as a
 # DEV-dependency, so no normal-dependency cycle exists.
-ggen-graph = { path = "../ggen-graph", version = "26.10.12" }
+ggen-graph = { path = "../ggen-graph", version = "=26.10.12" }
 # New, deliberate edge (not an undocumented re-export): resolving a `GenerationRule`'s
 # `QuerySource::Pack`/`TemplateSource::Pack` variant means asking "where is this pack
 # installed" -- that knowledge lives in ggen-marketplace's pack registry/lockfile after
