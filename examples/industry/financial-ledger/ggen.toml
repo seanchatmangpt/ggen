@@ -1,0 +1,39 @@
+[project]
+name = "financial-ledger"
+version = "0.1.0"
+description = "Financial services ledger consumer: double-entry SHACL + smalt client walkthrough"
+
+[ontology]
+source = "domain/ledger.ttl"
+imports = ["/Users/sac/ggen-marketplace/packs/industry-financial-ledger/ontology.ttl"]
+
+[ontology.prefixes]
+fin = "https://ggen.io/ontology/financial-ledger#"
+rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+xsd = "http://www.w3.org/2001/XMLSchema#"
+
+# Marketplace pack consumption: the declarative-rules schema takes the
+# pack's ontology as an [ontology] import (the pack's vocabulary is the
+# semantic authority; the consumer's domain/ledger.ttl holds the ledger
+# facts). [packs] path refs belong to the frontmatter schema and are
+# refused here (FM-CONFIG-101).
+
+[templates]
+dir = "templates"
+
+[generation]
+output_dir = "."
+
+[[generation.rules]]
+name = "financial-ledger-shacl-shapes"
+query = { file = "queries/ledger_probe.rq" }
+template = { file = "templates/ledger_shapes.ttl.tmpl" }
+output_file = "generated/ledger_shapes.ttl"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "financial-ledger-walkthrough"
+query = { file = "queries/ledger_probe.rq" }
+template = { file = "templates/client_walkthrough.md.tmpl" }
+output_file = "generated/client_walkthrough.md"
+mode = "Overwrite"
