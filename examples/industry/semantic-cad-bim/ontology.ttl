@@ -1,0 +1,59 @@
+# Consumer sample design graph for semantic-cad-bim.
+# A small but complete valid design: site -> building -> storeys -> elements,
+# each element contained in a storey, every geometry claimed, revision chain
+# root -> r1 -> r2 with valid-time bounds.
+@prefix bot:  <https://w3id.org/bot#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix cad:  <https://seanchatmangpt.github.io/packs/industry-semantic-cad-bim#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix d:    <https://example.invalid/hospital-tower/> .
+
+## Blob face: immutable design artifacts
+d:artifact-r2 a cad:DesignArtifact ;
+    cad:artifactDigest "sha256:3f7a1c0e9b8d42f5a6c1d0e7b8f9a2c3d4e5f60718293a4b5c6d7e8f9a0b1c2d" ;
+    cad:blobUrl "http://127.0.0.1:8443/designs/hospital-tower/r2.ifc" .
+
+## Revision chain (time-travel axis)
+d:rev0 a cad:RootRevision ;
+    cad:revisionIndex 0 ;
+    prov:generatedAtTime "2026-10-19T09:00:00Z"^^xsd:dateTime ;
+    cad:validFrom "2026-10-19T09:00:00Z"^^xsd:dateTime ;
+    cad:validUntil "2026-10-20T15:00:00Z"^^xsd:dateTime ;
+    cad:kgDocument "kg://hospital-tower/rev0" .
+
+d:rev1 a cad:DesignRevision ;
+    cad:revisionIndex 1 ;
+    prov:wasRevisionOf d:rev0 ;
+    prov:generatedAtTime "2026-10-20T15:00:00Z"^^xsd:dateTime ;
+    cad:validFrom "2026-10-20T15:00:00Z"^^xsd:dateTime ;
+    cad:kgDocument "kg://hospital-tower/rev1" .
+
+d:rev2 a cad:DesignRevision ;
+    cad:revisionIndex 2 ;
+    prov:wasRevisionOf d:rev1 ;
+    prov:generatedAtTime "2026-10-21T08:30:00Z"^^xsd:dateTime ;
+    cad:revisionOfArtifact d:artifact-r2 ;
+    cad:validFrom "2026-10-21T08:30:00Z"^^xsd:dateTime ;
+    cad:kgDocument "kg://hospital-tower/rev2" .
+
+## Spatial structure (BOT)
+d:site a bot:Site ; bot:hasBuilding d:tower .
+d:tower a bot:Building ;
+    bot:hasStorey d:L0 , d:L1 , d:L2 ;
+    bot:hasElement d:col-01 , d:col-02 , d:slab-L1 , d:wall-L1-N , d:door-L0-E .
+
+d:L0 a bot:Storey ; bot:hasElement d:col-01 , d:col-02 , d:door-L0-E .
+d:L1 a bot:Storey ; bot:hasElement d:col-01 , d:col-02 , d:slab-L1 , d:wall-L1-N .
+d:L2 a bot:Storey ; bot:hasElement d:col-01 , d:col-02 .
+
+d:col-01 a bot:Element ; bot:containedIn d:L0 , d:L1 , d:L2 ; cad:hasGeometry d:geom-col .
+d:col-02 a bot:Element ; bot:containedIn d:L0 , d:L1 , d:L2 ; cad:hasGeometry d:geom-col .
+d:slab-L1 a bot:Element ; bot:containedIn d:L1 ; cad:hasGeometry d:geom-slab .
+d:wall-L1-N a bot:Element ; bot:containedIn d:L1 ; cad:hasGeometry d:geom-wall .
+d:door-L0-E a bot:Element ; bot:containedIn d:L0 ; cad:hasGeometry d:geom-door .
+
+## Geometry (never orphan)
+d:geom-col a cad:Geometry ; cad:geometryFormat "IFC-STEP" .
+d:geom-slab a cad:Geometry ; cad:geometryFormat "IFC-STEP" .
+d:geom-wall a cad:Geometry ; cad:geometryFormat "IFC-STEP" .
+d:geom-door a cad:Geometry ; cad:geometryFormat "gltf" .
