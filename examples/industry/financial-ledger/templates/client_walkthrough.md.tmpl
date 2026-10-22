@@ -80,3 +80,7 @@ POST /app/transactions            (Cosmos batch commit)
 | `gates/010_unbalanced_entry.rq` | sum(debit) != sum(credit) on any entry |
 | `gates/020_missing_account_ref.rq` | posting w/o account, dangling account, <2 legs |
 | `gates/030_duplicate_entry_id.rq` | duplicate fin:entryId across entries |
+| `gates/040_ledger_isolation.rq` | entry w/o `fin:isolatedStore`, dangling store ref, or store w/o `fin:journalPath` |
+| `gates/050_skr_attestation.rq` | settlement completion w/o bound `fin:attestationFingerprint` |
+| `gates/060_proposer_judge.rq` | AI-categorized entry w/o `prov:wasGeneratedBy` a `fin:JudgeActivity` |
+| `gates/070_merkle_seal_missing.rq` | settled batch w/o `fin:MerkleSeal` (sha256 `fin:sealedRoot` + `fin:receiptDigest`) |
