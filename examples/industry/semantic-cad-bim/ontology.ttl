@@ -46,11 +46,12 @@ d:L0 a bot:Storey ; bot:hasElement d:col-01 , d:col-02 , d:door-L0-E .
 d:L1 a bot:Storey ; bot:hasElement d:col-01 , d:col-02 , d:slab-L1 , d:wall-L1-N .
 d:L2 a bot:Storey ; bot:hasElement d:col-01 , d:col-02 .
 
-d:col-01 a bot:Element ; bot:containedIn d:L0 , d:L1 , d:L2 ; cad:hasGeometry d:geom-col .
-d:col-02 a bot:Element ; bot:containedIn d:L0 , d:L1 , d:L2 ; cad:hasGeometry d:geom-col .
-d:slab-L1 a bot:Element ; bot:containedIn d:L1 ; cad:hasGeometry d:geom-slab .
-d:wall-L1-N a bot:Element ; bot:containedIn d:L1 ; cad:hasGeometry d:geom-wall .
-d:door-L0-E a bot:Element ; bot:containedIn d:L0 ; cad:hasGeometry d:geom-door .
+# Storey membership is expressed BOT-correctly: storey -> element (bot:hasElement).
+d:col-01 a bot:Element ; cad:hasGeometry d:geom-col .
+d:col-02 a bot:Element ; cad:hasGeometry d:geom-col .
+d:slab-L1 a bot:Element ; cad:hasGeometry d:geom-slab .
+d:wall-L1-N a bot:Element ; cad:hasGeometry d:geom-wall .
+d:door-L0-E a bot:Element ; cad:hasGeometry d:geom-door .
 
 ## Geometry (never orphan)
 d:geom-col a cad:Geometry ; cad:geometryFormat "IFC-STEP" .
