@@ -1,0 +1,24 @@
+# Consumer data: one air-gapped deployment, two classified artifacts, one lawful
+# down-level flow. All gates silent on this graph.
+@prefix ad: <https://seanchatmangpt.github.io/packs/industry-aero-defense#> .
+@prefix ex: <https://example.org/aero/consumer#> .
+
+ex:smalt-air-gap a ad:AirGapBoundary ;
+    ad:endpoint "http://127.0.0.1:9443" ;
+    ad:endpoint "http://localhost:8443" ;
+    ad:endpoint "http://[::1]:5673" .
+
+ex:mission-analyst a ad:Principal ;
+    ad:clearanceLevel ad:TopSecret .
+
+ex:flight-ctrl-swd a ad:ClassifiedArtifact ;
+    ad:classification ad:Secret ;
+    ad:caveat "NOFORN" ;
+    ad:needToKnowPrincipal ex:mission-analyst .
+
+ex:sensor-fusion-report a ad:ClassifiedArtifact ;
+    ad:classification ad:Confidential ;
+    ad:caveat "REL-ID" ;
+    ad:needToKnowPrincipal ex:mission-analyst .
+
+ex:flight-ctrl-swd ad:dataFlow ex:sensor-fusion-report .
