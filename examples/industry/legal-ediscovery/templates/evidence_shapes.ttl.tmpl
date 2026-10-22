@@ -1,0 +1,35 @@
+{#- Rendered by [[generation.rules]] "evidence-shapes": the rule's SPARQL
+    binds ?matter ?matter_id ?matter_label; the template iterates `results`
+    (never hardcodes a matter). -#}
+# SHACL shapes for evidence documents — rendered from the pack ontology
+# bindings (the rule query is the only source of the matter id/label).
+@prefix sh:  <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix lex:  <https://seanchatmangpt.github.io/packs/industry-legal-ediscovery#> .
+
+{% for r in results -%}
+lex:EvidenceDocumentShape-{{ r.matter_id }} a sh:NodeShape ;
+    sh:targetClass lex:EvidenceDocument ;
+    sh:property [
+        sh:path lex:batesId ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^([A-Z0-9]+)\\\\d{7}$" ;
+        sh:message "evidence document must carry exactly one bates id (e.g. SMALT0000143)" ;
+    ] ;
+    sh:property [
+        sh:path lex:hasCustodian ;
+        sh:class lex:Custodian ;
+        sh:minCount 1 ;
+        sh:message "evidence document must name its accountable custodian" ;
+    ] ;
+    sh:property [
+        sh:path lex:collectedIn ;
+        sh:class lex:Matter ;
+        sh:minCount 1 ;
+        sh:message "evidence must be collected in a matter" ;
+    ] ;
+    rdfs:comment "Rendered for matter {{ r.matter_label }} ({{ r.matter }})." .
+{% endfor -%}

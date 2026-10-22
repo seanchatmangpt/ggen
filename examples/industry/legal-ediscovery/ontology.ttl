@@ -1,0 +1,34 @@
+@prefix lex:  <https://seanchatmangpt.github.io/packs/industry-legal-ediscovery#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+
+# Qualification fixture: one synthetic matter with fully-conforming
+# evidence — enough to drive both templates' SPARQL bindings when the pack
+# is qualified in isolation (no real customer event).
+
+lex:matter-q1 a lex:Matter ;
+    rdfs:label "In re: Qualification Fixture" ;
+    lex:matterId "2026-Q-0001" ;
+    lex:conflictedMatter lex:matter-q2 .
+
+lex:matter-q2 a lex:Matter ;
+    rdfs:label "In re: Qualification Fixture 2" .
+
+lex:custodian-q1 a lex:Custodian .
+
+lex:doc-q1 a lex:EvidenceDocument ;
+    lex:batesId "SMALT9000001" ;
+    lex:hasCustodian lex:custodian-q1 ;
+    lex:collectedIn lex:matter-q1 ;
+    lex:blobHoldContainer "lex-evidence-q1" ;
+    lex:cosmosCustodyDocId "custody-q1" .
+
+lex:doc-q2 a lex:EvidenceDocument ;
+    lex:batesId "SMALT9000002" ;
+    lex:hasCustodian lex:custodian-q1 ;
+    lex:collectedIn lex:matter-q1 ;
+    lex:blobHoldContainer "lex-evidence-q1" ;
+    lex:cosmosCustodyDocId "custody-q2" .
+
+lex:seal-q1 a lex:CustodyEvent ;
+    lex:kvSealThumbprint "A1B2C3D4E5F60789" .
