@@ -9,10 +9,12 @@
 lex:matter-q1 a lex:Matter ;
     rdfs:label "In re: Qualification Fixture" ;
     lex:matterId "2026-Q-0001" ;
-    lex:conflictedMatter lex:matter-q2 .
+    lex:conflictedMatter lex:matter-q2 ;
+    lex:retentionPolicy "hold-7y-then-purge" .
 
 lex:matter-q2 a lex:Matter ;
-    rdfs:label "In re: Qualification Fixture 2" .
+    rdfs:label "In re: Qualification Fixture 2" ;
+    lex:retentionPolicy "hold-7y-then-purge" .
 
 lex:custodian-q1 a lex:Custodian .
 
