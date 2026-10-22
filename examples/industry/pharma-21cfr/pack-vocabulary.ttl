@@ -1,0 +1,141 @@
+# 21 CFR Part 11 electronic-records compliance ontology.
+# Audit-trail semantics are PROV-O (W3C PROVENANCE-O, https://www.w3.org/ns/prov-o#) --
+# attribution, generation, start/end times carry who/what/when; the minimal
+# p11: vocabulary adds only the Part 11 faces PROV-O does not name (why,
+# e-signature, deviation/CAPA, WORM immutability).
+@prefix p11:  <https://seanchatmangpt.github.io/packs/industry-pharma-21cfr#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+###########################################################
+# TBox: minimal Part 11 vocabulary over PROV-O
+###########################################################
+
+p11:ElectronicRecord a owl:Class ;
+    rdfs:label "Electronic record (21 CFR 11.10)" ;
+    rdfs:subClassOf prov:Entity ;
+    p11:requiresProperty prov:wasAttributedTo ;
+    p11:requiresProperty p11:eSignature ;
+    p11:requiresProperty p11:hasAuditTrail .
+
+p11:BatchRecord a owl:Class ;
+    rdf:type owl:Class ;
+    rdfs:label "Batch record (21 CFR 211.188)" ;
+    rdfs:subClassOf p11:ElectronicRecord .
+
+p11:ESignature a owl:Class ;
+    rdfs:label "Electronic signature (21 CFR 11.50/11.70)" ;
+    rdfs:subClassOf prov:Entity ;
+    p11:requiresProperty prov:agent ;
+    p11:requiresProperty p11:signatureValue .
+
+p11:AuditTrail a owl:Class ;
+    rdfs:label "Audit trail (21 CFR 11.10(e))" ;
+    rdfs:subClassOf prov:Activity ;
+    p11:requiresProperty p11:who ;
+    p11:requiresProperty p11:what ;
+    p11:requiresProperty p11:when ;
+    p11:requiresProperty p11:why ;
+    p11:requiresProperty prov:endedAtTime .
+
+p11:Deviation a owl:Class ;
+    rdfs:label "Deviation from an approved process" ;
+    rdfs:subClassOf prov:Entity ;
+    p11:requiresProperty p11:hasCapa .
+
+p11:CAPA a owl:Class ;
+    rdfs:label "Corrective and preventive action" ;
+    rdfs:subClassOf prov:Activity ;
+    p11:requiresProperty p11:action .
+
+p11:RecordMutation a owl:Class ;
+    rdfs:label "Record content mutation (21 CFR 11.10(e): old and new retained)" ;
+    rdfs:subClassOf prov:Activity ;
+    p11:requiresProperty p11:writtenVia .
+
+p11:WormStore a owl:Class ;
+    rdfs:label "WORM object store (Blob immutability policy = Part 11 retention)" .
+
+p11:OpenStore a owl:Class ;
+    rdfs:label "Non-WORM store: mutations through it are refusals" .
+
+###########################################################
+# Individuals: one fully compliant batch-record chain
+# (the gates below are zero-rows over this graph)
+###########################################################
+
+p11:qa-reviewer-7 a prov:Agent ;
+    rdfs:label "QA reviewer 7 (badge QA-0007)" .
+
+p11:esig-001 a p11:ESignature ;
+    prov:agent p11:qa-reviewer-7 ;
+    p11:signatureValue "PS256:MEUCIQD7k1...batch-101" ;
+    prov:generatedAtTime "2026-10-21T10:15:00Z"^^xsd:dateTime .
+
+p11:audit-trail-001 a p11:AuditTrail ;
+    p11:who "qa-reviewer-7" ;
+    p11:what "batch record creation" ;
+    p11:when "2026-10-21T10:15:00Z"^^xsd:dateTime ;
+    p11:why "21 CFR 211.188 batch production record" ;
+    prov:endedAtTime "2026-10-21T10:15:00Z"^^xsd:dateTime .
+
+p11:batch-101 a p11:BatchRecord ;
+    rdfs:label "Batch record B-2026-101" ;
+    prov:wasAttributedTo p11:qa-reviewer-7 ;
+    p11:eSignature p11:esig-001 ;
+    p11:hasAuditTrail p11:audit-trail-001 ;
+    p11:blobContainer "batch-records" ;
+    p11:blobContainerPolicy "locked-until-2031" .
+
+p11:capa-001 a p11:CAPA ;
+    p11:action "retrain line operators; add in-process check" ;
+    prov:startedAtTime "2026-10-21T11:00:00Z"^^xsd:dateTime .
+
+p11:dev-001 a p11:Deviation ;
+    rdfs:label "Deviation D-2026-014 (fill weight)" ;
+    prov:wasAttributedTo p11:qa-reviewer-7 ;
+    p11:hasCapa p11:capa-001 .
+
+p11:blob-worm-01 a p11:WormStore ;
+    rdfs:label "Blob container batch-records, immutability policy lock (Part 11 retention)" ;
+    p11:container "batch-records" ;
+    p11:immutabilityPolicy "locked-until-2031" .
+
+p11:mut-001 a p11:RecordMutation ;
+    p11:writtenVia p11:blob-worm-01 ;
+    prov:endedAtTime "2026-10-21T12:00:00Z"^^xsd:dateTime ;
+    p11:mutates p11:batch-101 .
+
+###########################################################
+# Faces used by the client walkthrough template
+###########################################################
+
+p11:signing-host-9 a prov:Agent ;
+    rdfs:label "Signing workstation (enclave-backed)" ;
+    p11:hostFingerprint "sha256:9f2c..." ;
+    p11:attestRoute "POST /attest/:type" .
+
+p11:quality-flag-part11 a p11:QualityPolicyFlag ;
+    rdfs:label "AppConfig part-11 enforcement flag" ;
+    p11:flagKey "quality.part11.enforce" ;
+    p11:evaluateRoute "POST /kv/appconfig/evaluate" .
+
+p11:qualval-001 a p11:QualityValidationStep ;
+    rdfs:label "Quality validation step: batch-101 release review" ;
+    p11:stepFor p11:batch-101 ;
+    p11:gateFlag p11:quality-flag-part11 ;
+    prov:wasAttributedTo p11:qa-reviewer-7 .
+
+###########################################################
+# Walkthrough-face classes (declared for completeness)
+###########################################################
+
+p11:QualityPolicyFlag a owl:Class ;
+    rdfs:label "AppConfig quality-policy flag" .
+
+p11:QualityValidationStep a owl:Class ;
+    rdfs:label "Quality validation step" ;
+    rdfs:subClassOf prov:Activity .

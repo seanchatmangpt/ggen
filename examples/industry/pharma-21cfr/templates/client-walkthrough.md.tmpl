@@ -1,0 +1,111 @@
+---
+to: "generated/pharma-21cfr-walkthrough.md"
+force: true
+sparql:
+  records: |
+    PREFIX p11: <https://seanchatmangpt.github.io/packs/industry-pharma-21cfr#>
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    SELECT ?record ?label ?container ?policy WHERE {
+      ?record a p11:BatchRecord ;
+              rdfs:label ?label ;
+              p11:hasAuditTrail ?t ;
+              p11:eSignature ?s .
+      OPTIONAL { ?record p11:blobContainer ?container . }
+      OPTIONAL { ?record p11:blobContainerPolicy ?policy . }
+    } ORDER BY ?record
+  worm_stores: |
+    PREFIX p11: <https://seanchatmangpt.github.io/packs/industry-pharma-21cfr#>
+    SELECT ?store ?container ?policy WHERE {
+      ?store a p11:WormStore ;
+             p11:container ?container ;
+             p11:immutabilityPolicy ?policy .
+    } ORDER BY ?store
+  hosts: |
+    PREFIX p11: <https://seanchatmangpt.github.io/packs/industry-pharma-21cfr#>
+    SELECT ?host ?fingerprint ?route WHERE {
+      ?host p11:hostFingerprint ?fingerprint ;
+            p11:attestRoute ?route .
+    } ORDER BY ?host
+  flags: |
+    PREFIX p11: <https://seanchatmangpt.github.io/packs/industry-pharma-21cfr#>
+    SELECT ?flag ?key WHERE {
+      ?flag a p11:QualityPolicyFlag ; p11:flagKey ?key .
+    } ORDER BY ?flag
+---
+# 21 CFR Part 11 client walkthrough (smalt emulator)
+
+Browser console walkthrough of the Part 11 faces on the smalt substrate. All
+networking through `smaltFetch` (`workspace/lib/smalt.ts`, loopback-only).
+
+## 0. Quiescent substrate
+
+```bash
+just substrate-up   # scripts/substrate.sh, lock fd closed
+eval "$(just relay-env)"
+```
+
+## 1. Blob WORM record commit (immutability policy = Part 11 retention)
+
+Each record below commits into a Blob container locked by an immutability
+policy (routes: `lib/smalt/egress_router.ex:1313/1563/2282`; WORM face
+`lib/smalt/data_plane/blob_storage.ex:273`).
+
+{% for row in worm_stores %}
+- Container `{{ row.container }}`, policy `{{ row.policy }}`.
+{% endfor %}
+
+```js
+// commit + lock, per record
+{% for row in records %}
+await smaltFetch(`/blob/{{ row.container }}/{{ row.record }}`, {
+  method: "PUT",
+  headers: { "x-ms-immutability-policy-until-date": "{{ row.policy }}" },
+  body: JSON.stringify({ id: "{{ row.record }}", label: "{{ row.label }}" }),
+});
+{% endfor %}
+```
+
+## 2. Attestation face for the signing host
+
+`POST /attest/:type` (`lib/smalt/egress/AttestRoutes.ex:17` →
+`lib/smalt/security/attestation.ex:1`) proves the signing workstation is
+enclave-backed before its e-signature is accepted (21 CFR 11.10(k)).
+
+```js
+{% for row in hosts %}
+await smaltFetch("{{ row.route }}", {
+  method: "POST",
+  body: JSON.stringify({ host: "{{ row.host }}", fingerprint: "{{ row.fingerprint }}" }),
+});
+{% endfor %}
+```
+
+## 3. AppConfig quality-policy gate
+
+The quality validation step evaluates the Part 11 enforcement flag before
+disposition (`lib/smalt/egress/AppConfigRoutes.ex:50`;
+`appconfig_features.ex:100 evaluate/3`).
+
+```js
+{% for row in flags %}
+const part11 = await smaltFetch("/kv/appconfig/evaluate", {
+  method: "POST",
+  body: JSON.stringify({ feature: "{{ row.key }}", context: { record: "batch-101" } }),
+});
+if (!part11.enabled) throw new Error("Part 11 policy gate closed");
+{% endfor %}
+```
+
+## 4. KV PS256 e-signature
+
+E-signatures sign with KV PS256 (`lib/smalt/data_plane/kv_pss.ex:1-8`,
+externally verifiable; KD-105/KD-119) and bind to the signing agent — gate
+010 of this pack refuses any record whose signature does not bind a
+`prov:Agent`.
+
+## 5. Gates
+
+The pack's four refusal gates run over the consumer graph (`qualification/verify.py`):
+signature-missing (010), audit-trail-missing (020), capa-missing (030),
+mutation-non-WORM (040). A mutation attempted outside the WORM path is a typed
+refusal, not a silent write.
