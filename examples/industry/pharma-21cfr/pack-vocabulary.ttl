@@ -63,6 +63,71 @@ p11:OpenStore a owl:Class ;
     rdfs:label "Non-WORM store: mutations through it are refusals" .
 
 ###########################################################
+# Pillar invariants (smalt v26.10.22 five-pillar audit method)
+# P1 matter/data isolation, P2 BYOK/SKR attestation, P3 no-model-training
+# proposer-judge, P5 Merkle self-authentication (P4 Entra/ACP identity rides
+# the existing prov:Agent attribution face — see examples PILLARS.md).
+###########################################################
+
+# --- P1: every BatchRecord's audit trail rides an isolated, per-batch
+#     storage scope (per-batch journal path law).
+p11:IsolatedStorageScope a owl:Class ;
+    rdfs:label "Isolated per-batch storage scope (per-batch journal path law)" ;
+    p11:requiresProperty p11:journalPath .
+
+p11:journalPath a owl:DatatypeProperty ;
+    rdfs:label "Per-batch journal path, unique to one batch" .
+
+p11:hasJournalScope a owl:ObjectProperty ;
+    rdfs:label "Batch record to its isolated storage scope" .
+
+# --- P2: e-signature activities bind an attestation measurement fingerprint
+#     (the AZ-2 SKR shape: measured-over-key-material sha256 fingerprint).
+p11:attestationFingerprint a owl:DatatypeProperty ;
+    rdfs:label "SKR attestation measurement fingerprint (sha256:...) bound to the signature" .
+
+# --- P3: AI-derived quality annotations are PROPOSALS; a BatchRecord mutation
+#     may follow only after JudgeActivity adjudication.
+p11:QualityAnnotation a owl:Class ;
+    rdfs:label "AI-derived quality annotation (a proposal, never a mutation)" ;
+    p11:requiresProperty p11:aiDerived .
+
+p11:aiDerived a owl:DatatypeProperty ;
+    rdfs:label "True when the annotation was machine-proposed" .
+
+p11:proposesMutationOf a owl:ObjectProperty ;
+    rdfs:label "Annotation proposing a mutation of a record" .
+
+p11:adjudicatedBy a owl:ObjectProperty ;
+    rdfs:label "Annotation to its adjudicating judge activity" .
+
+p11:JudgeActivity a owl:Class ;
+    rdfs:label "Human/agent judge activity adjudicating an AI proposal" ;
+    p11:requiresProperty p11:verdict .
+
+p11:verdict a owl:DatatypeProperty ;
+    rdfs:label "Judge verdict (approved | rejected)" .
+
+# --- P5: every completed BatchRecord references a sealed Merkle root
+#     (the 320-byte receipt digest shape).
+p11:MerkleSeal a owl:Class ;
+    rdfs:label "Merkle seal over the completed record (receipt digest)" ;
+    p11:requiresProperty p11:sealedRoot ;
+    p11:requiresProperty p11:receiptDigest .
+
+p11:sealedRoot a owl:DatatypeProperty ;
+    rdfs:label "Sealed Merkle root (sha256:...)" .
+
+p11:receiptDigest a owl:DatatypeProperty ;
+    rdfs:label "320-byte receipt digest carried by the seal" .
+
+p11:completionStatus a owl:DatatypeProperty ;
+    rdfs:label "Record lifecycle status (completed when sealed)" .
+
+p11:hasMerkleSeal a owl:ObjectProperty ;
+    rdfs:label "Completed record to its Merkle seal" .
+
+###########################################################
 # Individuals: one fully compliant batch-record chain
 # (the gates below are zero-rows over this graph)
 ###########################################################
@@ -73,6 +138,7 @@ p11:qa-reviewer-7 a prov:Agent ;
 p11:esig-001 a p11:ESignature ;
     prov:agent p11:qa-reviewer-7 ;
     p11:signatureValue "PS256:MEUCIQD7k1...batch-101" ;
+    p11:attestationFingerprint "sha256:3f9a7c1d5e2b...measured-over-key-material" ;
     prov:generatedAtTime "2026-10-21T10:15:00Z"^^xsd:dateTime .
 
 p11:audit-trail-001 a p11:AuditTrail ;
@@ -82,11 +148,18 @@ p11:audit-trail-001 a p11:AuditTrail ;
     p11:why "21 CFR 211.188 batch production record" ;
     prov:endedAtTime "2026-10-21T10:15:00Z"^^xsd:dateTime .
 
+p11:journal-scope-001 a p11:IsolatedStorageScope ;
+    rdfs:label "Per-batch isolated scope: journals/batch-101/" ;
+    p11:journalPath "journals/batch-101/journal.ndjson" .
+
 p11:batch-101 a p11:BatchRecord ;
     rdfs:label "Batch record B-2026-101" ;
     prov:wasAttributedTo p11:qa-reviewer-7 ;
     p11:eSignature p11:esig-001 ;
     p11:hasAuditTrail p11:audit-trail-001 ;
+    p11:hasJournalScope p11:journal-scope-001 ;
+    p11:completionStatus "completed" ;
+    p11:hasMerkleSeal p11:merkle-seal-001 ;
     p11:blobContainer "batch-records" ;
     p11:blobContainerPolicy "locked-until-2031" .
 
@@ -108,6 +181,25 @@ p11:mut-001 a p11:RecordMutation ;
     p11:writtenVia p11:blob-worm-01 ;
     prov:endedAtTime "2026-10-21T12:00:00Z"^^xsd:dateTime ;
     p11:mutates p11:batch-101 .
+
+# P3 chain: an AI proposal adjudicated before the mutation it proposed.
+p11:judge-001 a p11:JudgeActivity ;
+    rdfs:label "QA judge adjudication of proposal annot-001" ;
+    p11:verdict "approved" ;
+    prov:wasAssociatedWith p11:qa-reviewer-7 ;
+    prov:endedAtTime "2026-10-21T11:45:00Z"^^xsd:dateTime .
+
+p11:annot-001 a p11:QualityAnnotation ;
+    rdfs:label "AI annotation: fill-weight trend proposal on batch-101" ;
+    p11:aiDerived true ;
+    p11:proposesMutationOf p11:batch-101 ;
+    p11:adjudicatedBy p11:judge-001 .
+
+# P5 seal: the completed record's sealed root + 320-byte receipt digest.
+p11:merkle-seal-001 a p11:MerkleSeal ;
+    rdfs:label "Merkle seal over batch-101" ;
+    p11:sealedRoot "sha256:6b4e2f10a9c8d7e6f5a4b3c2d1e0f9a8b7c6d5e4f3a2b1c0d9e8f7a6b5c4d3e2" ;
+    p11:receiptDigest "blake3-320b:a3f1b2c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2" .
 
 ###########################################################
 # Faces used by the client walkthrough template
