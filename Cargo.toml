@@ -87,9 +87,6 @@ members = [
   # down in this file. That narrow, still-true statement is what this comment used to overstate
   # into "no consumer references them yet".
   "crates/ggen-engine",
-  "crates/powl2-decompose",
-  "crates/bcinr-pddl",
-  "crates/bcinr-mfw-ir",
   "crates/ggen-cheat-scanner",
   "crates/ggen-sjira",
   "crates/ggen-scip",
@@ -101,7 +98,6 @@ members = [
   # ("in the build" but not buildable), so it leaves the boundary. Code preserved
   # on disk (non-deletion doctrine); re-add after repair.
   # "examples/7-agent-validation",
-  "crates/pm4pytest-cli",
   ]
 # `crates/ggen-core` (2026-07-17, ggen-core removal, docs/jira/v26.7.16/14-GGEN-CORE-REMOVAL-PROPOSAL.md):
 # fully deleted, not merely disconnected. It spent from 2026-07-16 to 2026-07-17 in `exclude`
@@ -122,7 +118,22 @@ members = [
 #
 # `crates/ggen-abb-sbb` (RFC docs/rfc/v26.9.26/abb-sbb-implementation.md): integrated
 # into workspace members in v26.10.9.
-exclude = ["examples/7-agent-validation", "crates/ggen-architecture"]
+# S2 build-time cut (2026-11-04): powl2-decompose, bcinr-pddl, bcinr-mfw-ir,
+# pm4pytest-cli moved from members to exclude — excluded, not deleted (code
+# preserved on disk). Verified zero reverse deps outside the four themselves
+# (bcinr-pddl -> bcinr-mfw-ir is the only intra-group edge; `cargo tree -i`
+# / grep across crates/*/Cargo.toml and src/ found no other consumer) and zero
+# justfile/CI consumers. bcinr-pddl was a `just lint` hard-fail (unexpected_cfgs
+# on the dangling `mfw-planner` cfg, justfile TECH-DEBT-002); pm4pytest-cli is
+# a thin wrapper around an external Python tool.
+exclude = [
+  "examples/7-agent-validation",
+  "crates/ggen-architecture",
+  "crates/powl2-decompose",
+  "crates/bcinr-pddl",
+  "crates/bcinr-mfw-ir",
+  "crates/pm4pytest-cli",
+]
 resolver = "2" # Use new resolver for better dependency resolution
 
 # Workspace-wide dependencies for version consistency

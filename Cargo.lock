@@ -450,30 +450,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2af50177e190e07a26ab74f8b1efbfe2ef87da2116221318cb1c2e82baf7de06"
 
 [[package]]
-name = "bcinr-mfw-ir"
-version = "26.6.26"
-dependencies = [
- "blake3",
-]
-
-[[package]]
-name = "bcinr-pddl"
-version = "26.6.26"
-dependencies = [
- "bcinr-mfw-ir",
- "blake3",
- "chicago-tdd-tools",
- "chrono",
- "divan",
- "pddl",
- "prolog8",
- "proptest",
- "serde",
- "serde_json",
- "wasm4pm-compat",
-]
-
-[[package]]
 name = "bindgen"
 version = "0.72.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -758,10 +734,8 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8b77d220cc8bf6472c975c6ede711b53813d0510733b57503dc68c800f332a3d"
 dependencies = [
  "arbitrary",
- "blake3",
  "chicago-tdd-tools-proc-macros",
  "chrono",
- "dashmap",
  "fake 3.1.0",
  "futures",
  "hex",
@@ -776,8 +750,6 @@ dependencies = [
  "testcontainers",
  "thiserror 2.0.21",
  "toml 1.1.6+spec-1.1.0",
- "tracing",
- "wasm4pm-compat",
 ]
 
 [[package]]
@@ -5122,17 +5094,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "pddl"
-version = "0.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c929cf4ccd605923dbccb45e9991a9443ee476fa113b6d7c742239a046f1cde7"
-dependencies = [
- "nom 8.0.0",
- "nom_locate",
- "thiserror 2.0.21",
-]
-
-[[package]]
 name = "peg"
 version = "0.6.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5355,10 +5316,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "pm4pytest-cli"
-version = "26.10.6"
-
-[[package]]
 name = "polyval"
 version = "0.6.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5401,17 +5358,6 @@ name = "powerfmt"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "439ee305def115ba05938db6eb1644ff94165c5ab5e9420d1c1bcedbba909391"
-
-[[package]]
-name = "powl2-decompose"
-version = "26.6.30"
-dependencies = [
- "blake3",
- "hex",
- "serde",
- "serde_json",
- "thiserror 2.0.21",
-]
 
 [[package]]
 name = "ppmd-rust"

@@ -119,23 +119,10 @@ fmt-check:
 # below. `--keep-going` is a stable (non-nightly-gated) cargo flag as of this
 # toolchain (`cargo clippy --help` lists it plainly, confirmed live).
 #
-# `-A unexpected_cfgs` -- narrow, single-lint carve-out, NOT a broad
-# suppression of clippy's real style/correctness lints (those still deny).
-# Without it the run hard-fails at `bcinr-pddl` before checking ANY other
-# member: `crates/bcinr-pddl/src/mfw/mod.rs:43`'s `#[cfg(feature =
-# "mfw-planner")]` references a feature that `crates/bcinr-pddl/Cargo.toml`'s
-# own comment (line 43-49) says was deliberately dropped from `[features]` in
-# PR #255 -- the cfg-gate attribute was left dangling when the feature
-# declaration was removed. That is a real, separate, pre-existing bug (not
-# ordinary lint debt -- it is a hard compile failure under `-D warnings`,
-# confirmed live via `cargo clippy -p bcinr-pddl -- -D warnings` alone,
-# unrelated to `--workspace`), tracked in
-# docs/jira/2026-07-17-JTBD-VERIFICATION-DISCOVERED-BUGS.md's TECH-DEBT-002.
-# `crates/bcinr-pddl/Cargo.toml` is not a file this recipe change's task was
-# scoped to touch, so the real fix (declare `mfw-planner = []` in
-# `[features]`, matching the crate's existing `dhat-heap = []` pattern) is
-# left to that crate's owner; this carve-out should be deleted the same day
-# that fix lands.
+# `-A unexpected_cfgs` -- retained (S2 build-time cut, 2026-11-04): its original
+# sole reason, `bcinr-pddl`'s dangling `mfw-planner` cfg (TECH-DEBT-002), left
+# the workspace members in the same cut; the flag stays until the next live
+# lint re-measurement confirms zero remaining unexpected_cfgs sources.
 #
 # REAL COUNT (2026-08-02, `cargo clippy --workspace --all-targets --keep-going
 # -- -D warnings -A unexpected_cfgs`, isolated CARGO_TARGET_DIR to avoid
