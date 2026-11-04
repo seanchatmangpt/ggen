@@ -43,6 +43,32 @@ jobs:
           test "$observed" = "$expected"
           printf '%s\n' "$expected" > /tmp/original-head
 
+      - name: Provision pinned ggen-marketplace sibling
+        shell: bash
+        run: |
+          set -euo pipefail
+          # The industry consumer manifests (examples/industry/*) reference
+          # packs by the relative sibling path ../../../../ggen-marketplace/
+          # packs/... (absolute /Users/sac paths were retired this wave). On a
+          # fresh checkout that path does not exist, so sync refuses every
+          # industry manifest with FM-CONFIG-003 ("Query file not found" /
+          # "Ontology source not found"). Provision the marketplace checkout
+          # at the exact sibling path the manifests resolve to, pinned to a
+          # known-good commit (floating HEAD is forbidden — same law as
+          # setup-ggen-build's sibling table). Bump deliberately.
+          org="https://github.com/seanchatmangpt"
+          sha="ee4c589be6aa7ce0cd40e105a34db53605f60e9c"
+          dest="$GITHUB_WORKSPACE/../../ggen-marketplace"
+          if [ -d "$dest/.git" ]; then
+            echo "sibling already present: ggen-marketplace"
+          else
+            git init -q "$dest"
+            git -C "$dest" remote add origin "$org/ggen-marketplace"
+            git -C "$dest" fetch -q --depth 1 origin "$sha"
+            git -C "$dest" checkout -q FETCH_HEAD
+          fi
+          test -f "$dest/packs/industry-aero-defense/queries/artifacts.rq"
+
       - name: Apply core-team source repairs
         shell: bash
         run: |

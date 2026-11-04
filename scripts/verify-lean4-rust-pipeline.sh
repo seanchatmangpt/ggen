@@ -10,8 +10,21 @@ RUST="$EXAMPLE/generated/rust"
 
 python3 "$ROOT/scripts/validate_lean4_rust_pipeline.py"
 
-mapfile -t root_files < <(find "$EXAMPLE" -maxdepth 1 -type f -printf '%f\n' | sort)
-for root_file in "${root_files[@]}"; do
+# GNU coreutils' sha256sum is absent on stock macOS; shasum -a 256 (BSD/perl)
+# emits the same "hash  path" lines. Portable wrapper.
+if command -v sha256sum >/dev/null 2>&1; then
+  SHA256() { sha256sum "$@"; }
+else
+  SHA256() { shasum -a 256 "$@"; }
+fi
+
+# Portable file-list collection (bash 3.2 / BSD find compatible; zd-141
+# tmp-file pattern — no bash-4 array-population builtins, no GNU find
+# format specifiers).
+root_files_tmp=$(mktemp)
+find "$EXAMPLE" -maxdepth 1 -type f -print | sed 's|.*/||' | sort > "$root_files_tmp"
+while IFS= read -r root_file; do
+  [ -n "$root_file" ] || continue
   case "$root_file" in
     ggen.lock | ggen.toml | ontology.ttl) ;;
     *)
@@ -19,12 +32,19 @@ for root_file in "${root_files[@]}"; do
       exit 1
       ;;
   esac
-done
-mapfile -t authored < <(
-  find "$EXAMPLE" -maxdepth 1 -type f \
-    \( -name 'ggen.toml' -o -name 'ontology.ttl' \) \
-    -printf '%f\n' | sort
-)
+done < "$root_files_tmp"
+rm -f "$root_files_tmp"
+
+authored_tmp=$(mktemp)
+find "$EXAMPLE" -maxdepth 1 -type f \
+  \( -name 'ggen.toml' -o -name 'ontology.ttl' \) \
+  -print | sed 's|.*/||' | sort > "$authored_tmp"
+authored=()
+while IFS= read -r authored_file; do
+  [ -n "$authored_file" ] || continue
+  authored+=("$authored_file")
+done < "$authored_tmp"
+rm -f "$authored_tmp"
 printf '%s\n' "${authored[@]}"
 test "${#authored[@]}" -eq 2
 test "${authored[0]}" = "ggen.toml"
@@ -67,7 +87,7 @@ mkdir -p "$EVIDENCE"
 jq -e '.valid == true and .signed == true and .signature_valid == true and .outputs == 10' \
   "$EVIDENCE/ggen-receipt-verification.json"
 
-sha256sum \
+SHA256 \
   "$EXAMPLE/generated/lean/lean-toolchain" \
   "$EXAMPLE/generated/lean/lake-manifest.json" \
   "$EXAMPLE/generated/lean/lakefile.lean" \
@@ -291,7 +311,7 @@ expected = "PROMOTE_PRODUCTION" if data["compliant"] else "ROLLBACK"
 assert data["promotion_decision"] == expected
 PY
 
-sha256sum \
+SHA256 \
   "$PROOF_RECEIPT" \
   "$RUST/Cargo.toml" \
   "$RUST/src/lib.rs" \
@@ -351,7 +371,7 @@ rm -f "$original_ontology"
   # ZD-125 disclosed FM-LAW-015 opt-out: see the comment at the first sync site.
   "$GGEN" sync run --skip-ea-admission
 )
-sha256sum \
+SHA256 \
   "$EXAMPLE/generated/lean/lean-toolchain" \
   "$EXAMPLE/generated/lean/lake-manifest.json" \
   "$EXAMPLE/generated/lean/lakefile.lean" \
@@ -374,7 +394,7 @@ diff -u /tmp/lean4-rust-ggen-first.sha256 /tmp/lean4-rust-ggen-second.sha256
   cd "$RUST"
   cargo fmt --all
 )
-sha256sum \
+SHA256 \
   "$PROOF_RECEIPT" \
   "$RUST/Cargo.toml" \
   "$RUST/src/lib.rs" \

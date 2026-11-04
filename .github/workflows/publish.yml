@@ -1,0 +1,189 @@
+name: Publish (crates.io, trusted publishing)
+
+# ---------------------------------------------------------------------------
+# crates.io publish pipeline for the ggen workspace's publishable crates.
+#
+# Trusted publishing (OIDC): `id-token: write`, zero secrets.
+# For each published crate, crates.io must list this repo/workflow as a
+# trusted publisher bound to the `publish-ggen` environment.
+#
+# Tag-push keyed: fires on `v*` tags (CalVer `vYY.M.patch`, e.g. v26.11.3).
+# ---------------------------------------------------------------------------
+#
+# POLL LAW (read before changing the verify step below):
+#
+#   crates.io API polls MUST read `versions[0]` of
+#   `https://crates.io/api/v1/crates/<crate>` (newest version by publication
+#   order) — NEVER `max_version`. Reason: the July-CalVer anomaly —
+#   `max_version` reflects semver-max ordering, not publication recency, and
+#   misorders July-CalVer boundaries (26.7.x vs 26.10.x).
+#
+#   Consumers exact-pin `=26.11.3` — range reqs do not satisfy pin stability.
+#
+# ---------------------------------------------------------------------------
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+  id-token: write # trusted publishing (OIDC) — zero registry-token secrets
+
+concurrency:
+  group: publish-ggen-${{ github.ref }}
+  cancel-in-progress: false # never cancel a publish mid-flight
+
+jobs:
+  # -------------------------------------------------------------------------
+  # PRE-FIX gate: ggen-engine's version reqs on ggen-abb-sbb and ggen-scip
+  # must be at 26.11.3 before any publish is lawful. A version req bump is a
+  # coordinated change, never a mid-publish edit. Fail-closed.
+  # -------------------------------------------------------------------------
+  pre-fix-gate:
+    name: PRE-FIX gate (version reqs at 26.11.3)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout tag
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Verify engine's version reqs are at 26.11.3
+        shell: bash
+        run: |
+          set -euo pipefail
+          fail=0
+          abb="$(grep -E 'ggen-abb-sbb.*version' crates/ggen-engine/Cargo.toml \
+            | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)"
+          scip="$(grep -E 'ggen-scip.*version' crates/ggen-engine/Cargo.toml \
+            | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)"
+          echo "ggen-abb-sbb req = $abb"
+          echo "ggen-scip    req = $scip"
+          if [ "$abb" != "26.11.3" ]; then
+            echo "BLOCKED(PRE-FIX): crates/ggen-engine/Cargo.toml ggen-abb-sbb req is $abb, not 26.11.3" >&2
+            fail=1
+          fi
+          if [ "$scip" != "26.11.3" ]; then
+            echo "BLOCKED(PRE-FIX): crates/ggen-engine/Cargo.toml ggen-scip req is $scip, not 26.11.3" >&2
+            fail=1
+          fi
+          exit "$fail"
+
+  # -------------------------------------------------------------------------
+  # Publish DAG (ZP-16 order, from the real workspace dep edges:
+  # crates/ggen-marketplace/Cargo.toml:65 and crates/ggen-engine/Cargo.toml
+  # deps on abb-sbb/scip/marketplace/config):
+  #
+  #   ggen-abb-sbb ─┐
+  #   ggen-scip   ──┼─→ ggen-marketplace ─→ ggen-engine
+  #   ggen-config ─┘       (dep: ggen-config)
+  #
+  #   wave 1: ggen-abb-sbb, ggen-scip, ggen-config (no intra-workspace deps)
+  #   wave 2: ggen-marketplace (dep: ggen-config >=26.10.8, <26.15)
+  #   wave 3: ggen-engine (deps: abb-sbb, scip, marketplace, config)
+  #
+  #   ggen-cli and ggen-lsp are `publish = false`; ggen-graph is not in the
+  #   publish order.
+  # -------------------------------------------------------------------------
+  publish-wave-1:
+    name: Publish ggen-abb-sbb, ggen-scip, ggen-config
+    needs: pre-fix-gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: publish-ggen
+    steps:
+      - name: Checkout tag
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@b3b07ba8b418998c39fb20f53e8b695cdcc8de1b # stable
+        with:
+          toolchain: stable
+
+      - name: Publish wave 1
+        shell: bash
+        run: |
+          set -euo pipefail
+          for crate in ggen-abb-sbb ggen-scip ggen-config; do
+            cargo publish --locked -p "$crate"
+            echo "published: $crate"
+          done
+
+  publish-wave-2:
+    name: Publish ggen-marketplace crate
+    needs: publish-wave-1
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: publish-ggen
+    steps:
+      - name: Checkout tag
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@b3b07ba8b418998c39fb20f53e8b695cdcc8de1b # stable
+        with:
+          toolchain: stable
+
+      - name: Publish wave 2
+        shell: bash
+        run: |
+          set -euo pipefail
+          # ggen-marketplace (the crate) depends on ggen-config; config is
+          # live on the registry by now.
+          cargo publish --locked -p ggen-marketplace
+
+  publish-wave-3:
+    name: Publish ggen-engine
+    needs: publish-wave-2
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: publish-ggen
+    steps:
+      - name: Checkout tag
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@b3b07ba8b418998c39fb20f53e8b695cdcc8de1b # stable
+        with:
+          toolchain: stable
+
+      - name: Publish wave 3
+        shell: bash
+        run: |
+          set -euo pipefail
+          cargo publish --locked -p ggen-engine
+
+  publish-verify:
+    name: "Verify registry state (poll law: versions[0], never max_version)"
+    needs: publish-wave-3
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Poll crates.io for each crate's newest version
+        shell: bash
+        run: |
+          set -euo pipefail
+          crates=(ggen-abb-sbb ggen-scip ggen-config ggen-marketplace ggen-engine)
+          for c in "${crates[@]}"; do
+            newest="$(curl -sf --retry 3 \
+              -A "ggen-publish-workflow (github.com/seanchatmangpt/ggen)" \
+              "https://crates.io/api/v1/crates/$c" \
+              | jq -r '.versions[0].num')"
+            echo "$c newest = $newest"
+            # Poll law: versions[0] (newest), never max_version (July-CalVer anomaly).
+            expected="${GITHUB_REF_NAME#v}"
+            if [ "$newest" != "$expected" ]; then
+              echo "MISMATCH: $c newest=$newest expected=$expected" >&2
+              exit 1
+            fi
+            echo "OK: $c at $expected"
+          done
