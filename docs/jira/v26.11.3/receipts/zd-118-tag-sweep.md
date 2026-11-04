@@ -29,8 +29,8 @@ is vanishingly unlikely. Uppercase hex accepted and normalized to lowercase.
 | repo | ref | files | cited SHAs | reachable | foreign | UNREACHABLE | exit |
 |---|---|---|---|---|---|---|---|
 | ggen | `468291ae3364...f93d` (HEAD, v26-11-3-wave) | 149 | 161 | 23 | 137 | **1** | 1 |
-| cgap | `4bd598d8e327...9e888` (HEAD) | 88 | 88 | 15 | 73 | 0 | 0 |
-| ggen-marketplace | `7364405a048a...c224ae6` (HEAD) | 20 | 20 | 15 | 5 | 0 | 0 |
+| cgap | `4bd598d8e327...9e888` (HEAD) | 82 | 88 | 15 | 73 | 0 | 0 |
+| ggen-marketplace | `7364405a048a...c224ae6` (HEAD) | 12 | 20 | 15 | 5 | 0 | 0 |
 
 Note the falsifier works as designed: it refuses loudly (exit 1) rather than
 waving through.
