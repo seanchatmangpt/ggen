@@ -20,11 +20,11 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "lucide-react": "^0.411.0",
-    "next": "15.5.21",
+    "next": "15.5.29",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "tailwind-merge": "^2.4.0",
-    "zod": "^3.23.8"
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@types/node": "^20.14.11",
@@ -32,15 +32,19 @@
     "@types/react-dom": "^19.2.4",
     "autoprefixer": "^10.4.19",
     "eslint": "^8.57.0",
-    "eslint-config-next": "^15.5.21",
-    "postcss": "^8.5.10",
+    "eslint-config-next": "^15.5.29",
+    "postcss": "^8.5.32",
     "tailwindcss": "^3.4.6",
     "tailwindcss-animate": "^1.0.7",
     "typescript": "^5.5.3"
   },
   "overrides": {
-    "js-yaml": "^4.2.0",
-    "postcss": "^8.5.10",
-    "sharp": "^0.35.0"
+    "brace-expansion": "^2.0.2",
+    "js-yaml": "^4.3.2",
+    "minimatch": "^11.0.4",
+    "postcss": "^8.5.32",
+    "postcss-selector-parser": "^6.1.5",
+    "sharp": "^0.35.5",
+    "source-map-js": "^1.2.2"
   }
 }
