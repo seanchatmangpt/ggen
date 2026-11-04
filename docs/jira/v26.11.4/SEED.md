@@ -100,8 +100,8 @@ re-read from the cited receipt on disk, not carried from the prior SEED.
   the rest of the audit surface 18 → 2). OPEN.
 - E-2: self-host observation re-pin discipline — mechanicalize as a
   gate/hook on every landing (currently prose-only). OPEN. Binding insight
-  from ZB-21 (coordinator dispatch; **no ZB-21 receipt located on disk** —
-  UNVERIFIED until one lands): a `--check` gate must compare against the
+  from ZB-21 (receipt zb-21-observation-drift.md landed, standing PARTIAL —
+  caveat lifted): a `--check` gate must compare against the
   observation commit, not literal HEAD — C21-class out-of-subject receipt
   binding (a commit cannot contain its own receipt).
 - E-3 CLOSED by ZD-15; re-verify fmt-check ×2 + sha256 identity across two
@@ -113,11 +113,10 @@ Single-lane / larger:
 
 - CARRY-03 (L, code): blast_radius/transactional write-path wiring (GAP-1)
   — ≥1 courted production caller, or typed parked-no-consumer.
-- CARRY-06 (M, court): DS-7 D1/D2/D3 vacuous sjira criteria — tighten in
-  shared court files. Coordinator reported ZD-60 dispatched for this; **no
-  zd-60 receipt exists on disk** (searched ggen + cgap + arcus +
-  ggen-marketplace docs/jira) — treat as IN-FLIGHT/UNRECEIPTED, do not
-  dispatch a second lane over it; re-check at wave open.
+- CARRY-06 CLOSED (zd-60-ds7-tighten.md, standing ALIVE): DS-7-D1/D2/D3
+  tightened via 3 new anti-vacuity tests + 4 battery retargets; battery
+  20/20 FLIPPED gate PASS exit 0; crate 219/0; D1's original guard
+  disclosed as provably UNREACHABLE dead code.
 - CARRY-10 (M, court): aoq-pack baseline consequence_sha256 completion.
 - CARRY-11 (L, court): ~100 F2 declarative-fixture refusals triage.
 - MKT-03 residue (S): clap-noun-verb-schema-pack composition-closure repair
@@ -127,6 +126,28 @@ Single-lane / larger:
   binding the check to the observation commit (ZB-21 insight) rather than
   literal HEAD.
 - E-1 (S, monitor): quick-xml ≥0.38 watch.
+
+- CARRY-20 (S, hygiene, pre-tag-mint): config-lsp package version
+  26.6.24 bump; marketplace.toml own release v26.10.8 bump at CARRY-19;
+  marketplace.toml [ggen] pin 26.8.22→26.11.3 (pending note on disk).
+
+## G. Operator-gated acknowledgments (the zero-manual claim is
+## post-Phase-0, not zero-manual overall)
+
+- ggen crates.io auth: BLOCKED — no ~/.cargo/credentials (zd-120);
+  operator `cargo login` gates CARRY-18.
+- cgap crates.io auth: PARTIAL — token present, identity unconfirmed;
+  close via `cargo install cargo-whoami && cargo whoami` else operator
+  `cargo login` (zd-119); gates CARRY-17.
+- arcus remote creation: PENDING operator decision
+  (docs/jira/v26.11.3/closure/arcus-remote-memo.md, landed by zd-122);
+  gates off-box replay of the arcus seal.
+
+## H. PRD omissions (carried loudly — the PRD's own gap)
+
+CARRY-03, CARRY-10, CARRY-11, MKT-03 residue, E-1 monitor, and E-2's
+mechanicalize-half are scheduled by no PRD phase — this SEED carries
+them explicitly; the v26.11.4 PRD must adopt or re-scope each.
 
 Publish chain (ordered, unchanged):
 
