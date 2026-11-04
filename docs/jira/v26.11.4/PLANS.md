@@ -3,7 +3,33 @@
 v26.11.4 implementation plans (ZP-11..25, Plan agents 2026-11-04), grounded
 in the 34-audit Explore fan-out (ZB-40..74). Full contract text lives in the
 session coordination ledger; this index records each plan's load-bearing
-decisions and deltas. Standing: all plans UNVERIFIED until executed.
+decisions and deltas. Standing is PER-ROW as of 2026-11-04 (receipt paths
+are relative to each repo root: `arcus/` = /Users/sac/arcus, `cgap/` =
+/Users/sac/cgap, `lsp-max/` = /Users/sac/lsp-max, ggen = this repo):
+
+- ZP-11 EXECUTED (arcus receipts `zp-11-real-sidecar-witness` +
+  `zp-11-uds-transit-floor` + `zp-13-blake3-abb`)
+- ZP-12 EXECUTED (arcus receipt `zp-12-supervisor`)
+- ZP-13 EXECUTED (arcus receipt `zp-13-blake3-abb`)
+- ZP-14 EXECUTED (cgap receipt `zp-14-cbmqs-cli`)
+- ZP-15 UNVERIFIED (no receipt found in ggen/cgap/arcus v26.11.4 trees)
+- ZP-16 PARTIAL (publish.yml landed for ggen + cgap — not arcus; ggen-engine
+  sibling dep reqs moved to `=26.11.4`; crates.io operator registration +
+  GitHub environment gates pending)
+- ZP-17 EXECUTED (cgap receipt `zp-17-gate10-settling` + POST-FOLD errata;
+  1.26394 µs/link branch-a MEASURED-MET)
+- ZP-18 EXECUTED (cgap receipt `zp-18-profile-guard-census`, census exit 0)
+- ZP-19 UNVERIFIED (no receipt found; slab/TLS WindowBuffer work not
+  witnessed in any v26.11.4 tree)
+- ZP-20 EXECUTED (lsp-max receipt `zp-20-gate09-fd-rss-rerun`)
+- ZP-21 UNVERIFIED (no receipt; ZP-14/CBP coordination home not decided in
+  writing)
+- ZP-22 UNVERIFIED (no receipt; FIPS-204 signer not witnessed)
+- ZP-23 EXECUTED (ggen `docs/jira/v26.11.4/PRD.md` MATERIALIZED)
+- ZP-24 PARTIAL (F2 census + poisoned-fixture render law landed,
+  `crates/ggen-engine/tests/tera_whitespace_census.rs` 3 tests green
+  2026-11-04; dual-engine render-diff leg deferred — tera 2.4.0 dev-dep
+  Cargo.toml edit outside F2 lane ownership)
 
 ## Membrane (PRD-01)
 
