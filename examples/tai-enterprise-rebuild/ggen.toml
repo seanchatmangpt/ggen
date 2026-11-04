@@ -15,7 +15,7 @@ dcterms = "http://purl.org/dc/terms/"
 prov = "http://www.w3.org/ns/prov#"
 
 [packs]
-tai-enterprise-rebuild-pack = { path = "../../packs/tai-enterprise-rebuild-pack" }
+tai-enterprise-rebuild-pack = { path = "../../packs/tai-enterprise-rebuild-pack", extra_ontologies = ["cmd.ttl", "options.ttl"] }
 
 [templates]
 dir = "."

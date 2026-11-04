@@ -72,25 +72,37 @@ STILL OPEN (carried forward, unchanged or narrowed):
   lib.rs:827-836); ggen-engine's receipt log tracks no per-artifact
   baseline, so no equivalent generic path exists — wiring the global
   generation would refuse every EA admission. Pinned-by-law, not drift.
-- receipt_chain_seam allow(dead_code) (verified open).
+- receipt_chain_seam allow(dead_code) — CLOSED (zd-45-receipt-seam.md,
+  2026-11-04, lane CARRY-02): suppression was stale — the module is
+  `pub mod receipt_chain_seam` (ggen-engine/src/lib.rs:55), rustc never
+  fires dead_code on its public items; `#![allow(dead_code)]` removed,
+  `cargo check --workspace` exit 0 with 0 dead_code warnings, seam pin
+  court 4/0.
 - blast_radius/transactional write-path wiring (GAP-1, size L) — modules
   ALIVE, zero production callers (SV-1 confirmed unchanged).
 - baseline.json consequence_sha256 completeness debt — PARTIALLY closed
   (SA-14 backfilled 297 provenance-labeled digests; aoq-pack entry itself
   is next-wave qualification per PF-2's descope ruling).
 - `--skip-ea-admission` CLI flag unwired (verified open by PF-1).
-- FM-LAW-015 class: 4 pre-existing sync_surface_test failures surfaced
-  post-census (sx-1 disclosure) — never given the 45-remediation pass.
+- FM-LAW-015 class: 4 pre-existing sync_surface_test failures —
+  RESOLVED-DISCLOSED (zd-59-carry05.md, 2026-11-04, lane CARRY-05;
+  witnesses xd-11-fmlaw015.md e9829bead fixture fix + ZB-9 re-verify):
+  stale ledger row. `cargo test -p ggen-cli-lib --test sync_surface_test`
+  run ×2 under ambient ggen 26.11.3 on 2026-11-04: 6 passed, 0 failed,
+  exit 0 both runs.
 - sjira acceptance vacuous findings DS-7-D1/D2/D3 (execute exhaustion +
   replay guards unpinned; lease granted_at coverage indirect) — recorded
   by ds-7-mutation.md / sjira-mutation-battery.md, tests owned by shared
   court files (lane coordination required to tighten).
-- clap-noun-verb FINDING-1: `cmds/*/mod.rs` directory-module nouns
-  silently register zero verbs (ds-8.md) — audit of other cmds/* dirs
-  is a named follow-on.
-- ggen-lsp diagnostic_relay_probe CARRIED-OPEN (sx-1-reds.md: 20s
-  publishDiagnostics timeout 2/2; cl-f attribution: hardcoded external
-  binary dependency).
+- clap-noun-verb FINDING-1: `cmds/*/mod.rs` zero-verb nouns — CLOSED
+  (zd-46-zero-verb-audit.md, 2026-11-04, lane ZD-46): full 4-dir census,
+  zero-verb dirs fixed in place with explicit `#[verb("<verb>", "<noun>")]`,
+  `cargo build -p ggen-cli-lib` exit 0; one pre-existing flake disclosed,
+  not session-introduced.
+- ggen-lsp diagnostic_relay_probe — CLOSED (zd-47-relay-probe.md,
+  2026-11-04, lane CARRY-08): root cause = probe lives in lsp-max, not
+  ggen, and hard-coded a nonexistent child binary path; env-override +
+  loud-skip fix landed, 2/0 ×3 runs, restore byte-verified.
 
 ## AoQ next-wave handoff (PF-3 rulings, binding on Wave-1 dispatch)
 

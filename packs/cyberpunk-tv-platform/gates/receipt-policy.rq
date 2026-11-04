@@ -1,0 +1,15 @@
+# Gate equivalent of tv:ReceiptPolicyShape (SHACL-at-sync retired, FM-LAW-017).
+# true = violation.
+PREFIX tv: <https://ggen.dev/ontology/cyberpunk-tv#>
+ASK {
+  ?subject a tv:ReceiptPolicy .
+  {
+    FILTER NOT EXISTS { ?subject tv:receiptAlgorithm ?v . FILTER(?v = "blake3-256") }
+  } UNION {
+    ?subject tv:receiptAlgorithm ?a1, ?a2 . FILTER(STR(?a1) != STR(?a2))
+  } UNION {
+    FILTER NOT EXISTS { ?subject tv:standing ?s . }
+  } UNION {
+    ?subject tv:standing ?s1, ?s2 . FILTER(STR(?s1) != STR(?s2))
+  }
+}

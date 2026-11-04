@@ -11,8 +11,7 @@
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "test:e2e": "playwright test",
-    "postinstall": "node scripts/materialize-wasm-cognition.mjs"
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "blake3": "^2.1.7",

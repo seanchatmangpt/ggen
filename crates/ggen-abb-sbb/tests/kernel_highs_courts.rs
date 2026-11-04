@@ -52,9 +52,10 @@ fn envelope_with_cap(g: &EaGraph, receipt: &ManufactureReceipt, declared: u64) -
         ontology_hash: digest.clone(),
         graph_digest: digest,
         cap_table: CapTable {
-            caps: [("cap:event-ingest.max_artifacts".to_string(), declared)]
-                .into_iter()
-                .collect(),
+            caps: std::collections::BTreeMap::from([(
+                "cap:event-ingest.max_artifacts".to_string(),
+                declared,
+            )]),
         },
         receipt: receipt.clone(),
     }
@@ -93,7 +94,7 @@ fn high1_declared_4_measured_5_refuses_cap_ceiling_mismatch() {
     };
     assert_eq!(code, "CAP_CEILING_MISMATCH");
     assert!(
-        detail.contains("4") && detail.contains("5"),
+        detail.contains('4') && detail.contains('5'),
         "detail must carry both sides: {detail}"
     );
     assert!(!verdict.is_pass());

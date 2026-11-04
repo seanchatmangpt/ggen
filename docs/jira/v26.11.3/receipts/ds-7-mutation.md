@@ -32,14 +32,18 @@ Format: `id — criterion — pinned test — shim — verdict`.
 
 - EXEC-C01 — ceiling law (only UNKNOWN→PARTIAL_ALIVE writable) —
   `promotion_ceiling_is_typed` — relax FROM-side law in `check_promotion` — FLIP.
-- EXEC-C02 — exhaustion: no-progress pass refuses typed `exhausted` —
-  `max_iterations_refuses_typed_exhaustion` — disable the no-progress branch —
-  **VACUOUS (DS-7-D1)**.
+- EXEC-C02 — exhaustion: a budget smaller than the chain depth refuses typed `exhausted` at
+  the bound, with partial progress recorded on disk (ZD-60) —
+  `exhaustion_refuses_at_bound_with_partial_progress_recorded` — collapse the loop bound to
+  one pass — FLIP. (Originally: no-progress-branch shim, VACUOUS DS-7-D1 — the `if !progressed`
+  guard is UNREACHABLE under the frontier standing law; see ZD-60.)
 - EXEC-C02c (probe) — what the pinned test DOES pin: typed exhaustion shape —
   `max_iterations_refuses_typed_exhaustion` — mutate the `exhausted` reason string — FLIP.
 - EXEC-C03 — idempotent replay: AlreadyRecorded ≠ second execution —
-  `rerun_is_idempotent_already_recorded` — accept AlreadyRecorded (`if true`) —
-  **VACUOUS (DS-7-D2)**.
+  `replay_guard_counts_a_replayed_candidate_once` (ZD-60: the duplicated-candidate-in-one-pass
+  pin at the guard site) — accept AlreadyRecorded (`if true`) — FLIP. (Originally:
+  `rerun_is_idempotent_already_recorded`, VACUOUS DS-7-D2 — that test still stands as the
+  user-visible replay law; the guard site itself is now pinned.)
 - LEAS-C04 — multi-party: ≥2 sigs from ≥2 distinct signers —
   `two_signatures_same_signer_refuses_insufficient` — drop distinct-signer check — FLIP.
 - LEAS-C05 — minimum-count: <2 records refuse —
@@ -49,8 +53,11 @@ Format: `id — criterion — pinned test — shim — verdict`.
 - LEAS-C07 — Ed25519 verification: tampered/unknown signer refuses —
   `tampered_signature_refuses_invalid` — disable `verify_all` — FLIP.
 - LEAS-C08 — signatures bind every field incl. granted_at —
-  `unsigned_field_change_breaks_verification` — remove granted_at from canonical bytes —
-  **VACUOUS (DS-7-D3)**.
+  `granted_at_field_change_breaks_verification` (ZD-60: tampering the granted_at VALUE after
+  signing refuses SignatureInvalid) — remove granted_at from canonical bytes — FLIP.
+  (Originally: `unsigned_field_change_breaks_verification`, VACUOUS DS-7-D3 — the
+  subject_iri-only tamper is now supplemented by the granted_at-value tamper; the
+  indirect-only C08b caveat is resolved, C08b remains a supplemental probe.)
 - LEAS-C08b (probe) — which test DOES pin granted_at coverage —
   `canonical_json_is_sorted_key_compact_minus_signatures` — same shim —
   FLIP only via the canonical-shape test.
@@ -83,21 +90,31 @@ criteria.
 - 16/18 criteria FLIPPED with witnessed runs (baseline pass → shim exit non-zero).
 - The gate FAILED overall by design: 3 criteria did not flip.
 
-## Defect findings (recorded, not fixed — out of lane scope)
+## Defect findings (recorded 2026-11-03; CLOSED-ZD-60 2026-11-04)
 
 - **DS-7-D1** — `execute.rs` no-progress exhaustion branch (the `if !progressed` refusal) is
   unpinned: `max_iterations_refuses_typed_exhaustion` uses max_iterations=1, so it exercises the
   post-loop budget path; disabling the no-progress branch leaves the test green. Typed shape of
   the budget path IS pinned (C02c flip). Filed for the owning lane.
+  **CLOSED-ZD-60**: the guard is UNREACHABLE under the frontier standing law (eligible ⇒
+  standing UNKNOWN ⇒ first append per identity Appends) — reclassified defensive dead code;
+  EXEC-C02 retargeted to the loop-bound shim, pinned by
+  `exhaustion_refuses_at_bound_with_partial_progress_recorded` (flips).
 - **DS-7-D2** — `execute.rs`'s AlreadyRecorded replay guard (`if appended.status ==
   AppendStatus::Appended`) is unpinned: `rerun_is_idempotent_already_recorded` reaches the append
   site only in run 1; in run 2 the frontier blocks the order on standing before the append, so
   accepting AlreadyRecorded does not flip the test. The user-visible no-double-append law IS
   pinned, but through the frontier standing gate, not the replay guard itself.
+  **CLOSED-ZD-60**: the guard site is now pinned directly by
+  `replay_guard_counts_a_replayed_candidate_once` (duplicated candidate in one pass counts
+  once; `if true` shim flips it).
 - **DS-7-D3** — `lease.rs` `unsigned_field_change_breaks_verification` tampers subject_iri only;
   removing granted_at from the canonical bytes leaves it green. granted_at's signature coverage
   is pinned only indirectly by `canonical_json_is_sorted_key_compact_minus_signatures` (C08b
   flip). Filed for the owning lane.
+  **CLOSED-ZD-60**: `granted_at_field_change_breaks_verification` now tampers the granted_at
+  VALUE itself; removing granted_at from the canonical bytes flips it directly (C08b remains a
+  supplemental probe).
 
 ## Concurrent-lane events (disclosed, not session-introduced failures)
 
@@ -124,3 +141,7 @@ criteria.
 result: DS-7 sjira mutation battery ran 18 criteria — 16 flipped (non-vacuous), 3 genuine
 unpinned-branch findings recorded (DS-7-D1/D2/D3), tree restored byte-exact; receipt at
 /Users/sac/ggen/docs/jira/v26.11.3/receipts/ds-7-mutation.md
+
+UPDATE 2026-11-04 (ZD-60, lane CARRY-06): all three findings closed — battery re-run 20/20
+FLIPPED, gate PASS exit 0, vacuous count 0; full `cargo test -p ggen-sjira` 219/0. See
+docs/jira/v26.11.3/receipts/zd-60-ds7-tighten.md

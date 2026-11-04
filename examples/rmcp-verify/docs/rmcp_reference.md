@@ -112,3 +112,4 @@ out of scope).
 | `transport-streamable-http-client` | Streamable HTTP client (transport-agnostic) | false |
 | `transport-streamable-http-client-reqwest` | Streamable HTTP client with default reqwest backend | false |
 | `transport-streamable-http-server` | Streamable HTTP server transport | false |
+

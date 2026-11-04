@@ -18,16 +18,18 @@ static literals = 107 unique codes; parametric call sites = 33; union =
 the doc-comment wildcard `FM-CHAIN-0NN` (`verbs/handlers.rs:427`) as a phantom
 `FM-CHAIN-0` — excluded here.
 
-Counts as of 2026-11-03, re-derived on this census (XG-2's session prose said
-87/37; this broader two-mechanism method re-derives 118/52 — the divergence is
+Counts as of 2026-11-04, re-derived on this census (XG-2's session prose said
+87/37; this broader two-mechanism method re-derives 119/45 — the divergence is
 census-method scope, not a contradiction; the parity court below re-checks this
 table against the tree on every run, so these numbers self-heal on drift).
 
 `Tested by` = files under `crates/*/tests/` whose text contains the code
 (`none` = zero test references — XG-2's GAP-3, carried honestly, not closed:
-52 of 118 codes carry `none` here; writing those tests is out of this lane's
-scope by contract). Occurrences inside `src` `#[cfg(test)]` modules are not
-counted as test coverage.
+45 of 119 codes carry `none` here — 8 closed by the CARRY-09/zd-48 courts
+(see `docs/jira/v26.11.3/receipts/zd-48-fm-codes.md`), 1 added when FM-KEY-013's
+emission site landed in `keys.rs` after this census; per-code typed rulings for
+the remaining 45 live in that receipt). Occurrences inside `src` `#[cfg(test)]`
+modules are not counted as test coverage.
 
 ## Parity court
 
@@ -71,7 +73,7 @@ an emission site, fails the test with the exact codes named.
 | `FM-CONFIG-001` | `ggen.toml` not found in the current directory | run from the directory that owns `ggen.toml`; no `--manifest` flag exists | `doctor_surface_test.rs` +4 more |
 | `FM-CONFIG-002` | `ggen.toml` TOML syntax error or unknown keys | fix the TOML syntax / remove unknown keys named in the error | `config_schema_dispatch_e2e.rs` +1 more |
 | `FM-CONFIG-003` | `ggen.toml` parses but a semantic invariant fails (nested parse failure) | read the nested error - always specific, not generic | `doctor_surface_test.rs` +4 more |
-| `FM-CONFIG-014` | a `[validation] gates` glob matched zero files (`GLOB_NO_MATCHES`) | fix the glob pattern or add the gate `.rq` files it should match | `none` |
+| `FM-CONFIG-014` | a `[validation] gates` glob matched zero files (`GLOB_NO_MATCHES`) | fix the glob pattern or add the gate `.rq` files it should match | `fm_config_014_gate_glob_court.rs` |
 
 ### FM-GEN-* — generation rules: source/template resolution, body validation
 
@@ -81,8 +83,8 @@ an emission site, fails the test with the exact codes named.
 | `FM-GEN-006` | generation-rule template file unreadable | fix the template file's path/permissions relative to the manifest | `generation_rules_e2e.rs` +1 more |
 | `FM-GEN-007` | not-yet-implemented `QuerySource`/`TemplateSource` variant | use the implemented file-based sources; do not construct the named variant | `generation_rules_e2e.rs` +1 more |
 | `FM-GEN-008` | template render failed (cause tag: `TEMPLATE_PARSE_FAILED`, `TEMPLATE_VARIABLE_MISSING`, ...) | read the bracketed cause tag; e.g. compute filtered values in a separate `{% set %}` before `~` concatenation | `generation_rules_typed_causes_e2e.rs` |
-| `FM-GEN-009` | existing output target cannot be read as UTF-8 | re-encode or delete the existing target so the merge path can read it | `none` |
-| `FM-GEN-010` | GENERATED/MANUAL merge markers out of order (`=======` before `<<<<<<< GENERATED`) | restore marker order: `<<<<<<< GENERATED` / `=======` / `>>>>>>> MANUAL` | `none` |
+| `FM-GEN-009` | existing output target cannot be read as UTF-8 | re-encode or delete the existing target so the merge path can read it | `fm_gen_merge_refusal_court.rs` |
+| `FM-GEN-010` | GENERATED/MANUAL merge markers out of order (`=======` before `<<<<<<< GENERATED`) | restore marker order: `<<<<<<< GENERATED` / `=======` / `>>>>>>> MANUAL` | `fm_gen_merge_refusal_court.rs` |
 | `FM-GEN-011` | rendered output body is empty | check the query returned rows (or static body isn't blank); set `skip_empty` if empty is expected | `generation_rules_e2e.rs` |
 | `FM-GEN-012` | rendered body exceeds `MAX_OUTPUT_BYTES` | check for an unbounded loop over query results, or split into multiple outputs | `none` |
 | `FM-GEN-015` | `validation.no_unsafe = true` and the rendered body contains `unsafe` | remove the `unsafe` block from the template or disable the flag knowingly | `generation_rules_e2e.rs` |
@@ -112,6 +114,7 @@ an emission site, fails the test with the exact codes named.
 | `FM-KEY-010` | pre-existing `verifying.key` cannot be read/decoded | delete the stale `verifying.key` and regenerate the keypair | `none` |
 | `FM-KEY-011` | `verifying.key` does not match the fresh signing key (stale public half) | rotate: delete `verifying.key` (signing.key rolled back automatically) and regenerate | `none` |
 | `FM-KEY-012` | `.gitignore` write failed (non-AlreadyExists) - refusing to persist an unprotected key | fix permissions on the keys directory / `.gitignore` | `none` |
+| `FM-KEY-013` | pre-existing `signing.key` carries group/other permission bits (leaked seed, fail-closed, never auto-repaired) | rotate the key: the file was potentially exposed; a human decides, the refusal names the path and observed mode | `none` |
 
 ### FM-LAW-* — law/SHACL engine, rule materialization, gates
 
@@ -168,18 +171,18 @@ an emission site, fails the test with the exact codes named.
 
 | Code | Trigger | Remediation | Tested by |
 |------|---------|-------------|-----------|
-| `FM-TPL-001` | template has no frontmatter block | add the `---`-delimited frontmatter; see the 26-key allowlist | `none` |
+| `FM-TPL-001` | template has no frontmatter block | add the `---`-delimited frontmatter; see the 26-key allowlist | `fm_tpl_frontmatter_parse_court.rs` |
 | `FM-TPL-002` | unknown frontmatter key (outside the closed 26-key allowlist) | remove the key or use a listed key; the refusal names the allowlist | `combinatorial_matrix.rs` |
 | `FM-TPL-003` | template body consumes a variable the SPARQL does not project | add the variable to the SELECT projection or fix the `{{ var }}` typo | `cli_boundary.rs` +1 more |
 | `FM-TPL-004` | `to:` output path consumes an unprojected variable | project the variable in the query or fix the path template | `lint_validate_e2e.rs` +1 more |
 | `FM-TPL-005` | identity `CONSTRUCT` detected (no-op mapping) | make the CONSTRUCT actually derive something | `lint_validate_e2e.rs` +1 more |
-| `FM-TPL-006` | template file read/parse refused at sync time (path named) | fix the named template file's syntax/permissions | `none` |
+| `FM-TPL-006` | template file read/parse refused at sync time (path named) | fix the named template file's syntax/permissions | `fm_tpl_006_sync_court.rs` |
 | `FM-TPL-008` | `from:` escapes the template's own directory | keep `from:` paths inside the template's directory | `frontmatter_fields_e2e.rs` |
 | `FM-TPL-009` | determinism guard asymmetry: primary `when:` false but recheck guard true | investigate graph nondeterminism between the two evaluations; the file was not written | `determinism_independent_reload_e2e.rs` +1 more |
 | `FM-TPL-010` | SELECT without `ORDER BY` (strict mode) | add `ORDER BY` to the query, even a trivial one | `none` |
 | `FM-TPL-011` | an `rdf:` frontmatter path is unreadable | fix the named RDF file's path/permissions | `none` |
-| `FM-TPL-012` | `---` frontmatter delimiter not on its own line | put the opening `---` on its own line | `none` |
-| `FM-TPL-013` | frontmatter block unterminated (no closing `---`) | add the closing `---` delimiter | `none` |
+| `FM-TPL-012` | `---` frontmatter delimiter not on its own line | put the opening `---` on its own line | `fm_tpl_frontmatter_parse_court.rs` |
+| `FM-TPL-013` | frontmatter block unterminated (no closing `---`) | add the closing `---` delimiter | `fm_tpl_frontmatter_parse_court.rs` |
 | `FM-TPL-014` | a `shape:`-referenced file is missing | add the named shape file or fix its path | `frontmatter_fields_e2e.rs` +2 more |
 | `FM-TPL-015` | structural template-load failure (lenient glob loader) | read the per-file load errors; the glob itself resolved but files failed to load | `none` |
 | `FM-TPL-017` | Tera render (string) failed | fix the Tera syntax; filter pipelines cannot chain inside `{% set %} ~` concatenation | `sync_e2e.rs` |
@@ -200,7 +203,7 @@ an emission site, fails the test with the exact codes named.
 
 | Code | Trigger | Remediation | Tested by |
 |------|---------|-------------|-----------|
-| `FM-WRITE-001` | output root missing or cannot be canonicalized | create the root or fix `output_dir` in `ggen.toml` | `none` |
+| `FM-WRITE-001` | output root missing or cannot be canonicalized | create the root or fix `output_dir` in `ggen.toml` | `fm_write_001_root_court.rs` |
 | `FM-WRITE-002` | path traversal: output escapes the manifest directory (cannot canonicalize probe) | keep output paths inside the tree the manifest directory owns | `frontmatter_fortune5_hardening_e2e.rs` +1 more |
 | `FM-WRITE-003` | `inject: true` target file missing | create the target file before injecting into it | `combinatorial_matrix.rs` +1 more |
 | `FM-WRITE-004` | inject `after:` marker not found in the target | add the marker or fix the marker spec | `combinatorial_matrix.rs` +1 more |

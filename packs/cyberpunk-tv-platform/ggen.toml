@@ -269,8 +269,28 @@ template = { file = "templates/README.md.tera" }
 output_file = "README.md"
 mode = "Overwrite"
 
+# SHACL-at-sync retired with [FM-LAW-017]; the 11 NodeShapes in
+# ontology/platform-shapes.ttl are preserved as data (still imported via
+# [ontology].imports) and enforced 1:1 by the SPARQL gate queries in gates/
+# (any row = violation, one file per NodeShape).
 [validation]
-shacl = ["ontology/platform-shapes.ttl"]
+gates = [
+  "gates/platform.rq",
+  "gates/platform-mode-count.rq",
+  "gates/platform-projection-count.rq",
+  "gates/capability.rq",
+  "gates/mode.rq",
+  "gates/projection.rq",
+  "gates/device-profile.rq",
+  "gates/device-profile-count.rq",
+  "gates/world-node.rq",
+  "gates/world-edge.rq",
+  "gates/watch-session.rq",
+  "gates/motion.rq",
+  "gates/motion-count.rq",
+  "gates/escrow-proposal.rq",
+  "gates/receipt-policy.rq",
+]
 strict_mode = true
 
 [sync]

@@ -355,3 +355,98 @@ fn rerun_is_idempotent_already_recorded() {
     let on_disk = ggen_sjira::ledger::fetch(&ledger).expect("ledger verifies");
     assert_eq!(on_disk.len(), 1, "replay must not double-append");
 }
+
+// ── 7b. the replay guard: a replayed candidate is not a second execution ──
+
+#[test]
+fn replay_guard_counts_a_replayed_candidate_once() {
+    let dir = temp_ledger_dir("replay-guard");
+    let ledger = dir.join("ledger.ndjson");
+    let graph = auth_graph(&[AUTH_A]);
+
+    // The same order twice in ONE frontier pass: both candidates are
+    // eligible, the first appends, the second replays to AlreadyRecorded.
+    // The replay guard must count it once — no second plan, no second
+    // event, no second on-disk receipt.
+    let oa = input("OA", AUTH_A);
+    let out = run(&[oa.clone(), oa], &ledger, &graph, &ExecuteOpts::default())
+        .expect("the run with a duplicated candidate completes");
+
+    assert_eq!(
+        out.plans.len(),
+        1,
+        "a replayed candidate is not a second plan"
+    );
+    assert_eq!(
+        out.events.len(),
+        1,
+        "a replayed candidate is not a second event"
+    );
+    assert_eq!(out.iterations, 1);
+    assert_eq!(out.plans[0].identity, "OA");
+
+    let on_disk = ggen_sjira::ledger::fetch(&ledger).expect("ledger verifies");
+    assert_eq!(
+        on_disk.len(),
+        1,
+        "the duplicate candidate must not double-append"
+    );
+    assert_eq!(on_disk[0]["work_order_id"], json!("OA"));
+
+    // And the honest replay law still holds afterwards: a fresh run is
+    // standing-blocked, appending nothing.
+    let oa_again = input("OA", AUTH_A);
+    let second =
+        run(&[oa_again], &ledger, &graph, &ExecuteOpts::default()).expect("replay run completes");
+    assert!(second.plans.is_empty());
+    assert_eq!(second.blocked[0].reason, "standing=PARTIAL_ALIVE");
+}
+
+// ── 7. exhaustion fires AT the bound, with partial progress recorded ──────
+
+#[test]
+fn exhaustion_refuses_at_bound_with_partial_progress_recorded() {
+    let dir = temp_ledger_dir("bound");
+    let ledger = dir.join("ledger.ndjson");
+    let graph = auth_graph(&[AUTH_A, AUTH_B, AUTH_C]);
+
+    // Chain OA -> OB -> OC needs three passes; a two-pass budget runs out
+    // exactly at the bound, AFTER two honest passes of progress.
+    let oa = input("OA", AUTH_A);
+    let ob = with_dep(input("OB", AUTH_B), dep_on("OA", "PARTIAL_ALIVE"));
+    let oc = with_dep(input("OC", AUTH_C), dep_on("OB", "PARTIAL_ALIVE"));
+
+    let err = run(
+        &[oa, ob, oc],
+        &ledger,
+        &graph,
+        &ExecuteOpts {
+            max_iterations: 2,
+            lease: None,
+            epoch_watermark: None,
+            epoch_extensions: Default::default(),
+        },
+    )
+    .expect_err("a two-pass budget over a three-deep chain must refuse at the bound");
+
+    assert_eq!(err.reason, "exhausted");
+    assert_eq!(err.broken_term, "mu_on_O");
+    assert_eq!(err.hop, "frontier");
+    assert!(
+        err.detail.contains("pass 2 of 2"),
+        "the refusal names the exact bound it hit: {}",
+        err.detail
+    );
+
+    // The refusal is honest about the partial progress: passes 1 and 2
+    // executed OA then OB before the bound fired, and both receipts are
+    // on disk. (Pins the loop bound: collapsing it to a single pass
+    // leaves only OA's receipt and must flip this assertion.)
+    let on_disk = ggen_sjira::ledger::fetch(&ledger).expect("ledger verifies");
+    assert_eq!(on_disk.len(), 2, "two passes executed before the bound");
+    assert_eq!(on_disk[0]["work_order_id"], json!("OA"));
+    assert_eq!(on_disk[1]["work_order_id"], json!("OB"));
+    for event in &on_disk {
+        assert_eq!(event["to_standing"], json!("PARTIAL_ALIVE"));
+    }
+}

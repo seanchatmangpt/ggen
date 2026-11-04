@@ -48,3 +48,4 @@ This command takes no arguments.
 Exercise a typed ontology-declared refusal path.
 
 This command takes no arguments.
+

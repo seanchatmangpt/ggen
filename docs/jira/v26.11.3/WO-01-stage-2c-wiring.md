@@ -48,7 +48,10 @@ Falsifiable, command-cited. All from `/Users/sac/ggen`:
 
 ## Standing
 
-UNVERIFIED — no acceptance command has been run against a fixed tree yet.
+ALIVE (2026-11-04 reconciliation against receipt bodies: g1-stage2c.md reads PARTIAL —
+contract surface landed, 9 CLI tests red on the pending CLI flag; that blocker is closed by
+k8-cli-flag-depgraph.md, which reads ALIVE with all gates green this session and the
+mutation-court flip witnessed; RECEIPTS.md row WO-01 reads ALIVE with the gate re-run record).
 
 ## Falsifiers
 

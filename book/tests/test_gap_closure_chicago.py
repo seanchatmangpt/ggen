@@ -99,20 +99,61 @@ class RealConsumerStateTests(unittest.TestCase):
     def run_checked(self, cwd: Path, *args: str) -> None:
         subprocess.run([os.environ["GGEN_BIN"], *args], cwd=cwd, check=True)
 
+    def sync_checked(self, cwd: Path) -> None:
+        # FM-LAW-015 premise rot (ZB-13 item 5, 2026-11-04): the fail-closed
+        # EA admission gate (crates/ggen-engine/src/sync.rs run_ea_graph_admission)
+        # now refuses any sync whose root lacks ea.graph.json and lacks the
+        # explicit opt-out. Book example packs are documentation-grade demo
+        # consumers, not EA-architected projects: consumers that carry an
+        # ea.graph.json (affidavit-verify, part-passport) run real admission;
+        # the rest take the gate's own sanctioned opt-out, loudly and
+        # per-consumer — never a global bypass.
+        if (cwd / "ea.graph.json").is_file():
+            self.run_checked(cwd, "sync", "run")
+        else:
+            self.run_checked(cwd, "sync", "run", "--skip-ea-admission")
+
+    def is_reflexive_verify_consumer(self, consumer: Path) -> bool:
+        # Reflexive-verification consumers (ggen-verify-pack, e.g.
+        # tcps-generated) carry evidence gates whose staleness check lags one
+        # sync BY CONSTRUCTION (FM-PACK-013: the reflexive log carries syncs
+        # 0..N-1 at load time), so a second consecutive sync without evidence
+        # re-emission is refused — the two-sync idempotency premise is false
+        # for this class. Their lawful protocol is the documented refresh
+        # recipe (examples/tcps-generated/scripts/verify.sh, mirrored by
+        # `just verify-tcps`): emit real evidence -> sync -> receipt verify.
+        text = (consumer / "ggen.toml").read_text(encoding="utf-8", errors="replace")
+        return "ggen-verify-pack" in text
+
+    def run_reflexive_verify_protocol(self, consumer: Path) -> None:
+        subprocess.run(["bash", "scripts/verify.sh"], cwd=consumer, check=True)
+        # The evidence mini-pack's content changes every emitter run BY DESIGN
+        # (recorded_at), colliding with ggen.lock pack-content pinning
+        # (FM-PACK-008) — re-lock intentionally, exactly as the recipe does.
+        lock = consumer / "ggen.lock"
+        if lock.is_file():
+            lock.unlink()
+        self.sync_checked(consumer)
+        self.run_checked(consumer, "receipt", "verify")
+
     def test_discoverable_current_consumers_are_two_sync_idempotent(self) -> None:
         consumers = sorted(
             p.parent
             for p in (ROOT / "examples").glob("*/ggen.toml")
             if "archive" not in p.parts
+            and not p.parent.name.startswith(".")  # lane scratch dirs are not discoverable consumers
         )
         self.assertGreaterEqual(len(consumers), 8)
         for consumer in consumers:
-            self.run_checked(consumer, "sync", "run")
+            if self.is_reflexive_verify_consumer(consumer):
+                self.run_reflexive_verify_protocol(consumer)
+                continue
+            self.sync_checked(consumer)
             self.run_checked(consumer, "receipt", "verify")
             once = tree_digest(consumer)
             receipts_once = receipt_files(consumer)
 
-            self.run_checked(consumer, "sync", "run")
+            self.sync_checked(consumer)
             self.run_checked(consumer, "receipt", "verify")
             twice = tree_digest(consumer)
             receipts_twice = receipt_files(consumer)

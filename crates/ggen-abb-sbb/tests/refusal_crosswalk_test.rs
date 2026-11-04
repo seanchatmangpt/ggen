@@ -19,6 +19,9 @@
 //!
 //! Chicago discipline: real files, real parsing, assertions on final state.
 
+// Chicago TDD (.claude/rules/rust/testing.md): unwrap/expect/panic allowed in test code.
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 use std::collections::BTreeSet;
 use std::fs;
 use std::path::PathBuf;

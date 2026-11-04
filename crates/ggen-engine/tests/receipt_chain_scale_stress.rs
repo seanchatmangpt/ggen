@@ -81,6 +81,7 @@ fn mint_line(prev_chain_hash_hex: &str, i: usize) -> String {
         closure: Default::default(),
         build_provenance: None,
         generation: Some((i + 1) as u64),
+        ea_admission_skipped: None,
     };
     let payload_json = serde_json::to_vec(&payload).expect("payload serializes");
     let record = ReceiptRecord {

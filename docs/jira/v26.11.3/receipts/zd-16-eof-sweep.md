@@ -19,7 +19,7 @@ no commit (per lane contract).
    - Files with uncommitted non-whitespace changes (git diff -w non-quiet):
      `book/src/CAPABILITY_MAP.md`, `docs/jira/v26.11.3/closure/descope-ledger.md`,
      `examples/zero-code-inventoryctl/docs/command-reference.md` — SKIP-CONTENT.
-   - Recent-mtime guard (modified within 30 min, clean in git): 
+   - Recent-mtime guard (modified within 30 min, clean in git):
      `examples/zero-code-inventoryctl/docs/SCHEMA_ADMITTED.md` — SKIP-RECENT
      (possible in-flight other-lane edit).
 3. Fix: rewrite last-line/EOF bytes only; interior lines untouched.

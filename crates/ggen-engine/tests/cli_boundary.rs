@@ -406,6 +406,64 @@ fn sync_run_skip_ea_admission_flag_opt_out_of_fm_law_015() {
 // ---------------------------------------------------------------------
 // sync run --watch
 //
+/// Bypass-marked-receipt law (ZD-44/CARRY-04): a sync that skipped EA
+/// admission via `--skip-ea-admission` must write a receipt whose payload
+/// carries the bypass disclosure; a normal admitted run's receipt must NOT
+/// carry it (the note marks a bypass, not membership). Fail-closed in both
+/// directions: a bypassed run whose receipt lacks the note flips this
+/// court; an admitted run whose receipt carries the note also flips it.
+#[test]
+fn sync_run_skip_flag_receipt_carries_bypass_mark_admitted_run_does_not() {
+    let dir = TempDir::new().expect("tempdir");
+    scaffold(dir.path());
+    std::fs::remove_file(dir.path().join("ea.graph.json")).expect("remove ea.graph.json");
+
+    let admitted_via_bypass = CliHarness::from_path(ggen_bin())
+        .args(["sync", "run", "--skip-ea-admission"])
+        .current_dir(dir.path())
+        .run()
+        .expect("run sync with --skip-ea-admission");
+    let _ = admitted_via_bypass.assert_success();
+    let receipt_bytes = std::fs::read(dir.path().join(".ggen-v2/receipt.json"))
+        .expect("bypassed sync must write .ggen-v2/receipt.json");
+    let receipt: serde_json::Value =
+        serde_json::from_slice(&receipt_bytes).expect("parse receipt.json");
+    let mark = receipt
+        .pointer("/payload/ea_admission_skipped")
+        .and_then(|v| v.as_str())
+        .unwrap_or_else(|| {
+            panic!(
+                "bypass-marked-receipt law: payload.ea_admission_skipped is absent from \
+                 .ggen-v2/receipt.json after a --skip-ea-admission run; the receipt must \
+                 disclose the bypass"
+            )
+        });
+    assert!(
+        mark.contains("--skip-ea-admission"),
+        "bypass mark must name the flag, got: {mark}"
+    );
+
+    // Fail-closed flip direction: an ADMITTED run (ea.graph.json present)
+    // must write a receipt with NO bypass mark — its payload binds an
+    // admitted gate evaluation, not a bypass.
+    let admitted_dir = TempDir::new().expect("tempdir");
+    scaffold(admitted_dir.path());
+    let admitted = CliHarness::from_path(ggen_bin())
+        .args(["sync", "run"])
+        .current_dir(admitted_dir.path())
+        .run()
+        .expect("run admitted sync");
+    let _ = admitted.assert_success();
+    let receipt_bytes = std::fs::read(admitted_dir.path().join(".ggen-v2/receipt.json"))
+        .expect("admitted sync must write .ggen-v2/receipt.json");
+    let receipt: serde_json::Value =
+        serde_json::from_slice(&receipt_bytes).expect("parse receipt.json");
+    assert!(
+        receipt.pointer("/payload/ea_admission_skipped").is_none(),
+        "admitted run's receipt must not carry the EA bypass mark"
+    );
+}
+
 // `--watch` runs one sync then blocks forever watching for filesystem
 // changes (see `watch.rs` module docs: no SIGINT handling, by design).
 // `CliHarness::run` waits for the child to exit, so it cannot be used for

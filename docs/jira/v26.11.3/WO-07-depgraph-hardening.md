@@ -127,7 +127,10 @@ Falsifiable, command-cited. All from `/Users/sac/ggen`:
 
 ## Standing
 
-UNVERIFIED — no acceptance command has been run against a fixed tree yet.
+ALIVE (2026-11-04 reconciliation: cited receipts g6-depgraph.md §Standing reads "ALIVE for the
+landed surface … PARTIAL on refusal variants" and k1-refusal-flip.md §Standing reads "ALIVE for
+the flipped surface", explicitly resolving G6's PARTIAL-on-refusal-variants; RECEIPTS.md WO-07
+row reads ALIVE with `-p ggen-abb-sbb` 129+3dt, hardening 15/15).
 
 ## Falsifiers
 

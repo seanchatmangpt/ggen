@@ -77,13 +77,14 @@ ignore = [
     { id = "RUSTSEC-2026-0194", reason = "quick-xml 0.37.5 upstream-blocked by process_mining ^0.37.4 — see docs/jira/v26.11.3/receipts/xc-8-cve-bump.md" },
     { id = "RUSTSEC-2026-0195", reason = "quick-xml 0.37.5 upstream-blocked by process_mining ^0.37.4 — see docs/jira/v26.11.3/receipts/xc-8-cve-bump.md" },
 ]
-# cargo audit (the quality.yml gate) allows warning-class advisories by default;
-# mirror that here so `cargo deny check advisories` gates the same surface
-# (vulnerabilities) without ID-level ignores for unmaintained/unsound/yanked.
-vulnerability = "deny"
-unmaintained = "warn"
-unsound = "warn"
-yanked = "warn"
+# cargo-deny 0.20 schema: unmaintained/unsound take SCOPE values (no warn
+# downgrade exists). "workspace" = error only when the affected crate is a
+# direct dependency — RUSTSEC-2024-0436 (paste, via genai) and
+# RUSTSEC-2024-0449 (unsafe-libyaml, via serde_yaml) are transitive-only, so
+# they surface as warnings without ID-level ignores, matching cargo audit's
+# warning-allowed default (the quality.yml gate surface).
+unmaintained = "workspace"
+unsound = "workspace"
 # If this is true, then cargo deny will use the git executable to fetch advisory database.
 # If this is false, then it uses a built-in git library.
 # Setting this to true can be helpful if you have special authentication requirements that cargo-deny does not support.

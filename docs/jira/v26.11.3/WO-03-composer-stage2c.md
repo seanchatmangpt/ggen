@@ -1,6 +1,8 @@
 # WO-03: Unify the Two Admission Gates (composer ↔ kernel depgraph, Stage 2c)
 
-- **Standing**: UNVERIFIED (spec; nothing manufactured)
+- **Standing**: ALIVE (2026-11-04 reconciliation: cited receipt g4-composer.md §Standing reads
+  "ALIVE — commands and exits above are from this session, on the canonical checkout";
+  RECEIPTS.md WO-03 rows read ALIVE with gate re-runs 6/0 and 5/0)
 - **Milestone**: v26.11.3
 - **Owner**: coordinator-dispatched lane
 - **Ground truth (re-verified on disk 2026-11-03)**:

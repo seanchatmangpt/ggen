@@ -11,3 +11,4 @@ Closed-world (`deny_unknown_fields`): **true**. Loader: `star_toml::load_file`.
 |-----|-----------|----------|-----|
 | `fail_closed` | `bool` | true | Refuse standing (q_config = 0) when any validator is unreachable. |
 | `witness_dir` | `std::path::PathBuf` | true | Directory where BLAKE3 ConfigWitness envelopes are persisted. |
+

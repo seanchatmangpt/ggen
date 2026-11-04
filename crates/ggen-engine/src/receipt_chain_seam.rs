@@ -32,8 +32,6 @@
 //! match praxis-core's `CoreError` exactly; documented drift absorbed at
 //! the seam).
 
-#![allow(dead_code)] // seam is ahead of call-site migration (documented follow-up)
-
 pub use graphlaw::receipt_chain::{Andon, CoreError};
 pub use graphlaw::receipt_chain::{
     ChainRule, ChainRuleMonotonicity, ChainStanding, ChainVerification, ReceiptRecord,

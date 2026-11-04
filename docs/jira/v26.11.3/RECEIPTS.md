@@ -73,7 +73,14 @@ receipt, 104 with it — the 7 receipts landed after XD-17's transcribe are
 rowed in the zd-23 section below (zd-21-shacl-syntax.md landed mid-pass,
 then zd-15-template-fmt.md and zd-24-claude-markers.md landed during the
 final coverage re-run — 107 total at final re-census — each absorbed with
-its own row). This file's
+its own row). Re-census at the zd-58 refresh (2026-11-04): 119 receipt .md
+files on disk before zd-58's own receipt, 120 with it — the 12 receipts
+landed after zd-23's census are rowed in the zd-58 section below. Re-census
+at the zb-24 final pass (2026-11-04): 130 receipt .md files on disk before
+zb-24's own receipt, 131 with it — the 10 stems the mention-level coverage
+gate found uncovered (zd-44, zd-48, zd-59, zd-66, zd-67, zd-68, zd-69,
+zd-71, zd-86, zd-87) are rowed in the zb-24 section below; gate now exits
+UNCOVERED []. This file's
 per-lane tables above (15 rows) do not aim at 1 row per
 receipt — the full per-receipt register is README.md's tables; this section
 adds the post-close rows so no landed receipt is indexed only in an addendum.
@@ -130,3 +137,57 @@ before this lane's receipt, 104 with zd-23-index-refresh2.md).
 | ZD-21 | receipts/zd-21-shacl-syntax.md | ALIVE (landed mid-pass during the zd-23 verification run, absorbed at re-census; closes the industry-TTL failure ZD-14 disclosed out of scope) | template fix in ggen-marketplace (generated file regenerated, not hand-patched); `ggen sync run` in examples/industry/manufacturing-dflss exit 0; rdflib parse OK 21 triples; failing book test green ×2 (5.03s/4.84s); file suite 4 passed, 1 skipped (pre-existing skip) |
 | ZD-15 | receipts/zd-15-template-fmt.md | ALIVE (landed during the zd-23 final coverage re-run, absorbed; closes ZD-14's disclosed fmt-gate flap — sync+fmt now a fixed point) | `ggen sync run` ×2 exit 0 (refusals.rs written run 1); `rustfmt --check refusals.rs` exit 0 ×2; `cargo fmt --all -- --check` exit 0; sha256 byte-identical across runs 1→2 (793fddd9…7913227); `cargo test -p ggen-abb-sbb` exit 0 (16+3 crosswalk+3 doc-tests green) |
 | ZD-24 | receipts/zd-24-claude-markers.md | RESOLVED (uncommitted); ALIVE for the owned surface; the repo-facts.ttl gap (ggen-scip/ggen-sjira missing rf:Crate individuals, commit 301849a9c) is a pre-existing HEAD defect, BLOCKED for this lane, filed for the coordinator | `grep -c` markers → 0 matches (exit 1 ×2); `wc -l CLAUDE.md` = 70; `cargo test -p ggen-config --test system_crate_map_parity_test` 1 passed / 1 FAILED — failure pre-existing (repo-facts.ttl ↔ Cargo.toml, not CLAUDE.md, both files match HEAD), disclosed not session-introduced |
+
+## Post-close receipts (zd-58 index refresh, 2026-11-04)
+
+Twelve receipts landed after zd-23's 107-census with no row in this file
+or README.md; they are rowed here and into README.md's post-close section.
+Standing words re-read from each receipt body on disk, never from memory;
+UNSTATED where the body carries none. Brief candidates zd-29 / zd-32 /
+zd-35 / zd-36 / zd-41 / zd-42 / zd-43 / zd-44 / zd-48 / zd-49 / zd-52..57
+were NOT on disk at this lane's run (`ls docs/jira/v26.11.3/receipts/
+| wc -l` = 119 before this lane's receipt, 120 with zd-58-index-refresh3.md).
+zd-32's seal-reverify doc lives in `closure/`, not `receipts/` — closure
+docs are outside this index's receipts/ convention, disclosed, not rowed.
+
+| Lane | Receipt | Standing | Exit record |
+|---|---|---|---|
+| ZD-16 | receipts/zd-16-eof-sweep.md | ALIVE on the verified surface (280 tracked .md files EOF-normalized; uncommitted) | sweep re-run after fix: 0 candidates; `git diff --check -- '*.md'` clean for all fixed files (sole residual CLAUDE.md:70 complaint is another lane's in-flight edit); whitespace-only audit — content byte-identical |
+| ZD-17 | receipts/zd-17-ambient-ggen.md | ALIVE (exact subject `~/.local/bin/ggen` observed at 26.11.3; backup + rollback path disclosed) | `ggen --version` → 26.11.3 exit 0; `ggen sync run --help` exit 0; `ggen receipt verify` exit 0 valid/signed; self-host `ggen sync run` exit 0 (previously FM-CHAIN-003-refusing) |
+| ZD-27 | receipts/zd-27-repo-facts.md | UNSTATED in body (Standing/residual-drift section carries only disclosed ttl-intro drift, not fixed) | `system_crate_map_parity_test` ×2 exit 0 (2 passed; 0 failed); `governance_precommit_gate_count_test` exit 0 (4/0); `grep -c '^  "crates/' Cargo.toml` = 15 |
+| ZD-31 | receipts/zd-31-runbook-refresh.md | ALIVE for the verification ladder; PARTIAL for publish readiness itself (PR #824 unmerged, tags unminted, dirty trees outstanding) | live ladder all run this session: `git rev-parse HEAD` 72b743d23; PR #824 rollup via `gh pr view` (13 failing, 3 in-progress); cgap/marketplace/lsp-max/arcus state re-verified per runbook §5 |
+| ZD-38 | receipts/zd-38-advisory-ignores.md | UNSTATED in body (before/after gates table carries the evidence; registered divergence carried for RUSTSEC-2026-0194/0195 per xc-8, close condition on quick-xml upstream) | `cargo audit` exit 1 → exit 0 after; `cargo deny check advisories` exit 1 (5 errors) → exit 0 `advisories ok`; `cargo check --workspace` exit 0 post tokio bump (1.53.1→1.54.1, disclosed out-of-owner-file fix) |
+| ZD-39 | receipts/zd-39-polyglot-sccache.md | FIXED (uncommitted, per body Status); full CI job NOT run — first push-triggered run is the real gate, CI-path fix UNVERIFIED by design (supersedes ZD-5's fix for cyberpunk-tv-platform.yml) | YAML `safe_load` OK; `bash -n` on 9 embedded `run:` blocks exit 0; job env `{RUSTC_WRAPPER: '', SCCACHE_DISABLE: '1'}` confirmed on disk |
+| ZD-40 | receipts/zd-40-lsp-contract-graph.md | ALIVE for `self-host/lsp-contract` (FM-LAW-015 satisfied with a kernel-admitted SBB, no --skip-ea-admission); full ggen-lsp compile/test chain out of scope | pre-fix repro exit 1 FM-LAW-015; `validate_ea_graph` exit 0 ADMITTED (pre-pinning run refused typed SBB_DIGEST_MISMATCH — non-vacuity); `ggen sync run` exit 0, 5 stages, files_generated=3 |
+| ZD-45 | receipts/zd-45-receipt-seam.md | ALIVE | `cargo check --workspace` exit 0, dead_code warnings 0; `cargo test -p ggen-engine --lib receipt` 6 passed / 0 failed; seam pin court `receipt_chain_seam_test` 4 passed / 0 failed |
+| ZD-46 | receipts/zd-46-zero-verb-audit.md | ALIVE for the noun-surface claim (23 dead verbs rewired, phantom noun `mod` removed; attribute-only diff) | `cargo build -p ggen-cli-lib` exit 0; `ggen sbb/maximalism/vision2030 --help` list 6/7/10 verbs; `ggen mod --help` exit 2 unrecognized; `cargo test -p ggen-cli-lib` 61× `test result: ok` (one pre-existing flake re-run green) |
+| ZD-47 | receipts/zd-47-relay-probe.md | ADMITTED (per body — all branches executed this session) | `diagnostic_relay_probe` ×3 exit 0 (2 passed; 0 failed; relay round trip 14 ms); shim court: binary moved away → loud typed SKIP, restore sha256-verified; env-override branch witnessed 2/0 |
+| ZD-50 | receipts/zd-50-wo-drift.md | ALIVE for the landed surface (WO standing-word sweep exits clean ×1; WO-08 stays PARTIAL-ALIVE, not rounded up) | sweep ×1 exit 0 over six WOs — standing word in each WO == cited receipt body / close record word; `grep -c UNVERIFIED` over the six WO Standing lines → 0 matches |
+| ZD-51 | receipts/zd-51-r80.md | ALIVE (R80-12 CLOSED — wiring + production caller already landed; R80-11 promoted UNKNOWN → PARTIAL_ALIVE, not rounded up; R80-6 scope-check only, L-effort recorded for CARRY-03) | `diagnostics_rules_test` 15 passed / 0 failed exit 0; `edits_bridge_test` 11 passed / 0 failed; `--lib edits_bridge` 4/0; `cargo check --workspace` exit 0 (1m34s) |
+
+## Post-close receipts (zb-24 final coverage pass, 2026-11-04)
+
+Ten receipt stems on disk carried no row in this file or README.md at the
+terminal coverage gate (mention-level, stems vs both index files): two
+landed in the zd-58 window without rows (zd-44, zd-48) and eight landed
+after zd-58's 120-census (zd-59, zd-66, zd-67, zd-68, zd-69, zd-71, zd-86,
+zd-87). They are rowed here and into README.md's post-close section.
+Standing words re-read from each receipt body on disk, never from memory;
+UNSTATED where the body carries none. Census at this lane's run:
+`ls docs/jira/v26.11.3/receipts/ | wc -l` = 130 before this lane's own
+receipt, 131 with zb-24-final-index.md on disk. Coverage gate after these
+rows: UNCOVERED [] (exit 0). zd-60 / zd-70 / zd-76 / zd-77 / zd-79 / zd-85 /
+zd-88 / zd-90 / zd-91 / zd-96 are NOT on disk — nothing to row.
+
+| Lane | Receipt | Standing | Exit record |
+|---|---|---|---|
+| ZD-44 | receipts/zd-44-skip-flag.md | CARRY-04 CLOSED — resolved state (a): flag already wired CLI→gate; gap closed = bypass-marked receipt law landed with fail-closed court | `sync_run_skip` court 2 passed; 0 failed; `cargo test -p ggen-engine --lib` 236/0 (2 ignored); full `--test cli_boundary` 33/0; scratch consumer: no flag → FM-LAW-015 exit 1, `--skip-ea-admission` → exit 0 with receipt bypass mark; 3 failing tests in the full run classified pre-existing, none session-introduced |
+| ZD-48 | receipts/zd-48-fm-codes.md | UNSTATED in body (courts table carries the evidence; census stale-premise corrected: 52 `none` codes at start, not 37; 45 of 119 at end) | 8 FM courts ×2 → 8 passed / 0 failed across 5 files (run 2 on a lane-local target root after a concurrent lane swept the shared `target/debug`, disclosed); parity court red pre-existing on HEAD → 3 passed / 0 failed after the FM-KEY-013 registry row; 45 remaining `none` codes typed 12 U / 21 P / 12 T |
+| ZD-59 | receipts/zd-59-carry05.md | CARRY-05 RESOLVED-DISCLOSED; test surface ALIVE under ambient ggen 26.11.3 | `sync_surface_test` ×2 → 6 passed; 0 failed, exit 0 (14.84s/14.33s); closing fixture commit e9829bead verified; descope-ledger rows closed only after reading their landing receipts (zd-45/zd-46/zd-47); rows without landed closing receipts deliberately left open |
+| ZD-66 | receipts/zd-66-doc-clippy.md | ALIVE for the depgraph.rs:345 fix + two whitespace fixes; crate-level clippy gate PARTIAL (blocked solely on :38, out of lane) | `git diff --check` on both fixed files clean exit 0; clippy `--all-targets -D warnings` (the abb-sbb-manufacture.yml:40 invocation): :345 lint gone; `cargo check --locked -p ggen-abb-sbb` exit 0 |
+| ZD-67 | receipts/zd-67-ea-batch2.md | ALIVE (all commands run this session, exits cited inline) | `validate_ea_graph` over all four graphs → 4 ADMITTED lines, zero REFUSED; per-root sync exits tai 0, cyberpunk 0 ×2 idempotent, inventoryctl 0, lsp-contract 0; pre-pinning admission refused SBB_DIGEST_MISMATCH (non-vacuity); FM-PACK-008 re-lock executed; CI fix identified as commit-surface (untracked ea.graph.json), no workflow edit |
+| ZD-68 | receipts/zd-68-premise-rot.md | UNSTATED in body (verification ladder carries the evidence; premise-rot law applied per the testing-discipline SDK-parity register) | repair-constructor embedded python ×2 exit 0 idempotent green; self-host seed `sync run` ×2 exit 0 (10m11s run 1) + receipt verify; tpot2 rotted pin observed failing before the applied-markers fix (drift-refusal path reachable — non-vacuity); book consumer test re-derived per-consumer (graph present → real admission; absent → per-consumer opt-out, never a global bypass) |
+| ZD-69 | receipts/zd-69-enospc-lean.md | FIXED (uncommitted, working tree, per body Status); real gate is the next PR-#824 push rerun — UNVERIFIED by design | YAML `safe_load` OK ×4; disk-hygiene blocks added to examples-core-team-constructor.yml + gall-001-replay.yml and ci.yml's integration_deep reclaim upgraded (with `df -h /` before/after); lean-action step `build: true` → `build: false` (manifest generated in-job via the existing `lake update` step); committing lake-manifest.json preferred but none exists in-tree, disclosed |
+| ZD-71 | receipts/zd-71-runbook-refresh2.md | PARTIAL — documentation refresh; every value from a live command this session; no gates executed, no git transitions | live ladder: `git fetch` + rev-parse/merge-base per repo (6 SHAs cat-file verified `commit`); `gh pr view 824` live (14 failing / 0 pending, fail-set composition shifted); cgap dirty 23→2; marketplace dirty 1→28; baseline.json 347 packs (ALIVE 326 / WARN 13 / REFUSED 7 / SKIPPED 1); dry-run ladder 7/20 exit 0 |
+| ZD-86 | receipts/zd-86-tai-evidence.md | Workflow-level ALIVE (ZB-19's two suspected defects do not exist — both misattributions from echoed script text); whitespace unblocks fixed, working tree verified exit 0; ea.graph.json staged + kernel-validated; full TAI job green on runners UNVERIFIED (needs next push) | `gh run view` on both runs → real fail steps named ("Manufacture TAI-REBUILD-001 twice" FM-LAW-015 on the untracked ea.graph.json; docs_deep `git diff --check` exit 2 on 2 whitespace defects); `git diff --check` working tree exit 0 after; `validate_ea_graph` exit 0 ADMITTED; yaml.safe_load ×3 workflows OK; SLA minimal-unblock disclosures: CLAUDE.md EOF + zd-16:22 trailing space (other lanes' files) |
+| ZD-87 | receipts/zd-87-fmkey-ttl.md | UNSTATED in body (three-way cross-check + court evidence carry it; closes the pre-existing `fm_diagnostic_codes_ttl_matches_real_source` failure ZD-44 classified) | `fm_diagnostic_codes_ttl_matches_real_source` ×2 → 1 passed; 0 failed; full product_mirror_conformance 3 passed / 0 failed; `prod:fm_KEY_13` declared grounded in the file's existing DiagnosticCode individuals |

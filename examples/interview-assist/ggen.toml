@@ -5,7 +5,7 @@ name = "interview-assist"
 source = "schema/domain.ttl"
 
 [packs]
-wasm4pm-interview-assist-pack = { path = "/Users/sac/ggen/packs/wasm4pm-interview-assist-pack" }
+wasm4pm-interview-assist-pack = { path = "../../packs/wasm4pm-interview-assist-pack" }
 
 [templates]
 dir = "templates"

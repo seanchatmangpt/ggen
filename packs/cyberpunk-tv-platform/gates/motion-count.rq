@@ -1,0 +1,10 @@
+# Count arm of tv:MotionShape (minCount 2 proposals). true = violation.
+PREFIX tv: <https://ggen.dev/ontology/cyberpunk-tv#>
+ASK {
+  {
+    SELECT (COUNT(DISTINCT ?p) AS ?n) WHERE {
+      ?subject a tv:Motion . ?subject tv:hasProposal ?p . ?p a tv:EscrowProposal .
+    } GROUP BY ?subject
+  }
+  FILTER(?n < 2)
+}

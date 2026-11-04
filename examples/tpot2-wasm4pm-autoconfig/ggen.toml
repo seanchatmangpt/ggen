@@ -237,7 +237,7 @@ mode = "Overwrite"
 
 # -----------------------------------------------------------------------------
 # [validation] — ACTIVATE the sync-time gate + strict determinism mode.
-# HISTORY: this manifest originally declared `shacl = ["ontology/tpot-shapes.ttl"]`
+# HISTORY: this manifest originally declared `gates = ["gates/010_tpot_invariants.rq"]`
 # (SHACL enforcement via a NON-EMPTY `shacl` list, types.rs:399-414). The
 # installed 26.10.11 binary retires SHACL-at-sync-time with [FM-LAW-017] —
 # shape gates were replaced by engine-independent SPARQL gate queries. The

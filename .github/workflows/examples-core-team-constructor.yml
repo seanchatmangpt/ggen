@@ -225,6 +225,12 @@ jobs:
           git add .github/workflows/live-examples.yml examples packs/wasm4pm-interview-assist-pack/templates/010_package_json.tmpl
           git -c user.name='ggen core-team constructor' -c user.email='actions@users.noreply.github.com' commit -m 'construct: core-team source repairs'
 
+      - name: Reclaim runner disk space
+        run: |
+          df -h /
+          sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/lib/android || true
+          df -h /
+
       - name: Install pinned Rust toolchain
         uses: dtolnay/rust-toolchain@b3b07ba8b418998c39fb20f53e8b695cdcc8de1b
         with:

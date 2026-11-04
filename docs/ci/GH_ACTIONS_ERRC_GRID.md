@@ -118,3 +118,4 @@ action file on subsequent runs (no `[[generation.rules]]` targets that path). Ev
 count above was captured 2026-08-05 against `feat/hygen-parity-e2e`; re-run the
 commands in `docs/ci/CI_CACHING_REFACTOR_REPORT_2026-08-05.md` before trusting a
 number here on a later date.
+

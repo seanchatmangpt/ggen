@@ -1,0 +1,10 @@
+# Count arm of tv:PlatformShape (minCount 3 projections). true = violation.
+PREFIX tv: <https://ggen.dev/ontology/cyberpunk-tv#>
+ASK {
+  {
+    SELECT (COUNT(?p) AS ?n) WHERE {
+      ?subject a tv:Platform . ?subject tv:hasProjection ?p . ?p a tv:Projection .
+    } GROUP BY ?subject
+  }
+  FILTER(?n < 3)
+}

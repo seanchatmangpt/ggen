@@ -16,6 +16,9 @@
 //! public API. No mocks. Assert on final state (bytes on disk, kernel
 //! verdicts).
 
+// Chicago TDD (.claude/rules/rust/testing.md): unwrap/expect/panic allowed in test code.
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::Command;
@@ -74,7 +77,7 @@ fn run_sync(skip_admission: bool) {
 
 #[test]
 fn projection_is_byte_identical_to_kernel_fixture() {
-    let _guard = SYNC_LOCK.lock().unwrap();
+    let _guard = SYNC_LOCK.lock().expect("test fixture: constructed value cannot fail");
     fs::remove_file(example_dir().join("ea.graph.json")).ok();
     run_sync(true);
     run_sync(false);
@@ -89,7 +92,7 @@ fn projection_is_byte_identical_to_kernel_fixture() {
 
 #[test]
 fn projection_passes_kernel_parse_and_validate() {
-    let _guard = SYNC_LOCK.lock().unwrap();
+    let _guard = SYNC_LOCK.lock().expect("test fixture: constructed value cannot fail");
     if !example_dir().join("ea.graph.json").exists() {
         run_sync(true);
         run_sync(false);
@@ -105,7 +108,7 @@ fn projection_passes_kernel_parse_and_validate() {
 
 #[test]
 fn projection_is_deterministic_across_syncs() {
-    let _guard = SYNC_LOCK.lock().unwrap();
+    let _guard = SYNC_LOCK.lock().expect("test fixture: constructed value cannot fail");
     if !example_dir().join("ea.graph.json").exists() {
         run_sync(true);
     }

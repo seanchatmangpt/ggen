@@ -3,8 +3,11 @@
 - **Date**: 2026-11-03
 - **Repo**: /Users/sac/ggen
 - **Lane**: WRITER (spec) → IMPLEMENT lane delivers `docs/abb-sbb-consumer-guide.md`
-- **Standing**: UNVERIFIED (spec written from the task's ground-truth reads; no
-  acceptance command has been run at spec time)
+- **Standing**: ALIVE (2026-11-04 reconciliation: cited receipt x4-consumer-guide.md reads
+  "ALIVE — every command below run this session with its real exit"; the arcus-side close
+  record waves-wo08-wo09.md §"WO-09 standing" reads ALIVE — 9 `##` sections, zero TARGET
+  markers, all three executable commands exit 0; RECEIPTS.md open-WO row reads "receipts' own
+  rows read ALIVE")
 
 ## Subject
 

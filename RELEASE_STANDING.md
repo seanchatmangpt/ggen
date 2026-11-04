@@ -41,3 +41,4 @@ release-readiness state.
   `release.yml` matrix build establish that the *candidate compiles, passes its own gates, and
   produces installable binaries* -- they do not, by themselves, establish the L5 self-manufacture
   claim.
+

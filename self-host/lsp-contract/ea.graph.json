@@ -1,0 +1,78 @@
+{
+  "schema": "ggen.ea.graph.v1",
+  "strategy": {
+    "id": "strategy:ggen-lsp-contract",
+    "title": "ggen manufactures the cross-repository LSP contract (JSON + Rust + Markdown projections of ontology.ttl) consumed by ggen and ggen-legacy"
+  },
+  "capabilities": [
+    {
+      "id": "cap:lsp-contract-manufacture",
+      "strategy": "strategy:ggen-lsp-contract"
+    }
+  ],
+  "abbs": [
+    {
+      "id": "abb:lsp-contract-manufacture",
+      "capability": "cap:lsp-contract-manufacture",
+      "contract": "contract:lsp-contract-manufacture"
+    }
+  ],
+  "contracts": [
+    {
+      "id": "contract:lsp-contract-manufacture",
+      "abb": "abb:lsp-contract-manufacture",
+      "version": "1.0.0",
+      "max_artifacts": 3,
+      "authority_ceiling": "CONSTRUCT",
+      "required_ports": [
+        "lsp-contract-json",
+        "lsp-contract-rust",
+        "lsp-contract-doc"
+      ]
+    }
+  ],
+  "candidate_sbbs": [
+    {
+      "id": "sbb:lsp-contract-manufacture",
+      "abb": "abb:lsp-contract-manufacture",
+      "pack": "pack:ggen-lsp-contract-manufacture",
+      "digest": "sha256:0a10d4a40af64ff377581fd350409de38ec7424a4ce1051c5b0e61b7da5595d8",
+      "mutable": false,
+      "authority": "CONSTRUCT",
+      "provides_ports": [
+        "lsp-contract-json",
+        "lsp-contract-rust",
+        "lsp-contract-doc"
+      ],
+      "artifacts": [
+        {
+          "path": "generated/lsp-contract.json",
+          "template": "# {{abb}} realized by {{sbb}} for {{capability}}\ncontract {{contract}}@{{contract_version}}\n"
+        },
+        {
+          "path": "generated/generated_contract.rs",
+          "template": "// {{abb}} realized by {{sbb}} for {{capability}}\n// contract {{contract}}@{{contract_version}}\n"
+        },
+        {
+          "path": "generated/LSP_CONTRACT.md",
+          "template": "<!-- {{abb}} realized by {{sbb}} for {{capability}} -->\n"
+        }
+      ]
+    }
+  ],
+  "qualifications": [
+    {
+      "id": "qual:lsp-contract-manufacture",
+      "sbb": "sbb:lsp-contract-manufacture",
+      "sbb_digest": "sha256:0a10d4a40af64ff377581fd350409de38ec7424a4ce1051c5b0e61b7da5595d8",
+      "contract": "contract:lsp-contract-manufacture",
+      "contract_digest": "sha256:f51c69dfbec29119946b25343404dbe2f67ca387fb4083405a3ac5478967d774",
+      "verdict": "QUALIFIED"
+    }
+  ],
+  "packs": [
+    {
+      "id": "pack:ggen-lsp-contract-manufacture"
+    }
+  ]
+}

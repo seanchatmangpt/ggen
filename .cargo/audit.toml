@@ -1,0 +1,16 @@
+# cargo-audit config (cargo-audit 0.22.2 reads ~/.cargo/audit.toml or
+# ./.cargo/audit.toml; schema = bare advisory ID strings only — table form
+# {id, reason} is a parse error on this version).
+#
+# Registered divergence (NOT silent ignores): quick-xml 0.37.5 is
+# upstream-blocked — process_mining 0.6.2 requires quick-xml ^0.37.4, so the
+# workspace cannot bump to quick-xml >= 0.41 until a process_mining release.
+# The 0.37.5 copy enters only via the oxigraph family (oxrdfxml, sparesults,
+# process_mining); no workspace code imports quick_xml directly.
+# Evidence + close condition: docs/jira/v26.11.3/receipts/xc-8-cve-bump.md
+# (mirror of the reason-stringed ignores in deny.toml [advisories]).
+[advisories]
+ignore = [
+    "RUSTSEC-2026-0194",
+    "RUSTSEC-2026-0195",
+]

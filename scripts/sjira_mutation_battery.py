@@ -28,11 +28,13 @@ MUTATIONS = [
      "if to == EXECUTION_CEILING {",
      "promotion_ceiling_is_typed", ["--test", "execute_test"]),
 
-    ("EXEC-C02", "exhaustion: a no-progress pass refuses typed 'exhausted' instead of spinning",
+    ("EXEC-C02", "exhaustion at the bound: a budget smaller than the chain depth refuses typed "
+     "'exhausted' with the partial progress honestly recorded on disk (ZD-60; the old "
+     "'if !progressed' guard was reclassified UNREACHABLE — see receipt)",
      "execute.rs",
-     "if !progressed {",
-     "if false && !progressed {",
-     "max_iterations_refuses_typed_exhaustion", ["--test", "execute_test"]),
+     "for iteration in 1..=opts.max_iterations {",
+     "for iteration in 1..=1 {",
+     "exhaustion_refuses_at_bound_with_partial_progress_recorded", ["--test", "execute_test"]),
 
     ("EXEC-C02c", "nearest-flip probe for C02: mutate the typed exhaustion reason itself",
      "execute.rs",
@@ -40,17 +42,12 @@ MUTATIONS = [
      '"exhaustedx",\n        "mu_on_O",',
      "max_iterations_refuses_typed_exhaustion", ["--test", "execute_test"]),
 
-    ("EXEC-C02b", "nearest-flip probe for C02: the pinned test DOES pin the iteration budget",
-     "execute.rs",
-     "for iteration in 1..=opts.max_iterations {",
-     "for iteration in 1..=1 {",
-     "max_iterations_refuses_typed_exhaustion", ["--test", "execute_test"]),
-
-    ("EXEC-C03", "idempotent replay: an event already recorded is not a second execution",
+    ("EXEC-C03", "idempotent replay: an event already recorded is not a second execution "
+     "(pinned at the guard site: a duplicated candidate in one pass counts once)",
      "execute.rs",
      "if appended.status == AppendStatus::Appended {",
      "if true {",
-     "rerun_is_idempotent_already_recorded", ["--test", "execute_test"]),
+     "replay_guard_counts_a_replayed_candidate_once", ["--test", "execute_test"]),
 
     ("LEAS-C04", "multi-party law: >=2 signatures from >=2 DISTINCT signers",
      "lease.rs",
@@ -76,11 +73,12 @@ MUTATIONS = [
      "if false && !signature_record_ok(rec, &msg, public_keys) {",
      "tampered_signature_refuses_invalid", ["--test", "lease_epoch_test"]),
 
-    ("LEAS-C08", "signature binds every lease field: granted_at is inside the canonical bytes",
+    ("LEAS-C08", "signature binds every lease field: tampering the granted_at VALUE after "
+     "signing refuses SignatureInvalid (ZD-60)",
      "lease.rs",
      '        (\n            "granted_at".to_string(),\n            serde_json::to_string(&lease.granted_at).expect("str serializes"),\n        ),\n',
      "",
-     "unsigned_field_change_breaks_verification", ["--test", "lease_epoch_test"]),
+     "granted_at_field_change_breaks_verification", ["--test", "lease_epoch_test"]),
 
     ("LEAS-C08b", "nearest-flip probe for C08: same granted_at-out-of-canonical-bytes shim against the canonical-JSON pin",
      "lease.rs",
@@ -138,8 +136,8 @@ MUTATIONS = [
 
     ("PROM-C17", "courts-satisfied: every required court needs a passing witness",
      "promote.rs",
-     "if !passed {\n            return Err(PromoteRefusal::UnwitnessedCourt { court: court.clone() });",
-     "if false {\n            return Err(PromoteRefusal::UnwitnessedCourt { court: court.clone() });",
+     "if !passed {\n            return Err(PromoteRefusal::UnwitnessedCourt {\n                court: court.clone(),\n            });\n        }\n    }",
+     "if false {\n            return Err(PromoteRefusal::UnwitnessedCourt {\n                court: court.clone(),\n            });\n        }\n    }",
      "unwitnessed_court_refuses", ["--lib"]),
 
     ("DESC-C18", "blocked-order refusal: a blocked order refuses NotOnFrontier with its reason",

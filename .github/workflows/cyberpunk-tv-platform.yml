@@ -27,6 +27,18 @@ jobs:
     name: Manufacture, polyglot Chicago TDD, receipt, replay
     runs-on: ubuntu-latest
     timeout-minutes: 90
+    # ZB-3/ZD-39: .cargo/config.toml sets [build] rustc-wrapper = "sccache"
+    # unconditionally. ZD-5 installed sccache for this job, but the build step
+    # still died on the wrapper binary. Match the majority repo pattern (11+
+    # sibling workflows, e.g. ggen-lsp-runtime-crown.yml): empty RUSTC_WRAPPER
+    # overrides build.rustc-wrapper at the cargo config layer (env wins), so
+    # cargo never execs a wrapper, and SCCACHE_DISABLE=1 is the belt against
+    # any direct sccache invocation. Ephemeral ubuntu-latest runners get no
+    # cross-run sccache benefit here anyway (no sccache-action GHA cache
+    # backend is configured repo-wide), so nothing of value is given up.
+    env:
+      RUSTC_WRAPPER: ""
+      SCCACHE_DISABLE: "1"
     steps:
       - name: Checkout exact head
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
@@ -50,18 +62,6 @@ jobs:
           const admitted = (major === 20 && minor >= 19) || (major === 22 && minor >= 12) || major > 22;
           if (!admitted) throw new Error(`NODE_VERSION_REFUSED:${process.versions.node}`);
           NODE
-      - name: Install sccache
-        # .cargo/config.toml sets `[build] rustc-wrapper = "sccache"`
-        # unconditionally, so every cargo invocation (including the
-        # `cargo build` below) fails with `could not execute process
-        # 'sccache ... rustc -vV' (never executed) ... No such file or
-        # directory` unless sccache is on PATH. Same fix class as
-        # .github/actions/setup-ggen-build STEP 2a (PR #255): install the
-        # prebuilt binary via taiki-e/install-action, pinned to the same
-        # SHA the composite action uses repo-wide.
-        uses: taiki-e/install-action@81ecf985428d5c2ea81dbf079bceca32bc9604ab # v2.62.43
-        with:
-          tool: sccache
       - name: Install pinned wasm-pack
         shell: bash
         run: |

@@ -1,20 +1,30 @@
-# MESSAGE: output-count regression between the two most recent syncs -- the latest recorded sync emitted fewer files than its predecessor, which is the signature of a silently-dropped template or pack (the bug class caught by hand twice this session). If the shrink is intentional, record a ver:AcceptedShrink individual carrying the latest sync's ggenr:chainHash and the reason -- visible and queryable, never a shrug. Requires [law] reflexive = true.
+# MESSAGE: output-count regression between the two most recent COMPLETE syncs -- the latest complete sync emitted fewer files than its complete predecessor, which is the signature of a silently-dropped template or pack (the bug class caught by hand twice this session). Partial runs (write stage stopped early) are recorded with a non-Green andon and are excluded: a partial run binds only the files that landed before the refusal, so its smaller outputCount is not a shrink (witnessed: ZD-41 -- a partial receipt labeled Green manufactured a false 43-vs-134 refusal). If the shrink is intentional, record a ver:AcceptedShrink individual carrying the latest sync's ggenr:chainHash and the reason -- visible and queryable, never a shrug. Requires [law] reflexive = true.
 PREFIX ver:   <http://seanchatmangpt.github.io/packs/ggen-verify#>
 PREFIX ggenr: <http://seanchatmangpt.github.io/ggen/receipt#>
 SELECT ?latest ?prevCount ?latestCount WHERE {
   ?latest a ggenr:Sync ;
           ggenr:index ?i ;
           ggenr:chainHash ?latestChain ;
-          ggenr:outputCount ?latestCount .
+          ggenr:outputCount ?latestCount ;
+          ggenr:andon ?latestAndon .
+  FILTER(STRSTARTS(?latestAndon, "Green"))
   FILTER NOT EXISTS {
     ?newer a ggenr:Sync ;
-           ggenr:index ?k .
-    FILTER(?k > ?i)
+           ggenr:index ?k ;
+           ggenr:andon ?newerAndon .
+    FILTER(?k > ?i && STRSTARTS(?newerAndon, "Green"))
   }
   ?prev a ggenr:Sync ;
         ggenr:index ?h ;
-        ggenr:outputCount ?prevCount .
-  FILTER(?h = ?i - 1)
+        ggenr:outputCount ?prevCount ;
+        ggenr:andon ?prevAndon .
+  FILTER(?h < ?i && STRSTARTS(?prevAndon, "Green"))
+  FILTER NOT EXISTS {
+    ?mid a ggenr:Sync ;
+         ggenr:index ?m ;
+         ggenr:andon ?midAndon .
+    FILTER(?m > ?h && ?m < ?i && STRSTARTS(?midAndon, "Green"))
+  }
   FILTER(?latestCount < ?prevCount)
   FILTER NOT EXISTS {
     ?ok a ver:AcceptedShrink ;

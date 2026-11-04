@@ -853,7 +853,14 @@ pub(crate) fn run(root: &Path, manifest: &GgenManifest, opts: SyncOptions) -> Re
     };
 
     if !opts.dry_run {
-        write_receipt(root, &report, graph.as_ref(), opts.receipt_origin)?;
+        write_receipt(
+            root,
+            &report,
+            graph.as_ref(),
+            opts.receipt_origin,
+            false,
+            opts.skip_ea_admission,
+        )?;
     }
     Ok(report)
 }

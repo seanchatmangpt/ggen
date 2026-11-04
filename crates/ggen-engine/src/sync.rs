@@ -332,6 +332,13 @@ pub struct ReceiptPayload {
     /// admits against any baseline).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub generation: Option<u64>,
+    /// Bypass-marked-receipt law (ZD-44/CARRY-04, 2026-11-04): when this run
+    /// skipped EA admission via the explicit `--skip-ea-admission` opt-out
+    /// (FM-LAW-015), the receipt MUST carry the disclosure — a bypassed gate
+    /// that leaves no mark is a silent bypass. Additive; `None` (serialized
+    /// as nothing) on every admitted run, and only on admitted runs.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub ea_admission_skipped: Option<String>,
 }
 
 /// EA graph (ABB/SBB) admission — Stage 2c's EA half, extracted verbatim from
@@ -1865,8 +1872,14 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
         // binds the files that *did* land, closing the drift window instead
         // of leaving the previous (now-stale) receipt as the last word on
         // them.
-        if let Err(receipt_err) = write_receipt(root, &report, graph.as_ref(), opts.receipt_origin)
-        {
+        if let Err(receipt_err) = write_receipt(
+            root,
+            &report,
+            graph.as_ref(),
+            opts.receipt_origin,
+            emit_err.is_some(),
+            opts.skip_ea_admission,
+        ) {
             return Err(match emit_err {
                 // The write-stage failure is the operative incident; a
                 // receipt-write failure on top of it must be surfaced too
@@ -3978,7 +3991,8 @@ fn compare_producer_class(
 // boundaries rather than shrink real complexity.
 #[allow(clippy::too_many_lines)]
 pub(crate) fn write_receipt(
-    root: &Path, report: &SyncReport, graph: &dyn GraphEngine, receipt_origin: Option<&'static str>,
+    root: &Path, report: &SyncReport, graph: &dyn GraphEngine,
+    receipt_origin: Option<&'static str>, partial: bool, ea_admission_skipped: bool,
 ) -> Result<()> {
     use std::io::Write as _;
 
@@ -4022,6 +4036,8 @@ pub(crate) fn write_receipt(
         closure: report.closure.clone(),
         build_provenance: Some(crate::build_provenance::BUILD_PROVENANCE_HEX.to_string()),
         generation: Some(run_generation),
+        ea_admission_skipped: ea_admission_skipped
+            .then(|| "skipped: --skip-ea-admission (FM-LAW-015 gate not evaluated)".to_string()),
     };
     let payload_bytes = serde_json::to_vec(&payload)?;
     let payload_hash_hex = blake3::hash(&payload_bytes).to_hex().to_string();
@@ -4522,19 +4538,34 @@ pub(crate) fn write_receipt(
 
     // The legacy top-level `Andon` field is derived from the same v2
     // precedence, not hardcoded -- this is the hardcoded-`Green` literal
-    // this migration replaces.
-    let legacy_andon = match epoch.andon {
-        AndonLevel::Green => Andon::Green,
-        AndonLevel::Yellow => Andon::Overridden {
-            by: "ggen.sync.v2".to_string(),
-            reason: "quarantined admission item(s); see receipt v2.admission".to_string(),
-            at: 0,
-        },
-        AndonLevel::Red => Andon::Halted {
+    // this migration replaces. A partial run (write stage stopped early)
+    // must never present itself
+    // as a complete Green sync: its `outputs` map binds only the files that
+    // landed before the refusal, and the reflexive output-count-regression
+    // gate compares consecutive Green receipts. Recording a partial run as
+    // Green would (a) mislabel reality and (b) manufacture a false shrink
+    // signal for the next complete sync (witnessed: ZD-41, tcps-generated's
+    // 43-vs-134 refusal was exactly a partial receipt labeled Green).
+    let legacy_andon = if partial {
+        Andon::Halted {
             unmet: Vec::new(),
             refusals: Vec::new(),
             at: 0,
-        },
+        }
+    } else {
+        match epoch.andon {
+            AndonLevel::Green => Andon::Green,
+            AndonLevel::Yellow => Andon::Overridden {
+                by: "ggen.sync.v2".to_string(),
+                reason: "quarantined admission item(s); see receipt v2.admission".to_string(),
+                at: 0,
+            },
+            AndonLevel::Red => Andon::Halted {
+                unmet: Vec::new(),
+                refusals: Vec::new(),
+                at: 0,
+            },
+        }
     };
     let legacy_obligation_count = epoch.obligation_count.remaining().unwrap_or(0);
 

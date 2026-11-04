@@ -150,8 +150,9 @@ Falsifiable, command-cited. All from `/Users/sac/ggen`.
 
 ## Standing
 
-UNVERIFIED (scaffold, 2026-11-03). Nothing claimed as executed. Statuses move to PARTIAL/ALIVE
-only via receipts in RECEIPTS.md per the wave README.
+ALIVE for the landed surface (2026-11-04 reconciliation: cited receipt g5-refusal-fences.md
+§Standing reads "ALIVE for the landed surface (rule renders deterministically; court 3/3)";
+RECEIPTS.md WO-05 row reads ALIVE with `-p ggen-abb-sbb` 129+3dt, 0 failed, crosswalk 3/3).
 
 ## See Also
 

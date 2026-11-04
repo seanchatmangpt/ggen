@@ -36,6 +36,7 @@ pub struct PackManifest {
 }
 
 /// The consumer's own `ggen.toml` edges: a name plus the packs it wires.
+///
 /// `requires` is optional (serde default) so legacy `ggen.toml` files without
 /// `[graph] requires` parse unchanged; empty means the consumer demands no port.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -342,10 +343,11 @@ pub fn resolve_sync_order(
     })
 }
 
-/// The bounded transitive-closure fixpoint. Each pass grows finite sets until
-/// no set changes; `max_iterations` caps passes so a graph the rules cannot
-/// converge on refuses typed (`CLOSURE_BOUND_EXCEEDED`) instead of hanging.
-/// Exposed as a seam so the bound guard is court-testable with a tight bound —
+/// The bounded transitive-closure fixpoint.
+///
+/// Each pass grows finite sets until no set changes; `max_iterations` caps
+/// passes so a graph the rules cannot converge on refuses typed
+/// (`CLOSURE_BOUND_EXCEEDED`) instead of hanging. Exposed as a seam so the bound guard is court-testable with a tight bound —
 /// with the production bound (2*|packs|^2, floor 16) no fixed-edge graph can
 /// exceed it, since V nodes need at most V passes.
 pub fn closure_fixpoint(

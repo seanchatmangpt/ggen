@@ -144,6 +144,21 @@ fn unsigned_field_change_breaks_verification() {
 }
 
 #[test]
+fn granted_at_field_change_breaks_verification() {
+    // The granted_at VALUE is inside the canonical signed bytes: tampering
+    // the exact recorded timestamp after signing must refuse — the lease
+    // binds to the timestamp itself, not merely to granted_at's presence.
+    let mut lease = two_sig_lease();
+    assert_eq!(lease.granted_at, "2026-11-03T00:00:00Z");
+    lease.granted_at = "2030-01-01T00:00:00Z".into();
+    let pk = keys(&[1, 2]);
+    assert_eq!(
+        admit(&lease, "sha256:CURRENT", &pk),
+        Err(SovereignRefusal::SignatureInvalid)
+    );
+}
+
+#[test]
 fn unknown_signer_refuses_invalid() {
     let lease = two_sig_lease();
     let pk = keys(&[1]); // signer-2's key missing

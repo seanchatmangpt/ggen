@@ -11,7 +11,11 @@ under /Users/sac/ggen milestone v26.11.3 — receipts land in this file's milest
 
 ## Standing
 
-UNVERIFIED. All claims below become VERIFIED only via the acceptance commands in this WO.
+PARTIAL-ALIVE (2026-11-04 reconciliation: arcus-side close record
+/Users/sac/arcus/docs/jira/v26.11.3/closure/waves-wo08-wo09.md §"WO-08 standing" reads
+PARTIAL-ALIVE — graph qualified, 5 SBBs ADMITTED, all sync gates green, with the
+F2-dependent declarative-admission witness registered as follow-up; RECEIPTS.md open-WO row
+reads "landed on disk — PARTIAL-ALIVE per the close record").
 
 ## Lane
 
