@@ -4,16 +4,16 @@
 gsh:ggen a gsh:SelfHostProgram ;
     gsh:programId "GGEN-SELF-HOST" ;
     gsh:repository "seanchatmangpt/ggen" ;
-    gsh:revision "64ce21a06b6adc16a6cf25f080382177f0509a12" ;
-    gsh:observationDigest "2db171e79b9b1da353afe42274ee464e44b72d061647f9831a54671ac22a6137" ;
+    gsh:revision "244eed7f94612410855ec363acb6397b6513ea3f" ;
+    gsh:observationDigest "4d463df788815f80b36b2362cfcdaeb4ec3efa3ce56748d5125f55cdc792dc38" ;
     gsh:observerVersion "ggen-self-observer-v1" ;
-    gsh:fileCount 19171 ;
+    gsh:fileCount 19166 ;
     gsh:crateCount 138 ;
     gsh:workspaceMemberCount 16 ;
     gsh:packCount 102 ;
     gsh:workflowCount 84 ;
     gsh:templateCount 1021 ;
-    gsh:scriptCount 445 ;
+    gsh:scriptCount 446 ;
     gsh:rootMarkdownCount 24 ;
     gsh:generatedCount 463 ;
     gsh:findingCount 55 ;
@@ -1502,8 +1502,8 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:9c54847a45bc99dbfa581fdcd284d4c17de93905ab3604373d64db6f1dace14b> a gsh:RepositoryFile ;
     gsh:path ".github/workflows/examples-repair-constructor.yml" ;
-    gsh:digest "9249cb0d81b6a0ac96b371f55883414253c6a7c03f3b8cb827fa2810b7c0a769" ;
-    gsh:sizeBytes 13434 ;
+    gsh:digest "65c60a3145b0eb4499c5b200fbf43cf3babed6f007d8b1d6a05188686c9cda4d" ;
+    gsh:sizeBytes 14017 ;
     gsh:authorityClass gsh:Workflow ;
     gsh:loadBearing true ;
     gsh:generatedMarker false .
@@ -1598,8 +1598,8 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:a4c2410ce2d81fd2f9b1a248be746ca9e848ec0e261479a65a258f32fb0e916a> a gsh:RepositoryFile ;
     gsh:path ".github/workflows/ggen-first-lean4-rust.yml" ;
-    gsh:digest "de6c88736e0960bc3a42631dce9ca3d28aee2a631b098f332e3258a69c003640" ;
-    gsh:sizeBytes 1802 ;
+    gsh:digest "b9e0b56a3c0d4cd3aa690a658ba04a71b226211dd9eaae44cd0e645ce112c8d7" ;
+    gsh:sizeBytes 2290 ;
     gsh:authorityClass gsh:Workflow ;
     gsh:loadBearing true ;
     gsh:generatedMarker false .
@@ -1774,8 +1774,8 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:d360d25118fe45e63bfddc0dac47cf91521445f4ebc4c18893f507bc75db589b> a gsh:RepositoryFile ;
     gsh:path ".github/workflows/pcq-marketplace-alive.yml" ;
-    gsh:digest "63f0384548e3620564f4ea268951c46055c80bc9927057cc56f4bab4e8bfad74" ;
-    gsh:sizeBytes 3961 ;
+    gsh:digest "fde3c25e74bfba718f7b106522373ee082ff3ca0c3f16543f3f16bc007207396" ;
+    gsh:sizeBytes 4474 ;
     gsh:authorityClass gsh:Workflow ;
     gsh:loadBearing true ;
     gsh:generatedMarker false .
@@ -1934,8 +1934,8 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:bc37d034bad564583790a46f19d807abfe519c5671395fd494d8cce506c42947> a gsh:RepositoryFile ;
     gsh:path ".gitignore" ;
-    gsh:digest "77425f7f5f8eda6c590facbe5b95ee11a73a86558a73e0cc3b4ae2d46e92bff8" ;
-    gsh:sizeBytes 16274 ;
+    gsh:digest "8ac5c4728e48f50ef61a088ca7f5887d499afc52ca2523b572c7821d7ddf2f34" ;
+    gsh:sizeBytes 16794 ;
     gsh:authorityClass gsh:Asset ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
@@ -14918,15 +14918,15 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:e0c8c3e87881bf0e39532bb590469c453caf597337a0d8afa5945dc6c9963796> a gsh:RepositoryFile ;
     gsh:path "crates/ggen-abb-sbb/examples/ea_projection/.ggen-v2/receipt-log.jsonl" ;
-    gsh:digest "cdbe99bb5ff26bfbd1651e3650f5ebcda373c324b991d817a36f657b1694d6e2" ;
-    gsh:sizeBytes 134471 ;
+    gsh:digest "8e74585e58914954f684fbd6cd2c8c65966b6cc33bd08e3f2f018baa654dd890" ;
+    gsh:sizeBytes 142545 ;
     gsh:authorityClass gsh:Asset ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
 
 <urn:ggen:self:file:c0ba517af30d001580a67438320047c11e55fc02461f66bd3570447c567ae7d7> a gsh:RepositoryFile ;
     gsh:path "crates/ggen-abb-sbb/examples/ea_projection/.ggen-v2/receipt.json" ;
-    gsh:digest "e089ee387d1ed0816f5c32b66819797ace66eeb3a83d159756c46669268cb4f7" ;
+    gsh:digest "ae5734c8ea7c8f24289410b4ebf9cedeb6d1733df696706329e2367ea42fdcc9" ;
     gsh:sizeBytes 2011 ;
     gsh:authorityClass gsh:VerificationEvidence ;
     gsh:loadBearing false ;
@@ -15110,16 +15110,16 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:8855619de021190def6252078acc52a12730a67c1064ccd19974ad529a887dd3> a gsh:RepositoryFile ;
     gsh:path "crates/ggen-abb-sbb/tests/depgraph_hardening_test.rs" ;
-    gsh:digest "94fa8b43dc91e796fb260d054ff146389cc104646f7ecec02f6762f7ac63bbde" ;
-    gsh:sizeBytes 11506 ;
+    gsh:digest "d27fa36a2f37427f079ae8c4345e651ab912d9da1ca95306d7e89c030dd23108" ;
+    gsh:sizeBytes 11610 ;
     gsh:authorityClass gsh:TestFixture ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
 
 <urn:ggen:self:file:1392e344f21e9a47616c440914420aa69a3040a7bfe8a485dc6eb770277dd129> a gsh:RepositoryFile ;
     gsh:path "crates/ggen-abb-sbb/tests/ea_projection_test.rs" ;
-    gsh:digest "d7bf4d732635bbf80b5dcd9738de81f9893d754437a6897d4bd645998d3227d4" ;
-    gsh:sizeBytes 7471 ;
+    gsh:digest "07eb712a259cf3b6588478829a389e011889723878183d6c82d6001557f2a4b1" ;
+    gsh:sizeBytes 7525 ;
     gsh:authorityClass gsh:TestFixture ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
@@ -33902,16 +33902,16 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:2076846942dbec96c269869ec3e1aa49dac25fe5dba1c27da61b59ebd6f68559> a gsh:RepositoryFile ;
     gsh:path "docs/jira/v26.11.3/README.md" ;
-    gsh:digest "67ff898aac959c3fd4aeabc6f9145caddfffffb513670e53b892eea996374e93" ;
-    gsh:sizeBytes 37439 ;
+    gsh:digest "41c844b6b9bb4a709455c9a10f23bb1bcb483b0d893ac0363ec48982f3830b8b" ;
+    gsh:sizeBytes 42453 ;
     gsh:authorityClass gsh:Documentation ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
 
 <urn:ggen:self:file:cea79d0a90992ff556c7cda2a27e1507163d7713845362113f998bf195b48244> a gsh:RepositoryFile ;
     gsh:path "docs/jira/v26.11.3/RECEIPTS.md" ;
-    gsh:digest "98cabda085bbd9e5e83608231725da4abe53294ac14dcedd2c33ac8755ddbccb" ;
-    gsh:sizeBytes 26235 ;
+    gsh:digest "06bff4f9c5db89f647946c55e87d59cea84dad7790542a1c34cf9e7dec4a6a04" ;
+    gsh:sizeBytes 32925 ;
     gsh:authorityClass gsh:Documentation ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
@@ -34940,6 +34940,94 @@ gsh:ggen a gsh:SelfHostProgram ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
 
+<urn:ggen:self:file:9f283017a848a735ea2bfd246bceb803aeda080d79bb3c74d652e91d4d1ff0c8> a gsh:RepositoryFile ;
+    gsh:path "docs/jira/v26.11.3/receipts/zd-112-terminal-gates.md" ;
+    gsh:digest "f0b0fc0534f521da57e33e8e6d5db72e674eb48c61739e25ecfb8275ff3ae88e" ;
+    gsh:sizeBytes 3849 ;
+    gsh:authorityClass gsh:VerificationEvidence ;
+    gsh:loadBearing false ;
+    gsh:generatedMarker false .
+
+<urn:ggen:self:file:f98206308329b4217828f73dfcdc6ddef56d65cbbb0b10f3a4110d61e41bf872> a gsh:RepositoryFile ;
+    gsh:path "docs/jira/v26.11.3/receipts/zd-116-index-final.md" ;
+    gsh:digest "9f42ba78bb4e42934281c5e5e1c6c189658466b1344753112ec52b51a9a22aa9" ;
+    gsh:sizeBytes 2194 ;
+    gsh:authorityClass gsh:VerificationEvidence ;
+    gsh:loadBearing false ;
+    gsh:generatedMarker false .
+
+<urn:ggen:self:file:25f8d492f937baa3a5606f50c6b0338a1d2faef76cc75d18e9bf6be84ec90ad6> a gsh:RepositoryFile ;
+    gsh:path "docs/jira/v26.11.3/receipts/zd-118-tag-sweep.md" ;
+    gsh:digest "44a0439758bf92c3fb28908dc2a073c1c94fbaa1f006e2530804e1b43edcd745" ;
+    gsh:sizeBytes 2875 ;
+    gsh:authorityClass gsh:VerificationEvidence ;
+    gsh:loadBearing false ;
+    gsh:generatedMarker false .
+
+<urn:ggen:self:file:0526f3ec9bea86d6a5e59a8794ba48ef20b7fbf1883296ea772f8bce580fb5e6> a gsh:RepositoryFile ;
+    gsh:path "docs/jira/v26.11.3/receipts/zd-120-ggen-preflight.md" ;
+    gsh:digest "44ca323de516b86514b32bbad6481553a3a556bd8ed8cc849677552a3d07eddb" ;
+    gsh:sizeBytes 4581 ;
+    gsh:authorityClass gsh:VerificationEvidence ;
+    gsh:loadBearing false ;
+    gsh:generatedMarker false .
+
+<urn:ggen:self:file:80265c0660081949643c4995f784a519822abe8171edbe762a8e2180676c36ad> a gsh:RepositoryFile ;
+    gsh:path "docs/jira/v26.11.3/receipts/zd-121-tag-allowlist.md" ;
+    gsh:digest "570296972fa5ec9ae210c6ae3d8b6770d46bc1f0caed093fc0828f5eb48d7944" ;
+    gsh:sizeBytes 3012 ;
+    gsh:authorityClass gsh:VerificationEvidence ;
+    gsh:loadBearing false ;
+    gsh:generatedMarker false .
+
+<urn:ggen:self:file:d3d7d8e0903a8c1ac4d4c2979c657a5fd3209252b490a319f0e691fd12532f27> a gsh:RepositoryFile ;
+    gsh:path "docs/jira/v26.11.3/receipts/zd-124-casr.md" ;
+    gsh:digest "625e94a5563c01c8ff2411d8ac131d218d17800476080030f745f1ecaa2d5ee2" ;
+    gsh:sizeBytes 5702 ;
+    gsh:authorityClass gsh:VerificationEvidence ;
+    gsh:loadBearing false ;
+    gsh:generatedMarker false .
+
+<urn:ggen:self:file:2e9fccd02134c52e8d2ea7331761cd370124c4a36462d1bca8ba70e78ef8d9a2> a gsh:RepositoryFile ;
+    gsh:path "docs/jira/v26.11.3/receipts/zd-125-fm015-trio.md" ;
+    gsh:digest "f8956fdb0cd30554c2e1ad7bd68144128ec5b97098b177b85171a5541dfb45fd" ;
+    gsh:sizeBytes 5210 ;
+    gsh:authorityClass gsh:VerificationEvidence ;
+    gsh:loadBearing false ;
+    gsh:generatedMarker false .
+
+<urn:ggen:self:file:9f3ee4b951ffa3239f5da79e83a96bcd161de5e637b0a4d3094c2496a5e101bf> a gsh:RepositoryFile ;
+    gsh:path "docs/jira/v26.11.3/receipts/zd-126-tcps-lock.md" ;
+    gsh:digest "40825d3f1842ddacb0b8f326482280b0bfd795a6cc838810b8d3d873ab45260e" ;
+    gsh:sizeBytes 4963 ;
+    gsh:authorityClass gsh:VerificationEvidence ;
+    gsh:loadBearing false ;
+    gsh:generatedMarker false .
+
+<urn:ggen:self:file:2696cca2241d320600b1892d631c5b26600b36733c0e40c003a8806cab3528e9> a gsh:RepositoryFile ;
+    gsh:path "docs/jira/v26.11.3/receipts/zd-127-core-team.md" ;
+    gsh:digest "993ed30484e0973912d77f397012e61712650c665fae85b5ebebbccb54e7fc8a" ;
+    gsh:sizeBytes 6575 ;
+    gsh:authorityClass gsh:VerificationEvidence ;
+    gsh:loadBearing false ;
+    gsh:generatedMarker false .
+
+<urn:ggen:self:file:70f48884eaf066dfdbae3d63b0e365a3c8d687cc38ad676e3f1dfbacdf98ce2e> a gsh:RepositoryFile ;
+    gsh:path "docs/jira/v26.11.3/receipts/zd-128-misc-ci.md" ;
+    gsh:digest "c68311032d157e85fbc8e1f772a597cd9ae1ba78912dd1aa465c7883074ca219" ;
+    gsh:sizeBytes 4648 ;
+    gsh:authorityClass gsh:VerificationEvidence ;
+    gsh:loadBearing false ;
+    gsh:generatedMarker false .
+
+<urn:ggen:self:file:c71b03649b32f5e0dccef1dffa5d51d0f007a0b25382dfacb317ebf33e6eccc0> a gsh:RepositoryFile ;
+    gsh:path "docs/jira/v26.11.3/receipts/zd-135-committed-confirm.md" ;
+    gsh:digest "44e453925da18ab01cfa0a8d26438e5722e893f16f72e6ed555a8654bbf96ff4" ;
+    gsh:sizeBytes 3368 ;
+    gsh:authorityClass gsh:VerificationEvidence ;
+    gsh:loadBearing false ;
+    gsh:generatedMarker false .
+
 <urn:ggen:self:file:219df54750788b961631f82e9600bad23d847eac92a157c07b5ff675d458951d> a gsh:RepositoryFile ;
     gsh:path "docs/jira/v26.11.3/receipts/zd-14-ci-final.md" ;
     gsh:digest "1a989a5b495947b17979f81b4fba30842fb6cf39b4ce977adcb203b090e22636" ;
@@ -35204,10 +35292,18 @@ gsh:ggen a gsh:SelfHostProgram ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
 
+<urn:ggen:self:file:6e525721289d89cf9192de4533bd31f62ca7aee912ef5185cbf5b0807370c759> a gsh:RepositoryFile ;
+    gsh:path "docs/jira/v26.11.4/PLANS.md" ;
+    gsh:digest "2fec353298a171e1b621eee571cd439e4fa5f10c3bfa339d2a4b8ad829cf0bf9" ;
+    gsh:sizeBytes 8268 ;
+    gsh:authorityClass gsh:Documentation ;
+    gsh:loadBearing false ;
+    gsh:generatedMarker false .
+
 <urn:ggen:self:file:cb46e6255be1361b7ab191c31ec04077050f20dd29fc919dfe4c337d197fd797> a gsh:RepositoryFile ;
     gsh:path "docs/jira/v26.11.4/SEED.md" ;
-    gsh:digest "064583f85d62174ae00abf814724b62d34c28e2dd5fd34bfec5dcb6f41ed629b" ;
-    gsh:sizeBytes 7547 ;
+    gsh:digest "48d39f29a17341fe4914a8711ba2de9b9014749e85e7bcc96c751405dda61519" ;
+    gsh:sizeBytes 8489 ;
     gsh:authorityClass gsh:Documentation ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
@@ -39740,14 +39836,6 @@ gsh:ggen a gsh:SelfHostProgram ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
 
-<urn:ggen:self:file:7ab38602479b8fe56303964404f5ac8b084a1f08548ab40acd6dae60c062994e> a gsh:RepositoryFile ;
-    gsh:path "examples/affidavit-verify/ggen.lock" ;
-    gsh:digest "b98d93b54f94fe6e3a20c6030fd582f49583ce952c458299341de99243527c63" ;
-    gsh:sizeBytes 211 ;
-    gsh:authorityClass gsh:Configuration ;
-    gsh:loadBearing false ;
-    gsh:generatedMarker false .
-
 <urn:ggen:self:file:0f8a492ed3e13d3d1911b3e0c51ae12050ca717fb9b75c3a78a5a57f47d8636f> a gsh:RepositoryFile ;
     gsh:path "examples/affidavit-verify/ggen.toml" ;
     gsh:digest "6406872b2eed85596018e6a8525cd0f5af7bd36b79bb040ae62cc869bbb05e98" ;
@@ -39886,15 +39974,15 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:ece10ba99ebf85511ae143bd76e3bfbf2d3a5972e9d67cc88ab599e54c481054> a gsh:RepositoryFile ;
     gsh:path "examples/all-modules-coverage/.ggen-v2/receipt-log.jsonl" ;
-    gsh:digest "478ca34ddccfba191a7792db2abc4c409502374e01ee770cf3cf0e6a48708dd4" ;
-    gsh:sizeBytes 28662 ;
+    gsh:digest "88eb1b87d1180af995641ed1ffa75106679d2ff87ff769ea46c1a224bedd0058" ;
+    gsh:sizeBytes 35878 ;
     gsh:authorityClass gsh:Asset ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
 
 <urn:ggen:self:file:49daeedefb8cd90e61a48cf35a0b687ceee53de8c00c3febf575c600f3650094> a gsh:RepositoryFile ;
     gsh:path "examples/all-modules-coverage/.ggen-v2/receipt-portable.json" ;
-    gsh:digest "6690d59ec337517560f5e1cfd9b730404dfb35d38d56105250824bb771e9c31a" ;
+    gsh:digest "f11af79060eca848d582fc64c51d9f4b7effa82273ddc0d573d0d36ad3b1f4b7" ;
     gsh:sizeBytes 1600 ;
     gsh:authorityClass gsh:Configuration ;
     gsh:loadBearing false ;
@@ -39902,17 +39990,9 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:2a90e4f4bd1b19328c143d889cde26f6af8610bda8ac18cb6917456fdc855b87> a gsh:RepositoryFile ;
     gsh:path "examples/all-modules-coverage/.ggen-v2/receipt.json" ;
-    gsh:digest "1ee69e9e1fadccb46c61ec9a3a3fe47ccd7870909e88ad8ddf41dd1a6fbbd6de" ;
-    gsh:sizeBytes 3605 ;
+    gsh:digest "983bf53708d36a9e90bd784b727bed73a83bb1c0b386ae859b7020ee851e827f" ;
+    gsh:sizeBytes 3609 ;
     gsh:authorityClass gsh:VerificationEvidence ;
-    gsh:loadBearing false ;
-    gsh:generatedMarker false .
-
-<urn:ggen:self:file:71be65efeadde88374dabd713c3320aa4bf1ab6e53d96b0cdb7cb579a560156c> a gsh:RepositoryFile ;
-    gsh:path "examples/all-modules-coverage/ggen.lock" ;
-    gsh:digest "579fb3783e4e027227c0d9bcfb87bbc1ccd3cad843ba271f7d7869a9d2a1d15f" ;
-    gsh:sizeBytes 201 ;
-    gsh:authorityClass gsh:Configuration ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
 
@@ -52974,19 +53054,11 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:10e5034c9bee6687f248f98cd6b7d68227d52aaa1c7f4fb1b50e8ce2dc47a62e> a gsh:RepositoryFile ;
     gsh:path "examples/cargo-cicd-verify/docs/cargo_cicd_reference.md" ;
-    gsh:digest "5bb656b7cf456c314e49357da88513b0249360b866f49ab33b8c21a5195ea507" ;
-    gsh:sizeBytes 5996 ;
+    gsh:digest "eca3fea7112f90a9dd5b32812c95de854fff65f311e8d82f84a1d46393857d20" ;
+    gsh:sizeBytes 5997 ;
     gsh:authorityClass gsh:GeneratedConsequence ;
     gsh:loadBearing false ;
     gsh:generatedMarker true .
-
-<urn:ggen:self:file:ae862b3d6c393fbd95e2d37520346bc7d1a56a25240da55a51911e85ddfc03c5> a gsh:RepositoryFile ;
-    gsh:path "examples/cargo-cicd-verify/ggen.lock" ;
-    gsh:digest "78e0fde32c8e146c96e4dffec59278cd18be084dfa618cf46cf55d38764a1e9a" ;
-    gsh:sizeBytes 213 ;
-    gsh:authorityClass gsh:Configuration ;
-    gsh:loadBearing false ;
-    gsh:generatedMarker false .
 
 <urn:ggen:self:file:2856d3b5ad583a1751be255ec69a288a57c7840e364ec7049b51ec8974fe5a30> a gsh:RepositoryFile ;
     gsh:path "examples/cargo-cicd-verify/ggen.toml" ;
@@ -53196,14 +53268,6 @@ gsh:ggen a gsh:SelfHostProgram ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
 
-<urn:ggen:self:file:3e9ed30687281f550be175190e5a92c2c905e21f72e6be5972e50c7d776c03b9> a gsh:RepositoryFile ;
-    gsh:path "examples/claude-code-pack-verify/ggen.lock" ;
-    gsh:digest "226def5ba79f6241e1e7e8db1f76b7c70896d2f246824c937e19a1db14f2e8b9" ;
-    gsh:sizeBytes 215 ;
-    gsh:authorityClass gsh:Configuration ;
-    gsh:loadBearing false ;
-    gsh:generatedMarker false .
-
 <urn:ggen:self:file:adef65a0c71a7c10cbaca832befd5de6af8fd4e971be18f2b595ce143da57f85> a gsh:RepositoryFile ;
     gsh:path "examples/claude-code-pack-verify/ggen.toml" ;
     gsh:digest "069421a7ee065c0a7073bee3cdc82b3e6beb13370cab4de5949cc3af74ce9bc7" ;
@@ -53230,7 +53294,7 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:85b5f3b8e9f3acd2a9b75e73055a8b3b7d9ee93d242e426f70b306da205b1c63> a gsh:RepositoryFile ;
     gsh:path "examples/combinatorial-maximalism/.ggen-v2/lease/103696af48363118eba7b0576617a8a6767b66e5f099c5a26f89f94b404defa7" ;
-    gsh:digest "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865" ;
+    gsh:digest "7de1555df0c2700329e815b93b32c571c3ea54dc967b89e81ab73b9972b72d1d" ;
     gsh:sizeBytes 2 ;
     gsh:authorityClass gsh:Asset ;
     gsh:loadBearing false ;
@@ -53238,7 +53302,7 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:49cde8d8e5e6cf494699f5b3a8b6f2e20ce95de201019841a18797c1a136f69b> a gsh:RepositoryFile ;
     gsh:path "examples/combinatorial-maximalism/.ggen-v2/lease/6495b79e77816d4d0338261e5229f00054047070468279514ca4f04f6aa313d8" ;
-    gsh:digest "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865" ;
+    gsh:digest "7de1555df0c2700329e815b93b32c571c3ea54dc967b89e81ab73b9972b72d1d" ;
     gsh:sizeBytes 2 ;
     gsh:authorityClass gsh:Asset ;
     gsh:loadBearing false ;
@@ -53246,7 +53310,7 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:f31356d0f43f6026c95ae85b3300f808f7a289ec162bfae891b0e019ede02873> a gsh:RepositoryFile ;
     gsh:path "examples/combinatorial-maximalism/.ggen-v2/lease/6d7848d7796c1051db2a42449cfba2d125f64aaae8407dd11f638ea26ff4d62f" ;
-    gsh:digest "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865" ;
+    gsh:digest "7de1555df0c2700329e815b93b32c571c3ea54dc967b89e81ab73b9972b72d1d" ;
     gsh:sizeBytes 2 ;
     gsh:authorityClass gsh:Asset ;
     gsh:loadBearing false ;
@@ -53254,7 +53318,7 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:ccfcfc4fac144c4039a8f64239455ae03ea42d0323be321be9cde423ea0e360c> a gsh:RepositoryFile ;
     gsh:path "examples/combinatorial-maximalism/.ggen-v2/lease/a88ce864a6d220b24841da374eafa8738106b112c86794762f76c231f0337d2a" ;
-    gsh:digest "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865" ;
+    gsh:digest "7de1555df0c2700329e815b93b32c571c3ea54dc967b89e81ab73b9972b72d1d" ;
     gsh:sizeBytes 2 ;
     gsh:authorityClass gsh:Asset ;
     gsh:loadBearing false ;
@@ -53262,7 +53326,7 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:fd7ea4dfd758490bfd2ed9e1f0c942df69abb1d23cd0df2188e697fa7dcf1e5a> a gsh:RepositoryFile ;
     gsh:path "examples/combinatorial-maximalism/.ggen-v2/lease/baec7f5d6c01b24cd9fe2d8647db4be4ffa4ffd2b881efbe1dfb49d8f7ca2614" ;
-    gsh:digest "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865" ;
+    gsh:digest "7de1555df0c2700329e815b93b32c571c3ea54dc967b89e81ab73b9972b72d1d" ;
     gsh:sizeBytes 2 ;
     gsh:authorityClass gsh:Asset ;
     gsh:loadBearing false ;
@@ -53270,23 +53334,23 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:9bc7ffba6fa857206b381f4ab9cc6c648743427eed7624b0e028eb6acfa736e0> a gsh:RepositoryFile ;
     gsh:path "examples/combinatorial-maximalism/.ggen-v2/lease/d0afbb81125e3bed551d2889a69731e00bf47cca24b396106dd1fe12839070bd" ;
-    gsh:digest "10159baf262b43a92d95db59dae1f72c645127301661e0a3ce4e38b295a97c58" ;
-    gsh:sizeBytes 2 ;
+    gsh:digest "9a92adbc0cee38ef658c71ce1b1bf8c65668f166bfb213644c895ccb1ad07a25" ;
+    gsh:sizeBytes 3 ;
     gsh:authorityClass gsh:Asset ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
 
 <urn:ggen:self:file:e819f444b5d5b531c697dec65f666154fccb6296491fdd1019a60f2a780513af> a gsh:RepositoryFile ;
     gsh:path "examples/combinatorial-maximalism/.ggen-v2/receipt-log.jsonl" ;
-    gsh:digest "9bf5cdd06d72b3d58f53015fa209357edece08e7e51721b7412f871677df1f3f" ;
-    gsh:sizeBytes 47140 ;
+    gsh:digest "59045ed3f47c8755a64758f970b769c5ae973b4c1a9068e9360ca01b92dec182" ;
+    gsh:sizeBytes 93721 ;
     gsh:authorityClass gsh:Asset ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
 
 <urn:ggen:self:file:4ceee769a5f51f18249f39e84bca88bbcb19d3a700adc2c2c385e2e397992791> a gsh:RepositoryFile ;
     gsh:path "examples/combinatorial-maximalism/.ggen-v2/receipt-portable.json" ;
-    gsh:digest "7e852d8182b42e1c946d87bba1832c70317c05743a4db91a4395d5c23e7f977b" ;
+    gsh:digest "3f6ebb139f9a19aa7f6102e8800d88c883d866a9221f4bc88f545737a6ad31e4" ;
     gsh:sizeBytes 2632 ;
     gsh:authorityClass gsh:Configuration ;
     gsh:loadBearing false ;
@@ -53294,17 +53358,9 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:d35b9fa77aee76987ebbd04f8d1bdf23edf3a97c914d050a23859cbdb67d0dad> a gsh:RepositoryFile ;
     gsh:path "examples/combinatorial-maximalism/.ggen-v2/receipt.json" ;
-    gsh:digest "e7a8966c1f52f45bb9f1a7cae710ad10bcbbda2a28469ac8d5d7658a3fcde680" ;
-    gsh:sizeBytes 6777 ;
+    gsh:digest "463b25a7d483df7b19042121a30ff447a9d9e4d78827899db474f325449b5d03" ;
+    gsh:sizeBytes 6784 ;
     gsh:authorityClass gsh:VerificationEvidence ;
-    gsh:loadBearing false ;
-    gsh:generatedMarker false .
-
-<urn:ggen:self:file:bb0dcf121c4c13c73a5db9f3ba8f61b3e60935e256bb744da26f7785af1d2645> a gsh:RepositoryFile ;
-    gsh:path "examples/combinatorial-maximalism/ggen.lock" ;
-    gsh:digest "521d6e63af021b65cbd14e98f1a76cb885a34190baee3093640194ae8d2fefc5" ;
-    gsh:sizeBytes 251 ;
-    gsh:authorityClass gsh:Configuration ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
 
@@ -53326,15 +53382,15 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:e3f2832be08f7b6a7a789270e36289144db02feff07ff66f8330be5b46f0c967> a gsh:RepositoryFile ;
     gsh:path "examples/crown-conjecture-verify/.ggen-v2/receipt-log.jsonl" ;
-    gsh:digest "0be0ceb5741896665521cbbb36a15dab59e752cc621e96a8a6d91d0c6311e7d9" ;
-    gsh:sizeBytes 30353 ;
+    gsh:digest "85f668a1f70ee76d6d615b7a4db500ec4fdd2c2803955f781973940cdf1a450f" ;
+    gsh:sizeBytes 35315 ;
     gsh:authorityClass gsh:Asset ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
 
 <urn:ggen:self:file:415e016bd6e0f8b903e3311d0405346dc1b32aa765621546529815a9a6f42222> a gsh:RepositoryFile ;
     gsh:path "examples/crown-conjecture-verify/.ggen-v2/receipt-portable.json" ;
-    gsh:digest "33271fc4306261ad5588a21500a9496842dbde762f9cc0166b6a94405d222bd4" ;
+    gsh:digest "3f45181ff1f138672ea145d17c71b7a971854d7cffacb50050ae46b41e793469" ;
     gsh:sizeBytes 1515 ;
     gsh:authorityClass gsh:Configuration ;
     gsh:loadBearing false ;
@@ -53342,7 +53398,7 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:75ab7955bb4052e5278d0e4ce0fbdf0476db760f24ec7847697135c484c1b656> a gsh:RepositoryFile ;
     gsh:path "examples/crown-conjecture-verify/.ggen-v2/receipt.json" ;
-    gsh:digest "261d69b90aada96e0b1eb38512c9bd10be8f6b8936e88f13005e86b7b2e264e2" ;
+    gsh:digest "c89133ae0babb12277b7287c4c157b9dbb731e73e43a3cdaf6d37cd5b0dc8ed6" ;
     gsh:sizeBytes 2480 ;
     gsh:authorityClass gsh:VerificationEvidence ;
     gsh:loadBearing false ;
@@ -53452,14 +53508,6 @@ gsh:ggen a gsh:SelfHostProgram ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
 
-<urn:ggen:self:file:bc3d745075c6595c0a9a72fcfeeac53edc37ea9ef711c7ce75f8cb1bf4da6639> a gsh:RepositoryFile ;
-    gsh:path "examples/crown-conjecture-verify/ggen.lock" ;
-    gsh:digest "30ade5f90cd8661e18c096a8926e21a6cd504ee4823e37f2b6adc2e0c6d48099" ;
-    gsh:sizeBytes 225 ;
-    gsh:authorityClass gsh:Configuration ;
-    gsh:loadBearing false ;
-    gsh:generatedMarker false .
-
 <urn:ggen:self:file:ee913c1d471c212294199d3c0c82231f71ad309eca45957b4e458b3cd7d7b5fb> a gsh:RepositoryFile ;
     gsh:path "examples/crown-conjecture-verify/ggen.toml" ;
     gsh:digest "4d06d43fdf803f1b1695bcfcf31520c152b72105e6b33dfa3866a416d09c5f90" ;
@@ -53486,15 +53534,15 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:3b1e523fea1cff606f2d5a7fa0b166f955e2daf0cafec86ea5aea4c862aea73e> a gsh:RepositoryFile ;
     gsh:path "examples/cs2-projections/.ggen-v2/receipt-log.jsonl" ;
-    gsh:digest "966dfbf1623164214968269a85f5d0e43a0b782e94ba3a28873c0aca4e1e9861" ;
-    gsh:sizeBytes 58312 ;
+    gsh:digest "b30c31ca6365ff0fce2a06615eb3dff1e53a23af1531d9f641b8afd167890a75" ;
+    gsh:sizeBytes 75180 ;
     gsh:authorityClass gsh:Asset ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
 
 <urn:ggen:self:file:e830096c7da7beeae8bdbb95255248a9bc29515b940de9019e57fdb712ff788c> a gsh:RepositoryFile ;
     gsh:path "examples/cs2-projections/.ggen-v2/receipt.json" ;
-    gsh:digest "b6f480ce58ba17d386d42e05ba4f01c9bb01260b5064eaf359eb7435bf9a7f1b" ;
+    gsh:digest "42ca0fe82ec3c0d260e8bc9e0dbcedf9244f3c0c64e6ec32d983633105217074" ;
     gsh:sizeBytes 8433 ;
     gsh:authorityClass gsh:VerificationEvidence ;
     gsh:loadBearing false ;
@@ -53686,15 +53734,15 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:dc06ac89e95a0dbe556239498a528048cb3ad883e97af2bd781e3184a24333af> a gsh:RepositoryFile ;
     gsh:path "examples/dspy-basic-qa/.ggen-v2/receipt-log.jsonl" ;
-    gsh:digest "e7a235fdb0d03c98cb8ca33f4ef907f5d7507aad6eb10dabe38ae574ac4b56f9" ;
-    gsh:sizeBytes 25007 ;
+    gsh:digest "ea51a0a5ed7e8a5eb953266e070219ac6edf9d563917297716314ba3b50d1af5" ;
+    gsh:sizeBytes 32205 ;
     gsh:authorityClass gsh:Asset ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
 
 <urn:ggen:self:file:57f91ab70088a9cdb71c704da4c821a296eb18ec5719f769b65041cb3bf2b29d> a gsh:RepositoryFile ;
     gsh:path "examples/dspy-basic-qa/.ggen-v2/receipt-portable.json" ;
-    gsh:digest "f6545c2d46e767c0c186197b777502423140bda3cbaa326d73e4577c9b36097d" ;
+    gsh:digest "4158e09f7c3ed7d2bcf3b57cfe784a3d70ff3f3c48cf5d9579b21c9288d5f3b4" ;
     gsh:sizeBytes 1600 ;
     gsh:authorityClass gsh:Configuration ;
     gsh:loadBearing false ;
@@ -53702,17 +53750,9 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:4eb6edba044bbf4cd7b4eab282c3cd7d32588fc6a199706a7a80defaf6fa8ca6> a gsh:RepositoryFile ;
     gsh:path "examples/dspy-basic-qa/.ggen-v2/receipt.json" ;
-    gsh:digest "27f02ead5886e417a494de01bb187ce1c4b95ee2006e98c7f25357266d39fff4" ;
+    gsh:digest "44771854eff1981925e9cfc2dda56a26a4c796d142b62d70a62da359bb8c41a2" ;
     gsh:sizeBytes 3598 ;
     gsh:authorityClass gsh:VerificationEvidence ;
-    gsh:loadBearing false ;
-    gsh:generatedMarker false .
-
-<urn:ggen:self:file:c77cdf46d4460ff391d565e7c070fd83667eec806d4c75f29196ad3d5688d18d> a gsh:RepositoryFile ;
-    gsh:path "examples/dspy-basic-qa/ggen.lock" ;
-    gsh:digest "579fb3783e4e027227c0d9bcfb87bbc1ccd3cad843ba271f7d7869a9d2a1d15f" ;
-    gsh:sizeBytes 201 ;
-    gsh:authorityClass gsh:Configuration ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
 
@@ -53790,15 +53830,15 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:4a0ee69ebb8c2f6caf29455bc4005dce80a54f975e00d4d8e19d036892dfe199> a gsh:RepositoryFile ;
     gsh:path "examples/dspy-chain-of-thought-math/.ggen-v2/receipt-log.jsonl" ;
-    gsh:digest "78583607eb42bea77caf9774d85fae3975270d5ff61841536a9a5a302381d3db" ;
-    gsh:sizeBytes 25098 ;
+    gsh:digest "6c56118df4b381230cb4c5d6748d56fba07c4950006c6ce80f62d47ec15166c8" ;
+    gsh:sizeBytes 32322 ;
     gsh:authorityClass gsh:Asset ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
 
 <urn:ggen:self:file:453df874b3aa69c02aeb400a9e423d5bbe5ad89fcd58bc946e6aaf6b486979f8> a gsh:RepositoryFile ;
     gsh:path "examples/dspy-chain-of-thought-math/.ggen-v2/receipt-portable.json" ;
-    gsh:digest "aaee05a7a41a6ef2ad68beadd08cb818356547cd51136bca62affa282ffaf9f6" ;
+    gsh:digest "67fee308e2d35487988f409f4b123219fde1e0fad5769170cbc0d3e751d6bac4" ;
     gsh:sizeBytes 1600 ;
     gsh:authorityClass gsh:Configuration ;
     gsh:loadBearing false ;
@@ -53806,17 +53846,9 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:0af0821956613e285de0f006bd4cc6ca40124924322ed4bdd1bbc8bd4943c20c> a gsh:RepositoryFile ;
     gsh:path "examples/dspy-chain-of-thought-math/.ggen-v2/receipt.json" ;
-    gsh:digest "688ee1e25174960025a214a52eb368a272ca2b184d5e07fa2d85cf9f75b9c538" ;
+    gsh:digest "9a7610bbbdfca4afed654249408c2f85a323c4170e03b296436f268f602ece11" ;
     gsh:sizeBytes 3611 ;
     gsh:authorityClass gsh:VerificationEvidence ;
-    gsh:loadBearing false ;
-    gsh:generatedMarker false .
-
-<urn:ggen:self:file:e87a47aca9c79c0bdc6838987fdb3152ff80547c591ab0e683937016a9441177> a gsh:RepositoryFile ;
-    gsh:path "examples/dspy-chain-of-thought-math/ggen.lock" ;
-    gsh:digest "579fb3783e4e027227c0d9bcfb87bbc1ccd3cad843ba271f7d7869a9d2a1d15f" ;
-    gsh:sizeBytes 201 ;
-    gsh:authorityClass gsh:Configuration ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
 
@@ -53894,15 +53926,15 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:d0e2cdae35e211999eba35033c904c3a865673d70578c38061ae2982e40d12e8> a gsh:RepositoryFile ;
     gsh:path "examples/dspy-classification/.ggen-v2/receipt-log.jsonl" ;
-    gsh:digest "c1d517c366a01cff8d38284f0d666f480ddfd1c3ab855d04e81a5aaa789b4e55" ;
-    gsh:sizeBytes 25049 ;
+    gsh:digest "0962a02f5da8734f2d9f5c28f84a070fca2d276269cb0258a5fa7d84303f8805" ;
+    gsh:sizeBytes 32259 ;
     gsh:authorityClass gsh:Asset ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
 
 <urn:ggen:self:file:b715e2dd42c035615bd01afce25aee0fc9a609c1039e1f2477cb3b4029db097c> a gsh:RepositoryFile ;
     gsh:path "examples/dspy-classification/.ggen-v2/receipt-portable.json" ;
-    gsh:digest "00f1fb1c65de34f2f94457ad70061d0d4ba09fbb8ea5b79226652743b2b34582" ;
+    gsh:digest "668c38e700e3a92f82b22a2422b933ef0a0e6fa2ebb6db7df15972d19fa7ccea" ;
     gsh:sizeBytes 1600 ;
     gsh:authorityClass gsh:Configuration ;
     gsh:loadBearing false ;
@@ -53910,17 +53942,9 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:2346bf0782486968bb61718ecf92b620ef0a0ef473f41509af88cbc3fde5de74> a gsh:RepositoryFile ;
     gsh:path "examples/dspy-classification/.ggen-v2/receipt.json" ;
-    gsh:digest "6ce8fea889e570ba52602d3ba04f140dcda1c13c90553b8ba4cba665c1becb74" ;
+    gsh:digest "7563acb9dc950d09da317e09fcc3092202daba7f2e34ab08780b33790d126ef1" ;
     gsh:sizeBytes 3604 ;
     gsh:authorityClass gsh:VerificationEvidence ;
-    gsh:loadBearing false ;
-    gsh:generatedMarker false .
-
-<urn:ggen:self:file:467ed4b2ce9b2dc1de0284af5ee6f50359d0927d9e3c2a75b84d5090f6c76018> a gsh:RepositoryFile ;
-    gsh:path "examples/dspy-classification/ggen.lock" ;
-    gsh:digest "579fb3783e4e027227c0d9bcfb87bbc1ccd3cad843ba271f7d7869a9d2a1d15f" ;
-    gsh:sizeBytes 201 ;
-    gsh:authorityClass gsh:Configuration ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
 
@@ -53998,15 +54022,15 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:8f68816f4e7dd3ea35db86ec850d81df54db7b9c9ee70b7de7af9a8242247466> a gsh:RepositoryFile ;
     gsh:path "examples/dspy-summarization/.ggen-v2/receipt-log.jsonl" ;
-    gsh:digest "26c1de5116e3222485dc62eb49fda20b5d450b1ee8fbd72c3c43241b2038403c" ;
-    gsh:sizeBytes 25042 ;
+    gsh:digest "dac2de364fe3654fa2c170e0fa122448d25ef7df35bd2c3e0ba049de3224893d" ;
+    gsh:sizeBytes 32250 ;
     gsh:authorityClass gsh:Asset ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
 
 <urn:ggen:self:file:bbe94ad5a965565166d292b354f6ed75263da410117b16362887485669b62453> a gsh:RepositoryFile ;
     gsh:path "examples/dspy-summarization/.ggen-v2/receipt-portable.json" ;
-    gsh:digest "dbe10e223adca6f6ba452f51d9d950f6508616291e318534931662d96ddb829c" ;
+    gsh:digest "f3731ef1ecaad15c76958bf1b5d825e4a8503ca533387501db09ae843ce56524" ;
     gsh:sizeBytes 1600 ;
     gsh:authorityClass gsh:Configuration ;
     gsh:loadBearing false ;
@@ -54014,17 +54038,9 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:948462a906e7e37ed110c8d3319ab6bcf9d424deae8b24668381355e74731aff> a gsh:RepositoryFile ;
     gsh:path "examples/dspy-summarization/.ggen-v2/receipt.json" ;
-    gsh:digest "3897e66069333bd59ee3134f9402d45d30e0fb9a815ab0f56c7d4ed02e3802de" ;
+    gsh:digest "5f6610a4cdf795563afe4703b4f3e188c6ef367def0e79ce2eb0923273ef81d5" ;
     gsh:sizeBytes 3603 ;
     gsh:authorityClass gsh:VerificationEvidence ;
-    gsh:loadBearing false ;
-    gsh:generatedMarker false .
-
-<urn:ggen:self:file:a78469dea52a829b78e39ac581c37a17ff893f6f466b190c92e136506519c901> a gsh:RepositoryFile ;
-    gsh:path "examples/dspy-summarization/ggen.lock" ;
-    gsh:digest "579fb3783e4e027227c0d9bcfb87bbc1ccd3cad843ba271f7d7869a9d2a1d15f" ;
-    gsh:sizeBytes 201 ;
-    gsh:authorityClass gsh:Configuration ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
 
@@ -54110,15 +54126,15 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:ce4e69b13bfd7307441e061581752f059462c2db7bc5374163b9138f5ef00cd2> a gsh:RepositoryFile ;
     gsh:path "examples/fortune5-architecture/.ggen-v2/receipt-log.jsonl" ;
-    gsh:digest "84e26bb184153af56ac44b93eede102ece98a4ca635e2f3ef65288d14e789a5f" ;
-    gsh:sizeBytes 36070 ;
+    gsh:digest "5e30aba9d95d21a67baff1240aeb916e5a3f5d0eaf84c7a478c93fb5cfcba956" ;
+    gsh:sizeBytes 51553 ;
     gsh:authorityClass gsh:Asset ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
 
 <urn:ggen:self:file:404d563350d65351fd0086432e04e5d1cbcafb765baddd4ee154f07e0e28f071> a gsh:RepositoryFile ;
     gsh:path "examples/fortune5-architecture/.ggen-v2/receipt-portable.json" ;
-    gsh:digest "4d95f887052cedb5f95c6800b66471aba74deffb8f4b654ab2500838a7ac3eb9" ;
+    gsh:digest "33945f901267768bce2e499af3cd2ae3d81c590eb373f627b9f600d281960ee4" ;
     gsh:sizeBytes 2104 ;
     gsh:authorityClass gsh:Configuration ;
     gsh:loadBearing false ;
@@ -54126,8 +54142,8 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:77a1fd7f21de1c8d72a0311e4aee7519a78dd5e9bf4fde84b0155ffaa919be51> a gsh:RepositoryFile ;
     gsh:path "examples/fortune5-architecture/.ggen-v2/receipt.json" ;
-    gsh:digest "ce80354aed7cd4ba03120dd8486fd66af0b4fcec3f865117744cd2e4ab9699de" ;
-    gsh:sizeBytes 5187 ;
+    gsh:digest "1888c9623ec126ffb5fb0917bbf03477ad64c1e9f2a216ca46374c6752d50612" ;
+    gsh:sizeBytes 5192 ;
     gsh:authorityClass gsh:VerificationEvidence ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
@@ -54164,10 +54180,10 @@ gsh:ggen a gsh:SelfHostProgram ;
     gsh:loadBearing false ;
     gsh:generatedMarker true .
 
-<urn:ggen:self:file:78eeb584e3dbf0eec76b5151a773854bacb3e8af2fd7a56128cf0c5b0ca40750> a gsh:RepositoryFile ;
-    gsh:path "examples/fortune5-architecture/ggen.lock" ;
-    gsh:digest "68b32006c26996b4894b8d266262a09281bbf4d9193d2bec5743afe053a57bd4" ;
-    gsh:sizeBytes 235 ;
+<urn:ggen:self:file:72f275594a2790f24f9c160130f5bd60c77bb491064e1fc8ff38078518f00bb1> a gsh:RepositoryFile ;
+    gsh:path "examples/fortune5-architecture/ea.graph.json" ;
+    gsh:digest "5434ddcbf22c2d3a3a11639ed154ce5269eda62485fa9fbff5527b157245b879" ;
+    gsh:sizeBytes 2516 ;
     gsh:authorityClass gsh:Configuration ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
@@ -54222,15 +54238,15 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:e1c90276cf6eaa82453d22f8011af87aeec7cc55a8e5e2ff779bcedb5310390c> a gsh:RepositoryFile ;
     gsh:path "examples/gepa-facility-support-analyzer/.ggen-v2/receipt-log.jsonl" ;
-    gsh:digest "290925132160cf3e9f48d20cc11576e8408db58e4a650fcf024f386b49deeac0" ;
-    gsh:sizeBytes 25126 ;
+    gsh:digest "215e384a8677609a10e889f767094425e7c370cd4a2e72ee65d864e82d32d408" ;
+    gsh:sizeBytes 32358 ;
     gsh:authorityClass gsh:Asset ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
 
 <urn:ggen:self:file:b38b5884ce3b684a8c477107796d3979523a3ee14c6e391ebada6816135ce8ec> a gsh:RepositoryFile ;
     gsh:path "examples/gepa-facility-support-analyzer/.ggen-v2/receipt-portable.json" ;
-    gsh:digest "6ac7c6d8e6241e4bd1024f6fbfebb94f18af80d1c237724e1fffb6e99d28f4e3" ;
+    gsh:digest "6f8198837aa6bfa9027cb741c7d19cab9d9c9c2821872fa8645394ef9b3e1efb" ;
     gsh:sizeBytes 1600 ;
     gsh:authorityClass gsh:Configuration ;
     gsh:loadBearing false ;
@@ -54238,17 +54254,9 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:802b1a9c090f27393fd0a33da98e2c5c382efdf913ad038c87b7530bd2403fbe> a gsh:RepositoryFile ;
     gsh:path "examples/gepa-facility-support-analyzer/.ggen-v2/receipt.json" ;
-    gsh:digest "c3f6aa71c3a5eb6c5ac72234f410e27bbb6bd5a80830ac0c1e6fc75321ffeed0" ;
+    gsh:digest "9acfdb8157f7cc8f3ef857238a189fdf6cec8e47b61f3e4034aae0e4dd75e973" ;
     gsh:sizeBytes 3615 ;
     gsh:authorityClass gsh:VerificationEvidence ;
-    gsh:loadBearing false ;
-    gsh:generatedMarker false .
-
-<urn:ggen:self:file:a5d8276c4135f50907c0b3fafc01498745980d97aed6bf9a056bf6b473df0128> a gsh:RepositoryFile ;
-    gsh:path "examples/gepa-facility-support-analyzer/ggen.lock" ;
-    gsh:digest "579fb3783e4e027227c0d9bcfb87bbc1ccd3cad843ba271f7d7869a9d2a1d15f" ;
-    gsh:sizeBytes 201 ;
-    gsh:authorityClass gsh:Configuration ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
 
@@ -54326,15 +54334,15 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:797dc72154cbeb61f36a8aef8dba32a1d294935eff17ac4ac514a194606ca558> a gsh:RepositoryFile ;
     gsh:path "examples/gepa-trusted-monitor/.ggen-v2/receipt-log.jsonl" ;
-    gsh:digest "cb87c43e83bb27f804e2d7ff32cf54f2494d9d9ebb0f0733fd0088ffd5916817" ;
-    gsh:sizeBytes 25056 ;
+    gsh:digest "94f43ccf1329c85fd178a4203983f056843474dde3e24dd92ba15b68bb4aaf61" ;
+    gsh:sizeBytes 32268 ;
     gsh:authorityClass gsh:Asset ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
 
 <urn:ggen:self:file:1c8cd991056429c1c3c70769a0fbe2f20927767637d186b9ffb2fbb3a37d5e64> a gsh:RepositoryFile ;
     gsh:path "examples/gepa-trusted-monitor/.ggen-v2/receipt-portable.json" ;
-    gsh:digest "504c806482cf0b7a92218fcc003b599688245bd7c8ba6192a5bdc0c46c06d9f6" ;
+    gsh:digest "ba42820c140026119bff1678c90b6285eda9502121ababa4518394ea8b215aaa" ;
     gsh:sizeBytes 1600 ;
     gsh:authorityClass gsh:Configuration ;
     gsh:loadBearing false ;
@@ -54342,17 +54350,9 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:7bbbead4e60d259e0777cb26887e323e461e181264b0ec4cc7da6cfe307042b6> a gsh:RepositoryFile ;
     gsh:path "examples/gepa-trusted-monitor/.ggen-v2/receipt.json" ;
-    gsh:digest "3290b7eb293201248762f6fff6fff8e618f09885c552902f437aa96b5b63da6a" ;
+    gsh:digest "6b067fed44004596415da0dd20811e9f19f84030814b26ca0d29ab7aeebaea5b" ;
     gsh:sizeBytes 3605 ;
     gsh:authorityClass gsh:VerificationEvidence ;
-    gsh:loadBearing false ;
-    gsh:generatedMarker false .
-
-<urn:ggen:self:file:fc5236f2b2524dda9861eab05cbdea0a7186932e79252edb9410ec98c3a5ae86> a gsh:RepositoryFile ;
-    gsh:path "examples/gepa-trusted-monitor/ggen.lock" ;
-    gsh:digest "579fb3783e4e027227c0d9bcfb87bbc1ccd3cad843ba271f7d7869a9d2a1d15f" ;
-    gsh:sizeBytes 201 ;
-    gsh:authorityClass gsh:Configuration ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
 
@@ -54414,15 +54414,15 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:b5297b4471f03bd2ac00bbee4effb1f456066f9467273a7b6f0416219f8f05d5> a gsh:RepositoryFile ;
     gsh:path "examples/ggen-cli-verify/.ggen-v2/receipt-log.jsonl" ;
-    gsh:digest "a7a1fa92fd03fb8621021096902325d8552c285ee28b1159ac65cb048574d11f" ;
-    gsh:sizeBytes 91948 ;
+    gsh:digest "f81cbf98bb8b34aca7e8f59d1506041762c4d848382c5fb6fe337f14364ab309" ;
+    gsh:sizeBytes 101264 ;
     gsh:authorityClass gsh:Asset ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
 
 <urn:ggen:self:file:efe6479f445cbe2215d324653c358d7561476ee20e66b950f46d4984d8374e0b> a gsh:RepositoryFile ;
     gsh:path "examples/ggen-cli-verify/.ggen-v2/receipt-portable.json" ;
-    gsh:digest "43349158651f33159048589afd146eca94945c48efc56f4f97161d82e6e6e0e6" ;
+    gsh:digest "d35081134265dea7cf8935deadcdcdca69b021eab5436240cac3497e7efd4dc6" ;
     gsh:sizeBytes 1769 ;
     gsh:authorityClass gsh:Configuration ;
     gsh:loadBearing false ;
@@ -54430,7 +54430,7 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:c5a7dcee7165d5024ce05062868d542fbb6beccb2ca30e6d83266a7964062977> a gsh:RepositoryFile ;
     gsh:path "examples/ggen-cli-verify/.ggen-v2/receipt.json" ;
-    gsh:digest "7a830ecb08c29dd5b8f020142c9c4464ba3430582acf2a353114b9c047c7392b" ;
+    gsh:digest "933b4af40b976d2135c25b29a7a00e56568d4150104f0db4e1fd46b7b32988f5" ;
     gsh:sizeBytes 4657 ;
     gsh:authorityClass gsh:VerificationEvidence ;
     gsh:loadBearing false ;
@@ -54457,14 +54457,6 @@ gsh:ggen a gsh:SelfHostProgram ;
     gsh:digest "c4aa6cbafbe9875929c062fefc784d19f246d765ed46489f5627222909f5872f" ;
     gsh:sizeBytes 2170 ;
     gsh:authorityClass gsh:Documentation ;
-    gsh:loadBearing false ;
-    gsh:generatedMarker false .
-
-<urn:ggen:self:file:8bcf7e906f20f39d8b355ce89477ab806b854b22f536bd2e8ea5ad191531a42a> a gsh:RepositoryFile ;
-    gsh:path "examples/ggen-cli-verify/ggen.lock" ;
-    gsh:digest "3f9dfdad441162a12b6d3574f936c2fd08378c9f50d13d9a9eb7990b0527ab44" ;
-    gsh:sizeBytes 227 ;
-    gsh:authorityClass gsh:Configuration ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
 
@@ -54606,15 +54598,15 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:48c45947e3e528ea318ec939c149935932d0f65113543b4085fb84895c3637e2> a gsh:RepositoryFile ;
     gsh:path "examples/ggen-first-lean4-rust/.ggen-v2/receipt-log.jsonl" ;
-    gsh:digest "f78bc24bfe4c69fda63703a90bd70885c4d0a7cd3a91f0c55dddeb7b3dfcc1c2" ;
-    gsh:sizeBytes 54673 ;
+    gsh:digest "ae139076b1c032f8de07a8334902d80bdc14a175504084af4d64b5cf97bb4703" ;
+    gsh:sizeBytes 78375 ;
     gsh:authorityClass gsh:Asset ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
 
 <urn:ggen:self:file:efc91697ea73e905db4680f6f8552c4c3003e58680287048d15bca460502e7b8> a gsh:RepositoryFile ;
     gsh:path "examples/ggen-first-lean4-rust/.ggen-v2/receipt-portable.json" ;
-    gsh:digest "0924e26d3c6860ab352bb3f90600cf98842cbbe03faea112b69c527d702dacef" ;
+    gsh:digest "ce10def7d460636632e9cba59953bb22d60a94ba7f49c47cf31c7d869c8a8eac" ;
     gsh:sizeBytes 1889 ;
     gsh:authorityClass gsh:Configuration ;
     gsh:loadBearing false ;
@@ -54622,17 +54614,9 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:f919832be86752e78f6002194eb6bc2b57f28e6fbf6b6e3bc6e5a6cebc83a482> a gsh:RepositoryFile ;
     gsh:path "examples/ggen-first-lean4-rust/.ggen-v2/receipt.json" ;
-    gsh:digest "a21621acacb01e475f09738dd80e47f1c8382854ec4722ef8950f8b6746194c7" ;
-    gsh:sizeBytes 7896 ;
+    gsh:digest "bc30d66b3fe30c47da4a8ca15809cf0ba1661dbe49ee86e7adbfe9562593eb8f" ;
+    gsh:sizeBytes 7907 ;
     gsh:authorityClass gsh:VerificationEvidence ;
-    gsh:loadBearing false ;
-    gsh:generatedMarker false .
-
-<urn:ggen:self:file:5a82a88de0a8795978196bd72000ed19fe8e0de45d95cf8d7be0350d75e215ee> a gsh:RepositoryFile ;
-    gsh:path "examples/ggen-first-lean4-rust/ggen.lock" ;
-    gsh:digest "1bd4f984435a882fdb48530c6322b189f225918449c1fa6cb34cf3cc7af54018" ;
-    gsh:sizeBytes 241 ;
-    gsh:authorityClass gsh:Configuration ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
 
@@ -56502,15 +56486,15 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:3fdfc3a9878d9f041bac020abf2ab407f79bb2bb3eb37e1cdfc4bdfb578e7e89> a gsh:RepositoryFile ;
     gsh:path "examples/gh-enterprise-repository-factory/.ggen-v2/receipt-log.jsonl" ;
-    gsh:digest "a1da7ff22fc145e5e0a3b8174a6922d3204719f07c7856136b350615d80f252a" ;
-    gsh:sizeBytes 794501 ;
+    gsh:digest "af20ea4facf066bb9dabae36dc45a7a13cf3ad94ec7a091634489facabb32a1b" ;
+    gsh:sizeBytes 1025463 ;
     gsh:authorityClass gsh:Asset ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
 
 <urn:ggen:self:file:646cfc72f2679a27b8e45ac4071e93948acfa859b0adc9d10371ed36e10c9963> a gsh:RepositoryFile ;
     gsh:path "examples/gh-enterprise-repository-factory/.ggen-v2/receipt-portable.json" ;
-    gsh:digest "b91bfbc8ff00f32b91812f17e8416aef0062b5d0545d388bde4bfb21327eb711" ;
+    gsh:digest "19953f3d0570be22180b8dc52f66f0126f1ad63682f84c4b13cb60a5d4ae7c8e" ;
     gsh:sizeBytes 1977 ;
     gsh:authorityClass gsh:Configuration ;
     gsh:loadBearing false ;
@@ -56518,7 +56502,7 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:f18493765c64f3da9451c527d1c0d5efaff1efcd84aeb6500aa48b3dfd45ec15> a gsh:RepositoryFile ;
     gsh:path "examples/gh-enterprise-repository-factory/.ggen-v2/receipt.json" ;
-    gsh:digest "e43a830b9a72f8a6917aa61b81e819d4e42e03a7c5270e3cf39d8fdc35e92099" ;
+    gsh:digest "6787b09830821d12b9642dabffb63defc1fcc72491fa3afeda62e08a367305d2" ;
     gsh:sizeBytes 115480 ;
     gsh:authorityClass gsh:VerificationEvidence ;
     gsh:loadBearing false ;
@@ -58012,14 +57996,6 @@ gsh:ggen a gsh:SelfHostProgram ;
     gsh:loadBearing false ;
     gsh:generatedMarker true .
 
-<urn:ggen:self:file:270e28be81254f4accec892009dfc0b25bc7a7439537558c2a6d60ef51a5a9ee> a gsh:RepositoryFile ;
-    gsh:path "examples/gh-enterprise-repository-factory/ggen.lock" ;
-    gsh:digest "3132d7d68716fa3d6f2a1a88574191b556f93b9bff3c8c0901fd976ff6422655" ;
-    gsh:sizeBytes 407 ;
-    gsh:authorityClass gsh:Configuration ;
-    gsh:loadBearing false ;
-    gsh:generatedMarker false .
-
 <urn:ggen:self:file:92a9ce09366534b5c89c0e1cf12a9814d27c36c09846b7a14a10ecbfae849ef5> a gsh:RepositoryFile ;
     gsh:path "examples/gh-enterprise-repository-factory/ggen.toml" ;
     gsh:digest "271b63949f7239aec53d20e69c4b82ab0b6bf5148a9dffa1cb23d8b99017e157" ;
@@ -58414,15 +58390,15 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:fac370ff0124881c458f349b37cc4669f4041af53efb70b43ad770dba0532c4a> a gsh:RepositoryFile ;
     gsh:path "examples/goat-capabilities-verify/.ggen-v2/receipt-log.jsonl" ;
-    gsh:digest "cbd68a269f8477b56d66870f78918696c3e45377093d3fb8eaeb2938c7917a7c" ;
-    gsh:sizeBytes 36622 ;
+    gsh:digest "9f8bf9c6b90960f53595b611bff3a576a0ee08d26c0f95a365442835541f6d20" ;
+    gsh:sizeBytes 43020 ;
     gsh:authorityClass gsh:Asset ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
 
 <urn:ggen:self:file:eeb61fba80aeb8c48505a6d7c841241dba5d757b758a6fb0f9ef82c5da7cc7c2> a gsh:RepositoryFile ;
     gsh:path "examples/goat-capabilities-verify/.ggen-v2/receipt-portable.json" ;
-    gsh:digest "17df4a4d860b4d473bb2597a11de3c7b4900a1b40439b416e6a167c9fc41e1a3" ;
+    gsh:digest "c3541c4b4ad8ba0585f67838ed721574da025b2c8b45350a6de6efce2bd5c570" ;
     gsh:sizeBytes 1592 ;
     gsh:authorityClass gsh:Configuration ;
     gsh:loadBearing false ;
@@ -58430,7 +58406,7 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:fdeaca4f96daeb85ca8ec9dd4796c24b5d6aa5a5c4cd6e377409b3b0251bc613> a gsh:RepositoryFile ;
     gsh:path "examples/goat-capabilities-verify/.ggen-v2/receipt.json" ;
-    gsh:digest "af3c7be2fdd84fd4ca2a70147f1119b205d0eacdb2182f44dee712aa047e6f34" ;
+    gsh:digest "d5e1f3d5f77b322b3538012985c9de3e16f8fe9d301c4eb91590684f419f0d28" ;
     gsh:sizeBytes 3198 ;
     gsh:authorityClass gsh:VerificationEvidence ;
     gsh:loadBearing false ;
@@ -58443,14 +58419,6 @@ gsh:ggen a gsh:SelfHostProgram ;
     gsh:authorityClass gsh:GeneratedConsequence ;
     gsh:loadBearing false ;
     gsh:generatedMarker true .
-
-<urn:ggen:self:file:ea8340f8a91288a2c2c0b6c5045feae2c627deb09f7df75b32377ae20c65e158> a gsh:RepositoryFile ;
-    gsh:path "examples/goat-capabilities-verify/ggen.lock" ;
-    gsh:digest "1bd3f8ad7e80469e976081ecc00afd05458e43e0fde52cf135757f648b99e6da" ;
-    gsh:sizeBytes 227 ;
-    gsh:authorityClass gsh:Configuration ;
-    gsh:loadBearing false ;
-    gsh:generatedMarker false .
 
 <urn:ggen:self:file:de9a47f30026c3f3523342dc044b83d102405754ed7e438c61c940adeb586105> a gsh:RepositoryFile ;
     gsh:path "examples/goat-capabilities-verify/ggen.toml" ;
@@ -58494,16 +58462,24 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:baf5af0d518701c2234f1e0478bae231745d1baa6612505496bfa57326c5488c> a gsh:RepositoryFile ;
     gsh:path "examples/hygen/inject-example/.ggen-v2/receipt-log.jsonl" ;
-    gsh:digest "cab450ae3159be797d5716097ab5da95fbe12b0abded055005d996bcb372031e" ;
-    gsh:sizeBytes 3768 ;
+    gsh:digest "ec4bbd31db9af26225e8bee85025d81d9a8e57ef2d3ceaea22dcc7ef7fd2e823" ;
+    gsh:sizeBytes 10296 ;
     gsh:authorityClass gsh:Asset ;
+    gsh:loadBearing false ;
+    gsh:generatedMarker false .
+
+<urn:ggen:self:file:3babe14fcf4e830af763d15d80cacc2ab3104c746fd213842c4d3780c27c37d1> a gsh:RepositoryFile ;
+    gsh:path "examples/hygen/inject-example/.ggen-v2/receipt-portable.json" ;
+    gsh:digest "796c261caeec9a8638cf594b4e34781be2dfbdc63dda3625eb85c92fa23f521d" ;
+    gsh:sizeBytes 1306 ;
+    gsh:authorityClass gsh:Configuration ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
 
 <urn:ggen:self:file:c465e3d202dc53c5b494a7c71e56be523e5f48a8629fa84197b1d5336804c585> a gsh:RepositoryFile ;
     gsh:path "examples/hygen/inject-example/.ggen-v2/receipt.json" ;
-    gsh:digest "caf630d82402c2bc9196a53b7c602acf5f9c284561dfa5709414496a979c6558" ;
-    gsh:sizeBytes 1938 ;
+    gsh:digest "f2e44b70b64edca1ef5ff6114843e1b0369654404fa53ca724bc689fa2fa7afa" ;
+    gsh:sizeBytes 2179 ;
     gsh:authorityClass gsh:VerificationEvidence ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
@@ -58542,16 +58518,24 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:0a5f16f3f7f3aa72211f393fa3846e38b43e2f934e7516e77bf9c0f2bb2e1326> a gsh:RepositoryFile ;
     gsh:path "examples/hygen/mailer-example/.ggen-v2/receipt-log.jsonl" ;
-    gsh:digest "bfcd162fe9812a012168dc69c3f6627e0fe062c95a5d8d97e76bd411e5a34428" ;
-    gsh:sizeBytes 2232 ;
+    gsh:digest "5587d6f78f1bc7a4eee258c15e655f4e61c7bff5d5e8c0c0edd3e20267df7f94" ;
+    gsh:sizeBytes 10062 ;
     gsh:authorityClass gsh:Asset ;
+    gsh:loadBearing false ;
+    gsh:generatedMarker false .
+
+<urn:ggen:self:file:68716f6d629ea361d1bbccd41eedb9c3088d27bdbe78f3eb835c87da02e0dc48> a gsh:RepositoryFile ;
+    gsh:path "examples/hygen/mailer-example/.ggen-v2/receipt-portable.json" ;
+    gsh:digest "84243760ebb517a67950d02a31b0645010803085c20557f330ccf90198aeb710" ;
+    gsh:sizeBytes 1306 ;
+    gsh:authorityClass gsh:Configuration ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
 
 <urn:ggen:self:file:1e9b31b551f8b5fa0a02f1d0c30117c59c4d3f6f36c761f1afbf7f9c1b47eb4e> a gsh:RepositoryFile ;
     gsh:path "examples/hygen/mailer-example/.ggen-v2/receipt.json" ;
-    gsh:digest "54d2b7f98c4636a610c99b6fa4d461c999705c22a527fed271264bcbb8371900" ;
-    gsh:sizeBytes 2231 ;
+    gsh:digest "9aefa12c08603326656a6f55b8a99a2f0cd53819a73dc9f80b1ea9dcbb37d9fd" ;
+    gsh:sizeBytes 2613 ;
     gsh:authorityClass gsh:VerificationEvidence ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
@@ -58604,6 +58588,38 @@ gsh:ggen a gsh:SelfHostProgram ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
 
+<urn:ggen:self:file:92b8278e48424c5a319e36d2d15086f71dedc927fbe769dd03e8006e072cd2a3> a gsh:RepositoryFile ;
+    gsh:path "examples/hygen/react-component-example/.ggen-v2/lease/f3e02624a720c8b8f27106dada436a99ffc53e69651b55777ea1b018717d440e" ;
+    gsh:digest "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865" ;
+    gsh:sizeBytes 2 ;
+    gsh:authorityClass gsh:Asset ;
+    gsh:loadBearing false ;
+    gsh:generatedMarker false .
+
+<urn:ggen:self:file:745ec9e7d0607e58baa452474095c7d5b75192e0005e9efef6e53cfb31f76c63> a gsh:RepositoryFile ;
+    gsh:path "examples/hygen/react-component-example/.ggen-v2/receipt-log.jsonl" ;
+    gsh:digest "deb5cb44e63cbf64fca60ff40347c91e4c37f6299eac07df0f3e29399b585861" ;
+    gsh:sizeBytes 6457 ;
+    gsh:authorityClass gsh:Asset ;
+    gsh:loadBearing false ;
+    gsh:generatedMarker false .
+
+<urn:ggen:self:file:385576874581ceb8b8bfe054b8dab48c40d16e4abcf314ea87559540acc8b6b3> a gsh:RepositoryFile ;
+    gsh:path "examples/hygen/react-component-example/.ggen-v2/receipt-portable.json" ;
+    gsh:digest "4f52113aa3e58cdf92bc10078adfe683bdcb6889d6836d4f75ef35776288ba18" ;
+    gsh:sizeBytes 1306 ;
+    gsh:authorityClass gsh:Configuration ;
+    gsh:loadBearing false ;
+    gsh:generatedMarker false .
+
+<urn:ggen:self:file:38396a79d089faa9c959fc201de20a8a77211964557c198708c64bb0202bd437> a gsh:RepositoryFile ;
+    gsh:path "examples/hygen/react-component-example/.ggen-v2/receipt.json" ;
+    gsh:digest "60d498dfd59c3b76ee32823d91eb1dbfb055159df65b6337f3790387879b2bd3" ;
+    gsh:sizeBytes 2202 ;
+    gsh:authorityClass gsh:VerificationEvidence ;
+    gsh:loadBearing false ;
+    gsh:generatedMarker false .
+
 <urn:ggen:self:file:5ed1f6a296cd0a1bea78e527d577216143640a7d951583df3a4a3b7da39194e2> a gsh:RepositoryFile ;
     gsh:path "examples/hygen/react-component-example/ggen.toml" ;
     gsh:digest "58df01dcbf7daf0793d10b522ecdff93c1431ff4e496ab9ff5e6da5e6e146448" ;
@@ -58620,6 +58636,14 @@ gsh:ggen a gsh:SelfHostProgram ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
 
+<urn:ggen:self:file:650988168894ed5c0f765267a634bd515628a15c591e6a951ab8b6a3949f046c> a gsh:RepositoryFile ;
+    gsh:path "examples/hygen/react-component-example/src/components/hello_world.rs" ;
+    gsh:digest "c966ee4de937c02b71fc43aedbe2fce8d98c5944c9ba5c940904ae79cabeab1d" ;
+    gsh:sizeBytes 962 ;
+    gsh:authorityClass gsh:ExecutableSource ;
+    gsh:loadBearing false ;
+    gsh:generatedMarker false .
+
 <urn:ggen:self:file:b00698303dc78f64b7a1fd613bbfce2776a44836139ad4c2b8c9093b8f7976c7> a gsh:RepositoryFile ;
     gsh:path "examples/hygen/react-component-example/templates/component.rs.tmpl" ;
     gsh:digest "bc92fe9a4d560d5d342661eb78ee2729d109a78f38a14842e26b372ddeb73732" ;
@@ -58630,16 +58654,24 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:77697613c1b23db65d7ae23bcc4660df285b31af2723517c59510783d8ed4c88> a gsh:RepositoryFile ;
     gsh:path "examples/hygen/worker-example/.ggen-v2/receipt-log.jsonl" ;
-    gsh:digest "4fcd8ccb0c2c9554f60756b1c32ae1de280bfa7b1c6160ec17b4b7d73c5dcc74" ;
-    gsh:sizeBytes 1860 ;
+    gsh:digest "e1a319a3b6df02eb0662153844f17a3e812eac8ea1fe73b26e31fa732b4e4431" ;
+    gsh:sizeBytes 8349 ;
     gsh:authorityClass gsh:Asset ;
+    gsh:loadBearing false ;
+    gsh:generatedMarker false .
+
+<urn:ggen:self:file:24e0455466909c97ac69598a9b0d6f9f85f1fe7bb1a84aca6a15084ccf1babaa> a gsh:RepositoryFile ;
+    gsh:path "examples/hygen/worker-example/.ggen-v2/receipt-portable.json" ;
+    gsh:digest "839070bf0a402b49216a26ce8ceca2cf239695d08d315d178e15beb679d1e27e" ;
+    gsh:sizeBytes 1306 ;
+    gsh:authorityClass gsh:Configuration ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
 
 <urn:ggen:self:file:c37438245811a3489e6553924dcd49335ddc1980ac76d698b5b1812391679cf7> a gsh:RepositoryFile ;
     gsh:path "examples/hygen/worker-example/.ggen-v2/receipt.json" ;
-    gsh:digest "03f5dfccf57ed4939e2eeafabe335112a79470a2d81749694d6d29624066c8b3" ;
-    gsh:sizeBytes 1859 ;
+    gsh:digest "df10d5a5aa08ac5ef15d912ee9db3563927ccfd30b6eff7b6e65cd1624dc796d" ;
+    gsh:sizeBytes 2166 ;
     gsh:authorityClass gsh:VerificationEvidence ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
@@ -58678,16 +58710,16 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:934c9bf909192b56717645ec7a93888614d3cc84b32cde3d9f7e063d2a54946c> a gsh:RepositoryFile ;
     gsh:path "examples/industry/aero-defense/.ggen-v2/receipt-log.jsonl" ;
-    gsh:digest "a5bb5bd7c8e0729997a65d027485d945a5246e36e2eb3e3c5adea43b88c5e650" ;
-    gsh:sizeBytes 19074 ;
+    gsh:digest "0cc81ed3459531cb8d238dde67ea0b920423bc8d1f7e32c20005228afba503b9" ;
+    gsh:sizeBytes 29675 ;
     gsh:authorityClass gsh:Asset ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
 
 <urn:ggen:self:file:8f814b60ee8e22a5193b8416bc654d1c4ea550cd00522b7fd85aac16e4d0ed05> a gsh:RepositoryFile ;
     gsh:path "examples/industry/aero-defense/.ggen-v2/receipt.json" ;
-    gsh:digest "ffbac9dadeafccbf53d51289b0021a9ebf47bb1869fa3ab3a2d0a66ef21378d0" ;
-    gsh:sizeBytes 3209 ;
+    gsh:digest "60be9d0a446ed91ec3427348167943ad6e152363c71f3996569821397e69fa34" ;
+    gsh:sizeBytes 3361 ;
     gsh:authorityClass gsh:VerificationEvidence ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
@@ -58710,16 +58742,16 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:e26a19e8a982871759ad0bd649b98683bb290c10796511195305b1ce146e9149> a gsh:RepositoryFile ;
     gsh:path "examples/industry/aero-defense/ggen.toml" ;
-    gsh:digest "46722ccee5537b8b4f0a594ff588f108dcac0d3cf2e88b9fa6bfdb4564be76f2" ;
-    gsh:sizeBytes 1265 ;
+    gsh:digest "965bad2844beb444b8987899469159a8c18794d50d90013ae5f737cbf1f74480" ;
+    gsh:sizeBytes 1272 ;
     gsh:authorityClass gsh:Configuration ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
 
 <urn:ggen:self:file:b314f53fbdb3f2e5929c85f34ad7a1d0cebc8d42118dcba510af5379e3ba3976> a gsh:RepositoryFile ;
     gsh:path "examples/industry/financial-ledger/.ggen-v2/receipt-log.jsonl" ;
-    gsh:digest "1a02f8c6fc97ddb3656fe02ec062c4843fb98b72ab504baeb6f1e1a71ee91a15" ;
-    gsh:sizeBytes 22935 ;
+    gsh:digest "ad92a40dfac602bc3820161139d4d8fd078a689f96200b7eb8f8d5b143608b5f" ;
+    gsh:sizeBytes 31192 ;
     gsh:authorityClass gsh:Asset ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
@@ -58734,8 +58766,8 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:3008cabbc2e3b90e8a4102001a6753963bf5a927a683c8fcfd18fe4ca308fe25> a gsh:RepositoryFile ;
     gsh:path "examples/industry/financial-ledger/.ggen-v2/receipt.json" ;
-    gsh:digest "992b0ca43a9e805ecddf7a26a559b4deacd4ef95bab741fb08cd04ed376f17a4" ;
-    gsh:sizeBytes 2520 ;
+    gsh:digest "dd23cd0b410e24bcdac96c9ae70575d304ac9d43dbb7fe52758330a85010f73f" ;
+    gsh:sizeBytes 2653 ;
     gsh:authorityClass gsh:VerificationEvidence ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
@@ -58756,18 +58788,10 @@ gsh:ggen a gsh:SelfHostProgram ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
 
-<urn:ggen:self:file:f27d78693095b450584e5dc5cbe395b0ac7240be5e7e9d4c0542989fc08b1554> a gsh:RepositoryFile ;
-    gsh:path "examples/industry/financial-ledger/ggen.lock" ;
-    gsh:digest "fdd4779e8a33647deef65211949f096ef55db77b48e7d04ff62b2415897ffd8f" ;
-    gsh:sizeBytes 255 ;
-    gsh:authorityClass gsh:Configuration ;
-    gsh:loadBearing false ;
-    gsh:generatedMarker false .
-
 <urn:ggen:self:file:4ccfb7526afb1f65b3dacab4ba3791466fb6184c73a5611a7eca5b1b10461981> a gsh:RepositoryFile ;
     gsh:path "examples/industry/financial-ledger/ggen.toml" ;
-    gsh:digest "1e3b1bf6c155feebc9a1849dc2a46472f7b1498f3cccb3860b354b7a6d77d92c" ;
-    gsh:sizeBytes 1284 ;
+    gsh:digest "4b60ae23b8468cb2a78deb4130ed03709cca439543cfda8ced6ef18f31f4f670" ;
+    gsh:sizeBytes 1285 ;
     gsh:authorityClass gsh:Configuration ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
@@ -58798,8 +58822,8 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:b880b27c21b6ee7500b9c34ad32f705bb29c87e1a9e7be57b325e0ddc389ccbb> a gsh:RepositoryFile ;
     gsh:path "examples/industry/legal-ediscovery/.ggen-v2/receipt-log.jsonl" ;
-    gsh:digest "261d3d79547f16560f42f71297839b841765db7aa08b91b6bbe8524e71af835d" ;
-    gsh:sizeBytes 27442 ;
+    gsh:digest "a701e1e80e4a998bfad1a58241ca44fa10b73a3e6649bece7fc0045045ed069c" ;
+    gsh:sizeBytes 35657 ;
     gsh:authorityClass gsh:Asset ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
@@ -58814,8 +58838,8 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:fce89fc843cfc02740d9d3aac8a4f7db93ded049dec329d29be2bed3c38f44c7> a gsh:RepositoryFile ;
     gsh:path "examples/industry/legal-ediscovery/.ggen-v2/receipt.json" ;
-    gsh:digest "ea601f62770a7fbafce0fb988d6d091d6a74446c568c7b7d7729afbae0eb9572" ;
-    gsh:sizeBytes 2506 ;
+    gsh:digest "a4a21b7e4d1469b79e37ec1a62dfc0fbe7ea52d600b72d349e59331a8b1e4776" ;
+    gsh:sizeBytes 2639 ;
     gsh:authorityClass gsh:VerificationEvidence ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
@@ -58836,18 +58860,10 @@ gsh:ggen a gsh:SelfHostProgram ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
 
-<urn:ggen:self:file:90c8e14b2620c735cbf1bf0956894028ee955066463485c8bc23a7d5d717f976> a gsh:RepositoryFile ;
-    gsh:path "examples/industry/legal-ediscovery/ggen.lock" ;
-    gsh:digest "05ea89fea27183a2f9501aa36536fd49f8ca7714fea6a15737f8cc5cdd79888e" ;
-    gsh:sizeBytes 255 ;
-    gsh:authorityClass gsh:Configuration ;
-    gsh:loadBearing false ;
-    gsh:generatedMarker false .
-
 <urn:ggen:self:file:5d54075ab24e49448ff077627dfac12cf2f7d22335153fa95b9e29751da0b3f9> a gsh:RepositoryFile ;
     gsh:path "examples/industry/legal-ediscovery/ggen.toml" ;
-    gsh:digest "9fbacc8b19a4c358b3c41c31040913a201482767780f2c432b472cd16414d705" ;
-    gsh:sizeBytes 1932 ;
+    gsh:digest "981f271336742a993918ab4a44260934db6c77e4f45b8701bc7cc1f41ebdd275" ;
+    gsh:sizeBytes 1933 ;
     gsh:authorityClass gsh:Configuration ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
@@ -58878,48 +58894,48 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:3c7264e3beac5af71f82e8be40a9179446258671d0fc73d505c9e8c18dfb3d19> a gsh:RepositoryFile ;
     gsh:path "examples/industry/manufacturing-dflss/.ggen-v2/receipt-log.jsonl" ;
-    gsh:digest "f17f1358ebe57753e7a1abd9e61bea762e8a9745a6ca906d9f28ff212c42e1f4" ;
-    gsh:sizeBytes 10640 ;
+    gsh:digest "c970f43ddadf2b752efa521bd96ddaeeb2d7a65f355f2b85beb3d16dff16e9cb" ;
+    gsh:sizeBytes 19632 ;
     gsh:authorityClass gsh:Asset ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
 
 <urn:ggen:self:file:79ec2bd3f6a07bd00825a3aa4d801dfbd76313a82d375606e42c6a8a32e33d1d> a gsh:RepositoryFile ;
     gsh:path "examples/industry/manufacturing-dflss/.ggen-v2/receipt.json" ;
-    gsh:digest "6e308027c3733cdac22dd2333267a367ccb23c208de065dd045420850ba5e730" ;
-    gsh:sizeBytes 2791 ;
+    gsh:digest "ce817161c24caa072f1d700a2a1ed39410613608603ad974b97b96cea60823b2" ;
+    gsh:sizeBytes 2813 ;
     gsh:authorityClass gsh:VerificationEvidence ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
 
 <urn:ggen:self:file:6b5d30366a8415bcf0d0172dd3daac9e542f270d7bc7725f32613f698f5dcd26> a gsh:RepositoryFile ;
     gsh:path "examples/industry/manufacturing-dflss/ggen.toml" ;
-    gsh:digest "0975697d950bcf8d3ecb989376b5303e63860e4715dd725429ff92129820fdc9" ;
-    gsh:sizeBytes 1614 ;
+    gsh:digest "ae822be0b2af578530f59bb7b0ae336db9c0888f083b88753dc87da83bb57da2" ;
+    gsh:sizeBytes 1620 ;
     gsh:authorityClass gsh:Configuration ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
 
 <urn:ggen:self:file:165c97cccd325b5d298ef5ef6d75d7c9e886a29f420de8274a7e863243b01ec5> a gsh:RepositoryFile ;
     gsh:path "examples/industry/pharma-21cfr/.ggen-v2/receipt-log.jsonl" ;
-    gsh:digest "1fd3798540f1a1b87f6b96e1cde61f5278b47df9c81e2a9705d31c46757e18f6" ;
-    gsh:sizeBytes 22635 ;
+    gsh:digest "43bf76d1295b3f8adef99378f208ef319b2c3ac3bc349f53c1e55d69906d02e0" ;
+    gsh:sizeBytes 30810 ;
     gsh:authorityClass gsh:Asset ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
 
 <urn:ggen:self:file:7794b64debe19ad6d47179f37bf49fc8a773324f9f3a342a6aef0a8b7bab844f> a gsh:RepositoryFile ;
     gsh:path "examples/industry/pharma-21cfr/.ggen-v2/receipt-portable.json" ;
-    gsh:digest "831be86f4773a544cf3ac6e6fe7f44deef8ffaa1c82697f34c633202398a8c24" ;
-    gsh:sizeBytes 1307 ;
+    gsh:digest "31539eba9f3a266e4114d1cef40b8b1c8442f6e4ce89dc186ffeedf5aa079346" ;
+    gsh:sizeBytes 1306 ;
     gsh:authorityClass gsh:Configuration ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
 
 <urn:ggen:self:file:22b017fea39270b538bb81ba638b4f483b528436824403c5011b6cc8a57e9e55> a gsh:RepositoryFile ;
     gsh:path "examples/industry/pharma-21cfr/.ggen-v2/receipt.json" ;
-    gsh:digest "b38df591ab7b50375482126eddccbf1c1faf14c4447532c45f02330ee9f68729" ;
-    gsh:sizeBytes 2596 ;
+    gsh:digest "aa067d5337a59115118b585e5047a8dec72804431675b87ecbc0fa576677a933" ;
+    gsh:sizeBytes 2728 ;
     gsh:authorityClass gsh:VerificationEvidence ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
@@ -58974,16 +58990,16 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:b0c5a5b88f62aaf941f28ce46670ed44f1978a15c59660eac9845679691afe61> a gsh:RepositoryFile ;
     gsh:path "examples/industry/semantic-cad-bim/.ggen-v2/receipt-log.jsonl" ;
-    gsh:digest "4e67e82775984afc965ac0ad1c6df79ee24946f612b903d78547218043c0e1eb" ;
-    gsh:sizeBytes 23244 ;
+    gsh:digest "e2541233fc71a1777fc28308a6aaff55dcd096acf7793bdb59e1f5691f2ed829" ;
+    gsh:sizeBytes 31299 ;
     gsh:authorityClass gsh:Asset ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
 
 <urn:ggen:self:file:24191902f5fa6efe306fcea054f5b595a5687d21843870e070561ebf71aa18a2> a gsh:RepositoryFile ;
     gsh:path "examples/industry/semantic-cad-bim/.ggen-v2/receipt.json" ;
-    gsh:digest "b56109ed3c49c64273984bbf186149cc53686bba466050ae1adf54bf7eb42301" ;
-    gsh:sizeBytes 2556 ;
+    gsh:digest "b79a8cb255bbe468a629b3fc1fbb323b34a705d940fbc8a9ef9951a127d9c73b" ;
+    gsh:sizeBytes 2688 ;
     gsh:authorityClass gsh:VerificationEvidence ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
@@ -59054,7 +59070,7 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:041552e9b470d62a89be0af6d341df9ab720b6a844f72037a1aee82e98e0c254> a gsh:RepositoryFile ;
     gsh:path "examples/instrument-gain/.ggen-v2/lease/d0afbb81125e3bed551d2889a69731e00bf47cca24b396106dd1fe12839070bd" ;
-    gsh:digest "10159baf262b43a92d95db59dae1f72c645127301661e0a3ce4e38b295a97c58" ;
+    gsh:digest "2e6d31a5983a91251bfae5aefa1c0a19d8ba3cf601d0e8a706b4cfa9661a6b8a" ;
     gsh:sizeBytes 2 ;
     gsh:authorityClass gsh:Asset ;
     gsh:loadBearing false ;
@@ -59062,15 +59078,15 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:16df06411400d0e96d07a737d86c689ceadfd0cdf2739ce746e011cb0d52e1a7> a gsh:RepositoryFile ;
     gsh:path "examples/instrument-gain/.ggen-v2/receipt-log.jsonl" ;
-    gsh:digest "f1a8576647273c480c9f076ebd438213bd0f492528ca800b497090304d07af6c" ;
-    gsh:sizeBytes 47098 ;
+    gsh:digest "f5b02ccdf303d5020b5941a93c4e0793a73265164f1ed29f279246a79737a6cd" ;
+    gsh:sizeBytes 60642 ;
     gsh:authorityClass gsh:Asset ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
 
 <urn:ggen:self:file:310be0e12bad612777af9caeb321f3db02566e05e49d4639a6e485af09987374> a gsh:RepositoryFile ;
     gsh:path "examples/instrument-gain/.ggen-v2/receipt-portable.json" ;
-    gsh:digest "8ccf3cbaca3f094e28a0c212c2483314c88b5a9b4f3128f346b35cc52c283467" ;
+    gsh:digest "f5e1dd7c5764e5a3d9284cdb47829de33ef0f25e84a6c4f25da3afb64a1c9ef8" ;
     gsh:sizeBytes 2632 ;
     gsh:authorityClass gsh:Configuration ;
     gsh:loadBearing false ;
@@ -59078,17 +59094,9 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:b41faf77dcd12f15b4915a4a1e71374654e56b682449ebfc77c6f6c4cc397b80> a gsh:RepositoryFile ;
     gsh:path "examples/instrument-gain/.ggen-v2/receipt.json" ;
-    gsh:digest "f06f2923279b3de7926109d93017bc9b5b790bbfcd7b8b63951f570e549e505d" ;
+    gsh:digest "bc689536b4931160e3f221cac6499d61ee7903bd931dcfa2d69e2569c0bd1047" ;
     gsh:sizeBytes 6771 ;
     gsh:authorityClass gsh:VerificationEvidence ;
-    gsh:loadBearing false ;
-    gsh:generatedMarker false .
-
-<urn:ggen:self:file:8cc822a825bc76ac4cf90e2c891e99454ce75df2ae421a8937d69cb4bf3240cd> a gsh:RepositoryFile ;
-    gsh:path "examples/instrument-gain/ggen.lock" ;
-    gsh:digest "521d6e63af021b65cbd14e98f1a76cb885a34190baee3093640194ae8d2fefc5" ;
-    gsh:sizeBytes 251 ;
-    gsh:authorityClass gsh:Configuration ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
 
@@ -59118,15 +59126,15 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:0e78eb7dde5f6ca077dc2a3fbe298778397838d6015ac1dcfa0e49374a33061b> a gsh:RepositoryFile ;
     gsh:path "examples/interview-assist/.ggen-v2/receipt-log.jsonl" ;
-    gsh:digest "002ea345ebd58efc4aabfd13b3ae3ab1a191e5e8c0d235766ca03c3c972b2055" ;
-    gsh:sizeBytes 370242 ;
+    gsh:digest "b461413b1adbe0085729c1e4bcefd500b3a19245342fa06b3807a40c7aedbb74" ;
+    gsh:sizeBytes 411972 ;
     gsh:authorityClass gsh:Asset ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
 
 <urn:ggen:self:file:3419ca6bdb9082c3a71bf74cb2cb28791dceb9302b8875aba38e235b9e52f5fb> a gsh:RepositoryFile ;
     gsh:path "examples/interview-assist/.ggen-v2/receipt-portable.json" ;
-    gsh:digest "002634c4eddb0a2979bdd5de4a67b802901a42d0867832f6b2e00b429af5446f" ;
+    gsh:digest "6b67bc4a5c338eb90f9820833caed11602d4409378a38724e5570099813f3b4b" ;
     gsh:sizeBytes 2313 ;
     gsh:authorityClass gsh:Configuration ;
     gsh:loadBearing false ;
@@ -59134,7 +59142,7 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:6a4920160dcb4a6946ba47c9f6b65248bee89995a720d071a34f6c658fc22d5e> a gsh:RepositoryFile ;
     gsh:path "examples/interview-assist/.ggen-v2/receipt.json" ;
-    gsh:digest "0cf86dbc2cb7837ba309bbcfa4d0a5414b275064042d0ff40651130d1d296196" ;
+    gsh:digest "f0c0b6f902e0354e26420ec7351dcb61694ae1483bbeee19c441e41bac604d6b" ;
     gsh:sizeBytes 20864 ;
     gsh:authorityClass gsh:VerificationEvidence ;
     gsh:loadBearing false ;
@@ -59371,14 +59379,6 @@ gsh:ggen a gsh:SelfHostProgram ;
     gsh:authorityClass gsh:GeneratedConsequence ;
     gsh:loadBearing false ;
     gsh:generatedMarker true .
-
-<urn:ggen:self:file:4d6cf7a0e9a1ce603299880f4e4061676df818db98d0b7a9f972a3cbfb554f99> a gsh:RepositoryFile ;
-    gsh:path "examples/interview-assist/ggen.lock" ;
-    gsh:digest "8070e274a49d9894d199087b2fa615a918823accfca277c5b9b0dddc3c0354e7" ;
-    gsh:sizeBytes 241 ;
-    gsh:authorityClass gsh:Configuration ;
-    gsh:loadBearing false ;
-    gsh:generatedMarker false .
 
 <urn:ggen:self:file:af1a2deca4f3c77048c0ae119bf7166f133dde63a944b7837a0626e0d8ad574e> a gsh:RepositoryFile ;
     gsh:path "examples/interview-assist/ggen.toml" ;
@@ -60350,15 +60350,15 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:65df991b9a97d3f47b8cab8604e081542a75de40093ee760975b911dddf9251a> a gsh:RepositoryFile ;
     gsh:path "examples/interview-sandbox/.ggen-v2/receipt-log.jsonl" ;
-    gsh:digest "edd40967852417d2b0632288d279a4b759fb49ce4270ed2cd8cb8a5af94bf033" ;
-    gsh:sizeBytes 69124 ;
+    gsh:digest "4eb9472b88e3e3c970eb89c30ba23b1bfb171a0a9ffed4940c08e93cec597788" ;
+    gsh:sizeBytes 72560 ;
     gsh:authorityClass gsh:Asset ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
 
 <urn:ggen:self:file:9ee11c4ae81364746c7ff9a4ce8b0414679a137fabea0b95a86d5ec012e7ff9c> a gsh:RepositoryFile ;
     gsh:path "examples/interview-sandbox/.ggen-v2/receipt-portable.json" ;
-    gsh:digest "926b2b2660dcefd626e8fdd32e0f31d39e440243891a1a90ddf06029ca4df747" ;
+    gsh:digest "3ebd26b30572e29989289d914f488e420c84da6396e14d7dec07bc45d905ad4b" ;
     gsh:sizeBytes 1306 ;
     gsh:authorityClass gsh:Configuration ;
     gsh:loadBearing false ;
@@ -60366,7 +60366,7 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:bc7f49f3ac93ec9e77d9e955f6a8729734696f3a7f4f645fc2fe1216e639b5a8> a gsh:RepositoryFile ;
     gsh:path "examples/interview-sandbox/.ggen-v2/receipt.json" ;
-    gsh:digest "9850555ca619e494e2ca4727be76874b5f079e94cdcc38aa226070b3a5a422e0" ;
+    gsh:digest "891ff6b6b65710e1bfc1ef31646e5bd00392ad4371a0446ba4afdf6aea293d26" ;
     gsh:sizeBytes 1717 ;
     gsh:authorityClass gsh:VerificationEvidence ;
     gsh:loadBearing false ;
@@ -60425,14 +60425,6 @@ gsh:ggen a gsh:SelfHostProgram ;
     gsh:digest "5e3f4cbdcefdf74d0a532391fe833e5acefb84796b050fe07bcc4383c9f12b0c" ;
     gsh:sizeBytes 870 ;
     gsh:authorityClass gsh:ExecutableSource ;
-    gsh:loadBearing false ;
-    gsh:generatedMarker false .
-
-<urn:ggen:self:file:c499c03a2c870657426bc912b0f470325215c76817d4a3fb5a5e9436b789eec2> a gsh:RepositoryFile ;
-    gsh:path "examples/interview-sandbox/ggen.lock" ;
-    gsh:digest "36e433a32d92bac3c193d0231687fc8dd7e3c5e5681dd10bb2b5eee1910100bb" ;
-    gsh:sizeBytes 237 ;
-    gsh:authorityClass gsh:Configuration ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
 
@@ -60582,15 +60574,15 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:83338ed4fff6d79779473fb097344ea1d19f422332e6c7ef7aebef2f675655fc> a gsh:RepositoryFile ;
     gsh:path "examples/knn-parallel-ensemble-family/.ggen-v2/receipt-log.jsonl" ;
-    gsh:digest "44562787dd1ed5498c91ddcdd21a8a86f21e58709baabec2a5acae3c2ebc8e92" ;
-    gsh:sizeBytes 17884 ;
+    gsh:digest "0566ae81a83b4f60f523c3fc759c2a9c4533b5ca29a065534c4d79a3b29818f3" ;
+    gsh:sizeBytes 25112 ;
     gsh:authorityClass gsh:Asset ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
 
 <urn:ggen:self:file:c8f2f72ecefb4c4a47079b155e3ee71cd4a3957aedef88f0abe5acb59d69eaf4> a gsh:RepositoryFile ;
     gsh:path "examples/knn-parallel-ensemble-family/.ggen-v2/receipt-portable.json" ;
-    gsh:digest "9253ecc57a5b800a4dd117b9433358ee33a0d3d2f6e8133ee8513242a231c865" ;
+    gsh:digest "7f256f020a0f4a8a4706abba6455d892dfb361ada81d88f9f3b66d3251522b8d" ;
     gsh:sizeBytes 1600 ;
     gsh:authorityClass gsh:Configuration ;
     gsh:loadBearing false ;
@@ -60598,17 +60590,9 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:51b7a94b637fafbf0a03e75047251c3fb5c8a5e37af5d3986a9cabebfa34db9d> a gsh:RepositoryFile ;
     gsh:path "examples/knn-parallel-ensemble-family/.ggen-v2/receipt.json" ;
-    gsh:digest "9f7c92508cb0718593dae560467b1fc98d54d1d160281912547f4522929cd936" ;
+    gsh:digest "8d918a5c6e4391b2b94c7024453bdd02da19aa05003dd20cc0b4fdbdced9778f" ;
     gsh:sizeBytes 3613 ;
     gsh:authorityClass gsh:VerificationEvidence ;
-    gsh:loadBearing false ;
-    gsh:generatedMarker false .
-
-<urn:ggen:self:file:92b9aa5c1f9f5fdfe557a5582f22c28fb05fe0db85ff64cfb8060efc29abee0e> a gsh:RepositoryFile ;
-    gsh:path "examples/knn-parallel-ensemble-family/ggen.lock" ;
-    gsh:digest "579fb3783e4e027227c0d9bcfb87bbc1ccd3cad843ba271f7d7869a9d2a1d15f" ;
-    gsh:sizeBytes 201 ;
-    gsh:authorityClass gsh:Configuration ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
 
@@ -60689,14 +60673,6 @@ gsh:ggen a gsh:SelfHostProgram ;
     gsh:digest "fba834dfb0ee3dd8d94b6f0f84f3e2e65c49cdb9906233f70d482ad3865d73db" ;
     gsh:sizeBytes 744 ;
     gsh:authorityClass gsh:Documentation ;
-    gsh:loadBearing false ;
-    gsh:generatedMarker false .
-
-<urn:ggen:self:file:82916cab7de1df5e22827f9aea65fdb118fef7015fb9b869bb1e5b29c38e5116> a gsh:RepositoryFile ;
-    gsh:path "examples/lsp-max-verify/ggen.lock" ;
-    gsh:digest "7edfc68e12445aaffef1e0c3071d207aa44d4bf3baa3a2792fcd60e69bc1c72b" ;
-    gsh:sizeBytes 207 ;
-    gsh:authorityClass gsh:Configuration ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
 
@@ -60798,15 +60774,15 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:56dc3c9ff53ece6c96022b6217a3661da617df5ef15006083fff4d1c52eef51f> a gsh:RepositoryFile ;
     gsh:path "examples/multi-hop-qa/.ggen-v2/receipt-log.jsonl" ;
-    gsh:digest "f7857a015962d82d365dda5a249f61aa0ef24aed527ce9cbc44e239e3d397349" ;
-    gsh:sizeBytes 10608 ;
+    gsh:digest "c3b9705bdad1f1d11f03be85b9a6f5efd6ecc75380c03f8c3f509f7bcc735dd1" ;
+    gsh:sizeBytes 17804 ;
     gsh:authorityClass gsh:Asset ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
 
 <urn:ggen:self:file:f055113b5f1cfff9c6692b6ba35041701b8ab53db1359446671bc67d5140a6e6> a gsh:RepositoryFile ;
     gsh:path "examples/multi-hop-qa/.ggen-v2/receipt-portable.json" ;
-    gsh:digest "a8aeae57e00b668a7c1da24cf4d1eeabd2543de59c9c822971b5306b98041f7e" ;
+    gsh:digest "64592d79664dff3a53a79079f13d94b29c6efa550e647844b7cc73a7ea93771b" ;
     gsh:sizeBytes 1600 ;
     gsh:authorityClass gsh:Configuration ;
     gsh:loadBearing false ;
@@ -60814,17 +60790,9 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:7f9d13db3dc04c48302178d9dfa9108795425fe66e87909b876effcc0ae846cf> a gsh:RepositoryFile ;
     gsh:path "examples/multi-hop-qa/.ggen-v2/receipt.json" ;
-    gsh:digest "a09a94c20db7f1e6fd8f661ec19dbb773d020e880fedf5ad98736bf2f2c59b29" ;
+    gsh:digest "a5c8a779078a3c8e09b235b204d2fefdf1549b8ac5e4ebd480bd293cdd604452" ;
     gsh:sizeBytes 3597 ;
     gsh:authorityClass gsh:VerificationEvidence ;
-    gsh:loadBearing false ;
-    gsh:generatedMarker false .
-
-<urn:ggen:self:file:6ff8df9ba094c53010a3ddac0721a517bfaec157412555346bee17ac839576ce> a gsh:RepositoryFile ;
-    gsh:path "examples/multi-hop-qa/ggen.lock" ;
-    gsh:digest "579fb3783e4e027227c0d9bcfb87bbc1ccd3cad843ba271f7d7869a9d2a1d15f" ;
-    gsh:sizeBytes 201 ;
-    gsh:authorityClass gsh:Configuration ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
 
@@ -60894,15 +60862,15 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:f5135845d8fe429136a17810e47e7d68ec8cad6d14d09d16dfd7d867873be53f> a gsh:RepositoryFile ;
     gsh:path "examples/nextjs-ai-sdk/.ggen-v2/receipt-log.jsonl" ;
-    gsh:digest "6d4b2d57627245634b29fc9d0440a0f8c6d22d836f1ec32e989512f41dc17fcc" ;
-    gsh:sizeBytes 87297 ;
+    gsh:digest "f40e403325c63c904c181378a876a42ba14661b9a06d63a959126f286d7cf98e" ;
+    gsh:sizeBytes 139759 ;
     gsh:authorityClass gsh:Asset ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
 
 <urn:ggen:self:file:98976d6ea3f1649d2b4c7939b469ea56190ccd3014adcee225ac88a1806a1afc> a gsh:RepositoryFile ;
     gsh:path "examples/nextjs-ai-sdk/.ggen-v2/receipt-portable.json" ;
-    gsh:digest "265aacf935601067271c40a0f4bd4d44c663c2dbcdfe2ab43159ba173e79e837" ;
+    gsh:digest "1a9a4310a10201c6fe3ed8fb7d2fcb5ef2079da60693cebf96e3a8af5226bfb6" ;
     gsh:sizeBytes 1745 ;
     gsh:authorityClass gsh:Configuration ;
     gsh:loadBearing false ;
@@ -60910,7 +60878,7 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:b4c4cf4306d5d4b4a34e392204da04bc5399cf679e7e12290dc66601e42ce0a9> a gsh:RepositoryFile ;
     gsh:path "examples/nextjs-ai-sdk/.ggen-v2/receipt.json" ;
-    gsh:digest "00804fda645f59a05f7b9e3e4609f7c839ff0e7576bdaf012610af4e350e65c9" ;
+    gsh:digest "7e26ffed89a9bcc87461addb0a2115c851fd506160e45b21b29f42589bc11ba0" ;
     gsh:sizeBytes 26230 ;
     gsh:authorityClass gsh:VerificationEvidence ;
     gsh:loadBearing false ;
@@ -61097,14 +61065,6 @@ gsh:ggen a gsh:SelfHostProgram ;
     gsh:digest "b49d242a03027e457298a78127e7e13c27c48213cc387ef6c544beb4c4f49e39" ;
     gsh:sizeBytes 2739 ;
     gsh:authorityClass gsh:Asset ;
-    gsh:loadBearing false ;
-    gsh:generatedMarker false .
-
-<urn:ggen:self:file:27596c9331d430cd70c66ffa8078f66813f79f0968021152329f729a8c41c1be> a gsh:RepositoryFile ;
-    gsh:path "examples/nextjs-ai-sdk/ggen.lock" ;
-    gsh:digest "403d649dd9cf199d76b35bbf7f0b5a51fa5a79014732ff372a06d511b88433de" ;
-    gsh:sizeBytes 193 ;
-    gsh:authorityClass gsh:Configuration ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
 
@@ -61974,15 +61934,15 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:2ec8c2472b204866a803f0e5055fbb6a1025f684ced4d8cbfa7d6b411525f253> a gsh:RepositoryFile ;
     gsh:path "examples/optimizers-bootstrap-family/.ggen-v2/receipt-log.jsonl" ;
-    gsh:digest "d90e67a9166df25f10f5e669105cd296e8628ae23c333934eca497d1a8fd36e1" ;
-    gsh:sizeBytes 10653 ;
+    gsh:digest "a159b3f739bd693cda6919bee2f7bfdf28fb90937b7aaa5647902d9252e1a792" ;
+    gsh:sizeBytes 17879 ;
     gsh:authorityClass gsh:Asset ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
 
 <urn:ggen:self:file:0e258abe2dbbc8dd30fa46a1e1637ffe20aed2887e80d25907a931f131ea848b> a gsh:RepositoryFile ;
     gsh:path "examples/optimizers-bootstrap-family/.ggen-v2/receipt-portable.json" ;
-    gsh:digest "32c2c1c28ff8ea3270286d938dd5fd7741ea52e82d135fdad7682fc37ab0cf1a" ;
+    gsh:digest "0e16a29186e67a3dc4cf8b2faab3e01a3d9d58ab4ea1779f6852fad0955ba305" ;
     gsh:sizeBytes 1600 ;
     gsh:authorityClass gsh:Configuration ;
     gsh:loadBearing false ;
@@ -61990,17 +61950,9 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:c0094f38c93855fc632ab4adc56193bc1efe4f5259385b72dff6394e43926904> a gsh:RepositoryFile ;
     gsh:path "examples/optimizers-bootstrap-family/.ggen-v2/receipt.json" ;
-    gsh:digest "92c47bf3a17f918db0a63847bc027f84fdafeee4cc4e3f91e9315eeffe61f919" ;
+    gsh:digest "b070462b183823eb85040dce822b75dd6a0cf14732aee9addde8010da9e202a9" ;
     gsh:sizeBytes 3612 ;
     gsh:authorityClass gsh:VerificationEvidence ;
-    gsh:loadBearing false ;
-    gsh:generatedMarker false .
-
-<urn:ggen:self:file:a6e2519245a0f2c22e94c52c7adbd3fa56ae0c53611bdd32a7f291ba0f24b04f> a gsh:RepositoryFile ;
-    gsh:path "examples/optimizers-bootstrap-family/ggen.lock" ;
-    gsh:digest "579fb3783e4e027227c0d9bcfb87bbc1ccd3cad843ba271f7d7869a9d2a1d15f" ;
-    gsh:sizeBytes 201 ;
-    gsh:authorityClass gsh:Configuration ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
 
@@ -62078,15 +62030,15 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:9dcdec10af6cc82aa013704d16486abc4f1c02338019703f18f7657bd7983d77> a gsh:RepositoryFile ;
     gsh:path "examples/optimizers-misc-family/.ggen-v2/receipt-log.jsonl" ;
-    gsh:digest "577a6b8c3dd8369f107a28f5aa8e29f76cfe187cb0fb2bc762bf0ede416a22a3" ;
-    gsh:sizeBytes 10638 ;
+    gsh:digest "f86a8920df709af432d1b5ec3ffb41c2ebb3ed4c7d32250fbcce65224d88174b" ;
+    gsh:sizeBytes 17854 ;
     gsh:authorityClass gsh:Asset ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
 
 <urn:ggen:self:file:81dd9d0e301c725bfaf7a3150c370a0bd26246509757646d662d3a60c9f73df4> a gsh:RepositoryFile ;
     gsh:path "examples/optimizers-misc-family/.ggen-v2/receipt-portable.json" ;
-    gsh:digest "3110bb9ed333930df29052d312ff2a0115623dd2aeaf7094c876f15b7fc20aa4" ;
+    gsh:digest "3c72f349b2b3d1faa911e44c214992f89ae340d8fc55d5e8b477f21f2cb1918e" ;
     gsh:sizeBytes 1600 ;
     gsh:authorityClass gsh:Configuration ;
     gsh:loadBearing false ;
@@ -62094,17 +62046,9 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:60fe713a60f6dc318f4093056db46b481b4c1035684cb93fa8a2f0dba3493901> a gsh:RepositoryFile ;
     gsh:path "examples/optimizers-misc-family/.ggen-v2/receipt.json" ;
-    gsh:digest "e88e2da2f35cb1b7c9f442715f22c7f7554e6d9c9de6b05926b2b1130d898ec3" ;
+    gsh:digest "28f39379eb02dcb167471fd3b01dcd48d97e67d7f07cfa0feae5368426340f7d" ;
     gsh:sizeBytes 3607 ;
     gsh:authorityClass gsh:VerificationEvidence ;
-    gsh:loadBearing false ;
-    gsh:generatedMarker false .
-
-<urn:ggen:self:file:54563b250311f3040ac57907deb66aff559bd0105686ed07b44ea12dc785de66> a gsh:RepositoryFile ;
-    gsh:path "examples/optimizers-misc-family/ggen.lock" ;
-    gsh:digest "579fb3783e4e027227c0d9bcfb87bbc1ccd3cad843ba271f7d7869a9d2a1d15f" ;
-    gsh:sizeBytes 201 ;
-    gsh:authorityClass gsh:Configuration ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
 
@@ -62182,15 +62126,15 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:47dd5c92fad606135c36fdb254b8ebafcd1339f2b36c8a9f7300412ea6b9d4e7> a gsh:RepositoryFile ;
     gsh:path "examples/optimizers-prompt-family/.ggen-v2/receipt-log.jsonl" ;
-    gsh:digest "0da2698d49b2bf62d0ea780b9f839fc3705f12dc8735488fb7206fe9f58a4a13" ;
-    gsh:sizeBytes 10644 ;
+    gsh:digest "7b05aa56a60723e80311cf77577d1aeece20f641716651e68f7b7188ccb2082d" ;
+    gsh:sizeBytes 17864 ;
     gsh:authorityClass gsh:Asset ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
 
 <urn:ggen:self:file:5b986e2f465f41c9b0bbb66bd8b6d059d0c9c4e96386fef645f85161575dc02c> a gsh:RepositoryFile ;
     gsh:path "examples/optimizers-prompt-family/.ggen-v2/receipt-portable.json" ;
-    gsh:digest "cb1e7dfe426e93d1994b908ca6a28de2215b2733d0b54d89e163c342adbf7e84" ;
+    gsh:digest "a4408352e5566ba42735568206c539abe66f134bd95118580f4cd5214c0fe53b" ;
     gsh:sizeBytes 1600 ;
     gsh:authorityClass gsh:Configuration ;
     gsh:loadBearing false ;
@@ -62198,17 +62142,9 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:ad19311e0bf85b8e477cd32e01c2cec2a44015ff91deaf1f820063b438072133> a gsh:RepositoryFile ;
     gsh:path "examples/optimizers-prompt-family/.ggen-v2/receipt.json" ;
-    gsh:digest "49019503f769c0e22f9fa80c40ffca2e0b7dd97ebf0270d716e6232eb4b17c93" ;
+    gsh:digest "4736439c15437e546677d7c214958772e2bb7fffca6fa32584a268b5c34bfb4b" ;
     gsh:sizeBytes 3609 ;
     gsh:authorityClass gsh:VerificationEvidence ;
-    gsh:loadBearing false ;
-    gsh:generatedMarker false .
-
-<urn:ggen:self:file:4d2829932f429b24934ec604c93f1327e2e2c7cc71b8d440f13ae6fd389907fb> a gsh:RepositoryFile ;
-    gsh:path "examples/optimizers-prompt-family/ggen.lock" ;
-    gsh:digest "579fb3783e4e027227c0d9bcfb87bbc1ccd3cad843ba271f7d7869a9d2a1d15f" ;
-    gsh:sizeBytes 201 ;
-    gsh:authorityClass gsh:Configuration ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
 
@@ -62262,16 +62198,16 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:028e84aa17c226b2a3975a737a9dee6b1307af195331bab08f2d2d6d020f7266> a gsh:RepositoryFile ;
     gsh:path "examples/part-passport/.ggen-v2/receipt-log.jsonl" ;
-    gsh:digest "9fbb5ab482517c2d970272f472aa42e4720db7567c1c80ee96589b03a68dbefe" ;
-    gsh:sizeBytes 17718 ;
+    gsh:digest "c0045469d464db04614200a642aa3e360b3d4617ea86314644bbc63798dfcd6f" ;
+    gsh:sizeBytes 25489 ;
     gsh:authorityClass gsh:Asset ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
 
 <urn:ggen:self:file:6a9e729097d7ec94eb7da387049d32bb8fc5751666be57a641b0c993166f89b2> a gsh:RepositoryFile ;
     gsh:path "examples/part-passport/.ggen-v2/receipt.json" ;
-    gsh:digest "1fe0edd529f72f32d3f98f7417fbf6ed02603bb64298e113e646def8f3a57e00" ;
-    gsh:sizeBytes 2531 ;
+    gsh:digest "46eab6cc2749bf8afaffee5f37ce12e252d45dfbee53ab0a651b18f74a82bce0" ;
+    gsh:sizeBytes 2620 ;
     gsh:authorityClass gsh:VerificationEvidence ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
@@ -62526,15 +62462,15 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:c2cff60aaca5725069272e19a2b42fd866db7a555fa3b98966ea32806aafc8f4> a gsh:RepositoryFile ;
     gsh:path "examples/pcq-marketplace/.ggen-v2/receipt-log.jsonl" ;
-    gsh:digest "ef614217c77bfc41e99a868366920b938ee9c04b6de0d65fba5ad4e6b2d68802" ;
-    gsh:sizeBytes 40044 ;
+    gsh:digest "a0a314d576f33dac902c6e100e82bd95a3f7dbcfeb5c543960c19bdcfc6acc77" ;
+    gsh:sizeBytes 67664 ;
     gsh:authorityClass gsh:Asset ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
 
 <urn:ggen:self:file:61c50f222b07228013c520fac42dd3ddcd2714bae577c2307459d44f673fcc17> a gsh:RepositoryFile ;
     gsh:path "examples/pcq-marketplace/.ggen-v2/receipt-portable.json" ;
-    gsh:digest "8329ddce2a83a47a5fcf1bacb6c2002019770a88481eb38a6fdde16868b51911" ;
+    gsh:digest "9433e6380a41a8ecb36cd7b592512bbb40527273f1aecc64566649831ac9f4cb" ;
     gsh:sizeBytes 1815 ;
     gsh:authorityClass gsh:Configuration ;
     gsh:loadBearing false ;
@@ -62542,7 +62478,7 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:2e377c904395fb6ab2b69f93ff16dee4e804c325936103b056fa0eca5f1fbc14> a gsh:RepositoryFile ;
     gsh:path "examples/pcq-marketplace/.ggen-v2/receipt.json" ;
-    gsh:digest "4e46021a6cee88957de2b4edee815b6d24f4f42c978f982f2047d9db5fdd56f1" ;
+    gsh:digest "5294ebccc16ae453487e02084ef4ecc6f86db819e2750341d7ae08fb9f90bdbe" ;
     gsh:sizeBytes 13809 ;
     gsh:authorityClass gsh:VerificationEvidence ;
     gsh:loadBearing false ;
@@ -62633,14 +62569,6 @@ gsh:ggen a gsh:SelfHostProgram ;
     gsh:digest "fbede20a406065f0cc5e57e59ef07d7e705844ad74393529aea1e656d25579b6" ;
     gsh:sizeBytes 512 ;
     gsh:authorityClass gsh:ExecutableSource ;
-    gsh:loadBearing false ;
-    gsh:generatedMarker false .
-
-<urn:ggen:self:file:b27c25af37f308b4a0b7d06d7b243983ea7dc42330de8782c1ee8f63996ba3db> a gsh:RepositoryFile ;
-    gsh:path "examples/pcq-marketplace/ggen.lock" ;
-    gsh:digest "f01b7ecaebd9fa23637059255c2751e51b99cca7f2906ac65b374c6d167948e0" ;
-    gsh:sizeBytes 223 ;
-    gsh:authorityClass gsh:Configuration ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
 
@@ -62790,15 +62718,15 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:1a885615bc4f8041e7949885d829e21b63c2b9434733c37a23e745ee134fb6e8> a gsh:RepositoryFile ;
     gsh:path "examples/pydantic-model-fields/.ggen-v2/receipt-log.jsonl" ;
-    gsh:digest "9d36f341d25da5609c769f51400c7d8608aa46d63723950574967c47ca142652" ;
-    gsh:sizeBytes 10635 ;
+    gsh:digest "c7faf1e06fccd939fd1fd05084457be6331fd01ddd5d4695c493d816752d50d2" ;
+    gsh:sizeBytes 17849 ;
     gsh:authorityClass gsh:Asset ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
 
 <urn:ggen:self:file:175e5de5905b964e175e6877ceffc497811c884778d059e6cb8991f09e5de6c3> a gsh:RepositoryFile ;
     gsh:path "examples/pydantic-model-fields/.ggen-v2/receipt-portable.json" ;
-    gsh:digest "55fe58eea428ced26705857d61dd41f35f686847637a8a8971086ed5353b32c6" ;
+    gsh:digest "6092c46dd5bebaec5071dcf4b405685ce79f19fc085ec9cfc2e208530197551d" ;
     gsh:sizeBytes 1600 ;
     gsh:authorityClass gsh:Configuration ;
     gsh:loadBearing false ;
@@ -62806,17 +62734,9 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:a255f919a00a08e4949b2f8ced4e67eb575c5e54f7ccc8b1c13af9cc9a2f0704> a gsh:RepositoryFile ;
     gsh:path "examples/pydantic-model-fields/.ggen-v2/receipt.json" ;
-    gsh:digest "d360e95590ae0725c184cbfcc533e0ae8ce20b410f46b0c230ba419cf3ae7d1e" ;
+    gsh:digest "3d17883bde999d122c82147c2970d9bfbfbb15b40ce56c9bdc396ddc8a8c27ed" ;
     gsh:sizeBytes 3606 ;
     gsh:authorityClass gsh:VerificationEvidence ;
-    gsh:loadBearing false ;
-    gsh:generatedMarker false .
-
-<urn:ggen:self:file:0bba64eb36ab01d81643f5aaf6b46dd3ea618cc0f2d4a0898da8a2e2b1d5ba76> a gsh:RepositoryFile ;
-    gsh:path "examples/pydantic-model-fields/ggen.lock" ;
-    gsh:digest "579fb3783e4e027227c0d9bcfb87bbc1ccd3cad843ba271f7d7869a9d2a1d15f" ;
-    gsh:sizeBytes 201 ;
-    gsh:authorityClass gsh:Configuration ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
 
@@ -62894,15 +62814,15 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:91812f1f8c5f5eddbeb5d75a0509e38caa1e4005e7e7cf3b5f4affe8d3bf588d> a gsh:RepositoryFile ;
     gsh:path "examples/rag-pipeline/.ggen-v2/receipt-log.jsonl" ;
-    gsh:digest "fb90db53d3906452ba06996243a78ee0e287be96169bb501afe5ded1a29d52be" ;
-    gsh:sizeBytes 10608 ;
+    gsh:digest "60b73ed99d7674ccfb015943cfb5812ab331cc9d84b680d10c2db546d65e68b4" ;
+    gsh:sizeBytes 17804 ;
     gsh:authorityClass gsh:Asset ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
 
 <urn:ggen:self:file:db9f97ebc2c12cbdadd2722d98675aa17f7012210b5fe38cd5da6e39fa874b65> a gsh:RepositoryFile ;
     gsh:path "examples/rag-pipeline/.ggen-v2/receipt-portable.json" ;
-    gsh:digest "45ebc1ca8fbfb06bb8d4ee2f59227175797264beaaa38b230a6866fa07cd8f12" ;
+    gsh:digest "d5a26e130c84b8a6b2e7daabac44053c6712ded012281adb6b83a8d3f6a53585" ;
     gsh:sizeBytes 1600 ;
     gsh:authorityClass gsh:Configuration ;
     gsh:loadBearing false ;
@@ -62910,17 +62830,9 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:af3b9ac01df17a90011e328297f27f358b3df219e28e7b886c2e4e84458f5d12> a gsh:RepositoryFile ;
     gsh:path "examples/rag-pipeline/.ggen-v2/receipt.json" ;
-    gsh:digest "df9bf396b24572c1f467b82dfe0e298c6774822685ef29e251ed48d4eeca8c97" ;
+    gsh:digest "e7b4089aa1e679af0cf9372a8d17cbd0ca74d05aecd6432fa52d1dbb45abeb52" ;
     gsh:sizeBytes 3597 ;
     gsh:authorityClass gsh:VerificationEvidence ;
-    gsh:loadBearing false ;
-    gsh:generatedMarker false .
-
-<urn:ggen:self:file:912b3c40b12e6803f90216920068c75fa73ed4e5b23f956ed8f51d967160428d> a gsh:RepositoryFile ;
-    gsh:path "examples/rag-pipeline/ggen.lock" ;
-    gsh:digest "579fb3783e4e027227c0d9bcfb87bbc1ccd3cad843ba271f7d7869a9d2a1d15f" ;
-    gsh:sizeBytes 201 ;
-    gsh:authorityClass gsh:Configuration ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
 
@@ -63051,14 +62963,6 @@ gsh:ggen a gsh:SelfHostProgram ;
     gsh:authorityClass gsh:GeneratedConsequence ;
     gsh:loadBearing false ;
     gsh:generatedMarker true .
-
-<urn:ggen:self:file:7c150c3032548a7bfe0f91658ea719c91f0edb52f1dba8849cc99a78106ac041> a gsh:RepositoryFile ;
-    gsh:path "examples/receiptctl/ggen.lock" ;
-    gsh:digest "90c6d2e8c26964dbeb1968be280eeca8cd33f9868adc5a46cbec86c9c1857e6b" ;
-    gsh:sizeBytes 1069 ;
-    gsh:authorityClass gsh:Configuration ;
-    gsh:loadBearing false ;
-    gsh:generatedMarker false .
 
 <urn:ggen:self:file:4465a8d5a399afbe3a94854ee96c3c703526c5846f110ea3154e082d54864b2c> a gsh:RepositoryFile ;
     gsh:path "examples/receiptctl/ggen.toml" ;
@@ -63316,14 +63220,6 @@ gsh:ggen a gsh:SelfHostProgram ;
     gsh:loadBearing false ;
     gsh:generatedMarker true .
 
-<urn:ggen:self:file:d9826d4877350cb4e95a843d8c40d95692d7230c5d00cf97c489dbe617e1fa0f> a gsh:RepositoryFile ;
-    gsh:path "examples/rmcp-verify/ggen.lock" ;
-    gsh:digest "22a9905771d52afdf0c4a1f28283a2a04401d0487d4e259ef7f4cf4b2d8de0d0" ;
-    gsh:sizeBytes 201 ;
-    gsh:authorityClass gsh:Configuration ;
-    gsh:loadBearing false ;
-    gsh:generatedMarker false .
-
 <urn:ggen:self:file:f944ad0a7970a471dfa11664b9b1a7123bee3b284131bd9280fd5449ec1e9a82> a gsh:RepositoryFile ;
     gsh:path "examples/rmcp-verify/ggen.toml" ;
     gsh:digest "52f9d68f87b1d5bf7410b1d2e7b47d307b17cdb33cae11bcdfb0cad8fb25d7d9" ;
@@ -63486,15 +63382,15 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:f61fc8ccc228a27b7d9d8e1112dcee11df80092dce8d3cad0229969c934677bc> a gsh:RepositoryFile ;
     gsh:path "examples/safe-ea-strategy-self-play/.ggen-v2/receipt-log.jsonl" ;
-    gsh:digest "34dd5555eb928906c7db99624de989abd5d543ab4d8d55ad60ee8082098e3257" ;
-    gsh:sizeBytes 17502 ;
+    gsh:digest "4c9f6509a8112e8c069db50cad1cc5139ae821cd6bdbf707d3ad1b291a0641a2" ;
+    gsh:sizeBytes 35284 ;
     gsh:authorityClass gsh:Asset ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
 
 <urn:ggen:self:file:e601acf899a771857eea6cd7a5c65753c364b1bf95aa2319ce88ecdbc64ff7b7> a gsh:RepositoryFile ;
     gsh:path "examples/safe-ea-strategy-self-play/.ggen-v2/receipt-portable.json" ;
-    gsh:digest "ba4458f6b0a2322d836974970f435c6e1fa10382fe490dadde8f8445ab3684ae" ;
+    gsh:digest "d64dc289eb654073eee4d81eaad487263d7f5a8ce96567b90901037468a69bf6" ;
     gsh:sizeBytes 2011 ;
     gsh:authorityClass gsh:Configuration ;
     gsh:loadBearing false ;
@@ -63502,7 +63398,7 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:5c6bc264a614979ff4c7225e0d96ed4268cbb15d293ad58de9bc0c5cd7c51f8f> a gsh:RepositoryFile ;
     gsh:path "examples/safe-ea-strategy-self-play/.ggen-v2/receipt.json" ;
-    gsh:digest "2343326e48e1066ecf43c69a13af50e66be7da66e334b121a10fef49dabd16cd" ;
+    gsh:digest "c7102a039937ee475b893998fb0ceb0dd459c60f2ab11017db1fceff182c6ef7" ;
     gsh:sizeBytes 5955 ;
     gsh:authorityClass gsh:VerificationEvidence ;
     gsh:loadBearing false ;
@@ -63524,10 +63420,10 @@ gsh:ggen a gsh:SelfHostProgram ;
     gsh:loadBearing false ;
     gsh:generatedMarker true .
 
-<urn:ggen:self:file:400bd800793218137a6ac5c32f9efee113f47142bd35ff346b675501adb9b30a> a gsh:RepositoryFile ;
-    gsh:path "examples/safe-ea-strategy-self-play/ggen.lock" ;
-    gsh:digest "c56cf867d0af080bc4f4a8df7a53f539d9006f5cfc6c1fff7d2a6f278b16dea8" ;
-    gsh:sizeBytes 245 ;
+<urn:ggen:self:file:4bead079ab9737f0061907a05da488a711854c086dc46649a9ed8c6dc5d7ad68> a gsh:RepositoryFile ;
+    gsh:path "examples/safe-ea-strategy-self-play/ea.graph.json" ;
+    gsh:digest "200a470ebc45e91c4a841cab88b37e45f0a3b2360e7619784d1103e23d2e1609" ;
+    gsh:sizeBytes 2843 ;
     gsh:authorityClass gsh:Configuration ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
@@ -63603,14 +63499,6 @@ gsh:ggen a gsh:SelfHostProgram ;
     gsh:authorityClass gsh:GeneratedConsequence ;
     gsh:loadBearing false ;
     gsh:generatedMarker true .
-
-<urn:ggen:self:file:6cca61532e090c40283dd827f284c815c40fc50486b1edaf6aaadba0c36818b7> a gsh:RepositoryFile ;
-    gsh:path "examples/star-toml-verify/ggen.lock" ;
-    gsh:digest "0ebdaa54934bee97855afc07e5d7bbafe14a3795ce5f0dbc8743c04ca3f8bdf3" ;
-    gsh:sizeBytes 211 ;
-    gsh:authorityClass gsh:Configuration ;
-    gsh:loadBearing false ;
-    gsh:generatedMarker false .
 
 <urn:ggen:self:file:6b694d136b9bad6e95599aa16b14a9feee15448c78aa63ad547971bcbedd6112> a gsh:RepositoryFile ;
     gsh:path "examples/star-toml-verify/ggen.toml" ;
@@ -63708,14 +63596,6 @@ gsh:ggen a gsh:SelfHostProgram ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
 
-<urn:ggen:self:file:372a445462adfd65e5230972ca5a089b08e20ae0f295749a657d17fd0ee2aae5> a gsh:RepositoryFile ;
-    gsh:path "examples/tai-enterprise-rebuild/ggen.lock" ;
-    gsh:digest "ffbf4dfa5a09f8c69ab05d58a77a9d9e61d8a7f031ffcdda47b169a4d76b3889" ;
-    gsh:sizeBytes 237 ;
-    gsh:authorityClass gsh:Configuration ;
-    gsh:loadBearing false ;
-    gsh:generatedMarker false .
-
 <urn:ggen:self:file:69d126998533ee8df1a63be0bb436b623587bada118dba222af51e00561e724c> a gsh:RepositoryFile ;
     gsh:path "examples/tai-enterprise-rebuild/ggen.toml" ;
     gsh:digest "391e0fddccfda8adfbff539683c93523094741cb28ec850823127ed294e45267" ;
@@ -63740,9 +63620,73 @@ gsh:ggen a gsh:SelfHostProgram ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
 
+<urn:ggen:self:file:7b2385854d7c4690f9179ea0dd59490bf6bf0f1816b813260dfafe2e0a689ede> a gsh:RepositoryFile ;
+    gsh:path "examples/tcps-generated/.ggen-v2/lease/01a4028136761c490d733fb1e352b5559aa77597f6c79dc5d7b9cbbb8153ebe1" ;
+    gsh:digest "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865" ;
+    gsh:sizeBytes 2 ;
+    gsh:authorityClass gsh:Asset ;
+    gsh:loadBearing false ;
+    gsh:generatedMarker false .
+
+<urn:ggen:self:file:91ed1553905959db1047e9e7cdc4743a58601352f681c44a8a72c8a6058ca169> a gsh:RepositoryFile ;
+    gsh:path "examples/tcps-generated/.ggen-v2/lease/293ee2156cca2f264bfc06b73c0887998e2e2a500d63e943c011a4e15c1d836a" ;
+    gsh:digest "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865" ;
+    gsh:sizeBytes 2 ;
+    gsh:authorityClass gsh:Asset ;
+    gsh:loadBearing false ;
+    gsh:generatedMarker false .
+
+<urn:ggen:self:file:e581203e94906b491202fd329cbe8c70627d6c65372b0d97155a654e7a10ef11> a gsh:RepositoryFile ;
+    gsh:path "examples/tcps-generated/.ggen-v2/lease/43e8f39a327a98d6487095e00e9778e32e830e3310f171b43c83fefbf3d5d90b" ;
+    gsh:digest "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865" ;
+    gsh:sizeBytes 2 ;
+    gsh:authorityClass gsh:Asset ;
+    gsh:loadBearing false ;
+    gsh:generatedMarker false .
+
+<urn:ggen:self:file:8b5423ec7507701ce8d92fb6b6c8d987262d2907b9d92ccc424a1c935395ec6b> a gsh:RepositoryFile ;
+    gsh:path "examples/tcps-generated/.ggen-v2/lease/4ee8da72e753692f50ddd9850a9bc322295fb82118e52c286105b9dd6f28a3cc" ;
+    gsh:digest "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865" ;
+    gsh:sizeBytes 2 ;
+    gsh:authorityClass gsh:Asset ;
+    gsh:loadBearing false ;
+    gsh:generatedMarker false .
+
+<urn:ggen:self:file:efbf17151af6c6d9beeb4bd9b1e65117e457cb74ec84476564dc35b2e225f181> a gsh:RepositoryFile ;
+    gsh:path "examples/tcps-generated/.ggen-v2/lease/6bb9684354809d7121f2bd38c923593c085ed8eb44d43ec03276ae5013b11238" ;
+    gsh:digest "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865" ;
+    gsh:sizeBytes 2 ;
+    gsh:authorityClass gsh:Asset ;
+    gsh:loadBearing false ;
+    gsh:generatedMarker false .
+
+<urn:ggen:self:file:fa6c7bf00be2ad89b4f89d773a88448f1d0238b0c5861e3424e4a027c372494a> a gsh:RepositoryFile ;
+    gsh:path "examples/tcps-generated/.ggen-v2/lease/6da21f6dc7452a20e5816591f44d51fd0e4a57eadd92ac88316f0eebbe1acb7e" ;
+    gsh:digest "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865" ;
+    gsh:sizeBytes 2 ;
+    gsh:authorityClass gsh:Asset ;
+    gsh:loadBearing false ;
+    gsh:generatedMarker false .
+
 <urn:ggen:self:file:1b439b7aaa74856b1652cdfe94cec73ef5c8ae388ab7d87628100b349236d7f6> a gsh:RepositoryFile ;
     gsh:path "examples/tcps-generated/.ggen-v2/lease/88c212d8603cdc668279dc19b41436b016c3fc40a4ddeabbae3ee132a8bb60d4" ;
-    gsh:digest "53c234e5e8472b6ac51c1ae1cab3fe06fad053beb8ebfd8977b010655bfdd3c3" ;
+    gsh:digest "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865" ;
+    gsh:sizeBytes 2 ;
+    gsh:authorityClass gsh:Asset ;
+    gsh:loadBearing false ;
+    gsh:generatedMarker false .
+
+<urn:ggen:self:file:a637661d346509691b60054b6fd77d7aa31f4207af12443c278a4732517bcee6> a gsh:RepositoryFile ;
+    gsh:path "examples/tcps-generated/.ggen-v2/lease/8dd94460fd5c55d264eea167936fe76837fef5b4ee9585b301523244d1e07da2" ;
+    gsh:digest "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865" ;
+    gsh:sizeBytes 2 ;
+    gsh:authorityClass gsh:Asset ;
+    gsh:loadBearing false ;
+    gsh:generatedMarker false .
+
+<urn:ggen:self:file:12928f89b2e9bc12c6139b4edaaf3ba975e4ed1eec2bd2637db79099dfa47a25> a gsh:RepositoryFile ;
+    gsh:path "examples/tcps-generated/.ggen-v2/lease/a760f0073d1ee34ebe6da9412fdc1a7cfa0c10306d037736e906ffabb2492975" ;
+    gsh:digest "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865" ;
     gsh:sizeBytes 2 ;
     gsh:authorityClass gsh:Asset ;
     gsh:loadBearing false ;
@@ -63750,6 +63694,14 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:9a3dc9a7bb1f410a0aa694a127cc447f1601be0c62bcb88e1fcbbecb7ee6d850> a gsh:RepositoryFile ;
     gsh:path "examples/tcps-generated/.ggen-v2/lease/d0b27600d3c2fc0d17649516b885525b324e183bf0fc21b262926e22b7dc0526" ;
+    gsh:digest "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865" ;
+    gsh:sizeBytes 2 ;
+    gsh:authorityClass gsh:Asset ;
+    gsh:loadBearing false ;
+    gsh:generatedMarker false .
+
+<urn:ggen:self:file:e6f32908a99c11b78c46e62ab33286cfd88829457777e6e823bb3a676db37e52> a gsh:RepositoryFile ;
+    gsh:path "examples/tcps-generated/.ggen-v2/lease/d396473c48512dd736fa7b8e2ac72f12ae76c967ac072625ea6021041850d009" ;
     gsh:digest "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865" ;
     gsh:sizeBytes 2 ;
     gsh:authorityClass gsh:Asset ;
@@ -63764,26 +63716,42 @@ gsh:ggen a gsh:SelfHostProgram ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
 
+<urn:ggen:self:file:fd4233abb31515ea62274e36d8417e92bb5cce1dd04dcd70fd53883fef8f7216> a gsh:RepositoryFile ;
+    gsh:path "examples/tcps-generated/.ggen-v2/lease/dff1ca0abc897931cf78559cdcf37e3662eb06b937b5e76a953cc649f9aae4d1" ;
+    gsh:digest "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865" ;
+    gsh:sizeBytes 2 ;
+    gsh:authorityClass gsh:Asset ;
+    gsh:loadBearing false ;
+    gsh:generatedMarker false .
+
+<urn:ggen:self:file:a9e16d2d308e27821c2d0fe62c2119ed18b852f1493e72d23569cc9088c575d8> a gsh:RepositoryFile ;
+    gsh:path "examples/tcps-generated/.ggen-v2/lease/eae5815b8cd8b65c290add3286466dcb28a2f43e32ce915c896d84f9f234495a" ;
+    gsh:digest "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865" ;
+    gsh:sizeBytes 2 ;
+    gsh:authorityClass gsh:Asset ;
+    gsh:loadBearing false ;
+    gsh:generatedMarker false .
+
 <urn:ggen:self:file:77e340d0352911a1adca4ef18599be2bf8e30af1ff65d02f8bac5b57176a2fdc> a gsh:RepositoryFile ;
     gsh:path "examples/tcps-generated/.ggen-v2/receipt-log.jsonl" ;
-    gsh:digest "721dbc2f25997531f77fb76763560679f0807d2078b99b5b40fbc75dc3f3158c" ;
-    gsh:sizeBytes 3487603 ;
+    gsh:digest "0e9e6a17e5289bea02d56523bbf26d7967ebe2dcce6e9bd8ebbab7a0c107525f" ;
+    gsh:sizeBytes 3713424 ;
     gsh:authorityClass gsh:Asset ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
 
 <urn:ggen:self:file:687f276e0e9371a5f9e3ceadb86ef22a30ce0c825becf143fa9268684e88b18f> a gsh:RepositoryFile ;
     gsh:path "examples/tcps-generated/.ggen-v2/receipt-portable.json" ;
-    gsh:digest "1c46c3b09ee21df113dad4fc26f3097fd604d8b41f40e459f29e227c11b292f4" ;
-    gsh:sizeBytes 3453 ;
+    gsh:digest "93d478f270a2b91cf4bef40a8c91623f11574ed2438f120a036912eab0080f91" ;
+    gsh:sizeBytes 2618 ;
     gsh:authorityClass gsh:Configuration ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
 
 <urn:ggen:self:file:34591eff769c058f51000745c4153de91691395f3b00fac2536f7350b449b2eb> a gsh:RepositoryFile ;
     gsh:path "examples/tcps-generated/.ggen-v2/receipt.json" ;
-    gsh:digest "4b0692e6eb88e684cc05585ca570a88ea4ba79c034256bf8ee5f837d49413086" ;
-    gsh:sizeBytes 75358 ;
+    gsh:digest "b3103b21945c0b667b4052e5e1946fb4819c91bec7c0f544cc9cac470e32be42" ;
+    gsh:sizeBytes 75229 ;
     gsh:authorityClass gsh:VerificationEvidence ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
@@ -63926,7 +63894,7 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:708c08af30262a2ef30ad3ef5b33fa8b6f24cc48d75dc1eaa056d324a6324893> a gsh:RepositoryFile ;
     gsh:path "examples/tcps-generated/evidence/ontology.ttl" ;
-    gsh:digest "92235b298b21a60ce7f5607e5b005d74f712d8ecb59953c600a8baa95003468a" ;
+    gsh:digest "713389b87c730a4fd277a2b2138a8ab1826f480bee19bbedd2d4541a8c28d744" ;
     gsh:sizeBytes 2670 ;
     gsh:authorityClass gsh:GeneratedConsequence ;
     gsh:loadBearing false ;
@@ -63953,6 +63921,14 @@ gsh:ggen a gsh:SelfHostProgram ;
     gsh:digest "02f994b089a9c0ab0aaf620034b9e0ece4fc6a40c9adacee7461f6b8f8f81853" ;
     gsh:sizeBytes 771 ;
     gsh:authorityClass gsh:Template ;
+    gsh:loadBearing false ;
+    gsh:generatedMarker false .
+
+<urn:ggen:self:file:fdeff5c58019217f77603ab9a80be82eea192191b5b7ef5a73511ca9ed4253ff> a gsh:RepositoryFile ;
+    gsh:path "examples/tcps-generated/ggen.lock" ;
+    gsh:digest "be3b2b08866df7cfe48f860bc783fa0e947839944bc406b1ce0f23f37caf30ab" ;
+    gsh:sizeBytes 1288 ;
+    gsh:authorityClass gsh:Configuration ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
 
@@ -63990,8 +63966,8 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:5034535828f17fa9ffc7ea95fb39a3d41489b524d32b9bd96f97aa719f8a6710> a gsh:RepositoryFile ;
     gsh:path "examples/tcps-generated/infra/CONTRIBUTING.md" ;
-    gsh:digest "d8a019e2a76561d00848de6ce116a86145968c26fb4a5e2032ac1fc3b630d677" ;
-    gsh:sizeBytes 611 ;
+    gsh:digest "419ec18d9878552fad2261546a0bdf09208ed60bd2d67e78222cee106c490306" ;
+    gsh:sizeBytes 612 ;
     gsh:authorityClass gsh:Documentation ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
@@ -64006,16 +63982,16 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:6473e146bcc508107e9a4e42506a2d792fd95ce19d1e74ab8ae28b6af8ec250f> a gsh:RepositoryFile ;
     gsh:path "examples/tcps-generated/infra/README.md" ;
-    gsh:digest "3666d230b45c4b2b64ce4b27cd31fcd5e6014c2b7ede0db8b6527d66cdc4f53e" ;
-    gsh:sizeBytes 7023 ;
+    gsh:digest "e869e1ac4970e65c8146d89a827d575952a82daf593a5a350760d1fc15b8746b" ;
+    gsh:sizeBytes 7024 ;
     gsh:authorityClass gsh:Documentation ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
 
 <urn:ggen:self:file:0110cfe1a628d8326bbf5f8f4e3b56c8c363fd65a38f1b0c4cfeb9715e2e54a9> a gsh:RepositoryFile ;
     gsh:path "examples/tcps-generated/infra/README_EN.md" ;
-    gsh:digest "3a80467f22bb7529811516064e070da382c328b0e410791b0faedaa8c6c206e8" ;
-    gsh:sizeBytes 4497 ;
+    gsh:digest "9a48dba75324eadc607fde0751550945c41815da3e4be01c95533259c147d26e" ;
+    gsh:sizeBytes 4498 ;
     gsh:authorityClass gsh:Documentation ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
@@ -64030,16 +64006,16 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:19ef264aa9bc950d1010f848651ad4df2e13ae221e3f04f8aa225478ac769811> a gsh:RepositoryFile ;
     gsh:path "examples/tcps-generated/infra/RELEASE_STANDING.md" ;
-    gsh:digest "e54586822d781322ccb3bcb6718f6d7d840594a5882d503da5a35e88374ae760" ;
-    gsh:sizeBytes 1414 ;
+    gsh:digest "c743aeb2247ca474f5cb47160e956419a16add3a67e4b55b78cf53ea342760e7" ;
+    gsh:sizeBytes 1415 ;
     gsh:authorityClass gsh:Documentation ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
 
 <urn:ggen:self:file:f78103f86f4d2d987ee4060571c27917ced80d0cd5c5ab031d394c1ce0e5ad2d> a gsh:RepositoryFile ;
     gsh:path "examples/tcps-generated/infra/SECURITY.md" ;
-    gsh:digest "f3bc5f034034e8eed0aa46cfeb612efc9755df62105985df2d9fe22de34668ae" ;
-    gsh:sizeBytes 1109 ;
+    gsh:digest "9d996ddc7a06cb323f80748165ffcb7d1474cb557d0b522c3f2cbf5784f08acd" ;
+    gsh:sizeBytes 1110 ;
     gsh:authorityClass gsh:Documentation ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
@@ -64054,8 +64030,8 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:54a655440a404febce20358a0b0989dbb7860b656bf284b6399b05fb43940a9a> a gsh:RepositoryFile ;
     gsh:path "examples/tcps-generated/infra/SUPPORT.md" ;
-    gsh:digest "0d10353fcb4afc3540ae7c4c67bca7e0c9810d01deaad2eb960954bdf5ff5f9a" ;
-    gsh:sizeBytes 354 ;
+    gsh:digest "ee65e19f775afe0f53f887df6d75d85a4f9a494a4ac5906a443b6fccef89eaf2" ;
+    gsh:sizeBytes 355 ;
     gsh:authorityClass gsh:Documentation ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
@@ -64174,40 +64150,40 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:440161909e641051ac1e33ba801dace7cb35a1e4d32566c8d150fb19b51118a1> a gsh:RepositoryFile ;
     gsh:path "examples/tcps-generated/infra/docs/ABI.md" ;
-    gsh:digest "3e64e518006ff99bc637e337b177c5df6f9135d3ed90327bfd976ad48c6efb55" ;
-    gsh:sizeBytes 556 ;
+    gsh:digest "0f58f302e3ddf1d482614da11585454652e40c4912d923b3eb22327fe221d2b0" ;
+    gsh:sizeBytes 557 ;
     gsh:authorityClass gsh:Documentation ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
 
 <urn:ggen:self:file:60b976f5371f3d9b95449103721e3ffe93046ba5529005f5a8422dd490a813f3> a gsh:RepositoryFile ;
     gsh:path "examples/tcps-generated/infra/docs/LIFECYCLE.md" ;
-    gsh:digest "98e14c1238ad291abab3c8e10cf3f349b4d08dde155621f4ca8029cd4cc736eb" ;
-    gsh:sizeBytes 1632 ;
+    gsh:digest "b8a2630d1072f89e983b9aa55498d16b25be02977838941d05fdf48e934bd6d8" ;
+    gsh:sizeBytes 1633 ;
     gsh:authorityClass gsh:Documentation ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
 
 <urn:ggen:self:file:6318d1cf3470d9b7fcba1360f201d1f72807a4ad1cbbc884a2202770a4dc0928> a gsh:RepositoryFile ;
     gsh:path "examples/tcps-generated/infra/docs/PLATFORM_SUPPORT.md" ;
-    gsh:digest "a74046454f5e3099e06d1ee8ed2966a256ad8c01774f3050204e86dbeadc84da" ;
-    gsh:sizeBytes 1628 ;
+    gsh:digest "73157103b471ea2e59ee05ce7f84e628d91c9cad0b0fc6db312ab252103bae4f" ;
+    gsh:sizeBytes 1629 ;
     gsh:authorityClass gsh:Documentation ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
 
 <urn:ggen:self:file:1b8a4e6f288e3f1c91797518f07ee741cee911e83ec1c2fdc412374b74a8f800> a gsh:RepositoryFile ;
     gsh:path "examples/tcps-generated/infra/docs/PORTING.md" ;
-    gsh:digest "490e4a70d334e8fea06b723dd51106b976ea24115849178d680df298d3c6383d" ;
-    gsh:sizeBytes 724 ;
+    gsh:digest "5a6cb4c59a4833bf9b89dd7ab048ea3789df9daa82298e011e2c92ccb6f5ee1f" ;
+    gsh:sizeBytes 725 ;
     gsh:authorityClass gsh:Documentation ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
 
 <urn:ggen:self:file:ea5035d6449b716f2b3c79723121ede64bc8bcd950c450fcd549367444efa4f7> a gsh:RepositoryFile ;
     gsh:path "examples/tcps-generated/infra/docs/SECURITY.md" ;
-    gsh:digest "f3bc5f034034e8eed0aa46cfeb612efc9755df62105985df2d9fe22de34668ae" ;
-    gsh:sizeBytes 1109 ;
+    gsh:digest "9d996ddc7a06cb323f80748165ffcb7d1474cb557d0b522c3f2cbf5784f08acd" ;
+    gsh:sizeBytes 1110 ;
     gsh:authorityClass gsh:Documentation ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
@@ -64654,7 +64630,7 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:e48a0ae773609de14d0686b7d4022f17d16a1ffb07d23b7c2cf5cdc2d66dd108> a gsh:RepositoryFile ;
     gsh:path "examples/tcps-generated/receipts/EVIDENCE_SNAPSHOT.md" ;
-    gsh:digest "aa537ac2b32206bed9cbdb15bc6b222d2305922e876601391823e96c4d4c230e" ;
+    gsh:digest "e888fece850df8d127743ace199df21f25732c82e4fea8aa057f3e5a397aca4d" ;
     gsh:sizeBytes 912 ;
     gsh:authorityClass gsh:VerificationEvidence ;
     gsh:loadBearing false ;
@@ -64662,7 +64638,7 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:d36841a25b98b44176a90437747d6a8ee751a48b069def2a9893e5afc9b3c380> a gsh:RepositoryFile ;
     gsh:path "examples/tcps-generated/receipts/inspection-receipt.json" ;
-    gsh:digest "d2fdba451cc01f9afe429ec2add9d2ab522a9918141a6085f27233c0cc5ca757" ;
+    gsh:digest "0089b1a88ce8c06e45f1d2bc72ad2757d6c52e947b44434baffcf9e89ad78e4f" ;
     gsh:sizeBytes 2305 ;
     gsh:authorityClass gsh:VerificationEvidence ;
     gsh:loadBearing false ;
@@ -65118,16 +65094,16 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:72462a186daf962f5fbcd005c7bd695b5edc68cc57bd66887eff36416e1021e8> a gsh:RepositoryFile ;
     gsh:path "examples/tpot2-wasm4pm-autoconfig/.ggen-v2/receipt-log.jsonl" ;
-    gsh:digest "3ffa03802a89a943fab7c38e18d7791ff45479587cf3986d4bbc77a2e387498d" ;
-    gsh:sizeBytes 4873 ;
+    gsh:digest "699fd4da4dcd0e032c3ed83c84745a6951d9805369a8d1d6c0e618a707ee0efa" ;
+    gsh:sizeBytes 15318 ;
     gsh:authorityClass gsh:Asset ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
 
 <urn:ggen:self:file:383f46c4016d4b362fbf9246a30c3eb26293148e2e3a45aafe1b713f567f99e3> a gsh:RepositoryFile ;
     gsh:path "examples/tpot2-wasm4pm-autoconfig/.ggen-v2/receipt.json" ;
-    gsh:digest "eb711ba05a55b88e99440e1b31a59d82dc08b4af6b1f6c0f9c3bce33aa18dfc9" ;
-    gsh:sizeBytes 4872 ;
+    gsh:digest "25410a77eac320b52d7a7b53e74f0d4a9c6f965498feecde23c71f1152427029" ;
+    gsh:sizeBytes 5205 ;
     gsh:authorityClass gsh:VerificationEvidence ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
@@ -65158,8 +65134,8 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:e34524c3168b639356e75b18296a88110d2959f8f7164a3a4c2d62981eca547d> a gsh:RepositoryFile ;
     gsh:path "examples/tpot2-wasm4pm-autoconfig/README.md" ;
-    gsh:digest "3e979f5b36a426df9f59ac2d90872d9364bfd41415febfcff17c1a4b5df1c4ef" ;
-    gsh:sizeBytes 15316 ;
+    gsh:digest "2243ad7e673fdaee7832cb2fcdfe82b7848a28423a7e8ee5051315d17a9a5f2c" ;
+    gsh:sizeBytes 15325 ;
     gsh:authorityClass gsh:Documentation ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
@@ -65198,8 +65174,8 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:99f1ed0205a2f9a74900744731421bb1eaadb53d8742b7ee770aa49d756fae95> a gsh:RepositoryFile ;
     gsh:path "examples/tpot2-wasm4pm-autoconfig/ggen.toml" ;
-    gsh:digest "07625053d19cfee2b036593bb69d630c3c1976aa4dabf4b2043d62af23f0da8f" ;
-    gsh:sizeBytes 12689 ;
+    gsh:digest "23bbae9fec8f7238d796252df58dfaf6d370a9c914a644081dfa2502e0b0609f" ;
+    gsh:sizeBytes 13140 ;
     gsh:authorityClass gsh:Configuration ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
@@ -65636,14 +65612,6 @@ gsh:ggen a gsh:SelfHostProgram ;
     gsh:loadBearing false ;
     gsh:generatedMarker true .
 
-<urn:ggen:self:file:513cca507f5392958db11128239e1c9d3cd01f4dfad05dd4239ede794ec57660> a gsh:RepositoryFile ;
-    gsh:path "examples/wasm4pm-verify/ggen.lock" ;
-    gsh:digest "aa46ecead4a98a69409f277b381dfd629f004abf4af804fcbe04557eef3095da" ;
-    gsh:sizeBytes 207 ;
-    gsh:authorityClass gsh:Configuration ;
-    gsh:loadBearing false ;
-    gsh:generatedMarker false .
-
 <urn:ggen:self:file:978b6f703a64842b0c81ee76d1bcfd8c1c2bb823adc4daac86882fd685c26a70> a gsh:RepositoryFile ;
     gsh:path "examples/wasm4pm-verify/ggen.toml" ;
     gsh:digest "ebf53527d8778846182b760cef7de0bc8887cde54de81d83a2e483523edd6092" ;
@@ -65758,7 +65726,7 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:745158f929f84a49255e5c804ab4314c3101fb02b0e45ea5e7dc44a65b6a2962> a gsh:RepositoryFile ;
     gsh:path "examples/zero-code-custom-handler-demo/.ggen-v2/lease/7351db0897a1aaa3e6821baea8cad7a7f83f341983feab1b2ad2fd6ef8cb20ab" ;
-    gsh:digest "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865" ;
+    gsh:digest "1121cfccd5913f0a63fec40a6ffd44ea64f9dc135c66634ba001d10bcf4302a2" ;
     gsh:sizeBytes 2 ;
     gsh:authorityClass gsh:Asset ;
     gsh:loadBearing false ;
@@ -65782,7 +65750,7 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:e8a557d4a16ef741a637a2d4a10dfc2fb9e6535b792a1ccdb2840f9164db51f8> a gsh:RepositoryFile ;
     gsh:path "examples/zero-code-custom-handler-demo/.ggen-v2/lease/b7061dc87674874befca4f5740c5c5ae4cba8460f3dc923210272beda310d0a6" ;
-    gsh:digest "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865" ;
+    gsh:digest "1121cfccd5913f0a63fec40a6ffd44ea64f9dc135c66634ba001d10bcf4302a2" ;
     gsh:sizeBytes 2 ;
     gsh:authorityClass gsh:Asset ;
     gsh:loadBearing false ;
@@ -65798,24 +65766,24 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:c65db10a5b26889ebad8b085738ede2b86a981f58b6532b4afd28641eb673a58> a gsh:RepositoryFile ;
     gsh:path "examples/zero-code-custom-handler-demo/.ggen-v2/receipt-log.jsonl" ;
-    gsh:digest "9c9a6848a7121d52bbbe7e6171121d6a90bdea9831f2daaf713d0bbe6b2e5aba" ;
-    gsh:sizeBytes 9805 ;
+    gsh:digest "875ae7848707fdf0a36a0b390bcd6930cf8c2af5e0e7f5b367d85c55ba0cb7a8" ;
+    gsh:sizeBytes 30267 ;
     gsh:authorityClass gsh:Asset ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
 
 <urn:ggen:self:file:a56e5d836aaac03a1bc5e99a9645c4e559f7a9074aa3d735e4307c6c6d5b2cc9> a gsh:RepositoryFile ;
     gsh:path "examples/zero-code-custom-handler-demo/.ggen-v2/receipt-portable.json" ;
-    gsh:digest "b2e80dc7a79867ba852a19b7ace6562bceb9709b26c4966dc1d4c0f56d392425" ;
-    gsh:sizeBytes 4580 ;
+    gsh:digest "3467992505b79bcee65304e6f4ca7f2825f8f0991511103957d890f0c2111d9f" ;
+    gsh:sizeBytes 3623 ;
     gsh:authorityClass gsh:Configuration ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
 
 <urn:ggen:self:file:605f0597dd89aca07ddb18da3bade75552f057c10a4193aa4e153dbca633aa3a> a gsh:RepositoryFile ;
     gsh:path "examples/zero-code-custom-handler-demo/.ggen-v2/receipt.json" ;
-    gsh:digest "d49d7471962b07ee773e8eecd3dcafaad7fbf050254c93abe04fd4e6729ec38f" ;
-    gsh:sizeBytes 9804 ;
+    gsh:digest "d4e379aa5b30cfc5df09230e12eee9025d5d382cbc883afecbbd03fef51354c9" ;
+    gsh:sizeBytes 10230 ;
     gsh:authorityClass gsh:VerificationEvidence ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
@@ -65843,14 +65811,6 @@ gsh:ggen a gsh:SelfHostProgram ;
     gsh:authorityClass gsh:GeneratedConsequence ;
     gsh:loadBearing false ;
     gsh:generatedMarker true .
-
-<urn:ggen:self:file:040678cf814ecc0dd3c54b2209bad9de4a4830f8a6e57245cb3f07dc439b7d33> a gsh:RepositoryFile ;
-    gsh:path "examples/zero-code-custom-handler-demo/ggen.lock" ;
-    gsh:digest "26291217df3194048d09bc4317db7a524bbf283cfea22e36981b50456c45271a" ;
-    gsh:sizeBytes 1155 ;
-    gsh:authorityClass gsh:Configuration ;
-    gsh:loadBearing false ;
-    gsh:generatedMarker false .
 
 <urn:ggen:self:file:33e1c3ec8fa564f4836917bd3f046ee822935cb436d84594069600777ea8d04e> a gsh:RepositoryFile ;
     gsh:path "examples/zero-code-custom-handler-demo/ggen.toml" ;
@@ -65958,7 +65918,7 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:143e888416a455a405590597d750361f5f4c5b3d107d15d194a1d508c04ae5b1> a gsh:RepositoryFile ;
     gsh:path "examples/zero-code-inventoryctl/.ggen-v2/lease/7351db0897a1aaa3e6821baea8cad7a7f83f341983feab1b2ad2fd6ef8cb20ab" ;
-    gsh:digest "06e9d52c1720fca412803e3b07c4b228ff113e303f4c7ab94665319d832bbfb7" ;
+    gsh:digest "2e6d31a5983a91251bfae5aefa1c0a19d8ba3cf601d0e8a706b4cfa9661a6b8a" ;
     gsh:sizeBytes 2 ;
     gsh:authorityClass gsh:Asset ;
     gsh:loadBearing false ;
@@ -65982,8 +65942,8 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:4641a9e1bc7dc5336d750be54c75189be3d1c26f3e83406e46192934f887ca94> a gsh:RepositoryFile ;
     gsh:path "examples/zero-code-inventoryctl/.ggen-v2/lease/b7061dc87674874befca4f5740c5c5ae4cba8460f3dc923210272beda310d0a6" ;
-    gsh:digest "2e6d31a5983a91251bfae5aefa1c0a19d8ba3cf601d0e8a706b4cfa9661a6b8a" ;
-    gsh:sizeBytes 2 ;
+    gsh:digest "a1fb50e6c86fae1679ef3351296fd6713411a08cf8dd1790a4fd05fae8688164" ;
+    gsh:sizeBytes 3 ;
     gsh:authorityClass gsh:Asset ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
@@ -65998,15 +65958,15 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:03bf1cc2b17291de58adcfc7b9d63a119a402b5e88a76e1ee58c529072aa326c> a gsh:RepositoryFile ;
     gsh:path "examples/zero-code-inventoryctl/.ggen-v2/receipt-log.jsonl" ;
-    gsh:digest "0260e6ccc81786f4b25c90ee46ca79b2dab701460a7d0ae5bd725603e124f729" ;
-    gsh:sizeBytes 86572 ;
+    gsh:digest "0e64f721e7c8f64d6ac8f929bc3501b87ea6a603e56bd5e34f65bf0a2c596cf3" ;
+    gsh:sizeBytes 116459 ;
     gsh:authorityClass gsh:Asset ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
 
 <urn:ggen:self:file:32ac5dbc729f1245c685220652f9b0dc47974b7c96d1dcfbd595904d25bb4718> a gsh:RepositoryFile ;
     gsh:path "examples/zero-code-inventoryctl/.ggen-v2/receipt-portable.json" ;
-    gsh:digest "362dbca7df87baa5aa18dacbfb1fb54ead6e84b856df8f053b3f97766ebaf3ea" ;
+    gsh:digest "e28e9eb9c80fc34e5f32f9f46155399e7e74a8ecb5910216e370de723c711816" ;
     gsh:sizeBytes 3623 ;
     gsh:authorityClass gsh:Configuration ;
     gsh:loadBearing false ;
@@ -66014,8 +65974,8 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:e58f3004c06cceb5cd8b4771cd94e8e1f28133a561303537e49efd4b7b1de516> a gsh:RepositoryFile ;
     gsh:path "examples/zero-code-inventoryctl/.ggen-v2/receipt.json" ;
-    gsh:digest "934aa529caf460ed7653287aa32774e84ee5670f43d9eefbbfd4f8c7786d3dec" ;
-    gsh:sizeBytes 9893 ;
+    gsh:digest "c91e6324331e12208249f921e02ad6e054fc39f8b3b6ccff038af934682d296f" ;
+    gsh:sizeBytes 9990 ;
     gsh:authorityClass gsh:VerificationEvidence ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
@@ -66048,14 +66008,6 @@ gsh:ggen a gsh:SelfHostProgram ;
     gsh:path "examples/zero-code-inventoryctl/ea.graph.json" ;
     gsh:digest "f75d4521c0b303f2802e474f1f6f52430cb337befc700bc4fcb6cd2d4d270225" ;
     gsh:sizeBytes 3214 ;
-    gsh:authorityClass gsh:Configuration ;
-    gsh:loadBearing false ;
-    gsh:generatedMarker false .
-
-<urn:ggen:self:file:7ef5121f36c87764aad457ad73bd0e09fa21a1c1fea3b40fdc4608cf56b2893e> a gsh:RepositoryFile ;
-    gsh:path "examples/zero-code-inventoryctl/ggen.lock" ;
-    gsh:digest "26291217df3194048d09bc4317db7a524bbf283cfea22e36981b50456c45271a" ;
-    gsh:sizeBytes 1155 ;
     gsh:authorityClass gsh:Configuration ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
@@ -117262,16 +117214,16 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:e69abc28b5220d143ce137e08158871aeffa87d327685759319a362f3b10aa1f> a gsh:RepositoryFile ;
     gsh:path "packs/cyberpunk-tv-platform/.ggen-v2/receipt-log.jsonl" ;
-    gsh:digest "a11f90fe199dc6ce5d14864b8a97bf59096a1ff3a7b63c02a560fe3f844e199e" ;
-    gsh:sizeBytes 47628 ;
+    gsh:digest "088afde181251dc4fb6ef9e1685b14334b880d7e5866a329e300e83daf89ef26" ;
+    gsh:sizeBytes 62883 ;
     gsh:authorityClass gsh:Asset ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
 
 <urn:ggen:self:file:0c479ef3366e8f18f0df9d7f096d556978d631e3bfe89a08a49f4431f12ad34a> a gsh:RepositoryFile ;
     gsh:path "packs/cyberpunk-tv-platform/.ggen-v2/receipt.json" ;
-    gsh:digest "ab77dec78d65bff32ff9482c3e323fb2fd8bf8ce93a2611dd49058aaebc41f7a" ;
-    gsh:sizeBytes 16781 ;
+    gsh:digest "5bc5d4b2c4d745050c22e6145437f7711ee25a808f0208952f9674c9859b6c1e" ;
+    gsh:sizeBytes 15254 ;
     gsh:authorityClass gsh:VerificationEvidence ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
@@ -117790,7 +117742,7 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:8c955278b47e40a72f0f06abcd838b6c91bc1dc7bbe187a6c59c24294e03aeab> a gsh:RepositoryFile ;
     gsh:path "packs/cyberpunk-tv-platform/templates/package.json.tera" ;
-    gsh:digest "544864e4a0682244d5012c42c0794c19fc8434e7b91887028db104e5035f0b85" ;
+    gsh:digest "bd9697f4cf12c0f8de5bf9343667c8d64bc2e630830fc74ef5b0e3154f1f8c4d" ;
     gsh:sizeBytes 1734 ;
     gsh:authorityClass gsh:Template ;
     gsh:loadBearing false ;
@@ -127806,8 +127758,8 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:d2e1aaf0d1455913315cf4890dc65cbd630c8b61faf6fe9cda558905121fa646> a gsh:RepositoryFile ;
     gsh:path "packs/tai-enterprise-rebuild-pack/templates/scripts/verify_cmd.py.tmpl" ;
-    gsh:digest "aa150ac8abaf17be61a2ac7e78ebe7aae1dae1b1319b72def2cbbe0138d6a390" ;
-    gsh:sizeBytes 18647 ;
+    gsh:digest "dccd3a1f8470f5ce26482ab89be2525aa8fe612ce0d47233f7eb4b21f096443e" ;
+    gsh:sizeBytes 19109 ;
     gsh:authorityClass gsh:Template ;
     gsh:loadBearing false ;
     gsh:generatedMarker false .
@@ -136780,6 +136732,14 @@ gsh:ggen a gsh:SelfHostProgram ;
     gsh:loadBearing true ;
     gsh:generatedMarker false .
 
+<urn:ggen:self:file:faad38f59ec5dc54b7a34cff58f4e276ad68da75f94f8aa0ae742e95d85ce8f7> a gsh:RepositoryFile ;
+    gsh:path "scripts/tag_falsifier_sweep.sh" ;
+    gsh:digest "fe6563780f641ddcee019e825687c2f08a594b2082b5a6bc0b9e378fd803cc8f" ;
+    gsh:sizeBytes 6198 ;
+    gsh:authorityClass gsh:ExecutableSource ;
+    gsh:loadBearing true ;
+    gsh:generatedMarker false .
+
 <urn:ggen:self:file:5552dca2949d5527c8aca9fdef0ca9f0ab6d407a8c590dc3961dc0cda8bea588> a gsh:RepositoryFile ;
     gsh:path "scripts/test-marketplace.sh" ;
     gsh:digest "078cf492a1bafa0b5d9b01ad2205ee2bf103b5989751759b1a879d9345358aa4" ;
@@ -137278,8 +137238,8 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:bba750b3eed79a4986fbbddb9f998f6dee0bce1e3303adfe310329f51572568d> a gsh:RepositoryFile ;
     gsh:path "scripts/verify-combinatorial-maximalism-pack.sh" ;
-    gsh:digest "8e8502de3ac2b4ad8904f4350b3457b47588cdf77cb1991053ac8b56181001aa" ;
-    gsh:sizeBytes 5707 ;
+    gsh:digest "eeba70445ea61a757fc41eeef7a278096b6f86cfd73d91f747c97a4f01f20e7d" ;
+    gsh:sizeBytes 6454 ;
     gsh:authorityClass gsh:ExecutableSource ;
     gsh:loadBearing true ;
     gsh:generatedMarker false .
@@ -137310,8 +137270,8 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:800128cc4a3c71a165301efbdf50b85cd8931a95c9c444fdbe9e20db633e33d5> a gsh:RepositoryFile ;
     gsh:path "scripts/verify-lean4-rust-pipeline.sh" ;
-    gsh:digest "5987583b64079abbf0e5deb7f1f60c882966cc994b72785d7ebc2fb7ceaa9ce9" ;
-    gsh:sizeBytes 16130 ;
+    gsh:digest "9f0773b586a1fee74dbbc867ee5168fee78aab30144955ee0578902dff6ba40b" ;
+    gsh:sizeBytes 16793 ;
     gsh:authorityClass gsh:ExecutableSource ;
     gsh:loadBearing true ;
     gsh:generatedMarker false .
@@ -137550,8 +137510,8 @@ gsh:ggen a gsh:SelfHostProgram ;
 
 <urn:ggen:self:file:569a571213659c8ea7013ba9d2bdac6d4df21b7c1840789d5a929ac217a962e6> a gsh:RepositoryFile ;
     gsh:path "self-host/ontology.ttl" ;
-    gsh:digest "42d745d6f05a812f7ea90e8e93de56977d84f60a8090b9d86ef7cd8f235282c3" ;
-    gsh:sizeBytes 7843111 ;
+    gsh:digest "91f06fc5d230dce037198b595cda8e092e1956e237f2b16cbdc616857a8ee321" ;
+    gsh:sizeBytes 8208250 ;
     gsh:authorityClass gsh:AuthoredConstitution ;
     gsh:loadBearing true ;
     gsh:generatedMarker false .
@@ -155464,16 +155424,16 @@ gsh:ggen a gsh:SelfHostProgram ;
     gsh:outputPath "examples/tpot2-wasm4pm-autoconfig/STAGE_PLAN.md" ;
     gsh:claimKind "catalogued-manifest-rule" .
 
-<urn:ggen:self:output:000346:3baa052a56013c74> a gsh:OutputClaim ;
-    gsh:consumer "examples/tpot2-wasm4pm-autoconfig" ;
-    gsh:owner "manifest:examples/tpot2-wasm4pm-autoconfig/ggen.toml#generate-ggen-toml" ;
-    gsh:outputPath "examples/tpot2-wasm4pm-autoconfig/ggen.toml" ;
-    gsh:claimKind "catalogued-manifest-rule" .
-
-<urn:ggen:self:output:000347:d3710ddfb9ac0a34> a gsh:OutputClaim ;
+<urn:ggen:self:output:000346:d3710ddfb9ac0a34> a gsh:OutputClaim ;
     gsh:consumer "examples/tpot2-wasm4pm-autoconfig" ;
     gsh:owner "manifest:examples/tpot2-wasm4pm-autoconfig/ggen.toml#generate-fitness-objectives" ;
     gsh:outputPath "examples/tpot2-wasm4pm-autoconfig/objectives.json" ;
+    gsh:claimKind "catalogued-manifest-rule" .
+
+<urn:ggen:self:output:000347:bbe8c359164e557d> a gsh:OutputClaim ;
+    gsh:consumer "examples/tpot2-wasm4pm-autoconfig" ;
+    gsh:owner "manifest:examples/tpot2-wasm4pm-autoconfig/ggen.toml#generate-ggen-toml" ;
+    gsh:outputPath "examples/tpot2-wasm4pm-autoconfig/pipeline-spec.toml" ;
     gsh:claimKind "catalogued-manifest-rule" .
 
 <urn:ggen:self:output:000348:6fcc42fe4906adc1> a gsh:OutputClaim ;
@@ -160580,7 +160540,7 @@ gsh:ggen a gsh:SelfHostProgram ;
 # Gall program generated from the same exact-tree observation.
 gsh:ggen a gall:GallProgram ;
     gall:programId "GGEN-SELF-HOST" ;
-    gall:releaseIdentity "ggen-self-host@64ce21a06b6adc16a6cf25f080382177f0509a12" ;
+    gall:releaseIdentity "ggen-self-host@244eed7f94612410855ec363acb6397b6513ea3f" ;
     gall:jiraProjectKey "GGEN" ;
     gall:hasCheckpoint gsh:checkpoint-exact-tree ;
     gall:hasAutomationProfile gsh:automation-plan-only ;
