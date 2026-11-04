@@ -66,6 +66,11 @@ fn write_synthetic_pack(dir: &Path, name: &str, ontology_ttl: &str, gate_rq: &st
 fn scaffold_consumer(dir: &Path, pack_name: &str, consumer_ontology_ttl: &str) -> PathBuf {
     let project = dir.join("consumer");
     std::fs::create_dir_all(project.join("templates")).expect("mkdir templates");
+    std::fs::write(
+        project.join("ea.graph.json"),
+        "{\"schema\":\"ggen.ea.graph.v1\",\"strategy\":{\"id\":\"s\",\"title\":\"t\"},\"capabilities\":[],\"abbs\":[],\"contracts\":[],\"candidate_sbbs\":[],\"qualifications\":[],\"packs\":[]}",
+    )
+    .expect("write ea.graph.json");
     std::fs::write(project.join("ontology.ttl"), consumer_ontology_ttl)
         .expect("write ontology.ttl");
     std::fs::write(
@@ -115,6 +120,7 @@ fn sync_conforming_under(engine: EngineKind) -> (Vec<u8>, Vec<u8>, String) {
     let report = sync(
         &project,
         SyncOptions {
+            skip_ea_admission: false,
             dry_run: false,
             consumer_mode: false,
             receipt_origin: None,
@@ -173,6 +179,7 @@ fn violating_fixture_is_refused_under_both_engines() {
         let err = sync(
             &project,
             SyncOptions {
+            skip_ea_admission: false,
                 dry_run: false,
                 consumer_mode: false,
                 receipt_origin: None,

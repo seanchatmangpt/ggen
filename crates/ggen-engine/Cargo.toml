@@ -116,6 +116,9 @@ star-toml = { workspace = true }
 spargebra = "0.4.7"
 graphlaw = { workspace = true }
 ggen-abb-sbb = { path = "../ggen-abb-sbb", version = "26.10.11" }
+# E80-04 (v26.11.3): SCIP-backed SymbolGraph adapter (blast_radius::ScipGraph)
+# over the ggen-scip index. Path dep is sibling-crate, versioned for publish.
+ggen-scip = { path = "../ggen-scip", version = "26.10.12" }
 # Receipt→dataset bridge (v26.10.20 slice 2, lane G15): opt-in projection of sync
 # receipt identity facts into ggen-graph's intent-segregated DatasetStore. Versioned
 # path edge (same pattern as ggen-abb-sbb/ggen-marketplace above) so `cargo publish

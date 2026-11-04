@@ -1214,7 +1214,9 @@ fn load_corpus_pack(name: &str) -> Result<ggen_marketplace::packs_registry::type
 /// runs the deterministic composition kernel
 /// (`ggen_marketplace::packs_registry::composer::compose`) over the set, and
 /// returns the plan as JSON:
-/// `{ pack_ids, provides, order, artifact_paths, self_satisfied }`.
+/// `{ pack_ids, provides, order, artifact_paths, transitive_deps, self_satisfied }`.
+/// `--out <path>` additionally writes the plan as pretty JSON to the given
+/// file (same shape).
 /// Typed refusals (duplicate capability, unbound requirement, duplicate
 /// artifact path, cyclic dependencies) surface as the verb's error — non-zero
 /// exit with the refusal text on stderr, never a panic. Duplicate names in
@@ -1231,7 +1233,10 @@ fn load_corpus_pack(name: &str) -> Result<ggen_marketplace::packs_registry::type
 /// `Vec<T>` parameter type — without it the flag falls back to Set and
 /// silently keeps only the first occurrence (comma form still works via the
 /// runtime's Vec split).
-pub fn compose(#[arg(action = "append")] packs: Vec<String>) -> Result<serde_json::Value> {
+pub fn compose(
+    #[arg(action = "append")] packs: Vec<String>,
+    out: Option<String>,
+) -> Result<serde_json::Value> {
     use serde_json::json;
 
     // Duplicate input names: the kernel compares by pack id set, so the same
@@ -1255,18 +1260,40 @@ pub fn compose(#[arg(action = "append")] packs: Vec<String>) -> Result<serde_jso
             NounVerbError::execution_error(format!("composition refused: {refusal}"))
         })?;
 
-    // PackCompositionPlan is not Serialize (marketplace-owned struct); project
-    // it to JSON here so the wire shape stays CLI-owned. The kernel's
-    // topological `order` has unstable tie-breaks among dependency-free packs
-    // (nondeterministic across identical runs), so canonicalize it here:
-    // sorted ascending. Determinism of the wire output is a CLI contract.
-    let mut order = plan.order;
-    order.sort();
+    // The kernel's `order` is already deterministic — dependencies before
+    // dependents, ties broken by pack id via the composer's BTreeSet
+    // pop_first (see `order_with_capability_edges` in
+    // ggen-marketplace packs_registry/composer.rs). No CLI-side
+    // canonicalization: sorting here would DESTROY the topological relation
+    // the plan exists to convey. Wire output is byte-deterministic because
+    // the kernel is.
+    persist_plan(&plan, out.as_deref())?;
+
     Ok(json!({
         "pack_ids": plan.pack_ids,
         "provides": plan.provides,
-        "order": order,
+        "order": plan.order,
         "artifact_paths": plan.artifact_paths,
+        "transitive_deps": plan.transitive_deps,
         "self_satisfied": plan.self_satisfied,
     }))
+}
+
+/// WO-03 helper: write the plan as pretty JSON to `--out <path>`, if given.
+/// Extracted from the verb body so the verb stays under the Poka-Yoke
+/// FM-1.1 complexity ceiling.
+fn persist_plan(
+    plan: &ggen_marketplace::packs_registry::composer::PackCompositionPlan,
+    out: Option<&str>,
+) -> Result<()> {
+    let Some(out_path) = out else {
+        return Ok(());
+    };
+    let json = plan.to_json().map_err(|e| {
+        NounVerbError::execution_error(format!("failed to serialize plan: {e}"))
+    })?;
+    std::fs::write(out_path, json).map_err(|e| {
+        NounVerbError::execution_error(format!("failed to write plan to {out_path}: {e}"))
+    })?;
+    Ok(())
 }

@@ -36,7 +36,7 @@ use crate::receipt_chain_seam::{
     Andon, ChainStanding, ChainVerification, ReceiptRecord, CHAIN_RULE_V2_FOLD,
     RECEIPT_RECORD_VERSION,
 };
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use tera::Value;
 
 use crate::{
@@ -217,6 +217,12 @@ pub struct SyncOptions {
     /// (either source enables it). Default `false`: existing behavior
     /// byte-identical.
     pub consumer_mode: bool,
+    /// WO-01 (e), 2026-11-03: explicit opt-out for the now fail-closed EA
+    /// admission gate. Default `false` — a sync whose project root lacks
+    /// `ea.graph.json` is REFUSED (`FM-LAW-015`) unless this flag (CLI
+    /// `--skip-ea-admission`, wired in ggen-cli) is set. A skip is an
+    /// explicit, disclosed default, never a silent bypass.
+    pub skip_ea_admission: bool,
 }
 
 /// The outcome of one [`sync`] run.
@@ -328,6 +334,114 @@ pub struct ReceiptPayload {
     pub generation: Option<u64>,
 }
 
+/// EA graph (ABB/SBB) admission — Stage 2c's EA half, extracted verbatim from
+/// the frontmatter path's inline region (WO-01, 2026-11-03) so BOTH
+/// `ggen.toml` schema paths run the SAME admission (DEF-K6-2, 2026-11-03).
+/// The frontmatter path calls this from Stage 2c with the run's smallest
+/// template-declared envelope IRI; the declarative-rules path calls it from
+/// `sync()`'s Stage 0 dispatch branch (before `generation_rules::run`) with
+/// `None` (declarative manifests declare no template frontmatter envelopes,
+/// so the kernel's built-in caps apply).
+///
+/// Fail-closed on missing `ea.graph.json` (WO-01 defect (e)): a project with
+/// no EA graph and no explicit opt-out is a REFUSED transition, not a silent
+/// skip — the admission gate is the authority boundary and silently bypassing
+/// it would launder unadmitted manufacture. The only lawful opt-out is the
+/// explicit `skip_ea_admission` flag (CLI `--skip-ea-admission`, wired in
+/// ggen-cli); a skip is loud, never silent.
+///
+/// `pub(crate)`: shared by the two schema paths; not a public API.
+pub(crate) fn run_ea_graph_admission(
+    root: &Path,
+    skip_ea_admission: bool,
+    envelope_iri: Option<&str>,
+    prior_generation: u64,
+) -> Result<()> {
+    let ea_graph_path = root.join("ea.graph.json");
+    if !ea_graph_path.is_file() && !skip_ea_admission {
+        return Err(AppError::fm_law(
+            15,
+            format!(
+                "EA admission gate: `{}` is absent and no admission \
+                 opt-out was given. Every sync must either admit its \
+                 candidate SBBs against an EA graph or explicitly skip \
+                 with `--skip-ea-admission`. Remediation: add \
+                 ea.graph.json, or pass --skip-ea-admission to run \
+                 without architecture admission.",
+                ea_graph_path.display()
+            ),
+        ));
+    }
+    if ea_graph_path.is_file() {
+        let content = std::fs::read_to_string(&ea_graph_path).map_err(|e| {
+            AppError::fm_law(
+                15,
+                format!(
+                    "ea.graph.json at `{}` unreadable: {e}",
+                    ea_graph_path.display()
+                ),
+            )
+        })?;
+        let ea_graph = ggen_abb_sbb::parse_graph(&content).map_err(|refusal| {
+            AppError::fm_law(
+                15,
+                format!(
+                    "EA graph at `{}` malformed: {refusal}",
+                    ea_graph_path.display()
+                ),
+            )
+        })?;
+        // Validate graph integrity
+        ea_graph.validate().map_err(|refusal| {
+            AppError::fm_law(
+                15,
+                format!(
+                    "EA graph at `{}` failed validation: {refusal}",
+                    ea_graph_path.display()
+                ),
+            )
+        })?;
+        // Envelope caps for the kernel: the caller's envelope IRI governs
+        // the Stage 2c admission caps (frontmatter path: smallest
+        // template-declared envelope, exactly as it governs the Stage 2c-caps
+        // render ceilings; declarative path: `None` → kernel
+        // DEFAULT_MAX_ARTIFACTS). (WO-01 defect (a).)
+        let abb_caps = crate::envelope::abb_envelope_caps(root, envelope_iri);
+        // Admit every candidate SBB defined in the graph, against the
+        // envelope-translated caps and a pinned graph digest (WO-01
+        // defects (a)/(c)).
+        for sbb in &ea_graph.candidate_sbbs {
+            let req = ggen_abb_sbb::Request {
+                abb: sbb.abb.clone(),
+                sbb: sbb.id.clone(),
+                requested_authority: ggen_abb_sbb::Authority::Construct,
+                // Digest pinning (WO-01 (c)): the request is bound to
+                // the exact parsed subject; a graph mutated between
+                // parse and admit refuses GRAPH_DIGEST_MISMATCH.
+                expected_graph_digest: Some(ea_graph.digest()),
+                // Stage 2c-epoch lease generation from the receipt-log
+                // tail (frontmatter path reads it at Stage 2c-epoch; the
+                // declarative path reads it at dispatch).
+                receipt_generation: prior_generation,
+                // WO-01 (c) follow-up: no artifact-baseline source
+                // exists yet (the receipt log tracks no per-artifact
+                // baseline); 0 = untracked keeps the kernel's
+                // stale-lease gate dormant. Wire a real baseline when
+                // a baseline source lands (WO-01 follow-up).
+                artifact_baseline_generation: 0,
+            };
+            ggen_abb_sbb::admit_with_caps(&ea_graph, &req, abb_caps.as_ref()).map_err(|refusal| {
+                AppError::abb_refusal(
+                    "FM-LAW-015",
+                    format!("EA SBB admission for `{}`", sbb.id),
+                    refusal,
+                )
+            })?;
+        }
+    }
+    Ok(())
+}
+
 /// Run the five-stage pipeline rooted at `root` (the directory containing
 /// `ggen.toml`).
 ///
@@ -362,6 +476,23 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
     let config = match parsed {
         crate::schema_dispatch::ParsedGgenToml::DeclarativeRules(mut manifest) => {
             absorb_manifest_rules(root, &mut manifest)?;
+            // DEF-K6-2 (2026-11-03): the declarative-rules path previously
+            // had ZERO Stage 2c wiring — a repo-root declarative manifest
+            // never ran EA admission even with a clean receipt chain. Run
+            // the SAME admission sequence the frontmatter path runs at its
+            // Stage 2c, before any rule executes. The receipt-log
+            // generation tail is read here (the Stage 2c-epoch span itself
+            // stays on the frontmatter path, which has the refusal-envelope
+            // context the epoch gate needs); declarative manifests carry no
+            // template frontmatter envelopes, so the kernel's built-in caps
+            // apply (`None`).
+            let prior_generation = read_receipt_log_generation(root)?;
+            run_ea_graph_admission(
+                root,
+                opts.skip_ea_admission,
+                None,
+                prior_generation.unwrap_or(0),
+            )?;
             return crate::generation_rules::run(root, &manifest, opts);
         }
         crate::schema_dispatch::ParsedGgenToml::Frontmatter(config) => *config,
@@ -1012,86 +1143,100 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
     // In addition, if packs define [graph] dependencies or ports, resolve
     // cross-pack DAG, cycles, and port completeness.
     {
-        // 1. Pack-level dependency/port resolution
-        let mut pack_manifests = Vec::new();
-        for pack in &packs {
-            let manifest_path = pack.root.join("pack.toml");
-            if manifest_path.is_file() {
-                if let Ok(content) = std::fs::read_to_string(&manifest_path) {
-                    if let Ok(pm) = ggen_abb_sbb::depgraph::extract_pack_manifest(&content) {
-                        pack_manifests.push(pm);
-                    }
+        // 1. Pack-level dependency/port resolution. FAIL-CLOSED (v26.11.3
+        // follow-up to WO-01): a pack manifest that cannot be read, or that
+        // the kernel refuses to extract (e. g. non-canonical port ids,
+        // v26.10.12+), is a REFUSED transition — the old `if let Ok(pm)`
+        // silently skipped the depgraph admission check on exactly the
+        // manifests that most needed it. Refusals ride the same
+        // FM-PACK-015 typed path as the resolve_sync_order gate below.
+        //
+        // WO-03 follow-up (lane e80-10): when a persisted composition plan
+        // exists at `<root>/.ggen-v2/composition-plan.json` (written by
+        // `ggen pack compose --out <path>`), Stage 2c consumes it instead of
+        // re-extracting every `pack.toml` from disk and re-deriving the
+        // admission order with `resolve_sync_order` — the cycle/unbound-port
+        // admission already ran at compose time, so the persisted plan is
+        // the register of truth for this run's order. Fail-closed on schema
+        // mismatch (FM-PACK-022) and on a stale plan whose pack set no
+        // longer matches the manifest's `[packs]` (FM-PACK-023, stale-plan
+        // law); absent plan → legacy path below, byte-identical behavior.
+        // Note (honest scoping): `resolve_sync_order`'s returned order was
+        // already discarded at this call site before this change (the call
+        // is a pure admission gate); "consuming the plan's order" therefore
+        // means admitting via the plan instead of re-deriving, not
+        // re-plumbing the order into a downstream consumer that does not
+        // exist.
+        let composition_plan = read_composition_plan(root)?;
+        if let Some(plan) = &composition_plan {
+            validate_composition_plan(plan, &packs)?;
+        } else {
+            let mut pack_manifests = Vec::new();
+            for pack in &packs {
+                let manifest_path = pack.root.join("pack.toml");
+                if manifest_path.is_file() {
+                    let content = std::fs::read_to_string(&manifest_path).map_err(|e| {
+                        AppError::fm_pack(
+                            15,
+                            format!(
+                                "Pack manifest at `{}` unreadable: {e}. The \
+                                 cross-pack dependency admission check cannot \
+                                 run, so sync refuses rather than skip it.",
+                                manifest_path.display()
+                            ),
+                        )
+                    })?;
+                    let pm = ggen_abb_sbb::depgraph::extract_pack_manifest(&content).map_err(
+                        |refusal| {
+                            AppError::abb_refusal(
+                                "FM-PACK-015",
+                                "Pack manifest extraction",
+                                refusal,
+                            )
+                        },
+                    )?;
+                    pack_manifests.push(pm);
                 }
             }
-        }
-        if !pack_manifests.is_empty() {
-            let consumer_edges = if manifest_path.is_file() {
-                std::fs::read_to_string(&manifest_path).ok().and_then(|c| {
-                    ggen_abb_sbb::depgraph::extract_consumer_edges(&c)
-                        .ok()
-                        .flatten()
-                })
-            } else {
-                None
-            };
-            ggen_abb_sbb::depgraph::resolve_sync_order(&pack_manifests, consumer_edges.as_ref())
-                .map_err(|refusal| {
-                    AppError::fm_pack(
-                        15,
-                        format!("Cross-pack dependency graph admission refused: {refusal}"),
-                    )
-                })?;
-        }
-
-        // 2. EA graph admission: if ea.graph.json exists or is embedded
-        let ea_graph_path = root.join("ea.graph.json");
-        if ea_graph_path.is_file() {
-            let content = std::fs::read_to_string(&ea_graph_path).map_err(|e| {
-                AppError::fm_law(
-                    15,
-                    format!(
-                        "ea.graph.json at `{}` unreadable: {e}",
-                        ea_graph_path.display()
-                    ),
-                )
-            })?;
-            let ea_graph = ggen_abb_sbb::parse_graph(&content).map_err(|refusal| {
-                AppError::fm_law(
-                    15,
-                    format!(
-                        "EA graph at `{}` malformed: {refusal}",
-                        ea_graph_path.display()
-                    ),
-                )
-            })?;
-            // Validate graph integrity
-            ea_graph.validate().map_err(|refusal| {
-                AppError::fm_law(
-                    15,
-                    format!(
-                        "EA graph at `{}` failed validation: {refusal}",
-                        ea_graph_path.display()
-                    ),
-                )
-            })?;
-            // Admit every candidate SBB defined in the graph
-            for sbb in &ea_graph.candidate_sbbs {
-                let req = ggen_abb_sbb::Request {
-                    abb: sbb.abb.clone(),
-                    sbb: sbb.id.clone(),
-                    requested_authority: ggen_abb_sbb::Authority::Construct,
-                    expected_graph_digest: None,
-                    receipt_generation: prior_generation.unwrap_or(0),
-                    artifact_baseline_generation: 0,
+            if !pack_manifests.is_empty() {
+                let consumer_edges = if manifest_path.is_file() {
+                    std::fs::read_to_string(&manifest_path).ok().and_then(|c| {
+                        ggen_abb_sbb::depgraph::extract_consumer_edges(&c)
+                            .ok()
+                            .flatten()
+                    })
+                } else {
+                    None
                 };
-                ggen_abb_sbb::admit(&ea_graph, &req).map_err(|refusal| {
-                    AppError::fm_law(
-                        15,
-                        format!("EA SBB admission refused for `{}`: {refusal}", sbb.id),
-                    )
-                })?;
+                ggen_abb_sbb::depgraph::resolve_sync_order(&pack_manifests, consumer_edges.as_ref())
+                    .map_err(|refusal| {
+                        AppError::abb_refusal(
+                            "FM-PACK-015",
+                            "Cross-pack dependency graph admission",
+                            refusal,
+                        )
+                    })?;
             }
         }
+
+        // 2. EA graph admission — hoisted to [`run_ea_graph_admission`]
+        // (DEF-K6-2): the identical admission sequence now runs on BOTH
+        // `ggen.toml` schema paths, dispatched from `sync()`'s Stage 0
+        // branch for the declarative-rules schema. The envelope IRI that
+        // governs the admission caps is unchanged: the first
+        // (deterministically smallest) envelope IRI declared across this
+        // run's templates; no declared envelope → `None` → kernel
+        // DEFAULT_MAX_ARTIFACTS.
+        let stage2c_envelope_iri: Option<String> = templates
+            .iter()
+            .filter_map(|(_, t)| t.frontmatter.envelope.clone())
+            .min();
+        run_ea_graph_admission(
+            root,
+            opts.skip_ea_admission,
+            stage2c_envelope_iri.as_deref(),
+            prior_generation.unwrap_or(0),
+        )?;
     }
 
     // ── Stage 2c-caps: envelope CapTable extraction (v26.10.20) ─────────
@@ -2108,6 +2253,189 @@ fn expand_gate_glob(root: &Path, pattern: &str) -> Result<Vec<String>> {
 /// # Errors
 /// `[FM-CHAIN-009]` when the log is unreadable, `[FM-CHAIN-010]` when the
 /// tail line is corrupt.
+/// The `.ggen-v2/composition-plan.json` wire shape (WO-03: the JSON written
+/// by `ggen pack compose --out <path>`). Mirrors
+/// `ggen_marketplace::packs_registry::composer::PackCompositionPlan` field
+/// for field; defined locally because ggen-engine must stay a pure consumer
+/// of the wire shape (ggen-marketplace has no dependency back on this
+/// crate, and the plan struct there is `Serialize`-only).
+///
+/// Fail-closed by construction: `deny_unknown_fields` refuses any plan
+/// carrying keys this schema does not know, and serde refuses any plan
+/// missing a required key — both surface as FM-PACK-022.
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub(crate) struct PersistedCompositionPlan {
+    pub pack_ids: BTreeSet<String>,
+    pub provides: BTreeMap<String, BTreeSet<String>>,
+    pub order: Vec<String>,
+    pub artifact_paths: BTreeMap<String, BTreeSet<String>>,
+    pub self_satisfied: Vec<String>,
+    pub transitive_deps: BTreeMap<String, BTreeSet<String>>,
+}
+
+/// Read the persisted composition plan at `<root>/.ggen-v2/composition-plan.json`.
+///
+/// Absent file → `Ok(None)` (legacy path: Stage 2c re-extracts and
+/// re-derives admission from disk, byte-identical to pre-WO-03 behavior).
+/// Present-but-unreadable or schema-invalid → typed refusal
+/// (fail-closed), never a silent skip.
+///
+/// # Errors
+///
+/// FM-PACK-022 when the file exists but cannot be read or does not
+/// validate against the plan schema.
+pub(crate) fn read_composition_plan(root: &Path) -> Result<Option<PersistedCompositionPlan>> {
+    let plan_path = root.join(".ggen-v2").join("composition-plan.json");
+    let raw = match std::fs::read_to_string(&plan_path) {
+        Ok(raw) => raw,
+        Err(e) if e.kind() == std::io::ErrorKind::NotFound => return Ok(None),
+        Err(e) => {
+            return Err(AppError::fm_pack(
+                22,
+                format!(
+                    "Persisted composition plan at `{}` unreadable: {e}. A plan \
+                     that exists but cannot be read is an undecidable admission \
+                     baseline — fix or delete `.ggen-v2/composition-plan.json`, \
+                     or regenerate it with `ggen pack compose --out \
+                     .ggen-v2/composition-plan.json`.",
+                    plan_path.display()
+                ),
+            ))
+        }
+    };
+    serde_json::from_str(&raw)
+        .map(Some)
+        .map_err(|e| {
+            AppError::fm_pack(
+                22,
+                format!(
+                    "Persisted composition plan at `{}` failed schema validation: \
+                     {e}. The plan must be the exact JSON written by `ggen pack \
+                     compose --out` (pack_ids/provides/order/artifact_paths/\
+                     self_satisfied/transitive_deps).",
+                    plan_path.display()
+                ),
+            )
+        })
+}
+
+/// Validate a persisted composition plan against this run's resolved packs
+/// (the manifest's `[packs]`).
+///
+/// Two fail-closed laws:
+/// 1. Stale-plan law (FM-PACK-023): the plan's `pack_ids` must equal the
+///    manifest's pack-name set exactly — extra or missing packs mean the
+///    plan was composed for a different manifest state and its order cannot
+///    be trusted for this run.
+/// 2. Order integrity (FM-PACK-022): `order` must be a permutation of
+///    `pack_ids` (same length, same membership ⇒ no duplicates, no gaps).
+///
+/// # Errors
+///
+/// FM-PACK-023 on stale pack set; FM-PACK-022 on a malformed order.
+pub(crate) fn validate_composition_plan(
+    plan: &PersistedCompositionPlan,
+    packs: &[crate::pack::Pack],
+) -> Result<()> {
+    let manifest_ids: BTreeSet<String> = packs.iter().map(|p| p.name.clone()).collect();
+    if plan.pack_ids != manifest_ids {
+        let missing: Vec<String> = manifest_ids.difference(&plan.pack_ids).cloned().collect();
+        let extra: Vec<String> = plan.pack_ids.difference(&manifest_ids).cloned().collect();
+        return Err(AppError::fm_pack(
+            23,
+            format!(
+                "Persisted composition plan is STALE: its pack set no longer \
+                 matches the manifest's `[packs]` (missing from plan: \
+                 {missing:?}; not in manifest: {extra:?}). Re-run \
+                 `ggen pack compose --out .ggen-v2/composition-plan.json` \
+                 against the current manifest.",
+            ),
+        ));
+    }
+    if plan.order.len() != plan.pack_ids.len() {
+        return Err(AppError::fm_pack(
+            22,
+            format!(
+                "Persisted composition plan has a malformed order: {} order \
+                 entries for {} packs. `order` must be a permutation of \
+                 `pack_ids`.",
+                plan.order.len(),
+                plan.pack_ids.len()
+            ),
+        ));
+    }
+    let order_set: BTreeSet<&String> = plan.order.iter().collect();
+    let id_set: BTreeSet<&String> = plan.pack_ids.iter().collect();
+    if order_set != id_set {
+        return Err(AppError::fm_pack(
+            22,
+            format!(
+                "Persisted composition plan has a malformed order: `order` is \
+                 not a permutation of `pack_ids` (duplicate or foreign pack id \
+                 in `order`)."
+            ),
+        ));
+    }
+    // Schema integrity: per-pack maps are keyed by pack id, and the
+    // capability map is valued by provider pack id — foreign ids mean the
+    // plan body and its pack set disagree (schema mismatch, not merely
+    // staleness). (`provides` maps capability -> provider pack ids, so its
+    // KEYS are capability names and are not checked here.)
+    for (field, keys) in [
+        ("artifact_paths", plan.artifact_paths.keys()),
+        ("transitive_deps", plan.transitive_deps.keys()),
+    ] {
+        let foreign: Vec<String> = keys
+            .filter(|k| !plan.pack_ids.contains(*k))
+            .cloned()
+            .collect();
+        if !foreign.is_empty() {
+            return Err(AppError::fm_pack(
+                22,
+                format!(
+                    "Persisted composition plan has a schema mismatch: \
+                     `{field}` is keyed by pack ids outside `pack_ids`: \
+                     {foreign:?}."
+                ),
+            ));
+        }
+    }
+    for (capability, providers) in &plan.provides {
+        let foreign: Vec<String> = providers
+            .difference(&plan.pack_ids)
+            .cloned()
+            .collect();
+        if !foreign.is_empty() {
+            return Err(AppError::fm_pack(
+                22,
+                format!(
+                    "Persisted composition plan has a schema mismatch: \
+                     `provides[\"{capability}\"]` names provider pack ids \
+                     outside `pack_ids`: {foreign:?}."
+                ),
+            ));
+        }
+    }
+    let foreign_self: Vec<String> = plan
+        .self_satisfied
+        .iter()
+        .filter(|id| !plan.pack_ids.contains(*id))
+        .cloned()
+        .collect();
+    if !foreign_self.is_empty() {
+        return Err(AppError::fm_pack(
+            22,
+            format!(
+                "Persisted composition plan has a schema mismatch: \
+                 `self_satisfied` names pack ids outside `pack_ids`: \
+                 {foreign_self:?}."
+            ),
+        ));
+    }
+    Ok(())
+}
+
 pub(crate) fn read_receipt_log_generation(root: &Path) -> Result<Option<u64>> {
     let log_path = root.join(RECEIPT_LOG_REL_PATH);
     let raw = match std::fs::read_to_string(&log_path) {
@@ -3716,9 +4044,11 @@ pub(crate) fn write_receipt(
     // chain hash, so it is read as the legacy-bounded epoch below, never as
     // the stored (unprovable) payload.
     let prev_chain_standing = match &prev_head {
-        Some(prev) => match prev.record.verify_chain().map_err(|e| {
-            AppError::fm_chain(9, format!("previous receipt chain recompute failed: {e}"))
-        })? {
+        Some(prev) => match crate::receipt_chain_seam::verify_chain_compat(&prev.record)
+            .map_err(|e| {
+                AppError::fm_chain(9, format!("previous receipt chain recompute failed: {e}"))
+            })?
+        {
             ChainVerification::Verified(ChainStanding::LegacyV2Unbound) => {
                 // Never extend a downgraded head: a legacy head after a
                 // declared record is exactly what `receipt history` refuses.

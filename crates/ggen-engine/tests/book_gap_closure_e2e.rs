@@ -152,6 +152,27 @@ fn scaffold_gap_pack_consumer() -> (TempDir, PathBuf) {
     std::fs::create_dir_all(project.join("templates")).expect("templates directory");
     std::fs::write(project.join("ontology.ttl"), "").expect("consumer ontology");
 
+    // WO-01 fail-closed EA admission gate (FM-LAW-015): the CLI `sync run`
+    // has no --skip-ea-admission flag yet (ggen-cli wiring is a separate
+    // lane), so this green-path consumer fixture carries a minimal
+    // valid-but-empty EA graph (zero candidate SBBs -> nothing to admit),
+    // the same repair pattern used in src/watch.rs's watch-loop test.
+    std::fs::write(
+        project.join("ea.graph.json"),
+        r#"{
+  "schema": "ggen.ea.graph.v1",
+  "strategy": { "id": "s", "title": "t" },
+  "capabilities": [],
+  "abbs": [],
+  "contracts": [],
+  "candidate_sbbs": [],
+  "qualifications": [],
+  "packs": []
+}
+"#,
+    )
+    .expect("consumer ea.graph.json");
+
     let packs_table: String = GAP_PACKS.iter().fold(String::new(), |mut table, pack| {
         let _ = writeln!(table, "{pack} = {{ path = \"../{pack}\" }}");
         table
@@ -215,6 +236,16 @@ fn mfw_pcp_certificate_inventory_evolves_from_ontology_without_hand_repair() {
     let directory = TempDir::new().expect("temporary directory");
     let project = directory.path().join("mfw-pcp-level5-pack");
     copy_tree(&packs_dir().join("mfw-pcp-level5-pack"), &project);
+    // Collision repair (lane G2, disclosed in g2-typed-refusals receipt):
+    // WO-01's fail-closed EA admission gate (FM-LAW-015) refuses any sync
+    // whose root lacks ea.graph.json; this test exercises certificate
+    // inventory evolution, not EA admission, so the pack root carries a
+    // minimal valid-but-empty EA graph (zero candidate SBBs).
+    std::fs::write(
+        project.join("ea.graph.json"),
+        "{\"schema\":\"ggen.ea.graph.v1\",\"strategy\":{\"id\":\"s\",\"title\":\"t\"},\"capabilities\":[],\"abbs\":[],\"contracts\":[],\"candidate_sbbs\":[],\"qualifications\":[],\"packs\":[]}",
+    )
+    .expect("write ea.graph.json");
 
     assert_cli_success(&project, &["sync", "run"]);
     assert_cli_success(&project, &["receipt", "verify"]);

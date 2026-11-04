@@ -48,7 +48,7 @@ fn project(imports: &str) -> TempDir {
 #[test]
 fn imported_ontology_triples_are_visible_to_sparql() {
     let dir = project("[\"vocab/extra.ttl\"]");
-    sync(dir.path(), SyncOptions::default()).expect("sync with imports must succeed");
+    sync(dir.path(), SyncOptions { skip_ea_admission: true, ..Default::default() }).expect("sync with imports must succeed");
     let out = std::fs::read_to_string(dir.path().join("out/names.txt")).expect("read output");
     assert_eq!(out, "alice\nbob\n");
 }
@@ -56,7 +56,7 @@ fn imported_ontology_triples_are_visible_to_sparql() {
 #[test]
 fn without_imports_only_source_triples_are_visible() {
     let dir = project("[]");
-    sync(dir.path(), SyncOptions::default()).expect("sync must succeed");
+    sync(dir.path(), SyncOptions { skip_ea_admission: true, ..Default::default() }).expect("sync must succeed");
     let out = std::fs::read_to_string(dir.path().join("out/names.txt")).expect("read output");
     assert_eq!(out, "alice\n");
 }
@@ -64,7 +64,7 @@ fn without_imports_only_source_triples_are_visible() {
 #[test]
 fn missing_import_file_is_typed_refusal() {
     let dir = project("[\"vocab/absent.ttl\"]");
-    let err = sync(dir.path(), SyncOptions::default()).expect_err("missing import must fail");
+    let err = sync(dir.path(), SyncOptions { skip_ea_admission: true, ..Default::default() }).expect_err("missing import must fail");
     let msg = err.to_string();
     assert!(msg.contains("vocab/absent.ttl"), "names the file: {msg}");
     assert!(msg.contains("[ontology].imports"), "remediation: {msg}");

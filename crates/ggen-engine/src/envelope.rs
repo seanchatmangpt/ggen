@@ -96,6 +96,36 @@ pub const ENVELOPE_NS: &str = "http://ggen.org/envelope#";
 /// defaults.
 pub const ENVELOPE_RETICLE_REL: &str = ".specify/envelope-shapes.ttl";
 
+/// Why [`extract_caps`] fell back to the built-in defaults despite a
+/// declared envelope IRI (WO-06 R9 observability). `None`-style fallback
+/// kinds that were previously silent are now surfaced as a structured
+/// `ENVELOPE_CAP_FALLBACK` warn; the fail-soft contract (defaults,
+/// min-clamped, never refusing sync) is unchanged.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum CapFallback {
+    /// A declared envelope IRI exists but the reticle file
+    /// ([`ENVELOPE_RETICLE_REL`]) is missing or unreadable.
+    MissingReticle,
+    /// The reticle parsed but declares no `res:Envelope` individual matching
+    /// the declared IRI.
+    MissingIndividual,
+    /// The reticle exists but is unparseable, the SPARQL surface failed, or
+    /// a cap literal is a malformed (non-integer) value.
+    MalformedLiterals,
+}
+
+impl CapFallback {
+    /// Stable `kind` field for the `ENVELOPE_CAP_FALLBACK` structured event.
+    #[must_use]
+    pub fn kind(self) -> &'static str {
+        match self {
+            CapFallback::MissingReticle => "missing_reticle",
+            CapFallback::MissingIndividual => "missing_individual",
+            CapFallback::MalformedLiterals => "malformed_literals",
+        }
+    }
+}
+
 /// Extract the effective [`CapTable`] for `envelope` (a template's declared
 /// envelope IRI, `None` when no template declares one).
 ///
@@ -111,17 +141,28 @@ pub const ENVELOPE_RETICLE_REL: &str = ".specify/envelope-shapes.ttl";
 /// are ignored rather than refused because the caps gate is a ceiling, not
 /// an authority grant: refusing sync on a bad ceiling file would turn a
 /// defensive limit into a denial-of-service on the project itself.
+///
+/// Unlike the bare [`extract_caps`], this surface also returns *why* a
+/// fallback fired ([`CapFallback`]), so callers (and tests) can assert on
+/// the fallback artifact without log capture. Every fallback also emits a
+/// structured `ENVELOPE_CAP_FALLBACK` `tracing::warn!` with `code`, `kind`,
+/// and the envelope IRI as `key`. The legitimate common path (no envelope
+/// IRI declared at all, or no reticle with no envelope declared) emits
+/// nothing; a declared-but-corrupt envelope emits exactly one event.
 #[must_use]
-pub fn extract_caps(root: &Path, envelope: Option<&str>) -> CapTable {
+pub fn extract_caps_checked(root: &Path, envelope: Option<&str>) -> (CapTable, Option<CapFallback>) {
     let Some(iri) = envelope else {
-        return CapTable::default();
+        return (CapTable::default(), None);
     };
     let Ok(ttl) = std::fs::read_to_string(root.join(ENVELOPE_RETICLE_REL)) else {
-        return CapTable::default();
+        return fallback(CapFallback::MissingReticle, iri);
     };
-    let caps_from_graph = (|| -> Option<CapTable> {
-        let store = GraphLawStore::new().ok()?;
-        store.insert_turtle(&ttl).ok()?;
+    let caps_from_graph = (|| -> Result<CapTable, CapFallback> {
+        let store =
+            GraphLawStore::new().map_err(|_| CapFallback::MalformedLiterals)?;
+        store
+            .insert_turtle(&ttl)
+            .map_err(|_| CapFallback::MalformedLiterals)?;
         let query = format!(
             "PREFIX res: <{ENVELOPE_NS}>\n\
              SELECT ?env ?answers ?artifacts ?total WHERE {{\n\
@@ -131,8 +172,10 @@ pub fn extract_caps(root: &Path, envelope: Option<&str>) -> CapTable {
              \x20 OPTIONAL {{ ?env res:maxTotalBytes ?total }}\n\
              }}"
         );
-        let EngineQueryResults::Solutions(rows) = store.query(&query).ok()? else {
-            return None;
+        let EngineQueryResults::Solutions(rows) =
+            store.query(&query).map_err(|_| CapFallback::MalformedLiterals)?
+        else {
+            return Err(CapFallback::MalformedLiterals);
         };
         let iri_bare = iri.trim_start_matches('<').trim_end_matches('>');
         for row in &rows {
@@ -151,26 +194,57 @@ pub fn extract_caps(root: &Path, envelope: Option<&str>) -> CapTable {
                         }
                     }
                     ("answers", v) => {
-                        found.max_query_result_rows =
-                            cap_usize(v)?.min(DEFAULT_MAX_QUERY_RESULT_ROWS);
+                        found.max_query_result_rows = cap_usize(v)
+                            .ok_or(CapFallback::MalformedLiterals)?
+                            .min(DEFAULT_MAX_QUERY_RESULT_ROWS);
                     }
                     ("artifacts", v) => {
-                        found.max_pending_outputs = cap_usize(v)?.min(DEFAULT_MAX_PENDING_OUTPUTS);
+                        found.max_pending_outputs = cap_usize(v)
+                            .ok_or(CapFallback::MalformedLiterals)?
+                            .min(DEFAULT_MAX_PENDING_OUTPUTS);
                     }
                     ("total", v) => {
-                        found.max_total_rendered_bytes =
-                            cap_usize(v)?.min(DEFAULT_MAX_TOTAL_RENDERED_BYTES);
+                        found.max_total_rendered_bytes = cap_usize(v)
+                            .ok_or(CapFallback::MalformedLiterals)?
+                            .min(DEFAULT_MAX_TOTAL_RENDERED_BYTES);
                     }
                     _ => {}
                 }
             }
             if matched {
-                return Some(found);
+                return Ok(found);
             }
         }
-        None
+        Err(CapFallback::MissingIndividual)
     })();
-    caps_from_graph.unwrap_or_default()
+    match caps_from_graph {
+        Ok(table) => (table, None),
+        Err(kind) => fallback(kind, iri),
+    }
+}
+
+/// The one fallback exit: builtin defaults (fail-soft contract unchanged) +
+/// one structured `ENVELOPE_CAP_FALLBACK` warn (WO-06 R9 — a corrupt
+/// reticle is never silently absorbed).
+fn fallback(kind: CapFallback, iri: &str) -> (CapTable, Option<CapFallback>) {
+    tracing::warn!(
+        code = "ENVELOPE_CAP_FALLBACK",
+        kind = kind.kind(),
+        key = %iri,
+        "envelope cap extraction fell back to the built-in defaults"
+    );
+    (CapTable::default(), Some(kind))
+}
+
+/// Extract the effective [`CapTable`] for `envelope`, emitting a structured
+/// `ENVELOPE_CAP_FALLBACK` warn on any corrupt-reticle fallback (WO-06 R9).
+///
+/// Thin wrapper over [`extract_caps_checked`] preserving the historical
+/// signature; prefer the checked surface when a caller must distinguish
+/// "legitimate defaults" from "fallback under a declared envelope".
+#[must_use]
+pub fn extract_caps(root: &Path, envelope: Option<&str>) -> CapTable {
+    extract_caps_checked(root, envelope).0
 }
 
 /// Coerce an [`EngineValue`] cap literal into a `usize` (`None` for any
@@ -214,6 +288,63 @@ pub fn undeclared_envelope(facts_nt: &str) -> Option<String> {
     referenced.into_iter().find(|iri| !declared.contains(iri))
 }
 
+/// Translate the declared envelope's `res:maxArtifacts` literal into the
+/// abb-sbb kernel's per-call [`ggen_abb_sbb::EnvelopeCaps`] override
+/// (WO-01, Stage 2c wiring, 2026-11-03).
+///
+/// `None` when there is no declared envelope IRI, no reticle file, the
+/// envelope is undeclared, or no `res:maxArtifacts` literal is present —
+/// in every `None` case the kernel applies its own
+/// [`ggen_abb_sbb::DEFAULT_MAX_ARTIFACTS`] (64) default. A `Some` value is
+/// clamped to that same default: an envelope can only ever TIGHTEN the
+/// kernel ceiling, never loosen it (same tighten-only contract as
+/// [`extract_caps`]).
+///
+/// Unlike [`extract_caps`] (which folds a missing override into
+/// `CapTable::default()`), this returns `Option` so the caller can
+/// distinguish "no envelope grant" from "grant of exactly the default".
+#[must_use]
+pub fn abb_envelope_caps(root: &Path, envelope: Option<&str>) -> Option<ggen_abb_sbb::EnvelopeCaps> {
+    let iri = envelope?;
+    let ttl = std::fs::read_to_string(root.join(ENVELOPE_RETICLE_REL)).ok()?;
+    let store = GraphLawStore::new().ok()?;
+    store.insert_turtle(&ttl).ok()?;
+    let query = format!(
+        "PREFIX res: <{ENVELOPE_NS}>\n\
+         SELECT ?env ?artifacts WHERE {{\n\
+         \x20 ?env a res:Envelope .\n\
+         \x20 ?env res:maxArtifacts ?artifacts .\n\
+         }}"
+    );
+    let EngineQueryResults::Solutions(rows) = store.query(&query).ok()? else {
+        return None;
+    };
+    let iri_bare = iri.trim_start_matches('<').trim_end_matches('>');
+    for row in &rows {
+        let mut subject: Option<&str> = None;
+        let mut artifacts: Option<usize> = None;
+        for (var, value) in row {
+            // SLA unblock (lane G2, disclosed): match on `as_str()` — `var`
+            // is a `&String`, so literal patterns need the deref (E0308).
+            match (var.as_str(), value) {
+                ("env", EngineValue::String(s)) => {
+                    subject = Some(s.trim_start_matches('<').trim_end_matches('>'));
+                }
+                ("artifacts", v) => artifacts = cap_usize(v),
+                _ => {}
+            }
+        }
+        if subject == Some(iri_bare) {
+            if let Some(n) = artifacts {
+                return Some(ggen_abb_sbb::EnvelopeCaps {
+                    max_artifacts: n.min(ggen_abb_sbb::DEFAULT_MAX_ARTIFACTS),
+                });
+            }
+        }
+    }
+    None
+}
+
 #[cfg(test)]
 mod tests {
     #![allow(clippy::expect_used)] // test-only, H05 class (a)
@@ -231,9 +362,77 @@ mod tests {
     #[test]
     fn missing_envelope_yields_defaults() {
         let dir = tempfile::TempDir::new().expect("tempdir");
-        let caps = extract_caps(dir.path(), Some("res:Missing"));
+        // Declared envelope but no reticle file: fail-soft defaults PLUS the
+        // structured fallback flag (WO-06 R9 — never silently absorbed).
+        let (caps, fallback) = extract_caps_checked(dir.path(), Some("res:Missing"));
         assert_eq!(caps, CapTable::default());
-        assert_eq!(extract_caps(dir.path(), None), CapTable::default());
+        assert_eq!(fallback, Some(CapFallback::MissingReticle));
+        // No envelope declared at all: legitimate common path, no fallback.
+        let (caps, fallback) = extract_caps_checked(dir.path(), None);
+        assert_eq!(caps, CapTable::default());
+        assert_eq!(fallback, None);
+    }
+
+    #[test]
+    fn malformed_cap_literal_falls_back_loud() {
+        let dir = tempfile::TempDir::new().expect("tempdir");
+        let path = dir.path().join(ENVELOPE_RETICLE_REL);
+        std::fs::create_dir_all(path.parent().expect("parent")).expect("mkdir");
+        // Present-but-corrupt reticle: a non-integer cap literal.
+        std::fs::write(
+            &path,
+            format!(
+                "@prefix res: <{ENVELOPE_NS}> .\n\
+                 <http://example.org/env/corrupt> a res:Envelope ;\n\
+                 \x20   res:maxArtifacts \"not-a-number\" .\n"
+            ),
+        )
+        .expect("write reticle");
+        let (caps, fallback) =
+            extract_caps_checked(dir.path(), Some("http://example.org/env/corrupt"));
+        // Fail-soft contract untouched: defaults, never a refusal.
+        assert_eq!(caps, CapTable::default());
+        assert_eq!(fallback, Some(CapFallback::MalformedLiterals));
+    }
+
+    #[test]
+    fn missing_envelope_individual_falls_back_loud() {
+        let dir = tempfile::TempDir::new().expect("tempdir");
+        let path = dir.path().join(ENVELOPE_RETICLE_REL);
+        std::fs::create_dir_all(path.parent().expect("parent")).expect("mkdir");
+        std::fs::write(
+            &path,
+            format!(
+                "@prefix res: <{ENVELOPE_NS}> .\n\
+                 <http://example.org/env/other> a res:Envelope ;\n\
+                 \x20   res:maxArtifacts 4 .\n"
+            ),
+        )
+        .expect("write reticle");
+        let (caps, fallback) =
+            extract_caps_checked(dir.path(), Some("http://example.org/env/absent"));
+        assert_eq!(caps, CapTable::default());
+        assert_eq!(fallback, Some(CapFallback::MissingIndividual));
+    }
+
+    #[test]
+    fn healthy_envelope_emits_no_fallback() {
+        let dir = tempfile::TempDir::new().expect("tempdir");
+        let path = dir.path().join(ENVELOPE_RETICLE_REL);
+        std::fs::create_dir_all(path.parent().expect("parent")).expect("mkdir");
+        std::fs::write(
+            &path,
+            format!(
+                "@prefix res: <{ENVELOPE_NS}> .\n\
+                 <http://example.org/env/tight> a res:Envelope ;\n\
+                 \x20   res:maxArtifacts 4 .\n"
+            ),
+        )
+        .expect("write reticle");
+        let (caps, fallback) =
+            extract_caps_checked(dir.path(), Some("http://example.org/env/tight"));
+        assert_eq!(caps.max_pending_outputs, 4);
+        assert_eq!(fallback, None);
     }
 
     #[test]

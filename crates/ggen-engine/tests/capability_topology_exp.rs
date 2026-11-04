@@ -132,7 +132,15 @@ fn mutual_urn_requires_sync_green() {
         &[&urn("self-monitoring")],
     );
     write_manifest(&dir, &["self-monitoring", "dogfood-lifecycle"]);
-    sync(dir.path(), SyncOptions::default()).expect("mutual URN requires must stay green");
+    // WO-01 fail-closed EA gate: green-path premise — explicit opt-out.
+    sync(
+        dir.path(),
+        SyncOptions {
+            skip_ea_admission: true,
+            ..SyncOptions::default()
+        },
+    )
+    .expect("mutual URN requires must stay green");
     assert!(dir.path().join("out/self-monitoring.txt").exists());
     assert!(dir.path().join("out/dogfood-lifecycle.txt").exists());
 }

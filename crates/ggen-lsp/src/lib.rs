@@ -24,13 +24,16 @@ pub mod handlers;
 pub mod harness_index;
 pub mod init;
 pub mod intel;
+pub mod moniker;
 pub mod pack;
 pub mod project_index;
+pub mod diagnostics_rules;
 pub mod route;
 pub mod rule_index;
 pub mod server;
 pub mod source_contract;
 pub mod state;
+pub mod tokens;
 pub mod utils;
 
 // Absorbed during the 2026-07 crate-consolidation pass (4 crates -> 1, behind

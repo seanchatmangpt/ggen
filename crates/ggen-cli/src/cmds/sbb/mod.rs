@@ -3,6 +3,9 @@
 //! One density unit is one unique Git commit with a complete, digest-bound
 //! manufacturing and falsification evidence chain. This evaluator reports
 //! evidence but never promotes its own output beyond `PARTIAL_ALIVE`.
+//!
+//! Not the ABB/SBB admission kernel: that surface is `ggen ea`
+//! (WO-02 Resolution R6); the two nouns share no code.
 
 use std::{
     collections::{BTreeMap, BTreeSet},

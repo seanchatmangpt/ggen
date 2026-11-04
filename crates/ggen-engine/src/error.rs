@@ -37,6 +37,24 @@ pub enum AppError {
         /// The resource IRI lacking a declared envelope.
         iri: String,
     },
+
+    /// A ggen-abb-sbb kernel `Refusal` surfaced during Stage 2c admission
+    /// (pack depgraph resolution, EA graph admission). Unlike the
+    /// stringly-typed `fm_*` constructors, this variant carries the typed
+    /// `Refusal` enum itself so the kernel's serde tag
+    /// (SCREAMING_SNAKE_CASE, key `"refusal"`) stays machine-accessible;
+    /// `Display` still renders the kernel's human-readable text, and the
+    /// `[FM-PACK-015]`/`[FM-LAW-015]` code prefix is preserved verbatim in
+    /// the rendered message so existing log scrapers do not break.
+    #[error("[{code}] {op} refused: {refusal}")]
+    AbbRefusal {
+        /// FM code family for the surface (`FM-PACK-015` / `FM-LAW-015`).
+        code: &'static str,
+        /// Human-readable operation description, e.g. `"EA SBB admission for `sbb-id`"`.
+        op: String,
+        /// The typed kernel refusal, carried for machine access.
+        refusal: ggen_abb_sbb::Refusal,
+    },
 }
 
 impl AppError {
@@ -280,6 +298,39 @@ impl AppError {
     pub fn fm_envelope_undeclared(iri: impl Into<String>) -> Self {
         Self::EnvelopeUndeclared { iri: iri.into() }
     }
+
+    /// Typed constructor for [`AppError::AbbRefusal`]: a ggen-abb-sbb kernel
+    /// `Refusal` must survive as a typed code, not prose. `code` is the FM
+    /// family for the surface (`"FM-PACK-015"` for cross-pack depgraph
+    /// resolution, `"FM-LAW-015"` for EA admission); it is rendered into the
+    /// Display text (same `[FM-XXX-NNN]` shape the `fm_*` constructors emit)
+    /// while `refusal` is carried typed.
+    pub fn abb_refusal(code: &'static str, op: impl Into<String>, refusal: ggen_abb_sbb::Refusal) -> Self {
+        Self::AbbRefusal {
+            code,
+            op: op.into(),
+            refusal,
+        }
+    }
+
+    /// Machine access to the carried kernel refusal, if this error is one.
+    pub fn kernel_refusal(&self) -> Option<&ggen_abb_sbb::Refusal> {
+        match self {
+            Self::AbbRefusal { refusal, .. } => Some(refusal),
+            _ => None,
+        }
+    }
+
+    /// The kernel refusal's serde tag (SCREAMING_SNAKE_CASE value under the
+    /// `"refusal"` key of `ggen_abb_sbb::Refusal`'s internally-tagged
+    /// representation), if this error carries one. This is the minimal
+    /// machine surface: callers needing full structured fields serialize the
+    /// value returned by [`AppError::kernel_refusal`] directly.
+    pub fn abb_refusal_tag(&self) -> Option<String> {
+        let refusal = self.kernel_refusal()?;
+        let v = serde_json::to_value(refusal).ok()?;
+        v.get("refusal").and_then(|t| t.as_str()).map(String::from)
+    }
 }
 
 /// Extract the first `FM-XXX-NNN`-shaped code (without brackets) from an
@@ -306,6 +357,7 @@ pub fn extract_fm_code(message: &str) -> Option<&str> {
 #[cfg(test)]
 mod fm_code_extraction_tests {
     use super::extract_fm_code;
+    use crate::AppError;
 
     #[test]
     fn extracts_a_real_bracketed_code() {
@@ -334,6 +386,55 @@ mod fm_code_extraction_tests {
             extract_fm_code("[FM-PACK-013 missing closing bracket"),
             None
         );
+    }
+
+    #[test]
+    fn abb_refusal_surfaces_kernel_serde_tag() {
+        let err = AppError::abb_refusal(
+            "FM-LAW-015",
+            "EA SBB admission for `sbb-x`",
+            ggen_abb_sbb::Refusal::InsufficientAuthority {
+                admitted: ggen_abb_sbb::Authority::Select,
+            },
+        );
+        // Typed access to the carried kernel refusal.
+        assert_eq!(
+            err.kernel_refusal(),
+            Some(&ggen_abb_sbb::Refusal::InsufficientAuthority {
+                admitted: ggen_abb_sbb::Authority::Select,
+            })
+        );
+        // Kernel's serde tag (SCREAMING_SNAKE_CASE, key `"refusal"`).
+        assert_eq!(
+            err.abb_refusal_tag().as_deref(),
+            Some("INSUFFICIENT_AUTHORITY")
+        );
+        // Full structured form: serialize the carried refusal directly.
+        let v = serde_json::to_value(err.kernel_refusal().unwrap()).unwrap();
+        assert_eq!(v["refusal"], "INSUFFICIENT_AUTHORITY");
+        // Authority's serde shape is owned by ggen-abb-sbb; assert only
+        // that the structured field survives alongside the tag.
+        assert!(v.get("admitted").is_some());
+    }
+
+    #[test]
+    fn abb_refusal_text_still_human_readable_with_fm_code() {
+        let err = AppError::abb_refusal(
+            "FM-PACK-015",
+            "Cross-pack dependency graph admission",
+            ggen_abb_sbb::Refusal::CyclicPackDependency {
+                cycle: vec!["a".into(), "b".into(), "a".into()],
+            },
+        );
+        let text = err.to_string();
+        assert!(text.contains("[FM-PACK-015]"), "text: {text}");
+        assert!(
+            text.contains("CYCLIC_PACK_DEPENDENCY: a -> b -> a"),
+            "text: {text}"
+        );
+        // Non-refusal errors expose neither the refusal nor a tag.
+        assert_eq!(AppError::fm_pack(15, "old style").kernel_refusal(), None);
+        assert_eq!(AppError::fm_pack(15, "old style").abb_refusal_tag(), None);
     }
 }
 

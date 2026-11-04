@@ -1,0 +1,426 @@
+@prefix geag: <https://ggen.dev/ns/ea-graph#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Canonical declarative schema for ggen.ea.graph.v1 (WO-04 deliverable 1).
+#
+# These shapes mirror the pinned serde structs in
+# crates/ggen-abb-sbb/src/lib.rs (Strategy, Capability, Abb,
+# ArchitectureContract, ArtifactSpec, CandidateSbb, Qualification, Pack)
+# EXACTLY: every serde field has a sh:property with sh:path geag:<field_name>
+# (serde serializes these fields with their Rust snake_case names; there are no
+# rename attributes on these structs), required fields carry sh:minCount 1,
+# Option fields and collection fields (Vec/BTreeSet — always serialize, but an
+# empty collection has no value triples in the RDF projection) carry
+# sh:minCount 0, and every shape is sh:closed true
+# (the JSON projection uses #[serde(deny_unknown_fields)]).
+#
+# Parity is enforced, not asserted: crates/ggen-config/tests/
+# ea_graph_schema_parity_test.rs extracts the struct fields from lib.rs and
+# the sh:path set from this file and demands set equality in both directions.
+
+geag:AuthorityShape
+    a sh:NodeShape ;
+    sh:targetClass geag:Authority ;
+    sh:closed true ;
+    sh:property [
+        sh:path geag:value ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^(NONE|SELECT|CONSTRUCT|DO)$"
+    ] .
+
+geag:VerdictShape
+    a sh:NodeShape ;
+    sh:targetClass geag:Verdict ;
+    sh:closed true ;
+    sh:property [
+        sh:path geag:value ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^(QUALIFIED|REFUTED)$"
+    ] .
+
+geag:StrategyShape
+    a sh:NodeShape ;
+    sh:targetClass geag:Strategy ;
+    sh:closed true ;
+    sh:property [
+        sh:path geag:id ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1
+    ] ;
+    sh:property [
+        sh:path geag:title ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1
+    ] .
+
+geag:CapabilityShape
+    a sh:NodeShape ;
+    sh:targetClass geag:Capability ;
+    sh:closed true ;
+    sh:property [
+        sh:path geag:id ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1
+    ] ;
+    sh:property [
+        sh:path geag:strategy ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1
+    ] .
+
+geag:AbbShape
+    a sh:NodeShape ;
+    sh:targetClass geag:Abb ;
+    sh:closed true ;
+    sh:property [
+        sh:path geag:id ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1
+    ] ;
+    sh:property [
+        sh:path geag:capability ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1
+    ] ;
+    sh:property [
+        sh:path geag:contract ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1
+    ] .
+
+geag:ArchitectureContractShape
+    a sh:NodeShape ;
+    sh:targetClass geag:ArchitectureContract ;
+    sh:closed true ;
+    sh:property [
+        sh:path geag:id ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1
+    ] ;
+    sh:property [
+        sh:path geag:abb ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1
+    ] ;
+    sh:property [
+        sh:path geag:version ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1
+    ] ;
+    sh:property [
+        sh:path geag:max_artifacts ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 0
+    ] ;
+    sh:property [
+        sh:path geag:authority_ceiling ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^(NONE|SELECT|CONSTRUCT|DO)$"
+    ] ;
+    sh:property [
+        sh:path geag:required_ports ;
+        sh:minCount 0 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1
+    ] .
+
+geag:ArtifactSpecShape
+    a sh:NodeShape ;
+    sh:targetClass geag:ArtifactSpec ;
+    sh:closed true ;
+    sh:property [
+        sh:path geag:path ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1
+    ] ;
+    sh:property [
+        sh:path geag:template ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1
+    ] .
+
+geag:CandidateSbbShape
+    a sh:NodeShape ;
+    sh:targetClass geag:CandidateSbb ;
+    sh:closed true ;
+    sh:property [
+        sh:path geag:id ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1
+    ] ;
+    sh:property [
+        sh:path geag:abb ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1
+    ] ;
+    sh:property [
+        sh:path geag:pack ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1
+    ] ;
+    # Option<String> — `None` = UNKNOWN identity; `Some` binds a 40-hex digest.
+    sh:property [
+        sh:path geag:digest ;
+        sh:minCount 0 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[0-9a-f]{40}$"
+    ] ;
+    sh:property [
+        sh:path geag:mutable ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:boolean
+    ] ;
+    sh:property [
+        sh:path geag:authority ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^(NONE|SELECT|CONSTRUCT|DO)$"
+    ] ;
+    sh:property [
+        sh:path geag:provides_ports ;
+        sh:minCount 0 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1
+    ] ;
+    sh:property [
+        sh:path geag:artifacts ;
+        sh:minCount 0 ;
+        sh:node geag:ArtifactSpecShape
+    ] .
+
+geag:QualificationShape
+    a sh:NodeShape ;
+    sh:targetClass geag:Qualification ;
+    sh:closed true ;
+    sh:property [
+        sh:path geag:id ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1
+    ] ;
+    sh:property [
+        sh:path geag:sbb ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1
+    ] ;
+    sh:property [
+        sh:path geag:sbb_digest ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[0-9a-f]{40}$"
+    ] ;
+    sh:property [
+        sh:path geag:contract ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1
+    ] ;
+    sh:property [
+        sh:path geag:contract_digest ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[0-9a-f]{40}$"
+    ] ;
+    sh:property [
+        sh:path geag:verdict ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^(QUALIFIED|REFUTED)$"
+    ] .
+
+geag:PackShape
+    a sh:NodeShape ;
+    sh:targetClass geag:Pack ;
+    sh:closed true ;
+    sh:property [
+        sh:path geag:id ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1
+    ] .
+
+# ---- Referential integrity (sh:sparql) ------------------------------------
+#
+# The JSON projection flattens references to plain string ids; these SPARQL
+# constraints re-close the graph over those ids: every reference must resolve
+# to an existing element, and the Abb<->ArchitectureContract relation must be
+# mutually consistent (abb.contract names the contract AND contract.abb names
+# the abb).
+
+geag:abb-capability-resolves
+    a sh:NodeShape ;
+    sh:targetClass geag:Abb ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "abb.capability does not resolve to an existing Capability id" ;
+        sh:select """
+            PREFIX geag: <https://ggen.dev/ns/ea-graph#>
+            SELECT $this ?value
+            WHERE {
+                $this geag:capability ?value .
+                FILTER NOT EXISTS {
+                    ?cap a geag:Capability ; geag:id ?value .
+                }
+            }
+        """
+    ] .
+
+geag:abb-contract-bidirectional
+    a sh:NodeShape ;
+    sh:targetClass geag:Abb ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "abb.contract must name a contract whose abb field names this abb back (bidirectional)" ;
+        sh:select """
+            PREFIX geag: <https://ggen.dev/ns/ea-graph#>
+            SELECT $this ?value
+            WHERE {
+                $this geag:contract ?value .
+                FILTER NOT EXISTS {
+                    ?contract a geag:ArchitectureContract ;
+                        geag:id ?value ;
+                        geag:abb ?abbId .
+                    $this geag:id ?abbId .
+                }
+            }
+        """
+    ] .
+
+geag:sbb-abb-resolves
+    a sh:NodeShape ;
+    sh:targetClass geag:CandidateSbb ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "sbb.abb does not resolve to an existing Abb id" ;
+        sh:select """
+            PREFIX geag: <https://ggen.dev/ns/ea-graph#>
+            SELECT $this ?value
+            WHERE {
+                $this geag:abb ?value .
+                FILTER NOT EXISTS {
+                    ?abb a geag:Abb ; geag:id ?value .
+                }
+            }
+        """
+    ] .
+
+geag:sbb-pack-resolves
+    a sh:NodeShape ;
+    sh:targetClass geag:CandidateSbb ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "sbb.pack does not resolve to an existing Pack id" ;
+        sh:select """
+            PREFIX geag: <https://ggen.dev/ns/ea-graph#>
+            SELECT $this ?value
+            WHERE {
+                $this geag:pack ?value .
+                FILTER NOT EXISTS {
+                    ?pack a geag:Pack ; geag:id ?value .
+                }
+            }
+        """
+    ] .
+
+geag:qualification-references-resolve
+    a sh:NodeShape ;
+    sh:targetClass geag:Qualification ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "qualification.sbb / qualification.contract do not resolve to existing CandidateSbb / ArchitectureContract ids" ;
+        sh:select """
+            PREFIX geag: <https://ggen.dev/ns/ea-graph#>
+            SELECT $this ?value
+            WHERE {
+                { $this geag:sbb ?value .
+                  FILTER NOT EXISTS { ?sbb a geag:CandidateSbb ; geag:id ?value . } }
+                UNION
+                { $this geag:contract ?value .
+                  FILTER NOT EXISTS { ?contract a geag:ArchitectureContract ; geag:id ?value . } }
+            }
+        """
+    ] .
+
+# ---- PackConflation disjointness ------------------------------------------
+#
+# A pack id lives in a different id-space than graph element ids. A Pack whose
+# id collides with any Strategy/Capability/Abb/ArchitectureContract/
+# CandidateSbb/Qualification id is conflation and must fail validation.
+
+geag:PackConflationDisjoint
+    a sh:NodeShape ;
+    sh:targetClass geag:Pack ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "PackConflation: pack id collides with a Strategy/Capability/Abb/ArchitectureContract/CandidateSbb/Qualification id" ;
+        sh:select """
+            PREFIX geag: <https://ggen.dev/ns/ea-graph#>
+            SELECT $this ?value
+            WHERE {
+                $this geag:id ?value .
+                {
+                    ?element a geag:Strategy ;      geag:id ?value .
+                } UNION {
+                    ?element a geag:Capability ;    geag:id ?value .
+                } UNION {
+                    ?element a geag:Abb ;           geag:id ?value .
+                } UNION {
+                    ?element a geag:ArchitectureContract ; geag:id ?value .
+                } UNION {
+                    ?element a geag:CandidateSbb ;  geag:id ?value .
+                } UNION {
+                    ?element a geag:Qualification ; geag:id ?value .
+                }
+            }
+        """
+    ] .

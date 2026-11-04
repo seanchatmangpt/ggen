@@ -70,6 +70,12 @@ qlue-ls = { version = "3.11.1", default-features = false }
 ll-sparql-parser = "3.5.1"
 
 # Utilities
+# r80-01 (semantic tokens for generated Rust surfaces): real tree-sitter-rust
+# parse for token classification. Versions match the existing Cargo.lock
+# resolution (0.26.13 / 0.23.3 — both already in the lock via another member),
+# so no new resolution is introduced.
+tree-sitter = "0.26"
+tree-sitter-rust = "0.23"
 url = "2"
 anyhow = { workspace = true }
 thiserror = { workspace = true }

@@ -1,0 +1,6 @@
+PREFIX geag: <https://ggen.dev/ns/ea-graph#>
+SELECT ?id ?sbb ?sbb_digest ?contract ?contract_digest ?verdict
+WHERE {
+  ?s a geag:Qualification ; geag:id ?id ; geag:sbb ?sbb ; geag:sbb_digest ?sbb_digest ; geag:contract ?contract ; geag:contract_digest ?contract_digest ; geag:verdict ?verdict .
+}
+ORDER BY ?id

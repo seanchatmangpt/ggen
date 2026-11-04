@@ -66,6 +66,7 @@ fn when_guard_passes_only_after_n3_materialization() {
     let err = sync(
         dir.path(),
         SyncOptions {
+            skip_ea_admission: false,
             consumer_mode: Default::default(),
             dry_run: false,
             receipt_origin: None,
@@ -81,7 +82,7 @@ fn when_guard_passes_only_after_n3_materialization() {
 
     // Default (GraphLaw) engine: materialization derives the fact, the
     // guard passes, the file lands with the derived subject in it.
-    let report = sync(dir.path(), SyncOptions::default()).expect("graphlaw sync");
+    let report = sync(dir.path(), SyncOptions { skip_ea_admission: true, ..Default::default() }).expect("graphlaw sync");
     assert_eq!(
         report.written,
         vec![std::path::PathBuf::from("out/animals.txt")]
@@ -103,6 +104,7 @@ fn engines_agree_when_no_law_configured() {
         let report = sync(
             dir.path(),
             SyncOptions {
+                skip_ea_admission: true,
                 consumer_mode: Default::default(),
                 dry_run: false,
                 receipt_origin: None,
@@ -140,7 +142,7 @@ fn law_gate_violation_refuses_sync_naming_offending_node() {
     std::fs::create_dir_all(dir.path().join("gates")).expect("mkdir gates");
     std::fs::write(dir.path().join("gates/dog.rq"), GATE).expect("write gate");
 
-    let err = sync(dir.path(), SyncOptions::default())
+    let err = sync(dir.path(), SyncOptions { skip_ea_admission: true, ..Default::default() })
         .expect_err("unlicensed dog must refuse the SPARQL gate");
     let msg = err.to_string();
     assert!(msg.contains("FM-LAW-013"), "{msg}");
@@ -162,6 +164,7 @@ fn law_gate_violation_refuses_sync_naming_offending_node() {
     let err_oxi = sync(
         dir.path(),
         SyncOptions {
+            skip_ea_admission: false,
             consumer_mode: Default::default(),
             dry_run: false,
             receipt_origin: None,
@@ -184,7 +187,7 @@ fn legacy_law_shapes_is_refused_loudly() {
     std::fs::create_dir_all(dir.path().join("shapes")).expect("mkdir shapes");
     std::fs::write(dir.path().join("shapes/dog.ttl"), "# legacy\n").expect("write shapes");
 
-    let err = sync(dir.path(), SyncOptions::default())
+    let err = sync(dir.path(), SyncOptions { skip_ea_admission: true, ..Default::default() })
         .expect_err("a non-empty [law].shapes must refuse loudly");
     let msg = err.to_string();
     assert!(msg.contains("FM-LAW-012"), "{msg}");
@@ -208,7 +211,7 @@ fn denial_violation_refuses_sync() {
     scaffold(dir.path(), TOML_DENIAL, PLAIN_TEMPLATE);
     std::fs::write(dir.path().join("rules/no-dogs.n3"), DENIAL_N3).expect("write denial");
 
-    let err = sync(dir.path(), SyncOptions::default())
+    let err = sync(dir.path(), SyncOptions { skip_ea_admission: true, ..Default::default() })
         .expect_err("asserted dog under a no-dogs denial must refuse");
     let msg = err.to_string();
     assert!(msg.contains("FM-LAW-011"), "{msg}");
@@ -229,13 +232,13 @@ fn two_runs_same_fixture_same_graph_hash_and_valid_chain() {
     let dir = TempDir::new().expect("tempdir");
     scaffold(dir.path(), GGEN_TOML_WITH_RULES, TEMPLATE_WHEN_DERIVED);
 
-    let first = sync(dir.path(), SyncOptions::default()).expect("first sync");
+    let first = sync(dir.path(), SyncOptions { skip_ea_admission: true, ..Default::default() }).expect("first sync");
     let receipt1: SyncReceipt = serde_json::from_str(
         &std::fs::read_to_string(dir.path().join(RECEIPT_REL_PATH)).expect("receipt 1"),
     )
     .expect("parse receipt 1");
 
-    let second = sync(dir.path(), SyncOptions::default()).expect("second sync");
+    let second = sync(dir.path(), SyncOptions { skip_ea_admission: true, ..Default::default() }).expect("second sync");
     let receipt2: SyncReceipt = serde_json::from_str(
         &std::fs::read_to_string(dir.path().join(RECEIPT_REL_PATH)).expect("receipt 2"),
     )

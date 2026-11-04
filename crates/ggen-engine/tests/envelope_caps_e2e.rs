@@ -81,7 +81,7 @@ fn declared_caps_override_defaults_and_fail_closed() {
 
     // Positive control: no envelope declared -> built-in defaults -> admits.
     scaffold_template(root, None);
-    sync(root, SyncOptions::default()).expect("default-ceiling sync must admit");
+    sync(root, SyncOptions { skip_ea_admission: true, ..Default::default() }).expect("default-ceiling sync must admit");
     assert!(root.join("out/result.txt").exists());
 
     // Now declare a tightening envelope on the same template.
@@ -92,7 +92,7 @@ fn declared_caps_override_defaults_and_fail_closed() {
         &format!("{RETICLE_PREFIX}<res:Tight> a res:Envelope ; res:maxArtifacts 0 .\n"),
     );
 
-    let err = sync(root, SyncOptions::default())
+    let err = sync(root, SyncOptions { skip_ea_admission: true, ..Default::default() })
         .expect_err("pending-outputs cap of 0 must refuse the sync");
     let msg = err.to_string();
     assert!(
@@ -183,10 +183,10 @@ fn pending_outputs_cap_comes_from_the_envelope() {
         "---\nto: out/second.txt\n---\nsecond\n",
     )
     .expect("write control second template");
-    sync(control.path(), SyncOptions::default())
+    sync(control.path(), SyncOptions { skip_ea_admission: true, ..Default::default() })
         .expect("two outputs admit under the default ceiling");
 
-    let err = sync(root, SyncOptions::default())
+    let err = sync(root, SyncOptions { skip_ea_admission: true, ..Default::default() })
         .expect_err("declared cap of 1 must refuse a two-output run");
     let msg = err.to_string();
     assert!(
@@ -230,7 +230,7 @@ fn envelopes_can_only_tighten_never_loosen() {
     );
 
     // The clamped run behaves exactly like the default run: it admits.
-    sync(root, SyncOptions::default())
+    sync(root, SyncOptions { skip_ea_admission: true, ..Default::default() })
         .expect("clamped-to-default caps must admit like the default run");
     assert!(root.join("out/result.txt").exists());
 }

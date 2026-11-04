@@ -102,11 +102,23 @@ fn write_consumer(root: &Path, name: &str, templates_table_extra: &str) -> PathB
         ),
     )
     .expect("write ggen.toml");
+    // Collision repair (lane G2, disclosed in g2-typed-refusals receipt):
+    // WO-01's fail-closed EA admission gate (FM-LAW-015) refuses any sync
+    // whose root lacks ea.graph.json; these tests exercise consumer-mode
+    // projection, not EA admission, so the fixture carries a minimal
+    // valid-but-empty EA graph (zero candidate SBBs).
+    std::fs::write(
+        project.join("ea.graph.json"),
+        "{\"schema\":\"ggen.ea.graph.v1\",\"strategy\":{\"id\":\"s\",\"title\":\"t\"},\"capabilities\":[],\"abbs\":[],\"contracts\":[],\"candidate_sbbs\":[],\"qualifications\":[],\"packs\":[]}",
+    )
+    .expect("write ea.graph.json");
     project
 }
 
 fn options(consumer_mode: bool) -> SyncOptions {
     SyncOptions {
+        // K2: FM-LAW-015 EA-admission opt-out (test pins a non-EA law)
+        skip_ea_admission: true,
         consumer_mode,
         ..Default::default()
     }

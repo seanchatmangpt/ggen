@@ -6,6 +6,7 @@ pub mod diagnostics;
 pub mod document_symbol;
 pub mod folding_range;
 pub mod formatting;
+pub mod moniker;
 pub mod hover;
 pub mod inlay_hint;
 pub mod references;

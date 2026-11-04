@@ -1,13 +1,8 @@
 [project]
 name = "tai-enterprise-rebuild"
-version = "26.7.31"
-description = "Generate and simulate the roadmap for rebuilding Technology Applications, Inc."
-authors = ["Sean Chatman"]
-license = "MIT"
 
 [ontology]
 source = "ontology.ttl"
-base_iri = "https://chatmangpt.com/ontology/tai-rebuild#"
 imports = ["cmd.ttl", "options.ttl"]
 
 [ontology.prefixes]

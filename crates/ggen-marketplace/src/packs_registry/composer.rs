@@ -124,7 +124,7 @@ pub enum CompositionRefusal {
 ///
 /// Content is a pure function of the input pack set: BTreeMap/BTreeSet
 /// throughout, topological order with `BTreeSet` tie-breaking.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize)]
 pub struct PackCompositionPlan {
     /// All pack IDs in the composed set.
     pub pack_ids: BTreeSet<String>,
@@ -138,6 +138,26 @@ pub struct PackCompositionPlan {
     /// (self-satisfaction through the provides union). Legitimate per union
     /// semantics, surfaced so consumers can audit it. Sorted.
     pub self_satisfied: Vec<String>,
+    /// Pack ID -> set of pack IDs it depends on transitively (closure over
+    /// the declared dependency edges). Deterministic: BTreeMap/BTreeSet.
+    pub transitive_deps: BTreeMap<String, BTreeSet<String>>,
+}
+
+impl PackCompositionPlan {
+    /// Serialize the plan to pretty-printed JSON. The wire shape is the
+    /// struct itself (`pack_ids`/`provides`/`order`/`artifact_paths`/
+    /// `transitive_deps`/`self_satisfied`) — one projection, CLI-owned
+    /// formatting lives only in `--out`.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if serialization fails (in practice unreachable for
+    /// this all-`String`/collection shape).
+    pub fn to_json(&self) -> Result<String> {
+        serde_json::to_string_pretty(self).map_err(|e| {
+            Error::Other(format!("failed to serialize PackCompositionPlan: {e}"))
+        })
+    }
 }
 
 ///
@@ -241,8 +261,26 @@ pub fn compose(packs: &[PackFile]) -> std::result::Result<PackCompositionPlan, C
     let cap_edges = capability_order_edges(&surfaces, &provides);
     let order = order_with_capability_edges(&graph, &pack_views, &cap_edges);
 
+    let pack_ids_set: BTreeSet<String> = pack_views.iter().map(|p| p.id.clone()).collect();
+
+    // Transitive dependency closure per pack, over the declared dependency
+    // edges only (the same data the cycle check runs on). BFS per pack,
+    // deterministic output shape (BTreeMap/BTreeSet).
+    let mut transitive_deps: BTreeMap<String, BTreeSet<String>> = BTreeMap::new();
+    for id in &pack_ids_set {
+        let mut seen = BTreeSet::new();
+        let mut stack: Vec<String> = graph.dependencies(id);
+        while let Some(next) = stack.pop() {
+            if seen.insert(next.clone()) {
+                stack.extend(graph.dependencies(&next));
+            }
+        }
+        seen.remove(id.as_str());
+        transitive_deps.insert(id.clone(), seen);
+    }
+
     Ok(PackCompositionPlan {
-        pack_ids: pack_views.iter().map(|p| p.id.clone()).collect(),
+        pack_ids: pack_ids_set,
         provides,
         order,
         artifact_paths: path_owners
@@ -255,6 +293,7 @@ pub fn compose(packs: &[PackFile]) -> std::result::Result<PackCompositionPlan, C
             })
             .collect(),
         self_satisfied: self_satisfied.into_iter().map(String::from).collect(),
+        transitive_deps,
     })
 }
 
@@ -778,7 +817,23 @@ pub struct CompositionStep {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::packs_registry::types::{PackMetadata, PackTemplate};
+    use crate::packs_registry::types::{PackDependency, PackMetadata, PackTemplate};
+
+    fn pack_with_deps(id: &str, deps: &[&str]) -> PackFile {
+        let mut pack = create_test_pack(id, vec![format!("pkg-{id}").leak() as &str], vec![]);
+        pack.dependencies = deps
+            .iter()
+            .map(|d| PackDependency {
+                pack_id: (*d).to_string(),
+                version: "1.0.0".to_string(),
+                optional: false,
+            })
+            .collect();
+        PackFile {
+            pack,
+            capabilities: None,
+        }
+    }
 
     fn create_test_pack(id: &str, packages: Vec<&str>, templates: Vec<&str>) -> Pack {
         Pack {
@@ -850,5 +905,67 @@ mod tests {
         // Should detect config template conflict
         assert_eq!(conflicts.len(), 1);
         assert!(conflicts[0].contains("config"));
+    }
+
+    /// WO-03: order is topological for a 3-chain (c -> b -> a: c depends on
+    /// b, b depends on a). Dependencies must precede dependents.
+    #[test]
+    fn compose_order_is_topological_for_three_chain() {
+        let packs = vec![
+            pack_with_deps("chain-c", &["chain-b"]),
+            pack_with_deps("chain-b", &["chain-a"]),
+            pack_with_deps("chain-a", &[]),
+        ];
+
+        let plan = compose(&packs).expect("3-chain composes cleanly");
+
+        assert_eq!(plan.order, vec!["chain-a", "chain-b", "chain-c"]);
+
+        // Transitive closure: c -> {b, a}, b -> {a}, a -> {}.
+        assert_eq!(
+            plan.transitive_deps.get("chain-c").map(|s| s.len()),
+            Some(2)
+        );
+        assert!(plan.transitive_deps["chain-c"].contains("chain-b"));
+        assert!(plan.transitive_deps["chain-c"].contains("chain-a"));
+        assert!(plan.transitive_deps["chain-b"].contains("chain-a"));
+        assert!(plan.transitive_deps["chain-a"].is_empty());
+    }
+
+    /// WO-03: the plan JSON round-trips — serializes to a string that
+    /// re-parses to the same field content.
+    #[test]
+    fn plan_json_round_trips() {
+        let packs = vec![
+            pack_with_deps("chain-c", &["chain-b"]),
+            pack_with_deps("chain-b", &["chain-a"]),
+            pack_with_deps("chain-a", &[]),
+        ];
+        let plan = compose(&packs).expect("3-chain composes cleanly");
+
+        let json = plan.to_json().expect("to_json succeeds");
+        let value: serde_json::Value = serde_json::from_str(&json).expect("re-parses as JSON");
+
+        assert_eq!(
+            value["order"].as_array().expect("order").len(),
+            3,
+            "order in JSON: {json}"
+        );
+        let ids: Vec<&str> = value["pack_ids"]
+            .as_array()
+            .expect("pack_ids array")
+            .iter()
+            .filter_map(|v| v.as_str())
+            .collect();
+        assert_eq!(ids.len(), 3);
+        assert!(value.get("transitive_deps").is_some());
+        let chain_b_deps: Vec<&str> = value["transitive_deps"]["chain-b"]
+            .as_array()
+            .expect("transitive_deps[chain-b] array")
+            .iter()
+            .filter_map(|v| v.as_str())
+            .collect();
+        assert_eq!(chain_b_deps, vec!["chain-a"]);
+        assert!(value.get("self_satisfied").is_some());
     }
 }

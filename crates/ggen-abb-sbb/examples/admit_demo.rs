@@ -82,6 +82,10 @@ fn main() {
     let consumer = ConsumerEdges {
         name: "app".into(),
         depends_on: std::iter::once("top".to_string()).collect(),
+        // Minimal unblock (v26.11.3 lane G3, compile-freeze SLA disclosure):
+        // another lane added `requires` to ConsumerEdges (depgraph.rs) without
+        // updating this initializer; empty set preserves the demo's prior behavior.
+        requires: BTreeSet::new(),
     };
     let sp = resolve_sync_order(&packs, Some(&consumer)).expect("clean graph resolves");
     println!("\n== depgraph resolve_sync_order ==");

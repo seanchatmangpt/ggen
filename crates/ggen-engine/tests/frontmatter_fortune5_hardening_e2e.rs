@@ -20,6 +20,11 @@ dir = "templates"
 "#;
 
 fn scaffold(root: &Path, ontology: &str) {
+    std::fs::write(
+        root.join("ea.graph.json"),
+        "{\"schema\":\"ggen.ea.graph.v1\",\"strategy\":{\"id\":\"s\",\"title\":\"t\"},\"capabilities\":[],\"abbs\":[],\"contracts\":[],\"candidate_sbbs\":[],\"qualifications\":[],\"packs\":[]}",
+    )
+    .expect("write ea.graph.json");
     std::fs::write(root.join("ggen.toml"), GGEN_TOML).expect("manifest");
     std::fs::write(root.join("ontology.ttl"), ontology).expect("ontology");
     std::fs::create_dir_all(root.join("templates")).expect("templates");

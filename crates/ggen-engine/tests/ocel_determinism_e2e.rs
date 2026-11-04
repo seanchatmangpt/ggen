@@ -110,6 +110,11 @@ fn fresh_project() -> TempDir {
     std::fs::write(dir.path().join("ggen.toml"), GGEN_TOML).expect("write manifest");
     std::fs::write(dir.path().join("ontology.ttl"), ONTOLOGY).expect("write ontology");
     std::fs::create_dir_all(dir.path().join("templates")).expect("mkdir templates");
+    std::fs::write(
+        dir.path().join("ea.graph.json"),
+        "{\"schema\":\"ggen.ea.graph.v1\",\"strategy\":{\"id\":\"s\",\"title\":\"t\"},\"capabilities\":[],\"abbs\":[],\"contracts\":[],\"candidate_sbbs\":[],\"qualifications\":[],\"packs\":[]}",
+    )
+    .expect("write ea.graph.json");
     std::fs::write(dir.path().join("templates/names.tmpl"), TEMPLATE).expect("write template");
     dir
 }

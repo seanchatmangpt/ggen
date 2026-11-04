@@ -91,6 +91,8 @@ members = [
   "crates/bcinr-pddl",
   "crates/bcinr-mfw-ir",
   "crates/ggen-cheat-scanner",
+  "crates/ggen-sjira",
+  "crates/ggen-scip",
   "crates/ggen-mcp",
   # ARCHIVED out of the v26.5.29 build boundary (SETTLEMENT-CHECK-1): this example
   # drifted from its own types in a prior release (ValidationAgent missing the

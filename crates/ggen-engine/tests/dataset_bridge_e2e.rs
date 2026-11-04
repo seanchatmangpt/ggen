@@ -46,7 +46,7 @@ fn sync_receipt(root: &Path) {
     std::fs::write(root.join("ontology.ttl"), ONTOLOGY).expect("write ontology");
     std::fs::create_dir_all(root.join("templates")).expect("mkdir templates");
     std::fs::write(root.join("templates/one.tmpl"), TEMPLATE).expect("write template");
-    sync(root, SyncOptions::default()).expect("sync succeeds");
+    sync(root, SyncOptions { skip_ea_admission: true, ..Default::default() }).expect("sync succeeds");
 }
 
 fn read_receipt(root: &Path) -> ggen_engine::sync::SyncReceipt {

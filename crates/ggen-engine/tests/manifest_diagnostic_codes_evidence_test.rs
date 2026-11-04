@@ -59,7 +59,7 @@ fn unordered_inline_select_under_strict_mode_now_blocks_sync_run() {
          output_file = \"out.txt\"\n",
     );
 
-    let err = sync(dir.path(), SyncOptions::default()).expect_err(
+    let err = sync(dir.path(), SyncOptions { skip_ea_admission: true, ..Default::default() }).expect_err(
         "fixed behavior: unordered SELECT + strict_mode=true must now fail sync \
          (E0013 is wired into schema_dispatch::load's parse_and_validate path)",
     );
@@ -86,7 +86,7 @@ fn ordered_inline_select_under_strict_mode_syncs_cleanly() {
     );
 
     let report =
-        sync(dir.path(), SyncOptions::default()).expect("ORDER BY present must sync cleanly");
+        sync(dir.path(), SyncOptions { skip_ea_admission: true, ..Default::default() }).expect("ORDER BY present must sync cleanly");
     assert_eq!(report.written, vec![std::path::PathBuf::from("out.txt")]);
 }
 
@@ -108,7 +108,7 @@ fn unordered_construct_under_strict_mode_now_blocks_sync_run() {
          output_file = \"out.txt\"\n",
     );
 
-    let err = sync(dir.path(), SyncOptions::default()).expect_err(
+    let err = sync(dir.path(), SyncOptions { skip_ea_admission: true, ..Default::default() }).expect_err(
         "fixed behavior: unordered CONSTRUCT + strict_mode=true must now fail sync \
          (E0011 is wired into schema_dispatch::load's parse_and_validate path)",
     );
@@ -136,7 +136,7 @@ fn ordered_construct_under_strict_mode_syncs_cleanly() {
     );
 
     let report =
-        sync(dir.path(), SyncOptions::default()).expect("ORDER BY present must sync cleanly");
+        sync(dir.path(), SyncOptions { skip_ea_admission: true, ..Default::default() }).expect("ORDER BY present must sync cleanly");
     assert_eq!(report.written, vec![std::path::PathBuf::from("out.txt")]);
 }
 
@@ -156,6 +156,6 @@ fn structurally_invalid_generation_rule_still_fails_sync() {
          template = { inline = \"{% for row in results %}{{ row.name }};{% endfor %}\" }\n",
     );
 
-    sync(dir.path(), SyncOptions::default())
+    sync(dir.path(), SyncOptions { skip_ea_admission: true, ..Default::default() })
         .expect_err("a generation rule missing output_file must still fail to parse/sync");
 }

@@ -69,7 +69,7 @@ fn full_loop_produces_and_validates_a_real_ocel_v2_log() {
     {
         let (_dir, project) = scaffold_pack(&packs_dir().join("domain-capability-pack"));
         let started = now_millis();
-        let result = ggen_engine::sync::sync(&project, ggen_engine::sync::SyncOptions::default());
+        let result = ggen_engine::sync::sync(&project, ggen_engine::sync::SyncOptions { skip_ea_admission: true, ..Default::default() });
         let finished = now_millis();
         let ok = result.is_ok();
         let detail = if ok {
@@ -93,7 +93,7 @@ fn full_loop_produces_and_validates_a_real_ocel_v2_log() {
     {
         let (_dir, project) = scaffold_pack(&packs_dir().join("process-intelligence-rag-pack"));
         let started = now_millis();
-        let result = ggen_engine::sync::sync(&project, ggen_engine::sync::SyncOptions::default());
+        let result = ggen_engine::sync::sync(&project, ggen_engine::sync::SyncOptions { skip_ea_admission: true, ..Default::default() });
         let finished = now_millis();
         let ok = result.is_ok();
         let detail = if ok {
@@ -141,7 +141,7 @@ dspy:explanation-prop a sh:PropertyShape ;
         let (_dir, project) =
             scaffold_pack_with_ontology(&packs_dir().join("dspy-pack"), shacl_ttl);
         let started = now_millis();
-        let result = ggen_engine::sync::sync(&project, ggen_engine::sync::SyncOptions::default());
+        let result = ggen_engine::sync::sync(&project, ggen_engine::sync::SyncOptions { skip_ea_admission: true, ..Default::default() });
         let finished = now_millis();
         let ok = result.is_ok();
         let detail = if ok {
@@ -164,7 +164,7 @@ dspy:explanation-prop a sh:PropertyShape ;
     // --- Negative case, represented honestly as data, not hidden: a real gate refusal --
     {
         let (_dir, project) = scaffold_pack(&packs_dir().join("domain-capability-pack"));
-        ggen_engine::sync::sync(&project, ggen_engine::sync::SyncOptions::default())
+        ggen_engine::sync::sync(&project, ggen_engine::sync::SyncOptions { skip_ea_admission: true, ..Default::default() })
             .expect("baseline sync before sabotage");
         std::fs::write(
             project.join("ontology.ttl"),
@@ -175,7 +175,7 @@ dspy:explanation-prop a sh:PropertyShape ;
         )
         .expect("write sabotage ontology");
         let started = now_millis();
-        let result = ggen_engine::sync::sync(&project, ggen_engine::sync::SyncOptions::default());
+        let result = ggen_engine::sync::sync(&project, ggen_engine::sync::SyncOptions { skip_ea_admission: true, ..Default::default() });
         let finished = now_millis();
         let ok = result.is_ok();
         let detail = format!(
@@ -205,7 +205,7 @@ dspy:explanation-prop a sh:PropertyShape ;
     {
         let (_dir, project) = scaffold_pack(&packs_dir().join("shacl-projection-pack"));
         let started = now_millis();
-        let result = ggen_engine::sync::sync(&project, ggen_engine::sync::SyncOptions::default());
+        let result = ggen_engine::sync::sync(&project, ggen_engine::sync::SyncOptions { skip_ea_admission: true, ..Default::default() });
         let finished = now_millis();
         let ok = result.is_ok();
         let detail = if ok {
@@ -244,7 +244,7 @@ dspy:explanation-prop a sh:PropertyShape ;
         )
         .expect("write sabotage ontology");
         let started = now_millis();
-        let result = ggen_engine::sync::sync(&project, ggen_engine::sync::SyncOptions::default());
+        let result = ggen_engine::sync::sync(&project, ggen_engine::sync::SyncOptions { skip_ea_admission: true, ..Default::default() });
         let finished = now_millis();
         let ok = result.is_ok();
         let detail = format!(
@@ -280,7 +280,7 @@ dspy:explanation-prop a sh:PropertyShape ;
         )
         .expect("write real ontology");
         let started = now_millis();
-        let result = ggen_engine::sync::sync(&project, ggen_engine::sync::SyncOptions::default());
+        let result = ggen_engine::sync::sync(&project, ggen_engine::sync::SyncOptions { skip_ea_admission: true, ..Default::default() });
         let finished = now_millis();
         let ok = result.is_ok();
         let detail = if ok {
@@ -304,7 +304,7 @@ dspy:explanation-prop a sh:PropertyShape ;
     {
         let (_dir, project) = scaffold_pack(&packs_dir().join("wasm4pm-breed-provenance-pack"));
         let started = now_millis();
-        let result = ggen_engine::sync::sync(&project, ggen_engine::sync::SyncOptions::default());
+        let result = ggen_engine::sync::sync(&project, ggen_engine::sync::SyncOptions { skip_ea_admission: true, ..Default::default() });
         let finished = now_millis();
         let ok = result.is_ok();
         let detail = if ok {
@@ -334,7 +334,7 @@ dspy:explanation-prop a sh:PropertyShape ;
     //     010_required.rq sabotage test (Deliverable B) -------------------------------
     {
         let (_dir, project) = scaffold_pack(&packs_dir().join("wasm4pm-breed-provenance-pack"));
-        ggen_engine::sync::sync(&project, ggen_engine::sync::SyncOptions::default())
+        ggen_engine::sync::sync(&project, ggen_engine::sync::SyncOptions { skip_ea_admission: true, ..Default::default() })
             .expect("baseline sync before sabotage");
         std::fs::write(
             project.join("ontology.ttl"),
@@ -345,7 +345,7 @@ dspy:explanation-prop a sh:PropertyShape ;
         )
         .expect("write sabotage ontology");
         let started = now_millis();
-        let result = ggen_engine::sync::sync(&project, ggen_engine::sync::SyncOptions::default());
+        let result = ggen_engine::sync::sync(&project, ggen_engine::sync::SyncOptions { skip_ea_admission: true, ..Default::default() });
         let finished = now_millis();
         let ok = result.is_ok();
         let detail = format!(
@@ -372,7 +372,7 @@ dspy:explanation-prop a sh:PropertyShape ;
         let (_dir, project) =
             scaffold_multi_pack(&["standing-ladder-pack", "domain-capability-pack"]);
         let started = now_millis();
-        let result = ggen_engine::sync::sync(&project, ggen_engine::sync::SyncOptions::default());
+        let result = ggen_engine::sync::sync(&project, ggen_engine::sync::SyncOptions { skip_ea_admission: true, ..Default::default() });
         let finished = now_millis();
         let ok = result.is_ok();
         let detail = if ok {
@@ -397,7 +397,7 @@ dspy:explanation-prop a sh:PropertyShape ;
     {
         let (_dir, project) =
             scaffold_multi_pack(&["standing-ladder-pack", "domain-capability-pack"]);
-        ggen_engine::sync::sync(&project, ggen_engine::sync::SyncOptions::default())
+        ggen_engine::sync::sync(&project, ggen_engine::sync::SyncOptions { skip_ea_admission: true, ..Default::default() })
             .expect("baseline sync before sabotage");
         std::fs::write(
             project.join("ontology.ttl"),
@@ -413,7 +413,7 @@ dspy:explanation-prop a sh:PropertyShape ;
         )
         .expect("write sabotage ontology");
         let started = now_millis();
-        let result = ggen_engine::sync::sync(&project, ggen_engine::sync::SyncOptions::default());
+        let result = ggen_engine::sync::sync(&project, ggen_engine::sync::SyncOptions { skip_ea_admission: true, ..Default::default() });
         let finished = now_millis();
         let ok = result.is_ok();
         let detail = format!(

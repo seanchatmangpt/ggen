@@ -85,7 +85,8 @@ pub struct Envelope {
 /// Verdict of [`envelope_court`](envelope_court::envelope_court).
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ReplayVerdict {
-    /// Every consumed cap is declared and exactly binds the receipt.
+    /// Every consumed cap is declared and within its declared ceiling, and the
+    /// envelope's graph digest binds the receipt's.
     Pass,
     /// The receipt consumed a cap id absent from the declared cap table —
     /// vacuity, never a pass. Exit 1.
@@ -254,9 +255,9 @@ pub enum Refusal {
         declared: String,
         actual: String,
     },
-    #[error("SBB_UNQUALIFIED: {sbb}")]
+    #[error("SBB_UNQUALIFIED: {sbb} — qualify the SBB against its contract, then re-admit")]
     SbbUnqualified { sbb: String },
-    #[error("STALE_QUALIFICATION: {qualification} bound {bound}, SBB now {current}")]
+    #[error("STALE_QUALIFICATION: {qualification} bound {bound}, SBB now {current} — re-qualify the SBB against its current digest, then re-admit")]
     StaleQualification {
         qualification: String,
         bound: String,
@@ -268,7 +269,7 @@ pub enum Refusal {
         bound: String,
         current: String,
     },
-    #[error("EXCEEDS_CONTRACT: {reason}")]
+    #[error("EXCEEDS_CONTRACT: {reason} — shrink the realization below the contract ceiling, or re-qualify against the current contract digest")]
     ExceedsContract { reason: String },
     #[error("EXCEEDS_AUTHORITY_CEILING: {sbb} {authority:?} > {ceiling:?}")]
     ExceedsAuthorityCeiling {
@@ -298,6 +299,18 @@ pub enum Refusal {
     ReceiptTampered { declared: String, actual: String },
     #[error("REPLAY_MISMATCH: {field}")]
     ReplayMismatch { field: String },
+    #[error(
+        "NON_CANONICAL_PORT: pack '{pack}' field '{field}' port '{port}' is not canonical — rename the port to a non-empty, whitespace-free, lowercase a-z / 0-9 / dash identifier in the manifest, then re-run sync"
+    )]
+    NonCanonicalPort {
+        pack: String,
+        field: String,
+        port: String,
+    },
+    #[error(
+        "CLOSURE_BOUND_EXCEEDED: transitive-closure fixpoint did not converge within {max_iterations} iterations (bound 2*|packs|^2, floor 16) — the dependency rules cannot converge on this graph; inspect it for a cycle or non-monotonic dependency the resolver cannot fixpoint, then re-run sync"
+    )]
+    ClosureBoundExceeded { max_iterations: usize },
 }
 
 /// `SELECT existing SBB || MANUFACTURE missing realization`. A value, never an action.
@@ -577,7 +590,13 @@ impl EaGraph {
             if s.pack.trim().is_empty() || seen.contains(s.pack.as_str()) {
                 return Err(Refusal::PackConflation { id: s.pack.clone() });
             }
-            if !self.packs.is_empty() && !pack_ids.contains(s.pack.as_str()) {
+            // HIGH-3 fix (v26.11.3): a pack reference must resolve whether or not
+            // the graph carries a `packs` list. The previous
+            // `!self.packs.is_empty()` guard let any graph omitting the list
+            // silently disable the dangling-pack check (HIGH-3). An absent list
+            // leaves nothing to resolve against, so an unresolvable pack name
+            // refuses exactly as it does when the list is present.
+            if !pack_ids.contains(s.pack.as_str()) {
                 return Err(dangling(&s.id, &s.pack));
             }
             if !self.abbs.iter().any(|a| a.id == s.abb) {

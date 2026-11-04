@@ -59,7 +59,7 @@ fn stored_payload_hash(receipt_doc: &str) -> Result<String> {
 /// Any pipeline failure (`FM-*` codes) is mapped to a `NounVerbError`
 /// execution error, exiting non-zero.
 pub fn handle_sync_run(
-    dry_run: bool, watch: bool, consumer_mode: bool,
+    dry_run: bool, watch: bool, consumer_mode: bool, skip_ea_admission: bool,
 ) -> Result<serde_json::Value> {
     let root = project_root()?;
     if watch {
@@ -71,6 +71,7 @@ pub fn handle_sync_run(
         SyncOptions {
             dry_run,
             consumer_mode,
+            skip_ea_admission,
             ..Default::default()
         },
     )
@@ -477,9 +478,7 @@ pub fn handle_receipt_verify_in(root: &std::path::Path) -> Result<serde_json::Va
     //    rule is checked exactly; an undeclared pre-F1 record may verify
     //    only under the base rule, and then reports the capped
     //    `legacy-v2-unbound` standing instead of `fully-bound`.
-    let chain_standing = match receipt
-        .record
-        .verify_chain()
+    let chain_standing = match receipt_record::verify_chain_compat(&receipt.record)
         .map_err(|e| exec_err(AppError::fm_chain(14, e.to_string())))?
     {
         receipt_record::ChainVerification::Verified(standing) => standing,
@@ -792,7 +791,7 @@ pub fn handle_receipt_history_in(root: &std::path::Path) -> Result<serde_json::V
         }
         // 2. Rule-aware chain-hash recomputation via praxis-core's
         //    emission-path frame (`ReceiptRecord::verify_chain`).
-        match receipt.record.verify_chain().map_err(|e| {
+        match receipt_record::verify_chain_compat(&receipt.record).map_err(|e| {
             exec_err(AppError::fm_chain(
                 7,
                 format!("history invalid at index {idx}: chain recompute failed: {e}"),

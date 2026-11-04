@@ -1,0 +1,6 @@
+PREFIX geag: <https://ggen.dev/ns/ea-graph#>
+SELECT ?id ?capability ?contract
+WHERE {
+  ?s a geag:Abb ; geag:id ?id ; geag:capability ?capability ; geag:contract ?contract .
+}
+ORDER BY ?id

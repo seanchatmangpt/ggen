@@ -147,7 +147,7 @@ fn determinism_true_catches_an_unordered_limit_tie_across_an_independent_reload(
         let dir = TempDir::new().expect("tempdir");
         scaffold(dir.path());
 
-        match sync(dir.path(), SyncOptions::default()) {
+        match sync(dir.path(), SyncOptions { skip_ea_admission: true, ..Default::default() }) {
             Err(error) => {
                 let message = error.to_string();
                 assert!(
@@ -209,7 +209,7 @@ fn same_blank_node_tie_fixture_without_determinism_true_always_syncs_successfull
         .expect("rewrite template");
 
         let report =
-            sync(dir.path(), SyncOptions::default()).expect("sync without determinism check");
+            sync(dir.path(), SyncOptions { skip_ea_admission: true, ..Default::default() }).expect("sync without determinism check");
         assert_eq!(
             report.written,
             vec![std::path::PathBuf::from("out.txt")],

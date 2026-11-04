@@ -77,6 +77,16 @@ fn scaffold(root: &Path, names: &[&str]) {
     write_ontology(root, names);
     std::fs::create_dir_all(root.join("templates")).expect("mkdir templates");
     std::fs::write(root.join("templates/one.tmpl"), TEMPLATE).expect("write template");
+    // Collision repair (lane G2, disclosed in g2-typed-refusals receipt):
+    // WO-01's fail-closed EA admission gate (FM-LAW-015) refuses any sync
+    // whose root lacks ea.graph.json; these tests exercise doctor mechanics,
+    // not EA admission, so the fixture carries a minimal valid-but-empty
+    // EA graph (zero candidate SBBs).
+    std::fs::write(
+        root.join("ea.graph.json"),
+        "{\"schema\":\"ggen.ea.graph.v1\",\"strategy\":{\"id\":\"s\",\"title\":\"t\"},\"capabilities\":[],\"abbs\":[],\"contracts\":[],\"candidate_sbbs\":[],\"qualifications\":[],\"packs\":[]}",
+    )
+    .expect("write ea.graph.json");
 }
 
 fn write_ontology(root: &Path, names: &[&str]) {
@@ -119,6 +129,15 @@ fn scaffold_with_pack() -> (TempDir, PathBuf) {
         &dir.path().join("demo-project"),
     );
     let project = dir.path().join("demo-project");
+    // Collision repair (lane G2, disclosed in g2-typed-refusals receipt):
+    // WO-01's fail-closed EA admission gate (FM-LAW-015) refuses any sync
+    // whose root lacks ea.graph.json; doctor mechanics, not EA admission —
+    // minimal valid-but-empty EA graph (zero candidate SBBs).
+    std::fs::write(
+        &project.join("ea.graph.json"),
+        "{\"schema\":\"ggen.ea.graph.v1\",\"strategy\":{\"id\":\"s\",\"title\":\"t\"},\"capabilities\":[],\"abbs\":[],\"contracts\":[],\"candidate_sbbs\":[],\"qualifications\":[],\"packs\":[]}",
+    )
+    .expect("write ea.graph.json");
     (dir, project)
 }
 

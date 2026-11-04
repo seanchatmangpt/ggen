@@ -1,0 +1,102 @@
+{#- WO-04 deliverable 3: Turtle -> ggen.ea.graph.v1 projection template.
+    Field names and order mirror the serde structs in
+    crates/ggen-abb-sbb/src/lib.rs (deny_unknown_fields target). -#}
+{%- set caps = sparql(query='PREFIX geag: <https://ggen.dev/ns/ea-graph#> SELECT ?id ?strategy WHERE { ?s a geag:Capability ; geag:id ?id ; geag:strategy ?strategy . } ORDER BY ?id') -%}
+{%- set abbs = sparql(query='PREFIX geag: <https://ggen.dev/ns/ea-graph#> SELECT ?id ?capability ?contract WHERE { ?s a geag:Abb ; geag:id ?id ; geag:capability ?capability ; geag:contract ?contract . } ORDER BY ?id') -%}
+{%- set contracts = sparql(query='PREFIX geag: <https://ggen.dev/ns/ea-graph#> SELECT ?id ?abb ?version ?max_artifacts ?authority_ceiling WHERE { ?s a geag:ArchitectureContract ; geag:id ?id ; geag:abb ?abb ; geag:version ?version ; geag:max_artifacts ?max_artifacts ; geag:authority_ceiling ?authority_ceiling . } ORDER BY ?id') -%}
+{%- set cports = sparql(query='PREFIX geag: <https://ggen.dev/ns/ea-graph#> SELECT ?id ?port WHERE { ?s a geag:ArchitectureContract ; geag:id ?id ; geag:required_ports ?port . } ORDER BY ?id ?port') -%}
+{%- set sbbs = sparql(query='PREFIX geag: <https://ggen.dev/ns/ea-graph#> SELECT ?id ?abb ?pack ?digest ?mutable ?authority WHERE { ?s a geag:CandidateSbb ; geag:id ?id ; geag:abb ?abb ; geag:pack ?pack ; geag:mutable ?mutable ; geag:authority ?authority . OPTIONAL { ?s geag:digest ?digest . } } ORDER BY ?id') -%}
+{%- set sports = sparql(query='PREFIX geag: <https://ggen.dev/ns/ea-graph#> SELECT ?sbbId ?port WHERE { ?s a geag:CandidateSbb ; geag:id ?sbbId ; geag:provides_ports ?port . } ORDER BY ?sbbId ?port') -%}
+{%- set arts = sparql(query='PREFIX geag: <https://ggen.dev/ns/ea-graph#> SELECT ?sbbId ?path ?template WHERE { ?s a geag:CandidateSbb ; geag:id ?sbbId ; geag:artifacts ?a . ?a geag:path ?path ; geag:template ?template . } ORDER BY ?sbbId ?path') -%}
+{%- set quals = sparql(query='PREFIX geag: <https://ggen.dev/ns/ea-graph#> SELECT ?id ?sbb ?sbb_digest ?contract ?contract_digest ?verdict WHERE { ?s a geag:Qualification ; geag:id ?id ; geag:sbb ?sbb ; geag:sbb_digest ?sbb_digest ; geag:contract ?contract ; geag:contract_digest ?contract_digest ; geag:verdict ?verdict . } ORDER BY ?id') -%}
+{%- set packs = sparql(query='PREFIX geag: <https://ggen.dev/ns/ea-graph#> SELECT ?id WHERE { ?s a geag:Pack ; geag:id ?id . } ORDER BY ?id') -%}
+{%- set strat = results | first -%}
+{
+  "schema": "ggen.ea.graph.v1",
+  "strategy": {
+    "id": {{ strat.id | json_encode | safe }},
+    "title": {{ strat.title | json_encode | safe }}
+  },
+  "capabilities": [
+    {%- for row in caps %}
+    {
+      "id": {{ row.id | json_encode | safe }},
+      "strategy": {{ row.strategy | json_encode | safe }}
+    }{%- if not loop.last %},{% endif %}
+    {%- endfor %}
+  ],
+  "abbs": [
+    {%- for row in abbs %}
+    {
+      "id": {{ row.id | json_encode | safe }},
+      "capability": {{ row.capability | json_encode | safe }},
+      "contract": {{ row.contract | json_encode | safe }}
+    }{%- if not loop.last %},{% endif %}
+    {%- endfor %}
+  ],
+  "contracts": [
+    {%- for row in contracts %}
+    {
+      "id": {{ row.id | json_encode | safe }},
+      "abb": {{ row.abb | json_encode | safe }},
+      "version": {{ row.version | json_encode | safe }},
+      "max_artifacts": {{ row.max_artifacts }},
+      "authority_ceiling": {{ row.authority_ceiling | json_encode | safe }},
+      {%- set cp = cports | filter(attribute="id", value=row.id) %}
+      "required_ports": [
+        {%- for p in cp %}
+        {{ p.port | json_encode | safe }}
+        {%- if not loop.last %},{% endif %}
+        {%- endfor %}
+      ]
+    }{%- if not loop.last %},{% endif %}
+    {%- endfor %}
+  ],
+  "candidate_sbbs": [
+    {%- for row in sbbs %}
+    {
+      "id": {{ row.id | json_encode | safe }},
+      "abb": {{ row.abb | json_encode | safe }},
+      "pack": {{ row.pack | json_encode | safe }},
+      "digest": {{ row.digest | json_encode | safe }},
+      "mutable": {{ row.mutable }},
+      "authority": {{ row.authority | json_encode | safe }},
+      {%- set sp = sports | filter(attribute="sbbId", value=row.id) %}
+      "provides_ports": [
+        {%- for p in sp %}
+        {{ p.port | json_encode | safe }}
+        {%- if not loop.last %},{% endif %}
+        {%- endfor %}
+      ],
+      "artifacts": [
+        {%- set rowArts = arts | filter(attribute="sbbId", value=row.id) %}
+        {%- for a in rowArts %}
+        {
+          "path": {{ a.path | json_encode | safe }},
+          "template": {{ a.template | json_encode | safe }}
+        }{%- if not loop.last %},{% endif %}
+        {%- endfor %}
+      ]
+    }{%- if not loop.last %},{% endif %}
+    {%- endfor %}
+  ],
+  "qualifications": [
+    {%- for row in quals %}
+    {
+      "id": {{ row.id | json_encode | safe }},
+      "sbb": {{ row.sbb | json_encode | safe }},
+      "sbb_digest": {{ row.sbb_digest | json_encode | safe }},
+      "contract": {{ row.contract | json_encode | safe }},
+      "contract_digest": {{ row.contract_digest | json_encode | safe }},
+      "verdict": {{ row.verdict | json_encode | safe }}
+    }{%- if not loop.last %},{% endif %}
+    {%- endfor %}
+  ],
+  "packs": [
+    {%- for row in packs %}
+    {
+      "id": {{ row.id | json_encode | safe }}
+    }{%- if not loop.last %},{% endif %}
+    {%- endfor %}
+  ]
+}

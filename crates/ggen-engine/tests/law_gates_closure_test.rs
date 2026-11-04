@@ -70,6 +70,7 @@ fn run_sync(root: &Path) -> ggen_engine::sync::SyncReport {
     sync(
         root,
         SyncOptions {
+            skip_ea_admission: true,
             consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
@@ -146,6 +147,7 @@ fn missing_gate_file_is_typed_fm_law_refusal() {
     let err = sync(
         dir.path(),
         SyncOptions {
+            skip_ea_admission: true,
             consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
@@ -195,6 +197,7 @@ fn gate_path_escaping_project_root_is_typed_fm_config_refusal() {
     let err = sync(
         root,
         SyncOptions {
+            skip_ea_admission: true,
             consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
