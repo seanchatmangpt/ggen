@@ -1,0 +1,144 @@
+{
+  "schema": "ggen.ea.graph.v1",
+  "strategy": {
+    "id": "strategy:tai-enterprise-rebuild",
+    "title": "tai-enterprise-rebuild manufactures the evidence-gated TAI rebuild roadmap simulator (roadmap, scenarios, certifications, Gall programme, option catalogue, Rust simulator, verification scripts) from ontology.ttl+cmd.ttl+options.ttl via the tai-enterprise-rebuild-pack"
+  },
+  "capabilities": [
+    {
+      "id": "cap:tai-rebuild-manufacture",
+      "strategy": "strategy:tai-enterprise-rebuild"
+    }
+  ],
+  "abbs": [
+    {
+      "id": "abb:tai-rebuild-manufacture",
+      "capability": "cap:tai-rebuild-manufacture",
+      "contract": "contract:tai-manufacture"
+    }
+  ],
+  "contracts": [
+    {
+      "id": "contract:tai-manufacture",
+      "abb": "abb:tai-rebuild-manufacture",
+      "version": "1.0.0",
+      "max_artifacts": 32,
+      "authority_ceiling": "CONSTRUCT",
+      "required_ports": [
+        "tai-roadmap",
+        "tai-simulator",
+        "tai-evidence",
+        "tai-verify"
+      ]
+    }
+  ],
+  "candidate_sbbs": [
+    {
+      "id": "sbb:tai-rebuild-manufacture",
+      "abb": "abb:tai-rebuild-manufacture",
+      "pack": "pack:tai-enterprise-rebuild-pack",
+      "digest": "sha256:834829767447892c05d2361b0fa6e64c177d470716eabbdaa3ea30a2857d3449",
+      "mutable": false,
+      "authority": "CONSTRUCT",
+      "provides_ports": [
+        "tai-roadmap",
+        "tai-simulator",
+        "tai-evidence",
+        "tai-verify"
+      ],
+      "artifacts": [
+        {
+          "path": "Cargo.toml",
+          "template": "Cargo.toml.tmpl"
+        },
+        {
+          "path": "docs/TAI_REBUILD_ROADMAP.md",
+          "template": "docs/TAI_REBUILD_ROADMAP.md.tmpl"
+        },
+        {
+          "path": "generated/RELEASE_STANDING.json",
+          "template": "generated/RELEASE_STANDING.json.tmpl"
+        },
+        {
+          "path": "generated/certifications.json",
+          "template": "generated/certifications.json.tmpl"
+        },
+        {
+          "path": "generated/combinatorial-maximalism-program.json",
+          "template": "generated/combinatorial-maximalism-program.json.tmpl"
+        },
+        {
+          "path": "generated/enterprise.json",
+          "template": "generated/enterprise.json.tmpl"
+        },
+        {
+          "path": "generated/gall-program.json",
+          "template": "generated/gall-program.json.tmpl"
+        },
+        {
+          "path": "generated/recent-capabilities.json",
+          "template": "generated/recent-capabilities.json.tmpl"
+        },
+        {
+          "path": "generated/roadmap.json",
+          "template": "generated/roadmap.json.tmpl"
+        },
+        {
+          "path": "generated/scenarios.json",
+          "template": "generated/scenarios.json.tmpl"
+        },
+        {
+          "path": "scripts/verify.sh",
+          "template": "scripts/verify.sh.tmpl"
+        },
+        {
+          "path": "scripts/verify_cmd.py",
+          "template": "scripts/verify_cmd.py.tmpl"
+        },
+        {
+          "path": "src/bin/tai_rebuild.rs",
+          "template": "src/bin/tai_rebuild.rs.tmpl"
+        },
+        {
+          "path": "src/blocks.rs",
+          "template": "src/blocks.rs.tmpl"
+        },
+        {
+          "path": "src/lib.rs",
+          "template": "src/lib.rs.tmpl"
+        },
+        {
+          "path": "src/model.rs",
+          "template": "src/model.rs.tmpl"
+        },
+        {
+          "path": "src/receipt.rs",
+          "template": "src/receipt.rs.tmpl"
+        },
+        {
+          "path": "src/simulation.rs",
+          "template": "src/simulation.rs.tmpl"
+        },
+        {
+          "path": "tests/process_receipt.rs",
+          "template": "tests/process_receipt.rs.tmpl"
+        }
+      ]
+    }
+  ],
+  "qualifications": [
+    {
+      "id": "qual:tai-rebuild-manufacture",
+      "sbb": "sbb:tai-rebuild-manufacture",
+      "sbb_digest": "sha256:834829767447892c05d2361b0fa6e64c177d470716eabbdaa3ea30a2857d3449",
+      "contract": "contract:tai-manufacture",
+      "contract_digest": "sha256:45919e789dde55d6078f89b15c77569ead082664017b02d202e314d4525a699e",
+      "verdict": "QUALIFIED"
+    }
+  ],
+  "packs": [
+    {
+      "id": "pack:tai-enterprise-rebuild-pack"
+    }
+  ]
+}
