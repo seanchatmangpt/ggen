@@ -35,8 +35,12 @@ the cited receipt files, not here.
   1.26394 µs/link branch-a MEASURED-MET)
 - ZP-18 EXECUTED (cgap receipts `zp-18-profile-guard-census`, census exit 0 +
   `zp-18b-purity-gate-registration`)
-- ZP-19 UNVERIFIED (no receipt found; slab/TLS WindowBuffer work not
-  witnessed in any v26.11.4 tree)
+- ZP-19 EXECUTED (landed conditional): boundary allocs 9→0 with budget=0
+  enforcement (arcus `f6d0a5e` "single-buffer windows, sync.Pool, single-write
+  emit"; evidence: `bm8-pre-alloc-baseline.md` 9 allocs/warmed Seal pre-C4
+  baseline @9661bbf + `br4-alloc-isolation.md` paired isolation 9661bbf↔4dd6e39
+  null + D62 `blake3-pin-remint.md` context). Remaining legs if any: MemStats/
+  -race de-skip variant of the alloc court; cgap-side session census linkage.
 - ZP-20 EXECUTED (landed conditional) (lsp-max receipt
   `zp-20-gate09-fd-rss-rerun`): fd bound landed, RSS 5.4× margin measured,
   and the 2MB PRD claim FALSIFIED — the receipt must NOT be cited as a
