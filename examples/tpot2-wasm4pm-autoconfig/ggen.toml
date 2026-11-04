@@ -161,7 +161,13 @@ output_dir = "generated/"
 name = "generate-ggen-toml"
 query = { file = "queries/extract-pareto-pipeline.rq" }
 template = { file = "templates/generated-ggen-toml.tera" }
-output_file = "ggen.toml"
+# Renamed from ggen.toml (ZD-127): the rendered record was named `ggen.toml`
+# under generated/, so scripts/validate-examples.sh's recursive manifest
+# discovery executed the SPECIFICATION record as if it were a runnable
+# driver, refusing with FM-CONFIG-003 (its project-root-relative paths do
+# not resolve from generated/). The record keeps its content verbatim; only
+# the filename stops colliding with the validator's discovery pattern.
+output_file = "pipeline-spec.toml"
 mode = "Overwrite"
 
 # -----------------------------------------------------------------------------

@@ -39,3 +39,4 @@ Each target package contains libraries, C header, licenses, README files, artifa
 ## Supply chain
 
 CycloneDX, SPDX, in-toto/SLSA, SHA-256, and optional signatures are generated after artifacts exist. Release verification re-hashes every subject.
+

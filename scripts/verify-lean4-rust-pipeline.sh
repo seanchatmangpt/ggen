@@ -39,7 +39,12 @@ mkdir -p "$EXAMPLE/generated"
 
 (
   cd "$EXAMPLE"
-  "$GGEN" sync run
+  # --skip-ea-admission: FM-LAW-015 disclosed opt-out (ZD-125). The authored-
+  # surface law in scripts/validate_lean4_rust_pipeline.py pins this root at
+  # exactly {ggen.toml, ontology.ttl} (CONSUMER_ROOT_SURFACE_REFUSED), so no
+  # ea.graph.json may lawfully exist here. A skip is loud, never silent: the
+  # receipt records that the gate was not evaluated.
+  "$GGEN" sync run --skip-ea-admission
 )
 
 test -f "$EXAMPLE/generated/lean/lean-toolchain"
@@ -321,7 +326,9 @@ path.write_text(updated, encoding="utf-8")
 PY
   if (
     cd "$EXAMPLE"
-    "$GGEN" sync run
+    # ZD-125 disclosed FM-LAW-015 opt-out: see the comment at the first sync
+    # site; the sabotage refusal under test fires on its own law, not the EA gate.
+    "$GGEN" sync run --skip-ea-admission
   ) > "$EVIDENCE/${label}-refusal.log" 2>&1; then
     echo "::error::$label sabotage unexpectedly passed graph admission"
     exit 1
@@ -341,7 +348,8 @@ rm -f "$original_ontology"
 
 (
   cd "$EXAMPLE"
-  "$GGEN" sync run
+  # ZD-125 disclosed FM-LAW-015 opt-out: see the comment at the first sync site.
+  "$GGEN" sync run --skip-ea-admission
 )
 sha256sum \
   "$EXAMPLE/generated/lean/lean-toolchain" \

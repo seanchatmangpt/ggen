@@ -34,7 +34,13 @@ jobs:
           python3 scripts/validate_lean4_rust_pipeline.py
           cargo build -p ggen-cli-lib --bin ggen
           cd examples/ggen-first-lean4-rust
-          ../../target/debug/ggen sync run
+          # --skip-ea-admission: FM-LAW-015 disclosed opt-out (ZD-125). The
+          # consumer's authored-surface law (scripts/validate_lean4_rust_pipeline.py
+          # AUTHORED_CONSUMER_FILES / CONSUMER_ROOT_SURFACE_REFUSED) pins this
+          # root at exactly {ggen.toml, ontology.ttl} (+ ggen.lock root state),
+          # so an ea.graph.json cannot lawfully exist here. A skip is loud, not
+          # silent: the receipt records the gate was not evaluated.
+          ../../target/debug/ggen sync run --skip-ea-admission
       - name: Install Lean and compile proof program
         uses: leanprover/lean-action@38fbc41a8c28c4cbaec22d7f7de508ec2e7c0dd9
         with:

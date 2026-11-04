@@ -18,6 +18,15 @@ jobs:
   manufacture-and-verify:
     runs-on: ubuntu-24.04
     timeout-minutes: 35
+    # ZD-128/ZD-39: .cargo/config.toml sets [build] rustc-wrapper = "sccache"
+    # unconditionally, but no sccache binary is installed on this runner, so
+    # `cargo build` dies with exit 101 ("could not execute process `sccache`").
+    # Match the cyberpunk-tv-platform.yml pattern: empty RUSTC_WRAPPER overrides
+    # build.rustc-wrapper at the cargo config layer (env wins), SCCACHE_DISABLE
+    # is the belt against any direct sccache invocation.
+    env:
+      RUSTC_WRAPPER: ""
+      SCCACHE_DISABLE: "1"
     defaults:
       run:
         working-directory: examples/pcq-marketplace

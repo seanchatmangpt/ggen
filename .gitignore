@@ -1083,3 +1083,10 @@ target-lane*/
 .oclnr-cache/
 .oclnr-cache/
 erl_crash.dump
+
+# ggen.lock is ggen sync runtime state, not consumer-authored surface (ZD-124 / CASR)
+examples/combinatorial-maximalism/ggen.lock
+# consumer ggen.lock = sync runtime state (CASR law: authored surface is {ggen.toml, ontology.ttl});
+# tcps-generated is the lawful exception (evidence-artifact contract, xd-15/zd-126)
+examples/*/ggen.lock
+!examples/tcps-generated/ggen.lock

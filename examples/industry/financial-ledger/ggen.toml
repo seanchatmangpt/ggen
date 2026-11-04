@@ -5,7 +5,7 @@ description = "Financial services ledger consumer: double-entry SHACL + smalt cl
 
 [ontology]
 source = "domain/ledger.ttl"
-imports = ["/Users/sac/ggen-marketplace/packs/industry-financial-ledger/ontology.ttl"]
+imports = ["../../../../ggen-marketplace/packs/industry-financial-ledger/ontology.ttl"]
 
 [ontology.prefixes]
 fin = "https://ggen.io/ontology/financial-ledger#"

@@ -15,3 +15,4 @@ Outcome kind values:
 - `2`: refused
 
 The C header is canonical at `include/tcps.h`. ABI compatibility must be checked on every platform package before promotion.
+

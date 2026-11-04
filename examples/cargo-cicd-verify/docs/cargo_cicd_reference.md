@@ -65,3 +65,4 @@ retained-for-compatibility deprecated row. `Args` is real, source-verified
 | `workspace` | `list` |  | src/nouns/workspace.rs |  |
 | `workspace` | `sync` |  | src/nouns/workspace.rs |  |
 | `workspace` | `validate` |  | src/nouns/workspace.rs |  |
+

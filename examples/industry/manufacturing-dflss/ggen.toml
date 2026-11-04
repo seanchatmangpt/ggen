@@ -1,6 +1,6 @@
 # Consumer: manufacturing DfLSS industry example.
 # Pack: industry-manufacturing-dflss (canonical checkout
-# /Users/sac/ggen-marketplace/packs/industry-manufacturing-dflss).
+# ../../../../ggen-marketplace/packs/industry-manufacturing-dflss).
 # ggen-marketplace checkout and renders the SHACL law shapes + client
 # walkthrough from the pack's ontology.
 [project]
@@ -10,7 +10,7 @@ description = "Consumer example for industry-manufacturing-dflss (SHACL laws + c
 
 
 [ontology]
-source = "/Users/sac/ggen-marketplace/packs/industry-manufacturing-dflss/ontology.ttl"
+source = "../../../../ggen-marketplace/packs/industry-manufacturing-dflss/ontology.ttl"
 base_iri = "https://seanchatmangpt.github.io/packs/industry-manufacturing-dflss"
 
 [ontology.prefixes]
@@ -23,16 +23,16 @@ output_dir = "."
 
 [[generation.rules]]
 name = "shacl-manufacturing-shapes"
-query = { file = "/Users/sac/ggen-marketplace/packs/industry-manufacturing-dflss/queries/refusal_laws.rq" }
-template = { file = "/Users/sac/ggen-marketplace/packs/industry-manufacturing-dflss/templates/shacl-manufacturing-shapes.ttl.tmpl" }
+query = { file = "../../../../ggen-marketplace/packs/industry-manufacturing-dflss/queries/refusal_laws.rq" }
+template = { file = "../../../../ggen-marketplace/packs/industry-manufacturing-dflss/templates/shacl-manufacturing-shapes.ttl.tmpl" }
 output_file = "generated/shacl-manufacturing-shapes.ttl"
 skip_empty = false
 mode = "Overwrite"
 
 [[generation.rules]]
 name = "client-walkthrough"
-query = { file = "/Users/sac/ggen-marketplace/packs/industry-manufacturing-dflss/queries/refusal_laws.rq" }
-template = { file = "/Users/sac/ggen-marketplace/packs/industry-manufacturing-dflss/templates/client-walkthrough.md.tmpl" }
+query = { file = "../../../../ggen-marketplace/packs/industry-manufacturing-dflss/queries/refusal_laws.rq" }
+template = { file = "../../../../ggen-marketplace/packs/industry-manufacturing-dflss/templates/client-walkthrough.md.tmpl" }
 output_file = "generated/client-walkthrough.md"
 skip_empty = false
 mode = "Overwrite"
