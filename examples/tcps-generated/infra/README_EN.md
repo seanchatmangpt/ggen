@@ -122,4 +122,3 @@ The artifact-generation environment had no Rust toolchain and could not resolve 
 ## License
 
 MIT OR Apache-2.0
-

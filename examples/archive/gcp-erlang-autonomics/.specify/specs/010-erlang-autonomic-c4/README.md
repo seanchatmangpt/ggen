@@ -412,4 +412,3 @@ This specification is part of the ggen project. See LICENSE file in the reposito
 **Specification Version**: 1.0
 **Status**: Production-Ready
 **Maintainer**: ggen-autonomics@ggen.org
-

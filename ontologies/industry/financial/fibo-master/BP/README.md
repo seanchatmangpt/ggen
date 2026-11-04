@@ -7,4 +7,3 @@ This directory contains ontologies belonging to the Business Process (BP) domain
 ## Links
 
 - [FIBO Viewer](https://spec.edmcouncil.org/fibo/ontology/BP/MetadataBP/BPDomain)
-

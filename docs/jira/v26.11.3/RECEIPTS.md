@@ -67,7 +67,13 @@ none. Count reconciliation at this lane's run: `ls docs/jira/v26.11.3/receipts/
 | wc -l` = 92 before this lane's receipt, 93 with xd-17-index-transcribe.md on
 disk; xd-13-fmt-sweep.md, xd-11-fmlaw015.md and xd-15-tcps-lock.md each
 landed mid-pass during this lane's verification runs (96 total at final
-re-census) and are absorbed with their own rows. This file's
+re-census) and are absorbed with their own rows. Re-census at the zd-23
+refresh (2026-11-04): 103 receipt .md files on disk before zd-23's own
+receipt, 104 with it — the 7 receipts landed after XD-17's transcribe are
+rowed in the zd-23 section below (zd-21-shacl-syntax.md landed mid-pass,
+then zd-15-template-fmt.md and zd-24-claude-markers.md landed during the
+final coverage re-run — 107 total at final re-census — each absorbed with
+its own row). This file's
 per-lane tables above (15 rows) do not aim at 1 row per
 receipt — the full per-receipt register is README.md's tables; this section
 adds the post-close rows so no landed receipt is indexed only in an addendum.
@@ -102,3 +108,25 @@ adds the post-close rows so no landed receipt is indexed only in an addendum.
 | cgap receipts/rx-2-conformance.md | same dir | ALIVE | rfc0089_conformance ×4 exit 0 (4 passed; 0 failed; 1 ignored); lib courts 14/0; CBMQS 1/0 |
 | cgap receipts/gd-1-dod-pack.md | same dir | ALIVE pack surface; PARTIAL overall (dod-006 TARGET-UNMEASURED) | sync ×2 determinism + witness court + shim-court flip, green this session |
 | arcus receipts/xd-4-govulncheck.md | /Users/sac/arcus/docs/jira/v26.11.3/receipts/ | ALIVE (clean at go1.26.10; 40 called vulns at go1.23.4) | govulncheck exit 3 default / exit 0 pinned go1.26.10; wrapper exit 0 |
+
+## Post-close receipts (zd-23 index refresh, 2026-11-04)
+
+Seven receipts landed after XD-17's transcribe pass with no row in this file
+or README.md; they are rowed here and into README.md's post-close section.
+Standing words re-read from each receipt body on disk, never from memory;
+UNSTATED where the body carries none. zd-15/zd-16/zd-17/zd-18 were NOT on
+disk at this lane's run (`ls docs/jira/v26.11.3/receipts/ | wc -l` = 103
+before this lane's receipt, 104 with zd-23-index-refresh2.md).
+
+| Lane | Receipt | Standing | Exit record |
+|---|---|---|---|
+| AB-20 | receipts/ab-20-tokens-stress.md | UNSTATED in body (gate tables carry the evidence; disclosures: release profile, one out-of-lane marketplace.json version sync, test-authoring accounting bug fixed in-lane) | `cargo test -p ggen-lsp --release --test tokens_delta_stress` ×2 exit 0 (4 passed; 0 failed; soak 2378.87s/2327.41s); full ggen-lsp suite (4 stress tests skipped by name) exit 0 |
+| XD-14 | receipts/xd-14-ea-graph-ci.md | ALIVE for 3 of 4 checks (zero-code, part-passport, root dogfood sync + receipt verify); PARTIAL for ggen-self-host (FM-LAW-015 satisfied, blocked downstream on the observation gate, closed since by zd-9) | `validate_ea_graph` ×4 graphs exit 0, all 8 SBBs ADMITTED; root `ggen sync run` + `receipt verify` exit 0; inventoryctl + part-passport `ggen sync run` exit 0; self-host exit 1 on pre-existing FM-PACK-013 (other lane's scope) |
+| XD-18 | receipts/xd-18-ci-residuals.md | UNSTATED in body (verification ladder carries the evidence; concurrency disclosure: other lanes' uncommitted tree edits left untouched) | `validate_gap_closure.py` exit 0 (25/25, errors=0); YAML parse ×3 exit 0; `bash -n` on 23 extracted run: blocks exit 0 ×23; rustfmt --check on 2 owned files exit 0 |
+| ZD-5 | receipts/zd-5-sccache.md | FIXED (uncommitted, per body Status); CI job execution NOT run — first push-triggered run named the real gate, so the CI-path fix itself is UNVERIFIED by design | YAML `safe_load` exit 0; pinned SHA identical to setup-ggen-build STEP 2a (diff-verified); full job execution NOT run (no local runner), disclosed |
+| ZD-9 | receipts/zd-9-self-host-observation.md | ALIVE | `observe_self_host.py` exit 0 (13-min census); `verify_observation.py` exit 0 GGEN_SELF_HOST_OBSERVATION_VERIFIED; self-host `ggen sync run` exit 0 (26.10.11 and 26.11.3 binaries); root dogfood sync exit 0 under repo-built v26.11.3; ambient 26.10.11 root sync exit 1 FM-CHAIN-003 = pre-existing binary/log schema skew, disclosed |
+| ZD-11 | receipts/zd-11-sync431.md | RESOLVED-DISCLOSED (pinned-by-law, no code change); ALIVE for the ruling (code + kernel gate read, history traced, tests + dogfood this session) | `cargo test -p ggen-engine --lib` 236 passed / 0 failed; `cargo build -p ggen-cli-lib --bin ggen` exit 0; `ggen sync run` exit 0; `ggen receipt verify` exit 0 valid/signed; one receipt-chain wall-clock SLO test failure on the shared uncommitted tree, root-caused pre-existing not session-introduced |
+| ZD-14 | receipts/zd-14-ci-final.md | Fixes 1-3, 5, 7 ALIVE (gates this session); Fix 4 ALIVE-as-verified (already fixed at HEAD, coordinator brief stale); Fix 6 PARTIAL (owned docs fixed, repo-wide EOF-blank-line class flagged not fixed) | `cargo fmt --all -- --check` exit 0; `rustfmt --check refusals.rs` exit 0; YAML parse ×3 + bash -n ×2 exit 0; census prints exactly 3 authored files, 5 generated paths tracked; `validate_ea_graph` on examples/affidavit-verify exit 0 ADMITTED + `ggen sync run` exit 0; `validate_gap_closure.py` exit 0 errors=0; book Chicago suite 2 fixed, 1 pre-existing industry-TTL failure disclosed out of scope |
+| ZD-21 | receipts/zd-21-shacl-syntax.md | ALIVE (landed mid-pass during the zd-23 verification run, absorbed at re-census; closes the industry-TTL failure ZD-14 disclosed out of scope) | template fix in ggen-marketplace (generated file regenerated, not hand-patched); `ggen sync run` in examples/industry/manufacturing-dflss exit 0; rdflib parse OK 21 triples; failing book test green ×2 (5.03s/4.84s); file suite 4 passed, 1 skipped (pre-existing skip) |
+| ZD-15 | receipts/zd-15-template-fmt.md | ALIVE (landed during the zd-23 final coverage re-run, absorbed; closes ZD-14's disclosed fmt-gate flap — sync+fmt now a fixed point) | `ggen sync run` ×2 exit 0 (refusals.rs written run 1); `rustfmt --check refusals.rs` exit 0 ×2; `cargo fmt --all -- --check` exit 0; sha256 byte-identical across runs 1→2 (793fddd9…7913227); `cargo test -p ggen-abb-sbb` exit 0 (16+3 crosswalk+3 doc-tests green) |
+| ZD-24 | receipts/zd-24-claude-markers.md | RESOLVED (uncommitted); ALIVE for the owned surface; the repo-facts.ttl gap (ggen-scip/ggen-sjira missing rf:Crate individuals, commit 301849a9c) is a pre-existing HEAD defect, BLOCKED for this lane, filed for the coordinator | `grep -c` markers → 0 matches (exit 1 ×2); `wc -l CLAUDE.md` = 70; `cargo test -p ggen-config --test system_crate_map_parity_test` 1 passed / 1 FAILED — failure pre-existing (repo-facts.ttl ↔ Cargo.toml, not CLAUDE.md, both files match HEAD), disclosed not session-introduced |

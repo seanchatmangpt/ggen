@@ -27,4 +27,3 @@ derived from `ctt:binary`, not hand-maintained:
 | `receiptctl_unknown_verb_fails_closed` | `receiptctl` | `frobnicate` | 1 | an unknown subcommand exits nonzero with a clap error on stderr |
 | `receiptctl_user_create_fails_without_required_arg` | `receiptctl` | `user create` | 1 | user create without its required --name flag fails closed via clap's own required-argument enforcement |
 | `receiptctl_version_emits_name` | `receiptctl` | `--version` | 0 | receiptctl --version exits 0 and prints a version string |
-

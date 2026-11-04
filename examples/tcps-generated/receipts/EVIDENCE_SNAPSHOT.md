@@ -11,4 +11,3 @@ Raw admitted `ver:Check` facts as of the last sync (source: this consumer's
 | clippy-reference-gate | 0 | 2026-11-04T09:13:47Z | 9ce71e5768029384a4e3ca12c2ff7b213b5acb40da8293a8e1f65c0a3e92b5f5 |
 | fmt-check | 1 | 2026-11-04T09:13:47Z | 9ce71e5768029384a4e3ca12c2ff7b213b5acb40da8293a8e1f65c0a3e92b5f5 |
 | test-workspace | 101 | 2026-11-04T09:13:47Z | 9ce71e5768029384a4e3ca12c2ff7b213b5acb40da8293a8e1f65c0a3e92b5f5 |
-

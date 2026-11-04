@@ -478,4 +478,3 @@ By signing below, [Company] commits to:
 - [ ] Final review by VP Sales + CTO (before sending)
 - [ ] Send with customized cover email (reference discovery call)
 - [ ] Schedule follow-up call (48 hours post-send to address questions)
-

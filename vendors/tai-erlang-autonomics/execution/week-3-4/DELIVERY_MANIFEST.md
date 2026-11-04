@@ -522,4 +522,3 @@ ROI calculations, value engineering, positioning, and templates are customized p
 *Ready to execute? Start with WEEK_3_4_SALES_PIPELINE.md Monday Feb 10.*
 
 *Need a refresher? Reference WEEK_3_4_QUICK_REFERENCE.md during execution.*
-

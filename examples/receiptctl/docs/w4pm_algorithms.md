@@ -66,4 +66,3 @@ surface only — all process analysis executes inside wasm4pm.
 | `TransitionSystem` | discovery | 18 | `discover_transition_system` | van der Aalst, W.M.P. (2016). Process Mining: Data Science in Action (2nd ed.). Springer. |
 | `WorkingTogetherNetwork` | discovery_analytics | 13 | `compute_working_together_network` | van der Aalst, W.M.P. (2016). Process Mining: Data Science in Action (2nd ed.). Springer. |
 | `YawlExport` | import_export | 10 | `export_yawl` | van der Aalst, W.M.P. (2016). Process Mining: Data Science in Action (2nd ed.). Springer. |
-

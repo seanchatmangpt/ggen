@@ -10,4 +10,3 @@
 8. Execute on native hardware or an approved emulator before claiming runtime support.
 9. Add the target to a CI family without weakening other targets.
 10. Promote the target only after replay reproduces the original result.
-

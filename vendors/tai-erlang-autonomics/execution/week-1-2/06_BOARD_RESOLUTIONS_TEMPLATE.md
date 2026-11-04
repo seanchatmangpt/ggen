@@ -350,4 +350,3 @@ Date: [DATE]
 **Version**: 1.0 (Template)
 
 **Note**: This template contains 14 standard resolutions. Additional resolutions may be added as needed for specific corporate matters or investor requirements.
-

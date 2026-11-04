@@ -595,4 +595,3 @@ Or use union types:
    - Tighten all function specs
    - Remove unused code
    - Add comprehensive type definitions
-

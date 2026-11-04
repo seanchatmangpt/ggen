@@ -65,8 +65,13 @@ CLOSED this wave (cite, not claim):
 
 STILL OPEN (carried forward, unchanged or narrowed):
 - WO-file vs RECEIPTS.md standing drift (WO-01/03/05/07/08/09).
-- sync.rs:431 artifact_baseline_generation hardcode (verified open at
-  seal time by PF-1's grep).
+- sync.rs:431 artifact_baseline_generation — RESOLVED-DISCLOSED
+  (zd-11-sync431.md, 2026-11-04): it is `artifact_baseline_generation: 0`
+  in the EA SBB admission Request, the kernel's own "untracked" sentinel
+  (StaleLease gate refuses only when baseline > 0, ggen-abb-sbb
+  lib.rs:827-836); ggen-engine's receipt log tracks no per-artifact
+  baseline, so no equivalent generic path exists — wiring the global
+  generation would refuse every EA admission. Pinned-by-law, not drift.
 - receipt_chain_seam allow(dead_code) (verified open).
 - blast_radius/transactional write-path wiring (GAP-1, size L) — modules
   ALIVE, zero production callers (SV-1 confirmed unchanged).

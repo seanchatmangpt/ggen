@@ -515,4 +515,3 @@ All files located in `./tai-erlang-autonomics/operations-launch/`:
 ---
 
 **Launch with confidence. You are ready.**
-

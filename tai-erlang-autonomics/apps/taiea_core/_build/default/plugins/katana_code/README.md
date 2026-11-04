@@ -12,4 +12,3 @@ If you find any **bugs** or have a **problem** while using this library, please
 
 And you can check all of our open-source projects at
 [inaka.github.io](http://inaka.github.io)
-

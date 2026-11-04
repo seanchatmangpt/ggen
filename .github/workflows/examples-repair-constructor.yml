@@ -77,7 +77,7 @@ jobs:
           s = p.read_text()
           old = 'wasm4pm-interview-assist-pack = { path = "/Users/sac/ggen/packs/wasm4pm-interview-assist-pack" }'
           new = 'wasm4pm-interview-assist-pack = { path = "../../packs/wasm4pm-interview-assist-pack" }'
-          assert old in s
+          assert old in s or new in s
           p.write_text(s.replace(old, new))
 
           p = Path('examples/tai-enterprise-rebuild/ggen.toml')

@@ -28,17 +28,17 @@
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum Code {
-{% for c in codes %}
+{%- for c in codes %}
     {{ c.variant }},
-{% endfor %}
+{%- endfor %}
 }
 
 impl Code {
     pub(crate) fn wire(self) -> &'static str {
         match self {
-{% for c in codes %}
+{%- for c in codes %}
             Code::{{ c.variant }} => "{{ c.wire }}",
-{% endfor %}
+{%- endfor %}
         }
     }
 }
@@ -82,12 +82,11 @@ impl Refusal {
         }
     }
 
-{% for c in codes %}
-    /// `{{ c.wire }}` — {{ c.doc }}.
+{%- for c in codes %}
+    /// `{{ c.wire }}` — {{ c.doc }}{% if c.doc is not ending_with(".") %}.{% endif %}
     pub fn {{ c.ctor }}(detail: impl Into<String>) -> Self {
         Self::new(Code::{{ c.variant }}, detail)
     }
-
 {% endfor %}
     /// The registry wire code.
     pub fn code_str(&self) -> &'static str {

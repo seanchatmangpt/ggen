@@ -246,4 +246,3 @@ cat ~/.cache/ggen/logs/ggen.log
 - **CLI reference:** [CLI Reference](../reference/cli.md)
 - **Getting started:** [Getting Started Tutorial](../tutorials/getting-started.md)
 - **Installation:** [Installation Guide](installation.md)
-

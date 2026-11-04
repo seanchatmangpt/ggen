@@ -97,4 +97,3 @@ ggen marketplace publish \
 - **Marketplace guide:** [Marketplace Explanation](../explanations/marketplace.md)
 - **Template creation:** [Create Templates Guide](../how-to-guides/create-templates.md)
 - **CLI reference:** [Marketplace Commands](../reference/cli.md#marketplace-commands)
-

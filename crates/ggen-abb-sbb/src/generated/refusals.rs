@@ -9,69 +9,39 @@
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum Code {
-
     CensusStale,
-
     ControlRefused,
-
     EnvelopeUndeclared,
-
     ParseN3,
-
     ParseNTriples,
-
     ParseTurtle,
-
     DialectFeatureDisallowed,
-
     MalformedSyntax,
-
     RemoteContextForbidden,
-
     UndeclaredInputDialect,
-
     RefusedStaleLease,
-
     RestoreTamper,
-
     VacuousCourt,
-
     WitnessStale,
-
 }
 
 impl Code {
     pub(crate) fn wire(self) -> &'static str {
         match self {
-
             Code::CensusStale => "CENSUS_STALE",
-
             Code::ControlRefused => "CONTROL_REFUSED",
-
             Code::EnvelopeUndeclared => "E-ENVELOPE-UNDECLARED",
-
             Code::ParseN3 => "E-PARSE-N3",
-
             Code::ParseNTriples => "E-PARSE-NTRIPLES",
-
             Code::ParseTurtle => "E-PARSE-TURTLE",
-
             Code::DialectFeatureDisallowed => "FD-DIALECT_FEATURE_DISALLOWED",
-
             Code::MalformedSyntax => "FD-MALFORMED_SYNTAX",
-
             Code::RemoteContextForbidden => "FD-REMOTE_CONTEXT_FORBIDDEN",
-
             Code::UndeclaredInputDialect => "FD-UNDECLARED_INPUT_DIALECT",
-
             Code::RefusedStaleLease => "REFUSED_STALE_LEASE",
-
             Code::RestoreTamper => "RESTORE_TAMPER",
-
             Code::VacuousCourt => "VACUOUS_COURT",
-
             Code::WitnessStale => "WITNESS_STALE",
-
         }
     }
 }
@@ -114,91 +84,75 @@ impl Refusal {
             detail: detail.into(),
         }
     }
-
-
-    /// `CENSUS_STALE` — Census output predates the current tree state: distinguish compile-abort (exit 1, 0 tests executed — report the broken file) from real failures, then re-run the census..
+    /// `CENSUS_STALE` — Census output predates the current tree state: distinguish compile-abort (exit 1, 0 tests executed — report the broken file) from real failures, then re-run the census.
     pub fn census_stale(detail: impl Into<String>) -> Self {
         Self::new(Code::CensusStale, detail)
     }
 
-
-    /// `CONTROL_REFUSED` — Positive-control run refused: verify the control fixture matches the court's expected baseline (sha256) before re-running; a refused control means the court harness, not the subject, is broken..
+    /// `CONTROL_REFUSED` — Positive-control run refused: verify the control fixture matches the court's expected baseline (sha256) before re-running; a refused control means the court harness, not the subject, is broken.
     pub fn control_refused(detail: impl Into<String>) -> Self {
         Self::new(Code::ControlRefused, detail)
     }
 
-
-    /// `E-ENVELOPE-UNDECLARED` — Declare the missing surface in the FM envelope CapTable and re-run sync; the envelope constructor fm_() refuses undeclared surfaces fail-closed..
+    /// `E-ENVELOPE-UNDECLARED` — Declare the missing surface in the FM envelope CapTable and re-run sync; the envelope constructor fm_() refuses undeclared surfaces fail-closed.
     pub fn envelope_undeclared(detail: impl Into<String>) -> Self {
         Self::new(Code::EnvelopeUndeclared, detail)
     }
 
-
-    /// `E-PARSE-N3` — N3 input fails the Eyeron parser: fix the syntax at the reported line:col; the LawEngine formats the refusal through format_eyeron_parse (law_engine.rs) — retryable because correcting the input makes it parse..
+    /// `E-PARSE-N3` — N3 input fails the Eyeron parser: fix the syntax at the reported line:col; the LawEngine formats the refusal through format_eyeron_parse (law_engine.rs) — retryable because correcting the input makes it parse.
     pub fn parse_n3(detail: impl Into<String>) -> Self {
         Self::new(Code::ParseN3, detail)
     }
 
-
-    /// `E-PARSE-NTRIPLES` — N-Triples input fails the PurRDF parser: fix the syntax at the reported line:col; the LawEngine formats the refusal through format_rdf_diagnostic (law_engine.rs) — retryable because correcting the input makes it parse..
+    /// `E-PARSE-NTRIPLES` — N-Triples input fails the PurRDF parser: fix the syntax at the reported line:col; the LawEngine formats the refusal through format_rdf_diagnostic (law_engine.rs) — retryable because correcting the input makes it parse.
     pub fn parse_ntriples(detail: impl Into<String>) -> Self {
         Self::new(Code::ParseNTriples, detail)
     }
 
-
-    /// `E-PARSE-TURTLE` — Turtle input fails the PurRDF parser: fix the syntax at the reported line:col; the LawEngine formats the refusal through format_rdf_diagnostic (law_engine.rs) — retryable because correcting the input makes it parse..
+    /// `E-PARSE-TURTLE` — Turtle input fails the PurRDF parser: fix the syntax at the reported line:col; the LawEngine formats the refusal through format_rdf_diagnostic (law_engine.rs) — retryable because correcting the input makes it parse.
     pub fn parse_turtle(detail: impl Into<String>) -> Self {
         Self::new(Code::ParseTurtle, detail)
     }
 
-
-    /// `FD-DIALECT_FEATURE_DISALLOWED` — The input uses a feature the named dialect does not allow: rewrite the input within the dialect's feature set or switch to a dialect that admits the feature — never widen the dialect to accept the input silently..
+    /// `FD-DIALECT_FEATURE_DISALLOWED` — The input uses a feature the named dialect does not allow: rewrite the input within the dialect's feature set or switch to a dialect that admits the feature — never widen the dialect to accept the input silently.
     pub fn dialect_feature_disallowed(detail: impl Into<String>) -> Self {
         Self::new(Code::DialectFeatureDisallowed, detail)
     }
 
-
-    /// `FD-MALFORMED_SYNTAX` — The input fails the dialect's grammar: fix the syntax at the reported offset and re-admit; a parse error is not retryable as-is — the input must change..
+    /// `FD-MALFORMED_SYNTAX` — The input fails the dialect's grammar: fix the syntax at the reported offset and re-admit; a parse error is not retryable as-is — the input must change.
     pub fn malformed_syntax(detail: impl Into<String>) -> Self {
         Self::new(Code::MalformedSyntax, detail)
     }
 
-
-    /// `FD-REMOTE_CONTEXT_FORBIDDEN` — The input references a remote context (network IRI dereference) where only local contexts are admitted: vendor the context locally and reference it by local path — remote resolution is refused fail-closed..
+    /// `FD-REMOTE_CONTEXT_FORBIDDEN` — The input references a remote context (network IRI dereference) where only local contexts are admitted: vendor the context locally and reference it by local path — remote resolution is refused fail-closed.
     pub fn remote_context_forbidden(detail: impl Into<String>) -> Self {
         Self::new(Code::RemoteContextForbidden, detail)
     }
 
-
-    /// `FD-UNDECLARED_INPUT_DIALECT` — The input names a dialect not present in the declared dialect registry: register the dialect (or correct its name) and re-admit; retryable because declaring the dialect makes the same input lawful..
+    /// `FD-UNDECLARED_INPUT_DIALECT` — The input names a dialect not present in the declared dialect registry: register the dialect (or correct its name) and re-admit; retryable because declaring the dialect makes the same input lawful.
     pub fn undeclared_input_dialect(detail: impl Into<String>) -> Self {
         Self::new(Code::UndeclaredInputDialect, detail)
     }
 
-
-    /// `REFUSED_STALE_LEASE` — Refresh the generation counter from .ggen-v2/receipt-log.jsonl tail and re-admit with Request.generation > StaleLease.baseline; non-ABB mirror is FM-WRITE-012..
+    /// `REFUSED_STALE_LEASE` — Refresh the generation counter from .ggen-v2/receipt-log.jsonl tail and re-admit with Request.generation > StaleLease.baseline; non-ABB mirror is FM-WRITE-012.
     pub fn refused_stale_lease(detail: impl Into<String>) -> Self {
         Self::new(Code::RefusedStaleLease, detail)
     }
 
-
-    /// `RESTORE_TAMPER` — Restore-detection fired: the post-court sha256 differs from baseline. Diff against the tampered copy, find the non-restoring mutation, and fail-closed — never proceed on a corrupted restore..
+    /// `RESTORE_TAMPER` — Restore-detection fired: the post-court sha256 differs from baseline. Diff against the tampered copy, find the non-restoring mutation, and fail-closed — never proceed on a corrupted restore.
     pub fn restore_tamper(detail: impl Into<String>) -> Self {
         Self::new(Code::RestoreTamper, detail)
     }
 
-
-    /// `VACUOUS_COURT` — A court that cannot flip is vacuous: harden the mutation or the assertion until the court exits 1 (VACUOUS GATE) on the anti-vacuity shim..
+    /// `VACUOUS_COURT` — A court that cannot flip is vacuous: harden the mutation or the assertion until the court exits 1 (VACUOUS GATE) on the anti-vacuity shim.
     pub fn vacuous_court(detail: impl Into<String>) -> Self {
         Self::new(Code::VacuousCourt, detail)
     }
 
-
-    /// `WITNESS_STALE` — Witness receipt predates the shim mtime (KD-COVERS flip gate): re-run the PASS witness on the current subject so the receipt postdates the shim, then re-apply the flip..
+    /// `WITNESS_STALE` — Witness receipt predates the shim mtime (KD-COVERS flip gate): re-run the PASS witness on the current subject so the receipt postdates the shim, then re-apply the flip.
     pub fn witness_stale(detail: impl Into<String>) -> Self {
         Self::new(Code::WitnessStale, detail)
     }
-
 
     /// The registry wire code.
     pub fn code_str(&self) -> &'static str {

@@ -25,4 +25,3 @@ This artifact-generation host did not contain `cargo`, `rustc`, or `rustup`, and
 - signed binary release standing.
 
 The included CI and lifecycle scripts are the required path for establishing those claims. A build receipt is not a test receipt, and a structurally accepted source archive is not a compiled binary release.
-

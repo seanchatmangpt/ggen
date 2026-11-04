@@ -120,4 +120,3 @@ Gpacks use semantic versioning and lockfiles:
 - [Marketplace Workflow Tutorial](../tutorials/marketplace-workflow.md)
 - [CLI Reference](../reference/cli.md#marketplace-commands)
 - [Create Templates Guide](../how-to-guides/create-templates.md)
-

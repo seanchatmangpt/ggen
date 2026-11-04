@@ -84,4 +84,3 @@ For sensor metadata and calibration:
 
 For detailed measurement provenance:
 - **PROV:** https://www.w3.org/ns/prov# (already in ggen ontologies)
-

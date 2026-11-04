@@ -1500,4 +1500,3 @@ GO TIME. Share this deck with conviction.
 **Date:** January 26, 2026
 **Status:** READY FOR INVESTOR PRESENTATIONS
 **Next Review:** February 15, 2026 (after initial investor feedback)
-

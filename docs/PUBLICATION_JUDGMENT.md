@@ -127,4 +127,3 @@ This 23-row table WAS individually re-walked on 2026-08-07 (see each row's own "
 table had gone unaudited since 2026-07-20 while only the workspace version number moved. Treat
 every Status/Basis cell's own cited date as its real freshness signal; two rows (7, 16) remain
 honestly un-re-audited and are marked as such in their own text.
-

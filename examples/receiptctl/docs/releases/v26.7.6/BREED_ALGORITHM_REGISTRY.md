@@ -131,4 +131,3 @@ projection of the admitted graph. Breed status is law-derived
 | `transition_system` | TransitionSystem | discovery | REPLAYABLE | van der Aalst, W.M.P. (2016). Process Mining: Data Science in Action (2nd ed.). Springer. |
 | `working_together_network` | WorkingTogetherNetwork | discovery_analytics | REPLAYABLE | van der Aalst, W.M.P. (2016). Process Mining: Data Science in Action (2nd ed.). Springer. |
 | `yawl_export` | YawlExport | import_export | REPLAYABLE | van der Aalst, W.M.P. (2016). Process Mining: Data Science in Action (2nd ed.). Springer. |
-

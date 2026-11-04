@@ -760,4 +760,3 @@ ggen's partnership strategy positions the company as the foundation layer for de
 The target is **$210M ARR by 2027**, with 50%+ coming from strategic partnerships and 10,000+ enterprise customers worldwide.
 
 **Core principle**: Partners succeed when ggen succeeds. Align incentives, build integrations, measure outcomes.
-

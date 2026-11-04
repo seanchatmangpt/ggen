@@ -218,4 +218,3 @@ This is currently a mock implementation that demonstrates the concept. In a real
 ## License
 
 This project follows the same license as the main ggen project.
-

@@ -19,4 +19,3 @@ The universal core forbids unsafe code. FFI and WASM crates permit the Rust 2024
 ## Reporting
 
 Do not publish vulnerabilities before a fix and negative fixture exist. A security repair must identify the originating abnormality, failed invariant, countermeasure, superseded standard, revised standard, and replay evidence.
-

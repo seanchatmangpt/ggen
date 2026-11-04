@@ -14,4 +14,3 @@ Required sequence:
 8. Attach receipts.
 
 Do not disable tests, weaken refusal types, introduce ambient authority, or convert an infrastructure gap into a successful status.
-

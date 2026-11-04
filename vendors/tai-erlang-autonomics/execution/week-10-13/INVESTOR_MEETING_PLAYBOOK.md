@@ -877,4 +877,3 @@ be thoughtful about who has governance power."
 **Version:** 1.0
 **Date:** January 26, 2026
 **Next Update:** After first 5 investor meetings (gather feedback, refine playbook)
-

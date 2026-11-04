@@ -1266,4 +1266,3 @@ BREAKEVEN TIMELINE:
 **Document Version**: 1.0
 **Last Updated**: January 2026
 **Next Review**: April 2026 (Quarterly update cycle)
-

@@ -25,4 +25,3 @@ The project does not claim that all Rust targets are equivalent. It implements o
 | `timed-out` | The bounded lifecycle station exceeded its time budget. |
 
 A build-only receipt must never be presented as a runtime-test receipt.
-

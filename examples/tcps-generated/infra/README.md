@@ -168,4 +168,3 @@ docs/                    運用・安全・移植・ABI文書
 ## ライセンス
 
 MIT OR Apache-2.0
-

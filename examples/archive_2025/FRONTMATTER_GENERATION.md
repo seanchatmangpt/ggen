@@ -269,4 +269,3 @@ ggen-ai = { path = "ggen-ai" }
 ## License
 
 This project follows the same license as the main ggen project.
-

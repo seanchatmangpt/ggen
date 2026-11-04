@@ -50,6 +50,18 @@ jobs:
           const admitted = (major === 20 && minor >= 19) || (major === 22 && minor >= 12) || major > 22;
           if (!admitted) throw new Error(`NODE_VERSION_REFUSED:${process.versions.node}`);
           NODE
+      - name: Install sccache
+        # .cargo/config.toml sets `[build] rustc-wrapper = "sccache"`
+        # unconditionally, so every cargo invocation (including the
+        # `cargo build` below) fails with `could not execute process
+        # 'sccache ... rustc -vV' (never executed) ... No such file or
+        # directory` unless sccache is on PATH. Same fix class as
+        # .github/actions/setup-ggen-build STEP 2a (PR #255): install the
+        # prebuilt binary via taiki-e/install-action, pinned to the same
+        # SHA the composite action uses repo-wide.
+        uses: taiki-e/install-action@81ecf985428d5c2ea81dbf079bceca32bc9604ab # v2.62.43
+        with:
+          tool: sccache
       - name: Install pinned wasm-pack
         shell: bash
         run: |

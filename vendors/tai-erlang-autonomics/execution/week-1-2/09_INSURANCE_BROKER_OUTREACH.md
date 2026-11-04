@@ -474,4 +474,3 @@ After selecting insurance, store the following:
 **Version**: 1.0
 
 **Note**: Insurance requirements may change based on funding round. Series A investors will likely require additional coverage (increased limits, additional named insureds). Plan for this cost in Series A budget planning.
-

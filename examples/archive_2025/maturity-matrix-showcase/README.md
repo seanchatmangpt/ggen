@@ -112,4 +112,3 @@ ggen lifecycle run --distributed --workers 10
 ## Maturity Level Details
 
 See [MIGRATION_GUIDE.md](./MIGRATION_GUIDE.md) for detailed progression instructions.
-

@@ -28,4 +28,3 @@ derived from `ctt:binary`, not hand-maintained:
 | `receiptctl_unexpected_flag_fails_closed` | `receiptctl` | `algorithm list --bogus-flag` | 1 | an unrecognized flag on an otherwise-valid command exits nonzero with a clap error on stderr |
 | `receiptctl_unknown_verb_fails_closed` | `receiptctl` | `frobnicate` | 1 | an unknown subcommand exits nonzero with a clap error on stderr |
 | `receiptctl_version_emits_name` | `receiptctl` | `--version` | 0 | receiptctl --version exits 0 and prints a version string |
-

@@ -49,15 +49,20 @@ jobs:
         working-directory: examples/zero-code-inventoryctl
         run: |
           set -euo pipefail
-          mapfile -t authored < <(find . -maxdepth 1 -type f -printf '%f\n' | sort)
+          # Authored surface is exactly {ea.graph.json, ggen.toml, ontology.ttl}.
+          # Everything else tracked under this directory (Cargo.toml, ggen.lock,
+          # src/, tests/, docs/, .ggen-v2/) is a committed `ggen sync run`
+          # artifact, not an authored file: it is excluded from the census and
+          # re-verified below when `ggen sync run` regenerates it byte-identically.
+          mapfile -t authored < <(git ls-files -- . ':!.ggen-v2' ':!src' ':!tests' ':!docs' ':!Cargo.toml' ':!Cargo.lock' ':!ggen.lock' | sort)
           printf '%s\n' "${authored[@]}"
           test "${#authored[@]}" -eq 3
           test "${authored[0]}" = 'ea.graph.json'
           test "${authored[1]}" = 'ggen.toml'
           test "${authored[2]}" = 'ontology.ttl'
-          test ! -e Cargo.toml
-          test ! -e src
-          test ! -e tests
+          for generated in Cargo.toml ggen.lock src tests docs; do
+            git ls-files --error-unmatch "$generated" >/dev/null
+          done
 
       - name: Build the real ggen compiler
         run: cargo build -p ggen-cli-lib --bin ggen
