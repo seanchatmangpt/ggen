@@ -1,5 +1,7 @@
 # Build-Time Cut Receipt (S1-S5, Phase 2) — 2026-11-04
 
+Standing: ALIVE (S1-S5 landed, lock 890→854 exact; wall-clock directional-only)
+
 Branch: `v26-11-3-wave`, baseline `032d6c958` (tree clean), CODER lane.
 Commits: S1 `377442907`, S2 `9e6a77fb1`, S3, S4, S5 (see git log).
 
