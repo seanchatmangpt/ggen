@@ -1234,8 +1234,7 @@ fn load_corpus_pack(name: &str) -> Result<ggen_marketplace::packs_registry::type
 /// silently keeps only the first occurrence (comma form still works via the
 /// runtime's Vec split).
 pub fn compose(
-    #[arg(action = "append")] packs: Vec<String>,
-    out: Option<String>,
+    #[arg(action = "append")] packs: Vec<String>, out: Option<String>,
 ) -> Result<serde_json::Value> {
     use serde_json::json;
 
@@ -1283,15 +1282,14 @@ pub fn compose(
 /// Extracted from the verb body so the verb stays under the Poka-Yoke
 /// FM-1.1 complexity ceiling.
 fn persist_plan(
-    plan: &ggen_marketplace::packs_registry::composer::PackCompositionPlan,
-    out: Option<&str>,
+    plan: &ggen_marketplace::packs_registry::composer::PackCompositionPlan, out: Option<&str>,
 ) -> Result<()> {
     let Some(out_path) = out else {
         return Ok(());
     };
-    let json = plan.to_json().map_err(|e| {
-        NounVerbError::execution_error(format!("failed to serialize plan: {e}"))
-    })?;
+    let json = plan
+        .to_json()
+        .map_err(|e| NounVerbError::execution_error(format!("failed to serialize plan: {e}")))?;
     std::fs::write(out_path, json).map_err(|e| {
         NounVerbError::execution_error(format!("failed to write plan to {out_path}: {e}"))
     })?;

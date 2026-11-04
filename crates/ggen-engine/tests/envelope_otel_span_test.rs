@@ -186,7 +186,14 @@ fn run_sync_collecting_envelope_iri(root: &Path) -> SpanLedger {
         span_names: Mutex::new(HashMap::new()),
     };
     tracing::subscriber::with_default(subscriber, || {
-        sync(root, SyncOptions { skip_ea_admission: true, ..Default::default() }).expect("sync must succeed")
+        sync(
+            root,
+            SyncOptions {
+                skip_ea_admission: true,
+                ..Default::default()
+            },
+        )
+        .expect("sync must succeed")
     });
     let guard = ledger.lock().expect("lock");
     SpanLedger {

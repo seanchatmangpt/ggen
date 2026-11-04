@@ -179,7 +179,7 @@ fn violating_fixture_is_refused_under_both_engines() {
         let err = sync(
             &project,
             SyncOptions {
-            skip_ea_admission: false,
+                skip_ea_admission: false,
                 dry_run: false,
                 consumer_mode: false,
                 receipt_origin: None,

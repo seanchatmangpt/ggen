@@ -35,8 +35,7 @@ fn shacl_ttl() -> String {
 }
 
 fn scip_ttl() -> String {
-    fs::read_to_string(repo_root().join("ontologies/scip.ttl"))
-        .expect("read ontologies/scip.ttl")
+    fs::read_to_string(repo_root().join("ontologies/scip.ttl")).expect("read ontologies/scip.ttl")
 }
 
 /// Named-field structs in lib.rs: struct name -> sorted field names.
@@ -71,7 +70,9 @@ fn lib_structs(text: &str) -> (BTreeMap<String, Vec<String>>, Vec<String>) {
                         }
                     } else if let Some(f) = f.strip_prefix("pub ") {
                         if let Some(rust_name) = f.split(':').next() {
-                            let wire = pending_rename.take().unwrap_or_else(|| rust_name.trim().to_string());
+                            let wire = pending_rename
+                                .take()
+                                .unwrap_or_else(|| rust_name.trim().to_string());
                             fields.push(wire);
                         }
                     } else if !f.starts_with('#') && !f.starts_with('/') && !f.starts_with("///") {
@@ -141,8 +142,7 @@ fn shacl_shapes(
 /// The parity predicate, factored so the anti-vacuity arm can run it
 /// against a mutated scratch copy.
 fn parity(
-    lib: &str,
-    shacl: &str,
+    lib: &str, shacl: &str,
 ) -> Result<
     (
         BTreeMap<String, Vec<String>>,

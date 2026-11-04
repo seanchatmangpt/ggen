@@ -95,7 +95,14 @@ fn envelope_cap_change_forks_the_receipt_chain() {
 
     // Sync 1: cap = 1 GiB.
     scaffold(root, 1_073_741_824);
-    sync(root, SyncOptions { skip_ea_admission: true, ..Default::default() }).expect("sync 1 must succeed");
+    sync(
+        root,
+        SyncOptions {
+            skip_ea_admission: true,
+            ..Default::default()
+        },
+    )
+    .expect("sync 1 must succeed");
     let receipt1_bytes =
         std::fs::read_to_string(root.join(RECEIPT_REL_PATH)).expect("read receipt 1");
     let receipt1 = read_receipt(root);
@@ -119,7 +126,14 @@ fn envelope_cap_change_forks_the_receipt_chain() {
     // Mutate ONLY the envelope cap value in the TTL, then sync again.
     std::fs::write(root.join("ontology.ttl"), ontology_ttl(2_147_483_648))
         .expect("rewrite ontology with new cap");
-    sync(root, SyncOptions { skip_ea_admission: true, ..Default::default() }).expect("sync 2 must succeed");
+    sync(
+        root,
+        SyncOptions {
+            skip_ea_admission: true,
+            ..Default::default()
+        },
+    )
+    .expect("sync 2 must succeed");
 
     let receipt2_bytes =
         std::fs::read_to_string(root.join(RECEIPT_REL_PATH)).expect("read receipt 2");
@@ -186,14 +200,28 @@ fn unchanged_envelope_caps_replay_identically() {
     let root = dir.path();
 
     scaffold(root, 1_073_741_824);
-    sync(root, SyncOptions { skip_ea_admission: true, ..Default::default() }).expect("sync 1 must succeed");
+    sync(
+        root,
+        SyncOptions {
+            skip_ea_admission: true,
+            ..Default::default()
+        },
+    )
+    .expect("sync 1 must succeed");
     let receipt1_bytes =
         std::fs::read_to_string(root.join(RECEIPT_REL_PATH)).expect("read receipt 1");
 
     // Byte-identical ontology rewrite (same caps), then sync again.
     std::fs::write(root.join("ontology.ttl"), ontology_ttl(1_073_741_824))
         .expect("rewrite ontology unchanged");
-    sync(root, SyncOptions { skip_ea_admission: true, ..Default::default() }).expect("sync 2 must succeed");
+    sync(
+        root,
+        SyncOptions {
+            skip_ea_admission: true,
+            ..Default::default()
+        },
+    )
+    .expect("sync 2 must succeed");
 
     let receipt2 = read_receipt(root);
     assert_eq!(

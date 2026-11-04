@@ -10,8 +10,8 @@
 mod tokens;
 
 use tokens::{
-    apply_edits, classify_rust, decode, encode, legend_from_facts, parse_ontology_facts,
-    AbsToken, TokensEngine,
+    apply_edits, classify_rust, decode, encode, legend_from_facts, parse_ontology_facts, AbsToken,
+    TokensEngine,
 };
 
 const REPO_ROOT: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../..");
@@ -61,7 +61,10 @@ fn legend_is_derived_from_real_ontology() {
             "diagnostic-code".to_owned(),
         ]
     );
-    assert_eq!(legend.modifiers, vec!["declaration", "definition", "generated"]);
+    assert_eq!(
+        legend.modifiers,
+        vec!["declaration", "definition", "generated"]
+    );
 }
 
 /// Ontology absence flips legend entries: no rf:Crate/rf:DiagnosticCode
@@ -106,7 +109,10 @@ fn full_tokens_on_real_generated_fixture() {
             t.token_type
         );
         let max_mods = 1u32 << legend.modifiers.len();
-        assert!(t.modifiers < max_mods, "token {i}: modifier bitset overflow");
+        assert!(
+            t.modifiers < max_mods,
+            "token {i}: modifier bitset overflow"
+        );
     }
 
     // Named symbols from the generated surface, by text.
@@ -121,9 +127,15 @@ fn full_tokens_on_real_generated_fixture() {
         String::from_utf16(&utf16[s..e]).expect("utf16 slice")
     };
     let names: Vec<String> = abs.iter().map(&text_at).collect();
-    assert!(names.contains(&"COMMANDS_REFERENCE".to_owned()), "const name token: {names:?}");
+    assert!(
+        names.contains(&"COMMANDS_REFERENCE".to_owned()),
+        "const name token: {names:?}"
+    );
     assert!(names.contains(&"DEFAULT_VERBS".to_owned()));
-    assert!(names.contains(&"describe_command".to_owned()), "fn name token");
+    assert!(
+        names.contains(&"describe_command".to_owned()),
+        "fn name token"
+    );
 
     // Legend classification of those names.
     let tt_const = legend.index_of("const").unwrap();
@@ -188,7 +200,11 @@ use ggen_engine::sync;
     assert_eq!(found.get("Widget"), Some(&tt("struct")), "struct name");
     assert_eq!(found.get("build"), Some(&tt("fn")), "fn name");
     assert_eq!(found.get("MAX"), Some(&tt("const")), "const name");
-    assert_eq!(found.get("ggen_engine"), Some(&tt("crate")), "rf:Crate package reference");
+    assert_eq!(
+        found.get("ggen_engine"),
+        Some(&tt("crate")),
+        "rf:Crate package reference"
+    );
     // Diagnostic code inside a string literal.
     let diag = abs
         .iter()

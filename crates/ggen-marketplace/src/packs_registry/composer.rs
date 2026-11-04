@@ -154,9 +154,8 @@ impl PackCompositionPlan {
     /// Returns an error if serialization fails (in practice unreachable for
     /// this all-`String`/collection shape).
     pub fn to_json(&self) -> Result<String> {
-        serde_json::to_string_pretty(self).map_err(|e| {
-            Error::Other(format!("failed to serialize PackCompositionPlan: {e}"))
-        })
+        serde_json::to_string_pretty(self)
+            .map_err(|e| Error::Other(format!("failed to serialize PackCompositionPlan: {e}")))
     }
 }
 

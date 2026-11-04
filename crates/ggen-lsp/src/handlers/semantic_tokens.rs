@@ -37,9 +37,9 @@ pub async fn handle_full_delta(
     }
     let mut engine = server.tokens_engine.lock().await;
     let delta = engine.delta(uri.as_str(), &params.previous_result_id, &content);
-    Ok(Some(
-        SemanticTokensFullDeltaResult::TokensDelta(to_wire_delta(delta)),
-    ))
+    Ok(Some(SemanticTokensFullDeltaResult::TokensDelta(
+        to_wire_delta(delta),
+    )))
 }
 
 // -- wire conversion ---------------------------------------------------------
@@ -82,19 +82,17 @@ fn to_wire_edit(e: lsp_max_protocol::lsp_3_18::SemanticTokensEdit) -> SemanticTo
     SemanticTokensEdit {
         start: e.start,
         delete_count: e.delete_count,
-        data: e
-            .data
-            .map(|data| {
-                crate::tokens::decode(&data)
-                    .into_iter()
-                    .map(|t| SemanticToken {
-                        delta_line: t.line,
-                        delta_start: t.start,
+        data: e.data.map(|data| {
+            crate::tokens::decode(&data)
+                .into_iter()
+                .map(|t| SemanticToken {
+                    delta_line: t.line,
+                    delta_start: t.start,
                     length: t.length,
                     token_type: t.token_type,
                     token_modifiers_bitset: t.modifiers,
-                    })
-                    .collect()
-            }),
+                })
+                .collect()
+        }),
     }
 }

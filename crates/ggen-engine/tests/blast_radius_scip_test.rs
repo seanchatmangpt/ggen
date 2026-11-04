@@ -5,8 +5,7 @@
 //! impacts `b` then `a` through SCIP reference inversion.
 
 use ggen_engine::blast_radius::{
-    admit_write, compute, Admission, PlannedWrite, RadiusOrigin, ScipGraph, SymbolGraph,
-    WritePlan,
+    admit_write, compute, Admission, PlannedWrite, RadiusOrigin, ScipGraph, SymbolGraph, WritePlan,
 };
 use ggen_scip::query::Query;
 
@@ -70,8 +69,13 @@ fn scip_callers_inverted_and_radius_of_b_is_a() {
     // BlastRadius(b) = {a}, CallersStar.
     let radius = compute(&sym("b"), &graph, 16);
     assert_eq!(radius.symbols.len(), 1, "radius: {:?}", radius.symbols);
-    assert_eq!(radius.symbols.get(&sym("a")), Some(&RadiusOrigin::CallersStar));
-    assert!(radius.edges.contains(&format!("{} -> {}", sym("b"), sym("a"))));
+    assert_eq!(
+        radius.symbols.get(&sym("a")),
+        Some(&RadiusOrigin::CallersStar)
+    );
+    assert!(radius
+        .edges
+        .contains(&format!("{} -> {}", sym("b"), sym("a"))));
     assert!(!radius.truncated);
 }
 
@@ -93,7 +97,11 @@ fn scip_admit_write_refused_end_to_end() {
     let protected = vec![rel.clone()];
 
     match admit_write(&plan, &graph, &protected) {
-        Admission::Refused { violations, receipt, .. } => {
+        Admission::Refused {
+            violations,
+            receipt,
+            ..
+        } => {
             assert_eq!(receipt.verdict, "REFUSED");
             let by_sym: Vec<(&str, usize)> = violations
                 .iter()
@@ -123,10 +131,15 @@ fn scip_admit_write_alive_outside_protected_surface() {
         symbols: vec![sym("c")],
     }]);
     match admit_write(&plan, &graph, &["ggen-engine/src/sync.rs".to_string()]) {
-        Admission::Alive { radius, receipt, .. } => {
+        Admission::Alive {
+            radius, receipt, ..
+        } => {
             assert_eq!(receipt.verdict, "ALIVE");
             assert_eq!(radius.symbols.len(), 3, "radius: {:?}", radius.symbols); // c (Written) + b, a (CallersStar)
-            assert_eq!(radius.symbols.get(&sym("b")), Some(&RadiusOrigin::CallersStar));
+            assert_eq!(
+                radius.symbols.get(&sym("b")),
+                Some(&RadiusOrigin::CallersStar)
+            );
             assert_eq!(
                 radius.symbols.get(&sym("a")),
                 Some(&RadiusOrigin::CallersStar)

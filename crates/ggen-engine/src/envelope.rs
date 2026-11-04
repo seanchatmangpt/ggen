@@ -150,7 +150,9 @@ impl CapFallback {
 /// IRI declared at all, or no reticle with no envelope declared) emits
 /// nothing; a declared-but-corrupt envelope emits exactly one event.
 #[must_use]
-pub fn extract_caps_checked(root: &Path, envelope: Option<&str>) -> (CapTable, Option<CapFallback>) {
+pub fn extract_caps_checked(
+    root: &Path, envelope: Option<&str>,
+) -> (CapTable, Option<CapFallback>) {
     let Some(iri) = envelope else {
         return (CapTable::default(), None);
     };
@@ -158,8 +160,7 @@ pub fn extract_caps_checked(root: &Path, envelope: Option<&str>) -> (CapTable, O
         return fallback(CapFallback::MissingReticle, iri);
     };
     let caps_from_graph = (|| -> Result<CapTable, CapFallback> {
-        let store =
-            GraphLawStore::new().map_err(|_| CapFallback::MalformedLiterals)?;
+        let store = GraphLawStore::new().map_err(|_| CapFallback::MalformedLiterals)?;
         store
             .insert_turtle(&ttl)
             .map_err(|_| CapFallback::MalformedLiterals)?;
@@ -172,8 +173,9 @@ pub fn extract_caps_checked(root: &Path, envelope: Option<&str>) -> (CapTable, O
              \x20 OPTIONAL {{ ?env res:maxTotalBytes ?total }}\n\
              }}"
         );
-        let EngineQueryResults::Solutions(rows) =
-            store.query(&query).map_err(|_| CapFallback::MalformedLiterals)?
+        let EngineQueryResults::Solutions(rows) = store
+            .query(&query)
+            .map_err(|_| CapFallback::MalformedLiterals)?
         else {
             return Err(CapFallback::MalformedLiterals);
         };
@@ -304,7 +306,9 @@ pub fn undeclared_envelope(facts_nt: &str) -> Option<String> {
 /// `CapTable::default()`), this returns `Option` so the caller can
 /// distinguish "no envelope grant" from "grant of exactly the default".
 #[must_use]
-pub fn abb_envelope_caps(root: &Path, envelope: Option<&str>) -> Option<ggen_abb_sbb::EnvelopeCaps> {
+pub fn abb_envelope_caps(
+    root: &Path, envelope: Option<&str>,
+) -> Option<ggen_abb_sbb::EnvelopeCaps> {
     let iri = envelope?;
     let ttl = std::fs::read_to_string(root.join(ENVELOPE_RETICLE_REL)).ok()?;
     let store = GraphLawStore::new().ok()?;

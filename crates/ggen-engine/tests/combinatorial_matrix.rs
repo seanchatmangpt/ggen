@@ -584,7 +584,7 @@ fn when_sparql_skip_empty_cross() {
                     "[project]\nname = \"cross\"\n\n[ontology]\nsource = \"onto.ttl\"\n\n[templates]\ndir = \"templates\"\n",
                 )
                 .expect("toml");
-                    // Collision repair (lane G2, disclosed in g2-typed-refusals receipt):
+                // Collision repair (lane G2, disclosed in g2-typed-refusals receipt):
                 // WO-01's fail-closed EA admission gate (FM-LAW-015) refuses any sync
                 // whose root lacks ea.graph.json; these tests exercise property/idempotence
                 // and skip-empty mechanics, not EA admission, so the fixture carries a
@@ -593,7 +593,7 @@ fn when_sparql_skip_empty_cross() {
                     dir.path().join("ea.graph.json"),
                     "{\"schema\":\"ggen.ea.graph.v1\",\"strategy\":{\"id\":\"s\",\"title\":\"t\"},\"capabilities\":[],\"abbs\":[],\"contracts\":[],\"candidate_sbbs\":[],\"qualifications\":[],\"packs\":[]}",
                 )
-                .expect("write ea.graph.json");;
+                .expect("write ea.graph.json");
                 std::fs::write(
                     dir.path().join("onto.ttl"),
                     "@prefix ex: <http://example.org/> .\nex:a ex:name \"alpha\" .\n",
@@ -616,7 +616,14 @@ fn when_sparql_skip_empty_cross() {
                 );
                 std::fs::write(dir.path().join("templates/t.tmpl"), tmpl).expect("tmpl");
 
-                let report = sync(dir.path(), SyncOptions { skip_ea_admission: true, ..Default::default() }).expect("sync");
+                let report = sync(
+                    dir.path(),
+                    SyncOptions {
+                        skip_ea_admission: true,
+                        ..Default::default()
+                    },
+                )
+                .expect("sync");
                 let decision = report
                     .decisions
                     .get("out.rs")

@@ -115,8 +115,8 @@ fn census() -> BTreeSet<String> {
     rs_files(&crates_cli_src(&root), &mut files);
     let mut codes = BTreeSet::new();
     for f in &files {
-        let text = fs::read_to_string(f)
-            .unwrap_or_else(|e| panic!("failed to read {}: {e}", f.display()));
+        let text =
+            fs::read_to_string(f).unwrap_or_else(|e| panic!("failed to read {}: {e}", f.display()));
         for line in text.lines() {
             codes.extend(static_codes_in_line(line));
             codes.extend(param_codes_in_line(line));

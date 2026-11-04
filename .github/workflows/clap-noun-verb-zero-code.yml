@@ -45,15 +45,16 @@ jobs:
         with:
           cache-key-suffix: clap-noun-verb-zero-code
 
-      - name: Assert the consumer has only two authored source files
+      - name: Assert the consumer has only three authored source files
         working-directory: examples/zero-code-inventoryctl
         run: |
           set -euo pipefail
           mapfile -t authored < <(find . -maxdepth 1 -type f -printf '%f\n' | sort)
           printf '%s\n' "${authored[@]}"
-          test "${#authored[@]}" -eq 2
-          test "${authored[0]}" = 'ggen.toml'
-          test "${authored[1]}" = 'ontology.ttl'
+          test "${#authored[@]}" -eq 3
+          test "${authored[0]}" = 'ea.graph.json'
+          test "${authored[1]}" = 'ggen.toml'
+          test "${authored[2]}" = 'ontology.ttl'
           test ! -e Cargo.toml
           test ! -e src
           test ! -e tests

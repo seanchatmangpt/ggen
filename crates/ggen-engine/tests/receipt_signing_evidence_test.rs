@@ -123,8 +123,8 @@ fn second_sync_prev_chain_hash_equals_first_sync_chain_hash() {
     sync(
         dir.path(),
         SyncOptions {
-    // K2: FM-LAW-015 EA-admission opt-out (test pins a non-EA law)
-    skip_ea_admission: true,
+            // K2: FM-LAW-015 EA-admission opt-out (test pins a non-EA law)
+            skip_ea_admission: true,
             consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
@@ -142,8 +142,8 @@ fn second_sync_prev_chain_hash_equals_first_sync_chain_hash() {
     sync(
         dir.path(),
         SyncOptions {
-    // K2: FM-LAW-015 EA-admission opt-out (test pins a non-EA law)
-    skip_ea_admission: true,
+            // K2: FM-LAW-015 EA-admission opt-out (test pins a non-EA law)
+            skip_ea_admission: true,
             consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
@@ -172,8 +172,8 @@ fn receipt_verify_passes_on_genuine_untampered_receipt() {
     sync(
         dir.path(),
         SyncOptions {
-    // K2: FM-LAW-015 EA-admission opt-out (test pins a non-EA law)
-    skip_ea_admission: true,
+            // K2: FM-LAW-015 EA-admission opt-out (test pins a non-EA law)
+            skip_ea_admission: true,
             consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
@@ -202,8 +202,8 @@ fn receipt_verify_fails_closed_on_tampered_payload_hash() {
     sync(
         dir.path(),
         SyncOptions {
-    // K2: FM-LAW-015 EA-admission opt-out (test pins a non-EA law)
-    skip_ea_admission: true,
+            // K2: FM-LAW-015 EA-admission opt-out (test pins a non-EA law)
+            skip_ea_admission: true,
             consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
@@ -246,8 +246,8 @@ fn receipt_verify_refuses_unsupported_schema_version() {
     sync(
         dir.path(),
         SyncOptions {
-    // K2: FM-LAW-015 EA-admission opt-out (test pins a non-EA law)
-    skip_ea_admission: true,
+            // K2: FM-LAW-015 EA-admission opt-out (test pins a non-EA law)
+            skip_ea_admission: true,
             consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()

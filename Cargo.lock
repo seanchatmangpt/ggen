@@ -2744,7 +2744,7 @@ dependencies = [
 
 [[package]]
 name = "ggen-engine"
-version = "26.10.12"
+version = "26.11.3"
 dependencies = [
  "Inflector",
  "anyhow",

@@ -101,7 +101,9 @@ fn build_fixture(target_lines: usize) -> String {
         for (n, path) in GENERATED_RS.iter().enumerate() {
             let body = read_repo_file(path);
             lines += body.lines().count() + 2;
-            out.push_str(&format!("// tile {tile} file {n} (real generated surface)\n"));
+            out.push_str(&format!(
+                "// tile {tile} file {n} (real generated surface)\n"
+            ));
             out.push_str(&format!("mod ab20_tile{tile}_file{n} {{\n"));
             out.push_str(&body);
             out.push_str("}\n");
@@ -143,7 +145,6 @@ fn delete_span(text: &str, start: usize, count: usize) -> String {
     lines.drain(start..start + count);
     lines.join("\n")
 }
-
 
 // ---------------------------------------------------------------------------
 // Observable engine-state census (behavioral probes — the fields are private
@@ -211,7 +212,9 @@ fn soak_10k_did_change_cycles() {
     // Deterministic LCG — same churn every run (replayable receipt).
     let mut state: u64 = 0x_AB20;
     let mut rng = move || {
-        state = state.wrapping_mul(6_364_136_223_846_793_005).wrapping_add(1_442_695_040_888_963_407);
+        state = state
+            .wrapping_mul(6_364_136_223_846_793_005)
+            .wrapping_add(1_442_695_040_888_963_407);
         (state >> 33) as usize
     };
 
@@ -270,7 +273,11 @@ fn soak_10k_did_change_cycles() {
         }
         prev_id = delta.result_id.expect("delta resultId");
     }
-    assert_eq!(verified_cycles, cycles / 500, "sampled full-verification count");
+    assert_eq!(
+        verified_cycles,
+        cycles / 500,
+        "sampled full-verification count"
+    );
 
     // Census AFTER soak: same single-slot structure, same probe behavior.
     let final_text = text.clone();
@@ -332,13 +339,31 @@ fn edit_shapes_delta_equals_full_across_size_classes() {
 
         // 17 edit shapes. Each entry: (name, edited_text, expected_edit_kinds)
         let shapes: Vec<(String, String)> = vec![
-            ("01-prepend-line".into(), insert_after(text, -1, "fn ab20_prepended() {}")),
-            ("02-append-line".into(), insert_after(text, (n - 1) as isize, "fn ab20_appended() {}")),
-            ("03-replace-mid-fn".into(), replace_line(text, mid, "fn ab20_mid_replaced() {}")),
+            (
+                "01-prepend-line".into(),
+                insert_after(text, -1, "fn ab20_prepended() {}"),
+            ),
+            (
+                "02-append-line".into(),
+                insert_after(text, (n - 1) as isize, "fn ab20_appended() {}"),
+            ),
+            (
+                "03-replace-mid-fn".into(),
+                replace_line(text, mid, "fn ab20_mid_replaced() {}"),
+            ),
             ("04-delete-span-mid".into(), delete_span(text, mid, 8)),
-            ("05-insert-first-third".into(), insert_after(text, third as isize, "// AB20 E0010")),
-            ("06-insert-two-thirds".into(), insert_after(text, (2 * third) as isize, "// AB20 E0011")),
-            ("07-replace-entire-line".into(), replace_line(text, mid, "const AB20: u32 = 7;")),
+            (
+                "05-insert-first-third".into(),
+                insert_after(text, third as isize, "// AB20 E0010"),
+            ),
+            (
+                "06-insert-two-thirds".into(),
+                insert_after(text, (2 * third) as isize, "// AB20 E0011"),
+            ),
+            (
+                "07-replace-entire-line".into(),
+                replace_line(text, mid, "const AB20: u32 = 7;"),
+            ),
             ("08-delete-first-line".into(), delete_span(text, 0, 1)),
             ("09-delete-last-line".into(), {
                 let mut l: Vec<String> = text.lines().map(String::from).collect();
@@ -364,7 +389,10 @@ fn edit_shapes_delta_equals_full_across_size_classes() {
                 }
                 l.join("\n")
             }),
-            ("13-insert-empty-line".into(), insert_after(text, mid as isize, "")),
+            (
+                "13-insert-empty-line".into(),
+                insert_after(text, mid as isize, ""),
+            ),
             ("14-duplicate-block".into(), {
                 let lines: Vec<&str> = text.lines().collect();
                 let head = lines[..mid].join("\n");
@@ -375,7 +403,10 @@ fn edit_shapes_delta_equals_full_across_size_classes() {
                 l.swap(mid, mid + 1);
                 l.join("\n")
             }),
-            ("16-rename-all-occurrences".into(), text.replace("fn ", "fn ab20_renamed_")),
+            (
+                "16-rename-all-occurrences".into(),
+                text.replace("fn ", "fn ab20_renamed_"),
+            ),
             ("17-no-op".into(), text.to_owned()),
         ];
         assert_eq!(shapes.len(), 17, "17 edit shapes pinned");
@@ -493,7 +524,11 @@ fn alloc_census_per_delta_cycle() {
 
     // Warmup (parser setup, allocator gates).
     for i in 0..20 {
-        text = insert_after(&text, (i * 37 % (line_count(&text) - 1)) as isize, "// AB20 warmup");
+        text = insert_after(
+            &text,
+            (i * 37 % (line_count(&text) - 1)) as isize,
+            "// AB20 warmup",
+        );
         let d = eng.delta(uri, &prev_id, &text);
         prev_id = d.result_id.expect("resultId");
         prev_data = apply_edits(&prev_data, &d.edits).expect("warmup edits apply");

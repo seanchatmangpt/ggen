@@ -76,7 +76,14 @@ fn rules_n3_derivation_is_visible_to_generation_rule_query() {
     write_ontology(dir.path());
     write(dir.path(), "rules/dogs-are-animals.n3", DERIVE_N3);
 
-    let report = sync(dir.path(), SyncOptions { skip_ea_admission: true, ..Default::default() }).expect("[rules].n3 sync must succeed");
+    let report = sync(
+        dir.path(),
+        SyncOptions {
+            skip_ea_admission: true,
+            ..Default::default()
+        },
+    )
+    .expect("[rules].n3 sync must succeed");
     assert_eq!(
         report.written,
         vec![std::path::PathBuf::from("out/animals.txt")]
@@ -106,8 +113,14 @@ fn rules_n3_denial_fuse_refuses_sync() {
     write_ontology(dir.path());
     write(dir.path(), "rules/no-dogs.n3", DENIAL_N3);
 
-    let err = sync(dir.path(), SyncOptions { skip_ea_admission: true, ..Default::default() })
-        .expect_err("asserted dog under a [rules].n3 denial fuse must refuse");
+    let err = sync(
+        dir.path(),
+        SyncOptions {
+            skip_ea_admission: true,
+            ..Default::default()
+        },
+    )
+    .expect_err("asserted dog under a [rules].n3 denial fuse must refuse");
     let msg = err.to_string();
     assert!(msg.contains("FM-LAW-016"), "{msg}");
     assert!(
@@ -137,8 +150,14 @@ fn rules_datalog_is_typed_unsupported_refusal() {
     write_ontology(dir.path());
     write(dir.path(), "rules/legacy.datalog", "dog(x) <- animal(x).");
 
-    let err = sync(dir.path(), SyncOptions { skip_ea_admission: true, ..Default::default() })
-        .expect_err("a [rules].datalog entry must be a typed refusal");
+    let err = sync(
+        dir.path(),
+        SyncOptions {
+            skip_ea_admission: true,
+            ..Default::default()
+        },
+    )
+    .expect_err("a [rules].datalog entry must be a typed refusal");
     let msg = err.to_string();
     assert!(msg.contains("UNSUPPORTED"), "{msg}");
     assert!(msg.contains("legacy.datalog"), "{msg}");
@@ -181,8 +200,22 @@ fn absent_or_empty_rules_section_is_byte_identical() {
     let with_empty = TempDir::new().expect("tempdir");
     manifest_for(with_empty.path(), "[rules]\nn3 = []\ndatalog = []\n");
 
-    sync(without.path(), SyncOptions { skip_ea_admission: true, ..Default::default() }).expect("no-[rules] sync");
-    sync(with_empty.path(), SyncOptions { skip_ea_admission: true, ..Default::default() }).expect("empty-[rules] sync");
+    sync(
+        without.path(),
+        SyncOptions {
+            skip_ea_admission: true,
+            ..Default::default()
+        },
+    )
+    .expect("no-[rules] sync");
+    sync(
+        with_empty.path(),
+        SyncOptions {
+            skip_ea_admission: true,
+            ..Default::default()
+        },
+    )
+    .expect("empty-[rules] sync");
 
     let a = std::fs::read_to_string(without.path().join("out/dogs.txt")).expect("read A");
     let b = std::fs::read_to_string(with_empty.path().join("out/dogs.txt")).expect("read B");

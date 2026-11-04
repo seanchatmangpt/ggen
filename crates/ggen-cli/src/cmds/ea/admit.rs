@@ -34,7 +34,10 @@ pub(crate) fn admit_core(flags: AdmitFlags) -> Result<ggen_abb_sbb::Admitted> {
     let g = load_graph(flags.graph.as_deref().unwrap_or(super::DEFAULT_GRAPH_PATH));
     let authority = parse_authority(flags.authority.as_deref());
     let generation = parse_generation(flags.generation.as_deref(), "--generation");
-    let baseline = parse_generation(flags.baseline_generation.as_deref(), "--baseline-generation");
+    let baseline = parse_generation(
+        flags.baseline_generation.as_deref(),
+        "--baseline-generation",
+    );
     let abb = flags.abb.unwrap_or_else(|| "abb:event-ingest".to_string());
     let sbb = flags.sbb.unwrap_or_else(|| "sbb:ingest-0000".to_string());
     let req = ggen_abb_sbb::Request {
@@ -75,13 +78,8 @@ pub(crate) fn admitted_json(ad: &ggen_abb_sbb::Admitted) -> Value {
 /// usage/input errors.
 #[verb("admit", "ea")]
 pub fn admit(
-    graph: Option<String>,
-    json: bool,
-    abb: Option<String>,
-    sbb: Option<String>,
-    authority: Option<String>,
-    expected_graph_digest: Option<String>,
-    generation: Option<String>,
+    graph: Option<String>, json: bool, abb: Option<String>, sbb: Option<String>,
+    authority: Option<String>, expected_graph_digest: Option<String>, generation: Option<String>,
     baseline_generation: Option<String>,
 ) -> Result<Value> {
     let _ = json;

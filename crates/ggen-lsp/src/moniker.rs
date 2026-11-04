@@ -199,10 +199,7 @@ impl ScopeStack {
 /// plus the identifier under the cursor. Returns `None` off-symbol or outside
 /// a ggen-generated file.
 pub fn moniker_at_position(
-    crate_name: &str,
-    source: &str,
-    line: u32,
-    character: u32,
+    crate_name: &str, source: &str, line: u32, character: u32,
 ) -> Option<Moniker> {
     if !is_generated_file(source) {
         return None;
@@ -337,8 +334,7 @@ pub fn resolve_kernel_moniker(m: &Moniker, kernel_source: &str) -> Option<Range>
     for (idx, text) in kernel_source.lines().enumerate() {
         if !inside_enum {
             let trimmed = text.trim();
-            let is_decl = (trimmed.starts_with("pub enum ")
-                || trimmed.starts_with("enum "))
+            let is_decl = (trimmed.starts_with("pub enum ") || trimmed.starts_with("enum "))
                 && trimmed.contains(enum_name)
                 && trimmed.contains('{');
             if is_decl {

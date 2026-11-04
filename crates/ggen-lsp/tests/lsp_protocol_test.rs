@@ -413,14 +413,8 @@ fn lsp_full_lifecycle_over_stdio() {
             "textDocument/inlayHint",
             json!({"textDocument":{"uri":uri},"range":{"start":{"line":0,"character":0},"end":{"line":5,"character":0}}}),
         ),
-        (
-            "textDocument/codeLens",
-            json!({"textDocument":{"uri":uri}}),
-        ),
-        (
-            "workspace/symbol",
-            json!({"query":""}),
-        ),
+        ("textDocument/codeLens", json!({"textDocument":{"uri":uri}})),
+        ("workspace/symbol", json!({"query":""})),
     ] {
         let r = c.request(method, params);
         assert!(r.get("error").is_none(), "{method} must not error: {r}");
@@ -566,7 +560,8 @@ fn type_hierarchy_advertised_per_negotiation() {
         "follow-up request must succeed: {sym}"
     );
     assert!(
-        b.wait_for_register_capability(Duration::from_secs(1)).is_none(),
+        b.wait_for_register_capability(Duration::from_secs(1))
+            .is_none(),
         "a client without dynamicRegistration must not receive client/registerCapability"
     );
 }

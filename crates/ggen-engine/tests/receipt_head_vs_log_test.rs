@@ -60,8 +60,22 @@ fn matching_head_reports_log_head_match_with_tail_generation() {
     let root = dir.path();
 
     scaffold(root, "alice");
-    sync(root, SyncOptions { skip_ea_admission: true, ..Default::default() }).expect("sync 1 must succeed");
-    sync(root, SyncOptions { skip_ea_admission: true, ..Default::default() }).expect("sync 2 must succeed (advances the log)");
+    sync(
+        root,
+        SyncOptions {
+            skip_ea_admission: true,
+            ..Default::default()
+        },
+    )
+    .expect("sync 1 must succeed");
+    sync(
+        root,
+        SyncOptions {
+            skip_ea_admission: true,
+            ..Default::default()
+        },
+    )
+    .expect("sync 2 must succeed (advances the log)");
 
     let receipt = read_receipt(root);
     let log_raw = std::fs::read_to_string(root.join(RECEIPT_LOG_REL_PATH)).expect("read log");
@@ -103,7 +117,14 @@ fn tampered_log_tail_refused_naming_both_hashes() {
     let root = dir.path();
 
     scaffold(root, "alice");
-    sync(root, SyncOptions { skip_ea_admission: true, ..Default::default() }).expect("sync 1");
+    sync(
+        root,
+        SyncOptions {
+            skip_ea_admission: true,
+            ..Default::default()
+        },
+    )
+    .expect("sync 1");
     let head = read_receipt(root);
 
     // Tamper ONLY the log tail's chain hash (head untouched): the head no
@@ -149,11 +170,25 @@ fn stale_head_restored_over_progressed_log_refused() {
     let root = dir.path();
 
     scaffold(root, "alice");
-    sync(root, SyncOptions { skip_ea_admission: true, ..Default::default() }).expect("sync 1");
+    sync(
+        root,
+        SyncOptions {
+            skip_ea_admission: true,
+            ..Default::default()
+        },
+    )
+    .expect("sync 1");
     let head1_bytes = std::fs::read_to_string(root.join(RECEIPT_REL_PATH)).expect("read receipt 1");
     let head1: SyncReceipt = serde_json::from_str(&head1_bytes).expect("parse receipt 1");
 
-    sync(root, SyncOptions { skip_ea_admission: true, ..Default::default() }).expect("sync 2 (log advances past receipt 1)");
+    sync(
+        root,
+        SyncOptions {
+            skip_ea_admission: true,
+            ..Default::default()
+        },
+    )
+    .expect("sync 2 (log advances past receipt 1)");
 
     // Restore receipt 1 as the head: log tail is now receipt 2.
     std::fs::write(root.join(RECEIPT_REL_PATH), &head1_bytes).expect("restore stale head");
@@ -173,7 +208,14 @@ fn missing_log_loud_skip_not_silent_pass() {
     let root = dir.path();
 
     scaffold(root, "alice");
-    sync(root, SyncOptions { skip_ea_admission: true, ..Default::default() }).expect("sync 1");
+    sync(
+        root,
+        SyncOptions {
+            skip_ea_admission: true,
+            ..Default::default()
+        },
+    )
+    .expect("sync 1");
     // Remove the log entirely (receipt predates the log / log removed).
     std::fs::remove_file(root.join(RECEIPT_LOG_REL_PATH)).expect("remove log");
 
@@ -199,7 +241,14 @@ fn empty_log_loud_skip_not_silent_pass() {
     let root = dir.path();
 
     scaffold(root, "alice");
-    sync(root, SyncOptions { skip_ea_admission: true, ..Default::default() }).expect("sync 1");
+    sync(
+        root,
+        SyncOptions {
+            skip_ea_admission: true,
+            ..Default::default()
+        },
+    )
+    .expect("sync 1");
     std::fs::write(root.join(RECEIPT_LOG_REL_PATH), "").expect("empty the log");
 
     let out = handle_receipt_verify_in(root).expect("internal checks still pass");

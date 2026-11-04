@@ -67,8 +67,8 @@ fn written_ordering_is_stable_and_lexicographic_regardless_of_creation_order() {
     let r1 = sync(
         d1.path(),
         SyncOptions {
-    // K2: FM-LAW-015 EA-admission opt-out (test pins a non-EA law)
-    skip_ea_admission: true,
+            // K2: FM-LAW-015 EA-admission opt-out (test pins a non-EA law)
+            skip_ea_admission: true,
             consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
@@ -78,8 +78,8 @@ fn written_ordering_is_stable_and_lexicographic_regardless_of_creation_order() {
     let r2 = sync(
         d2.path(),
         SyncOptions {
-    // K2: FM-LAW-015 EA-admission opt-out (test pins a non-EA law)
-    skip_ea_admission: true,
+            // K2: FM-LAW-015 EA-admission opt-out (test pins a non-EA law)
+            skip_ea_admission: true,
             consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
@@ -124,8 +124,8 @@ fn receipt_payload_bytes_identical_across_fresh_syncs_of_identical_input() {
     sync(
         d1.path(),
         SyncOptions {
-    // K2: FM-LAW-015 EA-admission opt-out (test pins a non-EA law)
-    skip_ea_admission: true,
+            // K2: FM-LAW-015 EA-admission opt-out (test pins a non-EA law)
+            skip_ea_admission: true,
             consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
@@ -135,8 +135,8 @@ fn receipt_payload_bytes_identical_across_fresh_syncs_of_identical_input() {
     sync(
         d2.path(),
         SyncOptions {
-    // K2: FM-LAW-015 EA-admission opt-out (test pins a non-EA law)
-    skip_ea_admission: true,
+            // K2: FM-LAW-015 EA-admission opt-out (test pins a non-EA law)
+            skip_ea_admission: true,
             consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
@@ -165,8 +165,8 @@ fn second_sync_of_multi_template_project_is_fully_unchanged() {
     let first = sync(
         dir.path(),
         SyncOptions {
-    // K2: FM-LAW-015 EA-admission opt-out (test pins a non-EA law)
-    skip_ea_admission: true,
+            // K2: FM-LAW-015 EA-admission opt-out (test pins a non-EA law)
+            skip_ea_admission: true,
             consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
@@ -178,8 +178,8 @@ fn second_sync_of_multi_template_project_is_fully_unchanged() {
     let second = sync(
         dir.path(),
         SyncOptions {
-    // K2: FM-LAW-015 EA-admission opt-out (test pins a non-EA law)
-    skip_ea_admission: true,
+            // K2: FM-LAW-015 EA-admission opt-out (test pins a non-EA law)
+            skip_ea_admission: true,
             consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()

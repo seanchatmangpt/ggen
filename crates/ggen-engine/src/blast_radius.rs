@@ -44,7 +44,10 @@ pub struct WritePlan {
 impl WritePlan {
     /// Plan with the default depth cap.
     pub fn new(writes: Vec<PlannedWrite>) -> Self {
-        Self { writes, max_depth: None }
+        Self {
+            writes,
+            max_depth: None,
+        }
     }
 }
 
@@ -229,9 +232,10 @@ impl SymbolGraph for ScipGraph {
     }
 
     fn def_site(&self, symbol: &str) -> Option<SymbolLoc> {
-        self.def_sites
-            .get(symbol)
-            .map(|path| SymbolLoc { path: path.clone(), symbol: symbol.to_string() })
+        self.def_sites.get(symbol).map(|path| SymbolLoc {
+            path: path.clone(),
+            symbol: symbol.to_string(),
+        })
     }
 }
 
@@ -342,16 +346,19 @@ pub fn compute(target: &str, graph: &dyn SymbolGraph, max_depth: usize) -> Blast
         }
     }
 
-    BlastRadius { symbols, edges, depth_cap: max_depth, truncated }
+    BlastRadius {
+        symbols,
+        edges,
+        depth_cap: max_depth,
+        truncated,
+    }
 }
 
 /// Admission gate: REFUSED if any written path's symbols' radius intersects
 /// `protected_paths`; ALIVE (or PARTIAL under depth truncation) with slice
 /// payload otherwise.
 pub fn admit_write(
-    plan: &WritePlan,
-    graph: &dyn SymbolGraph,
-    protected_paths: &[String],
+    plan: &WritePlan, graph: &dyn SymbolGraph, protected_paths: &[String],
 ) -> Admission {
     let pd = plan_digest(plan);
     let cap = plan.max_depth.unwrap_or(DEFAULT_MAX_DEPTH);
@@ -445,10 +452,12 @@ pub fn admit_write(
     violations.sort_by(|a, b| (&a.path, &a.symbol).cmp(&(&b.path, &b.symbol)));
     violations.dedup();
 
-    let radius_digest = b3(&[
-        &serde_json::to_string(&radius).expect("radius serializes"),
-    ]);
-    let verdict = if violations.is_empty() { "ALIVE" } else { "REFUSED" };
+    let radius_digest = b3(&[&serde_json::to_string(&radius).expect("radius serializes")]);
+    let verdict = if violations.is_empty() {
+        "ALIVE"
+    } else {
+        "REFUSED"
+    };
     let receipt = BlastRadiusReceipt {
         plan_digest: pd.clone(),
         radius_digest: radius_digest.clone(),
@@ -459,7 +468,11 @@ pub fn admit_write(
     };
 
     if !violations.is_empty() {
-        return Admission::Refused { plan_digest: pd, violations, receipt };
+        return Admission::Refused {
+            plan_digest: pd,
+            violations,
+            receipt,
+        };
     }
     if truncated {
         return Admission::Partial {
@@ -471,5 +484,9 @@ pub fn admit_write(
             receipt,
         };
     }
-    Admission::Alive { plan_digest: pd, radius, receipt }
+    Admission::Alive {
+        plan_digest: pd,
+        radius,
+        receipt,
+    }
 }

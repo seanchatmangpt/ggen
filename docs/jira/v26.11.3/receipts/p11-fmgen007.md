@@ -56,7 +56,7 @@ TempDir/SPARQL/Tera, no mocks):
   test file, zero lib edits): 11 failures, all one root cause —
   `[FM-LAW-015]` EA admission gate (v26.10.x ABB/SBB Stage 2c) refusing
   syncs without `ea.graph.json`/`--skip-ea-admission` in tests predating
-  the gate: `sync_e2e` 10 failed (sync_e2e.rs:106, :246, :402 …), 
+  the gate: `sync_e2e` 10 failed (sync_e2e.rs:106, :246, :402 …),
   `abb_sbb_datalog_admission_e2e::unbound_pack_port_refuses_sync` 1 failed.
   These sit in surfaces excluded by lane contract (abb-sbb/gate wiring) —
   hand-off to the lane owning FM-LAW-015 wiring or test fixtures.

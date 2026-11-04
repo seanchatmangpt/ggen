@@ -190,6 +190,38 @@
   ],
   "qualifications": [
     {
+      "id": "qual:admission-kernel-witness",
+      "sbb": "sbb:admission-kernel-witness",
+      "sbb_digest": "sha256:9003bbe9d5f0c1cb1de74f719a3ba212e57031401a746768c378bd9b7f6f95f4",
+      "contract": "contract:admission-kernel",
+      "contract_digest": "sha256:f975d6b771b8f3cfe1cc34cd4f3bb4c58f746dd7978d2853a5dde0d880da6528",
+      "verdict": "QUALIFIED"
+    },
+    {
+      "id": "qual:docs-diataxis-pack",
+      "sbb": "sbb:docs-diataxis-pack",
+      "sbb_digest": "sha256:1b02768659fde77c1948c67f2e8b1ac130d48efb0b8bcfb5e4c106a99df9090f",
+      "contract": "contract:docs",
+      "contract_digest": "sha256:e85a7e156312daf9066cfe63892e9ccda6747d5fa402a4f62a3ad9802ea811fd",
+      "verdict": "QUALIFIED"
+    },
+    {
+      "id": "qual:gdmcp-pack",
+      "sbb": "sbb:gdmcp-pack",
+      "sbb_digest": "sha256:b11b3a2636a6e1c773a4b47dcccfdb30aa1181e55e41a70a637942f181f92af0",
+      "contract": "contract:pack-federation",
+      "contract_digest": "sha256:3fd7555c97ce677821a1b337c939e63345f094baa769d9a4f733f537147b26df",
+      "verdict": "QUALIFIED"
+    },
+    {
+      "id": "qual:github-actions-pack",
+      "sbb": "sbb:github-actions-pack",
+      "sbb_digest": "sha256:45761a7b450310c72c08d823c9f0aa99165e169e72b2fed2dd4165ba00ccf5db",
+      "contract": "contract:sync-pipeline",
+      "contract_digest": "sha256:779a191a4cf6b6dd0620c8e423ce6c307dece23d021aaa105e03eb2588d13c65",
+      "verdict": "QUALIFIED"
+    },
+    {
       "id": "qual:mdbook-pattern-language-pack",
       "sbb": "sbb:mdbook-pattern-language-pack",
       "sbb_digest": "sha256:bd4ffc31a6187a6dd5ec3b74649ed6ac7c21243b67657fd8b5f38b7f837b61b1",

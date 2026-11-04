@@ -52,7 +52,10 @@ impl Legend {
     /// Modifier bit position, by name.
     #[must_use]
     pub fn modifier_bit(&self, name: &str) -> Option<u32> {
-        self.modifiers.iter().position(|m| m == name).map(|p| p as u32)
+        self.modifiers
+            .iter()
+            .position(|m| m == name)
+            .map(|p| p as u32)
     }
 }
 
@@ -140,8 +143,8 @@ pub fn parse_ontology_facts(ttl: &str, ggen_toml: Option<&str>) -> OntologyFacts
         }
 
         // Crate packages.
-        let crate_query = "SELECT ?pkg WHERE { ?c a <{RF}Crate> . ?c <{RF}package> ?pkg }"
-            .replace("{RF}", RF);
+        let crate_query =
+            "SELECT ?pkg WHERE { ?c a <{RF}Crate> . ?c <{RF}package> ?pkg }".replace("{RF}", RF);
         let crate_eval = oxigraph::sparql::SparqlEvaluator::new().parse_query(&crate_query);
         match crate_eval.map(|q| q.on_store(&store).execute()) {
             Err(e) => eprintln!("tokens: crate query failed: {e}"),
@@ -192,7 +195,7 @@ pub fn parse_ontology_facts(ttl: &str, ggen_toml: Option<&str>) -> OntologyFacts
                         if out.ends_with(".rs") {
                             facts.generated_rust_files.insert(out.to_owned());
                         }
-                      }
+                    }
                 }
             }
         }
@@ -236,7 +239,9 @@ fn utf16_col(source: &str, line_start_byte: usize, byte_col: usize) -> u32 {
 /// Returns an empty vector when the parser cannot be constructed or the
 /// document is `None`-parseable (parse errors are skipped, not fatal).
 #[must_use]
-pub fn classify_rust(source: &str, legend: &Legend, facts: &OntologyFacts, is_generated: bool) -> Vec<AbsToken> {
+pub fn classify_rust(
+    source: &str, legend: &Legend, facts: &OntologyFacts, is_generated: bool,
+) -> Vec<AbsToken> {
     let mut out: Vec<AbsToken> = Bitpack::new(legend, facts, is_generated).run(source);
     out.sort_unstable_by_key(|t| (t.line, t.start));
     out
@@ -256,7 +261,10 @@ impl<'a> Bitpack<'a> {
             legend,
             facts,
             generated_bit: if is_generated {
-                legend.modifier_bit("generated").map(|b| 1 << b).unwrap_or(0)
+                legend
+                    .modifier_bit("generated")
+                    .map(|b| 1 << b)
+                    .unwrap_or(0)
             } else {
                 0
             },
@@ -291,8 +299,16 @@ impl<'a> Bitpack<'a> {
     fn visit_one(&mut self, node: Node, source: &str) {
         let kind = node.kind();
         let idx = |name: &str| self.legend.index_of(name);
-        let def_bit = self.legend.modifier_bit("definition").map(|b| 1 << b).unwrap_or(0);
-        let decl_bit = self.legend.modifier_bit("declaration").map(|b| 1 << b).unwrap_or(0);
+        let def_bit = self
+            .legend
+            .modifier_bit("definition")
+            .map(|b| 1 << b)
+            .unwrap_or(0);
+        let decl_bit = self
+            .legend
+            .modifier_bit("declaration")
+            .map(|b| 1 << b)
+            .unwrap_or(0);
         let gen = self.generated_bit;
 
         // Declaration name child.
@@ -305,7 +321,11 @@ impl<'a> Bitpack<'a> {
             _ => None,
         };
         if let (Some(tt), Some(name)) = (token_type, name_node) {
-            let mods = (if kind == "mod_item" { decl_bit } else { def_bit }) | gen;
+            let mods = (if kind == "mod_item" {
+                decl_bit
+            } else {
+                def_bit
+            }) | gen;
             self.push(name, tt, mods, source);
         }
 
@@ -376,7 +396,11 @@ pub fn encode(tokens: &[AbsToken]) -> Vec<u32> {
     let mut prev_start = 0u32;
     for t in tokens {
         let dl = t.line - prev_line;
-        let ds = if dl == 0 { t.start - prev_start } else { t.start };
+        let ds = if dl == 0 {
+            t.start - prev_start
+        } else {
+            t.start
+        };
         data.push(dl);
         data.push(ds);
         data.push(t.length);
@@ -398,7 +422,11 @@ pub fn decode(data: &[u32]) -> Vec<AbsToken> {
     let mut prev_start = 0u32;
     for chunk in data.chunks_exact(5) {
         let line = prev_line + chunk[0];
-        let start = if chunk[0] == 0 { prev_start + chunk[1] } else { chunk[1] };
+        let start = if chunk[0] == 0 {
+            prev_start + chunk[1]
+        } else {
+            chunk[1]
+        };
         prev_line = line;
         prev_start = start;
         out.push(AbsToken {
@@ -440,7 +468,10 @@ impl TokensEngine {
     #[must_use]
     pub fn from_ontology(ttl: &str, ggen_toml: Option<&str>) -> Self {
         let facts = parse_ontology_facts(ttl, ggen_toml);
-        let legend = legend_from_facts(!facts.crate_packages.is_empty(), !facts.diagnostic_codes.is_empty());
+        let legend = legend_from_facts(
+            !facts.crate_packages.is_empty(),
+            !facts.diagnostic_codes.is_empty(),
+        );
         Self {
             legend,
             facts,
@@ -506,7 +537,9 @@ impl TokensEngine {
     /// When `previous_result_id` matches the stored generation for `uri`,
     /// emits a minimal common-prefix/suffix diff; otherwise emits a single
     /// full-replacement edit. Always records the new generation.
-    pub fn delta(&mut self, uri: &str, previous_result_id: &str, new_text: &str) -> SemanticTokensDelta {
+    pub fn delta(
+        &mut self, uri: &str, previous_result_id: &str, new_text: &str,
+    ) -> SemanticTokensDelta {
         let gen = self.mint(uri, new_text);
         let new_result_id = gen.result_id.clone();
         let edits = match self.generations.get(uri) {

@@ -15,8 +15,8 @@
 #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 
 use ggen_engine::receipt_chain_seam::{
-    verify_chain_compat, ChainStanding, ChainVerification, ReceiptRecord,
-    CHAIN_RULE_V2_FOLD, CHAIN_RULE_V2_FOLD_LEGACY,
+    verify_chain_compat, ChainStanding, ChainVerification, ReceiptRecord, CHAIN_RULE_V2_FOLD,
+    CHAIN_RULE_V2_FOLD_LEGACY,
 };
 use ggen_engine::sync::{sync, SyncOptions, SyncReceipt, RECEIPT_REL_PATH};
 
@@ -56,7 +56,10 @@ fn hex(bytes: &[u8]) -> String {
 #[test]
 fn legacy_discriminator_is_refused_by_the_raw_verifier() {
     for record in legacy_records() {
-        assert_eq!(record.chain_rule.as_deref(), Some(CHAIN_RULE_V2_FOLD_LEGACY));
+        assert_eq!(
+            record.chain_rule.as_deref(),
+            Some(CHAIN_RULE_V2_FOLD_LEGACY)
+        );
         let err = record
             .verify_chain()
             .expect_err("raw verifier must refuse the legacy discriminator");
@@ -103,7 +106,8 @@ fn every_legacy_ledger_entry_recomputes_under_the_v2_fold() {
 #[test]
 fn tampered_legacy_entry_refuses_under_compat() {
     let mut value: serde_json::Value =
-        serde_json::from_str(LEGACY_TAIL.lines().next().expect("non-empty fixture")).expect("parse");
+        serde_json::from_str(LEGACY_TAIL.lines().next().expect("non-empty fixture"))
+            .expect("parse");
     // Tamper a field the v2-fold covers (inside the v2 epoch payload).
     let reason = value["record"]["v2"]["admission"]["Recorded"][0]["reason"]
         .as_str()
@@ -194,7 +198,10 @@ fn legacy_ledger_tail_extends_and_the_whole_chain_verifies() {
 
     // Seed the ledger with the verbatim FULL ledger + matching head
     // pointer (the exact DEF-K6-1 repo-root shape).
-    let ledger: Vec<&str> = FULL_LEDGER.lines().filter(|l| !l.trim().is_empty()).collect();
+    let ledger: Vec<&str> = FULL_LEDGER
+        .lines()
+        .filter(|l| !l.trim().is_empty())
+        .collect();
     let legacy_tail = ledger.last().expect("non-empty fixture");
     let v2dir = dir.path().join(".ggen-v2");
     std::fs::create_dir_all(&v2dir).expect("mkdir .ggen-v2");
@@ -239,7 +246,10 @@ fn legacy_ledger_tail_extends_and_the_whole_chain_verifies() {
         Some(CHAIN_RULE_V2_FOLD),
         "new writes must use the current rule"
     );
-    assert_ne!(new_rec.chain_rule.as_deref(), Some(CHAIN_RULE_V2_FOLD_LEGACY));
+    assert_ne!(
+        new_rec.chain_rule.as_deref(),
+        Some(CHAIN_RULE_V2_FOLD_LEGACY)
+    );
 
     // The whole ledger — legacy prefix + current-rule head — verifies
     // under the compat window.
@@ -283,9 +293,10 @@ fn legacy_ledger_tail_extends_and_the_whole_chain_verifies() {
         },
     )
     .expect("fresh sync");
-    let fresh_head: SyncReceipt =
-        serde_json::from_str(&std::fs::read_to_string(fresh.path().join(RECEIPT_REL_PATH)).expect("read head"))
-            .expect("parse head");
+    let fresh_head: SyncReceipt = serde_json::from_str(
+        &std::fs::read_to_string(fresh.path().join(RECEIPT_REL_PATH)).expect("read head"),
+    )
+    .expect("parse head");
     assert_eq!(
         fresh_head.record.chain_rule.as_deref(),
         Some(CHAIN_RULE_V2_FOLD),

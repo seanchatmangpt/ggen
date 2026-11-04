@@ -21,16 +21,10 @@ use super::{
 /// Exits 1 with typed refusal JSON on stderr for kernel refusals; exits 2 for
 /// usage/input errors.
 pub(crate) fn run(
-    graph: Option<String>,
-    abb: Option<String>,
-    sbb: Option<String>,
-    authority: Option<String>,
-    expected_graph_digest: Option<String>,
-    generation: Option<String>,
-    baseline_generation: Option<String>,
-    generator_id: Option<String>,
-    generator_version: Option<String>,
-    receipt_out: Option<String>,
+    graph: Option<String>, abb: Option<String>, sbb: Option<String>, authority: Option<String>,
+    expected_graph_digest: Option<String>, generation: Option<String>,
+    baseline_generation: Option<String>, generator_id: Option<String>,
+    generator_version: Option<String>, receipt_out: Option<String>,
 ) -> Result<Value> {
     let g = load_graph(graph.as_deref().unwrap_or(super::DEFAULT_GRAPH_PATH));
     let authority = parse_authority(authority.as_deref());
@@ -91,17 +85,10 @@ pub(crate) fn run(
 /// usage/input errors.
 #[verb("manufacture", "ea")]
 pub fn manufacture(
-    graph: Option<String>,
-    json: bool,
-    abb: Option<String>,
-    sbb: Option<String>,
-    authority: Option<String>,
-    expected_graph_digest: Option<String>,
-    generation: Option<String>,
-    baseline_generation: Option<String>,
-    generator_id: Option<String>,
-    generator_version: Option<String>,
-    receipt_out: Option<String>,
+    graph: Option<String>, json: bool, abb: Option<String>, sbb: Option<String>,
+    authority: Option<String>, expected_graph_digest: Option<String>, generation: Option<String>,
+    baseline_generation: Option<String>, generator_id: Option<String>,
+    generator_version: Option<String>, receipt_out: Option<String>,
 ) -> Result<Value> {
     let _ = json;
     run(

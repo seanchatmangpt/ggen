@@ -193,7 +193,14 @@ fn doctor_healthy_after_real_sync() {
     let dir = TempDir::new().expect("tempdir");
     scaffold_frontmatter(dir.path());
     with_cwd(dir.path(), || {
-        sync(dir.path(), SyncOptions { skip_ea_admission: true, ..Default::default() }).expect("real sync must succeed");
+        sync(
+            dir.path(),
+            SyncOptions {
+                skip_ea_admission: true,
+                ..Default::default()
+            },
+        )
+        .expect("real sync must succeed");
 
         let report = handle_doctor().expect("freshly synced project must be healthy");
         assert_eq!(report["healthy"], true);
@@ -212,7 +219,14 @@ fn doctor_names_receipt_staleness_on_tampered_output() {
     let dir = TempDir::new().expect("tempdir");
     scaffold_frontmatter(dir.path());
     with_cwd(dir.path(), || {
-        sync(dir.path(), SyncOptions { skip_ea_admission: true, ..Default::default() }).expect("real sync");
+        sync(
+            dir.path(),
+            SyncOptions {
+                skip_ea_admission: true,
+                ..Default::default()
+            },
+        )
+        .expect("real sync");
 
         std::fs::write(dir.path().join("out/names.txt"), "tampered\n").expect("tamper output");
 

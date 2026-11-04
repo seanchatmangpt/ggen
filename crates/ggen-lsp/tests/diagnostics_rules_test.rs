@@ -58,15 +58,28 @@ fn diag_001_fires_when_ontology_source_is_newer_than_generated_file() {
 
     let now = SystemTime::now();
     // Generated file rendered 1000s ago; ontology touched now -> stale.
-    File::options().write(true).open(&gen_path).unwrap().set_modified(now - Duration::from_secs(1_000)).unwrap();
-    File::options().write(true).open(&src_path).unwrap().set_modified(now).unwrap();
+    File::options()
+        .write(true)
+        .open(&gen_path)
+        .unwrap()
+        .set_modified(now - Duration::from_secs(1_000))
+        .unwrap();
+    File::options()
+        .write(true)
+        .open(&src_path)
+        .unwrap()
+        .set_modified(now)
+        .unwrap();
 
     let uri = format!("file://{}", gen_path.display());
     let text = std::fs::read_to_string(&gen_path).unwrap();
     let diags = stale_regeneration_diagnostics(&uri, &text);
 
     assert_eq!(codes(&diags), vec![Some(GGEN_DIAG_001.to_string())]);
-    assert_eq!(diags[0].severity, Some(lsp_max::lsp_types_max::DiagnosticSeverity::WARNING));
+    assert_eq!(
+        diags[0].severity,
+        Some(lsp_max::lsp_types_max::DiagnosticSeverity::WARNING)
+    );
     // Remediation text names the regeneration command (house law).
     assert!(diags[0].message.contains("ggen sync run"));
 }
@@ -81,8 +94,18 @@ fn diag_001_silent_when_generated_file_is_current_or_older_source() {
 
     let now = SystemTime::now();
     // Clean: generated AFTER the ontology (regenerated post-edit).
-    File::options().write(true).open(&gen_path).unwrap().set_modified(now).unwrap();
-    File::options().write(true).open(&src_path).unwrap().set_modified(now - Duration::from_secs(1_000)).unwrap();
+    File::options()
+        .write(true)
+        .open(&gen_path)
+        .unwrap()
+        .set_modified(now)
+        .unwrap();
+    File::options()
+        .write(true)
+        .open(&src_path)
+        .unwrap()
+        .set_modified(now - Duration::from_secs(1_000))
+        .unwrap();
 
     let uri = format!("file://{}", gen_path.display());
     let text = std::fs::read_to_string(&gen_path).unwrap();
@@ -99,8 +122,18 @@ fn diag_001_anti_vacuity_banner_removed_collapses_trigger() {
     std::fs::write(&src_path, "ttl content").unwrap();
 
     let now = SystemTime::now();
-    File::options().write(true).open(&gen_path).unwrap().set_modified(now - Duration::from_secs(1_000)).unwrap();
-    File::options().write(true).open(&src_path).unwrap().set_modified(now).unwrap();
+    File::options()
+        .write(true)
+        .open(&gen_path)
+        .unwrap()
+        .set_modified(now - Duration::from_secs(1_000))
+        .unwrap();
+    File::options()
+        .write(true)
+        .open(&src_path)
+        .unwrap()
+        .set_modified(now)
+        .unwrap();
 
     let uri = format!("file://{}", gen_path.display());
     let text = std::fs::read_to_string(&gen_path).unwrap();
@@ -118,7 +151,10 @@ fn diag_002_fires_on_unrendered_expression_in_non_template_file() {
     let diags = unrendered_residue_diagnostics(uri, text);
 
     assert_eq!(codes(&diags), vec![Some(GGEN_DIAG_002.to_string())]);
-    assert_eq!(diags[0].severity, Some(lsp_max::lsp_types_max::DiagnosticSeverity::ERROR));
+    assert_eq!(
+        diags[0].severity,
+        Some(lsp_max::lsp_types_max::DiagnosticSeverity::ERROR)
+    );
     // Position-aware: line 0, columns of the `{{`.
     assert_eq!(diags[0].range.start.line, 0);
     assert_eq!(diags[0].range.start.character, 24);
@@ -161,7 +197,10 @@ fn diag_003_fires_when_declared_file_lacks_provenance_banner() {
     let diags = moniker_diagnostics(uri, text, &declared);
 
     assert_eq!(codes(&diags), vec![Some(GGEN_DIAG_003.to_string())]);
-    assert_eq!(diags[0].severity, Some(lsp_max::lsp_types_max::DiagnosticSeverity::ERROR));
+    assert_eq!(
+        diags[0].severity,
+        Some(lsp_max::lsp_types_max::DiagnosticSeverity::ERROR)
+    );
     assert!(diags[0].message.contains("ggen sync run"));
 }
 
@@ -169,7 +208,10 @@ fn diag_003_fires_when_declared_file_lacks_provenance_banner() {
 fn diag_003_silent_when_banner_present() {
     let declared = declared(&["src/generated_contract.rs"]);
     let uri = "file:///repo/crates/x/src/generated_contract.rs";
-    let text = format!("//! {} `ggen sync run` from `o.ttl`...\npub struct S;\n", BANNER_MARKER);
+    let text = format!(
+        "//! {} `ggen sync run` from `o.ttl`...\npub struct S;\n",
+        BANNER_MARKER
+    );
     assert!(moniker_diagnostics(uri, &text, &declared).is_empty());
 }
 
@@ -197,7 +239,10 @@ fn diag_003_suffix_path_matching_resolves_manifest_relative_declarations() {
 #[test]
 fn banner_parser_extracts_real_ggen_banner_source_path() {
     let text = banner(".specify/repo-facts.ttl");
-    assert_eq!(provenance_banner_source_path(&text), Some(".specify/repo-facts.ttl"));
+    assert_eq!(
+        provenance_banner_source_path(&text),
+        Some(".specify/repo-facts.ttl")
+    );
 }
 
 #[test]
@@ -220,8 +265,18 @@ fn run_rules_aggregates_all_three_families_on_one_dirty_surface() {
     std::fs::write(&src_path, "ttl").unwrap();
 
     let now = SystemTime::now();
-    File::options().write(true).open(&gen_path).unwrap().set_modified(now - Duration::from_secs(500)).unwrap();
-    File::options().write(true).open(&src_path).unwrap().set_modified(now).unwrap();
+    File::options()
+        .write(true)
+        .open(&gen_path)
+        .unwrap()
+        .set_modified(now - Duration::from_secs(500))
+        .unwrap();
+    File::options()
+        .write(true)
+        .open(&src_path)
+        .unwrap()
+        .set_modified(now)
+        .unwrap();
 
     let uri = format!("file://{}", gen_path.display());
     let text = std::fs::read_to_string(&gen_path).unwrap();
@@ -229,7 +284,16 @@ fn run_rules_aggregates_all_three_families_on_one_dirty_surface() {
     let all = run_rules(&uri, &text, &decl);
 
     let got = codes(&all);
-    assert!(got.contains(&Some(GGEN_DIAG_001.to_string())), "got {got:?}");
-    assert!(got.contains(&Some(GGEN_DIAG_002.to_string())), "got {got:?}");
-    assert!(!got.contains(&Some(GGEN_DIAG_003.to_string())), "banner present, 003 must stay silent: {got:?}");
+    assert!(
+        got.contains(&Some(GGEN_DIAG_001.to_string())),
+        "got {got:?}"
+    );
+    assert!(
+        got.contains(&Some(GGEN_DIAG_002.to_string())),
+        "got {got:?}"
+    );
+    assert!(
+        !got.contains(&Some(GGEN_DIAG_003.to_string())),
+        "banner present, 003 must stay silent: {got:?}"
+    );
 }

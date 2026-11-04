@@ -425,7 +425,9 @@ impl LanguageServer for GgenLanguageServer {
                 // is still treated as the FULL replacement text — never a
                 // partial patch — so the analyzer always sees the whole
                 // document.
-                tracing::warn!("client sent ranged change under FULL sync; treating text as full replacement");
+                tracing::warn!(
+                    "client sent ranged change under FULL sync; treating text as full replacement"
+                );
                 change.text
             } else {
                 change.text
@@ -501,9 +503,7 @@ impl LanguageServer for GgenLanguageServer {
         handlers::semantic_tokens::handle_full_delta(self, params).await
     }
 
-    async fn moniker(
-        &self, params: MonikerParams,
-    ) -> Result<Option<Vec<Moniker>>> {
+    async fn moniker(&self, params: MonikerParams) -> Result<Option<Vec<Moniker>>> {
         handlers::moniker::handle(self, params).await
     }
 

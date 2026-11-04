@@ -63,7 +63,8 @@ pub const DIAGNOSTIC_RULES: &[DiagnosticRule] = &[
     DiagnosticRule {
         code: GGEN_DIAG_001,
         severity: SEVERITY_REGENERATION_PENDING,
-        description: "ontology source mtime is newer than the generated file (regeneration pending)",
+        description:
+            "ontology source mtime is newer than the generated file (regeneration pending)",
     },
     DiagnosticRule {
         code: GGEN_DIAG_002,
@@ -86,8 +87,14 @@ fn at(
 ) -> Diagnostic {
     Diagnostic {
         range: Range {
-            start: Position { line: start_line, character: start_col },
-            end: Position { line: end_line, character: end_col },
+            start: Position {
+                line: start_line,
+                character: start_col,
+            },
+            end: Position {
+                line: end_line,
+                character: end_col,
+            },
         },
         severity: Some(severity),
         code: code.map(|c| NumberOrString::String(c.to_string())),
@@ -133,16 +140,16 @@ fn banner_line(text: &str) -> Option<u32> {
 #[must_use]
 fn is_template_uri(uri: &str) -> bool {
     let lower = uri.to_ascii_lowercase();
-    TEMPLATE_EXTENSIONS.iter().any(|ext| lower.ends_with(&format!(".{ext}")))
+    TEMPLATE_EXTENSIONS
+        .iter()
+        .any(|ext| lower.ends_with(&format!(".{ext}")))
         || lower.contains("/templates/")
 }
 
 /// Byte offset of the first `{{` at or after `from` in `s`, as (line, col) in
 /// the original document when `line_starts` maps document lines to offsets.
 #[must_use]
-fn find_residue_span(
-    text: &str,
-) -> impl Iterator<Item = (u32, u32, u32, u32)> + '_ {
+fn find_residue_span(text: &str) -> impl Iterator<Item = (u32, u32, u32, u32)> + '_ {
     let mut spans = Vec::new();
     for (i, line) in (0_u32..).zip(text.lines()) {
         let line_idx = i;
@@ -159,10 +166,14 @@ fn find_residue_span(
                 let end_byte = (search_from + rel + 2).min(line.len());
                 line[..end_byte].chars().count()
             };
-            spans.push((line_idx, u32::try_from(col).unwrap_or(0), line_idx, u32::try_from(end_col).unwrap_or(0)));
+            spans.push((
+                line_idx,
+                u32::try_from(col).unwrap_or(0),
+                line_idx,
+                u32::try_from(end_col).unwrap_or(0),
+            ));
             search_from = search_from + rel + 2;
         }
-
     }
     spans.into_iter()
 }
@@ -302,9 +313,7 @@ fn paths_equivalent(a: &str, b: &str) -> bool {
 
 /// Run every rule over one surface, with the ontology's declared-generated set.
 #[must_use]
-pub fn run_rules(
-    uri: &str, text: &str, declared_generated: &BTreeSet<String>,
-) -> Vec<Diagnostic> {
+pub fn run_rules(uri: &str, text: &str, declared_generated: &BTreeSet<String>) -> Vec<Diagnostic> {
     let mut out = stale_regeneration_diagnostics(uri, text);
     out.extend(unrendered_residue_diagnostics(uri, text));
     out.extend(moniker_diagnostics(uri, text, declared_generated));

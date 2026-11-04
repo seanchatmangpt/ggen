@@ -79,7 +79,8 @@ fn projection_is_byte_identical_to_kernel_fixture() {
     run_sync(true);
     run_sync(false);
     let got = fs::read(example_dir().join("ea.graph.json")).expect("read projected graph");
-    let golden = fs::read(Path::new(env!("CARGO_MANIFEST_DIR")).join(GOLDEN)).expect("read golden fixture");
+    let golden =
+        fs::read(Path::new(env!("CARGO_MANIFEST_DIR")).join(GOLDEN)).expect("read golden fixture");
     assert_eq!(
         got, golden,
         "projected ea.graph.json must be byte-identical to the kernel fixture"
@@ -93,8 +94,7 @@ fn projection_passes_kernel_parse_and_validate() {
         run_sync(true);
         run_sync(false);
     }
-    let json =
-        fs::read_to_string(example_dir().join("ea.graph.json")).expect("projected graph");
+    let json = fs::read_to_string(example_dir().join("ea.graph.json")).expect("projected graph");
     let g = match ggen_abb_sbb::parse_graph(&json) {
         Ok(g) => g,
         Err(r) => panic!("parse_graph refused the projected graph: {r:?}"),
@@ -142,10 +142,9 @@ fn inline_template_queries_match_rq_files() {
     let tpl = fs::read_to_string(example_dir().join("templates/ea_graph.json.tera"))
         .expect("read template");
     for (set_name, stem) in QUERY_MAP {
-        let file_text = fs::read_to_string(
-            example_dir().join(format!("queries/ea_graph/{stem}.rq")),
-        )
-        .unwrap_or_else(|e| panic!("read queries/ea_graph/{stem}.rq: {e}"));
+        let file_text =
+            fs::read_to_string(example_dir().join(format!("queries/ea_graph/{stem}.rq")))
+                .unwrap_or_else(|e| panic!("read queries/ea_graph/{stem}.rq: {e}"));
         let needle = format!("set {} = sparql(query='", set_name);
         let start = tpl
             .find(&needle)
@@ -168,8 +167,7 @@ fn inline_template_queries_match_rq_files() {
 
 #[test]
 fn manifest_rule_binds_strategy_query_and_kernel_output() {
-    let manifest =
-        fs::read_to_string(example_dir().join("ggen.toml")).expect("read ggen.toml");
+    let manifest = fs::read_to_string(example_dir().join("ggen.toml")).expect("read ggen.toml");
     assert!(
         manifest.contains(r#"query = { file = "queries/ea_graph/strategy.rq" }"#),
         "rule-level query must bind queries/ea_graph/strategy.rq"
@@ -179,8 +177,7 @@ fn manifest_rule_binds_strategy_query_and_kernel_output() {
         "rule output must be ea.graph.json (the Stage 2c gate's admission subject)"
     );
     assert!(
-        manifest
-            .contains(r#"imports = ["../../../../ontologies/shapes/ea-graph.shacl.ttl"]"#),
+        manifest.contains(r#"imports = ["../../../../ontologies/shapes/ea-graph.shacl.ttl"]"#),
         "manifest must import ontologies/shapes/ea-graph.shacl.ttl"
     );
 }

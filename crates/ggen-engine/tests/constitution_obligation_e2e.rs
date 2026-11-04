@@ -102,8 +102,8 @@ fn obligation_count_required_matches_real_count_of_unmechanized_laws() {
     sync(
         dir.path(),
         SyncOptions {
-    // K2: FM-LAW-015 EA-admission opt-out (test pins a non-EA law)
-    skip_ea_admission: true,
+            // K2: FM-LAW-015 EA-admission opt-out (test pins a non-EA law)
+            skip_ea_admission: true,
             consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
@@ -148,8 +148,8 @@ fn flipping_one_law_to_mechanized_decreases_obligation_count_by_exactly_one() {
     sync(
         dir.path(),
         SyncOptions {
-    // K2: FM-LAW-015 EA-admission opt-out (test pins a non-EA law)
-    skip_ea_admission: true,
+            // K2: FM-LAW-015 EA-admission opt-out (test pins a non-EA law)
+            skip_ea_admission: true,
             consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
@@ -172,8 +172,8 @@ fn flipping_one_law_to_mechanized_decreases_obligation_count_by_exactly_one() {
     sync(
         dir.path(),
         SyncOptions {
-    // K2: FM-LAW-015 EA-admission opt-out (test pins a non-EA law)
-    skip_ea_admission: true,
+            // K2: FM-LAW-015 EA-admission opt-out (test pins a non-EA law)
+            skip_ea_admission: true,
             consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
@@ -219,8 +219,8 @@ fn project_without_any_ccn_law_individuals_reports_zero_required() {
     sync(
         dir.path(),
         SyncOptions {
-    // K2: FM-LAW-015 EA-admission opt-out (test pins a non-EA law)
-    skip_ea_admission: true,
+            // K2: FM-LAW-015 EA-admission opt-out (test pins a non-EA law)
+            skip_ea_admission: true,
             consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()

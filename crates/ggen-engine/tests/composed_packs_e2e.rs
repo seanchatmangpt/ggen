@@ -137,11 +137,8 @@ fn scaffold_composed_project() -> (TempDir, PathBuf) {
     // minimal valid-but-empty EA graph (zero candidate SBBs — the admit
     // loop in ggen-engine/src/sync.rs iterates candidate_sbbs, so an empty
     // list admits trivially and honestly: nothing to admit).
-    std::fs::write(
-        project.join("ea.graph.json"),
-        MINIMAL_EMPTY_EA_GRAPH,
-    )
-    .expect("write ea.graph.json");
+    std::fs::write(project.join("ea.graph.json"), MINIMAL_EMPTY_EA_GRAPH)
+        .expect("write ea.graph.json");
     (dir, project)
 }
 

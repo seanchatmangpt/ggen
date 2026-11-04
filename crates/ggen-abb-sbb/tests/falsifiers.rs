@@ -597,7 +597,9 @@ fn pack_colliding_with_any_element_id_is_refused_without_a_pack_list() {
     // caused the refusal above.
     let mut g = graph();
     g.candidate_sbbs[0].pack = "pack:fresh".into();
-    g.packs.push(Pack { id: "pack:fresh".into() });
+    g.packs.push(Pack {
+        id: "pack:fresh".into(),
+    });
     resign(&mut g.candidate_sbbs[0]);
     let d = g.candidate_sbbs[0].digest.clone().unwrap();
     g.qualifications[0].sbb_digest = d;

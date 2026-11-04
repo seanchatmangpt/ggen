@@ -10,11 +10,13 @@
 //! Chicago discipline: real file input, assertions on kernel output, no mocks.
 
 #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
-use ggen_abb_sbb::{sbb_content_digest, contract_digest, Authority, Request};
+use ggen_abb_sbb::{contract_digest, sbb_content_digest, Authority, Request};
 use std::collections::BTreeSet;
 
 fn main() {
-    let path = std::env::args().nth(1).expect("usage: validate_ea_graph <ea.graph.json path>");
+    let path = std::env::args()
+        .nth(1)
+        .expect("usage: validate_ea_graph <ea.graph.json path>");
     let json = std::fs::read_to_string(&path).expect("graph file readable");
     let g = match ggen_abb_sbb::parse_graph(&json) {
         Ok(g) => g,
@@ -54,11 +56,7 @@ fn main() {
             artifact_baseline_generation: 0,
         };
         match ggen_abb_sbb::admit_with_caps(&g, &req, None) {
-            Ok(ad) => println!(
-                "  ADMITTED {} (qualification {})",
-                s.id,
-                ad.qualification()
-            ),
+            Ok(ad) => println!("  ADMITTED {} (qualification {})", s.id, ad.qualification()),
             Err(r) => println!("  REFUSED  {} :: {}", s.id, r),
         }
     }

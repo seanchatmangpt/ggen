@@ -129,8 +129,10 @@ fn replay_round_trip() {
     std::fs::copy(FIXTURE, &graph_path).expect("copy fixture");
     let receipt_path = dir.join("receipt.json");
 
-    let (code, stdout, stderr) =
-        manufacture_receipt(receipt_path.to_str().expect("utf8"), graph_path.to_str().expect("utf8"));
+    let (code, stdout, stderr) = manufacture_receipt(
+        receipt_path.to_str().expect("utf8"),
+        graph_path.to_str().expect("utf8"),
+    );
     assert_eq!(code, 0, "manufacture must exit 0; stderr: {stderr}");
     assert!(stdout.contains("receipt_digest"), "stdout: {stdout}");
     assert!(receipt_path.exists(), "receipt must be written");
@@ -157,8 +159,10 @@ fn replay_on_tampered_receipt_refuses() {
     std::fs::copy(FIXTURE, &graph_path).expect("copy fixture");
     let receipt_path = dir.join("receipt.json");
 
-    let (code, _, stderr) =
-        manufacture_receipt(receipt_path.to_str().expect("utf8"), graph_path.to_str().expect("utf8"));
+    let (code, _, stderr) = manufacture_receipt(
+        receipt_path.to_str().expect("utf8"),
+        graph_path.to_str().expect("utf8"),
+    );
     assert_eq!(code, 0, "manufacture must exit 0; stderr: {stderr}");
 
     // Tamper: alter the declared receipt digest; the kernel must refuse.
@@ -201,7 +205,13 @@ fn usage_errors_exit_2() {
     assert!(stderr.contains("INVALID_INVOCATION"), "stderr: {stderr}");
 
     // Unreadable graph file: usage error, not kernel refusal.
-    let (code, _, stderr) = run_ea(&["ea", "plan", "--graph", "/nonexistent/ea.graph.json", "--json"]);
+    let (code, _, stderr) = run_ea(&[
+        "ea",
+        "plan",
+        "--graph",
+        "/nonexistent/ea.graph.json",
+        "--json",
+    ]);
     assert_eq!(code, 2, "missing graph must exit 2; stderr: {stderr}");
     assert!(stderr.contains("INVALID_INVOCATION"), "stderr: {stderr}");
 }
@@ -214,8 +224,10 @@ fn verify_receipt_round_trip_and_tamper() {
     std::fs::copy(FIXTURE, &graph_path).expect("copy fixture");
     let receipt_path = dir.join("receipt.json");
 
-    let (code, _, stderr) =
-        manufacture_receipt(receipt_path.to_str().expect("utf8"), graph_path.to_str().expect("utf8"));
+    let (code, _, stderr) = manufacture_receipt(
+        receipt_path.to_str().expect("utf8"),
+        graph_path.to_str().expect("utf8"),
+    );
     assert_eq!(code, 0, "manufacture must exit 0; stderr: {stderr}");
 
     let (code, stdout, stderr) = run_ea(&[

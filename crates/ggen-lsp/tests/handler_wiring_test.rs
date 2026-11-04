@@ -117,17 +117,14 @@ impl LspClient {
     /// Checks already-stashed frames first, then reads bounded frames.
     fn wait_for_diagnostic(&mut self, uri: &str, code: &str) -> Value {
         let matches = |n: &Value| {
-            n.get("method").and_then(Value::as_str)
-                == Some("textDocument/publishDiagnostics")
+            n.get("method").and_then(Value::as_str) == Some("textDocument/publishDiagnostics")
                 && n["params"]["uri"] == json!(uri)
-                && n["params"]["diagnostics"]
-                    .as_array()
-                    .is_some_and(|ds| {
-                        ds.iter().any(|d| {
-                            d["code"].as_str() == Some(code)
-                                || d["code"]["string"].as_str() == Some(code)
-                        })
+                && n["params"]["diagnostics"].as_array().is_some_and(|ds| {
+                    ds.iter().any(|d| {
+                        d["code"].as_str() == Some(code)
+                            || d["code"]["string"].as_str() == Some(code)
                     })
+                })
         };
         if let Some(pos) = self.stashed.iter().position(matches) {
             return self.stashed.remove(pos);
@@ -229,9 +226,12 @@ fn semantic_tokens_full_then_delta_over_generated_commands() {
 
     c.did_open(&uri, "rust", &source);
 
-    let full = c.request("textDocument/semanticTokens/full", json!({
-        "textDocument": {"uri": uri}
-    }));
+    let full = c.request(
+        "textDocument/semanticTokens/full",
+        json!({
+            "textDocument": {"uri": uri}
+        }),
+    );
     let data = flat_data(&full);
     assert!(!data.is_empty(), "full tokens must not be empty");
     assert_eq!(data.len() % 5, 0, "bit-packed array, 5 fields per token");
@@ -263,11 +263,17 @@ fn semantic_tokens_full_then_delta_over_generated_commands() {
     );
 
     // Delta: request with the minted result_id, apply, compare with a re-full.
-    let result_id = full["result"]["resultId"].as_str().expect("resultId").to_string();
-    let delta = c.request("textDocument/semanticTokens/full/delta", json!({
-        "textDocument": {"uri": uri},
-        "previousResultId": result_id,
-    }));
+    let result_id = full["result"]["resultId"]
+        .as_str()
+        .expect("resultId")
+        .to_string();
+    let delta = c.request(
+        "textDocument/semanticTokens/full/delta",
+        json!({
+            "textDocument": {"uri": uri},
+            "previousResultId": result_id,
+        }),
+    );
     let delta_result = &delta["result"];
     let edits = delta_result["edits"].as_array().expect("delta edits");
     // Unchanged text with a matching result_id legitimately yields zero
@@ -285,13 +291,15 @@ fn semantic_tokens_full_then_delta_over_generated_commands() {
     }
     // The engine classifies the same text twice identically; the delta
     // applied to the previous generation must equal a fresh full.
-    let full2 = c.request("textDocument/semanticTokens/full", json!({
-        "textDocument": {"uri": uri}
-    }));
+    let full2 = c.request(
+        "textDocument/semanticTokens/full",
+        json!({
+            "textDocument": {"uri": uri}
+        }),
+    );
     let data2 = flat_data(&full2);
     assert_eq!(
-        applied,
-        data2,
+        applied, data2,
         "applied delta must equal a fresh full on unchanged text"
     );
     let _ = token_count;
@@ -317,10 +325,13 @@ fn moniker_on_generated_commands_reference() {
     initialize_at(&mut c, Some("file:///Users/sac/ggen"));
     c.did_open(&uri, "rust", &source);
 
-    let resp = c.request("textDocument/moniker", json!({
-        "textDocument": {"uri": uri},
-        "position": {"line": ident_line, "character": ident_col + 2}
-    }));
+    let resp = c.request(
+        "textDocument/moniker",
+        json!({
+            "textDocument": {"uri": uri},
+            "position": {"line": ident_line, "character": ident_col + 2}
+        }),
+    );
     let monikers = resp["result"]
         .as_array()
         .expect("moniker array (got null? handler refused the surface)");
@@ -340,15 +351,14 @@ fn moniker_on_generated_commands_reference() {
     // Negative: a hand-written (banner-free, ontology-undeclared) document
     // must refuse the moniker surface.
     let hand_uri = "file:///tmp-not-used/hand_written.rs";
-    c.did_open(
-        hand_uri,
-        "rust",
-        "// hand-written\npub fn nothing() {}\n",
+    c.did_open(hand_uri, "rust", "// hand-written\npub fn nothing() {}\n");
+    let neg = c.request(
+        "textDocument/moniker",
+        json!({
+            "textDocument": {"uri": hand_uri},
+            "position": {"line": 1, "character": 10}
+        }),
     );
-    let neg = c.request("textDocument/moniker", json!({
-        "textDocument": {"uri": hand_uri},
-        "position": {"line": 1, "character": 10}
-    }));
     assert!(
         neg["result"].is_null(),
         "hand-written surface must not mint monikers"

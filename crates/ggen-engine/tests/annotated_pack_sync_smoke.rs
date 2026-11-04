@@ -109,7 +109,7 @@ fn real_annotated_packs_sync_green_and_render() {
             ..SyncOptions::default()
         },
     )
-        .expect("sync over 3 real annotated packs must succeed");
+    .expect("sync over 3 real annotated packs must succeed");
 
     // Rendered output is real: the generation rule's SELECT matched the
     // ontology triple and Tera rendered it to disk.
@@ -206,7 +206,7 @@ fn declared_provider_satisfies_urn_requires_and_syncs_green() {
             ..SyncOptions::default()
         },
     )
-        .expect("sync with declared provider must succeed (FM-PACK-018 must not fire)");
+    .expect("sync with declared provider must succeed (FM-PACK-018 must not fire)");
 
     let out = std::fs::read_to_string(dir.path().join("out/smoke.txt")).expect("rendered output");
     assert!(
@@ -354,7 +354,7 @@ fn non_urn_requires_satisfied_via_declared_dependency_closure() {
             ..SyncOptions::default()
         },
     )
-        .expect("non-URN requires satisfied via declared closure must sync green");
+    .expect("non-URN requires satisfied via declared closure must sync green");
 
     let out = std::fs::read_to_string(dir.path().join("out/smoke.txt")).expect("rendered output");
     assert!(
@@ -527,7 +527,7 @@ fn non_urn_requires_satisfied_via_two_level_transitive_closure() {
             ..SyncOptions::default()
         },
     )
-        .expect("non-URN requires satisfied via 2-level transitive closure must sync green");
+    .expect("non-URN requires satisfied via 2-level transitive closure must sync green");
 
     let out = std::fs::read_to_string(dir.path().join("out/smoke.txt")).expect("rendered output");
     assert!(

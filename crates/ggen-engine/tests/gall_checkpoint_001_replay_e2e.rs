@@ -116,7 +116,14 @@ fn clean_replay_matches_exact_subject_and_consequence_set() {
     );
     assert_eq!(dependencies[0]["name"], "zz_dependency_pack");
 
-    let report = verify_project_replay(&fx.project, SyncOptions { skip_ea_admission: true, ..Default::default() }).expect("replay");
+    let report = verify_project_replay(
+        &fx.project,
+        SyncOptions {
+            skip_ea_admission: true,
+            ..Default::default()
+        },
+    )
+    .expect("replay");
     assert_eq!(report.status, "PASS");
     assert!(report.cleared_consequences >= 1);
 
@@ -170,8 +177,14 @@ fn mutated_pack_refuses_old_replay_identity() {
     .expect("mutate pack");
     remove_pack_lock_to_reach_replay_identity_court(&fx.project);
 
-    let err = verify_project_replay(&fx.project, SyncOptions { skip_ea_admission: true, ..Default::default() })
-        .expect_err("old replay identity must refuse");
+    let err = verify_project_replay(
+        &fx.project,
+        SyncOptions {
+            skip_ea_admission: true,
+            ..Default::default()
+        },
+    )
+    .expect_err("old replay identity must refuse");
     assert!(err.to_string().contains("FM-CHAIN-017"), "{err}");
 }
 
@@ -186,8 +199,14 @@ fn mutated_dependency_refuses_old_replay_identity() {
     .expect("mutate dependency");
     remove_pack_lock_to_reach_replay_identity_court(&fx.project);
 
-    let err = verify_project_replay(&fx.project, SyncOptions { skip_ea_admission: true, ..Default::default() })
-        .expect_err("old dependency identity must refuse");
+    let err = verify_project_replay(
+        &fx.project,
+        SyncOptions {
+            skip_ea_admission: true,
+            ..Default::default()
+        },
+    )
+    .expect_err("old dependency identity must refuse");
     assert!(err.to_string().contains("FM-CHAIN-017"), "{err}");
 }
 
@@ -201,8 +220,14 @@ fn mutated_generated_output_is_not_the_replay_oracle() {
         .expect("target");
     std::fs::write(fx.project.join(target), "tampered generated output\n").expect("tamper");
 
-    verify_project_replay(&fx.project, SyncOptions { skip_ea_admission: true, ..Default::default() })
-        .expect("clean replay ignores tampered output as oracle");
+    verify_project_replay(
+        &fx.project,
+        SyncOptions {
+            skip_ea_admission: true,
+            ..Default::default()
+        },
+    )
+    .expect("clean replay ignores tampered output as oracle");
     let after = receipt(&fx.project);
     assert_eq!(after["replay"]["status"], "PASS");
     assert_eq!(after["consequences"], original["consequences"]);
@@ -234,8 +259,14 @@ fn mutated_project_graph_refuses_old_replay_identity() {
     )
     .expect("mutate project graph");
 
-    let err = verify_project_replay(&fx.project, SyncOptions { skip_ea_admission: true, ..Default::default() })
-        .expect_err("old graph identity must refuse");
+    let err = verify_project_replay(
+        &fx.project,
+        SyncOptions {
+            skip_ea_admission: true,
+            ..Default::default()
+        },
+    )
+    .expect_err("old graph identity must refuse");
     assert!(err.to_string().contains("FM-CHAIN-017"), "{err}");
     assert_eq!(receipt(&fx.project)["replay"]["status"], "UNKNOWN");
 }
@@ -253,8 +284,14 @@ fn tampered_environment_identity_refuses_before_clean_reconstruction() {
     )
     .expect("write tampered source");
 
-    let err = verify_project_replay(&fx.project, SyncOptions { skip_ea_admission: true, ..Default::default() })
-        .expect_err("stale environment identity must refuse");
+    let err = verify_project_replay(
+        &fx.project,
+        SyncOptions {
+            skip_ea_admission: true,
+            ..Default::default()
+        },
+    )
+    .expect_err("stale environment identity must refuse");
     assert!(err.to_string().contains("FM-CHAIN-017"), "{err}");
     assert!(fx.project.join("src/root_pack.rs").exists());
 }
@@ -290,8 +327,14 @@ fn unrelated_top_level_pack_cannot_hide_behind_selected_subject() {
     .expect("mutate unrelated top-level pack");
     remove_pack_lock_to_reach_replay_identity_court(&fx.project);
 
-    let err = verify_project_replay(&fx.project, SyncOptions { skip_ea_admission: true, ..Default::default() })
-        .expect_err("unselected top-level pack identity must remain replay-bearing");
+    let err = verify_project_replay(
+        &fx.project,
+        SyncOptions {
+            skip_ea_admission: true,
+            ..Default::default()
+        },
+    )
+    .expect_err("unselected top-level pack identity must remain replay-bearing");
     assert!(err.to_string().contains("FM-CHAIN-017"), "{err}");
     assert_eq!(receipt(&fx.project)["replay"]["status"], "UNKNOWN");
 }
@@ -324,8 +367,14 @@ fn multi_pack_subject_cannot_rebind_to_another_composition_member() {
     )
     .expect("write rebound source");
 
-    let err = verify_project_replay(&fx.project, SyncOptions { skip_ea_admission: true, ..Default::default() })
-        .expect_err("replay must recompute rather than trust a different valid member");
+    let err = verify_project_replay(
+        &fx.project,
+        SyncOptions {
+            skip_ea_admission: true,
+            ..Default::default()
+        },
+    )
+    .expect_err("replay must recompute rather than trust a different valid member");
     assert!(err.to_string().contains("FM-CHAIN-017"), "{err}");
     assert_eq!(receipt(&fx.project)["replay"]["status"], "UNKNOWN");
 }
@@ -342,8 +391,14 @@ fn tampered_toolchain_identity_refuses_before_clean_reconstruction() {
     )
     .expect("write tampered source");
 
-    let err = verify_project_replay(&fx.project, SyncOptions { skip_ea_admission: true, ..Default::default() })
-        .expect_err("stale toolchain identity must refuse");
+    let err = verify_project_replay(
+        &fx.project,
+        SyncOptions {
+            skip_ea_admission: true,
+            ..Default::default()
+        },
+    )
+    .expect_err("stale toolchain identity must refuse");
     assert!(err.to_string().contains("FM-CHAIN-017"), "{err}");
     assert!(fx.project.join("src/root_pack.rs").exists());
 }
@@ -361,13 +416,26 @@ fn gate_refused_source_cannot_report_replay_pass() {
     config.push_str("\n[law]\ngates = [\"law-refuse.rq\"]\n");
     std::fs::write(&config_path, config).expect("append refusing law gate");
 
-    sync(&fx.project, SyncOptions { skip_ea_admission: true, ..Default::default() }).expect_err("law gate must refuse");
+    sync(
+        &fx.project,
+        SyncOptions {
+            skip_ea_admission: true,
+            ..Default::default()
+        },
+    )
+    .expect_err("law gate must refuse");
     let refused = receipt(&fx.project);
     assert_ne!(refused["standing"], "ALIVE");
     assert_eq!(refused["replay"]["status"], "UNKNOWN");
 
-    let err = verify_project_replay(&fx.project, SyncOptions { skip_ea_admission: true, ..Default::default() })
-        .expect_err("refused source cannot enter replay court");
+    let err = verify_project_replay(
+        &fx.project,
+        SyncOptions {
+            skip_ea_admission: true,
+            ..Default::default()
+        },
+    )
+    .expect_err("refused source cannot enter replay court");
     assert!(err.to_string().contains("FM-CHAIN-016"), "{err}");
     assert_eq!(receipt(&fx.project)["replay"]["status"], "UNKNOWN");
 }

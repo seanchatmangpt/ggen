@@ -242,11 +242,10 @@ jobs:
 
           # Interview Sandbox: prove current history refuses, restore exactly the prior
           # receipt head, then prove the restored chain before any new actuation.
-          if (cd examples/interview-sandbox && "$GGEN_BIN" receipt history); then
-            echo 'expected the known invalid head to refuse before repair' >&2
-            exit 1
-          fi
-          python3 - <<'PY'
+          # Idempotent: if the head is already valid (repair landed in-tree,
+          # a3e01321c), skip; only repair when history actually refuses.
+          if ! (cd examples/interview-sandbox && "$GGEN_BIN" receipt history); then
+            python3 - <<'PY'
           import json
           from pathlib import Path
           root = Path('examples/interview-sandbox/.ggen-v2')
@@ -259,7 +258,8 @@ jobs:
           log.write_text('\n'.join(lines[:-1]) + '\n')
           (root / 'receipt.json').write_text(restored + '\n')
           PY
-          (cd examples/interview-sandbox && "$GGEN_BIN" receipt history)
+            (cd examples/interview-sandbox && "$GGEN_BIN" receipt history)
+          fi
 
           # TCPS: its own verifier is the authority that refreshes graph-bound evidence.
           (cd examples/tcps-generated && bash scripts/verify.sh) | tee tcps-verify-refresh.log

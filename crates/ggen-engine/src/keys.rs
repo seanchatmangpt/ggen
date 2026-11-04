@@ -120,30 +120,39 @@ pub(crate) fn resolve_signing_key(project_root: &Path) -> Result<SigningKey> {
 
     let signing_path = keys_dir(project_root).join(SIGNING_KEY_FILE);
     match std::fs::read_to_string(&signing_path) {
-        Ok(raw) => match decode_key_hex(&signing_path.display().to_string(), &raw) {
-            Ok(seed) => Ok(SigningKey::from_bytes(&seed)),
-            Err(_) if raw.trim().is_empty() => {
-                // Self-heal: an empty/0-byte signing.key is the signature
-                // of a previous key-generation write that failed partway
-                // through and left a poisoned file behind (write_new_file
-                // now cleans up *new* write failures itself -- this branch
-                // covers files poisoned before that fix existed, or by any
-                // other means). Delete it now so the file is gone and the
-                // *next* resolve call regenerates a fresh keypair instead
-                // of refusing forever with the same [FM-KEY-002].
-                let _ = std::fs::remove_file(&signing_path);
-                Err(AppError::fm_key(
-                    2,
-                    format!(
-                        "signing key `{}` was present but empty/invalid (likely a partial \
+        Ok(raw) => {
+            // Fail-closed: a PRE-EXISTING signing.key that any other local
+            // account could read/write is refused outright -- it is a raw
+            // ed25519 secret seed, and generation-time `restrict_to_owner`
+            // cannot retroactively fix files created before that enforcement
+            // existed. Never silently accept a leaked seed.
+            #[cfg(unix)]
+            ensure_owner_only_permissions(&signing_path)?;
+            match decode_key_hex(&signing_path.display().to_string(), &raw) {
+                Ok(seed) => Ok(SigningKey::from_bytes(&seed)),
+                Err(_) if raw.trim().is_empty() => {
+                    // Self-heal: an empty/0-byte signing.key is the signature
+                    // of a previous key-generation write that failed partway
+                    // through and left a poisoned file behind (write_new_file
+                    // now cleans up *new* write failures itself -- this branch
+                    // covers files poisoned before that fix existed, or by any
+                    // other means). Delete it now so the file is gone and the
+                    // *next* resolve call regenerates a fresh keypair instead
+                    // of refusing forever with the same [FM-KEY-002].
+                    let _ = std::fs::remove_file(&signing_path);
+                    Err(AppError::fm_key(
+                        2,
+                        format!(
+                            "signing key `{}` was present but empty/invalid (likely a partial \
                          write left behind by an earlier interrupted key generation). It has \
                          been deleted -- re-run to generate a fresh key.",
-                        signing_path.display()
-                    ),
-                ))
+                            signing_path.display()
+                        ),
+                    ))
+                }
+                Err(e) => Err(e),
             }
-            Err(e) => Err(e),
-        },
+        }
         Err(e) if e.kind() == std::io::ErrorKind::NotFound => {
             generate_and_persist_keypair(project_root)
         }
@@ -396,6 +405,43 @@ fn ensure_keys_gitignore(dir: &Path) -> Result<()> {
     }
 }
 
+/// Fail-closed permission check for a PRE-EXISTING `signing.key` on Unix:
+/// any group/other permission bit (`mode & 0o077 != 0`) is a hard
+/// [`FM-KEY-013`] refusal naming the path and observed mode -- the file
+/// holds a raw ed25519 secret seed, and a world/group-readable seed on a
+/// multi-user host is a leaked key. Unlike [`restrict_to_owner`] (which
+/// *fixes* the mode on freshly generated keys), this never repairs a
+/// pre-existing file: it refuses so a human decides whether the key was
+/// exposed and must be rotated.
+#[cfg(unix)]
+fn ensure_owner_only_permissions(path: &Path) -> Result<()> {
+    use std::os::unix::fs::PermissionsExt as _;
+    let mode = std::fs::metadata(path)
+        .map_err(|e| {
+            AppError::fm_key(
+                3,
+                format!("signing key `{}` unreadable: {e}", path.display()),
+            )
+        })?
+        .permissions()
+        .mode()
+        & 0o777;
+    if mode & 0o077 != 0 {
+        return Err(AppError::fm_key(
+            13,
+            format!(
+                "signing key `{}` has overly permissive permissions (mode {:o}); group/other \
+                 accounts on this host could read the private ed25519 seed. Remediation: \
+                 `chmod 600 {}` and rotate the key if it may have been exposed.",
+                path.display(),
+                mode,
+                path.display()
+            ),
+        ));
+    }
+    Ok(())
+}
+
 /// Best-effort `0o600` (owner read/write only) on Unix; a no-op on other
 /// targets (never blocks key generation on non-Unix support).
 #[cfg(unix)]
@@ -566,7 +612,15 @@ mod tests {
         let keys_dir = dir.path().join(".ggen/keys");
         std::fs::create_dir_all(&keys_dir).expect("mkdir");
         let fixed_seed_hex = "ab".repeat(32);
-        std::fs::write(keys_dir.join("signing.key"), &fixed_seed_hex).expect("write");
+        let signing_path = keys_dir.join("signing.key");
+        std::fs::write(&signing_path, &fixed_seed_hex).expect("write");
+        // A lawful pre-existing key is owner-only (see [FM-KEY-013]).
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::PermissionsExt as _;
+            std::fs::set_permissions(&signing_path, std::fs::Permissions::from_mode(0o600))
+                .expect("chmod 600");
+        }
 
         let key = resolve_signing_key(dir.path()).expect("resolve");
 
@@ -644,6 +698,14 @@ mod tests {
         // The exact poisoned precondition: create_new succeeded, write_all
         // never got (or never finished) writing any bytes.
         std::fs::write(&signing_path, b"").expect("write empty file");
+        // Owner-only mode so the [FM-KEY-013] permission gate does not
+        // shadow the 0-byte self-heal path under test here.
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::PermissionsExt as _;
+            std::fs::set_permissions(&signing_path, std::fs::Permissions::from_mode(0o600))
+                .expect("chmod 600");
+        }
         assert_eq!(
             std::fs::metadata(&signing_path).expect("meta").len(),
             0,
@@ -925,5 +987,74 @@ mod tests {
 
         let meta = std::fs::metadata(dir.path().join(".ggen/keys/signing.key")).expect("meta");
         assert_eq!(meta.permissions().mode() & 0o777, 0o600);
+    }
+
+    /// Reproduces the XD-2 follow-up gap: a `signing.key` created BEFORE
+    /// generation-time `restrict_to_owner` enforcement existed (e.g. an
+    /// Aug-2025 file left at 0644) is a raw ed25519 secret seed readable by
+    /// any local account. `resolve_signing_key` must refuse it outright
+    /// (`[FM-KEY-013]`), never silently accept the leaked seed -- and must
+    /// not "repair" it either (a human decides on rotation). Real file on
+    /// disk, valid key content, over-permissive mode: the refusal must be
+    /// about the MODE, not the content.
+    #[cfg(unix)]
+    #[test]
+    fn overly_permissive_preexisting_signing_key_refuses() {
+        use std::os::unix::fs::PermissionsExt as _;
+        let _guard = env_lock();
+        clear_env();
+        let dir = tempfile::tempdir().expect("tempdir");
+        let keys_dir = dir.path().join(".ggen/keys");
+        std::fs::create_dir_all(&keys_dir).expect("mkdir");
+        let signing_path = keys_dir.join("signing.key");
+        let seed_hex = "ab".repeat(32);
+        std::fs::write(&signing_path, &seed_hex).expect("write valid seed");
+        std::fs::set_permissions(&signing_path, std::fs::Permissions::from_mode(0o644))
+            .expect("chmod 644");
+        assert_eq!(
+            std::fs::metadata(&signing_path)
+                .expect("meta")
+                .permissions()
+                .mode()
+                & 0o777,
+            0o644,
+            "precondition: signing.key must really be 0644 on disk"
+        );
+
+        let result = resolve_signing_key(dir.path());
+
+        let err_msg = result
+            .expect_err("a 0644 pre-existing signing.key must be a hard refusal")
+            .to_string();
+        assert!(
+            err_msg.contains("[FM-KEY-013]"),
+            "expected [FM-KEY-013], got: {err_msg}"
+        );
+        assert!(
+            err_msg.contains(&signing_path.display().to_string()),
+            "refusal must name the offending path, got: {err_msg}"
+        );
+        assert!(
+            err_msg.contains("644"),
+            "refusal must name the observed mode, got: {err_msg}"
+        );
+        assert!(
+            err_msg.contains("chmod 600"),
+            "refusal must carry the remediation, got: {err_msg}"
+        );
+
+        // Fail-closed, not fail-and-fix: the file is left exactly as found
+        // (same content, same mode) for the human to inspect/rotate.
+        let after = std::fs::read_to_string(&signing_path).expect("read");
+        assert_eq!(after, seed_hex, "file content must be untouched");
+        assert_eq!(
+            std::fs::metadata(&signing_path)
+                .expect("meta")
+                .permissions()
+                .mode()
+                & 0o777,
+            0o644,
+            "the refusal must NOT silently chmod the key"
+        );
     }
 }

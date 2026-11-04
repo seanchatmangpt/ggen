@@ -182,11 +182,11 @@ ex:alice ex:name "alice" .
         dir.path(),
         "templates/one.tmpl",
         "---\nto: out/names.txt\nsparql:\n  people: SELECT ?name WHERE { ?s <http://example.org/name> ?name } ORDER BY ?name\n---\n{% for row in results %}{{ row.name }}\n{% endfor %}",
-    );    // Collision repair (lane G2, disclosed in g2-typed-refusals receipt):
-    // WO-01's fail-closed EA admission gate (FM-LAW-015) refuses any sync
-    // whose root lacks ea.graph.json; this test exercises schema dispatch,
-    // not EA admission, so the fixture carries a minimal valid-but-empty
-    // EA graph (zero candidate SBBs).
+    ); // Collision repair (lane G2, disclosed in g2-typed-refusals receipt):
+       // WO-01's fail-closed EA admission gate (FM-LAW-015) refuses any sync
+       // whose root lacks ea.graph.json; this test exercises schema dispatch,
+       // not EA admission, so the fixture carries a minimal valid-but-empty
+       // EA graph (zero candidate SBBs).
     write(
         dir.path(),
         "ea.graph.json",

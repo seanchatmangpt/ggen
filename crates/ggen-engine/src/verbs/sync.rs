@@ -15,10 +15,7 @@ use clap_noun_verb::Result;
 /// * `skip_ea_admission` - Skip the Stage 2c EA (ABB/SBB) admission gate; lawful only when the project intentionally runs without architecture admission.
 #[clap_noun_verb_macros::verb("run")]
 fn sync_run(
-    dry_run: bool,
-    watch: bool,
-    consumer_mode: bool,
-    skip_ea_admission: bool,
+    dry_run: bool, watch: bool, consumer_mode: bool, skip_ea_admission: bool,
 ) -> Result<serde_json::Value> {
     // HAND-EDITED (lane dryrun-written, 2026-10-10): dry-run reports renamed
     // the `written` key to `planned_writes` and gained `dry_run: true`. The

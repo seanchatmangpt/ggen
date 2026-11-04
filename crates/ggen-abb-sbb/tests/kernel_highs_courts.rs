@@ -39,7 +39,9 @@ fn receipt_with_5_outputs() -> (EaGraph, ManufactureReceipt) {
         },
     )
     .expect("5-artifact SBB admits");
-    let receipt = manufacture(&ad, &gen()).expect("5-artifact SBB manufactures").receipt;
+    let receipt = manufacture(&ad, &gen())
+        .expect("5-artifact SBB manufactures")
+        .receipt;
     assert_eq!(receipt.outputs.len(), 5, "fixture must measure 5 outputs");
     (g, receipt)
 }
@@ -50,12 +52,9 @@ fn envelope_with_cap(g: &EaGraph, receipt: &ManufactureReceipt, declared: u64) -
         ontology_hash: digest.clone(),
         graph_digest: digest,
         cap_table: CapTable {
-            caps: [(
-                "cap:event-ingest.max_artifacts".to_string(),
-                declared,
-            )]
-            .into_iter()
-            .collect(),
+            caps: [("cap:event-ingest.max_artifacts".to_string(), declared)]
+                .into_iter()
+                .collect(),
         },
         receipt: receipt.clone(),
     }
@@ -85,11 +84,18 @@ fn high1_declared_4_measured_5_refuses_cap_ceiling_mismatch() {
     let (g, receipt) = receipt_with_5_outputs();
     let env = envelope_with_cap(&g, &receipt, 4);
     let verdict = envelope_court(&env);
-    let ReplayVerdict::Refused { ref code, ref detail } = verdict else {
+    let ReplayVerdict::Refused {
+        ref code,
+        ref detail,
+    } = verdict
+    else {
         panic!("declared 4 < measured 5 must Refuse, got {verdict:?}");
     };
     assert_eq!(code, "CAP_CEILING_MISMATCH");
-    assert!(detail.contains("4") && detail.contains("5"), "detail must carry both sides: {detail}");
+    assert!(
+        detail.contains("4") && detail.contains("5"),
+        "detail must carry both sides: {detail}"
+    );
     assert!(!verdict.is_pass());
     assert_eq!(verdict.exit_code(), 2);
 }
@@ -115,7 +121,11 @@ fn high2_envelope_receipt_graph_digest_mismatch_refuses() {
     env.graph_digest = "sha256:other-graph".into();
 
     let verdict = envelope_court(&env);
-    let ReplayVerdict::Refused { ref code, ref detail } = verdict else {
+    let ReplayVerdict::Refused {
+        ref code,
+        ref detail,
+    } = verdict
+    else {
         panic!("graph-digest mismatch must Refuse, got {verdict:?}");
     };
     assert_eq!(code, "ENVELOPE_GRAPH_MISMATCH");
@@ -138,7 +148,11 @@ fn high2_envelope_receipt_graph_digest_mismatch_refuses() {
 #[test]
 fn high3_resolvable_pack_admits() {
     let g = synthetic_graph(1, 1);
-    assert!(g.validate().is_ok(), "fixture pack resolves: {:?}", g.validate());
+    assert!(
+        g.validate().is_ok(),
+        "fixture pack resolves: {:?}",
+        g.validate()
+    );
 }
 
 /// HIGH-3 core falsifier: with the packs list REMOVED entirely (serde default
@@ -191,7 +205,10 @@ fn l1_refusals_carry_remediation_sentences() {
     let err = admit(&g, &req).expect_err("refuted qualification must refuse");
     let msg = err.to_string();
     assert!(msg.starts_with("SBB_UNQUALIFIED"), "got {msg}");
-    assert!(msg.contains("qualify"), "SBB_UNQUALIFIED remediation missing: {msg}");
+    assert!(
+        msg.contains("qualify"),
+        "SBB_UNQUALIFIED remediation missing: {msg}"
+    );
 
     // STALE_QUALIFICATION: the qualification binds a superseded SBB digest.
     let mut g = synthetic_graph(1, 1);

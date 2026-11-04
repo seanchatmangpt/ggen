@@ -50,12 +50,7 @@ unsafe impl std::alloc::GlobalAlloc for CountingAlloc {
     unsafe fn dealloc(&self, ptr: *mut u8, layout: std::alloc::Layout) {
         unsafe { std::alloc::System.dealloc(ptr, layout) }
     }
-    unsafe fn realloc(
-        &self,
-        ptr: *mut u8,
-        layout: std::alloc::Layout,
-        new_size: usize,
-    ) -> *mut u8 {
+    unsafe fn realloc(&self, ptr: *mut u8, layout: std::alloc::Layout, new_size: usize) -> *mut u8 {
         ALLOCS.fetch_add(1, Ordering::Relaxed);
         BYTES.fetch_add(new_size, Ordering::Relaxed);
         unsafe { std::alloc::System.realloc(ptr, layout, new_size) }
@@ -129,10 +124,8 @@ fn mint_line(prev_chain_hash_hex: &str, i: usize) -> String {
         // final `}`. Hashing a Value-re-serialization here would hash a
         // DIFFERENT (key-sorted) byte string — the verifier binds the
         // raw stored bytes, so must the probe.
-        let start = line
-            .find(r#""payload":"#)
-            .expect("payload field present")
-            + r#""payload":"#.len();
+        let start =
+            line.find(r#""payload":"#).expect("payload field present") + r#""payload":"#.len();
         let embedded = &line[start..line.len() - 1];
         assert_eq!(
             blake3::hash(embedded.as_bytes()).to_hex().to_string(),
@@ -151,9 +144,7 @@ fn blake3_hash_hex(h: &[u8; 32]) -> String {
 /// Build a full ledger at `root`. Returns (head chain hash, per-bucket
 /// census of (wall_ns, allocs, bytes)).
 fn build_ledger(
-    root: &std::path::Path,
-    n: usize,
-    census: bool,
+    root: &std::path::Path, n: usize, census: bool,
 ) -> (String, Vec<(u128, usize, usize)>) {
     std::fs::create_dir_all(root.join(".ggen-v2")).expect("mkdir .ggen-v2");
     let log_path = root.join(RECEIPT_LOG_REL_PATH);
@@ -201,10 +192,12 @@ fn ledger_100k_history_verify_scale() {
         let (_head, census) = build_ledger(&root, N_RECORDS, true);
         let mint_ms = ms(t_all.elapsed().as_nanos());
         let t = Instant::now();
-        let verdict =
-            handle_receipt_history_in(&root).expect("pristine 100k ledger must verify");
+        let verdict = handle_receipt_history_in(&root).expect("pristine 100k ledger must verify");
         let verify_ms = ms(t.elapsed().as_nanos());
-        assert_eq!(verdict["records"], 100_000, "history must count all records");
+        assert_eq!(
+            verdict["records"], 100_000,
+            "history must count all records"
+        );
         assert_eq!(verdict["valid"], true);
         if verify_ms < ms(best_verify) {
             best_verify = t.elapsed().as_nanos();
@@ -214,7 +207,10 @@ fn ledger_100k_history_verify_scale() {
     let (mint_ms, census) = best_report.expect("min-of-3");
     let first = census[0];
     let last = *census.last().expect("non-empty census");
-    eprintln!("[MIN-OF-3] mint+append 100k: {mint_ms:.1}ms | history verify 100k: {:.1}ms", ms(best_verify));
+    eprintln!(
+        "[MIN-OF-3] mint+append 100k: {mint_ms:.1}ms | history verify 100k: {:.1}ms",
+        ms(best_verify)
+    );
     eprintln!(
         "[CENSUS per-1k] wall first {:.4}ms / last {:.4}ms (x{:.2}) | allocs {} -> {} | bytes {} -> {}",
         ms(first.0),

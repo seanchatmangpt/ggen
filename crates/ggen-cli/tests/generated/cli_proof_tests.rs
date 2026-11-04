@@ -267,8 +267,6 @@ fn unknown_subcommand_exits_nonzero() {
     // Act — spawn real ggen binary
     let mut cmd_args: Vec<&str> = vec![];
     cmd_args.push("totally-unknown-subcommand-xyz");
-    cmd_args.push("--dry-run");
-    cmd_args.push("true");
 
     let result = CliHarness::cargo_bin("ggen")
         .args(cmd_args)
@@ -498,8 +496,6 @@ fn root_help_shows_subcommands() {
     // Act — spawn real ggen binary
     let mut cmd_args: Vec<&str> = vec![];
     cmd_args.push("--help");
-    cmd_args.push("--dry-run");
-    cmd_args.push("true");
 
     let result = CliHarness::cargo_bin("ggen")
         .args(cmd_args)
@@ -532,8 +528,6 @@ fn root_version_emits_semver() {
     // Act — spawn real ggen binary
     let mut cmd_args: Vec<&str> = vec![];
     cmd_args.push("--version");
-    cmd_args.push("--dry-run");
-    cmd_args.push("true");
 
     let result = CliHarness::cargo_bin("ggen")
         .args(cmd_args)

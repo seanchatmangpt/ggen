@@ -83,10 +83,7 @@ fn non_canonical_port_refusal(pack: &str, field: &str, port: &str) -> Refusal {
 fn canonical_port_set(
     graph: Option<&toml::Value>, field: &str, pack: &str,
 ) -> Result<BTreeSet<String>, Refusal> {
-    let Some(arr) = graph
-        .and_then(|g| g.get(field))
-        .and_then(|v| v.as_array())
-    else {
+    let Some(arr) = graph.and_then(|g| g.get(field)).and_then(|v| v.as_array()) else {
         return Ok(BTreeSet::new());
     };
     let mut set = BTreeSet::new();

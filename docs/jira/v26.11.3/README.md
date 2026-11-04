@@ -170,3 +170,52 @@ these later landings and are disclosed, not edited — the closure record is
 not owned by this lane. §3/§4/§5 carry disclosed follow-ups; see
 [closure/milestone-final-sweep.md](closure/milestone-final-sweep.md) for the
 final lane-status table and the milestone close verdict.
+
+## Post-close receipts (xd-17 transcribe, 2026-11-04)
+
+XD-3 found these 12 receipts landed after the canonical indexes' last write
+(2026-11-03 18:27-18:38) with rows only in the cl-close-2.md addendum; this
+section is the transcription into the canonical index (XD-3 successor lane;
+drift finding: receipts/xd-3-index-refresh.md).
+Standing words re-read from each receipt body on disk, never from memory;
+UNSTATED used where the body carries no standing word. xd-8 and xd-10 landed
+after XD-3 and are rowed here first. xd-13/xd-14/xd-15 were not on disk at
+this lane's run (`ls docs/jira/v26.11.3/receipts/ | wc -l` = 92 before this
+lane's receipt, 93 with xd-17-index-transcribe.md on disk).
+xd-13-fmt-sweep.md landed mid-pass during this lane's verification run and
+is absorbed with its own row (disclosed in-row).
+
+| Lane | Receipt | Standing | Gate (exit record) |
+|---|---|---|---|
+| SX-1 | receipts/sx-1-reds.md | UNSTATED in body (green tables carry the evidence) | `cargo test -p ggen-lsp --test manifest_contract_test` ×2 exit 0 (2/2); `cargo test -p ggen-cli-lib --test performance` ×2 exit 0 (10 passed, 6 ignored); `zsh scripts/bench_gates.sh` exit 0 ALL BENCH GATES PASS; G3 fail branch exit 1 typed EA-BIN-MISSING |
+| AF-7 | receipts/af-7-path-reconcile.md | UNSTATED in body | 5 byte-exact copies (sizes 4156/4036/3562/4761/7823), pointer `head -2` on all 5 originals, post-edit sweep 9 ab-* canonical |
+| AF-5 | receipts/af-5-sync-surface.md | ALIVE | `cargo test -p ggen-cli-lib --test sync_surface_test` → 6 passed; 0 failed (exit 0); performance 10 passed; 0 failed; 6 ignored |
+| AB-14 | receipts/ab-14-chain-scale.md | ALIVE (Status section) | ggen-engine `receipt_chain_scale_stress` 2 passed ×3 (42.83s/61.89s/56.25s); one pre-existing deterministic hex-prefix-lottery failure disclosed (receipt_verb_e2e), root-caused not session-introduced |
+| GA-11 | receipts/ga-11-cscb-pack.md | ALIVE (cscb-pack) | witness court exit 0 (4/4 FLIP); cgap sync ×2 exit 0, `written: []` replay; shim-court 4/4 refusal + byte-exact restore |
+| AB-13 | receipts/ab-13-kernel-stress.md | UNSTATED in body | `cargo test -p ggen-sjira --test kernel_stress --release` ×2 → 5 passed; 0 failed (254.4s/245.8s); full `cargo test -p ggen-sjira --release` 205 passed / 0 failed over 20 targets |
+| GA-12 | receipts/ga-12-tort-pack.md | ALIVE (tort-pack; tort-1/3/4 ceilings TARGET-UNMEASURED, pending AF-37) | witness court exit 0 (4/4 FLIP); cgap sync ×2 (written 2, then `[]`); marketplace validate exit 0 |
+| AF-42 | receipts/af-42-marketplace-fixes.md | ALIVE | `marketplace.py validate` exit 0 (packs=347 manifests=347); `check_gate_witness_courts.py` exit 0, 50 courts ALIVE; baseline.json 313 entries |
+| GD-2 | receipts/gd-2-ggen-dod.md | ALIVE | `ggen sync run` #1 exit 0 (written 2 outputs, 4 gates passed, receipt valid/signed); #2 exit 0 `written: []`; both shim courts flipped w/ typed refusals + byte-exact restores |
+| XC-8 | receipts/xc-8-cve-bump.md | UNSTATED in body (registered divergence carried) | `cargo check --workspace` exit 0; `cargo audit` → 2 vulnerabilities (from 18); quick-xml blocked upstream (process_mining pins ^0.37.4) |
+| XC-7 | receipts/xc-7-ci-unblock.md | UNSTATED in body (post-push CI re-run pending, disclosed) | `cargo check --workspace` exit 0; `cargo fmt --check -p ggen-sjira` exit 0; sjira tests 12+4 passed 0 failed; CI checks re-run deferred to post-push |
+| XD-2 | receipts/xd-2-key-perms.md | ALIVE (chmod + verify path); code check = FOLLOW-UP (UNVERIFIED by design) | `ls -l .ggen/keys/` 0600/0644 as intended, exit 0; `ggen receipt verify` exit 0, signature_valid true, chain_hash 4e0210e4…; FM-KEY-013 seam identified file:line, not landed |
+| XD-8 | receipts/xd-8-key-mode-gate.md | ALIVE (code check + negative-path refusal) | `cargo test -p ggen-engine --lib keys` 19 passed; 0 failed ×2 exit 0; focused `overly_permissive_preexisting_signing_key_refuses` 1 passed; 0 failed exit 0; `cargo check --workspace` exit 0 |
+| XD-10 | receipts/xd-10-publish-blockers.md | ALIVE (three owned files) | `cargo check -p ggen-engine` exit 0 (compiled as ggen-engine v26.11.3); `cargo build -p ggen-engine` exit 0 (v26.11.3) |
+| XD-13 | receipts/xd-13-fmt-sweep.md | ALIVE (landed mid-pass, absorbed at verification re-census) | `cargo fmt --all` exit 0 (83 files reformatted); `cargo fmt --all -- --check` exit 0; `git diff --check` exit 0; `cargo check --workspace` exit 0 |
+| DS-8 | receipts/ds-8.md | UNSTATED in body (gates green; distinct from the ds-8-cli-skeleton descope receipt — this is the full DS-8 lane receipt, landed post-index and found uncovered by this lane's coverage check) | `cargo test -p ggen-cli-lib --test cli_sjira_test` exit 0, 17 passed / 0 failed; clippy 0 findings; binary witnesses: admit valid exit 0, malformed exit 1 typed REFUSED:SEMANTIC_JIRA, epoch_check exit 5 Andon class |
+| XD-11 | receipts/xd-11-fmlaw015.md | PASS standing — sync_surface_test PASS green ×2 + full suite exit 0; PUB-1 blocking row resolvable to CLOSED (landed mid-pass, absorbed at re-census) | `cargo test -p ggen-cli-lib --test sync_surface_test` ×2 exit 0 (6/6); full `cargo test -p ggen-cli-lib` exit 0 (604 passed, 0 failed, 62 binaries) |
+| XD-15 | receipts/xd-15-tcps-lock.md | PARTIAL_ALIVE (artifact produced, uncommitted; landed mid-pass, absorbed at re-census) | tcps_chicago_tdd_8pow4 17 passed; 0 failed; tcps_chicago_tdd_1000x 16 passed; 0 failed; `ggen sync run --skip-ea-admission` exit 0 wrote ggen.lock (1288 bytes, 8 packs) |
+
+### Cross-repo receipts (pointer-only)
+
+Receipts on disk in other repos' receipts dirs; rowed pointer-only, matching
+the pointer convention the cl-close-2 addendum used (Receipt | Host |
+Standing | Exit record). Their canonical indexes live in the host repos.
+
+| Receipt | Host | Standing (from body) | Exit record (from body) |
+|---|---|---|---|
+| cgap receipts/bk-1-takeover.md | /Users/sac/cgap/docs/jira/v26.11.3/receipts/ | AB-4 ALIVE, AB-5 ALIVE, corridor join ALIVE (AF1-KD-1 CLOSED) | `cargo test -p cgap-crypto` GREEN ×2 (75 passed / 0 failed); riscv32imc + wasm32 `cargo check` exit 0 |
+| cgap receipts/af-37-p99-torture.md | same dir | ALIVE (one pre-existing profile_guard.rs doctest failure disclosed) | `macro_p99_torture` release serial ×2 exit 0, debug ×2 exit 0; `cargo test -p cgap-aoq` 22/22 integration binaries ok; doctest exit 1 pre-existing |
+| cgap receipts/rx-2-conformance.md | same dir | ALIVE | rfc0089_conformance release ×2 exit 0 (4 passed; 0 failed; 1 ignored) + debug ×2 exit 0; lib courts 14/0 ×2; CBMQS 1/0 ×2 |
+| cgap receipts/gd-1-dod-pack.md | same dir | ALIVE for pack surface; PARTIAL overall (dod-006 TARGET-UNMEASURED) | sync ×2 determinism + witness court + shim-court flip, green this session |
+| arcus receipts/xd-4-govulncheck.md | /Users/sac/arcus/docs/jira/v26.11.3/receipts/ | ALIVE (scan executed; 0-vuln expectation refuted at go1.23.4, confirmed clean at go1.26.10) | govulncheck ./... exit 3 at default toolchain (40 called stdlib vulns), exit 0 pinned `GOTOOLCHAIN=go1.26.10`; `scripts/vulncheck.sh` wrapper exit 0 |

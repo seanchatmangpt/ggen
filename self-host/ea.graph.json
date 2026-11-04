@@ -1,0 +1,71 @@
+{
+  "schema": "ggen.ea.graph.v1",
+  "strategy": {
+    "id": "strategy:ggen-self-host",
+    "title": "ggen self-host observation program manufactured via the gall-core and ggen-self-host packs"
+  },
+  "capabilities": [
+    {
+      "id": "cap:self-host-manufacture",
+      "strategy": "strategy:ggen-self-host"
+    }
+  ],
+  "abbs": [
+    {
+      "id": "abb:self-host-manufacture",
+      "capability": "cap:self-host-manufacture",
+      "contract": "contract:self-host-manufacture"
+    }
+  ],
+  "contracts": [
+    {
+      "id": "contract:self-host-manufacture",
+      "abb": "abb:self-host-manufacture",
+      "version": "1.0.0",
+      "max_artifacts": 32,
+      "authority_ceiling": "CONSTRUCT",
+      "required_ports": [
+        "self-host-observation",
+        "self-host-projection"
+      ]
+    }
+  ],
+  "candidate_sbbs": [
+    {
+      "id": "sbb:self-host-observation",
+      "abb": "abb:self-host-manufacture",
+      "pack": "pack:ggen-self-host-pack",
+      "digest": "sha256:806415defdbc1f5afc7779141c51e7f2301dd8f0e5da135f4c2983b0e736e0d4",
+      "mutable": false,
+      "authority": "CONSTRUCT",
+      "provides_ports": [
+        "self-host-observation",
+        "self-host-projection"
+      ],
+      "artifacts": [
+        {
+          "path": "observed/root-regeneration.json",
+          "template": "# {{abb}} realized by {{sbb}} for {{capability}}\ncontract {{contract}}@{{contract_version}}\n"
+        }
+      ]
+    }
+  ],
+  "qualifications": [
+    {
+      "id": "qual:self-host-observation",
+      "sbb": "sbb:self-host-observation",
+      "sbb_digest": "sha256:806415defdbc1f5afc7779141c51e7f2301dd8f0e5da135f4c2983b0e736e0d4",
+      "contract": "contract:self-host-manufacture",
+      "contract_digest": "sha256:fa59c607c226fba092038d98be2c6f1230090601d9546df4d673d41e2023b337",
+      "verdict": "QUALIFIED"
+    }
+  ],
+  "packs": [
+    {
+      "id": "pack:gall-core-pack"
+    },
+    {
+      "id": "pack:ggen-self-host-pack"
+    }
+  ]
+}

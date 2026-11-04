@@ -352,10 +352,7 @@ pub struct ReceiptPayload {
 ///
 /// `pub(crate)`: shared by the two schema paths; not a public API.
 pub(crate) fn run_ea_graph_admission(
-    root: &Path,
-    skip_ea_admission: bool,
-    envelope_iri: Option<&str>,
-    prior_generation: u64,
+    root: &Path, skip_ea_admission: bool, envelope_iri: Option<&str>, prior_generation: u64,
 ) -> Result<()> {
     let ea_graph_path = root.join("ea.graph.json");
     if !ea_graph_path.is_file() && !skip_ea_admission {
@@ -430,13 +427,15 @@ pub(crate) fn run_ea_graph_admission(
                 // a baseline source lands (WO-01 follow-up).
                 artifact_baseline_generation: 0,
             };
-            ggen_abb_sbb::admit_with_caps(&ea_graph, &req, abb_caps.as_ref()).map_err(|refusal| {
-                AppError::abb_refusal(
-                    "FM-LAW-015",
-                    format!("EA SBB admission for `{}`", sbb.id),
-                    refusal,
-                )
-            })?;
+            ggen_abb_sbb::admit_with_caps(&ea_graph, &req, abb_caps.as_ref()).map_err(
+                |refusal| {
+                    AppError::abb_refusal(
+                        "FM-LAW-015",
+                        format!("EA SBB admission for `{}`", sbb.id),
+                        refusal,
+                    )
+                },
+            )?;
         }
     }
     Ok(())
@@ -1208,14 +1207,17 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
                 } else {
                     None
                 };
-                ggen_abb_sbb::depgraph::resolve_sync_order(&pack_manifests, consumer_edges.as_ref())
-                    .map_err(|refusal| {
-                        AppError::abb_refusal(
-                            "FM-PACK-015",
-                            "Cross-pack dependency graph admission",
-                            refusal,
-                        )
-                    })?;
+                ggen_abb_sbb::depgraph::resolve_sync_order(
+                    &pack_manifests,
+                    consumer_edges.as_ref(),
+                )
+                .map_err(|refusal| {
+                    AppError::abb_refusal(
+                        "FM-PACK-015",
+                        "Cross-pack dependency graph admission",
+                        refusal,
+                    )
+                })?;
             }
         }
 
@@ -2304,20 +2306,18 @@ pub(crate) fn read_composition_plan(root: &Path) -> Result<Option<PersistedCompo
             ))
         }
     };
-    serde_json::from_str(&raw)
-        .map(Some)
-        .map_err(|e| {
-            AppError::fm_pack(
-                22,
-                format!(
-                    "Persisted composition plan at `{}` failed schema validation: \
+    serde_json::from_str(&raw).map(Some).map_err(|e| {
+        AppError::fm_pack(
+            22,
+            format!(
+                "Persisted composition plan at `{}` failed schema validation: \
                      {e}. The plan must be the exact JSON written by `ggen pack \
                      compose --out` (pack_ids/provides/order/artifact_paths/\
                      self_satisfied/transitive_deps).",
-                    plan_path.display()
-                ),
-            )
-        })
+                plan_path.display()
+            ),
+        )
+    })
 }
 
 /// Validate a persisted composition plan against this run's resolved packs
@@ -2335,8 +2335,7 @@ pub(crate) fn read_composition_plan(root: &Path) -> Result<Option<PersistedCompo
 ///
 /// FM-PACK-023 on stale pack set; FM-PACK-022 on a malformed order.
 pub(crate) fn validate_composition_plan(
-    plan: &PersistedCompositionPlan,
-    packs: &[crate::pack::Pack],
+    plan: &PersistedCompositionPlan, packs: &[crate::pack::Pack],
 ) -> Result<()> {
     let manifest_ids: BTreeSet<String> = packs.iter().map(|p| p.name.clone()).collect();
     if plan.pack_ids != manifest_ids {
@@ -2402,10 +2401,7 @@ pub(crate) fn validate_composition_plan(
         }
     }
     for (capability, providers) in &plan.provides {
-        let foreign: Vec<String> = providers
-            .difference(&plan.pack_ids)
-            .cloned()
-            .collect();
+        let foreign: Vec<String> = providers.difference(&plan.pack_ids).cloned().collect();
         if !foreign.is_empty() {
             return Err(AppError::fm_pack(
                 22,
@@ -4044,44 +4040,44 @@ pub(crate) fn write_receipt(
     // chain hash, so it is read as the legacy-bounded epoch below, never as
     // the stored (unprovable) payload.
     let prev_chain_standing = match &prev_head {
-        Some(prev) => match crate::receipt_chain_seam::verify_chain_compat(&prev.record)
-            .map_err(|e| {
+        Some(prev) => {
+            match crate::receipt_chain_seam::verify_chain_compat(&prev.record).map_err(|e| {
                 AppError::fm_chain(9, format!("previous receipt chain recompute failed: {e}"))
-            })?
-        {
-            ChainVerification::Verified(ChainStanding::LegacyV2Unbound) => {
-                // Never extend a downgraded head: a legacy head after a
-                // declared record is exactly what `receipt history` refuses.
-                if let Some(first) = first_declared_chain_rule_in_log(&log_path, 9)? {
-                    return Err(AppError::fm_chain(
-                        9,
-                        format!(
+            })? {
+                ChainVerification::Verified(ChainStanding::LegacyV2Unbound) => {
+                    // Never extend a downgraded head: a legacy head after a
+                    // declared record is exactly what `receipt history` refuses.
+                    if let Some(first) = first_declared_chain_rule_in_log(&log_path, 9)? {
+                        return Err(AppError::fm_chain(
+                            9,
+                            format!(
                             "previous receipt head is invalid: chain-rule downgrade -- the head \
                              verifies only as `{}` but receipt log record {first} declared a \
                              chain rule. Refusing to extend a downgraded chain. Remediation: run \
                              `ggen receipt history` and restore the receipts.",
                             ChainStanding::LegacyV2Unbound.as_str()
                         ),
-                    ));
+                        ));
+                    }
+                    Some(ChainStanding::LegacyV2Unbound)
                 }
-                Some(ChainStanding::LegacyV2Unbound)
-            }
-            ChainVerification::Verified(standing) => Some(standing),
-            ChainVerification::Mismatch { rule, recomputed } => {
-                return Err(AppError::fm_chain(
-                    9,
-                    format!(
-                        "previous receipt head is invalid: stored chain hash {} does not \
+                ChainVerification::Verified(standing) => Some(standing),
+                ChainVerification::Mismatch { rule, recomputed } => {
+                    return Err(AppError::fm_chain(
+                        9,
+                        format!(
+                            "previous receipt head is invalid: stored chain hash {} does not \
                          match recompute {} (chain rule `{}`). Refusing to extend a tampered \
                          chain. Remediation: run `ggen receipt history` and restore the \
                          receipts.",
-                        prev.record.chain_hash_hex,
-                        hex32(&recomputed),
-                        rule.as_str()
-                    ),
-                ));
+                            prev.record.chain_hash_hex,
+                            hex32(&recomputed),
+                            rule.as_str()
+                        ),
+                    ));
+                }
             }
-        },
+        }
         None => None,
     };
     let prev_chain_hash_hex = match &prev_head {

@@ -100,7 +100,14 @@ fn standing_rule_derives_evidence_bound_for_cited_breeds() {
 fn registry_report_lists_all_breeds_and_algorithms() {
     let dir = TempDir::new().expect("tempdir");
     scaffold(dir.path());
-    let report = sync(dir.path(), SyncOptions { skip_ea_admission: true, ..Default::default() }).expect("sync");
+    let report = sync(
+        dir.path(),
+        SyncOptions {
+            skip_ea_admission: true,
+            ..Default::default()
+        },
+    )
+    .expect("sync");
     assert_eq!(
         report.written,
         vec![PathBuf::from(
@@ -134,7 +141,14 @@ fn sync_over_breeds_graph_is_deterministic() {
     let run = || {
         let dir = TempDir::new().expect("tempdir");
         scaffold(dir.path());
-        let report = sync(dir.path(), SyncOptions { skip_ea_admission: true, ..Default::default() }).expect("sync");
+        let report = sync(
+            dir.path(),
+            SyncOptions {
+                skip_ea_admission: true,
+                ..Default::default()
+            },
+        )
+        .expect("sync");
         let bytes = std::fs::read(
             dir.path()
                 .join("docs/releases/v26.7.6/BREED_ALGORITHM_REGISTRY.md"),

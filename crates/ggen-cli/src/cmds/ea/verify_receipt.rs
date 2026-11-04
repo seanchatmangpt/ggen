@@ -22,13 +22,10 @@ pub(crate) fn run(receipt: Option<String>) -> Result<Value> {
         Ok(r) => r,
         Err(e) => usage_error_and_exit(format!("cannot read receipt file {receipt_path}: {e}")),
     };
-    let r: ggen_abb_sbb::ManufactureReceipt =
-        match serde_json::from_str(&raw) {
-            Ok(r) => r,
-            Err(e) => usage_error_and_exit(format!(
-                "malformed receipt JSON in {receipt_path}: {e}"
-            )),
-        };
+    let r: ggen_abb_sbb::ManufactureReceipt = match serde_json::from_str(&raw) {
+        Ok(r) => r,
+        Err(e) => usage_error_and_exit(format!("malformed receipt JSON in {receipt_path}: {e}")),
+    };
     match ggen_abb_sbb::verify_receipt(&r) {
         Ok(()) => {
             let payload = serde_json::json!({
@@ -51,10 +48,7 @@ pub(crate) fn run(receipt: Option<String>) -> Result<Value> {
 /// Exit 1 with typed refusal JSON on stderr for kernel refusals; exit 2 for
 /// unreadable/malformed receipt files.
 #[verb("verify-receipt", "ea")]
-pub fn verify_receipt(
-    json: bool,
-    receipt: Option<String>,
-) -> Result<Value> {
+pub fn verify_receipt(json: bool, receipt: Option<String>) -> Result<Value> {
     let _ = json;
     run(receipt)
 }

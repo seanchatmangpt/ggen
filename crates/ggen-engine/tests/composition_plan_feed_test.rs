@@ -32,8 +32,7 @@ fn ggen_bin() -> PathBuf {
     let target_root = std::env::var_os("CARGO_TARGET_DIR")
         .map(PathBuf::from)
         .or_else(|| {
-            let manifest_dir =
-                std::env::var_os("CARGO_MANIFEST_DIR").map(PathBuf::from)?;
+            let manifest_dir = std::env::var_os("CARGO_MANIFEST_DIR").map(PathBuf::from)?;
             let mut dir: &Path = manifest_dir.as_path();
             loop {
                 if dir.join("Cargo.lock").exists() {
@@ -89,8 +88,7 @@ fn valid_plan_json(order: &[&str]) -> String {
 fn write_plan(project: &Path, plan: &str) {
     let dir = project.join(".ggen-v2");
     std::fs::create_dir_all(&dir).expect("mkdir .ggen-v2");
-    std::fs::write(dir.join("composition-plan.json"), plan)
-        .expect("write composition-plan.json");
+    std::fs::write(dir.join("composition-plan.json"), plan).expect("write composition-plan.json");
 }
 
 /// Real `ggen pack compose --packs <PACKS> --out <path>` against the same
@@ -105,10 +103,7 @@ fn compose_out(corpus: &Path, plan_out: &Path) {
         .arg(PACKS.join(","))
         .arg("--out")
         .arg(plan_out)
-        .env(
-            "GGEN_CAPABILITY_CORPUS_ROOTS",
-            corpus.display().to_string(),
-        )
+        .env("GGEN_CAPABILITY_CORPUS_ROOTS", corpus.display().to_string())
         .output()
         .expect("spawn ggen pack compose");
     assert!(
@@ -158,8 +153,7 @@ fn compose_out_plan_feeds_sync() {
 
     // The real plan's pack set must name exactly the manifest's packs —
     // the stale-plan law's happy case, witnessed on the real wire shape.
-    let raw =
-        std::fs::read_to_string(&plan_out).expect("read composed plan");
+    let raw = std::fs::read_to_string(&plan_out).expect("read composed plan");
     for pack in PACKS {
         assert!(
             raw.contains(&format!("\"{pack}\"")),
@@ -199,8 +193,7 @@ fn schema_mismatch_refuses() {
     let (_dir, project) = scaffold_multi_pack(&PACKS);
     // Unknown top-level key → deny_unknown_fields refusal.
     let plan = valid_plan_json(&["affidavit-pack", "star-toml-pack", "praxis-core-pack"]);
-    let plan = plan.trim_end_matches('}').to_string()
-        + ",\"unexpected_key\": 1}";
+    let plan = plan.trim_end_matches('}').to_string() + ",\"unexpected_key\": 1}";
     write_plan(&project, &plan);
     let output = sync(&project);
     assert!(

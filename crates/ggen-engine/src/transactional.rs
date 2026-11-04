@@ -76,9 +76,7 @@ impl FileEdit {
                 let digest = sha256_hex(&bytes);
                 (Some(bytes), digest)
             }
-            Err(e) if e.kind() == std::io::ErrorKind::NotFound => {
-                (None, empty_image_sha256())
-            }
+            Err(e) if e.kind() == std::io::ErrorKind::NotFound => (None, empty_image_sha256()),
             Err(e) => return Err(e.into()),
         };
         let after_sha = sha256_hex(&after_bytes);
@@ -121,11 +119,7 @@ impl FileEdit {
 /// empty-image hash). The refusal names the path, both hashes, and a
 /// remediation hint.
 fn verify_state(
-    path: &Path,
-    expect_sha: &str,
-    expect_absent: bool,
-    code: u16,
-    direction: &str,
+    path: &Path, expect_sha: &str, expect_absent: bool, code: u16, direction: &str,
 ) -> Result<()> {
     let current = match std::fs::read(path) {
         Ok(bytes) => Some(bytes),
@@ -360,9 +354,8 @@ impl Journal {
             if line.trim().is_empty() {
                 continue;
             }
-            let record: TransactionalEdit = serde_json::from_str(line).map_err(|e| {
-                tx_err(3, format!("journal line {lineno} is corrupt: {e}"))
-            })?; // [FM-WRITE-023]
+            let record: TransactionalEdit = serde_json::from_str(line)
+                .map_err(|e| tx_err(3, format!("journal line {lineno} is corrupt: {e}")))?; // [FM-WRITE-023]
             if record.prev_hash != head {
                 return Err(tx_err(
                     4,
@@ -444,8 +437,7 @@ impl Journal {
             let mut reapplied = 0u64;
             for edit in &tx.edits {
                 let expect_absent_before = edit.before_bytes.is_none();
-                let after_holds =
-                    matches_commitment(&edit.path, &edit.after_sha256, false)?;
+                let after_holds = matches_commitment(&edit.path, &edit.after_sha256, false)?;
                 if after_holds {
                     continue;
                 }

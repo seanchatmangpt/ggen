@@ -20,9 +20,7 @@ use super::{
 /// Exit 1 with typed refusal JSON on stderr (REPLAY_MISMATCH, RECEIPT_TAMPERED,
 /// kernel admission refusals); exit 2 for unreadable/malformed inputs.
 pub(crate) fn run(
-    graph: Option<String>,
-    receipt: Option<String>,
-    generator_id: Option<String>,
+    graph: Option<String>, receipt: Option<String>, generator_id: Option<String>,
     generator_version: Option<String>,
 ) -> Result<Value> {
     let g = load_graph(graph.as_deref().unwrap_or(super::DEFAULT_GRAPH_PATH));
@@ -31,13 +29,10 @@ pub(crate) fn run(
         Ok(r) => r,
         Err(e) => usage_error_and_exit(format!("cannot read receipt file {receipt_path}: {e}")),
     };
-    let r: ggen_abb_sbb::ManufactureReceipt =
-        match serde_json::from_str(&raw) {
-            Ok(r) => r,
-            Err(e) => usage_error_and_exit(format!(
-                "malformed receipt JSON in {receipt_path}: {e}"
-            )),
-        };
+    let r: ggen_abb_sbb::ManufactureReceipt = match serde_json::from_str(&raw) {
+        Ok(r) => r,
+        Err(e) => usage_error_and_exit(format!("malformed receipt JSON in {receipt_path}: {e}")),
+    };
     let gen = ggen_abb_sbb::Generator {
         id: generator_id.unwrap_or_else(|| DEFAULT_GENERATOR_ID.to_string()),
         version: generator_version.unwrap_or_else(|| DEFAULT_GENERATOR_VERSION.to_string()),
@@ -64,10 +59,7 @@ pub(crate) fn run(
 /// unreadable/malformed inputs.
 #[verb("replay", "ea")]
 pub fn replay(
-    graph: Option<String>,
-    json: bool,
-    receipt: Option<String>,
-    generator_id: Option<String>,
+    graph: Option<String>, json: bool, receipt: Option<String>, generator_id: Option<String>,
     generator_version: Option<String>,
 ) -> Result<Value> {
     let _ = json;

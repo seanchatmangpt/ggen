@@ -43,9 +43,12 @@ impl Query {
         for doc in &index.documents {
             for occ in &doc.occurrences {
                 if occ.roles & ROLE_DEFINITION != 0 {
-                    defs.entry(occ.symbol.clone()).or_insert_with(|| occ.clone());
+                    defs.entry(occ.symbol.clone())
+                        .or_insert_with(|| occ.clone());
                 } else {
-                    refs.entry(occ.symbol.clone()).or_default().push(occ.clone());
+                    refs.entry(occ.symbol.clone())
+                        .or_default()
+                        .push(occ.clone());
                 }
             }
         }

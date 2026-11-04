@@ -17,9 +17,7 @@ use super::{load_graph, ok_json, parse_authority, refuse_and_exit, usage_error_a
 /// Exits 1 with typed refusal JSON on stderr for kernel refusals; exits 2 for
 /// usage/input errors.
 pub(crate) fn run(
-    graph: Option<String>,
-    abb: Option<String>,
-    authority: Option<String>,
+    graph: Option<String>, abb: Option<String>, authority: Option<String>,
 ) -> Result<Value> {
     let g = load_graph(graph.as_deref().unwrap_or(super::DEFAULT_GRAPH_PATH));
     let authority = parse_authority(authority.as_deref());
@@ -42,10 +40,7 @@ pub(crate) fn run(
 /// usage/input errors (unreadable graph, malformed JSON, bad authority value).
 #[verb("plan", "ea")]
 pub fn plan(
-    graph: Option<String>,
-    json: bool,
-    abb: Option<String>,
-    authority: Option<String>,
+    graph: Option<String>, json: bool, abb: Option<String>, authority: Option<String>,
 ) -> Result<Value> {
     let _ = json;
     run(graph, abb, authority)

@@ -59,10 +59,7 @@ fn refused_stale_lease(msg: impl std::fmt::Display) -> NounVerbError {
 /// Read one real JSON file (fail closed on unreadable / non-JSON).
 fn read_json(path: &Path, what: &str) -> Result<Value> {
     let bytes = std::fs::read(path).map_err(|e| {
-        NounVerbError::argument_error(format!(
-            "cannot read {what} {}: {e}",
-            path.display()
-        ))
+        NounVerbError::argument_error(format!("cannot read {what} {}: {e}", path.display()))
     })?;
     serde_json::from_slice(&bytes).map_err(|e| {
         NounVerbError::argument_error(format!(
@@ -90,9 +87,9 @@ fn decode_orders(value: &Value) -> Result<Vec<FrontierInput>> {
     })?;
     let mut inputs = Vec::with_capacity(arr.len());
     for (i, el) in arr.iter().enumerate() {
-        let work_order = el.get("work_order").ok_or_else(|| {
-            refused(format!("orders[{i}]: missing `work_order` object"))
-        })?;
+        let work_order = el
+            .get("work_order")
+            .ok_or_else(|| refused(format!("orders[{i}]: missing `work_order` object")))?;
         let dependencies = match el.get("dependencies") {
             Some(v) => serde_json::from_value::<Vec<DependencyEdge>>(v.clone())
                 .map_err(|e| refused(format!("orders[{i}].dependencies: {e}")))?,
@@ -122,8 +119,7 @@ fn decode_orders(value: &Value) -> Result<Vec<FrontierInput>> {
 /// `TransitionEvent`s. A malformed event fails closed (the kernel's
 /// fail-closed law, enforced at decode time).
 fn decode_events(value: &Value) -> Result<Vec<TransitionEvent>> {
-    serde_json::from_value(value.clone())
-        .map_err(|e| refused(format!("events file: {e}")))
+    serde_json::from_value(value.clone()).map_err(|e| refused(format!("events file: {e}")))
 }
 
 /// Decode the optional `--evidence` file: a JSON object mapping upstream
@@ -137,7 +133,10 @@ fn decode_evidence(value: Option<&Value>) -> Result<BTreeMap<String, Evidence>> 
     })?;
     let mut out = BTreeMap::new();
     for (id, ev) in obj {
-        let standing = ev.get("standing").and_then(|s| s.as_str()).map(String::from);
+        let standing = ev
+            .get("standing")
+            .and_then(|s| s.as_str())
+            .map(String::from);
         let receipt_digest = ev
             .get("receipt_digest")
             .and_then(|s| s.as_str())
@@ -160,13 +159,15 @@ fn decode_authority_index(value: Option<&Value>) -> Result<Option<BTreeMap<Strin
     let Some(v) = value else {
         return Ok(None);
     };
-    let obj = v.as_object().ok_or_else(|| {
-        refused("authority file must be a JSON object of IRI → admission digest")
-    })?;
+    let obj = v
+        .as_object()
+        .ok_or_else(|| refused("authority file must be a JSON object of IRI → admission digest"))?;
     let mut index = BTreeMap::new();
     for (iri, digest) in obj {
         let Some(d) = digest.as_str() else {
-            return Err(refused(format!("authority[\"{iri}\"]: digest must be a string")));
+            return Err(refused(format!(
+                "authority[\"{iri}\"]: digest must be a string"
+            )));
         };
         index.insert(iri.clone(), d.to_string());
     }
@@ -177,7 +178,9 @@ fn decode_authority_index(value: Option<&Value>) -> Result<Option<BTreeMap<Strin
 /// `Serialize`-only, so the CLI owns this decode; unknown keys are
 /// ignored, missing keys refuse.
 fn decode_lease(v: &Value) -> Result<lease::SovereignLease> {
-    let obj = v.as_object().ok_or_else(|| refused("lease must be a JSON object"))?;
+    let obj = v
+        .as_object()
+        .ok_or_else(|| refused("lease must be a JSON object"))?;
     let get_str = |k: &str| {
         obj.get(k)
             .and_then(|x| x.as_str())
@@ -239,9 +242,8 @@ fn decode_verifying_keys(v: &Value) -> Result<BTreeMap<String, ed25519_dalek::Ve
         let Some(h) = hex.as_str() else {
             return Err(refused(format!("keys[\"{signer}\"]: must be a hex string")));
         };
-        let bytes = unhex(h).ok_or_else(|| {
-            refused(format!("keys[\"{signer}\"]: not valid lowercase hex"))
-        })?;
+        let bytes = unhex(h)
+            .ok_or_else(|| refused(format!("keys[\"{signer}\"]: not valid lowercase hex")))?;
         let len = bytes.len();
         let arr: [u8; 32] = bytes.try_into().map_err(|_| {
             refused(format!(
@@ -319,14 +321,22 @@ fn decode_admitted_lease(v: &Value) -> Result<lease::AdmittedLease> {
         shapes: obj
             .get("shapes")
             .and_then(|x| x.as_array())
-            .map(|a| a.iter().filter_map(|s| s.as_str().map(String::from)).collect())
+            .map(|a| {
+                a.iter()
+                    .filter_map(|s| s.as_str().map(String::from))
+                    .collect()
+            })
             .unwrap_or_default(),
         ontology_digest: get_str("ontology_digest")?,
         granted_at: get_str("granted_at")?,
         verified_signers: obj
             .get("verified_signers")
             .and_then(|x| x.as_array())
-            .map(|a| a.iter().filter_map(|s| s.as_str().map(String::from)).collect())
+            .map(|a| {
+                a.iter()
+                    .filter_map(|s| s.as_str().map(String::from))
+                    .collect()
+            })
             .unwrap_or_default(),
         admitted: get_bool("admitted")?,
     })
@@ -338,16 +348,12 @@ fn decode_admitted_lease(v: &Value) -> Result<lease::AdmittedLease> {
 /// creating authority. The error path carries the kernel's typed refusal
 /// Display (including remediation text).
 #[verb]
-pub fn admit(
-    #[arg(index = 1)] file: PathBuf,
-) -> Result<Value> {
+pub fn admit(#[arg(index = 1)] file: PathBuf) -> Result<Value> {
     let raw = read_json(&file, "work order")?;
 
     match ggen_sjira::admit_work_order(&raw) {
         Ok(admitted) => Ok(render_admitted(&admitted)),
-        Err(refusal) => Err(refused(format!(
-            "MalformedWorkOrder refused: {refusal}"
-        ))),
+        Err(refusal) => Err(refused(format!("MalformedWorkOrder refused: {refusal}"))),
     }
 }
 
@@ -369,9 +375,7 @@ fn render_admitted(admitted: &AdmittedWorkOrder) -> Value {
 /// because "blocked" IS the kernel's typed answer, not a CLI error.
 #[verb]
 pub fn frontier(
-    orders_path: PathBuf,
-    events_path: Option<PathBuf>,
-    evidence_path: Option<PathBuf>,
+    orders_path: PathBuf, events_path: Option<PathBuf>, evidence_path: Option<PathBuf>,
     authority_path: Option<PathBuf>,
 ) -> Result<Value> {
     let orders = decode_orders(&read_json(&orders_path, "orders")?)?;
@@ -414,17 +418,18 @@ fn read_json_opt(path: Option<&Path>) -> Result<Option<Value>> {
 /// leaves it byte-unchanged.
 #[verb]
 pub fn execute(
-    orders_path: PathBuf,
-    ledger_path: PathBuf,
-    authority_path: PathBuf,
-    max: Option<usize>,
-    lease_path: Option<PathBuf>,
-    epoch_watermark_path: Option<PathBuf>,
+    orders_path: PathBuf, ledger_path: PathBuf, authority_path: PathBuf, max: Option<usize>,
+    lease_path: Option<PathBuf>, epoch_watermark_path: Option<PathBuf>,
     epoch_extensions_path: Option<PathBuf>,
 ) -> Result<Value> {
     execute_impl(
-        orders_path, ledger_path, authority_path, max, lease_path,
-        epoch_watermark_path, epoch_extensions_path,
+        orders_path,
+        ledger_path,
+        authority_path,
+        max,
+        lease_path,
+        epoch_watermark_path,
+        epoch_extensions_path,
     )
 }
 
@@ -432,12 +437,8 @@ pub fn execute(
 /// guard caps the #[verb] fn itself; the wrapper stays one delegation).
 #[allow(clippy::too_many_arguments)]
 fn execute_impl(
-    orders_path: PathBuf,
-    ledger_path: PathBuf,
-    authority_path: PathBuf,
-    max: Option<usize>,
-    lease_path: Option<PathBuf>,
-    epoch_watermark_path: Option<PathBuf>,
+    orders_path: PathBuf, ledger_path: PathBuf, authority_path: PathBuf, max: Option<usize>,
+    lease_path: Option<PathBuf>, epoch_watermark_path: Option<PathBuf>,
     epoch_extensions_path: Option<PathBuf>,
 ) -> Result<Value> {
     let orders = decode_orders(&read_json(&orders_path, "orders")?)?;
@@ -493,9 +494,7 @@ fn execute_impl(
 /// lease bytes.
 #[verb]
 pub fn lease_admit(
-    lease_path: PathBuf,
-    ontology_digest: String,
-    keys_path: PathBuf,
+    lease_path: PathBuf, ontology_digest: String, keys_path: PathBuf,
 ) -> Result<Value> {
     let lease_value = read_json(&lease_path, "lease")?;
     let lease = decode_lease(&lease_value)?;
@@ -513,10 +512,7 @@ pub fn lease_admit(
 /// refuses `EPOCH_WATERMARK_UNAVAILABLE` (fail closed). Refusals exit 5
 /// at the CLI boundary (the documented stale-epoch Andon class).
 #[verb]
-pub fn epoch_check(
-    order_path: PathBuf,
-    watermark_path: Option<PathBuf>,
-) -> Result<Value> {
+pub fn epoch_check(order_path: PathBuf, watermark_path: Option<PathBuf>) -> Result<Value> {
     let order = read_json(&order_path, "order")?;
     let watermark = read_json_opt(watermark_path.as_deref())?;
 

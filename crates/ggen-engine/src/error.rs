@@ -305,7 +305,9 @@ impl AppError {
     /// resolution, `"FM-LAW-015"` for EA admission); it is rendered into the
     /// Display text (same `[FM-XXX-NNN]` shape the `fm_*` constructors emit)
     /// while `refusal` is carried typed.
-    pub fn abb_refusal(code: &'static str, op: impl Into<String>, refusal: ggen_abb_sbb::Refusal) -> Self {
+    pub fn abb_refusal(
+        code: &'static str, op: impl Into<String>, refusal: ggen_abb_sbb::Refusal,
+    ) -> Self {
         Self::AbbRefusal {
             code,
             op: op.into(),

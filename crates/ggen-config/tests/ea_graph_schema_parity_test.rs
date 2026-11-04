@@ -89,13 +89,13 @@ fn extract_struct_fields(lib_rs: &str, struct_name: &str) -> Vec<StructField> {
         }
         if let Some(rest) = trimmed.strip_prefix("pub ") {
             let rest = rest.trim_end_matches(',');
-            let (name, ty) = rest.split_once(':').unwrap_or_else(|| {
-                panic!("unparseable field line in {struct_name}: {rest:?}")
-            });
+            let (name, ty) = rest
+                .split_once(':')
+                .unwrap_or_else(|| panic!("unparseable field line in {struct_name}: {rest:?}"));
             let ty = ty.trim();
             let optional = ty.starts_with("Option<") && ty.ends_with('>');
-            let collection =
-                (ty.starts_with("Vec<") && ty.ends_with('>')) || (ty.starts_with("BTreeSet<") && ty.ends_with('>'));
+            let collection = (ty.starts_with("Vec<") && ty.ends_with('>'))
+                || (ty.starts_with("BTreeSet<") && ty.ends_with('>'));
             fields.push(StructField {
                 name: name.trim().to_string(),
                 optional,
@@ -126,8 +126,7 @@ fn extract_shape_paths(ttl: &str, class: &str) -> BTreeSet<String> {
     for line in ttl.lines() {
         let trimmed = line.trim();
         // A new shape block starts with `geag:<Something>Shape`.
-        if trimmed.starts_with("geag:") && trimmed.ends_with("Shape") && !trimmed.contains("sh:")
-        {
+        if trimmed.starts_with("geag:") && trimmed.ends_with("Shape") && !trimmed.contains("sh:") {
             if in_shape && found_target && !paths.is_empty() {
                 break; // next shape reached
             }
@@ -201,7 +200,9 @@ fn parity_errors(lib_rs: &str, ttl: &str) -> Vec<String> {
             errors.push(format!("{struct_name}: no sh:path entries found for class {class} — shape missing or targetClass mismatch"));
         }
         if !shape_is_closed(ttl, class) {
-            errors.push(format!("{struct_name}: shape for {class} is not `sh:closed true`"));
+            errors.push(format!(
+                "{struct_name}: shape for {class} is not `sh:closed true`"
+            ));
         }
     }
     errors
@@ -226,7 +227,8 @@ fn min_count_errors(lib_rs: &str, ttl: &str) -> Vec<String> {
             let mut found = false;
             for line in ttl.lines() {
                 let trimmed = line.trim();
-                if trimmed.starts_with("geag:") && trimmed.ends_with("Shape")
+                if trimmed.starts_with("geag:")
+                    && trimmed.ends_with("Shape")
                     && !trimmed.contains("sh:")
                 {
                     in_shape = false;

@@ -16,6 +16,7 @@
 pub mod analyzers;
 #[path = "check_ext.rs"]
 pub mod check;
+pub mod diagnostics_rules;
 pub mod error;
 pub mod features;
 pub mod generated_contract;
@@ -27,7 +28,6 @@ pub mod intel;
 pub mod moniker;
 pub mod pack;
 pub mod project_index;
-pub mod diagnostics_rules;
 pub mod route;
 pub mod rule_index;
 pub mod server;

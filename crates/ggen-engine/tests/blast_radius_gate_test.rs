@@ -27,7 +27,10 @@ fn fixture_graph() -> VecGraph {
 }
 
 fn loc(path: &str, symbol: &str) -> SymbolLoc {
-    SymbolLoc { path: path.into(), symbol: symbol.into() }
+    SymbolLoc {
+        path: path.into(),
+        symbol: symbol.into(),
+    }
 }
 
 #[test]
@@ -67,7 +70,11 @@ fn admit_write_refuses_on_protected_path_intersection() {
     ];
     let v = admit_write(&plan, &g, &protected);
     match &v {
-        Admission::Refused { violations, receipt, .. } => {
+        Admission::Refused {
+            violations,
+            receipt,
+            ..
+        } => {
             assert_eq!(violations.len(), 1);
             let viol = &violations[0];
             assert_eq!(viol.symbol, "c");
@@ -80,9 +87,11 @@ fn admit_write_refuses_on_protected_path_intersection() {
     }
     // Receipt chain verifies: blake3(plan ++ radius ++ verdict).
     let (pd, rd) = match &v {
-        Admission::Refused { plan_digest, receipt, .. } => {
-            (plan_digest.clone(), receipt.radius_digest.clone())
-        }
+        Admission::Refused {
+            plan_digest,
+            receipt,
+            ..
+        } => (plan_digest.clone(), receipt.radius_digest.clone()),
         _ => unreachable!(),
     };
     let mut h = blake3::Hasher::new();
@@ -113,7 +122,12 @@ fn admit_write_passes_clean_plan_with_slice_payload() {
     ];
     let v = admit_write(&plan, &g, &protected);
     match &v {
-        Admission::Alive { radius, receipt, plan_digest, .. } => {
+        Admission::Alive {
+            radius,
+            receipt,
+            plan_digest,
+            ..
+        } => {
             // Slice carries the written symbol itself plus its (empty) radius.
             assert_eq!(radius.symbols.len(), 1);
             assert_eq!(radius.symbols.get("d"), Some(&RadiusOrigin::Written));
@@ -123,7 +137,9 @@ fn admit_write_passes_clean_plan_with_slice_payload() {
             // plan_digest is stable: same plan -> same digest.
             let v2 = admit_write(&plan, &g, &protected);
             match v2 {
-                Admission::Alive { plan_digest: pd2, .. } => {
+                Admission::Alive {
+                    plan_digest: pd2, ..
+                } => {
                     assert_eq!(*plan_digest, pd2);
                 }
                 other => panic!("expected ALIVE on replay, got {other:?}"),
@@ -139,7 +155,10 @@ fn depth_cap_truncates_and_degrades_alive_to_partial() {
     // Writing `c` with cap 1: `b` enters at depth 1; b's own expansion is
     // refused by the cap (1 >= 1), so `a` (depth 2) is never reached.
     let plan = WritePlan {
-        writes: vec![PlannedWrite { path: "app.rs".into(), symbols: vec!["c".into()] }],
+        writes: vec![PlannedWrite {
+            path: "app.rs".into(),
+            symbols: vec!["c".into()],
+        }],
         max_depth: Some(1),
     };
     // Protected list excludes sync.rs (where b lives) so no violation fires;
@@ -172,7 +191,11 @@ fn direct_write_to_protected_path_refuses_at_depth_zero() {
     ];
     let v = admit_write(&plan, &g, &protected);
     match &v {
-        Admission::Refused { violations, receipt, .. } => {
+        Admission::Refused {
+            violations,
+            receipt,
+            ..
+        } => {
             assert_eq!(violations.len(), 1);
             assert_eq!(violations[0].depth, 0);
             assert_eq!(violations[0].protected_path, "ggen-abb-sbb/src/lib.rs");

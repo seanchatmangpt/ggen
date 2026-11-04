@@ -223,7 +223,11 @@ fn tampered_journal_refuses_to_replay() {
     let marker = "\"hash\":\"";
     let idx = raw.find(marker).unwrap() + marker.len();
     let mut tampered = raw.clone();
-    let flipped = if raw.as_bytes()[idx] == b'0' { '1' } else { '0' };
+    let flipped = if raw.as_bytes()[idx] == b'0' {
+        '1'
+    } else {
+        '0'
+    };
     tampered.replace_range(idx..idx + 1, &flipped.to_string());
     assert_ne!(raw, tampered, "tamper setup must change the journal");
     std::fs::write(&jpath, tampered).unwrap();

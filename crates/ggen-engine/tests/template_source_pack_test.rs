@@ -74,8 +74,14 @@ fn template_source_pack_renders_real_query_results_through_package_toml_outputs_
     );
     write_ontology(dir.path());
 
-    let report = sync(dir.path(), SyncOptions { skip_ea_admission: true, ..Default::default() })
-        .expect("TemplateSource::Pack must resolve and render, not refuse FM-GEN-007");
+    let report = sync(
+        dir.path(),
+        SyncOptions {
+            skip_ea_admission: true,
+            ..Default::default()
+        },
+    )
+    .expect("TemplateSource::Pack must resolve and render, not refuse FM-GEN-007");
 
     assert_eq!(
         report.written,
@@ -118,8 +124,14 @@ fn template_source_pack_with_undeclared_pack_is_a_typed_refusal_not_a_silent_ski
     );
     write_ontology(dir.path());
 
-    let err = sync(dir.path(), SyncOptions { skip_ea_admission: true, ..Default::default() })
-        .expect_err("undeclared pack must refuse, not silently skip");
+    let err = sync(
+        dir.path(),
+        SyncOptions {
+            skip_ea_admission: true,
+            ..Default::default()
+        },
+    )
+    .expect_err("undeclared pack must refuse, not silently skip");
     let msg = err.to_string();
     assert!(
         msg.contains("ghost-pack"),
@@ -148,8 +160,14 @@ fn template_source_pack_with_non_local_registry_is_a_typed_refusal() {
     );
     write_ontology(dir.path());
 
-    let err = sync(dir.path(), SyncOptions { skip_ea_admission: true, ..Default::default() })
-        .expect_err("non-local pack must refuse, not silently skip");
+    let err = sync(
+        dir.path(),
+        SyncOptions {
+            skip_ea_admission: true,
+            ..Default::default()
+        },
+    )
+    .expect_err("non-local pack must refuse, not silently skip");
     let msg = err.to_string();
     assert!(msg.contains("FM-GEN-006"), "got: {msg}");
     assert!(msg.contains("no local"), "got: {msg}");

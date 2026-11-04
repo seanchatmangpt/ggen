@@ -21,8 +21,7 @@ pub(crate) struct FallbackHit {
 /// provenance banner (`moniker::is_generated_file`) OR that the ontology's
 /// generation rules declare as outputs (`TokensEngine::is_generated_uri`).
 pub async fn handle(
-    server: &GgenLanguageServer,
-    params: lsp_max::lsp_types_max::MonikerParams,
+    server: &GgenLanguageServer, params: lsp_max::lsp_types_max::MonikerParams,
 ) -> Result<Option<Vec<lsp_max::lsp_types_max::Moniker>>> {
     let uri = &params.text_document_position_params.text_document.uri;
     let position = &params.text_document_position_params.position;
@@ -33,9 +32,7 @@ pub async fn handle(
 /// plus the brace-counting scope scan, shared by `textDocument/moniker` and
 /// the definition/references fallback (one moniker calculus, many bindings).
 pub(crate) async fn moniker_for_cursor(
-    server: &GgenLanguageServer,
-    uri: &Url,
-    position: &Position,
+    server: &GgenLanguageServer, uri: &Url, position: &Position,
 ) -> Result<Option<Vec<LspMoniker>>> {
     let Some(content) = server.state.get_document(uri).await else {
         return Ok(None);
@@ -59,21 +56,14 @@ pub(crate) async fn moniker_for_cursor(
         (content, position.line)
     } else {
         (
-            format!(
-                "// {}\n{}",
-                crate::moniker::GGEN_BANNER_MARKERS[0],
-                content
-            ),
+            format!("// {}\n{}", crate::moniker::GGEN_BANNER_MARKERS[0], content),
             position.line + 1,
         )
     };
     let crate_name = crate_name_from_uri(uri.as_str());
-    let Some(moniker) = crate::moniker::moniker_at_position(
-        &crate_name,
-        &scan_text,
-        scan_line,
-        position.character,
-    ) else {
+    let Some(moniker) =
+        crate::moniker::moniker_at_position(&crate_name, &scan_text, scan_line, position.character)
+    else {
         return Ok(None);
     };
     Ok(Some(vec![LspMoniker {
@@ -93,9 +83,7 @@ pub(crate) async fn moniker_for_cursor(
 ///
 /// Strictly behind analyzer None/empty in definition/references.
 pub(crate) async fn moniker_fallback_hits(
-    server: &GgenLanguageServer,
-    uri: &Url,
-    position: &Position,
+    server: &GgenLanguageServer, uri: &Url, position: &Position,
 ) -> Vec<FallbackHit> {
     let Ok(Some(monikers)) = moniker_for_cursor(server, uri, position).await else {
         return Vec::new();
@@ -119,7 +107,10 @@ pub(crate) async fn moniker_fallback_hits(
             if let Some(source) = std::fs::read_to_string(&kernel_path).ok() {
                 if let Some(range) = crate::moniker::resolve_kernel_moniker(&m, &source) {
                     if let Some(hit_uri) = wire_url_from_path(&kernel_path) {
-                        hits.push(FallbackHit { uri: hit_uri, range });
+                        hits.push(FallbackHit {
+                            uri: hit_uri,
+                            range,
+                        });
                         continue;
                     }
                 }

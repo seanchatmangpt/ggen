@@ -132,7 +132,10 @@ depends_on = ["a"]
 requires = ["nope"]
 "#;
     let consumer = extract_consumer_edges(src).unwrap().expect("graph table");
-    assert_eq!(consumer.requires, std::iter::once("nope".to_string()).collect::<BTreeSet<_>>());
+    assert_eq!(
+        consumer.requires,
+        std::iter::once("nope".to_string()).collect::<BTreeSet<_>>()
+    );
     let err = resolve_sync_order(&packs, Some(&consumer)).unwrap_err();
     match err {
         ggen_abb_sbb::Refusal::UnboundPort { pack, port } => {

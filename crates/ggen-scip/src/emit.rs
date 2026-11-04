@@ -2,8 +2,8 @@
 //! references via tree-sitter-rust, write `<root>/.ggen/scip.json`.
 
 use crate::{
-    DefInfo, Dotted, Document, Index, Metadata, Occurrence, Symbol, ROLE_DEFINITION,
-    ROLE_REFERENCE, default_conforms_to, write_canonical,
+    default_conforms_to, write_canonical, DefInfo, Document, Dotted, Index, Metadata, Occurrence,
+    Symbol, ROLE_DEFINITION, ROLE_REFERENCE,
 };
 use std::collections::{BTreeMap, BTreeSet};
 use std::path::{Path, PathBuf};
@@ -22,25 +22,21 @@ const BANNER_LINES: usize = 5;
 /// generated banner: contains "generated" and "ggen" (case-insensitive),
 /// and does not contain "placeholder".
 pub fn is_generated(path: &Path) -> bool {
-    let ok = std::fs::File::open(path)
-        .and_then(|f| {
-            use std::io::BufRead;
-            let reader = std::io::BufReader::new(f);
-            let mut head = String::new();
-            for line in reader.lines().take(BANNER_LINES) {
-                let line = line?;
-                head.push_str(&line);
-                head.push('\n');
-                let low = head.to_lowercase();
-                if low.contains("generated")
-                    && low.contains("ggen")
-                    && !low.contains("placeholder")
-                {
-                    return Ok(true);
-                }
+    let ok = std::fs::File::open(path).and_then(|f| {
+        use std::io::BufRead;
+        let reader = std::io::BufReader::new(f);
+        let mut head = String::new();
+        for line in reader.lines().take(BANNER_LINES) {
+            let line = line?;
+            head.push_str(&line);
+            head.push('\n');
+            let low = head.to_lowercase();
+            if low.contains("generated") && low.contains("ggen") && !low.contains("placeholder") {
+                return Ok(true);
             }
-            Ok(false)
-        });
+        }
+        Ok(false)
+    });
     ok.unwrap_or(false)
 }
 
@@ -177,10 +173,7 @@ const DEF_QUERY: &str = r#"
 
 /// Extract definitions from a parsed Rust source.
 pub fn extract_defs(
-    tree: &tree_sitter::Tree,
-    source: &str,
-    package: &str,
-    module: &str,
+    tree: &tree_sitter::Tree, source: &str, package: &str, module: &str,
 ) -> Vec<RawDef> {
     let lang = tree_sitter_rust::LANGUAGE.into();
     let q = tree_sitter::Query::new(&lang, DEF_QUERY).expect("def query compiles");
@@ -198,46 +191,44 @@ pub fn extract_defs(
             continue;
         };
         {
-        let name = name_node.utf8_text(source.as_bytes()).unwrap_or("");
-        if name.is_empty() {
-            continue;
-        }
-        let kind = match name_node.kind() {
-            "identifier" => {
-                // fn vs const share `identifier`; resolve via parent kind.
-                match name_node.parent().map(|p| p.kind()) {
-                    Some("const_item") => "const",
-                    _ => "fn",
-                }
+            let name = name_node.utf8_text(source.as_bytes()).unwrap_or("");
+            if name.is_empty() {
+                continue;
             }
-            "type_identifier" => {
-                match name_node.parent().map(|p| p.kind()) {
+            let kind = match name_node.kind() {
+                "identifier" => {
+                    // fn vs const share `identifier`; resolve via parent kind.
+                    match name_node.parent().map(|p| p.kind()) {
+                        Some("const_item") => "const",
+                        _ => "fn",
+                    }
+                }
+                "type_identifier" => match name_node.parent().map(|p| p.kind()) {
                     Some("struct_item") => "struct",
                     Some("enum_item") => "enum",
                     _ => "struct",
-                }
-            }
-            _ => continue,
-        };
-        let identifier = if module.is_empty() {
-            name.to_string()
-        } else {
-            format!("{}.{}", module, name)
-        };
-        defs.push(RawDef {
-            symbol: Symbol {
-                scheme: "ggen".to_string(),
-                package: package.to_string(),
-                identifier: Dotted(identifier),
-            },
-            name: name.to_string(),
-            kind: kind.to_string(),
-            range: [
-                name_node.start_position().row as u32,
-                name_node.start_position().column as u32,
-                name_node.end_position().column as u32,
-            ],
-        });
+                },
+                _ => continue,
+            };
+            let identifier = if module.is_empty() {
+                name.to_string()
+            } else {
+                format!("{}.{}", module, name)
+            };
+            defs.push(RawDef {
+                symbol: Symbol {
+                    scheme: "ggen".to_string(),
+                    package: package.to_string(),
+                    identifier: Dotted(identifier),
+                },
+                name: name.to_string(),
+                kind: kind.to_string(),
+                range: [
+                    name_node.start_position().row as u32,
+                    name_node.start_position().column as u32,
+                    name_node.end_position().column as u32,
+                ],
+            });
         }
     }
     defs
@@ -253,9 +244,7 @@ const REF_QUERY: &str = r#"
 /// definition's simple name. Ambiguous simple names resolve to the
 /// lexicographically smallest symbol (deterministic).
 pub fn extract_refs(
-    tree: &tree_sitter::Tree,
-    source: &str,
-    def_names: &BTreeMap<String, String>,
+    tree: &tree_sitter::Tree, source: &str, def_names: &BTreeMap<String, String>,
 ) -> Vec<Occurrence> {
     let lang = tree_sitter_rust::LANGUAGE.into();
     let q = match tree_sitter::Query::new(&lang, REF_QUERY) {

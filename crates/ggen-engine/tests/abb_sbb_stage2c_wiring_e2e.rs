@@ -35,7 +35,8 @@ ex:subject a ex:Item .
 
 // `envelope: http://ggen.org/envelope#tight` binds this template's run to the envelope grant
 // declared in .specify/envelope-shapes.ttl.
-const TEMPLATE_TIGHT: &str = "---\nto: out/result.txt\nenvelope: http://ggen.org/envelope#tight\n---\nhello\n";
+const TEMPLATE_TIGHT: &str =
+    "---\nto: out/result.txt\nenvelope: http://ggen.org/envelope#tight\n---\nhello\n";
 
 fn scaffold(root: &Path, template: &str) {
     std::fs::write(root.join("ggen.toml"), GGEN_TOML).expect("write ggen.toml");
@@ -114,7 +115,8 @@ fn translation_maps_max_artifacts_literal() {
     scaffold(root, TEMPLATE_TIGHT);
     write_reticle(root, 2);
 
-    let caps = abb_envelope_caps(root, Some("http://ggen.org/envelope#tight")).expect("grant must translate");
+    let caps = abb_envelope_caps(root, Some("http://ggen.org/envelope#tight"))
+        .expect("grant must translate");
     assert_eq!(caps.max_artifacts, 2);
 }
 
@@ -215,5 +217,3 @@ fn pinned_digest_refuses_mutated_graph() {
         .expect("unmutated subject with pinned digest must admit");
     assert_eq!(admitted.graph_digest(), digest);
 }
-
-

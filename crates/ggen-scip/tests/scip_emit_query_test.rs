@@ -11,12 +11,7 @@ fn rels(root: &Path) -> Vec<String> {
     discover(root)
         .iter()
         .filter(|f| is_generated(f))
-        .map(|f| {
-            f.strip_prefix(root)
-                .unwrap()
-                .to_string_lossy()
-                .into_owned()
-        })
+        .map(|f| f.strip_prefix(root).unwrap().to_string_lossy().into_owned())
         .collect()
 }
 
@@ -34,7 +29,10 @@ fn discovery_finds_real_generated_files() {
     );
     let placeholder = root.join("crates/ggen-sjira/src/generated.rs");
     if placeholder.exists() {
-        assert!(!is_generated(&placeholder), "placeholder counted as generated");
+        assert!(
+            !is_generated(&placeholder),
+            "placeholder counted as generated"
+        );
     }
 }
 
@@ -68,7 +66,10 @@ fn emit_builds_nonempty_index_over_real_surface() {
     let line = src.lines().nth(def.range[0] as usize).expect("row exists");
     let cols = &line.as_bytes()[def.range[1] as usize..def.range[2] as usize];
     assert_eq!(std::str::from_utf8(cols).unwrap(), "COMMANDS_REFERENCE");
-    assert_eq!(def.symbol, "ggen ggen-cli-lib generated_commands.COMMANDS_REFERENCE");
+    assert_eq!(
+        def.symbol,
+        "ggen ggen-cli-lib generated_commands.COMMANDS_REFERENCE"
+    );
 }
 
 #[test]
@@ -80,7 +81,10 @@ fn query_def_and_refs_no_reparse() {
     let d = q.def(wire).expect("definition indexed");
     assert!(d.roles & ROLE_DEFINITION != 0);
     // references exist: COMMANDS_REFERENCE is used in describe_command
-    assert!(!q.refs(wire).is_empty(), "expected >=1 reference occurrence");
+    assert!(
+        !q.refs(wire).is_empty(),
+        "expected >=1 reference occurrence"
+    );
     // parse_symbol round-trips
     let s = parse_symbol(wire).unwrap();
     assert_eq!(s.to_wire(), wire);

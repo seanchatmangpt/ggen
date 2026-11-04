@@ -58,16 +58,21 @@ fn order_entry(order: Value, deps: Value) -> Value {
 fn backlog() -> Value {
     json!([
         order_entry(valid_order("o1"), json!([])),
-        order_entry(valid_order("o2"), json!([
-            {"kind": "requiresSemanticIdentity", "upstream": "o1"}
-        ]))
+        order_entry(
+            valid_order("o2"),
+            json!([
+                {"kind": "requiresSemanticIdentity", "upstream": "o1"}
+            ])
+        )
     ])
 }
 
 /// One StrategicObjective authority node + its trust-root pin, serialized
 /// exactly as the execute verb reads it from disk.
 fn authority_graph() -> Value {
-    use ggen_sjira::authority::{admission_digest, AuthorityGraph, AuthorityNode, TrustRootCandidate};
+    use ggen_sjira::authority::{
+        admission_digest, AuthorityGraph, AuthorityNode, TrustRootCandidate,
+    };
     use std::collections::BTreeMap;
 
     let mut statements: BTreeMap<String, Vec<String>> = BTreeMap::new();
@@ -228,7 +233,10 @@ fn execute_runs_two_order_backlog() {
     // kernel materializes a missing ledger path as a DIRECTORY ledger
     // (ledger::kind defaults to dir for a fresh path), so read every
     // file under it and assert on the concatenated bytes.
-    assert!(ledger.is_dir(), "fresh ledger path must materialize as a dir");
+    assert!(
+        ledger.is_dir(),
+        "fresh ledger path must materialize as a dir"
+    );
     let mut ledger_body = String::new();
     let mut entries: Vec<_> = std::fs::read_dir(&ledger)
         .unwrap()
