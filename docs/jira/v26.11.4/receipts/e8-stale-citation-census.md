@@ -84,6 +84,17 @@ EXIT=0). No independent re-run receipt exists in any tree. FLAGGED:
 needs an independent re-run receipt before the number is cited as
 standing anywhere outside the ledger.
 
+**SUPERSEDED (2026-11-04)**: the flag is resolved. An independent
+re-run receipt now exists:
+`/Users/sac/arcus/docs/jira/v26.11.4/receipts/bm5-legacy-baseline.md`
+(arcus tree, committed in 691c277). It independently re-ran
+`BenchmarkLegacyJSONUnmarshal`: 4531/4564 ns/op (two runs, spread
+≈0.73%), 440 B/op, 6 allocs/op — the 440 B/op and 6 allocs figures are
+an exact match with ledger row 9; the ns/op band does not exactly
+reproduce (4531–4564 vs 4602–6399), consistent with machine load
+variance. Row 9 may now be cited as standing with bm5 as the
+independent witness.
+
 ## 5. Live-discrepancy check (expect zero, verified)
 
 Grep `18.1 ns|18.1ns|25.5202` across /Users/sac/cgap/docs,

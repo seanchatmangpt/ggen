@@ -119,3 +119,15 @@ Every consumer of the old numbers must cite this ledger
 superseding receipts (af-22, af-21, ab-6, ab-10, af-35, rx-5,
 zp-17-gate10-settling) — never the stale standalone doc lines. The old docs are
 NOT edited (errata-not-rewrite); this ledger supersedes by citation.
+
+## Addendum (2026-11-04): rows 5b / 5b-precision evidence form changed
+
+The row 5b-precision clause "git log -S 'fn link' returns ZERO commits"
+is now FALSE: the fold landed as cgap commit `8ccb43d0` ("feat(aoq):
+chain hot-path fold — fn link unifies append/append_verified"), so
+`git log -S 'fn link'` returns commits. Evidence form changed from
+uncommitted working-tree diff to a committed fold. Rows 5b/5b-precision
+conclusions (label POST-FOLD, 1.26394 µs/link) are unchanged and
+strengthened. Rows are not edited in place per errata-not-rewrite.
+Cross-cite: cgap `docs/jira/v26.11.4/receipts/zp-17-gate10-settling.md`
+ERRATA-2.
