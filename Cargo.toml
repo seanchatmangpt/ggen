@@ -745,7 +745,6 @@ proptest.workspace = true
 testcontainers.workspace = true
 testcontainers-modules.workspace = true
 rand = "0.10"
-mockall = "0.15"
 fake = "5.1"
 futures.workspace = true
 tracing.workspace = true
@@ -756,8 +755,6 @@ criterion = { version = "0.8", features = ["html_reports"] }
 once_cell = "1.21"
 lazy_static = "1.5"
 fastrand = "2.5"
-# Process Mining for workflow analytics
-process_mining = "0.6"
 # Cryptographic hashing for receipt tests
 sha2 = "0.11"
 # A2A/TPS System Benchmarks
