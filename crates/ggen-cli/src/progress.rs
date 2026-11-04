@@ -118,7 +118,7 @@ impl ProgressReporter {
 
     /// Start a new operation
     pub fn start_operation(&self, operation_name: &str) {
-        let mut state = self.progress.lock().unwrap();
+        let mut state = self.progress.lock().unwrap_or_else(|e| e.into_inner());
         state.current_operation = operation_name.to_string();
         state.start_time = Instant::now();
         state.current_step = "Initializing".to_string();
@@ -135,7 +135,7 @@ impl ProgressReporter {
 
     /// Start a new step
     pub fn start_step(&self, step_name: &str, step_number: usize) {
-        let mut state = self.progress.lock().unwrap();
+        let mut state = self.progress.lock().unwrap_or_else(|e| e.into_inner());
         state.current_step = step_name.to_string();
         state.step_progress = 0.0;
 
@@ -148,7 +148,7 @@ impl ProgressReporter {
 
     /// Update step progress
     pub fn update_step_progress(&self, progress: f64, message: &str) {
-        let mut state = self.progress.lock().unwrap();
+        let mut state = self.progress.lock().unwrap_or_else(|e| e.into_inner());
         state.step_progress = progress.clamp(0.0, 100.0);
 
         let overall_progress = if state.total_steps > 0 {
@@ -170,7 +170,7 @@ impl ProgressReporter {
 
     /// Update data processing progress
     pub fn update_data_progress(&self, bytes_processed: u64, total_bytes: u64) {
-        let mut state = self.progress.lock().unwrap();
+        let mut state = self.progress.lock().unwrap_or_else(|e| e.into_inner());
         state.bytes_processed = bytes_processed;
         state.total_bytes = total_bytes;
 
@@ -188,7 +188,7 @@ impl ProgressReporter {
 
     /// Update item processing progress
     pub fn update_item_progress(&self, item: &str, current: usize, total: usize) {
-        let mut state = self.progress.lock().unwrap();
+        let mut state = self.progress.lock().unwrap_or_else(|e| e.into_inner());
         state.items_processed = current;
         state.total_items = total;
 
@@ -201,7 +201,7 @@ impl ProgressReporter {
 
     /// Complete current step
     pub fn complete_step(&self, step_name: &str) {
-        let mut state = self.progress.lock().unwrap();
+        let mut state = self.progress.lock().unwrap_or_else(|e| e.into_inner());
         state.completed_steps += 1;
         state.step_progress = 100.0;
 
@@ -216,7 +216,7 @@ impl ProgressReporter {
 
     /// Report error
     pub fn report_error(&self, message: &str, step: &str) {
-        let mut state = self.progress.lock().unwrap();
+        let mut state = self.progress.lock().unwrap_or_else(|e| e.into_inner());
         state.error = Some(message.to_string());
         state.is_cancelled = true;
 
@@ -229,7 +229,7 @@ impl ProgressReporter {
 
     /// Mark operation as completed
     pub fn complete(&self) {
-        let state = self.progress.lock().unwrap();
+        let state = self.progress.lock().unwrap_or_else(|e| e.into_inner());
         let total_duration = state.start_time.elapsed();
 
         info!("Operation completed in {}ms", total_duration.as_millis());
@@ -240,7 +240,7 @@ impl ProgressReporter {
 
     /// Cancel operation
     pub fn cancel(&self) {
-        let mut state = self.progress.lock().unwrap();
+        let mut state = self.progress.lock().unwrap_or_else(|e| e.into_inner());
         state.is_cancelled = true;
 
         warn!("Operation cancelled");
@@ -249,25 +249,25 @@ impl ProgressReporter {
 
     /// Check if operation is cancelled
     pub fn is_cancelled(&self) -> bool {
-        let state = self.progress.lock().unwrap();
+        let state = self.progress.lock().unwrap_or_else(|e| e.into_inner());
         state.is_cancelled
     }
 
     /// Get current progress state
     pub fn get_state(&self) -> ProgressState {
-        self.progress.lock().unwrap().clone()
+        self.progress.lock().unwrap_or_else(|e| e.into_inner()).clone()
     }
 
     /// Set total number of steps
     pub fn set_total_steps(&self, total: usize) {
-        let mut state = self.progress.lock().unwrap();
+        let mut state = self.progress.lock().unwrap_or_else(|e| e.into_inner());
         state.total_steps = total;
         info!("Total steps for operation: {}", total);
     }
 
     /// Set estimated duration
     pub fn set_estimated_duration(&self, duration: Duration) {
-        let mut state = self.progress.lock().unwrap();
+        let mut state = self.progress.lock().unwrap_or_else(|e| e.into_inner());
         state.estimated_duration = Some(duration);
     }
 
