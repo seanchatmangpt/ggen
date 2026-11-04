@@ -52,32 +52,32 @@ the prior run's sync mints it; a fresh CI checkout starts clean.
 
 | Workflow (job) | Class | Cause (one line) |
 |---|---|---|
-| Combinatorial Maximalism pack (Manufacture, actuate, receipt, replay) | CASR exact-set | 
+| Combinatorial Maximalism pack (Manufacture, actuate, receipt, replay) | CASR exact-set |
 `ggen.lock` committed into consumer dir; FIXED here |
-| ggen-first Lean 4 to Rust (prove-emit-execute) | FM-LAW-015 | `examples/ggen-first-lean4-rust` 
+| ggen-first Lean 4 to Rust (prove-emit-execute) | FM-LAW-015 | `examples/ggen-first-lean4-rust`
 lacks `ea.graph.json`; new fail-closed EA gate vs old consumer |
-| Non-LLM SAFe EA Self-Play (manufacture-and-self-play) | FM-LAW-015 | 
+| Non-LLM SAFe EA Self-Play (manufacture-and-self-play) | FM-LAW-015 |
 `examples/safe-ea-strategy-self-play` lacks `ea.graph.json` |
-| Fortune 5 Architecture (kernel-and-law) | FM-LAW-015 | `examples/fortune5-architecture` lacks 
+| Fortune 5 Architecture (kernel-and-law) | FM-LAW-015 | `examples/fortune5-architecture` lacks
 `ea.graph.json` |
-| Examples core-team constructor (Construct core-team example closure) | other-typed | mixed: 
-FM-WRITE-005 clobber refusals (committed generated outputs drifted), FM-CONFIG-003 (industry 
-packs reference `/Users/sac/ggen-marketplace` absolute paths — env-dependent), FM-WRITE-012 stale 
+| Examples core-team constructor (Construct core-team example closure) | other-typed | mixed:
+FM-WRITE-005 clobber refusals (committed generated outputs drifted), FM-CONFIG-003 (industry
+packs reference `/Users/sac/ggen-marketplace` absolute paths — env-dependent), FM-WRITE-012 stale
 lease |
-| Examples repair constructor (Construct and verify repair candidate) | other-typed | 
+| Examples repair constructor (Construct and verify repair candidate) | other-typed |
 REPAIR-CONSTRUCTOR-DRIFT: `live-examples.yml` matches neither pinned pre- nor post-repair state |
-| PCQ Marketplace ALIVE (manufacture-and-verify) | other-typed | build exit 101 + evidence upload 
+| PCQ Marketplace ALIVE (manufacture-and-verify) | other-typed | build exit 101 + evidence upload
 found no `examples/pcq-marketplace/.ggen/**` (sync refused before artifacts existed) |
-| TCPS Generated Validation (product evidence + Auto Select 8^4) | premise-rot | 
-`tests/product_evidence/tests.rs:132` MISSING_ARTIFACT `examples/tcps-generated/ggen.lock` — 
+| TCPS Generated Validation (product evidence + Auto Select 8^4) | premise-rot |
+`tests/product_evidence/tests.rs:132` MISSING_ARTIFACT `examples/tcps-generated/ggen.lock` —
 never committed; the lock-committing wave missed this consumer |
-| Book Chicago TDD (Real-state gap closure) | other-typed | consumer sync inside test hits 
+| Book Chicago TDD (Real-state gap closure) | other-typed | consumer sync inside test hits
 FM-WRITE-005 clobber refusal; test asserts subprocess success |
-| GBB Certification Program (TAI standards suites) | other-typed | BUILD_BROKEN: 
+| GBB Certification Program (TAI standards suites) | other-typed | BUILD_BROKEN:
 `examples/tai-enterprise-rebuild/consumer...` No such file or directory (exit 3) |
-| Cyberpunk TV Platform (Manufacture, polyglot Chicago TDD...) | other-typed | npm install 
+| Cyberpunk TV Platform (Manufacture, polyglot Chicago TDD...) | other-typed | npm install
 failure in "Install exact JavaScript closure" (exit 1) |
-| ggen Self-Host Retrofit (observe-manufacture-falsify-replay) | UNVERIFIED | `--log-failed` 
+| ggen Self-Host Retrofit (observe-manufacture-falsify-replay) | UNVERIFIED | `--log-failed`
 unavailable ("log not found") — not classifiable from CI logs |
 
 Count note: 12 failed checks at head e4f231a55, not 19; the 19 figure includes

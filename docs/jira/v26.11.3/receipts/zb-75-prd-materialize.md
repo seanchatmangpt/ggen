@@ -38,6 +38,10 @@ push.
 - **C6**: Gate 10 carried UNSUPPORTED at 25.5202 µs/link (ab-14: 50k span
   1276.01 ms / 50,000, 2.08% over) pending the ZP-17 settling experiment;
   AB-14 receipt immutable, 3 §6 consumers move atomically.
+  > ERRATA 2026-11-04: superseded by ZP-17 branch-(a) MEASURED-MET
+  > 1.26394 µs/link (fenced release min-of-7, POST-FOLD) —
+  > `cgap/docs/jira/v26.11.4/receipts/zp-17-gate10-settling.md`; v4 ledger
+  > (`ggen/docs/jira/v26.11.4/receipts/v4-corrected-claims-ledger.md` row 5).
 
 ## Receipts verified on disk before citing
 

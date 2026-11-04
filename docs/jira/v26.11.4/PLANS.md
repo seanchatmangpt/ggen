@@ -24,7 +24,7 @@ decisions and deltas. Standing: all plans UNVERIFIED until executed.
   fault + supervisor generation counter); stdin-EOF pipe = the only lawful
   stop; arcus never unlinks the socket (sidecar janitor owns it); states
   Spawning/Ready/BackingOff/Fault (no auto-escape from Fault); courts
-  C1 kill-mid-stream / C2 clean-stop / C3 boot-churn / C4 stale-boundary /
+  C1 kill-mid-request / C2 clean-stop / C3 boot-churn / C4 stale-boundary /
   C5 no-sleep scan.
 - ZP-13 (AoqTagHook): promote the court-local blake3 port to
   `internal/arcus/adapter/blake3.go` as a new OUT-OF-GENGEN ABB
@@ -127,10 +127,22 @@ decisions and deltas. Standing: all plans UNVERIFIED until executed.
   with the C1-C6 corrections ledger (167→456.3 chained; honest I1-I5
   matrix; real gate names; Gate 09 court-to-add; ARD labeling nits; Gate
   10 UNSUPPORTED pending ZP-17) + per-correction falsifier sweeps.
-- ZP-24 (newline law): Tera has NO Jinja-style `-}}` on expression tags
-  (trim_blocks is control-tag-only) — the prompt's fix mechanism was
-  Jinja2; real census 841 files/40+ packs; mermaid-pack minimal fix =
-  template restructure; engine-default `trim_blocks` needs a two-sided
-  render census including control-tag-EOL (F2).
+- ZP-24 (newline law, CORRECTED 2026-11-04 — erratum supersedes the prior
+  no-invalid-syntax claim): `-}}` on expression tags IS lawful Tera, both
+  engine versions: tera 1.20.x pest grammar `variable_end = { "-}}" | "}}" }`
+  (src/parser/tera.pest:150) and tera 2.4.0 lexer `Token::VariableEnd(true)`
+  (src/parsing/lexer.rs:532-544). The 30 expression-tag uses (12 files under
+  ggen packs/, 18 under ggen-marketplace packs/) are lawful and
+  load-bearing — DO NOT strip them. Census receipt: ggen/packs 674
+  .tmpl/.tera files, marketplace/packs 1992, ggen/templates 184, ggen/
+  examples 421; mermaid-pack clean. The real risk is tera 1.20.1→2.4.0
+  migration drift, not invalid syntax. Gate: F2 census +
+  poisoned-fixture render law landed at
+  crates/ggen-engine/tests/tera_whitespace_census.rs (3 tests green
+  2026-11-04); dual-engine render-diff leg deferred — tera 2.4.0 is in the
+  workspace lock via qlue-ls but is not a ggen-engine dependency; adding it
+  needs a dev-dep Cargo.toml edit outside the F2 lane's ownership.
 - ZB-65 (portability): one live ubuntu failure (verify_v26.10.31.sh:80 BSD
   `sed -i ''`); one macOS-side break (lean4 script GNU-only).
+  > LANDED 2026-11-04: lean4 script portable (mapfile/-printf removed) —
+  > macOS half closed; ubuntu sed half still open.

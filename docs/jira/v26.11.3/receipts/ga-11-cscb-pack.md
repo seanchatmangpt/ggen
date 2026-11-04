@@ -84,6 +84,11 @@ with named benches):
 | 1 | 18.1 ns per-call receipt latency | TARGET-UNMEASURED | ab-12 court-1 per-call latency cell (64 B-1 KiB, release, min-of-3) |
 ```
 
+> ERRATA 2026-11-04: the 18.1 ns target row and this receipt's TARGET-UNMEASURED
+> standing are superseded by the v4 corrected-claims ledger
+> (`ggen/docs/jira/v26.11.4/receipts/v4-corrected-claims-ledger.md` rows 1-2)
+> and `cgap/docs/jira/v26.11.4/receipts/zp-17-gate10-settling.md`.
+
 (Verbatim rows as rendered above in the receipt body — the on-disk renders
 at `/Users/sac/cgap/docs/cscb-{gates-table,targets-open}.md` are the
 receipt of record.)

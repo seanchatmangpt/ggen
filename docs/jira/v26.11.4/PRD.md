@@ -155,6 +155,10 @@ anti-vacuity legs before its status moves off PROPOSED.
 |---|---|---|
 | Gate 09 (court-to-add) | bounded FD ≤16 + ΔRSS ≤2MB, per ZP-20: 3-run rerun decides in-place tighten (preferred — margins observed ~2 orders loose) vs new isolated court; "streams" → "requests" wording fix; quiet-machine poll via `pgrep -fl lsp-echo-server` (the `pgrep -f "cargo test"` pattern self-matches — zd-8 lesson) | ZP-20; zd-8-dod006-quiet.md |
 | Gate 10 | **UNSUPPORTED at 25.5202 µs/link** (ab-14: 50k span 1276.01 ms / 50,000, 2.08% over the 25 µs threshold), pending the ZP-17 settling experiment. Fence the bench first (profile_guard + black_box in receipt_chain_scale.rs), min-of-7 release 50k re-measure; AB-14 receipt immutable (3 consumers parse it); all 3 §6 consumers move atomically in one diff. Branch (a) <25.0 → fence stands; (b) 25.0-25.5 → re-derivation receipt + TARGET_US_PER_LINK const move in the SAME diff + cert-court mutation base flips QUALIFIED→DISQUALIFIED; (c) >25.5 → UNSUPPORTED stands + optimization candidates (double-blake3 append fold, per-span pricing) | ZP-17; ab-14-chain-scale.md (ggen); RFC-0089 §6 G7 row |
+> ERRATA 2026-11-04: this Gate-10 row is superseded by ZP-17's branch-(a)
+> MEASURED-MET 1.26394 µs/link (fenced release min-of-7, POST-FOLD) —
+> `cgap/docs/jira/v26.11.4/receipts/zp-17-gate10-settling.md`; v4 ledger
+> `ggen/docs/jira/v26.11.4/receipts/v4-corrected-claims-ledger.md` row 5.
 | CODEC-BUDGET | codec ceiling gate citing the ZB-70 map row (af-25 85.8/85.9 ns release-amortized as the base) | ZB-70 (session audit ledger); af-25 |
 | SLAB-INGESTION | ArrowRecordSlab ingestion gate: slab is BENCH-ONLY for ingestion (ZB-64; CTQ-03 membrane 24 B/op NOT-MET receipted); 0 B/op scoped row per ZP-19 (TLS WindowBuffers for 6 alloc sites, Slab64 as metadata IDENTITY plane); G7-chain unfenced row stays explicitly open | ZB-64; ZP-19 |
 | HEAP-CEILING | replaces the UNREACHABLE <850 ns composed heap-storm ceiling with a digest-floor-aware bound (af-37 root cause: ~4.5 µs digest floor) or scopes it to a digest-free decode+gate path | af-37; ZB-70 |
