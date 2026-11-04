@@ -1,0 +1,29 @@
+# GD-2 extract: all PubGate + PubDefect rows, ordered. Every row binds every
+# column explicitly (COALESCE) so no Tera fill-forward can leak values.
+PREFIX dod: <urn:ggen:dod:>
+SELECT ?gateId ?kind ?status ?evidence ?namedBench WHERE {
+  {
+    ?gate a dod:PubGate ;
+          dod:gateId ?gateId ;
+          dod:status ?rawStatus ;
+          dod:evidenceReceipt ?rawEvidence .
+    OPTIONAL { ?gate dod:checkCommand ?rawCmd }
+    BIND("gate" AS ?kind)
+    BIND(COALESCE(?rawEvidence, "") AS ?evidence)
+    BIND(COALESCE(?rawCmd, "") AS ?checkCommand)
+    BIND(COALESCE("", "") AS ?namedBench)
+  }
+  UNION
+  {
+    ?defect a dod:PubDefect ;
+            dod:defectId ?gateId ;
+            dod:status ?rawStatus .
+    OPTIONAL { ?defect dod:namedBench ?rawBench }
+    OPTIONAL { ?defect dod:description ?rawDesc }
+    BIND("defect" AS ?kind)
+    BIND(COALESCE(?rawBench, "") AS ?namedBench)
+    BIND(COALESCE(?rawDesc, "") AS ?description)
+    BIND(COALESCE("", "") AS ?evidence)
+    BIND(COALESCE("", "") AS ?checkCommand)
+  }
+} ORDER BY ?gateId

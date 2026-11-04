@@ -6,19 +6,18 @@
 ontology + templates + ggen.toml → 5-stage sync → generated artifacts → receipt
 ```
 
-MIT licensed. Rust workspace (14 crates). Pinned nightly toolchain (`rust-toolchain.toml`).
+MIT licensed. Rust workspace (16 crates: 15 workspace members plus the root `ggen` package). Pinned nightly toolchain (`rust-toolchain.toml`).
 
-<<<<<<< GENERATED
-Current version: `26.10.12` (workspace version in `Cargo.toml`; nightly Rust toolchain
+Current version: `26.11.3` (workspace version in `Cargo.toml`; nightly Rust toolchain
 `nightly-2026-06-22`, pinned via `rust-toolchain.toml`). The Definition of Done is `just
 pre-commit`; its full gate list is the `pre-commit:` dependency line in `justfile` (the sole
 source of truth — it has drifted before, do not restate a count here). This project is
-under active, fast-moving development — see [Maturity & Known Limitations](#maturity--known-limitations)
+under active, fast-moving development — see [Known limitations](#known-limitations)
 before depending on it for anything production-critical.
 
-=======
-<!-- Manual notes for the generated version block go here; this section and everything outside the markers is preserved byte-for-byte by the merge engine. -->
->>>>>>> MANUAL
+Notable crates: [`ggen-sjira`](crates/ggen-sjira) — semantic Jira work-order substrate
+(211/0 tests passing; 22 unported modules parked); [`ggen-abb-sbb`](crates/ggen-abb-sbb) —
+IO-free ABB/SBB admission kernel wired as ggen-engine's Stage 2c gate.
 
 ## Install
 

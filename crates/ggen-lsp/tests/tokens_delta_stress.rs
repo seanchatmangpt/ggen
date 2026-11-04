@@ -282,10 +282,11 @@ fn soak_10k_did_change_cycles() {
         "generation-slot count unchanged (no slot leak, no slot loss)"
     );
 
-    // Counter conservation, re-read at the end: full (census before) + full
-    // (baseline) + 10k deltas + sampled fulls + census-after full/delta.
-    let expected = 1 + 1 + u64::from(cycles) + u64::from(verified_cycles)
-        + 2 /* census before: full+junk delta */ + 2 /* census after */;
+    // Counter conservation, re-read at the end. Mints so far:
+    // census-before full+junk-delta (2) + baseline full (1) + loop deltas
+    // (10_000) + sampled re-baseline fulls (verified_cycles = 20).
+    // (The census-after probe mints two more AFTER this read.)
+    let expected = 2 + 1 + u64::from(cycles) + u64::from(verified_cycles);
     let final_id = prev_counter;
     assert_eq!(
         final_id, expected,

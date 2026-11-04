@@ -124,7 +124,7 @@ ggen-scip = { path = "../ggen-scip", version = "26.10.12" }
 # path edge (same pattern as ggen-abb-sbb/ggen-marketplace above) so `cargo publish
 # -p ggen-engine` stays resolvable; ggen-graph depends on this crate only as a
 # DEV-dependency, so no normal-dependency cycle exists.
-ggen-graph = { path = "../ggen-graph", version = "=26.10.12" }
+ggen-graph = { path = "../ggen-graph", version = "=26.11.3" }
 # New, deliberate edge (not an undocumented re-export): resolving a `GenerationRule`'s
 # `QuerySource::Pack`/`TemplateSource::Pack` variant means asking "where is this pack
 # installed" -- that knowledge lives in ggen-marketplace's pack registry/lockfile after

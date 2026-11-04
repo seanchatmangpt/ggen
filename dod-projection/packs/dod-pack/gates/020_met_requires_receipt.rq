@@ -1,0 +1,7 @@
+# MESSAGE: no PubGate may claim MET without an evidenceReceipt cite.
+PREFIX dod: <urn:ggen:dod:>
+SELECT ?gate WHERE {
+  ?gate a dod:PubGate ;
+        dod:status "MET" .
+  FILTER NOT EXISTS { ?gate dod:evidenceReceipt ?ev }
+} ORDER BY ?gate

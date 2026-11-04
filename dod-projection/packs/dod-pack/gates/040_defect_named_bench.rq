@@ -1,0 +1,10 @@
+# MESSAGE: every PubDefect must carry defectId, namedBench, and CARRIED status.
+PREFIX dod: <urn:ggen:dod:>
+SELECT ?defect WHERE {
+  ?defect a dod:PubDefect .
+  FILTER (
+    NOT EXISTS { ?defect dod:defectId ?id } ||
+    NOT EXISTS { ?defect dod:namedBench ?nb } ||
+    NOT EXISTS { ?defect dod:status ?st }
+  )
+} ORDER BY ?defect
