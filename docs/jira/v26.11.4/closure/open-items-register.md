@@ -13,7 +13,22 @@ marked CORRECTED with the delta disclosed inline. Lines <=100 chars.
 | OI-5 | Q6 closure wave | IN-FLIGHT | coordinator | /Users/sac/ggen/docs/jira/v26.11.4/closure/ (this directory) | wave-closing-receipt.md promoted DRAFT-UNTIL-DRAIN to filled counts |
 | OI-6 | ZP-21 vs ZP-14 home dispute | OPEN | coordinator | /Users/sac/ggen/docs/jira/v26.11.4/PLANS.md:87-88 | coordinator names one home; losing plan retires its surface |
 | OI-7 | cgap workspace still 26.11.3 | OPEN | cgap lanes | /Users/sac/cgap/Cargo.toml:51 `version = "26.11.3"` | cgap workspace version flips to 26.11.4 |
-| OI-8 | `_impl14` provenance | OPEN | session ledger | no on-disk referent found this session | reconstruct in-writing at drain or demote |
+| OI-8 | `_impl14` provenance | CLOSED | session ledger | reconstructed in-writing (see below); removal merged 434321b0 | `git log --diff-filter=A -- '_impl14/**' \| head` shows entry commit; lesson recorded: build artifacts must never be git-added (lane law) |
+
+### OI-8 reconstruction (written 2026-11-04, from session ledger)
+
+`_impl14` was a stray Elixir implementation-lane build tree (mix compile
+output: `test/lib/ash/ebin/*.beam`, `.so` NIF binaries incl.
+`libwasmex-v0.15.1`, `.mix/compile` caches) committed as tracked files in
+an earlier smalt wave — the "committed build artifacts" anti-pattern.
+Discovered 2026-11-04 by the E4/E6 ERRC sweeps (259 git-tracked files,
+~350MB). Import-check passed (zero refs in `mix.exs`, `lib/`, `test/`,
+`scripts/`, `justfile.d`). C6's U3 landed the removal on branch
+`chore/rm-impl14-artifacts` (0acc51b0, 259 deletions); D63 merged it
+--no-ff to main (434321b0, pushed). The ~1.47GB side-lane build roots
+`_build-eplaw`/`_build-expl11r3` were also deleted untracked. Status
+CLOSED — this row plus merge 434321b0 is the evidence path; no residual
+in-writing gap remains.
 | OI-9 | /tmp lane leases | OPEN | coordinator | /tmp (723 entries incl. arcus-sidecar-* and *-msg.txt) | reconcile-then-delete: each lease named in a receipt, then removed |
 
 ## Corrections vs P-g's draft
