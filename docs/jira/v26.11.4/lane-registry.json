@@ -1,0 +1,200 @@
+{
+  "milestone": "v26.11.4",
+  "repo": "/Users/sac/ggen",
+  "as_of": "2026-11-04",
+  "notes": [
+    "Seed dataset derived from docs/jira/v26.11.4/receipts/d-wave-consolidated-receipt.md",
+    "and docs/jira/v26.11.4/closure/wave-closing-receipt.md (tail-lane rows, all SHAs",
+    "verified on-origin at those receipts' as-of). Owned_paths are inferred from each",
+    "lane's landed artifacts. Wave-closing-receipt.md records D73/D75/D79/D80/D81/D82/",
+    "D84/D85/D87 as UNREFERENCABLE (coordinator-ledger-only) and D25r/D52/D69 not",
+    "landed at receipt time; those IDs are intentionally absent rather than guessed.",
+    "This session's lane is O3 (SD-19/O3-spec-1): registry + lane-lease hook, in-flight.",
+    "Registry path per coordinator dispatch: .ggen/lane-registry.json (O3 spec names",
+    "docs/jira/<milestone>/lane-registry.json; hook accepts both). NOTE: .ggen/ is",
+    "gitignored (line 1023), so the committed landing copy lives at",
+    "docs/jira/v26.11.4/lane-registry.json (spec-canonical, O3-2's reader globs it);",
+    "the .ggen/ copy is the ignored working mirror."
+  ],
+  "lanes": [
+    {
+      "lane_id": "D90",
+      "repo": "/Users/sac/ggen",
+      "owned_paths": ["crates/ggen-scip/**", "crates/ggen-marketplace/**"],
+      "status": "done",
+      "receipts": ["97c2148d1"],
+      "lease_expires": null
+    },
+    {
+      "lane_id": "D98",
+      "repo": "/Users/sac/ggen",
+      "owned_paths": ["docs/jira/v26.11.4/closure/open-items-register.md"],
+      "status": "done",
+      "receipts": ["b88dd8af3"],
+      "lease_expires": null
+    },
+    {
+      "lane_id": "P-p",
+      "repo": "/Users/sac/ggen",
+      "owned_paths": ["docs/jira/v26.11.4/receipts/**"],
+      "status": "done",
+      "receipts": ["e5dc7e1d3", "d1957c09e"],
+      "lease_expires": null
+    },
+    {
+      "lane_id": "S-9",
+      "repo": "/Users/sac/ggen",
+      "owned_paths": ["scripts/gates/**"],
+      "status": "done",
+      "receipts": ["09d4d7db7"],
+      "lease_expires": null
+    },
+    {
+      "lane_id": "O1",
+      "repo": "/Users/sac/ggen",
+      "owned_paths": ["docs/jira/v26.11.4/closure/orchestration-failure-modes.md"],
+      "status": "done",
+      "receipts": [],
+      "lease_expires": null
+    },
+    {
+      "lane_id": "O2",
+      "repo": "/Users/sac/ggen",
+      "owned_paths": ["docs/jira/v26.11.4/closure/RUNBOOK-20-LANES.md"],
+      "status": "done",
+      "receipts": [],
+      "lease_expires": null
+    },
+    {
+      "lane_id": "O3",
+      "repo": "/Users/sac/ggen",
+      "owned_paths": [
+        ".ggen/**",
+        "scripts/lane_lease_hook.py",
+        "docs/jira/v26.11.4/lane-registry.json",
+        "docs/jira/v26.11.4/closure/mechanical-gates-spec.md"
+      ],
+      "status": "in-flight",
+      "receipts": [],
+      "lease_expires": "2026-11-05T00:00Z"
+    },
+    {
+      "lane_id": "O4",
+      "repo": "/Users/sac/ggen",
+      "owned_paths": ["docs/jira/v26.11.4/closure/next-wave-seeds.md"],
+      "status": "done",
+      "receipts": ["be7afbf3c"],
+      "lease_expires": null
+    },
+    {
+      "lane_id": "C0",
+      "repo": "/Users/sac/ggen",
+      "owned_paths": ["docs/jira/v26.11.4/closure/wave-closing-receipt.md"],
+      "status": "done",
+      "receipts": [],
+      "lease_expires": null
+    },
+    {
+      "lane_id": "C1",
+      "repo": "/Users/sac/ggen",
+      "owned_paths": ["docs/jira/v26.11.4/closure/replay-commands.sh"],
+      "status": "done",
+      "receipts": ["dc471a839"],
+      "lease_expires": null
+    },
+    {
+      "lane_id": "C2",
+      "repo": "/Users/sac/ggen",
+      "owned_paths": ["docs/jira/v26.11.4/closure/kd-register-index.md"],
+      "status": "done",
+      "receipts": [],
+      "lease_expires": null
+    },
+    {
+      "lane_id": "C3",
+      "repo": "/Users/sac/ggen",
+      "owned_paths": ["docs/jira/v26.11.4/receipts/d-wave-consolidated-receipt.md"],
+      "status": "done",
+      "receipts": [],
+      "lease_expires": null
+    },
+    {
+      "lane_id": "C4",
+      "repo": "/Users/sac/ggen",
+      "owned_paths": ["docs/jira/v26.11.4/PLANS.md"],
+      "status": "done",
+      "receipts": ["8d5ff1167", "3afe33b2d"],
+      "lease_expires": null
+    },
+    {
+      "lane_id": "D33",
+      "repo": "/Users/sac/smalt",
+      "owned_paths": ["tmp/invariant-gates/**"],
+      "status": "done",
+      "receipts": ["6bb10a36"],
+      "lease_expires": null
+    },
+    {
+      "lane_id": "D101",
+      "repo": "/Users/sac/arcus",
+      "owned_paths": ["internal/arcus/**"],
+      "status": "done",
+      "receipts": ["309b48b"],
+      "lease_expires": null
+    },
+    {
+      "lane_id": "D102",
+      "repo": "/Users/sac/cgap",
+      "owned_paths": ["crates/cgap-ffi/**"],
+      "status": "done",
+      "receipts": ["5c6638f9"],
+      "lease_expires": null
+    },
+    {
+      "lane_id": "D106",
+      "repo": "/Users/sac/cgap",
+      "owned_paths": ["crates/cgap-arrow/**", "crates/cgap-git/**", "wire-shm/**"],
+      "status": "in-flight",
+      "receipts": [],
+      "lease_expires": null
+    },
+    {
+      "lane_id": "D93",
+      "repo": "/Users/sac/lsp-max",
+      "owned_paths": ["**"],
+      "status": "in-flight",
+      "receipts": [],
+      "lease_expires": null
+    },
+    {
+      "lane_id": "D95/D105",
+      "repo": "/Users/sac/lsp-max",
+      "owned_paths": [".github/workflows/**", "scripts/**"],
+      "status": "done",
+      "receipts": ["86ad66d", "a86d167", "ee22719", "e6213b4"],
+      "lease_expires": null
+    },
+    {
+      "lane_id": "D96",
+      "repo": "/Users/sac/lsp-max",
+      "owned_paths": [".github/workflows/**"],
+      "status": "done",
+      "receipts": ["e94f879"],
+      "lease_expires": null
+    },
+    {
+      "lane_id": "D103/D104",
+      "repo": "multi-repo (cgap,arcus,lsp-max,smalt)",
+      "owned_paths": ["CHANGELOG.md"],
+      "status": "done",
+      "receipts": ["b0324cfa", "9f42e12", "e6213b4", "53bdbccf"],
+      "repo_shas": {
+        "cgap": "b0324cfa",
+        "arcus": "9f42e12",
+        "lsp-max": "e6213b4",
+        "smalt": "53bdbccf"
+      },
+      "lease_expires": null
+    }
+  ]
+}

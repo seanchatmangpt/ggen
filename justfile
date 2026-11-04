@@ -922,3 +922,12 @@ sjira-control-court:
 e2e:
     cargo test -p ggen-cli --test integration_ai_e2e --test integration_cli_ux_e2e --test integration_graph_e2e --test integration_marketplace_e2e --test integration_ontology_e2e --test integration_project_e2e --test integration_template_e2e --test integration_utils_e2e --test integration_workflow_e2e -- --ignored --nocapture
     cargo test -p ggen-lsp --test consolidate_002_sequence_equivalence --test oracle_tape_generator -- --ignored --nocapture
+
+# ── SD-20/O3-2: shared-index disclosure gate (mechanical-gates-spec Gate 2) ───
+# Refuse-by-default check that staged paths belong to $GGEN_LANE_ID's
+# owned_paths in docs/jira/<milestone>/lane-registry.json (or the seeded
+# fallback). Commit-time: wire via `git config core.hooksPath .githooks`
+# (prepare-commit-msg) — operator's call. `just fleet-disclose` runs the
+# same check standalone.
+fleet-disclose:
+    python3 scripts/index_disclosure.py --check
