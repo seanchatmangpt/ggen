@@ -40,8 +40,8 @@ rf:dispatchRoute a owl:DatatypeProperty ;
     rdfs:domain rf:DiagnosticCode .
 
 rf:doc a rf:Doc ;
-    rf:workspaceVersion "26.10.12" ;
-    rf:projectManifestVersion "26.10.11" ;
+    rf:workspaceVersion "26.11.4" ;
+    rf:projectManifestVersion "26.11.4" ;
     rf:toolchainChannel "nightly-2026-06-22" ;
     rf:memberCount "11" ;
     rf:crateCount "12" ;
