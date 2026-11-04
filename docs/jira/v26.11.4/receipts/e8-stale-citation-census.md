@@ -62,10 +62,12 @@ exact-string grep misses it):
 (verified at line 73, §3 below). With it, 9 ERRATA-bearing sites are on
 disk. The expected 10-file list is NOT reproduced on disk this session
 — the two unaccounted files are named UNVERIFIED-MISSING, not rounded
-up.
+up. **[RECOUNT 2026-11-04: corrected — see §2a; standing is now
+VERIFIED at 9, not UNVERIFIED.]**
 
 Standing for §2: the 9-file list is ALIVE (grep + line reads this
 session); the 10-file expectation is UNVERIFIED (9 found).
+**[RECOUNT 2026-11-04: standing corrected to VERIFIED at 9 — see §2a.]**
 
 ## 3. POST-FOLD errata verification
 
@@ -108,6 +110,26 @@ pointer.** Expect-zero holds.
 
 Standing: ALIVE (greps + cited-line re-reads run this session); §2's
 10-file enumeration is UNVERIFIED (9 found, see §2).
+**[RECOUNT 2026-11-04: standing corrected to VERIFIED at 9 — see §2a.]**
+
+## 2a. Recount addendum (2026-11-04)
+
+Re-derived this session (P-b confirmation greps re-run on disk):
+`grep -rl "ERRATA 2026-11-04"` and `grep -rl "## ERRATA (2026-11-04)"`
+across /Users/sac/cgap/docs, /Users/sac/ggen/docs, /Users/sac/arcus/docs.
+Union = 10 hits, but one hit is THIS census file (it quotes the marker
+string in its own enumeration), so the count of ERRATA-bearing sites is
+**exactly 9** — the 8 exact-string files listed in §2 plus zp-17's
+variant form. The missing-set is empty.
+
+The §2 "expected 10" was a refute-cite conflation: the original
+enumerator counted the census document itself (which merely cites the
+`ERRATA 2026-11-04` string while classifying refute-cites) among
+ERRATA-bearing live-claim sites. That mention is a classify-and-report
+reference, not a live claim — same class as the annotated refute-cite
+sites in §2's lawful list. The correct count was therefore 9 from the
+start; the 10-file expectation is retracted, the 9-file enumeration is
+complete, and standing for §2 is **VERIFIED (9/9, missing-set empty)**.
 
 ## See Also
 

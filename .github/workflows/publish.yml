@@ -37,12 +37,19 @@ concurrency:
 
 jobs:
   # -------------------------------------------------------------------------
+  # ERRATA 2026-11-04: this gate previously hardcoded 26.11.3 literals,
+  # which went stale the moment the workspace moved to 26.11.4 (see zp-16,
+  # docs/jira/v26.11.4/receipts/zp-16-publish-automation.md, and the
+  # v26.11.4 version move). The expected version is now derived from the
+  # workspace itself (`[workspace.package] version` at Cargo.toml line 2),
+  # so the gate can no longer drift from the release train.
+  #
   # PRE-FIX gate: ggen-engine's version reqs on ggen-abb-sbb and ggen-scip
-  # must be at 26.11.3 before any publish is lawful. A version req bump is a
-  # coordinated change, never a mid-publish edit. Fail-closed.
+  # must be at the workspace version before any publish is lawful. A version
+  # req bump is a coordinated change, never a mid-publish edit. Fail-closed.
   # -------------------------------------------------------------------------
   pre-fix-gate:
-    name: PRE-FIX gate (version reqs at 26.11.3)
+    name: PRE-FIX gate (version reqs at workspace version)
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -51,23 +58,29 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Verify engine's version reqs are at 26.11.3
+      - name: Verify engine's version reqs match the workspace version
         shell: bash
         run: |
           set -euo pipefail
           fail=0
+          want="$(sed -n '2p' Cargo.toml | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')"
           abb="$(grep -E 'ggen-abb-sbb.*version' crates/ggen-engine/Cargo.toml \
             | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)"
           scip="$(grep -E 'ggen-scip.*version' crates/ggen-engine/Cargo.toml \
             | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)"
+          echo "workspace version (want) = $want"
           echo "ggen-abb-sbb req = $abb"
           echo "ggen-scip    req = $scip"
-          if [ "$abb" != "26.11.3" ]; then
-            echo "BLOCKED(PRE-FIX): crates/ggen-engine/Cargo.toml ggen-abb-sbb req is $abb, not 26.11.3" >&2
+          if [ -z "$want" ]; then
+            echo "BLOCKED(PRE-FIX): could not derive workspace version from Cargo.toml line 2" >&2
             fail=1
           fi
-          if [ "$scip" != "26.11.3" ]; then
-            echo "BLOCKED(PRE-FIX): crates/ggen-engine/Cargo.toml ggen-scip req is $scip, not 26.11.3" >&2
+          if [ "$abb" != "$want" ]; then
+            echo "BLOCKED(PRE-FIX): crates/ggen-engine/Cargo.toml ggen-abb-sbb req is $abb, not $want" >&2
+            fail=1
+          fi
+          if [ "$scip" != "$want" ]; then
+            echo "BLOCKED(PRE-FIX): crates/ggen-engine/Cargo.toml ggen-scip req is $scip, not $want" >&2
             fail=1
           fi
           exit "$fail"

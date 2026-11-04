@@ -131,7 +131,17 @@ ZB-65 (portability) per `/Users/sac/ggen/docs/jira/v26.11.4/PRD.md:31` and
 - Workflow structures, DAGs, gate lines, job counts: ALIVE (files read
   and line-cited this session).
 - zd-141 sed fix: PARTIAL (landed per receipt, not re-run).
-- lean4 mapfile fix, marketplace NO-OP-NOT-CREATED mechanism: UNVERIFIED
-  / not landed — recorded as open, never rounded up.
+- lean4 mapfile fix: **VERIFIED-LANDED** (2026-11-04 recount).
+  Re-confirmed on disk this session: `grep -nE 'mapfile|-printf|readlink
+  -f|echo -e' scripts/verify-lean4-rust-pipeline.sh` returns zero hits;
+  `bash -n scripts/verify-lean4-rust-pipeline.sh` passes under system
+  bash 3.2; the fix is committed in fa7c47faa ("ci: publish workflow
+  (ZP-16) + lean4 portability (ZB-65) + disk-reclaim + lock-untrack
+  (ZD-124)"), verified an ancestor of HEAD via `git merge-base --is-ancestor`.
+- marketplace NO-OP-NOT-CREATED mechanism: **RETRACTED** (2026-11-04).
+  No artifact carrying that behavior exists anywhere in the tree; the
+  nearest rationale is the anti-vacuity comment at
+  `marketplace-test.yml:31` (decorative no-op must not fake a pass).
+  Terminal unless a real mechanism lands in a future commit.
 - ggen PRE-FIX state: BLOCKED (by design) until the 26.11.3 req bump
   lands.
