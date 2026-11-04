@@ -5,7 +5,7 @@
 //!
 //! - tera 1.20.x: `variable_end = { "-}}" | "}}" }`
 //!   (src/parser/tera.pest:150, tera-1.20.x registry source)
-//! - tera 2.4.0: `Token::VariableEnd(true)` on the `-` + variable_end path
+//! - tera 2.4.0: `Token::VariableEnd(true)` on the `-` + `variable_end` path
 //!   (src/parsing/lexer.rs:532-544, tera-2.4.0 registry source)
 //!
 //! The 30 expression-tag `-}}` uses (12 files under ggen `packs/`, 18 under
@@ -20,6 +20,12 @@
 //! Non-vacuity: the poisoned fixture MUST produce a named finding — if a run
 //! reports zero findings on it, the gate itself is buggy (asserted).
 
+#![allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
+    clippy::similar_names
+)]
 use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
 

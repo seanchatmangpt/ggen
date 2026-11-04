@@ -6,6 +6,12 @@
 //! `crates/ggen-cli/src/generated_commands.rs`, a real tree-sitter-rust
 //! parse, and a real oxigraph graph parse. No mocks.
 
+#![allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
+    clippy::similar_names
+)]
 #[path = "../src/tokens.rs"]
 mod tokens;
 

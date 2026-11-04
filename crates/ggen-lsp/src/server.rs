@@ -419,7 +419,7 @@ impl LanguageServer for GgenLanguageServer {
             // G2 decision: stay on FULL sync. TokensEngine::delta diffs the
             // stored token arrays (no previous text needed), and
             // lsp_sabotage_test pins FULL-sync did_change semantics.
-            let text = if change.range.is_some() {
+            if change.range.is_some() {
                 // Ranged-change defense: under FULL sync a client carrying a
                 // `range` is violating the negotiated contract. `change.text`
                 // is still treated as the FULL replacement text — never a
@@ -428,10 +428,8 @@ impl LanguageServer for GgenLanguageServer {
                 tracing::warn!(
                     "client sent ranged change under FULL sync; treating text as full replacement"
                 );
-                change.text
-            } else {
-                change.text
-            };
+            }
+            let text = change.text;
             self.state.set_document(uri.clone(), text.clone()).await;
             self.refresh_analyzer(&uri, &text).await;
         }

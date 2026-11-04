@@ -134,6 +134,7 @@ fn tampered_legacy_entry_refuses_under_compat() {
 /// current rule, and the whole ledger — legacy prefix + new records —
 /// verifies.
 #[test]
+#[allow(clippy::too_many_lines)] // long court: legacy tail + full-chain verification is one scenario
 fn legacy_ledger_tail_extends_and_the_whole_chain_verifies() {
     use chicago_tdd_tools::cli_proof::CliHarness;
     use std::path::Path;

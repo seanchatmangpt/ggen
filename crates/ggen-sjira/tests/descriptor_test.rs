@@ -10,7 +10,6 @@ use ggen_sjira::descriptor::{
 };
 use ggen_sjira::frontier::{AuthorityIndex, TransitionEvent};
 use serde_json::{json, Value};
-use std::collections::BTreeMap;
 
 fn pins(pinned: &[(&str, &str)]) -> AuthorityIndex {
     pinned
@@ -51,9 +50,10 @@ fn attrs() -> ggen_sjira::descriptor::BuildAttrs {
 }
 
 fn opts<'a>(authority: &'a AuthorityIndex) -> DescriptorOpts<'a> {
-    let mut o = DescriptorOpts::default();
-    o.authority = Some(authority);
-    o
+    DescriptorOpts {
+        authority: Some(authority),
+        ..Default::default()
+    }
 }
 
 #[test]
@@ -88,7 +88,7 @@ fn eligible_order_builds_descriptor_with_authority_none() {
 fn blocked_order_refuses_not_on_frontier_with_reason() {
     // ALIVE standing (via a logged transition) is settled → blocked with
     // its standing as reason.
-    let mut order = order_json("X1");
+    let order = order_json("X1");
     // no events, no caller evidence: X1 alone is eligible; use a second
     // order whose origin is unpinned → blocked with origin refusal.
     let mut other = order_json("X2");
@@ -158,10 +158,12 @@ fn snapshot_drift_refuses_when_frontier_projected_a_different_snapshot() {
 fn xaas_contract_happy_path_carries_bridge_and_goal() {
     let orders = [order_json("X1")];
     let authority = pins(&[("https://graph.test/auth/X1", "sha256:aa")]);
-    let mut o = DescriptorOpts::default();
-    o.authority = Some(&authority);
-    o.verifier_suite = Some("cargo".to_string());
-    o.execution_repo_alias = Some("ggen-main".to_string());
+    let o = DescriptorOpts {
+        authority: Some(&authority),
+        verifier_suite: Some("cargo".to_string()),
+        execution_repo_alias: Some("ggen-main".to_string()),
+        ..Default::default()
+    };
     let d = build_xaas_contract(&orders, &[], "X1", &o).expect("contract builds");
     assert_eq!(d["digest_form"], "sjira-digest/2");
     assert_eq!(d["provider"], "recipe");
@@ -178,15 +180,19 @@ fn xaas_contract_happy_path_carries_bridge_and_goal() {
     assert_eq!(d["bridge"]["requires"]["courts"], json!(["c1"]));
     assert_eq!(d["bridge"]["requires"]["falsifiers"], json!(["f1"]));
     // missing suite / alias refuse
-    let mut o2 = DescriptorOpts::default();
-    o2.authority = Some(&authority);
+    let o2 = DescriptorOpts {
+        authority: Some(&authority),
+        ..Default::default()
+    };
     assert_eq!(
         build_xaas_contract(&orders, &[], "X1", &o2).unwrap_err(),
         DescriptorRefusal::MissingOption("verifier_suite")
     );
-    let mut o3 = DescriptorOpts::default();
-    o3.authority = Some(&authority);
-    o3.verifier_suite = Some("cargo".to_string());
+    let o3 = DescriptorOpts {
+        authority: Some(&authority),
+        verifier_suite: Some("cargo".to_string()),
+        ..Default::default()
+    };
     assert_eq!(
         build_xaas_contract(&orders, &[], "X1", &o3).unwrap_err(),
         DescriptorRefusal::MissingAlias("owner/repo".to_string())

@@ -21,7 +21,7 @@ use ggen_sjira::{admit_work_order, FrontierInput};
 use serde_json::{json, Value};
 use std::alloc::{GlobalAlloc, Layout, System};
 use std::collections::BTreeMap;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 use std::sync::atomic::{AtomicIsize, AtomicUsize, Ordering};
 use std::sync::{Arc, Barrier, Mutex};
 use std::time::Instant;
@@ -536,7 +536,7 @@ fn admit_cycle(i: usize) {
     let good = admit_work_order(&valid_order_n(i)).expect("valid order admits");
     let mut bad = valid_order_n(i);
     bad["base_sha"] = json!("NOT_A_SHA");
-    let refused = admit_work_order(&bad).err().expect("bad order refuses");
+    let refused = admit_work_order(&bad).expect_err("bad order refuses");
     let mut j = TransitionJournal::new();
     j.record(&Ok(good), Some("sha256:cc".into()));
     j.record(&Err(refused), None);

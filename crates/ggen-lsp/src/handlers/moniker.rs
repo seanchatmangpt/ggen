@@ -104,7 +104,7 @@ pub(crate) async fn moniker_fallback_hits(
             // moniker falls through to the banner-bearing tree scan below
             // (module::SYMBOL monikers are also 2-segment).
             let kernel_path = root.join("crates/ggen-abb-sbb/src/lib.rs");
-            if let Some(source) = std::fs::read_to_string(&kernel_path).ok() {
+            if let Ok(source) = std::fs::read_to_string(&kernel_path) {
                 if let Some(range) = crate::moniker::resolve_kernel_moniker(&m, &source) {
                     if let Some(hit_uri) = wire_url_from_path(&kernel_path) {
                         hits.push(FallbackHit {

@@ -327,7 +327,7 @@ fn write_pack_with_graph(root: &std::path::Path, graph_toml: &str) {
 /// non-canonical port id must REFUSE sync through the real CLI — the old
 /// `if let Ok(pm)` fail-open silently skipped the depgraph admission check
 /// on exactly such manifests. Refusal is the FM-PACK-015 typed path with
-/// the kernel's NON_CANONICAL_PORT reason; nothing is written.
+/// the kernel's `NON_CANONICAL_PORT` reason; nothing is written.
 #[test]
 fn sync_run_malformed_pack_port_refuses() {
     let dir = TempDir::new().expect("tempdir");

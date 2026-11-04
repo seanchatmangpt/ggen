@@ -67,11 +67,12 @@ fn two_admitted_orders() -> (Vec<Value>, AuthorityIndex) {
 }
 
 fn contract_opts(authority: &AuthorityIndex) -> DescriptorOpts<'_> {
-    let mut o = DescriptorOpts::default();
-    o.authority = Some(authority);
-    o.verifier_suite = Some("cargo".to_string());
-    o.execution_repo_alias = Some("ggen-main".to_string());
-    o
+    DescriptorOpts {
+        authority: Some(authority),
+        verifier_suite: Some("cargo".to_string()),
+        execution_repo_alias: Some("ggen-main".to_string()),
+        ..Default::default()
+    }
 }
 
 // ── the honest simulated executor ───────────────────────────────────────────

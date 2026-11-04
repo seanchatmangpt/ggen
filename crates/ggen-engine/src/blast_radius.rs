@@ -43,6 +43,7 @@ pub struct WritePlan {
 
 impl WritePlan {
     /// Plan with the default depth cap.
+    #[must_use]
     pub fn new(writes: Vec<PlannedWrite>) -> Self {
         Self {
             writes,
@@ -163,7 +164,6 @@ pub struct ScipGraph {
 
 impl ScipGraph {
     /// Build the adapter from a loaded SCIP query handle.
-    #[must_use]
     pub fn from_query(query: &ggen_scip::query::Query) -> Self {
         let mut callers: BTreeMap<String, BTreeSet<String>> = BTreeMap::new();
         let mut def_sites: BTreeMap<String, String> = BTreeMap::new();
@@ -180,16 +180,16 @@ impl ScipGraph {
             def_anchors.sort_unstable();
 
             for occ in &doc.occurrences {
-                let is_def = occ.roles & ggen_scip::ROLE_DEFINITION != 0;
-                let is_ref = occ.roles & ggen_scip::ROLE_REFERENCE != 0;
-                if !is_ref {
+                let is_definition = occ.roles & ggen_scip::ROLE_DEFINITION != 0;
+                let is_reference = occ.roles & ggen_scip::ROLE_REFERENCE != 0;
+                if !is_reference {
                     continue;
                 }
                 // Nearest preceding definition anchor = the enclosing item
                 // (heuristic — see module docs). Definition-only occurrences
                 // (merged def+ref at the name node) attribute to themselves;
                 // those are skipped because `is_def` occurrence is the anchor.
-                if is_def {
+                if is_definition {
                     continue;
                 }
                 let caller = def_anchors
@@ -301,7 +301,7 @@ fn b3(parts: &[&str]) -> String {
 }
 
 fn plan_digest(plan: &WritePlan) -> String {
-    let canonical = serde_json::to_string(plan).expect("plan serializes");
+    let canonical = serde_json::to_string(plan).unwrap_or_else(|err| panic!("plan serializes: {err}"));
     b3(&[&canonical])
 }
 
@@ -357,6 +357,13 @@ pub fn compute(target: &str, graph: &dyn SymbolGraph, max_depth: usize) -> Blast
 /// Admission gate: REFUSED if any written path's symbols' radius intersects
 /// `protected_paths`; ALIVE (or PARTIAL under depth truncation) with slice
 /// payload otherwise.
+///
+/// # Panics
+///
+/// Panics if the computed blast radius fails to serialize to canonical JSON
+/// (unreachable for derived `Serialize` payloads; the digest law requires a
+/// `String`, so serialization failure is not recoverable here).
+#[allow(clippy::too_many_lines)] // single court function: linear admission pipeline, splitting would obscure the gate order
 pub fn admit_write(
     plan: &WritePlan, graph: &dyn SymbolGraph, protected_paths: &[String],
 ) -> Admission {
@@ -452,7 +459,9 @@ pub fn admit_write(
     violations.sort_by(|a, b| (&a.path, &a.symbol).cmp(&(&b.path, &b.symbol)));
     violations.dedup();
 
-    let radius_digest = b3(&[&serde_json::to_string(&radius).expect("radius serializes")]);
+    let radius_json =
+        serde_json::to_string(&radius).unwrap_or_else(|err| panic!("radius serializes: {err}"));
+    let radius_digest = b3(&[&radius_json]);
     let verdict = if violations.is_empty() {
         "ALIVE"
     } else {

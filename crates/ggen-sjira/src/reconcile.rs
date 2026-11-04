@@ -143,6 +143,7 @@ pub struct Reconciled {
 }
 
 /// The reconcile calculus (`reconcile/4`, reconciler.ex lines 47-95).
+#[allow(clippy::result_large_err)] // ReconcileRefusal carries typed wire Values; boxing would obscure the refusal payload the court needs to read.
 pub fn reconcile(
     order: &Value, receipt: &Value, ledger_path: &Path, opts: &ReconcileOpts,
 ) -> Result<Reconciled, ReconcileRefusal> {
@@ -353,18 +354,6 @@ pub fn tail_digest(events: &[Value]) -> String {
         .unwrap_or_else(|| GENESIS_DIGEST.to_string())
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn genesis_is_sha256_prefixed_all_zeros() {
-        assert!(GENESIS_DIGEST.starts_with("sha256:"));
-        assert_eq!(GENESIS_DIGEST.len(), 71);
-        assert_eq!(tail_digest(&[]), GENESIS_DIGEST);
-    }
-}
-
 // SLA minimal-unblock (DS-2 lane, 2026-11-03): `?` conversion impls the
 // promote/ledger hops above need; disclosed in the DS-2 and DS-1 receipts.
 impl From<LedgerError> for ReconcileRefusal {
@@ -376,5 +365,17 @@ impl From<LedgerError> for ReconcileRefusal {
 impl From<PromoteRefusal> for ReconcileRefusal {
     fn from(e: PromoteRefusal) -> Self {
         Self::PromotionRefused(e)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn genesis_is_sha256_prefixed_all_zeros() {
+        assert!(GENESIS_DIGEST.starts_with("sha256:"));
+        assert_eq!(GENESIS_DIGEST.len(), 71);
+        assert_eq!(tail_digest(&[]), GENESIS_DIGEST);
     }
 }

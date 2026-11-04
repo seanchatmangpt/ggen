@@ -378,7 +378,7 @@ pub fn run(
                 target_standing: EXECUTION_CEILING.to_string(),
                 // The honest ceiling, structurally encoded.
                 head_verified: false,
-                plan_digest: plan_digest(&candidate, &admitted),
+                plan_digest: plan_digest(candidate, &admitted),
             };
 
             // The typed promotion law, checked BEFORE any write.

@@ -1,6 +1,12 @@
 //! Chicago tests for `ggen_lsp::moniker` — real generated files on disk, real
 //! kernel source, assertions on final state. No mocks.
 
+#![allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
+    clippy::similar_names
+)]
 use ggen_lsp::moniker::{
     identifier_at_position, is_generated_file, moniker_at_position, resolve_kernel_moniker,
     resolve_moniker_in_source, resolve_moniker_in_tree, Moniker,

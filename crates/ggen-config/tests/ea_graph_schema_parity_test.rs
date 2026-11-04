@@ -134,7 +134,7 @@ fn extract_shape_paths(ttl: &str, class: &str) -> BTreeSet<String> {
             found_target = false;
             continue;
         }
-        if trimmed == &target {
+        if trimmed == target {
             in_shape = true;
             found_target = true;
             continue;
@@ -159,7 +159,7 @@ fn shape_is_closed(ttl: &str, class: &str) -> bool {
             in_shape = false;
             continue;
         }
-        if trimmed == &target {
+        if trimmed == target {
             in_shape = true;
             continue;
         }
@@ -235,7 +235,7 @@ fn min_count_errors(lib_rs: &str, ttl: &str) -> Vec<String> {
                     in_prop = false;
                     continue;
                 }
-                if trimmed == &target {
+                if trimmed == target {
                     in_shape = true;
                     continue;
                 }
@@ -250,7 +250,7 @@ fn min_count_errors(lib_rs: &str, ttl: &str) -> Vec<String> {
                     in_prop = false;
                     continue;
                 }
-                if in_prop && trimmed == &prop_line {
+                if in_prop && trimmed == prop_line {
                     // minCount is declared within the same property block;
                     // the following sh:minCount line seen while `found` is
                     // set belongs to this block.

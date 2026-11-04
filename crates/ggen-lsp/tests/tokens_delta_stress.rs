@@ -19,6 +19,13 @@
 //! 4. Allocation census per cycle via a counting global allocator (the
 //!    engine is a host facade; the census is a baseline, not a budget).
 
+#![allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
+    clippy::similar_names,
+    unsafe_code
+)]
 #[path = "../src/tokens.rs"]
 mod tokens;
 

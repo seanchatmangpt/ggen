@@ -40,12 +40,14 @@ fn sha256_hex(bytes: &[u8]) -> String {
     let d = h.finalize();
     let mut s = String::with_capacity(d.len() * 2);
     for b in d {
-        s.push_str(&format!("{b:02x}"));
+        use std::fmt::Write as _;
+        let _ = write!(s, "{b:02x}");
     }
     s
 }
 
 /// SHA-256 of the empty byte image — the commitment to "file absent".
+#[must_use]
 pub fn empty_image_sha256() -> String {
     sha256_hex(&[])
 }
@@ -69,6 +71,10 @@ pub struct FileEdit {
 impl FileEdit {
     /// Capture the inverse delta for one target: read its current bytes (or
     /// record absence) and commit to the planned `after` image.
+    /// # Errors
+    ///
+    /// Returns a typed error if the file cannot be read or its digest cannot
+    /// be computed against the `after` commitment.
     pub fn capture(path: impl Into<PathBuf>, after_bytes: Vec<u8>) -> Result<Self> {
         let path = path.into();
         let (before, before_sha) = match std::fs::read(&path) {
@@ -91,6 +97,7 @@ impl FileEdit {
 
     /// The exact inverse delta: restore `before_bytes`, deleting the file
     /// when it was absent before the original edit.
+    #[must_use]
     pub fn invert(&self) -> FileEdit {
         let before_was_absent = self.before_bytes.is_none();
         FileEdit {
@@ -107,6 +114,7 @@ impl FileEdit {
     }
 
     /// Whether the inverse edit deletes the file (it was absent before).
+    #[must_use]
     pub fn deletes_file(&self) -> bool {
         self.before_bytes.is_none()
     }
@@ -127,8 +135,7 @@ fn verify_state(
         Err(e) => return Err(e.into()),
     };
     match (&current, expect_absent) {
-        (Some(_), false) => {}
-        (None, true) => {}
+        (Some(_), false) | (None, true) => {}
         (None, false) => {
             return Err(tx_err(
                 code,
@@ -188,6 +195,11 @@ fn write_bytes(path: &Path, bytes: &[u8]) -> Result<()> {
 }
 
 /// Apply one [`FileEdit`] with verification against the `before` commitment.
+///
+/// # Errors
+///
+/// Returns a typed refusal if the file's current state diverges from the
+/// `before` commitment, or if the write/temp-rename fails.
 pub fn apply_edit(edit: &FileEdit) -> Result<()> {
     verify_state(
         &edit.path,
@@ -233,12 +245,12 @@ pub struct TransactionalEdit {
     pub edits: Vec<FileEdit>,
     /// BLAKE3 hash of the previous transaction (empty for genesis).
     pub prev_hash: String,
-    /// BLAKE3 hash over (prev_hash, id, edit count, per-file commitments).
+    /// BLAKE3 hash over (`prev_hash`, id, edit count, per-file commitments).
     pub hash: String,
 }
 
 impl TransactionalEdit {
-    /// Chain hash over prev_hash + id + every edit's commitments.
+    /// Chain hash over `prev_hash` + id + every edit's commitments.
     fn chain_hash(id: &str, prev_hash: &str, edits: &[FileEdit]) -> String {
         let mut h = blake3::Hasher::new();
         h.update(prev_hash.as_bytes());
@@ -266,12 +278,13 @@ impl TransactionalEdit {
     }
 
     /// The exact inverse delta set for the whole transaction, in reverse
-    /// edit order. The inverse keeps the same chain position (prev_hash and
+    /// edit order. The inverse keeps the same chain position (`prev_hash` and
     /// hash are unchanged) — it is a derived journal, not a new link.
+    #[must_use]
     pub fn invert(&self) -> TransactionalEdit {
         TransactionalEdit {
             id: format!("invert-{}", self.id),
-            edits: self.edits.iter().rev().map(|e| e.invert()).collect(),
+            edits: self.edits.iter().rev().map(FileEdit::invert).collect(),
             prev_hash: self.prev_hash.clone(),
             hash: self.hash.clone(),
         }
@@ -279,6 +292,10 @@ impl TransactionalEdit {
 
     /// Apply the transaction's edits in order with byte verification
     /// against the `before` commitments.
+    ///
+    /// # Errors
+    ///
+    /// Returns the first per-edit refusal from [`apply_edit`].
     pub fn apply(&self) -> Result<()> {
         for edit in &self.edits {
             apply_edit(edit)?;
@@ -289,6 +306,11 @@ impl TransactionalEdit {
     /// Roll the whole transaction back: verify every target still hashes to
     /// its `after` commitment FIRST (a mid-set divergence must not leave a
     /// half-rolled-back state), then restore in reverse order.
+    ///
+    /// # Errors
+    ///
+    /// Returns a typed refusal if any `after` commitment fails verification
+    /// or a restore write fails.
     pub fn rollback(&self) -> Result<()> {
         for edit in &self.edits {
             verify_state(&edit.path, &edit.after_sha256, false, 2, "rollback")?;
@@ -322,7 +344,7 @@ pub struct RecoveryReport {
 
 /// Check whether a path currently satisfies a commitment. `Ok(true)` = the
 /// on-disk state matches; `Ok(false)` = it does not; `Err` = unreadable
-/// (I/O failure other than NotFound).
+/// (I/O failure other than `NotFound`).
 fn matches_commitment(path: &Path, expect_sha: &str, expect_absent: bool) -> Result<bool> {
     let current = match std::fs::read(path) {
         Ok(bytes) => Some(bytes),
@@ -340,6 +362,11 @@ impl Journal {
     /// Open (or create) a journal at `path`, verifying the BLAKE3 chain of
     /// any existing records. A corrupt line, chain break, or hash mismatch
     /// is a typed refusal — a tampered journal never replays.
+    ///
+    /// # Errors
+    ///
+    /// Returns a typed refusal on unreadable journal files, corrupt lines,
+    /// chain breaks, or hash mismatches; IO errors surface as-is.
     pub fn open(path: impl Into<PathBuf>) -> Result<Self> {
         let path = path.into();
         let mut records = Vec::new();
@@ -376,7 +403,7 @@ impl Journal {
                     ),
                 )); // [FM-WRITE-025]
             }
-            head = record.hash.clone();
+            head.clone_from(&record.hash);
             records.push(record);
         }
         Ok(Self {
@@ -387,11 +414,13 @@ impl Journal {
     }
 
     /// All records, in application order.
+    #[must_use]
     pub fn records(&self) -> &[TransactionalEdit] {
         &self.records
     }
 
     /// The chain head hash (empty string before any record).
+    #[must_use]
     pub fn head(&self) -> &str {
         &self.head
     }
@@ -400,7 +429,13 @@ impl Journal {
     ///
     /// Ordering law: append BEFORE apply, so a crash mid-apply leaves a
     /// journal that [`recover`](Self::recover) can replay.
+    ///
+    /// # Errors
+    ///
+    /// Returns a typed refusal if `tx.prev_hash` does not link the journal
+    /// head, or if serialization/journal IO fails.
     pub fn append(&mut self, tx: &TransactionalEdit) -> Result<()> {
+        use std::io::Write as _;
         if tx.prev_hash != self.head {
             return Err(tx_err(
                 6,
@@ -411,7 +446,6 @@ impl Journal {
             )); // [FM-WRITE-026]
         }
         let line = serde_json::to_string(tx)?;
-        use std::io::Write as _;
         let mut f = std::fs::OpenOptions::new()
             .create(true)
             .append(true)
@@ -419,7 +453,7 @@ impl Journal {
         writeln!(f, "{line}")?;
         f.sync_all()?;
         self.records.push(tx.clone());
-        self.head = tx.hash.clone();
+        self.head.clone_from(&tx.hash);
         Ok(())
     }
 
@@ -430,6 +464,11 @@ impl Journal {
     /// apply never reached this edit, roll it forward; neither holds → the
     /// file diverged outside the transaction, refuse (typed, fail-closed).
     /// After recovery every record's full `after` state holds on disk.
+    ///
+    /// # Errors
+    ///
+    /// Returns a typed refusal if an edit diverged outside the transaction
+    /// or a reapply/restore write fails.
     pub fn recover(&self) -> Result<RecoveryReport> {
         let mut report = RecoveryReport::default();
         for tx in &self.records {

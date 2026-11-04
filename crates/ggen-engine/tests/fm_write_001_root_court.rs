@@ -2,7 +2,7 @@
 //! canonicalized is a typed refusal from the shared path resolver, before
 //! any path is planned against it.
 //!
-//! Chicago: real filesystem (a TempDir whose inner project directory is
+//! Chicago: real filesystem (a `TempDir` whose inner project directory is
 //! deleted out from under the resolver), the real
 //! `ggen_engine::write::resolve_target` — the same resolver every sync write
 //! (`frontmatter` path, `from:` resolution, and the generation-rules path via

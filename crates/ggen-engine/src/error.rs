@@ -42,7 +42,7 @@ pub enum AppError {
     /// (pack depgraph resolution, EA graph admission). Unlike the
     /// stringly-typed `fm_*` constructors, this variant carries the typed
     /// `Refusal` enum itself so the kernel's serde tag
-    /// (SCREAMING_SNAKE_CASE, key `"refusal"`) stays machine-accessible;
+    /// (`SCREAMING_SNAKE_CASE`, key `"refusal"`) stays machine-accessible;
     /// `Display` still renders the kernel's human-readable text, and the
     /// `[FM-PACK-015]`/`[FM-LAW-015]` code prefix is preserved verbatim in
     /// the rendered message so existing log scrapers do not break.
@@ -316,6 +316,7 @@ impl AppError {
     }
 
     /// Machine access to the carried kernel refusal, if this error is one.
+    #[must_use]
     pub fn kernel_refusal(&self) -> Option<&ggen_abb_sbb::Refusal> {
         match self {
             Self::AbbRefusal { refusal, .. } => Some(refusal),
@@ -323,7 +324,7 @@ impl AppError {
         }
     }
 
-    /// The kernel refusal's serde tag (SCREAMING_SNAKE_CASE value under the
+    /// The kernel refusal's serde tag (`SCREAMING_SNAKE_CASE` value under the
     /// `"refusal"` key of `ggen_abb_sbb::Refusal`'s internally-tagged
     /// representation), if this error carries one. This is the minimal
     /// machine surface: callers needing full structured fields serialize the
@@ -412,7 +413,10 @@ mod fm_code_extraction_tests {
             Some("INSUFFICIENT_AUTHORITY")
         );
         // Full structured form: serialize the carried refusal directly.
-        let v = serde_json::to_value(err.kernel_refusal().unwrap()).unwrap();
+        let refusal = err
+            .kernel_refusal()
+            .unwrap_or_else(|| panic!("AbbRefusal carries a kernel refusal"));
+        let v = serde_json::to_value(refusal).unwrap_or_else(|err| panic!("refusal serializes: {err}"));
         assert_eq!(v["refusal"], "INSUFFICIENT_AUTHORITY");
         // Authority's serde shape is owned by ggen-abb-sbb; assert only
         // that the structured field survives alongside the tag.

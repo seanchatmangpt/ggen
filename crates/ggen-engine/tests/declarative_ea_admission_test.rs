@@ -24,7 +24,7 @@ use std::path::Path;
 use tempfile::TempDir;
 
 /// Minimal valid declarative-rules `ggen.toml` (schema shape per
-/// config_schema_dispatch_e2e.rs's accepted fixture).
+/// `config_schema_dispatch_e2e.rs`'s accepted fixture).
 const GGEN_TOML: &str = r#"
 [project]
 name = "declarative-ea"

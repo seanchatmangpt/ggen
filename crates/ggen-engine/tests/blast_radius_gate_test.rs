@@ -4,7 +4,7 @@
 
 use ggen_engine::blast_radius::*;
 
-/// Fixture: a -> b -> c -> protected_def (sync.rs); d -> trait T (subtypes s1, s2).
+/// Fixture: a -> b -> c -> `protected_def` (sync.rs); d -> trait T (subtypes s1, s2).
 fn fixture_graph() -> VecGraph {
     VecGraph {
         refs: vec![

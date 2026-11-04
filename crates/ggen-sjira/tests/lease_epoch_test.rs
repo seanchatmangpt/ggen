@@ -66,7 +66,7 @@ fn two_distinct_signatures_admit() {
     let lease = two_sig_lease();
     let pk = keys(&[1, 2]);
     let admitted = admit(&lease, "sha256:CURRENT", &pk).expect("2-sig lease admits");
-    assert_eq!(admitted.admitted, true);
+    assert!(admitted.admitted);
     assert_eq!(admitted.verified_signers, vec!["signer-1", "signer-2"]);
     assert_eq!(admitted.lease_id, "lease-1");
     // admitted record carries no signatures key

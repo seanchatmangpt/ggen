@@ -381,7 +381,7 @@ mod tests {
 
     #[test]
     fn smoke() {
-        let edits = vec![ControllerEdit::new("src/a.rs", vec!["sym_a".to_string()])];
+        let edits = [ControllerEdit::new("src/a.rs", vec!["sym_a".to_string()])];
         assert_eq!(edits.len(), 1);
         assert_eq!(DEFAULT_MAX_DEPTH, 16);
         assert_eq!(DEFAULT_PROTECTED_PATHS.len(), 2);

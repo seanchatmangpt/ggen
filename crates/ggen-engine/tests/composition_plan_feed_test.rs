@@ -20,7 +20,6 @@ use std::process::Command;
 
 use chicago_tdd_tools::cli_proof::CliHarness;
 use support::scaffold_multi_pack;
-use tempfile::TempDir;
 
 fn ggen_bin() -> PathBuf {
     if let Ok(path) = std::env::var("CARGO_BIN_EXE_ggen") {

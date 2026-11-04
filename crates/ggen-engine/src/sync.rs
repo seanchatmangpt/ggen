@@ -2382,11 +2382,9 @@ pub(crate) fn validate_composition_plan(
     if order_set != id_set {
         return Err(AppError::fm_pack(
             22,
-            format!(
-                "Persisted composition plan has a malformed order: `order` is \
+            "Persisted composition plan has a malformed order: `order` is \
                  not a permutation of `pack_ids` (duplicate or foreign pack id \
-                 in `order`)."
-            ),
+                 in `order`).".to_string(),
         ));
     }
     // Schema integrity: per-pack maps are keyed by pack id, and the

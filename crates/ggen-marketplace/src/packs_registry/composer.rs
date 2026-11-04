@@ -950,13 +950,15 @@ mod tests {
             3,
             "order in JSON: {json}"
         );
-        let ids: Vec<&str> = value["pack_ids"]
-            .as_array()
-            .expect("pack_ids array")
-            .iter()
-            .filter_map(|v| v.as_str())
-            .collect();
-        assert_eq!(ids.len(), 3);
+        assert_eq!(
+            value["pack_ids"]
+                .as_array()
+                .expect("pack_ids array")
+                .iter()
+                .filter_map(|v| v.as_str())
+                .count(),
+            3
+        );
         assert!(value.get("transitive_deps").is_some());
         let chain_b_deps: Vec<&str> = value["transitive_deps"]["chain-b"]
             .as_array()

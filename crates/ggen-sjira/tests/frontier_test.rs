@@ -138,7 +138,7 @@ fn dependencies_unsatisfied_blocks_with_upstream_names() {
     };
 
     // No evidence at all: blocked, upstream named.
-    let result = frontier(&[downstream.clone()], &[], &BTreeMap::new(), Some(&index));
+    let result = frontier(std::slice::from_ref(&downstream), &[], &BTreeMap::new(), Some(&index));
     assert!(result.eligible.is_empty());
     assert_eq!(result.blocked[0].reason, "dependencies_unsatisfied");
     assert_eq!(result.blocked[0].dependencies, vec!["UPSTREAM-1"]);
@@ -152,7 +152,7 @@ fn dependencies_unsatisfied_blocks_with_upstream_names() {
             receipt_digest: Some("sha256:aaaa".to_string()),
         },
     );
-    let result = frontier(&[downstream.clone()], &[], &ev, Some(&index));
+    let result = frontier(std::slice::from_ref(&downstream), &[], &ev, Some(&index));
     assert_eq!(result.blocked[0].reason, "dependencies_unsatisfied");
 
     // Standing mismatch also blocks.
@@ -164,7 +164,7 @@ fn dependencies_unsatisfied_blocks_with_upstream_names() {
             receipt_digest: Some("sha256:deadbeef".to_string()),
         },
     );
-    let result = frontier(&[downstream.clone()], &[], &ev_bad, Some(&index));
+    let result = frontier(std::slice::from_ref(&downstream), &[], &ev_bad, Some(&index));
     assert_eq!(result.blocked[0].reason, "dependencies_unsatisfied");
 
     // Matching evidence: eligible.

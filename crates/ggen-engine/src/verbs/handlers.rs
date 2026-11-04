@@ -58,6 +58,7 @@ fn stored_payload_hash(receipt_doc: &str) -> Result<String> {
 /// # Errors
 /// Any pipeline failure (`FM-*` codes) is mapped to a `NounVerbError`
 /// execution error, exiting non-zero.
+#[allow(clippy::fn_params_excessive_bools)] // flags mirror the generated CLI surface; restructuring them would break verb routing
 pub fn handle_sync_run(
     dry_run: bool, watch: bool, consumer_mode: bool, skip_ea_admission: bool,
 ) -> Result<serde_json::Value> {

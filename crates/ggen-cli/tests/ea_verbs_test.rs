@@ -5,6 +5,12 @@
 //! (`../ggen-abb-sbb/fixtures/ea-graph.json`, resolved against the ggen-cli
 //! cargo manifest dir). Disclosed per the lane contract.
 
+#![allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
+    clippy::similar_names
+)]
 use std::process::Command;
 
 const FIXTURE: &str = concat!(

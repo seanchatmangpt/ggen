@@ -138,12 +138,11 @@ pub enum LedgerKind {
 pub fn kind(path: &Path) -> LedgerKind {
     if path.is_dir() {
         LedgerKind::Dir
-    } else if path.is_file() {
-        LedgerKind::File
-    } else if path
-        .extension()
-        .map(|e| FILE_EXTENSIONS.contains(&e.to_string_lossy().to_string().as_str()))
-        .unwrap_or(false)
+    } else if path.is_file()
+        || path
+            .extension()
+            .map(|e| FILE_EXTENSIONS.contains(&e.to_string_lossy().to_string().as_str()))
+            .unwrap_or(false)
     {
         LedgerKind::File
     } else {

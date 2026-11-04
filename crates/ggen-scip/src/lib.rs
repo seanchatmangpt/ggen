@@ -129,7 +129,7 @@ pub struct DefInfo {
 /// surface are byte-identical.
 pub fn canonical_json(index: &Index) -> serde_json::Result<String> {
     let v = serde_json::to_value(index)?;
-    Ok(serde_json::to_string(&sort_keys(v))?)
+    serde_json::to_string(&sort_keys(v))
 }
 
 /// Recursively sort object keys.

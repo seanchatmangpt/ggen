@@ -261,8 +261,7 @@ fn illegal_hand_built_transition_refuses() {
     };
     let err = journal
         .append_sealed(forged)
-        .err()
-        .expect("illegal transition refused");
+        .expect_err("illegal transition refused");
     assert!(matches!(err, BridgeRefusal::IllegalTransition { .. }));
     assert!(err.to_string().contains("remediation"));
     assert!(journal.is_empty(), "forged record not appended");
@@ -377,7 +376,7 @@ fn real_repo_scip_witness_promotes_symbol_graph_standing() {
         o.roles & ggen_scip::ROLE_DEFINITION != 0 && o.symbol.contains("generated_commands.")
     });
     assert!(has_def, "COMMANDS_REFERENCE definition occurrence present");
-    drop(doc);
+    let _ = doc;
 
     // The SCIP-backed graph over the same real index answers the seam.
     let graph = ScipGraph::from_index(index);

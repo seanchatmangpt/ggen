@@ -7,6 +7,12 @@
 //! declaration removed, `{{` removed) collapses the diagnostic to zero —
 //! removing the rule's trigger makes the paired assertion fail.
 
+#![allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
+    clippy::similar_names
+)]
 // The module is self-contained (no `crate::` paths), so it compiles directly
 // into this test binary; wiring `pub mod diagnostics_rules;` into lib.rs is a
 // one-line coordinator follow-up outside this lane's file ownership.

@@ -3,7 +3,7 @@
 //! sync pipeline; assertions on final state; no mocks.
 //!
 //! Owned surface: crates/ggen-engine/src/sync.rs Stage 2c region +
-//! crates/ggen-engine/src/envelope.rs (abb_envelope_caps).
+//! crates/ggen-engine/src/envelope.rs (`abb_envelope_caps`).
 
 #![allow(
     clippy::unwrap_used,

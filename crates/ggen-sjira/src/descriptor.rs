@@ -181,6 +181,7 @@ pub struct BuildAttrs {
 }
 
 /// The descriptor surface's options. Lifetime carries the authority index.
+#[derive(Default)]
 pub struct DescriptorOpts<'a> {
     /// Origin-authority pins (`IRI -> admission digest`); `None` blocks
     /// every order (frontier fails closed).
@@ -204,21 +205,6 @@ pub struct DescriptorOpts<'a> {
     pub court_map: Option<Value>,
 }
 
-impl Default for DescriptorOpts<'_> {
-    fn default() -> Self {
-        Self {
-            authority: None,
-            evidence: BTreeMap::new(),
-            package: None,
-            provider: None,
-            verifier_suite: None,
-            execution_repo_alias: None,
-            aliases: BTreeMap::new(),
-            iri_prefix: None,
-            court_map: None,
-        }
-    }
-}
 
 /// The graph-identity values carried through every projection
 /// (`identity/1`, line 102).
@@ -334,10 +320,10 @@ fn validate_court_map(raw: &Value, order: &Value) -> Result<(), DescriptorRefusa
     let falsifiers = obj.get("falsifiers");
     let courts = obj.get("courts");
     let empty_acceptance =
-        acceptance.map_or(true, |v| v.as_object().map_or(true, |m| m.is_empty()));
+        acceptance.is_none_or(|v| v.as_object().is_none_or(|m| m.is_empty()));
     let empty_falsifiers =
-        falsifiers.map_or(true, |v| v.as_object().map_or(true, |m| m.is_empty()));
-    let empty_courts = courts.map_or(true, |v| v.as_array().map_or(true, |a| a.is_empty()));
+        falsifiers.is_none_or(|v| v.as_object().is_none_or(|m| m.is_empty()));
+    let empty_courts = courts.is_none_or(|v| v.as_array().is_none_or(|a| a.is_empty()));
     if empty_acceptance && empty_falsifiers && empty_courts {
         return Err(DescriptorRefusal::CourtMapRefused(CourtMapRefusal::Empty));
     }
@@ -373,7 +359,7 @@ fn validate_court_map(raw: &Value, order: &Value) -> Result<(), DescriptorRefusa
                     ));
                 }
             }
-        } else if !allowed.map_or(true, |v| v.is_null()) && !allowed.map_or(true, Value::is_object)
+        } else if !allowed.is_none_or(|v| v.is_null()) && !allowed.is_none_or(Value::is_object)
         {
             return Err(DescriptorRefusal::CourtMapRefused(
                 CourtMapRefusal::InvalidGroup(group.to_string()),
@@ -518,7 +504,7 @@ pub fn build(
         return Err(DescriptorRefusal::InvalidOption("provider"));
     }
 
-    let inputs: Vec<FrontierInput> = work_orders.iter().map(|o| frontier_input_of(o)).collect();
+    let inputs: Vec<FrontierInput> = work_orders.iter().map(frontier_input_of).collect();
     let front = frontier(&inputs, &[], &opts.evidence, opts.authority);
 
     let (eligible_flag, _) = eligible(&front, identity)?;
@@ -555,7 +541,7 @@ fn find<'a>(work_orders: &'a [Value], identity: &str) -> Result<&'a Value, Descr
 }
 
 fn admit(row: &Value) -> Result<AdmittedWorkOrder, DescriptorRefusal> {
-    crate::admit::admit_work_order(row).map_err(|r| DescriptorRefusal::Unadmitted(r))
+    crate::admit::admit_work_order(row).map_err(DescriptorRefusal::Unadmitted)
 }
 
 fn frontier_input_of(o: &Value) -> FrontierInput {
@@ -586,7 +572,7 @@ pub fn build_xaas_contract(
     let projected = projected_orders(work_orders, events);
 
     // Eligibility over the projected set, via the landed frontier.
-    let inputs: Vec<FrontierInput> = projected.iter().map(|o| frontier_input_of(o)).collect();
+    let inputs: Vec<FrontierInput> = projected.iter().map(frontier_input_of).collect();
     let front = frontier(&inputs, events, &opts.evidence, opts.authority);
     eligible(&front, identity)?;
 
@@ -814,7 +800,7 @@ pub fn receipt_from_xaas(
         .map(|r| {
             ["courts", "acceptance", "falsifiers"]
                 .iter()
-                .all(|k| r.get(*k).map_or(false, |v| v.is_array()))
+                .all(|k| r.get(*k).is_some_and(|v| v.is_array()))
         })
         .unwrap_or(false);
     if !requires_ok {

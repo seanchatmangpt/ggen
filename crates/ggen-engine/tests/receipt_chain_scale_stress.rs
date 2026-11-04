@@ -20,6 +20,14 @@
 //! court; the seam-mint exercises the identical emission-path hash
 //! function and the identical verifier.
 
+#![allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
+    clippy::similar_names,
+    unsafe_code
+)]
+use std::collections::BTreeMap;
 use std::io::Write as _;
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::time::Instant;
@@ -69,16 +77,16 @@ fn line_field(line: &str, field: &str) -> String {
 /// Mint one lawful ledger line: the payload is serialized first and its
 /// exact compact bytes hashed (`stored_payload_hash` hashes the RAW
 /// payload bytes embedded in the line, never a re-serialization — so the
-/// embedded form must be byte-identical, which serde_json's compact
+/// embedded form must be byte-identical, which `serde_json`'s compact
 /// writer guarantees for the same value); the record's chain hash is
 /// recomputed via the seam (the emission-path fold).
 fn mint_line(prev_chain_hash_hex: &str, i: usize) -> String {
     let payload = ReceiptPayload {
         graph_hash: format!("ab14-graph-{i:06}"),
-        outputs: Default::default(),
-        packs: Default::default(),
-        decisions: Default::default(),
-        closure: Default::default(),
+        outputs: BTreeMap::new(),
+        packs: BTreeMap::new(),
+        decisions: BTreeMap::new(),
+        closure: BTreeMap::new(),
         build_provenance: None,
         generation: Some((i + 1) as u64),
         ea_admission_skipped: None,
@@ -139,11 +147,16 @@ fn mint_line(prev_chain_hash_hex: &str, i: usize) -> String {
 }
 
 fn blake3_hash_hex(h: &[u8; 32]) -> String {
-    h.iter().map(|b| format!("{b:02x}")).collect()
+    use std::fmt::Write as _;
+    let mut s = String::with_capacity(h.len() * 2);
+    for b in h {
+        let _ = write!(s, "{b:02x}");
+    }
+    s
 }
 
 /// Build a full ledger at `root`. Returns (head chain hash, per-bucket
-/// census of (wall_ns, allocs, bytes)).
+/// census of (`wall_ns`, allocs, bytes)).
 fn build_ledger(
     root: &std::path::Path, n: usize, census: bool,
 ) -> (String, Vec<(u128, usize, usize)>) {
@@ -178,6 +191,7 @@ fn build_ledger(
     (prev, buckets)
 }
 
+#[allow(clippy::cast_precision_loss)] // human-readable ms report value; precision loss irrelevant at test-report scale
 fn ms(ns: u128) -> f64 {
     ns as f64 / 1e6
 }
@@ -259,7 +273,7 @@ fn ledger_tamper_at_50k_prefix_integrity() {
     let old = line_field(&lines[tampered_idx], "payload_hash_hex");
     let first_char = old.chars().next().unwrap();
     let flipped = if first_char == '0' { "1" } else { "0" };
-    let tampered_line = lines[tampered_idx].replacen(&old, &flipped, 1);
+    let tampered_line = lines[tampered_idx].replacen(&old, flipped, 1);
     let mut tampered_lines = lines.clone();
     tampered_lines[tampered_idx] = tampered_line;
     std::fs::write(&log_path, tampered_lines.join("\n") + "\n").expect("rewrite tampered log");

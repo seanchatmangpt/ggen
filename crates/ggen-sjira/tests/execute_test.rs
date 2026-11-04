@@ -340,7 +340,7 @@ fn rerun_is_idempotent_already_recorded() {
 
     let oa = input("OA", AUTH_A);
     let first =
-        run(&[oa.clone()], &ledger, &graph, &ExecuteOpts::default()).expect("first run executes");
+        run(std::slice::from_ref(&oa), &ledger, &graph, &ExecuteOpts::default()).expect("first run executes");
     assert_eq!(first.plans.len(), 1);
 
     // Second run: OA is already PARTIAL_ALIVE on disk, so the frontier is

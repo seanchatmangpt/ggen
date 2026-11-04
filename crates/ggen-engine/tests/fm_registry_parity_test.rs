@@ -32,10 +32,7 @@ fn repository_root() -> PathBuf {
 
 /// All `.rs` files under `dir`, recursively.
 fn rs_files(dir: &Path, out: &mut Vec<PathBuf>) {
-    let entries = match fs::read_dir(dir) {
-        Ok(e) => e,
-        Err(_) => return,
-    };
+    let Ok(entries) = fs::read_dir(dir) else { return };
     for entry in entries.flatten() {
         let path = entry.path();
         if path.is_dir() {
@@ -95,7 +92,7 @@ fn param_codes_in_line(line: &str) -> Vec<String> {
         while let Some(rel) = line[from..].find(&needle) {
             let start = from + rel + needle.len();
             let rest = &line[start..];
-            let digits: String = rest.chars().take_while(|c| c.is_ascii_digit()).collect();
+            let digits: String = rest.chars().take_while(char::is_ascii_digit).collect();
             if !digits.is_empty() {
                 if let Ok(n) = digits.parse::<u32>() {
                     codes.push(format!("FM-{}-{:03}", fam.to_uppercase(), n));

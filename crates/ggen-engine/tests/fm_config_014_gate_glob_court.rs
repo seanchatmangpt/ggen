@@ -1,5 +1,5 @@
 //! Court: `[FM-CONFIG-014]` — a `[validation].gates` glob that matches no
-//! files is a typed, fail-closed sync refusal (GLOB_NO_MATCHES), never a
+//! files is a typed, fail-closed sync refusal (`GLOB_NO_MATCHES`), never a
 //! silent pass of zero gates. Key: `[law].gates` (the engine
 //! frontmatter-schema gate surface), not `[validation].gates`.
 //!

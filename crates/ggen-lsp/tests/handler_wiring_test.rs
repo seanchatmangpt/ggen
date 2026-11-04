@@ -4,9 +4,9 @@
 //! REAL `ggen-lsp` binary over real stdio JSON-RPC (Chicago: real
 //! collaborators, real state). Harness follows `lsp_protocol_test.rs`.
 
-#![allow(clippy::unwrap_used, clippy::expect_used)]
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 use serde_json::{json, Value};
-use std::io::{BufRead, BufReader, Read, Write};
+use std::io::{BufRead, BufReader, Write};
 use std::process::{Child, ChildStdin, Command, Stdio};
 use std::sync::mpsc::{self, Receiver};
 use std::thread;
@@ -45,7 +45,9 @@ impl LspClient {
             .stdout(Stdio::piped())
             .stderr(Stdio::null())
             .spawn()
-            .unwrap_or_else(|e| panic!("spawn {}: {e}", bin.display()));
+            .unwrap_or_else(|e| {
+                panic!("spawn {}: {e}", bin.display())
+            });
         let stdin = child.stdin.take().expect("child stdin");
         let stdout = child.stdout.take().expect("child stdout");
         let (tx, rx) = mpsc::channel();

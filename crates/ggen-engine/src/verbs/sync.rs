@@ -14,6 +14,7 @@ use clap_noun_verb::Result;
 /// * `consumer_mode` - Suppress installer emission of outputs derived from `fixtureOnly`-marked specs (OS-13 consumer mode).
 /// * `skip_ea_admission` - Skip the Stage 2c EA (ABB/SBB) admission gate; lawful only when the project intentionally runs without architecture admission.
 #[clap_noun_verb_macros::verb("run")]
+#[allow(clippy::fn_params_excessive_bools)] // flags mirror the generated CLI verb surface; restructuring would break routing
 fn sync_run(
     dry_run: bool, watch: bool, consumer_mode: bool, skip_ea_admission: bool,
 ) -> Result<serde_json::Value> {

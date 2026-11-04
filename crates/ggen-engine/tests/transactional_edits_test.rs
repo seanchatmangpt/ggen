@@ -2,6 +2,12 @@
 //! real filesystem, byte-identical restore, tamper refusal, crash recovery.
 //! No mocks — the collaborator is the real disk.
 
+#![allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
+    clippy::similar_names
+)]
 use ggen_engine::transactional::{
     apply_edit, empty_image_sha256, FileEdit, Journal, RecoveryReport, TransactionalEdit,
 };
@@ -14,7 +20,8 @@ fn sha(bytes: &[u8]) -> String {
     let d = h.finalize();
     let mut s = String::new();
     for b in d {
-        s.push_str(&format!("{b:02x}"));
+        use std::fmt::Write as _;
+        let _ = write!(s, "{b:02x}");
     }
     s
 }
@@ -228,7 +235,7 @@ fn tampered_journal_refuses_to_replay() {
     } else {
         '0'
     };
-    tampered.replace_range(idx..idx + 1, &flipped.to_string());
+    tampered.replace_range(idx..=idx, &flipped.to_string());
     assert_ne!(raw, tampered, "tamper setup must change the journal");
     std::fs::write(&jpath, tampered).unwrap();
 

@@ -2,6 +2,12 @@
 //! lib.rs is callable through the crate's public API surface.
 //! Covers tokens (R80-1), moniker (R80-2), diagnostics_rules (R80-12).
 
+#![allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
+    clippy::similar_names
+)]
 use ggen_lsp::diagnostics_rules;
 use ggen_lsp::moniker;
 use ggen_lsp::tokens;

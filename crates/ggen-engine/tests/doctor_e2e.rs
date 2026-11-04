@@ -134,7 +134,7 @@ fn scaffold_with_pack() -> (TempDir, PathBuf) {
     // whose root lacks ea.graph.json; doctor mechanics, not EA admission —
     // minimal valid-but-empty EA graph (zero candidate SBBs).
     std::fs::write(
-        &project.join("ea.graph.json"),
+        project.join("ea.graph.json"),
         "{\"schema\":\"ggen.ea.graph.v1\",\"strategy\":{\"id\":\"s\",\"title\":\"t\"},\"capabilities\":[],\"abbs\":[],\"contracts\":[],\"candidate_sbbs\":[],\"qualifications\":[],\"packs\":[]}",
     )
     .expect("write ea.graph.json");

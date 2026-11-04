@@ -50,7 +50,7 @@ fn lib_structs(text: &str) -> (BTreeMap<String, Vec<String>>, Vec<String>) {
         let line = lines[i].trim();
         if let Some(rest) = line.strip_prefix("pub struct ") {
             let name = rest
-                .split(|c: char| c == '{' || c == '(')
+                .split(['{', '('])
                 .next()
                 .unwrap_or("")
                 .trim()
@@ -97,12 +97,12 @@ fn lib_structs(text: &str) -> (BTreeMap<String, Vec<String>>, Vec<String>) {
 /// outside the scip: namespace (e.g. rdf:value on the Dotted newtype
 /// shape) are excluded and reported in the third element so the
 /// exclusion is observable.
+type StructFields = BTreeMap<String, Vec<String>>;
+type ShapeMap = BTreeMap<String, (String, Vec<String>)>;
+
 fn shacl_shapes(
     text: &str,
-) -> (
-    BTreeMap<String, (String, Vec<String>)>,
-    BTreeMap<String, Vec<String>>,
-) {
+) -> (ShapeMap, StructFields) {
     let mut shapes = BTreeMap::new();
     let mut foreign = BTreeMap::new();
     let lines: Vec<&str> = text.lines().collect();
@@ -143,13 +143,7 @@ fn shacl_shapes(
 /// against a mutated scratch copy.
 fn parity(
     lib: &str, shacl: &str,
-) -> Result<
-    (
-        BTreeMap<String, Vec<String>>,
-        BTreeMap<String, (String, Vec<String>)>,
-    ),
-    String,
-> {
+) -> Result<(StructFields, ShapeMap), String> {
     // SLA minimal-unblock (r80-03 lane): return type aligned with
     // shacl_shapes' (target, props) tuple map; owning lane supersedes.
     let (structs, tuple) = lib_structs(lib);
@@ -296,11 +290,10 @@ fn scip_ontology_vocabulary_declares_terms() {
     // term's statement block).
     let mut uncommented = Vec::new();
     for block in vocab.split("\nscip:") {
-        if block.contains(" a rdf:Property") || block.contains(" a rdfs:Class") {
-            if !block.contains("rdfs:comment") {
+        if (block.contains(" a rdf:Property") || block.contains(" a rdfs:Class"))
+            && !block.contains("rdfs:comment") {
                 uncommented.push(block.lines().next().unwrap_or("").to_string());
             }
-        }
     }
     assert!(
         uncommented.is_empty(),
