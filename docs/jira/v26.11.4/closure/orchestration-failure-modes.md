@@ -9,14 +9,14 @@ below was observed, not inferred; line refs are transcript lines (Lnnnn).
 
 | Class | Inst | Lanes | Root cause | Prevention |
 |---|---|---|---|---|
-| 429 rate-limit kills | 8+ | CG5, BB-01, BB-02, BB-07, BB-04, BB-10 (x2), D25 | glm-5.3-flash sheds load under ~20-lane fleet | Slot-based re-dispatch from verified on-disk inventory; cap retries, re-dispatch as slots open |
-| Shared-index sweep | 3 | D32→D25, D57→D60, D83→D81 | commit on shared checkout sweeps another lane's pre-staged work; post-429 inventory checked tree, not index | Pre-commit staged-path attribution gate: every staged path owned by the lane or disclosed with owner named |
-| Premise rot | 9+ | D74, D67, D77, D50/D52 vs E-h, Q2, V3, P10, R2 | dispatch/court premise stale; substrate moved under claim | Premise-recheck step in court/receipt templates; re-pin to lawful new behavior, don't revert |
-| Duplicate work | 3 | D28 (landed as a86d167, ran 46 min more), D65 (re-sealed by D59), stale 20-lane dispatch | no landed-work check before continuing | Pre-land probe (grep HEAD for target artifact); overdue-lane stop once output verified landed |
-| Wrong-ID stop | 1 | E-q stopped, E-s meant | coordinator stop by ID assumption, no live listing first | ListAgents before TaskStop; verify mandate coverage before reaping |
-| Port contention | 2 | E-q vs D33, D58 vs D33 | two lanes run same gate process on one port | Per-lane private ports (fanout law 4); port lease before witness dispatch |
-| Wait-gate (positive) | 11 | D88 | — | Keep: typed wait-gates + honest IN-FLIGHT-AT-FILL fallback, not sleeps |
-| Push verify (positive) | 656 | fleet-wide | — | Keep: `git ls-remote \| grep $(git rev-parse HEAD)`, never push output |
+| 429 kills | 8+ | CG5, BB-01, BB-02, BB-07, BB-04, BB-10 x2, D25 | glm sheds load under ~20-lane fleet | slot-based re-dispatch from on-disk inventory; cap retries |
+| shared-index sweep | 3 | D32>D25, D57>D60, D83>D81 | commit on shared checkout sweeps staged work; inventory missed index | pre-commit staged-path attribution gate, owner disclosure |
+| premise rot | 9+ | D74, D67, D77, D50/D52, Q2, V3, P10, R2 | premise stale; substrate moved under claim | premise-recheck step in court/receipt templates |
+| duplicate work | 3 | D28, D65, stale dispatch | no landed-work check before continuing | pre-land probe (grep HEAD); overdue-lane stop rule |
+| wrong-ID stop | 1 | E-q stopped, E-s meant | stop by ID assumption, no live listing | ListAgents before TaskStop; verify mandate coverage |
+| port contention | 2 | E-q vs D33, D58 vs D33 | two lanes on one gate process/port | per-lane private ports (fanout law 4); port lease |
+| wait-gate (keep) | 11 | D88 | — | typed gates + honest IN-FLIGHT-AT-FILL, not sleeps |
+| push verify (keep) | 656 | fleet-wide | — | ls-remote grep HEAD, never push output |
 
 ## Class detail
 
