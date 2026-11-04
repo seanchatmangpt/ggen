@@ -189,16 +189,28 @@ same-checkout-fanout law + O1 class 2; ports = O1 class 6.
 Source: `orchestration-failure-modes.md` (O1), classes 1-8. Every
 mechanism below lives in §1-§4; this table is the traceability index.
 
-| O1 class | Instances | Mechanism (runbook ref) |
-|---|---|---|
-| 1. 429 kills (8+) | CG5, BB-01..07, BB-10(x2), D25 | 429-aware cap + slot re-dispatch, no stacked retries (§1.7); index-inclusive post-429 inventory (§3.3) |
-| 2. Shared-index sweep (3) | D32→D25, D57→D60, D83→D81 | Disjoint owned-file lists (§1.4); collision disclosure in both receipts (§3.1); pre-commit attribution gate (§3.2, mechanization #1) |
-| 3. Premise rot (9+) | D74, D67, D77, D50/D52, Q2, V3, P10, R2 | Premise-rot re-check before acting (§3.4); pre-dispatch landed-work probe (§1.5); re-pin don't revert |
-| 4. Duplicate work (3) | D28 (a86d167), D65, stale dispatch (L8745) | Pre-flight landed-work probe (§1.5); overdue-lane stop (§3.7); coordinator landing rights + stop (§3.6) |
-| 5. Wrong-ID stop (1) | E-q stopped, E-s meant | ListAgents-before-TaskStop (§3.8); verify mandate coverage before reaping |
-| 6. Port contention (2) | E-q vs D33, D58 vs D33 | Port leases in the slot map (§1.6); per-lane private ports |
-| 7. Wait-gate (positive, 11 markers) | D88 | Named-lane poll <=60s, <=45min, typed IN-FLIGHT-AT-FILL fallback (§4.1-4.2) |
-| 8. Push verify (positive, 656 refs) | fleet-wide | ls-remote grep gate (§1.8, §4.7) |
+Mechanism refs are runbook sections; one entry per O1 class.
+
+- Class 1, 429 kills (8+; CG5, BB-01..07, BB-10 x2, D25):
+  429-aware cap + slot re-dispatch, no stacked retries (§1.7);
+  index-inclusive post-429 inventory (§3.3).
+- Class 2, shared-index sweep (3; D32→D25, D57→D60, D83→D81):
+  disjoint owned files (§1.4); collision disclosure in both
+  receipts (§3.1); pre-commit attribution gate (§3.2, mech. #1).
+- Class 3, premise rot (9+; D74, D67, D77, D50/D52, Q2, V3, P10,
+  R2): premise re-check before acting (§3.4); landed-work probe
+  (§1.5); re-pin don't revert.
+- Class 4, duplicate work (3; D28 a86d167, D65, L8745):
+  landed-work probe (§1.5); overdue-lane stop (§3.7); coordinator
+  land+stop (§3.6).
+- Class 5, wrong-ID stop (1; E-q stopped, E-s meant):
+  ListAgents-before-TaskStop (§3.8); mandate-coverage check.
+- Class 6, port contention (2; E-q vs D33, D58 vs D33):
+  port leases in the slot map (§1.6); per-lane private ports.
+- Class 7, wait-gate positive (11 markers; D88): named-lane poll
+  <=60s, <=45min, typed IN-FLIGHT-AT-FILL fallback (§4.1-4.2).
+- Class 8, push verify positive (656 refs; fleet-wide): ls-remote
+  grep gate (§1.8, §4.7).
 
 ## 7. Receipt for this document
 
