@@ -174,13 +174,16 @@ with zb-24's own self-row in this file. Standing words re-read from
 each receipt body on disk, never from memory; UNSTATED where the body
 carries none. Census at this lane's run: `ls docs/jira/v26.11.3/receipts/
 | wc -l` = 139 before this lane's own receipt, 140 with
-zd-116-index-final.md on disk. Mention-level coverage gate after these
-rows: UNCOVERED [] (exit 0). zd-112 and zb-26/zb-27 are NOT on disk —
-nothing to row.
+zd-116-index-final.md on disk; zd-112-terminal-gates.md and
+zd-118-tag-sweep.md landed mid-pass during this lane's verification
+runs — 142 at final re-census — each absorbed with its own row.
+Mention-level coverage gate after these rows: UNCOVERED [] (exit 0).
+zb-26/zb-27 are NOT on disk — nothing to row.
 
 | Lane | Receipt | Standing | Exit record |
 |---|---|---|---|
 | ZB-24 | receipts/zb-24-final-index.md | ALIVE (contracted scope, self-row; the gate UNCOVERED [] is the witness) | mention-level coverage gate exit 0 over 131 receipt stems (10 uncovered at lane start, 0 after its rows landed); census 130-before / 131-with own receipt |
+| ZD-112 | receipts/zd-112-terminal-gates.md | Verdict UNSAFE — 2 of 7 gates fail on the committed tree @ 468291ae3 (UNSTATED as a standing-vocabulary word); the predicted C21 one-commit --check drift did NOT occur; gate 7's real failure is a distinct FM-WRITE-005 content divergence; gate side effect (abb-sbb receipt-log generation 65→69) disclosed for coordinator reconciliation | `cargo fmt --all -- --check` exit 1 (2 committed hand-written abb-sbb test files, ~12 hunks; generated refusals.rs fmt-stable); `cargo check --workspace` exit 0; `git diff --check` exit 0; `validate_gap_closure.py` exit 0 (obligations=26, errors=0); `cargo test -p ggen-abb-sbb` exit 0 (11 suites, 0 failed); `cargo test -p ggen-config` exit 0 (17 suites, 188 tests); self-host `ggen sync run` exit 1 typed FM-WRITE-005 (AUTHORITY_MAP.md differs from manifest) |
 | ZB-21 | receipts/zb-21-observation-drift.md | PARTIAL — census and re-pin plan only; the re-pin itself runs at terminal HEAD per the sweep sequence | `observe_self_host.py --check` ×2 → exit 2 typed GGEN_SELF_HOST_DRIFT (deterministic); ontology.ttl sha256 identical before/after; committed observation revision ed3f1dfb1 vs HEAD 58a3b4108 (3 behind, content not stale) |
 | ZD-60 | receipts/zd-60-ds7-tighten.md | ALIVE (verification ladder "all ALIVE" this session; closes DS-7-D1/D2/D3; DS-7-D1's original guard proven UNREACHABLE, disclosed) | tightened suites green ×2 (`execute_test` 8/0, `lease_epoch_test` 23/0, exit 0 both); full `cargo test -p ggen-sjira` exit 0, 219 passed / 0 failed; mutation battery 20/20 FLIPPED, gate PASS exit 0, 0 restore failures |
 | ZD-88 | receipts/zd-88-pre-landing.md | Verdict UNSAFE — sweep must not land red (3 of 6 gates RED; every red classified file:line; UNSTATED as a standing-vocabulary word) | `cargo fmt --all -- --check` exit 1 (flap class confirmed); clippy ggen-abb-sbb exit 101 (settled lint drift, retry-after-60s did not clear); `git diff --check` exit 2 (6 files blank-at-EOF); check/gap-closure/config/keys/sync-surface gates exit 0 |
@@ -189,6 +192,9 @@ nothing to row.
 | ZD-106 | receipts/zd-106-ledger-refresh.md | ALIVE (Standing section; the ledger's falsifiers 1 and 5 executed against it and passed — falsifier 1 caught a real mid-write HEAD move, proving the gate non-vacuous) | STEP 0 freeze re-run 3× — final diff empty (exit 0); STEP 1 uniq -c identical post-move; STEP 2 extraction byte-identical; self-check re-passed after the receipt's landing refreshed ggen 135→136 |
 | ZD-108 | receipts/zd-108-soak-evidence.md | ALIVE (Standing section: evidence-complete — AB-20's tokens_delta_stress now carries two independent green witnesses; /tmp log not repo-pinned, this receipt is the durable record) | detached run pid 28463 finished: SOAK1_EXIT=0, SOAK2_EXIT=0, FULL_EXIT=0; final suite `test result: ok. 4 passed; 0 failed` (1320.78s) |
 | ZD-110 | receipts/zd-110-clippy-zero.md | UNSTATED in body (Gates table carries the evidence; Chicago-TDD allow header covers 53 of 56 lints, 3 real fixes in kernel_highs_courts.rs) | clippy `--all-targets -D warnings` (kernel-job invocation) exit 0 (56→0); `cargo test --all-targets` exit 0, 110 passed / 0 failed; doc tests 3 passed / 0 failed |
+| ZD-112 | receipts/zd-112-terminal-gates.md | Verdict UNSAFE — 2 of 7 gates fail on the committed tree @ 468291ae3 (UNSTATED as a standing-vocabulary word); the predicted C21 one-commit --check drift did NOT occur; gate 7's real failure is a distinct FM-WRITE-005 content divergence; abb-sbb receipt-log side effect (generation 65→69) disclosed for coordinator reconciliation | `cargo fmt --all -- --check` exit 1 (2 committed hand-written abb-sbb test files, ~12 hunks; generated refusals.rs fmt-stable); `cargo check --workspace` exit 0; `git diff --check` exit 0; `validate_gap_closure.py` exit 0 (obligations=26, errors=0); `cargo test -p ggen-abb-sbb` exit 0 (11 suites, 0 failed); `cargo test -p ggen-config` exit 0 (17 suites, 188 tests); self-host `ggen sync run` exit 1 typed FM-WRITE-005 (AUTHORITY_MAP.md differs from manifest) |
+| ZD-118 | receipts/zd-118-tag-sweep.md | ALIVE (Standing header; CARRY-19 prep) | `tag_falsifier_sweep.sh` rehearsal (--at-ref, tag not cut): ggen exit 1 — 1 UNREACHABLE (10fcf3d6b, documented divergence, the doc itself is the receipt of it — falsifier working as designed), 137 foreign cross-repo SHAs disclosed; cgap exit 0 (0 unreachable); ggen-marketplace exit 0; `bash -n` + shellcheck PASS |
+| ZD-116 | receipts/zd-116-index-final.md | ALIVE (contracted scope, self-row; the gate UNCOVERED [] is the witness) | mention-level coverage gate exit 0 over 142 receipt stems (8 uncovered at lane start, 0 after rows landed; 2 receipts absorbed mid-pass); census 139-before / 142 at final re-census |
 
 ## Post-close receipts (zb-24 final coverage pass, 2026-11-04)
 

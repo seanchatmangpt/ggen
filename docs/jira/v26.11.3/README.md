@@ -203,6 +203,12 @@ rowed at the end of this table. Re-census at the zb-24 final pass
 131 with it; the 10 stems the terminal mention-level coverage gate found
 uncovered (zd-44, zd-48, zd-59, zd-66, zd-67, zd-68, zd-69, zd-71, zd-86,
 zd-87) are rowed at the end of this table — gate now exits UNCOVERED [].
+Re-census at the zd-116 final pass (2026-11-04): 139 receipt .md files
+on disk before zd-116's own receipt, 142 at final re-census (zd-112 and
+zd-118 landed mid-pass, absorbed with their own rows); the 8 stems
+uncovered since zb-24 (zb-21, zd-60, zd-88, zd-90, zd-101, zd-106,
+zd-108, zd-110) plus the zb-24 self-row are rowed at the end of this
+table — gate again UNCOVERED [].
 
 | Lane | Receipt | Standing | Gate (exit record) |
 |---|---|---|---|
@@ -278,5 +284,7 @@ Standing | Exit record). Their canonical indexes live in the host repos.
 | ZD-101 | receipts/zd-101-sync-verifies.md | UNSTATED in body (results table carries the evidence; read-only lane, no edits, no git state changes) | root dogfood `sync run` exit 0 (25 unchanged, 4 written) + `receipt verify` exit 0 valid/signed; self-host + 3 example roots' `sync run` exit 0 (unchanged/tracked); zero FM-LAW-015 refusals across all 5 syncs |
 | ZD-106 | receipts/zd-106-ledger-refresh.md | ALIVE (Standing section; the ledger's falsifiers 1 and 5 executed against it and passed — falsifier 1 caught a real mid-write HEAD move, proving the gate non-vacuous) | STEP 0 freeze re-run 3× — final diff empty (exit 0); STEP 1 uniq -c identical post-move; STEP 2 extraction byte-identical; self-check re-passed after the receipt's landing refreshed ggen 135→136 |
 | ZD-108 | receipts/zd-108-soak-evidence.md | ALIVE (Standing section: evidence-complete — AB-20's tokens_delta_stress carries two independent green witnesses; /tmp log not repo-pinned, this receipt is the durable record) | detached run pid 28463 finished: SOAK1_EXIT=0, SOAK2_EXIT=0, FULL_EXIT=0; final suite `test result: ok. 4 passed; 0 failed` (1320.78s) |
-| ZD-110 | receipts/zd-110-clippy-zero.md | UNSTATED in body (Gates table carries the evidence; Chicago-TDD allow header covers 53 of 56 lints, 3 real fixes in kernel_highs_courts.rs) | clippy `--all-targets -D warnings` (kernel-job invocation) exit 0 (56→0); `cargo test --all-targets` exit 0, 110 passed / 0 failed; doc tests 3 passed / 0 failed |
-| ZD-116 | receipts/zd-116-index-final.md | ALIVE (contracted scope, self-row; the gate UNCOVERED [] is the witness) | mention-level coverage gate exit 0 over 140 receipt stems (8 uncovered at lane start, 0 after rows landed); census 139-before / 140-with own receipt |
+| ZD-110 | receipts/zd-110-clippy-zero.md | UNSTATED in body (Gates table carries the evidence; Chicago-TDD allow header covers 53 of 56 lints, 3 real fixes in kernel_highs-courts.rs) | clippy `--all-targets -D warnings` (kernel-job invocation) exit 0 (56→0); `cargo test --all-targets` exit 0, 110 passed / 0 failed; doc tests 3 passed / 0 failed |
+| ZD-112 | receipts/zd-112-terminal-gates.md | Verdict UNSAFE — 2 of 7 gates fail on the committed tree @ 468291ae3 (UNSTATED as a standing-vocabulary word); the predicted C21 one-commit --check drift did NOT occur; gate 7's real failure is a distinct FM-WRITE-005 content divergence; abb-sbb receipt-log side effect (generation 65→69) disclosed for coordinator reconciliation | `cargo fmt --all -- --check` exit 1 (2 committed hand-written abb-sbb test files, ~12 hunks; generated refusals.rs fmt-stable); `cargo check --workspace` exit 0; `git diff --check` exit 0; `validate_gap_closure.py` exit 0 (obligations=26, errors=0); `cargo test -p ggen-abb-sbb` exit 0 (11 suites, 0 failed); `cargo test -p ggen-config` exit 0 (17 suites, 188 tests); self-host `ggen sync run` exit 1 typed FM-WRITE-005 (AUTHORITY_MAP.md differs from manifest) |
+| ZD-118 | receipts/zd-118-tag-sweep.md | ALIVE (Standing header; CARRY-19 prep) | `tag_falsifier_sweep.sh` rehearsal (--at-ref, tag not cut): ggen exit 1 — 1 UNREACHABLE (10fcf3d6b, documented divergence, the doc itself is the receipt of it — falsifier working as designed), 137 foreign cross-repo SHAs disclosed; cgap exit 0 (0 unreachable); ggen-marketplace exit 0; `bash -n` + shellcheck PASS |
+| ZD-116 | receipts/zd-116-index-final.md | ALIVE (contracted scope, self-row; the gate UNCOVERED [] is the witness) | mention-level coverage gate exit 0 over 142 receipt stems (8 uncovered at lane start, 0 after rows landed; 2 receipts absorbed mid-pass); census 139-before / 142 at final re-census |
