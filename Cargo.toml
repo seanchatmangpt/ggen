@@ -196,8 +196,8 @@ itertools = "0.15"
 bcinr = "26.7.25"
 urlencoding = "2.1"
 wasm4pm-compat = "26.8"
-cargo-cicd = { git = "https://github.com/seanchatmangpt/cargo-cicd", branch = "main" }
-
+# S4 build-time cut (2026-11-04): cargo-cicd git dependency removed — zero workspace consumers
+# (grep of crates/*/Cargo.toml + root returned nothing).
 rayon = "1.12"
 regex = "1.13"
 log = "0.4"
@@ -207,8 +207,6 @@ testcontainers-modules = "0.15"
 notify-debouncer-full = "0.7"
 assert_cmd = "2.2"
 predicates = "3.1"
-rig-core = "0.42.0"
-
 # Workspace-local crates (use workspace = true pattern in workspace members)
 # NOTE: v26.5.29 unified release
 # ggen-core (2026-07-16, ggen-core disconnect, T054-T058; deleted 2026-07-17,
@@ -266,7 +264,9 @@ parking_lot = "0.12"
 criterion = { version = "0.8", features = ["html_reports"] }
 
 # AI integration
-genai = "0.6"
+# S4 build-time cut (2026-11-04): genai removed from [workspace.dependencies] — its only
+# consumers were the root package and ggen-cli, both retired in S1; zero workspace usage
+# remains (grep of src/tests/benches across root + crates returned nothing).
 
 # Force base64 version to resolve duplicate dependency issue
 # config -> ron -> base64 0.21.7 conflicts with reqwest -> base64 0.22.1
@@ -739,7 +739,6 @@ shell-words = "1.1"
 # E2E test dependencies
 toml = "1.1.6"
 reqwest = { version = "0.13", features = ["blocking", "json"] }
-genai = { workspace = true }
 proptest.workspace = true
 # chicago-tdd-tools = { workspace = true, features = ["testcontainers"] }
 # Note: chicago-tdd-tools commented for cross-platform compatibility
