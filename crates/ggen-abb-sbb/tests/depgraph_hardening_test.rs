@@ -134,7 +134,9 @@ name = "my-consumer"
 depends_on = ["a"]
 requires = ["nope"]
 "#;
-    let consumer = extract_consumer_edges(src).expect("test fixture: constructed value cannot fail").expect("graph table");
+    let consumer = extract_consumer_edges(src)
+        .expect("test fixture: constructed value cannot fail")
+        .expect("graph table");
     assert_eq!(
         consumer.requires,
         std::iter::once("nope".to_string()).collect::<BTreeSet<_>>()
@@ -164,10 +166,13 @@ name = "my-consumer"
 depends_on = ["far"]
 requires = ["hashing"]
 "#;
-    let consumer = extract_consumer_edges(src).expect("test fixture: constructed value cannot fail").expect("graph table");
+    let consumer = extract_consumer_edges(src)
+        .expect("test fixture: constructed value cannot fail")
+        .expect("graph table");
     // Consumer depends only on `far` but the port is bound by `provider`: the
     // consumer consumes every pack, so the check ranges over all provides.
-    let plan = resolve_sync_order(&packs, Some(&consumer)).expect("test fixture: constructed value cannot fail");
+    let plan = resolve_sync_order(&packs, Some(&consumer))
+        .expect("test fixture: constructed value cannot fail");
     assert_eq!(plan.order, vec!["far", "provider", "my-consumer"]);
 }
 
@@ -193,9 +198,12 @@ requires = ["Nope"]
 fn legacy_consumer_ggen_toml_without_requires_parses_clean() {
     let packs = vec![manifest("a")];
     let src = "[graph]\nname = \"old-consumer\"\ndepends_on = [\"a\"]\n";
-    let consumer = extract_consumer_edges(src).expect("test fixture: constructed value cannot fail").expect("graph table");
+    let consumer = extract_consumer_edges(src)
+        .expect("test fixture: constructed value cannot fail")
+        .expect("graph table");
     assert!(consumer.requires.is_empty());
-    let plan = resolve_sync_order(&packs, Some(&consumer)).expect("test fixture: constructed value cannot fail");
+    let plan = resolve_sync_order(&packs, Some(&consumer))
+        .expect("test fixture: constructed value cannot fail");
     assert_eq!(plan.order, vec!["a", "old-consumer"]);
 }
 
@@ -251,7 +259,8 @@ fn same_chain_converges_under_production_bound_and_gate_passes() {
             }
         })
         .collect();
-    let plan = resolve_sync_order(&packs, None).expect("test fixture: constructed value cannot fail");
+    let plan =
+        resolve_sync_order(&packs, None).expect("test fixture: constructed value cannot fail");
     assert_eq!(plan.order.len(), 6);
     assert!(plan.transitive_deps["a0"].contains("a5"));
 }
@@ -278,7 +287,8 @@ fn pack_side_transitive_port_binding_still_passes() {
             ..manifest("top")
         },
     ];
-    let plan = resolve_sync_order(&packs, None).expect("test fixture: constructed value cannot fail");
+    let plan =
+        resolve_sync_order(&packs, None).expect("test fixture: constructed value cannot fail");
     assert_eq!(plan.order, vec!["base", "mid", "top"]);
 }
 
@@ -299,7 +309,8 @@ fn non_canonical_port_variant_serializes_with_canonical_tag() {
     assert_eq!(v["pack"], "p");
     assert_eq!(v["field"], "provides");
     assert_eq!(v["port"], "Hashing");
-    let back: ggen_abb_sbb::Refusal = serde_json::from_value(v).expect("test fixture: constructed value cannot fail");
+    let back: ggen_abb_sbb::Refusal =
+        serde_json::from_value(v).expect("test fixture: constructed value cannot fail");
     assert_eq!(back, r);
     // Display carries the wire code prefix + remediation.
     let msg = r.to_string();
@@ -313,7 +324,8 @@ fn closure_bound_exceeded_variant_serializes_with_canonical_tag() {
     let v = serde_json::to_value(&r).expect("test fixture: constructed value cannot fail");
     assert_eq!(v["refusal"], "CLOSURE_BOUND_EXCEEDED");
     assert_eq!(v["max_iterations"], 16);
-    let back: ggen_abb_sbb::Refusal = serde_json::from_value(v).expect("test fixture: constructed value cannot fail");
+    let back: ggen_abb_sbb::Refusal =
+        serde_json::from_value(v).expect("test fixture: constructed value cannot fail");
     assert_eq!(back, r);
     let msg = r.to_string();
     assert!(msg.starts_with("CLOSURE_BOUND_EXCEEDED:"), "got: {msg}");

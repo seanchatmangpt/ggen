@@ -165,6 +165,31 @@ docs are outside this index's receipts/ convention, disclosed, not rowed.
 | ZD-50 | receipts/zd-50-wo-drift.md | ALIVE for the landed surface (WO standing-word sweep exits clean ×1; WO-08 stays PARTIAL-ALIVE, not rounded up) | sweep ×1 exit 0 over six WOs — standing word in each WO == cited receipt body / close record word; `grep -c UNVERIFIED` over the six WO Standing lines → 0 matches |
 | ZD-51 | receipts/zd-51-r80.md | ALIVE (R80-12 CLOSED — wiring + production caller already landed; R80-11 promoted UNKNOWN → PARTIAL_ALIVE, not rounded up; R80-6 scope-check only, L-effort recorded for CARRY-03) | `diagnostics_rules_test` 15 passed / 0 failed exit 0; `edits_bridge_test` 11 passed / 0 failed; `--lib edits_bridge` 4/0; `cargo check --workspace` exit 0 (1m34s) |
 
+## Post-close receipts (zd-116 final coverage pass, 2026-11-04)
+
+Eight receipt stems landed after zb-24's 131-census with no row in this
+file or README.md (zb-21, zd-60, zd-88, zd-90, zd-101, zd-106, zd-108,
+zd-110); they are rowed here and into README.md's post-close section,
+with zb-24's own self-row in this file. Standing words re-read from
+each receipt body on disk, never from memory; UNSTATED where the body
+carries none. Census at this lane's run: `ls docs/jira/v26.11.3/receipts/
+| wc -l` = 139 before this lane's own receipt, 140 with
+zd-116-index-final.md on disk. Mention-level coverage gate after these
+rows: UNCOVERED [] (exit 0). zd-112 and zb-26/zb-27 are NOT on disk —
+nothing to row.
+
+| Lane | Receipt | Standing | Exit record |
+|---|---|---|---|
+| ZB-24 | receipts/zb-24-final-index.md | ALIVE (contracted scope, self-row; the gate UNCOVERED [] is the witness) | mention-level coverage gate exit 0 over 131 receipt stems (10 uncovered at lane start, 0 after its rows landed); census 130-before / 131-with own receipt |
+| ZB-21 | receipts/zb-21-observation-drift.md | PARTIAL — census and re-pin plan only; the re-pin itself runs at terminal HEAD per the sweep sequence | `observe_self_host.py --check` ×2 → exit 2 typed GGEN_SELF_HOST_DRIFT (deterministic); ontology.ttl sha256 identical before/after; committed observation revision ed3f1dfb1 vs HEAD 58a3b4108 (3 behind, content not stale) |
+| ZD-60 | receipts/zd-60-ds7-tighten.md | ALIVE (verification ladder "all ALIVE" this session; closes DS-7-D1/D2/D3; DS-7-D1's original guard proven UNREACHABLE, disclosed) | tightened suites green ×2 (`execute_test` 8/0, `lease_epoch_test` 23/0, exit 0 both); full `cargo test -p ggen-sjira` exit 0, 219 passed / 0 failed; mutation battery 20/20 FLIPPED, gate PASS exit 0, 0 restore failures |
+| ZD-88 | receipts/zd-88-pre-landing.md | Verdict UNSAFE — sweep must not land red (3 of 6 gates RED; every red classified file:line; UNSTATED as a standing-vocabulary word) | `cargo fmt --all -- --check` exit 1 (flap class confirmed); clippy ggen-abb-sbb exit 101 (settled lint drift, retry-after-60s did not clear); `git diff --check` exit 2 (6 files blank-at-EOF); check/gap-closure/config/keys/sync-surface gates exit 0 |
+| ZD-90 | receipts/zd-90-seed-refresh.md | UNSTATED in body (per-item disposition table carries the standing; every SEED row re-verified from its disk receipt, counts never carried from the prior SEED) | typed-missing check: no zd-60 or zb-21 receipt on disk at that lane's run (both since landed and rowed above); `find` + `grep -rln ZD-60/ZB-21` over four repos' docs trees → 0 hits |
+| ZD-101 | receipts/zd-101-sync-verifies.md | UNSTATED in body (results table carries the evidence; read-only lane, no edits, no git state changes) | root dogfood `sync run` exit 0 (25 unchanged, 4 written) + `receipt verify` exit 0 valid/signed; self-host + 3 example roots' `sync run` exit 0 (unchanged/tracked); zero FM-LAW-015 refusals across all 5 syncs |
+| ZD-106 | receipts/zd-106-ledger-refresh.md | ALIVE (Standing section; the ledger's falsifiers 1 and 5 executed against it and passed — falsifier 1 caught a real mid-write HEAD move, proving the gate non-vacuous) | STEP 0 freeze re-run 3× — final diff empty (exit 0); STEP 1 uniq -c identical post-move; STEP 2 extraction byte-identical; self-check re-passed after the receipt's landing refreshed ggen 135→136 |
+| ZD-108 | receipts/zd-108-soak-evidence.md | ALIVE (Standing section: evidence-complete — AB-20's tokens_delta_stress now carries two independent green witnesses; /tmp log not repo-pinned, this receipt is the durable record) | detached run pid 28463 finished: SOAK1_EXIT=0, SOAK2_EXIT=0, FULL_EXIT=0; final suite `test result: ok. 4 passed; 0 failed` (1320.78s) |
+| ZD-110 | receipts/zd-110-clippy-zero.md | UNSTATED in body (Gates table carries the evidence; Chicago-TDD allow header covers 53 of 56 lints, 3 real fixes in kernel_highs_courts.rs) | clippy `--all-targets -D warnings` (kernel-job invocation) exit 0 (56→0); `cargo test --all-targets` exit 0, 110 passed / 0 failed; doc tests 3 passed / 0 failed |
+
 ## Post-close receipts (zb-24 final coverage pass, 2026-11-04)
 
 Ten receipt stems on disk carried no row in this file or README.md at the
