@@ -2582,7 +2582,7 @@ dependencies = [
  "mockall",
  "nix",
  "notify 8.2.0",
- "notify-debouncer-full 0.7.0",
+ "notify-debouncer-full",
  "once_cell",
  "opentelemetry",
  "opentelemetry-otlp",
@@ -2668,7 +2668,7 @@ dependencies = [
  "insta",
  "linkme",
  "notify 8.2.0",
- "notify-debouncer-full 0.6.0",
+ "notify-debouncer-full",
  "once_cell",
  "oxigraph",
  "predicates",
@@ -2818,7 +2818,7 @@ dependencies = [
  "ggen-marketplace",
  "lsp-max",
  "notify 8.2.0",
- "notify-debouncer-full 0.7.0",
+ "notify-debouncer-full",
  "regex",
  "reqwest 0.13.5",
  "rmcp 3.5.0",
@@ -4546,19 +4546,6 @@ dependencies = [
  "notify-types",
  "walkdir",
  "windows-sys 0.60.2",
-]
-
-[[package]]
-name = "notify-debouncer-full"
-version = "0.6.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "375bd3a138be7bfeff3480e4a623df4cbfb55b79df617c055cd810ba466fa078"
-dependencies = [
- "file-id",
- "log",
- "notify 8.2.0",
- "notify-types",
- "walkdir",
 ]
 
 [[package]]

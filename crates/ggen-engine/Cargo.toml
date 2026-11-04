@@ -98,8 +98,8 @@ tracing = { workspace = true }                                        # pipeline
 # Engine deps (unconditional — the whole point of this crate is the SPARQL+Tera pipeline)
 oxigraph = "0.5.11"
 tera = "1.20"
-notify = "8.2"
-notify-debouncer-full = "0.6"
+notify = { workspace = true }
+notify-debouncer-full = { workspace = true } # S3 (2026-11-04): was "0.6" — collided with the workspace's 0.7, giving 2 copies in Cargo.lock
 serde_yaml = "0.9"
 regex = "1"
 semver = "1.0" # pack.toml [dependencies] version requirement admission
