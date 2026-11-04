@@ -154,6 +154,12 @@ fmt-check:
 lint:
     timeout 300s cargo clippy --workspace --all-targets --keep-going -- -D warnings -A unexpected_cfgs
 
+# Receipt standing-line lint (SD-21/O3 Gate 3 / S-10). Exit 1 on any receipt
+# missing a parseable, in-vocabulary standing line. --backfill diffs only.
+# The E-y2 census (external to this repo) consumes receipt-standing-map.json.
+receipt-lint:
+    python3 scripts/receipt_lint.py
+
 # ── Testing ───────────────────────────────────────────────────────────────────
 
 # Full test suite — the primary test gate (<30s hot cache)
