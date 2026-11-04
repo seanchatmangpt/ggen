@@ -7,4 +7,3 @@ synthesize" rule.
 """
 
 import dspy
-

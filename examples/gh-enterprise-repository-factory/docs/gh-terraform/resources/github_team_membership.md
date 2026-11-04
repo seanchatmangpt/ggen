@@ -10,4 +10,3 @@ Manage one user's membership in a team
 | Required args | username, team_id |
 
 Cataloged, not yet templated: no verified example schema captured for this resource.
-

@@ -14,5 +14,3 @@ resource "github_actions_secret" "ggen_signing_key" {
   secret_name     = "GGEN_SIGNING_KEY"
   plaintext_value = var.ggen_signing_key_value # supplied at apply time only
 }
-
-

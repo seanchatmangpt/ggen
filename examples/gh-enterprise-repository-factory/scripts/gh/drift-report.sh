@@ -38,4 +38,3 @@ replaces=$(grep -c "must be replaced" "$plan_out" || true)
 echo '{"andon":"'"$andon"'","drift":"'"$drift"'","create":'"${creates:-0}"',"update":'"${updates:-0}"',"replace":'"${replaces:-0}"',"delete":'"${deletes:-0}"'}'
 rm -f "$plan_out"
 [ "$andon" = "GREEN" ]
-

@@ -11,4 +11,3 @@ Associate a team with a repo (grant access)
 | Cross-resource ref attribute | `.id` |
 
 Cataloged, not yet templated: no verified example schema captured for this resource.
-

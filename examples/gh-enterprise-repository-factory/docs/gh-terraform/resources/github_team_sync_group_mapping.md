@@ -10,4 +10,3 @@ Map a team to IdP group(s) for SCIM/SSO sync
 | Required args | group, team_slug |
 
 Cataloged, not yet templated: no verified example schema captured for this resource.
-

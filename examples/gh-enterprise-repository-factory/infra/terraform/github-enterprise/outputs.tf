@@ -14,4 +14,3 @@ output "repository_identity" {
     }
   }
 }
-

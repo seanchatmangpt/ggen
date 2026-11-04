@@ -58,9 +58,3 @@ trusted_monitor_gepa_optimizer = dspy.GEPA(
 
 # GEPA over the predictor, per the tutorial's gepa_optimizer = dspy.GEPA(...) call.
 trusted_monitor_gepa = trusted_monitor_gepa_optimizer.compile(student=predictor, trainset=trainset, valset=valset)
-
-
-
-
-
-

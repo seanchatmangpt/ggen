@@ -10,4 +10,3 @@ Repo-level Codespaces secret
 | Required args | secret_name, repository |
 
 Cataloged, not yet templated: no verified example schema captured for this resource.
-

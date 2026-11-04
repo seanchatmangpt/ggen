@@ -22,4 +22,3 @@ resource "github_repository" "kanban" {
   delete_branch_on_merge = true
 }
 ```
-

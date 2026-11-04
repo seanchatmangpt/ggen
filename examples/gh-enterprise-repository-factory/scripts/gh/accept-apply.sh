@@ -32,4 +32,3 @@ if grep -q "will be destroyed" "$planfile" && [ "$approve_deletions" -ne 1 ]; th
 fi
 rm -f "$planfile"
 terraform apply -auto-approve -input=false "-var=github_owner=${owner}" "-var=repository=${repo}" "-var=ggen_signing_key_value=${secret}"
-

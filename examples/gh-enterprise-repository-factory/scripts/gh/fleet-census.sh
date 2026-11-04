@@ -150,4 +150,3 @@ done < "$tmp/repos.txt"
 } >> "$md_out"
 echo "fleet-census: total=$total conforming=$c_conf drifted=$c_drift unmanaged=$c_unman exceptional=$c_exc unknown=$c_unk blocked=$c_blk"
 echo "fleet-census: ttl=$ttl_out md=$md_out"
-

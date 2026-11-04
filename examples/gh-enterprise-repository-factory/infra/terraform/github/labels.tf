@@ -78,5 +78,3 @@ resource "github_issue_label" "terraform_hyouryuu" {
   color       = "d93f0b"
   description = "Observed state departed from declared desired state"
 }
-
-

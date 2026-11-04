@@ -37,8 +37,3 @@ def refine_reward(args: dict, pred) -> float:
     raise NotImplementedError("Fill in the refine_reward reward function for refine_module.")
 
 refine_module = dspy.Refine(module=base_module, N=3, reward_fn=refine_reward, threshold=0.8)
-
-
-
-
-

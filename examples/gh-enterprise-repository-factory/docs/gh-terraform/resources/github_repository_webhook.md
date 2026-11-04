@@ -23,4 +23,3 @@ resource "github_repository_webhook" "this" {
   }
 }
 ```
-

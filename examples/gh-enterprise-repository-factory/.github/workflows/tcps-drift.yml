@@ -121,4 +121,3 @@ jobs:
           fi
           body=$(cat "$RUNNER_TEMP/drift-report.json")
           bash "$RUNNER_TEMP/consumer/scripts/gh/issue-create.sh" --repo seanchatmangpt/ggen --title "Terraform漂流 detected" --body "$body" ${label_args[@]+"${label_args[@]}"}
-

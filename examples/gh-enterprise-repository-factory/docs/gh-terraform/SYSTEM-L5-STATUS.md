@@ -18,4 +18,3 @@ ALIVE requires evidence; PARTIAL is never rounded to green (第二十五章).
 | 10 | 作動結果が受領証連鎖に残る | ALIVE | sha256-chained .tcps/acceptance-receipts.jsonl holds 2 receipts; prev_hash of line 2 re-verified against sha256 of line 1 (3f8924f7...) |
 | 11 | 複数リポジトリへ同一標準作業が適用できる | ALIVE | second sandbox seanchatmangpt/tcps-accept-test-2-sandbox accepted via the same generated standard work (verify pass, labels=19) |
 | 12 | 改善が意味図式一件変更で通る | ALIVE | ghtf:LabelHyoujun added as ontology individual only, resynced and applied (labels=20); no hand edits to generated files |
-

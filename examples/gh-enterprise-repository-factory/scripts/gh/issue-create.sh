@@ -13,4 +13,3 @@ while [ $# -gt 0 ]; do
 done
 [ -n "$repo" ] && [ -n "$title" ] || { echo "usage: issue-create.sh --repo <owner/repo> --title <t> [--body <b>] [--label <l>]..." >&2; exit 2; }
 gh issue create --repo "$repo" --title "$title" --body "$body" "${labels[@]}"
-

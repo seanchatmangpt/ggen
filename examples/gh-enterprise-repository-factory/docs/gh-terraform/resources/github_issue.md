@@ -20,4 +20,3 @@ resource "github_issue" "this" {
   labels     = var.issue_labels
 }
 ```
-

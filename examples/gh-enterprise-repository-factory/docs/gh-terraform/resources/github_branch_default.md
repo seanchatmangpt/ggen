@@ -11,4 +11,3 @@ Sets a repo's default branch
 | Cross-resource ref attribute | `.name` |
 
 Cataloged, not yet templated: no verified example schema captured for this resource.
-

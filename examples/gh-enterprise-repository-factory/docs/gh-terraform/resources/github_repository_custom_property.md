@@ -10,4 +10,3 @@ Set an org-defined custom property value on a repo
 | Required args | property_value, property_type, property_name, repository |
 
 Cataloged, not yet templated: no verified example schema captured for this resource.
-

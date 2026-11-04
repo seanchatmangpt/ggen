@@ -42,4 +42,3 @@ import_if_exists "repos/${owner}/${repo}/labels/l5-condition" "github_issue_labe
 import_if_exists "repos/${owner}/${repo}/labels/第五水準条件" "github_issue_label.l5_jouken" "${repo}:第五水準条件"
 import_if_exists "repos/${owner}/${repo}/labels/証拠待ち" "github_issue_label.shouko_machi" "${repo}:証拠待ち"
 import_if_exists "repos/${owner}/${repo}/labels/Terraform漂流" "github_issue_label.terraform_hyouryuu" "${repo}:Terraform漂流"
-

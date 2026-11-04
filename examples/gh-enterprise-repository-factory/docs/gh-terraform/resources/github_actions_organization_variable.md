@@ -10,4 +10,3 @@ Org-level Actions variable
 | Required args | visibility, value, variable_name |
 
 Cataloged, not yet templated: no verified example schema captured for this resource.
-

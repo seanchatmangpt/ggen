@@ -10,4 +10,3 @@ Creates/manages an org within an enterprise
 | Required args | admin_logins, billing_email, name, enterprise_id |
 
 Cataloged, not yet templated: no verified example schema captured for this resource.
-

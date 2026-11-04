@@ -10,4 +10,3 @@ Org Actions policy (which repos/actions allowed)
 | Required args | enabled_repositories |
 
 Cataloged, not yet templated: no verified example schema captured for this resource.
-

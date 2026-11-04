@@ -20,4 +20,3 @@ resource "github_issue_label" "this" {
   description = var.label_description
 }
 ```
-

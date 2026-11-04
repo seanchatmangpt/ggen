@@ -11,4 +11,3 @@ Branch protection via REST v3 (branch-name-based, older API)
 | Cross-resource ref attribute | `.name` |
 
 Cataloged, not yet templated: no verified example schema captured for this resource.
-

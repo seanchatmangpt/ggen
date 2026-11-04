@@ -10,4 +10,3 @@ Team settings (review request delegation)
 | Required args | team_id |
 
 Cataloged, not yet templated: no verified example schema captured for this resource.
-

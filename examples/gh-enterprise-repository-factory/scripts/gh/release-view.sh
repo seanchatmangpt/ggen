@@ -14,4 +14,3 @@ if [ -n "$tag" ]; then
 else
   gh release list --repo "$repo" --limit 10
 fi
-

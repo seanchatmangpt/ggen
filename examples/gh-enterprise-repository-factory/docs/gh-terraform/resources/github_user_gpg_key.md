@@ -10,4 +10,3 @@ Add a GPG key to the authenticated user
 | Required args | armored_public_key |
 
 Cataloged, not yet templated: no verified example schema captured for this resource.
-

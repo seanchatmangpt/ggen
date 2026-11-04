@@ -47,4 +47,3 @@ this pack manages a single repository, not an organization.
 | `gh repo state` | `scripts/gh/repo-state.sh` | Aggregated single-call repo state read: settings, protection, open PRs, latest run (現地現物, tier 1) |
 | `gh run rerun` | `scripts/gh/run-rerun.sh` | Re-run a failed workflow run (equipment-abnormality response, 第二十一章) |
 | `gh run view` | `scripts/gh/run-view.sh` | View a workflow run's status and logs: gh run view |
-

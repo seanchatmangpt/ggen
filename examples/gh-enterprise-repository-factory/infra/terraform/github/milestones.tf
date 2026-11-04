@@ -8,5 +8,3 @@ resource "github_repository_milestone" "tcps_l5" {
   title      = "v26.x TCPS L5"
   state      = "open"
 }
-
-

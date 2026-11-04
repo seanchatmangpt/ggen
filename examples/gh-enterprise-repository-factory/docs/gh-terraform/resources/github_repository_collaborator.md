@@ -19,4 +19,3 @@ resource "github_repository_collaborator" "this" {
   permission = var.collaborator_permission
 }
 ```
-

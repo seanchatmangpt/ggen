@@ -56,4 +56,3 @@ variable "repositories" {
     error_message = "required_approving_review_count must be between 0 and 6."
   }
 }
-

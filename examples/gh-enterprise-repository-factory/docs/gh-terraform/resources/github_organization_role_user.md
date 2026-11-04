@@ -10,4 +10,3 @@ Assign an org role to a user
 | Required args | login, role_id |
 
 Cataloged, not yet templated: no verified example schema captured for this resource.
-

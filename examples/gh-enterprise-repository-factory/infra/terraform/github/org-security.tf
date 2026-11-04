@@ -59,5 +59,3 @@ resource "github_organization_settings" "this" {
   dependabot_alerts_enabled_for_new_repositories = true
   web_commit_signoff_required                    = true
 }
-
-

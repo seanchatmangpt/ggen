@@ -10,4 +10,3 @@ Assign an org role to a team
 | Required args | team_slug, role_id |
 
 Cataloged, not yet templated: no verified example schema captured for this resource.
-

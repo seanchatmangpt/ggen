@@ -10,4 +10,3 @@ Manage GitHub Pages config for a repo (successor to the deprecated inline pages 
 | Required args | repository |
 
 Cataloged, not yet templated: no verified example schema captured for this resource.
-

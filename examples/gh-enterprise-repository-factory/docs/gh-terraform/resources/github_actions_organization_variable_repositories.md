@@ -10,4 +10,3 @@ Repo allow-list for a selected org Actions variable
 | Required args | selected_repository_ids, variable_name |
 
 Cataloged, not yet templated: no verified example schema captured for this resource.
-

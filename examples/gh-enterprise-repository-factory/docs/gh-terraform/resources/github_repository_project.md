@@ -11,4 +11,3 @@ Classic repo-level project board
 | Status | **DEPRECATED** (dead API — GitHub removed it) |
 
 Cataloged, not yet templated: no verified example schema captured for this resource.
-

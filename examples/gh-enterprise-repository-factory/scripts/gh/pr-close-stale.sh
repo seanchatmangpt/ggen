@@ -25,4 +25,3 @@ fi
 for n in $stale; do
   gh pr close "$n" --repo "$repo" --comment "Closed as stale (${days}+ days inactive) by TCPS standard work pr-close-stale.sh"
 done
-

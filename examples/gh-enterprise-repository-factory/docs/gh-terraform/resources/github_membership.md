@@ -10,4 +10,3 @@ Add/remove a user in the org (sends invite)
 | Required args | username |
 
 Cataloged, not yet templated: no verified example schema captured for this resource.
-

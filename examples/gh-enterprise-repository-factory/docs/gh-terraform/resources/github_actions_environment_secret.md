@@ -10,4 +10,3 @@ Encrypted Actions secret scoped to a repo environment
 | Required args | secret_name, repository, environment |
 
 Cataloged, not yet templated: no verified example schema captured for this resource.
-

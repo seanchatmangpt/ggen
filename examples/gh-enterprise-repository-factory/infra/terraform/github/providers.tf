@@ -33,4 +33,3 @@ provider "github" {
     pem_file        = var.retail_app_pem_file
   }
 }
-

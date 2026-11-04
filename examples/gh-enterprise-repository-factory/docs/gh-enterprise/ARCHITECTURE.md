@@ -65,4 +65,3 @@ new admission decision and the generated architecture has no standing.
 10. **Acceptance** — run Terraform validation and repository-level CI in an authorized environment.
 
 A checkpoint is not promoted to `ALIVE` without observed execution evidence.
-

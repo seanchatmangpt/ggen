@@ -10,4 +10,3 @@ Maps an EMU (Enterprise Managed User) IdP group to a team
 | Required args | group_id, team_slug |
 
 Cataloged, not yet templated: no verified example schema captured for this resource.
-

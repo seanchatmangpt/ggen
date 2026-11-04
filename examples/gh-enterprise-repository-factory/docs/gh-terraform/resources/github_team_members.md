@@ -10,4 +10,3 @@ Authoritatively manage a team's full member set (conflicts with github_team_memb
 | Required args | team_id |
 
 Cataloged, not yet templated: no verified example schema captured for this resource.
-

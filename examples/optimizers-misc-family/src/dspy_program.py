@@ -12,12 +12,3 @@ class AnswerQuestion(dspy.Signature):
 
 
 predictor = dspy.Predict(AnswerQuestion)
-
-
-
-
-
-
-
-
-

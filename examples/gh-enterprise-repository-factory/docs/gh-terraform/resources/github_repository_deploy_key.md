@@ -11,4 +11,3 @@ Add/remove an SSH deploy key on a repo (all args ForceNew)
 | Cross-resource ref attribute | `.name` |
 
 Cataloged, not yet templated: no verified example schema captured for this resource.
-

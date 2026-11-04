@@ -10,4 +10,3 @@ Org-level Dependabot secret
 | Required args | visibility, secret_name |
 
 Cataloged, not yet templated: no verified example schema captured for this resource.
-

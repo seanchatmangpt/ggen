@@ -94,8 +94,3 @@ opf_sigopt_optimizer = dspy.SignatureOptimizer(
 
 # SignatureOptimizer over the summarizer (predecessor of COPRO, distinct compile() signature).. eval_kwargs is a consumer-owned dict (out of ontology scope) -- fill it in.
 opf_sigopt = opf_sigopt_optimizer.compile(summarizer, devset=devset, eval_kwargs={})
-
-
-
-
-

@@ -236,4 +236,3 @@ jq -n \
 
 echo "terraform-corpus-census: repositories=$total_repositories matched_repositories=$matched_repositories matched_files=$matched_files declarations=$declaration_files no_match=$no_match_repositories unknown=$unknown_repositories"
 echo "terraform-corpus-census: ttl=$ttl_out md=$md_out receipt=$receipt_out"
-

@@ -39,7 +39,3 @@ class Rag(dspy.Module):
         return dspy.Prediction(answer=generate_answer_result.answer)
 
 rag = Rag()
-
-
-
-
