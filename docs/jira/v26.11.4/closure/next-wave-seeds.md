@@ -42,3 +42,4 @@ reconstruct-or-demote markers. Lines <=100 chars.
 - `_impl14` row (open-items OI-8): no on-disk referent found; reconstruct
   in-writing at drain or demote.
 - **S-9 (NEW, gate-family harness boot path)** — `gates/common.py` spawn_substrate boots BEAM-only and times out on `wait_for_port(arm)` post-WO-32 cordon (posh owns 9443); none of the 7 invariant gates can write fresh receipts until the harness gains a BEAM+posh boot path. Witness: D33 BLOCKED-BOOT (4 attempts, warm-compile) + E-z3 corroboration. Size M. Falsifier: all 7 gates write fresh same-day receipts after the fix.
+- **S-10 (NEW, receipt-lint vocabulary extension)** — accept Standing|Status|verdict|Exit-code synonyms (P-p root-cause: vocabulary drift, not missing status). Size S.
