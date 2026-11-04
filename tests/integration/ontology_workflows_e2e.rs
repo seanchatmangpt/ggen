@@ -273,19 +273,19 @@ fn capitalize(s: &str) -> String {
 fn generate_receipt_chain(company: &CompanyFormation, _matches: &[EntityMatch]) -> Vec<String> {
     // Simulate receipt chain generation
     vec![
-        format!("receipt-{:x}", {
+        format!("receipt-{}", hex::encode({
             let mut hasher = Sha256::new();
             hasher.update(company.name.as_bytes());
             hasher.finalize()
-        })
+        }))
         .chars()
         .take(20)
         .collect::<String>(),
-        format!("receipt-{:x}", {
+        format!("receipt-{}", hex::encode({
             let mut hasher = Sha256::new();
             hasher.update(format!("{:?}", company.compliance_requirements).as_bytes());
             hasher.finalize()
-        })
+        }))
         .chars()
         .take(20)
         .collect::<String>(),

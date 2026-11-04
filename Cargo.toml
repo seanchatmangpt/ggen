@@ -575,22 +575,12 @@ needless_for_each = "allow"
 explicit_iter_loop = "allow"
 
 # ===================================================================
-# PROC-MACRO DUPLICATION ANALYSIS (Updated 2026-01-24)
+# PROC-MACRO DUPLICATION ANALYSIS (retired 2026-11-04, build-time cut S1/S4)
 # ===================================================================
-# After updating genai to 0.5 and centralizing in workspace.dependencies:
-#
-# derive_more duplicates (3 versions):
-#   - v2.1.1: genai (production) - unavoidable, genai's choice
-#   - v1.0.0: value-ext ← genai (production, transitive) - unavoidable
-#   - v0.99.20: cucumber (dev-only) - ACCEPTABLE
-#
-# darling duplicates (2 versions):
-#   - v0.21.3: serde_with_macros ← genai (production, transitive)
-#   - v0.20.11: dummy ← fake ← chicago-tdd-tools (dev-only) - ACCEPTABLE
-#
-# Impact: 2 production proc-macro duplicates from genai's inconsistent dep tree
-# These are unavoidable without forking genai or value-ext.
-# Dev-only duplicates (cucumber, chicago-tdd-tools) are acceptable.
+# genai was removed from [workspace.dependencies] and from every package that
+# consumed it (root package + ggen-cli). The derive_more/darling duplicates it
+# carried (see the pre-2026-11-04 version of this block) no longer exist in
+# Cargo.lock.
 # ===================================================================
 [features]
 default = []
@@ -690,21 +680,12 @@ ggen-marketplace = { workspace = true }
 # the same reason. ggen-cli (workspace = true below) still needs ggen-engine directly for
 # the CLI routing flip; that crate's own publishability is a separate, still-open question
 # (see docs/jira/v26.7.16/ tickets 01/02).
-chrono = { workspace = true }
-human-panic = "2.0.8"
-better-panic = "0.3.0"
-log = "0.4.34"
-env_logger = "0.11"
+# Build-time cut S1 (2026-11-04): the root package's only production code is the
+# `main.rs` bin, which needs exactly one dependency (tokio for #[tokio::main];
+# everything else it uses comes via ggen-cli-lib). All test-only crates moved to
+# [dev-dependencies]; unused crates (human-panic, better-panic, log, env_logger,
+# genai) deleted outright. genai's workspace entry is retired in S4.
 tokio = { version = "1.53", features = ["full"] }
-anyhow = "1.0"
-serde_json = "1.0"
-serde_yaml = "0.9"
-tempfile = "3.27"
-tera = "1.20"
-serde = { version = "1.0", features = ["derive"] }
-uuid = { version = "1.26", features = ["v4"] }
-genai = { workspace = true }
-tracing-subscriber = "0.3"
 # Note: OpenTelemetry dependencies are optional at the crate level (ggen-core, etc.)
 # The root package doesn't directly use OTEL, so these are not included here.
 # Enable OTEL via: cargo build --features otel (which forwards to ggen-core/otel)
@@ -727,6 +708,14 @@ predicates = "3.1.4"
 serde_json = "1.0"
 tempfile = "3.27"
 anyhow = "1.0"
+# S1 (2026-11-04): moved from [dependencies] -- root package has no production
+# consumers for these; only tests/benches/examples use them.
+chrono = { workspace = true }
+serde = { version = "1.0", features = ["derive"] }
+serde_yaml = "0.9"
+tera = "1.20"
+uuid = { version = "1.26", features = ["v4", "serde"] }
+tokio = { version = "1.53", features = ["full"] }
 oxigraph = { version = "0.5.11", features = ["rdf-12"] }
 # BDD testing framework
 cucumber = "0.23"

@@ -251,9 +251,6 @@ workspace = true
 version = "0.5.11"
 features = [ "rdf-12",]
 
-[dependencies.genai]
-workspace = true
-
 [dev-dependencies.reqwest]
 # Moved from [dependencies] (2026-07-22): confirmed via full-crate grep the
 # only real usage anywhere in this crate is
