@@ -1,5 +1,7 @@
 # V4 Corrected-Claims Ledger (v26.11.4)
 
+Standing: ALIVE (all Rust benches re-measured this session)
+
 Status: **ALIVE** (all Rust benches re-measured this session, 2026-11-04, release
 profile; Go bench re-measured same session). This ledger is the errata layer: it
 does NOT edit the old docs — it supersedes by citation.

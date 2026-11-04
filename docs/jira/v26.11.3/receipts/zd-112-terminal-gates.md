@@ -1,5 +1,7 @@
 # ZD-112 Terminal Gates Receipt
 
+Standing: UNSAFE — 2 of 7 gates fail on the committed tree
+
 - Repo: /Users/sac/ggen @ 468291ae336452d387ad4cf7ec14f08153a0f93d (confirmed via `git rev-parse HEAD`)
 - Date: 2026-11-04
 - Tree at start: clean (`git status --porcelain` = 0 entries)

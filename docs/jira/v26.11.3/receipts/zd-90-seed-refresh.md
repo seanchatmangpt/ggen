@@ -1,5 +1,7 @@
 # ZD-90 — v26.11.4 SEED refresh (per-item re-verification against disk receipts)
 
+Standing: per-item dispositions re-verified from disk receipts (CLOSED / ALIVE per table)
+
 - **Date**: 2026-11-04
 - **Repo**: /Users/sac/ggen (branch v26-11-3-wave)
 - **Owned files**: docs/jira/v26.11.4/SEED.md (update only),

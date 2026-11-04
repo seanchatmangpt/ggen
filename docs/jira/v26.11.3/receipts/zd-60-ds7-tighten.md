@@ -1,5 +1,7 @@
 # ZD-60: DS-7 registered-vacuous criteria tightened (CARRY-06)
 
+Standing: battery gate PASS, exit 0 — vacuous count 0
+
 Date: 2026-11-04 · Lane: CARRY-06 · Repo: /Users/sac/ggen (branch v26-11-3-wave) ·
 Scope: crates/ggen-sjira court files + scripts/sjira_mutation_battery.py
 

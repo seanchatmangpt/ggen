@@ -1,5 +1,7 @@
 # ZD-5: cyberpunk-tv-platform workflow fails — sccache referenced but never installed
 
+Standing: FIXED (uncommitted, per lane contract)
+
 - Date: 2026-11-04
 - Subject: `.github/workflows/cyberpunk-tv-platform.yml`, job `manufacture-execute-replay` ("Manufacture, polyglot Chicago TDD, receipt, replay"), branch `v26-11-3-wave`
 - Status: FIXED (uncommitted, per lane contract)

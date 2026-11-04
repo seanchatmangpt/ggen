@@ -1,5 +1,7 @@
 # AB-13 Kernel Stress Receipt — ggen-sjira admission kernel
 
+Standing: ALIVE — every number a real command+exit from this session
+
 Lane: AB-13 (STRESS). Date: 2026-11-03. Repo: /Users/sac/ggen.
 Subject: the landed sjira admission kernel — execute.rs / ledger.rs /
 receipts.rs / authority.rs, consumed read-only through pub APIs.

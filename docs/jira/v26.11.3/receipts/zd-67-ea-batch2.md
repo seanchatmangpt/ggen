@@ -1,5 +1,7 @@
 # ZD-67: EA Admission Graphs, Batch 2 (ZB-13 items 3-4)
 
+Standing: ALIVE (all commands run this session, exits cited inline)
+
 Status: ALIVE (all commands run this session, exits cited inline)
 
 ## Subject

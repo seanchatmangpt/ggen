@@ -1,5 +1,7 @@
 # K2 Receipt: ggen-engine Test FM-LAW-015 Fixes
 
+Standing: LANDED
+
 Lane: K2 · Repo: /Users/sac/ggen · Date: 2026-11-3 (final) · Status: LANDED
 Originally assigned: sync_e2e.rs + any ggen-engine test file failing FM-LAW-015 except
 abb_sbb_datalog_admission_e2e.rs (G1's). No src/** edits. No git commands run.

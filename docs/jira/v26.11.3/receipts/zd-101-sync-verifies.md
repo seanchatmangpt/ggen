@@ -1,5 +1,7 @@
 # ZD-101 Sync-Verifies Receipt
 
+Standing: exit 0 on all 5 sync invocations; zero FM-LAW-015 refusals
+
 Lane: ZD-101 (verification lane). Date: 2026-11-04. Repo: `/Users/sac/ggen`, branch
 `v26-11-3-wave`. Ambient binary: `/Users/sac/.local/bin/ggen` 26.11.3 (zd-17 ambient pin,
 `ggen --version` → `26.11.3` witnessed this session). Root dogfood used the freshly-built

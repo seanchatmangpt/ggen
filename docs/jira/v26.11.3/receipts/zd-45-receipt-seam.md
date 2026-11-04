@@ -1,5 +1,7 @@
 # ZD-45: receipt_chain_seam `allow(dead_code)` removal
 
+Standing: ALIVE — 0 `allow(dead_code)` matches (exit 1)
+
 Date: 2026-11-04 · Lane: CARRY-02 · Repo: /Users/sac/ggen · Branch: v26-11-3-wave
 
 ## Disposition chosen

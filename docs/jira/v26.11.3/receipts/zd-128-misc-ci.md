@@ -1,5 +1,7 @@
 # ZD-128 — Misc CI typed-fail census remediation
 
+Standing: 4 FIXED, 1 WAIVER-RECOMMENDED (env-missing)
+
 Branch: v26-11-3-wave · heads witnessed: e4f231a55 / c6425e3cb · date 2026-11-04
 Logs pulled via `gh run view --log-failed` / `--log` on the freshest runs at head.
 

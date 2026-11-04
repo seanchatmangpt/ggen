@@ -1,5 +1,7 @@
 # Receipt — sjira_mutation_battery.py (DS-7 battery run + flip-set record)
 
+Standing: exit 1 (gate FAIL — registered divergences)
+
 Date: 2026-11-3 · Lane: DS-10 (PF-2 obligation 2) · Script:
 `/Users/sac/ggen/scripts/sjira_mutation_battery.py` (pre-existing, unmodified)
 

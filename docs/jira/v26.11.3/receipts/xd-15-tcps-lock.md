@@ -1,5 +1,7 @@
 # XD-15 — tcps-generated ggen.lock MISSING_ARTIFACT (XA-1 CI root cause 3a)
 
+Standing: PARTIAL_ALIVE (artifact produced, uncommitted)
+
 Date: 2026-11-04 · Branch: v26-11-3-wave · Lane: XD-15 · Status: PARTIAL_ALIVE (artifact produced, uncommitted)
 
 ## Symptom

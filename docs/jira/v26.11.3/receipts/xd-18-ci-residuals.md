@@ -1,5 +1,7 @@
 # XD-18: CI Residual Fixes (XB-1's Four Mapped Fixes)
 
+Standing: all four fixes gated exit 0
+
 - Repo: `/Users/sac/ggen`, branch `v26-11-3-wave`, base HEAD `87d04ccea6f931171f71aa74e290fff680ce6f1d`
 - Lane: XD-18; owns `book/gap-closure.toml`, three workflow files, this receipt.
 - No XB-1 receipt found in `docs/jira/v26.11.3/receipts/` (`ls | grep -i xb` → empty);

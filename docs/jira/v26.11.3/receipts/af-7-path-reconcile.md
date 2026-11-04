@@ -1,5 +1,7 @@
 # AF-7 Receipt-Path Drift Reconcile
 
+Standing: reconciled — all 5 canonical copies present; pointer line confirmed on all 5 originals
+
 Date: 2026-11-03. Lane: AF-7 (implementation). No git operations.
 
 ## Drift

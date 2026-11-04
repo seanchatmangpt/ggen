@@ -1,5 +1,7 @@
 # ZD-69 — ENOSPC × 3 + Lean verify manifest failure
 
+Standing: FIXED (uncommitted, working tree)
+
 Status: FIXED (uncommitted, working tree)
 Lane: ZB-13 item 6, 2026-11-04
 Subject: branch `v26-11-3-wave`, exact subject = PR #824 head at edit time

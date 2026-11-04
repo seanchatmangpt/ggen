@@ -1,5 +1,7 @@
 # Receipt: ab-14-chain-scale
 
+Standing: ALIVE (both scale courts ran green this session)
+
 Lane AB-14 (STRESS) — chain-scale stress over the two EXISTING chain
 planes, both read-only subjects. No production code changed on either
 plane; the diff is two new test files + this receipt.

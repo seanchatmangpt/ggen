@@ -1,5 +1,7 @@
 # ZD-88: Pre-Landing Gate Receipt (v26-11-3-wave)
 
+Standing: UNSAFE — sweep must not land red
+
 Date: 2026-11-04
 Branch: `v26-11-3-wave` (169 dirty entries at gate time)
 Verdict: **UNSAFE — sweep must not land red**

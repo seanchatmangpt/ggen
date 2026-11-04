@@ -1,5 +1,7 @@
 # AB-20 Tokens Stress Receipt
 
+Standing: gate exit 0 x2 — 4 passed; 0 failed
+
 Lane: AB-20 (STRESS). Date: 2026-11-04. Subject: `crates/ggen-lsp/src/tokens.rs`
 `TokensEngine` full/delta path (E80-5/PG-A2 wired surface), read-only.
 

@@ -1,5 +1,7 @@
 # ZD-120: ggen Phase 3 Ladder — Publish Preflight (Registry Census + Identity)
 
+Standing: ALIVE (read-only, executed). Publish status: BLOCKED (no login token)
+
 - **Date**: 2026-11-04
 - **Ticket**: ZP-9 Part 3 Stage 0 (ggen Phase 3 publish ladder)
 - **Repo/branch**: /Users/sac/ggen @ v26-11-3-wave, HEAD `e4f231a55d9e641f60529498449d1f51077488fe`

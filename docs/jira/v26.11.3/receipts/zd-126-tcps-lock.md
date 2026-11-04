@@ -1,5 +1,7 @@
 # ZD-126 — tcps-generated ggen.lock landed as tracked evidence artifact (ZD-124 premise-rot close)
 
+Standing: ALIVE (artifact tracked, tests green x2)
+
 Date: 2026-11-04 · Branch: v26-11-3-wave · Lane: ZD-126 · Status: ALIVE (artifact tracked, tests green ×2)
 
 ## Symptom (ZD-124 census)

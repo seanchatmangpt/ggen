@@ -1,5 +1,7 @@
 # SX-1 Red Fixes Receipt — v26.11.3 Seal
 
+Standing: Red 1/2/3 FIXED; ALL BENCH GATES PASS, EXIT=0
+
 Lane: SX-1 (implementation, small fixes + classified carries). Date: 2026-11-04.
 Repos: /Users/sac/ggen, /Users/sac/arcus. No git operations run.
 
