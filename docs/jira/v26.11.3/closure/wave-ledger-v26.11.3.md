@@ -205,4 +205,3 @@ under this scan — standing-UNDETERMINED, a finding, not a paste error.
    tables byte-for-byte. A second run differing in any row falsifies the ledger.
 6. **Self-check diff must be empty**: the STEP 4 diff is the gate; a ledger whose
    self-check cannot be run or is skipped loudly fails close-out.
-

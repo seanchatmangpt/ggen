@@ -1,0 +1,9 @@
+# cargo audit config (read from ./.audit.toml). Mirrors deny.toml [advisories].
+# Registered divergence: quick-xml 0.37.5 is upstream-blocked by process_mining
+# ^0.37.4; closing RUSTSEC-2026-0194/0195 requires a process_mining release on
+# quick-xml >= 0.41. Evidence: docs/jira/v26.11.3/receipts/xc-8-cve-bump.md
+[advisories]
+ignore = [
+    { id = "RUSTSEC-2026-0194", reason = "quick-xml 0.37.5 upstream-blocked by process_mining ^0.37.4 — see docs/jira/v26.11.3/receipts/xc-8-cve-bump.md" },
+    { id = "RUSTSEC-2026-0195", reason = "quick-xml 0.37.5 upstream-blocked by process_mining ^0.37.4 — see docs/jira/v26.11.3/receipts/xc-8-cve-bump.md" },
+]
