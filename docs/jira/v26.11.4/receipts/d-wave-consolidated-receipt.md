@@ -43,9 +43,43 @@ Verified this session (2026-11-04) via `git branch -r --contains <sha>` per repo
 
 ## Standing
 
-ALIVE — every commit in the table verified on origin this session by
-`git branch -r --contains` (cgap/arcus/ggen-marketplace/smalt on origin/main,
-ggen on origin/v26-11-3-wave).
+ALIVE — every commit in the verification table and the addendum verified on origin this
+session by `git branch -r --contains` (cgap/arcus/ggen-marketplace/smalt on origin/main,
+ggen on origin/v26-11-3-wave, lsp-max on origin/master).
+
+## Addendum (late tail, 2026-11-04)
+
+Commits that landed after the D70 table snapshot above; verified this session via
+`git branch -r --contains <sha>` per repo (all `y`).
+
+| lane | repo | commit | on-origin | one-line artifact |
+|---|---|---|---|---|
+| cgap | cgap | b69ccabd | y | docs: fix publish-flag drift in CLAUDE.md (E-y row) |
+| cgap | cgap | ef43dbee | y | chore(freeze): re-mint status_maps + cscb-targets blake3 pins (v3-era lawful edits) |
+| cgap | cgap | f30e19f4 | y | chore: remove tracked build artifacts (wrapper_host.o, __pycache__ .pyc files) |
+| cgap | cgap | 7b21f537 | y | E-h finding 5: cgap-local drift courts for dma_ring + isomorphism (dup of D70 row; also in late tail snapshot) |
+| arcus | arcus | 23d313b | y | docs+test: errata blocks (18.1ns/G7 supersessions), digest scope-law note, cdata pinner-lease delegation test |
+| arcus | arcus | 3c997ea | y | chore(freeze): re-mint blake3 pins for v3-regenerated aoq_ipc surfaces |
+| arcus | arcus | 92e9a2a | y | docs: CLAUDE.md three-zone-law sentence resolved to scope-law (X4) |
+| arcus | arcus | 9fec512 | y | feat(flight): Q6 M2b AoQ peer identity pin-table + persisted pin store (dup of D70 row; also in late tail snapshot) |
+| ggen | ggen | 8d5ff1167 | y | docs(plans): ZP-19 row → EXECUTED (landed conditional) — bm8/br4/f6d0a5e evidence |
+| ggen | ggen | 3afe33b2d | y | docs(plans): ZP-11..25 standings reconciliation — post-wave receipt flips folded in |
+| ggen | ggen | be7afbf3c | y | docs(seed): v26.11.5 SEED.md — 17 rows, 4 dropped-at-compile, drain-verified statuses |
+| ggen | ggen | 254668592 | y | chore: remove tracked tai-erlang-autonomics/_build tree (275 files, ~11MB) — _impl14 class |
+| ggen | ggen | fa577dd6d | y | docs: rebuild root README (conflict artifact resolved), version 26.11.4 |
+| ggen | ggen | 6716a741e | y | docs(closure): OI-8 reconstructed in-writing + CLOSED (merge 434321b0) |
+| ggen | ggen | dc471a839 | y | fix(closure): replay script — labeled tags, real arcus court metric, smalt receipts row, trimmed counts |
+| ggen | ggen | 6df04204a | y | docs: merge-region delimiters are generator-owned — marker-sweep whitelist note |
+| ggen | ggen | a963f094d | y | docs(receipts): vuln-remediation closing receipt (NV10) |
+| smalt | smalt | 434321b0 | y | merge: remove tracked _impl14 build artifacts (259 files) — C6 U3 (dup of D70 row; also in late tail snapshot) |
+| smalt | smalt | 6bb10a36 | y | fix(gates): appconfig-etag-cas pin flips to 201-create (KD-149 parity flip 2026-10-30) |
+| smalt | smalt | 038d3b0f | y | docs: CLAUDE.md sdk-* line updated to post-retirement reality (C6 U2) |
+| smalt | smalt | a2c9b3fd | y | fix(workspace): air-gap fetch posture, dead component/deps removal, eslint selector (D83/D48 class) |
+| smalt | smalt | 078ccf9f..62793177 | y | curriculum authoring chain, one row: 24 non-merge commits — module exercises/solution keys (M06/07/11/12/13-15/16/26/28/29-32/37-38/40/45), column-law renames bore_dev_um→bore_deviation_um (waves 1-2, re-sealed), stale count fix (m41 43→42), gate/shim-court fixes (existence guards precede grep; 7th invariant gate test-isolation-leak), KD-row staleness (KD-09/KD-08/KD-05), ending 62793177 course-completion-receipt with green final manifest gate |
+| lsp-max | lsp-max | 5ad58c8 | y | chore: remove tracked __pycache__ .pyc files; ignore __pycache__/ |
+| lsp-max | lsp-max | 81f7ad3 | y | docs: fix noun/crate-map drift in CLAUDE.md (E-y row) |
+| lsp-max | lsp-max | 57b207a | y | docs: relabel PERFORMANCE.md figures as design targets (E-f audit) |
+| lsp-max | lsp-max | a86d167 | y | D28: fix(law) victory-language reword + rg fail-loud guard + law workflow cache (was in-flight on the working tree at addendum start; landed mid-poll, ancestry-verified separately) |
 
 ## Receipt-debt note
 
