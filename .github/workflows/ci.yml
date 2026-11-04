@@ -124,7 +124,6 @@ jobs:
               python3 scripts/ci/test-g0-workflow-inventory.py
               ;;
             core_deep)
-              cargo check --workspace --exclude ggen-lsp
               cargo build --workspace --exclude ggen-lsp
               cargo test --workspace --lib --exclude ggen-lsp
               cargo test --doc --workspace --exclude ggen-lsp
