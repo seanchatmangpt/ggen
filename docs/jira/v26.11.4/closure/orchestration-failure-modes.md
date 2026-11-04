@@ -7,16 +7,28 @@ below was observed, not inferred; line refs are transcript lines (Lnnnn).
 
 ## Summary table
 
-| Class | Inst | Lanes | Root cause | Prevention |
-|---|---|---|---|---|
-| 429 kills | 8+ | CG5, BB-01, BB-02, BB-07, BB-04, BB-10 x2, D25 | glm sheds load under ~20-lane fleet | slot-based re-dispatch from on-disk inventory; cap retries |
-| shared-index sweep | 3 | D32>D25, D57>D60, D83>D81 | commit on shared checkout sweeps staged work; inventory missed index | pre-commit staged-path attribution gate, owner disclosure |
-| premise rot | 9+ | D74, D67, D77, D50/D52, Q2, V3, P10, R2 | premise stale; substrate moved under claim | premise-recheck step in court/receipt templates |
-| duplicate work | 3 | D28, D65, stale dispatch | no landed-work check before continuing | pre-land probe (grep HEAD); overdue-lane stop rule |
-| wrong-ID stop | 1 | E-q stopped, E-s meant | stop by ID assumption, no live listing | ListAgents before TaskStop; verify mandate coverage |
-| port contention | 2 | E-q vs D33, D58 vs D33 | two lanes on one gate process/port | per-lane private ports (fanout law 4); port lease |
-| wait-gate (keep) | 11 | D88 | — | typed gates + honest IN-FLIGHT-AT-FILL, not sleeps |
-| push verify (keep) | 656 | fleet-wide | — | ls-remote grep HEAD, never push output |
+| Class | Inst | Root cause | Prevention |
+|---|---|---|---|
+| 429 kills (8+) | 7 lanes (below) | glm sheds load at 20 lanes | slot re-dispatch, retries capped |
+| shared-index sweep (3) | D32, D57, D83 | commit sweeps staged work | pre-commit attribution gate |
+| premise rot (9+) | 9 lanes (below) | stale premise; moved substrate | premise-recheck in courts |
+| duplicate work (3) | D28, D65, dispatch | no landed-work check | pre-land probe; lane-stop rule |
+| wrong-ID stop (1) | E-q (meant E-s) | ID assumption, no listing | ListAgents before TaskStop |
+| port contention (2) | E-q, D58 (vs D33) | two lanes, one gate port | per-lane ports; port lease |
+| wait-gate (keep, 11) | D88 | — | typed gates, honest fallback |
+| push verify (keep, 656) | fleet-wide | — | ls-remote grep HEAD |
+
+Lane detail: BB lanes hit the 429 rate limiter under the 20-lane fleet
+(CG5, BB-01, BB-02, BB-07, BB-04, BB-10 twice, D25); every recovery was a
+verified on-disk inventory, never the dead lane's report. Sweep collisions:
+D32 swept D25's 25 staged deletions (post-429 inventory checked tree not
+index), D57 swept D60's M14 rename, D83 swept D81's 9 proxy/_build
+deletions. Premise rot: D74 (markers are generator merge delimiters),
+D67 (README was a destructive commit, not a conflict), D77 (frozen-skip
+premise unsatisfiable by design), D50/D52 (E-h file-level grep premise
+corrected to symbol-level), Q2 (1MiB bound false on disk), V3 (BLOCKED
+state predated V1's repair), P10 (cbmqs-audit live, not residue),
+R2 (ML-KEM runs under existing go.mod floor).
 
 ## Class detail
 
