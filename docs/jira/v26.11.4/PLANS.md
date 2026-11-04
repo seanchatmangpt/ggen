@@ -1,27 +1,46 @@
 # PLANS
 
-v26.11.4 implementation plans (ZP-11..25, Plan agents 2026-11-04), grounded
+v26.11.4 implementation plans (ZP-11..24 — the header's earlier `ZP-11..25`
+range was wrong; no ZP-25 row was ever authored or referenced anywhere,
+re-corrected 2026-11-04 post-wave), grounded
 in the 34-audit Explore fan-out (ZB-40..74). Full contract text lives in the
 session coordination ledger; this index records each plan's load-bearing
 decisions and deltas. Standing is PER-ROW as of 2026-11-04 (receipt paths
 are relative to each repo root: `arcus/` = /Users/sac/arcus, `cgap/` =
 /Users/sac/cgap, `lsp-max/` = /Users/sac/lsp-max, ggen = this repo):
 
-- ZP-11 EXECUTED (arcus receipts `zp-11-real-sidecar-witness` +
+Same-day revision 2026-11-04 (post-wave receipt flips folded in): ZP-11
+qualified, ZP-16 PARTIAL→VERIFIED-LANDED (NO-OP retracted), ZP-18 receipt
+citation added, ZP-20 re-classified EXECUTED-conditional, ZP-25 range
+corrected to ZP-11..24. The standing summaries for each flipped leg live in
+the cited receipt files, not here.
+
+- ZP-11 EXECUTED — with one qualification: `zp-11-uds-transit-floor` is
+  UNVERIFIED-for-production-citation (measured at load 10-22 with no quiet
+  witness; BR-1 later measured an honest min-of-10 p50 of 25.83µs @ load
+  ~31 — cite arcus `br1-transit-load-sensitivity.md` as the current floor
+  evidence). (arcus receipts `zp-11-real-sidecar-witness` +
   `zp-11-uds-transit-floor` + `zp-13-blake3-abb`)
 - ZP-12 EXECUTED (arcus receipt `zp-12-supervisor`)
 - ZP-13 EXECUTED (arcus receipt `zp-13-blake3-abb`)
 - ZP-14 EXECUTED (cgap receipt `zp-14-cbmqs-cli`)
 - ZP-15 UNVERIFIED (no receipt found in ggen/cgap/arcus v26.11.4 trees)
-- ZP-16 PARTIAL (publish.yml landed for ggen + cgap — not arcus; ggen-engine
-  sibling dep reqs moved to `=26.11.4`; crates.io operator registration +
-  GitHub environment gates pending)
+- ZP-16 VERIFIED-LANDED (ggen receipt `zp-16-publish-automation`, fa7c47faa;
+  the earlier NO-OP finding is RETRACTED as terminal). ggen-engine sibling
+  dep reqs pinned `=26.11.4` on all edges (crates/ggen-engine/Cargo.toml:118,
+  121, 127) so the PRE-FIX clause is met; the remaining work is operator-side
+  only: GitHub environments, crates.io trusted-publisher registration, tag
+  rehearsal. publish.yml landed for ggen + cgap — not arcus.
 - ZP-17 EXECUTED (cgap receipt `zp-17-gate10-settling` + POST-FOLD errata;
   1.26394 µs/link branch-a MEASURED-MET)
-- ZP-18 EXECUTED (cgap receipt `zp-18-profile-guard-census`, census exit 0)
+- ZP-18 EXECUTED (cgap receipts `zp-18-profile-guard-census`, census exit 0 +
+  `zp-18b-purity-gate-registration`)
 - ZP-19 UNVERIFIED (no receipt found; slab/TLS WindowBuffer work not
   witnessed in any v26.11.4 tree)
-- ZP-20 EXECUTED (lsp-max receipt `zp-20-gate09-fd-rss-rerun`)
+- ZP-20 EXECUTED (landed conditional) (lsp-max receipt
+  `zp-20-gate09-fd-rss-rerun`): fd bound landed, RSS 5.4× margin measured,
+  and the 2MB PRD claim FALSIFIED — the receipt must NOT be cited as a
+  passing Gate-09.
 - ZP-21 UNVERIFIED (no receipt; ZP-14/CBP coordination home not decided in
   writing)
 - ZP-22 UNVERIFIED (no receipt; FIPS-204 signer not witnessed)
