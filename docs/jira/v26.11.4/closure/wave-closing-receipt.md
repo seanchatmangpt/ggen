@@ -201,7 +201,7 @@ register as-of 2026-11-04T21:41Z). Not restated here.
   scripts/check-law-compliance.sh after 57b207a flips
   IN-FLIGHT-AT-FILL.
 
-## §5 Standing (minted at fill)
+## §5 Standing (minted at fill; re-derived in Addendum #2 below)
 
 Wave standing: PARTIAL_ALIVE.
 - ALIVE: replay script exit 0 (all counts), test-lib 38/0, PR 824
@@ -223,3 +223,118 @@ Wave standing: PARTIAL_ALIVE.
   see open-items-register.md OI-1. Carried as of register as-of.
 - (no other corrections at fill; the lint FAIL is newly-observed
   live, not a correction)
+
+## Addendum #2 (final tail, 2026-11-04)
+
+as-of 2026-11-04 (late-tail session). Wait-gate note: the expected
+lane SHAs (a8e03167, ad324dc, aa1c404, aa393a4c) never appeared on
+any branch — the lanes landed their content under different commits;
+rows below cite the observed landing SHAs, not the predicted ones.
+Polled in three bounded rounds (~35 min total).
+
+### Tail-lane rows
+
+| lane | disposition | evidence (re-derive) |
+|---|---|---|
+| D90 | LANDED | ggen 97c2148d1 `fix: lint green` (scip needless_question_mark, marketplace needless_collect — the ~280-diagnostic cascade from the two root-package `-D warnings` errors); re-verified live at addendum: `just lint` exit 0 (1m36s, clean finish) |
+| D93 | PARTIAL (IN-FLIGHT-AT-ADDENDUM) | expected SHA a8e03167 absent from all lsp-max refs; settle observed live (lsp-max dirty 39 → 2, remaining 2 are run artifacts: .mesh_state.json, cog010-scan.json); no landing commit to cite |
+| D95/D105 | LANDED | lsp-max 86ad66d `fix(quality): fmt drift, clippy lints, publish config — rust-quality workflow green path`; a86d167 + ee22719 (gates, D28); e6213b4 (changelog); law script live: `bash scripts/check-law-compliance.sh` exit 0 ("All law compliance checks passed") |
+| D96 | LANDED | lsp-max e94f879 `ci(docker): revert buildx transport to plain docker build (D96 RCA)`; predicted SHA ad324dc never appeared |
+| D98 | LANDED | ggen b88dd8af3 OI register refresh — OI-5/OI-9 CLOSED, OI-1 updated (pins =26.11.4 live-read), OI-10 added; register re-read on disk this session |
+| D101 | LANDED | arcus 309b48b `fix(flight): boot-time sidecar-dir janitor + poison closes fd (A4 RISK B/C)` (past 3c997ea); arcus build live: `go build ./...` exit 0 |
+| D102 | LANDED | cgap 5c6638f9 `fix(ffi): sidecar read/write timeouts — stalled client can't wedge single-tenant serve (A4 RISK A)` (past 601e0274); `cargo build -p cgap-ffi` exit 0 (after an initial FAIL with 168 cgap-arrow errors on the mid-flight dirty tree — the FAIL was in-flight-lane edits, not the timeout commit) |
+| D106 | IN-FLIGHT-AT-ADDENDUM | predicted SHA aa393a4c absent; no panic→typed commit on any cgap ref; cgap tree carries 18-19 in-flight source edits (cgap-arrow/cgap-git/wire-shm) at as-of |
+| D103/D104 | LANDED | CHANGELOGs on all four: cgap b0324cfa (v26.11.4 wave entry), arcus 9f42e12 (register sync), lsp-max e6213b4 ([Unreleased] fill), smalt 53bdbccf (2026-11-04 wave entry) |
+| E-z3 + S-9 | LANDED (seed form) | ggen 09d4d7db7 (S-9 seed: gate-family harness BEAM+posh boot path, next-wave-seeds.md:44; D33 BLOCKED-BOOT 4 attempts + E-z3 corroboration persisted); appconfig-etag-cas-receipt.json fresh (mtime 2026-10-30 16:12, re-read live) |
+| P-p | LANDED | ggen e5dc7e1d3 (Standing backfill, 39 files) + d1957c09e (S-10 seed) + e75e0d093 (mechanical-gates spec); mirrored on cgap d2cedd64 (23 files) and arcus 9f58c7f (12 files) |
+| D54 | already rowed | d-wave-consolidated-receipt.md:32 (smalt D54, no lane commits) |
+| D83 | already rowed | d-wave-consolidated-receipt.md:77 (smalt a2c9b3fd) |
+| D73/D75/D79/D80/D81/D82/D84/D85/D87 | UNREFERENCABLE | lane IDs live only in the coordinator session ledger; no persisted referent found in any repo doc (searched docs/jira/, RUNBOOK, seeds, learnings). No row content can be derived without inventing claims — recorded as absent, not guessed. This is the session-context-IDs drift class the runbook itself names (RUNBOOK-20-LANES.md:37) |
+
+### Final integration verification (live at addendum)
+
+- `bash docs/jira/v26.11.4/closure/replay-commands.sh` → exit 0;
+  verbatim output follows as the as-of block.
+
+```
+== per-repo identity + receipt census ==
+--- /Users/sac/ggen
+55224d187af85c4d30f02d584fc5e46779a613fd   (pre-commit HEAD at addendum run)
+v26-11-3-wave
+dirty files: 0
+receipts: 10 (docs/jira/v26.11.4/receipts)
+receipts: 4 (receipts)
+--- /Users/sac/arcus
+9f58c7f8208e1c2df26ab1f784a324dca97cc637
+main
+dirty files: 2
+receipts: 20 (docs/jira/v26.11.4/receipts)
+--- /Users/sac/cgap
+5c6638f98de43da3ce02203f07434d51dbf2fa6c
+main
+dirty files: 19
+receipts: 29 (docs/jira/v26.11.4/receipts)
+--- /Users/sac/lsp-max
+86ad66d4cc6b706a054161a233bcc4e027c8937c
+master
+dirty files: 2
+receipts: 2 (docs/jira/v26.11.4/receipts)
+receipts: 7 (receipts)
+--- /Users/sac/ggen-marketplace
+8d626dece621b5763df20f6beeae5c419e7e5ffd
+main
+dirty files: 39
+receipts: 8 (receipts)
+--- /Users/sac/smalt
+53bdbccf9a4d9f5c306d89af87d8e683eb89ca6c
+main
+dirty files: 0
+receipts: 4 (docs/dmedi-bb-curriculum/receipts)
+== tags ==
+ggen 236 tags; cgap 1 (v26.11.2); ggen-marketplace 16; arcus/lsp-max/smalt 0
+== manifest/court counts ==
+ggen publish.yml lines: 202 | cgap publish.yml lines: 301
+ggen tera census tests: 3 | arcus court files: 8 (was 7 at fill — +1)
+smalt KD rows: 23 | ggen KD rows: 4 | cgap KD rows: 3
+```
+
+Drift vs fill-time §0: ggen dc471a839→55224d187 (P-p/mechanical-gates
+commits); arcus 92e9a2a→9f58c7f; cgap ef43dbee→5c6638f9; lsp-max
+5ad58c8→86ad66d; ggen-marketplace HEAD moved AND went 0→39 dirty
+(a lane is in flight there at as-of — noted, outside this lane's
+scope); arcus court files 7→8; lsp-max v26.11.4 receipts 1→2.
+
+### Final standing (re-derived at addendum)
+
+Wave standing: PARTIAL_ALIVE.
+
+- ALIVE: replay exit 0 with live counts; `just lint` exit 0 (the
+  fill-time PARTIAL fence is CLOSED by D90); `go build ./...` exit 0
+  (arcus); `cargo build -p cgap-ffi` exit 0 (cgap); smalt
+  manifest_verify.py 61 PASS / 0 FAIL exit 0; lsp-max law script
+  exit 0; D28's IN-FLIGHT-AT-FILL discharged (a86d167 + ee22719
+  landed on lsp-max master, past the 57b207a falsifier trigger);
+  OI-1 CLOSED, OI-5 CLOSED, OI-8 CLOSED, OI-9 CLOSED (register
+  re-read live); D101/D102/D95/D96/D98/D103/D104/P-p landed.
+- PARTIAL: cgap tree dirty (19 files, D106-class in-flight edits) —
+  the cgap-ffi build passed on that tree but the panic→typed lane is
+  not landed; ggen-marketplace 39 dirty (lane in flight); lsp-max
+  2 artifact-only dirty; D93 has no landing commit (settle observed,
+  not receipted); arcus court count grew 7→8 (309b48b janitor court,
+  consistent, not drift-error).
+- IN-FLIGHT-AT-ADDENDUM: D106 (cgap panic→typed), D93 landing
+  receipt, ggen-marketplace dirty lane.
+- BLOCKED (carried, unchanged): OI-4 rung-7 stress/chaos (no zd-79
+  receipt); OI-3 ML-DSA-65 (PLANNED wave-3).
+- OPEN (carried): OI-2 (tera 2.4.0 dual-engine court), OI-6 (home
+  dispute), OI-7 (cgap workspace 26.11.3), OI-10 (wider-scope clippy
+  debt beyond D90's root-package fence — D90 landed inside its
+  fence; the 4 unowned files remain untriaged).
+- The S-9 harness (BEAM+posh boot path) remains a seed, not a gate —
+  carried as PARTIAL_ALIVE driver.
+
+Why not ALIVE: two lanes are verifiably still in flight (cgap D106,
+ggen-marketplace dirty set) and one landed-lane lacks a landing
+receipt (D93); a fence that is still editing cannot be certified
+closed. Everything the fill receipt listed as PARTIAL except the
+in-flight tail has closed.
