@@ -912,3 +912,13 @@ sjira-control:
 # if both flips witnessed; canonical tree is read-only to this court.
 sjira-control-court:
     bash scripts/sjira_control_court.sh
+
+# ── E-c finding 4: weekly e2e backlog lane ────────────────────────────────────
+# The 202 #[ignore]d CLI e2e tests (119 #[ignore]s across the 9
+# crates/ggen-cli/tests/integration_*_e2e.rs files) and the 2 ggen-lsp
+# fixture-generator tests never run in the fast loop. `just e2e` runs them
+# locally; .github/workflows/e2e-periodic.yml runs them weekly. Not wired into
+# `pre-commit` — 202 tests x built binary is the weekly job's job.
+e2e:
+    cargo test -p ggen-cli --test integration_ai_e2e --test integration_cli_ux_e2e --test integration_graph_e2e --test integration_marketplace_e2e --test integration_ontology_e2e --test integration_project_e2e --test integration_template_e2e --test integration_utils_e2e --test integration_workflow_e2e -- --ignored --nocapture
+    cargo test -p ggen-lsp --test consolidate_002_sequence_equivalence --test oracle_tape_generator -- --ignored --nocapture
