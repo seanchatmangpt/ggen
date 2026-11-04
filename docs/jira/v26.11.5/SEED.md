@@ -125,6 +125,49 @@ SEED explicitly; the v26.11.5 PRD must adopt, reconstruct, or demote
 each. The v26.11.5 PRD does not exist yet; until it lands, this
 directory carries no plan and no receipts — only this SEED.
 
+## B2. Orchestration inheritance (added 2026-11-04, INTEGRATION lane,
+### post-compile — sources: closure/RUNBOOK-20-LANES.md + mechanical-gates-spec.md)
+
+- SD-18 (H, doctrine): RUNBOOK adoption as wave-dispatch law — adopt
+  `docs/jira/v26.11.4/closure/RUNBOOK-20-LANES.md` as the standing
+  wave-dispatch law for every subsequent wave: contract-block dispatch
+  template (§2), pre-flight census + lane-ID registry + slot map +
+  landed-work probe (§1), in-flight collision-disclosure and
+  overdue-lane rules (§3), drain sequence with typed IN-FLIGHT-AT-FILL
+  fallback (§4), saturation grammar (§5). Every runbook rule carries an
+  O1 witness or landed mechanism; no rule without a witness. Conflict
+  disclosures vs existing doctrine are named in
+  next-wave-seeds.md (S-11/S-12 provenance note) — none resolved
+  unilaterally. Falsifier: a wave dispatches a lane with no contract
+  block, no owned-file list, or an unregistered lane ID and the wave
+  still lands cleanly.
+- SD-19 (M, gate): lane-registry + lane-lease gate — O3 spec-1
+  (mechanical-gates-spec.md): `lane-registry.json` (coordinator-minted,
+  disjoint owned_paths enforced at mint) + pre-commit
+  `scripts/hooks/lane-lease-check` (GGEN_LANE_ID lookup, foreign-path
+  refusal with owning lane named, stale-lease refusal) + slot-map
+  projection (`scripts/lane_slot_map.sh`, projection-not-copy).
+  Effort S-M. Falsifier: a commit staging a path outside the lane's
+  owned globs lands without an exit-1 or a disclosed adopt.
+- SD-20 (S, gate): index-disclosure gate — O3 spec-2: pre-commit
+  staged-vs-mine diff + `GGEN_LANE_DISCLOSE` adopt path +
+  prepare-commit-msg attribution footer (greppable sweep attribution).
+  Effort S. Falsifier: a foreign staged path lands silent (no exit 1,
+  no footer) under a lane lease.
+- SD-21 (S, gate): receipt-lint standing vocabulary — O3 spec-3 =
+  S-12 in next-wave-seeds.md (note: O3's own table numbers it S-13;
+  the seed file's numbering governs): `scripts/receipt_lint.py` with
+  the accepted synonym vocabulary (Standing|Status|verdict|Result|
+  Exit-code|Exit code|Gate) and ALIVE standing set, `--backfill` diff
+  mode (D108 already executed the backfill), census consumption of the
+  parsed standing-map so backfilled files never re-flag. Effort S.
+  Falsifier: a receipt whose standing line uses an accepted synonym
+  still FAILs the census, or a FAIL-class receipt passes the lint.
+- Cross-refs: S-9 (gate-family harness boot path, BEAM+posh) and
+  S-10 (receipt-lint; now EXISTS via D108's backfill — remaining leg
+  is the lint script + census standing-map) are carried in
+  next-wave-seeds.md and inherited here by reference.
+
 ## G. Drain-time verification
 
 Not filled at compile (no closing receipt is minted in this lane).
