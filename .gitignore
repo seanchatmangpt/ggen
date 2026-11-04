@@ -1093,3 +1093,4 @@ examples/*/ggen.lock
 
 # nested consumer ggen.lock = sync runtime state (ZD-127: industry examples mint it under examples/industry/<name>/)
 examples/industry/*/ggen.lock
+*.tsbuildinfo
