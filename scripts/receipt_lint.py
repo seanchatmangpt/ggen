@@ -146,7 +146,6 @@ def backfill_proposal(path: Path) -> str | None:
             break
         if EXIT_CODE_VALUE_RE.match(v) and _has_exit_code_context(head):
             found = (i, "Exit-code-%s" % v)
-            backfill_exit_ctx = True
             break
     if found is None:
         return None
