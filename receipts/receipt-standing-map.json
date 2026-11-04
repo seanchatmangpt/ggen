@@ -1,0 +1,978 @@
+{
+  "entries": {
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/ab-13-kernel-stress.md": {
+      "annotation": "",
+      "key": "Standing",
+      "ok": true,
+      "standing": "ALIVE"
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/ab-14-chain-scale.md": {
+      "annotation": "",
+      "key": "Standing",
+      "ok": true,
+      "standing": "ALIVE"
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/ab-20-tokens-stress.md": {
+      "annotation": "",
+      "key": "Standing",
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/af-42-marketplace-fixes.md": {
+      "annotation": "",
+      "key": "Standing",
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/af-5-sync-surface.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/af-7-path-reconcile.md": {
+      "annotation": "",
+      "key": "Standing",
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/cl-close-2.md": {
+      "annotation": "",
+      "key": "GATE",
+      "ok": true,
+      "standing": "PASS"
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/cl-close.md": {
+      "annotation": "",
+      "key": "GATE",
+      "ok": true,
+      "standing": "PASS"
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/cl-d-fmlaw-fixtures.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/cl-i-lib-wiring.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/cl-o-readme-reconcile.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/cl-p-g2-recovery.md": {
+      "annotation": "",
+      "key": "Standing",
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/cl-q-k2-recovery.md": {
+      "annotation": "",
+      "key": "Standing",
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/cl-r-transactional-recovery.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/complete-receipt.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/ds-1.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/ds-10.md": {
+      "annotation": "",
+      "key": "Standing",
+      "ok": true,
+      "standing": "PARTIAL_ALIVE"
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/ds-2.md": {
+      "annotation": "",
+      "key": "Standing",
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/ds-3.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/ds-4.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/ds-5-baseline.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/ds-6.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/ds-7-mutation.md": {
+      "annotation": "",
+      "key": "Standing",
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/ds-8-cli-skeleton.md": {
+      "annotation": "",
+      "key": "Standing",
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/ds-8.md": {
+      "annotation": "",
+      "key": "Standing",
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/ds-9.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/e80-01.md": {
+      "annotation": "",
+      "key": "Standing",
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/e80-03.md": {
+      "annotation": "",
+      "key": "Standing",
+      "ok": true,
+      "standing": "ALIVE"
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/e80-04.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/e80-05.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/e80-08.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/e80-09.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/e80-10.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/ea-run-transcript.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/f1-chain-rule.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/f2-declarative-admission.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/g1-stage2c.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/g2-typed-refusals.md": {
+      "annotation": "",
+      "key": "Status",
+      "ok": true,
+      "standing": "ALIVE"
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/g3-kernel-highs.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/g4-composer.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/g5-refusal-fences.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/g6-depgraph.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/g7-schema.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/g8-cli.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/ga-1-aoq-ontology.md": {
+      "annotation": "",
+      "key": "Standing",
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/ga-11-cscb-pack.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/ga-12-tort-pack.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/ga-3-aoq-templates.md": {
+      "annotation": "",
+      "key": "Standing",
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/ga-7-control-wiring.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/ga-9-receiptctl.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/gd-2-ggen-dod.md": {
+      "annotation": "",
+      "key": "Standing",
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/gl-1.md": {
+      "annotation": "",
+      "key": "Standing",
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/i5-wo06-reconcile.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/k1-refusal-flip.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/k2-test-fixes.md": {
+      "annotation": "",
+      "key": "Standing",
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/k6-self-dogfood.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/k8-cli-flag-depgraph.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/p11-fmgen007.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/r80-01.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/r80-02.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/r80-03.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/r80-04.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/r80-05.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/r80-06.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/r80-07.md": {
+      "annotation": "",
+      "key": "Status",
+      "ok": true,
+      "standing": "ALIVE"
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/r80-08.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/r80-09.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/r80-10.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/r80-11.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/r80-12.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/r80-14.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/sa-12.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/sa-13.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/sa-14.md": {
+      "annotation": "",
+      "key": "Standing",
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/sa-15.md": {
+      "annotation": "",
+      "key": "Standing",
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/sa-16.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/sa-17-census.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/sa-6.md": {
+      "annotation": "",
+      "key": "Standing",
+      "ok": true,
+      "standing": "ALIVE"
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/sa-7.md": {
+      "annotation": "",
+      "key": "result",
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/sa-8.md": {
+      "annotation": "",
+      "key": "Standing",
+      "ok": true,
+      "standing": "PASS"
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/sj-1.md": {
+      "annotation": "",
+      "key": "result",
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/sjira-mutation-battery.md": {
+      "annotation": "",
+      "key": "Standing",
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/skill-up-rewggen.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/sx-1-reds.md": {
+      "annotation": "",
+      "key": "Standing",
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/x1-sjira-kernel.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/x3-projection.md": {
+      "annotation": "",
+      "key": "Standing",
+      "ok": true,
+      "standing": "ALIVE"
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/x4-consumer-guide.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/xc-7-ci-unblock.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/xc-8-cve-bump.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/xd-10-publish-blockers.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/xd-11-fmlaw015.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/xd-13-fmt-sweep.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/xd-14-ea-graph-ci.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/xd-15-tcps-lock.md": {
+      "annotation": "",
+      "key": "Standing",
+      "ok": true,
+      "standing": "PARTIAL_ALIVE"
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/xd-17-index-transcribe.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/xd-18-ci-residuals.md": {
+      "annotation": "",
+      "key": "Standing",
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/xd-2-key-perms.md": {
+      "annotation": "",
+      "key": "Standing",
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/xd-3-index-refresh.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/xd-8-key-mode-gate.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zb-21-observation-drift.md": {
+      "annotation": "",
+      "key": "Standing",
+      "ok": true,
+      "standing": "PARTIAL"
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zb-24-final-index.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zb-75-prd-materialize.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-101-sync-verifies.md": {
+      "annotation": "",
+      "key": "Standing",
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-106-ledger-refresh.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-108-soak-evidence.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-11-sync431.md": {
+      "annotation": "",
+      "key": "Status",
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-110-clippy-zero.md": {
+      "annotation": "",
+      "key": "Standing",
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-112-terminal-gates.md": {
+      "annotation": "",
+      "key": "Standing",
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-116-index-final.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-118-tag-sweep.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-120-ggen-preflight.md": {
+      "annotation": "",
+      "key": "Standing",
+      "ok": true,
+      "standing": "ALIVE"
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-121-tag-allowlist.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-124-casr.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-125-fm015-trio.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-126-tcps-lock.md": {
+      "annotation": "",
+      "key": "Standing",
+      "ok": true,
+      "standing": "ALIVE"
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-127-core-team.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-128-misc-ci.md": {
+      "annotation": "",
+      "key": "Standing",
+      "ok": true,
+      "standing": "Exit-code-4"
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-135-committed-confirm.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-137-sync-family.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-14-ci-final.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-15-template-fmt.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-16-eof-sweep.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-17-ambient-ggen.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-21-shacl-syntax.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-23-index-refresh2.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-24-claude-markers.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-27-repo-facts.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-31-runbook-refresh.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-38-advisory-ignores.md": {
+      "annotation": "",
+      "key": "Standing",
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-39-polyglot-sccache.md": {
+      "annotation": "",
+      "key": "Standing",
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-40-lsp-contract-graph.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-44-skip-flag.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-45-receipt-seam.md": {
+      "annotation": "",
+      "key": "Standing",
+      "ok": true,
+      "standing": "ALIVE"
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-46-zero-verb-audit.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-47-relay-probe.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-48-fm-codes.md": {
+      "annotation": "",
+      "key": "Standing",
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-5-sccache.md": {
+      "annotation": "",
+      "key": "Standing",
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-50-wo-drift.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-51-r80.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-58-index-refresh3.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-59-carry05.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-60-ds7-tighten.md": {
+      "annotation": "",
+      "key": "Standing",
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-66-doc-clippy.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-67-ea-batch2.md": {
+      "annotation": "",
+      "key": "Standing",
+      "ok": true,
+      "standing": "ALIVE"
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-68-premise-rot.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-69-enospc-lean.md": {
+      "annotation": "",
+      "key": "Standing",
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-71-runbook-refresh2.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-86-tai-evidence.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-87-fmkey-ttl.md": {
+      "annotation": "",
+      "key": "Standing",
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-88-pre-landing.md": {
+      "annotation": "",
+      "key": "Standing",
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-9-self-host-observation.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-90-seed-refresh.md": {
+      "annotation": "",
+      "key": "Standing",
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.4/receipts/buildtime-cut-receipt.md": {
+      "annotation": "",
+      "key": "Standing",
+      "ok": true,
+      "standing": "ALIVE"
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.4/receipts/d-wave-consolidated-receipt.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.4/receipts/e8-stale-citation-census.md": {
+      "annotation": "",
+      "key": "Standing",
+      "ok": true,
+      "standing": "ALIVE"
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.4/receipts/gg1-closure.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.4/receipts/marketplace-index-bundle-ruling.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.4/receipts/nv6-transitive-overrides.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.4/receipts/v4-corrected-claims-ledger.md": {
+      "annotation": "",
+      "key": "Standing",
+      "ok": true,
+      "standing": "ALIVE"
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.4/receipts/vuln-remediation-receipt.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.4/receipts/zp-16-publish-automation.md": {
+      "annotation": "",
+      "key": null,
+      "ok": false,
+      "standing": null
+    },
+    "/Users/sac/ggen/receipts/GALL_CONFORM_001.md": {
+      "annotation": "",
+      "key": "status",
+      "ok": true,
+      "standing": "PASS"
+    }
+  },
+  "generated_by": "scripts/receipt_lint.py",
+  "standing_map_hash": "a18ba9a0fceb2904"
+}

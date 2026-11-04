@@ -154,6 +154,12 @@ fmt-check:
 lint:
     timeout 300s cargo clippy --workspace --all-targets --keep-going -- -D warnings -A unexpected_cfgs
 
+# Receipt standing-line lint (SD-21/O3 Gate 3 / S-10). Exit 1 on any receipt
+# missing a parseable, in-vocabulary standing line. --backfill diffs only.
+# The E-y2 census (external to this repo) consumes receipt-standing-map.json.
+receipt-lint:
+    python3 scripts/receipt_lint.py
+
 # ── Testing ───────────────────────────────────────────────────────────────────
 
 # Full test suite — the primary test gate (<30s hot cache)
@@ -922,12 +928,3 @@ sjira-control-court:
 e2e:
     cargo test -p ggen-cli --test integration_ai_e2e --test integration_cli_ux_e2e --test integration_graph_e2e --test integration_marketplace_e2e --test integration_ontology_e2e --test integration_project_e2e --test integration_template_e2e --test integration_utils_e2e --test integration_workflow_e2e -- --ignored --nocapture
     cargo test -p ggen-lsp --test consolidate_002_sequence_equivalence --test oracle_tape_generator -- --ignored --nocapture
-
-# ── SD-20/O3-2: shared-index disclosure gate (mechanical-gates-spec Gate 2) ───
-# Refuse-by-default check that staged paths belong to $GGEN_LANE_ID's
-# owned_paths in docs/jira/<milestone>/lane-registry.json (or the seeded
-# fallback). Commit-time: wire via `git config core.hooksPath .githooks`
-# (prepare-commit-msg) — operator's call. `just fleet-disclose` runs the
-# same check standalone.
-fleet-disclose:
-    python3 scripts/index_disclosure.py --check
