@@ -1,0 +1,86 @@
+{
+  "schema": "ggen.ea.graph.v1",
+  "strategy": {
+    "id": "strategy:safe-ea-strategy-self-play",
+    "title": "Non-LLM SAFe EA strategy self-play cell manufactured from RDF by the safe-ea-strategy-self-play-pack"
+  },
+  "capabilities": [
+    {
+      "id": "cap:self-play-manufacture",
+      "strategy": "strategy:safe-ea-strategy-self-play"
+    }
+  ],
+  "abbs": [
+    {
+      "id": "abb:self-play-manufacture",
+      "capability": "cap:self-play-manufacture",
+      "contract": "contract:self-play-manufacture"
+    }
+  ],
+  "contracts": [
+    {
+      "id": "contract:self-play-manufacture",
+      "abb": "abb:self-play-manufacture",
+      "version": "1.0.0",
+      "max_artifacts": 8,
+      "authority_ceiling": "CONSTRUCT",
+      "required_ports": [
+        "port:self-play-ontology"
+      ]
+    }
+  ],
+  "candidate_sbbs": [
+    {
+      "id": "sbb:self-play-manufacture",
+      "abb": "abb:self-play-manufacture",
+      "pack": "pack:safe-ea-strategy-self-play-pack",
+      "digest": "sha256:977bea7671a5d89e6c4a1972a0e2980b82a5b06015e3a8e833ab9937619c7a39",
+      "mutable": false,
+      "authority": "CONSTRUCT",
+      "provides_ports": [
+        "port:self-play-ontology"
+      ],
+      "artifacts": [
+        {
+          "path": "generated/Cargo.toml",
+          "template": "# {{abb}} realized by {{sbb}} for {{capability}}\ncontract {{contract}}@{{contract_version}}\n"
+        },
+        {
+          "path": "generated/src/main.rs",
+          "template": "# {{abb}} realized by {{sbb}} for {{capability}}\ncontract {{contract}}@{{contract_version}}\n"
+        },
+        {
+          "path": "generated/src/bin/verifier.rs",
+          "template": "# {{abb}} realized by {{sbb}} for {{capability}}\ncontract {{contract}}@{{contract_version}}\n"
+        },
+        {
+          "path": "generated/tests/process_boundary.rs",
+          "template": "# {{abb}} realized by {{sbb}} for {{capability}}\ncontract {{contract}}@{{contract_version}}\n"
+        },
+        {
+          "path": "generated/scenarios.json",
+          "template": "# {{abb}} realized by {{sbb}} for {{capability}}\ncontract {{contract}}@{{contract_version}}\n"
+        },
+        {
+          "path": "docs/SAFE_EA_SELF_PLAY_USE_CASES.md",
+          "template": "# {{abb}} realized by {{sbb}} for {{capability}}\ncontract {{contract}}@{{contract_version}}\n"
+        }
+      ]
+    }
+  ],
+  "qualifications": [
+    {
+      "id": "qual:self-play-manufacture",
+      "sbb": "sbb:self-play-manufacture",
+      "sbb_digest": "sha256:977bea7671a5d89e6c4a1972a0e2980b82a5b06015e3a8e833ab9937619c7a39",
+      "contract": "contract:self-play-manufacture",
+      "contract_digest": "sha256:1f4fea0069b09c8c3fe3b6ce3889cb8d3e1a767180fd9b39942ad32f7f97b775",
+      "verdict": "QUALIFIED"
+    }
+  ],
+  "packs": [
+    {
+      "id": "pack:safe-ea-strategy-self-play-pack"
+    }
+  ]
+}

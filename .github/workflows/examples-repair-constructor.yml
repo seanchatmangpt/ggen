@@ -122,6 +122,14 @@ jobs:
               '.github/workflows/live-examples.yml',
               '      - name: Checkout\n        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1\n',
               '      - name: Checkout exact subject\n        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1\n        with:\n          ref: ${{ github.event.pull_request.head.sha || github.sha }}\n          fetch-depth: 0\n\n      - name: Verify checkout identity\n        if: github.event_name == \'pull_request\'\n        run: test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha }}"\n',
+              # The exact-subject checkout repair has LANDED in the tree
+              # (live-examples.yml already carries it). Recognize the landed
+              # state idempotently via markers that avoid `${{ ... }}` --
+              # Actions substitutes those expressions inside run: scripts
+              # before the heredoc executes, so any pinned string containing
+              # them rots on every run (premise-rot class, XD-18). The
+              # markers below are expression-free.
+              applied_markers=('Checkout exact subject', 'Verify checkout identity'),
           )
           PY
 

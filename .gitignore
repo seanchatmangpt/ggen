@@ -1090,3 +1090,6 @@ examples/combinatorial-maximalism/ggen.lock
 # tcps-generated is the lawful exception (evidence-artifact contract, xd-15/zd-126)
 examples/*/ggen.lock
 !examples/tcps-generated/ggen.lock
+
+# nested consumer ggen.lock = sync runtime state (ZD-127: industry examples mint it under examples/industry/<name>/)
+examples/industry/*/ggen.lock
