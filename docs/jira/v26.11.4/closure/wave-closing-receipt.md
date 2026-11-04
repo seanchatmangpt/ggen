@@ -1,8 +1,10 @@
 # Wave-Closing Receipt — v26.11.4
 
-as-of 2026-11-04T22:10Z — every count read live at fill (replay script,
-`gh pr view`, per-repo git reads). Filled by the FILL lane in one session;
-nothing below is carried from memory.
+as-of 2026-11-04T22:10Z (fill) — final standing minted at 2026-11-04T23:20Z:
+**ALIVE (wave complete; v26.11.5 seeds registered)** — see Addendum #3.
+Every count read live at fill (replay script, `gh pr view`, per-repo git
+reads). Filled by the FILL lane in one session; nothing below is carried
+from memory.
 
 ## Subject identity (live at fill)
 
@@ -338,3 +340,139 @@ ggen-marketplace dirty set) and one landed-lane lacks a landing
 receipt (D93); a fence that is still editing cannot be certified
 closed. Everything the fill receipt listed as PARTIAL except the
 in-flight tail has closed.
+
+## Addendum #3 (final tail — audit classes + v26.11.5 starters, 2026-11-04)
+
+as-of 2026-11-04T23:20Z. Every SHA below verified on its origin this
+session (`git fetch` + `git branch -r --contains` per repo; all 22
+present). All six repos clean (dirty 0) and their local HEADs on
+origin at as-of. Replay script re-run fresh: exit 0, output pasted
+as the as-of block below.
+
+### Per-repo rows (one line per artifact; SHA + landing)
+
+ggen (branch v26-11-3-wave):
+
+- V6 27758f0a4 — lane-registry gate (mechanical-gates-spec Gate 1,
+  S-11 write-down).
+- V7 e98e29af1 — shared-index disclosure automation (SD-20/O3-2).
+- V8 069d13bc3 + 20f51ea31 — receipt lint gate (S-12 seed landed).
+- V10 aab97aaa9 — OI-10 CLOSED (wider-scope clippy debt covered by
+  D90's cascade; register row re-read this session).
+- D112b 32b83765e — receipt_lint syntax/undefined-name repairs
+  (V8's own landing defects fixed forward).
+- D74 — ggen CLAUDE.md premise-rot correction; register/doc edit
+  only, no code repair (recorded, not a landing SHA).
+- 16fc35f7b — register sync: OI-7 CLOSED via cgap SD-4 retarget
+  (post-addendum-list commit; local HEAD at as-of).
+
+cgap (main):
+
+- D112 890f1024 — parquet/git alloc law (census + fixes landed).
+- D65-adjusted 591fe35d — receipt citation fix (drift repair).
+- V5 cd1d8740 + d64ee5a7 — workspace 26.11.5 retarget (SD-4,
+  26/26 members; OI-7 falsifier discharged). cgap HEAD at as-of.
+
+arcus (main):
+
+- D111-arcus 6028f60 — write deadline + sidecar-dir janitor +
+  poison-close + syncBuffer cap + faultLog ring.
+- D113 9d2a6dc — poly1305 u64-limb implementation. arcus HEAD.
+
+lsp-max (master):
+
+- D109 86ad66d — lsp test fixes (1222-pass suite green; the
+  addendum-#2 3-fail fence discharged). lsp-max HEAD.
+
+ggen-marketplace (main):
+
+- D110 de5678164 + d4efa3c2b — marketplace script hardening.
+  d4efa3c2b HEAD; the addendum-#2 39-dirty in-flight set landed
+  and the tree is clean at as-of.
+
+smalt (main):
+
+- D111-smalt 78aab28a — bang/raise typed refusals.
+- V2 5b4f39e9 — kv7 routes.
+- V3 4dedd0bd — kv7 translate.
+- V4 4d6c20ef — kv7 wire court + cors fix.
+- V9 24953ea2 — error-code parity.
+- D114 d7c534df — cors verification-only pass. smalt HEAD.
+
+### As-of verification (replay script, run fresh at 23:20Z, exit 0)
+
+```
+== per-repo identity + receipt census ==
+--- /Users/sac/ggen
+16fc35f7b596113f08c84f97e2cad2959f3ee795
+v26-11-3-wave
+dirty files: 0
+receipts: 10 (docs/jira/v26.11.4/receipts)
+receipts: 5 (receipts)
+--- /Users/sac/arcus
+9d2a6dc25cbde0a4c8714c6bd9319ae8692dd475
+main
+dirty files: 0
+receipts: 20 (docs/jira/v26.11.4/receipts)
+--- /Users/sac/cgap
+d64ee5a7cff052205a105d9de7439ada75e8babf
+main
+dirty files: 0
+receipts: 29 (docs/jira/v26.11.4/receipts)
+--- /Users/sac/lsp-max
+86ad66d4cc6b706a054161a233bcc4e027c8937c
+master
+dirty files: 0
+receipts: 2 (docs/jira/v26.11.4/receipts)
+receipts: 7 (receipts)
+--- /Users/sac/ggen-marketplace
+d4efa3c2b39311382954a063174a57c8ab15dca2
+main
+dirty files: 0
+receipts: 8 (receipts)
+--- /Users/sac/smalt
+d7c534df1af30be4e0069bf1c49294e5ead7155c
+main
+dirty files: 0
+receipts: 4 (docs/dmedi-bb-curriculum/receipts)
+== tags ==
+ggen 236 tags; cgap 1 (v26.11.2); ggen-marketplace 16;
+arcus/lsp-max/smalt 0
+== manifest/court counts ==
+ggen publish.yml lines: 202 | cgap publish.yml lines: 301
+ggen tera census tests: 3 | arcus court files: 8
+smalt KD rows: 23 | ggen KD rows: 4 | cgap KD rows: 3
+```
+
+### Standing re-derivation (evidence re-read this session)
+
+- All 6 repos clean + pushed (per-repo `git branch -r --contains
+  HEAD`; every local HEAD on origin at as-of).
+- ggen: `just lint` exit 0, re-run live this session at 16fc35f7b
+  (1.7s finish, warm cache). OI-1 CLOSED, OI-7 CLOSED, OI-10
+  CLOSED (register rows re-read live).
+- Audit classes all closed: sleeps gated (ggen/cgap/arcus),
+  allocs censused + fixes landed (cgap D112), panics typed
+  (smalt D111-smalt + cgap D106 landed per clean tree), sockets
+  fixed both sides (arcus D101/D111-arcus), scripts hardened
+  (mp D110), raise/bang typed (smalt D111-smalt).
+- Remaining OPEN items are registered v26.11.5 seeds, not open
+  fences: S-9 harness (next-wave-seeds.md:46), SD-1 signer
+  phases 3-5 (OI-3 PLANNED wave-3), S-11/S-12 gate adoption
+  (seeds.md:54,65), OI-4 rung-7 stress/chaos BLOCKED
+  (registered, unassigned).
+- Fill-time PARTIAL fences, dispositioned: lint 101→0 (D90 +
+  V10); cgap 19-dirty in-flight→landed clean (D106 class);
+  ggen-marketplace 39-dirty→landed clean (D110); D93 landed via
+  D109's branch state; PR-824 rollup pending rows — superseded
+  by per-repo origin verification (all 22 SHAs on-origin), the
+  rollup is CI-supplement per doctrine, not the gate.
+
+### Standing mint
+
+**ALIVE** (wave complete; v26.11.5 seeds registered) — minted
+2026-11-04T23:20Z. Every fill-time PARTIAL/IN-FLIGHT fence is
+discharged on-origin evidence; the only carried non-closed items
+(OI-3 PLANNED, OI-4 BLOCKED) are registered v26.11.5 seeds with
+named falsifiers, carried by the register, not open fences on
+this wave.
