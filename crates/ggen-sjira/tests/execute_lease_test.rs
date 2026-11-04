@@ -7,9 +7,7 @@
 use ed25519_dalek::{SigningKey, VerifyingKey};
 use ggen_sjira::authority::{admission_digest, AuthorityGraph, AuthorityNode};
 use ggen_sjira::execute::{run, ExecuteOpts, LeaseGateRefusal};
-use ggen_sjira::lease::{
-    admit as admit_lease, sign_record, SovereignLease, SignatureRecord,
-};
+use ggen_sjira::lease::{admit as admit_lease, sign_record, SignatureRecord, SovereignLease};
 use ggen_sjira::{DependencyEdge, FrontierInput};
 
 use serde_json::{json, Value};
@@ -30,10 +28,7 @@ fn temp_ledger_dir(tag: &str) -> PathBuf {
 
 fn auth_node(iri: &str) -> AuthorityNode {
     let mut statements: BTreeMap<String, Vec<String>> = BTreeMap::new();
-    statements.insert(
-        "sj:title".to_string(),
-        vec!["ship the kernel".to_string()],
-    );
+    statements.insert("sj:title".to_string(), vec!["ship the kernel".to_string()]);
     let bare = AuthorityNode {
         iri: iri.to_string(),
         types: vec!["StrategicObjective".to_string()],
@@ -41,10 +36,7 @@ fn auth_node(iri: &str) -> AuthorityNode {
     };
     let digest = admission_digest(&bare);
     let mut stamped: BTreeMap<String, Vec<String>> = BTreeMap::new();
-    stamped.insert(
-        "sj:title".to_string(),
-        vec!["ship the kernel".to_string()],
-    );
+    stamped.insert("sj:title".to_string(), vec!["ship the kernel".to_string()]);
     stamped.insert("admissionDigest".to_string(), vec![digest]);
     AuthorityNode {
         iri: iri.to_string(),
@@ -143,9 +135,11 @@ fn admitted_lease(subject: &str) -> ggen_sjira::lease::AdmittedLease {
         sign_record(&base, "signer-2", &key(2)),
     ];
     sigs.sort_by(|a, b| a.signer.cmp(&b.signer));
-    let signed = SovereignLease { signatures: sigs, ..base };
-    admit_lease(&signed, "sha256:CURRENT", &keys(&[1, 2]))
-        .expect("2-sig lease admits")
+    let signed = SovereignLease {
+        signatures: sigs,
+        ..base
+    };
+    admit_lease(&signed, "sha256:CURRENT", &keys(&[1, 2])).expect("2-sig lease admits")
 }
 
 /// Not-admitted variant (same shape, `admitted` flipped) — exercising the
@@ -207,12 +201,19 @@ fn foreign_lease_refuses_lease_not_bound_and_ledger_unchanged() {
     assert_eq!(err.hop, "lease");
     assert_eq!(err.reason, "lease_not_bound");
     assert_eq!(err.broken_term, "R_missing_authority");
-    assert!(err.detail.contains("OA"), "detail names the order: {}", err.detail);
+    assert!(
+        err.detail.contains("OA"),
+        "detail names the order: {}",
+        err.detail
+    );
     assert!(err.detail.contains(SUBJECT_FOREIGN));
 
     // The gate sits before plan/journal/append: no ledger file may appear.
     let after = ledger_bytes(&ledger);
-    assert_eq!(before, after, "a LeaseNotBound refusal must not create or touch the ledger");
+    assert_eq!(
+        before, after,
+        "a LeaseNotBound refusal must not create or touch the ledger"
+    );
     assert!(!ledger.exists(), "no ledger file may be written on refusal");
 }
 
@@ -278,7 +279,10 @@ fn stale_epoch_refuses_epoch_stale_and_ledger_unchanged() {
     );
 
     let after = ledger_bytes(&ledger);
-    assert!(after.is_empty(), "EpochStale refusal must not write the ledger");
+    assert!(
+        after.is_empty(),
+        "EpochStale refusal must not write the ledger"
+    );
     assert!(!ledger.exists());
 }
 
@@ -350,10 +354,15 @@ fn without_lease_and_watermark_legacy_behavior_identical() {
     let ledger_a = dir_a.join("ledger.ndjson");
     let ledger_b = dir_b.join("ledger.ndjson");
 
-    let out_a = run(&[oa.clone(), ob.clone()], &ledger_a, &graph, &ExecuteOpts::legacy())
-        .expect("legacy opts run");
-    let out_b = run(&[oa, ob], &ledger_b, &graph, &ExecuteOpts::default())
-        .expect("default opts run");
+    let out_a = run(
+        &[oa.clone(), ob.clone()],
+        &ledger_a,
+        &graph,
+        &ExecuteOpts::legacy(),
+    )
+    .expect("legacy opts run");
+    let out_b =
+        run(&[oa, ob], &ledger_b, &graph, &ExecuteOpts::default()).expect("default opts run");
 
     assert_eq!(out_a.plans, out_b.plans, "identical plans and digests");
     assert_eq!(

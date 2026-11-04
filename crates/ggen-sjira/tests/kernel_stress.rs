@@ -160,9 +160,7 @@ fn input(identity: &str) -> FrontierInput {
 }
 
 fn backlog(n: usize) -> Vec<FrontierInput> {
-    (0..n)
-        .map(|i| input(&format!("OA-{:04}", i)))
-        .collect()
+    (0..n).map(|i| input(&format!("OA-{:04}", i))).collect()
 }
 
 /// Unique per-order work-order digest input so journal digests differ.
@@ -291,7 +289,10 @@ fn journal_scale_10k_events_o_n_cost_and_stable_head() {
     assert_eq!(journal.len(), 10_000);
     assert_eq!(journal.admitted_count(), 10_000);
     let head = journal.head();
-    assert_ne!(head, GENESIS_PREV_HASH, "a non-empty journal has a real head");
+    assert_ne!(
+        head, GENESIS_PREV_HASH,
+        "a non-empty journal has a real head"
+    );
 
     // Per-record verify cost must not grow: the last band <= 4x the first
     // band (linear law with constant factor; a quadratic tail would blow
@@ -303,7 +304,9 @@ fn journal_scale_10k_events_o_n_cost_and_stable_head() {
     );
     println!(
         "AB-13 journal: n=10000 bands_us(1k each)={:?} verify_chain_us={} head={}",
-        band_us, verify_us, &head[..16.min(head.len())]
+        band_us,
+        verify_us,
+        &head[..16.min(head.len())]
     );
 
     // (b) file ledger: 10k appends via the ledger API, then fetch + verify.
@@ -353,7 +356,10 @@ fn journal_scale_10k_events_o_n_cost_and_stable_head() {
         ledger_append_wall,
         fetch_wall,
         ledger_bytes,
-        events.last().map(|e| e["seq"].to_string()).unwrap_or_default()
+        events
+            .last()
+            .map(|e| e["seq"].to_string())
+            .unwrap_or_default()
     );
 }
 
@@ -436,8 +442,7 @@ fn concurrent_append_contention_separate_ledgers_adds_to_merged_ledger() {
                 raw.insert(k.clone(), v.clone());
             }
         }
-        ggen_sjira::ledger::append(&merged, &raw, &Default::default())
-            .expect("merged append");
+        ggen_sjira::ledger::append(&merged, &raw, &Default::default()).expect("merged append");
     }
     let all = ggen_sjira::ledger::fetch(&merged).expect("merged ledger verifies");
     assert_eq!(all.len(), 100);
@@ -453,7 +458,10 @@ fn concurrent_append_contention_separate_ledgers_adds_to_merged_ledger() {
             i,
             id
         );
-        assert!(digests.insert(e["event_digest"].to_string()), "duplicate digest in merged ledger");
+        assert!(
+            digests.insert(e["event_digest"].to_string()),
+            "duplicate digest in merged ledger"
+        );
     }
     println!(
         "AB-13 contention: a=50 b=50 merged=100 unique_digests={}",
@@ -547,10 +555,8 @@ fn determinism_two_full_1000_order_runs_byte_identical() {
     let l1 = root.path().join("run1.ndjson");
     let l2 = root.path().join("run2.ndjson");
 
-    let out1 = run(&orders.clone(), &l1, &graph, &ExecuteOpts::default())
-        .expect("run 1 completes");
-    let out2 = run(&orders, &l2, &graph, &ExecuteOpts::default())
-        .expect("run 2 completes");
+    let out1 = run(&orders.clone(), &l1, &graph, &ExecuteOpts::default()).expect("run 1 completes");
+    let out2 = run(&orders, &l2, &graph, &ExecuteOpts::default()).expect("run 2 completes");
 
     // Non-vacuity: both runs must really execute the whole backlog.
     assert_eq!(out1.plans.len(), 1000, "run 1 executed all 1000");
@@ -578,4 +584,3 @@ fn determinism_two_full_1000_order_runs_byte_identical() {
         b1.len()
     );
 }
-

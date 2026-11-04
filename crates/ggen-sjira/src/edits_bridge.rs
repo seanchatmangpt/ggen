@@ -164,7 +164,7 @@ impl ScipGraph {
                 } else {
                     doc_refs
                         .entry(doc.path.clone())
-                    .or_default()
+                        .or_default()
                         .insert(occ.symbol.clone());
                 }
             }
@@ -301,7 +301,9 @@ fn path_is_or_under(candidate: &str, path: &str) -> bool {
 /// or a hash divergence — the tree moved after capture), or (b)
 /// `after_sha256` does not hash the `after_bytes` the batch carries
 /// (self-inconsistent commitment).
-pub fn verify_evidence(batch: &EditBatch, ctx: &TreeContext) -> Result<EvidenceCheck, BridgeRefusal> {
+pub fn verify_evidence(
+    batch: &EditBatch, ctx: &TreeContext,
+) -> Result<EvidenceCheck, BridgeRefusal> {
     if batch.edits.is_empty() {
         return Err(BridgeRefusal::EmptyBatch);
     }
@@ -332,10 +334,14 @@ pub fn verify_evidence(batch: &EditBatch, ctx: &TreeContext) -> Result<EvidenceC
             _ => false,
         };
         if !before_matches {
-            return Err(BridgeRefusal::TamperedEvidence { path: edit.path.clone() });
+            return Err(BridgeRefusal::TamperedEvidence {
+                path: edit.path.clone(),
+            });
         }
         if sha256_hex(&edit.after_bytes) != edit.after_sha256 {
-            return Err(BridgeRefusal::TamperedEvidence { path: edit.path.clone() });
+            return Err(BridgeRefusal::TamperedEvidence {
+                path: edit.path.clone(),
+            });
         }
         verified_paths.push(edit.path.clone());
     }
@@ -356,8 +362,13 @@ pub fn verify_evidence(batch: &EditBatch, ctx: &TreeContext) -> Result<EvidenceC
     for (_, v) in &triples {
         h.update(canonical(v).to_string().as_bytes());
     }
-    let batch_digest =
-        format!("sha256:{}", h.finalize().iter().map(|b| format!("{b:02x}")).collect::<String>());
+    let batch_digest = format!(
+        "sha256:{}",
+        h.finalize()
+            .iter()
+            .map(|b| format!("{b:02x}"))
+            .collect::<String>()
+    );
     Ok(EvidenceCheck {
         verified_paths,
         batch_digest,
@@ -379,10 +390,7 @@ pub struct ProposedOrder {
 /// Build the WorkOrder candidate for a verified batch. Blast-radius
 /// evidence is attached only when a [`SymbolGraph`] handle is present.
 pub fn propose_work_order(
-    batch: &EditBatch,
-    ctx: &TreeContext,
-    evidence: EvidenceCheck,
-    graph: Option<&dyn SymbolGraph>,
+    batch: &EditBatch, ctx: &TreeContext, evidence: EvidenceCheck, graph: Option<&dyn SymbolGraph>,
 ) -> ProposedOrder {
     let mut required_evidence: Vec<String> = batch
         .edits
@@ -458,9 +466,7 @@ pub struct LoopReceipt {
 /// Refusals at the evidence boundary propagate as `Err`; admission
 /// outcomes (admitted OR refused) journal and return as `Ok`.
 pub fn run_admission_loop(
-    batch: &EditBatch,
-    ctx: &TreeContext,
-    graph: Option<&dyn SymbolGraph>,
+    batch: &EditBatch, ctx: &TreeContext, graph: Option<&dyn SymbolGraph>,
     journal: &mut BridgeJournal,
 ) -> Result<LoopReceipt, BridgeRefusal> {
     let evidence = verify_evidence(batch, ctx)?;
@@ -546,8 +552,7 @@ fn recompute(t: &JournaledOutcome) -> String {
 
 impl BridgeJournal {
     /// Genesis prev_hash (all-zero 64-hex, same law as receipts.rs).
-    pub const GENESIS: &str =
-        "0000000000000000000000000000000000000000000000000000000000000000";
+    pub const GENESIS: &str = "0000000000000000000000000000000000000000000000000000000000000000";
 
     pub fn new() -> Self {
         Self::default()
@@ -556,9 +561,7 @@ impl BridgeJournal {
     /// Journal one admission outcome (admitted OR refused). Returns the
     /// sealed hash.
     pub fn record_outcome(
-        &mut self,
-        result: &Result<AdmittedWorkOrder, Refusal>,
-        blast_radius_digest: Option<String>,
+        &mut self, result: &Result<AdmittedWorkOrder, Refusal>, blast_radius_digest: Option<String>,
     ) -> String {
         let (digest, decision, detail) = match result {
             Ok(a) => (

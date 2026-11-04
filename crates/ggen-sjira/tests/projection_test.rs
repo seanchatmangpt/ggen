@@ -6,9 +6,7 @@
 use std::fs;
 use std::path::{Path, PathBuf};
 
-use ggen_sjira::generated::{
-    project, ProjectionOpts, ProjectionRefusal, WriteOutcome,
-};
+use ggen_sjira::generated::{project, ProjectionOpts, ProjectionRefusal, WriteOutcome};
 use ggen_sjira::work_order::WorkOrder;
 use tempfile::TempDir;
 
@@ -121,13 +119,8 @@ fn projects_capability_and_reports_written_receipt() {
     let target_dir = dir.path().join("out");
     fs::create_dir_all(&target_dir).expect("target dir");
 
-    let outcome = project(
-        &order(),
-        &pack,
-        &target_dir,
-        opts("c1", "src/cap_one.rs"),
-    )
-    .expect("projection must succeed");
+    let outcome = project(&order(), &pack, &target_dir, opts("c1", "src/cap_one.rs"))
+        .expect("projection must succeed");
 
     assert_eq!(outcome.order_id, "EXEC-1");
     assert_eq!(outcome.capability_id, "c1");
@@ -135,18 +128,17 @@ fn projects_capability_and_reports_written_receipt() {
     assert!(outcome.pack_digest.starts_with("sha256:"));
     assert!(outcome.render_digest.starts_with("sha256:"));
     assert!(!outcome.gate_results.is_empty());
-    assert!(outcome
-        .gate_results
-        .iter()
-        .all(|g| g.status == "pass"));
+    assert!(outcome.gate_results.iter().all(|g| g.status == "pass"));
 
-    let written =
-        fs::read_to_string(target_dir.join("src/cap_one.rs")).expect("written file");
+    let written = fs::read_to_string(target_dir.join("src/cap_one.rs")).expect("written file");
     assert!(written.contains("capability: c1"));
     assert!(written.contains("rows: 1"));
     // Oxigraph term Display serializes RDF literals WITH quotes — the
     // disclosed row-serialization law this surface pins.
-    assert!(written.contains("row: \"c1\" \"capability one\""), "actual bytes:\n{written}");
+    assert!(
+        written.contains("row: \"c1\" \"capability one\""),
+        "actual bytes:\n{written}"
+    );
 
     // Digests are over real bytes: the render digest matches the file's.
     let content = fs::read_to_string(target_dir.join("src/cap_one.rs")).expect("content");
@@ -164,10 +156,7 @@ fn projects_capability_and_reports_written_receipt() {
         .expect("second projection");
     let after = staging_dirs();
     let survivors: Vec<_> = after.iter().filter(|p| !before.contains(p)).collect();
-    assert!(
-        survivors.is_empty(),
-        "staging dirs leaked: {survivors:?}"
-    );
+    assert!(survivors.is_empty(), "staging dirs leaked: {survivors:?}");
 }
 
 #[test]
@@ -177,13 +166,13 @@ fn rerun_is_unchanged_and_pack_digest_is_stable() {
     let target_dir = dir.path().join("out");
     fs::create_dir_all(&target_dir).expect("target dir");
 
-    let first = project(&order(), &pack, &target_dir, opts("c1", "out.rs"))
-        .expect("first projection");
+    let first =
+        project(&order(), &pack, &target_dir, opts("c1", "out.rs")).expect("first projection");
     assert_eq!(first.write_outcome, WriteOutcome::Written);
 
     let before = fs::read_to_string(target_dir.join("out.rs")).expect("file");
-    let second = project(&order(), &pack, &target_dir, opts("c1", "out.rs"))
-        .expect("second projection");
+    let second =
+        project(&order(), &pack, &target_dir, opts("c1", "out.rs")).expect("second projection");
     assert_eq!(second.write_outcome, WriteOutcome::Unchanged);
     assert_eq!(
         fs::read_to_string(target_dir.join("out.rs")).expect("file"),
@@ -261,13 +250,8 @@ fn traversal_target_path_refuses_before_write() {
     fs::create_dir_all(&target_dir).expect("target dir");
     let escaped = dir.path().join("escaped.rs");
 
-    let err = project(
-        &order(),
-        &pack,
-        &target_dir,
-        opts("c1", "../escaped.rs"),
-    )
-    .expect_err("traversal must refuse");
+    let err = project(&order(), &pack, &target_dir, opts("c1", "../escaped.rs"))
+        .expect_err("traversal must refuse");
     assert!(matches!(err, ProjectionRefusal::BadOutputPath(_)), "{err}");
     assert!(!escaped.exists(), "the write must never land outside root");
 }
@@ -333,7 +317,10 @@ SELECT ?x WHERE { ?x a sj:Nothing . }"#,
 
     let err = project(&order(), &pack, &target_dir, opts("c1", "out.rs"))
         .expect_err("zero-row gate must fail the census");
-    assert!(matches!(err, ProjectionRefusal::VerificationFailed(_)), "{err}");
+    assert!(
+        matches!(err, ProjectionRefusal::VerificationFailed(_)),
+        "{err}"
+    );
     // Fail-closed honesty (projection.ex step 4): the actuated file holds on
     // disk but standing never advances -- here we pin the disk side.
     assert!(target_dir.join("out.rs").exists());
@@ -348,11 +335,13 @@ fn pack_digest_changes_when_pack_bytes_change() {
     let target_dir = dir.path().join("out");
     fs::create_dir_all(&target_dir).expect("target dir");
 
-    let first = project(&order(), &pack, &target_dir, opts("c1", "out.rs"))
-        .expect("first");
-    fs::write(pack.join("ontology.ttl"), format!("{ONTOLOGY}\n# touched\n")).expect("mutate");
-    let second = project(&order(), &pack, &target_dir, opts("c1", "out.rs"))
-        .expect("second");
+    let first = project(&order(), &pack, &target_dir, opts("c1", "out.rs")).expect("first");
+    fs::write(
+        pack.join("ontology.ttl"),
+        format!("{ONTOLOGY}\n# touched\n"),
+    )
+    .expect("mutate");
+    let second = project(&order(), &pack, &target_dir, opts("c1", "out.rs")).expect("second");
     assert_ne!(
         first.pack_digest, second.pack_digest,
         "pack byte change must move the pack digest"
@@ -401,8 +390,10 @@ fn render_without_template_is_deterministic_json_rows() {
     o.template = None;
     let outcome = project(&order(), &pack, &target_dir, o).expect("projection");
     let content = fs::read_to_string(target_dir.join("out.rs")).expect("file");
-    let parsed: serde_json::Value =
-        serde_json::from_str(&content).expect("rows are JSON");
+    let parsed: serde_json::Value = serde_json::from_str(&content).expect("rows are JSON");
     assert!(parsed.is_array());
-    assert_eq!(outcome.render_digest, ggen_sjira::work_order::digest_of(&serde_json::Value::String(content)));
+    assert_eq!(
+        outcome.render_digest,
+        ggen_sjira::work_order::digest_of(&serde_json::Value::String(content))
+    );
 }

@@ -81,7 +81,8 @@ impl<'de> Deserialize<'de> for Standing {
     }
 }
 
-fn refused_reason(s: &str) -> Option<&str> {    let rest = s.strip_prefix("REFUSED(")?;
+fn refused_reason(s: &str) -> Option<&str> {
+    let rest = s.strip_prefix("REFUSED(")?;
     if rest.ends_with(')') && rest.len() > 1 {
         Some(&rest[..rest.len() - 1])
     } else {
@@ -168,12 +169,7 @@ pub fn canonical(value: &Value) -> Value {
             keys.sort();
             Value::Array(
                 keys.into_iter()
-                    .map(|k| {
-                        Value::Array(vec![
-                            Value::String((*k).clone()),
-                            canonical(&map[k]),
-                        ])
-                    })
+                    .map(|k| Value::Array(vec![Value::String((*k).clone()), canonical(&map[k])]))
                     .collect(),
             )
         }
@@ -260,12 +256,9 @@ mod tests {
             "acceptance": ["a1"],
             "falsifiers": ["f1"]
         });
-        let before = definition_digest(
-            &serde_json::from_value::<WorkOrder>(raw.clone()).unwrap(),
-        );
+        let before = definition_digest(&serde_json::from_value::<WorkOrder>(raw.clone()).unwrap());
         raw["standing"] = Value::String("PARTIAL_ALIVE".into());
-        let after =
-            definition_digest(&serde_json::from_value::<WorkOrder>(raw).unwrap());
+        let after = definition_digest(&serde_json::from_value::<WorkOrder>(raw).unwrap());
         assert_eq!(before, after);
     }
 }

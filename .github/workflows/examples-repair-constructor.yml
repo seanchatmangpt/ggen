@@ -82,19 +82,9 @@ jobs:
 
           p = Path('examples/tai-enterprise-rebuild/ggen.toml')
           s = p.read_text()
-          for line in [
-              'version = "26.7.31"\n',
-              'description = "Generate and simulate the roadmap for rebuilding Technology Applications, Inc."\n',
-              'authors = ["Sean Chatman"]\n',
-              'license = "MIT"\n',
-              'base_iri = "https://chatmangpt.com/ontology/tai-rebuild#"\n',
-              'imports = ["cmd.ttl", "options.ttl"]\n',
-          ]:
-              assert line in s, line
-              s = s.replace(line, '')
           old = 'tai-enterprise-rebuild-pack = { path = "../../packs/tai-enterprise-rebuild-pack" }'
           new = 'tai-enterprise-rebuild-pack = { path = "../../packs/tai-enterprise-rebuild-pack", extra_ontologies = ["cmd.ttl", "options.ttl"] }'
-          assert old in s
+          assert old in s or new in s
           p.write_text(s.replace(old, new))
 
           p = Path('examples/tpot2-wasm4pm-autoconfig/ggen.toml')

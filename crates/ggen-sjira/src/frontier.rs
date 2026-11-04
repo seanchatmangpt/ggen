@@ -148,10 +148,8 @@ pub struct BlockedEntry {
 /// progression fails the whole selection closed with
 /// `malformed_transition_log`.
 pub fn frontier(
-    orders: &[FrontierInput],
-    events: &[TransitionEvent],
-    evidence_by_id: &BTreeMap<String, Evidence>,
-    authority: Option<&AuthorityIndex>,
+    orders: &[FrontierInput], events: &[TransitionEvent],
+    evidence_by_id: &BTreeMap<String, Evidence>, authority: Option<&AuthorityIndex>,
 ) -> FrontierResult {
     let Some(index) = authority else {
         return FrontierResult {
@@ -312,9 +310,7 @@ pub fn project_standing(events: &[TransitionEvent]) -> Result<Standings, Refusal
 }
 
 /// project/2 restricted: the logged standing and receipt per identity.
-fn project(
-    events: &[TransitionEvent],
-) -> Result<(Standings, BTreeMap<String, Evidence>), Refusal> {
+fn project(events: &[TransitionEvent]) -> Result<(Standings, BTreeMap<String, Evidence>), Refusal> {
     let standings = project_standing(events)?;
 
     let mut ordered: Vec<&TransitionEvent> = events.iter().collect();
@@ -340,10 +336,8 @@ fn project(
 /// the concurrency keys match, or the repositories match and the path
 /// scopes overlap (an empty side overlaps everything).
 pub fn schedule(
-    orders: &[FrontierInput],
-    events: &[TransitionEvent],
-    evidence_by_id: &BTreeMap<String, Evidence>,
-    authority: Option<&AuthorityIndex>,
+    orders: &[FrontierInput], events: &[TransitionEvent],
+    evidence_by_id: &BTreeMap<String, Evidence>, authority: Option<&AuthorityIndex>,
     active_leases: &[ActiveLease],
 ) -> FrontierResult {
     let selected = frontier(orders, events, evidence_by_id, authority);
@@ -425,5 +419,7 @@ fn dependency_satisfied(dep: &DependencyEdge, evidence: &BTreeMap<String, Eviden
 
 /// Identity of a raw work-order JSON value when admission has not run.
 fn raw_identity(raw: &Value) -> Option<String> {
-    raw.get("identity").and_then(|v| v.as_str()).map(String::from)
+    raw.get("identity")
+        .and_then(|v| v.as_str())
+        .map(String::from)
 }

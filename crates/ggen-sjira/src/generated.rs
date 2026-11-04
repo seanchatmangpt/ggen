@@ -191,10 +191,7 @@ pub struct ProjectionOpts {
 /// module docs for the full pipeline and the projection.ex contract steps
 /// each hop ports.
 pub fn project(
-    order: &WorkOrder,
-    pack_dir: &Path,
-    target_dir: &Path,
-    opts: ProjectionOpts,
+    order: &WorkOrder, pack_dir: &Path, target_dir: &Path, opts: ProjectionOpts,
 ) -> Result<ProjectionOutcome, ProjectionRefusal> {
     // Pack pinning FIRST (before any staging/mutation): the digest is over
     // the original tree, and a poisoned pack refuses before any byte moves.
@@ -218,11 +215,7 @@ pub fn project(
 }
 
 fn staged_project(
-    order: &WorkOrder,
-    staging: &Path,
-    target_dir: &Path,
-    pack_digest: &str,
-    opts: ProjectionOpts,
+    order: &WorkOrder, staging: &Path, target_dir: &Path, pack_digest: &str, opts: ProjectionOpts,
 ) -> Result<ProjectionOutcome, ProjectionRefusal> {
     let ProjectionOpts {
         capability_id,
@@ -233,7 +226,9 @@ fn staged_project(
     } = opts;
 
     // Step 2: the scope query must exist.
-    let scope_query_path = staging.join("projections").join(format!("{capability_id}.rq"));
+    let scope_query_path = staging
+        .join("projections")
+        .join(format!("{capability_id}.rq"));
     if !scope_query_path.is_file() {
         return Err(ProjectionRefusal::CapabilityUnknown(capability_id));
     }
@@ -244,14 +239,15 @@ fn staged_project(
 
     // Render: rows over the staging ontology, then the template bind.
     let ontology_path = default_ontology(staging);
-    let rows = run_select(&ontology_path, &std::fs::read_to_string(&scope_query_path).map_err(
-        |e| ProjectionRefusal::Io(format!("{}: {e}", scope_query_path.display())),
-    )?)?;
+    let rows = run_select(
+        &ontology_path,
+        &std::fs::read_to_string(&scope_query_path)
+            .map_err(|e| ProjectionRefusal::Io(format!("{}: {e}", scope_query_path.display())))?,
+    )?;
     let content = match template.as_deref() {
         Some(t) if !t.is_empty() => render_template(t, &capability_id, &rows)?,
-        _ => serde_json::to_string_pretty(&rows).map_err(|e| {
-            ProjectionRefusal::SyncFailed(format!("row serialization: {e}"))
-        })?,
+        _ => serde_json::to_string_pretty(&rows)
+            .map_err(|e| ProjectionRefusal::SyncFailed(format!("row serialization: {e}")))?,
     };
     let render_digest = digest_of(&Value::String(content.clone()));
 
@@ -302,9 +298,7 @@ fn pack_digest(pack_dir: &Path) -> Result<String, ProjectionRefusal> {
 }
 
 fn collect_files(
-    root: &Path,
-    dir: &Path,
-    out: &mut BTreeMap<String, Vec<u8>>,
+    root: &Path, dir: &Path, out: &mut BTreeMap<String, Vec<u8>>,
 ) -> Result<(), ProjectionRefusal> {
     let entries = std::fs::read_dir(dir)
         .map_err(|e| ProjectionRefusal::Io(format!("{}: {e}", dir.display())))?;
@@ -328,9 +322,7 @@ fn collect_files(
 }
 
 fn project_falsifier_gates(
-    staging: &Path,
-    capability_id: &str,
-    falsifiers: &[String],
+    staging: &Path, capability_id: &str, falsifiers: &[String],
 ) -> Result<(), ProjectionRefusal> {
     if falsifiers.is_empty() {
         return Ok(());
@@ -354,9 +346,8 @@ fn project_falsifier_gates(
              ggen_sjira::generated; the pack's falsified-state query for this \
              capability, copied per falsifier.\n"
         );
-        std::fs::write(&gate_path, format!("{header}{body}")).map_err(|e| {
-            ProjectionRefusal::Io(format!("{}: {e}", gate_path.display()))
-        })?;
+        std::fs::write(&gate_path, format!("{header}{body}"))
+            .map_err(|e| ProjectionRefusal::Io(format!("{}: {e}", gate_path.display())))?;
     }
     Ok(())
 }
@@ -374,7 +365,9 @@ fn default_ontology(staging: &Path) -> PathBuf {
 #[allow(deprecated)]
 // `Store::query` deprecation mirrors ggen-graph/src/dialect.rs's own
 // `#[allow(deprecated)]` over the same call — workspace precedent.
-fn run_select(ontology_path: &Path, query: &str) -> Result<Vec<BTreeMap<String, String>>, ProjectionRefusal> {
+fn run_select(
+    ontology_path: &Path, query: &str,
+) -> Result<Vec<BTreeMap<String, String>>, ProjectionRefusal> {
     let ontology = std::fs::read_to_string(ontology_path).map_err(|e| {
         ProjectionRefusal::SyncFailed(format!("ontology {}: {e}", ontology_path.display()))
     })?;
@@ -426,9 +419,7 @@ fn run_select(ontology_path: &Path, query: &str) -> Result<Vec<BTreeMap<String, 
 /// The minimal Tera bind (divergence disclosed in the module docs): one
 /// one-off template against `{capability_id, rows}`.
 fn render_template(
-    template: &str,
-    capability_id: &str,
-    rows: &[BTreeMap<String, String>],
+    template: &str, capability_id: &str, rows: &[BTreeMap<String, String>],
 ) -> Result<String, ProjectionRefusal> {
     let mut ctx = tera::Context::new();
     ctx.insert("capability_id", &capability_id);
@@ -495,9 +486,7 @@ fn scoped_path(target_path: &str, target_dir: &Path) -> Result<PathBuf, Projecti
 /// ggen-engine write.rs `plan_write`'s default arm). Parent directories are
 /// created as needed.
 fn guarded_write(
-    target: PathBuf,
-    content: &str,
-    unless_exists: bool,
+    target: PathBuf, content: &str, unless_exists: bool,
 ) -> Result<WriteOutcome, ProjectionRefusal> {
     let exists = target.exists();
     if exists && unless_exists {
@@ -529,10 +518,7 @@ fn guarded_write(
 /// every `gates/*.rq` over the staging ontology must bind >= 1 row; every
 /// `verify/*.unbound.rq` must bind 0 rows (it binds rows exactly when the
 /// falsified condition holds). Any failure fails closed.
-fn gate_census(
-    staging: &Path,
-    ontology_path: &Path,
-) -> Result<Vec<GateResult>, ProjectionRefusal> {
+fn gate_census(staging: &Path, ontology_path: &Path) -> Result<Vec<GateResult>, ProjectionRefusal> {
     let mut results = Vec::new();
     for gate in sorted_rq_files(&staging.join("gates"))? {
         let query = std::fs::read_to_string(&gate)
@@ -590,12 +576,15 @@ fn sorted_rq_files(dir: &Path) -> Result<Vec<PathBuf>, ProjectionRefusal> {
 
 /// Recursive directory copy (`File.cp_r/2`'s staging law).
 fn copy_dir_recursive(src: &Path, dst: &Path) -> Result<(), ProjectionRefusal> {
-    std::fs::create_dir_all(dst).map_err(|e| ProjectionRefusal::Io(format!("{}: {e}", dst.display())))?;
-    for entry in std::fs::read_dir(src).map_err(|e| ProjectionRefusal::Io(format!("{}: {e}", src.display())))? {
+    std::fs::create_dir_all(dst)
+        .map_err(|e| ProjectionRefusal::Io(format!("{}: {e}", dst.display())))?;
+    for entry in std::fs::read_dir(src)
+        .map_err(|e| ProjectionRefusal::Io(format!("{}: {e}", src.display())))?
+    {
         let entry = entry.map_err(|e| ProjectionRefusal::Io(format!("{}: {e}", src.display())))?;
-        let ty = entry.file_type().map_err(|e| {
-            ProjectionRefusal::Io(format!("{}: {e}", entry.path().display()))
-        })?;
+        let ty = entry
+            .file_type()
+            .map_err(|e| ProjectionRefusal::Io(format!("{}: {e}", entry.path().display())))?;
         let to = dst.join(entry.file_name());
         if ty.is_dir() {
             copy_dir_recursive(&entry.path(), &to)?;

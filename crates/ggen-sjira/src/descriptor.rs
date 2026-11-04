@@ -37,8 +37,7 @@ use std::collections::BTreeMap;
 
 use crate::admit::{self, AdmittedWorkOrder, Refusal};
 use crate::frontier::{
-    frontier, Evidence, FrontierInput, FrontierResult, TransitionEvent,
-    AuthorityIndex,
+    frontier, AuthorityIndex, Evidence, FrontierInput, FrontierResult, TransitionEvent,
 };
 use crate::work_order::digest_of;
 
@@ -116,8 +115,7 @@ pub enum DescriptorRefusal {
     #[error(
         "unsupported required standing {required:?} on upstream {upstream:?} — only \
          ALIVE dependency evidence is supported"
-    )
-    ]
+    )]
     UnsupportedRequiredStanding { upstream: String, required: String },
     #[error("dependency {upstream:?} has no ALIVE evidence")]
     DependencyNotAlive { upstream: String },
@@ -328,13 +326,17 @@ fn validate_court_map(raw: &Value, order: &Value) -> Result<(), DescriptorRefusa
         .cloned()
         .collect();
     if !unknown.is_empty() {
-        return Err(DescriptorRefusal::CourtMapRefused(CourtMapRefusal::UnknownKeys(unknown)));
+        return Err(DescriptorRefusal::CourtMapRefused(
+            CourtMapRefusal::UnknownKeys(unknown),
+        ));
     }
     let acceptance = obj.get("acceptance");
     let falsifiers = obj.get("falsifiers");
     let courts = obj.get("courts");
-    let empty_acceptance = acceptance.map_or(true, |v| v.as_object().map_or(true, |m| m.is_empty()));
-    let empty_falsifiers = falsifiers.map_or(true, |v| v.as_object().map_or(true, |m| m.is_empty()));
+    let empty_acceptance =
+        acceptance.map_or(true, |v| v.as_object().map_or(true, |m| m.is_empty()));
+    let empty_falsifiers =
+        falsifiers.map_or(true, |v| v.as_object().map_or(true, |m| m.is_empty()));
     let empty_courts = courts.map_or(true, |v| v.as_array().map_or(true, |a| a.is_empty()));
     if empty_acceptance && empty_falsifiers && empty_courts {
         return Err(DescriptorRefusal::CourtMapRefused(CourtMapRefusal::Empty));
@@ -355,21 +357,27 @@ fn validate_court_map(raw: &Value, order: &Value) -> Result<(), DescriptorRefusa
                     .filter(|t| !t.is_empty())
                 else {
                     return Err(DescriptorRefusal::CourtMapRefused(
-                        CourtMapRefusal::InvalidPredicate { group: group.to_string(), iri: iri.clone() },
+                        CourtMapRefusal::InvalidPredicate {
+                            group: group.to_string(),
+                            iri: iri.clone(),
+                        },
                     ));
                 };
                 let _ = test_id;
                 if !order_list.contains(iri) {
-                    return Err(DescriptorRefusal::CourtMapRefused(CourtMapRefusal::ForeignIri {
-                        group: group.to_string(),
-                        iri: iri.clone(),
-                    }));
+                    return Err(DescriptorRefusal::CourtMapRefused(
+                        CourtMapRefusal::ForeignIri {
+                            group: group.to_string(),
+                            iri: iri.clone(),
+                        },
+                    ));
                 }
             }
-        } else if !allowed.map_or(true, |v| v.is_null()) && !allowed.map_or(true, Value::is_object) {
-            return Err(DescriptorRefusal::CourtMapRefused(CourtMapRefusal::InvalidGroup(
-                group.to_string(),
-            )));
+        } else if !allowed.map_or(true, |v| v.is_null()) && !allowed.map_or(true, Value::is_object)
+        {
+            return Err(DescriptorRefusal::CourtMapRefused(
+                CourtMapRefusal::InvalidGroup(group.to_string()),
+            ));
         }
     }
     if let Some(c) = courts {
@@ -384,17 +392,19 @@ fn validate_court_map(raw: &Value, order: &Value) -> Result<(), DescriptorRefusa
                         ));
                     };
                     if !allowed.iter().any(|a| a == s) {
-                        return Err(DescriptorRefusal::CourtMapRefused(CourtMapRefusal::ForeignIri {
-                            group: "courts".to_string(),
-                            iri: s.to_string(),
-                        }));
+                        return Err(DescriptorRefusal::CourtMapRefused(
+                            CourtMapRefusal::ForeignIri {
+                                group: "courts".to_string(),
+                                iri: s.to_string(),
+                            },
+                        ));
                     }
                 }
             }
             _ => {
-                return Err(DescriptorRefusal::CourtMapRefused(CourtMapRefusal::InvalidGroup(
-                    "courts".to_string(),
-                )));
+                return Err(DescriptorRefusal::CourtMapRefused(
+                    CourtMapRefusal::InvalidGroup("courts".to_string()),
+                ));
             }
         }
     }
@@ -425,9 +435,7 @@ fn order_list_of(order: &Value, group: &str) -> Vec<String> {
 /// Assembles the descriptor map for an admitted order (the all-gates-pass
 /// arm of `build/4` and the contract body of `build_xaas_contract/4`).
 fn descriptor_map(
-    admitted: &AdmittedWorkOrder,
-    attrs: &BuildAttrs,
-    package: Option<&Value>,
+    admitted: &AdmittedWorkOrder, attrs: &BuildAttrs, package: Option<&Value>,
 ) -> Value {
     let mut m = Map::new();
     m.insert("schema".into(), Value::String(SCHEMA.into()));
@@ -465,7 +473,12 @@ fn descriptor_map(
     );
     m.insert(
         "provider".into(),
-        Value::String(attrs.provider.clone().unwrap_or_else(|| DEFAULT_PROVIDER.into())),
+        Value::String(
+            attrs
+                .provider
+                .clone()
+                .unwrap_or_else(|| DEFAULT_PROVIDER.into()),
+        ),
     );
     m.insert(
         "worker_identity".into(),
@@ -495,10 +508,7 @@ fn descriptor_map(
 /// closed with a typed refusal; `package` is caller-supplied
 /// (execution_package/4 unported — see moduledoc).
 pub fn build(
-    work_orders: &[Value],
-    identity: &str,
-    attrs: &BuildAttrs,
-    opts: &DescriptorOpts<'_>,
+    work_orders: &[Value], identity: &str, attrs: &BuildAttrs, opts: &DescriptorOpts<'_>,
 ) -> Result<Value, DescriptorRefusal> {
     let provider = attrs
         .provider
@@ -508,16 +518,8 @@ pub fn build(
         return Err(DescriptorRefusal::InvalidOption("provider"));
     }
 
-    let inputs: Vec<FrontierInput> = work_orders
-        .iter()
-        .map(|o| frontier_input_of(o))
-        .collect();
-    let front = frontier(
-        &inputs,
-        &[],
-        &opts.evidence,
-        opts.authority,
-    );
+    let inputs: Vec<FrontierInput> = work_orders.iter().map(|o| frontier_input_of(o)).collect();
+    let front = frontier(&inputs, &[], &opts.evidence, opts.authority);
 
     let (eligible_flag, _) = eligible(&front, identity)?;
     let _ = eligible_flag;
@@ -553,8 +555,7 @@ fn find<'a>(work_orders: &'a [Value], identity: &str) -> Result<&'a Value, Descr
 }
 
 fn admit(row: &Value) -> Result<AdmittedWorkOrder, DescriptorRefusal> {
-    crate::admit::admit_work_order(row)
-        .map_err(|r| DescriptorRefusal::Unadmitted(r))
+    crate::admit::admit_work_order(row).map_err(|r| DescriptorRefusal::Unadmitted(r))
 }
 
 fn frontier_input_of(o: &Value) -> FrontierInput {
@@ -579,19 +580,13 @@ fn frontier_input_of(o: &Value) -> FrontierInput {
 /// `digest_form` "sjira-digest/2" — XaaS's forced fail-closed `:snapshot`
 /// admission binding holds.
 pub fn build_xaas_contract(
-    work_orders: &[Value],
-    events: &[TransitionEvent],
-    identity: &str,
-    opts: &DescriptorOpts<'_>,
+    work_orders: &[Value], events: &[TransitionEvent], identity: &str, opts: &DescriptorOpts<'_>,
 ) -> Result<Value, DescriptorRefusal> {
     // project(work_orders, events): the standing fold over the raw orders.
     let projected = projected_orders(work_orders, events);
 
     // Eligibility over the projected set, via the landed frontier.
-    let inputs: Vec<FrontierInput> = projected
-        .iter()
-        .map(|o| frontier_input_of(o))
-        .collect();
+    let inputs: Vec<FrontierInput> = projected.iter().map(|o| frontier_input_of(o)).collect();
     let front = frontier(&inputs, events, &opts.evidence, opts.authority);
     eligible(&front, identity)?;
 
@@ -615,7 +610,11 @@ pub fn build_xaas_contract(
     let exec_alias = opts
         .execution_repo_alias
         .as_deref()
-        .or_else(|| opts.aliases.get(&admitted.work_order.repository).map(|s| s.as_str()))
+        .or_else(|| {
+            opts.aliases
+                .get(&admitted.work_order.repository)
+                .map(|s| s.as_str())
+        })
         .ok_or_else(|| DescriptorRefusal::MissingAlias(admitted.work_order.repository.clone()))?;
     if !valid_alias(exec_alias) {
         return Err(DescriptorRefusal::InvalidOption("execution_repo_alias"));
@@ -670,10 +669,7 @@ pub fn build_xaas_contract(
     // dependencies: the core WorkOrder carries no dependencies field
     // (disclosed divergence) — the list is present and empty.
     m.insert("dependencies".into(), Value::Array(Vec::new()));
-    m.insert(
-        "bridge".into(),
-        bridge(&admitted, GENESIS_TAIL),
-    );
+    m.insert("bridge".into(), bridge(&admitted, GENESIS_TAIL));
     if let Some(cm) = &opts.court_map {
         m.insert("court_map".into(), cm.clone());
     }
@@ -740,7 +736,10 @@ fn bridge(admitted: &AdmittedWorkOrder, tail: &str) -> Value {
         ),
     );
     let mut m = Map::new();
-    m.insert("identity".into(), Value::String(admitted.work_order.identity.clone()));
+    m.insert(
+        "identity".into(),
+        Value::String(admitted.work_order.identity.clone()),
+    );
     m.insert(
         "definition_digest".into(),
         Value::String(admitted.definition_digest.clone()),
@@ -758,7 +757,10 @@ fn bridge(admitted: &AdmittedWorkOrder, tail: &str) -> Value {
         "base_sha".into(),
         Value::String(admitted.work_order.base_sha.clone()),
     );
-    m.insert("subject".into(), Value::String(admitted.work_order.subject.clone()));
+    m.insert(
+        "subject".into(),
+        Value::String(admitted.work_order.subject.clone()),
+    );
     m.insert(
         "evidence_ceiling".into(),
         Value::String(admitted.work_order.evidence_ceiling.clone()),
@@ -787,9 +789,7 @@ pub fn receipt_digest(receipt: &Value) -> String {
 /// 545-660). `required_evidence` is the contract's `required_evidence`
 /// list (`None` ⇒ empty).
 pub fn receipt_from_xaas(
-    xaas_receipt: &Value,
-    bridge: &Value,
-    required_evidence: Option<&[String]>,
+    xaas_receipt: &Value, bridge: &Value, required_evidence: Option<&[String]>,
 ) -> Result<Value, ReceiptRefusal> {
     let Some(receipt) = xaas_receipt.as_object() else {
         return Err(ReceiptRefusal::NotAMap);
@@ -862,9 +862,7 @@ pub fn receipt_from_xaas(
     };
 
     // head_verified_boolean/1 (line 602).
-    let head_verified = receipt
-        .get("head_verified")
-        .and_then(|v| v.as_bool());
+    let head_verified = receipt.get("head_verified").and_then(|v| v.as_bool());
     if head_verified.is_none() {
         return Err(ReceiptRefusal::HeadVerifiedNotBoolean);
     }
@@ -926,9 +924,10 @@ pub fn receipt_from_xaas(
                     if entry.get("passed").and_then(|v| v.as_bool()) == Some(true)
                         && entry.get("step_id").and_then(|v| v.as_str()).is_some() =>
                 {
-                    let head_ok = entry.get("head").and_then(|v| v.as_str())
-                        == Some(final_head);
-                    let step_ok = entry.get("step_id").and_then(|v| v.as_str())
+                    let head_ok = entry.get("head").and_then(|v| v.as_str()) == Some(final_head);
+                    let step_ok = entry
+                        .get("step_id")
+                        .and_then(|v| v.as_str())
                         .map(|sid| {
                             steps.iter().any(|s| {
                                 s.get("id").and_then(|v| v.as_str()) == Some(sid)
@@ -987,13 +986,21 @@ pub fn receipt_from_xaas(
     for name in &acceptance {
         acceptance_results.insert(
             name.clone(),
-            Value::Bool(passed && observed_acceptance.and_then(|m| m.get(name)).and_then(|v| v.as_bool()) == Some(true)),
+            Value::Bool(
+                passed
+                    && observed_acceptance
+                        .and_then(|m| m.get(name))
+                        .and_then(|v| v.as_bool())
+                        == Some(true),
+            ),
         );
     }
     let observed_falsifiers = court.get("falsifier_results").and_then(|v| v.as_object());
     let mut falsifier_results = Map::new();
     for f in &falsifiers {
-        let observed_v = observed_falsifiers.and_then(|m| m.get(f)).and_then(|v| v.as_str());
+        let observed_v = observed_falsifiers
+            .and_then(|m| m.get(f))
+            .and_then(|v| v.as_str());
         let verdict = if !passed {
             "unobserved"
         } else if observed_v == Some("survived") {
@@ -1008,7 +1015,10 @@ pub fn receipt_from_xaas(
 
     let mut base = Map::new();
     base.insert("identity".into(), bridge["identity"].clone());
-    base.insert("definition_digest".into(), bridge["definition_digest"].clone());
+    base.insert(
+        "definition_digest".into(),
+        bridge["definition_digest"].clone(),
+    );
     base.insert(
         "source_snapshot_digest".into(),
         bridge["source_snapshot_digest"].clone(),
@@ -1016,17 +1026,26 @@ pub fn receipt_from_xaas(
     base.insert("repository".into(), bridge["repository"].clone());
     base.insert("base_sha".into(), bridge["base_sha"].clone());
     base.insert("subject".into(), bridge["subject"].clone());
-    base.insert("candidate_sha".into(), Value::String(final_head.to_string()));
+    base.insert(
+        "candidate_sha".into(),
+        Value::String(final_head.to_string()),
+    );
     base.insert("target".into(), Value::String(target.to_string()));
     base.insert("receipt_digest".into(), Value::String(digest.to_string()));
     base.insert("court_results".into(), Value::Object(courts_map));
-    base.insert("evidence_types".into(), Value::Array(types.into_iter().map(Value::String).collect()));
-    base.insert("acceptance_results".into(), Value::Object(acceptance_results));
     base.insert(
-        "falsifier_results".into(),
-        Value::Object(falsifier_results),
+        "evidence_types".into(),
+        Value::Array(types.into_iter().map(Value::String).collect()),
     );
-    base.insert("receipt_classes".into(), Value::Array(classes.into_iter().map(Value::String).collect()));
+    base.insert(
+        "acceptance_results".into(),
+        Value::Object(acceptance_results),
+    );
+    base.insert("falsifier_results".into(), Value::Object(falsifier_results));
+    base.insert(
+        "receipt_classes".into(),
+        Value::Array(classes.into_iter().map(Value::String).collect()),
+    );
     base.insert(
         "evidence_ceiling".into(),
         court
@@ -1048,7 +1067,10 @@ pub fn receipt_from_xaas(
     base.insert("xaas".into(), Value::Object(xaas_ids));
     // put_court_replay / put_court_authority (lines 752-760).
     if court.get("replay_passed") == Some(&Value::Bool(true))
-        && court.get("replay_identity").and_then(|v| v.as_str()).is_some()
+        && court
+            .get("replay_identity")
+            .and_then(|v| v.as_str())
+            .is_some()
     {
         base.insert("replay_passed".into(), Value::Bool(true));
         base.insert(
@@ -1082,7 +1104,10 @@ pub fn receipt_from_xaas(
             evidence_map.insert(k.to_string(), v.clone());
         }
     }
-    base.insert("snapshot_digest".into(), base["source_snapshot_digest"].clone());
+    base.insert(
+        "snapshot_digest".into(),
+        base["source_snapshot_digest"].clone(),
+    );
     base.insert("evidence".into(), Value::Object(evidence_map));
 
     Ok(Value::Object(base))

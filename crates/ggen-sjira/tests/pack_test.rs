@@ -40,7 +40,10 @@ fn copy_pack_to(dir: &Path) -> std::path::PathBuf {
 fn fixture_shacl_court_conforms() {
     let pack = fixture_pack();
     let violations = shacl::run(&pack, &pack.join("ontology.ttl")).unwrap();
-    assert!(violations.is_empty(), "fixture must conform: {violations:?}");
+    assert!(
+        violations.is_empty(),
+        "fixture must conform: {violations:?}"
+    );
 }
 
 #[test]
@@ -92,7 +95,11 @@ sj:wo1 a sj:WorkOrder ;
     )
     .unwrap();
     let summary = pack_health::check(&pack).unwrap();
-    let gate = summary.gates.iter().find(|g| g.name == "term-closure").unwrap();
+    let gate = summary
+        .gates
+        .iter()
+        .find(|g| g.name == "term-closure")
+        .unwrap();
     assert_eq!(gate.rows, 0);
     assert!(summary.unsupported.contains("render.rs"));
 }

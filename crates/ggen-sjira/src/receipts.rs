@@ -62,13 +62,9 @@ pub struct AdmissionTransition {
 pub enum Decision {
     /// Order admitted; carries the stamped authority (always `NONE` in
     /// this kernel — admission never creates authority).
-    Admitted {
-        authority: String,
-    },
+    Admitted { authority: String },
     /// Order refused; carries the typed refusal's Display text as detail.
-    Refused {
-        detail: String,
-    },
+    Refused { detail: String },
 }
 
 impl fmt::Display for Decision {
@@ -83,9 +79,7 @@ impl fmt::Display for Decision {
 /// The semantic body of a transition: every field except the chain fields,
 /// as key-sorted canonical JSON text.
 fn body_of(
-    work_order_digest: &str,
-    decision: &Decision,
-    blast_radius_digest: Option<&str>,
+    work_order_digest: &str, decision: &Decision, blast_radius_digest: Option<&str>,
 ) -> String {
     let mut m = serde_json::Map::new();
     m.insert(
@@ -187,9 +181,7 @@ impl TransitionJournal {
     /// becomes `Decision::Refused` carrying the refusal's Display text.
     /// Returns the appended transition's hash.
     pub fn record(
-        &mut self,
-        result: &Result<AdmittedWorkOrder, Refusal>,
-        blast_radius_digest: Option<String>,
+        &mut self, result: &Result<AdmittedWorkOrder, Refusal>, blast_radius_digest: Option<String>,
     ) -> String {
         self.append(
             work_order_digest_of(result),
@@ -202,9 +194,7 @@ impl TransitionJournal {
     /// current head, then `hash` is computed. For callers that already
     /// hold the semantic fields directly. Returns the sealed hash.
     pub fn append(
-        &mut self,
-        work_order_digest: String,
-        decision: Decision,
+        &mut self, work_order_digest: String, decision: Decision,
         blast_radius_digest: Option<String>,
     ) -> String {
         let prev_hash = self.head();

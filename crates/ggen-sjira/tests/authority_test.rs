@@ -7,8 +7,8 @@
 //! returned index / refusal / digest), never on interactions.
 
 use ggen_sjira::authority::{
-    admission_digest, pins, AuthorityGraph, AuthorityIndex, AuthorityTrustRoot, LocatorRefusal,
-    OriginRefusal, ResolvedAuthority, SourceLocator, AuthorityType,
+    admission_digest, pins, AuthorityGraph, AuthorityIndex, AuthorityTrustRoot, AuthorityType,
+    LocatorRefusal, OriginRefusal, ResolvedAuthority, SourceLocator,
 };
 use serde_json::json;
 use std::fs;
@@ -182,7 +182,10 @@ fn trust_root_under_ephemeral_locator_pins_nothing() {
             "locator {bad_locator} must not admit"
         );
         // And the pin map itself is empty.
-        assert!(pins(&graph).is_empty(), "locator {bad_locator} must pin nothing");
+        assert!(
+            pins(&graph).is_empty(),
+            "locator {bad_locator} must pin nothing"
+        );
     }
 }
 
@@ -294,7 +297,7 @@ fn prose_typed_node_is_type_mismatch_even_when_stamped_and_pinned() {
     graph.authorities[0]
         .statements
         .insert("admissionDigest".to_string(), vec![digest.clone()]); // minimal unblock (SLA): digest reused below
-    // And pin the new pair — pinned and recomputing, yet still refused.
+                                                                      // And pin the new pair — pinned and recomputing, yet still refused.
     let mut pinned_graph = graph;
     pinned_graph.trust_roots[0].admission_digest = digest;
     let index = AuthorityIndex::build_pinned(&pinned_graph);

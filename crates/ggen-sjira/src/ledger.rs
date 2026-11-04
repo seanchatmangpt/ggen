@@ -169,12 +169,8 @@ pub fn vc_dominates(a: &Map<String, Value>, b: &Map<String, Value>) -> bool {
     let mut replicas: Vec<&String> = a.keys().chain(b.keys()).collect();
     replicas.sort();
     replicas.dedup();
-    let ge = replicas
-        .iter()
-        .all(|r| vc_get(a, r) >= vc_get(b, r));
-    let gt = replicas
-        .iter()
-        .any(|r| vc_get(a, r) > vc_get(b, r));
+    let ge = replicas.iter().all(|r| vc_get(a, r) >= vc_get(b, r));
+    let gt = replicas.iter().any(|r| vc_get(a, r) > vc_get(b, r));
     ge && gt
 }
 
@@ -189,8 +185,7 @@ pub fn vc_concurrent(a: &Map<String, Value>, b: &Map<String, Value>) -> bool {
 /// `a <= b` componentwise (missing replica counts 0); enumerating `a` is
 /// sufficient — a replica only in `b` has `a[r] = 0 <= b[r]` trivially.
 fn vc_le(a: &Map<String, Value>, b: &Map<String, Value>) -> bool {
-    a.iter()
-        .all(|(r, n)| vc_as_u64(n) <= vc_get(b, r))
+    a.iter().all(|(r, n)| vc_as_u64(n) <= vc_get(b, r))
 }
 
 fn vc_get(clock: &Map<String, Value>, replica: &str) -> u64 {
@@ -244,7 +239,9 @@ fn verify(events: &[Value]) -> Result<(), LedgerError> {
 /// Appends `event` to the ledger at `path`, stamping `seq`, `event_digest`,
 /// `epoch`, and — only when `opts.vc` is given — `vc`. Any caller-supplied
 /// `vc`/`epoch`/`event_digest` is overwritten.
-pub fn append(path: &Path, event: &Map<String, Value>, opts: &AppendOpts) -> Result<Appended, LedgerError> {
+pub fn append(
+    path: &Path, event: &Map<String, Value>, opts: &AppendOpts,
+) -> Result<Appended, LedgerError> {
     match kind(path) {
         LedgerKind::Dir => append_dir(path, event, opts),
         LedgerKind::File => append_file(path, event, opts),
@@ -259,10 +256,7 @@ pub fn append(path: &Path, event: &Map<String, Value>, opts: &AppendOpts) -> Res
 /// (vc, then epoch, then digest — in that order, so the digest commits to
 /// both new fields).
 fn stamp(
-    path: &Path,
-    events: &[Value],
-    event: &Map<String, Value>,
-    opts: &AppendOpts,
+    path: &Path, events: &[Value], event: &Map<String, Value>, opts: &AppendOpts,
 ) -> Result<Value, LedgerError> {
     let last = last_epoch(path, events);
     let epoch = if let Some(e) = opts.epoch {
@@ -283,11 +277,18 @@ fn stamp(
     if let Some(vc) = &opts.vc {
         stamped.insert(
             "vc".to_string(),
-            Value::Object(vc.iter().map(|(k, v)| (k.clone(), Value::from(*v))).collect()),
+            Value::Object(
+                vc.iter()
+                    .map(|(k, v)| (k.clone(), Value::from(*v)))
+                    .collect(),
+            ),
         );
     }
     stamped.insert("epoch".to_string(), Value::from(epoch));
-    stamped.insert("event_digest".to_string(), Value::from(event_digest(&stamped)));
+    stamped.insert(
+        "event_digest".to_string(),
+        Value::from(event_digest(&stamped)),
+    );
 
     if epoch > marker_epoch(path) {
         write_epoch_marker(path, epoch)?;
@@ -362,16 +363,16 @@ fn decode_dir(dir: &Path) -> Result<Vec<Value>, LedgerError> {
 /// shape (array, string, number, null) is a typed refusal located at `where`.
 fn decode_event(json: &str, where_: &str) -> Result<Value, LedgerError> {
     match serde_json::from_str::<Value>(json) {
-        Ok(Value::Object(_)) => Ok(serde_json::from_str(json).map_err(|e| LedgerError::Unreadable(e.to_string()))?),
+        Ok(Value::Object(_)) => {
+            Ok(serde_json::from_str(json).map_err(|e| LedgerError::Unreadable(e.to_string()))?)
+        }
         Ok(_not_an_object) => Err(LedgerError::NotAnObject(where_.to_string())),
         Err(e) => Err(LedgerError::Unreadable(e.to_string())),
     }
 }
 
 fn append_dir(
-    dir: &Path,
-    event: &Map<String, Value>,
-    opts: &AppendOpts,
+    dir: &Path, event: &Map<String, Value>, opts: &AppendOpts,
 ) -> Result<Appended, LedgerError> {
     fs::create_dir_all(dir).map_err(io_err)?;
     let events = decode_dir(dir)?;
@@ -497,9 +498,7 @@ fn decode_file(path: &Path) -> Result<Vec<Value>, LedgerError> {
 }
 
 fn append_file(
-    path: &Path,
-    event: &Map<String, Value>,
-    opts: &AppendOpts,
+    path: &Path, event: &Map<String, Value>, opts: &AppendOpts,
 ) -> Result<Appended, LedgerError> {
     if let Some(parent) = path.parent() {
         if !parent.as_os_str().is_empty() {
@@ -552,7 +551,9 @@ fn append_file(
 
 /// Bounded exclusive-create lock; refuses [`LedgerError::LedgerLocked`] after
 /// the attempt budget instead of waiting on a clock.
-fn with_lock<T>(lock: &Path, mut f: impl FnMut() -> Result<T, LedgerError>) -> Result<T, LedgerError> {
+fn with_lock<T>(
+    lock: &Path, mut f: impl FnMut() -> Result<T, LedgerError>,
+) -> Result<T, LedgerError> {
     for _ in 0..LOCK_ATTEMPTS {
         match exclusive_create(lock) {
             Ok(()) => {

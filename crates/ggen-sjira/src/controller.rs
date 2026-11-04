@@ -173,12 +173,8 @@ fn refusal_digest(origin_authority: &str) -> String {
 /// non-string field is treated as unpinned and refuses at
 /// [`Stage::Authority`].
 pub fn propose(
-    edits: &[ControllerEdit],
-    order: &Value,
-    graph: &dyn SymbolGraph,
-    authority: &dyn AuthorityPin,
-    journal: &mut TransitionJournal,
-    protected_paths: &[&str],
+    edits: &[ControllerEdit], order: &Value, graph: &dyn SymbolGraph, authority: &dyn AuthorityPin,
+    journal: &mut TransitionJournal, protected_paths: &[&str],
 ) -> ControllerDecision {
     // ---- Gate 1: authority pinning (before radius, before admission) ----
     let origin_authority = order
@@ -196,7 +192,9 @@ pub fn propose(
         );
         let journal_hash = journal.append(
             refusal_digest(origin_authority),
-            crate::receipts::Decision::Refused { detail: detail.clone() },
+            crate::receipts::Decision::Refused {
+                detail: detail.clone(),
+            },
             None,
         );
         let journal_head = journal.head();
@@ -270,7 +268,9 @@ pub fn propose(
         );
         let journal_hash = journal.append(
             refusal_digest(origin_authority),
-            crate::receipts::Decision::Refused { detail: detail.clone() },
+            crate::receipts::Decision::Refused {
+                detail: detail.clone(),
+            },
             Some(radius_digest.clone()),
         );
         let journal_head = journal.head();
@@ -292,7 +292,9 @@ pub fn propose(
         );
         let journal_hash = journal.append(
             refusal_digest(origin_authority),
-            crate::receipts::Decision::Refused { detail: detail.clone() },
+            crate::receipts::Decision::Refused {
+                detail: detail.clone(),
+            },
             Some(radius_digest.clone()),
         );
         let journal_head = journal.head();
@@ -405,9 +407,23 @@ mod tests {
         let mut journal = TransitionJournal::new();
         let pins = pinned();
         let e = [ControllerEdit::new("src/a.rs", vec!["s".to_string()])];
-        let d1 = propose(&e, &order(), &Empty, &pins, &mut journal, DEFAULT_PROTECTED_PATHS);
+        let d1 = propose(
+            &e,
+            &order(),
+            &Empty,
+            &pins,
+            &mut journal,
+            DEFAULT_PROTECTED_PATHS,
+        );
         assert!(matches!(d1, ControllerDecision::Admitted { .. }));
-        let d2 = propose(&e, &json!({}), &Empty, &pins, &mut journal, DEFAULT_PROTECTED_PATHS);
+        let d2 = propose(
+            &e,
+            &json!({}),
+            &Empty,
+            &pins,
+            &mut journal,
+            DEFAULT_PROTECTED_PATHS,
+        );
         assert!(matches!(
             d2,
             ControllerDecision::Refused {

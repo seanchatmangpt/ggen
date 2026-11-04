@@ -15,10 +15,7 @@ use ggen_sjira::ledger::{
 use serde_json::{json, Map, Value};
 
 fn tmp_dir(name: &str) -> PathBuf {
-    let dir = std::env::temp_dir().join(format!(
-        "ggen-sjira-ledger-{}-{name}",
-        std::process::id()
-    ));
+    let dir = std::env::temp_dir().join(format!("ggen-sjira-ledger-{}-{name}", std::process::id()));
     let _ = fs::remove_dir_all(&dir);
     fs::create_dir_all(&dir).unwrap();
     dir
@@ -58,7 +55,12 @@ fn dir_mode_append_sequenced_immutable_files() {
     let ledger = dir.join("ledger");
     let mut names = Vec::new();
     for i in 0..3 {
-        let out = append(&ledger, &event("admit", &format!("s{i}")), &AppendOpts::default()).unwrap();
+        let out = append(
+            &ledger,
+            &event("admit", &format!("s{i}")),
+            &AppendOpts::default(),
+        )
+        .unwrap();
         assert_eq!(out.status, AppendStatus::Appended);
         names.push(out.event.get("seq").unwrap().as_u64().unwrap());
     }
@@ -93,7 +95,13 @@ fn dir_mode_idempotent_replay_returns_existing_event() {
     // Exactly one event file on disk — the replay wrote nothing new.
     let json_count = fs::read_dir(&ledger)
         .unwrap()
-        .filter(|e| e.as_ref().unwrap().file_name().to_string_lossy().ends_with(".json"))
+        .filter(|e| {
+            e.as_ref()
+                .unwrap()
+                .file_name()
+                .to_string_lossy()
+                .ends_with(".json")
+        })
         .count();
     assert_eq!(json_count, 1);
 }
@@ -114,11 +122,13 @@ fn file_mode_append_and_idempotent_replay() {
     let body = fs::read_to_string(&ledger).unwrap();
     let lines: Vec<&str> = body.lines().collect();
     assert_eq!(lines.len(), 2);
-    assert!(!ledger.with_extension("lock").exists() || {
-        // `.lock` suffix appends to the full filename, not the extension.
-        let lock = PathBuf::from(format!("{}.lock", ledger.display()));
-        !lock.exists()
-    });
+    assert!(
+        !ledger.with_extension("lock").exists() || {
+            // `.lock` suffix appends to the full filename, not the extension.
+            let lock = PathBuf::from(format!("{}.lock", ledger.display()));
+            !lock.exists()
+        }
+    );
     let seqs: Vec<u64> = fetch(&ledger)
         .unwrap()
         .iter()
@@ -150,9 +160,7 @@ fn stamped_digest_commits_to_epoch_and_vc() {
     let mut opts = AppendOpts::default();
     let mut vc = Map::new();
     vc.insert("r1".into(), json!(2));
-    opts.vc = Some(
-        [("r1".to_string(), 2u64)].into_iter().collect(),
-    );
+    opts.vc = Some([("r1".to_string(), 2u64)].into_iter().collect());
     let out = append(&ledger, &event("admit", "s"), &opts).unwrap();
     let stamped = out.event.as_object().unwrap();
     // Tamper with `vc` (a stamped field the digest must commit to) → refusal.
@@ -241,10 +249,7 @@ fn undecodable_and_non_object_entries_refuse_typed() {
     files.sort();
     fs::write(&files[0], "[1,2]").unwrap();
     let name = files[0].file_name().unwrap().to_string_lossy().to_string();
-    assert_eq!(
-        fetch(&d).err(),
-        Some(LedgerError::NotAnObject(name))
-    );
+    assert_eq!(fetch(&d).err(), Some(LedgerError::NotAnObject(name)));
 }
 
 // ── epoch markers + bump law ────────────────────────────────────────────────
@@ -265,7 +270,10 @@ fn epoch_stamped_bumped_and_marker_persisted_dir_mode() {
     };
     let out2 = append(&ledger, &event("admit", "c"), &bump).unwrap();
     assert_eq!(out2.event.get("epoch").unwrap(), &json!(3));
-    assert_eq!(fs::read_to_string(ledger.join("epoch")).unwrap().trim(), "3");
+    assert_eq!(
+        fs::read_to_string(ledger.join("epoch")).unwrap().trim(),
+        "3"
+    );
     // Next plain append inherits the new generation.
     let out3 = append(&ledger, &event("admit", "d"), &AppendOpts::default()).unwrap();
     assert_eq!(out3.event.get("epoch").unwrap(), &json!(3));
@@ -348,7 +356,7 @@ fn vc_dominates_law() {
     assert!(vc_dominates(&a, &b));
     assert!(!vc_dominates(&b, &a));
     assert!(!vc_dominates(&a, &c)); // concurrent
-    // The empty clock dominates nothing; a nonempty clock dominates it.
+                                    // The empty clock dominates nothing; a nonempty clock dominates it.
     assert!(!vc_dominates(&Map::new(), &d));
     assert!(vc_dominates(&d, &Map::new()));
     let e = vc(&[("r1", 2), ("r2", 1), ("r3", 0)]);

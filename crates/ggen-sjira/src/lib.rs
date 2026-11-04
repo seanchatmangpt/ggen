@@ -35,38 +35,38 @@
 pub mod admit;
 pub mod authority;
 pub mod complete;
-pub mod epoch;
 pub mod controller;
 pub mod descriptor;
 pub mod edits_bridge;
+pub mod epoch;
 pub mod execute;
-pub mod generated;
-pub mod ledger;
 pub mod frontier;
-pub mod promote;
-pub mod reconcile;
+pub mod generated;
 pub mod lease;
+pub mod ledger;
 pub mod pack_health;
+pub mod promote;
 pub mod receipts;
+pub mod reconcile;
 pub mod shacl;
 pub mod target_pack;
 pub mod work_order;
 
 pub use admit::{admit_work_order, AdmittedWorkOrder, Refusal};
-pub use receipts::{
-    AdmissionTransition, ChainError, Decision, TransitionJournal, GENESIS_PREV_HASH,
+pub use descriptor::{
+    build_xaas_contract, identity, receipt_digest, receipt_from_xaas, DescriptorOpts,
+    DescriptorRefusal, ReceiptRefusal, SCHEMA,
 };
 pub use frontier::{
     frontier, project_standing, schedule, ActiveLease, AuthorityIndex, BlockedEntry,
     DependencyEdge, EligibleCandidate, Evidence, FrontierInput, FrontierResult, Standings,
     TransitionEvent,
 };
+pub use promote::{promote, PromoteRefusal, PromotionIntent};
+pub use receipts::{
+    AdmissionTransition, ChainError, Decision, TransitionJournal, GENESIS_PREV_HASH,
+};
 pub use reconcile::{
     reconcile, tail_digest, ReconcileOpts, ReconcileRefusal, Reconciled, GENESIS_DIGEST,
 };
-pub use descriptor::{
-    build_xaas_contract, identity, receipt_digest, receipt_from_xaas, DescriptorOpts, DescriptorRefusal,
-    ReceiptRefusal, SCHEMA,
-};
-pub use promote::{promote, PromotionIntent, PromoteRefusal};
 pub use work_order::{canonical, definition_digest, digest_of, Standing, WorkOrder};

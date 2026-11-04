@@ -2,10 +2,8 @@
 //! pid-unique temp roots, real blake3 journal, real authority graph —
 //! state assertions on returned values and on-disk ledger bytes. No mocks.
 
-use ggen_sjira::execute::{
-    check_promotion, run, ExecuteOpts, EXECUTION_CEILING, EXECUTION_FROM,
-};
 use ggen_sjira::authority::{admission_digest, AuthorityGraph, AuthorityNode};
+use ggen_sjira::execute::{check_promotion, run, ExecuteOpts, EXECUTION_CEILING, EXECUTION_FROM};
 use ggen_sjira::{DependencyEdge, FrontierInput};
 
 use serde_json::{json, Value};
@@ -13,10 +11,7 @@ use std::collections::BTreeMap;
 use std::path::PathBuf;
 
 fn temp_ledger_dir(tag: &str) -> PathBuf {
-    let dir = std::env::temp_dir().join(format!(
-        "ggen-sjira-execute-{}-{tag}",
-        std::process::id()
-    ));
+    let dir = std::env::temp_dir().join(format!("ggen-sjira-execute-{}-{tag}", std::process::id()));
     let _ = std::fs::remove_dir_all(&dir);
     std::fs::create_dir_all(&dir).expect("create temp ledger dir");
     dir
@@ -26,10 +21,7 @@ fn temp_ledger_dir(tag: &str) -> PathBuf {
 /// digest stamps idempotently and build_pinned pins it).
 fn auth_node(iri: &str) -> AuthorityNode {
     let mut statements: BTreeMap<String, Vec<String>> = BTreeMap::new();
-    statements.insert(
-        "sj:title".to_string(),
-        vec!["ship the kernel".to_string()],
-    );
+    statements.insert("sj:title".to_string(), vec!["ship the kernel".to_string()]);
     let bare = AuthorityNode {
         iri: iri.to_string(),
         types: vec!["StrategicObjective".to_string()],
@@ -37,10 +29,7 @@ fn auth_node(iri: &str) -> AuthorityNode {
     };
     let digest = admission_digest(&bare);
     let mut stamped: BTreeMap<String, Vec<String>> = BTreeMap::new();
-    stamped.insert(
-        "sj:title".to_string(),
-        vec!["ship the kernel".to_string()],
-    );
+    stamped.insert("sj:title".to_string(), vec!["ship the kernel".to_string()]);
     stamped.insert("admissionDigest".to_string(), vec![digest]);
     AuthorityNode {
         iri: iri.to_string(),
@@ -150,15 +139,15 @@ fn two_order_graph_executes_to_partial_alive_receipts() {
     assert_eq!(on_disk.len(), 2);
     for (i, event) in on_disk.iter().enumerate() {
         assert_eq!(
-            event["work_order_id"], json!(["OA", "OB"][i]),
+            event["work_order_id"],
+            json!(["OA", "OB"][i]),
             "append order"
         );
         assert_eq!(event["from_standing"], json!(EXECUTION_FROM));
         assert_eq!(event["to_standing"], json!("PARTIAL_ALIVE"));
         let digest = event["receipt_digest"].as_str().unwrap();
         assert_eq!(
-            digest,
-            out.plans[i].plan_digest,
+            digest, out.plans[i].plan_digest,
             "the transition records the plan digest as receipt evidence"
         );
     }
@@ -185,7 +174,6 @@ fn two_order_graph_executes_to_partial_alive_receipts() {
     }
 }
 
-
 // ── 2. blocked orders stay blocked, with reasons ──────────────────────────
 
 #[test]
@@ -201,15 +189,12 @@ fn blocked_orders_stay_blocked_with_reasons() {
 
     // Seed OD's real transition through the same ledger API the loop uses.
     let mut seed = serde_json::Map::new();
-    seed.insert(
-        "work_order_id".to_string(),
-        json!("OD"),
-    );
+    seed.insert("work_order_id".to_string(), json!("OD"));
     seed.insert("from_standing".to_string(), json!("UNKNOWN"));
     seed.insert("to_standing".to_string(), json!("PARTIAL_ALIVE"));
     seed.insert("receipt_digest".to_string(), json!("sha256:seed"));
-    let appended = ggen_sjira::ledger::append(&ledger, &seed, &Default::default())
-        .expect("seed append");
+    let appended =
+        ggen_sjira::ledger::append(&ledger, &seed, &Default::default()).expect("seed append");
     assert_eq!(appended.status, ggen_sjira::ledger::AppendStatus::Appended);
 
     let out = run(&[oc, od], &ledger, &graph, &ExecuteOpts::default())
@@ -220,16 +205,16 @@ fn blocked_orders_stay_blocked_with_reasons() {
     assert_eq!(out.journal.len(), 0);
     // The ledger is byte-unchanged by the run: still only the seed event.
     let on_disk = ggen_sjira::ledger::fetch(&ledger).expect("ledger verifies");
-    assert_eq!(on_disk.len(), 1, "the append is the LAST write; a blocked run appends nothing");
+    assert_eq!(
+        on_disk.len(),
+        1,
+        "the append is the LAST write; a blocked run appends nothing"
+    );
 
     let by_id: BTreeMap<String, String> = out
         .blocked
         .iter()
-        .filter_map(|b| {
-            b.identity
-                .clone()
-                .map(|i| (i, b.reason.clone()))
-        })
+        .filter_map(|b| b.identity.clone().map(|i| (i, b.reason.clone())))
         .collect();
     assert_eq!(
         by_id.get("OC").map(String::as_str),
@@ -301,8 +286,8 @@ fn promotion_ceiling_is_typed() {
         ("PARTIAL_ALIVE", "PARTIAL_ALIVE"),
         ("ALIVE", "PARTIAL_ALIVE"),
     ] {
-        let err = check_promotion(bad.0, bad.1)
-            .expect_err("only UNKNOWN -> PARTIAL_ALIVE is writable");
+        let err =
+            check_promotion(bad.0, bad.1).expect_err("only UNKNOWN -> PARTIAL_ALIVE is writable");
         assert_eq!(err.reason, "standing_ceiling");
         assert_eq!(err.broken_term, "R_missing_standing");
         assert_eq!(err.hop, "reconcile");
@@ -354,18 +339,17 @@ fn rerun_is_idempotent_already_recorded() {
     let graph = auth_graph(&[AUTH_A]);
 
     let oa = input("OA", AUTH_A);
-    let first = run(&[oa.clone()], &ledger, &graph, &ExecuteOpts::default())
-        .expect("first run executes");
+    let first =
+        run(&[oa.clone()], &ledger, &graph, &ExecuteOpts::default()).expect("first run executes");
     assert_eq!(first.plans.len(), 1);
 
     // Second run: OA is already PARTIAL_ALIVE on disk, so the frontier is
     // empty and nothing new appends.
-    let second = run(&[oa], &ledger, &graph, &ExecuteOpts::default())
-        .expect("replay run completes");
+    let second =
+        run(&[oa], &ledger, &graph, &ExecuteOpts::default()).expect("replay run completes");
     assert!(second.plans.is_empty());
     assert_eq!(
-        second.blocked[0].reason,
-        "standing=PARTIAL_ALIVE",
+        second.blocked[0].reason, "standing=PARTIAL_ALIVE",
         "the executed order is standing-blocked on replay"
     );
     let on_disk = ggen_sjira::ledger::fetch(&ledger).expect("ledger verifies");

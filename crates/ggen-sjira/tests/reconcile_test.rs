@@ -10,7 +10,9 @@
 use ggen_sjira::admit_work_order;
 use ggen_sjira::authority::{admission_digest, AuthorityGraph, AuthorityIndex};
 use ggen_sjira::ledger;
-use ggen_sjira::reconcile::{reconcile, tail_digest, ReconcileOpts, ReconcileRefusal, GENESIS_DIGEST};
+use ggen_sjira::reconcile::{
+    reconcile, tail_digest, ReconcileOpts, ReconcileRefusal, GENESIS_DIGEST,
+};
 use serde_json::{json, Value};
 use std::fs;
 use std::path::PathBuf;
@@ -115,8 +117,7 @@ fn second_identical_call_is_already_recorded_and_ledger_stays_at_one_event() {
     let first = reconcile(&order, &rcpt, &dir, &opts()).expect("first call appends");
     assert_eq!(first.status, ledger::AppendStatus::Appended);
 
-    let second = reconcile(&order, &rcpt, &dir, &opts())
-        .expect("replay is Ok, not a refusal");
+    let second = reconcile(&order, &rcpt, &dir, &opts()).expect("replay is Ok, not a refusal");
     assert_eq!(second.status, ledger::AppendStatus::AlreadyRecorded);
     assert_eq!(second.event["event_digest"], first.event["event_digest"]);
     assert_eq!(second.event["from"], "UNKNOWN");
@@ -249,7 +250,10 @@ fn tampered_ledger_refuses_before_any_admission() {
     fs::write(&event_path, serde_json::to_string(&event).unwrap()).expect("write");
 
     let out = reconcile(&order, &rcpt, &dir, &opts());
-    assert!(matches!(out, Err(ReconcileRefusal::Ledger(_))), "got {out:?}");
+    assert!(
+        matches!(out, Err(ReconcileRefusal::Ledger(_))),
+        "got {out:?}"
+    );
     fs::remove_dir_all(&dir).ok();
 }
 

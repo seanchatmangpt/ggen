@@ -115,7 +115,10 @@ fn fails_closed_when_authority_index_unavailable() {
     let result = frontier(&orders, &[], &BTreeMap::new(), None);
     assert!(result.eligible.is_empty());
     assert_eq!(result.blocked.len(), 1);
-    assert_eq!(result.blocked[0].identity, Some("XAAS-26922-21".to_string()));
+    assert_eq!(
+        result.blocked[0].identity,
+        Some("XAAS-26922-21".to_string())
+    );
     assert_eq!(result.blocked[0].reason, "authority_index_unavailable");
 }
 
@@ -308,8 +311,18 @@ fn schedule_fences_on_concurrency_key_collision() {
         scope: vec![],
         concurrency_key: "key-a".to_string(),
     }];
-    let result = schedule(&[in_a.clone(), in_b.clone()], &[], &BTreeMap::new(), Some(&index), &leases);
-    let ids: Vec<&str> = result.eligible.iter().map(|c| c.identity.as_str()).collect();
+    let result = schedule(
+        &[in_a.clone(), in_b.clone()],
+        &[],
+        &BTreeMap::new(),
+        Some(&index),
+        &leases,
+    );
+    let ids: Vec<&str> = result
+        .eligible
+        .iter()
+        .map(|c| c.identity.as_str())
+        .collect();
     assert_eq!(ids, vec!["ORDER-B"], "key-a collision must fence ORDER-A");
     let blocked_ids: Vec<&str> = result
         .blocked
@@ -326,7 +339,13 @@ fn schedule_fences_on_concurrency_key_collision() {
         scope: vec![],
         concurrency_key: "key-a".to_string(),
     }];
-    let result = schedule(&[in_a, in_b], &[], &BTreeMap::new(), Some(&index), &released);
+    let result = schedule(
+        &[in_a, in_b],
+        &[],
+        &BTreeMap::new(),
+        Some(&index),
+        &released,
+    );
     assert_eq!(result.eligible.len(), 2);
     assert!(result.blocked.is_empty());
 }

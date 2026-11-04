@@ -9,8 +9,7 @@
 //! with verify_chain() == Ok(()) afterwards.
 
 use ggen_sjira::controller::{
-    propose, ControllerDecision, ControllerEdit, Stage, DEFAULT_MAX_DEPTH,
-    DEFAULT_PROTECTED_PATHS,
+    propose, ControllerDecision, ControllerEdit, Stage, DEFAULT_MAX_DEPTH, DEFAULT_PROTECTED_PATHS,
 };
 use ggen_sjira::receipts::{Decision, TransitionJournal};
 use serde_json::{json, Value};
@@ -141,7 +140,9 @@ fn depth_cap_truncation_refuses_and_journals() {
     assert_eq!(journal.refused_count(), 1);
     assert_eq!(journal.admitted_count(), 0);
     let t = &journal.transitions()[0];
-    assert!(matches!(t.decision, Decision::Refused { detail: ref d, .. } if d.starts_with("RadiusTruncated")));
+    assert!(
+        matches!(t.decision, Decision::Refused { detail: ref d, .. } if d.starts_with("RadiusTruncated"))
+    );
     assert!(t.blast_radius_digest.is_some());
     assert_eq!(journal.verify_chain(), Ok(()));
 }

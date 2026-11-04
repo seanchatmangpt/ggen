@@ -140,7 +140,10 @@ fn impl_globs(watermark: &Value) -> Vec<String> {
         list.iter()
             .filter_map(|v| v.as_str().map(str::to_string))
             .collect()
-    } else if let Some(g) = watermark.get("implementation_glob").and_then(|v| v.as_str()) {
+    } else if let Some(g) = watermark
+        .get("implementation_glob")
+        .and_then(|v| v.as_str())
+    {
         vec![g.to_string()]
     } else {
         vec![]
@@ -212,9 +215,7 @@ fn match_from(toks: &[Tok], ti: usize, path: &[char], pi: usize) -> bool {
     }
     match &toks[ti] {
         Tok::Lit(c) => pi < path.len() && path[pi] == *c && match_from(toks, ti + 1, path, pi + 1),
-        Tok::QMark => {
-            pi < path.len() && path[pi] != '/' && match_from(toks, ti + 1, path, pi + 1)
-        }
+        Tok::QMark => pi < path.len() && path[pi] != '/' && match_from(toks, ti + 1, path, pi + 1),
         Tok::Star => {
             let mut k = pi;
             loop {

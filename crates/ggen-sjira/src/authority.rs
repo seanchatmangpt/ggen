@@ -55,8 +55,7 @@ pub const PROSE_CLASSES: [&str; 2] = ["Proposition", "ProseObservation"];
 pub fn valid_digest(s: &str) -> bool {
     match s.strip_prefix("sha256:") {
         Some(rest) => {
-            rest.len() == 64
-                && rest.bytes().all(|b| matches!(b, b'0'..=b'9' | b'a'..=b'f'))
+            rest.len() == 64 && rest.bytes().all(|b| matches!(b, b'0'..=b'9' | b'a'..=b'f'))
         }
         None => false,
     }
@@ -153,11 +152,12 @@ impl AuthorityGraph {
     /// Parses the JSON authority graph. Parse failure is
     /// [`OriginRefusal::AuthorityIndexUnavailable`] — fail closed.
     pub fn from_json(value: &Value) -> Result<AuthorityGraph, OriginRefusal> {
-        serde_json::from_value(value.clone())
-            .map_err(|e| OriginRefusal::AuthorityIndexUnavailable {
+        serde_json::from_value(value.clone()).map_err(|e| {
+            OriginRefusal::AuthorityIndexUnavailable {
                 path: None,
                 detail: format!("unparseable authority graph: {e}"),
-            })
+            }
+        })
     }
 
     /// Parses the JSON authority graph from a JSON string.
@@ -189,23 +189,34 @@ impl AuthorityGraph {
 /// REFUSED — a pin under an ephemeral locator is not durable admission.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum SourceLocator {
-    Git { repo: String, sha: String, path: String },
-    GitNotes { note_ref: String, sha: String },
+    Git {
+        repo: String,
+        sha: String,
+        path: String,
+    },
+    GitNotes {
+        note_ref: String,
+        sha: String,
+    },
     Https(String),
 }
 
 /// Typed locator refusal.
 #[derive(Debug, Clone, PartialEq, Eq, thiserror::Error)]
 pub enum LocatorRefusal {
-    #[error("LocatorNotDurable: {0} — remediation: source_locator must be a durable \
+    #[error(
+        "LocatorNotDurable: {0} — remediation: source_locator must be a durable \
              locator (git:owner/repo@<40-hex>:<path>, git-notes:refs/notes/<ref>@<40-hex>, \
              or https://...); scratch, tmp, home-relative, and bare filesystem paths \
-             are refused")]
+             are refused"
+    )]
     NotDurable(String),
 
-    #[error("LocatorMalformed: {0} — remediation: source_locator must match the \
+    #[error(
+        "LocatorMalformed: {0} — remediation: source_locator must match the \
              CE23-9 grammar (git:owner/repo@<40-hex>:<path> | \
-             git-notes:refs/notes/<ref>@<40-hex> | https://...)")]
+             git-notes:refs/notes/<ref>@<40-hex> | https://...)"
+    )]
     Malformed(String),
 }
 
@@ -307,19 +318,15 @@ impl AuthorityTrustRoot {
     /// refusal ([`LocatorRefusal`] for the locator,
     /// [`OriginRefusal::AuthorityDigestInvalid`] for the digest).
     pub fn new(
-        node: impl Into<String>,
-        authority_iri: impl Into<String>,
-        admission_digest: impl Into<String>,
-        source_locator: impl Into<String>,
+        node: impl Into<String>, authority_iri: impl Into<String>,
+        admission_digest: impl Into<String>, source_locator: impl Into<String>,
     ) -> Result<AuthorityTrustRoot, OriginRefusal> {
         let node = node.into();
         let authority_iri = authority_iri.into();
         let admission_digest = admission_digest.into();
         let locator_str = source_locator.into();
         if !valid_digest(&admission_digest) {
-            return Err(OriginRefusal::AuthorityDigestInvalid {
-                iri: authority_iri,
-            });
+            return Err(OriginRefusal::AuthorityDigestInvalid { iri: authority_iri });
         }
         let locator = SourceLocator::parse(&locator_str).map_err(|e| {
             OriginRefusal::AuthorityIndexUnavailable {
@@ -378,38 +385,55 @@ pub fn pins(graph: &AuthorityGraph) -> BTreeMap<String, String> {
 /// The typed origin refusal vocabulary (authority.ex `origin_refusal`).
 #[derive(Debug, Clone, PartialEq, Eq, thiserror::Error)]
 pub enum OriginRefusal {
-    #[error("AuthorityNotAdmitted: {iri} — remediation: typed is not admitted; the node \
+    #[error(
+        "AuthorityNotAdmitted: {iri} — remediation: typed is not admitted; the node \
              must carry exactly one sj:admissionDigest (sha256:<64 hex>) in the canonical \
-             authority graph")]
+             authority graph"
+    )]
     AuthorityNotAdmitted { iri: String },
 
-    #[error("AuthorityTypeMismatch: {iri} — remediation: prose classes \
+    #[error(
+        "AuthorityTypeMismatch: {iri} — remediation: prose classes \
              (sj:Proposition, sj:ProseObservation) are never code-work authority \
-             (ADR-012)")]
+             (ADR-012)"
+    )]
     AuthorityTypeMismatch { iri: String },
 
-    #[error("AuthorityDigestMismatch: {iri} — remediation: the stated sj:admissionDigest \
+    #[error(
+        "AuthorityDigestMismatch: {iri} — remediation: the stated sj:admissionDigest \
              does not recompute byte-equal over the node description with all \
              admissionDigest predicates excluded (edited node under a kept digest, \
-             multiple digests, or a placeholder)")]
+             multiple digests, or a placeholder)"
+    )]
     AuthorityDigestMismatch { iri: String },
 
-    #[error("AuthorityNotPinned: {iri} — remediation: a recomputing digest is an UNKEYED \
+    #[error(
+        "AuthorityNotPinned: {iri} — remediation: a recomputing digest is an UNKEYED \
              content hash; the (iri, digest) pair must be pinned by an \
-             sj:AuthorityTrustRoot under a durable locator")]
+             sj:AuthorityTrustRoot under a durable locator"
+    )]
     AuthorityNotPinned { iri: String },
 
-    #[error("AuthorityDigestInvalid: {iri} — remediation: digests must be \
-             `sha256:<64 lowercase hex>`")]
+    #[error(
+        "AuthorityDigestInvalid: {iri} — remediation: digests must be \
+             `sha256:<64 lowercase hex>`"
+    )]
     AuthorityDigestInvalid { iri: String },
 
-    #[error("AuthorityIndexConflict: {iri} — remediation: the index carries both an \
-             admitted and a refused entry for this IRI; rebuild the index")]
+    #[error(
+        "AuthorityIndexConflict: {iri} — remediation: the index carries both an \
+             admitted and a refused entry for this IRI; rebuild the index"
+    )]
     AuthorityIndexConflict { iri: String },
 
-    #[error("AuthorityIndexUnavailable: path {path:?}: {detail} — remediation: the \
-             authority source must be readable and parse; resolution fails closed")]
-    AuthorityIndexUnavailable { path: Option<String>, detail: String },
+    #[error(
+        "AuthorityIndexUnavailable: path {path:?}: {detail} — remediation: the \
+             authority source must be readable and parse; resolution fails closed"
+    )]
+    AuthorityIndexUnavailable {
+        path: Option<String>,
+        detail: String,
+    },
 }
 
 /// The type-bearing admitted entry of an authority index.
@@ -422,7 +446,11 @@ pub struct ResolvedAuthority {
 
 impl fmt::Display for ResolvedAuthority {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{} ({}, {})", self.iri, self.authority_type, self.admission_digest)
+        write!(
+            f,
+            "{} ({}, {})",
+            self.iri, self.authority_type, self.admission_digest
+        )
     }
 }
 
@@ -467,10 +495,7 @@ pub fn admission_digest(node: &AuthorityNode) -> String {
     let body: String = lines.iter().map(|l| format!("{l}\n")).collect();
     format!(
         "sha256:{}",
-        sha256_hex(&format!(
-            "{ADMISSION_DIGEST_CONTEXT}\n{}\n{body}",
-            node.iri
-        ))
+        sha256_hex(&format!("{ADMISSION_DIGEST_CONTEXT}\n{}\n{body}", node.iri))
     )
 }
 
@@ -486,7 +511,11 @@ impl AuthorityIndex {
     pub fn build(graph: &AuthorityGraph) -> AuthorityIndex {
         let mut index = AuthorityIndex::default();
         for node in &graph.authorities {
-            if !node.types.iter().any(|t| AUTHORITY_CLASSES.contains(&t.as_str())) {
+            if !node
+                .types
+                .iter()
+                .any(|t| AUTHORITY_CLASSES.contains(&t.as_str()))
+            {
                 continue; // not an authority node at all
             }
             let judged = judge(node);
@@ -517,15 +546,15 @@ impl AuthorityIndex {
         let unpinned: Vec<String> = self
             .admitted
             .iter()
-            .filter(|(iri, a)| pins.get(*iri).map(|d| d.as_str()) != Some(a.admission_digest.as_str()))
+            .filter(|(iri, a)| {
+                pins.get(*iri).map(|d| d.as_str()) != Some(a.admission_digest.as_str())
+            })
             .map(|(iri, _)| iri.clone())
             .collect();
         for iri in unpinned {
             if self.admitted.remove(&iri).is_some() {
-                self.refused.insert(
-                    iri.clone(),
-                    OriginRefusal::AuthorityNotPinned { iri },
-                );
+                self.refused
+                    .insert(iri.clone(), OriginRefusal::AuthorityNotPinned { iri });
             }
         }
         self
@@ -553,8 +582,14 @@ impl AuthorityIndex {
 }
 
 fn judge(node: &AuthorityNode) -> Judged {
-    if node.types.iter().any(|t| PROSE_CLASSES.contains(&t.as_str())) {
-        return Judged::Refused(OriginRefusal::AuthorityTypeMismatch { iri: node.iri.clone() });
+    if node
+        .types
+        .iter()
+        .any(|t| PROSE_CLASSES.contains(&t.as_str()))
+    {
+        return Judged::Refused(OriginRefusal::AuthorityTypeMismatch {
+            iri: node.iri.clone(),
+        });
     }
     let stated: Vec<&String> = node
         .statements
@@ -562,11 +597,15 @@ fn judge(node: &AuthorityNode) -> Judged {
         .map(|v| v.iter().collect())
         .unwrap_or_default();
     match stated.len() {
-        0 => Judged::Refused(OriginRefusal::AuthorityNotAdmitted { iri: node.iri.clone() }),
+        0 => Judged::Refused(OriginRefusal::AuthorityNotAdmitted {
+            iri: node.iri.clone(),
+        }),
         1 => {
             let s = stated[0].as_str();
             if !valid_digest(s) || *s != admission_digest(node) {
-                Judged::Refused(OriginRefusal::AuthorityDigestMismatch { iri: node.iri.clone() })
+                Judged::Refused(OriginRefusal::AuthorityDigestMismatch {
+                    iri: node.iri.clone(),
+                })
             } else {
                 let authority_type = if node.types.iter().any(|t| t == "StrategicObjective") {
                     AuthorityType::StrategicObjective
@@ -580,7 +619,9 @@ fn judge(node: &AuthorityNode) -> Judged {
                 })
             }
         }
-        _ => Judged::Refused(OriginRefusal::AuthorityDigestMismatch { iri: node.iri.clone() }),
+        _ => Judged::Refused(OriginRefusal::AuthorityDigestMismatch {
+            iri: node.iri.clone(),
+        }),
     }
 }
 
@@ -591,10 +632,7 @@ mod tests {
     fn node(iri: &str, types: &[&str], statements: &[(&str, &[&str])]) -> AuthorityNode {
         let mut statements_map: BTreeMap<String, Vec<String>> = BTreeMap::new();
         for (p, objs) in statements {
-            statements_map.insert(
-                p.to_string(),
-                objs.iter().map(|s| s.to_string()).collect(),
-            );
+            statements_map.insert(p.to_string(), objs.iter().map(|s| s.to_string()).collect());
         }
         AuthorityNode {
             iri: iri.to_string(),
@@ -605,9 +643,11 @@ mod tests {
 
     #[test]
     fn stamping_is_idempotent() {
-        let n = node("https://graph.test/auth/x1", &["StrategicObjective"], &[
-            ("sj:title", &["Ship the kernel"]),
-        ]);
+        let n = node(
+            "https://graph.test/auth/x1",
+            &["StrategicObjective"],
+            &[("sj:title", &["Ship the kernel"])],
+        );
         let d1 = admission_digest(&n);
         let mut stamped = n.clone();
         stamped
@@ -619,11 +659,15 @@ mod tests {
     #[test]
     fn locator_grammar() {
         assert!(matches!(
-            SourceLocator::parse("git:owner/repo@0123456789abcdef0123456789abcdef01234567:priv/ontology.ttl"),
+            SourceLocator::parse(
+                "git:owner/repo@0123456789abcdef0123456789abcdef01234567:priv/ontology.ttl"
+            ),
             Ok(SourceLocator::Git { .. })
         ));
         assert!(matches!(
-            SourceLocator::parse("git-notes:refs/notes/authors@0123456789abcdef0123456789abcdef01234567"),
+            SourceLocator::parse(
+                "git-notes:refs/notes/authors@0123456789abcdef0123456789abcdef01234567"
+            ),
             Ok(SourceLocator::GitNotes { .. })
         ));
         assert!(matches!(

@@ -12,10 +12,8 @@ use std::collections::BTreeMap;
 use std::path::PathBuf;
 
 fn temp_ledger_dir(tag: &str) -> PathBuf {
-    let dir = std::env::temp_dir().join(format!(
-        "ggen-sjira-complete-{}-{tag}",
-        std::process::id()
-    ));
+    let dir =
+        std::env::temp_dir().join(format!("ggen-sjira-complete-{}-{tag}", std::process::id()));
     let _ = std::fs::remove_dir_all(&dir);
     std::fs::create_dir_all(&dir).expect("create temp ledger dir");
     dir
@@ -25,10 +23,7 @@ fn temp_ledger_dir(tag: &str) -> PathBuf {
 /// digest stamps idempotently and build_pinned pins it).
 fn auth_node(iri: &str) -> AuthorityNode {
     let mut statements: BTreeMap<String, Vec<String>> = BTreeMap::new();
-    statements.insert(
-        "sj:title".to_string(),
-        vec!["ship the kernel".to_string()],
-    );
+    statements.insert("sj:title".to_string(), vec!["ship the kernel".to_string()]);
     let bare = AuthorityNode {
         iri: iri.to_string(),
         types: vec!["StrategicObjective".to_string()],
@@ -36,10 +31,7 @@ fn auth_node(iri: &str) -> AuthorityNode {
     };
     let digest = admission_digest(&bare);
     let mut stamped: BTreeMap<String, Vec<String>> = BTreeMap::new();
-    stamped.insert(
-        "sj:title".to_string(),
-        vec!["ship the kernel".to_string()],
-    );
+    stamped.insert("sj:title".to_string(), vec!["ship the kernel".to_string()]);
     stamped.insert("admissionDigest".to_string(), vec![digest]);
     AuthorityNode {
         iri: iri.to_string(),
@@ -269,10 +261,7 @@ fn pack_dir_and_packs_root_are_mutually_exclusive() {
         receipt["reason"],
         json!("--pack-dir and --packs-root are mutually exclusive")
     );
-    assert!(
-        !ledger.exists(),
-        "exit 2 fires before any ledger IO"
-    );
+    assert!(!ledger.exists(), "exit 2 fires before any ledger IO");
 }
 
 // ── 5. no authority graph -> authority_index_unavailable (exit 1) ─────────
@@ -281,14 +270,16 @@ fn pack_dir_and_packs_root_are_mutually_exclusive() {
 fn missing_authority_graph_refuses_typed() {
     let dir = temp_ledger_dir("no-authority");
     let ledger = dir.join("ledger.ndjson");
-    let (exit, receipt) = run(&[input("OA", AUTH_A)], &ledger, None, &CompleteOpts::default());
+    let (exit, receipt) = run(
+        &[input("OA", AUTH_A)],
+        &ledger,
+        None,
+        &CompleteOpts::default(),
+    );
 
     assert_eq!(exit, 1);
     assert_eq!(receipt["status"], json!("refused"));
-    assert_eq!(
-        receipt["reason"],
-        json!("authority_index_unavailable")
-    );
+    assert_eq!(receipt["reason"], json!("authority_index_unavailable"));
     assert!(!ledger.exists(), "nothing was written");
 }
 
@@ -304,18 +295,10 @@ fn packs_root_resolves_target_pack_per_order() {
 
     let opts = CompleteOpts {
         packs_root: Some(dir.join("packs")),
-        target_packs: BTreeMap::from([(
-            "OA".to_string(),
-            "smalt-substrate-pack".to_string(),
-        )]),
+        target_packs: BTreeMap::from([("OA".to_string(), "smalt-substrate-pack".to_string())]),
         ..Default::default()
     };
-    let (exit, receipt) = run(
-        &[oa, input("OB", AUTH_A)],
-        &ledger,
-        Some(&graph),
-        &opts,
-    );
+    let (exit, receipt) = run(&[oa, input("OB", AUTH_A)], &ledger, Some(&graph), &opts);
 
     assert_eq!(exit, 0, "{}", receipt);
     assert_eq!(receipt["closed"], json!(["OA", "OB"]));

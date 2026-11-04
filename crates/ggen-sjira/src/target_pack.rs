@@ -67,8 +67,7 @@ pub enum TargetPackRefusal {
 /// `%{pack_name => pack_digest}`). The vacuous no-op (no row declares a
 /// pack) returns an empty map without touching the filesystem.
 pub fn enforce(
-    rows: &[TargetPackRow],
-    packs_root: &Path,
+    rows: &[TargetPackRow], packs_root: &Path,
 ) -> Result<BTreeMap<String, String>, TargetPackRefusal> {
     // First unknown refusal names the first row that carried the pack, in
     // row order (Elixir Map.new/Enum order over the filter).
@@ -117,14 +116,17 @@ fn hex_digest(bytes: &[u8]) -> String {
 }
 
 fn collect(
-    root: &Path,
-    dir: &Path,
-    out: &mut Vec<(String, [u8; 32])>,
+    root: &Path, dir: &Path, out: &mut Vec<(String, [u8; 32])>,
 ) -> Result<(), TargetPackRefusal> {
-    let entries = std::fs::read_dir(dir).map_err(|e| TargetPackRefusal::FileUnreadable(format!("{}: {e}", dir.display())))?;
+    let entries = std::fs::read_dir(dir)
+        .map_err(|e| TargetPackRefusal::FileUnreadable(format!("{}: {e}", dir.display())))?;
     let mut names = BTreeSet::new();
     for entry in entries {
-        names.insert(entry.map_err(|e| TargetPackRefusal::FileUnreadable(format!("{}: {e}", dir.display())))?.file_name());
+        names.insert(
+            entry
+                .map_err(|e| TargetPackRefusal::FileUnreadable(format!("{}: {e}", dir.display())))?
+                .file_name(),
+        );
     }
     for name in names {
         let path: PathBuf = dir.join(&name);
@@ -136,8 +138,9 @@ fn collect(
         if meta.is_dir() {
             collect(root, &path, out)?;
         } else {
-            let bytes = std::fs::read(&path)
-                .map_err(|e| TargetPackRefusal::FileUnreadable(format!("{}: {e}", path.display())))?;
+            let bytes = std::fs::read(&path).map_err(|e| {
+                TargetPackRefusal::FileUnreadable(format!("{}: {e}", path.display()))
+            })?;
             let mut h = Sha256::new();
             h.update(&bytes);
             out.push((rel_to_root(root, &path), h.finalize().into()));
@@ -174,7 +177,11 @@ mod tests {
     fn known_pack_is_stamped_and_deterministic() {
         let dir = tempfile::tempdir().unwrap();
         let root = dir.path();
-        write_pack(root, "p1", &[("ontology.ttl", "x"), ("gates/a.rq", "SELECT 1")]);
+        write_pack(
+            root,
+            "p1",
+            &[("ontology.ttl", "x"), ("gates/a.rq", "SELECT 1")],
+        );
         let rows = vec![TargetPackRow {
             work_order: "WO-1".into(),
             target_pack: "p1".into(),

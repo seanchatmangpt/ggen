@@ -7,8 +7,7 @@
 //! `receipts.rs` chain.
 
 use ggen_sjira::controller::{
-    propose, ControllerDecision, ControllerEdit, Stage,
-    DEFAULT_PROTECTED_PATHS, DEFAULT_MAX_DEPTH,
+    propose, ControllerDecision, ControllerEdit, Stage, DEFAULT_MAX_DEPTH, DEFAULT_PROTECTED_PATHS,
 };
 use ggen_sjira::receipts::{Decision, TransitionJournal};
 use serde_json::{json, Value};
@@ -104,8 +103,14 @@ fn valid_order() -> Value {
 
 fn edits_off_critical_path() -> Vec<ControllerEdit> {
     vec![
-        ControllerEdit::new("crates/ggen-sjira/src/controller.rs", vec!["controller_propose".to_string()]),
-        ControllerEdit::new("crates/ggen-sjira/src/admit.rs", vec!["admit_work_order".to_string()]),
+        ControllerEdit::new(
+            "crates/ggen-sjira/src/controller.rs",
+            vec!["controller_propose".to_string()],
+        ),
+        ControllerEdit::new(
+            "crates/ggen-sjira/src/admit.rs",
+            vec!["admit_work_order".to_string()],
+        ),
     ]
 }
 
@@ -126,14 +131,29 @@ fn edits_on_critical_path() -> Vec<ControllerEdit> {
 fn controller_full_loop_propose_radius_admit_journal_verify_chain() {
     let graph = FixedGraph {
         refs: vec![
-            ("controller_propose".to_string(), "admit_work_order".to_string()),
-            ("admit_work_order".to_string(), "work_order_validate".to_string()),
+            (
+                "controller_propose".to_string(),
+                "admit_work_order".to_string(),
+            ),
+            (
+                "admit_work_order".to_string(),
+                "work_order_validate".to_string(),
+            ),
         ],
         subtypes: Vec::new(),
         defs: vec![
-            ("controller_propose".to_string(), "crates/ggen-sjira/src/controller.rs".to_string()),
-            ("admit_work_order".to_string(), "crates/ggen-sjira/src/admit.rs".to_string()),
-            ("work_order_validate".to_string(), "crates/ggen-sjira/src/work_order.rs".to_string()),
+            (
+                "controller_propose".to_string(),
+                "crates/ggen-sjira/src/controller.rs".to_string(),
+            ),
+            (
+                "admit_work_order".to_string(),
+                "crates/ggen-sjira/src/admit.rs".to_string(),
+            ),
+            (
+                "work_order_validate".to_string(),
+                "crates/ggen-sjira/src/work_order.rs".to_string(),
+            ),
         ],
     };
     let authority = pins(&[("https://graph.test/auth/R80-14", "sha256:aa")]);
@@ -158,7 +178,10 @@ fn controller_full_loop_propose_radius_admit_journal_verify_chain() {
             journal_hash,
             journal_head,
         } => {
-            assert!(order_digest.starts_with("sha256:"), "order digest: {order_digest}");
+            assert!(
+                order_digest.starts_with("sha256:"),
+                "order digest: {order_digest}"
+            );
             assert!(definition_digest.starts_with("sha256:"));
             assert_eq!(authority, "NONE");
             assert!(radius_digest.starts_with("blake3:"));
@@ -195,8 +218,14 @@ fn controller_radius_closure_reaches_callers_and_protected_intersection_refuses(
         refs: vec![("stage_2c_gate".to_string(), "sync_write".to_string())],
         subtypes: Vec::new(),
         defs: vec![
-            ("stage_2c_gate".to_string(), "ggen-engine/src/sync.rs".to_string()),
-            ("sync_write".to_string(), "ggen-engine/src/write.rs".to_string()),
+            (
+                "stage_2c_gate".to_string(),
+                "ggen-engine/src/sync.rs".to_string(),
+            ),
+            (
+                "sync_write".to_string(),
+                "ggen-engine/src/write.rs".to_string(),
+            ),
         ],
     };
     let authority = pins(&[("https://graph.test/auth/R80-14", "sha256:aa")]);
@@ -219,7 +248,10 @@ fn controller_radius_closure_reaches_callers_and_protected_intersection_refuses(
             ..
         } => {
             assert_eq!(*stage, Stage::BlastRadius);
-            assert!(detail.contains("ggen-engine/src/sync.rs"), "detail: {detail}");
+            assert!(
+                detail.contains("ggen-engine/src/sync.rs"),
+                "detail: {detail}"
+            );
             assert!(radius_digest.is_some(), "radius WAS computed at this stage");
         }
         other => panic!("expected BlastRadius refusal, got {other:?}"),
@@ -227,7 +259,9 @@ fn controller_radius_closure_reaches_callers_and_protected_intersection_refuses(
     // The refusal is journaled like an admission would be.
     assert_eq!(journal.len(), 1);
     assert_eq!(journal.refused_count(), 1);
-    journal.verify_chain().expect("refusal transition must chain");
+    journal
+        .verify_chain()
+        .expect("refusal transition must chain");
 }
 
 // ---------------------------------------------------------------------------
@@ -270,7 +304,10 @@ fn controller_critical_path_refusal_halts_before_sjira_admission() {
                 detail.contains("CriticalPathRefusal"),
                 "refusal must be the radius one, not admission: {detail}"
             );
-            assert!(!detail.contains("NOT_A_SHA"), "admission must never have run");
+            assert!(
+                !detail.contains("NOT_A_SHA"),
+                "admission must never have run"
+            );
         }
         other => panic!("expected BlastRadius refusal, got {other:?}"),
     }
@@ -345,7 +382,12 @@ fn controller_admission_refusal_is_journaled_and_chained() {
     );
 
     match &decision {
-        ControllerDecision::Refused { stage, detail, radius_digest, .. } => {
+        ControllerDecision::Refused {
+            stage,
+            detail,
+            radius_digest,
+            ..
+        } => {
             assert_eq!(*stage, Stage::Admission);
             assert!(detail.contains("NOT_A_SHA"), "detail: {detail}");
             assert!(radius_digest.is_some());
@@ -366,8 +408,14 @@ fn controller_multi_edit_batch_radius_unions_symbols() {
         refs: Vec::new(),
         subtypes: Vec::new(),
         defs: vec![
-            ("sym_a".to_string(), "crates/ggen-sjira/src/a.rs".to_string()),
-            ("sym_b".to_string(), "crates/ggen-sjira/src/b.rs".to_string()),
+            (
+                "sym_a".to_string(),
+                "crates/ggen-sjira/src/a.rs".to_string(),
+            ),
+            (
+                "sym_b".to_string(),
+                "crates/ggen-sjira/src/b.rs".to_string(),
+            ),
         ],
     };
     let authority = pins(&[("https://graph.test/auth/R80-14", "sha256:aa")]);
@@ -377,7 +425,14 @@ fn controller_multi_edit_batch_radius_unions_symbols() {
         ControllerEdit::new("crates/ggen-sjira/src/b.rs", vec!["sym_b".to_string()]),
     ];
 
-    let decision = propose(&edits, &valid_order(), &graph, &authority, &mut journal, DEFAULT_PROTECTED_PATHS);
+    let decision = propose(
+        &edits,
+        &valid_order(),
+        &graph,
+        &authority,
+        &mut journal,
+        DEFAULT_PROTECTED_PATHS,
+    );
     assert!(matches!(decision, ControllerDecision::Admitted { .. }));
 
     // Journal bind check: the admitted digest binds the ORDER, not the edits.
@@ -396,9 +451,21 @@ fn controller_missing_origin_authority_field_refuses_fail_closed() {
     let mut order = valid_order();
     order.as_object_mut().unwrap().remove("origin_authority");
 
-    let decision = propose(&edits_off_critical_path(), &order, &graph, &authority, &mut journal, DEFAULT_PROTECTED_PATHS);
+    let decision = propose(
+        &edits_off_critical_path(),
+        &order,
+        &graph,
+        &authority,
+        &mut journal,
+        DEFAULT_PROTECTED_PATHS,
+    );
     match &decision {
-        ControllerDecision::Refused { stage, detail, radius_digest, .. } => {
+        ControllerDecision::Refused {
+            stage,
+            detail,
+            radius_digest,
+            ..
+        } => {
             assert_eq!(*stage, Stage::Authority);
             assert!(detail.contains("AuthorityNotPinned"));
             assert_eq!(*radius_digest, None);
@@ -417,11 +484,31 @@ fn controller_journal_links_across_proposals_and_verifies() {
     let authority = pins(&[("https://graph.test/auth/R80-14", "sha256:aa")]);
     let mut journal = TransitionJournal::new();
 
-    let d1 = propose(&edits_off_critical_path(), &valid_order(), &graph, &authority, &mut journal, DEFAULT_PROTECTED_PATHS);
-    let d2 = propose(&edits_off_critical_path(), &json!({}), &graph, &authority, &mut journal, DEFAULT_PROTECTED_PATHS);
+    let d1 = propose(
+        &edits_off_critical_path(),
+        &valid_order(),
+        &graph,
+        &authority,
+        &mut journal,
+        DEFAULT_PROTECTED_PATHS,
+    );
+    let d2 = propose(
+        &edits_off_critical_path(),
+        &json!({}),
+        &graph,
+        &authority,
+        &mut journal,
+        DEFAULT_PROTECTED_PATHS,
+    );
 
     assert!(matches!(d1, ControllerDecision::Admitted { .. }));
-    assert!(matches!(d2, ControllerDecision::Refused { stage: Stage::Authority, .. }));
+    assert!(matches!(
+        d2,
+        ControllerDecision::Refused {
+            stage: Stage::Authority,
+            ..
+        }
+    ));
     assert_eq!(journal.len(), 2);
     assert_eq!(journal.admitted_count(), 1);
     assert_eq!(journal.refused_count(), 1);

@@ -83,8 +83,7 @@ pub fn check(pack_dir: &Path) -> Result<HealthSummary, HealthRefusal> {
         HealthRefusal::Ontology(format!("missing at {}: {e}", ontology_path.display()))
     })?;
 
-    let store = Store::new()
-        .map_err(|e| HealthRefusal::Ontology(e.to_string()))?;
+    let store = Store::new().map_err(|e| HealthRefusal::Ontology(e.to_string()))?;
     store
         .load_from_reader(RdfParser::from_format(RdfFormat::Turtle), turtle.as_bytes())
         .map_err(|e| HealthRefusal::Ontology(format!("{}: {e}", ontology_path.display())))?;
@@ -95,12 +94,11 @@ pub fn check(pack_dir: &Path) -> Result<HealthSummary, HealthRefusal> {
     let entries = std::fs::read_dir(&gates_dir)
         .map_err(|_| HealthRefusal::NoGates(gates_dir.display().to_string()))?;
     for entry in entries {
-        let entry =
-            entry.map_err(|e| HealthRefusal::Gate {
-                name: String::new(),
-                path: gates_dir.display().to_string(),
-                detail: e.to_string(),
-            })?;
+        let entry = entry.map_err(|e| HealthRefusal::Gate {
+            name: String::new(),
+            path: gates_dir.display().to_string(),
+            detail: e.to_string(),
+        })?;
         let path = entry.path();
         if path.extension().and_then(|e| e.to_str()) == Some("rq") {
             let name = path
@@ -246,7 +244,11 @@ mod tests {
         )
         .unwrap();
         let summary = check(Path::new(&pack)).unwrap();
-        let count_all = summary.gates.iter().find(|g| g.name == "count-all").unwrap();
+        let count_all = summary
+            .gates
+            .iter()
+            .find(|g| g.name == "count-all")
+            .unwrap();
         assert_eq!(count_all.rows, 1);
     }
 }

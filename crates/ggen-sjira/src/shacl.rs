@@ -78,8 +78,7 @@ pub fn run(pack_dir: &Path, data_path: &Path) -> Result<Vec<Violation>, ShaclRef
 /// via `ggen_graph::validate_shacl`. The `Violation` triple `{shape, focus,
 /// path}` is the Elixir court's result mapping.
 pub fn validate_work_order(
-    data_path: &Path,
-    shapes_path: &Path,
+    data_path: &Path, shapes_path: &Path,
 ) -> Result<Vec<Violation>, ShaclRefusal> {
     let data = std::fs::read_to_string(data_path)
         .map_err(|e| ShaclRefusal::Io(format!("{}: {e}", data_path.display())))?;
@@ -141,7 +140,9 @@ mod tests {
         let data_path = dir.path().join("ontology.ttl");
         std::fs::write(&shapes_path, shapes()).unwrap();
         std::fs::write(&data_path, data("semantic-jira-pack")).unwrap();
-        assert!(validate_work_order(&data_path, &shapes_path).unwrap().is_empty());
+        assert!(validate_work_order(&data_path, &shapes_path)
+            .unwrap()
+            .is_empty());
     }
 
     #[test]
@@ -150,7 +151,11 @@ mod tests {
         let shapes_path = dir.path().join("work-work.shacl.ttl");
         let data_path = dir.path().join("ontology.ttl");
         std::fs::write(&shapes_path, shapes()).unwrap();
-        std::fs::write(&data_path, "<http://example.org/wo/2> a <http://example.org/sj#WorkOrder> .").unwrap();
+        std::fs::write(
+            &data_path,
+            "<http://example.org/wo/2> a <http://example.org/sj#WorkOrder> .",
+        )
+        .unwrap();
         let err = validate_work_order(&data_path, &shapes_path).unwrap_err();
         let ShaclRefusal::ShaclViolations(vs) = &err else {
             panic!("expected ShaclViolations, got {err:?}");

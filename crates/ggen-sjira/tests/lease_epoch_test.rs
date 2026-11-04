@@ -8,7 +8,7 @@
 use ed25519_dalek::{SigningKey, VerifyingKey};
 use ggen_sjira::epoch::{self, Refusal as EpochRefusal};
 use ggen_sjira::lease::{
-    admit, canonical_json, sign_record, SovereignLease, SovereignRefusal, SignatureRecord,
+    admit, canonical_json, sign_record, SignatureRecord, SovereignLease, SovereignRefusal,
 };
 use serde_json::json;
 use std::collections::BTreeMap;
@@ -200,11 +200,16 @@ fn canonical_json_is_sorted_key_compact_minus_signatures() {
     let lease = lease_with(vec![]);
     let c = canonical_json(&lease);
     assert!(c.starts_with('{') && c.ends_with('}'));
-    assert!(!c.contains("signatures"), "derived/signed-over keys excluded");
+    assert!(
+        !c.contains("signatures"),
+        "derived/signed-over keys excluded"
+    );
     // sorted key order: granted_at < lease_id < ontology_digest < shapes < subject_iri
     let g = c.find("\"granted_at\"").expect("granted_at present");
     let l = c.find("\"lease_id\"").expect("lease_id present");
-    let o = c.find("\"ontology_digest\"").expect("ontology_digest present");
+    let o = c
+        .find("\"ontology_digest\"")
+        .expect("ontology_digest present");
     let s = c.find("\"shapes\"").expect("shapes present");
     let iri = c.find("\"subject_iri\"").expect("subject_iri present");
     assert!(g < l && l < o && o < s && s < iri);
@@ -237,7 +242,9 @@ fn watermark(globs: Option<Vec<&str>>) -> serde_json::Value {
     wm
 }
 
-fn order(epoch: &str, plan_touches: Vec<&str>, manufacture_plan: serde_json::Value) -> serde_json::Value {
+fn order(
+    epoch: &str, plan_touches: Vec<&str>, manufacture_plan: serde_json::Value,
+) -> serde_json::Value {
     json!({
         "epoch": epoch,
         "plan_touches": plan_touches,
@@ -249,13 +256,21 @@ fn order(epoch: &str, plan_touches: Vec<&str>, manufacture_plan: serde_json::Val
 fn epoch_fresh_generated_plan_admits() {
     // lib/foo.ex is pre-watermark, but the plan routes it through ggen
     // (generated) — the lawful semantic-reuse direction.
-    let o = order("v26.11.0", vec!["lib/foo.ex"], json!({"lib/foo.ex": "generated"}));
+    let o = order(
+        "v26.11.0",
+        vec!["lib/foo.ex"],
+        json!({"lib/foo.ex": "generated"}),
+    );
     assert_eq!(epoch::check(&o, Some(&watermark(None))), Ok(()));
 }
 
 #[test]
 fn epoch_residue_plan_admits() {
-    let o = order("v26.11.0", vec!["lib/foo.ex"], json!({"lib/foo.ex": "residue"}));
+    let o = order(
+        "v26.11.0",
+        vec!["lib/foo.ex"],
+        json!({"lib/foo.ex": "residue"}),
+    );
     assert_eq!(epoch::check(&o, Some(&watermark(None))), Ok(()));
 }
 
@@ -283,10 +298,9 @@ fn unattributed_implementation_refuses() {
 #[test]
 fn reuses_pre_watermark_artifact_refuses() {
     let mut o = order("v26.11.0", vec![], json!({}));
-    o.as_object_mut().expect("obj").insert(
-        "source_artifacts".into(),
-        json!(["lib/bar.ex"]),
-    );
+    o.as_object_mut()
+        .expect("obj")
+        .insert("source_artifacts".into(), json!(["lib/bar.ex"]));
     assert_eq!(
         epoch::check(&o, Some(&watermark(None))),
         Err(EpochRefusal::ReusesPreWatermarkArtifact)
@@ -348,7 +362,11 @@ fn recorded_globs_union_default_set() {
         epoch::check(&cfg, Some(&wm)),
         Err(EpochRefusal::UnattributedImplementation)
     );
-    let mig = order("v26.11.0", vec!["priv/repo/migrations/001_init.exs"], json!({}));
+    let mig = order(
+        "v26.11.0",
+        vec!["priv/repo/migrations/001_init.exs"],
+        json!({}),
+    );
     assert_eq!(
         epoch::check(&mig, Some(&wm)),
         Err(EpochRefusal::UnattributedImplementation)

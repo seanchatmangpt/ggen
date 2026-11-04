@@ -148,12 +148,9 @@ pub enum LeaseGateRefusal {
 impl From<LeaseGateRefusal> for ExecRefusal {
     fn from(r: LeaseGateRefusal) -> Self {
         match r {
-            LeaseGateRefusal::LeaseNotBound(detail) => ExecRefusal::new(
-                "lease",
-                "lease_not_bound",
-                "R_missing_authority",
-                detail,
-            ),
+            LeaseGateRefusal::LeaseNotBound(detail) => {
+                ExecRefusal::new("lease", "lease_not_bound", "R_missing_authority", detail)
+            }
             LeaseGateRefusal::EpochStale(detail) => {
                 ExecRefusal::new("lease", "epoch_stale", "mu_on_O", detail)
             }
@@ -249,9 +246,7 @@ pub fn check_promotion(from: &str, to: &str) -> Result<(), ExecRefusal> {
 /// `authority_graph` is the typed authority source (authority.rs); its
 /// pinned index is the ONE origin law every candidate resolves through.
 pub fn run(
-    orders: &[FrontierInput],
-    ledger_path: &Path,
-    authority_graph: &AuthorityGraph,
+    orders: &[FrontierInput], ledger_path: &Path, authority_graph: &AuthorityGraph,
     opts: &ExecuteOpts,
 ) -> Result<Executed, ExecRefusal> {
     let typed_index = crate::authority::AuthorityIndex::build_pinned(authority_graph);
@@ -405,16 +400,15 @@ pub fn run(
 
             // ── reconcile: the append is the LAST write ───────────────────
             let event = event_value(&plan);
-            let appended = ledger::append(ledger_path, &event, &AppendOpts::default()).map_err(
-                |e| {
+            let appended =
+                ledger::append(ledger_path, &event, &AppendOpts::default()).map_err(|e| {
                     ExecRefusal::new(
                         "reconcile",
                         "ledger_refused",
                         "R_missing_replay",
                         format!("the ledger refused the transition append: {e}"),
                     )
-                },
-            )?;
+                })?;
 
             // Idempotent replay: an event whose digest is already recorded
             // is not a second execution.
@@ -475,12 +469,17 @@ fn check_lease_gate(identity: &str, opts: &ExecuteOpts) -> Result<(), LeaseGateR
         .map(|s| !s.is_empty())
         .unwrap_or(false);
     if epoch_carried {
-        crate::epoch::check(epoch_ext.expect("checked above"), opts.epoch_watermark.as_ref())
-            .map_err(|e| LeaseGateRefusal::EpochStale(format!(
+        crate::epoch::check(
+            epoch_ext.expect("checked above"),
+            opts.epoch_watermark.as_ref(),
+        )
+        .map_err(|e| {
+            LeaseGateRefusal::EpochStale(format!(
                 "order {} failed the epoch gate: {e} — the plan carries \
                  pre-watermark implementation into a post-watermark epoch",
                 identity
-            )))?;
+            ))
+        })?;
     }
     Ok(())
 }
@@ -539,10 +538,7 @@ fn plan_digest(candidate: &EligibleCandidate, admitted: &AdmittedWorkOrder) -> S
         "origin_admission_digest".to_string(),
         Value::String(candidate.origin_admission_digest.clone()),
     );
-    m.insert(
-        "path_scope".to_string(),
-        json_vec(&candidate.path_scope),
-    );
+    m.insert("path_scope".to_string(), json_vec(&candidate.path_scope));
     m.insert(
         "projections".to_string(),
         json_vec(&admitted.work_order.projections),

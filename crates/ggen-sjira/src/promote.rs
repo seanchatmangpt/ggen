@@ -108,23 +108,26 @@ pub struct PromotionIntent {
 /// `promotion_checks/4` order; the first failure is the typed refusal
 /// (the igniter returns the failed-name list; this port fails on the first).
 pub fn promote(
-    order: &AdmittedWorkOrder,
-    target: &str,
-    evidence: &Value,
+    order: &AdmittedWorkOrder, target: &str, evidence: &Value,
 ) -> Result<PromotionIntent, PromoteRefusal> {
     // standing/1 (line ~1390): the target must be a legal standing name,
     // and admission owns UNKNOWN — promotion targets above it.
     if target == "UNKNOWN" {
-        return Err(PromoteRefusal::UnknownStanding { target: target.to_string() });
+        return Err(PromoteRefusal::UnknownStanding {
+            target: target.to_string(),
+        });
     }
     if crate::work_order::Standing::parse(target).is_err() {
-        return Err(PromoteRefusal::InvalidTarget { target: target.to_string() });
+        return Err(PromoteRefusal::InvalidTarget {
+            target: target.to_string(),
+        });
     }
 
     let ev = |key: &str| evidence.get(key);
 
     // exact_subject? — evidence binds to this exact work-order snapshot.
-    let subject_exact = ev("work_order_digest") == Some(&Value::String(order.work_order_digest.clone()))
+    let subject_exact = ev("work_order_digest")
+        == Some(&Value::String(order.work_order_digest.clone()))
         && ev("subject") == Some(&Value::String(order.work_order.subject.clone()))
         && ev("repository") == Some(&Value::String(order.work_order.repository.clone()))
         && ev("base_sha") == Some(&Value::String(order.work_order.base_sha.clone()));
@@ -141,7 +144,9 @@ pub fn promote(
             .and_then(|c| c.get("passed"))
             == Some(&Value::Bool(true));
         if !passed {
-            return Err(PromoteRefusal::UnwitnessedCourt { court: court.clone() });
+            return Err(PromoteRefusal::UnwitnessedCourt {
+                court: court.clone(),
+            });
         }
     }
 
@@ -160,16 +165,13 @@ pub fn promote(
                     .filter_map(|t| t.as_str())
                     .collect::<Vec<_>>()
                     .join(", "),
-            },
-        );
+            });
         }
     }
 
     // acceptance_satisfied? (line ~722): every acceptance item true.
     for name in &order.work_order.acceptance {
-        let ok = evidence
-            .get("acceptance_results")
-            .and_then(|a| a.get(name))
+        let ok = evidence.get("acceptance_results").and_then(|a| a.get(name))
             == Some(&Value::Bool(true));
         if !ok {
             return Err(PromoteRefusal::AcceptanceUnwitnessed { name: name.clone() });
@@ -182,13 +184,12 @@ pub fn promote(
         let survived = evidence
             .get("falsifier_results")
             .and_then(|r| r.get(f))
-            .map(|v| {
-                v == &Value::Bool(true)
-                    || v.as_str() == Some("survived")
-            })
+            .map(|v| v == &Value::Bool(true) || v.as_str() == Some("survived"))
             .unwrap_or(false);
         if !survived {
-            return Err(PromoteRefusal::FalsifierUnsurvived { falsifier: f.clone() });
+            return Err(PromoteRefusal::FalsifierUnsurvived {
+                falsifier: f.clone(),
+            });
         }
     }
 
@@ -207,7 +208,9 @@ pub fn promote(
     // ceiling_satisfied? (line ~724): ALIVE requires the evidence ceiling
     // to equal the order's declared ceiling plus observed execution.
     if target == "ALIVE" {
-        let ev_ceiling = ev("evidence_ceiling").and_then(|v| v.as_str()).unwrap_or("");
+        let ev_ceiling = ev("evidence_ceiling")
+            .and_then(|v| v.as_str())
+            .unwrap_or("");
         let observed = evidence.get("observed_execution") == Some(&Value::Bool(true));
         if ev_ceiling != order.work_order.evidence_ceiling || !observed {
             return Err(PromoteRefusal::EvidenceCeilingExceeded {
@@ -227,19 +230,24 @@ pub fn promote(
 
 /// Assembles the `standing_transition_intent` (Elixir `promotion_result/3`,
 /// all-checks-passed arm) with the recomputed `transition_digest`.
-fn build_intent(order: &AdmittedWorkOrder, target: &str) -> Result<PromotionIntent, PromoteRefusal> {
+fn build_intent(
+    order: &AdmittedWorkOrder, target: &str,
+) -> Result<PromotionIntent, PromoteRefusal> {
     let mut m = Map::new();
     m.insert("authority".to_string(), Value::String("NONE".to_string()));
     m.insert(
         "checks".to_string(),
         Value::Object(Map::new()), // every check true; the map is carried
     );
-    m.insert("from".to_string(), Value::String(order.work_order.standing.as_str()));
-    m.insert("kind".to_string(), Value::String("standing_transition_intent".to_string()));
     m.insert(
-        "to".to_string(),
-        Value::String(target.to_string()),
+        "from".to_string(),
+        Value::String(order.work_order.standing.as_str()),
     );
+    m.insert(
+        "kind".to_string(),
+        Value::String("standing_transition_intent".to_string()),
+    );
+    m.insert("to".to_string(), Value::String(target.to_string()));
     m.insert(
         "work_order_digest".to_string(),
         Value::String(order.work_order_digest.clone()),
@@ -249,7 +257,10 @@ fn build_intent(order: &AdmittedWorkOrder, target: &str) -> Result<PromotionInte
 
     let mut with_digest = match intent_no_digest.clone() {
         Value::Object(mut m2) => {
-            m2.insert("transition_digest".to_string(), Value::String(transition_digest.clone()));
+            m2.insert(
+                "transition_digest".to_string(),
+                Value::String(transition_digest.clone()),
+            );
             Value::Object(m2)
         }
         _ => unreachable!("intent is an object"),
@@ -328,11 +339,15 @@ mod tests {
     fn unknown_target_standing_refuses() {
         assert_eq!(
             promote(&admitted(), "UNKNOWN", &evidence()),
-            Err(PromoteRefusal::UnknownStanding { target: "UNKNOWN".to_string() })
+            Err(PromoteRefusal::UnknownStanding {
+                target: "UNKNOWN".to_string()
+            })
         );
         assert_eq!(
             promote(&admitted(), "NONSENSE", &evidence()),
-            Err(PromoteRefusal::InvalidTarget { target: "NONSENSE".to_string() })
+            Err(PromoteRefusal::InvalidTarget {
+                target: "NONSENSE".to_string()
+            })
         );
     }
 
@@ -342,7 +357,9 @@ mod tests {
         ev["court_results"]["c1"]["passed"] = json!(false);
         assert_eq!(
             promote(&admitted(), "PARTIAL_ALIVE", &ev),
-            Err(PromoteRefusal::UnwitnessedCourt { court: "c1".to_string() })
+            Err(PromoteRefusal::UnwitnessedCourt {
+                court: "c1".to_string()
+            })
         );
     }
 
@@ -359,14 +376,18 @@ mod tests {
         ev2["acceptance_results"]["a1"] = json!(false);
         assert_eq!(
             promote(&admitted(), "PARTIAL_ALIVE", &ev2),
-            Err(PromoteRefusal::AcceptanceUnwitnessed { name: "a1".to_string() })
+            Err(PromoteRefusal::AcceptanceUnwitnessed {
+                name: "a1".to_string()
+            })
         );
 
         let mut ev3 = evidence();
         ev3["falsifier_results"]["f1"] = json!("died");
         assert_eq!(
             promote(&admitted(), "PARTIAL_ALIVE", &ev3),
-            Err(PromoteRefusal::FalsifierUnsurvived { falsifier: "f1".to_string() })
+            Err(PromoteRefusal::FalsifierUnsurvived {
+                falsifier: "f1".to_string()
+            })
         );
     }
 

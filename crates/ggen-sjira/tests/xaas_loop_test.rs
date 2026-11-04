@@ -268,5 +268,8 @@ fn unsupported_outcome_refuses_end_to_end() {
         r["outcome"] = json!("teleported");
     });
     let err = receipt_from_xaas(&receipt, &contract["bridge"], None).unwrap_err();
-    assert_eq!(err, ReceiptRefusal::UnsupportedOutcome("teleported".to_string()));
+    assert_eq!(
+        err,
+        ReceiptRefusal::UnsupportedOutcome("teleported".to_string())
+    );
 }

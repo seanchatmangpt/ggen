@@ -144,10 +144,7 @@ pub struct Reconciled {
 
 /// The reconcile calculus (`reconcile/4`, reconciler.ex lines 47-95).
 pub fn reconcile(
-    order: &Value,
-    receipt: &Value,
-    ledger_path: &Path,
-    opts: &ReconcileOpts,
+    order: &Value, receipt: &Value, ledger_path: &Path, opts: &ReconcileOpts,
 ) -> Result<Reconciled, ReconcileRefusal> {
     // 1. The ledger read is the first court (tampered/unreadable refuses).
     let events = ledger::fetch(ledger_path)?;
@@ -205,14 +202,10 @@ pub fn reconcile(
 
     // 7. Vector-clock conflict law, before any byte is written.
     let incoming_vc = receipt.get("vc").and_then(|v| v.as_object());
-    let last = events
-        .iter()
-        .rev()
-        .find(|e| {
-            e.get("identity").and_then(|v| v.as_str())
-                == Some(admitted.work_order.identity.as_str())
-                && e.get("vc").map(|v| v.is_object()).unwrap_or(false)
-        });
+    let last = events.iter().rev().find(|e| {
+        e.get("identity").and_then(|v| v.as_str()) == Some(admitted.work_order.identity.as_str())
+            && e.get("vc").map(|v| v.is_object()).unwrap_or(false)
+    });
     if let (Some(incoming), Some(last)) = (incoming_vc, last) {
         let last_vc = last
             .get("vc")
@@ -227,11 +220,12 @@ pub fn reconcile(
     }
 
     // 6. The origin law, against the caller-supplied index.
-    let index = opts.authority.as_ref().ok_or_else(|| {
-        ReconcileRefusal::AuthorityIndexUnavailable {
-            detail: "no authority index supplied (ReconcileOpts.authority is None)".to_string(),
-        }
-    })?;
+    let index =
+        opts.authority
+            .as_ref()
+            .ok_or_else(|| ReconcileRefusal::AuthorityIndexUnavailable {
+                detail: "no authority index supplied (ReconcileOpts.authority is None)".to_string(),
+            })?;
     index
         .resolve(&admitted.work_order.origin_authority)
         .map_err(ReconcileRefusal::OriginNotAdmitted)?;
@@ -303,10 +297,7 @@ pub fn reconcile(
     }
 
     // 9. The promotion calculus is the pure admission function.
-    let target = receipt
-        .get("target")
-        .and_then(|v| v.as_str())
-        .unwrap_or("");
+    let target = receipt.get("target").and_then(|v| v.as_str()).unwrap_or("");
     let intent = promote(&admitted, target, &evidence)?;
 
     // 10. The standing-transition event, appended through the ledger.

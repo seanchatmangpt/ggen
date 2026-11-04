@@ -8,7 +8,7 @@ use ggen_sjira::descriptor::{
     build, build_xaas_contract, identity, receipt_digest, receipt_from_xaas, DescriptorOpts,
     DescriptorRefusal, ReceiptRefusal, SCHEMA,
 };
-use ggen_sjira::frontier::{TransitionEvent, AuthorityIndex};
+use ggen_sjira::frontier::{AuthorityIndex, TransitionEvent};
 use serde_json::{json, Value};
 use std::collections::BTreeMap;
 
@@ -64,9 +64,17 @@ fn eligible_order_builds_descriptor_with_authority_none() {
     assert_eq!(d["schema"], SCHEMA);
     assert_eq!(d["work_order_id"], "X1");
     assert_eq!(d["authority"], "NONE");
-    assert_eq!(d["snapshot_digest"], ggen_sjira::admit_work_order(&orders[0]).unwrap().work_order_digest);
+    assert_eq!(
+        d["snapshot_digest"],
+        ggen_sjira::admit_work_order(&orders[0])
+            .unwrap()
+            .work_order_digest
+    );
     assert_eq!(d["graph_digest"], "sha256:graph");
-    assert!(d.get("package").is_none(), "package is caller-supplied; never invented");
+    assert!(
+        d.get("package").is_none(),
+        "package is caller-supplied; never invented"
+    );
     // identity/1 takes exactly the four graph-identity keys
     let id = identity(&d);
     assert_eq!(id.as_object().unwrap().len(), 4);
@@ -88,7 +96,10 @@ fn blocked_order_refuses_not_on_frontier_with_reason() {
     let orders = [order.clone(), other];
     let authority = pins(&[("https://graph.test/auth/X1", "sha256:aa")]);
     let err = build(&orders, "X2", &attrs(), &opts(&authority)).unwrap_err();
-    assert!(matches!(err, DescriptorRefusal::NotOnFrontier(_)), "got {err:?}");
+    assert!(
+        matches!(err, DescriptorRefusal::NotOnFrontier(_)),
+        "got {err:?}"
+    );
 }
 
 #[test]
@@ -137,7 +148,10 @@ fn snapshot_drift_refuses_when_frontier_projected_a_different_snapshot() {
     }];
     // X1 is settled (PARTIAL_ALIVE) → blocked, reason carries the standing.
     let err = build_xaas_contract(&orders, &events, "X1", &o).unwrap_err();
-    assert!(matches!(err, DescriptorRefusal::NotOnFrontier(_)), "got {err:?}");
+    assert!(
+        matches!(err, DescriptorRefusal::NotOnFrontier(_)),
+        "got {err:?}"
+    );
 }
 
 #[test]
@@ -233,11 +247,20 @@ fn receipt_happy_path_maps_to_reconciler_shape() {
         .expect("sealed receipt maps");
     assert_eq!(out["identity"], "X1");
     assert_eq!(out["target"], "PARTIAL_ALIVE");
-    assert_eq!(out["candidate_sha"], "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
+    assert_eq!(
+        out["candidate_sha"],
+        "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    );
     assert_eq!(out["snapshot_digest"], out["source_snapshot_digest"]);
     assert_eq!(out["court_results"]["c1"]["passed"], true);
-    assert!(out["evidence_types"].as_array().unwrap().contains(&json!("exact_head_verification")));
-    assert!(out["evidence_types"].as_array().unwrap().contains(&json!("e1")));
+    assert!(out["evidence_types"]
+        .as_array()
+        .unwrap()
+        .contains(&json!("exact_head_verification")));
+    assert!(out["evidence_types"]
+        .as_array()
+        .unwrap()
+        .contains(&json!("e1")));
     assert_eq!(out["acceptance_results"]["a1"], true);
     assert_eq!(out["falsifier_results"]["f1"], "survived");
     assert_eq!(out["observed_execution"], false); // outcome != alive

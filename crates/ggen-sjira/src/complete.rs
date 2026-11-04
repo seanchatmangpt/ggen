@@ -174,10 +174,7 @@ fn exit1(reason: &str, extra: Map<String, Value>) -> (u8, Value) {
 
 /// The invalid-invocation receipt (exit 2).
 fn invalid(reason: &str) -> (u8, Value) {
-    (
-        2,
-        json!({"status": "invalid_invocation", "reason": reason}),
-    )
+    (2, json!({"status": "invalid_invocation", "reason": reason}))
 }
 
 /// Runs the completion loop: frontier -> execute (one order) -> recheck,
@@ -186,9 +183,7 @@ fn invalid(reason: &str) -> (u8, Value) {
 /// three-exit vocabulary. See the module doc for the exact semantics and
 /// the disclosed deferred scope.
 pub fn run(
-    orders: &[FrontierInput],
-    ledger_path: &Path,
-    authority: Option<&AuthorityGraph>,
+    orders: &[FrontierInput], ledger_path: &Path, authority: Option<&AuthorityGraph>,
     opts: &CompleteOpts,
 ) -> (u8, Value) {
     // ── invocation boundary (before any ledger IO) ────────────────────────
@@ -229,10 +224,13 @@ pub fn run(
         }
 
         if authority.is_none() {
-            return exit1("authority_index_unavailable", detail_map(
-                "no authority graph was supplied: every order is blocked \
+            return exit1(
+                "authority_index_unavailable",
+                detail_map(
+                    "no authority graph was supplied: every order is blocked \
                  authority_index_unavailable",
-            ));
+                ),
+            );
         }
 
         match selected.eligible.len() {
@@ -314,9 +312,7 @@ pub fn run(
             Ok(_) => {
                 return exit1(
                     "frontier_refused",
-                    detail_map(
-                        "the executor reported an empty plan for an eligible order",
-                    ),
+                    detail_map("the executor reported an empty plan for an eligible order"),
                 )
             }
             Err(refusal) => {

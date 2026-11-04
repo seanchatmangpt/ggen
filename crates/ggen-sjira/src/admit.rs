@@ -193,9 +193,7 @@ fn validate(order: &WorkOrder) -> Result<(), Refusal> {
 
     for p in &order.projections {
         if !PROJECTION_TYPES.contains(&p.as_str()) {
-            return Err(Refusal::UnsupportedProjectionType {
-                value: p.clone(),
-            });
+            return Err(Refusal::UnsupportedProjectionType { value: p.clone() });
         }
     }
 
@@ -225,7 +223,9 @@ pub fn valid_sha(s: &str) -> bool {
 /// `@digest` regex (line 44): `\\Asha256:[0-9a-f]{64}\\z`.
 pub fn valid_digest(s: &str) -> bool {
     match s.strip_prefix("sha256:") {
-        Some(rest) => rest.len() == 64 && rest.bytes().all(|b| matches!(b, b'0'..=b'9' | b'a'..=b'f')),
+        Some(rest) => {
+            rest.len() == 64 && rest.bytes().all(|b| matches!(b, b'0'..=b'9' | b'a'..=b'f'))
+        }
         None => false,
     }
 }
@@ -287,7 +287,9 @@ mod tests {
         assert!(valid_digest(
             "sha256:1111111111111111111111111111111111111111111111111111111111111111"
         ));
-        assert!(!valid_digest("1111111111111111111111111111111111111111111111111111111111111111"));
+        assert!(!valid_digest(
+            "1111111111111111111111111111111111111111111111111111111111111111"
+        ));
         assert!(valid_repo("owner/repo"));
         assert!(valid_repo("own.er_x-y/r.e-p_o1"));
         assert!(!valid_repo("owner"));

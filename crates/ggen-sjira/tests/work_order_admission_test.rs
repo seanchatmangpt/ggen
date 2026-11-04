@@ -35,9 +35,7 @@ fn valid_order_is_admitted_with_authority_none() {
     assert_eq!(admitted.authority, "NONE");
     assert_eq!(admitted.work_order.standing, Standing::Unknown);
     assert_eq!(admitted.work_order.identity, "XAAS-26922-21");
-    assert!(admitted
-        .work_order_digest
-        .starts_with("sha256:"));
+    assert!(admitted.work_order_digest.starts_with("sha256:"));
     assert!(admitted.definition_digest.starts_with("sha256:"));
     // snapshot digest != definition digest: standing is excluded from the
     // definition take.
@@ -65,7 +63,10 @@ fn unknown_field_is_refused() {
 
     match admit_work_order(&raw) {
         Err(Refusal::Deserialization(msg)) => {
-            assert!(msg.contains("authority"), "refusal must name the unknown field: {msg}");
+            assert!(
+                msg.contains("authority"),
+                "refusal must name the unknown field: {msg}"
+            );
         }
         other => panic!("expected Deserialization refusal for unknown field, got {other:?}"),
     }
@@ -191,5 +192,8 @@ fn remediation_text_is_present_on_refusals() {
     let mut raw = valid_order();
     raw["origin_authority"] = json!("local_name");
     let err = admit_work_order(&raw).unwrap_err().to_string();
-    assert!(err.contains("remediation"), "refusal carries remediation: {err}");
+    assert!(
+        err.contains("remediation"),
+        "refusal carries remediation: {err}"
+    );
 }

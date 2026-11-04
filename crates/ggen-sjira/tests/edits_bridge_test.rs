@@ -9,8 +9,8 @@
 //! the disclosed deterministic test-only fallback fixture.
 
 use ggen_sjira::edits_bridge::{
-    empty_sha256, run_admission_loop, ScipGraph, SymbolGraph, BridgeJournal, BridgeRefusal,
-    EditBatch, FileEdit, TreeContext, VectorGraph,
+    empty_sha256, run_admission_loop, BridgeJournal, BridgeRefusal, EditBatch, FileEdit, ScipGraph,
+    SymbolGraph, TreeContext, VectorGraph,
 };
 
 /// Real temp tree with drop cleanup (Cargo.toml is outside lane
@@ -21,11 +21,8 @@ struct TempTree {
 
 impl TempTree {
     fn new(tag: &str) -> Self {
-        let path = std::env::temp_dir().join(format!(
-            "ggen-sjira-ebtest-{}-{}",
-            tag,
-            std::process::id()
-        ));
+        let path =
+            std::env::temp_dir().join(format!("ggen-sjira-ebtest-{}-{}", tag, std::process::id()));
         let _ = std::fs::remove_dir_all(&path);
         std::fs::create_dir_all(&path).expect("temp tree created");
         TempTree { path }
@@ -87,11 +84,14 @@ fn edit_batch_becomes_admitted_work_order_and_journaled_transition() {
     tree.write("src/lib.rs", b"fn main() {}\n");
     let b = batch(
         "bridge the edits surface",
-        vec![edit("src/lib.rs", Some(b"fn main() {}\n"), b"fn main() { ok(); }\n")],
+        vec![edit(
+            "src/lib.rs",
+            Some(b"fn main() {}\n"),
+            b"fn main() { ok(); }\n",
+        )],
     );
     let mut journal = BridgeJournal::new();
-    let receipt =
-        run_admission_loop(&b, &ctx(&tree), None, &mut journal).expect("loop runs");
+    let receipt = run_admission_loop(&b, &ctx(&tree), None, &mut journal).expect("loop runs");
 
     // The proposal carried path-scope evidence and UNKNOWN standing.
     let proposed = receipt.proposed.expect("proposal present");
@@ -119,7 +119,10 @@ fn edit_batch_becomes_admitted_work_order_and_journaled_transition() {
     let last = journal.entries().last().expect("journaled");
     assert_eq!(last.decision, "ADMITTED");
     assert_eq!(last.work_order_digest, admitted.work_order_digest);
-    assert_eq!(last.blast_radius_digest, Some(proposed.evidence.batch_digest.clone()));
+    assert_eq!(
+        last.blast_radius_digest,
+        Some(proposed.evidence.batch_digest.clone())
+    );
     assert_eq!(receipt.journal_head, journal.head());
     journal.verify_chain().expect("chain intact");
 }
@@ -128,16 +131,19 @@ fn edit_batch_becomes_admitted_work_order_and_journaled_transition() {
 fn new_file_edit_admits_with_empty_before_commitment() {
     let tree = TempTree::new("newfile");
     // No file on disk; before-commitment is the empty image.
-    let b = batch("add a module", vec![edit("src/new.rs", None, b"pub mod new;\n")]);
+    let b = batch(
+        "add a module",
+        vec![edit("src/new.rs", None, b"pub mod new;\n")],
+    );
     let mut journal = BridgeJournal::new();
     let receipt = run_admission_loop(&b, &ctx(&tree), None, &mut journal).expect("loop runs");
     assert!(receipt.admitted.is_some());
     let order = &receipt.proposed.as_ref().expect("proposed").work_order;
+    assert_eq!(order.required_evidence, vec!["path:src/new.rs".to_string()]);
     assert_eq!(
-        order.required_evidence,
-        vec!["path:src/new.rs".to_string()]
+        journal.entries().last().expect("journaled").decision,
+        "ADMITTED"
     );
-    assert_eq!(journal.entries().last().expect("journaled").decision, "ADMITTED");
     assert_ne!(empty_sha256(), sha256_hex(b"pub mod new;\n"));
     journal.verify_chain().expect("chain intact");
 }
@@ -160,7 +166,10 @@ fn protected_path_batch_refuses_and_journals_nothing_at_admission() {
     }
     // Refusal text carries the remediation clause.
     let text = err.to_string();
-    assert!(text.contains("remediation"), "remediation present in: {text}");
+    assert!(
+        text.contains("remediation"),
+        "remediation present in: {text}"
+    );
     // Refused at the evidence boundary: nothing journaled, chain genesis.
     assert!(journal.is_empty());
     assert_eq!(journal.head(), BridgeJournal::GENESIS);
@@ -212,11 +221,15 @@ fn blast_radius_handle_attaches_required_evidence() {
     };
     let b = batch(
         "edit with blast radius",
-        vec![edit("src/a.rs", Some(b"pub fn f() {}\n"), b"pub fn f() -> u32 { 1 }\n")],
+        vec![edit(
+            "src/a.rs",
+            Some(b"pub fn f() {}\n"),
+            b"pub fn f() -> u32 { 1 }\n",
+        )],
     );
     let mut journal = BridgeJournal::new();
-    let receipt = run_admission_loop(&b, &ctx(&tree), Some(&graph), &mut journal)
-        .expect("loop runs");
+    let receipt =
+        run_admission_loop(&b, &ctx(&tree), Some(&graph), &mut journal).expect("loop runs");
     let order = &receipt.proposed.as_ref().expect("proposed").work_order;
     assert_eq!(
         order.required_evidence,
@@ -238,7 +251,8 @@ fn blast_radius_handle_attaches_required_evidence() {
 fn illegal_hand_built_transition_refuses() {
     let mut journal = BridgeJournal::new();
     let forged = ggen_sjira::edits_bridge::JournaledOutcome {
-        work_order_digest: "sha256:1111111111111111111111111111111111111111111111111111111111111111".to_string(),
+        work_order_digest:
+            "sha256:1111111111111111111111111111111111111111111111111111111111111111".to_string(),
         decision: "ADMITTED".to_string(),
         detail: "authority=NONE".to_string(),
         blast_radius_digest: None,
@@ -281,10 +295,8 @@ fn temp_root_with_real_generated_file(tag: &str) -> TempTree {
         .join("crates/ggen-cli/src/generated_commands.rs")
         .exists();
     assert!(real, "real generated_commands.rs present in repo");
-    let bytes = std::fs::read(
-        repo_root().join("crates/ggen-cli/src/generated_commands.rs"),
-    )
-    .expect("real generated file read");
+    let bytes = std::fs::read(repo_root().join("crates/ggen-cli/src/generated_commands.rs"))
+        .expect("real generated file read");
     tree.write(
         "crates/ggen-cli/Cargo.toml",
         b"[package]\nname = \"ggen-cli\"\n",
@@ -331,8 +343,8 @@ fn scip_index_over_real_generated_file_backs_blast_radius() {
         )],
     );
     let mut journal = BridgeJournal::new();
-    let receipt = run_admission_loop(&b, &ctx(&tree), Some(&graph), &mut journal)
-        .expect("loop runs");
+    let receipt =
+        run_admission_loop(&b, &ctx(&tree), Some(&graph), &mut journal).expect("loop runs");
     let order = &receipt.proposed.as_ref().expect("proposed").work_order;
     assert_eq!(order.subject, doc_path);
     assert!(
@@ -344,7 +356,10 @@ fn scip_index_over_real_generated_file_backs_blast_radius() {
         order.required_evidence
     );
     assert!(receipt.admitted.is_some());
-    assert_eq!(journal.entries().last().expect("journaled").decision, "ADMITTED");
+    assert_eq!(
+        journal.entries().last().expect("journaled").decision,
+        "ADMITTED"
+    );
     journal.verify_chain().expect("chain intact");
 }
 
@@ -359,8 +374,7 @@ fn real_repo_scip_witness_promotes_symbol_graph_standing() {
     let doc_path = "crates/ggen-cli/src/generated_commands.rs";
     let doc = graph_index_doc(&index, doc_path).expect("doc indexed");
     let has_def = doc.occurrences.iter().any(|o| {
-        o.roles & ggen_scip::ROLE_DEFINITION != 0
-            && o.symbol.contains("generated_commands.")
+        o.roles & ggen_scip::ROLE_DEFINITION != 0 && o.symbol.contains("generated_commands.")
     });
     assert!(has_def, "COMMANDS_REFERENCE definition occurrence present");
     drop(doc);
@@ -378,14 +392,13 @@ fn real_repo_scip_witness_promotes_symbol_graph_standing() {
         ggen_scip::emit::build_index(&root).expect("rebuild for query cross-check"),
     );
     assert!(q.symbol_count() > 0);
-    assert!(q.def("ggen ggen-cli-lib generated_commands.COMMANDS_REFERENCE").is_some());
+    assert!(q
+        .def("ggen ggen-cli-lib generated_commands.COMMANDS_REFERENCE")
+        .is_some());
 }
 
 /// Find an indexed document by path (test helper over the raw index).
-fn graph_index_doc<'a>(
-    index: &'a ggen_scip::Index,
-    path: &str,
-) -> Option<&'a ggen_scip::Document> {
+fn graph_index_doc<'a>(index: &'a ggen_scip::Index, path: &str) -> Option<&'a ggen_scip::Document> {
     index.documents.iter().find(|d| d.path == path)
 }
 

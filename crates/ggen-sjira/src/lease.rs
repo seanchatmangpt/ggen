@@ -104,19 +104,14 @@ pub fn sign_record(lease: &SovereignLease, signer: &str, priv_key: &SigningKey) 
 /// `pack_ontology_digest`. `public_keys` maps signer id to Ed25519 verifying
 /// key. Pure; no wall clock, no IO.
 pub fn admit(
-    lease: &SovereignLease,
-    pack_ontology_digest: &str,
+    lease: &SovereignLease, pack_ontology_digest: &str,
     public_keys: &BTreeMap<String, VerifyingKey>,
 ) -> Result<AdmittedLease, SovereignRefusal> {
     shape(lease)?;
     digest_delta(lease, pack_ontology_digest)?;
     signature_gate(lease, public_keys)?;
 
-    let mut signers: Vec<String> = lease
-        .signatures
-        .iter()
-        .map(|s| s.signer.clone())
-        .collect();
+    let mut signers: Vec<String> = lease.signatures.iter().map(|s| s.signer.clone()).collect();
     signers.sort();
     signers.dedup();
 
@@ -184,7 +179,9 @@ fn shape(lease: &SovereignLease) -> Result<(), SovereignRefusal> {
     }
 }
 
-fn digest_delta(lease: &SovereignLease, pack_ontology_digest: &str) -> Result<(), SovereignRefusal> {
+fn digest_delta(
+    lease: &SovereignLease, pack_ontology_digest: &str,
+) -> Result<(), SovereignRefusal> {
     if lease.ontology_digest == pack_ontology_digest {
         Err(SovereignRefusal::ShapeDigestUnchanged)
     } else {
@@ -197,8 +194,7 @@ fn digest_delta(lease: &SovereignLease, pack_ontology_digest: &str) -> Result<()
 /// gate — a single named seam so the anti-vacuity court can bypass exactly
 /// this line and require the 1-signature test to fail.
 fn signature_gate(
-    lease: &SovereignLease,
-    public_keys: &BTreeMap<String, VerifyingKey>,
+    lease: &SovereignLease, public_keys: &BTreeMap<String, VerifyingKey>,
 ) -> Result<(), SovereignRefusal> {
     count_gate(lease)?;
     verify_all(lease, public_keys)
@@ -218,8 +214,7 @@ fn count_gate(lease: &SovereignLease) -> Result<(), SovereignRefusal> {
 }
 
 fn verify_all(
-    lease: &SovereignLease,
-    public_keys: &BTreeMap<String, VerifyingKey>,
+    lease: &SovereignLease, public_keys: &BTreeMap<String, VerifyingKey>,
 ) -> Result<(), SovereignRefusal> {
     let msg = canonical_json(lease);
     for rec in &lease.signatures {
@@ -231,9 +226,7 @@ fn verify_all(
 }
 
 fn signature_record_ok(
-    rec: &SignatureRecord,
-    msg: &str,
-    public_keys: &BTreeMap<String, VerifyingKey>,
+    rec: &SignatureRecord, msg: &str, public_keys: &BTreeMap<String, VerifyingKey>,
 ) -> bool {
     let Some(pub_key) = public_keys.get(&rec.signer) else {
         return false;
