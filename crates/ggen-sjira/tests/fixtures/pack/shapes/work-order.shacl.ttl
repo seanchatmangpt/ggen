@@ -1,0 +1,7 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix sj: <http://example.org/sj#> .
+
+sj:WorkOrderShape a sh:NodeShape ;
+    sh:targetClass sj:WorkOrder ;
+    sh:property [ sh:path sj:targetPack ; sh:minCount 1 ] ;
+    sh:property [ sh:path sj:capabilityId ; sh:minCount 1 ] .

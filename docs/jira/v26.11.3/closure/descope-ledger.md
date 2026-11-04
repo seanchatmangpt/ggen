@@ -46,17 +46,58 @@ Gates 010-080 proven executed and PASS via flipping-shim courts
 gates were NOT minted this wave — recorded as future work, not a gap in the
 declared gate set (pack.toml declares 010-080 only).
 
-## Open drift NOT descoped (carried to the next wave)
+## v2 update (2026-11-03, seal pass) — resolved items moved to closed-with-cites
 
-- WO-file vs RECEIPTS.md standing drift (WO-01/03/05/07/08/09 scaffold-era
-  UNVERIFIED rows vs closure-table ALIVE) — the WO files are the narrow
-  claims; the closure tables the wide ones. Next lane reconciles or narrows.
-- XG-2 findings: sync.rs:431 artifact_baseline_generation hardcode,
-  sbb about-strings, generated_commands.rs.backup in src/,
-  receipt_chain_seam allow(dead_code), 55 undocumented + 37 unexercised FM
-  codes, blast_radius/transactional write-path wiring (GAP-1, size L).
-- ggen-marketplace baseline.json: smalt-core evidence[1] + 23 other entries
-  missing consequence_sha256 (secondary-evidence tier; WO-08's own law says
-  use run digests, so this is completeness debt, not a blocker).
-- `--skip-ea-admission` CLI flag claimed in sync.rs docs but unwired in
-  ggen-cli (filed by k2-test-fixes.md).
+CLOSED this wave (cite, not claim):
+- 55 undocumented FM codes → CLOSED by `docs/FM_REGISTRY.md` (118 codes,
+  census correction over XG-2's 87) + `fm_registry_parity_test` court
+  (receipt sa-16.md). GAP-3's 37 unexercised codes carried as
+  `tested_by: none` markers — still open, narrowed.
+- sbb about-strings → CLOSED on disk (crates/ggen-abb-sbb/src/lib.rs:1157
+  region; landed by SA-7, receipt sa-7.md).
+- generated_commands.rs.backup → CLOSED on disk (removed by SA-7 after
+  byte-identity proof; receipt sa-7.md).
+- receiptctl example BLOCKED → CLOSED (receipt ga-9-receiptctl.md:
+  wasm4pm-facts-pack dialects defect deleted, sync ×2 deterministic,
+  168/168 cargo tests).
+- Deterministic reds → CLOSED (receipt sx-1-reds.md: manifest version bump,
+  perf-test EA fixture, arcus G3 build-if-absent).
+
+STILL OPEN (carried forward, unchanged or narrowed):
+- WO-file vs RECEIPTS.md standing drift (WO-01/03/05/07/08/09).
+- sync.rs:431 artifact_baseline_generation hardcode (verified open at
+  seal time by PF-1's grep).
+- receipt_chain_seam allow(dead_code) (verified open).
+- blast_radius/transactional write-path wiring (GAP-1, size L) — modules
+  ALIVE, zero production callers (SV-1 confirmed unchanged).
+- baseline.json consequence_sha256 completeness debt — PARTIALLY closed
+  (SA-14 backfilled 297 provenance-labeled digests; aoq-pack entry itself
+  is next-wave qualification per PF-2's descope ruling).
+- `--skip-ea-admission` CLI flag unwired (verified open by PF-1).
+- FM-LAW-015 class: 4 pre-existing sync_surface_test failures surfaced
+  post-census (sx-1 disclosure) — never given the 45-remediation pass.
+- sjira acceptance vacuous findings DS-7-D1/D2/D3 (execute exhaustion +
+  replay guards unpinned; lease granted_at coverage indirect) — recorded
+  by ds-7-mutation.md / sjira-mutation-battery.md, tests owned by shared
+  court files (lane coordination required to tighten).
+- clap-noun-verb FINDING-1: `cmds/*/mod.rs` directory-module nouns
+  silently register zero verbs (ds-8.md) — audit of other cmds/* dirs
+  is a named follow-on.
+- ggen-lsp diagnostic_relay_probe CARRIED-OPEN (sx-1-reds.md: 20s
+  publishDiagnostics timeout 2/2; cl-f attribution: hardcoded external
+  binary dependency).
+
+## AoQ next-wave handoff (PF-3 rulings, binding on Wave-1 dispatch)
+
+- R-K1/R-K2: kernel crypto bodies in cgap-crypto; AoQ seams kernel-side.
+- R-H1: GA-1's landed ontology.ttl is the header authority (GGM-SRC-002
+  inverse) — Rust header.rs matches IT, not AOQ-02 prose.
+- R-H2: reuse IpcError for framing classes; new AoQ crypto variants join
+  the same enum. PG-A1's standalone AoqError framing classes superseded.
+- R-C1: membranes deferred to Wave 2 (coordinator ruling — dissolves the
+  PG-A9 cgo/sidecar conflict for Wave 1).
+- ML-KEM vendor pin: offline `vendors/` pinning + hash receipt.
+- Crate name: `cgap-aoq` (ruled once; PG-A1/A5/A7/A8 already use it).
+- Everything beyond Wave 0 (ontology, pack, witnesses, consumer wiring,
+  court) is DESCOPE next-wave-handoff: no cgap-aoq crate exists in the
+  workspace at seal time (verified repo-wide zero AoQ code symbols).

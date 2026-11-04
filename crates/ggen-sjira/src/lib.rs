@@ -22,8 +22,10 @@
 //! Deferred to later slices (present in the igniter spec, not ported here):
 //! execution_package, do_intent, replay_check, semantic_diff,
 //! repair/composition, machine_experience, view, render_projection.
-//! (promote lands this slice in `promote.rs`; descriptor/projection/
-//! reconcile/complete/pack-health/shacl are follow-on port targets.)
+//! (promote landed in `promote.rs`; descriptor landed in `descriptor.rs`.)
+//! Slice 5 (PG-2, ds-3): `shacl` + `target_pack` + `pack_health` (Phase 1) —
+//! the pack integration surface; template rendering is a disclosed
+//! UNSUPPORTED follow-on (`render.rs`).
 //!
 //! `#![forbid(unsafe_code)]`. IO-free. Authority is stamped `NONE` at
 //! admission; this kernel never creates authority.
@@ -32,6 +34,7 @@
 
 pub mod admit;
 pub mod authority;
+pub mod complete;
 pub mod epoch;
 pub mod controller;
 pub mod descriptor;
@@ -41,8 +44,12 @@ pub mod generated;
 pub mod ledger;
 pub mod frontier;
 pub mod promote;
+pub mod reconcile;
 pub mod lease;
+pub mod pack_health;
 pub mod receipts;
+pub mod shacl;
+pub mod target_pack;
 pub mod work_order;
 
 pub use admit::{admit_work_order, AdmittedWorkOrder, Refusal};
@@ -53,6 +60,9 @@ pub use frontier::{
     frontier, project_standing, schedule, ActiveLease, AuthorityIndex, BlockedEntry,
     DependencyEdge, EligibleCandidate, Evidence, FrontierInput, FrontierResult, Standings,
     TransitionEvent,
+};
+pub use reconcile::{
+    reconcile, tail_digest, ReconcileOpts, ReconcileRefusal, Reconciled, GENESIS_DIGEST,
 };
 pub use descriptor::{
     build_xaas_contract, identity, receipt_digest, receipt_from_xaas, DescriptorOpts, DescriptorRefusal,

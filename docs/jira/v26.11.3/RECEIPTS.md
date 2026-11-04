@@ -34,6 +34,16 @@ WO-01 blocker note: g1's PARTIAL standing (9 red CLI tests) was closed by
 the k8 receipt (`--skip-ea-admission` flag + fail-closed Stage 2c block 1);
 k8's court list includes the flip witness (SHIM-COURT, restore byte-exact).
 
+## cl-close self-row + new-wave register pointer (cl-close-2, 2026-11-03)
+
+| Lane | Receipt | Standing | Exit record |
+|---|---|---|---|
+| CL-CLOSE | cl-close.md | ALIVE (contracted scope) | exit gate PASS exit 0 over the five index surfaces (receipt §Standing) |
+
+Full new-wave table (63-receipt orphan census; standing words re-read from
+receipt bodies on disk; in-flight-expected list): see README.md's
+"New-wave receipts (cl-close-2)" section.
+
 ## Open work orders (NOT closed by this lane)
 
 | WO | Receipts | Standing |

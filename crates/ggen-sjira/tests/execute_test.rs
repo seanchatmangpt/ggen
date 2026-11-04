@@ -263,6 +263,9 @@ fn max_iterations_refuses_typed_exhaustion() {
         &graph,
         &ExecuteOpts {
             max_iterations: 1,
+            lease: None,
+            epoch_watermark: None,
+            epoch_extensions: Default::default(),
         },
     )
     .expect_err("a one-pass budget over a three-deep chain must refuse");

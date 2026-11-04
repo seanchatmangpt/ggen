@@ -906,3 +906,22 @@ promote:
 # pre-commit line — promotion is an operator decision.
 guard-generated-paths:
     python3 scripts/ci/guard_generated_paths.py
+
+# ── GA-7: sjira control-plan wiring (DS-6 inheritance, v26.11.3) ─────────────
+# No inline logic here — both recipes delegate to the landed DS-6/GA-7 scripts.
+# Not wired into `pre-commit` (promotion needs an operator GREEN-witness call,
+# same precedent as the v26.10.20 courts). Run standalone.
+
+# DS-6 control-plan checker: refusal-class census diff vs committed baseline
+# (D1, p-chart 3-sigma / fixed-band), suite-count floor (D2), per-suite
+# #[test] floor (D3), pub-fn census (D4), chain-slot shape (D5).
+# Exit 0 = in control; exit 1 = drift with typed VIOLATION lines.
+sjira-control:
+    ./scripts/sjira_control_plan.sh
+
+# Anti-vacuity court for the checker above: two real mutations on a temp copy
+# of crates/ggen-sjira (tampered baseline pub_fns -> D4; deleted #[test] -> D3);
+# the checker must exit 1 with the expected typed class on each. Exit 0 only
+# if both flips witnessed; canonical tree is read-only to this court.
+sjira-control-court:
+    bash scripts/sjira_control_court.sh

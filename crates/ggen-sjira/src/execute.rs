@@ -127,18 +127,81 @@ pub struct ExecutionPlan {
     pub plan_digest: String,
 }
 
+/// The typed lease-gate refusal (DS-10). The gate binds an admitted
+/// [`AdmittedLease`](crate::lease::AdmittedLease) and an epoch watermark to
+/// each order's PLAN+RECEIPT emission; `into()` renders it as an
+/// [`ExecRefusal`] that leaves the ledger byte-unchanged (the gate sits
+/// BEFORE the plan step and the append is still the last write).
+#[derive(Debug, Clone, PartialEq, Eq, thiserror::Error)]
+pub enum LeaseGateRefusal {
+    /// The lease does not bind this order: either it is not admitted
+    /// (`admitted != true`) or its `subject_iri` does not resolve to the
+    /// order's identity.
+    #[error("LeaseNotBound: {0}")]
+    LeaseNotBound(String),
+    /// The epoch gate refused: the order's plan carries pre-watermark
+    /// implementation (or carries an epoch with no usable watermark).
+    #[error("EpochStale: {0}")]
+    EpochStale(String),
+}
+
+impl From<LeaseGateRefusal> for ExecRefusal {
+    fn from(r: LeaseGateRefusal) -> Self {
+        match r {
+            LeaseGateRefusal::LeaseNotBound(detail) => ExecRefusal::new(
+                "lease",
+                "lease_not_bound",
+                "R_missing_authority",
+                detail,
+            ),
+            LeaseGateRefusal::EpochStale(detail) => {
+                ExecRefusal::new("lease", "epoch_stale", "mu_on_O", detail)
+            }
+        }
+    }
+}
+
 /// Options for [`run`].
 #[derive(Debug, Clone)]
 pub struct ExecuteOpts {
     /// Maximum loop passes before the typed `exhausted` refusal.
     pub max_iterations: usize,
+    /// Optional admitted sovereign lease (lease.rs). When `Some`, EVERY
+    /// executed order's plan emission is gated on the lease binding the
+    /// order (`subject_iri` resolving to the order identity) and on
+    /// `admitted == true` — otherwise the typed `LeaseNotBound` refusal.
+    /// `None` preserves the legacy (un-gated) behavior byte-identically.
+    pub lease: Option<crate::lease::AdmittedLease>,
+    /// Optional decoded epoch watermark (`watermark.json` shape). Judged
+    /// together with [`Self::epoch_extensions`] through [`epoch::check`];
+    /// any epoch refusal is the typed `EpochStale` — including an
+    /// epoch-carrying extension with NO watermark (fail closed). `None`
+    /// plus empty `epoch_extensions` preserves the legacy behavior.
+    pub epoch_watermark: Option<Value>,
+    /// Per-order epoch extension JSON (`identity` → `{epoch, plan_touches,
+    /// manufacture_plan, source_artifacts}`). The strict WorkOrder schema
+    /// refuses unknown fields, so the epoch extension rides beside it, at
+    /// the run level. An entry whose `epoch` is nonempty is judged through
+    /// [`epoch::check`] against [`Self::epoch_watermark`] — no watermark
+    /// supplied means the typed `EpochStale` (fail closed).
+    pub epoch_extensions: std::collections::BTreeMap<String, Value>,
+}
+
+impl ExecuteOpts {
+    /// Options with the default iteration budget and no lease/epoch gate.
+    pub fn legacy() -> Self {
+        Self {
+            max_iterations: DEFAULT_MAX_ITERATIONS,
+            lease: None,
+            epoch_watermark: None,
+            epoch_extensions: std::collections::BTreeMap::new(),
+        }
+    }
 }
 
 impl Default for ExecuteOpts {
     fn default() -> Self {
-        Self {
-            max_iterations: DEFAULT_MAX_ITERATIONS,
-        }
+        Self::legacy()
     }
 }
 
@@ -284,6 +347,18 @@ pub fn run(
                     )
                 })?;
 
+            // ── lease gate (DS-10): BEFORE re-admission and plan emission;
+            // a refusal here leaves the ledger byte-unchanged. It precedes
+            // re-admission because the epoch extension fields (`epoch`,
+            // `plan_touches`, `manufacture_plan`, `source_artifacts`) ride
+            // OUTSIDE the strict WorkOrder schema (deny_unknown_fields) —
+            // the gate judges them before the strict envelope is decoded.
+            // Honest scoping: this kernel has NO write authority (execute
+            // caps at PARTIAL_ALIVE, the Go-side execution is the
+            // consumer's), so the gate admits the PLAN+RECEIPT emission —
+            // there is no disk write to gate.
+            check_lease_gate(&candidate.identity, opts)?;
+
             let admitted = admit_work_order(&raw).map_err(|r| {
                 ExecRefusal::new(
                     "frontier",
@@ -358,6 +433,56 @@ pub fn run(
     }
 
     Err(exhausted(opts.max_iterations, opts.max_iterations))
+}
+
+/// The DS-10 lease gate: binds the run's optional admitted lease and epoch
+/// watermark to ONE order's plan emission. Called per eligible candidate,
+/// BEFORE the plan is built and BEFORE the journal/append — any refusal
+/// leaves the ledger byte-unchanged (the append is still the last write).
+///
+/// * lease law: when `opts.lease` is `Some`, it must carry
+///   `admitted == true` (a non-admitted lease is not authority) and its
+///   `subject_iri` must resolve to the order identity (the final `/`
+///   segment equals the identity, e.g. `sj:WorkOrder/OA` binds `OA`).
+/// * epoch law: delegated to [`crate::epoch::check`] with the run's
+///   watermark; an epoch-carrying order with no watermark refuses — fail
+///   closed, same as the admit-side gate.
+///
+/// With neither field set this function is a no-op: the legacy behavior is
+/// byte-identical.
+fn check_lease_gate(identity: &str, opts: &ExecuteOpts) -> Result<(), LeaseGateRefusal> {
+    if let Some(lease) = &opts.lease {
+        let binds = lease
+            .subject_iri
+            .rsplit('/')
+            .next()
+            .map(|seg| seg == identity)
+            .unwrap_or(false);
+        if !lease.admitted || !binds {
+            return Err(LeaseGateRefusal::LeaseNotBound(format!(
+                "lease {} does not bind order {}: admitted={} subject_iri={} — \
+                 only an admitted lease whose subject resolves to the order \
+                 identity admits the plan emission",
+                lease.lease_id, identity, lease.admitted, lease.subject_iri
+            )));
+        }
+    }
+
+    let epoch_ext = opts.epoch_extensions.get(identity);
+    let epoch_carried = epoch_ext
+        .and_then(|ext| ext.get("epoch"))
+        .and_then(|v| v.as_str())
+        .map(|s| !s.is_empty())
+        .unwrap_or(false);
+    if epoch_carried {
+        crate::epoch::check(epoch_ext.expect("checked above"), opts.epoch_watermark.as_ref())
+            .map_err(|e| LeaseGateRefusal::EpochStale(format!(
+                "order {} failed the epoch gate: {e} — the plan carries \
+                 pre-watermark implementation into a post-watermark epoch",
+                identity
+            )))?;
+    }
+    Ok(())
 }
 
 fn exhausted(max: usize, at: usize) -> ExecRefusal {

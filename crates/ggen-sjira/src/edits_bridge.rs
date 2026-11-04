@@ -668,10 +668,16 @@ mod tests {
 
     impl TempTree {
         fn new(tag: &str) -> Self {
+            // Minimal unblock (ds-3, disclosed): the pid+tag path collided
+            // across parallel test threads reusing a tag (two tests passing
+            // "eb-tamper" raced remove_dir_all/create_dir_all ->
+            // AlreadyExists). Per-call counter makes the path thread-unique.
+            static SEQ: std::sync::atomic::AtomicUsize = std::sync::atomic::AtomicUsize::new(0);
             let path = std::env::temp_dir().join(format!(
-                "ggen-sjira-eb-{}-{}",
+                "ggen-sjira-eb-{}-{}-{}",
                 tag,
-                std::process::id()
+                std::process::id(),
+                SEQ.fetch_add(1, std::sync::atomic::Ordering::Relaxed),
             ));
             let _ = std::fs::remove_dir_all(&path);
             std::fs::create_dir_all(&path).expect("temp tree created");

@@ -16,6 +16,24 @@ blake3 = { workspace = true }
 # SovereignLease multi-party signature verification (lease.rs; disclosed dep,
 # ported from ggen_igniter sovereign_lease.ex's :crypto EdDSA law).
 ed25519-dalek = { workspace = true }
+# Slice 5 (PG-2, ds-3): pack integration surface. The reuse ruling: ggen-graph
+# ships validate_shacl (shacl.rs, Oxigraph-backed) -- DO NOT re-implement a SHACL
+# validator here; shacl.rs adapter wraps it. Disclosed: ggen-graph has no public
+# SPARQL-execute seam (sparql.rs is parse-only), so pack_health.rs executes gate
+# queries through the same underlying engine (workspace oxigraph) directly --
+# follow-on: expose a ggen-graph run_query(store, q) seam.
+ggen-graph = { workspace = true }
+oxigraph = { workspace = true }
+# Slice 6 (PG-2, ds-4): projection surface. tempfile = the staging copy of the
+# pack (projection.ex's File.cp_r staging law; auto-removed after the run).
+# tera = the disclosed minimal template bind (projection renders one one-off
+# template per call; ggen_igniter renders pack template files via Reconcile --
+# divergence named in generated.rs's module docs).
+tempfile = { workspace = true }
+tera = { workspace = true }
 # E80-03 (disclosed, outside lane file ownership): path dependency so the
 # SymbolGraph seam is backed by the real ggen-scip index (ScipGraph).
 ggen-scip = { path = "../ggen-scip" }
+
+[dev-dependencies]
+tempfile = { workspace = true }
