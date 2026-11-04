@@ -33,7 +33,7 @@ tempfile = { workspace = true }
 tera = { workspace = true }
 # E80-03 (disclosed, outside lane file ownership): path dependency so the
 # SymbolGraph seam is backed by the real ggen-scip index (ScipGraph).
-ggen-scip = { path = "../ggen-scip" }
+ggen-scip = { path = "../ggen-scip", version = "=26.11.4" }
 
 [dev-dependencies]
 tempfile = { workspace = true }
