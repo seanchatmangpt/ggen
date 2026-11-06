@@ -31,7 +31,7 @@ use std::io::{BufRead, BufReader, Read, Write};
 use std::process::{Child, ChildStdin, Command, Stdio};
 use std::sync::mpsc::{self, Receiver};
 use std::thread;
-use std::time::Duration;
+use std::time::{Duration, Instant};
 use tempfile::TempDir;
 
 /// Per-frame bound once the server is warm (post-handshake). Genuine protocol
@@ -184,6 +184,28 @@ impl LspClient {
             json!({"textDocument":{"uri":uri,"languageId":language_id,"version":1,"text":text}}),
         );
     }
+
+    /// Bounded poll for a `client/registerCapability` server→client request,
+    /// replying `null` to any other server→client request so nothing blocks.
+    /// `None` on timeout (absence witness for the negative negotiation case).
+    fn wait_for_register_capability(&mut self, timeout: Duration) -> Option<Value> {
+        let deadline = Instant::now() + timeout;
+        loop {
+            let remaining = deadline.saturating_duration_since(Instant::now());
+            if remaining.is_zero() {
+                return None;
+            }
+            match self.rx.recv_timeout(remaining) {
+                Ok(f) if f["method"] == json!("client/registerCapability") => return Some(f),
+                Ok(f) if f.get("method").is_some() && f.get("id").is_some() => {
+                    let rid = f.get("id").cloned().unwrap_or(Value::Null);
+                    self.send(&json!({"jsonrpc":"2.0","id":rid,"result":null}));
+                }
+                Ok(_) => continue,
+                Err(_) => return None,
+            }
+        }
+    }
 }
 
 impl Drop for LspClient {
@@ -221,9 +243,14 @@ fn read_frame(reader: &mut impl BufRead) -> Option<Value> {
 }
 
 fn initialize(client: &mut LspClient) -> Value {
+    initialize_with(client, json!({}))
+}
+
+/// `initialize` with explicit client capabilities, then `initialized`.
+fn initialize_with(client: &mut LspClient, capabilities: Value) -> Value {
     let resp = client.request_bounded(
         "initialize",
-        json!({"processId":null,"rootUri":null,"capabilities":{}}),
+        json!({"processId":null,"rootUri":null,"capabilities":capabilities}),
         HANDSHAKE_TIMEOUT,
     );
     client.notify("initialized", json!({}));
@@ -260,15 +287,22 @@ fn lsp_full_lifecycle_over_stdio() {
     ] {
         assert!(!caps[cap].is_null(), "initialize must advertise {cap}");
     }
-    // Codified advertise-vs-deliver gap: call/type hierarchy are IMPLEMENTED in
-    // server.rs but NOT advertised. If they are ever advertised, flip these asserts.
-    assert!(
-        caps["callHierarchyProvider"].is_null(),
-        "call hierarchy is implemented but not advertised"
-    );
+    // Honest advertise-vs-deliver contract (G1): type hierarchy is implemented
+    // but its STATIC advertisement is BLOCKED — `typeHierarchyProvider` is not
+    // a field of lsp-types-max 26.6.24's ServerCapabilities (dep not bumped).
+    // The server advertises it via dynamic registration when the client
+    // declares typeHierarchy.dynamicRegistration (see
+    // type_hierarchy_advertised_per_negotiation). Call hierarchy remains
+    // statically advertised ONLY when the client declares textDocument
+    // .callHierarchy support and NOT dynamicRegistration; this client declares
+    // neither, so both static providers are null here.
     assert!(
         caps["typeHierarchyProvider"].is_null(),
-        "type hierarchy is implemented but not advertised"
+        "typeHierarchyProvider has no static form in lsp-types-max 26.6.24 (dynamic-registration only)"
+    );
+    assert!(
+        caps["callHierarchyProvider"].is_null(),
+        "this client declares no callHierarchy support, so the static provider is not advertised"
     );
 
     // didOpen a broken SPARQL surface → diagnostics carry E0011.
@@ -359,11 +393,71 @@ fn lsp_full_lifecycle_over_stdio() {
             "textDocument/formatting",
             json!({"textDocument":{"uri":uri},"options":{"tabSize":2,"insertSpaces":true}}),
         ),
+        (
+            "textDocument/moniker",
+            json!({"textDocument":{"uri":uri},"position":range["start"]}),
+        ),
+        (
+            "textDocument/prepareTypeHierarchy",
+            json!({"textDocument":{"uri":uri},"position":range["start"]}),
+        ),
+        (
+            "textDocument/prepareCallHierarchy",
+            json!({"textDocument":{"uri":uri},"position":range["start"]}),
+        ),
+        (
+            "textDocument/foldingRange",
+            json!({"textDocument":{"uri":uri}}),
+        ),
+        (
+            "textDocument/inlayHint",
+            json!({"textDocument":{"uri":uri},"range":{"start":{"line":0,"character":0},"end":{"line":5,"character":0}}}),
+        ),
+        ("textDocument/codeLens", json!({"textDocument":{"uri":uri}})),
+        ("workspace/symbol", json!({"query":""})),
     ] {
         let r = c.request(method, params);
         assert!(r.get("error").is_none(), "{method} must not error: {r}");
         assert!(r.get("result").is_some(), "{method} must return a result");
     }
+
+    // semanticTokens full → full/delta resultId round-trip (G5): the delta
+    // request carrying the full request's resultId must be accepted
+    // (error-free) and return the delta shape (resultId + edits array).
+    let gen_uri = "file:///x/generated.rs";
+    c.did_open(
+        gen_uri,
+        "rust",
+        "// Code generated by ggen. DO NOT EDIT.\npub mod generated_commands {\n    pub const COMMANDS: &str = \"build\";\n}\n",
+    );
+    let full = c.request(
+        "textDocument/semanticTokens/full",
+        json!({"textDocument":{"uri":gen_uri}}),
+    );
+    assert!(
+        full.get("error").is_none(),
+        "semanticTokens/full must not error: {full}"
+    );
+    let result_id = full["result"]["resultId"]
+        .as_str()
+        .expect("full must mint a resultId")
+        .to_string();
+    let delta = c.request(
+        "textDocument/semanticTokens/full/delta",
+        json!({"textDocument":{"uri":gen_uri},"previousResultId":result_id}),
+    );
+    assert!(
+        delta.get("error").is_none(),
+        "semanticTokens/full/delta must not error: {delta}"
+    );
+    assert!(
+        delta["result"]["edits"].is_array(),
+        "delta result carries an edits array: {delta}"
+    );
+    assert!(
+        delta["result"]["resultId"].is_string(),
+        "delta result carries a resultId: {delta}"
+    );
 
     // A clean Turtle surface → no ERROR-severity diagnostics.
     let clean_uri = "file:///x/clean.ttl";
@@ -415,4 +509,59 @@ fn lsp_each_law_surface_engages_its_analyzer() {
             assert!(has_e0011, "broken .rq must carry E0011");
         }
     }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Test 3 (G1): type hierarchy advertisement is negotiated, not static.
+// lsp-types-max 26.6.24 has no typeHierarchyProvider capability field, so the
+// server advertises textDocument/prepareTypeHierarchy ONLY via dynamic
+// registration, and ONLY when the client declares dynamicRegistration.
+// ─────────────────────────────────────────────────────────────────────────────
+
+#[test]
+fn type_hierarchy_advertised_per_negotiation() {
+    // Client A declares typeHierarchy dynamicRegistration → the server must
+    // send client/registerCapability with the prepareTypeHierarchy method
+    // after `initialized`.
+    let mut a = LspClient::spawn();
+    let init_a = initialize_with(
+        &mut a,
+        json!({"textDocument":{"typeHierarchy":{"dynamicRegistration":true}}}),
+    );
+    assert!(
+        init_a["result"]["capabilities"]["typeHierarchyProvider"].is_null(),
+        "static typeHierarchyProvider is null in both cases (no field in lsp-types-max 26.6.24)"
+    );
+    let reg = a
+        .wait_for_register_capability(Duration::from_secs(10))
+        .expect("declaring typeHierarchy.dynamicRegistration must yield client/registerCapability");
+    let registrations = reg["params"]["registrations"]
+        .as_array()
+        .expect("registrations array");
+    assert!(
+        registrations
+            .iter()
+            .any(|r| r["method"] == json!("textDocument/prepareTypeHierarchy")),
+        "registerCapability must carry prepareTypeHierarchy: {registrations:?}"
+    );
+
+    // Client B declares nothing → no registerCapability frame. Absence is
+    // witnessed by a bounded wait AFTER a completed request/response
+    // round-trip (the server's initialized handler has long finished by then).
+    let mut b = LspClient::spawn();
+    let init_b = initialize_with(&mut b, json!({}));
+    assert!(
+        init_b["result"]["capabilities"]["typeHierarchyProvider"].is_null(),
+        "static typeHierarchyProvider is null in both cases"
+    );
+    let sym = b.request("workspace/symbol", json!({"query":""}));
+    assert!(
+        sym.get("error").is_none(),
+        "follow-up request must succeed: {sym}"
+    );
+    assert!(
+        b.wait_for_register_capability(Duration::from_secs(1))
+            .is_none(),
+        "a client without dynamicRegistration must not receive client/registerCapability"
+    );
 }

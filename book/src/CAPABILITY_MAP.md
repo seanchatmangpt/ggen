@@ -34,7 +34,7 @@ A chapter may cite multiple states. For example, deterministic RDF deltas can be
 | `packs/ggen-verify-pack` | Admits external build, test, clippy and byte-identity evidence as graph facts; refuses missing, red or stale evidence | Pack manifest, gates, bootstrap emitter and reasoner-independence test | **PACK_WITNESS** |
 | `packs/star-toml-pack` | Generates typed TOML admission code, validation behavior, docs and two independent proof styles | `examples/star-toml-verify`, generated tests, drift mutation and idempotency record in `pack.toml` | **PACK_WITNESS** |
 | `packs/lsp-max-pack` | Generates ontology-sourced lint-rule TOML, documentation and independent proof tests | `examples/lsp-max-verify`, SHACL validation, mutation and idempotency record in `pack.toml` | **PACK_WITNESS** |
-| `packs/praxis-core-pack` | Projects Praxis refusal and core-law surfaces with generated verification | Pack templates, ontology and verification consumer | **PACK_WITNESS** |
+| `packs/praxis-core-pack` | Projects Praxis refusal and core-law surfaces with generated verification | Pack templates and ontology; praxis-core crate retired (SJIRA-15), no live examples/* consumer | **PARTIAL** |
 | `packs/cargo-cicd-pack` | Projects CI/CD and release assets from ontology | Pack ontology/templates; broader release portability remains bounded by available SDKs | **PARTIAL** |
 | `packs/wasm4pm-facts-pack` | Projects WASM4PM fact coverage and proof artifacts | Pack templates and proof surfaces | **PARTIAL** |
 | `packs/affidavit-pack` | Generates affidavit/evidence-oriented artifacts with a consumer | `examples/affidavit-verify` | **PARTIAL** |
@@ -63,7 +63,7 @@ Marketplace descriptors under `marketplace/packs/` are discoverable package reco
 | **V. Independent Reality** — 53–64 | Independent fixtures/tests and reference-tree comparison | `star-toml-pack`, `lsp-max-pack`, TCPS project record | **PARTIAL** |
 | **VI. Ontology Neighborhood** — 65–80 | RDF parsing, stable IRIs, public vocabularies and graph-law materialization | Most ontology-bearing packs | **IMPLEMENTED** primitives; modeling quality is pack-specific |
 | **VII. Admission Gates** — 81–94 | SHACL/SPARQL gate execution and typed refusal before writes | `ggen-verify-pack`, `star-toml-pack`, `lsp-max-pack` | **PACK_WITNESS** |
-| **VIII. Deterministic Projection** — 95–120 | SPARQL extraction/CONSTRUCT, Tera rendering and write ownership | `star-toml-pack`, `lsp-max-pack`, `praxis-core-pack` | **PACK_WITNESS** |
+| **VIII. Deterministic Projection** — 95–120 | SPARQL extraction/CONSTRUCT, Tera rendering and write ownership | `star-toml-pack`, `lsp-max-pack` | **PACK_WITNESS** |
 | **IX. Complete Product Surfaces** — 121–134 | Generated Rust modules, manifests, C/WASM boundaries | TCPS book laboratory, `wasm4pm-facts-pack` | **PARTIAL**; full multi-target substitution is not universally verified |
 | **X. Proof beside Product** — 135–148 | Generated tests, Chicago TDD, mutation sensitivity and cheat scanning | `star-toml-pack`, `lsp-max-pack`, `ggen-verify-pack` | **PACK_WITNESS** |
 | **XI. Consumer Place** — 149–160 | Real `ggen.toml`, sync, generated mounts, build/test and replay | `examples/star-toml-verify`, `examples/lsp-max-verify`, `examples/affidavit-verify` | **PACK_WITNESS** |
@@ -72,7 +72,7 @@ Marketplace descriptors under `marketplace/packs/` are discoverable package reco
 | **XIV. Receipts and Standing** — 187–200 | Input/output/transition hashes, signatures, verification facts and provenance | `ggen-verify-pack`, graph transition receipts, marketplace passports | **PARTIAL** across the full supply chain |
 | **XV. Change the Engine Only at the Boundary** — 201–212 | Shared schema dispatch, pack gate execution, write/error semantics | `ggen-engine` and reasoner-independence tests | **IMPLEMENTED** machinery; necessity claims remain case-specific |
 | **XVI. Level Five Sequence** — 213–224 | Product/ontology/acceptance matrices and certification planning | `book/code/packs/canonical-level-five-pack`, TCPS design records | **PARTIAL** |
-| **XVII. TCPS Complete Pattern** — 225–302, 337 | TCPS ontology, generated core/product/release artifacts and defect ledger | Book TCPS packs and project-record evidence | **PARTIAL** until current-head full toolchain replay |
+| **XVII. TCPS Complete Pattern** — 225–302 | TCPS ontology, generated core/product/release artifacts and defect ledger | Book TCPS packs and project-record evidence | **PARTIAL** until current-head full toolchain replay |
 | **XVIII. Make a New Language** — 303–320 | Practicum applying all pack-facing crates | No single repository pack can witness an arbitrary new domain | **TARGET** |
 | **XIX. Certification Laboratories** — 321–336 | Adversarial mutation, consumer verification, composition, receipts and release checks | Canonical Level Five laboratory assets | **PARTIAL** until all laboratories execute on current head |
 | **Pattern Reference** | Current manifests, layouts, examples and failure codes | Live pack manifests and crate schemas take precedence | **IMPLEMENTED** only where checked against current code |

@@ -511,4 +511,3 @@ ORDER BY ?entityName ?propertyName
 3. **Order results**: Use ORDER BY for consistent output
 4. **Document templates**: Add comments explaining complex logic
 5. **Test incrementally**: Modify one rule at a time and verify output
-

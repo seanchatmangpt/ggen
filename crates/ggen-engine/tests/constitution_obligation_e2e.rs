@@ -70,6 +70,16 @@ fn scaffold(root: &Path, constitution: &str) {
     std::fs::write(root.join("ontology.ttl"), ttl).expect("write ontology");
     std::fs::create_dir_all(root.join("templates")).expect("mkdir templates");
     std::fs::write(root.join("templates/one.tmpl"), TEMPLATE).expect("write template");
+    // Collision repair (lane G2, disclosed in g2-typed-refusals receipt):
+    // WO-01's fail-closed EA admission gate (FM-LAW-015) refuses any sync
+    // whose root lacks ea.graph.json; these tests exercise constitution
+    // obligation counting, not EA admission, so the fixture carries a
+    // minimal valid-but-empty EA graph (zero candidate SBBs).
+    std::fs::write(
+        root.join("ea.graph.json"),
+        "{\"schema\":\"ggen.ea.graph.v1\",\"strategy\":{\"id\":\"s\",\"title\":\"t\"},\"capabilities\":[],\"abbs\":[],\"contracts\":[],\"candidate_sbbs\":[],\"qualifications\":[],\"packs\":[]}",
+    )
+    .expect("write ea.graph.json");
 }
 
 fn read_obligation_count(root: &Path) -> ObligationCount {
@@ -92,6 +102,8 @@ fn obligation_count_required_matches_real_count_of_unmechanized_laws() {
     sync(
         dir.path(),
         SyncOptions {
+            // K2: FM-LAW-015 EA-admission opt-out (test pins a non-EA law)
+            skip_ea_admission: true,
             consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
@@ -136,6 +148,8 @@ fn flipping_one_law_to_mechanized_decreases_obligation_count_by_exactly_one() {
     sync(
         dir.path(),
         SyncOptions {
+            // K2: FM-LAW-015 EA-admission opt-out (test pins a non-EA law)
+            skip_ea_admission: true,
             consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
@@ -158,6 +172,8 @@ fn flipping_one_law_to_mechanized_decreases_obligation_count_by_exactly_one() {
     sync(
         dir.path(),
         SyncOptions {
+            // K2: FM-LAW-015 EA-admission opt-out (test pins a non-EA law)
+            skip_ea_admission: true,
             consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
@@ -203,6 +219,8 @@ fn project_without_any_ccn_law_individuals_reports_zero_required() {
     sync(
         dir.path(),
         SyncOptions {
+            // K2: FM-LAW-015 EA-admission opt-out (test pins a non-EA law)
+            skip_ea_admission: true,
             consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()

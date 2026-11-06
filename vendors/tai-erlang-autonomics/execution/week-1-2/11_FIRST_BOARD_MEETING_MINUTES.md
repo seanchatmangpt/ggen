@@ -673,4 +673,3 @@ The following documents were presented to and reviewed by the Board at this meet
 **Version**: 1.0 (Template)
 
 **Note**: This template provides a comprehensive record of initial board action. The specific resolutions and authorizations can be modified based on founder decisions regarding equity splits, officer roles, and other governance matters. Consult with legal counsel before finalizing.
-

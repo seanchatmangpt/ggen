@@ -495,4 +495,3 @@ Phone: ___________________________
 3. **Legal review**: Have your attorney review the customized version before sending
 4. **Send to customer**: Upload to DocuSign or print for wet signature
 5. **Track signature progress**: Monitor in DocuSign until both parties have signed
-

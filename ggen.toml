@@ -1,6 +1,6 @@
 [project]
 name = "ggen"
-version = "26.10.12"
+version = "26.11.4"
 description = "Specification-driven code generation from RDF ontologies — A = μ(O)"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 license = "MIT"
@@ -30,6 +30,7 @@ imports = [
   "evidence/producers/docs-manifest.ttl",
   "evidence/producers/receipts-check.ttl",
   "evidence/producers/evidence-check.ttl",
+  "ontologies/shapes/boundary-refusal.shacl.ttl",
 ]
 
 [ontology.prefixes]
@@ -43,6 +44,11 @@ xsd     = "http://www.w3.org/2001/XMLSchema#"
 dcterms = "http://purl.org/dc/terms/"
 skos    = "http://www.w3.org/2004/02/skos/core#"
 
+# DECLARATIVE-ONLY (ar-1 lesson): the engine's sync-time gate runner reads
+# `[law].gates` only (crates/ggen-engine/src/sync.rs); `[validation]` is a
+# schema-marker table (crates/ggen-config/src/config_schema.rs DECLARATIVE_ONLY_TABLES)
+# and these 10 ASK gates are NOT executed by `ggen sync run`. They are
+# consumed by scripts/ci/guard-sparql-gates.sh (pre-commit guard), not by sync.
 [validation]
 gates = [
   ".specify/gates/cross-pack-contamination.rq",
@@ -481,4 +487,52 @@ SELECT ?body WHERE { grp:MarketplaceDocsWorkflow grp:workflowBody ?body . } ORDE
 """ }
 template    = { file = ".specify/templates/docs/ggen_marketplace_docs_workflow.yml.tera" }
 output_file = ".github/workflows/marketplace-docs.yml"
+mode        = "Overwrite"
+
+# ── Typed boundary refusals (WO-05, v26.11.3 lane G5) ───────────────────────
+# Regenerates crates/ggen-abb-sbb/src/generated/refusals.rs from the L13
+# refusal registry graph. Determinism law: ORDER BY ?code — the rendered
+# enum/match/ctor order is alphabetical wire-code order, NOT the TTL
+# declaration order of the registry file.
+#
+# The ?variant column is carried as an inline VALUES mapping, not derived
+# mechanically: registry variants are curated (surface prefixes stripped,
+# e.g. E-ENVELOPE-UNDECLARED → EnvelopeUndeclared,
+# FD-UNDECLARED_INPUT_DIALECT → UndeclaredInputDialect), so no SPARQL/Tera
+# string transform can reproduce them. Drift guard: a registry code absent
+# from the VALUES table drops out of the render silently here, and is caught
+# loudly by crates/ggen-abb-sbb/tests/refusal_crosswalk_test.rs (TTL codes ==
+# generated enum variants, asserted in both directions).
+[[generation.rules]]
+name        = "abb-sbb-typed-boundary-refusals"
+query       = { inline = """
+PREFIX br: <https://ggen.io/ontology/boundary-refusal#>
+SELECT ?crate_path ?variant ?wire ?ctor ?doc WHERE {
+  ?ind a br:BoundaryRefusal ; br:code ?wire .
+  VALUES (?wire ?variant ?ctor) {
+    ("CENSUS_STALE"                       "CensusStale"                  "census_stale")
+    ("CONTROL_REFUSED"                    "ControlRefused"               "control_refused")
+    ("E-ENVELOPE-UNDECLARED"              "EnvelopeUndeclared"           "envelope_undeclared")
+    ("E-PARSE-N3"                         "ParseN3"                      "parse_n3")
+    ("E-PARSE-NTRIPLES"                   "ParseNTriples"                "parse_ntriples")
+    ("E-PARSE-TURTLE"                     "ParseTurtle"                  "parse_turtle")
+    ("FD-DIALECT_FEATURE_DISALLOWED"      "DialectFeatureDisallowed"     "dialect_feature_disallowed")
+    ("FD-MALFORMED_SYNTAX"                "MalformedSyntax"              "malformed_syntax")
+    ("FD-UNDECLARED_INPUT_DIALECT"        "UndeclaredInputDialect"       "undeclared_input_dialect")
+    ("FD-REMOTE_CONTEXT_FORBIDDEN"        "RemoteContextForbidden"       "remote_context_forbidden")
+    ("REFUSED_STALE_LEASE"                "RefusedStaleLease"            "refused_stale_lease")
+    ("RESTORE_TAMPER"                     "RestoreTamper"                "restore_tamper")
+    ("VACUOUS_COURT"                      "VacuousCourt"                 "vacuous_court")
+    ("WITNESS_STALE"                      "WitnessStale"                 "witness_stale")
+  }
+
+  OPTIONAL { ?ind br:fixHint ?hint . }
+  BIND(COALESCE(?hint, "(no fixHint registered)") AS ?doc)
+  BIND("ggen_abb_sbb::generated::refusals" AS ?crate_path)
+}
+ORDER BY ?wire
+""" }
+template    = { file = "templates/typed-boundary-refusal-rust.tera" }
+output_file = "crates/ggen-abb-sbb/src/generated/refusals.rs"
+skip_empty  = false
 mode        = "Overwrite"

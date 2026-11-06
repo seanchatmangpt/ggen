@@ -15,6 +15,7 @@ import io
 import os
 from pathlib import Path
 import subprocess
+import sys
 import tarfile
 
 MODULE_PATH = Path(__file__).with_name("observe_repository.py")
@@ -27,6 +28,16 @@ BASE_EMIT_TURTLE = MODEL.emit_turtle
 
 _HEAD_SNAPSHOTS: dict[tuple[str, str], dict[str, bytes]] = {}
 
+# E-2 re-pin discipline: when bound (check mode), byte semantics and the
+# recorded revision come from the committed observation receipt's revision,
+# never literal HEAD. Empty string means unbound (HEAD semantics).
+_OBSERVATION_REVISION: str | None = None
+
+
+def set_observation_revision(revision: str | None) -> None:
+    global _OBSERVATION_REVISION
+    _OBSERVATION_REVISION = revision or None
+
 
 def git(root: Path, *args: str) -> bytes:
     return subprocess.run(
@@ -37,9 +48,10 @@ def git(root: Path, *args: str) -> bytes:
     ).stdout
 
 
-def head_snapshot(root: Path) -> dict[str, bytes]:
-    """Return tracked HEAD bytes without consulting mutable worktree contents."""
-    revision = git(root, "rev-parse", "HEAD").decode("ascii").strip()
+def head_snapshot(root: Path, revision: str | None = None) -> dict[str, bytes]:
+    """Return tracked bytes at ``revision`` (HEAD when unbound), never worktree bytes."""
+    revision = revision or _OBSERVATION_REVISION
+    revision = revision or git(root, "rev-parse", "HEAD").decode("ascii").strip()
     key = (str(root.resolve()), revision)
     cached = _HEAD_SNAPSHOTS.get(key)
     if cached is not None:
@@ -278,8 +290,16 @@ def emit_turtle(observation: dict[str, object]) -> str:
 
 MODEL.read_bytes = git_semantic_bytes
 MODEL.emit_turtle = emit_turtle
-observe = MODEL.observe
+
+
+def observe(root: Path, revision: str | None = None) -> dict[str, object]:
+    """Observe at ``revision`` (HEAD when unbound); binds byte semantics to it."""
+    set_observation_revision(revision)
+    return MODEL.observe(root, revision=revision)
+
+
 write_outputs = MODEL.write_outputs
+recorded_revision = MODEL.recorded_revision
 
 
 def main() -> int:
@@ -288,7 +308,25 @@ def main() -> int:
     parser.add_argument("--check", action="store_true")
     args = parser.parse_args()
     root = (args.root or Path(__file__).resolve().parents[2]).resolve()
-    return write_outputs(root, observe(root), args.check)
+    # E-2 re-pin discipline: check mode replays at the committed receipt's
+    # revision, not HEAD (C21-class out-of-subject binding).
+    revision = MODEL.recorded_revision(root) if args.check else None
+    try:
+        return write_outputs(root, observe(root, revision=revision), args.check)
+    except subprocess.CalledProcessError as error:
+        # E-2 re-pin discipline: a recorded revision git cannot materialize
+        # (stale/bogus pin in the committed receipt) refuses with a typed
+        # drift message instead of an uncaught traceback. Fail-closed.
+        recorded = revision if revision is not None else "unknown"
+        try:
+            current = git(root, "rev-parse", "HEAD").decode("ascii").strip()
+        except Exception:
+            current = "unknown"
+        print(
+            f"GGEN_SELF_HOST_DRIFT: stale observation revision {recorded} != {current}",
+            file=sys.stderr,
+        )
+        return 1
 
 
 if __name__ == "__main__":

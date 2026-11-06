@@ -12,8 +12,12 @@ use clap_noun_verb::Result;
 /// * `dry_run` - Resolve and render but do not write any files to disk; report what would change.
 /// * `watch` - Watch the filesystem and re-run the pipeline automatically whenever a watched file changes.
 /// * `consumer_mode` - Suppress installer emission of outputs derived from `fixtureOnly`-marked specs (OS-13 consumer mode).
+/// * `skip_ea_admission` - Skip the Stage 2c EA (ABB/SBB) admission gate; lawful only when the project intentionally runs without architecture admission.
 #[clap_noun_verb_macros::verb("run")]
-fn sync_run(dry_run: bool, watch: bool, consumer_mode: bool) -> Result<serde_json::Value> {
+#[allow(clippy::fn_params_excessive_bools)] // flags mirror the generated CLI verb surface; restructuring would break routing
+fn sync_run(
+    dry_run: bool, watch: bool, consumer_mode: bool, skip_ea_admission: bool,
+) -> Result<serde_json::Value> {
     // HAND-EDITED (lane dryrun-written, 2026-10-10): dry-run reports renamed
     // the `written` key to `planned_writes` and gained `dry_run: true`. The
     // engine's `SyncReport` still serializes `written` (typed API surface,
@@ -23,7 +27,8 @@ fn sync_run(dry_run: bool, watch: bool, consumer_mode: bool) -> Result<serde_jso
     // NOTE: this hand edit lives below the GENERATED routing annotation and
     // must be re-applied if `mode = Overwrite` regeneration ever rewrites
     // this file.
-    let mut report = crate::verbs::handlers::handle_sync_run(dry_run, watch, consumer_mode)?;
+    let mut report =
+        crate::verbs::handlers::handle_sync_run(dry_run, watch, consumer_mode, skip_ea_admission)?;
     if dry_run {
         if let Some(obj) = report.as_object_mut() {
             if let Some(planned) = obj.remove("written") {

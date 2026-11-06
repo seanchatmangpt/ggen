@@ -98,6 +98,7 @@ fn pack_sync_end_to_end() {
     let first = sync(
         &project,
         SyncOptions {
+            skip_ea_admission: true,
             consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
@@ -176,6 +177,7 @@ fn pack_sync_end_to_end() {
     let second = sync(
         &project,
         SyncOptions {
+            skip_ea_admission: true,
             consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
@@ -213,6 +215,7 @@ fn pack_sync_end_to_end() {
     sync(
         &project,
         SyncOptions {
+            skip_ea_admission: true,
             consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
@@ -262,6 +265,7 @@ fn pack_sync_end_to_end() {
     let err = sync(
         &project,
         SyncOptions {
+            skip_ea_admission: true,
             consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
@@ -279,6 +283,7 @@ fn tampered_receipt_decision_fails_verification() {
     sync(
         &project,
         SyncOptions {
+            skip_ea_admission: true,
             consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
@@ -319,6 +324,7 @@ fn dry_run_never_writes_or_mutates_lock() {
     let report = sync(
         &project,
         SyncOptions {
+            skip_ea_admission: true,
             consumer_mode: Default::default(),
             dry_run: true,
             ..Default::default()
@@ -344,6 +350,7 @@ fn dry_run_never_writes_or_mutates_lock() {
     sync(
         &project,
         SyncOptions {
+            skip_ea_admission: true,
             consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
@@ -354,6 +361,7 @@ fn dry_run_never_writes_or_mutates_lock() {
     sync(
         &project,
         SyncOptions {
+            skip_ea_admission: true,
             consumer_mode: Default::default(),
             dry_run: true,
             ..Default::default()
@@ -381,6 +389,7 @@ fn unreachable_git_pack_url_fails_closed_with_a_typed_error() {
     let err = sync(
         &project,
         SyncOptions {
+            skip_ea_admission: true,
             consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
@@ -400,6 +409,7 @@ fn broken_packs_refuse_by_name() {
     let err = sync(
         &project,
         SyncOptions {
+            skip_ea_admission: true,
             consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
@@ -421,6 +431,7 @@ fn broken_packs_refuse_by_name() {
     let err = sync(
         &project,
         SyncOptions {
+            skip_ea_admission: true,
             consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
@@ -443,6 +454,7 @@ fn broken_packs_refuse_by_name() {
     let err = sync(
         &project,
         SyncOptions {
+            skip_ea_admission: true,
             consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
@@ -464,6 +476,7 @@ fn broken_packs_refuse_by_name() {
     let err = sync(
         &project,
         SyncOptions {
+            skip_ea_admission: true,
             consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
@@ -499,6 +512,7 @@ fn two_packs_disjoint_outputs_both_succeed() {
     let report = sync(
         &project,
         SyncOptions {
+            skip_ea_admission: true,
             consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
@@ -556,6 +570,7 @@ fn two_packs_colliding_output_aborts_sync_without_rollback_or_lock() {
     let err = sync(
         &project,
         SyncOptions {
+            skip_ea_admission: true,
             consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
@@ -640,6 +655,7 @@ fn same_pack_two_templates_colliding_output_aborts_sync_identically() {
     let err = sync(
         &project,
         SyncOptions {
+            skip_ea_admission: true,
             consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
@@ -750,6 +766,7 @@ fn cross_pack_conflicting_rdf_type_aborts_sync_citing_contamination_gate() {
     let err = sync(
         &project,
         SyncOptions {
+            skip_ea_admission: true,
             consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
@@ -843,6 +860,7 @@ fn git_resolved_pack_syncs_end_to_end_and_caches_across_runs() {
     sync(
         &project,
         SyncOptions {
+            skip_ea_admission: true,
             consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
@@ -889,6 +907,7 @@ fn git_resolved_pack_syncs_end_to_end_and_caches_across_runs() {
     sync(
         &project,
         SyncOptions {
+            skip_ea_admission: true,
             consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
@@ -950,6 +969,7 @@ fn extra_ontology_syncs_and_its_edit_invalidates_the_lock() {
     sync(
         &project,
         SyncOptions {
+            skip_ea_admission: true,
             consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
@@ -975,6 +995,7 @@ fn extra_ontology_syncs_and_its_edit_invalidates_the_lock() {
     let err = sync(
         &project,
         SyncOptions {
+            skip_ea_admission: true,
             consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
@@ -1004,6 +1025,7 @@ fn missing_extra_ontology_refuses_with_a_typed_error() {
     let err = sync(
         &project,
         SyncOptions {
+            skip_ea_admission: true,
             consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
@@ -1077,6 +1099,7 @@ fn lock_false_pack_is_never_locked_and_its_edit_does_not_refuse() {
     sync(
         &project,
         SyncOptions {
+            skip_ea_admission: true,
             consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
@@ -1115,6 +1138,7 @@ fn lock_false_pack_is_never_locked_and_its_edit_does_not_refuse() {
     sync(
         &project,
         SyncOptions {
+            skip_ea_admission: true,
             consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
@@ -1154,6 +1178,7 @@ fn default_locked_pack_still_refuses_on_tampering_regression_guard() {
     sync(
         &project,
         SyncOptions {
+            skip_ea_admission: true,
             consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
@@ -1175,6 +1200,7 @@ fn default_locked_pack_still_refuses_on_tampering_regression_guard() {
     let err = sync(
         &project,
         SyncOptions {
+            skip_ea_admission: true,
             consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
@@ -1221,6 +1247,7 @@ fn tampering_with_a_locked_packs_gate_file_is_caught() {
     sync(
         &project,
         SyncOptions {
+            skip_ea_admission: true,
             consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
@@ -1243,6 +1270,7 @@ fn tampering_with_a_locked_packs_gate_file_is_caught() {
     let err = sync(
         &project,
         SyncOptions {
+            skip_ea_admission: true,
             consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()

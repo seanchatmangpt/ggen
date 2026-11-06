@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# prepare-commit-msg hook — O3 mechanical-gates-spec Gate 2 (S-12).
+# Runs scripts/index_disclosure.py: refuse-by-default on foreign staged
+# paths; appends the attribution footer to the message file on disclose.
+# Requires GGEN_LANE_ID (and optionally GGEN_LANE_DISCLOSE) in the environment.
+# Enable: git config core.hooksPath .githooks   (operator's call — not auto-installed)
+exec python3 "$(git rev-parse --show-toplevel)/scripts/index_disclosure.py" "$@"

@@ -1,0 +1,13 @@
+#!/bin/sh
+# lane-lease-check — Gate 1 pre-commit entry point (mechanical-gates-spec.md).
+#
+# Thin wrapper: the gate engine is scripts/lane_lease_hook.py (O3, SD-19);
+# this shim is the spec-named enforcement point so a repo can wire either
+# name into .git/hooks/pre-commit or core.hooksPath. Same env contract:
+#   GGEN_LANE_ID        required (COORD = coordinator bypass + orphan audit)
+#   GGEN_LANE_DISCLOSE  optional <lane-id> adopt-with-footer
+#   GGEN_LANE_REGISTRY  optional explicit registry path override
+# Not auto-installed — wiring is the operator's call.
+set -e
+ROOT="$(git rev-parse --show-toplevel)"
+exec python3 "$ROOT/scripts/lane_lease_hook.py" "$@"

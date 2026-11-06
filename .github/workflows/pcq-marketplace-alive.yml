@@ -18,6 +18,15 @@ jobs:
   manufacture-and-verify:
     runs-on: ubuntu-24.04
     timeout-minutes: 35
+    # ZD-128/ZD-39: .cargo/config.toml sets [build] rustc-wrapper = "sccache"
+    # unconditionally, but no sccache binary is installed on this runner, so
+    # `cargo build` dies with exit 101 ("could not execute process `sccache`").
+    # Match the cyberpunk-tv-platform.yml pattern: empty RUSTC_WRAPPER overrides
+    # build.rustc-wrapper at the cargo config layer (env wins), SCCACHE_DISABLE
+    # is the belt against any direct sccache invocation.
+    env:
+      RUSTC_WRAPPER: ""
+      SCCACHE_DISABLE: "1"
     defaults:
       run:
         working-directory: examples/pcq-marketplace
@@ -46,12 +55,16 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p .ggen/evidence
-          ../../target/release/ggen sync run
+          # --skip-ea-admission: FM-LAW-015 disclosed opt-out (ZD-125 pattern).
+          # The pcq-marketplace consumer's authored surface is {ggen.toml,
+          # ontology, pack inputs}; it carries no EA architecture graph and the
+          # FM-LAW-015 gate correctly refuses one from being silently minted.
+          ../../target/release/ggen sync run --skip-ea-admission
           find . -type f ! -path './.ggen/*' ! -path './.ggen-v2/*' -print0 | sort -z | xargs -0 sha256sum > .ggen/evidence/projection-first.sha256
-          ../../target/release/ggen sync run
+          ../../target/release/ggen sync run --skip-ea-admission
           find . -type f ! -path './.ggen/*' ! -path './.ggen-v2/*' -print0 | sort -z | xargs -0 sha256sum > .ggen/evidence/projection-second.sha256
           diff -u .ggen/evidence/projection-first.sha256 .ggen/evidence/projection-second.sha256
-          ../../target/release/ggen sync run --dry-run | tee .ggen/evidence/pcq-dry-run.log
+          ../../target/release/ggen sync run --dry-run --skip-ea-admission | tee .ggen/evidence/pcq-dry-run.log
 
       - name: Install pnpm
         uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4

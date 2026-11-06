@@ -873,4 +873,3 @@ This 90-day plan is executable with a focused team and realistic assumptions:
 
 **Date:** _________________
 **Approved for Execution:** ✓ YES | ☐ NO
-

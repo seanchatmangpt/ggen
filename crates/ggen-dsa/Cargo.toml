@@ -1,0 +1,16 @@
+[package]
+name = "ggen-dsa"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+repository.workspace = true
+license.workspace = true
+description = "ML-DSA-65 (FIPS-204) signer — ZP-22 first increment (OI-3)"
+publish = false
+
+[dependencies]
+ml-dsa = "0.1.2"
+signature = "3"
+
+[dev-dependencies]
+hex = "0.4"

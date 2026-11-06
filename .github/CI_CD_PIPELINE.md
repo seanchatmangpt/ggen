@@ -705,4 +705,3 @@ concurrency:
 - [Semantic Versioning](https://semver.org/)
 - [cosign Documentation](https://docs.sigstore.dev/cosign/overview/)
 - [syft Documentation](https://github.com/anchore/syft)
-

@@ -139,4 +139,3 @@ shutdown_telemetry();
 ---
 
 **Validation Complete**: OpenTelemetry instrumentation is working and validated with clnrm tests.
-

@@ -125,6 +125,16 @@ ex:alice ex:name "alice" .
 "#,
     );
 
+    // Collision repair (lane G2, disclosed in g2-typed-refusals receipt):
+    // WO-01's fail-closed EA admission gate (FM-LAW-015) refuses any sync
+    // whose root lacks ea.graph.json; same minimal empty-graph fixture as
+    // the frontmatter-schema test above.
+    write(
+        dir.path(),
+        "ea.graph.json",
+        "{\"schema\":\"ggen.ea.graph.v1\",\"strategy\":{\"id\":\"s\",\"title\":\"t\"},\"capabilities\":[],\"abbs\":[],\"contracts\":[],\"candidate_sbbs\":[],\"qualifications\":[],\"packs\":[]}",
+    );
+
     let report =
         sync(dir.path(), SyncOptions::default()).expect("declarative-rules sync must succeed");
     assert_eq!(
@@ -172,6 +182,15 @@ ex:alice ex:name "alice" .
         dir.path(),
         "templates/one.tmpl",
         "---\nto: out/names.txt\nsparql:\n  people: SELECT ?name WHERE { ?s <http://example.org/name> ?name } ORDER BY ?name\n---\n{% for row in results %}{{ row.name }}\n{% endfor %}",
+    ); // Collision repair (lane G2, disclosed in g2-typed-refusals receipt):
+       // WO-01's fail-closed EA admission gate (FM-LAW-015) refuses any sync
+       // whose root lacks ea.graph.json; this test exercises schema dispatch,
+       // not EA admission, so the fixture carries a minimal valid-but-empty
+       // EA graph (zero candidate SBBs).
+    write(
+        dir.path(),
+        "ea.graph.json",
+        "{\"schema\":\"ggen.ea.graph.v1\",\"strategy\":{\"id\":\"s\",\"title\":\"t\"},\"capabilities\":[],\"abbs\":[],\"contracts\":[],\"candidate_sbbs\":[],\"qualifications\":[],\"packs\":[]}",
     );
 
     let report = sync(dir.path(), SyncOptions::default()).expect("frontmatter sync must succeed");

@@ -175,4 +175,3 @@ Use in templates to generate validation code.
 - **Learn RDF/SPARQL:** [RDF/SPARQL Reference](../reference/rdf-sparql.md)
 - **Create templates:** [Create Templates Guide](../how-to-guides/create-templates.md)
 - **Understand architecture:** [Architecture Explanation](../explanations/architecture.md)
-

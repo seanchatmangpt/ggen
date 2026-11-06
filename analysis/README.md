@@ -367,4 +367,3 @@ Visual PlantUML diagram showing:
 **yawlv26.5.19 Hibernate 7 Hardening:** Stale session guard, fatal vs transient error distinction, operator recovery without restart, WCP-29 StructuredLoop XML fix, back-off sleep in `lib.sh`.
 
 **Remaining:** OTEL Jaeger proof → PR.
-

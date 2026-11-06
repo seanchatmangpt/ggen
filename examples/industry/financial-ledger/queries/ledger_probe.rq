@@ -1,0 +1,9 @@
+# One-row probe: proves the ledger graph loaded; drives static template
+# rendering exactly once per sync.
+PREFIX fin: <https://ggen.io/ontology/financial-ledger#>
+SELECT (COUNT(DISTINCT ?e) AS ?entries) (COUNT(DISTINCT ?a) AS ?accounts)
+WHERE {
+  OPTIONAL { ?e a fin:JournalEntry }
+  OPTIONAL { ?a a fin:Account }
+}
+ORDER BY ?entries

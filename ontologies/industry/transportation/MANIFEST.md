@@ -79,4 +79,3 @@ oxigraph load --print-stats *.rdf
 - GeoSPARQL (OGC standard)
 - PROV-O (W3C provenance)
 - RDF/XML and Turtle serializations (W3C standards)
-

@@ -39,6 +39,29 @@ fn scaffold(root: &Path) {
     std::fs::write(root.join("ontology.ttl"), ONTOLOGY).expect("write ontology");
     std::fs::create_dir_all(root.join("templates")).expect("mkdir templates");
     std::fs::write(root.join("templates/main.tmpl"), TEMPLATE).expect("write template");
+    write_empty_ea_graph(root);
+}
+
+// Collision repair (lane G2, disclosed in g2-typed-refusals receipt): WO-01's
+// fail-closed EA gate (FM-LAW-015) refuses any sync whose root lacks
+// ea.graph.json. Tests 1-2 overwrite this with a populated graph; the
+// depgraph-refusal tests (3-4) need the gate satisfied without contributing
+// candidate SBBs, so scaffold carries a minimal valid-but-empty graph.
+fn write_empty_ea_graph(root: &Path) {
+    std::fs::write(
+        root.join("ea.graph.json"),
+        r#"{
+  "schema": "ggen.ea.graph.v1",
+  "strategy": { "id": "s", "title": "t" },
+  "capabilities": [],
+  "abbs": [],
+  "contracts": [],
+  "candidate_sbbs": [],
+  "qualifications": [],
+  "packs": []
+}"#,
+    )
+    .expect("write ea.graph.json");
 }
 
 #[test]
@@ -167,7 +190,7 @@ version = "1.0.0"
 description = "Pack A"
 
 [graph]
-requires = ["port:missing-event-stream"]
+requires = ["missing-event-stream"]
 "#;
     std::fs::write(pack_a.join("pack.toml"), pack_a_toml).expect("write pack-a toml");
     std::fs::write(pack_a.join("ontology.ttl"), "").expect("write pack-a ttl");
@@ -193,7 +216,17 @@ path = "packs/pack-a"
 "#;
     std::fs::write(dir.path().join("ggen.toml"), ggen_toml).expect("write ggen.toml");
 
-    let err = sync(dir.path(), SyncOptions::default()).expect_err("unbound port must refuse");
+    // WO-01 fail-closed EA gate + kernel canon-port rule: this test's
+    // premise is the depgraph unbound-port refusal, not EA admission, so
+    // it opts out explicitly and uses a canonical (dash-only) port id.
+    let err = sync(
+        dir.path(),
+        SyncOptions {
+            skip_ea_admission: true,
+            ..SyncOptions::default()
+        },
+    )
+    .expect_err("unbound port must refuse");
     let msg = err.to_string();
     assert!(msg.contains("UNBOUND_PORT"), "{msg}");
     assert!(

@@ -130,8 +130,20 @@ fn packs_dir() -> PathBuf {
 /// this function used to hand-roll (empty local ontology/templates dir, so
 /// only pack templates run over pack ontologies).
 fn scaffold_composed_project() -> (TempDir, PathBuf) {
-    scaffold_multi_pack(&COMPOSED_PACKS)
+    let (dir, project) = scaffold_multi_pack(&COMPOSED_PACKS);
+    // WO-01's fail-closed EA admission gate (FM-LAW-015) refuses any sync
+    // whose project root lacks ea.graph.json. These tests pin pack
+    // composition mechanics, not EA admission, so the consumer carries a
+    // minimal valid-but-empty EA graph (zero candidate SBBs — the admit
+    // loop in ggen-engine/src/sync.rs iterates candidate_sbbs, so an empty
+    // list admits trivially and honestly: nothing to admit).
+    std::fs::write(project.join("ea.graph.json"), MINIMAL_EMPTY_EA_GRAPH)
+        .expect("write ea.graph.json");
+    (dir, project)
 }
+
+/// Minimal valid-but-empty EA graph (see `scaffold_composed_project`).
+const MINIMAL_EMPTY_EA_GRAPH: &str = "{\"schema\":\"ggen.ea.graph.v1\",\"strategy\":{\"id\":\"s\",\"title\":\"t\"},\"capabilities\":[],\"abbs\":[],\"contracts\":[],\"candidate_sbbs\":[],\"qualifications\":[],\"packs\":[]}";
 
 /// Recursively hash every file under `root`, excluding `.ggen-v2/` (receipts
 /// legitimately re-chain on every sync) — returns sorted (`rel_path`, blake3).
@@ -314,6 +326,9 @@ fn thirty_one_packs_compose_with_verify_gates_active() {
     }
 
     let project = dir.path().join("consumer");
+    std::fs::create_dir_all(&project).expect("mkdir consumer");
+    std::fs::write(project.join("ea.graph.json"), MINIMAL_EMPTY_EA_GRAPH)
+        .expect("write ea.graph.json");
     std::fs::create_dir_all(project.join("templates")).expect("mkdir templates");
     std::fs::create_dir_all(project.join("scripts/checks")).expect("mkdir checks");
     std::fs::write(project.join("ontology.ttl"), "").expect("write ontology.ttl");

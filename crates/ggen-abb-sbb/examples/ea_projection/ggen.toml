@@ -1,0 +1,37 @@
+# Consumer-style ggen manifest for the Turtle -> ggen.ea.graph.v1 projection
+# (WO-04 deliverable 3). The demo graph is authored in schema/demo-graph.ttl
+# using the geag: vocabulary of ontologies/shapes/ea-graph.shacl.ttl; the one
+# generation rule projects it to generated/ea.graph.json, which must be
+# byte-identical to crates/ggen-abb-sbb/fixtures/marketplace-ea-graph.json.
+#
+# Engine-constraint disclosure: the declarative-rules path refuses duplicate
+# output_file across rules, so the whole-graph JSON is emitted by ONE rule.
+# The rule-level query binds queries/ea_graph/strategy.rq; the six remaining
+# per-node-type SELECTs (the .rq files are the single source) reach the
+# template through the sparql() Tera function, with the query text inlined by
+# necessity -- the engine's sparql() takes text, not file paths. The court
+# test (crates/ggen-abb-sbb/tests/ea_projection_test.rs) pins the inline
+# copies to the .rq files so drift fails loudly.
+
+[project]
+name = "ea-projection"
+version = "0.1.0"
+description = "Turtle authoring -> ggen.ea.graph.v1 JSON projection (WO-04 deliverable 3)"
+
+[ontology]
+source = "schema/demo-graph.ttl"
+imports = ["../../../../ontologies/shapes/ea-graph.shacl.ttl"]
+
+[ontology.prefixes]
+geag = "https://ggen.dev/ns/ea-graph#"
+
+[generation]
+output_dir = "."
+
+[[generation.rules]]
+name = "ea-graph-projection"
+query = { file = "queries/ea_graph/strategy.rq" }
+template = { file = "templates/ea_graph.json.tera" }
+output_file = "ea.graph.json"
+mode = "Overwrite"
+skip_empty = false

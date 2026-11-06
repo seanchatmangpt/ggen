@@ -4,6 +4,11 @@ name = "tcps-generated"
 [ontology]
 source = "schema/domain.ttl"
 
+# The ver:Check facts (volatile per-run) load as a project ontology import --
+# outside every pack, so pack content hashes (and hence ggen.lock) stay stable
+# against the evidence emitter (FM-PACK-008 resolution, ZD-135).
+imports = ["evidence/ontology.ttl"]
+
 [ontology.prefixes]
 tcps = "http://seanchatmangpt.github.io/packs/tcps-core#"
 rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
@@ -20,7 +25,7 @@ tcps-cli-pack = { path = "../../packs/tcps-cli-pack" }
 # the local evidence/ mini-pack carries the ver:Check facts scripts/verify.sh
 # emits (real exit codes). Sync refuses if evidence is missing, red, or stale.
 ggen-verify-pack = { path = "../../packs/ggen-verify-pack" }
-tcps-evidence = { path = "evidence" }
+tcps-evidence = { path = "evidence-pack" }
 
 [templates]
 dir = "templates"

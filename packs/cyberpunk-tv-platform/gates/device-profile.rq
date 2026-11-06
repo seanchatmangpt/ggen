@@ -1,0 +1,18 @@
+# Gate equivalent of tv:DeviceProfileShape (SHACL-at-sync retired, FM-LAW-017).
+# true = violation.
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX tv: <https://ggen.dev/ontology/cyberpunk-tv#>
+ASK {
+  ?subject a tv:DeviceProfile .
+  {
+    FILTER NOT EXISTS { ?subject tv:deviceId ?v . FILTER(datatype(?v) = xsd:string) }
+  } UNION {
+    ?subject tv:deviceId ?d1, ?d2 . FILTER(STR(?d1) != STR(?d2))
+  } UNION {
+    FILTER NOT EXISTS { ?subject tv:runtimeKind ?v . FILTER(datatype(?v) = xsd:string) }
+  } UNION {
+    ?subject tv:runtimeKind ?r1, ?r2 . FILTER(STR(?r1) != STR(?r2))
+  } UNION {
+    FILTER NOT EXISTS { ?subject tv:hasCapability ?c . ?c a tv:Capability . }
+  }
+}

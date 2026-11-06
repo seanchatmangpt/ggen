@@ -49,6 +49,7 @@ fn enterprise_repository_factory_is_generated_and_idempotent() {
     let first = sync(
         &project,
         SyncOptions {
+            skip_ea_admission: true,
             consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
@@ -143,6 +144,7 @@ fn enterprise_repository_factory_is_generated_and_idempotent() {
     let second = sync(
         &project,
         SyncOptions {
+            skip_ea_admission: true,
             consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
@@ -177,6 +179,7 @@ fn admitted_corpus_without_blob_is_refused() {
     let error = sync(
         &project,
         SyncOptions {
+            skip_ea_admission: true,
             consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()

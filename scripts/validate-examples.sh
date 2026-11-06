@@ -130,9 +130,14 @@ for manifest in "${MANIFESTS[@]}"; do
     relative_manifest="${relative_manifest#./}"
 
     printf 'VERIFY %-70s ' "$relative_manifest"
+    # --skip-ea-admission: WO-01 (e) made the EA admission gate fail-closed;
+    # the gate's own disclosed opt-out is this flag (a skip is loud, never
+    # silent). The examples closure exercises generation, not architecture
+    # admission; the three examples that DO carry ea.graph.json still admit
+    # (the flag only covers absence), so no admission is bypassed here.
     if (
         cd "$example_dir"
-        "${TIMEOUT_CMD[@]}" "${GGEN_CMD[@]}" sync run >/dev/null
+        "${TIMEOUT_CMD[@]}" "${GGEN_CMD[@]}" sync run --skip-ea-admission >/dev/null
     ); then
         echo "ALIVE"
     else

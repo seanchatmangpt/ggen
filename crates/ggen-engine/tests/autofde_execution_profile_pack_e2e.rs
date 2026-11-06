@@ -62,6 +62,9 @@ fn execution_profile_pack_generates_powerless_revision_bound_json_and_is_idempot
         SyncOptions {
             consumer_mode: Default::default(),
             dry_run: false,
+            // WO-01 fail-closed EA gate: green-path premise, no EA
+            // admission under test — explicit opt-out.
+            skip_ea_admission: true,
             ..Default::default()
         },
     )
@@ -122,6 +125,9 @@ fn execution_profile_pack_escapes_malformed_inner_json_instead_of_injecting_oute
         SyncOptions {
             consumer_mode: Default::default(),
             dry_run: false,
+            // WO-01 fail-closed EA gate: green-path premise, no EA
+            // admission under test — explicit opt-out.
+            skip_ea_admission: true,
             ..Default::default()
         },
     )

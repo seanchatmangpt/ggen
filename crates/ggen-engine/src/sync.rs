@@ -36,7 +36,7 @@ use crate::receipt_chain_seam::{
     Andon, ChainStanding, ChainVerification, ReceiptRecord, CHAIN_RULE_V2_FOLD,
     RECEIPT_RECORD_VERSION,
 };
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use tera::Value;
 
 use crate::{
@@ -217,6 +217,12 @@ pub struct SyncOptions {
     /// (either source enables it). Default `false`: existing behavior
     /// byte-identical.
     pub consumer_mode: bool,
+    /// WO-01 (e), 2026-11-03: explicit opt-out for the now fail-closed EA
+    /// admission gate. Default `false` — a sync whose project root lacks
+    /// `ea.graph.json` is REFUSED (`FM-LAW-015`) unless this flag (CLI
+    /// `--skip-ea-admission`, wired in ggen-cli) is set. A skip is an
+    /// explicit, disclosed default, never a silent bypass.
+    pub skip_ea_admission: bool,
 }
 
 /// The outcome of one [`sync`] run.
@@ -326,6 +332,120 @@ pub struct ReceiptPayload {
     /// admits against any baseline).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub generation: Option<u64>,
+    /// Bypass-marked-receipt law (ZD-44/CARRY-04, 2026-11-04): when this run
+    /// skipped EA admission via the explicit `--skip-ea-admission` opt-out
+    /// (FM-LAW-015), the receipt MUST carry the disclosure — a bypassed gate
+    /// that leaves no mark is a silent bypass. Additive; `None` (serialized
+    /// as nothing) on every admitted run, and only on admitted runs.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub ea_admission_skipped: Option<String>,
+}
+
+/// EA graph (ABB/SBB) admission — Stage 2c's EA half, extracted verbatim from
+/// the frontmatter path's inline region (WO-01, 2026-11-03) so BOTH
+/// `ggen.toml` schema paths run the SAME admission (DEF-K6-2, 2026-11-03).
+/// The frontmatter path calls this from Stage 2c with the run's smallest
+/// template-declared envelope IRI; the declarative-rules path calls it from
+/// `sync()`'s Stage 0 dispatch branch (before `generation_rules::run`) with
+/// `None` (declarative manifests declare no template frontmatter envelopes,
+/// so the kernel's built-in caps apply).
+///
+/// Fail-closed on missing `ea.graph.json` (WO-01 defect (e)): a project with
+/// no EA graph and no explicit opt-out is a REFUSED transition, not a silent
+/// skip — the admission gate is the authority boundary and silently bypassing
+/// it would launder unadmitted manufacture. The only lawful opt-out is the
+/// explicit `skip_ea_admission` flag (CLI `--skip-ea-admission`, wired in
+/// ggen-cli); a skip is loud, never silent.
+///
+/// `pub(crate)`: shared by the two schema paths; not a public API.
+pub(crate) fn run_ea_graph_admission(
+    root: &Path, skip_ea_admission: bool, envelope_iri: Option<&str>, prior_generation: u64,
+) -> Result<()> {
+    let ea_graph_path = root.join("ea.graph.json");
+    if !ea_graph_path.is_file() && !skip_ea_admission {
+        return Err(AppError::fm_law(
+            15,
+            format!(
+                "EA admission gate: `{}` is absent and no admission \
+                 opt-out was given. Every sync must either admit its \
+                 candidate SBBs against an EA graph or explicitly skip \
+                 with `--skip-ea-admission`. Remediation: add \
+                 ea.graph.json, or pass --skip-ea-admission to run \
+                 without architecture admission.",
+                ea_graph_path.display()
+            ),
+        ));
+    }
+    if ea_graph_path.is_file() {
+        let content = std::fs::read_to_string(&ea_graph_path).map_err(|e| {
+            AppError::fm_law(
+                15,
+                format!(
+                    "ea.graph.json at `{}` unreadable: {e}",
+                    ea_graph_path.display()
+                ),
+            )
+        })?;
+        let ea_graph = ggen_abb_sbb::parse_graph(&content).map_err(|refusal| {
+            AppError::fm_law(
+                15,
+                format!(
+                    "EA graph at `{}` malformed: {refusal}",
+                    ea_graph_path.display()
+                ),
+            )
+        })?;
+        // Validate graph integrity
+        ea_graph.validate().map_err(|refusal| {
+            AppError::fm_law(
+                15,
+                format!(
+                    "EA graph at `{}` failed validation: {refusal}",
+                    ea_graph_path.display()
+                ),
+            )
+        })?;
+        // Envelope caps for the kernel: the caller's envelope IRI governs
+        // the Stage 2c admission caps (frontmatter path: smallest
+        // template-declared envelope, exactly as it governs the Stage 2c-caps
+        // render ceilings; declarative path: `None` → kernel
+        // DEFAULT_MAX_ARTIFACTS). (WO-01 defect (a).)
+        let abb_caps = crate::envelope::abb_envelope_caps(root, envelope_iri);
+        // Admit every candidate SBB defined in the graph, against the
+        // envelope-translated caps and a pinned graph digest (WO-01
+        // defects (a)/(c)).
+        for sbb in &ea_graph.candidate_sbbs {
+            let req = ggen_abb_sbb::Request {
+                abb: sbb.abb.clone(),
+                sbb: sbb.id.clone(),
+                requested_authority: ggen_abb_sbb::Authority::Construct,
+                // Digest pinning (WO-01 (c)): the request is bound to
+                // the exact parsed subject; a graph mutated between
+                // parse and admit refuses GRAPH_DIGEST_MISMATCH.
+                expected_graph_digest: Some(ea_graph.digest()),
+                // Stage 2c-epoch lease generation from the receipt-log
+                // tail (frontmatter path reads it at Stage 2c-epoch; the
+                // declarative path reads it at dispatch).
+                receipt_generation: prior_generation,
+                // WO-01 (c) follow-up: no artifact-baseline source
+                // exists yet (the receipt log tracks no per-artifact
+                // baseline); 0 = untracked keeps the kernel's
+                // stale-lease gate dormant. Wire a real baseline when
+                // a baseline source lands (WO-01 follow-up).
+                artifact_baseline_generation: 0,
+            };
+            ggen_abb_sbb::admit_with_caps(&ea_graph, &req, abb_caps.as_ref()).map_err(
+                |refusal| {
+                    AppError::abb_refusal(
+                        "FM-LAW-015",
+                        format!("EA SBB admission for `{}`", sbb.id),
+                        refusal,
+                    )
+                },
+            )?;
+        }
+    }
+    Ok(())
 }
 
 /// Run the five-stage pipeline rooted at `root` (the directory containing
@@ -362,6 +482,23 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
     let config = match parsed {
         crate::schema_dispatch::ParsedGgenToml::DeclarativeRules(mut manifest) => {
             absorb_manifest_rules(root, &mut manifest)?;
+            // DEF-K6-2 (2026-11-03): the declarative-rules path previously
+            // had ZERO Stage 2c wiring — a repo-root declarative manifest
+            // never ran EA admission even with a clean receipt chain. Run
+            // the SAME admission sequence the frontmatter path runs at its
+            // Stage 2c, before any rule executes. The receipt-log
+            // generation tail is read here (the Stage 2c-epoch span itself
+            // stays on the frontmatter path, which has the refusal-envelope
+            // context the epoch gate needs); declarative manifests carry no
+            // template frontmatter envelopes, so the kernel's built-in caps
+            // apply (`None`).
+            let prior_generation = read_receipt_log_generation(root)?;
+            run_ea_graph_admission(
+                root,
+                opts.skip_ea_admission,
+                None,
+                prior_generation.unwrap_or(0),
+            )?;
             return crate::generation_rules::run(root, &manifest, opts);
         }
         crate::schema_dispatch::ParsedGgenToml::Frontmatter(config) => *config,
@@ -1012,86 +1149,103 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
     // In addition, if packs define [graph] dependencies or ports, resolve
     // cross-pack DAG, cycles, and port completeness.
     {
-        // 1. Pack-level dependency/port resolution
-        let mut pack_manifests = Vec::new();
-        for pack in &packs {
-            let manifest_path = pack.root.join("pack.toml");
-            if manifest_path.is_file() {
-                if let Ok(content) = std::fs::read_to_string(&manifest_path) {
-                    if let Ok(pm) = ggen_abb_sbb::depgraph::extract_pack_manifest(&content) {
-                        pack_manifests.push(pm);
-                    }
+        // 1. Pack-level dependency/port resolution. FAIL-CLOSED (v26.11.3
+        // follow-up to WO-01): a pack manifest that cannot be read, or that
+        // the kernel refuses to extract (e. g. non-canonical port ids,
+        // v26.10.12+), is a REFUSED transition — the old `if let Ok(pm)`
+        // silently skipped the depgraph admission check on exactly the
+        // manifests that most needed it. Refusals ride the same
+        // FM-PACK-015 typed path as the resolve_sync_order gate below.
+        //
+        // WO-03 follow-up (lane e80-10): when a persisted composition plan
+        // exists at `<root>/.ggen-v2/composition-plan.json` (written by
+        // `ggen pack compose --out <path>`), Stage 2c consumes it instead of
+        // re-extracting every `pack.toml` from disk and re-deriving the
+        // admission order with `resolve_sync_order` — the cycle/unbound-port
+        // admission already ran at compose time, so the persisted plan is
+        // the register of truth for this run's order. Fail-closed on schema
+        // mismatch (FM-PACK-022) and on a stale plan whose pack set no
+        // longer matches the manifest's `[packs]` (FM-PACK-023, stale-plan
+        // law); absent plan → legacy path below, byte-identical behavior.
+        // Note (honest scoping): `resolve_sync_order`'s returned order was
+        // already discarded at this call site before this change (the call
+        // is a pure admission gate); "consuming the plan's order" therefore
+        // means admitting via the plan instead of re-deriving, not
+        // re-plumbing the order into a downstream consumer that does not
+        // exist.
+        let composition_plan = read_composition_plan(root)?;
+        if let Some(plan) = &composition_plan {
+            validate_composition_plan(plan, &packs)?;
+        } else {
+            let mut pack_manifests = Vec::new();
+            for pack in &packs {
+                let manifest_path = pack.root.join("pack.toml");
+                if manifest_path.is_file() {
+                    let content = std::fs::read_to_string(&manifest_path).map_err(|e| {
+                        AppError::fm_pack(
+                            15,
+                            format!(
+                                "Pack manifest at `{}` unreadable: {e}. The \
+                                 cross-pack dependency admission check cannot \
+                                 run, so sync refuses rather than skip it.",
+                                manifest_path.display()
+                            ),
+                        )
+                    })?;
+                    let pm = ggen_abb_sbb::depgraph::extract_pack_manifest(&content).map_err(
+                        |refusal| {
+                            AppError::abb_refusal(
+                                "FM-PACK-015",
+                                "Pack manifest extraction",
+                                refusal,
+                            )
+                        },
+                    )?;
+                    pack_manifests.push(pm);
                 }
             }
-        }
-        if !pack_manifests.is_empty() {
-            let consumer_edges = if manifest_path.is_file() {
-                std::fs::read_to_string(&manifest_path).ok().and_then(|c| {
-                    ggen_abb_sbb::depgraph::extract_consumer_edges(&c)
-                        .ok()
-                        .flatten()
-                })
-            } else {
-                None
-            };
-            ggen_abb_sbb::depgraph::resolve_sync_order(&pack_manifests, consumer_edges.as_ref())
-                .map_err(|refusal| {
-                    AppError::fm_pack(
-                        15,
-                        format!("Cross-pack dependency graph admission refused: {refusal}"),
-                    )
-                })?;
-        }
-
-        // 2. EA graph admission: if ea.graph.json exists or is embedded
-        let ea_graph_path = root.join("ea.graph.json");
-        if ea_graph_path.is_file() {
-            let content = std::fs::read_to_string(&ea_graph_path).map_err(|e| {
-                AppError::fm_law(
-                    15,
-                    format!(
-                        "ea.graph.json at `{}` unreadable: {e}",
-                        ea_graph_path.display()
-                    ),
-                )
-            })?;
-            let ea_graph = ggen_abb_sbb::parse_graph(&content).map_err(|refusal| {
-                AppError::fm_law(
-                    15,
-                    format!(
-                        "EA graph at `{}` malformed: {refusal}",
-                        ea_graph_path.display()
-                    ),
-                )
-            })?;
-            // Validate graph integrity
-            ea_graph.validate().map_err(|refusal| {
-                AppError::fm_law(
-                    15,
-                    format!(
-                        "EA graph at `{}` failed validation: {refusal}",
-                        ea_graph_path.display()
-                    ),
-                )
-            })?;
-            // Admit every candidate SBB defined in the graph
-            for sbb in &ea_graph.candidate_sbbs {
-                let req = ggen_abb_sbb::Request {
-                    abb: sbb.abb.clone(),
-                    sbb: sbb.id.clone(),
-                    requested_authority: ggen_abb_sbb::Authority::Construct,
-                    expected_graph_digest: None,
-                    receipt_generation: prior_generation.unwrap_or(0),
-                    artifact_baseline_generation: 0,
+            if !pack_manifests.is_empty() {
+                let consumer_edges = if manifest_path.is_file() {
+                    std::fs::read_to_string(&manifest_path).ok().and_then(|c| {
+                        ggen_abb_sbb::depgraph::extract_consumer_edges(&c)
+                            .ok()
+                            .flatten()
+                    })
+                } else {
+                    None
                 };
-                ggen_abb_sbb::admit(&ea_graph, &req).map_err(|refusal| {
-                    AppError::fm_law(
-                        15,
-                        format!("EA SBB admission refused for `{}`: {refusal}", sbb.id),
+                ggen_abb_sbb::depgraph::resolve_sync_order(
+                    &pack_manifests,
+                    consumer_edges.as_ref(),
+                )
+                .map_err(|refusal| {
+                    AppError::abb_refusal(
+                        "FM-PACK-015",
+                        "Cross-pack dependency graph admission",
+                        refusal,
                     )
                 })?;
             }
         }
+
+        // 2. EA graph admission — hoisted to [`run_ea_graph_admission`]
+        // (DEF-K6-2): the identical admission sequence now runs on BOTH
+        // `ggen.toml` schema paths, dispatched from `sync()`'s Stage 0
+        // branch for the declarative-rules schema. The envelope IRI that
+        // governs the admission caps is unchanged: the first
+        // (deterministically smallest) envelope IRI declared across this
+        // run's templates; no declared envelope → `None` → kernel
+        // DEFAULT_MAX_ARTIFACTS.
+        let stage2c_envelope_iri: Option<String> = templates
+            .iter()
+            .filter_map(|(_, t)| t.frontmatter.envelope.clone())
+            .min();
+        run_ea_graph_admission(
+            root,
+            opts.skip_ea_admission,
+            stage2c_envelope_iri.as_deref(),
+            prior_generation.unwrap_or(0),
+        )?;
     }
 
     // ── Stage 2c-caps: envelope CapTable extraction (v26.10.20) ─────────
@@ -1718,8 +1872,14 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
         // binds the files that *did* land, closing the drift window instead
         // of leaving the previous (now-stale) receipt as the last word on
         // them.
-        if let Err(receipt_err) = write_receipt(root, &report, graph.as_ref(), opts.receipt_origin)
-        {
+        if let Err(receipt_err) = write_receipt(
+            root,
+            &report,
+            graph.as_ref(),
+            opts.receipt_origin,
+            emit_err.is_some(),
+            opts.skip_ea_admission,
+        ) {
             return Err(match emit_err {
                 // The write-stage failure is the operative incident; a
                 // receipt-write failure on top of it must be surfaced too
@@ -2108,6 +2268,181 @@ fn expand_gate_glob(root: &Path, pattern: &str) -> Result<Vec<String>> {
 /// # Errors
 /// `[FM-CHAIN-009]` when the log is unreadable, `[FM-CHAIN-010]` when the
 /// tail line is corrupt.
+/// The `.ggen-v2/composition-plan.json` wire shape (WO-03: the JSON written
+/// by `ggen pack compose --out <path>`). Mirrors
+/// `ggen_marketplace::packs_registry::composer::PackCompositionPlan` field
+/// for field; defined locally because ggen-engine must stay a pure consumer
+/// of the wire shape (ggen-marketplace has no dependency back on this
+/// crate, and the plan struct there is `Serialize`-only).
+///
+/// Fail-closed by construction: `deny_unknown_fields` refuses any plan
+/// carrying keys this schema does not know, and serde refuses any plan
+/// missing a required key — both surface as FM-PACK-022.
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub(crate) struct PersistedCompositionPlan {
+    pub pack_ids: BTreeSet<String>,
+    pub provides: BTreeMap<String, BTreeSet<String>>,
+    pub order: Vec<String>,
+    pub artifact_paths: BTreeMap<String, BTreeSet<String>>,
+    pub self_satisfied: Vec<String>,
+    pub transitive_deps: BTreeMap<String, BTreeSet<String>>,
+}
+
+/// Read the persisted composition plan at `<root>/.ggen-v2/composition-plan.json`.
+///
+/// Absent file → `Ok(None)` (legacy path: Stage 2c re-extracts and
+/// re-derives admission from disk, byte-identical to pre-WO-03 behavior).
+/// Present-but-unreadable or schema-invalid → typed refusal
+/// (fail-closed), never a silent skip.
+///
+/// # Errors
+///
+/// FM-PACK-022 when the file exists but cannot be read or does not
+/// validate against the plan schema.
+pub(crate) fn read_composition_plan(root: &Path) -> Result<Option<PersistedCompositionPlan>> {
+    let plan_path = root.join(".ggen-v2").join("composition-plan.json");
+    let raw = match std::fs::read_to_string(&plan_path) {
+        Ok(raw) => raw,
+        Err(e) if e.kind() == std::io::ErrorKind::NotFound => return Ok(None),
+        Err(e) => {
+            return Err(AppError::fm_pack(
+                22,
+                format!(
+                    "Persisted composition plan at `{}` unreadable: {e}. A plan \
+                     that exists but cannot be read is an undecidable admission \
+                     baseline — fix or delete `.ggen-v2/composition-plan.json`, \
+                     or regenerate it with `ggen pack compose --out \
+                     .ggen-v2/composition-plan.json`.",
+                    plan_path.display()
+                ),
+            ))
+        }
+    };
+    serde_json::from_str(&raw).map(Some).map_err(|e| {
+        AppError::fm_pack(
+            22,
+            format!(
+                "Persisted composition plan at `{}` failed schema validation: \
+                     {e}. The plan must be the exact JSON written by `ggen pack \
+                     compose --out` (pack_ids/provides/order/artifact_paths/\
+                     self_satisfied/transitive_deps).",
+                plan_path.display()
+            ),
+        )
+    })
+}
+
+/// Validate a persisted composition plan against this run's resolved packs
+/// (the manifest's `[packs]`).
+///
+/// Two fail-closed laws:
+/// 1. Stale-plan law (FM-PACK-023): the plan's `pack_ids` must equal the
+///    manifest's pack-name set exactly — extra or missing packs mean the
+///    plan was composed for a different manifest state and its order cannot
+///    be trusted for this run.
+/// 2. Order integrity (FM-PACK-022): `order` must be a permutation of
+///    `pack_ids` (same length, same membership ⇒ no duplicates, no gaps).
+///
+/// # Errors
+///
+/// FM-PACK-023 on stale pack set; FM-PACK-022 on a malformed order.
+pub(crate) fn validate_composition_plan(
+    plan: &PersistedCompositionPlan, packs: &[crate::pack::Pack],
+) -> Result<()> {
+    let manifest_ids: BTreeSet<String> = packs.iter().map(|p| p.name.clone()).collect();
+    if plan.pack_ids != manifest_ids {
+        let missing: Vec<String> = manifest_ids.difference(&plan.pack_ids).cloned().collect();
+        let extra: Vec<String> = plan.pack_ids.difference(&manifest_ids).cloned().collect();
+        return Err(AppError::fm_pack(
+            23,
+            format!(
+                "Persisted composition plan is STALE: its pack set no longer \
+                 matches the manifest's `[packs]` (missing from plan: \
+                 {missing:?}; not in manifest: {extra:?}). Re-run \
+                 `ggen pack compose --out .ggen-v2/composition-plan.json` \
+                 against the current manifest.",
+            ),
+        ));
+    }
+    if plan.order.len() != plan.pack_ids.len() {
+        return Err(AppError::fm_pack(
+            22,
+            format!(
+                "Persisted composition plan has a malformed order: {} order \
+                 entries for {} packs. `order` must be a permutation of \
+                 `pack_ids`.",
+                plan.order.len(),
+                plan.pack_ids.len()
+            ),
+        ));
+    }
+    let order_set: BTreeSet<&String> = plan.order.iter().collect();
+    let id_set: BTreeSet<&String> = plan.pack_ids.iter().collect();
+    if order_set != id_set {
+        return Err(AppError::fm_pack(
+            22,
+            "Persisted composition plan has a malformed order: `order` is \
+                 not a permutation of `pack_ids` (duplicate or foreign pack id \
+                 in `order`).".to_string(),
+        ));
+    }
+    // Schema integrity: per-pack maps are keyed by pack id, and the
+    // capability map is valued by provider pack id — foreign ids mean the
+    // plan body and its pack set disagree (schema mismatch, not merely
+    // staleness). (`provides` maps capability -> provider pack ids, so its
+    // KEYS are capability names and are not checked here.)
+    for (field, keys) in [
+        ("artifact_paths", plan.artifact_paths.keys()),
+        ("transitive_deps", plan.transitive_deps.keys()),
+    ] {
+        let foreign: Vec<String> = keys
+            .filter(|k| !plan.pack_ids.contains(*k))
+            .cloned()
+            .collect();
+        if !foreign.is_empty() {
+            return Err(AppError::fm_pack(
+                22,
+                format!(
+                    "Persisted composition plan has a schema mismatch: \
+                     `{field}` is keyed by pack ids outside `pack_ids`: \
+                     {foreign:?}."
+                ),
+            ));
+        }
+    }
+    for (capability, providers) in &plan.provides {
+        let foreign: Vec<String> = providers.difference(&plan.pack_ids).cloned().collect();
+        if !foreign.is_empty() {
+            return Err(AppError::fm_pack(
+                22,
+                format!(
+                    "Persisted composition plan has a schema mismatch: \
+                     `provides[\"{capability}\"]` names provider pack ids \
+                     outside `pack_ids`: {foreign:?}."
+                ),
+            ));
+        }
+    }
+    let foreign_self: Vec<String> = plan
+        .self_satisfied
+        .iter()
+        .filter(|id| !plan.pack_ids.contains(*id))
+        .cloned()
+        .collect();
+    if !foreign_self.is_empty() {
+        return Err(AppError::fm_pack(
+            22,
+            format!(
+                "Persisted composition plan has a schema mismatch: \
+                 `self_satisfied` names pack ids outside `pack_ids`: \
+                 {foreign_self:?}."
+            ),
+        ));
+    }
+    Ok(())
+}
+
 pub(crate) fn read_receipt_log_generation(root: &Path) -> Result<Option<u64>> {
     let log_path = root.join(RECEIPT_LOG_REL_PATH);
     let raw = match std::fs::read_to_string(&log_path) {
@@ -3654,10 +3989,9 @@ fn compare_producer_class(
 // boundaries rather than shrink real complexity.
 #[allow(clippy::too_many_lines)]
 pub(crate) fn write_receipt(
-    root: &Path, report: &SyncReport, graph: &dyn GraphEngine, receipt_origin: Option<&'static str>,
+    root: &Path, report: &SyncReport, graph: &dyn GraphEngine,
+    receipt_origin: Option<&'static str>, partial: bool, ea_admission_skipped: bool,
 ) -> Result<()> {
-    use std::io::Write as _;
-
     // This run's receipt-generation epoch, established from the log tail
     // (first sync = 1). The Stage-2c gate already verified the tail is
     // honest; the same baseline is recorded into the payload and every
@@ -3698,6 +4032,8 @@ pub(crate) fn write_receipt(
         closure: report.closure.clone(),
         build_provenance: Some(crate::build_provenance::BUILD_PROVENANCE_HEX.to_string()),
         generation: Some(run_generation),
+        ea_admission_skipped: ea_admission_skipped
+            .then(|| "skipped: --skip-ea-admission (FM-LAW-015 gate not evaluated)".to_string()),
     };
     let payload_bytes = serde_json::to_vec(&payload)?;
     let payload_hash_hex = blake3::hash(&payload_bytes).to_hex().to_string();
@@ -3716,42 +4052,44 @@ pub(crate) fn write_receipt(
     // chain hash, so it is read as the legacy-bounded epoch below, never as
     // the stored (unprovable) payload.
     let prev_chain_standing = match &prev_head {
-        Some(prev) => match prev.record.verify_chain().map_err(|e| {
-            AppError::fm_chain(9, format!("previous receipt chain recompute failed: {e}"))
-        })? {
-            ChainVerification::Verified(ChainStanding::LegacyV2Unbound) => {
-                // Never extend a downgraded head: a legacy head after a
-                // declared record is exactly what `receipt history` refuses.
-                if let Some(first) = first_declared_chain_rule_in_log(&log_path, 9)? {
-                    return Err(AppError::fm_chain(
-                        9,
-                        format!(
+        Some(prev) => {
+            match crate::receipt_chain_seam::verify_chain_compat(&prev.record).map_err(|e| {
+                AppError::fm_chain(9, format!("previous receipt chain recompute failed: {e}"))
+            })? {
+                ChainVerification::Verified(ChainStanding::LegacyV2Unbound) => {
+                    // Never extend a downgraded head: a legacy head after a
+                    // declared record is exactly what `receipt history` refuses.
+                    if let Some(first) = first_declared_chain_rule_in_log(&log_path, 9)? {
+                        return Err(AppError::fm_chain(
+                            9,
+                            format!(
                             "previous receipt head is invalid: chain-rule downgrade -- the head \
                              verifies only as `{}` but receipt log record {first} declared a \
                              chain rule. Refusing to extend a downgraded chain. Remediation: run \
                              `ggen receipt history` and restore the receipts.",
                             ChainStanding::LegacyV2Unbound.as_str()
                         ),
-                    ));
+                        ));
+                    }
+                    Some(ChainStanding::LegacyV2Unbound)
                 }
-                Some(ChainStanding::LegacyV2Unbound)
-            }
-            ChainVerification::Verified(standing) => Some(standing),
-            ChainVerification::Mismatch { rule, recomputed } => {
-                return Err(AppError::fm_chain(
-                    9,
-                    format!(
-                        "previous receipt head is invalid: stored chain hash {} does not \
+                ChainVerification::Verified(standing) => Some(standing),
+                ChainVerification::Mismatch { rule, recomputed } => {
+                    return Err(AppError::fm_chain(
+                        9,
+                        format!(
+                            "previous receipt head is invalid: stored chain hash {} does not \
                          match recompute {} (chain rule `{}`). Refusing to extend a tampered \
                          chain. Remediation: run `ggen receipt history` and restore the \
                          receipts.",
-                        prev.record.chain_hash_hex,
-                        hex32(&recomputed),
-                        rule.as_str()
-                    ),
-                ));
+                            prev.record.chain_hash_hex,
+                            hex32(&recomputed),
+                            rule.as_str()
+                        ),
+                    ));
+                }
             }
-        },
+        }
         None => None,
     };
     let prev_chain_hash_hex = match &prev_head {
@@ -4196,19 +4534,34 @@ pub(crate) fn write_receipt(
 
     // The legacy top-level `Andon` field is derived from the same v2
     // precedence, not hardcoded -- this is the hardcoded-`Green` literal
-    // this migration replaces.
-    let legacy_andon = match epoch.andon {
-        AndonLevel::Green => Andon::Green,
-        AndonLevel::Yellow => Andon::Overridden {
-            by: "ggen.sync.v2".to_string(),
-            reason: "quarantined admission item(s); see receipt v2.admission".to_string(),
-            at: 0,
-        },
-        AndonLevel::Red => Andon::Halted {
+    // this migration replaces. A partial run (write stage stopped early)
+    // must never present itself
+    // as a complete Green sync: its `outputs` map binds only the files that
+    // landed before the refusal, and the reflexive output-count-regression
+    // gate compares consecutive Green receipts. Recording a partial run as
+    // Green would (a) mislabel reality and (b) manufacture a false shrink
+    // signal for the next complete sync (witnessed: ZD-41, tcps-generated's
+    // 43-vs-134 refusal was exactly a partial receipt labeled Green).
+    let legacy_andon = if partial {
+        Andon::Halted {
             unmet: Vec::new(),
             refusals: Vec::new(),
             at: 0,
-        },
+        }
+    } else {
+        match epoch.andon {
+            AndonLevel::Green => Andon::Green,
+            AndonLevel::Yellow => Andon::Overridden {
+                by: "ggen.sync.v2".to_string(),
+                reason: "quarantined admission item(s); see receipt v2.admission".to_string(),
+                at: 0,
+            },
+            AndonLevel::Red => Andon::Halted {
+                unmet: Vec::new(),
+                refusals: Vec::new(),
+                at: 0,
+            },
+        }
     };
     let legacy_obligation_count = epoch.obligation_count.remaining().unwrap_or(0);
 
@@ -4262,19 +4615,64 @@ pub(crate) fn write_receipt(
     // chains from the log tail and the history stays linear.
     let mut line = serde_json::to_vec(&receipt)?;
     line.push(b'\n');
+    append_receipt_line(&log_path, &line, receipt.record.chain_hash_hex.as_str())?;
+    std::fs::write(&receipt_path, serde_json::to_vec(&receipt)?)?;
+    Ok(())
+}
+
+/// Append one serialized receipt line to `.ggen-v2/receipt-log.jsonl`,
+/// idempotent against retry-after-ambiguous-write (KD-G18 at-most-once
+/// law): if the new line is byte-identical to the log's last line AND its
+/// `chain_hash_hex` equals the last record's, the append is a retry of an
+/// already-landed record and is skipped (traced, not an error). A record
+/// sharing the previous chain hash but differing in body still appends —
+/// that would be a real fork, which the chain-verify fence catches
+/// downstream; this fence only dedupes exact retries.
+fn append_receipt_line(log_path: &Path, line: &[u8], chain_hash_hex: &str) -> Result<bool> {
+    use std::io::Write as _;
+
+    let body = &line[..line.len().saturating_sub(1)]; // strip trailing '\n'
+    if let Ok(raw) = std::fs::read_to_string(log_path) {
+        if let Some(last) = raw.lines().last() {
+            let last = last.trim_end_matches('\r');
+            if last.as_bytes() == body {
+                // Byte-identical body: confirm the chain hash also matches
+                // before declaring this an idempotent retry.
+                let same_hash = serde_json::from_str::<serde_json::Value>(last)
+                    .ok()
+                    .and_then(|v| {
+                        v.get("record")
+                            .and_then(|r| r.get("chain_hash_hex"))
+                            .and_then(|h| h.as_str())
+                            .map(|h| h == chain_hash_hex)
+                    })
+                    .unwrap_or(false);
+                if same_hash {
+                    tracing::debug!(
+                        chain_hash = %chain_hash_hex,
+                        "receipt-log append skipped: byte-identical retry of last record \
+                         (KD-G18 idempotence fence)"
+                    );
+                    return Ok(false);
+                }
+            }
+        }
+    }
+    if let Some(parent) = log_path.parent() {
+        std::fs::create_dir_all(parent)?;
+    }
     std::fs::OpenOptions::new()
         .create(true)
         .append(true)
-        .open(&log_path)
-        .and_then(|mut f| f.write_all(&line))
+        .open(log_path)
+        .and_then(|mut f| f.write_all(line))
         .map_err(|e| {
             AppError::fm_chain(
                 4,
                 format!("receipt log `{}` append failed: {e}", log_path.display()),
             )
         })?;
-    std::fs::write(&receipt_path, serde_json::to_vec(&receipt)?)?;
-    Ok(())
+    Ok(true)
 }
 
 /// Escape a plain string for embedding in a Turtle `"..."` literal
@@ -4303,10 +4701,59 @@ mod tests {
     use std::{collections::BTreeMap, path::Path};
 
     use super::{
-        check_determinism_guard_agrees_false, check_determinism_rows_agree_empty,
-        hash_file_or_missing, resolve_gate_entries, ExtractedRows, SyncReceipt,
-        RECEIPT_LOG_REL_PATH, RECEIPT_REL_PATH,
+        append_receipt_line, check_determinism_guard_agrees_false,
+        check_determinism_rows_agree_empty, hash_file_or_missing, resolve_gate_entries,
+        ExtractedRows, SyncReceipt, RECEIPT_LOG_REL_PATH, RECEIPT_REL_PATH,
     };
+
+    /// KD-G18 at-most-once fence: two consecutive byte-identical appends
+    /// (the retry-after-ambiguous-write shape) land exactly one line.
+    #[test]
+    fn duplicate_append_is_idempotent_single_line() {
+        let dir = tempfile::tempdir().expect("tempdir");
+        let log = dir.path().join(RECEIPT_LOG_REL_PATH);
+        let line = serde_json::to_vec(&serde_json::json!({
+            "record": { "chain_hash_hex": "aa".repeat(32) },
+            "payload": {}
+        }))
+        .expect("serialize");
+        let mut line = line;
+        line.push(b'\n');
+
+        assert!(append_receipt_line(&log, &line, &"aa".repeat(32)).expect("first append"));
+        let skipped =
+            append_receipt_line(&log, &line, &"aa".repeat(32)).expect("retry append");
+        assert!(!skipped, "identical retry must be skipped, not appended");
+
+        let raw = std::fs::read_to_string(&log).expect("read log");
+        assert_eq!(raw.lines().count(), 1, "exactly one line lands: {raw}");
+    }
+
+    /// A same-prev-different-body record (different chain hash) still
+    /// appends — that is a real fork the downstream chain fence catches,
+    /// never something this fence silently drops.
+    #[test]
+    fn distinct_append_still_lands_second_line() {
+        let dir = tempfile::tempdir().expect("tempdir");
+        let log = dir.path().join(RECEIPT_LOG_REL_PATH);
+        let mk = |hash: &str| {
+            let mut v = serde_json::to_vec(&serde_json::json!({
+                "record": { "chain_hash_hex": hash },
+                "payload": {}
+            }))
+            .expect("serialize");
+            v.push(b'\n');
+            v
+        };
+        let a = mk(&"aa".repeat(32));
+        let b = mk(&"bb".repeat(32));
+
+        assert!(append_receipt_line(&log, &a, &"aa".repeat(32)).expect("first"));
+        assert!(append_receipt_line(&log, &b, &"bb".repeat(32)).expect("second distinct"));
+
+        let raw = std::fs::read_to_string(&log).expect("read log");
+        assert_eq!(raw.lines().count(), 2, "both distinct lines land: {raw}");
+    }
 
     /// Gate-path glob expansion (fix-forward): a `gates/*.rq` entry over a
     /// 3-file gates dir expands to exactly those 3 files, in sorted order;

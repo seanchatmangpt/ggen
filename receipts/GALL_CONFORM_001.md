@@ -6,6 +6,8 @@ gate: Dung Gate
 ---
 # GALL Conformance Receipt 001
 
+Standing: PASS
+
 ggen manufacturing control plane passed GALL conformance check.
 
 ## Evidence

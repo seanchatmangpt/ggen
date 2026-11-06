@@ -151,6 +151,3 @@ ggen is not the privileged exception to the laws it imposes. It becomes a produc
 - **Mechanized:** false
 - **Enforced by:** packs/ggen-constitution-pack itself (this pack, heal-thyself-r1) -- Stage 1 'Descriptive mirror' of the generation ladder in progress
 - **Note:** This pack's own existence is Stage-1 evidence (a descriptive mirror) of the ladder this principle describes, but no automated fixed-point-closure test or generation-ledger check exists yet to mechanically verify ladder-stage claims -- pending Center 2 and beyond, per the task instructions for this pack (a separate ongoing workflow phase).
-
-
-

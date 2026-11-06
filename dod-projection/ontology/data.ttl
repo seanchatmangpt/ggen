@@ -1,0 +1,147 @@
+@prefix dod: <urn:ggen:dod:> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+
+<urn:ggen:dod:ontology> a owl:Ontology ;
+    dcterms:title "ggen v26.11.3 publish definition-of-done"@en ;
+    dcterms:source "docs/jira/v26.11.3/receipts/gd-2-ggen-dod.md" ;
+    owl:versionInfo "26.11.3-gd-2" ;
+    rdfs:comment "Definition-of-done projection for the v26.11.3 publish: publication gates (PubGate) and carried publication defects (PubDefect) as queryable RDF."@en .
+
+dod:PubGate a rdfs:Class ;
+    rdfs:label "Publication gate"@en ;
+    rdfs:comment "One publish-readiness gate with its check command, evidence receipt, and closed MET/UNMET/BLOCKED status."@en .
+
+dod:PubDefect a rdfs:Class ;
+    rdfs:label "Carried publication defect"@en ;
+    rdfs:comment "A known publication defect carried past the v26.11.3 publish, tracked on a named bench for a later milestone."@en .
+
+dod:gateId a rdf:Property ;
+    rdfs:domain dod:PubGate ;
+    rdfs:label "gate id"@en ;
+    rdfs:comment "Stable kebab-case gate identifier; the projection orders by this."@en .
+
+dod:description a rdf:Property ;
+    rdfs:label "description"@en ;
+    rdfs:comment "What the gate checks or what the defect is."@en .
+
+dod:checkCommand a rdf:Property ;
+    rdfs:domain dod:PubGate ;
+    rdfs:label "check command"@en ;
+    rdfs:comment "The command whose exit status witnesses the gate."@en .
+
+dod:evidenceReceipt a rdf:Property ;
+    rdfs:domain dod:PubGate ;
+    rdfs:label "evidence receipt"@en ;
+    rdfs:comment "Path or name of the receipt that witnessed the gate's status."@en .
+
+dod:status a rdf:Property ;
+    rdfs:label "status"@en ;
+    rdfs:comment "Closed set: MET | UNMET | BLOCKED for PubGate; CARRIED for PubDefect."@en .
+
+dod:defectId a rdf:Property ;
+    rdfs:domain dod:PubDefect ;
+    rdfs:label "defect id"@en ;
+    rdfs:comment "Stable kebab-case defect identifier; the projection orders by this."@en .
+
+dod:namedBench a rdf:Property ;
+    rdfs:domain dod:PubDefect ;
+    rdfs:label "named bench"@en ;
+    rdfs:comment "The named bench where the defect is tracked for a future milestone."@en .
+
+# ---------------------------------------------------------------------------
+# Publication gates (populated from real v26.11.3 state, 2026-11-03)
+# ---------------------------------------------------------------------------
+
+dod:pr-824-ci a dod:PubGate ;
+    dod:gateId "pr-824-ci" ;
+    dod:description "All CI workflows on PR #824 green before merge." ;
+    dod:checkCommand "gh pr checks 824 --repo ggen-project/ggen" ;
+    dod:evidenceReceipt "PR-824 CI triage list (17+ workflows failing)" ;
+    dod:status "UNMET" .
+
+dod:workspace-version-26113 a dod:PubGate ;
+    dod:gateId "workspace-version-26113" ;
+    dod:description "Workspace Cargo.toml carries version 26.11.3." ;
+    dod:checkCommand "grep -m1 '^version' Cargo.toml" ;
+    dod:evidenceReceipt "Cargo.toml: version = \"26.11.3\" (re-read 2026-11-03)" ;
+    dod:status "MET" .
+
+dod:fm-registry-parity a dod:PubGate ;
+    dod:gateId "fm-registry-parity" ;
+    dod:description "docs/FM_REGISTRY.md carries one row per statically observable FM code (118)." ;
+    dod:checkCommand "grep -c '^| `FM-' docs/FM_REGISTRY.md" ;
+    dod:evidenceReceipt "docs/FM_REGISTRY.md (118 rows, re-read 2026-11-03)" ;
+    dod:status "MET" .
+
+dod:sjira-suite-211 a dod:PubGate ;
+    dod:gateId "sjira-suite-211" ;
+    dod:description "ggen-sjira semantic-jira suite green: 211 passed, 0 failed." ;
+    dod:checkCommand "cargo test -p ggen-sjira" ;
+    dod:evidenceReceipt "docs/jira/v26.11.3/receipts/x1-sjira-kernel.md" ;
+    dod:status "MET" .
+
+dod:control-plan-wired a dod:PubGate ;
+    dod:gateId "control-plan-wired" ;
+    dod:description "sjira control plan wired: just sjira-control + its court." ;
+    dod:checkCommand "just sjira-control" ;
+    dod:evidenceReceipt "docs/jira/v26.11.3/receipts/ga-7-control-wiring.md" ;
+    dod:status "MET" .
+
+dod:stress-trio-landed a dod:PubGate ;
+    dod:gateId "stress-trio-landed" ;
+    dod:description "All three stress suites landed: AB-13, AB-14, AB-20." ;
+    dod:checkCommand "ls docs/jira/v26.11.3/receipts/ab-20-*.md" ;
+    dod:evidenceReceipt "ab-13-kernel-stress.md + ab-14-chain-scale.md landed; ab-20 receipt absent (2026-11-03)" ;
+    dod:status "UNMET" .
+
+dod:clippy-clean a dod:PubGate ;
+    dod:gateId "clippy-clean" ;
+    dod:description "cargo clippy --workspace -D warnings exits 0." ;
+    dod:checkCommand "cargo clippy --workspace --all-targets -- -D warnings" ;
+    dod:evidenceReceipt "Per-crate receipts only (ds-2.md, ds-8.md); no workspace-wide clean receipt (2026-11-03)" ;
+    dod:status "UNMET" .
+
+dod:changelog-present a dod:PubGate ;
+    dod:gateId "changelog-present" ;
+    dod:description "CHANGELOG.md carries a 26.11.3 section." ;
+    dod:checkCommand "grep -c '26\\.11\\.3' CHANGELOG.md" ;
+    dod:evidenceReceipt "grep '26\\.11\\.3' CHANGELOG.md -> 0 hits (2026-11-03)" ;
+    dod:status "UNMET" .
+
+# ---------------------------------------------------------------------------
+# Carried publication defects
+# ---------------------------------------------------------------------------
+
+dod:hex-prefix-lottery a dod:PubDefect ;
+    dod:defectId "hex-prefix-lottery" ;
+    dod:description "Hex-prefix lottery: nondeterministic identifier minting in generated artifacts." ;
+    dod:namedBench "v26.11.4 bench" ;
+    dod:status "CARRIED" .
+
+dod:o-n-ledger-append a dod:PubDefect ;
+    dod:defectId "o-n-ledger-append" ;
+    dod:description "Ledger append is O(n) per entry at scale." ;
+    dod:namedBench "v26.11.4 bench" ;
+    dod:status "CARRIED" .
+
+dod:finding-1-noun-audit a dod:PubDefect ;
+    dod:defectId "finding-1-noun-audit" ;
+    dod:description "Finding-1 noun audit: singular findings lack audited noun closure." ;
+    dod:namedBench "v26.11.4 bench" ;
+    dod:status "CARRIED" .
+
+dod:lsp-max-push-transport a dod:PubDefect ;
+    dod:defectId "lsp-max-push-transport" ;
+    dod:description "lsp-max push transport defect: push-channel delivery is lossy under load." ;
+    dod:namedBench "lsp-max bench" ;
+    dod:status "CARRIED" .
+
+dod:diagnostic-relay-probe a dod:PubDefect ;
+    dod:defectId "diagnostic-relay-probe" ;
+    dod:description "Diagnostic relay probe: relay diagnostics lack a positive-control probe." ;
+    dod:namedBench "lsp-max bench" ;
+    dod:status "CARRIED" .

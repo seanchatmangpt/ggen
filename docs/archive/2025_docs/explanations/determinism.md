@@ -126,4 +126,3 @@ ggen's determinism is validated by a 782-line end-to-end test:
 - [Determinism Reference](../reference/rdf-sparql.md#deterministic-processing)
 - [Create Templates Guide](../how-to-guides/create-templates.md)
 - [Deploy Production Guide](../how-to-guides/deploy-production.md)
-

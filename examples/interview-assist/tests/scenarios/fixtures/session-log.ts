@@ -57,7 +57,7 @@ export function assertFixtureLegalAgainstRealTable(log: readonly SessionEvent[])
   let phase: Phase = "CREATED";
   for (const event of log) {
     if (event.targetPhase === undefined) continue;
-    const legalTargets = PHASE_TRANSITIONS[phase] ?? [];
+    const legalTargets: readonly Phase[] = PHASE_TRANSITIONS[phase] ?? [];
     if (!legalTargets.includes(event.targetPhase)) {
       throw new Error(
         `fixture drift: ${phase} -> ${event.targetPhase} is not a real admitted transition-plan edge in phase-transitions.ts`,

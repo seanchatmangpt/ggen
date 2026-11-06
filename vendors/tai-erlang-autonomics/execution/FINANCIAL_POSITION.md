@@ -513,4 +513,3 @@ NOTES:
 ---
 
 **CAREFUL STEWARDSHIP OF CAPITAL.** Every dollar matters in a startup.
-

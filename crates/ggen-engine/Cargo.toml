@@ -7,7 +7,7 @@
 # "ggen-engine" since the praxis-core/praxis-graphlaw path deps retired
 # (SJIRA-15, 2026-10-09).
 name = "ggen-engine"
-version = "26.10.12"                      # CalVer YY.M.patch
+version.workspace = true                  # CalVer YY.M.patch (workspace root, 26.11.3)
 edition = "2021"
 rust-version = "1.82"
 authors = ["Sean Chatman <xpointsh@gmail.com>"]
@@ -98,8 +98,8 @@ tracing = { workspace = true }                                        # pipeline
 # Engine deps (unconditional — the whole point of this crate is the SPARQL+Tera pipeline)
 oxigraph = "0.5.11"
 tera = "1.20"
-notify = "8.2"
-notify-debouncer-full = "0.6"
+notify = { workspace = true }
+notify-debouncer-full = { workspace = true } # S3 (2026-11-04): was "0.6" — collided with the workspace's 0.7, giving 2 copies in Cargo.lock
 serde_yaml = "0.9"
 regex = "1"
 semver = "1.0" # pack.toml [dependencies] version requirement admission
@@ -115,13 +115,16 @@ star-toml = { workspace = true }
 # Cargo.lock) so this never becomes a duplicate-version dependency graph.
 spargebra = "0.4.7"
 graphlaw = { workspace = true }
-ggen-abb-sbb = { path = "../ggen-abb-sbb", version = "26.10.11" }
+ggen-abb-sbb = { path = "../ggen-abb-sbb", version = "=26.11.4" }
+# E80-04 (v26.11.3): SCIP-backed SymbolGraph adapter (blast_radius::ScipGraph)
+# over the ggen-scip index. Path dep is sibling-crate, versioned for publish.
+ggen-scip = { path = "../ggen-scip", version = "=26.11.4" }
 # Receipt→dataset bridge (v26.10.20 slice 2, lane G15): opt-in projection of sync
 # receipt identity facts into ggen-graph's intent-segregated DatasetStore. Versioned
 # path edge (same pattern as ggen-abb-sbb/ggen-marketplace above) so `cargo publish
 # -p ggen-engine` stays resolvable; ggen-graph depends on this crate only as a
 # DEV-dependency, so no normal-dependency cycle exists.
-ggen-graph = { path = "../ggen-graph", version = "=26.10.12" }
+ggen-graph = { path = "../ggen-graph", version = "=26.11.4" }
 # New, deliberate edge (not an undocumented re-export): resolving a `GenerationRule`'s
 # `QuerySource::Pack`/`TemplateSource::Pack` variant means asking "where is this pack
 # installed" -- that knowledge lives in ggen-marketplace's pack registry/lockfile after
@@ -174,6 +177,12 @@ insta = { version = "1", features = ["json"] }
 proptest = "1"
 criterion = { version = "0.7", features = ["html_reports"] }
 divan = "0.1"
+# Dual-engine render-diff court (ZP-24 / OI-2): tera 2.4.0 alongside the pinned
+# engine tera 1.20, renamed so both resolve in one crate. The census test
+# (tests/tera_whitespace_census.rs) renders the poisoned fixture + lawful files
+# under BOTH engines and asserts byte-equality — the whitespace `-}}` law must
+# hold identically across the version span.
+tera2 = { package = "tera", version = "2.4" }
 
 [[bin]]
 name = "dod"

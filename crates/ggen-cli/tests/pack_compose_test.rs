@@ -189,12 +189,59 @@ fn compose_requires_bearing_pack_without_provider_is_refused() {
     );
 }
 
+/// (e) WO-03: `order` respects dependency-before-dependent. The kernel's
+/// topological order puts capability providers before their requirer:
+/// `affidavit-consumer-pack` requires URNs provided by
+/// `semantic-gate-witness-court-pack` and `wasi-json-abi-pack`. This pair
+/// discriminates sorted-vs-topological: "affidavit-consumer-pack" sorts
+/// alphabetically FIRST, so while the verb canonicalized `order` with
+/// `order.sort()` the requirer came before its providers — RED under the
+/// sorted code, GREEN after removal.
+#[test]
+fn compose_order_respects_dependency_before_dependent() {
+    let output = run_compose(&[
+        "affidavit-consumer-pack",
+        "semantic-gate-witness-court-pack",
+        "wasi-json-abi-pack",
+    ]);
+    assert!(
+        output.status.success(),
+        "consumer + providers compose must succeed; stderr: {}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    let value: Value = serde_json::from_slice(&output.stdout).expect("stdout is JSON");
+    let order: Vec<&str> = value["order"]
+        .as_array()
+        .expect("order array")
+        .iter()
+        .filter_map(|v| v.as_str())
+        .collect();
+    let consumer = order
+        .iter()
+        .position(|&p| p == "affidavit-consumer-pack")
+        .unwrap_or_else(|| panic!("consumer missing from order: {order:?}"));
+    for provider in ["semantic-gate-witness-court-pack", "wasi-json-abi-pack"] {
+        let idx = order
+            .iter()
+            .position(|&p| p == provider)
+            .unwrap_or_else(|| panic!("provider {provider} missing from order: {order:?}"));
+        assert!(
+            idx < consumer,
+            "order must put provider {provider} before its requirer; got: {order:?}"
+        );
+        assert_ne!(
+            idx, consumer,
+            "provider {provider} must not equal consumer position"
+        );
+    }
+}
+
 /// Determinism: two identical compose runs produce byte-identical stdout,
-/// INCLUDING the `order` array. The kernel's topological tie-break among
-/// dependency-free packs is unstable across runs (SJIRA-08), so the verb's
-/// JSON projection canonicalizes `order` (sorted ascending) before
-/// serialization. This pins raw-stdout determinism: no canonicalization in
-/// the test — the bytes must match.
+/// INCLUDING the `order` array. The kernel's order is deterministic by
+/// construction (Kahn with BTreeSet pop_first tie-break, see composer.rs) —
+/// since WO-03 the verb no longer re-sorts `order`, which would have
+/// destroyed the topological relation. This pins raw-stdout determinism:
+/// no canonicalization in the test — the bytes must match.
 #[test]
 fn compose_is_deterministic_across_runs() {
     let a = run_compose(&["dfcm-pack", "dspy-pack"]);
@@ -221,9 +268,9 @@ fn compose_is_deterministic_across_runs() {
     assert!(
         va["order"].as_array().map_or(false, |o| {
             let strs: Vec<&str> = o.iter().filter_map(|x| x.as_str()).collect();
-            strs.windows(2).all(|w| w[0] <= w[1])
+            strs.contains(&"dfcm-pack") && strs.contains(&"dspy-pack")
         }),
-        "order must be sorted ascending; got: {}",
+        "order must cover the composed set; got: {}",
         va["order"]
     );
 

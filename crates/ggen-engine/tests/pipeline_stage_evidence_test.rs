@@ -55,6 +55,7 @@ fn successful_sync_populates_stage_specific_report_fields() {
     let report = sync(
         dir.path(),
         SyncOptions {
+            skip_ea_admission: true,
             consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
@@ -142,6 +143,7 @@ fn missing_ontology_file_refuses_closed_at_resolve_stage() {
     let err = sync(
         dir.path(),
         SyncOptions {
+            skip_ea_admission: true,
             consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
@@ -180,6 +182,7 @@ fn output_path_escaping_root_refuses_closed_at_write_stage() {
     let err = sync(
         dir.path(),
         SyncOptions {
+            skip_ea_admission: true,
             consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
@@ -217,6 +220,7 @@ fn dry_run_projection_is_deterministic_across_independent_runs() {
     let r1 = sync(
         d1.path(),
         SyncOptions {
+            skip_ea_admission: true,
             consumer_mode: Default::default(),
             dry_run: true,
             ..Default::default()
@@ -226,6 +230,7 @@ fn dry_run_projection_is_deterministic_across_independent_runs() {
     let r2 = sync(
         d2.path(),
         SyncOptions {
+            skip_ea_admission: true,
             consumer_mode: Default::default(),
             dry_run: true,
             ..Default::default()

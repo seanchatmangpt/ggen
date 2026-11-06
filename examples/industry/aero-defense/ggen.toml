@@ -1,0 +1,37 @@
+[project]
+name = "aero-defense-consumer"
+version = "26.10.22"
+
+[ontology]
+source = "data.ttl"
+
+[[packs]]
+name = "industry-aero-defense"
+path = "../../../../ggen-marketplace/packs/industry-aero-defense"
+
+[generation]
+output_dir = "."
+
+[[generation.rules]]
+name = "rendered-shacl"
+query = { file = "../../../../ggen-marketplace/packs/industry-aero-defense/queries/artifacts.rq" }
+template = { file = "../../../../ggen-marketplace/packs/industry-aero-defense/templates/rendered-shacl.ttl.tera" }
+output_file = "generated/rendered-shacl.ttl"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "air-gap-config"
+query = { file = "../../../../ggen-marketplace/packs/industry-aero-defense/queries/endpoints.rq" }
+template = { file = "../../../../ggen-marketplace/packs/industry-aero-defense/templates/air-gap-config.ttl.tera" }
+output_file = "generated/air-gap-config.ttl"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "client-walkthrough"
+query = { file = "../../../../ggen-marketplace/packs/industry-aero-defense/queries/endpoints.rq" }
+template = { file = "../../../../ggen-marketplace/packs/industry-aero-defense/templates/client-walkthrough.md.tera" }
+output_file = "generated/client-walkthrough.md"
+skip_empty = false
+mode = "Overwrite"

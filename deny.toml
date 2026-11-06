@@ -70,11 +70,21 @@ feature-depth = 1
 # A list of advisory IDs to ignore. Note that ignored advisories will still
 # output a note when they are encountered.
 ignore = [
-    #"RUSTSEC-0000-0000",
-    #{ id = "RUSTSEC-0000-0000", reason = "you can specify a reason the advisory is ignored" },
-    #"a-crate-that-is-yanked@0.1.1", # you can also ignore yanked crate versions if you wish
-    #{ crate = "a-crate-that-is-yanked@0.1.1", reason = "you can specify why you are ignoring the yanked crate" },
+    # Registered divergence: quick-xml 0.37.5 is upstream-blocked — process_mining
+    # ^0.37.4 (0.6.2) pins quick-xml <0.38; fix requires a process_mining release on
+    # quick-xml >= 0.41. Enters only via oxigraph family; no workspace code imports
+    # quick_xml directly. Evidence: docs/jira/v26.11.3/receipts/xc-8-cve-bump.md
+    { id = "RUSTSEC-2026-0194", reason = "quick-xml 0.37.5 upstream-blocked by process_mining ^0.37.4 — see docs/jira/v26.11.3/receipts/xc-8-cve-bump.md" },
+    { id = "RUSTSEC-2026-0195", reason = "quick-xml 0.37.5 upstream-blocked by process_mining ^0.37.4 — see docs/jira/v26.11.3/receipts/xc-8-cve-bump.md" },
 ]
+# cargo-deny 0.20 schema: unmaintained/unsound take SCOPE values (no warn
+# downgrade exists). "workspace" = error only when the affected crate is a
+# direct dependency — RUSTSEC-2024-0436 (paste, via genai) and
+# RUSTSEC-2024-0449 (unsafe-libyaml, via serde_yaml) are transitive-only, so
+# they surface as warnings without ID-level ignores, matching cargo audit's
+# warning-allowed default (the quality.yml gate surface).
+unmaintained = "workspace"
+unsound = "workspace"
 # If this is true, then cargo deny will use the git executable to fetch advisory database.
 # If this is false, then it uses a built-in git library.
 # Setting this to true can be helpful if you have special authentication requirements that cargo-deny does not support.

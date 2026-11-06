@@ -267,4 +267,3 @@ ORDER BY ?class ?property
 - [Use RDF Ontologies Guide](../how-to-guides/use-rdf-ontologies.md)
 - [Ontology-Driven Explanation](../explanations/ontology-driven.md)
 - [Ontology-to-Code Tutorial](../tutorials/ontology-to-code.md)
-

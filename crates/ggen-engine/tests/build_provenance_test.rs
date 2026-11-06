@@ -157,7 +157,15 @@ fn receipt_carries_build_provenance_after_real_sync() {
     std::fs::create_dir_all(root.join("templates")).expect("mkdir templates");
     std::fs::write(root.join("templates/dog.tmpl"), TEMPLATE).expect("write template");
 
-    sync(root, SyncOptions::default()).expect("sync");
+    // WO-01 fail-closed EA gate: green-path premise — explicit opt-out.
+    sync(
+        root,
+        SyncOptions {
+            skip_ea_admission: true,
+            ..SyncOptions::default()
+        },
+    )
+    .expect("sync");
 
     let raw = std::fs::read_to_string(root.join(".ggen-v2/receipt.json")).expect("read receipt");
     let json: serde_json::Value = serde_json::from_str(&raw).expect("parse receipt");

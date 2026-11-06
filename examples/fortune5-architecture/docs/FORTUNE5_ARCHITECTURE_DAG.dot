@@ -1,0 +1,6 @@
+digraph Fortune5Architecture {
+  rankdir=LR;
+  graph [label="Fortune 5 Enterprise Architecture", labelloc=t, fontsize=20];
+  node [shape=box];
+  "orders" [label="orders\nOrder execution service\nTier0"];
+}

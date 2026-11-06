@@ -1,0 +1,24 @@
+# Gate equivalent of tv:PlatformShape (SHACL-at-sync retired, FM-LAW-017).
+# true = violation.
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX tv: <https://ggen.dev/ontology/cyberpunk-tv#>
+ASK {
+  ?subject a tv:Platform .
+  {
+    FILTER NOT EXISTS { ?subject tv:title ?v . FILTER(datatype(?v) = xsd:string) }
+  } UNION {
+    ?subject tv:title ?a1, ?a2 . FILTER(STR(?a1) != STR(?a2))
+  } UNION {
+    FILTER NOT EXISTS { ?subject tv:subtitle ?v . FILTER(datatype(?v) = xsd:string) }
+  } UNION {
+    ?subject tv:subtitle ?b1, ?b2 . FILTER(STR(?b1) != STR(?b2))
+  } UNION {
+    FILTER NOT EXISTS { ?subject tv:hasMode ?m . ?m a tv:Mode . }
+  } UNION {
+    FILTER NOT EXISTS { ?subject tv:hasProjection ?p . ?p a tv:Projection . }
+  } UNION {
+    FILTER NOT EXISTS { ?subject tv:hasRuntimeBody ?r . ?r a tv:RuntimeBody . }
+  } UNION {
+    FILTER NOT EXISTS { ?subject tv:receiptedBy ?r . ?r a tv:ReceiptPolicy . }
+  }
+}

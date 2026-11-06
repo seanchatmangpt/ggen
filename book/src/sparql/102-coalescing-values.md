@@ -109,6 +109,7 @@ The pattern also creates obligations. The new source law must remain inspectable
 - **Union leakage:** a shared RDF class causes one pack to select another pack's individuals.
 - **Multiple writers:** two templates or packs claim the same path.
 - **False green:** a missing compiler, SDK, runner, or signer is reported as success instead of an explicit bounded outcome.
+- **`GROUP_CONCAT` is broken on the installed binary (26.10.11, verified 2026-11-03) in ALL forms** — even fully bound inputs silently drop its entire column, and `COALESCE` inside the aggregate does **not** help. Working alternatives, both verified: `COUNT(?x AS ?n)` or `SAMPLE(?x)`, or concatenate in Tera after extracting rows individually. Do not coalesce with `GROUP_CONCAT` and expect the column to survive.
 
 ## Falsifier
 

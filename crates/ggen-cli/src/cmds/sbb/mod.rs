@@ -3,6 +3,9 @@
 //! One density unit is one unique Git commit with a complete, digest-bound
 //! manufacturing and falsification evidence chain. This evaluator reports
 //! evidence but never promotes its own output beyond `PARTIAL_ALIVE`.
+//!
+//! Not the ABB/SBB admission kernel: that surface is `ggen ea`
+//! (WO-02 Resolution R6); the two nouns share no code.
 
 use std::{
     collections::{BTreeMap, BTreeSet},
@@ -192,7 +195,7 @@ fn report_digest(report: &Report) -> Result<String> {
 }
 
 /// Return the machine-readable SBB density contract.
-#[verb]
+#[verb("schema", "sbb")]
 ///
 /// # Errors
 ///
@@ -214,7 +217,7 @@ pub fn schema() -> Result<Value> {
 }
 
 /// Inspect the complete density report without mutation.
-#[verb]
+#[verb("inspect", "sbb")]
 ///
 /// # Errors
 ///
@@ -226,7 +229,7 @@ pub fn inspect(manifest: String) -> Result<Value> {
 }
 
 /// Validate threshold attainment and external-admission eligibility.
-#[verb]
+#[verb("validate", "sbb")]
 ///
 /// # Errors
 ///
@@ -247,7 +250,7 @@ pub fn validate(manifest: String) -> Result<Value> {
 }
 
 /// Calculate the combinatorial distribution surface.
-#[verb]
+#[verb("distribution", "sbb")]
 ///
 /// # Errors
 ///
@@ -268,7 +271,7 @@ pub fn distribution(manifest: String) -> Result<Value> {
 }
 
 /// Emit the deterministic report and chained intent/result receipts.
-#[verb]
+#[verb("receipt", "sbb")]
 ///
 /// # Errors
 ///
@@ -278,7 +281,7 @@ pub fn receipt(manifest: String, output: String) -> Result<Value> {
 }
 
 /// Replay the report and receipt chain against exact manifest and Git evidence.
-#[verb]
+#[verb("replay", "sbb")]
 ///
 /// # Errors
 ///

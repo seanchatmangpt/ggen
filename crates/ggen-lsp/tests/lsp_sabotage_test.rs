@@ -544,3 +544,47 @@ fn interleaved_requests_correlate_by_id() {
         "workspace/symbol must return a result: {resp_a}"
     );
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Test 6 (G2): a didChange carrying a RANGED content change under the
+// negotiated FULL sync is a client contract violation. The server defends by
+// warning and treating `text` as the FULL replacement text (never a partial
+// patch), so re-diagnosis still sees the whole document.
+// ─────────────────────────────────────────────────────────────────────────────
+
+#[test]
+fn ranged_change_under_full_sync_is_defended() {
+    let mut c = LspClient::spawn();
+    initialize(&mut c);
+
+    let uri = "file:///x/ranged.rq";
+    c.did_open(uri, "sparql", CLEAN_CONSTRUCT);
+    let clean = c.wait_for_diagnostics(uri);
+    assert!(!has_e0011(&clean), "clean open must be E0011-free: {clean}");
+
+    // Ranged change (range present, text = the FULL new document).
+    c.notify(
+        "textDocument/didChange",
+        json!({
+            "textDocument": {"uri": uri, "version": 2},
+            "contentChanges": [{
+                "range": {"start": {"line": 0, "character": 0},
+                          "end": {"line": 0, "character": 1}},
+                "text": BROKEN_CONSTRUCT
+            }]
+        }),
+    );
+    let broken = c.wait_for_diagnostics(uri);
+    assert!(
+        has_e0011(&broken),
+        "ranged change under FULL sync must be treated as a full replacement          (broken CONSTRUCT re-diagnoses to E0011), got: {broken}"
+    );
+
+    // Follow-up FULL change back to the clean text re-diagnoses clean.
+    c.did_change_full(uri, 3, CLEAN_CONSTRUCT);
+    let clean2 = c.wait_for_diagnostics(uri);
+    assert!(
+        !has_e0011(&clean2),
+        "follow-up full change must re-diagnose clean, got: {clean2}"
+    );
+}

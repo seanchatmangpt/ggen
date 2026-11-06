@@ -101,6 +101,7 @@ fn do_sync(root: &Path, names: &[&str]) {
     sync(
         root,
         SyncOptions {
+            skip_ea_admission: true,
             consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()

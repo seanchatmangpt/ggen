@@ -1,0 +1,87 @@
+{# Rendered from the industry-financial-ledger ontology (FINREC-style
+   double-entry vocabulary). Regenerate via ggen sync run; hand edits
+   are drift. #}
+@prefix fin:   <https://ggen.io/ontology/financial-ledger#> .
+@prefix sh:    <http://www.w3.org/ns/shacl#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+
+### SHACL shapes for the double-entry ledger.
+### The balance law (sum(debits) == sum(credits)) is not expressible as a
+### plain SHACL property constraint — it is pinned as a SPARQL ASK gate:
+### the ASK returns TRUE for an UNBALANCED entry (violation), so the SHACL
+### sparql constraint negates it (FILTER NOT EXISTS form below mirrors the
+### gates/010 refusal query).
+
+fin:JournalEntryShape a sh:NodeShape ;
+    sh:targetClass fin:JournalEntry ;
+    sh:closed false ;
+    sh:property [
+        sh:path fin:entryId ;
+        sh:minCount 1 ; sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "entry must carry exactly one entryId (idempotency key)" ;
+    ] ;
+    sh:property [
+        sh:path fin:hasPosting ;
+        sh:minCount 2 ;
+        sh:message "double-entry requires at least two posting legs" ;
+    ] ;
+    sh:property [
+        sh:path fin:casEtag ;
+        sh:minCount 1 ;
+        sh:message "committed entry must carry the Cosmos _etag it CAS'd on (If-Match concurrency law)" ;
+    ] ;
+    sh:rule [
+        a sh:SPARQLRule ;
+        rdfs:label "balanced entry (ASK)" ;
+        sh:construct """ASK {
+          $this fin:hasPosting ?p .
+          { SELECT $this (SUM(?d) AS ?debits) (SUM(?c) AS ?credits)
+            WHERE {
+              $this fin:hasPosting ?p2 .
+              OPTIONAL { ?p2 fin:debitAmount ?d . }
+              OPTIONAL { ?p2 fin:creditAmount ?c . }
+            } GROUP BY $this }
+          FILTER(?debits != ?credits)
+        }""" ;
+        sh:message "unbalanced journal entry: sum(debitAmount) != sum(creditAmount)" ;
+    ] .
+
+fin:PostingShape a sh:NodeShape ;
+    sh:targetClass fin:Posting ;
+    sh:property [
+        sh:path fin:account ;
+        sh:minCount 1 ; sh:maxCount 1 ;
+        sh:message "posting must reference exactly one account (dangling refs refuse)" ;
+    ] ;
+    sh:property [
+        sh:path fin:debitAmount ;
+        sh:datatype xsd:decimal ; sh:maxCount 1 ;
+        sh:message "debit leg amount must be xsd:decimal, at most one" ;
+    ] ;
+    sh:property [
+        sh:path fin:creditAmount ;
+        sh:datatype xsd:decimal ; sh:maxCount 1 ;
+        sh:message "credit leg amount is xsd:decimal, at most one" ;
+    ] ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "posting must carry exactly one of debitAmount / creditAmount" ;
+        sh:select """
+          PREFIX fin: <https://ggen.io/ontology/financial-ledger#>
+          SELECT $this WHERE {
+            OPTIONAL { $this fin:debitAmount ?d . }
+            OPTIONAL { $this fin:creditAmount ?c . }
+            FILTER(BOUND(?d) = BOUND(?c))
+          }""" ;
+    ] .
+
+fin:AccountShape a sh:NodeShape ;
+    sh:targetClass fin:Account ;
+    sh:property [
+        sh:path fin:accountNumber ;
+        sh:minCount 1 ; sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "account must carry exactly one accountNumber" ;
+    ] .

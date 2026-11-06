@@ -539,4 +539,3 @@ ggen template generate-rdf --ontology domain.ttl --template io.ggen.rust.axum-ap
 - [Getting Started Tutorial](../tutorials/getting-started.md)
 - [Installation Guide](../how-to-guides/installation.md)
 - [Troubleshooting Guide](../how-to-guides/troubleshoot.md)
-

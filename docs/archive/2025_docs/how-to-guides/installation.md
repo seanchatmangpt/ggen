@@ -269,4 +269,3 @@ After installation:
 1. **Try the Quick Start:** Follow the [Getting Started Tutorial](../tutorials/getting-started.md)
 2. **Explore Templates:** Learn about [Creating Templates](create-templates.md)
 3. **Browse Marketplace:** Discover pre-built templates in the [Marketplace Explanation](../explanations/marketplace.md)
-

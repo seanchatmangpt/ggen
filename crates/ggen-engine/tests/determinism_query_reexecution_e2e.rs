@@ -173,6 +173,8 @@ fn run_sync_counting_phases(root: &Path) -> PhaseCounts {
         sync(
             root,
             SyncOptions {
+                // K2: FM-LAW-015 EA-admission opt-out (test pins a non-EA law)
+                skip_ea_admission: true,
                 consumer_mode: Default::default(),
                 dry_run: false,
                 ..Default::default()

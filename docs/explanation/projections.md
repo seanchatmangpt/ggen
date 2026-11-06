@@ -107,4 +107,3 @@ ggen template generate-rdf --ontology product_catalog.ttl --template python-clas
 - [Ontology-Driven Explanation](ontology-driven.md)
 - [Template Reference](../reference/templates.md)
 - [Ontology-to-Code Tutorial](../tutorials/ontology-to-code.md)
-

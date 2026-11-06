@@ -13,6 +13,10 @@ permissions:
 env:
   PACK: packs/cyberpunk-tv-platform/nasa-dark-mode
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   source-roku-browser:
     name: Source, Roku package, deck.gl browser

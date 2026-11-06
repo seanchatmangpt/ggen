@@ -700,6 +700,11 @@ prod:fm_KEY_12 a prod:DiagnosticCode ;
     prod:number "12"^^xsd:integer ;
     prod:citation "crates/ggen-engine/src/keys.rs:390" .
 
+prod:fm_KEY_13 a prod:DiagnosticCode ;
+    prod:family "KEY" ;
+    prod:number "13"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/keys.rs:421" .
+
 prod:fm_KEY_11 a prod:DiagnosticCode ;
     prod:family "KEY" ;
     prod:number "11"^^xsd:integer ;
@@ -822,3 +827,14 @@ prod:fm_PACK_21 a prod:DiagnosticCode ;
     prod:family "PACK" ;
     prod:number "21"^^xsd:integer ;
     prod:citation "crates/ggen-engine/src/pack.rs:192" .
+
+# K2-recovery (2026-11-03): FM-PACK-022/023 landed with WO-01's composition
+# plan feed (declarative-path admission) but were never mirrored here.
+prod:fm_PACK_22 a prod:DiagnosticCode ;
+    prod:family "PACK" ;
+    prod:number "22"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/sync.rs:2294" .
+prod:fm_PACK_23 a prod:DiagnosticCode ;
+    prod:family "PACK" ;
+    prod:number "23"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/sync.rs:2345" .

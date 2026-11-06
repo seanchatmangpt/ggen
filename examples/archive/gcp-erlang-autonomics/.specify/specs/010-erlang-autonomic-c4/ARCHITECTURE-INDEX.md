@@ -397,4 +397,3 @@ examples/gcp-erlang-autonomics/
 **Status**: Production-Ready
 **Maintainer**: ggen-autonomics@ggen.org
 **License**: Apache 2.0 (same as ggen project)
-

@@ -21,6 +21,7 @@ fn sync_project(project: &Path) -> Result<ggen_engine::sync::SyncReport, String>
     sync(
         project,
         SyncOptions {
+            skip_ea_admission: true,
             consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()

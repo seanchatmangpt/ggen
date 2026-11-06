@@ -527,4 +527,3 @@ Use it. It will save you from expensive mistakes on launch day.
 **Remember: Production systems fail. The question is whether you're prepared when they do.**
 
 **You are prepared. Now go launch.**
-

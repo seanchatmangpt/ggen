@@ -117,7 +117,9 @@ impl ReceiptManager {
             self.signing_key = Some(signing_key);
             self.verifying_key = Some(verifying_key);
 
-            return Ok(self.verifying_key.as_ref().expect("just assigned above"));
+            return Ok(self.verifying_key.as_ref().ok_or_else(|| {
+                crate::utils::error::Error::new("verifying_key failed to initialize")
+            })?);
         }
 
         // Generate new keys
@@ -144,7 +146,10 @@ impl ReceiptManager {
         self.signing_key = Some(signing_key);
         self.verifying_key = Some(verifying_key);
 
-        Ok(self.verifying_key.as_ref().expect("just assigned above"))
+        Ok(self
+            .verifying_key
+            .as_ref()
+            .ok_or_else(|| crate::utils::error::Error::new("verifying_key failed to initialize"))?)
     }
 
     ///
@@ -192,9 +197,11 @@ impl ReceiptManager {
             None, // Genesis receipt (no previous)
         )
         .sign(
-            self.signing_key
-                .as_ref()
-                .expect("signing_key must be initialized before generating receipt"),
+            self.signing_key.as_ref().ok_or_else(|| {
+                crate::utils::error::Error::new(
+                    "signing_key must be initialized before generating receipt",
+                )
+            })?,
         )
         .map_err(|e| crate::utils::error::Error::new(&format!("Failed to sign receipt: {e}")))?;
 
@@ -344,9 +351,11 @@ impl ReceiptManager {
             None, // Genesis receipt (no previous)
         )
         .sign(
-            self.signing_key
-                .as_ref()
-                .expect("signing_key must be initialized before generating receipt"),
+            self.signing_key.as_ref().ok_or_else(|| {
+                crate::utils::error::Error::new(
+                    "signing_key must be initialized before generating receipt",
+                )
+            })?,
         )
         .map_err(|e| crate::utils::error::Error::new(&format!("Failed to sign receipt: {e}")))?;
 

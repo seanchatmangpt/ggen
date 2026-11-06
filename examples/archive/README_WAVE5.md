@@ -277,4 +277,3 @@ Free to use, modify, and redistribute with attribution.
 - Deep dive: 1 week (all docs + running all examples)
 
 Good luck, and welcome to ggen!
-

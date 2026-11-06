@@ -578,7 +578,7 @@ impl ServerState {
         }
     }
 
-    fn project_root_for(&self, uri: &Url) -> Option<PathBuf> {
+    pub(crate) fn project_root_for(&self, uri: &Url) -> Option<PathBuf> {
         if let Ok(file_path) = uri_to_file_path(uri) {
             let mut dir: Option<&Path> = file_path.parent();
             while let Some(d) = dir {

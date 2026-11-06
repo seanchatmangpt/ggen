@@ -151,4 +151,3 @@ re-scans the cited source at test time to assert two-way equality.
 | `WRITE` | 9 | `crates/ggen-engine/src/sync.rs:1294` |
 | `WRITE` | 10 | `crates/ggen-engine/src/write.rs:739` |
 | `WRITE` | 11 | `crates/ggen-engine/src/write.rs:244` |
-

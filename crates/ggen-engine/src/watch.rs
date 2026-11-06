@@ -187,6 +187,26 @@ mod tests {
         let root = dir.path().to_path_buf();
         seed_fixture_project(&root);
 
+        // Collision repair (lane G2, disclosed in g2-typed-refusals receipt):
+        // WO-01's fail-closed EA admission gate (FM-LAW-015) now refuses any
+        // sync whose root lacks ea.graph.json. This test's premise is pack/
+        // watch mechanics, not EA admission, so it carries a minimal
+        // valid-but-empty EA graph (zero candidate SBBs → nothing to admit).
+        std::fs::write(
+            root.join("ea.graph.json"),
+            r#"{
+  "schema": "ggen.ea.graph.v1",
+  "strategy": { "id": "s", "title": "t" },
+  "capabilities": [],
+  "abbs": [],
+  "contracts": [],
+  "candidate_sbbs": [],
+  "qualifications": [],
+  "packs": []
+}"#,
+        )
+        .expect("write ea.graph.json");
+
         let (tx, rx): (Sender<()>, _) = mpsc::channel();
         let watch_root = root.clone();
         thread::spawn(move || {

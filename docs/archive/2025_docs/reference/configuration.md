@@ -168,4 +168,3 @@ ggen ai generate-ontology --provider ollama --model llama2 ...
 - [Installation Guide](../how-to-guides/installation.md)
 - [CLI Reference](cli.md)
 - [Troubleshooting Guide](../how-to-guides/troubleshoot.md)
-

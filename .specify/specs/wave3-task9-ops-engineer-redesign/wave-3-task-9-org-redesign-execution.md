@@ -750,4 +750,3 @@ This 12-week transformation from task-assignment to process-architecture model r
 5. **Early Wins**: Visible promotions by Week 10 prove career paths are real
 
 With disciplined execution of this plan, Wave 3 Task 9 will deliver a flatter, more autonomous, higher-performing operations organization while maintaining retention and operational excellence.
-

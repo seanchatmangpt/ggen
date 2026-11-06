@@ -119,23 +119,10 @@ fmt-check:
 # below. `--keep-going` is a stable (non-nightly-gated) cargo flag as of this
 # toolchain (`cargo clippy --help` lists it plainly, confirmed live).
 #
-# `-A unexpected_cfgs` -- narrow, single-lint carve-out, NOT a broad
-# suppression of clippy's real style/correctness lints (those still deny).
-# Without it the run hard-fails at `bcinr-pddl` before checking ANY other
-# member: `crates/bcinr-pddl/src/mfw/mod.rs:43`'s `#[cfg(feature =
-# "mfw-planner")]` references a feature that `crates/bcinr-pddl/Cargo.toml`'s
-# own comment (line 43-49) says was deliberately dropped from `[features]` in
-# PR #255 -- the cfg-gate attribute was left dangling when the feature
-# declaration was removed. That is a real, separate, pre-existing bug (not
-# ordinary lint debt -- it is a hard compile failure under `-D warnings`,
-# confirmed live via `cargo clippy -p bcinr-pddl -- -D warnings` alone,
-# unrelated to `--workspace`), tracked in
-# docs/jira/2026-07-17-JTBD-VERIFICATION-DISCOVERED-BUGS.md's TECH-DEBT-002.
-# `crates/bcinr-pddl/Cargo.toml` is not a file this recipe change's task was
-# scoped to touch, so the real fix (declare `mfw-planner = []` in
-# `[features]`, matching the crate's existing `dhat-heap = []` pattern) is
-# left to that crate's owner; this carve-out should be deleted the same day
-# that fix lands.
+# `-A unexpected_cfgs` -- retained (S2 build-time cut, 2026-11-04): its original
+# sole reason, `bcinr-pddl`'s dangling `mfw-planner` cfg (TECH-DEBT-002), left
+# the workspace members in the same cut; the flag stays until the next live
+# lint re-measurement confirms zero remaining unexpected_cfgs sources.
 #
 # REAL COUNT (2026-08-02, `cargo clippy --workspace --all-targets --keep-going
 # -- -D warnings -A unexpected_cfgs`, isolated CARGO_TARGET_DIR to avoid
@@ -166,6 +153,16 @@ fmt-check:
 # own dated update for the full breakdown.
 lint:
     timeout 300s cargo clippy --workspace --all-targets --keep-going -- -D warnings -A unexpected_cfgs
+
+# Receipt standing-line lint (SD-21/O3 Gate 3 / S-10). Exit 1 on any receipt
+# missing a parseable, in-vocabulary standing line. --backfill diffs only.
+# The E-y2 census (external to this repo) consumes receipt-standing-map.json.
+receipt-lint:
+    python3 scripts/receipt_lint.py
+
+# S-12 alias (dispatch vocabulary): same gate, canonical name.
+lint-receipts:
+    python3 scripts/receipt_lint.py
 
 # ── Testing ───────────────────────────────────────────────────────────────────
 
@@ -906,3 +903,41 @@ promote:
 # pre-commit line — promotion is an operator decision.
 guard-generated-paths:
     python3 scripts/ci/guard_generated_paths.py
+
+# ── GA-7: sjira control-plan wiring (DS-6 inheritance, v26.11.3) ─────────────
+# No inline logic here — both recipes delegate to the landed DS-6/GA-7 scripts.
+# Not wired into `pre-commit` (promotion needs an operator GREEN-witness call,
+# same precedent as the v26.10.20 courts). Run standalone.
+
+# DS-6 control-plan checker: refusal-class census diff vs committed baseline
+# (D1, p-chart 3-sigma / fixed-band), suite-count floor (D2), per-suite
+# #[test] floor (D3), pub-fn census (D4), chain-slot shape (D5).
+# Exit 0 = in control; exit 1 = drift with typed VIOLATION lines.
+sjira-control:
+    ./scripts/sjira_control_plan.sh
+
+# Anti-vacuity court for the checker above: two real mutations on a temp copy
+# of crates/ggen-sjira (tampered baseline pub_fns -> D4; deleted #[test] -> D3);
+# the checker must exit 1 with the expected typed class on each. Exit 0 only
+# if both flips witnessed; canonical tree is read-only to this court.
+sjira-control-court:
+    bash scripts/sjira_control_court.sh
+
+# ── E-c finding 4: weekly e2e backlog lane ────────────────────────────────────
+# The 202 #[ignore]d CLI e2e tests (119 #[ignore]s across the 9
+# crates/ggen-cli/tests/integration_*_e2e.rs files) and the 2 ggen-lsp
+# fixture-generator tests never run in the fast loop. `just e2e` runs them
+# locally; .github/workflows/e2e-periodic.yml runs them weekly. Not wired into
+# `pre-commit` — 202 tests x built binary is the weekly job's job.
+e2e:
+    cargo test -p ggen-cli --test integration_ai_e2e --test integration_cli_ux_e2e --test integration_graph_e2e --test integration_marketplace_e2e --test integration_ontology_e2e --test integration_project_e2e --test integration_template_e2e --test integration_utils_e2e --test integration_workflow_e2e -- --ignored --nocapture
+    cargo test -p ggen-lsp --test consolidate_002_sequence_equivalence --test oracle_tape_generator -- --ignored --nocapture
+
+# ── SD-20/O3-2: shared-index disclosure gate (mechanical-gates-spec Gate 2) ───
+# Refuse-by-default check that staged paths belong to $GGEN_LANE_ID's
+# owned_paths in docs/jira/<milestone>/lane-registry.json (or the seeded
+# fallback). Commit-time: wire via `git config core.hooksPath .githooks`
+# (prepare-commit-msg) — operator's call. `just fleet-disclose` runs the
+# same check standalone.
+fleet-disclose:
+    python3 scripts/index_disclosure.py --check

@@ -34,15 +34,23 @@ jobs:
       - name: Provision pinned ggen build
         uses: ./.github/actions/setup-ggen-build
 
-      - name: Prove seed fails closed before observation
+      # ZD-68 premise rot (ZB-13 item 5, 2026-11-04): this step originally
+      # pinned the seed as UNSYNCED — it expected `ggen sync run` to FAIL with
+      # GGEN_SELF_HOST_OBSERVATION_INCOMPLETE because no observation existed.
+      # ZD-9 landed the real observation (self-host/ontology.ttl now carries a
+      # committed gsh:observationDigest, re-derived 2026-11-04: seed sync exits
+      # 0), so the seed no longer fails closed here — and the honest fix is to
+      # pin the NEW lawful behavior (seed verifies against the committed
+      # observation), not to sabotage the seed back into failing. The gate's
+      # fail-closed property is still proven, against real sabotage, by the
+      # later "Refuse incomplete observed RDF" step below.
+      - name: Prove seed verifies against the committed observation
         run: |
           cargo build -p ggen-cli-lib --bin ggen
-          set +e
-          (cd self-host && ../target/debug/ggen sync run) >/tmp/pre-observation.out 2>/tmp/pre-observation.err
-          code=$?
-          set -e
-          test "$code" -ne 0
-          grep -q "GGEN_SELF_HOST_OBSERVATION_INCOMPLETE" /tmp/pre-observation.err
+          set -euo pipefail
+          grep -q "gsh:observationDigest" self-host/ontology.ttl
+          (cd self-host && ../target/debug/ggen sync run)
+          (cd self-host && ../target/debug/ggen receipt verify)
 
       - name: Execute observer unit witnesses and falsifiers
         run: python3 -m unittest discover -s self-host/tests -p 'test_*.py' -v

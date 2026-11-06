@@ -1,1 +1,1 @@
-Test strategey and related information on the testing infrastructure. 
+Test strategey and related information on the testing infrastructure.

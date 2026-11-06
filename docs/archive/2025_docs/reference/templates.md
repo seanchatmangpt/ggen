@@ -241,4 +241,3 @@ ggen template lint templates/rust-models/models.rs.tmpl
 - [Create Templates Guide](../how-to-guides/create-templates.md)
 - [RDF/SPARQL Reference](rdf-sparql.md)
 - [Getting Started Tutorial](../tutorials/getting-started.md)
-

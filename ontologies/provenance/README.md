@@ -159,4 +159,3 @@ rapper -i turtle prov-o.ttl | wc -l
 3. **Receipt Mapping:** Convert JSON receipts to PROV RDF
 4. **Event Log Derivation:** Extract OCEL events from PROV graphs
 5. **Process Conformance:** Validate execution against PROV constraints
-

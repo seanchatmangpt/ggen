@@ -100,6 +100,11 @@ fn scaffold(root: &Path, ontology: &str) -> PathBuf {
 
     let project = root.join("consumer");
     std::fs::create_dir_all(project.join("templates")).expect("mkdir templates");
+    std::fs::write(
+        project.join("ea.graph.json"),
+        "{\"schema\":\"ggen.ea.graph.v1\",\"strategy\":{\"id\":\"s\",\"title\":\"t\"},\"capabilities\":[],\"abbs\":[],\"contracts\":[],\"candidate_sbbs\":[],\"qualifications\":[],\"packs\":[]}",
+    )
+    .expect("write ea.graph.json");
     std::fs::write(project.join("ontology.ttl"), ontology).expect("write ontology");
     std::fs::write(
         project.join("ggen.toml"),
@@ -110,6 +115,26 @@ fn scaffold(root: &Path, ontology: &str) -> PathBuf {
          [law]\nreflexive = true\n",
     )
     .expect("write ggen.toml");
+    // Stub EA graph (lane CL-D): the fail-closed FM-LAW-015 admission gate
+    // refuses any sync whose root lacks ea.graph.json; these scaffolds test
+    // pack laws, not admission, so they carry a valid-but-empty graph
+    // (zero candidate SBBs, so admission admits trivially and honestly).
+    std::fs::write(
+        project.join("ea.graph.json"),
+        "{\"schema\":\"ggen.ea.graph.v1\",\"strategy\":{\"id\":\"s\",\"title\":\"t\"},\"capabilities\":[],\"abbs\":[],\"contracts\":[],\"candidate_sbbs\":[],\"qualifications\":[],\"packs\":[]}",
+    )
+    .expect("write ea.graph.json");
+    // Collision repair (lane G2, disclosed in g2-typed-refusals receipt):
+    // WO-01's fail-closed EA admission gate (FM-LAW-015) refuses any sync
+    // whose root lacks ea.graph.json; these tests exercise the fortune5
+    // architecture pack reference fixture, not EA admission, so the
+    // consumer carries a minimal valid-but-empty EA graph (zero candidate
+    // SBBs).
+    std::fs::write(
+        project.join("ea.graph.json"),
+        "{\"schema\":\"ggen.ea.graph.v1\",\"strategy\":{\"id\":\"s\",\"title\":\"t\"},\"capabilities\":[],\"abbs\":[],\"contracts\":[],\"candidate_sbbs\":[],\"qualifications\":[],\"packs\":[]}",
+    )
+    .expect("write ea.graph.json");
     project
 }
 

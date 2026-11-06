@@ -2057,4 +2057,3 @@ Monday (Apr 21):
 **Audience**: TAI Autonomics C-suite, legal counsel, CFO, CSM team
 **Next Action**: Assign Week 1 insurance broker selection; begin MSA customization
 **Review Cycle**: Update after first 3 customer conversions (Week 5–6); quarterly thereafter
-

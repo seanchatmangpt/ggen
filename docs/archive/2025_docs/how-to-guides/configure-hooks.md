@@ -168,4 +168,3 @@ ggen hook create pre-commit \
 - **CLI reference:** [Hook Commands Reference](../reference/cli.md#hook-commands)
 - **Lifecycle explanation:** See lifecycle documentation
 - **Automation guide:** See automation examples
-

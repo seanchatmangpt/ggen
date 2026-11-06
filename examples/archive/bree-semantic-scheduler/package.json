@@ -32,5 +32,8 @@
   },
   "dependencies": {
     "n3": "^1.17.0"
+  },
+  "overrides": {
+    "tinypool": "^2.1.2"
   }
 }

@@ -13,5 +13,3 @@ Fixes: #ISSUE_NUMBER
 - [ ] This PR is related to exactly one issue. The issue is referenced by using a GitHub keyword such as "fixes", "closes", or "resolves".
 - [ ] Hygiene tests have been applied by a PR with "(WIP)" in title.
 - [ ] The issue has been tested locally using a reasoner (for ontology changes).
-
-

@@ -1,5 +1,5 @@
 [workspace.package]
-version = "26.10.12"
+version = "26.11.4"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 edition = "2021"
 repository = "https://github.com/seanchatmangpt/ggen"
@@ -87,11 +87,13 @@ members = [
   # down in this file. That narrow, still-true statement is what this comment used to overstate
   # into "no consumer references them yet".
   "crates/ggen-engine",
-  "crates/powl2-decompose",
-  "crates/bcinr-pddl",
-  "crates/bcinr-mfw-ir",
   "crates/ggen-cheat-scanner",
+  "crates/ggen-sjira",
+  "crates/ggen-scip",
   "crates/ggen-mcp",
+  # ML-DSA-65 (FIPS-204) signer — ZP-22 first increment (OI-3, wave-3 L11).
+  # Wraps the RustCrypto ml-dsa crate; NOT publish-eligible (new surface).
+  "crates/ggen-dsa",
   # ARCHIVED out of the v26.5.29 build boundary (SETTLEMENT-CHECK-1): this example
   # drifted from its own types in a prior release (ValidationAgent missing the
   # `agent_type` field; async fns misusing `?`) and does not compile under
@@ -99,7 +101,6 @@ members = [
   # ("in the build" but not buildable), so it leaves the boundary. Code preserved
   # on disk (non-deletion doctrine); re-add after repair.
   # "examples/7-agent-validation",
-  "crates/pm4pytest-cli",
   ]
 # `crates/ggen-core` (2026-07-17, ggen-core removal, docs/jira/v26.7.16/14-GGEN-CORE-REMOVAL-PROPOSAL.md):
 # fully deleted, not merely disconnected. It spent from 2026-07-16 to 2026-07-17 in `exclude`
@@ -120,7 +121,22 @@ members = [
 #
 # `crates/ggen-abb-sbb` (RFC docs/rfc/v26.9.26/abb-sbb-implementation.md): integrated
 # into workspace members in v26.10.9.
-exclude = ["examples/7-agent-validation", "crates/ggen-architecture"]
+# S2 build-time cut (2026-11-04): powl2-decompose, bcinr-pddl, bcinr-mfw-ir,
+# pm4pytest-cli moved from members to exclude — excluded, not deleted (code
+# preserved on disk). Verified zero reverse deps outside the four themselves
+# (bcinr-pddl -> bcinr-mfw-ir is the only intra-group edge; `cargo tree -i`
+# / grep across crates/*/Cargo.toml and src/ found no other consumer) and zero
+# justfile/CI consumers. bcinr-pddl was a `just lint` hard-fail (unexpected_cfgs
+# on the dangling `mfw-planner` cfg, justfile TECH-DEBT-002); pm4pytest-cli is
+# a thin wrapper around an external Python tool.
+exclude = [
+  "examples/7-agent-validation",
+  "crates/ggen-architecture",
+  "crates/powl2-decompose",
+  "crates/bcinr-pddl",
+  "crates/bcinr-mfw-ir",
+  "crates/pm4pytest-cli",
+]
 resolver = "2" # Use new resolver for better dependency resolution
 
 # Workspace-wide dependencies for version consistency
@@ -183,8 +199,8 @@ itertools = "0.15"
 bcinr = "26.7.25"
 urlencoding = "2.1"
 wasm4pm-compat = "26.8"
-cargo-cicd = { git = "https://github.com/seanchatmangpt/cargo-cicd", branch = "main" }
-
+# S4 build-time cut (2026-11-04): cargo-cicd git dependency removed — zero workspace consumers
+# (grep of crates/*/Cargo.toml + root returned nothing).
 rayon = "1.12"
 regex = "1.13"
 log = "0.4"
@@ -194,8 +210,6 @@ testcontainers-modules = "0.15"
 notify-debouncer-full = "0.7"
 assert_cmd = "2.2"
 predicates = "3.1"
-rig-core = "0.42.0"
-
 # Workspace-local crates (use workspace = true pattern in workspace members)
 # NOTE: v26.5.29 unified release
 # ggen-core (2026-07-16, ggen-core disconnect, T054-T058; deleted 2026-07-17,
@@ -253,7 +267,9 @@ parking_lot = "0.12"
 criterion = { version = "0.8", features = ["html_reports"] }
 
 # AI integration
-genai = "0.6"
+# S4 build-time cut (2026-11-04): genai removed from [workspace.dependencies] — its only
+# consumers were the root package and ggen-cli, both retired in S1; zero workspace usage
+# remains (grep of src/tests/benches across root + crates returned nothing).
 
 # Force base64 version to resolve duplicate dependency issue
 # config -> ron -> base64 0.21.7 conflicts with reqwest -> base64 0.22.1
@@ -573,22 +589,12 @@ needless_for_each = "allow"
 explicit_iter_loop = "allow"
 
 # ===================================================================
-# PROC-MACRO DUPLICATION ANALYSIS (Updated 2026-01-24)
+# PROC-MACRO DUPLICATION ANALYSIS (retired 2026-11-04, build-time cut S1/S4)
 # ===================================================================
-# After updating genai to 0.5 and centralizing in workspace.dependencies:
-#
-# derive_more duplicates (3 versions):
-#   - v2.1.1: genai (production) - unavoidable, genai's choice
-#   - v1.0.0: value-ext ← genai (production, transitive) - unavoidable
-#   - v0.99.20: cucumber (dev-only) - ACCEPTABLE
-#
-# darling duplicates (2 versions):
-#   - v0.21.3: serde_with_macros ← genai (production, transitive)
-#   - v0.20.11: dummy ← fake ← chicago-tdd-tools (dev-only) - ACCEPTABLE
-#
-# Impact: 2 production proc-macro duplicates from genai's inconsistent dep tree
-# These are unavoidable without forking genai or value-ext.
-# Dev-only duplicates (cucumber, chicago-tdd-tools) are acceptable.
+# genai was removed from [workspace.dependencies] and from every package that
+# consumed it (root package + ggen-cli). The derive_more/darling duplicates it
+# carried (see the pre-2026-11-04 version of this block) no longer exist in
+# Cargo.lock.
 # ===================================================================
 [features]
 default = []
@@ -688,21 +694,12 @@ ggen-marketplace = { workspace = true }
 # the same reason. ggen-cli (workspace = true below) still needs ggen-engine directly for
 # the CLI routing flip; that crate's own publishability is a separate, still-open question
 # (see docs/jira/v26.7.16/ tickets 01/02).
-chrono = { workspace = true }
-human-panic = "2.0.8"
-better-panic = "0.3.0"
-log = "0.4.34"
-env_logger = "0.11"
+# Build-time cut S1 (2026-11-04): the root package's only production code is the
+# `main.rs` bin, which needs exactly one dependency (tokio for #[tokio::main];
+# everything else it uses comes via ggen-cli-lib). All test-only crates moved to
+# [dev-dependencies]; unused crates (human-panic, better-panic, log, env_logger,
+# genai) deleted outright. genai's workspace entry is retired in S4.
 tokio = { version = "1.53", features = ["full"] }
-anyhow = "1.0"
-serde_json = "1.0"
-serde_yaml = "0.9"
-tempfile = "3.27"
-tera = "1.20"
-serde = { version = "1.0", features = ["derive"] }
-uuid = { version = "1.26", features = ["v4"] }
-genai = { workspace = true }
-tracing-subscriber = "0.3"
 # Note: OpenTelemetry dependencies are optional at the crate level (ggen-core, etc.)
 # The root package doesn't directly use OTEL, so these are not included here.
 # Enable OTEL via: cargo build --features otel (which forwards to ggen-core/otel)
@@ -725,6 +722,14 @@ predicates = "3.1.4"
 serde_json = "1.0"
 tempfile = "3.27"
 anyhow = "1.0"
+# S1 (2026-11-04): moved from [dependencies] -- root package has no production
+# consumers for these; only tests/benches/examples use them.
+chrono = { workspace = true }
+serde = { version = "1.0", features = ["derive"] }
+serde_yaml = "0.9"
+tera = "1.20"
+uuid = { version = "1.26", features = ["v4", "serde"] }
+tokio = { version = "1.53", features = ["full"] }
 oxigraph = { version = "0.5.11", features = ["rdf-12"] }
 # BDD testing framework
 cucumber = "0.23"
@@ -737,14 +742,12 @@ shell-words = "1.1"
 # E2E test dependencies
 toml = "1.1.6"
 reqwest = { version = "0.13", features = ["blocking", "json"] }
-genai = { workspace = true }
 proptest.workspace = true
 # chicago-tdd-tools = { workspace = true, features = ["testcontainers"] }
 # Note: chicago-tdd-tools commented for cross-platform compatibility
 testcontainers.workspace = true
 testcontainers-modules.workspace = true
 rand = "0.10"
-mockall = "0.15"
 fake = "5.1"
 futures.workspace = true
 tracing.workspace = true
@@ -755,8 +758,6 @@ criterion = { version = "0.8", features = ["html_reports"] }
 once_cell = "1.21"
 lazy_static = "1.5"
 fastrand = "2.5"
-# Process Mining for workflow analytics
-process_mining = "0.6"
 # Cryptographic hashing for receipt tests
 sha2 = "0.11"
 # A2A/TPS System Benchmarks
