@@ -3992,8 +3992,6 @@ pub(crate) fn write_receipt(
     root: &Path, report: &SyncReport, graph: &dyn GraphEngine,
     receipt_origin: Option<&'static str>, partial: bool, ea_admission_skipped: bool,
 ) -> Result<()> {
-    use std::io::Write as _;
-
     // This run's receipt-generation epoch, established from the log tail
     // (first sync = 1). The Stage-2c gate already verified the tail is
     // honest; the same baseline is recorded into the payload and every
@@ -4617,19 +4615,64 @@ pub(crate) fn write_receipt(
     // chains from the log tail and the history stays linear.
     let mut line = serde_json::to_vec(&receipt)?;
     line.push(b'\n');
+    append_receipt_line(&log_path, &line, receipt.record.chain_hash_hex.as_str())?;
+    std::fs::write(&receipt_path, serde_json::to_vec(&receipt)?)?;
+    Ok(())
+}
+
+/// Append one serialized receipt line to `.ggen-v2/receipt-log.jsonl`,
+/// idempotent against retry-after-ambiguous-write (KD-G18 at-most-once
+/// law): if the new line is byte-identical to the log's last line AND its
+/// `chain_hash_hex` equals the last record's, the append is a retry of an
+/// already-landed record and is skipped (traced, not an error). A record
+/// sharing the previous chain hash but differing in body still appends —
+/// that would be a real fork, which the chain-verify fence catches
+/// downstream; this fence only dedupes exact retries.
+fn append_receipt_line(log_path: &Path, line: &[u8], chain_hash_hex: &str) -> Result<bool> {
+    use std::io::Write as _;
+
+    let body = &line[..line.len().saturating_sub(1)]; // strip trailing '\n'
+    if let Ok(raw) = std::fs::read_to_string(log_path) {
+        if let Some(last) = raw.lines().last() {
+            let last = last.trim_end_matches('\r');
+            if last.as_bytes() == body {
+                // Byte-identical body: confirm the chain hash also matches
+                // before declaring this an idempotent retry.
+                let same_hash = serde_json::from_str::<serde_json::Value>(last)
+                    .ok()
+                    .and_then(|v| {
+                        v.get("record")
+                            .and_then(|r| r.get("chain_hash_hex"))
+                            .and_then(|h| h.as_str())
+                            .map(|h| h == chain_hash_hex)
+                    })
+                    .unwrap_or(false);
+                if same_hash {
+                    tracing::debug!(
+                        chain_hash = %chain_hash_hex,
+                        "receipt-log append skipped: byte-identical retry of last record \
+                         (KD-G18 idempotence fence)"
+                    );
+                    return Ok(false);
+                }
+            }
+        }
+    }
+    if let Some(parent) = log_path.parent() {
+        std::fs::create_dir_all(parent)?;
+    }
     std::fs::OpenOptions::new()
         .create(true)
         .append(true)
-        .open(&log_path)
-        .and_then(|mut f| f.write_all(&line))
+        .open(log_path)
+        .and_then(|mut f| f.write_all(line))
         .map_err(|e| {
             AppError::fm_chain(
                 4,
                 format!("receipt log `{}` append failed: {e}", log_path.display()),
             )
         })?;
-    std::fs::write(&receipt_path, serde_json::to_vec(&receipt)?)?;
-    Ok(())
+    Ok(true)
 }
 
 /// Escape a plain string for embedding in a Turtle `"..."` literal
@@ -4658,10 +4701,59 @@ mod tests {
     use std::{collections::BTreeMap, path::Path};
 
     use super::{
-        check_determinism_guard_agrees_false, check_determinism_rows_agree_empty,
-        hash_file_or_missing, resolve_gate_entries, ExtractedRows, SyncReceipt,
-        RECEIPT_LOG_REL_PATH, RECEIPT_REL_PATH,
+        append_receipt_line, check_determinism_guard_agrees_false,
+        check_determinism_rows_agree_empty, hash_file_or_missing, resolve_gate_entries,
+        ExtractedRows, SyncReceipt, RECEIPT_LOG_REL_PATH, RECEIPT_REL_PATH,
     };
+
+    /// KD-G18 at-most-once fence: two consecutive byte-identical appends
+    /// (the retry-after-ambiguous-write shape) land exactly one line.
+    #[test]
+    fn duplicate_append_is_idempotent_single_line() {
+        let dir = tempfile::tempdir().expect("tempdir");
+        let log = dir.path().join(RECEIPT_LOG_REL_PATH);
+        let line = serde_json::to_vec(&serde_json::json!({
+            "record": { "chain_hash_hex": "aa".repeat(32) },
+            "payload": {}
+        }))
+        .expect("serialize");
+        let mut line = line;
+        line.push(b'\n');
+
+        assert!(append_receipt_line(&log, &line, &"aa".repeat(32)).expect("first append"));
+        let skipped =
+            append_receipt_line(&log, &line, &"aa".repeat(32)).expect("retry append");
+        assert!(!skipped, "identical retry must be skipped, not appended");
+
+        let raw = std::fs::read_to_string(&log).expect("read log");
+        assert_eq!(raw.lines().count(), 1, "exactly one line lands: {raw}");
+    }
+
+    /// A same-prev-different-body record (different chain hash) still
+    /// appends — that is a real fork the downstream chain fence catches,
+    /// never something this fence silently drops.
+    #[test]
+    fn distinct_append_still_lands_second_line() {
+        let dir = tempfile::tempdir().expect("tempdir");
+        let log = dir.path().join(RECEIPT_LOG_REL_PATH);
+        let mk = |hash: &str| {
+            let mut v = serde_json::to_vec(&serde_json::json!({
+                "record": { "chain_hash_hex": hash },
+                "payload": {}
+            }))
+            .expect("serialize");
+            v.push(b'\n');
+            v
+        };
+        let a = mk(&"aa".repeat(32));
+        let b = mk(&"bb".repeat(32));
+
+        assert!(append_receipt_line(&log, &a, &"aa".repeat(32)).expect("first"));
+        assert!(append_receipt_line(&log, &b, &"bb".repeat(32)).expect("second distinct"));
+
+        let raw = std::fs::read_to_string(&log).expect("read log");
+        assert_eq!(raw.lines().count(), 2, "both distinct lines land: {raw}");
+    }
 
     /// Gate-path glob expansion (fix-forward): a `gates/*.rq` entry over a
     /// 3-file gates dir expands to exactly those 3 files, in sorted order;
