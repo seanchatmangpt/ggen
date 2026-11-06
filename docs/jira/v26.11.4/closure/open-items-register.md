@@ -29,7 +29,7 @@ Discovered 2026-11-04 by the E4/E6 ERRC sweeps (259 git-tracked files,
 `_build-eplaw`/`_build-expl11r3` were also deleted untracked. Status
 CLOSED — this row plus merge 434321b0 is the evidence path; no residual
 in-writing gap remains.
-| OI-9 | /tmp lane leases | CLOSED | coordinator | D72 deleted 27 lease entries gated-verified (coordinator session ledger); live check 2026-11-04T23:05Z: `ls /tmp | grep -cE 'bm7-head\|lane2-\|cgap-mut-\|arcus-bm8'` = 0 — all four named lease families gone. Two superseded intermediates disclosed in D72's receipt and not re-created since. Note: /tmp still holds arcus-sidecar-* + *-msg.txt entries (820 total) — outside D72's lease scope, retained | reconcile-then-delete: each lease named in a receipt, then removed — discharged for the named families; sidecar/msg entries are a new open item if any are claimed as leases |
+| OI-9 | /tmp lane leases | CLOSED | coordinator | D72 deleted 27 lease entries gated-verified (coordinator session ledger); live check 2026-11-04T23:05Z: `ls /tmp \| grep -cE 'bm7-head\|lane2-\|cgap-mut-\|arcus-bm8'` = 0 — all four named lease families gone. Two superseded intermediates disclosed in D72's receipt and not re-created since. Note: /tmp still holds arcus-sidecar-* + *-msg.txt entries (820 total) — outside D72's lease scope, retained | reconcile-then-delete: each lease named in a receipt, then removed — discharged for the named families; sidecar/msg entries are a new open item if any are claimed as leases |
 | OI-10 | lint-fence wider-scope clippy debt | CLOSED | pending D90 decision | D90 landed 97c2148d1 (46 files) and its cascade covered D92's 4 named files (ggen-sjira/src/ledger.rs, ggen-scip/tests/scip_ontology_test.rs, ggen-sjira/src/reconcile.rs, ggen-engine/src/verbs/{sync,handlers}.rs). Fresh gate 2026-11-04 at 6d6346c8a: `just lint` (= `cargo clippy --workspace --all-targets --keep-going -- -D warnings -A unexpected_cfgs`, justfile lint: recipe — covers the test targets D92 flagged) exit 0, and `cargo clippy --workspace -- -D warnings` exit 0. No fixes were needed beyond D90's landing | none — D90's cascade already fixed all 4 files; both gates re-witnessed green at HEAD |
 
 ## Corrections vs P-g's draft
@@ -44,3 +44,18 @@ in-writing gap remains.
   rows it NOT-on-disk); BLOCKED stands with absence as the evidence.
 - OI-6: PLANS.md:87-88 (ZP-14 `[[bin]]` in cbmqs-cli vs ZP-21 feature-gated
   `[[bin]]` inside cgap-aoq — coordinator decides one home). Verified text.
+
+## OI-6 resolution (coordinator, 2026-11-05 crash-recovery wave)
+
+ZP-14 home wins: `crates/cbmqs-cli` as a separate workspace member (receipt
+`cgap/docs/jira/v26.11.4/receipts/zp-14-cbmqs-cli.md`, courts C7 tamper /
+C8 SKIP-fail-closed / C9 bin-parity). It preserves cgap-aoq's empty-deps
+embedded claim, which a feature-gated `[[bin]]` inside cgap-aoq would
+regress. ZP-21's colliding surface (feature-gated `[[bin]]` inside
+cgap-aoq) RETIRES; ZP-21's non-colliding substance migrates into
+cbmqs-cli: `canonical_form: "fixed-declaration-order-v1"` named inside the
+sealed artifact, disk-tamper court anti-vacuity legs (delete/corrupt
+sidecar -> exit 2), RunSeqCollision law, timestamp-NONE grounds. Falsifier
+for the migration: two `cbmqs-audit` homes never ship in one tree —
+discharged by this decision; the landing diff must not add a bin target to
+crates/cgap-aoq.

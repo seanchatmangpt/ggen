@@ -10,3 +10,4 @@ Sets where a repo's actions/workflows may be reused
 | Required args | access_level, repository |
 
 Cataloged, not yet templated: no verified example schema captured for this resource.
+

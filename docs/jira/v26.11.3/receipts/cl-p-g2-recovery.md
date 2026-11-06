@@ -1,6 +1,6 @@
 # CL-P G2 recovery — typed kernel refusals (orphan-recovery lane)
 
-Standing: VERIFY-ALREADY-LANDED
+Standing: UNVERIFIED
 
 **Status: VERIFY-ALREADY-LANDED.** No code change made by this lane. G2's work
 landed; G2's own receipt exists at `g2-typed-refusals.md` (same directory,

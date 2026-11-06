@@ -10,3 +10,4 @@ Manage the topics list on a repo (mutually exclusive with github_repository.topi
 | Required args | topics, repository |
 
 Cataloged, not yet templated: no verified example schema captured for this resource.
+

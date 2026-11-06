@@ -12,3 +12,4 @@ Custom repo role (deprecated)
 | Successor | `github_organization_repository_role` |
 
 Cataloged, not yet templated: no verified example schema captured for this resource.
+

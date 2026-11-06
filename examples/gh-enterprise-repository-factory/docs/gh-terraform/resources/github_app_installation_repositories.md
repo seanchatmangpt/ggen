@@ -10,3 +10,4 @@ Installs a GitHub App on a set of repos
 | Required args | selected_repositories, installation_id |
 
 Cataloged, not yet templated: no verified example schema captured for this resource.
+

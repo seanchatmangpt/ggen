@@ -1,5 +1,7 @@
 # X1 — ggen-sjira admission kernel (core slice)
 
+Standing: UNKNOWN
+
 Repo: /Users/sac/ggen. Base: pre-existing tree at session start (no git ops run, per
 lane contract). Date: 2026-11-03.
 

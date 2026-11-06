@@ -32,3 +32,4 @@ scripts/gh/terraform-corpus-census.sh   --ttl-out evidence/github-terraform-corp
 
 The script performs GitHub GET operations only. It records repository, ref,
 commit, path, blob, surface classification, search state, and output digests.
+

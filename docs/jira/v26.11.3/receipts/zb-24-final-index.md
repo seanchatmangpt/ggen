@@ -1,5 +1,7 @@
 # ZB-24 — final coverage pass at terminal (index refresh 4)
 
+Standing: CLOSED
+
 - **Date**: 2026-11-04
 - **Repo/branch**: `/Users/sac/ggen`, `v26-11-3-wave` (no git commands run; coordinator owns git)
 - **Files owned**: `docs/jira/v26.11.3/RECEIPTS.md`, `docs/jira/v26.11.3/README.md`, this receipt

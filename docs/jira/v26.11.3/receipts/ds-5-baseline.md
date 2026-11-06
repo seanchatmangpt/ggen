@@ -1,5 +1,7 @@
 # DS-5 Process-Capability Baseline — ggen-sjira Admission Kernel
 
+Standing: ALIVE
+
 Lane: DS-5 (DMEDI MEASURE phase). Date: 2026-11-03. Repo: /Users/sac/ggen.
 Deliverable status: ALIVE — every value below is a real command+exit from this session.
 No Cpk is computed anywhere in this register: courts are deterministic, so the honest

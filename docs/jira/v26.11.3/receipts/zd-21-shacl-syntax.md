@@ -1,5 +1,7 @@
 # ZD-21 — SHACL Shapes Turtle Syntax Fix
 
+Standing: ALIVE
+
 ## Subject
 
 - Repo: `/Users/sac/ggen`, branch `v26-11-3-wave`

@@ -10,3 +10,4 @@ Environment deployment branch policy (branch_pattern or tag_pattern)
 | Required args | repository, environment |
 
 Cataloged, not yet templated: no verified example schema captured for this resource.
+

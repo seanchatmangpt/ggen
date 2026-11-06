@@ -88,3 +88,4 @@ No apply path consumes this schema yet — Phase 2 declares the vocabulary only.
 | repo | tier | andon | observationDigest | desiredStateDigest |
 |---|---|---|---|---|
 | seanchatmangpt/ggen | 中核 | GREEN | blake3:80aa8e6dd5edbd9a9a2a1ee6449d25b0300b2adb6e69bba3e105f4608359af3b | blake3:ae62dda51fb79b0037e663d3996e0c133e5391bc1f042586347b764c7d2f8fd4 |
+

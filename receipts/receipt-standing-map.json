@@ -4,975 +4,1733 @@
       "annotation": "",
       "key": "Standing",
       "ok": true,
+      "pin": {
+        "mtime": 1793944323,
+        "sha256": "6963a45d2165db573ebb5999034bc9aa3b5cd98bc4885ea727572ee52ee35dec"
+      },
       "standing": "ALIVE"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/ab-14-chain-scale.md": {
       "annotation": "",
       "key": "Standing",
       "ok": true,
+      "pin": {
+        "mtime": 1793832489,
+        "sha256": "b22af70343e511253398ce3cd18c812df00529681c3cc208855497f6fdc01390"
+      },
       "standing": "ALIVE"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/ab-20-tokens-stress.md": {
       "annotation": "",
       "key": "Standing",
-      "ok": false,
-      "standing": null
+      "ok": true,
+      "pin": {
+        "mtime": 1793905828,
+        "sha256": "aab13bcd59704797526275ece6127f830b7ef54054819f65d4f24f96d539df39"
+      },
+      "standing": "PASS"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/af-42-marketplace-fixes.md": {
       "annotation": "",
       "key": "Standing",
-      "ok": false,
-      "standing": null
+      "ok": true,
+      "pin": {
+        "mtime": 1793905842,
+        "sha256": "0581c19218e5edde8783e7ebad6f5eb5897b9aca89e0f1ddbc7da7039abc3f50"
+      },
+      "standing": "ALIVE"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/af-5-sync-surface.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "73aee4e470bded489f45d7a278336887623404f7c8a8867834db5b34e9f20d58"
+      },
+      "standing": "ALIVE"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/af-7-path-reconcile.md": {
       "annotation": "",
       "key": "Standing",
-      "ok": false,
-      "standing": null
+      "ok": true,
+      "pin": {
+        "mtime": 1793905828,
+        "sha256": "b1414ae5eabf810b72676a2e11dae63d686cd0132ca28cf0b895a1d9570adcb1"
+      },
+      "standing": "UNVERIFIED"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/cl-close-2.md": {
       "annotation": "",
       "key": "GATE",
       "ok": true,
+      "pin": {
+        "mtime": 1793783128,
+        "sha256": "ff164949c462b51faac8c44b6d588855758818a9ff87d070bff3c107767ad6ec"
+      },
       "standing": "PASS"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/cl-close.md": {
       "annotation": "",
       "key": "GATE",
       "ok": true,
+      "pin": {
+        "mtime": 1793751091,
+        "sha256": "502649a84ac9dbc525f24e2a93e148aa07bd28c4feb75a1256e85432ed936e0e"
+      },
       "standing": "PASS"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/cl-d-fmlaw-fixtures.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "62f0bbff352527ae33fa75984efb06a3996963f1bdca874559ea44baef02b7ef"
+      },
+      "standing": "ALIVE"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/cl-i-lib-wiring.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "7db0d17fcfb29dea9e170ce92e6df0b9d2494e8278422f8a3e6156b0fede78b6"
+      },
+      "standing": "ALIVE"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/cl-o-readme-reconcile.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "39f47a04852c39338fbb3adda4d6e8792929857e414875cb67806bc8190100ce"
+      },
+      "standing": "PARTIAL"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/cl-p-g2-recovery.md": {
       "annotation": "",
       "key": "Standing",
-      "ok": false,
-      "standing": null
+      "ok": true,
+      "pin": {
+        "mtime": 1793905828,
+        "sha256": "26a52cb88b1e14ccc4f2f5f033f2dc86ab529a266f2893cebb9a191b967fec11"
+      },
+      "standing": "UNVERIFIED"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/cl-q-k2-recovery.md": {
       "annotation": "",
       "key": "Standing",
-      "ok": false,
-      "standing": null
+      "ok": true,
+      "pin": {
+        "mtime": 1793905828,
+        "sha256": "9cbc9b537a89273a42f306b6db14117277e3f547eb1f6aac444fe8ca87b20f4c"
+      },
+      "standing": "PASS"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/cl-r-transactional-recovery.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "762ec7ef703ec0471c890e83aae2d3d47872d1a2902d2f6edc828a089f3d4746"
+      },
+      "standing": "ALIVE"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/complete-receipt.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "31d5beb6abc6789d81441ac7b8656c7cc00dc9732beeb6f53f963b8141ca5d89"
+      },
+      "standing": "ALIVE"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/ds-1.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "f4ce3fc1c963e38d744375c6e7da151217dfc9deeded72964d659a20044541ae"
+      },
+      "standing": "UNKNOWN"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/ds-10.md": {
       "annotation": "",
       "key": "Standing",
       "ok": true,
+      "pin": {
+        "mtime": 1793832489,
+        "sha256": "8a76b986cd690ad860698baa892759d11ce18a6ea6ebc2eb3536146730475c95"
+      },
       "standing": "PARTIAL_ALIVE"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/ds-2.md": {
       "annotation": "",
       "key": "Standing",
-      "ok": false,
-      "standing": null
+      "ok": true,
+      "pin": {
+        "mtime": 1793905828,
+        "sha256": "df25cada3a6ecda849112213b28696442a54271c61d772981c0327f92b258add"
+      },
+      "standing": "PASS"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/ds-3.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "c6c442235613581f7fe1b5a3842a43652a3829436cf7031f4b0ff71bff2b60f0"
+      },
+      "standing": "ALIVE"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/ds-4.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "da62b939538959b342df88ee42f0225218724a4b914576035b7289475672d040"
+      },
+      "standing": "ALIVE"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/ds-5-baseline.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "a902938025a1c25a59e1f1d65342329c92c3b8953893bd3f29be1f855bc1b0e2"
+      },
+      "standing": "ALIVE"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/ds-6.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "b1ddb49e1f0717ff083faeafd4f392a6eac9cd00a6da08578c481ddde5aa79bd"
+      },
+      "standing": "PARTIAL"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/ds-7-mutation.md": {
       "annotation": "",
       "key": "Standing",
-      "ok": false,
-      "standing": null
+      "ok": true,
+      "pin": {
+        "mtime": 1793905828,
+        "sha256": "de5394673119cbc3515fc06ec061779d4ca32996ae1941a6c18eae59f20f8154"
+      },
+      "standing": "UNVERIFIED"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/ds-8-cli-skeleton.md": {
       "annotation": "",
       "key": "Standing",
-      "ok": false,
-      "standing": null
+      "ok": true,
+      "pin": {
+        "mtime": 1793905828,
+        "sha256": "c77743c4bd91e090edb585b8fb388d29151a8999efb8444d0fbb033f33da5234"
+      },
+      "standing": "UNVERIFIED"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/ds-8.md": {
       "annotation": "",
       "key": "Standing",
-      "ok": false,
-      "standing": null
+      "ok": true,
+      "pin": {
+        "mtime": 1793905842,
+        "sha256": "ebf2719cb08a8213e97a5152edd822ed618a944cba0727fb84c61a9d108bae1e"
+      },
+      "standing": "PASS"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/ds-9.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "84d176e027a3a1f22b51eca5d6af56b668418e37179960c75db5439ee0cdc2b4"
+      },
+      "standing": "PARTIAL_ALIVE"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/e80-01.md": {
       "annotation": "",
       "key": "Standing",
-      "ok": false,
-      "standing": null
+      "ok": true,
+      "pin": {
+        "mtime": 1793905828,
+        "sha256": "595a72a9425c7ad556ce5f2a9cd270ce4c1617c44bd9f21c8f64ea46bbf8ff8c"
+      },
+      "standing": "PASS"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/e80-03.md": {
       "annotation": "",
       "key": "Standing",
       "ok": true,
+      "pin": {
+        "mtime": 1793832489,
+        "sha256": "b4730dbcc3e3c8eba6841c8ae9f6c77f64aaf153153a967024648caa9af6bc75"
+      },
       "standing": "ALIVE"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/e80-04.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "9d529c19e450cc04650eabad7f1122046c659487491aa6711b3dc222d4588e5d"
+      },
+      "standing": "ALIVE"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/e80-05.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "0ffd84b7195bfeb16bb33829fa09161f21b7de2da2907b932f23cc5b86eb9d6c"
+      },
+      "standing": "ALIVE"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/e80-08.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "c70b91bb18a6553743a007b86631cd96313ddf0851c8e878ffe2996c9220f6b6"
+      },
+      "standing": "PARTIAL_ALIVE"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/e80-09.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "a98bbb9348c7d11e6585562e51f8fbc23f108d4653ed48c7e97dd0a9e8f49073"
+      },
+      "standing": "ALIVE"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/e80-10.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "74e77961e33bd951863a453d179ef2a41bf48bf84b7b014771855b976fbc738d"
+      },
+      "standing": "FAIL"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/ea-run-transcript.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "1d2ab66d3d55920b0faf7dbca0847fc01fc265db34823d45f6605d61803d5018"
+      },
+      "standing": "ALIVE"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/f1-chain-rule.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "11667f069e15457f6fe03746d6c38d975b971ea5784c70c0bf43bb1bf3175b41"
+      },
+      "standing": "ALIVE"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/f2-declarative-admission.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "c6841b101c7c047a47369b5dd17edd3602aa0688bdf8060aef587f4652ac4816"
+      },
+      "standing": "ALIVE"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/g1-stage2c.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "2853d72a8ed6fa9b3bf5547869592b9acfed276d1d1abd8c4639d97659f018e6"
+      },
+      "standing": "PARTIAL"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/g2-typed-refusals.md": {
       "annotation": "",
       "key": "Status",
       "ok": true,
+      "pin": {
+        "mtime": 1793751814,
+        "sha256": "c00c0f280b126f0002af8030b3ef1253f49f302c71aee5c7611e22a04edbef10"
+      },
       "standing": "ALIVE"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/g3-kernel-highs.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "5807aac40cf51a0d61a6aa3a615aff7974e848934064a6371a8845cf79c37d4a"
+      },
+      "standing": "ALIVE"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/g4-composer.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "ce5d546b3e57552cf2ffb102fc6b02c5cc626df89c1156ee6236fd8e02fbff17"
+      },
+      "standing": "ALIVE"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/g5-refusal-fences.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "8cce7d2ab027903c5ba1c6807e8ece2d496b985d30bbbecd0ee6b8bfc19bb43a"
+      },
+      "standing": "ALIVE"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/g6-depgraph.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "f22020caec24e6cfe4ebae1cdb503bdd4144447d7f0910c7e48ae97119c006c1"
+      },
+      "standing": "PASS"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/g7-schema.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "f1bdd60edba074f765bd70e9ceb15f62fa477b615eb10163747b4d2977787e01"
+      },
+      "standing": "ALIVE"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/g8-cli.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "da582b65691b7c92964e5b6144780da0b3ea5b9bb43a56ae859a66b160c86890"
+      },
+      "standing": "PARTIAL_ALIVE"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/ga-1-aoq-ontology.md": {
       "annotation": "",
       "key": "Standing",
-      "ok": false,
-      "standing": null
+      "ok": true,
+      "pin": {
+        "mtime": 1793905828,
+        "sha256": "241baf81f75c7c5e9c771928bfc25eb22bb6fffc20bdaf405d25b172d25dac16"
+      },
+      "standing": "ALIVE"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/ga-11-cscb-pack.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "d8aca9f7184b5790f6dc6dcefff00776123a349e2510fd825357db2615fe5dc9"
+      },
+      "standing": "UNSUPPORTED"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/ga-12-tort-pack.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "8abb37f6947ed9d1f83935f01051c533b808abab1e5198e17abb3a0d80213ecd"
+      },
+      "standing": "ALIVE"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/ga-3-aoq-templates.md": {
       "annotation": "",
       "key": "Standing",
-      "ok": false,
-      "standing": null
+      "ok": true,
+      "pin": {
+        "mtime": 1793905828,
+        "sha256": "9b5d318fc3dbe89e61fffe1885401d71f696da4568c812d3b9491639e2894a59"
+      },
+      "standing": "ALIVE"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/ga-7-control-wiring.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "63340487285cdc001acd5e838a5f33f831d55c1fd1991de7308e15f668f5c4c1"
+      },
+      "standing": "PASS"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/ga-9-receiptctl.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "92a9fcc9c9342445ae468a9e2d4aa90a09d7f39b4ddd2de6490081add983c54e"
+      },
+      "standing": "BLOCKED"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/gd-2-ggen-dod.md": {
       "annotation": "",
       "key": "Standing",
-      "ok": false,
-      "standing": null
+      "ok": true,
+      "pin": {
+        "mtime": 1793905842,
+        "sha256": "e27ce9bf0d777d9f413c4681a0d13a49054e661a20afb96aa6affded943709bc"
+      },
+      "standing": "ALIVE"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/gl-1.md": {
       "annotation": "",
       "key": "Standing",
-      "ok": false,
-      "standing": null
+      "ok": true,
+      "pin": {
+        "mtime": 1793905829,
+        "sha256": "3d303e29c994f0c4419ada9b2af52e4d60174071b9cc92a9e48bc145678d2625"
+      },
+      "standing": "ALIVE"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/i5-wo06-reconcile.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "380047c4bded4049216e9ef39e0bc2ce9f7b680a3e3905d2e8a79c15d5c526a6"
+      },
+      "standing": "PARTIAL_ALIVE"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/k1-refusal-flip.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "39b486aba2615966084e45663cb2b2a9d5d0c28c71b316524f275d1a33717ca9"
+      },
+      "standing": "ALIVE"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/k2-test-fixes.md": {
       "annotation": "",
       "key": "Standing",
-      "ok": false,
-      "standing": null
+      "ok": true,
+      "pin": {
+        "mtime": 1793905829,
+        "sha256": "879f3ae9ba9201222d5e964befb361de6fdd6262eaed870633dec83f1943cf00"
+      },
+      "standing": "UNVERIFIED"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/k6-self-dogfood.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "8771eb91c5c6b68e16c9a098dd00230c8aa82a0ba6ce30666076c7c08ff49231"
+      },
+      "standing": "ALIVE"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/k8-cli-flag-depgraph.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "e22ae40bcbcfbacd679365ad7e16adaf0b4d11d6db5efa01605aa3d54ef22fd5"
+      },
+      "standing": "ALIVE"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/p11-fmgen007.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "b6616b10d6e94be0b688ca730746fc00afc6f845fd28f3bc6cde77c190f06899"
+      },
+      "standing": "ALIVE"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/r80-01.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "a3a84b9dfd60fed99efd19f289436e278dfb21624124373d20b8c7b2048cf1c9"
+      },
+      "standing": "ALIVE"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/r80-02.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "4a51ba971eb29025900f970f41d0228d3664dee747f0dadf1b835db806d7bf90"
+      },
+      "standing": "ALIVE"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/r80-03.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "475d1e649a4330968ac7df9f53dcc0b7aff6c33fcf9110577a0e9dd4fd3bcde8"
+      },
+      "standing": "ALIVE"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/r80-04.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "ef334a8389f6052883ea7fcf33aedb4d7d099025aa2b7c0cddeb78b8ac0c1d09"
+      },
+      "standing": "PARTIAL_ALIVE"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/r80-05.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "a11444d61f5b758637bb11ae752397c4038b0bcebe1b2172e25739230ce32c18"
+      },
+      "standing": "ALIVE"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/r80-06.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "9d269163542ca01a06ca2bd6ae400b13d94f8773d84a027892cb3962c45c4226"
+      },
+      "standing": "REFUSED"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/r80-07.md": {
       "annotation": "",
       "key": "Status",
       "ok": true,
+      "pin": {
+        "mtime": 1793744881,
+        "sha256": "3a817eb14dde9188dc036185e90f8920d954e17f3053bf95f27569728ab8646b"
+      },
       "standing": "ALIVE"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/r80-08.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "250015f1aae96a4f46e9854a0b923dfb21a522cf3053b32d7e388dae2771a92c"
+      },
+      "standing": "UNKNOWN"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/r80-09.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "39ef7493773044552724b69019188828f2258d1212cc03abaa68fb1488bcc9ad"
+      },
+      "standing": "ALIVE"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/r80-10.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "2bcf69fd55517933f083b0c7171dffb58ab16f5369d7d852d834fea8ca877cb3"
+      },
+      "standing": "ALIVE"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/r80-11.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "2e35010b95adb195efdfb50dc5a3baad802df7bbcc3e1e4926ee756f33cddd3d"
+      },
+      "standing": "ALIVE"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/r80-12.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "f10e6b35e9ee74ec0f06ae30b8c915ecf95fb4888361bff86d32c8f7fbd35529"
+      },
+      "standing": "ALIVE"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/r80-14.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "f71c19dc369ace73d350d1c55c2dd53a4f3a0f309e0299d225b27a6e441956b8"
+      },
+      "standing": "ALIVE"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/sa-12.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "b5df4e26e80f499dcf262e2c62b1532cea327be4806c90859652492d2e092fd0"
+      },
+      "standing": "PASS"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/sa-13.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "d6004a4b97e14a10717c2c5c16f82cd7b70d3fe47221cf09455ecf4f03cbe18b"
+      },
+      "standing": "UNVERIFIED"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/sa-14.md": {
       "annotation": "",
       "key": "Standing",
-      "ok": false,
-      "standing": null
+      "ok": true,
+      "pin": {
+        "mtime": 1793905829,
+        "sha256": "236f0ea7545581cc948cdd4b990b2cccb97afd4339d64caef42243e63b846ce4"
+      },
+      "standing": "PASS"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/sa-15.md": {
       "annotation": "",
       "key": "Standing",
-      "ok": false,
-      "standing": null
+      "ok": true,
+      "pin": {
+        "mtime": 1793905829,
+        "sha256": "4d74c437d071ec77ff223391407fc429250de62f32fb03ae03cc3af1db5956c2"
+      },
+      "standing": "PASS"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/sa-16.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "4454b2985bac3e20e8b1cdd25d46417dbbc29840edb59d1dac4c04d49a225160"
+      },
+      "standing": "ALIVE"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/sa-17-census.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "79657dd23f889497cd988d94730cc784a34f5246cd0b5281bc22d0b0f3d8cbd5"
+      },
+      "standing": "BLOCKED"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/sa-6.md": {
       "annotation": "",
       "key": "Standing",
       "ok": true,
+      "pin": {
+        "mtime": 1793754818,
+        "sha256": "392a869b5ea5d0359e6d189c9e669088f3adfeaf664ea8fa6112ccee1971a777"
+      },
       "standing": "ALIVE"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/sa-7.md": {
       "annotation": "",
-      "key": "result",
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "e9136c84fd85e816a7221340a2de162d2d4b2d727f32fe2c00853b13b5a24b60"
+      },
+      "standing": "PASS"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/sa-8.md": {
       "annotation": "",
       "key": "Standing",
       "ok": true,
+      "pin": {
+        "mtime": 1793755291,
+        "sha256": "6f5d14a07d471ba6af6a3dce6c61508073cdc2b41743797570ec8447c34199d0"
+      },
       "standing": "PASS"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/sj-1.md": {
       "annotation": "",
-      "key": "result",
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "19f38cf006bd29376ac6c374e12c01fb1d2017644b7004595a66d0b41ad9ccb6"
+      },
+      "standing": "ALIVE"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/sjira-mutation-battery.md": {
       "annotation": "",
       "key": "Standing",
-      "ok": false,
-      "standing": null
+      "ok": true,
+      "pin": {
+        "mtime": 1793905829,
+        "sha256": "b7c92cb10e5c700fa0570b4bcd5ccc564b47f05f7b801634550c91780aaee0f7"
+      },
+      "standing": "FAIL"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/skill-up-rewggen.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "ceef2890fb84d1dffdbbc412de06cdca00116f3696d343afb7f9b69f811854ca"
+      },
+      "standing": "ALIVE"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/sx-1-reds.md": {
       "annotation": "",
       "key": "Standing",
-      "ok": false,
-      "standing": null
+      "ok": true,
+      "pin": {
+        "mtime": 1793905829,
+        "sha256": "b3c382783f329125e708a203a553b3b66b2f9f51d1f202eeb2854936d764200f"
+      },
+      "standing": "PASS"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/x1-sjira-kernel.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "6502e928fbd4594bf4300e6d7912c3051c16e33740ee7e12b1e617f9d0110507"
+      },
+      "standing": "UNKNOWN"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/x3-projection.md": {
       "annotation": "",
       "key": "Standing",
       "ok": true,
+      "pin": {
+        "mtime": 1793744788,
+        "sha256": "bfd3669bf62f14b9c9b27aa7b642a4c3036cb1b2d2b7899858fb14fa71367f65"
+      },
       "standing": "ALIVE"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/x4-consumer-guide.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "9b96dcc3536c095ef7def876c20c000eb7989fd70c84e76a4d493900376fee0c"
+      },
+      "standing": "ALIVE"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/xc-7-ci-unblock.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "9d90e1f0e3f1b594d06c4025c977c7c792d190bc4387beac0aa57c4315cf2d94"
+      },
+      "standing": "ALIVE"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/xc-8-cve-bump.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793944115,
+        "sha256": "a5aa9453753ef00810f42a6aa28b2037dafbaab5e66170c14ac4cdb6e783cd01"
+      },
+      "standing": "BLOCKED"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/xd-10-publish-blockers.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "7089f56e36e28336e4ae99ac5c3eec070c1e7a43c498d4cafc9fbfdbcbcba02f"
+      },
+      "standing": "ALIVE"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/xd-11-fmlaw015.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "f093f502855d6cafc0a71a54b90a0c1db1f0e1983da4bde9293475e7969f9428"
+      },
+      "standing": "PASS"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/xd-13-fmt-sweep.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "c1a150b62b6c44951346967445dc37b8b4d9787c9c603cd7a08fe4d4a898f00f"
+      },
+      "standing": "ALIVE"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/xd-14-ea-graph-ci.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "266c677a110a1d12e50a12375e86fc0937de97a072b3618d19e8dfceb7239997"
+      },
+      "standing": "REFUSED"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/xd-15-tcps-lock.md": {
       "annotation": "",
       "key": "Standing",
       "ok": true,
+      "pin": {
+        "mtime": 1793832489,
+        "sha256": "c56d0046bedc5d0590fa0bf182447098c0cc28b833d5cfcb69115323e017a095"
+      },
       "standing": "PARTIAL_ALIVE"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/xd-17-index-transcribe.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "40ac79c03070891a73e9449d2ee319711eb0dabcdb0e57dec9eea43008badbb6"
+      },
+      "standing": "PASS"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/xd-18-ci-residuals.md": {
       "annotation": "",
       "key": "Standing",
-      "ok": false,
-      "standing": null
+      "ok": true,
+      "pin": {
+        "mtime": 1793905829,
+        "sha256": "551c89aa9c6324733fdb22da3235342a538f55c9fdab10cc3c3c8589d52bb086"
+      },
+      "standing": "PASS"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/xd-2-key-perms.md": {
       "annotation": "",
       "key": "Standing",
-      "ok": false,
-      "standing": null
+      "ok": true,
+      "pin": {
+        "mtime": 1793905829,
+        "sha256": "87a2b5c50eaa3c3ebe31122238f73ffbf3f927205e0d00333e4cf52079599b1f"
+      },
+      "standing": "ALIVE"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/xd-3-index-refresh.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "7d3ab34db6c87910e352917b0288714069aaf5f5751a32fc6acdcadb28452539"
+      },
+      "standing": "ALIVE"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/xd-8-key-mode-gate.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "ddc52a3db34890914173457adbba155c34afc645ff891ae0b225d2481c19b48b"
+      },
+      "standing": "ALIVE"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zb-21-observation-drift.md": {
       "annotation": "",
       "key": "Standing",
       "ok": true,
+      "pin": {
+        "mtime": 1793798340,
+        "sha256": "cd2b9ea81725c024625f6020ed2c8691a7c779ed4738cb31351e6b5ad0ceb0f3"
+      },
       "standing": "PARTIAL"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zb-24-final-index.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "ecb153abcc8a1626547719c491488221eee317d228df90b62cea43f75fe476ea"
+      },
+      "standing": "CLOSED"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zb-75-prd-materialize.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "593356d917d44628a230e975f464900832a233149fc205bee06816ac4390f40f"
+      },
+      "standing": "UNSUPPORTED"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-101-sync-verifies.md": {
       "annotation": "",
       "key": "Standing",
-      "ok": false,
-      "standing": null
+      "ok": true,
+      "pin": {
+        "mtime": 1793905829,
+        "sha256": "262b758bf82ce0e39281e45ffd6bb32508082031ffe17b3398e1a8fc2bcb229a"
+      },
+      "standing": "PASS"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-106-ledger-refresh.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "53cbba8638af2e72abb3c920332ea4bbf1b5511969f59c8da4274ab898941dee"
+      },
+      "standing": "PASS"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-108-soak-evidence.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "d19b5a3cf2eb245ca88e270994ab2a5f1922db5f3abceb52cd811186682611d8"
+      },
+      "standing": "PASS"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-11-sync431.md": {
       "annotation": "",
-      "key": "Status",
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "fd2ca90334973081f36725b4ce46b9e6d4939450aa732bcaeacaf5aef22301a3"
+      },
+      "standing": "ALIVE"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-110-clippy-zero.md": {
       "annotation": "",
       "key": "Standing",
-      "ok": false,
-      "standing": null
+      "ok": true,
+      "pin": {
+        "mtime": 1793905829,
+        "sha256": "546d1afe816e3fdcfcbf954a19918e04d645c8311e6ee3ecd1179aaa44f9ebec"
+      },
+      "standing": "PASS"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-112-terminal-gates.md": {
       "annotation": "",
       "key": "Standing",
-      "ok": false,
-      "standing": null
+      "ok": true,
+      "pin": {
+        "mtime": 1793905829,
+        "sha256": "ec1615f245b364bc2765b4aa8e3b2067075fe86c64374bb6430d566df38e2136"
+      },
+      "standing": "UNVERIFIED"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-116-index-final.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "82a17e10a7c63f2f888b506d6dc91ae9a1bd8afc11859cc1d6d6db93b8191227"
+      },
+      "standing": "PARTIAL"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-118-tag-sweep.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "d91f870759e54f72eff31654fad88c940fd1b3c0f7af7198d51aa6b9bfb5ffe3"
+      },
+      "standing": "ALIVE"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-120-ggen-preflight.md": {
       "annotation": "",
       "key": "Standing",
       "ok": true,
+      "pin": {
+        "mtime": 1793832489,
+        "sha256": "c9fe8712c065a1591a6c665edd5d258e6d8fe7a858f100b8ff19f65c21ba6a02"
+      },
       "standing": "ALIVE"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-121-tag-allowlist.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "790d97be9e37ef6a76e9298433cb89bf13e908a3d6e34a451b3d36c11d304655"
+      },
+      "standing": "ALIVE"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-124-casr.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "9729f8a1fa14634f7016e6d24f071ef690f6520482913e673af5aaa170ed928e"
+      },
+      "standing": "ALIVE"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-125-fm015-trio.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "64240c1f66363a98c6d7d6a60c933d68cc62984699f069bfc2798c8415d98488"
+      },
+      "standing": "ALIVE"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-126-tcps-lock.md": {
       "annotation": "",
       "key": "Standing",
       "ok": true,
+      "pin": {
+        "mtime": 1793832489,
+        "sha256": "8b3b9d15e1afaf41251277aa7406f2956a8375c61a3e85a5b943bcc397b117de"
+      },
       "standing": "ALIVE"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-127-core-team.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "4249a80df5ea390ce6a648788d53720988b0c3a2881a17cc95e9f7e20e8f9482"
+      },
+      "standing": "ALIVE"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-128-misc-ci.md": {
       "annotation": "",
       "key": "Standing",
       "ok": true,
+      "pin": {
+        "mtime": 1793832489,
+        "sha256": "1edf871f3595ff22dd78db9a3875588c1a88495ca86ffb376e5aea4b827ef3cc"
+      },
       "standing": "Exit-code-4"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-135-committed-confirm.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "6b4f71e6c9446c93ecb8e94dee92c692b96d1ea238fedc3bcd5695d8531891e7"
+      },
+      "standing": "ALIVE"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-137-sync-family.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "e83dc5be454f7c93e736d74dd22f8c7bb99eedde63960ff83edfe679c56516b5"
+      },
+      "standing": "UNVERIFIED"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-14-ci-final.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "b65d692f4fd81d795187fff0fb2ffadd04196f7ab1749433432be1edede17f1d"
+      },
+      "standing": "PARTIAL"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-15-template-fmt.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "02813303c6957a4fa7483f2175cb0542de3ea239a8ee6f94398b4c5bfe40fd02"
+      },
+      "standing": "PASS"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-16-eof-sweep.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "092a111d27e0fe08b5e398893617741380a1c7a0bf38b42ff7be2182e3d93d1a"
+      },
+      "standing": "ALIVE"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-17-ambient-ggen.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "ceb1212f3ff2ec61391218b0ed14207385c241ac9480d8fd6a97ec1c5281bb4a"
+      },
+      "standing": "ALIVE"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-21-shacl-syntax.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "ea4973394eefcb3b6542485a0af10b8c580640a3dfb088548abbd95316dc62c0"
+      },
+      "standing": "ALIVE"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-23-index-refresh2.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "b6022ec531c8fb5416cec756c159c326203df3e31fa5867340585aad2c7d9d99"
+      },
+      "standing": "ALIVE"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-24-claude-markers.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "12a764e97c614407f3c9783424eeaa1b671fed1ae4b1a859796399d8e8d678c2"
+      },
+      "standing": "PASS"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-27-repo-facts.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "bcb2d1b64e79baf118d766bfd0d77653bf8c8b96eb5397cc8432234a4a94991f"
+      },
+      "standing": "PASS"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-31-runbook-refresh.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "1df13a347229a39b2f4521294b93bff93b28177a10dad75d6fc16e23c4a269fd"
+      },
+      "standing": "OPEN"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-38-advisory-ignores.md": {
       "annotation": "",
       "key": "Standing",
-      "ok": false,
-      "standing": null
+      "ok": true,
+      "pin": {
+        "mtime": 1793905829,
+        "sha256": "3f30ad74255aaca324f9ececee974320062d72bccd36a2215958052d091997fb"
+      },
+      "standing": "PASS"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-39-polyglot-sccache.md": {
       "annotation": "",
       "key": "Standing",
-      "ok": false,
-      "standing": null
+      "ok": true,
+      "pin": {
+        "mtime": 1793905829,
+        "sha256": "9c8f731af5178e3b3962039ba5bee7bbb038943ccd05fbfdf011f48340f7d3de"
+      },
+      "standing": "UNVERIFIED"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-40-lsp-contract-graph.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "06500e1526ab108b7481719934662d3778b24707a6d96d3b919c5094026b40a4"
+      },
+      "standing": "ALIVE"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-44-skip-flag.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "e475a054efa8659b100338782f3b867ce4e8507ba45b3daa99ed422eab31ef8d"
+      },
+      "standing": "PASS"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-45-receipt-seam.md": {
       "annotation": "",
       "key": "Standing",
       "ok": true,
+      "pin": {
+        "mtime": 1793832489,
+        "sha256": "27ba05dab384fbd23e1c1555b4d8d9587c5044c863facc7f027cee0916c81884"
+      },
       "standing": "ALIVE"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-46-zero-verb-audit.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "901f6105305b0387dc9199f1344aa4f5a28dc410657edf74aa309d35763ecb12"
+      },
+      "standing": "ALIVE"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-47-relay-probe.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "d3681ec9f1adfc797f93b600dcce81c5b237331d0c32d1a64ce8762271218cbd"
+      },
+      "standing": "UNVERIFIED"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-48-fm-codes.md": {
       "annotation": "",
       "key": "Standing",
-      "ok": false,
-      "standing": null
+      "ok": true,
+      "pin": {
+        "mtime": 1793905829,
+        "sha256": "820181b0ecbc7aa204d90ec849327cf03c08263bfcd82be4a41f87af8cb9a9d3"
+      },
+      "standing": "UNVERIFIED"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-5-sccache.md": {
       "annotation": "",
       "key": "Standing",
-      "ok": false,
-      "standing": null
+      "ok": true,
+      "pin": {
+        "mtime": 1793905829,
+        "sha256": "e8f69aa875bc57abb497b5a8704939e9006c54a787c4d93e767a2efc08ee6d57"
+      },
+      "standing": "UNVERIFIED"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-50-wo-drift.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "e02b35f6eb39f29761e447667c836b0cc2c1e0d0dabeb3968e44e113f9fa8a83"
+      },
+      "standing": "ALIVE"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-51-r80.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "c74d2df9bc296ceb7d29a6905df43799e377e9121c8671deb650808d184939aa"
+      },
+      "standing": "CLOSED"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-58-index-refresh3.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "1e44a4dcf44a9666a065dcea6f5f546e75edabd305c0df2068b2776d93884448"
+      },
+      "standing": "ALIVE"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-59-carry05.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "324191e7be2c193cea7d7edc97b16f3ba88b4508ffe59ed01299dd9db1759693"
+      },
+      "standing": "ALIVE"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-60-ds7-tighten.md": {
       "annotation": "",
       "key": "Standing",
-      "ok": false,
-      "standing": null
+      "ok": true,
+      "pin": {
+        "mtime": 1793905829,
+        "sha256": "974edb37d3aac359c3faa018edecfe6f6fc0a4a828a6ea4aba6683020d56f5b0"
+      },
+      "standing": "PASS"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-66-doc-clippy.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "a1cc2e9950385e7d7376f90a022861707b9add952634c118c63acda2844c1264"
+      },
+      "standing": "ALIVE"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-67-ea-batch2.md": {
       "annotation": "",
       "key": "Standing",
       "ok": true,
+      "pin": {
+        "mtime": 1793832489,
+        "sha256": "a1679c8f6a86469fdaf19b4fab20e96a0b2244f3f8cfb7bc0a799970e2ca858f"
+      },
       "standing": "ALIVE"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-68-premise-rot.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "643bccca1eaf719be6c194746a1b48ce55080769d8b09f6482019b1d3ca23d50"
+      },
+      "standing": "REFUSED"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-69-enospc-lean.md": {
       "annotation": "",
       "key": "Standing",
-      "ok": false,
-      "standing": null
+      "ok": true,
+      "pin": {
+        "mtime": 1793905829,
+        "sha256": "8be8252de5bac3c4059b5b0d820f951b69c3e60230185d9988c6177a740582fc"
+      },
+      "standing": "UNVERIFIED"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-71-runbook-refresh2.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "69b79824f9be00e29eb6610fb81d93f672bfa5192e4f82c4b04d108b9091c0e9"
+      },
+      "standing": "ALIVE"
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-79-gate0-witness.md": {
+      "annotation": "",
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793906028,
+        "sha256": "621badb7cec58db5f32f9d4e8e37dcd1ca50dd3e4cf68fb35fd759e096658ac7"
+      },
+      "standing": "ALIVE"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-86-tai-evidence.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "63e198a4c3370d8bb3a8bf2a8d47330166c8ef197d0337c9503b211de4037b46"
+      },
+      "standing": "REFUSED"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-87-fmkey-ttl.md": {
       "annotation": "",
       "key": "Standing",
-      "ok": false,
-      "standing": null
+      "ok": true,
+      "pin": {
+        "mtime": 1793905829,
+        "sha256": "25fa5176e64fe819275ef8ce2f715763f793ff8d915197492fa206b61bddabb3"
+      },
+      "standing": "UNVERIFIED"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-88-pre-landing.md": {
       "annotation": "",
       "key": "Standing",
-      "ok": false,
-      "standing": null
+      "ok": true,
+      "pin": {
+        "mtime": 1793905829,
+        "sha256": "f85e7a84a919c761c28ef4a02eb2479ee5c09062808fbb97f234aaaedaa28da3"
+      },
+      "standing": "UNVERIFIED"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-9-self-host-observation.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "37668c7bd01e730c3f9a222d8751ccde6ee0924ff1f1f75d4d3021b3ef8ce80f"
+      },
+      "standing": "ALIVE"
     },
     "/Users/sac/ggen/docs/jira/v26.11.3/receipts/zd-90-seed-refresh.md": {
       "annotation": "",
       "key": "Standing",
-      "ok": false,
-      "standing": null
+      "ok": true,
+      "pin": {
+        "mtime": 1793905829,
+        "sha256": "7bed7bc8b83997e88b5dc9d467aaaa4b34469550b13c498ca15149f13a683d89"
+      },
+      "standing": "CLOSED"
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.4/receipts/aud1-wave-audit.md": {
+      "annotation": "",
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793906119,
+        "sha256": "89ab6cd8c0388f2ecd19642b08875b6495550a19684e7eccf697cf067c3e1d18"
+      },
+      "standing": "PASS"
     },
     "/Users/sac/ggen/docs/jira/v26.11.4/receipts/buildtime-cut-receipt.md": {
       "annotation": "",
       "key": "Standing",
       "ok": true,
+      "pin": {
+        "mtime": 1793829152,
+        "sha256": "c2e8666a8d1dca5fe667ceeabf127f4d6cdf16e6571cc5106f3edfef939d4818"
+      },
       "standing": "ALIVE"
     },
     "/Users/sac/ggen/docs/jira/v26.11.4/receipts/d-wave-consolidated-receipt.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "12b6f305dabb4837f3d9c2ef5bbc4f01d7fcaaae336f8e27ca727ad6a53f370e"
+      },
+      "standing": "ALIVE"
     },
     "/Users/sac/ggen/docs/jira/v26.11.4/receipts/e8-stale-citation-census.md": {
       "annotation": "",
       "key": "Standing",
       "ok": true,
+      "pin": {
+        "mtime": 1793827931,
+        "sha256": "bf0f946ab94b03662d665e8005ff23e6cd576b0f1ac4404a25ad21ea6c39455a"
+      },
       "standing": "ALIVE"
     },
     "/Users/sac/ggen/docs/jira/v26.11.4/receipts/gg1-closure.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "230bfaf98be1e97ce004505b38b3d734c2d43ce9501e0d1a8f7c6136de28eac8"
+      },
+      "standing": "ALIVE"
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.4/receipts/gg1-wip-sweep.md": {
+      "annotation": "",
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905487,
+        "sha256": "5941e87caa2ce860a034076aabbb48ca2149a2b0d8fcfab0190828a055abeb0e"
+      },
+      "standing": "PASS"
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.4/receipts/kdrc-recount.md": {
+      "annotation": "",
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793906391,
+        "sha256": "2a106b86e1000b5704465d0e9c10be029585109e9c3df3ba61aad1a50db4082a"
+      },
+      "standing": "PARTIAL"
     },
     "/Users/sac/ggen/docs/jira/v26.11.4/receipts/marketplace-index-bundle-ruling.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "518e04699f1018236403f7319096c19ec096d1c56e9754fdeb340749de665a7c"
+      },
+      "standing": "DECIDED"
     },
     "/Users/sac/ggen/docs/jira/v26.11.4/receipts/nv6-transitive-overrides.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "619c94f723a2e6a769cdcb78cd89eeefabbd3b3b8ec36a1bb0be8879af0822bf"
+      },
+      "standing": "ALIVE"
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.4/receipts/oi3-mldsa-phase1.md": {
+      "annotation": "",
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905992,
+        "sha256": "9fd03f387e1c789468cecf9a0e76448a259aef1bdd85ee9531ccab24b66d9a00"
+      },
+      "standing": "PASS"
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.4/receipts/s11-lane-registry.md": {
+      "annotation": "",
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905831,
+        "sha256": "1ab4de37526a80e3a0304432a422b9a52a88137c0a4c0be69c94241d9b0a1cff"
+      },
+      "standing": "ALIVE"
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.4/receipts/s12-receipt-lint.md": {
+      "annotation": "",
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905571,
+        "sha256": "0ee1c4206c09fec638cfec39def94694fad1fd757f157fd7486c0a4dbe0cd195"
+      },
+      "standing": "PARTIAL_ALIVE"
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.4/receipts/s6-sed-portable.md": {
+      "annotation": "",
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793944257,
+        "sha256": "a3f05e5c30625413b4acd5a90f50cbe2383b7206d707c3c1da36049b21659bea"
+      },
+      "standing": "PARTIAL_ALIVE"
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.4/receipts/s7-repin-gate.md": {
+      "annotation": "",
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793944053,
+        "sha256": "4cd161836bc3469da721adebf481f59fd92a3de0e474bea5d404d32d64cf66f8"
+      },
+      "standing": "ALIVE"
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.4/receipts/s8-mkt04-reverify.md": {
+      "annotation": "",
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793944199,
+        "sha256": "2c5d724dcab49e5f107df479c6e96966d1e2e692ff436e05b18ec16cdd3b60e1"
+      },
+      "standing": "PARTIAL_ALIVE"
+    },
+    "/Users/sac/ggen/docs/jira/v26.11.4/receipts/sb1-standing-backfill.md": {
+      "annotation": "",
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905882,
+        "sha256": "ed9e730757425335cfce830f08331095ad8e6b23697bc5ef23070ee449cc8faf"
+      },
+      "standing": "PASS"
     },
     "/Users/sac/ggen/docs/jira/v26.11.4/receipts/v4-corrected-claims-ledger.md": {
       "annotation": "",
       "key": "Standing",
       "ok": true,
+      "pin": {
+        "mtime": 1793832489,
+        "sha256": "a6f1c70b4832e051e6bc2d03862831d8c238eb6440e3ceff5ba7b7af962137ef"
+      },
       "standing": "ALIVE"
     },
     "/Users/sac/ggen/docs/jira/v26.11.4/receipts/vuln-remediation-receipt.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "efad6f462e5fffc89022fa3c5a3638f4db5d8ae57e945f4aa43ce27ad03ff9bd"
+      },
+      "standing": "ALIVE"
     },
     "/Users/sac/ggen/docs/jira/v26.11.4/receipts/zp-16-publish-automation.md": {
       "annotation": "",
-      "key": null,
-      "ok": false,
-      "standing": null
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1793905711,
+        "sha256": "86e2240794df20683717b8e46a24a04f20bd2a8f4cf7ae4e10eb40bb7fe36eab"
+      },
+      "standing": "ALIVE"
     },
     "/Users/sac/ggen/receipts/GALL_CONFORM_001.md": {
       "annotation": "",
       "key": "status",
       "ok": true,
+      "pin": {
+        "mtime": 1793832489,
+        "sha256": "976a79095d50b523d906ab8b06a1ffccb5adf2d9a51e15d9cebe19be9cf90648"
+      },
       "standing": "PASS"
     }
   },
   "generated_by": "scripts/receipt_lint.py",
-  "standing_map_hash": "a18ba9a0fceb2904"
+  "standing_map_hash": "e9ccd7059db40182"
 }

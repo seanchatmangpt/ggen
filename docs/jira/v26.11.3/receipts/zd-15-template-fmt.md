@@ -1,5 +1,7 @@
 # ZD-15: typed-boundary-refusal template emits rustfmt-clean output
 
+Standing: PASS
+
 Date: 2026-11-04 · Branch: `v26-11-3-wave` · Repo: `/Users/sac/ggen`
 Upstream finding: ZD-14 fmt-gate flap — every `ggen sync run` re-armed the fmt
 gate because `templates/typed-boundary-refusal-rust.tera` emitted

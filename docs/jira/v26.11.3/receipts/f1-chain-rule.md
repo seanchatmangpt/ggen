@@ -1,5 +1,7 @@
 # F1 Chain-Rule Compat Window Receipt — DEF-K6-1 closed
 
+Standing: ALIVE
+
 - **Date**: 2026-11-03
 - **Repo**: /Users/sac/ggen
 - **Lane**: F1 IMPLEMENTATION (receipt-chain read/verify path, DEF-K6-1)

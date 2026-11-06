@@ -1,5 +1,7 @@
 # SA-7 Receipt — Skill-Application lane: ggen self-hosting audit vs run-ggen skill
 
+Standing: PASS
+
 Date: 2026-11-04 (session). Lane: SA-7. Skill: `~/.claude/skills/run-ggen/SKILL.md`.
 Subject: `/Users/sac/ggen` root `ggen.toml` self-hosting manifest, audited against the
 skill's own best practices (dogfood law).

@@ -1,5 +1,7 @@
 # XD-13: fmt sweep — XA-1 CI root causes 1+6
 
+Standing: ALIVE
+
 Date: 2026-11-04 · Lane: XD-13 · Branch: v26-11-3-wave (PR #824) · Status: ALIVE (uncommitted, coordinator sweeps)
 
 ## Task

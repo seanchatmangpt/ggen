@@ -1,5 +1,7 @@
 # ZD-68: Test/behavior premise rot (ZB-13 item 5) — three pinned premises re-derived against live semantics
 
+Standing: REFUSED
+
 Date: 2026-11-04 · Branch: v26-11-3-wave · Lane: create/update agent (test/behavior drift, bounded ≤10 files)
 
 ## Law applied

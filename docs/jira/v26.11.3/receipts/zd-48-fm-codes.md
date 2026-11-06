@@ -1,6 +1,6 @@
 # zd-48 — FM-code census triage + 8 Chicago courts (CARRY-09, GAP-3 residue)
 
-Standing: courts green x2 (lane-local build root)
+Standing: UNVERIFIED
 
 - **Repo/branch**: `/Users/sac/ggen`, `v26-11-3-wave` (no git commands run; working-tree edits only)
 - **Files owned**: `docs/FM_REGISTRY.md` (tested_by markers + header counts + one court-directed missing row, disclosed), 5 new test files, this receipt

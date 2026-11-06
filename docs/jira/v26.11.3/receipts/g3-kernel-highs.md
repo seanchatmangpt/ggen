@@ -1,5 +1,7 @@
 # Receipt: g3-kernel-highs (v26.11.3, lane G3)
 
+Standing: ALIVE
+
 **Lane**: G3 (IMPLEMENTATION — kernel HIGH defects)
 **Subject**: `/Users/sac/ggen/crates/ggen-abb-sbb` (canonical checkout, no worktree)
 **Date**: 2026-11-03

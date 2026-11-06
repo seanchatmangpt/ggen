@@ -1,5 +1,7 @@
 # XD-3 — Receipt-Index Refresh
 
+Standing: ALIVE
+
 Date: 2026-11-04. Lane: XD-3 (index-only). Repo: /Users/sac/ggen. Zero
 src/test edits, zero git commands. Files touched (only):
 `docs/jira/v26.11.3/receipts/cl-close-2.md` (addendum rows appended),

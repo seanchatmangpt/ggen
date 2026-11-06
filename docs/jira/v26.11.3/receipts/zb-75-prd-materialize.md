@@ -1,5 +1,7 @@
 # ZB-75 Receipt — v26.11.4 PRD materialization (ZP-23 plan)
 
+Standing: UNSUPPORTED
+
 Date: 2026-11-04. Lane: ZB-75 (docs lane). Repo: /Users/sac/ggen,
 branch v26-11-3-wave. Never ran destructive git; one pathspec-scoped commit +
 push.

@@ -66,6 +66,18 @@
       "lease_expires": null
     },
     {
+      "lane_id": "S-11",
+      "repo": "/Users/sac/ggen",
+      "owned_paths": [
+        "scripts/hooks/lane-lease-check",
+        "scripts/lane_slot_map.sh",
+        "docs/jira/v26.11.4/receipts/s11-lane-registry.md"
+      ],
+      "status": "leased",
+      "receipts": [],
+      "lease_expires": "2026-11-06T00:00Z"
+    },
+    {
       "lane_id": "O3",
       "repo": "/Users/sac/ggen",
       "owned_paths": [

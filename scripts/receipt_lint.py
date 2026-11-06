@@ -36,7 +36,7 @@ KEY_RE = re.compile(
 # Gate 3 accepted standing values (case-sensitive as written).
 STANDING_VOCAB = [
     "ALIVE", "PARTIAL_ALIVE", "PARTIAL", "BLOCKED", "REFUSED",
-    "UNSUPPORTED", "UNKNOWN", "VERIFIED", "DECIDED",
+    "UNSUPPORTED", "UNKNOWN", "VERIFIED", "UNVERIFIED", "DECIDED",
     "OPEN", "CLOSED", "CLOSED-SIMULATED", "FAIL-HONEST", "BUILD_BROKEN",
     "CONFORMANT", "PASS", "FAIL",
 ]
@@ -97,13 +97,23 @@ def parse_standing(line_value: str) -> tuple[str | None, str, str]:
     return None, "", "value '%s' not in vocabulary" % v
 
 
+def _file_pin(path: Path, text: str) -> dict:
+    """mtime + sha256 content pin for the census (re-flag only on change)."""
+    st = path.stat()
+    return {
+        "mtime": int(st.st_mtime),
+        "sha256": hashlib.sha256(text.encode("utf-8", errors="replace")).hexdigest(),
+    }
+
+
 def parse_file(path: Path) -> dict:
     """Parse one receipt file into a standing-map entry."""
     try:
-        lines = path.read_text(encoding="utf-8", errors="replace").splitlines()
+        text = path.read_text(encoding="utf-8", errors="replace")
     except OSError as e:
         return {"file": str(path), "ok": False,
                 "reason": "unreadable: %s" % e}
+    lines = text.splitlines()
 
     for i, line in enumerate(lines):
         m = KEY_RE.match(line)
@@ -119,9 +129,10 @@ def parse_file(path: Path) -> dict:
         return {
             "file": str(path), "key": m.group(1), "standing": standing,
             "annotation": ann, "ok": True, "line": i + 1,
+            "pin": _file_pin(path, text),
         }
     return {"file": str(path), "ok": False,
-            "reason": "no parseable standing line"}
+            "reason": "no parseable standing line", "pin": _file_pin(path, text)}
 
 
 def backfill_proposal(path: Path) -> str | None:
@@ -214,6 +225,7 @@ def main() -> int:
                 "key": r.get("key"),
                 "annotation": r.get("annotation", ""),
                 "ok": r["ok"],
+                "pin": r.get("pin"),
             } for r in results},
         }
         map_path.write_text(json.dumps(map_data, indent=2, sort_keys=True) + "\n",

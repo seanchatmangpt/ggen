@@ -1,6 +1,6 @@
 # ZD-87 — FM-KEY-013 TTL Declaration (Court Repair)
 
-Standing: ok. 3 passed; 0 failed (court green post-declaration)
+Standing: UNVERIFIED
 
 - **Date**: 2026-11-04
 - **Lane**: zd-87 (create/update agent, repo `/Users/sac/ggen`, branch `v26-11-3-wave`)

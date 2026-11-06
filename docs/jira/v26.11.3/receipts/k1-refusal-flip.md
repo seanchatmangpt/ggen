@@ -1,5 +1,7 @@
 # Receipt — K1 refusal flip (lane K1, WO-07 deviation resolution)
 
+Standing: ALIVE
+
 Date: 2026-11-03. Canonical checkout `/Users/sac/ggen`. No git commands run (coordinator owns transitions).
 
 ## Subject

@@ -36,3 +36,4 @@ resource "github_repository_ruleset" "this" {
   }
 }
 ```
+

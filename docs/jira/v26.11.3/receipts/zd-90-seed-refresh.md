@@ -1,6 +1,6 @@
 # ZD-90 — v26.11.4 SEED refresh (per-item re-verification against disk receipts)
 
-Standing: per-item dispositions re-verified from disk receipts (CLOSED / ALIVE per table)
+Standing: CLOSED
 
 - **Date**: 2026-11-04
 - **Repo**: /Users/sac/ggen (branch v26-11-3-wave)

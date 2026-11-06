@@ -120,13 +120,19 @@ fn classify_content(content: &str) -> Classification {
 /// then `build_inheritance_chains`. `load_templates_glob_lenient` itself is
 /// `pub(crate)`, so this integration test replicates the byte-relevant
 /// registration sequence rather than calling it.
-fn render_lenient_style(name: &str, content: &str, ctx: &serde_json::Value) -> String {
+fn render_lenient_style(
+    name: &str,
+    content: &str,
+    ctx: &serde_json::Value,
+) -> Result<String, String> {
     let mut tera = Tera::default();
     let tpl = tera::Template::new(name, None, content)
-        .unwrap_or_else(|e| panic!("fixture must parse under the pinned tera: {e}"));
+        .map_err(|e| format!("parse: {e}"))?;
     tera.templates.insert(name.to_string(), tpl);
-    tera.build_inheritance_chains().expect("fixture inheritance build");
-    tera.render(name, &to_tera_ctx(ctx)).expect("fixture must render")
+    tera.build_inheritance_chains()
+        .map_err(|e| format!("inheritance: {e}"))?;
+    tera.render(name, &to_tera_ctx(ctx))
+        .map_err(|e| format!("render: {e}"))
 }
 
 fn to_tera_ctx(v: &serde_json::Value) -> tera::Context {
@@ -224,7 +230,8 @@ fn poisoned_fixture_renders_with_no_newline_after_interpolation() {
         "newline-law-poisoned.tmpl",
         &content,
         &json!({"rows": [{"source": "X"}]}),
-    );
+    )
+    .expect("poisoned fixture must render under the pinned tera");
 
     // Law: `-}}` trims the newline following the expression tag, so the
     // interpolation "X" is immediately followed by the NEXT line's bytes.
@@ -308,19 +315,108 @@ fn grammar_law_is_textually_grounded_in_both_engine_versions() {
         None => println!("  DEFERRED: tera 2.4.0 registry source not under registry src"),
     }
 
-    // Leg 3 (dual-engine render-diff across the 30 lawful files): DEFERRED.
-    //
-    // Reason: tera 2.4.0 is resolvable in the workspace (Cargo.lock pins it
-    // via qlue-ls) but is NOT a ggen-engine dependency — crates/ggen-engine/
-    // Cargo.toml pins `tera = "1.20"`. Rendering the poisoned fixture and a
-    // sample of the 30 lawful files under BOTH engine versions would need a
-    // `tera-2` dev-dependency (renamed package alias) added to ggen-engine's
-    // Cargo.toml, an edit outside this lane's ownership. Deferred; the
-    // 1.20.1-only render leg plus the textual 2.4.0 lexer assertion carry
-    // the gate until that lane lands.
-    println!(
-        "  DEFERRED: dual-engine render-diff leg — tera 2.4.0 is in the workspace lock \
-         (via qlue-ls) but not a ggen-engine dependency; would need a dev-dep Cargo.toml \
-         edit outside this lane's ownership"
+    // Leg 3 (dual-engine render-diff across the 30 lawful files): the court.
+    // tera 2.4.0 is now a REAL renamed dev-dependency (`tera2`, OI-2 landed the
+    // Cargo.toml edit), so the poisoned fixture + a sample of the 30 lawful
+    // expression-tag `-}}` files render under BOTH engine versions and the
+    // rendered bytes must agree — if a future Tera bump drifted the whitespace
+    // law, this diff flips the gate.
+    let fixture = ggen_root().join(
+        "crates/ggen-engine/tests/fixtures/templates/newline-law-poisoned.tmpl",
     );
+    let mut subjects: Vec<(String, String)> = vec![(
+        "fixture/newline-law-poisoned.tmpl".to_string(),
+        std::fs::read_to_string(&fixture).expect("poisoned fixture readable"),
+    )];
+    // Sample of the lawful population: every expression-tag `-}}` file under
+    // ggen/packs (the receipted 12). Frontmatter is stripped the same way the
+    // lenient loader does (template.rs): everything after the closing `---`.
+    let mut roots = census_roots();
+    roots.retain(|(label, _)| label == "ggen/packs");
+    for (_label, root) in roots {
+        let mut files = Vec::new();
+        collect_tmpl_files(&root, &mut files);
+        files.sort();
+        for f in files {
+            let content = std::fs::read_to_string(&f).unwrap_or_default();
+            if classify_content(&content).expr_tag_dashes > 0 {
+                subjects.push((
+                    format!("ggen/packs/{}", f.strip_prefix(&root).unwrap().display()),
+                    strip_frontmatter(&content),
+                ));
+            }
+        }
+    }
+
+    println!(
+        "  == dual-engine render-diff court: {} subjects under tera 1.20.x vs tera 2.4.0 ==",
+        subjects.len()
+    );
+    let fixture_ctx = json!({"rows": [{"source": "X"}]});
+    let mut mismatches = Vec::new();
+    for (name, content) in &subjects {
+        // The poisoned fixture needs its rows context; pack bodies are rendered
+        // context-free. A subject that errors under BOTH engines for the same
+        // missing-context class is still a parity hold (outcomes agree); a
+        // hold requires Ok/Ok byte-equality or Err/Err outcome-equality.
+        let ctx = if name.starts_with("fixture/") {
+            &fixture_ctx
+        } else {
+            &json!({})
+        };
+        let r1 = render_lenient_style(name, content, ctx);
+        let r2 = render_lenient_style_v2(name, content, ctx);
+        let holds = match (&r1, &r2) {
+            (Ok(a), Ok(b)) => a == b,
+            (Err(_), Err(_)) => true,
+            _ => false,
+        };
+        if !holds {
+            mismatches.push(name.clone());
+            println!("  MISMATCH: {name} (v1={r1:?} vs v2={r2:?})");
+        }
+    }
+    assert!(
+        mismatches.is_empty(),
+        "dual-engine render-diff court FAILED: {} of {} subjects render \
+         differently under tera 1.20.x vs tera 2.4.0: {mismatches:?} — the \
+         whitespace `-}}` law drifted across the version span",
+        mismatches.len(),
+        subjects.len()
+    );
+    println!(
+        "  COURT HELD: all {} subjects render byte-identically under both engines",
+        subjects.len()
+    );
+}
+
+/// Strip a leading TOML frontmatter block (`---\n...\n---\n`) so pack template
+/// bodies render standalone, mirroring the loader's pre-parse.
+fn strip_frontmatter(content: &str) -> String {
+    if !content.starts_with("---\n") {
+        return content.to_string();
+    }
+    let after_open = &content[4..];
+    match after_open.find("\n---") {
+        Some(idx) => after_open[idx + 4..].trim_start_matches('\n').to_string(),
+        None => content.to_string(),
+    }
+}
+
+/// tera 2.4.0 twin of `render_lenient_style` — the public API changed in the
+/// 2.x line (`templates` is `pub(crate)`, no public `build_inheritance_chains`).
+/// `add_raw_template` is the lawful equivalent of the 1.x per-file registration
+/// discipline: it runs `Template::new` per file, inserts into the instance, and
+/// finalizes inheritance chains (`tera.rs:790-805`, registry source), so the
+/// byte-relevant sequence is identical.
+fn render_lenient_style_v2(name: &str, content: &str, ctx: &serde_json::Value) -> Result<String, String> {
+    let mut tera = tera2::Tera::default();
+    tera.add_raw_template(name, content)
+        .map_err(|e| format!("parse: {e}"))?;
+    tera.render(name, &to_tera_ctx_v2(ctx))
+        .map_err(|e| format!("render: {e}"))
+}
+
+fn to_tera_ctx_v2(v: &serde_json::Value) -> tera2::Context {
+    tera2::Context::from_serialize(v).expect("fixture context must serialize (tera2)")
 }

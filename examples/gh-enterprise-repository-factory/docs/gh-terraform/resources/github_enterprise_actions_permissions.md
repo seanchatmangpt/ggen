@@ -10,3 +10,4 @@ Enterprise-wide Actions policy
 | Required args | enabled_organizations, enterprise_slug |
 
 Cataloged, not yet templated: no verified example schema captured for this resource.
+

@@ -25,3 +25,4 @@ resource "github_team_repository" "this" {
   permission = var.team_permission
 }
 ```
+

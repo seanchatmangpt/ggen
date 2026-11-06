@@ -10,3 +10,4 @@ Repo allow-list for an org Dependabot secret
 | Required args | selected_repository_ids, secret_name |
 
 Cataloged, not yet templated: no verified example schema captured for this resource.
+

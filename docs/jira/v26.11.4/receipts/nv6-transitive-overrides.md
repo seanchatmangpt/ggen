@@ -1,5 +1,7 @@
 # NV6 — Transitive-Dep Override Lane Receipt (v26.11.4)
 
+Standing: ALIVE
+
 - **Subject**: examples/ + marketplace/packages/ JS dirs, Dependabot transitive alerts
   (brace-expansion DoS ×2, nanoid integer overflow ×3, source-map-js event-loop DoS).
 - **Standing**: ALIVE (executed this session; commands + exits below).

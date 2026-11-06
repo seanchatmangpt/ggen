@@ -1,5 +1,7 @@
 # GA-7 — sjira control wiring (DS-6 inheritance)
 
+Standing: PASS
+
 Lane: GA-7, wave v26.11.3. DS-6 landed the control-plan machinery
 (`scripts/sjira_control_plan.py`, `scripts/sjira_control_baseline.py`,
 `scripts/sjira_control_plan.sh`, `scripts/sjira_mutation_battery.py`,

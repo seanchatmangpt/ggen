@@ -1,5 +1,7 @@
 # ZD-47 — diagnostic_relay_probe hard-coded binary root-cause + fix
 
+Standing: UNVERIFIED
+
 **Standing**: ADMITTED (all branches executed this session)
 **Attribution**: CARRY-08 / sx-1-reds.md Red 4 (CARRIED-OPEN); cl-f attribution
 (hardcoded external binary), CL-H suspected regression.

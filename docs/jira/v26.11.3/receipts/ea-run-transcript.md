@@ -1,5 +1,7 @@
 # EA Run Transcript — first real ea.graph.json consumer run (WO-09 / K6)
 
+Standing: ALIVE
+
 - **Date**: 2026-11-03
 - **Repo**: /Users/sac/ggen
 - **Lane**: K6 IMPLEMENTATION (self-dogfood working example)

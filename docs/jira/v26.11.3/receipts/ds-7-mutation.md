@@ -1,6 +1,6 @@
 # DS-7: sjira mutation battery (C05: mutation-testing the backlog)
 
-Standing: gate FAILED by design — 3 criteria did not flip
+Standing: UNVERIFIED
 
 Date: 2026-11-03 · Lane: DS-7 · Repo: /Users/sac/ggen · Scope: crates/ggen-sjira
 Battery: `scripts/sjira_mutation_battery.py` (in-place shim protocol, sha256-exact restores,

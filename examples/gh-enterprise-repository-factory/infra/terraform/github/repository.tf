@@ -15,3 +15,5 @@ resource "github_repository" "managed" {
   delete_branch_on_merge = true
   vulnerability_alerts   = true
 }
+
+

@@ -1,5 +1,7 @@
 # ZD-23: Index Refresh 2 (post-XD-17 landings)
 
+Standing: ALIVE
+
 - Date: 2026-11-04
 - Repo: `/Users/sac/ggen`, branch `v26-11-3-wave`
 - Owns: `docs/jira/v26.11.3/RECEIPTS.md` + `docs/jira/v26.11.3/README.md`

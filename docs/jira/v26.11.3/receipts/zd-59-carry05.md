@@ -1,5 +1,7 @@
 # ZD-59 / CARRY-05 — FM-LAW-015 sync_surface_test ledger-row staleness
 
+Standing: ALIVE
+
 Date: 2026-11-04 · Lane: CARRY-05 · Repo: /Users/sac/ggen ·
 Branch: v26-11-3-wave ·
 Receipt: docs/jira/v26.11.3/receipts/zd-59-carry05.md

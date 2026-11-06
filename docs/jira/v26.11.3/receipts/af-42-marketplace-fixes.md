@@ -44,4 +44,4 @@ receipts tree per AF-42 dispatch (ggen-marketplace has no docs/jira/v26.11.3 tre
 - `qualification/baseline.json` parses, 313 pack entries.
 - /tmp/af42-{aoq,cscb,tort}-pack.json court reports + /tmp/af42-validate.log preserved.
 
-Standing: ALIVE. Falsifier for the fail witness: a gate with no rows on the mutated graph.
+Standing: ALIVE — Falsifier for the fail witness: a gate with no rows on the mutated graph.

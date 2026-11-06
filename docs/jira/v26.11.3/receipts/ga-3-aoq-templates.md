@@ -1,6 +1,6 @@
 # GA-3: AOQ Pack Templates (PG-A6 step 3)
 
-Standing: **ALIVE** (real `ggen sync run` renders executed this session on the exact subject).
+Standing: ALIVE
 
 ## Subject
 

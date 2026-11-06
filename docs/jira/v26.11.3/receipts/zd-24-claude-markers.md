@@ -1,5 +1,7 @@
 # ZD-24: CLAUDE.md merge-conflict markers
 
+Standing: PASS
+
 **Date**: 2026-11-04 · **Branch**: `v26-11-3-wave` · **Status**: RESOLVED (uncommitted)
 
 ## Subject

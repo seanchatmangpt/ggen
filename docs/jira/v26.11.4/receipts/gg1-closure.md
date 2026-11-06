@@ -1,5 +1,7 @@
 # GG1 Closure Receipt — publish + portability scope
 
+Standing: ALIVE
+
 Date: 2026-11-04. Lane: PROBE/RESUME. Subject: `/Users/sac/ggen` (canonical
 checkout, no git actions taken — coordinator owns transitions).
 

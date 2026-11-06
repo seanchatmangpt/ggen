@@ -1,5 +1,7 @@
 # WO-05 Receipt — g5-refusal-fences (lane G5, implementation)
 
+Standing: ALIVE
+
 Date: 2026-11-03. Repo: /Users/sac/ggen. No git commands run (lane law).
 
 ## Landed files (all absolute paths)

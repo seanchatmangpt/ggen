@@ -1,5 +1,7 @@
 # ZD-86 — TAI / docs_deep CI evidence-lane failures (ZB-19 unmapped causes)
 
+Standing: REFUSED
+
 Date: 2026-11-04 · Subject head: `58a3b4108d6b7cf98a2b8429511ec3afa497d771` (branch `v26-11-3-wave`)
 Runs inspected: gbb-certification run **41816930105**, CI run **41816929805**
 

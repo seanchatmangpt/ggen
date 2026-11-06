@@ -1,5 +1,7 @@
 # Receipt: g1 — WO-01 Stage 2c Admission Wiring
 
+Standing: PARTIAL
+
 - **Date**: 2026-11-03
 - **Lane**: IMPLEMENTATION (g1) — `crates/ggen-engine/src/sync.rs` Stage 2c region + `crates/ggen-engine/src/envelope.rs`
 - **Work order**: `docs/jira/v26.11.3/WO-01-stage-2c-wiring.md`

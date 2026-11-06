@@ -71,3 +71,4 @@ knn_fewshot_opt_optimizer = dspy.KNNFewShot(
 # few-shot demos from trainset (knn_fewshot_trainset, consumer-owned list[dspy.Example] data) at
 # call time via an internally-constructed dspy.BootstrapFewShot(**few_shot_bootstrap_args).
 knn_fewshot_opt = knn_fewshot_opt_optimizer.compile(predictor1)
+

@@ -1,5 +1,7 @@
 # ZD-46 Receipt — Zero-verb directory-module noun audit (CARRY-07, ds-8 FINDING-1)
 
+Standing: ALIVE
+
 Date: 2026-11-04 · Lane: ZD-46 · Repo: /Users/sac/ggen · Branch: v26-11-3-wave ·
 Receipt: docs/jira/v26.11.3/receipts/zd-46-zero-verb-audit.md
 

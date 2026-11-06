@@ -16,3 +16,4 @@ variable "ggen_signing_key_value" {
   sensitive   = true
   default     = ""
 }
+

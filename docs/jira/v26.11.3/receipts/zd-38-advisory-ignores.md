@@ -1,6 +1,6 @@
 # ZD-38: Advisory Ignores — quality.yml `cargo audit` Hard Gate
 
-Standing: `cargo audit` exit 1 -> exit 0; `cargo deny check advisories` exit 1 -> exit 0
+Standing: PASS
 
 Lane: ZD-38 (create/update agent). Branch: `v26-11-3-wave`. Date: 2026-11-04.
 Owner files: `deny.toml` ([advisories] only), `.audit.toml` (new),

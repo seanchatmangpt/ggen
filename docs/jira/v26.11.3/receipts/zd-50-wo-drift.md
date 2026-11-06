@@ -1,5 +1,7 @@
 # zd-50: WO Standing-Word Drift Reconciliation (CARRY-01, v26.11.3)
 
+Standing: ALIVE
+
 - **Date**: 2026-11-04
 - **Repo**: /Users/sac/ggen (branch v26-11-3-wave)
 - **Standing**: ALIVE for the landed surface — a verification sweep grep per WO

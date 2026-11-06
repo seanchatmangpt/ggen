@@ -110,3 +110,8 @@ random_search_opt_optimizer = dspy.BootstrapFewShotWithRandomSearch(
 
 # BootstrapFewShotWithRandomSearch over the classifier, exercising num_candidate_programs/stop_at_score/num_threads plus the shared BootstrapFewShot-family properties.
 random_search_opt = random_search_opt_optimizer.compile(classifier, trainset=trainset, valset=valset)
+
+
+
+
+

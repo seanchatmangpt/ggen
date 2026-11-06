@@ -1,5 +1,7 @@
 # XC-7 CI Unblock Receipt
 
+Standing: ALIVE
+
 Lane: IMPLEMENTATION (XC-7, PR #824 CI unblock). Date: 2026-11-04. Repo: /Users/sac/ggen.
 
 ## Fixes

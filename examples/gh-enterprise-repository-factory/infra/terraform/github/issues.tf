@@ -2,3 +2,5 @@
 # 第十六章: 生成単位は責任工程ごとに分離する。 Do not edit; edit the ontology.
 # An empty file means no desired-state instance is declared for this family yet.
 # intentionally empty — issues: issue creation/closure flows through the gh CLI standard work (scripts/gh/issue-create.sh / issue-close.sh), not Terraform — issues are line events, not desired state
+
+

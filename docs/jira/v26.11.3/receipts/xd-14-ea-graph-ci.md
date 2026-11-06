@@ -1,5 +1,7 @@
 # XD-14 EA Graph CI Remediation Receipt
 
+Standing: REFUSED
+
 Lane: XD-14. Date: 2026-11-04. Repo: `/Users/sac/ggen`, branch `v26-11-3-wave`.
 Scope files: `ea.graph.json` (root), `examples/zero-code-inventoryctl/ea.graph.json`,
 `examples/part-passport/ea.graph.json`, `self-host/ea.graph.json`,

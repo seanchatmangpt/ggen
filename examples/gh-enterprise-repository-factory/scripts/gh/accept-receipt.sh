@@ -20,3 +20,4 @@ fi
 line=$(echo "$json" | jq -c --arg prev "$prev" '. + {prev_hash: $prev}')
 echo "$line" >> "$file"
 echo "$line"
+

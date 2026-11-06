@@ -10,3 +10,4 @@ Per-repo Actions enablement/allowed-actions policy
 | Required args | github_owned_allowed, repository |
 
 Cataloged, not yet templated: no verified example schema captured for this resource.
+

@@ -1,5 +1,7 @@
 # AF-5 Receipt: sync_surface_test FM-LAW-015 fixture remediation
 
+Standing: ALIVE
+
 Lane: AF-5 (implementation). Date: 2026-11-03. Repo: /Users/sac/ggen.
 Owner files touched (only): `crates/ggen-cli/tests/sync_surface_test.rs` + this receipt.
 

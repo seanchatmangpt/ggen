@@ -25,3 +25,4 @@ GitHub画面は観測であり、原本ではない。原本は本表の意味�
 | required actions secret NAMES (values never stored — 第十二章) | secrets.tf | 第4段階 |
 | declares the input variables referenced by every hclBody literal below | variables.tf | — |
 | provider pin, matching the real ranchr/beamops examples exactly | versions.tf | — |
+

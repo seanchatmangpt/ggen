@@ -13,3 +13,4 @@ CI異常は三種類に分ける:
 3. 処置 (fix-product / run-rerun.sh / drift-report.sh) → 4. 失敗理由と処置を受領。
 
 無関係な検査を通すためだけの変更を行わない。
+

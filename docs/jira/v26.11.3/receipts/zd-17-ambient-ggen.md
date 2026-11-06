@@ -1,5 +1,7 @@
 # zd-17: Ambient ggen reinstall 26.10.11 -> 26.11.3
 
+Standing: ALIVE
+
 Date: 2026-11-04
 Lane: environment action (no repo file ownership except this receipt)
 

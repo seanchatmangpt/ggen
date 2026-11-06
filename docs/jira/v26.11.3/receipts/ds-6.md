@@ -1,5 +1,7 @@
 # DS-6 Receipt: sjira Control Plan (Detect)
 
+Standing: PARTIAL
+
 Lane DS-6, DMEDI control-plan phase for `crates/ggen-sjira`. What DS-5 measures,
 this lane makes mechanically detectable. Never ran git; landing is left to the
 coordinator.

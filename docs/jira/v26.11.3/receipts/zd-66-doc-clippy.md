@@ -1,5 +1,7 @@
 # ZD-66: doc-clippy + EOF whitespace sweep (ZB-13 items 1-2)
 
+Standing: ALIVE
+
 Date: 2026-11-04
 Repo: /Users/sac/ggen @ v26-11-3-wave (58a3b4108+)
 Lane: own only — CLAUDE.md (EOF strip), zd-16-eof-sweep.md:22,

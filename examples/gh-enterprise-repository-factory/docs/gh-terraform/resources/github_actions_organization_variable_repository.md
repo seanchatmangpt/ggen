@@ -10,3 +10,4 @@ Single repo grant to an org Actions variable
 | Required args | repository_id, variable_name |
 
 Cataloged, not yet templated: no verified example schema captured for this resource.
+

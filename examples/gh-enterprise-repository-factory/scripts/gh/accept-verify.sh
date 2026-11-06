@@ -17,3 +17,4 @@ ctx=$(gh api "repos/${repo}/branches/main/protection" --jq '.required_status_che
 [ "${ctx:-0}" -ge 4 ] || { echo "FAIL: protection contexts=${ctx}" >&2; exit 1; }
 labelcount=$(echo "$labels" | grep -c . || true)
 echo '{"verify":"pass","repo":"'"$repo"'","labels":'"$labelcount"',"delete_branch_on_merge":true,"protection_contexts":'"$ctx"'}'
+

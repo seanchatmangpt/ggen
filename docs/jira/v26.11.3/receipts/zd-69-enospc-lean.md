@@ -1,6 +1,6 @@
 # ZD-69 — ENOSPC × 3 + Lean verify manifest failure
 
-Standing: FIXED (uncommitted, working tree)
+Standing: UNVERIFIED
 
 Status: FIXED (uncommitted, working tree)
 Lane: ZB-13 item 6, 2026-11-04

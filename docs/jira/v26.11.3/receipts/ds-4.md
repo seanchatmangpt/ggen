@@ -1,5 +1,7 @@
 # DS-4 Receipt: projection surface (PG-2 Slice 6)
 
+Standing: ALIVE
+
 Lane: DS-4, DMEDI. Repo: /Users/sac/ggen, crate crates/ggen-sjira.
 Date: 2026-11-03. Git: never run (lane contract).
 

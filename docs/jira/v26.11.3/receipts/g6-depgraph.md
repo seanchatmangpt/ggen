@@ -1,5 +1,7 @@
 # WO-07 Receipt — Depgraph Hardening (lane G6)
 
+Standing: PASS
+
 Date: 2026-11-03. Canonical checkout `/Users/sac/ggen`. No git commands run (coordinator owns transitions).
 
 ## Subject

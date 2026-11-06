@@ -1,5 +1,7 @@
 # K6 Self-Dogfood Receipt — ggen becomes its own first real ea.graph.json consumer
 
+Standing: ALIVE
+
 - **Date**: 2026-11-03
 - **Repo**: /Users/sac/ggen
 - **Lane**: K6 IMPLEMENTATION (WO-09 deliverable: the first recorded consumer run)

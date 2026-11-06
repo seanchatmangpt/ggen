@@ -19,3 +19,4 @@ resource "github_actions_secret" "this" {
   plaintext_value = var.secret_value
 }
 ```
+

@@ -1,0 +1,6 @@
+# tcps-evidence pack ontology stub.
+# The ver:Check facts are EMITTED by scripts/verify.sh into evidence/ontology.ttl
+# (volatile per-run content: timestamps, exit codes, graph-hash binding) and are
+# loaded as a PROJECT ontology import, not pack content -- pack bytes must stay
+# stable so ggen.lock pinning (FM-PACK-008) never races the evidence emitter.
+@prefix ver: <http://seanchatmangpt.github.io/packs/ggen-verify#> .

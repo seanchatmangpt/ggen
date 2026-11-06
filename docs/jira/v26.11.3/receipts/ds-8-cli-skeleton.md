@@ -1,6 +1,6 @@
 # DS-8 CLI Skeleton — Descope Receipt (PF-2)
 
-Standing: DESCOPED — skeleton only landed
+Standing: UNVERIFIED
 
 Date: 2026-11-03 · Lane: DS-10 (PF-2 addendum obligation 3) · Crate: ggen-sjira
 

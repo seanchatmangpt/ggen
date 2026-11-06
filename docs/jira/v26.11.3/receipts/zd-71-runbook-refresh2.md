@@ -1,5 +1,7 @@
 # ZD-71 — publish-runbook second as-of refresh
 
+Standing: ALIVE
+
 Date: 2026-11-04. Subject: /Users/sac/ggen @ v26-11-3-wave tip
 58a3b4108d6b7cf98a2b8429511ec3afa497d771 (PR #824 head). Scope:
 `docs/jira/v26.11.3/closure/publish-runbook.md` §5 only — appended

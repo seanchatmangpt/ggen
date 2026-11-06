@@ -1,6 +1,6 @@
 # Receipt: cl-q-k2-recovery (K2 orphan recovery, ggen-engine FM-LAW-015 fixtures)
 
-Standing: exit 0; zero FAILED lines
+Standing: PASS
 
 - Subject: `/Users/sac/ggen` canonical checkout, `crates/ggen-engine/tests/` failing fixtures (K2 lane, never reported).
 - Authority: CL-Q lane contract (orphan recovery for K2; no git operations; exclusions G1/F2/K8/src respected).

@@ -1,5 +1,7 @@
 # F2 — Declarative-rules path: Stage 2c EA admission hoist (DEF-K6-2)
 
+Standing: ALIVE
+
 Lane: F2 (IMPLEMENTATION), v26.11.3 wave, DEF-K6-2 contract.
 Owner of record: F2 lane. Date: 2026-11-03.
 

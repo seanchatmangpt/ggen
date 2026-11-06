@@ -1,5 +1,7 @@
 # Receipt: k8 — CLI `--skip-ea-admission` flag + Stage 2c depgraph fail-closed
 
+Standing: ALIVE
+
 - **Date**: 2026-11-03
 - **Lane**: k8 (IMPLEMENTATION) — `ggen_cli_nouns.rdf` sync_run surface + `crates/ggen-engine/src/sync.rs` Stage 2c depgraph block + `crages/ggen-engine/tests/cli_boundary.rs`
 - **Follow-ups to**: G1's WO-01 blocker (`g1-stage2c.md`) + WO-07 fail-open finding

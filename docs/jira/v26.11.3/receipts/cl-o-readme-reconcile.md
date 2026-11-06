@@ -1,5 +1,7 @@
 # Receipt: cl-o — README/RESOLUTIONS reconciliation (WO-08/09, R80-13, R80-1)
 
+Standing: PARTIAL
+
 - **Date**: 2026-11-03
 - **Lane**: cl-o IMPLEMENTATION (docs reconciliation). Repo: /Users/sac/ggen
   (canonical checkout). No git commands run.

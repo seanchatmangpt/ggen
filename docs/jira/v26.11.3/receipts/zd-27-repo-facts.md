@@ -1,5 +1,7 @@
 # ZD-27 — repo-facts crate parity: ggen-scip + ggen-sjira
 
+Standing: PASS
+
 ## Subject
 
 Repo `/Users/sac/ggen`, branch `v26-11-3-wave`. ZD-24 flagged

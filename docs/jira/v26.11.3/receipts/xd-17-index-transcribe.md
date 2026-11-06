@@ -1,5 +1,7 @@
 # XD-17 — Canonical Index Transcribe (XD-3 successor)
 
+Standing: PASS
+
 Date: 2026-11-04. Lane: XD-17 (index-only). Repo: /Users/sac/ggen, branch
 v26-11-3-wave. Zero src/test edits, zero git commands, no commit. Files
 touched (only): `docs/jira/v26.11.3/README.md`,

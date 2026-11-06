@@ -1087,10 +1087,18 @@ erl_crash.dump
 # ggen.lock is ggen sync runtime state, not consumer-authored surface (ZD-124 / CASR)
 examples/combinatorial-maximalism/ggen.lock
 # consumer ggen.lock = sync runtime state (CASR law: authored surface is {ggen.toml, ontology.ttl});
-# tcps-generated is the lawful exception (evidence-artifact contract, xd-15/zd-126)
+# tcps-generated's lock IS tracked by contract (xd-15/zd-126:
+# tests/product_evidence requires the committed 8-pack lock at HEAD).
+# Its tcps-evidence pack is hash-stable since ZD-135 (volatile ver: facts load
+# via [ontology.imports], outside every pack), so the committed pin holds.
 examples/*/ggen.lock
 !examples/tcps-generated/ggen.lock
+# tcps .ggen-v2/ runtime receipts are untracked: reflexive=true appends a new
+# receipt per sync, so the committed log can never be byte-idempotent (ZD-135).
+examples/tcps-generated/.ggen-v2/
 
 # nested consumer ggen.lock = sync runtime state (ZD-127: industry examples mint it under examples/industry/<name>/)
 examples/industry/*/ggen.lock
 *.tsbuildinfo
+# Lane hygiene
+.venv/

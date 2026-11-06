@@ -69,6 +69,6 @@ not be hand-edited). Recorded here as the follow-up:
 > (`chmod 600`). Add test `overly_permissive_preexisting_signing_key_refuses`
 > (write signing.key at 0644, assert `[FM-KEY-013]`, assert file untouched).
 
-Standing: chmod = ALIVE (ls -l output above); verify path = ALIVE (exit 0,
+Standing: ALIVE
 signature_valid true); code check = FOLLOW-UP (UNVERIFIED by design, seam
 identified with file:line).

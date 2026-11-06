@@ -133,3 +133,4 @@ resource "github_issue_label" "ijou" {
   color       = "b60205"
   description = "Defect: product, equipment, or standard abnormality"
 }
+

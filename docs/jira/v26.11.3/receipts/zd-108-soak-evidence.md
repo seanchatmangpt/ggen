@@ -1,5 +1,7 @@
 # ZD-108 — AB-20 detached soak evidence receipt
 
+Standing: PASS
+
 Date: 2026-11-04. Lane: read-only census (Explore), coordinator-authored
 receipt. Subject: the detached evidence run BK-2 left alive
 (pid 28463, log `/tmp/ab20_detached.log`).

@@ -1,5 +1,7 @@
 # ZD-9 Self-Host Observation
 
+Standing: ALIVE
+
 XA-1/XD-14 carry-over: `ggen sync run` in `self-host/` exited 1 with
 `[FM-PACK-013] GGEN_SELF_HOST_OBSERVATION_INCOMPLETE`, firing before the EA gate.
 

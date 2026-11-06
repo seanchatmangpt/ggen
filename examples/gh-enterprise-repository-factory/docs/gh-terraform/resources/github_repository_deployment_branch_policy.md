@@ -10,3 +10,4 @@ Branch-name policy controlling which branches deploy to an env
 | Required args | name, environment_name, repository |
 
 Cataloged, not yet templated: no verified example schema captured for this resource.
+

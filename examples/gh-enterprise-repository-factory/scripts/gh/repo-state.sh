@@ -17,3 +17,4 @@ echo "== open PRs =="
 gh pr list --repo "$repo" --state open --json number,title,mergeable --jq '.'
 echo "== latest workflow runs =="
 gh run list --repo "$repo" --limit 5
+

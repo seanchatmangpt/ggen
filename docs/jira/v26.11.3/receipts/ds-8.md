@@ -1,6 +1,6 @@
 # DS-8 Receipt — sjira CLI surface over the landed kernel
 
-Standing: admit exit 0 (valid) / exit 1 REFUSED (malformed); courts exit 0
+Standing: PASS
 
 Date: 2026-11-04 · Lane: DS-8 · Repo: /Users/sac/ggen · Crate: ggen-cli-lib ·
 Receipt: docs/jira/v26.11.3/receipts/ds-8.md

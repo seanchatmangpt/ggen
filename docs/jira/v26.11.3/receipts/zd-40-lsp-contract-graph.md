@@ -1,5 +1,7 @@
 # ZD-40 LSP-Contract EA Graph Receipt
 
+Standing: ALIVE
+
 Lane: ZD-40. Date: 2026-11-04. Repo: `/Users/sac/ggen`, branch `v26-11-3-wave` @ 58a3b4108.
 Owned files: `self-host/lsp-contract/ea.graph.json` (new, untracked),
 `docs/jira/v26.11.3/receipts/zd-40-lsp-contract-graph.md` (this file). No git

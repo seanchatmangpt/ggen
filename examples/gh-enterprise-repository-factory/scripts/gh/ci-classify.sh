@@ -45,3 +45,4 @@ if [ -n "$results" ]; then
   echo "$results"
 fi
 echo "$results" | jq -cs 'map(select(type == "object")) | {ci_classify: "done", counts: (group_by(.bucket) | map({(.[0].bucket): length}) | add // {})}'
+

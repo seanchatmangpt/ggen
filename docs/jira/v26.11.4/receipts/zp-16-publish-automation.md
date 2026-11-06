@@ -1,5 +1,7 @@
 # ZP-16 — Publish Automation Gap-Close Receipt
 
+Standing: ALIVE
+
 Date: 2026-11-04. Lane: GAP-CLOSE. Status: ALIVE for workflow files and
 structure (read + line-cited this session); the PRE-FIX version bump is
 NOT landed, so the ggen gate as written is currently BLOCKED-by-design.

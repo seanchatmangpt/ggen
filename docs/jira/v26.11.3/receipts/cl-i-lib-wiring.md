@@ -1,5 +1,7 @@
 # cl-i-lib-wiring — IMPLEMENTATION lane: ggen-lsp lib.rs module wiring
 
+Standing: ALIVE
+
 ## Subject
 - Repo: /Users/sac/ggen, crate `ggen-lsp`.
 - Owned files touched: `crates/ggen-lsp/src/lib.rs`, `crates/ggen-lsp/tests/lib_wiring_test.rs` (new). No other file touched; tokens.rs/moniker.rs/diagnostics_rules.rs internals untouched (owner lanes landed them).

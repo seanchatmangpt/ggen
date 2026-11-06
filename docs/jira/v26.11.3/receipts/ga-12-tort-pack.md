@@ -1,5 +1,7 @@
 # GA-12 — tort-pack: the p99 Torture Matrix as ggen infrastructure
 
+Standing: ALIVE
+
 - **Lane**: GA-12, wave v26.11.3 (ggen-marketplace pack + cgap consumer wiring)
 - **Subject**: `packs/tort-pack/` (new, ggen-marketplace) + `cgap/ggen.toml`
   `[packs]` wiring line + two rendered projections in cgap

@@ -1,5 +1,7 @@
 # zd-118: Tag Falsifier Sweep (CARRY-19 prep)
 
+Standing: ALIVE
+
 - **Date**: 2026-11-04
 - **Lane**: zd-118
 - **Artifacts**: `scripts/tag_falsifier_sweep.sh` (new), this receipt.

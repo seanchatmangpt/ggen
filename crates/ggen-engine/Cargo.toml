@@ -177,6 +177,12 @@ insta = { version = "1", features = ["json"] }
 proptest = "1"
 criterion = { version = "0.7", features = ["html_reports"] }
 divan = "0.1"
+# Dual-engine render-diff court (ZP-24 / OI-2): tera 2.4.0 alongside the pinned
+# engine tera 1.20, renamed so both resolve in one crate. The census test
+# (tests/tera_whitespace_census.rs) renders the poisoned fixture + lawful files
+# under BOTH engines and asserts byte-equality — the whitespace `-}}` law must
+# hold identically across the version span.
+tera2 = { package = "tera", version = "2.4" }
 
 [[bin]]
 name = "dod"

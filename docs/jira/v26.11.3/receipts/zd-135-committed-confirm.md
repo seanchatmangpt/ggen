@@ -1,5 +1,7 @@
 # ZD-135: committed-tree CI-consistency confirmation
 
+Standing: ALIVE
+
 Subject: ggen @ 14c6612bfecde172c854536f2f687f3bbd71e03f (pushed, tree clean before/after runs).
 
 Four CI-representative checks executed against the committed tree. **Result: 3/4 exit 0; check 1 is 52/53 — same count and same single failure as ZD-127, no worse.**

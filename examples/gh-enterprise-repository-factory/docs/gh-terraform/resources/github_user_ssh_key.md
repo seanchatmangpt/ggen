@@ -10,3 +10,4 @@ Add an SSH key to the authenticated user
 | Required args | key, title |
 
 Cataloged, not yet templated: no verified example schema captured for this resource.
+

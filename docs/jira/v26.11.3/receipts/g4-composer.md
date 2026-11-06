@@ -1,5 +1,7 @@
 # G4 Receipt — WO-03: compose plan persistence + topological order (2026-11-03)
 
+Standing: ALIVE
+
 Lane: IMPLEMENTATION (g4-composer). Repo: /Users/sac/ggen (canonical checkout).
 Owned files only: `crates/ggen-marketplace/src/packs_registry/composer.rs`,
 `crates/ggen-cli/src/cmds/pack.rs` (compose verb region), plus the compose test

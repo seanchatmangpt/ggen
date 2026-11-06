@@ -10,3 +10,4 @@ Custom repository role for the org
 | Required args | permissions, base_role, name |
 
 Cataloged, not yet templated: no verified example schema captured for this resource.
+

@@ -19,6 +19,8 @@ import argparse
 import importlib.util
 import json
 import re
+import subprocess
+import sys
 from collections import Counter
 from pathlib import Path, PurePosixPath
 from types import ModuleType
@@ -255,8 +257,8 @@ def finalize_active_outputs(observation: dict[str, Any]) -> dict[str, Any]:
     return observation
 
 
-def observe(root: Path) -> dict[str, object]:
-    observation = EXACT.observe(root)
+def observe(root: Path, revision: str | None = None) -> dict[str, object]:
+    observation = EXACT.observe(root, revision=revision)
     for file in observation["files"]:
         file["generated_marker"] = has_generated_header(root, str(file["path"]))
     NORMALIZER.authority_for = canonical_authority
@@ -274,7 +276,34 @@ def main() -> int:
     parser.add_argument("--check", action="store_true")
     args = parser.parse_args()
     root = (args.root or Path(__file__).resolve().parents[2]).resolve()
-    return write_outputs(root, observe(root), args.check)
+    # E-2 re-pin discipline (C21-class): --check replays against the
+    # observation commit recorded in the committed receipt, never literal
+    # HEAD -- a commit cannot contain its own receipt.
+    revision = EXACT.recorded_revision(root) if args.check else None
+    try:
+        return write_outputs(root, observe(root, revision=revision), args.check)
+    except subprocess.CalledProcessError as error:
+        # E-2 re-pin discipline: a recorded revision git cannot materialize
+        # (stale/bogus pin in the committed receipt) refuses with a typed
+        # drift message instead of an uncaught traceback. Fail-closed.
+        recorded = revision if revision is not None else "unknown"
+        current = "unknown"
+        try:
+            current = (
+                subprocess.run(
+                    ["git", "-C", str(root), "rev-parse", "HEAD"],
+                    check=True,
+                    capture_output=True,
+                    text=True,
+                ).stdout.strip()
+            )
+        except subprocess.CalledProcessError:
+            pass
+        print(
+            f"GGEN_SELF_HOST_DRIFT: stale observation revision {recorded} != {current}",
+            file=sys.stderr,
+        )
+        return 1
 
 
 if __name__ == "__main__":

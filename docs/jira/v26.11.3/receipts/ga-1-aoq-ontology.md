@@ -1,6 +1,6 @@
 # GA-1: AOQ Canonical Ontology (PG-A6 landing step 1 / AOQ-01 semantic spec)
 
-Standing: **ALIVE** (parsed + asserted this session).
+Standing: ALIVE
 
 ## Subject
 

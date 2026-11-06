@@ -10,3 +10,4 @@ Manage org-wide settings
 | Required args | billing_email |
 
 Cataloged, not yet templated: no verified example schema captured for this resource.
+

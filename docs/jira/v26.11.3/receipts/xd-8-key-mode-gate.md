@@ -1,5 +1,7 @@
 # XD-8: Fail-Closed Mode Gate for Pre-Existing Signing Keys
 
+Standing: ALIVE
+
 Date: 2026-11-04
 Repo: `/Users/sac/ggen` (lane-owned: `crates/ggen-engine/src/keys.rs`, this receipt)
 Spec: `docs/jira/v26.11.3/receipts/xd-2-key-perms.md` (follow-up section)

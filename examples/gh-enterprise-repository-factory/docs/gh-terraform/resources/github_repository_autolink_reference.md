@@ -10,3 +10,4 @@ Autolink references (e.g. JIRA-123 to URL) for a repo
 | Required args | target_url_template, key_prefix, repository |
 
 Cataloged, not yet templated: no verified example schema captured for this resource.
+

@@ -20,3 +20,4 @@ if ! gh api "repos/${repo}/branches/main" >/dev/null 2>&1; then
   gh api -X PUT "repos/${repo}/contents/README.md" -f message="TCPS sandbox bootstrap commit" -f content="$content" >/dev/null
   echo "bootstrapped main branch"
 fi
+

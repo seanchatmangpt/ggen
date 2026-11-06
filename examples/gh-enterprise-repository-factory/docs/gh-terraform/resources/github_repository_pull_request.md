@@ -10,3 +10,4 @@ Manage/read a single PR
 | Required args | head_ref, base_ref, base_repository |
 
 Cataloged, not yet templated: no verified example schema captured for this resource.
+

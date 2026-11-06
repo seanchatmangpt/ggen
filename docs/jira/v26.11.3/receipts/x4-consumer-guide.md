@@ -1,5 +1,7 @@
 # Receipt: x4 — WO-09 ABB/SBB Consumer Guide
 
+Standing: ALIVE
+
 - **Date**: 2026-11-03
 - **Lane**: x4 IMPLEMENTATION — `docs/abb-sbb-consumer-guide.md` (new) +
   this receipt

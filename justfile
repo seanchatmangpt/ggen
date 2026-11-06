@@ -160,6 +160,10 @@ lint:
 receipt-lint:
     python3 scripts/receipt_lint.py
 
+# S-12 alias (dispatch vocabulary): same gate, canonical name.
+lint-receipts:
+    python3 scripts/receipt_lint.py
+
 # ── Testing ───────────────────────────────────────────────────────────────────
 
 # Full test suite — the primary test gate (<30s hot cache)

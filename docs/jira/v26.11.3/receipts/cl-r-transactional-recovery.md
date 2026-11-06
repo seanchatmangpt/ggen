@@ -1,5 +1,7 @@
 # Receipt: cl-r-transactional-recovery (RECOVERY-OF-R80-5)
 
+Standing: ALIVE
+
 Date: 2026-11-03
 Lane: IMPLEMENTATION (orphan recovery of R80-5)
 Repo: /Users/sac/ggen (canonical checkout)

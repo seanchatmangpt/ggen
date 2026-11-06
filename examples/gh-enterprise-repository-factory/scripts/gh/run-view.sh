@@ -4,3 +4,4 @@ set -euo pipefail
 run="${1:?usage: run-view.sh <run-id> [--log]}"
 shift || true
 gh run view "$run" "$@"
+

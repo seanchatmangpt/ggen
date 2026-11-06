@@ -1,5 +1,7 @@
 # ZD-137 — sync-family CI failures at 60c23d0bd (7 checks, root-caused + fixed forward)
 
+Standing: UNVERIFIED
+
 Date: 2026-11-04 · Head: `60c23d0bd` (branch `v26-11-3-wave`) · CI-fix lane (uncommitted; coordinator sweeps)
 
 First errors from `gh run view --log-failed` on the freshest run at this head. Local verify =

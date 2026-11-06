@@ -10,3 +10,4 @@ Plaintext Actions variable scoped to a repo environment
 | Required args | value, variable_name, repository, environment |
 
 Cataloged, not yet templated: no verified example schema captured for this resource.
+

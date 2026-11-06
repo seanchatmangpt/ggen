@@ -12,3 +12,12 @@ class SummarizeDocument(dspy.Signature):
 
 
 summarize = dspy.ChainOfThought(SummarizeDocument)
+
+
+
+
+
+
+
+
+

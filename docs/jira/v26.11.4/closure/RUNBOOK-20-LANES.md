@@ -60,6 +60,24 @@ rows), `session-learnings.md` (FM-LAW-015, premise-rot instances).
    (`git ls-remote | grep $(git rev-parse HEAD)` is the gate, never
    push output; 656 transcript refs, O1 class 8).
 
+### 1.8 Fleet-audit-first-action slots law (P11)
+
+- The fleet-audit line (live agent count + per-slot mandate) is the
+  SOLE valid basis for a dispatch decision. The wave ledger is a
+  hypothesis until the audit re-reads it; the audit is the proof.
+  Never dispatch into a slot because the ledger says it is free —
+  dispatch because the audit says it is free (ListAgents read at
+  dispatch time, not carried from the previous drain).
+- A slot is freed by a VERIFIED RECEIPT LANDING, not by the lane's
+  process exit. A lane that exited with output on disk but no
+  receipted landing still occupies its slot until the coordinator
+  lands it (§3.6) or the receipt is minted. Counting exits as
+  freed slots double-books the fleet (O1 class 1/4 overlap:
+  exited-but-unlanded work re-dispatched as if the slot were idle).
+- Per-tick order: audit fleet slots → reconcile ledger vs audit →
+  dispatch only into audit-verified free slots → record the delta
+  in the wave ledger with the audit as its evidence line.
+
 ## 2. Dispatch template
 
 Every lane prompt = one contract block, verbatim skeleton:
@@ -176,10 +194,16 @@ same-checkout-fanout law + O1 class 2; ports = O1 class 6.
   waves returned only noun/figure drift fixes; a repeat wave would
   re-find nothing new). Any landed code fix or open OI row keeps the
   wave alive.
-- **Saturation**: a full wave returns zero defects → saturated (same
-  definition as entropic-annealing-doctrine §3); waves before that
-  are vibration. Corollary: N lanes agreeing is not N observations —
-  each lane's receipt must carry its own commands/exits.
+- **Saturation**: TWO consecutive waves returning only LOW-severity
+  doc drift with zero test regressions → saturated; a single such
+  wave is a signal, not a stop (P9). The counter RESETS on any
+  landed code fix, newly-registered open-item row, or MEDIUM+
+  finding. Definition matches entropic-annealing-doctrine §3
+  (saturation = findings-per-wave AND severity both below
+  threshold — "zero defects" was never the doctrine's bar; the
+  prior "same definition as §3" citation misquoted it and is
+  corrected here). Corollary: N lanes agreeing is not N
+  observations — each lane's receipt carries its own commands/exits.
 - **Fleet stop**: 429 cycling on re-dispatch (BB-10's retry also
   429'd) → shrink fleet, not retry; backlog re-census before the
   next wave.
@@ -210,7 +234,7 @@ Mechanism refs are runbook sections; one entry per O1 class.
 - Class 7, wait-gate positive (11 markers; D88): named-lane poll
   <=60s, <=45min, typed IN-FLIGHT-AT-FILL fallback (§4.1-4.2).
 - Class 8, push verify positive (656 refs; fleet-wide): ls-remote
-  grep gate (§1.8, §4.7).
+  grep gate (§1 item 8, §4.7).
 
 ## 7. Receipt for this document
 
@@ -223,3 +247,71 @@ Mechanism refs are runbook sections; one entry per O1 class.
 - Every rule traceable to an O1 instance (with transcript line ref)
   or a landed mechanism (named file). No rule without a witness.
 - Standing: minted at commit time; see commit message.
+
+## 8. Overnight Annex (P12)
+
+Mechanics for running the fleet unattended overnight (dispatch
+continues while the operator sleeps). This annex defines the ramp,
+the refill tick, the typed stop conditions, and the morning
+receipt set. The coordinator session owns git transitions
+throughout; §1-§4 laws apply unchanged overnight.
+
+### 8.1 Ramp law
+
+- Start at N=6 lanes (429-aware cap, §1.7, sized conservative for
+  unattended operation — no operator to catch a rate-limit storm).
+- +2 lanes per CLEAN SOAK: a soak is one full refill tick with zero
+  429s and zero lane failures across the running fleet.
+- Hard ceiling: 12 lanes overnight, regardless of soak count.
+  Unattended fleets do not exceed the ceiling; surplus registered
+  backlog waits for morning (backlog-targeting law: idle-while-
+  backlog-empty is lawful; quota-filling is not).
+
+### 8.2 Refill tick (15 min, loop skill)
+
+A loop-skill tick every 15 minutes executes, in order:
+
+1. **Fleet audit first** — live-agent audit re-read
+   (§1.8 law: the audit line, not the ledger, is the dispatch
+   basis); slots decrement only on verified receipt landing.
+2. **Dead-lane inventory** — for any lane killed/429'd since the
+   last tick: index-inclusive inventory of its owned files (§3.3)
+   before any re-dispatch.
+3. **Ledger reconciliation** — reconcile wave ledger vs audit;
+   record the delta with the audit as evidence line.
+4. **Dispatch** — next registered backlog item(s) into
+   audit-verified free slots, up to the ramp rule (§8.1).
+5. **Nudge check** — any lane silent past ~37 min gets the one
+   §3.5 nudge.
+6. **Stop-condition check** — evaluate the three typed stops
+   (§8.3); if any fires, halt the loop and leave the morning
+   receipt half written per its type.
+
+### 8.3 Typed stop conditions (any one halts the loop)
+
+- `STOP-429-CYCLING` — re-dispatch attempts 429 on consecutive
+  ticks (BB-10 class): shrink to N=6 or stop the loop; never
+  stacked retries (§5 fleet-stop law).
+- `STOP-BACKLOG-EMPTY` — registered backlog drained and all
+  in-flight lanes receipted: stop; idle is lawful saturation, do
+  not mint make-work lanes.
+- `STOP-SOAK-BROKEN` — two consecutive ticks with lane failures
+  or shared-compile breaks (compile-freeze SLA violations, §3.9):
+  the overnight environment is degraded; stop and leave state for
+  the morning crew.
+
+### 8.4 Morning receipt set
+
+The overnight run is complete only when all of the following
+exist on disk at fill:
+
+- `fleet-slots.json` — per-tick fleet audit snapshots (tick
+  timestamp, lane IDs, mandate, slot state); the machine-readable
+  audit trail the §1.8 law requires.
+- `overnight-wave-ledger.md` — dispatch log with Standing line
+  (receipt-standing-law vocabulary), one row per tick: slots
+  audited, dispatched, landed, stopped; deltas carry the audit
+  snapshot as evidence.
+- Per-lane receipts per the §2 contract (mandatory), plus a
+  consolidated morning receipt per the §4 drain sequence (typed
+  fallbacks, partial-honest landings, push verify per repo).

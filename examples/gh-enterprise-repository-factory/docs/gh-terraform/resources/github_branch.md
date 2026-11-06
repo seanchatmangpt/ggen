@@ -11,3 +11,4 @@ Creates a git branch in a repo
 | Cross-resource ref attribute | `.name` |
 
 Cataloged, not yet templated: no verified example schema captured for this resource.
+

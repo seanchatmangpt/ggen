@@ -1,5 +1,7 @@
 # CL-D Receipt: FM-LAW-015 declarative-fixture remediation (ggen-engine tests)
 
+Standing: ALIVE
+
 Lane: CL-D (IMPLEMENTATION), v26.11.3 wave, F2-fallout contract.
 Owner of record: CL-D lane. Date: 2026-11-03.
 

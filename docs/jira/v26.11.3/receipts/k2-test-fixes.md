@@ -1,6 +1,6 @@
 # K2 Receipt: ggen-engine Test FM-LAW-015 Fixes
 
-Standing: LANDED
+Standing: UNVERIFIED
 
 Lane: K2 · Repo: /Users/sac/ggen · Date: 2026-11-3 (final) · Status: LANDED
 Originally assigned: sync_e2e.rs + any ggen-engine test file failing FM-LAW-015 except

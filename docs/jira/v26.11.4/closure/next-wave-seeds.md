@@ -29,6 +29,11 @@ reconstruct-or-demote markers. Lines <=100 chars.
 | S-5 | ZP-19 slab/TLS WindowBuffer integration UNVERIFIED (PLANS.md:22-23);
   G7-chain unfenced row stays open (PLANS.md:137) | L | 0 B/op CTQ-03-sidecar
   row flips on a real soak |
+  STATUS (2026-11-05, L5): FALSIFIER DISCHARGED — arcus
+  `receipts/zp-19-window-buffer-integration.md` (Standing: PASS); soak court
+  10k trips flat 0 allocs/trip, budget=0 enforced, golden window parity green
+  at arcus 0f384bd9. Remaining disclosed legs: -race de-skip variant,
+  cgap-side census linkage, G7-chain unfenced row. |
 | S-6 | ZB-65 ubuntu half: verify_v26.10.31.sh:80 BSD `sed -i ''` still
   open (PLANS.md:171-174) | S | verify script exits 0 on ubuntu runner |
 | S-7 | E-2 mechanicalize self-host observation re-pin gate bound to the

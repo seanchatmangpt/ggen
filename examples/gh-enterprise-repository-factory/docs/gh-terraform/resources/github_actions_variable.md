@@ -18,3 +18,4 @@ resource "github_actions_variable" "this" {
   value         = var.variable_value
 }
 ```
+

@@ -1,5 +1,7 @@
 # DS-1 Receipt: reconciler.ex -> src/reconcile.rs (PG-2 Slice 3)
 
+Standing: UNKNOWN
+
 Lane: DS-1, DMEDI. Repo: /Users/sac/ggen, crate crates/ggen-sjira.
 Date: 2026-11-03. Git: never run (lane contract).
 

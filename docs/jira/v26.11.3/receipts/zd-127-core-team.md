@@ -1,5 +1,7 @@
 # ZD-127: Examples core-team example closure (ZD-124 other-typed census)
 
+Standing: ALIVE
+
 Subject: ggen @ branch `v26-11-3-wave`, working tree (uncommitted; coordinator owns
 git transitions). Failing check: "Examples core-team constructor (Construct
 core-team example closure)" — census row in `zd-124-casr.md:63-66`.

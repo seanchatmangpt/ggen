@@ -1,5 +1,7 @@
 # ZD-44 / CARRY-04 — `--skip-ea-admission` end-to-end state
 
+Standing: PASS
+
 Date: 2026-11-04 · Branch: v26-11-3-wave · Subject: ggen @ 58a3b4108 + this lane's diff
 
 ## Resolved state: (a) fully wired CLI→gate + NEW bypass-marked receipt law

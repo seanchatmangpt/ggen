@@ -13,3 +13,12 @@ class PredictSuspicionScore(dspy.Signature):
 
 
 predictor = dspy.ChainOfThought(PredictSuspicionScore)
+
+
+
+
+
+
+
+
+

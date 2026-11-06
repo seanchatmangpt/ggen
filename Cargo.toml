@@ -91,6 +91,9 @@ members = [
   "crates/ggen-sjira",
   "crates/ggen-scip",
   "crates/ggen-mcp",
+  # ML-DSA-65 (FIPS-204) signer — ZP-22 first increment (OI-3, wave-3 L11).
+  # Wraps the RustCrypto ml-dsa crate; NOT publish-eligible (new surface).
+  "crates/ggen-dsa",
   # ARCHIVED out of the v26.5.29 build boundary (SETTLEMENT-CHECK-1): this example
   # drifted from its own types in a prior release (ValidationAgent missing the
   # `agent_type` field; async fns misusing `?`) and does not compile under

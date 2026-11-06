@@ -1,6 +1,6 @@
 # ZD-110 Receipt — ggen-abb-sbb clippy-zero gate
 
-Standing: exit 0 (clippy, tests, doc tests — 110 passed / 0 failed)
+Standing: PASS
 
 Lane: ZD-110. Date: 2026-11-04. Repo: /Users/sac/ggen (branch v26-11-3-wave).
 Subject: integration-test lint posture for `crates/ggen-abb-sbb/tests/` —

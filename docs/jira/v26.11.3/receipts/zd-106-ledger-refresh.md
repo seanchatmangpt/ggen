@@ -1,5 +1,7 @@
 # ZD-106: Wave-ledger refresh (v26.11.3) — rebuild in place, all six repos re-frozen
 
+Standing: PASS
+
 ## Scope
 
 Rebuilt

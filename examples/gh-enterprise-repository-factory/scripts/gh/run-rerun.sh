@@ -11,3 +11,4 @@ while [ $# -gt 0 ]; do
 done
 [ -n "$repo" ] && [ -n "${run:-}" ] || { echo "usage: run-rerun.sh --repo <owner/repo> <run-id> [--failed-only]" >&2; exit 2; }
 gh run rerun "$run" --repo "$repo" ${failed}
+

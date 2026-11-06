@@ -21,3 +21,5 @@ resource "github_branch_protection" "main" {
     required_approving_review_count = 2
   }
 }
+
+

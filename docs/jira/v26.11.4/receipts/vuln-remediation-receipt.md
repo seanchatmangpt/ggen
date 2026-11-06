@@ -1,5 +1,7 @@
 # Vulnerability Remediation Receipt — v26.11.4 (VULN CLOSING)
 
+Standing: ALIVE
+
 - **Subject**: ggen npm/pnpm Dependabot surface (examples/ + marketplace/packages/) plus
   cross-repo Rust/Go/Elixir audits (cgap, arcus, smalt).
 - **Standing**: ALIVE (every count below re-measured this session against the landed

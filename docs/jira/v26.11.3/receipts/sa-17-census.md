@@ -1,5 +1,7 @@
 # SA-17 Fleet-Wide Skill-Conformance Census
 
+Standing: BLOCKED
+
 Lane SA-17, wave receipt for the skill-application wave over
 `~/.claude/skills/run-ggen/SKILL.md` (read in full this session). All
 observations are real executions on 2026-11-03 with installed binary

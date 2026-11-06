@@ -10,3 +10,4 @@ Enterprise default workflow token permissions
 | Required args | enterprise_slug |
 
 Cataloged, not yet templated: no verified example schema captured for this resource.
+

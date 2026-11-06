@@ -1,5 +1,7 @@
 # SJ-1 Receipt — ggen-sjira PG-2 Wave-2 Slices
 
+Standing: ALIVE
+
 Lane: SJ-1 (IMPLEMENTATION), wave 2. Repo: /Users/sac/ggen, crate
 `crates/ggen-sjira`. Coordinator owns git; this lane ran no git commands.
 

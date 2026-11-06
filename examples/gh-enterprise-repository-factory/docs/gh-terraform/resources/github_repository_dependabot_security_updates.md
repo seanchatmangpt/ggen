@@ -10,3 +10,4 @@ Toggle Dependabot automated security fixes for a repo
 | Required args | enabled, repository |
 
 Cataloged, not yet templated: no verified example schema captured for this resource.
+

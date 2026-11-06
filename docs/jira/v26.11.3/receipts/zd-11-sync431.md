@@ -1,5 +1,7 @@
 # ZD-11: sync.rs:431 artifact_baseline_generation hardcode
 
+Standing: ALIVE
+
 Status: **RESOLVED-DISCLOSED** (pinned-by-law; no code change)
 Date: 2026-11-04
 Lane: zd-11 (sync.rs:431 area only)

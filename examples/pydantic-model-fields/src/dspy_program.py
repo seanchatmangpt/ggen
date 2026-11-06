@@ -34,3 +34,12 @@ class SummarizeContact(dspy.Signature):
 
 extract_address_predictor = dspy.Predict(ExtractAddress)
 summarize_contact_predictor = dspy.Predict(SummarizeContact)
+
+
+
+
+
+
+
+
+

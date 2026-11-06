@@ -1,5 +1,7 @@
 # marketplace-index-bundle-ruling
 
+Standing: DECIDED
+
 ## Ruling
 
 The 10 unindexed directories under `marketplace/packages/` are TEMPLATE BUNDLE

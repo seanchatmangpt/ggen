@@ -11,3 +11,4 @@ done
 [ -n "$repo" ] || { echo "usage: accept-drift-inject.sh --repo <owner/name>" >&2; exit 2; }
 gh api -X PATCH "repos/${repo}/labels/異常" -f color=ffffff >/dev/null
 echo "drift injected: 異常 color=ffffff on ${repo}"
+

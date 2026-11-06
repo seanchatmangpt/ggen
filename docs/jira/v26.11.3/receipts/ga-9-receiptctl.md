@@ -1,5 +1,7 @@
 # GA-9 Receipt: SA-8 BLOCKED item — wasm4pm-facts-pack `[[capabilities.dialects]]`
 
+Standing: BLOCKED
+
 Date: 2026-11-03. Lane GA-9. Binary: installed `ggen` 26.10.11 (`~/.local/bin/ggen`).
 Subject: `/Users/sac/ggen/packs/wasm4pm-facts-pack/pack.toml` + `/Users/sac/ggen/examples/receiptctl/`.
 

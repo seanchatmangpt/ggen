@@ -1,5 +1,7 @@
 # Receipt: G8 — CLI surface for the ABB admission kernel (`ggen ea`)
 
+Standing: PARTIAL_ALIVE
+
 - **Work order**: WO-02 (`docs/jira/v26.11.3/WO-02-cli-abb-verbs.md`)
 - **Lane**: IMPLEMENT (cmds/ea/ + cmds/mod.rs registry slice + Cargo.toml dep +
   tests/ea_verbs_test.rs)

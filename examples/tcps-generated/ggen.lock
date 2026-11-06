@@ -13,8 +13,8 @@ source = "path:../../packs/tcps-core-pack"
 content_hash = "blake3:cd79302cedb6be11b6260484dbdafac56434c61b46fdef7e698f60b9fde21aed"
 
 [packs.tcps-evidence]
-source = "path:evidence"
-content_hash = "blake3:8f1cf1b2a386099254ca68e83085446c382d468fa9a4866599f770fab9371d10"
+source = "path:evidence-pack"
+content_hash = "blake3:6241b7ef95bee4544ed9bebce1007fbee3ccdb7600ed6239efa063e12f3dc08d"
 
 [packs.tcps-ffi-pack]
 source = "path:../../packs/tcps-ffi-pack"

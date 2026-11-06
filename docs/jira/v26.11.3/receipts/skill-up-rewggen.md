@@ -1,5 +1,7 @@
 # Receipt: SKILL-UP — run-ggen skill rewrite (RG-1..7 integration)
 
+Standing: ALIVE
+
 Date: 2026-11-03 · Lane: IMPLEMENTATION · Subject:
 `/Users/sac/.claude/skills/run-ggen/SKILL.md` + `smoke.sh` (rewritten in
 full / header-patched). No git operations. Other skills untouched.

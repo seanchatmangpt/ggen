@@ -12,3 +12,4 @@ Team-to-org-role association (deprecated)
 | Successor | `github_organization_role_team` |
 
 Cataloged, not yet templated: no verified example schema captured for this resource.
+

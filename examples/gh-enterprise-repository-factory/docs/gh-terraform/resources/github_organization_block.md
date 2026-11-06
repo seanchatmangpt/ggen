@@ -10,3 +10,4 @@ Block a user at org level
 | Required args | username |
 
 Cataloged, not yet templated: no verified example schema captured for this resource.
+

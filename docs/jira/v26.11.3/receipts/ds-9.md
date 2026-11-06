@@ -1,5 +1,7 @@
 # DS-9 Receipt — descriptor→xaas-receipt loop witnessed end-to-end
 
+Standing: PARTIAL_ALIVE
+
 Lane: DS-9 (DMEDI, DEVELOP+IMPLEMENT). Repo: /Users/sac/ggen, crate
 `crates/ggen-sjira`. Coordinator owns git; this lane ran no git commands.
 Receipt for the sj-1 wave: `docs/jira/v26.11.3/receipts/sj-1.md` (read

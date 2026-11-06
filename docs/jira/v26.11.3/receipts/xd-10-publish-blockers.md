@@ -1,5 +1,7 @@
 # XD-10: publish blockers — CHANGELOG entry + ggen-engine version unification
 
+Standing: ALIVE
+
 Lane: XD (PUB-1 rows 6–8). Date: 2026-11-04. Branch `v26-11-3-wave`
 (PR #824). No commit performed (other lanes' files dirty in tree, per
 contract). Files owned: `CHANGELOG.md`,

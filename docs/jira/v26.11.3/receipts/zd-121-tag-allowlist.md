@@ -1,5 +1,7 @@
 # zd-121: Tag Falsifier Sweep `--allow-divergence` Allowlist
 
+Standing: ALIVE
+
 - **Date**: 2026-11-04
 - **Lane**: zd-121
 - **Artifacts**: `scripts/tag_falsifier_sweep.sh` (modified), this receipt.

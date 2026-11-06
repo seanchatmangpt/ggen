@@ -1,5 +1,7 @@
 # Receipt: i5-wo06-reconcile (WO-06 implementation reconciliation)
 
+Standing: PARTIAL_ALIVE
+
 - **Date**: 2026-11-03
 - **Lane**: IMPLEMENT (I5) — WO-06 reconcile
 - **Repo/checkout**: /Users/sac/ggen (canonical, no worktree)

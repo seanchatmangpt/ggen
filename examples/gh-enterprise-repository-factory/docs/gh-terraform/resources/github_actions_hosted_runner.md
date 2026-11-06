@@ -10,3 +10,4 @@ GitHub-hosted Actions runner for an org
 | Required args | runner_group_id, size, image, name |
 
 Cataloged, not yet templated: no verified example schema captured for this resource.
+

@@ -10,3 +10,4 @@ Manage ALL labels for a repo (authoritative; mutually exclusive with github_issu
 | Required args | repository |
 
 Cataloged, not yet templated: no verified example schema captured for this resource.
+

@@ -1,5 +1,7 @@
 # GA-11 — cscb-pack: the CBMQS 7-gate standard as RDF (v26.11.3)
 
+Standing: UNSUPPORTED
+
 - **Lane**: GA-11 (CSCB program ggen infrastructure). Date: 2026-11-04.
   No git commands run.
 - **Deliverable**: `/Users/sac/ggen-marketplace/packs/cscb-pack/` (new pack)

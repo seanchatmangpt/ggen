@@ -1,6 +1,6 @@
 # Receipt: GL-1 (IMPLEMENTATION lane, Wave 1, PG-3 contract)
 
-Standing: **ALIVE** — gates run green this session on the exact edited subject.
+Standing: ALIVE
 Date: 2026-11-03. Lane lease: GL-1, repo `/Users/sac/ggen`, crate `ggen-lsp`.
 
 ## Diff (owned files)

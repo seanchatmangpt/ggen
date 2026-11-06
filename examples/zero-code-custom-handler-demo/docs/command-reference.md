@@ -17,3 +17,4 @@ Look up a price via hand-written domain logic.
 Return a deterministic liveness value.
 
 This command takes no arguments.
+

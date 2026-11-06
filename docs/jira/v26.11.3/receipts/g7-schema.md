@@ -1,5 +1,7 @@
 # WO-04 Receipt: g7 — Canonical Schema + Parity Court (ggen.ea.graph.v1)
 
+Standing: ALIVE
+
 Lane: IMPLEMENTATION (WO-04 deliverables 1+2; the projection rule is a later WO — not authored here).
 Date: 2026-11-03
 

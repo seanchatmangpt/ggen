@@ -1,5 +1,7 @@
 # ZD-31: publish-runbook refresh (ZB-2)
 
+Standing: OPEN
+
 Date: 2026-11-04. Repo: /Users/sac/ggen, branch `v26-11-3-wave`.
 Owns: `docs/jira/v26.11.3/closure/publish-runbook.md` (refresh only, §5
 added + stale values struck/replaced), this receipt. Not committed

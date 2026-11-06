@@ -1,5 +1,7 @@
 # ZD-124: CONSUMER_AUTHORED_SURFACE_REFUSED census and fix
 
+Standing: ALIVE
+
 ## Law read
 
 `scripts/validate_combinatorial_maximalism_pack.py:117-119` pins the CMD consumer

@@ -4,9 +4,7 @@
   "private": true,
   "type": "module",
   "packageManager": "pnpm@10.14.0",
-  "engines": {
-    "node": ">=22"
-  },
+  "engines": { "node": ">=22" },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -22,10 +20,10 @@
     "@deck.gl/geo-layers": "9.3.7",
     "@deck.gl/layers": "9.3.7",
     "@deck.gl/react": "9.3.7",
-    "next": "16.4.5",
+    "next": "16.2.12",
     "react": "19.2.8",
     "react-dom": "19.2.8",
-    "zod": "4.6.7"
+    "zod": "4.1.12"
   },
   "devDependencies": {
     "@playwright/test": "1.58.2",
@@ -33,10 +31,6 @@
     "@types/react": "19.2.17",
     "@types/react-dom": "19.2.3",
     "typescript": "5.9.2",
-    "vitest": "4.1.12"
-  },
-  "overrides": {
-    "fflate": "0.7.5",
-    "image-size": "2.0.4"
+    "vitest": "4.1.10"
   }
 }

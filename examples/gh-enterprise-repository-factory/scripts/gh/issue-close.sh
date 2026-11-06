@@ -16,3 +16,4 @@ if [ -n "$comment" ]; then
 else
   gh issue close "$n" --repo "$repo"
 fi
+

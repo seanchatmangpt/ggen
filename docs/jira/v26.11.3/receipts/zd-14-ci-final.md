@@ -1,5 +1,7 @@
 # ZD-14: CI Final Fixes (fmt, census, repair idempotency, EA graph, book drift)
 
+Standing: PARTIAL
+
 - Repo: `/Users/sac/ggen`, branch `v26-11-3-wave`, base HEAD `ed3f1dfb1` (working tree; NOT committed per lane law — coordinator owns git transitions).
 - Scope files: `crates/ggen-abb-sbb/src/generated/refusals.rs`, `examples/affidavit-verify/ea.graph.json` (new), `.github/workflows/clap-noun-verb-zero-code.yml`, `.github/workflows/examples-repair-constructor.yml`, `.github/workflows/fortune5-bblock-normalize.yml` (verified only, no edit), `examples/zero-code-inventoryctl/docs/command-reference.md` + `SCHEMA_ADMITTED.md`, `book/src/CAPABILITY_MAP.md`, `book/gap-closure.toml`, this receipt.
 - Note: `examples/affidavit-verify/ggen.lock` is a new untracked sync artifact (see Fix 3).

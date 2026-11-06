@@ -1,5 +1,7 @@
 # XD-11 FM-LAW-015 Remediation Receipt — sync_surface_test PUB-1 Row
 
+Standing: PASS
+
 Lane: XD-11. Date: 2026-11-04. Repo: /Users/sac/ggen, branch `v26-11-3-wave`.
 Scope files: `crates/ggen-cli/tests/sync_surface_test.rs` + the surface code it
 exercises; receipt at `docs/jira/v26.11.3/receipts/xd-11-fmlaw015.md`.

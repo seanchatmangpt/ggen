@@ -1,5 +1,7 @@
 # Receipt: p11-fmgen007 — TemplateSource::Pack resolution (FM-GEN-007 family)
 
+Standing: ALIVE
+
 - **Lane**: IMPLEMENTATION (FM-GEN-007 / TemplateSource::Pack)
 - **Repo**: /Users/sac/ggen (canonical checkout; no git commands run)
 - **Owned files touched**: `crates/ggen-engine/tests/template_source_pack_test.rs` (new, only file changed)

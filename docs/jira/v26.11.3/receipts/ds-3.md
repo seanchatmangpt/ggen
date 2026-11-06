@@ -1,5 +1,7 @@
 # Receipt: ds-3 — PG-2 Slice 5, pack integration surface
 
+Standing: ALIVE
+
 **Subject**: `/Users/sac/ggen/crates/ggen-sjira` (one canonical checkout)
 **Standing**: ALIVE — all gates executed this session, exit 0.
 

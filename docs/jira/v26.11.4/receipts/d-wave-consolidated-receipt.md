@@ -1,5 +1,7 @@
 # d-wave-consolidated-receipt
 
+Standing: ALIVE
+
 Consolidated D-wave implementation-lane receipt index (E-n debt finding: D21-D55 impl
 lanes carried receipts only in commit messages; no citable file existed).
 

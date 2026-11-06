@@ -2,3 +2,5 @@
 # 第十六章: 生成単位は責任工程ごとに分離する。 Do not edit; edit the ontology.
 # An empty file means no desired-state instance is declared for this family yet.
 # intentionally empty — collaborators: github_repository_collaborator requires org/multi-user administration; the single-user repository has no external collaborators to declare
+
+

@@ -1,6 +1,6 @@
 # ZD-39: polyglot job build step still dies on sccache wrapper (ZB-3)
 
-Standing: FIXED (uncommitted, per lane contract)
+Standing: UNVERIFIED
 
 - Date: 2026-11-04
 - Subject: `.github/workflows/cyberpunk-tv-platform.yml`, job `manufacture-execute-replay`

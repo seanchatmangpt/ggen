@@ -1,5 +1,7 @@
 # ZD-16: Repo-wide EOF whitespace sweep (tracked .md)
 
+Standing: ALIVE
+
 Date: 2026-11-04. Lane: ZD-16. Branch: v26-11-3-wave.
 
 ## Scope

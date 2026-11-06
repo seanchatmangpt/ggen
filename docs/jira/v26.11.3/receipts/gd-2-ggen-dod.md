@@ -94,6 +94,6 @@ post-restore green.
 - /Users/sac/ggen/dod-projection/dod-report.md
 - /Users/sac/ggen/docs/jira/v26.11.3/receipts/gd-2-ggen-dod.md
 
-Standing: ALIVE. Sync ×2 drift-clean, both shim courts flipped with typed
+Standing: ALIVE — Sync ×2 drift-clean, both shim courts flipped with typed
 refusals and byte-exact restores, signed sync receipt valid. No git commands
 run.

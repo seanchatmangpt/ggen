@@ -1,5 +1,7 @@
 # ZD-125: FM-LAW-015 trio — old consumers vs the new fail-closed EA gate
 
+Standing: ALIVE
+
 Lane: ZD-125. Date: 2026-11-04. Repo: `/Users/sac/ggen`, branch `v26-11-3-wave` (head c6425e3cb).
 Scope: the three FM-LAW-015-failing consumers from the ZD-124 census, each remediated per the
 ZD-124 reconciliation (authored-surface-law opt-out vs real graph).
