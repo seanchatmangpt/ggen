@@ -2,6 +2,12 @@
 
 Standing: PARTIAL_ALIVE
 
+R4 update (2026-11-08, lane V8-R1-f @ ggen 6afbbe8b3): graph and cli_ux suites landed by
+the prior lane verified in-tree green (graph 6/0, cli_ux 21/0). Marketplace suite also
+landed green (17/0). template_e2e left mid-flight by R3 with 12 stale `#[ignore]`d
+tests referencing a deleted helper (compile error E0425) — deleted in this lane; suite
+now 3/0 green. Remaining reds 62 -> 8 (project suite only, unmodified).
+
 R2 update (2026-11-08, lane V8-GGEN-R2 @ ggen acc295ec6): workflow/ai/ontology suites
 repaired — workflow 2/0 green, ontology 7/0 green, ai suite deleted. Remaining reds
 62 -> 30. Suites still open: graph (11), cli_ux (7), marketplace (10), template_e2e (12),
@@ -42,13 +48,13 @@ declaring the capability gone.
 
 | Suite | Red | Class | Recommended action | Effort |
 |---|---|---|---|---|
-| integration_graph_e2e | 11/16 | SURFACE-REMOVED (noun survives, 8 sub-verbs removed; only `validate` remains) | Re-pin `validate` + help tests to current surface; DELETE load/query/snapshot/export tests — no CLI equivalent (capability retreated into ggen-graph lib) | M |
-| integration_cli_ux_e2e | 7/11 | MIXED: 6 SURFACE-REMOVED/ASSERT-DRIFT (`help-me`→`help`, `doctor --verbose` removed, help-examples assert stale) + 1 REAL-REGRESSION | Re-pin help/doctor-verbose tests; SEE FINDING F1 below for doctor basic | S |
+| integration_graph_e2e | **0/6 FIXED** (was 11/16) | SURFACE-REMOVED (noun survives, 8 sub-verbs removed; only `validate` remains) | **FIXED (prior lane in-tree diff, verified + committed V8-R1-f)**: validate + help re-pinned to current surface, removed-subverb tests deleted; suite green 6/0 | M |
+| integration_cli_ux_e2e | **0/21 FIXED** (was 7/11) | MIXED: 6 SURFACE-REMOVED/ASSERT-DRIFT + 1 REAL-REGRESSION | **FIXED (commit 6afbbe8b3, verified V8-R1-f)**: help/doctor-verbose re-pinned, cwd resolution legs re-pinned; suite green 21/0 | S |
 | integration_workflow_e2e | 14/16 | SURFACE-REMOVED (whole noun gone; no equivalent — telco is a different domain) | **R2 FIXED (2026-11-08)**: 14 red tests deleted; 2 error-path tests kept, un-ignored, suite green 2/0 | M |
 | integration_ontology_e2e | 8/11 | SURFACE-REMOVED (generate/validate/init removed; capability moved: validate→`graph validate`, generate→`sync run`) | **R2 FIXED (2026-11-08)**: validate/missing-file re-pinned to `graph validate --files`; init re-pinned to root `init`; generate re-pinned to `sync run` over the `ggen init` scaffold (+`[validation] strict_mode=false`, `--skip-ea-admission`); 4 tests deleted (--strict/--language/--output/--zod/--utilities flags gone with verb); suite green 7/0 | M |
 | integration_ai_e2e | 9/10 | SURFACE-removed (whole noun gone, no replacement) | **R2 FIXED (2026-11-08)**: suite file DELETED (git rm) — cmds/ai.rs removed in 55268c2e0, no equivalent surface | S |
-| integration_template_e2e | 12/16 | SURFACE-REMOVED (noun gone; moved to `pack`/`sync run`) | DELETE noun tests; re-pin list→`pack list`, new→`pack new` smoke | M |
-| integration_marketplace_e2e | 10/20 | SURFACE-REMOVED (noun gone; moved to `pack`/`packs` — search/add/list/remove all exist) | Re-pin search/list/sync/recommend/update → pack/packs equivalents; delete where no equivalent (recommend has none) | M |
+| integration_template_e2e | **0/3 FIXED** (was 12/16) | SURFACE-REMOVED (noun gone; moved to `pack`/`sync run`) | **FIXED (V8-R1-f)**: R3 landed 3 re-pins (pack list / pack add / packs list) but left 12 `#[ignore]`d tests still pinning the removed `template` noun and calling the deleted `create_test_template` helper — compile error E0425. The 12 deleted; suite green 3/0. Note: `pack new` re-pin remains blocked by finding F2 (FM-LAW-015) | M |
+| integration_marketplace_e2e | **0/17 FIXED** (was 10/20) | SURFACE-REMOVED (noun gone; moved to `pack`/`packs` — search/add/list/remove all exist) | **FIXED (in-tree diff from parallel lane, verified + committed V8-R1-f)**: search/list/sync/update re-pinned to pack/packs equivalents, recommend deleted (no equivalent); suite green 17/0 | M |
 | integration_template | 1/1 | SURFACE-REMOVED (noun gone; `pack list` is live equivalent) | **PILOT FIXED this lane** — re-pinned to `pack list` | S |
 | integration_project_e2e | 8/12 | SURFACE-REMOVED (noun gone; moved to `init` + `pack new`) | Re-pin init→`init` root verb; gen/plan/new→`pack new`/`sync run` smoke; delete `--type` preset tests (flags gone) | M |
 
@@ -98,6 +104,13 @@ ontology) = 30, all classified in the per-suite table above.
 
 ## Gates
 
+- V8-R1-f gates (2026-11-08, witnessed @ ggen 6afbbe8b3 + in-tree diffs):
+  - `cargo test -p ggen-cli-lib --test integration_graph_e2e` — 6 passed / 0 failed
+  - `cargo test -p ggen-cli-lib --test integration_cli_ux_e2e` — 21 passed / 0 failed
+  - `cargo test -p ggen-cli-lib --test integration_marketplace_e2e` — 17 passed / 0 failed
+  - `cargo test -p ggen-cli-lib --test integration_template_e2e` — 3 passed / 0 failed
+    (after deleting the 12 E0425-broken stale tests; pre-fix the suite did not compile)
+  - `cargo test -p ggen-engine --lib` — 244 passed / 0 failed / 2 ignored
 - R2 wave gates (2026-11-08, witnessed):
   - `cargo test -p ggen-cli-lib --test integration_workflow_e2e` — 2 passed / 0 failed
   - `cargo test -p ggen-cli-lib --test integration_ontology_e2e` — 7 passed / 0 failed
