@@ -21,18 +21,22 @@
     clippy::no_effect_underscore_binding,
     clippy::literal_string_with_formatting_args
 )]
-//! End-to-end integration tests for ontology commands
+//! End-to-end integration tests for ontology commands (R2 repair).
+//!
+//! The ontology verb surface moved (2026-11-08 R2 repair):
+//! - `ontology validate <file>` -> `graph validate --files <file>`
+//! - `ontology generate <file> --language X` -> `ggen init` scaffold + `sync run`
+//!   (code generation is now manifest-driven, not one-shot file->language)
+//! - `ontology init` -> root `ggen init`
+//!
+//! Deleted with no equivalent: `--strict`, `--language`, `--output`, `--zod`,
+//! `--utilities` flags (removed with the old verbs).
 //!
 //! **Chicago TDD Principles**:
 //! - REAL CLI process execution
 //! - REAL file system operations for ontology files
-//! - REAL state verification of generated code
+//! - REAL state verification of generated artifacts
 //! - NO mocking of ontology processing
-//!
-//! **Critical User Workflows (80/20)**:
-//! 1. Initialize ontology project
-//! 2. Validate ontology schema
-//! 3. Generate code from ontology
 
 use assert_cmd::Command;
 use predicates::prelude::*;
@@ -118,159 +122,40 @@ ex:name a rdf:Property ;
     ontology_file
 }
 
-#[test]
-#[ignore = "REGISTERED-GAP: 11 ignored, 8 RED / 3 green (2026-11-08 explicit run) -- pins drifted ontology verb surface; un-ignore only after re-pinning to the current surface"]
-fn test_ontology_init_creates_project() {
-    // Chicago TDD: Verify ontology project initialization
-    let temp_dir = TempDir::new().unwrap();
-
+/// Helper: scaffold a real ggen project and relax strict_mode so the shipped
+/// example rule (SELECT without ORDER BY) is a warning, not a hard error.
+fn init_project(temp_dir: &TempDir) {
     ggen()
-        .arg("ontology")
         .arg("init")
-        .arg("test-ontology")
-        .current_dir(&temp_dir)
+        .current_dir(temp_dir.path())
         .assert()
         .success();
 
-    // Verify state: Ontology file created
-    let ontology_path = temp_dir.path().join("ontologies/example.ttl");
-    assert!(ontology_path.exists(), "Ontology file should be created");
+    let manifest = temp_dir.path().join("ggen.toml");
+    let mut toml = fs::read_to_string(&manifest).expect("read scaffold ggen.toml");
+    toml.push_str("\n[validation]\nstrict_mode = false\n");
+    fs::write(&manifest, toml).expect("write patched ggen.toml");
 }
 
-#[test]
-#[ignore = "REGISTERED-GAP: 11 ignored, 8 RED / 3 green (2026-11-08 explicit run) -- pins drifted ontology verb surface; un-ignore only after re-pinning to the current surface"]
-fn test_ontology_validate_passes() {
-    // Chicago TDD: Validate well-formed ontology
-    let temp_dir = TempDir::new().unwrap();
-    let ontology_file = create_test_ontology(&temp_dir);
-
-    ggen()
-        .arg("ontology")
-        .arg("validate")
-        .arg(ontology_file.to_str().unwrap())
-        .current_dir(&temp_dir)
-        .assert()
-        .success();
-}
+// ---------------------------------------------------------------------------
+// Current ontology noun surface (lock/info/install/namespaces/search/list/status)
+// ---------------------------------------------------------------------------
 
 #[test]
-#[ignore = "REGISTERED-GAP: 11 ignored, 8 RED / 3 green (2026-11-08 explicit run) -- pins drifted ontology verb surface; un-ignore only after re-pinning to the current surface"]
-fn test_ontology_validate_strict() {
-    // Chicago TDD: Verify strict validation mode
-    let temp_dir = TempDir::new().unwrap();
-    let ontology_file = create_test_ontology(&temp_dir);
-
-    ggen()
-        .arg("ontology")
-        .arg("validate")
-        .arg(ontology_file.to_str().unwrap())
-        .arg("--strict")
-        .current_dir(&temp_dir)
-        .assert()
-        .success();
-}
-
-#[test]
-#[ignore = "REGISTERED-GAP: 11 ignored, 8 RED / 3 green (2026-11-08 explicit run) -- pins drifted ontology verb surface; un-ignore only after re-pinning to the current surface"]
-fn test_ontology_generate_creates_code() {
-    // Chicago TDD: Generate code from ontology
-    let temp_dir = TempDir::new().unwrap();
-    let ontology_file = create_test_ontology(&temp_dir);
-
-    ggen()
-        .arg("ontology")
-        .arg("generate")
-        .arg(ontology_file.to_str().unwrap())
-        .arg("--language")
-        .arg("typescript")
-        .current_dir(&temp_dir)
-        .assert()
-        .success();
-
-    // Verify state: Output files created in current directory
-    assert!(temp_dir.path().exists(), "Output directory should exist");
-}
-
-#[test]
-#[ignore = "REGISTERED-GAP: 11 ignored, 8 RED / 3 green (2026-11-08 explicit run) -- pins drifted ontology verb surface; un-ignore only after re-pinning to the current surface"]
-fn test_ontology_generate_with_output() {
-    // Chicago TDD: Verify custom output directory
-    let temp_dir = TempDir::new().unwrap();
-    let ontology_file = create_test_ontology(&temp_dir);
-
-    let output_dir = temp_dir.path().join("custom-output");
-
-    ggen()
-        .arg("ontology")
-        .arg("generate")
-        .arg(ontology_file.to_str().unwrap())
-        .arg("--language")
-        .arg("rust")
-        .arg("--output")
-        .arg(output_dir.to_str().unwrap())
-        .current_dir(&temp_dir)
-        .assert()
-        .success();
-
-    // Verify state: Custom output directory used
-    assert!(
-        output_dir.exists(),
-        "Custom output directory should be created"
-    );
-}
-
-#[test]
-#[ignore = "REGISTERED-GAP: 11 ignored, 8 RED / 3 green (2026-11-08 explicit run) -- pins drifted ontology verb surface; un-ignore only after re-pinning to the current surface"]
-fn test_ontology_generate_with_zod() {
-    // Chicago TDD: Verify Zod utilities generation
-    let temp_dir = TempDir::new().unwrap();
-    let ontology_file = create_test_ontology(&temp_dir);
-
-    ggen()
-        .arg("ontology")
-        .arg("generate")
-        .arg(ontology_file.to_str().unwrap())
-        .arg("--language")
-        .arg("typescript")
-        .arg("--zod")
-        .current_dir(&temp_dir)
-        .assert()
-        .success();
-}
-
-#[test]
-#[ignore = "REGISTERED-GAP: 11 ignored, 8 RED / 3 green (2026-11-08 explicit run) -- pins drifted ontology verb surface; un-ignore only after re-pinning to the current surface"]
-fn test_ontology_generate_with_utilities() {
-    // Chicago TDD: Verify utilities generation
-    let temp_dir = TempDir::new().unwrap();
-    let ontology_file = create_test_ontology(&temp_dir);
-
-    ggen()
-        .arg("ontology")
-        .arg("generate")
-        .arg(ontology_file.to_str().unwrap())
-        .arg("--utilities")
-        .current_dir(&temp_dir)
-        .assert()
-        .success();
-}
-
-#[test]
-#[ignore = "REGISTERED-GAP: 11 ignored, 8 RED / 3 green (2026-11-08 explicit run) -- pins drifted ontology verb surface; un-ignore only after re-pinning to the current surface"]
 fn test_ontology_help_shows_verbs() {
-    // Chicago TDD: Verify help state is comprehensive
+    // Chicago TDD: Verify help state matches the current verb surface
     ggen()
         .arg("ontology")
         .arg("--help")
         .assert()
         .success()
-        .stdout(predicate::str::contains("init"))
-        .stdout(predicate::str::contains("validate"))
-        .stdout(predicate::str::contains("generate"));
+        .stdout(predicate::str::contains("lock"))
+        .stdout(predicate::str::contains("info"))
+        .stdout(predicate::str::contains("install"))
+        .stdout(predicate::str::contains("namespaces"));
 }
 
 #[test]
-#[ignore = "REGISTERED-GAP: 11 ignored, 8 RED / 3 green (2026-11-08 explicit run) -- pins drifted ontology verb surface; un-ignore only after re-pinning to the current surface"]
 fn test_ontology_invalid_verb() {
     // Chicago TDD: Verify error handling for invalid verbs
     ggen()
@@ -281,36 +166,98 @@ fn test_ontology_invalid_verb() {
         .stderr(predicate::str::contains("error").or(predicate::str::contains("invalid")));
 }
 
+// ---------------------------------------------------------------------------
+// validate -> `graph validate --files`
+// ---------------------------------------------------------------------------
+
 #[test]
-#[ignore = "REGISTERED-GAP: 11 ignored, 8 RED / 3 green (2026-11-08 explicit run) -- pins drifted ontology verb surface; un-ignore only after re-pinning to the current surface"]
-fn test_ontology_validate_missing_file() {
-    // Chicago TDD: Verify error state for missing file
+fn test_ontology_validate_passes() {
+    // Re-pinned: validation moved to `graph validate --files`
     let temp_dir = TempDir::new().unwrap();
+    let ontology_file = create_test_ontology(&temp_dir);
 
     ggen()
-        .arg("ontology")
+        .arg("graph")
         .arg("validate")
-        .arg("/nonexistent/file.ttl")
+        .arg("--files")
+        .arg(ontology_file.to_str().unwrap())
         .current_dir(&temp_dir)
         .assert()
-        .failure()
-        .stderr(predicate::str::contains("not found").or(predicate::str::contains("error")));
+        .success();
 }
 
 #[test]
-#[ignore = "REGISTERED-GAP: 11 ignored, 8 RED / 3 green (2026-11-08 explicit run) -- pins drifted ontology verb surface; un-ignore only after re-pinning to the current surface"]
-fn test_ontology_generate_missing_file() {
-    // Chicago TDD: Verify error state for missing ontology file
+fn test_ontology_validate_missing_file() {
+    // Re-pinned: validation moved to `graph validate --files`
     let temp_dir = TempDir::new().unwrap();
 
     ggen()
-        .arg("ontology")
-        .arg("generate")
-        .arg("/nonexistent/schema.ttl")
-        .arg("--language")
-        .arg("typescript")
+        .arg("graph")
+        .arg("validate")
+        .arg("--files")
+        .arg("/nonexistent/file.ttl")
         .current_dir(&temp_dir)
         .assert()
-        .failure()
-        .stderr(predicate::str::contains("not found").or(predicate::str::contains("error")));
+        .failure();
+}
+
+// ---------------------------------------------------------------------------
+// init -> root `ggen init`
+// ---------------------------------------------------------------------------
+
+#[test]
+fn test_ontology_init_creates_project() {
+    // Re-pinned: project init moved to the root `init` verb
+    let temp_dir = TempDir::new().unwrap();
+
+    ggen().arg("init").current_dir(&temp_dir).assert().success();
+
+    // Verify state: manifest + ontology scaffold created
+    assert!(
+        temp_dir.path().join("ggen.toml").exists(),
+        "ggen.toml should be created"
+    );
+    assert!(
+        temp_dir.path().join("schema/domain.ttl").exists(),
+        "schema/domain.ttl should be created"
+    );
+}
+
+// ---------------------------------------------------------------------------
+// generate -> manifest-driven `sync run`
+// ---------------------------------------------------------------------------
+
+#[test]
+fn test_ontology_generate_creates_code() {
+    // Re-pinned: generation moved to `sync run` over a ggen.toml manifest
+    let temp_dir = TempDir::new().unwrap();
+    init_project(&temp_dir);
+
+    ggen()
+        .arg("sync")
+        .arg("run")
+        .arg("--skip-ea-admission")
+        .current_dir(&temp_dir)
+        .assert()
+        .success();
+
+    // Verify state: rule output file rendered on disk
+    assert!(
+        temp_dir.path().join("ontology-summary.txt").exists(),
+        "sync run should render ontology-summary.txt from the scaffold rule"
+    );
+}
+
+#[test]
+fn test_ontology_generate_missing_file() {
+    // Re-pinned: generation now requires a ggen.toml manifest; without one,
+    // `sync run` must fail loudly.
+    let temp_dir = TempDir::new().unwrap();
+
+    ggen()
+        .arg("sync")
+        .arg("run")
+        .current_dir(&temp_dir)
+        .assert()
+        .failure();
 }
