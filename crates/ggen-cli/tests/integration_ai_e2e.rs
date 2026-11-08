@@ -97,7 +97,7 @@ fn ggen() -> Command {
 }
 
 #[test]
-#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
+#[ignore = "REGISTERED-GAP: 10 ignored, 9 RED / 1 green (2026-11-08 explicit run) -- pins drifted ai verb surface; un-ignore only after re-pinning to the current surface"]
 fn test_ai_generate_executes() {
     // Chicago TDD: Verify AI generate command runs (stubbed)
     let temp_dir = TempDir::new().unwrap();
@@ -114,7 +114,7 @@ fn test_ai_generate_executes() {
 }
 
 #[test]
-#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
+#[ignore = "REGISTERED-GAP: 10 ignored, 9 RED / 1 green (2026-11-08 explicit run) -- pins drifted ai verb surface; un-ignore only after re-pinning to the current surface"]
 fn test_ai_generate_with_language() {
     // Chicago TDD: Verify language parameter accepted
     let temp_dir = TempDir::new().unwrap();
@@ -131,7 +131,7 @@ fn test_ai_generate_with_language() {
 }
 
 #[test]
-#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
+#[ignore = "REGISTERED-GAP: 10 ignored, 9 RED / 1 green (2026-11-08 explicit run) -- pins drifted ai verb surface; un-ignore only after re-pinning to the current surface"]
 fn test_ai_generate_with_model() {
     // Chicago TDD: Verify model parameter accepted
     let temp_dir = TempDir::new().unwrap();
@@ -148,7 +148,7 @@ fn test_ai_generate_with_model() {
 }
 
 #[test]
-#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
+#[ignore = "REGISTERED-GAP: 10 ignored, 9 RED / 1 green (2026-11-08 explicit run) -- pins drifted ai verb surface; un-ignore only after re-pinning to the current surface"]
 fn test_ai_chat_executes() {
     // Chicago TDD: Verify AI chat command runs (stubbed)
     let temp_dir = TempDir::new().unwrap();
@@ -164,7 +164,7 @@ fn test_ai_chat_executes() {
 }
 
 #[test]
-#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
+#[ignore = "REGISTERED-GAP: 10 ignored, 9 RED / 1 green (2026-11-08 explicit run) -- pins drifted ai verb surface; un-ignore only after re-pinning to the current surface"]
 fn test_ai_chat_interactive() {
     // Chicago TDD: Verify interactive flag accepted
     let temp_dir = TempDir::new().unwrap();
@@ -179,7 +179,7 @@ fn test_ai_chat_interactive() {
 }
 
 #[test]
-#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
+#[ignore = "REGISTERED-GAP: 10 ignored, 9 RED / 1 green (2026-11-08 explicit run) -- pins drifted ai verb surface; un-ignore only after re-pinning to the current surface"]
 fn test_ai_analyze_executes() {
     // Chicago TDD: Verify AI analyze command runs (stubbed)
     let temp_dir = TempDir::new().unwrap();
@@ -199,7 +199,7 @@ fn test_ai_analyze_executes() {
 }
 
 #[test]
-#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
+#[ignore = "REGISTERED-GAP: 10 ignored, 9 RED / 1 green (2026-11-08 explicit run) -- pins drifted ai verb surface; un-ignore only after re-pinning to the current surface"]
 fn test_ai_analyze_with_code() {
     // Chicago TDD: Verify code parameter accepted
     let temp_dir = TempDir::new().unwrap();
@@ -215,7 +215,7 @@ fn test_ai_analyze_with_code() {
 }
 
 #[test]
-#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
+#[ignore = "REGISTERED-GAP: 10 ignored, 9 RED / 1 green (2026-11-08 explicit run) -- pins drifted ai verb surface; un-ignore only after re-pinning to the current surface"]
 fn test_ai_help_shows_verbs() {
     // Chicago TDD: Verify help state is comprehensive
     ggen()
@@ -229,7 +229,7 @@ fn test_ai_help_shows_verbs() {
 }
 
 #[test]
-#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
+#[ignore = "REGISTERED-GAP: 10 ignored, 9 RED / 1 green (2026-11-08 explicit run) -- pins drifted ai verb surface; un-ignore only after re-pinning to the current surface"]
 fn test_ai_generate_help() {
     // Chicago TDD: Verify verb-specific help
     ggen()
@@ -242,7 +242,7 @@ fn test_ai_generate_help() {
 }
 
 #[test]
-#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
+#[ignore = "REGISTERED-GAP: 10 ignored, 9 RED / 1 green (2026-11-08 explicit run) -- pins drifted ai verb surface; un-ignore only after re-pinning to the current surface"]
 fn test_ai_invalid_verb() {
     // Chicago TDD: Verify error handling for invalid verbs
     ggen()

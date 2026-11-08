@@ -119,7 +119,7 @@ ex:name a rdf:Property ;
 }
 
 #[test]
-#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
+#[ignore = "REGISTERED-GAP: 11 ignored, 8 RED / 3 green (2026-11-08 explicit run) -- pins drifted ontology verb surface; un-ignore only after re-pinning to the current surface"]
 fn test_ontology_init_creates_project() {
     // Chicago TDD: Verify ontology project initialization
     let temp_dir = TempDir::new().unwrap();
@@ -138,7 +138,7 @@ fn test_ontology_init_creates_project() {
 }
 
 #[test]
-#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
+#[ignore = "REGISTERED-GAP: 11 ignored, 8 RED / 3 green (2026-11-08 explicit run) -- pins drifted ontology verb surface; un-ignore only after re-pinning to the current surface"]
 fn test_ontology_validate_passes() {
     // Chicago TDD: Validate well-formed ontology
     let temp_dir = TempDir::new().unwrap();
@@ -154,7 +154,7 @@ fn test_ontology_validate_passes() {
 }
 
 #[test]
-#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
+#[ignore = "REGISTERED-GAP: 11 ignored, 8 RED / 3 green (2026-11-08 explicit run) -- pins drifted ontology verb surface; un-ignore only after re-pinning to the current surface"]
 fn test_ontology_validate_strict() {
     // Chicago TDD: Verify strict validation mode
     let temp_dir = TempDir::new().unwrap();
@@ -171,7 +171,7 @@ fn test_ontology_validate_strict() {
 }
 
 #[test]
-#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
+#[ignore = "REGISTERED-GAP: 11 ignored, 8 RED / 3 green (2026-11-08 explicit run) -- pins drifted ontology verb surface; un-ignore only after re-pinning to the current surface"]
 fn test_ontology_generate_creates_code() {
     // Chicago TDD: Generate code from ontology
     let temp_dir = TempDir::new().unwrap();
@@ -192,7 +192,7 @@ fn test_ontology_generate_creates_code() {
 }
 
 #[test]
-#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
+#[ignore = "REGISTERED-GAP: 11 ignored, 8 RED / 3 green (2026-11-08 explicit run) -- pins drifted ontology verb surface; un-ignore only after re-pinning to the current surface"]
 fn test_ontology_generate_with_output() {
     // Chicago TDD: Verify custom output directory
     let temp_dir = TempDir::new().unwrap();
@@ -220,7 +220,7 @@ fn test_ontology_generate_with_output() {
 }
 
 #[test]
-#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
+#[ignore = "REGISTERED-GAP: 11 ignored, 8 RED / 3 green (2026-11-08 explicit run) -- pins drifted ontology verb surface; un-ignore only after re-pinning to the current surface"]
 fn test_ontology_generate_with_zod() {
     // Chicago TDD: Verify Zod utilities generation
     let temp_dir = TempDir::new().unwrap();
@@ -239,7 +239,7 @@ fn test_ontology_generate_with_zod() {
 }
 
 #[test]
-#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
+#[ignore = "REGISTERED-GAP: 11 ignored, 8 RED / 3 green (2026-11-08 explicit run) -- pins drifted ontology verb surface; un-ignore only after re-pinning to the current surface"]
 fn test_ontology_generate_with_utilities() {
     // Chicago TDD: Verify utilities generation
     let temp_dir = TempDir::new().unwrap();
@@ -256,7 +256,7 @@ fn test_ontology_generate_with_utilities() {
 }
 
 #[test]
-#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
+#[ignore = "REGISTERED-GAP: 11 ignored, 8 RED / 3 green (2026-11-08 explicit run) -- pins drifted ontology verb surface; un-ignore only after re-pinning to the current surface"]
 fn test_ontology_help_shows_verbs() {
     // Chicago TDD: Verify help state is comprehensive
     ggen()
@@ -270,7 +270,7 @@ fn test_ontology_help_shows_verbs() {
 }
 
 #[test]
-#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
+#[ignore = "REGISTERED-GAP: 11 ignored, 8 RED / 3 green (2026-11-08 explicit run) -- pins drifted ontology verb surface; un-ignore only after re-pinning to the current surface"]
 fn test_ontology_invalid_verb() {
     // Chicago TDD: Verify error handling for invalid verbs
     ggen()
@@ -282,7 +282,7 @@ fn test_ontology_invalid_verb() {
 }
 
 #[test]
-#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
+#[ignore = "REGISTERED-GAP: 11 ignored, 8 RED / 3 green (2026-11-08 explicit run) -- pins drifted ontology verb surface; un-ignore only after re-pinning to the current surface"]
 fn test_ontology_validate_missing_file() {
     // Chicago TDD: Verify error state for missing file
     let temp_dir = TempDir::new().unwrap();
@@ -298,7 +298,7 @@ fn test_ontology_validate_missing_file() {
 }
 
 #[test]
-#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
+#[ignore = "REGISTERED-GAP: 11 ignored, 8 RED / 3 green (2026-11-08 explicit run) -- pins drifted ontology verb surface; un-ignore only after re-pinning to the current surface"]
 fn test_ontology_generate_missing_file() {
     // Chicago TDD: Verify error state for missing ontology file
     let temp_dir = TempDir::new().unwrap();

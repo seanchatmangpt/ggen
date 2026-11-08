@@ -79,7 +79,7 @@ fn ggen_bin() -> std::path::PathBuf {
 }
 
 #[test]
-#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
+#[ignore = "REGISTERED-GAP: 1 ignored, RED (2026-11-08 explicit run) -- pins drifted template verb surface; un-ignore only after re-pinning to the current surface"]
 fn test_template_list() {
     Command::new(ggen_bin())
         .args(["template", "list"])
