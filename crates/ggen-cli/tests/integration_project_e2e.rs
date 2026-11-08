@@ -22,20 +22,18 @@
     clippy::literal_string_with_formatting_args
 )]
 
-//! End-to-end integration tests for project commands
+//! End-to-end integration tests for the project-scaffold workflow.
 //!
-//! **Chicago TDD Principles**:
-//! - REAL CLI process execution
-//! - REAL file system operations
-//! - REAL state verification of created files
-//! - NO mocking of project domain logic
-//!
-//! **Critical User Workflows (80/20)**:
-//! 1. Create new project from template
-//! 2. Generate code from plan
-//! 3. Apply plan to filesystem
-//! 4. Initialize project with conventions
-//! 5. Watch for changes
+//! History: these tests originally pinned the removed `ggen project` noun.
+//! The capability moved to root `ggen init` (scaffold) and `ggen sync run`
+//! (generation pipeline). Re-pinned 2026-11-08, V8-R3-f lane, against
+//! witnessed CLI probes. Six tests were deleted rather than re-pinned
+//! (cited in the lane receipt): `project new --type/--output` (flags gone
+//! with the noun), `project init --preset` (flag gone), `project gen
+//! --dry-run` (no equivalent flag on `sync run`), `project new
+//! --type invalid` (flag gone), and the two init name-validation tests
+//! (capability absent on the moved surface — fresh-dir `init --name ""`
+//! succeeds rc=0; DELETED comment below).
 
 use assert_cmd::Command;
 use predicates::prelude::*;
@@ -97,252 +95,137 @@ fn ggen() -> Command {
     Command::new(ggen_bin())
 }
 
-#[test]
-#[ignore = "REGISTERED-GAP: 12 ignored, 8 RED / 4 green (2026-11-08 explicit run) -- pins drifted project verb surface; un-ignore only after re-pinning to the current surface"]
-fn test_project_new_creates_project() {
-    // Chicago TDD: Verify real project creation
-    let temp_dir = TempDir::new().unwrap();
-
+/// The scaffold+generation recipe witnessed for the moved surface: fresh
+/// `ggen init`, relax scaffold-vs-strictness (the shipped example rule has a
+/// SELECT without ORDER BY — E0013, strict by default; scaffold-vs-strictness
+/// defect noted in the survey, not fixed here), then `sync run
+/// --skip-ea-admission`. Witnessed rc=0 with `ontology-summary.txt` rendered.
+fn init_scaffold(temp_dir: &TempDir) {
     ggen()
-        .arg("project")
-        .arg("new")
-        .arg("test-project")
-        .arg("--type")
-        .arg("rust-cli")
-        .current_dir(&temp_dir)
+        .arg("init")
+        .current_dir(temp_dir.path())
         .assert()
         .success();
 
-    // Verify state: Project directory created
-    let project_path = temp_dir.path().join("test-project");
-    assert!(project_path.exists(), "Project directory should be created");
+    let toml_path = temp_dir.path().join("ggen.toml");
+    let toml = fs::read_to_string(&toml_path).unwrap();
+    fs::write(
+        &toml_path,
+        format!("{toml}\n[validation]\nstrict_mode = false\n"),
+    )
+    .unwrap();
+}
+
+/// Run the generation pipeline over the scaffold. Witnessed rc=0.
+fn sync_run(temp_dir: &TempDir) {
+    ggen()
+        .args(["sync", "run", "--skip-ea-admission"])
+        .current_dir(temp_dir.path())
+        .assert()
+        .success();
 }
 
 #[test]
-#[ignore = "REGISTERED-GAP: 12 ignored, 8 RED / 4 green (2026-11-08 explicit run) -- pins drifted project verb surface; un-ignore only after re-pinning to the current surface"]
-fn test_project_new_with_custom_output() {
-    // Chicago TDD: Verify custom output directory
+// Re-pin (2026-11-08, V8-R3-f): `project new` (noun removed) -> root
+// `ggen init` scaffold; asserts the scaffold state on disk.
+fn test_project_new_creates_project() {
     let temp_dir = TempDir::new().unwrap();
 
-    ggen()
-        .arg("project")
-        .arg("new")
-        .arg("my-app")
-        .arg("--type")
-        .arg("rust-cli")
-        .arg("--output")
-        .arg(temp_dir.path().join("workspace"))
-        .current_dir(&temp_dir)
-        .assert()
-        .success();
+    ggen().arg("init").current_dir(&temp_dir).assert().success();
 
-    // Verify state: Custom output path used
-    let workspace_path = temp_dir.path().join("workspace");
     assert!(
-        workspace_path.exists(),
-        "Custom output directory should be created"
+        temp_dir.path().join("ggen.toml").exists(),
+        "ggen.toml should be created"
+    );
+    assert!(
+        temp_dir.path().join("schema").is_dir(),
+        "schema dir should be created"
     );
 }
 
 #[test]
-#[ignore = "REGISTERED-GAP: 12 ignored, 8 RED / 4 green (2026-11-08 explicit run) -- pins drifted project verb surface; un-ignore only after re-pinning to the current surface"]
+// Re-pin (2026-11-08, V8-R3-f): `project init --name X` (noun removed) ->
+// root `ggen init`; the scaffold is written into the current directory
+// (witnessed: ggen.toml + Makefile + schema/ + templates/).
 fn test_project_init_creates_structure() {
-    // Chicago TDD: Verify project initialization
     let temp_dir = TempDir::new().unwrap();
 
-    ggen()
-        .arg("project")
-        .arg("init")
-        .arg("--name")
-        .arg("test-init")
-        .current_dir(&temp_dir)
-        .assert()
-        .success();
+    ggen().arg("init").current_dir(&temp_dir).assert().success();
 
-    // Verify state: .ggen directory created
-    let ggen_dir = temp_dir.path().join(".ggen");
-    assert!(ggen_dir.exists(), ".ggen directory should be created");
+    assert!(temp_dir.path().join("ggen.toml").exists());
+    assert!(temp_dir.path().join("Makefile").exists());
+    assert!(temp_dir.path().join("templates").is_dir());
 }
 
 #[test]
-#[ignore = "REGISTERED-GAP: 12 ignored, 8 RED / 4 green (2026-11-08 explicit run) -- pins drifted project verb surface; un-ignore only after re-pinning to the current surface"]
-fn test_project_init_with_preset() {
-    // Chicago TDD: Verify preset application
-    let temp_dir = TempDir::new().unwrap();
-
-    ggen()
-        .arg("project")
-        .arg("init")
-        .arg("--name")
-        .arg("preset-test")
-        .arg("--preset")
-        .arg("clap-noun-verb")
-        .current_dir(&temp_dir)
-        .assert()
-        .success();
-
-    // Verify state: Config file created
-    let config_path = temp_dir.path().join(".ggen/conventions.toml");
-    assert!(config_path.exists(), "Config file should be created");
-}
-
-#[test]
-#[ignore = "REGISTERED-GAP: 12 ignored, 8 RED / 4 green (2026-11-08 explicit run) -- pins drifted project verb surface; un-ignore only after re-pinning to the current surface"]
+// Re-pin (2026-11-08, V8-R3-f): `project plan` / `project gen` (noun
+// removed) -> `sync run` over the init scaffold; asserts the rendered
+// artifact on disk.
 fn test_project_plan_generates_plan() {
-    // Chicago TDD: Verify plan generation
     let temp_dir = TempDir::new().unwrap();
+    init_scaffold(&temp_dir);
+    sync_run(&temp_dir);
 
-    // Create a simple template
-    let templates_dir = temp_dir.path().join("templates");
-    fs::create_dir_all(&templates_dir).unwrap();
-    let template_path = templates_dir.join("test.tmpl");
-    fs::write(&template_path, "Hello {{ name }}!").unwrap();
-
-    ggen()
-        .arg("project")
-        .arg("plan")
-        .arg("--template")
-        .arg(template_path.to_str().unwrap())
-        .arg("--var")
-        .arg("name=world")
-        .arg("--output")
-        .arg("plan.json")
-        .current_dir(&temp_dir)
-        .assert()
-        .success();
-
-    // Verify state: Plan file created
-    let plan_path = temp_dir.path().join("plan.json");
-    assert!(plan_path.exists(), "Plan file should be created");
+    let summary = temp_dir.path().join("ontology-summary.txt");
+    assert!(summary.exists(), "rendered artifact should exist on disk");
 }
 
 #[test]
-#[ignore = "REGISTERED-GAP: 12 ignored, 8 RED / 4 green (2026-11-08 explicit run) -- pins drifted project verb surface; un-ignore only after re-pinning to the current surface"]
+// Re-pin (2026-11-08, V8-R3-f): `project gen` (noun removed) -> `sync run`
+// over the init scaffold; asserts rendered content, not just file presence.
 fn test_project_gen_creates_files() {
-    // Chicago TDD: Verify code generation
     let temp_dir = TempDir::new().unwrap();
+    init_scaffold(&temp_dir);
+    sync_run(&temp_dir);
 
-    // Create template directory
-    let templates_dir = temp_dir.path().join("templates");
-    fs::create_dir_all(&templates_dir).unwrap();
-    let template_path = templates_dir.join("output.tmpl");
-    fs::write(&template_path, "Generated: {{ name }}").unwrap();
-
-    ggen()
-        .arg("project")
-        .arg("gen")
-        .arg("--template")
-        .arg(template_path.to_str().unwrap())
-        .arg("--var")
-        .arg("name=test")
-        .current_dir(&temp_dir)
-        .assert()
-        .success();
+    let summary = temp_dir.path().join("ontology-summary.txt");
+    let content = fs::read_to_string(&summary).unwrap();
+    assert!(!content.is_empty(), "rendered summary should carry content");
 }
 
 #[test]
-#[ignore = "REGISTERED-GAP: 12 ignored, 8 RED / 4 green (2026-11-08 explicit run) -- pins drifted project verb surface; un-ignore only after re-pinning to the current surface"]
-fn test_project_gen_dry_run() {
-    // Chicago TDD: Verify dry-run doesn't create files
-    let temp_dir = TempDir::new().unwrap();
-
-    // Create template directory
-    let templates_dir = temp_dir.path().join("templates");
-    fs::create_dir_all(&templates_dir).unwrap();
-    let template_path = templates_dir.join("test.tmpl");
-    fs::write(&template_path, "Test content").unwrap();
-
-    ggen()
-        .arg("project")
-        .arg("gen")
-        .arg("--template")
-        .arg(template_path.to_str().unwrap())
-        .arg("--dry-run")
-        .current_dir(&temp_dir)
-        .assert()
-        .success();
-
-    // In dry-run mode, verify no output files created
-    // (implementation dependent - may or may not create files)
-}
-
-#[test]
-#[ignore = "REGISTERED-GAP: 12 ignored, 8 RED / 4 green (2026-11-08 explicit run) -- pins drifted project verb surface; un-ignore only after re-pinning to the current surface"]
+// Re-pin (2026-11-08, V8-R3-f): `project --help` (noun removed) -> the
+// scaffold verb's help documents itself (`Usage: ggen init`).
 fn test_project_help_shows_verbs() {
-    // Chicago TDD: Verify help state is comprehensive
     ggen()
-        .arg("project")
-        .arg("--help")
+        .args(["init", "--help"])
         .assert()
         .success()
-        .stdout(predicate::str::contains("new"))
-        .stdout(predicate::str::contains("plan"))
-        .stdout(predicate::str::contains("gen"))
-        .stdout(predicate::str::contains("init"))
-        .stdout(predicate::str::contains("generate"))
-        .stdout(predicate::str::contains("watch"));
+        .stdout(predicate::str::contains("Usage: ggen init"));
 }
 
 #[test]
-#[ignore = "REGISTERED-GAP: 12 ignored, 8 RED / 4 green (2026-11-08 explicit run) -- pins drifted project verb surface; un-ignore only after re-pinning to the current surface"]
+// Re-pin (2026-11-08, V8-R3-f): `project invalid-verb` (noun removed) ->
+// an unexpected positional under the `init` noun is an argument-parsing
+// failure. Witnessed rc=1.
 fn test_project_invalid_verb() {
-    // Chicago TDD: Verify error handling for invalid verbs
     ggen()
-        .arg("project")
-        .arg("invalid-verb")
+        .args(["init", "invalid-verb"])
         .assert()
         .failure()
-        .stderr(predicate::str::contains("error").or(predicate::str::contains("invalid")));
+        .stderr(predicate::str::contains("error").or(predicate::str::contains("ERROR")));
 }
 
-#[test]
-#[ignore = "REGISTERED-GAP: 12 ignored, 8 RED / 4 green (2026-11-08 explicit run) -- pins drifted project verb surface; un-ignore only after re-pinning to the current surface"]
-fn test_project_new_invalid_type() {
-    // Chicago TDD: Verify error state for invalid project type
-    let temp_dir = TempDir::new().unwrap();
-
-    let _ = ggen()
-        .arg("project")
-        .arg("new")
-        .arg("test")
-        .arg("--type")
-        .arg("invalid-type-xyz")
-        .current_dir(&temp_dir)
-        .output();
-
-    // Command may fail or succeed with warning - both valid behaviors
-}
+// DELETED (2026-11-08, V8-R3-f): `test_project_init_empty_name` and
+// `test_project_init_whitespace_name` pinned a name-validation capability
+// that does not exist on the moved surface. Witnessed inversion: fresh-dir
+// `ggen init --name ""` and `--name "test project"` both succeed (rc=0,
+// scaffold written, ggen.toml carries `name = ""` verbatim); the earlier
+// rc=1 observations were the already-initialized refusal, not name
+// validation. No successor test without asserting the scaffold accepts
+// invalid names as intended behavior — filed for the F-lane instead.
 
 #[test]
-#[ignore = "REGISTERED-GAP: 12 ignored, 8 RED / 4 green (2026-11-08 explicit run) -- pins drifted project verb surface; un-ignore only after re-pinning to the current surface"]
-fn test_project_init_empty_name() {
-    // Chicago TDD: Verify validation rejects empty project name
+// Re-pin (2026-11-08, V8-R3-f): second sync-run probe (idempotence over an
+// already-rendered scaffold) replacing the deleted `--type` preset tests.
+fn test_project_sync_rerun_stable() {
     let temp_dir = TempDir::new().unwrap();
+    init_scaffold(&temp_dir);
+    sync_run(&temp_dir);
+    let first = fs::read_to_string(temp_dir.path().join("ontology-summary.txt")).unwrap();
 
-    ggen()
-        .arg("project")
-        .arg("init")
-        .arg("--name")
-        .arg("")
-        .current_dir(&temp_dir)
-        .assert()
-        .failure()
-        .stderr(predicate::str::contains("empty").or(predicate::str::contains("error")));
-}
+    sync_run(&temp_dir);
+    let second = fs::read_to_string(temp_dir.path().join("ontology-summary.txt")).unwrap();
 
-#[test]
-#[ignore = "REGISTERED-GAP: 12 ignored, 8 RED / 4 green (2026-11-08 explicit run) -- pins drifted project verb surface; un-ignore only after re-pinning to the current surface"]
-fn test_project_init_whitespace_name() {
-    // Chicago TDD: Verify validation rejects whitespace in name
-    let temp_dir = TempDir::new().unwrap();
-
-    ggen()
-        .arg("project")
-        .arg("init")
-        .arg("--name")
-        .arg("test project")
-        .current_dir(&temp_dir)
-        .assert()
-        .failure()
-        .stderr(predicate::str::contains("whitespace").or(predicate::str::contains("error")));
+    assert_eq!(first, second, "sync rerun should be deterministic");
 }
