@@ -897,6 +897,8 @@ pub(crate) fn run(root: &Path, manifest: &GgenManifest, opts: SyncOptions) -> Re
     emit_span.record("pipeline.duration_ms", duration_ms(emit_start.elapsed()));
     emit_span.record("pipeline.files_generated", written.len() as u64);
 
+    let graph_diff = crate::sync::compute_graph_diff(root, graph.as_ref(), &closure, opts.dry_run)?;
+
     let report = SyncReport {
         written,
         skipped,
@@ -904,6 +906,9 @@ pub(crate) fn run(root: &Path, manifest: &GgenManifest, opts: SyncOptions) -> Re
         decisions,
         packs: BTreeMap::new(),
         closure,
+        graph_diff,
+        // SLA minimal-unblock (disclosed): see sync.rs initializer comment.
+        log_append: None,
     };
 
     if !opts.dry_run {
@@ -971,8 +976,7 @@ const VERIFICATION_HARNESS_TEMPLATE: &str =
 /// aliases are derived from THIS manifest's own `[[generation.rules]]`
 /// `output_file` layout — never guessed — via [`harness_path_aliases`].
 fn render_verification_harness(
-    manifest: &GgenManifest,
-    harness: &ggen_config::manifest::VerificationHarnessConfig,
+    manifest: &GgenManifest, harness: &ggen_config::manifest::VerificationHarnessConfig,
 ) -> Result<Vec<(String, String)>> {
     let aliases = harness_path_aliases(manifest);
     let peers: Vec<String> = harness.peers.clone();
@@ -980,9 +984,7 @@ fn render_verification_harness(
     // an object with `name`/`target` keys instead.
     let alias_objs: Vec<serde_json::Value> = aliases
         .iter()
-        .map(|(name, target)| {
-            serde_json::json!({ "name": name, "target": target })
-        })
+        .map(|(name, target)| serde_json::json!({ "name": name, "target": target }))
         .collect();
     let mut files = Vec::with_capacity(2);
     for part in ["tsconfig", "verify_mjs"] {
@@ -991,21 +993,17 @@ fn render_verification_harness(
         ctx.insert("actuator", concat!("ggen@", env!("CARGO_PKG_VERSION")));
         ctx.insert("aliases", &alias_objs);
         ctx.insert("peers", &peers);
-        let body = tera::Tera::one_off(
-            VERIFICATION_HARNESS_TEMPLATE,
-            &ctx,
-            false,
-        )
-        .map_err(|e| {
-            AppError::fm_gen(
-                22,
-                format!(
-                    "verification harness template render failed ({part}): {e}. \
+        let body =
+            tera::Tera::one_off(VERIFICATION_HARNESS_TEMPLATE, &ctx, false).map_err(|e| {
+                AppError::fm_gen(
+                    22,
+                    format!(
+                        "verification harness template render failed ({part}): {e}. \
                      Remediation: report this as a ggen bug — the built-in template \
                      must always render."
-                ),
-            )
-        })?;
+                    ),
+                )
+            })?;
         let rel = match part {
             "tsconfig" => ".ggen-v2/verify/tsconfig.verify.json",
             _ => ".ggen-v2/verify/verify.mjs",
@@ -1776,11 +1774,7 @@ mod rule_kinds_tests {
 }
 
 #[cfg(test)]
-#[allow(
-    clippy::unwrap_used,
-    clippy::expect_used,
-    clippy::panic
-)] // Chicago TDD test module
+#[allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)] // Chicago TDD test module
 mod verification_harness_tests {
     use crate::sync::{sync, SyncOptions};
     use tempfile::TempDir;
@@ -1831,9 +1825,9 @@ ex:alice ex:name "alice" .
         assert!(verify_mjs.contains("npx tsc -p tsconfig.verify.json"));
         assert!(verify_mjs.contains("xstate"));
         // Both harness files must be receipt-visible writes.
-        assert!(report
-            .written
-            .contains(&std::path::PathBuf::from(".ggen-v2/verify/tsconfig.verify.json")));
+        assert!(report.written.contains(&std::path::PathBuf::from(
+            ".ggen-v2/verify/tsconfig.verify.json"
+        )));
         assert!(report
             .written
             .contains(&std::path::PathBuf::from(".ggen-v2/verify/verify.mjs")));

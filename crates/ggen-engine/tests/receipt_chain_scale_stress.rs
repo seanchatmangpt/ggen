@@ -90,6 +90,9 @@ fn mint_line(prev_chain_hash_hex: &str, i: usize) -> String {
         build_provenance: None,
         generation: Some((i + 1) as u64),
         ea_admission_skipped: None,
+        // Minimal unblock (lane G11): ReceiptPayload gained `graph_diff`
+        // (G2 sync-hardening item 2). Chained synthetic receipts carry none.
+        graph_diff: None,
     };
     let payload_json = serde_json::to_vec(&payload).expect("payload serializes");
     let record = ReceiptRecord {
