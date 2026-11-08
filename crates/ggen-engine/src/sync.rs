@@ -239,12 +239,16 @@ pub struct SyncReport {
     pub decisions: BTreeMap<String, String>,
     /// Pack name → BLAKE3 hex of the pack's content hash.
     pub packs: BTreeMap<String, String>,
-    /// Input-closure binding: root-relative input path (ontology, pack
-    /// ontologies, template files, `from:` bodies) → BLAKE3 hex of the file
+    /// Input-closure binding: root-relative input path → BLAKE3 hex of the file
     /// bytes, plus an `actuator` entry naming the generator version. A
     /// declared input that cannot be read at binding time is recorded as
     /// `MISSING`, never dropped.
     pub closure: BTreeMap<String, String>,
+    /// Per-subject graph diff against the previous run's digest ledger
+    /// (G2 sync-hardening item 2). `None` on a dry run (read-only diff
+    /// against a nonexistent ledger) and on the first (baseline) sync.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub graph_diff: Option<GraphDiff>,
 }
 
 /// Relative path of the sync receipt under the project root.
@@ -284,6 +288,42 @@ enum ProjectionMode {
 /// Relative path of the append-only receipt history log (one JSON line per
 /// non-dry-run sync) under the project root.
 pub const RECEIPT_LOG_REL_PATH: &str = ".ggen-v2/receipt-log.jsonl";
+
+/// Relative path of the per-subject graph digest ledger (one JSON line per
+/// subject: `{"subject": "<iri>", "digest": "<blake3 hex>"}`) under the
+/// project root. Written every non-dry-run sync (G2 sync-hardening item 2);
+/// the next sync diffs its post-Enrich graph against it.
+pub const GRAPH_DIGEST_REL_PATH: &str = ".ggen-v2/graph-digest.jsonl";
+
+/// Relative path of the human-readable graph-diff summary under the project
+/// root, rewritten every non-dry-run sync.
+pub const SYNC_DIFF_REL_PATH: &str = ".ggen-v2/sync-diff.md";
+
+/// The per-subject graph diff one sync observed against the previous run's
+/// `.ggen-v2/graph-digest.jsonl` ledger (G2 sync-hardening item 2).
+///
+/// Each subject's digest is the BLAKE3 hex of its sorted predicate-object
+/// set, serialized deterministically, so `added`/`removed`/`changed` name
+/// the subjects whose terms moved between runs. `per_source` attributes each
+/// moved subject to the input-closure source doc(s) whose bytes changed in
+/// the same run (single changed source → attributed; several → listed; none
+/// → the outside-closure note). `note` carries the two loud diagnostics:
+/// emission-neutral (closure source bytes changed, terms did not) and
+/// outside-closure (terms changed, closure source class did not).
+#[derive(Debug, Clone, Serialize, serde::Deserialize, Default, PartialEq)]
+pub struct GraphDiff {
+    /// Subjects present this run but absent from the previous ledger.
+    pub added: Vec<String>,
+    /// Subjects present in the previous ledger but absent this run.
+    pub removed: Vec<String>,
+    /// Subjects present in both runs whose predicate-object digest changed.
+    pub changed: Vec<String>,
+    /// Moved subject → contributing source-doc attribution.
+    pub per_source: BTreeMap<String, String>,
+    /// Loud diagnostic, when either mismatch class fired.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub note: Option<String>,
+}
 
 /// On-disk shape of `<root>/.ggen-v2/receipt.json`.
 #[derive(Debug, Clone, Serialize, serde::Deserialize)]
@@ -339,6 +379,11 @@ pub struct ReceiptPayload {
     /// as nothing) on every admitted run, and only on admitted runs.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub ea_admission_skipped: Option<String>,
+    /// Per-subject graph diff against the previous run's digest ledger
+    /// (G2 sync-hardening item 2; see [`GraphDiff`]). Additive;
+    /// `None` (serialized as nothing) on baseline runs and dry runs.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub graph_diff: Option<GraphDiff>,
 }
 
 /// EA graph (ABB/SBB) admission — Stage 2c's EA half, extracted verbatim from
@@ -1291,6 +1336,16 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
 
     let graph_hash_hex = hex32(&graph.state_hash()?);
 
+    // ── G2 sync-hardening item 2: per-subject graph digest diff ─────────
+    //
+    // Diff this run's post-Enrich graph against the previous run's
+    // `.ggen-v2/graph-digest.jsonl` ledger, attribute the moved subjects to
+    // the changed source docs, fire the two loud diagnostics
+    // (emission-neutral / outside-closure), then persist the new ledger and
+    // the human summary. A dry run still computes the diff but writes
+    // nothing (zero-side-effect contract).
+    let graph_diff = compute_graph_diff(root, graph.as_ref(), &closure, opts.dry_run)?;
+
     // ── Stages 3–4: Extract, Render every template into memory ──────────
     //
     // All rendering happens before any write. A render failure on template N
@@ -1889,6 +1944,7 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
         decisions,
         packs: pack_hashes,
         closure,
+        graph_diff,
     };
 
     if !opts.dry_run {
@@ -4028,6 +4084,331 @@ fn compare_closure_class(
     ))
 }
 
+// ── G2 sync-hardening item 2: per-subject graph digest diff ─────────────
+
+/// One JSON line of `.ggen-v2/graph-digest.jsonl`.
+#[derive(Debug, serde::Serialize, serde::Deserialize)]
+struct SubjectDigestLine {
+    subject: String,
+    digest: String,
+}
+
+/// The current run's per-subject digests: subject IRI → BLAKE3 hex of its
+/// sorted predicate-object set (each pair rendered `p o`, joined with `\n`),
+/// enumerated engine-independently via `SELECT ?s ?p ?o`. Blank nodes arrive
+/// canonically relabeled (see `GraphEngine::query`'s determinism contract),
+/// so digests are stable across independent loads of identical input.
+fn current_subject_digests(graph: &dyn GraphEngine) -> Result<BTreeMap<String, String>> {
+    const SELECT_ALL: &str = "SELECT ?s ?p ?o WHERE { ?s ?p ?o }";
+    let EngineQueryResults::Solutions(rows) = graph.query(SELECT_ALL)? else {
+        return Err(AppError::fm_graph(
+            3,
+            "graph-diff: SELECT ?s ?p ?o did not return solutions",
+        ));
+    };
+    let mut triples: Vec<(String, String, String)> = Vec::with_capacity(rows.len());
+    for row in rows {
+        let (Some(EngineValue::String(s)), Some(EngineValue::String(p)), Some(EngineValue::String(
+            o,
+        ))) = (row.get("s"), row.get("p"), row.get("o"))
+        else {
+            return Err(AppError::fm_graph(
+                3,
+                "graph-diff: SELECT ?s ?p ?o row has a non-string binding",
+            ));
+        };
+        triples.push((s.clone(), p.clone(), o.clone()));
+    }
+    let mut by_subject: BTreeMap<String, Vec<String>> = BTreeMap::new();
+    for (s, p, o) in triples {
+        by_subject.entry(s).or_default().push(format!("{p} {o}"));
+    }
+    Ok(by_subject
+        .into_iter()
+        .map(|(s, mut po)| {
+            po.sort();
+            po.dedup();
+            (s, blake3::hash(po.join("\n").as_bytes()).to_hex().to_string())
+        })
+        .collect())
+}
+
+/// Read the previous run's subject-digest ledger. `Ok(None)` = absent
+/// (baseline run). A line that does not parse is fail-closed: a corrupted
+/// ledger must not silently read as "no previous state" and fake a clean
+/// diff.
+fn read_subject_digest_ledger(path: &Path) -> Result<Option<BTreeMap<String, String>>> {
+    let raw = match std::fs::read_to_string(path) {
+        Ok(raw) => raw,
+        Err(e) if e.kind() == std::io::ErrorKind::NotFound => return Ok(None),
+        Err(e) => {
+            return Err(AppError::fm_chain(
+                8,
+                format!(
+                    "graph-digest ledger `{}` unreadable: {e}. Remediation: fix the \
+                     file's permissions, or delete it to re-baseline.",
+                    path.display()
+                ),
+            ))
+        }
+    };
+    let mut out = BTreeMap::new();
+    for (idx, line) in raw.lines().enumerate() {
+        if line.trim().is_empty() {
+            continue;
+        }
+        let parsed: SubjectDigestLine = serde_json::from_str(line).map_err(|e| {
+            AppError::fm_chain(
+                10,
+                format!(
+                    "graph-digest ledger `{}` line {} does not deserialize ({e}); the \
+                     previous graph state is undecidable. Remediation: repair the ledger, \
+                     or delete it to re-baseline.",
+                    path.display(),
+                    idx + 1
+                ),
+            )
+        })?;
+        out.insert(parsed.subject, parsed.digest);
+    }
+    Ok(Some(out))
+}
+
+/// The previous receipt's input closure, for source attribution. An absent
+/// or unreadable previous receipt yields an empty map (attribution then
+/// reports the outside-closure diagnostic honestly rather than guessing).
+fn read_previous_receipt_closure(root: &Path) -> BTreeMap<String, String> {
+    let path = root.join(RECEIPT_REL_PATH);
+    std::fs::read_to_string(path)
+        .ok()
+        .and_then(|raw| serde_json::from_str::<SyncReceipt>(&raw).ok())
+        .map(|r| r.payload.closure)
+        .unwrap_or_default()
+}
+
+/// Which input-closure source keys changed since the previous receipt, with
+/// a `changed`/`added`/`removed` verb each. Only the `source` equivalence
+/// class participates (see [`closure_equivalence_class`]): config-class
+/// changes (manifest, project, actuator) parameterize the pipeline but do
+/// not contribute graph terms, so attributing subjects to them would
+/// overclaim provenance.
+fn changed_source_keys(
+    current: &BTreeMap<String, String>, previous: &BTreeMap<String, String>,
+) -> Vec<String> {
+    let mut out = Vec::new();
+    for (k, v) in current {
+        if closure_equivalence_class(k) != Some("source") {
+            continue;
+        }
+        match previous.get(k) {
+            None => out.push(format!("added `{k}`")),
+            Some(pv) if pv != v => out.push(format!("changed `{k}`")),
+            Some(_) => {}
+        }
+    }
+    for k in previous.keys() {
+        if closure_equivalence_class(k) != Some("source") {
+            continue;
+        }
+        if !current.contains_key(k) {
+            out.push(format!("removed `{k}`"));
+        }
+    }
+    out.sort();
+    out
+}
+
+/// Compute the per-subject graph diff (G2 sync-hardening item 2), fire the
+/// two loud diagnostics, and — on a non-dry run — persist the refreshed
+/// ledger and the human summary at `.ggen-v2/sync-diff.md`. `Ok(None)` on a
+/// baseline run (no previous ledger): the ledger is still written.
+fn compute_graph_diff(
+    root: &Path, graph: &dyn GraphEngine, closure: &BTreeMap<String, String>, dry_run: bool,
+) -> Result<Option<GraphDiff>> {
+    let ledger_path = root.join(GRAPH_DIGEST_REL_PATH);
+    let previous = read_subject_digest_ledger(&ledger_path)?;
+    let Some(previous) = previous else {
+        if !dry_run {
+            let current = current_subject_digests(graph)?;
+            write_subject_digest_ledger(&ledger_path, &current)?;
+            write_sync_diff_summary(root, None)?;
+        }
+        return Ok(None);
+    };
+    let current = current_subject_digests(graph)?;
+    let diff = diff_subject_digests(&current, &previous);
+
+    let prev_closure = read_previous_receipt_closure(root);
+    let sources = changed_source_keys(closure, &prev_closure);
+    let diff_empty = diff.added.is_empty() && diff.removed.is_empty() && diff.changed.is_empty();
+    let mut diff = diff;
+
+    // The two loud diagnostics. Emission-neutral: source-class closure
+    // bytes moved but the terms did not. Outside-closure: terms moved but
+    // the source class did not — some input the closure does not track
+    // changed the graph.
+    let note = if !sources.is_empty() && diff_empty {
+        Some(format!(
+            "emission-neutral: {} source input(s) changed ({}), but the per-subject \
+             graph terms are unchanged — file bytes moved, emitted terms did not.",
+            sources.len(),
+            sources.join(", ")
+        ))
+    } else if sources.is_empty() && !diff_empty {
+        Some(
+            "input changed outside the input closure: per-subject graph terms moved \
+             while every tracked source input is byte-identical to the previous \
+             receipt."
+                .to_string(),
+        )
+    } else {
+        None
+    };
+    diff.note = note;
+
+    // Source attribution. Single changed source → attributed directly;
+    // several → listed; none → the outside-closure diagnostic.
+    let attribution: Option<String> = match sources.len() {
+        0 => None,
+        1 => Some(sources[0].clone()),
+        _ => Some(format!("multiple source inputs changed: {}", sources.join(", "))),
+    };
+    let mut moved = diff.added.iter().chain(&diff.removed).chain(&diff.changed);
+    if let (Some(attr), true) = (&attribution, moved.next().is_some()) {
+        let attr = attr.clone();
+        for s in diff.added.iter().chain(&diff.removed).chain(&diff.changed) {
+            diff.per_source.insert(s.clone(), attr.clone());
+        }
+    }
+
+    if !dry_run {
+        write_subject_digest_ledger(&ledger_path, &current)?;
+        write_sync_diff_summary(root, Some(&diff))?;
+    }
+    Ok(Some(diff))
+}
+
+/// Diff two per-subject digest maps into sorted added/removed/changed lists.
+fn diff_subject_digests(
+    current: &BTreeMap<String, String>, previous: &BTreeMap<String, String>,
+) -> GraphDiff {
+    let mut out = GraphDiff::default();
+    for (s, d) in current {
+        match previous.get(s) {
+            None => out.added.push(s.clone()),
+            Some(p) if p != d => out.changed.push(s.clone()),
+            Some(_) => {}
+        }
+    }
+    for s in previous.keys() {
+        if !current.contains_key(s) {
+            out.removed.push(s.clone());
+        }
+    }
+    out
+}
+
+/// Persist the ledger (one JSON line per subject, sorted by subject for a
+/// byte-deterministic file) and the human summary.
+fn write_subject_digest_ledger(
+    path: &Path, digests: &BTreeMap<String, String>,
+) -> Result<()> {
+    let dir = path.parent().unwrap_or_else(|| Path::new("."));
+    std::fs::create_dir_all(dir).map_err(|e| {
+        AppError::fm_write(
+            12,
+            format!(
+                "graph-diff: cannot create `{}`: {e}. Remediation: fix permissions.",
+                dir.display()
+            ),
+        )
+    })?;
+    let mut body = String::new();
+    for (subject, digest) in digests {
+        let line = SubjectDigestLine {
+            subject: subject.clone(),
+            digest: digest.clone(),
+        };
+        body.push_str(&serde_json::to_string(&line)?);
+        body.push('\n');
+    }
+    std::fs::write(path, body).map_err(|e| {
+        AppError::fm_write(
+            12,
+            format!(
+                "graph-digest ledger `{}` unwritable: {e}. Remediation: fix permissions.",
+                path.display()
+            ),
+        )
+    })
+}
+
+/// Write `.ggen-v2/sync-diff.md`, the human-readable summary of this run's
+/// per-subject graph diff. `None` = baseline run (first sync, or no
+/// previous ledger): the summary says so instead of pretending an empty
+/// diff was observed.
+fn write_sync_diff_summary(root: &Path, diff: Option<&GraphDiff>) -> Result<()> {
+    let path = root.join(SYNC_DIFF_REL_PATH);
+    let dir = path.parent().unwrap_or_else(|| Path::new("."));
+    std::fs::create_dir_all(dir).map_err(|e| {
+        AppError::fm_write(
+            12,
+            format!(
+                "sync-diff summary: cannot create `{}`: {e}. Remediation: fix permissions.",
+                dir.display()
+            ),
+        )
+    })?;
+    let mut body = String::from("# sync diff\n\n");
+    let Some(diff) = diff else {
+        body.push_str("Baseline run: no previous graph-digest ledger, so no diff was \
+                       computed. The ledger written this run is the baseline.\n");
+        std::fs::write(&path, body).map_err(|e| {
+            AppError::fm_write(
+                12,
+                format!(
+                    "sync-diff summary `{}` unwritable: {e}. Remediation: fix permissions.",
+                    path.display()
+                ),
+            )
+        })?;
+        return Ok(());
+    };
+    body.push_str(&format!(
+        "- added subjects: {}\n- removed subjects: {}\n- changed subjects: {}\n",
+        diff.added.len(),
+        diff.removed.len(),
+        diff.changed.len()
+    ));
+    for (label, list) in [
+        ("added", &diff.added),
+        ("removed", &diff.removed),
+        ("changed", &diff.changed),
+    ] {
+        for s in list {
+            body.push_str(&format!("- {label}: `{s}`\n"));
+            if let Some(attr) = diff.per_source.get(s) {
+                body.push_str(&format!("  - source: {attr}\n"));
+            }
+        }
+    }
+    if let Some(note) = &diff.note {
+        body.push_str(&format!("\n> NOTE: {note}\n"));
+    }
+    if diff.added.is_empty() && diff.removed.is_empty() && diff.changed.is_empty() && diff.note.is_none() {
+        body.push_str("\nNo graph terms changed since the previous run.\n");
+    }
+    std::fs::write(&path, body).map_err(|e| {
+        AppError::fm_write(
+            12,
+            format!(
+                "sync-diff summary `{}` unwritable: {e}. Remediation: fix permissions.",
+                path.display()
+            ),
+        )
+    })
+}
+
 /// Which [`ComponentLevels`] axis an admitted external `ver:Check` fact's
 /// stable name (`ver:name`, e.g. `test-workspace`, `clippy-reference-gate`,
 /// `fmt-check`, `build`) feeds. Substring-based on purpose: the verify-pack
@@ -4224,6 +4605,7 @@ pub(crate) fn write_receipt(
         generation: Some(run_generation),
         ea_admission_skipped: ea_admission_skipped
             .then(|| "skipped: --skip-ea-admission (FM-LAW-015 gate not evaluated)".to_string()),
+        graph_diff: report.graph_diff.clone(),
     };
     let payload_bytes = serde_json::to_vec(&payload)?;
     let payload_hash_hex = blake3::hash(&payload_bytes).to_hex().to_string();

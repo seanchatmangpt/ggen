@@ -148,6 +148,11 @@ pub fn handle_graph_validate(
 fn graph_validate_frontmatter(
     root: &std::path::Path, config: &GgenConfig,
 ) -> Result<serde_json::Value> {
+    // Corpus-freshness gate, flag-off path (sync-hardening plan item 1, G12).
+    // Runs BEFORE the ontology read so a stale corpus is refused before the
+    // graph hash is computed from stale bytes.
+    check_corpus_freshness_flag_off(root, config)?;
+
     let ontology_path = root.join(&config.ontology.source);
     let ttl = std::fs::read_to_string(&ontology_path).map_err(|e| {
         exec_err(format!(
@@ -181,6 +186,147 @@ fn graph_validate_frontmatter(
         "hash": hash_hex,
         "templates_checked": templates.len(),
     }))
+}
+
+/// Corpus-freshness gate, flag-off path (sync-hardening plan item 1, G12).
+///
+/// Closes the silent-staleness gap: with `[ontology.aggregate]` absent,
+/// sync's G2 gate ([`crate::sync::enforce_ontology_aggregate`]) is a no-op,
+/// so a per-constituent edit could leave the on-disk corpus stale while
+/// every per-file cardinality gate stayed green. `ggen graph validate`
+/// (the `ggen check` surface) now refuses typed when the on-disk corpus
+/// diverges from the freshly derived aggregate.
+///
+/// Detection (the gate is silent unless the generated-corpus pattern is
+/// detectable — no new gate on hand-authored ontologies):
+///
+/// 1. `[ontology].source` file name is `ontology-corpus.ttl` (the srve
+///    LOCK-RECEIPT generated-corpus name), AND
+/// 2. a top-level `ontology/` directory with at least one `*.ttl` exists.
+///
+/// Constituents are the sorted top-level `ontology/*.ttl` files
+/// (LOCK-RECEIPT concat law: "concatenation of ontology/*.ttl"). Expected
+/// corpus = their concat joined with `\n`, trailing newline ensured — the
+/// exact same deterministic concat law as
+/// [`crate::sync::enforce_ontology_aggregate`]. Fresh iff the on-disk
+/// source bytes equal the expected concat bytes. No marker is consulted or
+/// written on this path: the flag-off gate is read-only.
+///
+/// When `[ontology.aggregate]` IS present, this gate is a no-op — the
+/// flag-on path is `sync.rs`'s (G2 lane owns that surface).
+///
+/// # Errors
+/// Typed refusal `[FM-ONTOLOGY-CHK-001]` naming the stale constituents
+/// (those whose current content no longer appears verbatim in the corpus —
+/// i.e. edited or newly added since the last regen) plus expected-vs-actual
+/// BLAKE3 hashes over the concat law.
+fn check_corpus_freshness_flag_off(
+    root: &std::path::Path, config: &GgenConfig,
+) -> Result<()> {
+    // Flag-on path: sync.rs (G2) owns freshness enforcement.
+    if config.ontology.aggregate.is_some() {
+        return Ok(());
+    }
+
+    // Detection law: generated-corpus name + non-empty top-level ontology dir.
+    if config
+        .ontology
+        .source
+        .file_name()
+        .and_then(|n| n.to_str())
+        != Some("ontology-corpus.ttl")
+    {
+        return Ok(());
+    }
+    let ontology_dir = root.join("ontology");
+    let mut constituents: Vec<std::path::PathBuf> = match std::fs::read_dir(&ontology_dir) {
+        Ok(entries) => entries
+            .filter_map(|entry| entry.ok())
+            .map(|entry| entry.path())
+            .filter(|p| p.is_file() && p.extension().and_then(|e| e.to_str()) == Some("ttl"))
+            .collect(),
+        Err(_) => return Ok(()),
+    };
+    if constituents.is_empty() {
+        return Ok(());
+    }
+    constituents.sort();
+
+    // Deterministic concat (same law as `enforce_ontology_aggregate`).
+    let mut chunks: Vec<(String, String)> = Vec::with_capacity(constituents.len());
+    for path in &constituents {
+        let rel = path
+            .strip_prefix(root)
+            .unwrap_or(path)
+            .display()
+            .to_string();
+        let content = std::fs::read_to_string(path).map_err(|e| {
+            exec_err(format!(
+                "[FM-ONTOLOGY-CHK-002] constituent `{rel}` unreadable at `{}`: {e}. \
+                 Remediation: fix or remove the constituent.",
+                path.display()
+            ))
+        })?;
+        chunks.push((rel, content));
+    }
+    let expected = {
+        let mut concat = chunks
+            .iter()
+            .map(|(_, content)| content.as_str())
+            .collect::<Vec<_>>()
+            .join("\n");
+        if !concat.ends_with('\n') {
+            concat.push('\n');
+        }
+        concat
+    };
+
+    let corpus_path = root.join(&config.ontology.source);
+    let actual = std::fs::read_to_string(&corpus_path).map_err(|e| {
+        exec_err(format!(
+            "[FM-ONTOLOGY-CHK-003] corpus `{}` unreadable: {e}. \
+             Remediation: restore the corpus or regenerate it from ontology/*.ttl.",
+            corpus_path.display()
+        ))
+    })?;
+
+    if actual == expected {
+        return Ok(());
+    }
+
+    // Stale. Name the stale constituents: those whose current content no
+    // longer appears verbatim in the on-disk corpus (edited/added since the
+    // last regen). Trailing-newline-insensitive: the concat law joins with
+    // `\n`, so a constituent's content-with-trailing-newline is what the
+    // corpus carries.
+    let stale: Vec<&str> = chunks
+        .iter()
+        .filter(|(rel, content)| {
+            let mut normalized = content.trim_end_matches('\n').to_string();
+            normalized.push('\n');
+            !actual.contains(normalized.as_str())
+        })
+        .map(|(rel, _)| rel.as_str())
+        .collect();
+    let expected_hash = blake3::hash(expected.as_bytes()).to_hex();
+    let actual_hash = blake3::hash(actual.as_bytes()).to_hex();
+    Err(exec_err(format!(
+        "[FM-ONTOLOGY-CHK-001] corpus `{}` is stale: derived aggregate hash \
+         {expected_hash} diverges from on-disk hash {actual_hash}. \
+         Stale constituents: {}. \
+         Remediation: regenerate the corpus from ontology/*.ttl (sorted concat, \
+         `\\n`-joined, trailing newline) or declare `[ontology.aggregate]` in \
+         `ggen.toml` to let sync own regeneration.",
+        corpus_path.display(),
+        if stale.is_empty() {
+            format!(
+                "(none matched byte-level; whole-corpus divergence — expected \
+                 {expected_hash}, on-disk {actual_hash})"
+            )
+        } else {
+            stale.join(", ")
+        }
+    )))
 }
 
 /// `ggen graph validate` project mode for the declarative-rules
