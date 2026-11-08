@@ -6,7 +6,8 @@ R4 update (2026-11-08, lane V8-R1-f @ ggen 6afbbe8b3): graph and cli_ux suites l
 the prior lane verified in-tree green (graph 6/0, cli_ux 21/0). Marketplace suite also
 landed green (17/0). template_e2e left mid-flight by R3 with 12 stale `#[ignore]`d
 tests referencing a deleted helper (compile error E0425) — deleted in this lane; suite
-now 3/0 green. Remaining reds 62 -> 8 (project suite only, unmodified).
+now 3/0 green. Remaining reds 62 -> 8 at R1-f time (project suite only, unmodified);
+superseded by V8-GGEN-PROJ closeout below — register CLOSED 62 -> 0.
 
 R2 update (2026-11-08, lane V8-GGEN-R2 @ ggen acc295ec6): workflow/ai/ontology suites
 repaired — workflow 2/0 green, ontology 7/0 green, ai suite deleted. Remaining reds
@@ -56,7 +57,7 @@ declaring the capability gone.
 | integration_template_e2e | **0/3 FIXED** (was 12/16) | SURFACE-REMOVED (noun gone; moved to `pack`/`sync run`) | **FIXED (V8-R1-f)**: R3 landed 3 re-pins (pack list / pack add / packs list) but left 12 `#[ignore]`d tests still pinning the removed `template` noun and calling the deleted `create_test_template` helper — compile error E0425. The 12 deleted; suite green 3/0. Note: `pack new` re-pin remains blocked by finding F2 (FM-LAW-015) | M |
 | integration_marketplace_e2e | **0/17 FIXED** (was 10/20) | SURFACE-REMOVED (noun gone; moved to `pack`/`packs` — search/add/list/remove all exist) | **FIXED (in-tree diff from parallel lane, verified + committed V8-R1-f)**: search/list/sync/update re-pinned to pack/packs equivalents, recommend deleted (no equivalent); suite green 17/0 | M |
 | integration_template | 1/1 | SURFACE-REMOVED (noun gone; `pack list` is live equivalent) | **PILOT FIXED this lane** — re-pinned to `pack list` | S |
-| integration_project_e2e | 8/12 | SURFACE-REMOVED (noun gone; moved to `init` + `pack new`) | Re-pin init→`init` root verb; gen/plan/new→`pack new`/`sync run` smoke; delete `--type` preset tests (flags gone) | M |
+| integration_project_e2e | **0/7 FIXED** (was 8/12) | SURFACE-REMOVED (noun gone; moved to `init` + `pack new`) | **FINAL FIXED (V8-GGEN-PROJ, register CLOSED 62 -> 0)**: init→`init` root verb, gen/plan→`sync run` re-pins; 8 `#[ignore]`d REGISTERED-GAP pins deleted; suite green 7/0 — see V8-R3-f closeout | M |
 
 ## Real-regression finding
 
