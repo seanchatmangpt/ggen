@@ -220,22 +220,14 @@ fn graph_validate_frontmatter(
 /// (those whose current content no longer appears verbatim in the corpus —
 /// i.e. edited or newly added since the last regen) plus expected-vs-actual
 /// BLAKE3 hashes over the concat law.
-fn check_corpus_freshness_flag_off(
-    root: &std::path::Path, config: &GgenConfig,
-) -> Result<()> {
+fn check_corpus_freshness_flag_off(root: &std::path::Path, config: &GgenConfig) -> Result<()> {
     // Flag-on path: sync.rs (G2) owns freshness enforcement.
     if config.ontology.aggregate.is_some() {
         return Ok(());
     }
 
     // Detection law: generated-corpus name + non-empty top-level ontology dir.
-    if config
-        .ontology
-        .source
-        .file_name()
-        .and_then(|n| n.to_str())
-        != Some("ontology-corpus.ttl")
-    {
+    if config.ontology.source.file_name().and_then(|n| n.to_str()) != Some("ontology-corpus.ttl") {
         return Ok(());
     }
     let ontology_dir = root.join("ontology");
