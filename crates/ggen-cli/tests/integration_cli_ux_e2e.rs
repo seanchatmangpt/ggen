@@ -97,17 +97,18 @@ fn ggen() -> Command {
 }
 
 #[test]
-#[ignore = "REGISTERED-GAP: pins drifted CLI surface (witnessed 2026-11-08, explicit run: 7/11 RED -- `help-me` subcommand removed, `doctor --verbose` flag removed, help-progressive assertions stale vs v26.11.5 surface); un-ignore only after re-pinning to the current surface"]
 fn test_cli_help_main() {
-    // Chicago TDD: Verify main help output state
+    // Chicago TDD: Verify main help output state.
+    // Re-pinned 2026-11-08 (lane V8-GGEN-R1): template/market/project nouns
+    // removed from the surface; live nouns are pack/sync/doctor/graph.
     ggen()
         .arg("--help")
         .assert()
         .success()
         .stdout(predicate::str::contains("ggen"))
-        .stdout(predicate::str::contains("template"))
-        .stdout(predicate::str::contains("market"))
-        .stdout(predicate::str::contains("project"))
+        .stdout(predicate::str::contains("pack"))
+        .stdout(predicate::str::contains("sync"))
+        .stdout(predicate::str::contains("doctor"))
         .stdout(predicate::str::contains("graph"));
 }
 
@@ -162,70 +163,65 @@ fn test_cli_invalid_flag() {
 }
 
 #[test]
-#[ignore = "REGISTERED-GAP: pins drifted CLI surface (witnessed 2026-11-08, explicit run: 7/11 RED -- `help-me` subcommand removed, `doctor --verbose` flag removed, help-progressive assertions stale vs v26.11.5 surface); un-ignore only after re-pinning to the current surface"]
 fn test_cli_missing_required_arg() {
-    // Chicago TDD: Verify error state for missing arguments
+    // Chicago TDD: Verify error state for missing arguments.
+    // Re-pinned 2026-11-08: `template show` noun removed; `pack add` without
+    // PACK_ID is the live missing-required-arg leg (witnessed clap
+    // "required arguments were not provided" + rc=1).
     ggen()
-        .arg("template")
-        .arg("show")
-        // Missing template name
+        .arg("pack")
+        .arg("add")
         .assert()
         .failure()
         .stderr(predicate::str::contains("required").or(predicate::str::contains("error")));
 }
 
 #[test]
-#[ignore = "REGISTERED-GAP: pins drifted CLI surface (witnessed 2026-11-08, explicit run: 7/11 RED -- `help-me` subcommand removed, `doctor --verbose` flag removed, help-progressive assertions stale vs v26.11.5 surface); un-ignore only after re-pinning to the current surface"]
 fn test_doctor_basic_check() {
-    // Chicago TDD: Verify doctor command runs system checks
-    ggen().arg("doctor").assert().success().stdout(
-        predicate::str::contains("Checking")
-            .or(predicate::str::contains("System"))
-            .or(predicate::str::contains("Prerequisites")),
-    );
-}
-
-#[test]
-#[ignore = "REGISTERED-GAP: pins drifted CLI surface (witnessed 2026-11-08, explicit run: 7/11 RED -- `help-me` subcommand removed, `doctor --verbose` flag removed, help-progressive assertions stale vs v26.11.5 surface); un-ignore only after re-pinning to the current surface"]
-fn test_doctor_verbose_output() {
-    // Chicago TDD: Verify verbose mode provides detailed state
-    ggen().arg("doctor").arg("--verbose").assert().success();
-}
-
-#[test]
-#[ignore = "REGISTERED-GAP: pins drifted CLI surface (witnessed 2026-11-08, explicit run: 7/11 RED -- `help-me` subcommand removed, `doctor --verbose` flag removed, help-progressive assertions stale vs v26.11.5 surface); un-ignore only after re-pinning to the current surface"]
-fn test_help_progressive_basic() {
-    // Chicago TDD: Verify progressive help system
+    // Chicago TDD: Verify doctor command runs system checks.
+    // Re-pinned 2026-11-08: doctor operates on the ggen project in the
+    // current directory and requires a ggen.toml there, so it runs against
+    // the workspace root (real manifest, witnessed rc=0 with
+    // "healthy": true after F1 was fixed in acc295ec6, CLIUX-CWD lane).
+    // A temp-dir manifest is insufficient (FM-CONFIG-001 schema requires the
+    // full ontology block), so the real repo root IS the fixture.
+    let workspace_root = std::path::Path::new(&std::env::var("CARGO_MANIFEST_DIR").unwrap())
+        .ancestors()
+        .nth(2)
+        .expect("workspace root two levels above crates/ggen-cli")
+        .to_path_buf();
     ggen()
-        .arg("help-me")
+        .arg("doctor")
+        .current_dir(&workspace_root)
         .assert()
         .success()
-        .stdout(predicate::str::contains("help").or(predicate::str::contains("Getting started")));
+        .stdout(predicate::str::contains("healthy").or(predicate::str::contains("checks")));
 }
 
-#[test]
-#[ignore = "REGISTERED-GAP: pins drifted CLI surface (witnessed 2026-11-08, explicit run: 7/11 RED -- `help-me` subcommand removed, `doctor --verbose` flag removed, help-progressive assertions stale vs v26.11.5 surface); un-ignore only after re-pinning to the current surface"]
-fn test_help_progressive_with_level() {
-    // Chicago TDD: Verify experience level filtering
-    ggen()
-        .arg("help-me")
-        .arg("--level")
-        .arg("beginner")
-        .assert()
-        .success();
-}
+// DELETED 2026-11-08 (lane V8-GGEN-R1): test_doctor_verbose_output — the
+// `doctor --verbose` flag was removed from the surface (witnessed: clap
+// "unexpected argument '--verbose'", only `doctor run|inspect|domain` remain)
+// with no verbose equivalent to re-pin to. Loud absence registered in
+// docs/jira/v26.11.8/receipts/ggen-e2e-repair-survey.md.
 
 #[test]
-#[ignore = "REGISTERED-GAP: pins drifted CLI surface (witnessed 2026-11-08, explicit run: 7/11 RED -- `help-me` subcommand removed, `doctor --verbose` flag removed, help-progressive assertions stale vs v26.11.5 surface); un-ignore only after re-pinning to the current surface"]
-fn test_help_progressive_topic() {
-    // Chicago TDD: Verify topic-specific help
+fn test_help_progressive_basic() {
+    // Chicago TDD: Verify help entry point.
+    // Re-pinned 2026-11-08: `help-me` progressive-help subcommand removed;
+    // clap's built-in `ggen help` is the live equivalent (rc=0, usage text).
     ggen()
-        .arg("help-me")
-        .arg("--topic")
-        .arg("templates")
+        .arg("help")
         .assert()
-        .success();
+        .success()
+        .stdout(predicate::str::contains("Usage").or(predicate::str::contains("help")));
 }
+
+// DELETED 2026-11-08 (lane V8-GGEN-R1): test_help_progressive_with_level and
+// test_help_progressive_topic — the `help-me --level/--topic`
+// progressive-help filtering capability was removed outright with the
+// `help-me` subcommand; `ggen help` accepts only subcommand names and has no
+// level/topic equivalent to re-pin to. Loud absence registered in
+// docs/jira/v26.11.8/receipts/ggen-e2e-repair-survey.md.
 
 /// Derive the set of top-level nouns from `ggen --help` itself, rather than
 /// hardcoding a list that goes stale every time a noun is added or removed.
@@ -316,27 +312,30 @@ fn test_cli_no_args_shows_help() {
 }
 
 #[test]
-#[ignore = "REGISTERED-GAP: pins drifted CLI surface (witnessed 2026-11-08, explicit run: 7/11 RED -- `help-me` subcommand removed, `doctor --verbose` flag removed, help-progressive assertions stale vs v26.11.5 surface); un-ignore only after re-pinning to the current surface"]
 fn test_cli_subcommand_no_verb() {
-    // Chicago TDD: Verify noun without verb shows help
-    ggen().arg("template").assert().failure().stderr(
-        predicate::str::contains("required")
-            .or(predicate::str::contains("subcommand"))
-            .or(predicate::str::contains("error")),
-    );
+    // Chicago TDD: bare noun behavior.
+    // Re-pinned 2026-11-08: bare nouns on the current surface exit 0 and
+    // print usage/help (witnessed rc=0 for pack/sync/graph/ontology/packs) —
+    // the old premise ("noun without verb fails") is inverted.
+    ggen()
+        .arg("pack")
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("Usage").or(predicate::str::contains("help")));
 }
 
 #[test]
-#[ignore = "REGISTERED-GAP: pins drifted CLI surface (witnessed 2026-11-08, explicit run: 7/11 RED -- `help-me` subcommand removed, `doctor --verbose` flag removed, help-progressive assertions stale vs v26.11.5 surface); un-ignore only after re-pinning to the current surface"]
 fn test_cli_help_shows_examples() {
-    // Chicago TDD: Verify help includes usage examples
-    let output = ggen().arg("template").arg("--help").output().unwrap();
+    // Chicago TDD: Verify help includes available verbs.
+    // Re-pinned 2026-11-08: `template` noun removed; `pack --help` is the
+    // live leg asserting verb names in noun help.
+    let output = ggen().arg("pack").arg("--help").output().unwrap();
 
     let stdout = String::from_utf8_lossy(&output.stdout);
 
     // Help should be comprehensive (contains verb names at minimum)
     assert!(
-        stdout.contains("new") || stdout.contains("list") || stdout.contains("show"),
+        stdout.contains("new") || stdout.contains("list") || stdout.contains("add"),
         "Help should show available verbs"
     );
 }
@@ -401,14 +400,17 @@ fn test_cli_colored_output_flag() {
 }
 
 #[test]
-#[ignore = "REGISTERED-GAP: pins drifted CLI surface (witnessed 2026-11-08, explicit run: 7/11 RED -- `help-me` subcommand removed, `doctor --verbose` flag removed, help-progressive assertions stale vs v26.11.5 surface); un-ignore only after re-pinning to the current surface"]
 fn test_cli_json_output_flag() {
-    // Chicago TDD: Verify JSON output flag is respected
+    // Chicago TDD: Verify JSON output flag is respected.
+    // Re-pinned 2026-11-08: template/market nouns removed; pack legs are the
+    // live JSON surface (`pack list --json` witnessed emitting valid JSON).
     let commands_with_json = vec![
-        vec!["template", "list", "--json"],
-        vec!["market", "list", "--json"],
-        vec!["market", "search", "test", "--json"],
+        vec!["pack", "list", "--json"],
+        vec!["pack", "search", "test", "--json"],
     ];
+    // Note: bare `packs --json` deliberately excluded — bare `packs` prints
+    // help text (rc=0), it does not accept a --json flag; asserting valid
+    // JSON there would pin a non-existent flag.
 
     for args in commands_with_json {
         let output = ggen().args(&args).output().unwrap();
@@ -467,16 +469,30 @@ fn test_cli_performance_help_fast() {
 }
 
 #[test]
-#[ignore = "REGISTERED-GAP: pins drifted CLI surface (witnessed 2026-11-08, explicit run: 7/11 RED -- `help-me` subcommand removed, `doctor --verbose` flag removed, help-progressive assertions stale vs v26.11.5 surface); un-ignore only after re-pinning to the current surface"]
 fn test_cli_doctor_checks_essentials() {
-    // Chicago TDD: Verify doctor checks critical dependencies
-    let output = ggen().arg("doctor").output().unwrap();
+    // Chicago TDD: Verify doctor checks critical dependencies.
+    // Re-pinned 2026-11-08: doctor requires a ggen.toml in cwd, so it runs
+    // against the workspace root (real manifest; F1 fixed in acc295ec6,
+    // CLIUX-CWD lane). The JSON report names its check set and health.
+    let workspace_root = std::path::Path::new(&std::env::var("CARGO_MANIFEST_DIR").unwrap())
+        .ancestors()
+        .nth(2)
+        .expect("workspace root two levels above crates/ggen-cli")
+        .to_path_buf();
+    let output = ggen()
+        .arg("doctor")
+        .current_dir(&workspace_root)
+        .output()
+        .unwrap();
 
     assert!(output.status.success());
 
     let stdout = String::from_utf8_lossy(&output.stdout);
 
-    // Doctor should check for essential components
-    // (exact output depends on implementation)
-    assert!(!stdout.is_empty(), "Doctor should produce output");
+    // Doctor should report its check set and overall health
+    assert!(
+        stdout.contains("checks") || stdout.contains("healthy"),
+        "Doctor should report checks: {}",
+        stdout
+    );
 }
