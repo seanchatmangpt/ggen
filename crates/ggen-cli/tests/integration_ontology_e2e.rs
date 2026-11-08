@@ -122,19 +122,14 @@ ex:name a rdf:Property ;
     ontology_file
 }
 
-/// Helper: scaffold a real ggen project and relax strict_mode so the shipped
-/// example rule (SELECT without ORDER BY) is a warning, not a hard error.
+/// Helper: scaffold a real ggen project. The scaffold's example rule now
+/// carries ORDER BY, so default strict_mode needs no relaxation.
 fn init_project(temp_dir: &TempDir) {
     ggen()
         .arg("init")
         .current_dir(temp_dir.path())
         .assert()
         .success();
-
-    let manifest = temp_dir.path().join("ggen.toml");
-    let mut toml = fs::read_to_string(&manifest).expect("read scaffold ggen.toml");
-    toml.push_str("\n[validation]\nstrict_mode = false\n");
-    fs::write(&manifest, toml).expect("write patched ggen.toml");
 }
 
 // ---------------------------------------------------------------------------
