@@ -96,30 +96,23 @@ fn ggen() -> Command {
 }
 
 /// The scaffold+generation recipe witnessed for the moved surface: fresh
-/// `ggen init`, relax scaffold-vs-strictness (the shipped example rule has a
-/// SELECT without ORDER BY — E0013, strict by default; scaffold-vs-strictness
-/// defect noted in the survey, not fixed here), then `sync run
-/// --skip-ea-admission`. Witnessed rc=0 with `ontology-summary.txt` rendered.
+/// `ggen init` then `sync run`, both unpatched. The scaffold's example rule
+/// now carries ORDER BY determinism and `ea.graph.json` ships with the
+/// scaffold (init.rs E0013/FM-LAW-015 fixes, SCAFFOLD-f), so no
+/// `strict_mode = false` patch and no `--skip-ea-admission` opt-out are
+/// needed. Witnessed rc=0 with `ontology-summary.txt` rendered.
 fn init_scaffold(temp_dir: &TempDir) {
     ggen()
         .arg("init")
         .current_dir(temp_dir.path())
         .assert()
         .success();
-
-    let toml_path = temp_dir.path().join("ggen.toml");
-    let toml = fs::read_to_string(&toml_path).unwrap();
-    fs::write(
-        &toml_path,
-        format!("{toml}\n[validation]\nstrict_mode = false\n"),
-    )
-    .unwrap();
 }
 
 /// Run the generation pipeline over the scaffold. Witnessed rc=0.
 fn sync_run(temp_dir: &TempDir) {
     ggen()
-        .args(["sync", "run", "--skip-ea-admission"])
+        .args(["sync", "run"])
         .current_dir(temp_dir.path())
         .assert()
         .success();

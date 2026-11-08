@@ -1760,15 +1760,25 @@
       },
       "standing": "PASS"
     },
+    "/Users/sac/ggen/docs/jira/v26.11.8/receipts/ggen-e2e-r3f-project.md": {
+      "annotation": "",
+      "key": "Standing",
+      "ok": true,
+      "pin": {
+        "mtime": 1794133409,
+        "sha256": "3aa17b3f67186bb581f9a54fb0c27b841848775eb1a7a2e9bc8565116177aecb"
+      },
+      "standing": "PASS"
+    },
     "/Users/sac/ggen/docs/jira/v26.11.8/receipts/ggen-e2e-repair-survey.md": {
       "annotation": "",
       "key": "Standing",
       "ok": true,
       "pin": {
-        "mtime": 1794133224,
-        "sha256": "a5618b1d72ec9e2b943c971f3133c90e2f1c393878725da4eaa0195771bfa54d"
+        "mtime": 1794133544,
+        "sha256": "cdcd742c138f4ccca052c6c4798428be3f8e27e4f718b58c60a53cc2251f1b67"
       },
-      "standing": "PARTIAL"
+      "standing": "PASS"
     },
     "/Users/sac/ggen/receipts/GALL_CONFORM_001.md": {
       "annotation": "",
