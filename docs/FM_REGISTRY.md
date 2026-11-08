@@ -50,6 +50,7 @@ an emission site, fails the test with the exact codes named.
 | `FM-CHAIN-009` | previous receipt chain recompute failed (legacy log unreadable / `ChainStanding::LegacyV2Unbound`) | inspect `.ggen-v2/receipt-log.jsonl`; repair or archive, never hand-edit receipts | `receipt_chain_differential_test.rs` +2 more |
 | `FM-CHAIN-010` | previous receipt epoch record unreadable | repair the epoch state under `.ggen-v2/`; do not hand-edit receipt files | `none` |
 | `FM-CHAIN-011` | receipt epoch construction failed | fix the wrapped I/O cause (disk space, permissions under `.ggen-v2/`) | `none` |
+| `FM-CHAIN-012` | receipt-log lock contended: another (live) sync holds the exclusive `receipt-log.lock` (create-exclusive; stale-lock takeover only for a dead holder) | let the live sync finish; if no sync is running, remove the stale lockfile under `.ggen-v2/` and re-run | `none` |
 | `FM-CHAIN-014` | receipt chain append failure surfaced through `exec_err` in verb handlers | read the wrapped chain error; verify the receipt log is writable | `receipt_chain_e2e.rs` |
 | `FM-CHAIN-015` | portable envelope: a consequence recorded as landed cannot be read for digest binding | fix the file's permissions (per the in-band remediation text) | `none` |
 | `FM-CHAIN-016` | GALL-001 consequence is missing a string target | repair the GALL-001 receipt so every consequence carries a string target | `gall_checkpoint_001_replay_e2e.rs` |

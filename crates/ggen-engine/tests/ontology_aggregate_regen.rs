@@ -98,11 +98,32 @@ fn stale_corpus_auto_regen_rewrites_deterministically() {
     assert_eq!(read(root, "corpus.ttl"), after_first);
     assert_eq!(read(root, ".ggen-v2/aggregate-freshness"), marker);
 
-    // Both syncs produce identical receipts (determinism ×2 at the receipt
-    // level too — same inputs, same graph, same outputs).
+    // Determinism at the receipt level, same inputs → same outputs.
+    // Substrate drift re-pin (census 461efeb): SyncReport now carries
+    // `graph_diff`, but only the no-op path populates it (the regen path
+    // short-circuits before compute_graph_diff, so report 1 omits the key
+    // while report 2 emits the empty diff). Compare on the deterministic
+    // body; the no-op report's empty graph_diff is asserted separately so
+    // the field itself stays witnessed.
+    let mut v1: serde_json::Value =
+        serde_json::from_str(&serde_json::to_string(&report).expect("serialize report 1"))
+            .expect("parse report 1");
+    let mut v2: serde_json::Value =
+        serde_json::from_str(&serde_json::to_string(&report2).expect("serialize report 2"))
+            .expect("parse report 2");
+    let gd2 = v2.get("graph_diff").cloned();
+    v1.as_object_mut().expect("obj1").remove("graph_diff");
+    v2.as_object_mut().expect("obj2").remove("graph_diff");
     assert_eq!(
-        serde_json::to_string(&report).expect("serialize report 1"),
-        serde_json::to_string(&report2).expect("serialize report 2")
+        v1, v2,
+        "deterministic report body across regen + no-op syncs"
+    );
+    assert_eq!(
+        gd2,
+        Some(serde_json::json!({
+            "added": [], "removed": [], "changed": [], "per_source": {}
+        })),
+        "no-op sync reports an empty graph_diff"
     );
 }
 

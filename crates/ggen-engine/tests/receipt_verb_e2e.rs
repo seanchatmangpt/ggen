@@ -328,9 +328,14 @@ fn resync_after_tamper_produces_verifiable_new_head() {
         .expect("chain hash")
         .to_string();
     assert_ne!(new_chain, first_chain, "chain must advance on re-sync");
+    // Tamper-shape re-pin (census 461efeb): the old "first char != '0'" check
+    // was a hash-value coincidence, not a law — a legitimate chain hash can
+    // begin with '0'. The actual tamper shape is the exact injected value
+    // ("0" + first_chain[1..]); assert the fresh head differs from BOTH the
+    // pre-tamper chain and that injected value.
     assert_ne!(
-        new_chain.chars().next().expect("first char"),
-        '0',
+        new_chain,
+        format!("0{}", &first_chain[1..]),
         "tamper shape gone"
     );
 

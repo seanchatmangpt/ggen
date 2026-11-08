@@ -72,6 +72,13 @@ prod:verb_sync_run a prod:CliVerb ;
     prod:verb "run" ;
     prod:citation "crates/ggen-engine/src/verbs/sync.rs:14" .
 
+# Re-observed 2026-11-08 (completes killed lane V8-GGEN-REDS, census 461efeb):
+# repair-log verb landed post-sweep (e76ba9675 L2 repair-log verb wiring).
+prod:verb_sync_repair_log a prod:CliVerb ;
+    prod:noun "sync" ;
+    prod:verb "repair-log" ;
+    prod:citation "crates/ggen-engine/src/verbs/sync.rs:50" .
+
 # ---------------------------------------------------------------------------
 # Pipeline stages (span-name string literals in crates/ggen-engine/src/sync.rs)
 # ---------------------------------------------------------------------------
@@ -243,6 +250,19 @@ prod:fm_GEN_14 a prod:DiagnosticCode ;
     prod:family "GEN" ;
     prod:number "14"^^xsd:integer ;
     prod:citation "crates/ggen-engine/src/generation_rules.rs:221" .
+
+# Re-observed 2026-11-08 (completes killed lane V8-GGEN-REDS, census 461efeb):
+# GEN-021/GEN-022 = verification-harness emit sites (generation_rules.rs
+# fm_gen(21) x2, fm_gen(22)); citations are the first real call site per
+# product_mirror_conformance.rs scan_real_fm_codes.
+prod:fm_GEN_21 a prod:DiagnosticCode ;
+    prod:family "GEN" ;
+    prod:number "21"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/generation_rules.rs:858" .
+prod:fm_GEN_22 a prod:DiagnosticCode ;
+    prod:family "GEN" ;
+    prod:number "22"^^xsd:integer ;
+    prod:citation "crates/ggen-engine/src/generation_rules.rs:998" .
 
 prod:fm_GRAPH_1 a prod:DiagnosticCode ;
     prod:family "GRAPH" ;
