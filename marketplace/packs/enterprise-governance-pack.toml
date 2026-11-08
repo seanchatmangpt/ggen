@@ -1,0 +1,18 @@
+[pack]
+packages = []
+category = "uncategorized"
+id = "enterprise-governance-pack"
+name = "enterprise-governance-pack"
+version = "26.9.12"
+description = """
+Canonical enterprise-architecture governance vocabulary: a GovernanceRequirement
+satisfied by a Control, a Control evaluated by an AssuranceCheck, and a
+Certification granted only when that AssuranceCheck actually passes.
+Instantiates real individuals for the full chain and refuses
+(gates/010_no_certification_without_passing_assurance.rq) any Certification
+individual not backed by a passing AssuranceCheck of the Control that
+satisfies the certified GovernanceRequirement.
+"""
+
+[capabilities]
+provides = ["urn:ggen:pack:enterprise-governance-pack"]

@@ -1,0 +1,29 @@
+[pack]
+packages = []
+category = "uncategorized"
+id = "strata-pn64-pack"
+name = "strata-pn64-pack"
+version = "0.1.0"
+description = """
+PN64/OCEL64 dual-word ABI for Strata: one Petri-net transition per 64-bit word
+(marking/W-/W+/tid/flags fields) plus the six canonical RONR procedural
+transitions as pre/post place masks. Projects a Rust module of `pub const`
+PRE/POST mask tables — the generated counterpart of the hand-written dispatch
+table (generation over hand-writing per doctrine).
+"""
+[capabilities]
+# requires is empty: scripts/qualify_packs.py qualifies every pack in isolation
+# (single-pack [packs] capsule), so a cross-pack require (the PN64 mask projection frames against the CLAP-PDU protocol types) can never
+# resolve there (FM-PACK-018). The composition relationship is documented in
+# the description and the relationship note below.
+provides = ["urn:ggen:pack:strata-pn64-pack"]
+requires = []
+
+# Relationship note (NOT a pack.toml [dependencies] entry): the PN64 mask-table projection frames against the CLAP-PDU protocol types
+# modeled in packs/strata-protocol-pack (0.1.0), but ggen refuses a
+# [dependencies] entry unless the consumer lists that pack in its own ggen.toml
+# [packs] table (FM-PACK-014), and scripts/qualify_packs.py qualifies every pack
+# in isolation with a single-pack [packs] table -- so a declared dependency
+# could never resolve here. The relationship is documentation-only via
+# [capabilities].requires above. Same precedented remediation as
+# packs/a2a-durability-pack (FM-PACK-014).

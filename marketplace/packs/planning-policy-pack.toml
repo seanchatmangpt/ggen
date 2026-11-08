@@ -1,0 +1,21 @@
+[pack]
+packages = []
+category = "uncategorized"
+id = "planning-policy-pack"
+name = "planning-policy-pack"
+version = "26.9.12"
+description = """
+Canonical vocabulary for world models, roles, PDDL/HDDL/HTN task
+decomposition, FOND (fully observable non-deterministic) policies,
+observations, bounded work selection, validation, replanning, and
+explanations. Instantiates a real World, a real Role, a real HDDL compound
+task decomposed into two or more subtasks, and a real FOND policy mapping
+two or more outcomes of one nondeterministic action to distinct recovery
+branches. Asserts structurally and by gate
+(gates/010_select_is_not_do.rq) that planner/policy output is SELECT, never
+DO: any pp:PlannerOutput individual asserted with pp:hasDOAuthority true is
+refused.
+"""
+
+[capabilities]
+provides = ["urn:ggen:pack:planning-policy-pack"]

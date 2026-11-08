@@ -1,0 +1,10 @@
+[pack]
+packages = []
+category = "uncategorized"
+id = "challenger-sales-cscb"
+name = "challenger-sales-cscb"
+version = "26.8.27"
+description = "Challenger-sales CSCB: BEAM-native hardware profile + run-to-machine telemetry attestation (RFC §2.2). Honesty: attests the run to the machine and session, not to a TPM — hardware-enclave anchoring is Phase 2/3; Rust RDTSC is Phase 2."
+[capabilities]
+provides = ["urn:ggen:pack:challenger-sales-cscb"]
+requires = []

@@ -1,0 +1,26 @@
+[pack]
+packages = []
+category = "uncategorized"
+
+id = "latency-hazard-radar"
+name = "latency-hazard-radar"
+version = "0.1.0"
+description = "Response-latency hazard radar: median (tilde-mu) and MAD estimation over an observation window, Z = (t_elapsed - median)/MAD hazard scoring with typed :insufficient_dispersion MAD=0 refusal, hazard threshold (default 2.5), and triage-prompt event — projected from RDF to an Elixir module."
+owner = "platform-engineering"
+license = "MIT"
+namespace = "urn:latency-hazard-radar:"
+access = "public"
+status = "alpha"
+
+[capabilities]
+provides = [
+  "urn:ggen:pack:latency-hazard-radar",
+  "urn:latency-hazard-radar:hazard-zscore",
+]
+
+[validation]
+gates = [
+  "gates/010_estimator_closure.rq",
+  "gates/020_mad_zero_typed_refusal.rq",
+  "gates/030_threshold_default.rq",
+]

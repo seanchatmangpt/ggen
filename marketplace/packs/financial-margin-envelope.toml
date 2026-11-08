@@ -1,0 +1,20 @@
+[pack]
+packages = []
+category = "uncategorized"
+id = "financial-margin-envelope"
+name = "financial-margin-envelope"
+version = "0.1.0"
+description = """
+RDF/SHACL-governed financial margin-envelope capability: NTE (not-to-exceed),
+subcontractor quote, gross-margin invariant floor (default 0.22), breach events,
+and a typed refusal vocabulary. Generates an ash_pplan-compatible Elixir
+MarginEnvelope module with admit/refuse semantics, fail-closed below floor,
+and a multi-sig escalation gate shape. FIBO-aligned monetary amount concepts.
+"""
+
+[dependencies]
+"praxis-core-pack" = "0.1.0"
+
+[capabilities]
+provides = ["urn:ggen:pack:financial-margin-envelope"]
+requires = []

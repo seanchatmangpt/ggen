@@ -1,0 +1,10 @@
+[pack]
+packages = []
+category = "uncategorized"
+id = "marketplace-governance-pack"
+name = "marketplace-governance-pack"
+version = "26.9.12"
+description = "Canonical marketplace governance vocabulary and admission law for pack consolidation, replacement, and lifecycle transitions -- CanonicalPack/LegacyPack/ReplacementDecision/QualificationReceipt individuals plus a gate enforcing that a LegacyPack may only be marked lifecycle-eligible once retained coverage is complete, its replacement is independently qualified, replay is verified, and no active consumers remain."
+
+[capabilities]
+provides = ["urn:ggen:pack:marketplace-governance-pack"]

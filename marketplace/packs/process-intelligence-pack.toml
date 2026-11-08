@@ -1,0 +1,27 @@
+[pack]
+packages = []
+category = "uncategorized"
+id = "process-intelligence-pack"
+name = "process-intelligence-pack"
+version = "26.9.13"
+description = """
+Canonical vocabulary and worked example for event/object observation, process
+models, conformance checking, lifecycle reconstruction, and drift analysis.
+Instantiates real individuals for an Event, an Object, a ProcessModel derived
+from two or more Events, a ConformanceCheck comparing observed Events against
+the model, and a Drift individual when the observed behavior diverges from
+the model. Refuses (gates/010_conformance_requires_compared_event.rq) any
+ConformanceCheck asserted as pi:conformant without at least one pi:comparesEvent
+link to a real pi:Event.
+
+26.9.13 adds the OCEL 2.0 event tap: pi:EventType/ObjectType/Qualifier/MappingRule/
+EventSource/ChainPolicy individuals render, for ts/py/rs/ex, a source adapter, type
+registry, event-tap mapper, OCEL 2.0 JSON serializer and a hash chain (sha256 default,
+blake2b256 where the language stdlib has it). Gates 020-080 refuse unqualified e2o
+relations, open e2o closure, duplicate ids, unmapped runtime events without a reason,
+malformed sources, hash algorithms a targeted language lacks, and banned domain literals
+in templates/. queries/compare-loops.rq compares two consumer graphs (UNVERIFIED).
+"""
+
+[capabilities]
+provides = ["urn:ggen:pack:process-intelligence-pack"]

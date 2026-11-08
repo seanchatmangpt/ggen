@@ -1,0 +1,27 @@
+[pack]
+packages = []
+category = "uncategorized"
+
+id = "strata-protocol-pack"
+name = "strata-protocol-pack"
+version = "0.1.0"
+description = "CLAP/1.0 PDU frame constants, receipt and refusal wire classes for the Strata sovereign execution runtime, projected from RDF to a Rust constant module."
+owner = "platform-engineering"
+license = "MIT"
+namespace = "https://strata.chatman.ai/ontology#"
+access = "public"
+status = "alpha"
+
+[capabilities]
+provides = [
+  "urn:ggen:pack:strata-protocol-pack",
+  "urn:strata:protocol:clap-pdu-v1",
+  "urn:strata:protocol:refusal-receipt",
+]
+
+[validation]
+gates = [
+  "gates/010_header_layout.rq",
+  "gates/020_refusal_receipt_len.rq",
+  "gates/030_refusal_taxonomy_closure.rq",
+]
