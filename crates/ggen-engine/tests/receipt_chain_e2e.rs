@@ -856,8 +856,99 @@ fn legacy_unsigned_receipt_still_chain_verifies_with_signed_false() {
 // detection on its v2 payload. Real syncs, real files, real CLI -- no mocks.
 // ---------------------------------------------------------------------------
 
-fn committed_tcps_ggen_v2() -> std::path::PathBuf {
-    Path::new(env!("CARGO_MANIFEST_DIR")).join("../../examples/tcps-generated/.ggen-v2")
+/// Deterministically rebuild a pre-F1 legacy chain fixture into
+/// `root/.ggen-v2/` (`receipt.json` head + `receipt-log.jsonl`, 66 records).
+///
+/// Replaces the formerly-committed `examples/tcps-generated/.ggen-v2/` bytes
+/// (ZD-135: the log is gitignored because reflexive syncs append a new
+/// receipt per run, so a committed log can never be byte-idempotent — fresh
+/// checkouts legitimately lack it). Each record is the exact pre-F1 shape
+/// the old committed fixture carried: base-rule sealed with no declaration,
+/// v2 epoch payload present (so the head verifies as `LegacyV2Unbound` and a
+/// later sync caps its standing), payload hash bound to the exact raw line
+/// bytes the FM-CHAIN-013 verifier probes. The BLAKE3 chain is recomputed
+/// through the real seam; every field is fixed (seeded, no wall clock), so
+/// the fixture is byte-stable run to run.
+fn write_legacy_tcps_fixture(root: &Path) {
+    use ggen_engine::receipt_chain_seam::epoch::{
+        AndonLevel, CeilingLevel, ComponentLevels, ReceiptEpochV2Builder, SCHEMA_V2,
+    };
+    use ggen_engine::receipt_chain_seam::{ChainRule, ReceiptRecord, RECEIPT_RECORD_VERSION};
+    use ggen_engine::sync::{ReceiptPayload, SyncReceipt};
+    use std::collections::BTreeMap;
+
+    const FIXTURE_LEN: usize = 66;
+
+    let mut prev = "0".repeat(64);
+    let mut lines: Vec<String> = Vec::with_capacity(FIXTURE_LEN);
+    for i in 0..FIXTURE_LEN {
+        // Payload first: its raw serialized bytes feed the record's
+        // `payload_hash_hex`, and the raw substring is exactly what the
+        // FM-CHAIN-013 verifier probes out of the stored line.
+        let payload = ReceiptPayload {
+            graph_hash: format!("legacy-fixture-graph-{i:04}"),
+            outputs: BTreeMap::new(),
+            packs: BTreeMap::new(),
+            decisions: BTreeMap::new(),
+            closure: BTreeMap::new(),
+            build_provenance: None,
+            generation: Some(i as u64 + 1),
+            ea_admission_skipped: None,
+            graph_diff: None,
+        };
+        let payload_str = serde_json::to_string(&payload).expect("payload serializes");
+
+        let epoch = ReceiptEpochV2Builder::new(
+            CeilingLevel::Green,
+            ComponentLevels::uniform(AndonLevel::Green),
+        )
+        .build()
+        .expect("epoch builds");
+
+        let mut record = ReceiptRecord {
+            version: RECEIPT_RECORD_VERSION,
+            instruction_id: i as u64 + 1,
+            activity_idx: u16::try_from(i % 64).expect("index fits u16"),
+            activity: Some(format!("legacy-fixture-{i:04}")),
+            node_kind: 1,
+            ts_ns: 1_000_000_000 + i as u64,
+            duration_ms: None,
+            origin: None,
+            payload_hash_hex: blake3::hash(payload_str.as_bytes()).to_hex().to_string(),
+            prev_chain_hash_hex: prev.clone(),
+            chain_hash_hex: String::new(),
+            andon: ggen_engine::receipt_chain_seam::Andon::Green,
+            obligation_count: 1,
+            object_ids: vec![format!("law:{:016x}", i as u64)],
+            signature_hex: None,
+            schema: SCHEMA_V2.to_string(),
+            v2: Some(epoch),
+            chain_rule: None,
+        };
+        // Pre-F1 shape: base-rule sealed, declaration stripped.
+        let chain = record
+            .recompute_chain_hash_under(ChainRule::Base)
+            .expect("base recompute");
+        record.chain_hash_hex = hex::encode(chain);
+
+        // The line's raw payload substring must byte-match the hash above:
+        // assemble the line from the same serialized payload bytes.
+        let record_str = serde_json::to_string(&record).expect("record serializes");
+        let line = format!("{{\"record\":{record_str},\"payload\":{payload_str}}}");
+        lines.push(line);
+        prev = record.chain_hash_hex;
+    }
+
+    std::fs::create_dir_all(root.join(".ggen-v2")).expect("mkdir .ggen-v2");
+    std::fs::write(root.join(RECEIPT_LOG_REL_PATH), lines.join("\n") + "\n")
+        .expect("write fixture log");
+    let head: SyncReceipt =
+        serde_json::from_str(lines.last().expect("non-empty")).expect("head parses");
+    std::fs::write(
+        root.join(RECEIPT_REL_PATH),
+        serde_json::to_string(&head).expect("head serializes"),
+    )
+    .expect("write fixture head");
 }
 
 fn sync_now(root: &Path) -> Result<(), String> {
@@ -930,18 +1021,21 @@ fn tail_record(root: &Path) -> ggen_engine::receipt_chain_seam::ReceiptRecord {
     read_log(root).pop().expect("non-empty log").record
 }
 
-/// The committed examples/tcps-generated chain (66 records, pre-F1) replays
-/// under rule-aware verification: every link holds, and its head recomputes
-/// to its stored `chain_hash_hex` (under the base rule that sealed it).
+/// The deterministic pre-F1 fixture (66 records, the shape the committed
+/// tcps-generated chain carried) replays under rule-aware verification:
+/// every link holds, and its head recomputes to its stored `chain_hash_hex`
+/// (under the base rule that sealed it).
 #[test]
 fn committed_tcps_generated_head_recomputes_to_its_stored_chain_hash() {
     use ggen_engine::receipt_chain_seam::{ChainRule, ChainStanding, ChainVerification};
 
-    let dir = committed_tcps_ggen_v2();
+    let dir = TempDir::new().expect("tempdir");
+    write_legacy_tcps_fixture(dir.path());
     let head: SyncReceipt = serde_json::from_str(
-        &std::fs::read_to_string(dir.join("receipt.json")).expect("read committed head"),
+        &std::fs::read_to_string(dir.path().join(".ggen-v2/receipt.json"))
+            .expect("read generated head"),
     )
-    .expect("parse committed head");
+    .expect("parse generated head");
     assert_eq!(
         hex::encode(
             head.record
@@ -956,7 +1050,8 @@ fn committed_tcps_generated_head_recomputes_to_its_stored_chain_hash() {
         ChainVerification::Verified(ChainStanding::LegacyV2Unbound)
     );
 
-    let raw = std::fs::read_to_string(dir.join("receipt-log.jsonl")).expect("read committed log");
+    let raw = std::fs::read_to_string(dir.path().join(".ggen-v2/receipt-log.jsonl"))
+        .expect("read generated log");
     let log: Vec<SyncReceipt> = raw
         .lines()
         .filter(|l| !l.trim().is_empty())
@@ -989,11 +1084,7 @@ fn sync_extends_the_committed_tcps_generated_chain_with_capped_standing() {
 
     let dir = TempDir::new().expect("tempdir");
     scaffold(dir.path(), &["alice"]);
-    let src = committed_tcps_ggen_v2();
-    std::fs::create_dir_all(dir.path().join(".ggen-v2")).expect("mkdir .ggen-v2");
-    for name in ["receipt.json", "receipt-log.jsonl"] {
-        std::fs::copy(src.join(name), dir.path().join(".ggen-v2").join(name)).expect("copy");
-    }
+    write_legacy_tcps_fixture(dir.path());
     let committed_head = tail_record(dir.path());
 
     sync_now(dir.path()).expect("sync must extend the legacy tcps chain (was FM-CHAIN-009)");
