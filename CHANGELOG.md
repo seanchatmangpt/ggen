@@ -5,6 +5,28 @@ All notable changes to ggen will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [26.11.5] - 2026-11-07
+
+### Added
+- **KD-G18: idempotent receipt-log fence** — duplicate receipt-log lines
+  are now suppressed at write time; the fence is courted (anti-vacuity
+  mutation proves the gate refuses a real duplicate) and field-motivated
+  (witnessed duplicate-line growth in the receipt log).
+
+### Changed
+- **Consumer note**: consumers appending to the receipt log will observe
+  suppressed duplicate lines — a log that previously accumulated exact
+  duplicate entries now records each receipt once. Downstream parsers
+  keyed on line counts should read content, not counts.
+
+### Deferred
+- **Corpus regen is NOT in this release** — deferred to 26.12.0 per the
+  release-plan risk note (too much surface change for a patch release).
+
+### Internal
+- Workspace version bump 26.11.4 → 26.11.5 (`version.workspace = true`;
+  `ggen-engine` follows via workspace inheritance).
+
 ## [26.11.3] - 2026-11-03
 
 ### Added

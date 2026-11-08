@@ -271,6 +271,47 @@ status rather than vocabulary drift.
 
 ---
 
+## Gate 4 — Aggregate-Freshness (Corpus-Staleness)
+
+### Problem (witnessed instance)
+
+- **srve consumer wave (v26.11.7)**: per-file cardinality gates stayed green
+  while the aggregate ontology corpus went silently stale — the corpus check
+  reads corpus + constituent TTLs jointly, so any per-file gate that only
+  counts its own inputs never observes aggregate drift.
+
+### Gate shape
+
+The aggregate artifact (`ontology-corpus.ttl` or any generated aggregate)
+must carry a freshness marker derived from its constituents (content hash
+of the TTL set, minted at regen). Sync/generation either:
+
+1. verifies the marker against the current constituent hashes and
+   refuses on mismatch (fail-closed), or
+2. auto-regenerates the aggregate from constituents (projection, never
+   hand-edit).
+
+Per-file gates that read the aggregate do not prove freshness — freshness
+is a property of the (aggregate, constituents) pair, so only a joint
+marker check can carry the bit.
+
+### Enforcement point
+
+Sync-time gate (`ggen sync run` pre-step or CI job): recompute the
+constituent hash, compare to the aggregate's marker, exit 1 with the
+offending aggregate on mismatch.
+
+### Effort
+
+S: hash-of-constituents marker at regen + compare at sync.
+
+### Would have prevented
+
+The srve silent-corpus-staleness class: green per-file cardinality gates
+over a stale aggregate.
+
+---
+
 ## SEED rows for v26.11.5
 
 | id | spec | enforcement point | effort |
@@ -278,3 +319,4 @@ status rather than vocabulary drift.
 | S-11 | lane-registry.json + pre-commit lane-lease hook + slot map | pre-commit hook | S-M |
 | S-12 | index-disclosure hook + attribution footer | pre-commit + prepare-commit-msg | S |
 | S-13 | receipt_lint.py vocabulary + census standing-map extension | CI job (`just lint-receipts`) | S |
+| S-14 | aggregate-freshness gate (see Gate 4; srve v26.11.7 evidence) | sync-time gate / CI job | S |
