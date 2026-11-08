@@ -12,16 +12,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   are now suppressed at write time; the fence is courted (anti-vacuity
   mutation proves the gate refuses a real duplicate) and field-motivated
   (witnessed duplicate-line growth in the receipt log).
+- **Corpus regen aggregate-freshness gate (S-14)** — `sync` now detects a
+  stale `ontology-corpus.ttl` and regenerates it deterministically before
+  projection, replacing the manual corpus-regen step; gated by
+  `VerificationHarnessConfig` in the manifest schema (`aggregate` field).
+  Landed with a 5-test verification harness
+  (`tests/ontology_aggregate_regen.rs`); was previously deferred to
+  26.12.0, included here because the implementation is tested and green.
 
 ### Changed
 - **Consumer note**: consumers appending to the receipt log will observe
   suppressed duplicate lines — a log that previously accumulated exact
   duplicate entries now records each receipt once. Downstream parsers
   keyed on line counts should read content, not counts.
-
-### Deferred
-- **Corpus regen is NOT in this release** — deferred to 26.12.0 per the
-  release-plan risk note (too much surface change for a patch release).
 
 ### Internal
 - Workspace version bump 26.11.4 → 26.11.5 (`version.workspace = true`;

@@ -40,7 +40,7 @@ use serde::{Deserialize, Serialize};
 use tera::Value;
 
 use crate::{
-    config::GgenConfig,
+    config::{GgenConfig, OntologyAggregate},
     error::{AppError, Result},
     generation_rules::duration_ms,
     graph::{
@@ -515,6 +515,14 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
     );
     let load_guard = load_span.enter();
 
+    // ── Stage 1a: [ontology.aggregate] freshness enforcement ────────────
+    // Runs BEFORE the ontology is read: the aggregate output is commonly
+    // the `[ontology].source` itself (srve consumer precedent: the
+    // ontology-corpus is a generated concat of constituent TTLs), so a
+    // regeneration must land on disk before Stage 1 admits the graph.
+    let _aggregate_enforced =
+        enforce_ontology_aggregate(root, config.ontology.aggregate.as_ref(), opts.dry_run)?;
+
     let ontology_path = root.join(&config.ontology.source);
     let (ontology_label, ttl) = read_ontology_file(root, &ontology_path)?;
     let graph: Arc<dyn GraphEngine> = new_graph_engine(opts.engine)?;
@@ -682,6 +690,25 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
         for (declared, extra_path) in &pack.extra_ontology_paths {
             closure.insert(declared.clone(), hash_file_or_missing(extra_path));
         }
+    }
+    // G2 sync-hardening item 1: when `[ontology.aggregate]` is declared, the
+    // constituents (and the freshness marker this stage just wrote) join the
+    // input closure — they determine the aggregate, which determines (or is)
+    // the ontology, so a constituent edit without a marker refresh must be
+    // visible in the next receipt's closure instead of silently narrowing it.
+    if let Some(agg) = &config.ontology.aggregate {
+        for constituent in &agg.constituents {
+            let path = root.join(constituent);
+            closure.insert(
+                rel_display(root, &path),
+                hash_file_or_missing(&path),
+            );
+        }
+        let marker_path = root.join(AGGREGATE_MARKER_REL);
+        closure.insert(
+            AGGREGATE_MARKER_REL.to_string(),
+            hash_file_or_missing(&marker_path),
+        );
     }
     for (tpl_path, tpl) in &templates {
         closure.insert(rel_display(root, tpl_path), hash_file_or_missing(tpl_path));
@@ -2542,6 +2569,169 @@ pub(crate) fn hash_file_or_missing(path: &Path) -> String {
         Ok(bytes) => blake3::hash(&bytes).to_hex().to_string(),
         Err(_) => "MISSING".to_string(),
     }
+}
+
+/// Root-relative freshness marker path for `[ontology.aggregate]` — records
+/// the BLAKE3 hex of the sorted-constituent freshness hash as of the last
+/// successful (re)generation, so the next sync can detect constituent drift
+/// without re-hashing the whole corpus twice per run.
+pub(crate) const AGGREGATE_MARKER_REL: &str = ".ggen-v2/aggregate-freshness";
+
+/// What [`enforce_ontology_aggregate`] did this run.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) struct AggregateOutcome {
+    /// Whether the aggregate output was (re)written from constituents.
+    pub regenerated: bool,
+}
+
+/// Enforce `[ontology.aggregate]` freshness (sync-hardening plan item 1, G2).
+///
+/// Absent section → `Ok(None)`, byte-identical legacy behavior (no reads
+/// beyond the section check, no marker, no writes). Present section:
+///
+/// 1. Freshness hash = BLAKE3 over each constituent's
+///    sorted-rel-path + NUL + content + NUL, in sorted rel-path order.
+/// 2. Fresh when the output file exists, its bytes equal the deterministic
+///    concat of the constituents, AND the marker file equals the hash.
+/// 3. Stale: `auto_regen = false` (the default) → typed refusal
+///    `[FM-ONTOLOGY-AGG-001]` (write-expansion risk per plan — a sync must
+///    never silently rewrite a governed corpus). `auto_regen = true` →
+///    regenerate the concat, refresh the marker, then continue.
+/// 4. `dry_run` never writes: a stale-but-auto_regen run reports the
+///    regeneration it WOULD perform and proceeds reading the on-disk
+///    (stale) corpus, keeping the read-only invariant the MCP dry-run
+///    path depends on.
+///
+/// The `srve` consumer precedent: `ontology-corpus.ttl` is a generated
+/// concat of constituent TTLs (LOCK-RECEIPT concat shape), regenerated
+/// after content changes; this makes the engine own that freshness law.
+pub(crate) fn enforce_ontology_aggregate(
+    root: &Path,
+    aggregate: Option<&OntologyAggregate>,
+    dry_run: bool,
+) -> Result<Option<AggregateOutcome>> {
+    let Some(agg) = aggregate else {
+        return Ok(None);
+    };
+    if agg.constituents.is_empty() {
+        return Err(AppError::fm_config(
+            14,
+            "[FM-ONTOLOGY-AGG-002] `[ontology.aggregate]` declares no constituents. \
+             Remediation: list at least one constituent file or drop the section."
+                .to_string(),
+        ));
+    }
+
+    // Deterministic freshness hash + deterministic concat, both over the
+    // constituents in sorted rel-path order (LOCK-RECEIPT concat precedent).
+    let mut parts: Vec<(String, String)> = Vec::with_capacity(agg.constituents.len());
+    for constituent in &agg.constituents {
+        let rel = constituent.to_string_lossy().to_string();
+        let path = root.join(constituent);
+        let content = std::fs::read_to_string(&path).map_err(|e| {
+            AppError::fm_config(
+                14,
+                format!(
+                    "[FM-ONTOLOGY-AGG-003] constituent `{rel}` unreadable at `{}`: {e}. \
+                     Remediation: fix or remove the constituent.",
+                    path.display()
+                ),
+            )
+        })?;
+        parts.push((rel, content));
+    }
+    parts.sort_by(|a, b| a.0.cmp(&b.0));
+
+    let mut hasher = blake3::Hasher::new();
+    for (rel, content) in &parts {
+        hasher.update(rel.as_bytes());
+        hasher.update(&[0u8]);
+        hasher.update(content.as_bytes());
+        hasher.update(&[0u8]);
+    }
+    let freshness = hasher.finalize().to_hex().to_string();
+    let mut concat = parts
+        .iter()
+        .map(|(_, content)| content.as_str())
+        .collect::<Vec<_>>()
+        .join("\n");
+    if !concat.ends_with('\n') {
+        concat.push('\n');
+    }
+
+    let output_path = root.join(&agg.output);
+    let marker_path = root.join(AGGREGATE_MARKER_REL);
+    let on_disk = std::fs::read_to_string(&output_path).ok();
+    let marker = std::fs::read_to_string(&marker_path).ok();
+    let fresh = on_disk.as_deref() == Some(concat.as_str())
+        && marker.as_deref() == Some(freshness.as_str());
+
+    if fresh {
+        return Ok(Some(AggregateOutcome { regenerated: false }));
+    }
+
+    if !agg.auto_regen {
+        // Default: refuse typed, never expand writes silently.
+        return Err(AppError::fm_config(
+            14,
+            format!(
+                "[FM-ONTOLOGY-AGG-001] aggregate corpus `{}` is stale: constituents \
+                 hash {freshness} but the marker ({AGGREGATE_MARKER_REL}) does not match \
+                 (or the output bytes diverge from the constituent concat). \
+                 Remediation: run `ggen sync run` with `[ontology.aggregate] \
+                 auto_regen = true` once to regenerate, or regenerate the corpus \
+                 manually and re-sync.",
+                agg.output.display()
+            ),
+        ));
+    }
+
+    if dry_run {
+        // Read-only invariant: report the write the real run WOULD make and
+        // continue against the on-disk (stale) corpus.
+        tracing::info!(
+            aggregate.output = %agg.output.display(),
+            "dry_run: aggregate corpus stale; auto_regen would rewrite it"
+        );
+        return Ok(Some(AggregateOutcome { regenerated: false }));
+    }
+
+    crate::write::ensure_parent(&output_path)?;
+    std::fs::write(&output_path, concat.as_bytes()).map_err(|e| {
+        AppError::fm_config(
+            14,
+            format!(
+                "[FM-ONTOLOGY-AGG-004] failed to write aggregate output `{}`: {e}",
+                output_path.display()
+            ),
+        )
+    })?;
+    if let Some(parent) = marker_path.parent() {
+        std::fs::create_dir_all(parent).map_err(|e| {
+            AppError::fm_config(
+                14,
+                format!(
+                    "[FM-ONTOLOGY-AGG-004] failed to create marker dir `{}`: {e}",
+                    parent.display()
+                ),
+            )
+        })?;
+    }
+    std::fs::write(&marker_path, &freshness).map_err(|e| {
+        AppError::fm_config(
+            14,
+            format!(
+                "[FM-ONTOLOGY-AGG-004] failed to write freshness marker `{}`: {e}",
+                marker_path.display()
+            ),
+        )
+    })?;
+    tracing::info!(
+        aggregate.output = %output_path.display(),
+        aggregate.constituents = parts.len(),
+        "aggregate corpus regenerated from constituents"
+    );
+    Ok(Some(AggregateOutcome { regenerated: true }))
 }
 
 /// The outcome of [`extract_query_results`] when the `when:` guard (if any)

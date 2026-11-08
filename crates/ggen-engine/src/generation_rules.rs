@@ -839,6 +839,60 @@ pub(crate) fn run(root: &Path, manifest: &GgenManifest, opts: SyncOptions) -> Re
         }
     }
 
+    // ── Verification harness (sync-hardening item 4) ─────────────────────
+    //
+    // Opt-in via `[generation.verification_harness]`. Emits
+    // `.ggen-v2/verify/{tsconfig.verify.json,verify.mjs}` whose path aliases
+    // are derived from THIS manifest's own `[[generation.rules]]`
+    // `output_file` layout — never guessed. Absent flag = nothing emitted,
+    // byte-identical sync. Dry-run runs no harness write, matching the rule
+    // writes above (planned outputs still surface through `decisions` in a
+    // follow-up if needed; here absence-of-write is the disclosed default).
+    if !opts.dry_run {
+        if let Some(harness) = &manifest.generation.verification_harness {
+            let harness_files = render_verification_harness(manifest, harness)?;
+            for (rel, body) in &harness_files {
+                let abs = root.join(rel);
+                if let Some(parent) = abs.parent() {
+                    std::fs::create_dir_all(parent).map_err(|e| {
+                        AppError::fm_gen(
+                            21,
+                            format!(
+                                "verification harness: cannot create {}: {e}. \
+                                 Remediation: check filesystem permissions under the \
+                                 project root.",
+                                parent.display()
+                            ),
+                        )
+                    })?;
+                }
+                std::fs::write(&abs, body).map_err(|e| {
+                    AppError::fm_gen(
+                        21,
+                        format!(
+                            "verification harness: cannot write {}: {e}. \
+                             Remediation: check filesystem permissions under the \
+                             project root.",
+                            abs.display()
+                        ),
+                    )
+                })?;
+                decisions.insert(rel.clone(), "written".to_string());
+                written.push(PathBuf::from(rel));
+                closure.insert(
+                    rel.clone(),
+                    blake3::hash(body.as_bytes()).to_hex().to_string(),
+                );
+            }
+            closure.insert(
+                "templates/verification-harness.tera.tmpl".to_string(),
+                blake3::hash(VERIFICATION_HARNESS_TEMPLATE.as_bytes())
+                    .to_hex()
+                    .to_string(),
+            );
+        }
+    }
+
     drop(emit_guard);
     emit_span.record("pipeline.duration_ms", duration_ms(emit_start.elapsed()));
     emit_span.record("pipeline.files_generated", written.len() as u64);
@@ -899,6 +953,111 @@ fn join_output_dir(output_dir: &Path, rel_to: &str) -> String {
         return rel_to.to_string();
     }
     output_dir.join(rel_to).to_string_lossy().into_owned()
+}
+
+// ---------------------------------------------------------------------------
+// Verification harness (sync-hardening item 4) — opt-in via
+// `[generation.verification_harness]`
+// ---------------------------------------------------------------------------
+
+/// Built-in verification-harness template, compiled into the binary so a
+/// consumer sync never depends on the ggen checkout's `templates/` dir.
+const VERIFICATION_HARNESS_TEMPLATE: &str =
+    include_str!("../../../templates/verification-harness.tera.tmpl");
+
+/// Render + write `.ggen-v2/verify/{tsconfig.verify.json,verify.mjs}` for an
+/// opt-in `[generation.verification_harness]` manifest. Returns the
+/// (root-relative path, body) pairs actually rendered. TypeScript path
+/// aliases are derived from THIS manifest's own `[[generation.rules]]`
+/// `output_file` layout — never guessed — via [`harness_path_aliases`].
+fn render_verification_harness(
+    manifest: &GgenManifest,
+    harness: &ggen_config::manifest::VerificationHarnessConfig,
+) -> Result<Vec<(String, String)>> {
+    let aliases = harness_path_aliases(manifest);
+    let peers: Vec<String> = harness.peers.clone();
+    // Tera `for` loops cannot destructure tuples — serialize each alias as
+    // an object with `name`/`target` keys instead.
+    let alias_objs: Vec<serde_json::Value> = aliases
+        .iter()
+        .map(|(name, target)| {
+            serde_json::json!({ "name": name, "target": target })
+        })
+        .collect();
+    let mut files = Vec::with_capacity(2);
+    for part in ["tsconfig", "verify_mjs"] {
+        let mut ctx = tera::Context::new();
+        ctx.insert("part", part);
+        ctx.insert("actuator", concat!("ggen@", env!("CARGO_PKG_VERSION")));
+        ctx.insert("aliases", &alias_objs);
+        ctx.insert("peers", &peers);
+        let body = tera::Tera::one_off(
+            VERIFICATION_HARNESS_TEMPLATE,
+            &ctx,
+            false,
+        )
+        .map_err(|e| {
+            AppError::fm_gen(
+                22,
+                format!(
+                    "verification harness template render failed ({part}): {e}. \
+                     Remediation: report this as a ggen bug — the built-in template \
+                     must always render."
+                ),
+            )
+        })?;
+        let rel = match part {
+            "tsconfig" => ".ggen-v2/verify/tsconfig.verify.json",
+            _ => ".ggen-v2/verify/verify.mjs",
+        };
+        files.push((rel.to_string(), body));
+    }
+    Ok(files)
+}
+
+/// Derive TypeScript `paths` aliases from the manifest's own
+/// `[[generation.rules]]` `output_file` layout: for every rule whose output
+/// is a `.ts`/`.tsx` file, the rule's output directory (after
+/// `generation.output_dir` joining) becomes one alias —
+/// `<dir components joined by '_'>` -> `"./<dir>"`. Static prefix before the
+/// first `{{` in a per-row `output_file` pattern is used; `output_dir` is
+/// applied with the same [`join_output_dir`] convention the rule writes
+/// actually use, so an alias never points where rules do not write.
+/// Deterministic (sorted, deduped); rules with no derivable `.ts` output
+/// contribute nothing.
+fn harness_path_aliases(manifest: &GgenManifest) -> Vec<(String, String)> {
+    use std::collections::BTreeSet;
+    let mut dirs: BTreeSet<String> = BTreeSet::new();
+    for rule in &manifest.generation.rules {
+        let static_prefix = rule
+            .output_file
+            .split("{{")
+            .next()
+            .unwrap_or(&rule.output_file)
+            .to_string();
+        let joined = join_output_dir(&manifest.generation.output_dir, &static_prefix);
+        let path = Path::new(&joined);
+        let is_ts = path
+            .extension()
+            .map(|e| e == "ts" || e == "tsx")
+            .unwrap_or(false);
+        if !is_ts {
+            continue;
+        }
+        let dir = match path.parent() {
+            Some(d) if !d.as_os_str().is_empty() && d != Path::new(".") => {
+                d.to_string_lossy().into_owned()
+            }
+            _ => continue,
+        };
+        dirs.insert(dir);
+    }
+    dirs.into_iter()
+        .map(|dir| {
+            let name = dir.split(['/', '\\']).collect::<Vec<_>>().join("_");
+            (format!("@generated/{name}"), format!("./{dir}"))
+        })
+        .collect()
 }
 
 /// Resolve `pack_name` (as referenced by a rule's `QuerySource::Pack` /
@@ -1613,5 +1772,95 @@ mod rule_kinds_tests {
         let dir = tempfile::TempDir::new().unwrap();
         let out = resolve_rule_sources(dir.path(), &[]).unwrap();
         assert!(out.is_empty());
+    }
+}
+
+#[cfg(test)]
+#[allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic
+)] // Chicago TDD test module
+mod verification_harness_tests {
+    use crate::sync::{sync, SyncOptions};
+    use tempfile::TempDir;
+
+    const ONTOLOGY: &str = r#"
+@prefix ex: <http://example.org/> .
+ex:alice ex:name "alice" .
+"#;
+
+    fn write_project(dir: &std::path::Path, generation_body: &str) {
+        let manifest = format!(
+            "[project]\nname = \"gendemo\"\nversion = \"0.1.0\"\n\n[ontology]\nsource = \"ontology.ttl\"\n\n{generation_body}"
+        );
+        std::fs::write(dir.join("ggen.toml"), manifest).unwrap();
+        std::fs::write(dir.join("ontology.ttl"), ONTOLOGY).unwrap();
+    }
+
+    /// Flag ON: a manifest with a `.ts` generation rule plus
+    /// `[generation.verification_harness]` renders BOTH harness files into
+    /// `.ggen-v2/verify/`, with path aliases derived from the manifest's own
+    /// `output_file` layout (`src/types/names.ts` -> `@generated/src_types`
+    /// -> `./src/types`) — not guessed.
+    #[test]
+    fn flag_on_renders_harness_files_with_manifest_derived_aliases() {
+        let dir = TempDir::new().unwrap();
+        write_project(
+            dir.path(),
+            "[[generation.rules]]\nname = \"types\"\nquery = { inline = \"SELECT ?name WHERE { ?s <http://example.org/name> ?name } ORDER BY ?name\" }\ntemplate = { inline = \"export const names = [\\\"{{ row.name }}\\\"];\" }\noutput_file = \"src/types/names.ts\"\n\n[generation.verification_harness]\npeers = [\"xstate\"]\n",
+        );
+
+        let report = sync(
+            dir.path(),
+            SyncOptions {
+                skip_ea_admission: true,
+                ..Default::default()
+            },
+        )
+        .unwrap();
+
+        let verify_dir = dir.path().join(".ggen-v2/verify");
+        let tsconfig = std::fs::read_to_string(verify_dir.join("tsconfig.verify.json")).unwrap();
+        let verify_mjs = std::fs::read_to_string(verify_dir.join("verify.mjs")).unwrap();
+        assert!(
+            tsconfig.contains("\"@generated/src_types\": [\"./src/types\"]"),
+            "tsconfig must carry the manifest-derived alias, got: {tsconfig}"
+        );
+        assert!(tsconfig.contains("\"./src/types/**/*\""));
+        assert!(verify_mjs.contains("npx tsc -p tsconfig.verify.json"));
+        assert!(verify_mjs.contains("xstate"));
+        // Both harness files must be receipt-visible writes.
+        assert!(report
+            .written
+            .contains(&std::path::PathBuf::from(".ggen-v2/verify/tsconfig.verify.json")));
+        assert!(report
+            .written
+            .contains(&std::path::PathBuf::from(".ggen-v2/verify/verify.mjs")));
+        // Aliases must be derivable ONLY from the manifest's own layout.
+        assert!(!tsconfig.contains("guess"));
+    }
+
+    /// Flag OFF (section absent): nothing under `.ggen-v2/verify/` is
+    /// created, and the sync is otherwise byte-identical in outcome.
+    #[test]
+    fn flag_off_emits_nothing() {
+        let dir = TempDir::new().unwrap();
+        write_project(
+            dir.path(),
+            "[[generation.rules]]\nname = \"types\"\nquery = { inline = \"SELECT ?name WHERE { ?s <http://example.org/name> ?name } ORDER BY ?name\" }\ntemplate = { inline = \"export const names = [];\" }\noutput_file = \"src/types/names.ts\"\n",
+        );
+
+        let report = sync(
+            dir.path(),
+            SyncOptions {
+                skip_ea_admission: true,
+                ..Default::default()
+            },
+        )
+        .unwrap();
+
+        assert!(!dir.path().join(".ggen-v2/verify").exists());
+        assert_eq!(report.written.len(), 1); // only the rule output
     }
 }

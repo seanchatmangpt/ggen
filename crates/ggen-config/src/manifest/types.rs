@@ -376,6 +376,32 @@ pub struct OntologyConfig {
     /// Use standard ontologies only
     #[serde(default)]
     pub standard_only: Option<bool>,
+
+    /// `[ontology.aggregate]` — optional aggregate-corpus regeneration
+    /// section (sync-hardening plan item 1, G2). Declared here so the
+    /// DeclarativeRules schema (`GgenManifest`) can carry the same section
+    /// the engine's frontmatter schema (`ggen_engine::config::Ontology`)
+    /// enforces at sync time; absent = byte-identical legacy behavior.
+    #[serde(default)]
+    pub aggregate: Option<AggregateConfig>,
+}
+
+/// `[ontology.aggregate]` — aggregate-corpus declaration. `output` is a
+/// deterministic sorted concat of `constituents`; `auto_regen` opts into
+/// regeneration on staleness (default `false` = refuse-on-stale). Mirrors
+/// `ggen_engine::config::OntologyAggregate` (the engine-side type that owns
+/// the enforcement behavior).
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[serde(deny_unknown_fields)]
+pub struct AggregateConfig {
+    /// Aggregate output path, relative to the manifest root.
+    pub output: PathBuf,
+    /// Constituent files, relative to the manifest root.
+    #[serde(default)]
+    pub constituents: Vec<PathBuf>,
+    /// Opt-in regeneration on staleness (default `false` = typed refusal).
+    #[serde(default)]
+    pub auto_regen: bool,
 }
 
 /// Inference configuration section
@@ -460,6 +486,31 @@ pub struct GenerationConfig {
     /// LLM model identifier
     #[serde(default)]
     pub llm_model: Option<String>,
+
+    /// `[generation.verification_harness]` — sync-hardening item 4: opt-in
+    /// emission of a `.ggen-v2/verify/` verification harness
+    /// (`tsconfig.verify.json` + `verify.mjs`) whose TypeScript path aliases
+    /// are derived from this manifest's own `[[generation.rules]]`
+    /// `output_file` layout. Absent section = nothing emitted (default).
+    #[serde(default)]
+    pub verification_harness: Option<VerificationHarnessConfig>,
+}
+
+/// `[generation.verification_harness]` — shape of the opt-in verification
+/// harness emitted at sync time (see [`GenerationConfig`]'s field doc).
+///
+/// Distinct from `[ontology.aggregate]` (a different section; the two never
+/// share fields). All fields optional; the section's mere presence enables
+/// emission.
+#[derive(Debug, Clone, Serialize, Deserialize, Default, PartialEq, Eq, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct VerificationHarnessConfig {
+    /// Declared runtime peer packages the harness may target (e.g.
+    /// `["xstate"]`). Only a peer explicitly listed here is exercised by
+    /// the emitted `verify.mjs` — nothing is assumed about the consumer's
+    /// `node_modules`. Default: empty (typecheck-only harness).
+    #[serde(default)]
+    pub peers: Vec<String>,
 }
 
 /// A single generation rule
@@ -707,6 +758,7 @@ impl Default for OntologyConfig {
             base_iri: None,
             prefixes: BTreeMap::new(),
             standard_only: None,
+            aggregate: None,
         }
     }
 }
@@ -722,6 +774,7 @@ impl Default for GenerationConfig {
             enable_llm: false,
             llm_model: None,
             llm_provider: None,
+            verification_harness: None,
         }
     }
 }

@@ -319,4 +319,4 @@ over a stale aggregate.
 | S-11 | lane-registry.json + pre-commit lane-lease hook + slot map | pre-commit hook | S-M |
 | S-12 | index-disclosure hook + attribution footer | pre-commit + prepare-commit-msg | S |
 | S-13 | receipt_lint.py vocabulary + census standing-map extension | CI job (`just lint-receipts`) | S |
-| S-14 | aggregate-freshness gate (see Gate 4; srve v26.11.7 evidence) | sync-time gate / CI job | S |
+| S-14 | aggregate-freshness gate (Gate 4; srve v26.11.7 evidence) | sync gate / CI | S |

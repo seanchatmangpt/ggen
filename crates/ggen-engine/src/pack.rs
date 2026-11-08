@@ -1841,6 +1841,7 @@ version = "v2"
                 source: PathBuf::from("ontology.ttl"),
                 imports: Vec::new(),
                 prefixes: std::collections::BTreeMap::new(),
+                aggregate: None,
             },
             packs: std::collections::BTreeMap::from([(
                 "widget-pack".to_string(),

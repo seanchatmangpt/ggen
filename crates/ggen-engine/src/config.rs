@@ -120,6 +120,35 @@ pub struct Ontology {
     /// Prefix → namespace IRI map.
     #[serde(default)]
     pub prefixes: BTreeMap<String, String>,
+    /// `[ontology.aggregate]` — optional aggregate-corpus regeneration
+    /// section. Absent = byte-identical legacy behavior (no freshness
+    /// enforcement, no writes). Present = sync refuses on a stale aggregate
+    /// unless `auto_regen = true` opts into deterministic regeneration.
+    /// Behavior lives in `crate::sync::enforce_ontology_aggregate`.
+    #[serde(default)]
+    pub aggregate: Option<OntologyAggregate>,
+}
+
+/// `[ontology.aggregate]` — flag-gated aggregate corpus regeneration
+/// (sync-hardening plan item 1, G2 lane). `output` is regenerated as a
+/// deterministic sorted concat of `constituents` (LOCK-RECEIPT precedent)
+/// when the freshness marker (`.ggen-v2/aggregate-freshness`, BLAKE3 over
+/// sorted constituent rel-path+content pairs) is missing or stale.
+/// Default `auto_regen = false`: a stale aggregate is a typed refusal
+/// (`[FM-ONTOLOGY-AGG-001]`), never a silent write expansion.
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct OntologyAggregate {
+    /// Aggregate output path, relative to the manifest root. Commonly the
+    /// `[ontology].source` itself (the corpus file consumed at Stage 1).
+    pub output: PathBuf,
+    /// Constituent ontology files, relative to the manifest root. The
+    /// aggregate is their concat in sorted-rel-path order.
+    pub constituents: Vec<PathBuf>,
+    /// Opt-in regeneration. `false` (default) = refuse-on-stale (typed);
+    /// `true` = regenerate deterministically before the ontology is read.
+    #[serde(default)]
+    pub auto_regen: bool,
 }
 
 /// A pack source reference: either a local path or a git coordinate.
