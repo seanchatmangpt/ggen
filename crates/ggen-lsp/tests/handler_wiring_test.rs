@@ -45,9 +45,7 @@ impl LspClient {
             .stdout(Stdio::piped())
             .stderr(Stdio::null())
             .spawn()
-            .unwrap_or_else(|e| {
-                panic!("spawn {}: {e}", bin.display())
-            });
+            .unwrap_or_else(|e| panic!("spawn {}: {e}", bin.display()));
         let stdin = child.stdin.take().expect("child stdin");
         let stdout = child.stdout.take().expect("child stdout");
         let (tx, rx) = mpsc::channel();

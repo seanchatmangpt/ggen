@@ -416,7 +416,8 @@ mod fm_code_extraction_tests {
         let refusal = err
             .kernel_refusal()
             .unwrap_or_else(|| panic!("AbbRefusal carries a kernel refusal"));
-        let v = serde_json::to_value(refusal).unwrap_or_else(|err| panic!("refusal serializes: {err}"));
+        let v =
+            serde_json::to_value(refusal).unwrap_or_else(|err| panic!("refusal serializes: {err}"));
         assert_eq!(v["refusal"], "INSUFFICIENT_AUTHORITY");
         // Authority's serde shape is owned by ggen-abb-sbb; assert only
         // that the structured field survives alongside the tag.

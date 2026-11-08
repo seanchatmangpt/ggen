@@ -293,7 +293,7 @@ fn check_corpus_freshness_flag_off(root: &std::path::Path, config: &GgenConfig) 
     // corpus carries.
     let stale: Vec<&str> = chunks
         .iter()
-        .filter(|(rel, content)| {
+        .filter(|(_rel, content)| {
             let mut normalized = content.trim_end_matches('\n').to_string();
             normalized.push('\n');
             !actual.contains(normalized.as_str())
@@ -1564,4 +1564,13 @@ pub fn handle_law_export() -> Result<serde_json::Value> {
         "graph_hash": crate::sync::hex32(&hash),
         "ntriples": ntriples,
     }))
+}
+
+/// HAND-EDITED (lane L2, G11 sequenced item 3, 2026-11-07): handler for
+/// `ggen sync repair-log` — explicit torn-tail recovery over the project
+/// root, reporting what was truncated.
+pub fn handle_sync_repair_log() -> Result<serde_json::Value> {
+    let root = project_root()?;
+    let repair = crate::sync::repair_receipt_log(&root).map_err(exec_err)?;
+    serde_json::to_value(repair).map_err(exec_err)
 }

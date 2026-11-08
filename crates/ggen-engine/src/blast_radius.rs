@@ -301,7 +301,8 @@ fn b3(parts: &[&str]) -> String {
 }
 
 fn plan_digest(plan: &WritePlan) -> String {
-    let canonical = serde_json::to_string(plan).unwrap_or_else(|err| panic!("plan serializes: {err}"));
+    let canonical =
+        serde_json::to_string(plan).unwrap_or_else(|err| panic!("plan serializes: {err}"));
     b3(&[&canonical])
 }
 

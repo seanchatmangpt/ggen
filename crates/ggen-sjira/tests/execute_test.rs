@@ -339,8 +339,13 @@ fn rerun_is_idempotent_already_recorded() {
     let graph = auth_graph(&[AUTH_A]);
 
     let oa = input("OA", AUTH_A);
-    let first =
-        run(std::slice::from_ref(&oa), &ledger, &graph, &ExecuteOpts::default()).expect("first run executes");
+    let first = run(
+        std::slice::from_ref(&oa),
+        &ledger,
+        &graph,
+        &ExecuteOpts::default(),
+    )
+    .expect("first run executes");
     assert_eq!(first.plans.len(), 1);
 
     // Second run: OA is already PARTIAL_ALIVE on disk, so the frontier is

@@ -17,7 +17,7 @@
 
 pub const ML_DSA_65_SIGNATURE_LEN: usize = 3309;
 pub const ML_DSA_65_VERIFYING_KEY_LEN: usize = 1952;
-pub const ML_DSA_65_SIGNING_SEED_LEN:  usize = 32;
+pub const ML_DSA_65_SIGNING_SEED_LEN: usize = 32;
 
 use ml_dsa::{Keypair, MlDsa65, Seed, SignatureEncoding, SigningKey, VerifyingKey};
 
@@ -37,12 +37,7 @@ pub fn sign(sk: &SigningKey<MlDsa65>, msg: &[u8], context: &[u8]) -> Vec<u8> {
 
 /// Verify `msg` + `context` against encoded signature bytes under `pk`.
 /// Returns false on any malformed signature encoding.
-pub fn verify(
-    pk: &VerifyingKey<MlDsa65>,
-    msg: &[u8],
-    context: &[u8],
-    sig_bytes: &[u8],
-) -> bool {
+pub fn verify(pk: &VerifyingKey<MlDsa65>, msg: &[u8], context: &[u8], sig_bytes: &[u8]) -> bool {
     let sig = match ml_dsa::Signature::<MlDsa65>::try_from(sig_bytes) {
         Ok(sig) => sig,
         Err(_) => return false,

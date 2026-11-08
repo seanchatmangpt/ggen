@@ -196,13 +196,11 @@ impl ReceiptManager {
             output_hashes,
             None, // Genesis receipt (no previous)
         )
-        .sign(
-            self.signing_key.as_ref().ok_or_else(|| {
-                crate::utils::error::Error::new(
-                    "signing_key must be initialized before generating receipt",
-                )
-            })?,
-        )
+        .sign(self.signing_key.as_ref().ok_or_else(|| {
+            crate::utils::error::Error::new(
+                "signing_key must be initialized before generating receipt",
+            )
+        })?)
         .map_err(|e| crate::utils::error::Error::new(&format!("Failed to sign receipt: {e}")))?;
 
         // Write receipt to file
@@ -350,13 +348,11 @@ impl ReceiptManager {
             output_hashes,
             None, // Genesis receipt (no previous)
         )
-        .sign(
-            self.signing_key.as_ref().ok_or_else(|| {
-                crate::utils::error::Error::new(
-                    "signing_key must be initialized before generating receipt",
-                )
-            })?,
-        )
+        .sign(self.signing_key.as_ref().ok_or_else(|| {
+            crate::utils::error::Error::new(
+                "signing_key must be initialized before generating receipt",
+            )
+        })?)
         .map_err(|e| crate::utils::error::Error::new(&format!("Failed to sign receipt: {e}")))?;
 
         // Write receipt to file

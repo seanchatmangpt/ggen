@@ -100,9 +100,7 @@ fn lib_structs(text: &str) -> (BTreeMap<String, Vec<String>>, Vec<String>) {
 type StructFields = BTreeMap<String, Vec<String>>;
 type ShapeMap = BTreeMap<String, (String, Vec<String>)>;
 
-fn shacl_shapes(
-    text: &str,
-) -> (ShapeMap, StructFields) {
+fn shacl_shapes(text: &str) -> (ShapeMap, StructFields) {
     let mut shapes = BTreeMap::new();
     let mut foreign = BTreeMap::new();
     let lines: Vec<&str> = text.lines().collect();
@@ -141,9 +139,7 @@ fn shacl_shapes(
 
 /// The parity predicate, factored so the anti-vacuity arm can run it
 /// against a mutated scratch copy.
-fn parity(
-    lib: &str, shacl: &str,
-) -> Result<(StructFields, ShapeMap), String> {
+fn parity(lib: &str, shacl: &str) -> Result<(StructFields, ShapeMap), String> {
     // SLA minimal-unblock (r80-03 lane): return type aligned with
     // shacl_shapes' (target, props) tuple map; owning lane supersedes.
     let (structs, tuple) = lib_structs(lib);
@@ -291,9 +287,10 @@ fn scip_ontology_vocabulary_declares_terms() {
     let mut uncommented = Vec::new();
     for block in vocab.split("\nscip:") {
         if (block.contains(" a rdf:Property") || block.contains(" a rdfs:Class"))
-            && !block.contains("rdfs:comment") {
-                uncommented.push(block.lines().next().unwrap_or("").to_string());
-            }
+            && !block.contains("rdfs:comment")
+        {
+            uncommented.push(block.lines().next().unwrap_or("").to_string());
+        }
     }
     assert!(
         uncommented.is_empty(),

@@ -363,7 +363,10 @@ fn vc_dominates_law() {
     assert!(!vc_dominates(&a, &e)); // equal modulo missing-zero
     assert!(vc_dominates(&a, &d));
     // Missing replica counts as 0.
-    assert!(!vc_dominates(&vc(&[("r1", 2)]), &vc(&[("r1", 2), ("r2", 0)])));
+    assert!(!vc_dominates(
+        &vc(&[("r1", 2)]),
+        &vc(&[("r1", 2), ("r2", 0)])
+    ));
 }
 
 #[test]

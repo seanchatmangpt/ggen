@@ -39,3 +39,15 @@ fn sync_run(
     }
     Ok(report)
 }
+
+// HAND-EDITED (lane L2, receipt-log hardening G11 sequenced item 3,
+// 2026-11-07): explicit recovery verb for a torn receipt-log tail — same
+// hand-edit-below-generated-routing precedent as `sync_run` above. Reapply
+// if `mode = Overwrite` regeneration rewrites this file.
+/// Repair a torn tail in `.ggen-v2/receipt-log.jsonl`: truncate to the last
+/// valid record, append a repair marker, fsync. Fail-closed default is
+/// refusal — recovery runs only when this verb is invoked explicitly.
+#[clap_noun_verb_macros::verb("repair-log")]
+fn sync_repair_log() -> Result<serde_json::Value> {
+    crate::verbs::handlers::handle_sync_repair_log()
+}

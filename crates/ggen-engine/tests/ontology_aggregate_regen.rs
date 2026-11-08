@@ -36,7 +36,9 @@ ex:stale ex:name "stale" .
 "#;
 
 fn aggregate_section(auto_regen: Option<bool>) -> String {
-    let flag = auto_regen.map(|b| format!("\nauto_regen = {b}")).unwrap_or_default();
+    let flag = auto_regen
+        .map(|b| format!("\nauto_regen = {b}"))
+        .unwrap_or_default();
     format!(
         "[ontology.aggregate]\noutput = \"corpus.ttl\"\nconstituents = [\"parts/b.ttl\", \"parts/a.ttl\"]{flag}\n"
     )
@@ -69,7 +71,14 @@ fn stale_corpus_auto_regen_rewrites_deterministically() {
     // must be the SORTED concat, byte-identical across two runs.
     let expected = format!("{CONSTITUENT_A}\n{CONSTITUENT_B}");
 
-    let report = sync(root, SyncOptions { skip_ea_admission: true, ..SyncOptions::default() }).expect("regen sync succeeds");
+    let report = sync(
+        root,
+        SyncOptions {
+            skip_ea_admission: true,
+            ..SyncOptions::default()
+        },
+    )
+    .expect("regen sync succeeds");
     assert_eq!(read(root, "corpus.ttl"), expected);
     let after_first = read(root, "corpus.ttl");
 
@@ -78,7 +87,14 @@ fn stale_corpus_auto_regen_rewrites_deterministically() {
     assert!(!marker.trim().is_empty());
 
     // Second run: corpus is now fresh → no-op, byte-identical.
-    let report2 = sync(root, SyncOptions { skip_ea_admission: true, ..SyncOptions::default() }).expect("second sync succeeds");
+    let report2 = sync(
+        root,
+        SyncOptions {
+            skip_ea_admission: true,
+            ..SyncOptions::default()
+        },
+    )
+    .expect("second sync succeeds");
     assert_eq!(read(root, "corpus.ttl"), after_first);
     assert_eq!(read(root, ".ggen-v2/aggregate-freshness"), marker);
 
@@ -96,13 +112,23 @@ fn stale_corpus_default_refuses_typed_and_leaves_output_untouched() {
     let root = dir.path();
     scaffold(root, STALE_CORPUS, Some(&aggregate_section(None)));
 
-    let err = sync(root, SyncOptions { skip_ea_admission: true, ..SyncOptions::default() }).expect_err("must refuse");
+    let err = sync(
+        root,
+        SyncOptions {
+            skip_ea_admission: true,
+            ..SyncOptions::default()
+        },
+    )
+    .expect_err("must refuse");
     let msg = err.to_string();
     assert!(
         msg.contains("[FM-ONTOLOGY-AGG-001]"),
         "expected typed refusal, got: {msg}"
     );
-    assert!(msg.contains("corpus.ttl"), "refusal must name the corpus: {msg}");
+    assert!(
+        msg.contains("corpus.ttl"),
+        "refusal must name the corpus: {msg}"
+    );
 
     // Write-expansion fence: nothing was rewritten.
     assert_eq!(read(root, "corpus.ttl"), STALE_CORPUS);
@@ -118,7 +144,14 @@ fn absent_section_is_a_noop_on_stale_corpus() {
     let root = dir.path();
     scaffold(root, STALE_CORPUS, None);
 
-    let report = sync(root, SyncOptions { skip_ea_admission: true, ..SyncOptions::default() }).expect("sync succeeds");
+    let report = sync(
+        root,
+        SyncOptions {
+            skip_ea_admission: true,
+            ..SyncOptions::default()
+        },
+    )
+    .expect("sync succeeds");
     assert_eq!(read(root, "corpus.ttl"), STALE_CORPUS);
     assert!(
         !root.join(".ggen-v2/aggregate-freshness").exists(),
@@ -133,12 +166,26 @@ fn fresh_corpus_marker_match_skips_regen() {
     let root = dir.path();
     // First sync regenerates and stamps the marker.
     scaffold(root, STALE_CORPUS, Some(&aggregate_section(Some(true))));
-    sync(root, SyncOptions { skip_ea_admission: true, ..SyncOptions::default() }).expect("first sync");
+    sync(
+        root,
+        SyncOptions {
+            skip_ea_admission: true,
+            ..SyncOptions::default()
+        },
+    )
+    .expect("first sync");
     let corpus_after_regen = read(root, "corpus.ttl");
 
     // Second sync with the SAME constituents: fresh → nothing rewritten
     // (mtime/content unchanged), and no refusal.
-    sync(root, SyncOptions { skip_ea_admission: true, ..SyncOptions::default() }).expect("second sync on fresh corpus");
+    sync(
+        root,
+        SyncOptions {
+            skip_ea_admission: true,
+            ..SyncOptions::default()
+        },
+    )
+    .expect("second sync on fresh corpus");
     assert_eq!(read(root, "corpus.ttl"), corpus_after_regen);
 }
 
@@ -153,7 +200,14 @@ fn empty_constituents_is_a_typed_refusal() {
     std::fs::create_dir_all(root.join("templates")).expect("mkdir templates");
     std::fs::write(root.join("corpus.ttl"), STALE_CORPUS).expect("write corpus.ttl");
 
-    let err = sync(root, SyncOptions { skip_ea_admission: true, ..SyncOptions::default() }).expect_err("must refuse");
+    let err = sync(
+        root,
+        SyncOptions {
+            skip_ea_admission: true,
+            ..SyncOptions::default()
+        },
+    )
+    .expect_err("must refuse");
     assert!(
         err.to_string().contains("[FM-ONTOLOGY-AGG-002]"),
         "expected typed empty-constituents refusal, got: {err}"

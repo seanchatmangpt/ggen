@@ -8,9 +8,7 @@
 //! Chicago discipline: assert on real derived state against the embedded
 //! referent; no mocks.
 
-use ggen_dsa::{
-    sign, signing_key_from_seed, verify, verifying_key_bytes, verifying_key_from_seed,
-};
+use ggen_dsa::{sign, signing_key_from_seed, verify, verifying_key_bytes, verifying_key_from_seed};
 
 /// Seed of the published example key: bytes 0x00, 0x01, ... 0x1f.
 fn kat_seed() -> [u8; 32] {

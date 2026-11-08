@@ -255,7 +255,10 @@ impl ProgressReporter {
 
     /// Get current progress state
     pub fn get_state(&self) -> ProgressState {
-        self.progress.lock().unwrap_or_else(|e| e.into_inner()).clone()
+        self.progress
+            .lock()
+            .unwrap_or_else(|e| e.into_inner())
+            .clone()
     }
 
     /// Set total number of steps

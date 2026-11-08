@@ -205,7 +205,6 @@ pub struct DescriptorOpts<'a> {
     pub court_map: Option<Value>,
 }
 
-
 /// The graph-identity values carried through every projection
 /// (`identity/1`, line 102).
 pub fn identity(descriptor: &Value) -> Value {
@@ -319,10 +318,8 @@ fn validate_court_map(raw: &Value, order: &Value) -> Result<(), DescriptorRefusa
     let acceptance = obj.get("acceptance");
     let falsifiers = obj.get("falsifiers");
     let courts = obj.get("courts");
-    let empty_acceptance =
-        acceptance.is_none_or(|v| v.as_object().is_none_or(|m| m.is_empty()));
-    let empty_falsifiers =
-        falsifiers.is_none_or(|v| v.as_object().is_none_or(|m| m.is_empty()));
+    let empty_acceptance = acceptance.is_none_or(|v| v.as_object().is_none_or(|m| m.is_empty()));
+    let empty_falsifiers = falsifiers.is_none_or(|v| v.as_object().is_none_or(|m| m.is_empty()));
     let empty_courts = courts.is_none_or(|v| v.as_array().is_none_or(|a| a.is_empty()));
     if empty_acceptance && empty_falsifiers && empty_courts {
         return Err(DescriptorRefusal::CourtMapRefused(CourtMapRefusal::Empty));
@@ -359,8 +356,7 @@ fn validate_court_map(raw: &Value, order: &Value) -> Result<(), DescriptorRefusa
                     ));
                 }
             }
-        } else if !allowed.is_none_or(|v| v.is_null()) && !allowed.is_none_or(Value::is_object)
-        {
+        } else if !allowed.is_none_or(|v| v.is_null()) && !allowed.is_none_or(Value::is_object) {
             return Err(DescriptorRefusal::CourtMapRefused(
                 CourtMapRefusal::InvalidGroup(group.to_string()),
             ));

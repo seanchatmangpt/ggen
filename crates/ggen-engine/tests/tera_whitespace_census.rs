@@ -121,13 +121,10 @@ fn classify_content(content: &str) -> Classification {
 /// `pub(crate)`, so this integration test replicates the byte-relevant
 /// registration sequence rather than calling it.
 fn render_lenient_style(
-    name: &str,
-    content: &str,
-    ctx: &serde_json::Value,
+    name: &str, content: &str, ctx: &serde_json::Value,
 ) -> Result<String, String> {
     let mut tera = Tera::default();
-    let tpl = tera::Template::new(name, None, content)
-        .map_err(|e| format!("parse: {e}"))?;
+    let tpl = tera::Template::new(name, None, content).map_err(|e| format!("parse: {e}"))?;
     tera.templates.insert(name.to_string(), tpl);
     tera.build_inheritance_chains()
         .map_err(|e| format!("inheritance: {e}"))?;
@@ -174,7 +171,10 @@ fn census_expression_tag_dash_population_is_receipted() {
             .collect();
         counts.insert(label.clone(), (files.len(), expr_files.len()));
         for f in &expr_files {
-            findings.push(format!("{label}/{}", f.strip_prefix(&root).unwrap().display()));
+            findings.push(format!(
+                "{label}/{}",
+                f.strip_prefix(&root).unwrap().display()
+            ));
         }
     }
 
@@ -208,9 +208,8 @@ fn census_expression_tag_dash_population_is_receipted() {
     }
 
     // Non-vacuity, leg A: the poisoned fixture must be flagged by the classifier.
-    let fixture = ggen_root().join(
-        "crates/ggen-engine/tests/fixtures/templates/newline-law-poisoned.tmpl",
-    );
+    let fixture =
+        ggen_root().join("crates/ggen-engine/tests/fixtures/templates/newline-law-poisoned.tmpl");
     let cls = classify_content(&std::fs::read_to_string(&fixture).expect("fixture readable"));
     assert!(
         cls.expr_tag_dashes >= 1,
@@ -221,9 +220,8 @@ fn census_expression_tag_dash_population_is_receipted() {
 
 #[test]
 fn poisoned_fixture_renders_with_no_newline_after_interpolation() {
-    let fixture = ggen_root().join(
-        "crates/ggen-engine/tests/fixtures/templates/newline-law-poisoned.tmpl",
-    );
+    let fixture =
+        ggen_root().join("crates/ggen-engine/tests/fixtures/templates/newline-law-poisoned.tmpl");
     let content = std::fs::read_to_string(&fixture).expect("fixture readable");
 
     let out = render_lenient_style(
@@ -252,7 +250,10 @@ fn poisoned_fixture_renders_with_no_newline_after_interpolation() {
     // this gate can actually flip. If law-held output ever equals law-broken
     // output, the gate is vacuous (a zero-finding run on the poisoned fixture
     // is a gate bug).
-    assert_ne!("XNEXT", "X\nNEXT", "GATE BUG: law-held and law-broken bytes are identical — gate cannot flip");
+    assert_ne!(
+        "XNEXT", "X\nNEXT",
+        "GATE BUG: law-held and law-broken bytes are identical — gate cannot flip"
+    );
     assert!(
         law_honored,
         "newline law BROKEN on poisoned fixture \
@@ -311,7 +312,10 @@ fn grammar_law_is_textually_grounded_in_both_engine_versions() {
                 l.display()
             );
         }
-        Some(l) => println!("  DEFERRED: tera 2.4.0 registry source not extracted at {}", l.display()),
+        Some(l) => println!(
+            "  DEFERRED: tera 2.4.0 registry source not extracted at {}",
+            l.display()
+        ),
         None => println!("  DEFERRED: tera 2.4.0 registry source not under registry src"),
     }
 
@@ -321,9 +325,8 @@ fn grammar_law_is_textually_grounded_in_both_engine_versions() {
     // expression-tag `-}}` files render under BOTH engine versions and the
     // rendered bytes must agree — if a future Tera bump drifted the whitespace
     // law, this diff flips the gate.
-    let fixture = ggen_root().join(
-        "crates/ggen-engine/tests/fixtures/templates/newline-law-poisoned.tmpl",
-    );
+    let fixture =
+        ggen_root().join("crates/ggen-engine/tests/fixtures/templates/newline-law-poisoned.tmpl");
     let mut subjects: Vec<(String, String)> = vec![(
         "fixture/newline-law-poisoned.tmpl".to_string(),
         std::fs::read_to_string(&fixture).expect("poisoned fixture readable"),
@@ -409,7 +412,9 @@ fn strip_frontmatter(content: &str) -> String {
 /// discipline: it runs `Template::new` per file, inserts into the instance, and
 /// finalizes inheritance chains (`tera.rs:790-805`, registry source), so the
 /// byte-relevant sequence is identical.
-fn render_lenient_style_v2(name: &str, content: &str, ctx: &serde_json::Value) -> Result<String, String> {
+fn render_lenient_style_v2(
+    name: &str, content: &str, ctx: &serde_json::Value,
+) -> Result<String, String> {
     let mut tera = tera2::Tera::default();
     tera.add_raw_template(name, content)
         .map_err(|e| format!("parse: {e}"))?;
