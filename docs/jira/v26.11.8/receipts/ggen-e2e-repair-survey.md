@@ -1,6 +1,6 @@
 # ggen e2e Repair Survey (V8-GGEN-E2E-SURVEY)
 
-Standing: PARTIAL_ALIVE
+Standing: PARTIAL
 
 R4 update (2026-11-08, lane V8-R1-f @ ggen 6afbbe8b3): graph and cli_ux suites landed by
 the prior lane verified in-tree green (graph 6/0, cli_ux 21/0). Marketplace suite also
@@ -122,6 +122,30 @@ ontology) = 30, all classified in the per-suite table above.
 - Pilot suite green: `cargo test -p ggen-cli-lib --test integration_template` — see command receipt below.
 - Lib regression gate: `cargo test -p ggen-engine --lib` = 244 passed / 0 failed (pre/post run this lane).
 - Remaining reds: 61 (62 − 1 pilot), all classified above with per-suite action + effort.
+
+## SURV2-f final state (2026-11-08, lane V8-SURV2-f @ ggen 6afbbe8b3 + in-tree R1/R3 diffs)
+
+All suites re-executed fresh this lane. Register total: **62 -> 8 reds** (54 repaired).
+
+Per-suite FINAL rows (witnessed, `cargo test -p ggen-cli-lib --test <suite>`):
+
+| Suite | Survey red | FINAL | Evidence |
+|---|---|---|---|
+| integration_graph_e2e | 11 | 0 — 6 passed / 0 failed | landed in-tree, run this lane |
+| integration_cli_ux_e2e | 7 | 0 — 21 passed / 0 failed | CLIUX-CWD 6afbbe8b3 |
+| integration_workflow_e2e | 14 | 0 — 2 passed / 0 failed | R2 2f9ba5bc5 |
+| integration_ontology_e2e | 8 | 0 — 7 passed / 0 failed | R2 2f9ba5bc5 |
+| integration_ai_e2e | 9 | 0 — suite deleted (git rm) | R2 2f9ba5bc5 |
+| integration_template_e2e | 12 | 0 — 3 passed / 0 failed | R1/R3 in-tree diffs, run this lane |
+| integration_marketplace_e2e | 10 | 0 — 17 passed / 0 failed | R1/R3 in-tree diffs, run this lane |
+| integration_template | 1 | 0 — pilot re-pin | 744a1e978 |
+| integration_project_e2e | 8 | **8 REMAIN — 4 passed / 8 failed** (`-- --ignored` dispatch, witnessed this lane) | open REGISTERED-GAP |
+
+The 8 remaining reds are all in `integration_project_e2e` behind `#[ignore]` (bare dispatch
+filters them): SURFACE-REMOVED class per the table above — `project` root noun gone, moved to
+root `init` + `pack new`. Owned follow-up lane, not this one.
+
+Gate: `scripts/receipt_lint.py` — PASS (178 files, 0 FAIL, rc=0), standing-map regenerated.
 
 ## See Also
 

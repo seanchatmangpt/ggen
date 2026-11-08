@@ -1765,10 +1765,10 @@
       "key": "Standing",
       "ok": true,
       "pin": {
-        "mtime": 1794133185,
-        "sha256": "9da9e4162e60c1687e8f07bcb021fb19b4d1c4801dce3af1472cde0739e5c3f8"
+        "mtime": 1794133224,
+        "sha256": "a5618b1d72ec9e2b943c971f3133c90e2f1c393878725da4eaa0195771bfa54d"
       },
-      "standing": "PARTIAL_ALIVE"
+      "standing": "PARTIAL"
     },
     "/Users/sac/ggen/receipts/GALL_CONFORM_001.md": {
       "annotation": "",
