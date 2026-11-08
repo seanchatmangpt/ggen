@@ -74,9 +74,9 @@ fn flag_on_renders_tsconfig_verify_json_and_verify_mjs() {
     );
 
     // Receipt-visible writes.
-    assert!(report
-        .written
-        .contains(&std::path::PathBuf::from(".ggen-v2/verify/tsconfig.verify.json")));
+    assert!(report.written.contains(&std::path::PathBuf::from(
+        ".ggen-v2/verify/tsconfig.verify.json"
+    )));
     assert!(report
         .written
         .contains(&std::path::PathBuf::from(".ggen-v2/verify/verify.mjs")));
