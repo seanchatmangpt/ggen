@@ -87,7 +87,7 @@ fn sync_codes_inline_select(q: &str) -> BTreeSet<String> {
 
 fn sync_codes_construct(q: &str) -> BTreeSet<String> {
     let toml = format!(
-        "{HEAD}[[inference.rules]]\nname = \"i\"\nconstruct = '''{q}'''\n"
+        "{HEAD}[generation]\nrules = []\n\n[[inference.rules]]\nname = \"i\"\nconstruct = '''{q}'''\n"
     );
     let manifest = ManifestParser::parse_str(&toml).unwrap();
     match manifest.check() {
