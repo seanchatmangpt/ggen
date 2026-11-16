@@ -110,7 +110,10 @@ fn missing_log_is_refused_not_skipped() {
     let root = dir.path();
     std::fs::remove_file(root.join(RECEIPT_LOG_REL_PATH)).unwrap();
     let err = handle_receipt_verify_in(root).expect_err("missing log must fail closed");
-    assert!(err.to_string().contains("FM-CHAIN"), "typed error: {err}");
+    assert!(
+        err.to_string().contains("FM-CHAIN-019"),
+        "missing log must be refused with the dedicated [FM-CHAIN-019] code, got: {err}"
+    );
 }
 
 #[test]
@@ -119,5 +122,8 @@ fn empty_log_is_refused_not_skipped() {
     let root = dir.path();
     std::fs::write(root.join(RECEIPT_LOG_REL_PATH), "").unwrap();
     let err = handle_receipt_verify_in(root).expect_err("empty log must fail closed");
-    assert!(err.to_string().contains("FM-CHAIN"), "typed error: {err}");
+    assert!(
+        err.to_string().contains("FM-CHAIN-019"),
+        "empty log must be refused with the dedicated [FM-CHAIN-019] code, got: {err}"
+    );
 }
