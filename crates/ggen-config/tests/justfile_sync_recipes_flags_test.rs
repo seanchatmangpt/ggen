@@ -4,6 +4,8 @@
 //! `crates/ggen-engine/src/verbs/sync.rs` (snake_case param -> `--kebab-case` switch),
 //! never hardcoded here. Past failure: recipes passed `--audit true` / `--dry_run true`.
 
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 use std::path::PathBuf;
 
 fn repo_root() -> PathBuf {
