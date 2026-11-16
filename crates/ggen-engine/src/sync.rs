@@ -1011,7 +1011,27 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
     // architecture contract before proceeding to template rendering.
     // In addition, if packs define [graph] dependencies or ports, resolve
     // cross-pack DAG, cycles, and port completeness.
-    {
+    //
+    // Instrumented as `pipeline.admit` (pipeline.stage=admit): records
+    // `pipeline.duration_ms`/`_us`, `gate.name`, `gate.result`
+    // (`admitted`|`refused`), and on refusal `otel.status_code=ERROR`,
+    // `error=true`, `error.message` plus an error-level event.
+    let admit_start = Instant::now();
+    let admit_span = tracing::info_span!(
+        "pipeline.admit",
+        "operation.name" = "pipeline.admit",
+        "operation.type" = "pipeline",
+        "pipeline.stage" = "admit",
+        "pipeline.duration_ms" = tracing::field::Empty,
+        "pipeline.duration_us" = tracing::field::Empty,
+        "gate.name" = "abb_sbb_admission",
+        "gate.result" = tracing::field::Empty,
+        "otel.status_code" = tracing::field::Empty,
+        "error" = tracing::field::Empty,
+        "error.message" = tracing::field::Empty,
+    );
+    let admit_guard = admit_span.enter();
+    let admit_result: Result<(), AppError> = (|| {
         // 1. Pack-level dependency/port resolution
         let mut pack_manifests = Vec::new();
         for pack in &packs {
@@ -1092,7 +1112,30 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
                 })?;
             }
         }
+        Ok(())
+    })();
+    let admit_elapsed = admit_start.elapsed();
+    admit_span.record("pipeline.duration_ms", duration_ms(admit_elapsed));
+    admit_span.record(
+        "pipeline.duration_us",
+        u64::try_from(admit_elapsed.as_micros())
+            .unwrap_or(u64::MAX)
+            .max(1),
+    );
+    match &admit_result {
+        Ok(()) => {
+            admit_span.record("gate.result", "admitted");
+        }
+        Err(e) => {
+            admit_span.record("gate.result", "refused");
+            admit_span.record("otel.status_code", "ERROR");
+            admit_span.record("error", true);
+            admit_span.record("error.message", e.to_string().as_str());
+            tracing::error!(gate = "abb_sbb_admission", error = %e, "admission refused");
+        }
     }
+    drop(admit_guard);
+    admit_result?;
 
     // ── Stage 2c-caps: envelope CapTable extraction (v26.10.20) ─────────
     //

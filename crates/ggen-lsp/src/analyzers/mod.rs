@@ -4,6 +4,7 @@ pub mod diag;
 // directly -- does not touch tera_analyzer.rs (CP7's file) or any GGEN-* code.
 pub mod frontmatter_shacl_analyzer;
 pub mod harness_analyzer;
+pub mod pack_decl_analyzer;
 pub mod rdf_analyzer;
 pub mod source_law_analyzer;
 pub mod sparql_analyzer;
@@ -22,6 +23,7 @@ use std::fmt;
 pub use frontmatter_shacl_analyzer::{frontmatter_shacl_diagnostics, GGEN_FM_SHACL_001};
 pub use harness_analyzer::{harness_mismatch_diagnostics, DeclaredTarget, GGEN_HARNESS_001};
 
+pub use pack_decl_analyzer::{undeclared_pack_diagnostics, E0014};
 pub use rdf_analyzer::{RdfAnalyzer, RdfFlavor};
 pub use source_law_analyzer::{do_not_edit_diagnostics, GGEN_SRC_002, GGEN_SRC_003};
 pub use sparql_analyzer::SparqlAnalyzer;
@@ -295,6 +297,23 @@ pub fn detect_pack_001(
         }
     }
     out
+}
+
+/// Author-time E0014 detection: a rule's query/template references a pack not
+/// declared in `[[packs]]`. Reads `<root>/ggen.toml` (best-effort: missing or
+/// unloadable manifests yield nothing here; `fold_manifest_load_errors` owns that).
+#[must_use]
+pub fn detect_e0014(root: &std::path::Path) -> Vec<(std::path::PathBuf, Vec<MaxDiagnostic>)> {
+    let manifest_path = root.join("ggen.toml");
+    let Ok(text) = std::fs::read_to_string(&manifest_path) else {
+        return Vec::new();
+    };
+    let diags = undeclared_pack_diagnostics(&text);
+    if diags.is_empty() {
+        Vec::new()
+    } else {
+        vec![(manifest_path, diags)]
+    }
 }
 
 fn to_max_diagnostic(

@@ -85,10 +85,45 @@
 //!   this session did not have time to audit. Left as future work rather
 //!   than introduced unverified.
 
-use crate::manifest::types::{GgenManifest, QuerySource, TemplateSource};
+pub use crate::manifest::sparql_lint::{query_contains_values, query_has_order_by};
+use crate::manifest::sparql_lint::{lint_query, QueryForm, SparqlLawCode};
+use crate::manifest::types::{GenerationRule, GgenManifest, PackRef, QuerySource, TemplateSource};
 use crate::{ConfigError, Result};
 use star_toml::{Validate, Validator};
 use std::path::Path;
+
+// =========================================================================
+// E0014 — pure pack-declaration check (shared with ggen-lsp's author-time analyzer)
+// =========================================================================
+
+/// E0014 message for a rule referencing an undeclared pack. Single source of
+/// truth for both the sync-time hard error and ggen-lsp's author-time diagnostic.
+#[must_use]
+pub fn e0014_message(pack: &str, rule_name: &str) -> String {
+    format!("error[E0014]: Pack '{pack}' used in rule '{rule_name}' is not declared in [[packs]]")
+}
+
+/// Pure E0014 check: every `(field, pack)` where `field` is `"query"` or
+/// `"template"` and `pack` is referenced by `rule` but absent from `packs`.
+/// `query` and `template` are checked independently (red-team finding F1).
+#[must_use]
+pub fn undeclared_pack_refs(
+    packs: &[PackRef], rule: &GenerationRule,
+) -> Vec<(&'static str, String)> {
+    let declared = |pack: &str| packs.iter().any(|p| p.name == pack);
+    let mut out = Vec::new();
+    if let QuerySource::Pack { pack, .. } = &rule.query {
+        if !declared(pack) {
+            out.push(("query", pack.clone()));
+        }
+    }
+    if let TemplateSource::Pack { pack, .. } = &rule.template {
+        if !declared(pack) {
+            out.push(("template", pack.clone()));
+        }
+    }
+    out
+}
 
 // =========================================================================
 // Pure-data invariants — `star_toml::Validate`
@@ -111,7 +146,7 @@ impl Validate for GgenManifest {
                         // E0011: CONSTRUCT is always inline text on InferenceRule
                         // (no File variant exists) -- this check is pure data,
                         // unlike its generation-rule sibling below.
-                        if !query_has_order_by(&rule.construct) {
+                        if lint_query(&rule.construct, QueryForm::Construct, false).contains(&SparqlLawCode::E0011) {
                             if self.validation.strict_mode {
                                 v.check_predicate(
                                     "construct",
@@ -163,26 +198,12 @@ impl Validate for GgenManifest {
                         // when `query` was NOT `Pack`-sourced) let a declared
                         // query pack silently shadow an undeclared template
                         // pack. See red-team finding F1.
-                        if let QuerySource::Pack { pack, .. } = &rule.query {
+                        for (field, pack) in undeclared_pack_refs(&self.packs, rule) {
                             v.check_predicate(
-                                "query",
-                                self.packs.iter().any(|p| p.name == *pack),
+                                field,
+                                false,
                                 "E0014",
-                                format!(
-                                    "error[E0014]: Pack '{pack}' used in rule '{}' is not declared in [[packs]]",
-                                    rule.name
-                                ),
-                            );
-                        }
-                        if let TemplateSource::Pack { pack, .. } = &rule.template {
-                            v.check_predicate(
-                                "template",
-                                self.packs.iter().any(|p| p.name == *pack),
-                                "E0014",
-                                format!(
-                                    "error[E0014]: Pack '{pack}' used in rule '{}' is not declared in [[packs]]",
-                                    rule.name
-                                ),
+                                e0014_message(&pack, &rule.name),
                             );
                         }
 
@@ -221,7 +242,7 @@ impl Validate for GgenManifest {
                         // queries are resolved at sync time and skipped, exactly
                         // as in the original code.
                         if let QuerySource::Inline { inline } = &rule.query {
-                            if !query_has_order_by(inline) {
+                            if lint_query(inline, QueryForm::Select, false).contains(&SparqlLawCode::E0013) {
                                 if self.validation.strict_mode {
                                     v.check_predicate(
                                         "query",
@@ -396,7 +417,8 @@ impl GgenManifest {
                         rule.name, e
                     ))
                 })?;
-                if query_contains_values(&content) {
+                let laws = lint_query(&content, QueryForm::Select, true);
+                if laws.contains(&SparqlLawCode::E0010) {
                     return Err(ConfigError::Validation(format!(
                         "error[E0010]: VALUES data must be inline in ggen.toml\n  --> rule: '{}'\n  --> file: {}\n  |\n  = VALUES clauses belong in ggen.toml as `query = {{ inline = \"SELECT ... WHERE {{ VALUES ... }}\" }}`\n  = External .rq files are for queries against real RDF triples only\n  = help: Move the VALUES block into ggen.toml and delete the .rq file",
                         rule.name,
@@ -406,7 +428,7 @@ impl GgenManifest {
                 // E0013 for file-sourced queries: needs the content just read
                 // above, so it lives here rather than in the pure-data
                 // `Validate` impl (which only covers the Inline variant).
-                if !query_has_order_by(&content) {
+                if laws.contains(&SparqlLawCode::E0013) {
                     if self.validation.strict_mode {
                         return Err(ConfigError::Validation(format!(
                             "error[E0013]: Generation rule '{}' SELECT query lacks ORDER BY\n  |\n  = strict_mode is enabled: non-deterministic row ordering is rejected\n  = help: Add ORDER BY to your SELECT query to guarantee deterministic template rendering\n  = help: Or set `strict_mode = false` in [validation] to downgrade to a warning",
@@ -544,17 +566,6 @@ impl<'a> ManifestValidator<'a> {
     }
 }
 
-/// Returns true if the SPARQL string contains an ORDER BY clause.
-///
-/// Detection is case-insensitive and covers multiline queries. This is a
-/// textual heuristic (oxigraph does not expose an AST); "ORDER BY" in a
-/// SPARQL comment or string literal would be a false-positive, but that
-/// edge case is acceptable — it only suppresses a warning, not correctness.
-#[must_use]
-pub fn query_has_order_by(sparql: &str) -> bool {
-    sparql.to_uppercase().contains("ORDER BY")
-}
-
 /// Returns true if the SPARQL query string uses GROUP_CONCAT.
 #[must_use]
 pub fn query_has_group_concat(sparql: &str) -> bool {
@@ -567,20 +578,6 @@ pub fn query_has_group_concat(sparql: &str) -> bool {
 pub fn query_has_separator(sparql: &str) -> bool {
     let lower = sparql.to_lowercase();
     lower.contains("separator =") || lower.contains("separator=")
-}
-
-/// Returns true if the SPARQL query string contains a VALUES clause.
-/// Strips `#`-prefixed line comments before checking so commented-out
-/// VALUES blocks do not trigger the guard.
-#[must_use]
-pub fn query_contains_values(query: &str) -> bool {
-    query
-        .lines()
-        .filter(|line| !line.trim_start().starts_with('#'))
-        .any(|line| {
-            line.split_whitespace()
-                .any(|tok| tok.eq_ignore_ascii_case("VALUES"))
-        })
 }
 
 #[cfg(test)]

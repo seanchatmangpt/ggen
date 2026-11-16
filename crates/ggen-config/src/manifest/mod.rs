@@ -16,6 +16,7 @@
 //! parse target for both the engine and the LSP/diagnostic layer.
 
 pub mod parser;
+pub mod sparql_lint;
 pub mod types;
 pub mod validation;
 

@@ -455,6 +455,11 @@ pub fn check_files_in_root(root: &Path, paths: &[PathBuf], with_routes: bool) ->
     let pack_warn_added = fold_pack_001(root, &mut files, registry.as_ref());
     warning_count += pack_warn_added;
 
+    // Author-time E0014 (rule references a pack not declared in [[packs]]); decision
+    // delegated to ggen-config's pure `undeclared_pack_refs`, the same fn the
+    // sync-time hard error uses. ERROR severity.
+    error_count += fold_e0014(root, &mut files, registry.as_ref());
+
     // Cross-surface laws: GGEN-SRC-001/002/003 (source-caste path, DO NOT EDIT banners,
     // source-caste comments). All are ERROR severity.
     error_count += fold_src_001(root, &mut files, registry.as_ref());
@@ -777,6 +782,14 @@ fn fold_query_002(
     warn_count
 }
 
+/// Fold author-time E0014 diagnostics from `<root>/ggen.toml` into `files`,
+/// returning the number of newly added ERROR diagnostics.
+fn fold_e0014(
+    root: &Path, files: &mut Vec<FileReport>, registry: Option<&crate::route::RouteRegistry>,
+) -> usize {
+    fold_species(files, registry, crate::analyzers::detect_e0014(root))
+}
+
 /// Compare two filesystem path strings for "same file" identity. Tries exact
 /// string equality first (the common case), then falls back to canonicalized
 /// comparison so a relative path supplied to the gate matches the absolute
@@ -1035,6 +1048,25 @@ template = { file = "row.tera" }
             )),
             "the template report must carry a GGEN-TPL-001 diagnostic"
         );
+    }
+
+    #[test]
+    fn root_aware_gate_folds_e0014_for_undeclared_pack_and_fails() {
+        let dir = tempfile::TempDir::new().expect("tempdir");
+        std::fs::write(
+            dir.path().join("ggen.toml"),
+            "[project]\nname = \"t\"\nversion = \"1.0.0\"\n\n[ontology]\nsource = \"o.ttl\"\n\n[[generation.rules]]\nname = \"r\"\noutput_file = \"out.rs\"\nquery = { pack = \"ghost\", output = \"queries\", file = \"q.rq\" }\ntemplate = { inline = \"x\" }\n",
+        )
+        .expect("write");
+        let report = check_files_in_root(dir.path(), &[], false);
+        let hits: Vec<_> = report
+            .files
+            .iter()
+            .flat_map(|f| &f.diagnostics)
+            .filter(|d| diag_code(d) == "E0014")
+            .collect();
+        assert_eq!(hits.len(), 1, "{:?}", report.files);
+        assert_eq!(report.exit_code(), 1);
     }
 
     #[test]

@@ -1,0 +1,19 @@
+@prefix dia: <http://seanchatmangpt.github.io/ggen/dialects#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# Dialect schema: registry of RDF input dialects admitted by the ggen-engine
+# dispatch matrix (crates/ggen-engine/src/graph.rs::dialect_for_path).
+# RDF is the source of truth; crates/ggen-engine/tests/dialects_schema_registry_test.rs
+# asserts every dispatch-matrix dialect/extension has an entry here (and that a
+# dialect without an entry fails). N3 is deliberately NOT a dialect entry: it is
+# disallowed on the fact-input path (FD-DIALECT_FEATURE_DISALLOWED).
+
+dia:Dialect a rdfs:Class ;
+    rdfs:label "An RDF input dialect admitted by the engine dispatch matrix." .
+
+dia:turtle   a dia:Dialect ; dia:name "turtle"   ; dia:extension "ttl" .
+dia:ntriples a dia:Dialect ; dia:name "ntriples" ; dia:extension "nt" .
+dia:nquads   a dia:Dialect ; dia:name "nquads"   ; dia:extension "nq" .
+dia:trig     a dia:Dialect ; dia:name "trig"     ; dia:extension "trig" .
+dia:rdfxml   a dia:Dialect ; dia:name "rdf-xml"  ; dia:extension "rdf", "xml", "owl" .
+dia:jsonld   a dia:Dialect ; dia:name "json-ld"  ; dia:extension "jsonld", "json" .

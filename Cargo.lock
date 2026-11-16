@@ -473,30 +473,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2af50177e190e07a26ab74f8b1efbfe2ef87da2116221318cb1c2e82baf7de06"
 
 [[package]]
-name = "bcinr-mfw-ir"
-version = "26.6.26"
-dependencies = [
- "blake3",
-]
-
-[[package]]
-name = "bcinr-pddl"
-version = "26.6.26"
-dependencies = [
- "bcinr-mfw-ir",
- "blake3",
- "chicago-tdd-tools",
- "chrono",
- "divan",
- "pddl",
- "prolog8",
- "proptest",
- "serde",
- "serde_json",
- "wasm4pm-compat",
-]
-
-[[package]]
 name = "better-panic"
 version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -791,10 +767,8 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8b77d220cc8bf6472c975c6ede711b53813d0510733b57503dc68c800f332a3d"
 dependencies = [
  "arbitrary",
- "blake3",
  "chicago-tdd-tools-proc-macros",
  "chrono",
- "dashmap",
  "fake 3.1.0",
  "futures",
  "hex",
@@ -809,8 +783,6 @@ dependencies = [
  "testcontainers",
  "thiserror 2.0.21",
  "toml 1.1.6+spec-1.1.0",
- "tracing",
- "wasm4pm-compat",
 ]
 
 [[package]]
@@ -2555,7 +2527,7 @@ dependencies = [
 
 [[package]]
 name = "ggen"
-version = "26.10.12"
+version = "26.11.15"
 dependencies = [
  "anyhow",
  "assert_cmd",
@@ -2609,7 +2581,7 @@ dependencies = [
 
 [[package]]
 name = "ggen-abb-sbb"
-version = "26.10.12"
+version = "26.11.15"
 dependencies = [
  "criterion 0.5.1",
  "serde",
@@ -2622,7 +2594,7 @@ dependencies = [
 
 [[package]]
 name = "ggen-cheat-scanner"
-version = "26.10.12"
+version = "26.11.15"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -2632,7 +2604,7 @@ dependencies = [
 
 [[package]]
 name = "ggen-cli-lib"
-version = "26.10.12"
+version = "26.11.15"
 dependencies = [
  "anyhow",
  "assert_cmd",
@@ -2707,7 +2679,7 @@ dependencies = [
 
 [[package]]
 name = "ggen-config"
-version = "26.10.12"
+version = "26.11.15"
 dependencies = [
  "blake3",
  "chrono",
@@ -2732,7 +2704,7 @@ dependencies = [
 
 [[package]]
 name = "ggen-engine"
-version = "26.10.12"
+version = "26.11.15"
 dependencies = [
  "Inflector",
  "anyhow",
@@ -2786,7 +2758,7 @@ dependencies = [
 
 [[package]]
 name = "ggen-graph"
-version = "26.10.12"
+version = "26.11.15"
 dependencies = [
  "blake3",
  "chrono",
@@ -2808,7 +2780,7 @@ dependencies = [
 
 [[package]]
 name = "ggen-lsp"
-version = "26.10.12"
+version = "26.11.15"
 dependencies = [
  "anyhow",
  "assert_cmd",
@@ -2849,7 +2821,7 @@ dependencies = [
 
 [[package]]
 name = "ggen-marketplace"
-version = "26.10.12"
+version = "26.11.15"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -2893,7 +2865,7 @@ dependencies = [
 
 [[package]]
 name = "ggen-mcp"
-version = "26.10.12"
+version = "26.11.15"
 dependencies = [
  "anyhow",
  "assert_cmd",
@@ -5212,17 +5184,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "pddl"
-version = "0.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c929cf4ccd605923dbccb45e9991a9443ee476fa113b6d7c742239a046f1cde7"
-dependencies = [
- "nom 8.0.0",
- "nom_locate",
- "thiserror 2.0.21",
-]
-
-[[package]]
 name = "peg"
 version = "0.6.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5491,17 +5452,6 @@ name = "powerfmt"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "439ee305def115ba05938db6eb1644ff94165c5ab5e9420d1c1bcedbba909391"
-
-[[package]]
-name = "powl2-decompose"
-version = "26.6.30"
-dependencies = [
- "blake3",
- "hex",
- "serde",
- "serde_json",
- "thiserror 2.0.21",
-]
 
 [[package]]
 name = "ppmd-rust"

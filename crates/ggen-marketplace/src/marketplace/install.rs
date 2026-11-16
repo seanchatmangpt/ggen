@@ -396,6 +396,27 @@ impl<R: AsyncRepository> Installer<R> {
             );
             span::Span::current().record("cached", true);
 
+            // Fail-closed trust gate on the cache-hit path: a cached pack was
+            // admitted under whatever profile/tier existed at download time.
+            // Re-evaluate against the CURRENT profile and the registry's
+            // CURRENT release metadata (tier may have become Blocked, profile
+            // may have tightened). Unresolvable metadata is a refusal.
+            let current = self
+                .repository
+                .get_package_version(package_id, version)
+                .await?;
+            let current_release = current
+                .releases
+                .get(version)
+                .ok_or_else(|| Error::package_not_found(format!("{}@{}", package_id, version)))?;
+            self.verify_trust_tier(
+                package_id,
+                version,
+                &current_release.trust_tier,
+                &current_release.registry_class,
+            )
+            .await?;
+
             // Verify digest
             if self.cache.verify_digest(&cached)? {
                 debug!("Cached pack digest verified: {}@{}", package_id, version);
@@ -2455,6 +2476,121 @@ mod tests {
             "default profile (no profile) should allow public registry packs, got error: {}",
             result.unwrap_err()
         );
+    }
+
+    fn release_with_tier(version: &PackageVersion, tier: TrustTier) -> crate::marketplace::models::ReleaseInfo {
+        crate::marketplace::models::ReleaseInfo {
+            version: version.clone(),
+            released_at: chrono::Utc::now(),
+            changelog: String::new(),
+            checksum: "00".to_string(),
+            signature: None,
+            download_url: "http://127.0.0.1:1/unreachable".to_string(),
+            dependencies: vec![],
+            trust_tier: tier,
+            registry_class: RegistryClass::PrivateEnterprise {
+                url: "https://registry.internal.corp".to_string(),
+                require_signature: true,
+                allow_unlisted: false,
+            },
+        }
+    }
+
+    /// Adversarial: a pack cached earlier must NOT bypass the trust gate when
+    /// the registry now marks it Blocked (cache-hit fail-open probe).
+    #[tokio::test]
+    async fn test_cache_hit_refuses_pack_now_blocked_in_registry() {
+        let registry = Registry::new(100);
+        let temp_dir = TempDir::new().unwrap();
+        let cache = PackCache::new(CacheConfig {
+            cache_dir: temp_dir.path().join("cache"),
+            ..Default::default()
+        })
+        .unwrap();
+        let pkg_id = PackageId::new("blocked-later").unwrap();
+        let version = PackageVersion::new("1.0.0").unwrap();
+        let mut releases = indexmap::IndexMap::new();
+        releases.insert(version.clone(), release_with_tier(&version, TrustTier::Blocked));
+        registry
+            .insert(&crate::marketplace::models::Package {
+                metadata: crate::marketplace::models::PackageMetadata::new(
+                    pkg_id.clone(), "T", "T", "MIT",
+                ),
+                latest_version: version.clone(),
+                versions: vec![version.clone()],
+                releases,
+            })
+            .unwrap();
+        let cache_path = temp_dir.path().join("cache").join("blocked-later");
+        std::fs::create_dir_all(&cache_path).unwrap();
+        cache
+            .insert(CachedPack::new(pkg_id.clone(), version.clone(), "00".into(), 0, cache_path))
+            .unwrap();
+        let installer = Installer::new(registry, cache);
+
+        let err = installer.install_pack(&pkg_id, &version).await.unwrap_err();
+        assert!(
+            matches!(err, Error::TrustTierCheckFailed { .. }),
+            "cache hit must be refused with TrustTierCheckFailed, got: {err}"
+        );
+    }
+
+    /// Adversarial: cache hit whose release metadata cannot be resolved is a
+    /// refusal, not an implicit pass.
+    #[tokio::test]
+    async fn test_cache_hit_refuses_when_release_metadata_missing() {
+        let registry = Registry::new(100);
+        let temp_dir = TempDir::new().unwrap();
+        let cache = PackCache::new(CacheConfig {
+            cache_dir: temp_dir.path().join("cache"),
+            ..Default::default()
+        })
+        .unwrap();
+        let pkg_id = PackageId::new("no-release").unwrap();
+        let version = PackageVersion::new("1.0.0").unwrap();
+        registry
+            .insert(&crate::marketplace::models::Package {
+                metadata: crate::marketplace::models::PackageMetadata::new(
+                    pkg_id.clone(), "T", "T", "MIT",
+                ),
+                latest_version: version.clone(),
+                versions: vec![version.clone()],
+                releases: indexmap::IndexMap::new(),
+            })
+            .unwrap();
+        let cache_path = temp_dir.path().join("cache").join("no-release");
+        std::fs::create_dir_all(&cache_path).unwrap();
+        cache
+            .insert(CachedPack::new(pkg_id.clone(), version.clone(), "00".into(), 0, cache_path))
+            .unwrap();
+        let installer = Installer::new(registry, cache);
+
+        assert!(installer.install_pack(&pkg_id, &version).await.is_err());
+    }
+
+    /// Adversarial: tier probes against evaluate_trust_tier (clean probes).
+    #[test]
+    fn test_evaluate_trust_tier_fails_closed_for_low_tiers() {
+        let private = RegistryClass::PrivateEnterprise {
+            url: "x".into(),
+            require_signature: true,
+            allow_unlisted: false,
+        };
+        // No profile: Blocked and Quarantined are refused, Experimental passes.
+        for tier in [TrustTier::Blocked, TrustTier::Quarantined] {
+            let r = evaluate_trust_tier(None, "p@1", tier, &private);
+            assert!(matches!(r, Err(Error::TrustTierCheckFailed { .. })), "{tier:?}");
+        }
+        assert!(evaluate_trust_tier(None, "p@1", TrustTier::Experimental, &private).is_ok());
+        // Strict profile: the default/missing tier (Experimental) is refused.
+        let strict = crate::marketplace::profile::enterprise_strict_profile();
+        let r = evaluate_trust_tier(
+            Some(&strict),
+            "p@1",
+            TrustTier::default(),
+            &private,
+        );
+        assert!(matches!(r, Err(Error::TrustTierCheckFailed { .. })));
     }
 
     #[tokio::test]

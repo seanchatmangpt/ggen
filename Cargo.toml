@@ -1,5 +1,5 @@
 [workspace.package]
-version = "26.10.12"
+version = "26.11.15"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 edition = "2021"
 repository = "https://github.com/seanchatmangpt/ggen"
@@ -87,9 +87,6 @@ members = [
   # down in this file. That narrow, still-true statement is what this comment used to overstate
   # into "no consumer references them yet".
   "crates/ggen-engine",
-  "crates/powl2-decompose",
-  "crates/bcinr-pddl",
-  "crates/bcinr-mfw-ir",
   "crates/ggen-cheat-scanner",
   "crates/ggen-mcp",
   # ARCHIVED out of the v26.5.29 build boundary (SETTLEMENT-CHECK-1): this example
@@ -204,15 +201,15 @@ rig-core = "0.42.0"
 # crates/ggen-core/ no longer exists on disk (git history retains the code;
 # corrected 2026-10-09, the previous text here wrongly said the directory was
 # "untouched on disk").
-ggen-cli-lib = { path = "crates/ggen-cli", version = "26.10.11" }
-ggen-graph = { path = "crates/ggen-graph", version = "26.10.11" }
+ggen-cli-lib = { path = "crates/ggen-cli", version = "26.11.15" }
+ggen-graph = { path = "crates/ggen-graph", version = "26.11.15" }
 # ggen-core replacement engine dependencies (specs/014-ggen-core-replacement,
 # docs/jira/v26.7.16/10-ROOT-PACKAGE-TEST-MIGRATION.md, T051-T053): root
 # package/tests/examples/benches re-point away from ggen_core:: onto these,
 # file by file, as each file's specific symbols land a real port destination.
 ggen-config = { path = "crates/ggen-config", version = ">=26.10.10, <26.15" }
 ggen-marketplace = { path = "crates/ggen-marketplace", version = ">=26.10.10, <26.15" }
-ggen-engine = { path = "crates/ggen-engine", version = "26.10.11" }
+ggen-engine = { path = "crates/ggen-engine", version = "26.11.15" }
 
 # A2A Protocol Integration (Agent-to-Agent protocol) - using local a2a-generated
 # The vendor a2a-rs is for reference only - we use our generated types
@@ -678,7 +675,7 @@ ggen-marketplace = { workspace = true }
 # `publish = false` on the root package; ggen-engine itself flipped to
 # `publish = true` (SJIRA-15, 2026-10-09) after the praxis-core /
 # praxis-graphlaw path deps were retired. Its remaining path deps
-# (ggen-abb-sbb, ggen-marketplace, bcinr-pddl, bcinr-mfw-ir, powl2-decompose)
+# (ggen-abb-sbb, ggen-marketplace)
 # are workspace-relative and version-less, so crates.io publication of
 # ggen-engine still requires versioned deps there. A real dependency edge here broke
 # `cargo publish --dry-run -p ggen` with "no matching package named `ggen-engine` found".

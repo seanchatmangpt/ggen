@@ -33,7 +33,7 @@ use lsp_max::lsp_types::{
 };
 use std::collections::BTreeSet;
 
-use ggen_config::manifest::validation::{query_contains_values, query_has_order_by};
+use ggen_config::manifest::sparql_lint::{lint_query, QueryForm, SparqlLawCode};
 use ggen_graph::{check_sparql_syntax, sparql_kind, SparqlKind};
 
 use crate::analyzers::diag;
@@ -90,45 +90,42 @@ impl SparqlAnalyzer {
             ));
         }
 
-        // E0010 — VALUES forbidden in external .rq files.
-        if query_contains_values(&self.source) {
-            if let Some(line) = find_line(&self.source, "VALUES") {
-                diags.push(diag::max_whole_line(
-                    line,
-                    DiagnosticSeverity::ERROR,
-                    Some("E0010"),
+        // E0010/E0011/E0013 come from the ONE shared pure lint in ggen-config
+        // (`sparql_lint::lint_query`), the same function the sync-time validator
+        // calls -- no second implementation to drift. Severity is this
+        // caller's policy: ERROR, matching `default_strict_mode() -> true`
+        // (see module doc).
+        let kind = sparql_kind(&self.source);
+        let form = match kind {
+            SparqlKind::Construct => QueryForm::Construct,
+            SparqlKind::Select => QueryForm::Select,
+            _ => QueryForm::Other,
+        };
+        for law in lint_query(&self.source, form, true) {
+            let (line, message) = match law {
+                SparqlLawCode::E0010 => (
+                    find_line(&self.source, "VALUES").unwrap_or(0),
                     "VALUES data must be inline in ggen.toml — External .rq files are for \
                      queries against real RDF triples only",
-                    lsp_max_protocol::LawAxis::Domain,
-                ));
-            }
-        }
-
-        // E0011 — CONSTRUCT should carry ORDER BY. ERROR: matches
-        // `default_strict_mode() -> true` (see module doc) -- `ggen sync run`
-        // hard-refuses this under the schema default, so this analyzer must
-        // not report a lower severity than the pipeline it is meant to preview.
-        if sparql_kind(&self.source) == SparqlKind::Construct && !query_has_order_by(&self.source) {
+                ),
+                SparqlLawCode::E0011 => (
+                    0,
+                    "CONSTRUCT query lacks ORDER BY — refused under strict_mode (ggen's schema \
+                     default: strict_mode = true; set `strict_mode = false` under [validation] in \
+                     ggen.toml to downgrade this to a warning at sync time)",
+                ),
+                SparqlLawCode::E0013 => (
+                    0,
+                    "SELECT query lacks ORDER BY — refused under strict_mode (ggen's schema \
+                     default: strict_mode = true; set `strict_mode = false` under [validation] in \
+                     ggen.toml to downgrade this to a warning at sync time)",
+                ),
+            };
             diags.push(diag::max_whole_line(
-                0,
+                line,
                 DiagnosticSeverity::ERROR,
-                Some("E0011"),
-                "CONSTRUCT query lacks ORDER BY — refused under strict_mode (ggen's schema \
-                 default: strict_mode = true; set `strict_mode = false` under [validation] in \
-                 ggen.toml to downgrade this to a warning at sync time)",
-                lsp_max_protocol::LawAxis::Domain,
-            ));
-        }
-
-        // E0013 — SELECT should carry ORDER BY. ERROR: see E0011 above.
-        if sparql_kind(&self.source) == SparqlKind::Select && !query_has_order_by(&self.source) {
-            diags.push(diag::max_whole_line(
-                0,
-                DiagnosticSeverity::ERROR,
-                Some("E0013"),
-                "SELECT query lacks ORDER BY — refused under strict_mode (ggen's schema \
-                 default: strict_mode = true; set `strict_mode = false` under [validation] in \
-                 ggen.toml to downgrade this to a warning at sync time)",
+                Some(law.as_str()),
+                message,
                 lsp_max_protocol::LawAxis::Domain,
             ));
         }

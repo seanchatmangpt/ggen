@@ -7,7 +7,7 @@
 # "ggen-engine" since the praxis-core/praxis-graphlaw path deps retired
 # (SJIRA-15, 2026-10-09).
 name = "ggen-engine"
-version = "26.10.12"                      # CalVer YY.M.patch
+version = "26.11.15"                      # CalVer YY.M.patch
 edition = "2021"
 rust-version = "1.82"
 authors = ["Sean Chatman <xpointsh@gmail.com>"]
@@ -115,13 +115,13 @@ star-toml = { workspace = true }
 # Cargo.lock) so this never becomes a duplicate-version dependency graph.
 spargebra = "0.4.7"
 graphlaw = { workspace = true }
-ggen-abb-sbb = { path = "../ggen-abb-sbb", version = "26.10.11" }
+ggen-abb-sbb = { path = "../ggen-abb-sbb", version = "26.11.15" }
 # Receipt→dataset bridge (v26.10.20 slice 2, lane G15): opt-in projection of sync
 # receipt identity facts into ggen-graph's intent-segregated DatasetStore. Versioned
 # path edge (same pattern as ggen-abb-sbb/ggen-marketplace above) so `cargo publish
 # -p ggen-engine` stays resolvable; ggen-graph depends on this crate only as a
 # DEV-dependency, so no normal-dependency cycle exists.
-ggen-graph = { path = "../ggen-graph", version = "=26.10.12" }
+ggen-graph = { path = "../ggen-graph", version = "=26.11.15" }
 # New, deliberate edge (not an undocumented re-export): resolving a `GenerationRule`'s
 # `QuerySource::Pack`/`TemplateSource::Pack` variant means asking "where is this pack
 # installed" -- that knowledge lives in ggen-marketplace's pack registry/lockfile after

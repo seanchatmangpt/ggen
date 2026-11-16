@@ -97,3 +97,76 @@ fn workspace_version_matches_across_repo_facts_cargo_toml_and_ggen_toml() {
          ggen.toml's [project] version ({ggen_toml_version})"
     );
 }
+
+/// Parse the leading numeric `X.Y.Z` out of a version requirement that is an
+/// exact self-pin (`"X.Y.Z"` bare-caret or `"=X.Y.Z"`). Range reqs (`>=`, `<`,
+/// `,`, `~`, `*`) are intentionally not self-pins and return `None`.
+fn exact_pin(req: &str) -> Option<&str> {
+    let r = req.trim().trim_start_matches('=');
+    let ok = !r.is_empty() && r.chars().all(|c| c.is_ascii_digit() || c == '.');
+    if ok { Some(r) } else { None }
+}
+
+/// Drift guard (v26.11.15): every exact version pin on an in-workspace path
+/// dependency (`ggen-* = { path = ..., version = "X" }` inline or in a
+/// `[dependencies.ggen-*]` table) must equal the workspace version. A stale pin
+/// (e.g. 26.10.11 left behind after a bump) fails the publish ladder with an
+/// unresolvable-version error, so refuse it here.
+#[test]
+fn no_stale_exact_self_pin_on_workspace_path_dependencies() {
+    let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
+    let ws_version = extract_workspace_package_version(ROOT_CARGO_TOML);
+    let mut manifests = vec![root.join("Cargo.toml")];
+    for entry in std::fs::read_dir(root.join("crates")).expect("read crates/") {
+        let p = entry.expect("dir entry").path().join("Cargo.toml");
+        if p.is_file() {
+            manifests.push(p);
+        }
+    }
+    let mut stale = Vec::new();
+    let mut checked = 0usize;
+    for m in &manifests {
+        let text = std::fs::read_to_string(m).expect("read manifest");
+        // Section header of a `[dependencies.ggen-x]` style table, if inside one.
+        let mut table_is_ws_dep = false;
+        let mut table_has_path = false;
+        for line in text.lines() {
+            let l = line.trim();
+            if l.starts_with('[') {
+                table_is_ws_dep = l.contains("dependencies.ggen-");
+                table_has_path = false;
+                continue;
+            }
+            let (is_dep_line, version_src): (bool, Option<&str>) = if table_is_ws_dep {
+                if l.starts_with("path") {
+                    table_has_path = true;
+                }
+                (table_has_path || l.starts_with("version"), l.strip_prefix("version"))
+            } else {
+                (
+                    l.starts_with("ggen-") && l.contains("path =") && l.contains("version ="),
+                    l.find("version =").map(|i| &l[i + "version".len()..]),
+                )
+            };
+            if !is_dep_line {
+                continue;
+            }
+            let Some(src) = version_src else { continue };
+            let Some(q1) = src.find('"') else { continue };
+            let rest = &src[q1 + 1..];
+            let Some(q2) = rest.find('"') else { continue };
+            if let Some(pin) = exact_pin(&rest[..q2]) {
+                checked += 1;
+                if pin != ws_version {
+                    stale.push(format!("{}: `{}` pins {pin}", m.display(), l));
+                }
+            }
+        }
+    }
+    assert!(checked >= 8, "scanner found only {checked} exact self-pins; parser regressed");
+    assert!(
+        stale.is_empty(),
+        "stale exact self-pins (workspace version is {ws_version}):\n{}",
+        stale.join("\n")
+    );
+}
