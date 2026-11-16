@@ -438,13 +438,13 @@ rf:recipe_10 a rf:Recipe ;
 rf:recipe_11 a rf:Recipe ;
     rf:order "011" ;
     rf:command "`just sync`" ;
-    rf:purpose "Runs `ggen sync --audit true` — **currently broken**: the live `sync run` verb (`crates/ggen-engine/src/verbs/sync.rs`) has no `--audit` flag (only `--dry-run`/`--watch`); confirmed 2026-07-17 by running the recipe (`error: unexpected argument '--audit' found`, exit 1)" ;
+    rf:purpose "Runs `ggen sync run` (full pipeline with receipt) — the live `sync run` verb (`crates/ggen-engine/src/verbs/sync.rs`) takes only bare switches (`--dry-run`/`--watch`/`--consumer-mode`); the former `--audit true` invocation was removed. Guarded by `crates/ggen-config/tests/justfile_sync_recipes_flags_test.rs`" ;
     rf:timeout "-" .
 
 rf:recipe_12 a rf:Recipe ;
     rf:order "012" ;
     rf:command "`just sync-dry`" ;
-    rf:purpose "Runs `ggen sync --dry_run true` — **currently broken**: `--dry-run`/`--dry_run` is a bare switch on the live verb, it does not take a `true` value; confirmed 2026-07-17 by running the recipe (`error: unexpected argument 'true' found`, exit 1). Use `ggen sync run --dry-run` directly instead" ;
+    rf:purpose "Runs `ggen sync run --dry-run` (preview, writes nothing) — `--dry-run` is a bare switch on the live verb; the former `--dry_run true` invocation was removed. Guarded by `crates/ggen-config/tests/justfile_sync_recipes_flags_test.rs`" ;
     rf:timeout "-" .
 
 rf:recipe_13 a rf:Recipe ;
