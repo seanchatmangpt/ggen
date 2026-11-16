@@ -12,12 +12,10 @@ version: 7.0.0
 2. **Chicago TDD**: write failing test in `crates/ggen-engine/tests/` (RED, `ggen-engine` is
    live, `ggen-core` deleted) → `just test` (fails; `test-lib` is `--lib` only) → implement →
    `just test` (GREEN) → `just pre-commit` (refactor, maintain GREEN). The `pre-commit:`
-   dependency line in the `justfile` is the sole source of truth for the gate list. As of
-   v26.10.20 it ends with three promoted courts — `court-canonical court-vacuity
-   court-envelope` (each witnessed GREEN under 60s before wiring). Not promoted:
-   `court-typed-refusal` (green, withheld pending compile-fail probe batching) and
-   `court-fresh-epoch` (contains the shim-court protocol, BLOCKED-class by design).
-   Standalone: `just courts` runs all five.
+   dependency line in the `justfile` is the sole source of truth for the gate list. The line ends with the promoted courts — `court-canonical court-vacuity
+   court-envelope court-typed-refusal court-fresh-epoch` (each witnessed GREEN under 60s
+   before wiring; compile-fail probes are batched into one cargo invocation).
+   Standalone: `just courts` runs all five (also in `pre-commit`).
 3. **Generate**: `ggen sync run --dry-run` (preview) → `ggen sync run` (full sync w/ receipt;
    `just sync`/`sync-dry` currently run broken internal commands — use `ggen sync run`
    directly). Gate authoring: `ggen court compile` compiles a mutant catalog (TTL, one
