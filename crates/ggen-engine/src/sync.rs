@@ -719,7 +719,7 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
             rel_display(root, &rule_path),
             hash_file_or_missing(&rule_path),
         );
-        graph.load_rules(&src)?;
+        graph.load_rules(&crate::law_engine::RuleSet::from_source(&src)?)?;
     }
 
     // Pack-shipped `kh:` Knowledge Hooks (P1, live pack hooks): any resolved
@@ -3204,7 +3204,7 @@ fn build_independent_recheck_base_graph(
                 ),
             )
         })?;
-        fresh.load_rules(&src)?;
+        fresh.load_rules(&crate::law_engine::RuleSet::from_source(&src)?)?;
     }
     let mut any_hook_loaded = false;
     for pack in packs {

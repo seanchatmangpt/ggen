@@ -20,6 +20,7 @@ use oxigraph::{
 };
 
 use crate::error::{AppError, Result};
+use crate::law_engine::RuleSet;
 
 mod ontology_batch;
 pub use ontology_batch::{OntologyBatchReceipt, TurtleDocument};
@@ -753,12 +754,13 @@ pub trait GraphEngine: Send + Sync {
         Ok(*blake3::hash(lines.join("\n").as_bytes()).as_bytes())
     }
 
-    /// Load N3/Datalog rules (N3 rule syntax), returning how many rules
-    /// the document contributed.
+    /// Load a validated N3/Datalog [`RuleSet`], returning how many rules it
+    /// contributed. Raw rule text cannot reach the engine: build the set with
+    /// [`RuleSet::from_source`]/[`RuleSet::parse`], which refuses fail-closed.
     ///
     /// # Errors
-    /// Typed refusal when the engine has no rule support, or on parse errors.
-    fn load_rules(&self, rules: &str) -> Result<usize>;
+    /// Typed refusal when the engine has no rule support.
+    fn load_rules(&self, rules: &RuleSet) -> Result<usize>;
 
     /// Load a `kh:` Knowledge Hook pack (Turtle content: `kh:Hook`/
     /// `kh:Action` individuals, e.g. a pack's `hook.ttl`), registering its
@@ -1057,7 +1059,7 @@ impl GraphEngine for DeterministicGraph {
         canonical_nquad_lines(&self.all_quads()?)
     }
 
-    fn load_rules(&self, _rules: &str) -> Result<usize> {
+    fn load_rules(&self, _rules: &RuleSet) -> Result<usize> {
         Err(AppError::fm_law(
             1,
             "the oxigraph engine has no N3/Datalog rule support. \
@@ -1139,8 +1141,8 @@ pub struct GraphLawStore {
 /// the full fact state.
 #[derive(Default)]
 struct LawState {
-    /// Raw N3 rule documents, in load order.
-    rules_src: Vec<String>,
+    /// Validated N3 rules accumulated in load order (`None` until loaded).
+    rules: Option<RuleSet>,
     /// Raw `kh:` Knowledge Hook pack documents (Turtle), in load order —
     /// replayed at each `materialize()` (via `hooks_apply`) or a hook pack
     /// loaded via [`GraphEngine::load_hook_pack`] would silently vanish
@@ -1208,30 +1210,31 @@ impl GraphEngine for GraphLawStore {
         GraphEngine::canonical_quads(&self.mirror)
     }
 
-    fn load_rules(&self, rules: &str) -> Result<usize> {
-        // Parse eagerly so a bad rule document is refused at load time,
-        // not at the later materialize call (same convention as before).
-        let probe = crate::law_engine::n3_run("", &[rules]).map_err(|e| match e {
-            crate::law_engine::N3Failure::Load(m) | crate::law_engine::N3Failure::Reason(m) => {
-                AppError::fm_law(6, format!("GraphLaw rule load refused: {m}"))
-            }
-        })?;
-        self.law_state()?.rules_src.push(rules.to_string());
-        Ok(probe.rules)
+    fn load_rules(&self, rules: &RuleSet) -> Result<usize> {
+        // `RuleSet` is validated at construction (parse + bounded probe), so
+        // a bad rule document was already refused before reaching here.
+        let mut state = self.law_state()?;
+        match state.rules.as_mut() {
+            Some(existing) => existing.extend(rules.clone()),
+            None => state.rules = Some(rules.clone()),
+        }
+        Ok(rules.rule_count())
     }
 
     fn materialize(&self) -> Result<MaterializeOutcome> {
         let mut state = self.law_state()?;
         let nt = self.mirror_ntriples()?;
-        let rules: Vec<&str> = state.rules_src.iter().map(String::as_str).collect();
-        let run = crate::law_engine::n3_run(&nt, &rules).map_err(|e| match e {
-            crate::law_engine::N3Failure::Load(m) => {
-                AppError::fm_law(6, format!("GraphLaw rule load refused: {m}"))
-            }
-            crate::law_engine::N3Failure::Reason(m) => {
-                AppError::fm_law(9, format!("Reasoner materialize failed: {m}"))
-            }
-        })?;
+        let run = match state.rules.as_ref() {
+            None => crate::law_engine::N3Run::default(),
+            Some(rules) => crate::law_engine::n3_run(&nt, rules).map_err(|e| match e {
+                crate::law_engine::N3Failure::Load(m) => {
+                    AppError::fm_law(6, format!("GraphLaw rule load refused: {m}"))
+                }
+                crate::law_engine::N3Failure::Reason(m) => {
+                    AppError::fm_law(9, format!("Reasoner materialize failed: {m}"))
+                }
+            })?,
+        };
         state.rules_loaded = run.rules;
         if let Some(fuse) = run.fuse {
             // A denial rule fired mid-derivation; Eyeron clears the
@@ -1326,15 +1329,17 @@ impl GraphEngine for GraphLawStore {
     fn check_denials(&self) -> Result<Vec<String>> {
         let state = self.law_state()?;
         let nt = self.mirror_ntriples()?;
-        let rules: Vec<&str> = state.rules_src.iter().map(String::as_str).collect();
-        let run = crate::law_engine::n3_run(&nt, &rules).map_err(|e| match e {
-            crate::law_engine::N3Failure::Load(m) => {
-                AppError::fm_law(6, format!("GraphLaw rule load refused: {m}"))
-            }
-            crate::law_engine::N3Failure::Reason(m) => {
-                AppError::fm_law(9, format!("Reasoner materialize failed: {m}"))
-            }
-        })?;
+        let run = match state.rules.as_ref() {
+            None => crate::law_engine::N3Run::default(),
+            Some(rules) => crate::law_engine::n3_run(&nt, rules).map_err(|e| match e {
+                crate::law_engine::N3Failure::Load(m) => {
+                    AppError::fm_law(6, format!("GraphLaw rule load refused: {m}"))
+                }
+                crate::law_engine::N3Failure::Reason(m) => {
+                    AppError::fm_law(9, format!("Reasoner materialize failed: {m}"))
+                }
+            })?,
+        };
         Ok(run.fuse.into_iter().collect())
     }
 
@@ -1981,7 +1986,9 @@ mod tests {
             store.query(ask).expect("ask"),
             EngineQueryResults::Boolean(false)
         );
-        let rules = store.load_rules(DOG_RULE).expect("rules");
+        let rules = store
+            .load_rules(&RuleSet::from_source(DOG_RULE).expect("valid rule set"))
+            .expect("rules");
         assert_eq!(rules, 1, "one rule in the document");
         let outcome = store.materialize().expect("materialize");
         assert_eq!(outcome.rules_loaded, 1);
@@ -2021,7 +2028,10 @@ mod tests {
         )
         .expect("ttl");
         store
-            .load_rules("@prefix ex: <http://example.org/>. {?s a ex:Forbidden} => false.")
+            .load_rules(
+                &RuleSet::from_source("@prefix ex: <http://example.org/>. {?s a ex:Forbidden} => false.")
+                    .expect("valid denial rule set"),
+            )
             .expect("denial rule");
         store.materialize().expect("materialize");
         let denials = store.check_denials().expect("denials");
@@ -2065,7 +2075,11 @@ mod tests {
     fn oxigraph_engine_refuses_law_ops_with_typed_fm_law() {
         let g = DeterministicGraph::new().expect("graph");
         let err =
-            GraphEngine::load_rules(&g, "{?s ?p ?o} => {?s ?p ?o}.").expect_err("must refuse");
+            GraphEngine::load_rules(
+            &g,
+            &RuleSet::from_source("{?s ?p ?o} => {?s ?p ?o}.").expect("valid rule set"),
+        )
+        .expect_err("must refuse");
         assert!(err.to_string().contains("FM-LAW-001"), "{err}");
         let err = GraphEngine::materialize(&g).expect_err("must refuse");
         assert!(err.to_string().contains("FM-LAW-001"), "{err}");

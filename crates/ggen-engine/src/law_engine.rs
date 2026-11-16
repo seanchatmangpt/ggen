@@ -141,13 +141,120 @@ fn to_ntriples(n3_text: &str) -> std::result::Result<String, String> {
     String::from_utf8(bytes).map_err(|e| e.to_string())
 }
 
+/// Why a [`RuleSet`] could not be constructed. Typed and fail-closed: there
+/// is no way to obtain a `RuleSet` that is empty, rule-less, unparseable, or
+/// that the bounded reasoner refuses at load time.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum RuleSetError {
+    /// No rule documents were supplied at all.
+    Empty,
+    /// A supplied document is blank/whitespace-only (position in the input).
+    BlankDocument(usize),
+    /// The documents parsed but contain zero rules (prefix/comment only).
+    NoRules,
+    /// The N3 parser refused the rule text.
+    Unparseable(String),
+    /// The bounded reasoner refused the rules at load time (resource limit
+    /// or engine refusal).
+    Refused(String),
+}
+
+impl std::fmt::Display for RuleSetError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Empty => write!(f, "rule set is empty: no rule documents supplied"),
+            Self::BlankDocument(i) => write!(f, "rule document #{i} is blank"),
+            Self::NoRules => write!(f, "rule documents contain no N3 rules"),
+            Self::Unparseable(m) | Self::Refused(m) => write!(f, "{m}"),
+        }
+    }
+}
+
+impl std::error::Error for RuleSetError {}
+
+impl From<RuleSetError> for AppError {
+    fn from(e: RuleSetError) -> Self {
+        AppError::fm_law(6, format!("GraphLaw rule load refused: {e}"))
+    }
+}
+
+/// A validated, non-empty collection of N3 rule documents. The only input
+/// accepted by [`n3_run`], [`LawEngine`] and `GraphEngine::load_rules`;
+/// construction parses the rules and probes the bounded reasoner, so an
+/// invalid rule is refused at the boundary, never at a later materialize.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct RuleSet {
+    docs: Vec<String>,
+    rule_count: usize,
+}
+
+impl RuleSet {
+    /// Validate and build a `RuleSet` from rule documents (load order).
+    ///
+    /// # Errors
+    /// [`RuleSetError`] when empty, blank, rule-less, unparseable, or refused
+    /// by the bounded reasoner.
+    pub fn parse<I, S>(docs: I) -> std::result::Result<Self, RuleSetError>
+    where
+        I: IntoIterator<Item = S>,
+        S: AsRef<str>,
+    {
+        let docs: Vec<String> = docs.into_iter().map(|d| d.as_ref().to_string()).collect();
+        if docs.is_empty() {
+            return Err(RuleSetError::Empty);
+        }
+        if let Some(i) = docs.iter().position(|d| d.trim().is_empty()) {
+            return Err(RuleSetError::BlankDocument(i));
+        }
+        let refs: Vec<&str> = docs.iter().map(String::as_str).collect();
+        let probe = n3_run_raw("", &refs).map_err(|e| match e {
+            N3Failure::Load(m) => RuleSetError::Unparseable(m),
+            N3Failure::Reason(m) => RuleSetError::Refused(m),
+        })?;
+        if probe.rules == 0 {
+            return Err(RuleSetError::NoRules);
+        }
+        Ok(Self {
+            docs,
+            rule_count: probe.rules,
+        })
+    }
+
+    /// Validate a single rule document.
+    ///
+    /// # Errors
+    /// See [`RuleSet::parse`].
+    pub fn from_source(doc: &str) -> std::result::Result<Self, RuleSetError> {
+        Self::parse([doc])
+    }
+
+    /// Number of rules (including denial fuses) in the set.
+    #[must_use]
+    pub fn rule_count(&self) -> usize {
+        self.rule_count
+    }
+
+    /// Append another validated set (load order preserved).
+    pub fn extend(&mut self, other: RuleSet) {
+        self.rule_count += other.rule_count;
+        self.docs.extend(other.docs);
+    }
+
+    fn docs(&self) -> Vec<&str> {
+        self.docs.iter().map(String::as_str).collect()
+    }
+}
+
 /// Forward-chain `rules` over `facts_nt` with `GraphLaw`'s resource limits.
 /// A fired `=> false` fuse is reported in [`N3Run::fuse`] (Eyeron clears the
 /// derivation in that case; `graphlaw::law::reason_n3_bounded` would hide it).
-pub(crate) fn n3_run(facts_nt: &str, rules: &[&str]) -> std::result::Result<N3Run, N3Failure> {
-    if rules.is_empty() {
-        return Ok(N3Run::default());
-    }
+pub(crate) fn n3_run(facts_nt: &str, rules: &RuleSet) -> std::result::Result<N3Run, N3Failure> {
+    n3_run_raw(facts_nt, &rules.docs())
+}
+
+/// Private raw runner: reachable only through [`n3_run`] and
+/// [`RuleSet::parse`] (the validating constructor).
+fn n3_run_raw(facts_nt: &str, rules: &[&str]) -> std::result::Result<N3Run, N3Failure> {
     let mut text = String::from(facts_nt);
     text.push('\n');
     for rule in rules {
@@ -326,12 +433,12 @@ pub(crate) fn shex_check(
 /// internally, minus the persistent mirror: callers here own re-ingestion,
 /// per contract rule 2).
 pub trait LawEngine: Send + Sync {
-    /// Forward-chain `rules_n3` over `facts_ntriples` to fixpoint.
+    /// Forward-chain `rules` over `facts_ntriples` to fixpoint.
     ///
     /// # Errors
     /// Typed refusal (`[FM-LAW-*]`) on unparseable facts/rules or a
     /// resource-limit refusal during materialization.
-    fn materialize(&self, facts_ntriples: &str, rules_n3: &str) -> Result<MaterializeOutcome>;
+    fn materialize(&self, facts_ntriples: &str, rules: &RuleSet) -> Result<MaterializeOutcome>;
 
     /// Validate `facts_ntriples` against a Turtle SHACL shapes graph.
     ///
@@ -339,13 +446,13 @@ pub trait LawEngine: Send + Sync {
     /// Typed refusal on unparseable facts or an invalid shapes graph.
     fn validate_shacl(&self, facts_ntriples: &str, shapes_ttl: &str) -> Result<ShaclOutcome>;
 
-    /// Evaluate every denial rule (`{ body } => false.`) in `rules_n3`
+    /// Evaluate every denial rule (`{ body } => false.`) in `rules`
     /// against `facts_ntriples`, after materializing to fixpoint; one line
     /// per violated denial.
     ///
     /// # Errors
     /// Typed refusal on unparseable facts/rules.
-    fn check_denials(&self, facts_ntriples: &str, rules_n3: &str) -> Result<Vec<String>>;
+    fn check_denials(&self, facts_ntriples: &str, rules: &RuleSet) -> Result<Vec<String>>;
 }
 
 /// The only [`LawEngine`] implementation: `graphlaw` as the law-state
@@ -360,13 +467,8 @@ impl GraphLawEngine {
         Self
     }
 
-    fn run(facts_ntriples: &str, rules_n3: &str, code: u16) -> Result<N3Run> {
-        let rules: Vec<&str> = if rules_n3.trim().is_empty() {
-            Vec::new()
-        } else {
-            vec![rules_n3]
-        };
-        n3_run(facts_ntriples, &rules).map_err(|e| match e {
+    fn run(facts_ntriples: &str, rules: &RuleSet, code: u16) -> Result<N3Run> {
+        n3_run(facts_ntriples, rules).map_err(|e| match e {
             N3Failure::Load(m) => {
                 AppError::fm_law(code, format!("GraphLaw rule/fact load refused: {m}"))
             }
@@ -378,8 +480,8 @@ impl GraphLawEngine {
 }
 
 impl LawEngine for GraphLawEngine {
-    fn materialize(&self, facts_ntriples: &str, rules_n3: &str) -> Result<MaterializeOutcome> {
-        let run = Self::run(facts_ntriples, rules_n3, 10)?;
+    fn materialize(&self, facts_ntriples: &str, rules: &RuleSet) -> Result<MaterializeOutcome> {
+        let run = Self::run(facts_ntriples, rules, 10)?;
         let before: BTreeSet<String> = facts_ntriples
             .lines()
             .map(|l| l.trim().trim_end_matches('.').trim_end().to_string())
@@ -411,8 +513,8 @@ impl LawEngine for GraphLawEngine {
             .map_err(|e| AppError::fm_law(13, format!("SHACL shapes graph refused: {e}")))
     }
 
-    fn check_denials(&self, facts_ntriples: &str, rules_n3: &str) -> Result<Vec<String>> {
-        let run = Self::run(facts_ntriples, rules_n3, 14)?;
+    fn check_denials(&self, facts_ntriples: &str, rules: &RuleSet) -> Result<Vec<String>> {
+        let run = Self::run(facts_ntriples, rules, 14)?;
         Ok(run.fuse.into_iter().collect())
     }
 }

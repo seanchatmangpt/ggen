@@ -382,7 +382,7 @@ pub(crate) fn run(root: &Path, manifest: &GgenManifest, opts: SyncOptions) -> Re
                 rel_display(root, &rule_path),
                 hash_file_or_missing(&rule_path),
             );
-            graph.load_rules(&src)?;
+            graph.load_rules(&crate::law_engine::RuleSet::from_source(&src)?)?;
         }
         graph.materialize()?;
         let denials = graph.check_denials()?;

@@ -9,6 +9,7 @@
 //! materialization, assertions on observable state (derived facts, DENIED
 //! lines, BLAKE3 hashes) — no doubles.
 
+use ggen_engine::law_engine::RuleSet;
 use ggen_engine::graph::{
     DeterministicGraph, EngineQueryResults, GraphEngine, GraphLawStore, ShaclOutcome,
 };
@@ -67,7 +68,8 @@ fn repoint_materialize_derives_expected_triple_from_disk_fixtures() {
     GraphEngine::insert_turtle(&store, &facts_text).expect("insert facts");
     GraphEngine::load_rules(
         &store,
-        &std::fs::read_to_string(&rules).expect("read rules"),
+        &RuleSet::from_source(&std::fs::read_to_string(&rules).expect("read rules"))
+            .expect("valid rule set"),
     )
     .expect("load rules");
 
@@ -126,7 +128,8 @@ fn repoint_refuse_pack_loads_and_denial_surfaces_at_materialize() {
     .expect("insert facts");
     GraphEngine::load_rules(
         &store,
-        &std::fs::read_to_string(&rules).expect("read rules"),
+        &RuleSet::from_source(&std::fs::read_to_string(&rules).expect("read rules"))
+            .expect("valid rule set"),
     )
     .expect("load rules");
 
@@ -160,7 +163,8 @@ fn repoint_refuse_pack_loads_and_denial_surfaces_at_materialize() {
     // denial rule -> `DENIED:` line from check_denials.
     GraphEngine::load_rules(
         &store,
-        "@prefix ex: <http://example.org/> . {?s a ex:Animal} => false.",
+        &RuleSet::from_source("@prefix ex: <http://example.org/> . {?s a ex:Animal} => false.")
+            .expect("valid rule set"),
     )
     .expect("denial rule");
     let denials = GraphEngine::check_denials(&store).expect("denials");
@@ -217,7 +221,8 @@ fn repoint_state_hash_contract_preserved() {
     GraphEngine::insert_turtle(&store, &facts_text).expect("insert facts");
     GraphEngine::load_rules(
         &store,
-        &std::fs::read_to_string(&rules).expect("read rules"),
+        &RuleSet::from_source(&std::fs::read_to_string(&rules).expect("read rules"))
+            .expect("valid rule set"),
     )
     .expect("load rules");
 

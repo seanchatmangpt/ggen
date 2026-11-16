@@ -18,7 +18,7 @@
 
 #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 
-use ggen_engine::law_engine::{GraphLawEngine, LawEngine};
+use ggen_engine::law_engine::{GraphLawEngine, LawEngine, RuleSet};
 use ggen_graph::graph::parse::parse_ntriples;
 use ggen_graph::graph::serialize::serialize_to_string;
 use ggen_graph::DeterministicGraph;
@@ -104,7 +104,10 @@ fn materialize_across_seam_lands_derived_fact_in_oxigraph_store() {
     // Out across the seam as a string, evaluated by praxis-graphlaw inside ggen-engine.
     let engine = GraphLawEngine::new();
     let outcome = engine
-        .materialize(&facts_ntriples(&graph), RULE_N3)
+        .materialize(
+            &facts_ntriples(&graph),
+            &RuleSet::from_source(RULE_N3).expect("valid rule set"),
+        )
         .expect("materialize across the LawEngine seam");
 
     assert_eq!(outcome.rules_loaded, 1, "the N3 rule must have been loaded");
@@ -134,30 +137,21 @@ fn materialize_across_seam_lands_derived_fact_in_oxigraph_store() {
     );
 }
 
-/// A no-op or passthrough bridge would return the same `derived` set with and without
-/// rules. Proving the empty-rules case stays empty is what makes the test above meaningful.
+/// Without rules there is nothing to hand across the seam: an empty `RuleSet` is a typed
+/// refusal at construction, and the store is untouched.
 #[test]
-fn materialize_across_seam_with_no_rules_changes_nothing_in_the_store() {
+fn empty_rule_set_is_refused_and_store_is_unchanged() {
     let graph = store_with(DOG_TTL);
     let quads_before = graph.all_quads().expect("all_quads").len();
 
-    let engine = GraphLawEngine::new();
-    let outcome = engine
-        .materialize(&facts_ntriples(&graph), "")
-        .expect("materialize with no rules must still succeed");
-
-    assert_eq!(outcome.rules_loaded, 0);
-    assert!(
-        outcome.derived.is_empty(),
-        "no rules loaded -> nothing new can be derived: {:?}",
-        outcome.derived
+    assert_eq!(
+        RuleSet::parse(Vec::<&str>::new()).expect_err("empty set must refuse"),
+        ggen_engine::law_engine::RuleSetError::Empty
     );
-
-    fold_back(&graph, &outcome.derived);
     assert_eq!(
         graph.all_quads().expect("all_quads").len(),
         quads_before,
-        "an empty derived set must leave the consumer's store byte-identical in size"
+        "a refused rule set must leave the consumer's store untouched"
     );
     assert!(
         !ask(&graph, ASK_REX_IS_ANIMAL),
@@ -175,7 +169,10 @@ fn check_denials_across_seam_reports_violation_from_store_facts() {
 
     // Negative control: the same rule over a store with no Forbidden individual.
     let none = engine
-        .check_denials(&facts_ntriples(&clean), DENIAL_N3)
+        .check_denials(
+            &facts_ntriples(&clean),
+            &RuleSet::from_source(DENIAL_N3).expect("valid rule set"),
+        )
         .expect("check_denials on clean facts");
     assert!(
         none.is_empty(),
@@ -185,7 +182,10 @@ fn check_denials_across_seam_reports_violation_from_store_facts() {
     // Now a store that really does violate the denial.
     let dirty = store_with("@prefix ex: <http://example.org/> . ex:x a ex:Forbidden .");
     let denials = engine
-        .check_denials(&facts_ntriples(&dirty), DENIAL_N3)
+        .check_denials(
+            &facts_ntriples(&dirty),
+            &RuleSet::from_source(DENIAL_N3).expect("valid rule set"),
+        )
         .expect("check_denials on violating facts");
     assert_eq!(denials.len(), 1, "exactly one violated denial: {denials:?}");
     assert!(

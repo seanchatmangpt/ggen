@@ -1278,7 +1278,8 @@ fn build_law_engine(root: &std::path::Path) -> Result<LawEngineBuild> {
                 rule_path.display()
             ))
         })?;
-        let n = engine.load_rules(&src).map_err(exec_err)?;
+        let set = crate::law_engine::RuleSet::from_source(&src).map_err(exec_err)?;
+        let n = engine.load_rules(&set).map_err(exec_err)?;
         loaded.push((rel.display().to_string(), n));
     }
     Ok((law_shapes, engine, loaded))

@@ -8,7 +8,7 @@
 
 #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 
-use ggen_engine::law_engine::{GraphLawEngine, LawEngine};
+use ggen_engine::law_engine::{GraphLawEngine, LawEngine, RuleSet, RuleSetError};
 
 /// `ex:rex` is asserted as a `Dog` only — `ex:rex a ex:Animal` can only ever
 /// exist as a fact derived by the N3 rule below, never as an input fact.
@@ -17,18 +17,43 @@ const FACTS_NTRIPLES: &str = "<http://example.org/rex> <http://www.w3.org/1999/0
 /// N3 rule: every `Dog` is an `Animal`.
 const RULE_N3: &str = "@prefix ex: <http://example.org/>. {?s a ex:Dog} => {?s a ex:Animal}.";
 
+/// Negative path: an empty/blank/rule-less rule set cannot even be built, so
+/// "materialize with no rules" is unrepresentable at the seam (fail-closed).
 #[test]
-fn materialize_without_rules_derives_nothing_new() {
-    let engine = GraphLawEngine::new();
-    let outcome = engine
-        .materialize(FACTS_NTRIPLES, "")
-        .expect("materialize with no rules must still succeed");
-    assert_eq!(outcome.rules_loaded, 0);
-    assert!(
-        outcome.derived.is_empty(),
-        "no rules loaded -> nothing new can be derived: {:?}",
-        outcome.derived
+fn empty_blank_and_ruleless_rule_sets_are_refused_with_typed_errors() {
+    assert_eq!(
+        RuleSet::parse(Vec::<&str>::new()).expect_err("empty set"),
+        RuleSetError::Empty
     );
+    assert_eq!(
+        RuleSet::from_source("  \n\t ").expect_err("blank doc"),
+        RuleSetError::BlankDocument(0)
+    );
+    assert_eq!(
+        RuleSet::parse([RULE_N3, ""]).expect_err("blank second doc"),
+        RuleSetError::BlankDocument(1)
+    );
+    assert_eq!(
+        RuleSet::from_source("@prefix ex: <http://example.org/>.").expect_err("no rules"),
+        RuleSetError::NoRules
+    );
+    assert!(matches!(
+        RuleSet::from_source("@prefix : <http://ex/> .\n:s :p >>>not n3<<< .\n")
+            .expect_err("garbage"),
+        RuleSetError::Unparseable(_)
+    ));
+}
+
+/// A valid rule set counts its rules and survives `extend`.
+#[test]
+fn rule_set_counts_rules_and_extends() {
+    let mut set = RuleSet::from_source(RULE_N3).expect("valid");
+    assert_eq!(set.rule_count(), 1);
+    set.extend(
+        RuleSet::from_source("@prefix ex: <http://example.org/>. {?s a ex:Cat} => false.")
+            .expect("valid denial"),
+    );
+    assert_eq!(set.rule_count(), 2);
 }
 
 /// THE load-bearing proof: loading `RULE_N3` over the identical fact set
@@ -40,7 +65,7 @@ fn materialize_without_rules_derives_nothing_new() {
 fn materialize_with_n3_rule_derives_new_fact() {
     let engine = GraphLawEngine::new();
     let outcome = engine
-        .materialize(FACTS_NTRIPLES, RULE_N3)
+        .materialize(FACTS_NTRIPLES, &RuleSet::from_source(RULE_N3).expect("valid rules"))
         .expect("materialize with a loaded rule must succeed");
     assert_eq!(outcome.rules_loaded, 1);
     assert!(
@@ -87,7 +112,7 @@ ex:DogShape a sh:NodeShape ;
 #[test]
 fn check_denials_reports_violated_denial_after_materialization() {
     const DENIAL_N3: &str = "@prefix ex: <http://example.org/>. {?s a ex:Animal} => false.";
-    let rules = format!("{RULE_N3}\n{DENIAL_N3}");
+    let rules = RuleSet::parse([RULE_N3, DENIAL_N3]).expect("valid rules");
     let engine = GraphLawEngine::new();
     let denials = engine
         .check_denials(FACTS_NTRIPLES, &rules)

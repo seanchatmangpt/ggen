@@ -9,6 +9,7 @@
 use std::path::{Path, PathBuf};
 
 use ggen_engine::graph::{GraphEngine as _, GraphLawStore};
+use ggen_engine::law_engine::RuleSet;
 use ggen_engine::sync::{sync, SyncOptions};
 use tempfile::TempDir;
 
@@ -67,7 +68,9 @@ fn standing_rule_derives_evidence_bound_for_cited_breeds() {
         .insert_turtle(&read("packs/wasm4pm-facts-pack/ontology.ttl"))
         .expect("insert facts");
     let loaded = engine
-        .load_rules(&read("ontology/rules/breed_standing.n3"))
+        .load_rules(
+            &RuleSet::from_source(&read("ontology/rules/breed_standing.n3")).expect("valid rule set"),
+        )
         .expect("load standing rule");
     assert!(loaded > 0, "standing rule file must load at least one rule");
 

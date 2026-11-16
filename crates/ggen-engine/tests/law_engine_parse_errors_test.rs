@@ -7,7 +7,7 @@
 
 #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)] // Chicago TDD: unwrap/expect/panic allowed in test code
 
-use ggen_engine::law_engine::{GraphLawEngine, LawEngine};
+use ggen_engine::law_engine::{GraphLawEngine, LawEngine, RuleSet};
 
 #[test]
 fn n3_formula_fed_as_turtle_hook_pack_carries_e_parse_turtle() {
@@ -35,9 +35,8 @@ fn genuine_n3_syntax_error_carries_e_parse_n3_with_message() {
     // Valid N-Triples facts, garbage rule text: parse_n3 must refuse.
     let facts = "<http://ex/s> <http://ex/p> <http://ex/o> .\n";
     let bad_rules = "@prefix : <http://ex/> .\n:s :p >>>not n3<<< .\n";
-    let err = engine
-        .materialize(facts, bad_rules)
-        .expect_err("must refuse");
+    let _ = (&engine, facts);
+    let err = RuleSet::from_source(bad_rules).expect_err("must refuse");
     let msg = format!("{err}");
     eprintln!("witnessed refusal: {msg}");
     assert!(
@@ -46,7 +45,7 @@ fn genuine_n3_syntax_error_carries_e_parse_n3_with_message() {
     );
     // The refusal must carry the engine's diagnostic message, not just kind.
     assert!(
-        msg.len() > "[FM-LAW-010] GraphLaw rule/fact load refused: [E-PARSE-N3] ".len(),
+        msg.len() > "[E-PARSE-N3] ".len(),
         "expected a real diagnostic message in: {msg}"
     );
 }
@@ -73,7 +72,7 @@ fn valid_documents_still_succeed_after_refusal_formatting() {
     let rules =
         "@prefix : <http://ex/> .\n{ ?s <http://ex/p> ?o . } => { ?s <http://ex/q> ?o . } .\n";
     let out = engine
-        .materialize(facts, rules)
+        .materialize(facts, &RuleSet::from_source(rules).expect("valid rules"))
         .expect("valid documents must still derive");
     assert!(
         out.derived.iter().any(|l| l.contains("<http://ex/q>")),

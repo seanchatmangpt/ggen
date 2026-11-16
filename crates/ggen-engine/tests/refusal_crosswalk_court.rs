@@ -26,7 +26,7 @@ use std::collections::BTreeSet;
 
 use ggen_engine::generated::refusals::Refusal;
 use ggen_engine::graph::{load_declared, GraphLawStore};
-use ggen_engine::law_engine::{GraphLawEngine, LawEngine};
+use ggen_engine::law_engine::{GraphLawEngine, LawEngine, RuleSet};
 use ggen_engine::typed_boundary_census::WIRE_CODES;
 
 // ---------------------------------------------------------------------------
@@ -284,9 +284,8 @@ fn limit_wire_form_round_trips() {
 /// `{:?}` dump.
 #[test]
 fn malformed_facts_through_law_engine_carry_eparse_prefix() {
-    let engine = GraphLawEngine::new();
-    let err = engine
-        .materialize("", "this is not n3 at all <<< no formula here") // malformed N3 rules
+    // malformed N3 rules are now refused at RuleSet construction.
+    let err = RuleSet::from_source("this is not n3 at all <<< no formula here")
         .expect_err("malformed N3 rules must refuse");
     let msg = err.to_string();
     let prefix = msg
