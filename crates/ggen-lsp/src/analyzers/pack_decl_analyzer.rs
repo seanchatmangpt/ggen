@@ -110,7 +110,8 @@ fn locate(
 mod tests {
     use super::*;
 
-    const HEAD: &str = "[project]\nname = \"t\"\nversion = \"1.0.0\"\n\n[ontology]\nsource = \"o.ttl\"\n\n";
+    const HEAD: &str =
+        "[project]\nname = \"t\"\nversion = \"1.0.0\"\n\n[ontology]\nsource = \"o.ttl\"\n\n";
 
     #[test]
     fn undeclared_query_pack_yields_e0014_with_position() {
@@ -144,7 +145,10 @@ mod tests {
         );
         let diags = undeclared_pack_diagnostics(&text);
         assert_eq!(diags.len(), 1, "{diags:?}");
-        let line = text.lines().nth(diags[0].lsp.range.start.line as usize).unwrap();
+        let line = text
+            .lines()
+            .nth(diags[0].lsp.range.start.line as usize)
+            .unwrap();
         assert!(line.starts_with("template"), "anchored on: {line}");
     }
 

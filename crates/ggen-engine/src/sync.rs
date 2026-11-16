@@ -1031,7 +1031,7 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
         "error.message" = tracing::field::Empty,
     );
     let admit_guard = admit_span.enter();
-    let admit_result: Result<(), AppError> = (|| {
+    let admit_result: Result<()> = (|| {
         // 1. Pack-level dependency/port resolution
         let mut pack_manifests = Vec::new();
         for pack in &packs {
