@@ -2,7 +2,7 @@
 //! receipt log, fail-closed. Truncated, reordered, missing, or emptied logs
 //! and a tampered head are refused with typed `[FM-CHAIN-*]` errors.
 //!
-//! Chicago-TDD: real TempDir project, real syncs, real file edits, the real
+//! Chicago-TDD: real `TempDir` project, real syncs, real file edits, the real
 //! verifier.
 
 #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
