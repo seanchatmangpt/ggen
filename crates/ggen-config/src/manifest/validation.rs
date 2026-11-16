@@ -103,7 +103,9 @@ pub fn e0014_message(pack: &str, rule_name: &str) -> String {
     format!("error[E0014]: Pack '{pack}' used in rule '{rule_name}' is not declared in [[packs]]")
 }
 
-/// Pure E0014 check: every `(field, pack)` where `field` is `"query"` or
+/// Pure E0014 check for undeclared pack references.
+///
+/// Returns every `(field, pack)` where `field` is `"query"` or
 /// `"template"` and `pack` is referenced by `rule` but absent from `packs`.
 /// `query` and `template` are checked independently (red-team finding F1).
 #[must_use]

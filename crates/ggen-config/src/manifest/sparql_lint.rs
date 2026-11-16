@@ -63,7 +63,9 @@ pub fn query_contains_values(query: &str) -> bool {
         })
 }
 
-/// Lint `query` for the three shared laws. `external_file` is true when the
+/// Lint `query` for the three shared laws.
+///
+/// `external_file` is true when the
 /// text comes from an external `.rq` file (E0010 only applies there; inline
 /// queries in `ggen.toml` may legitimately carry VALUES).
 ///

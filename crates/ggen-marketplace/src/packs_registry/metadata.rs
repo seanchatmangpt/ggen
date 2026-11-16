@@ -77,6 +77,14 @@ pub fn load_pack_metadata(pack_id: &str) -> Result<Pack> {
         ));
     }
 
+    // Fail closed on anything that is not a single plain file name: a separator,
+    // a `..` component or a NUL would let the join below escape `packs_dir`.
+    if pack_id.contains(['/', '\\', '\0']) || pack_id.contains("..") {
+        return Err(crate::marketplace::error::Error::Other(format!(
+            "Invalid pack id '{pack_id}': must be a single plain name"
+        )));
+    }
+
     let packs_dir = get_packs_dir()?;
     let pack_path = packs_dir.join(format!("{pack_id}.toml"));
 
