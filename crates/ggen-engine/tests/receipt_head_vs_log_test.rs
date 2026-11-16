@@ -9,8 +9,7 @@
 //!    a generation epoch).
 //! 2. A head that diverges from the log tail (stale restore, tampered
 //!    head/log) is refused with a typed error naming BOTH hashes.
-//! 3. A missing or empty log file is a LOUD SKIP in the output (`log_check`
-//!    naming the skip), never a silent pass — receipts predating the log.
+//! 3. A missing or empty log file is refused fail-closed (`[FM-CHAIN-019]`).
 //!
 //! Chicago-TDD: real tempdir project, real five-stage sync, real log
 //! appends, the real verifier. No mocks.
@@ -166,35 +165,27 @@ fn stale_head_restored_over_progressed_log_refused() {
     );
 }
 
-/// Law 3: missing log file = loud SKIP in the output, not a silent pass.
+/// Law 3: missing log file is REFUSED (fail-closed, A19 follow-up 4).
 #[test]
-fn missing_log_loud_skip_not_silent_pass() {
+fn missing_log_refused_fail_closed() {
     let dir = TempDir::new().expect("tempdir");
     let root = dir.path();
 
     scaffold(root, "alice");
     sync(root, SyncOptions::default()).expect("sync 1");
-    // Remove the log entirely (receipt predates the log / log removed).
     std::fs::remove_file(root.join(RECEIPT_LOG_REL_PATH)).expect("remove log");
 
-    let out = handle_receipt_verify_in(root).expect("internal checks still pass");
-    assert_eq!(out["valid"], serde_json::json!(true));
-    let skip = out["log_check"]
-        .as_str()
-        .expect("missing log must produce a LOUD skip in the output, not silence");
+    let err = handle_receipt_verify_in(root).expect_err("missing log must be refused");
+    let msg = err.to_string();
     assert!(
-        skip.contains("SKIP") && skip.contains(RECEIPT_LOG_REL_PATH),
-        "skip line must name the skip and the log path, got: {skip:?}"
-    );
-    assert!(
-        out.get("log_head_match").is_none(),
-        "log_head_match must be absent when no comparison ran"
+        msg.contains("FM-CHAIN-019") && msg.contains(RECEIPT_LOG_REL_PATH),
+        "refusal must be typed and name the log path, got: {msg}"
     );
 }
 
-/// Law 3b: empty log file = loud SKIP, same contract as a missing log.
+/// Law 3b: empty log file is refused, same contract as a missing log.
 #[test]
-fn empty_log_loud_skip_not_silent_pass() {
+fn empty_log_refused_fail_closed() {
     let dir = TempDir::new().expect("tempdir");
     let root = dir.path();
 
@@ -202,13 +193,9 @@ fn empty_log_loud_skip_not_silent_pass() {
     sync(root, SyncOptions::default()).expect("sync 1");
     std::fs::write(root.join(RECEIPT_LOG_REL_PATH), "").expect("empty the log");
 
-    let out = handle_receipt_verify_in(root).expect("internal checks still pass");
-    assert_eq!(out["valid"], serde_json::json!(true));
-    let skip = out["log_check"]
-        .as_str()
-        .expect("empty log must produce a LOUD skip in the output, not silence");
+    let err = handle_receipt_verify_in(root).expect_err("empty log must be refused");
     assert!(
-        skip.contains("SKIP"),
-        "skip line must be explicit, got: {skip:?}"
+        err.to_string().contains("FM-CHAIN-019"),
+        "refusal must be typed, got: {err}"
     );
 }

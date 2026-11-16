@@ -4,6 +4,25 @@ All notable changes to ggen are documented here.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [26.11.15] — Version Surface Cut (2026-11-16, UNRELEASED: wave verification pending)
+
+Derived from `git log b21cbfa5..HEAD` (the v26.10.20 release merge; no `v26.10.20` git tag exists) and its diff. All three commits since are `wip(...)` in-flight wave snapshots marked UNVERIFIED; items below describe the diff, not a green gate run.
+
+### Added
+- **Shared SPARQL determinism lint** — `ggen-config/src/manifest/sparql_lint.rs` is now the single source for `E0010`/`E0011`/`E0013`; `ggen-lsp`'s `SparqlAnalyzer` and `manifest::validation` both call it, pinned by `ggen-lsp/tests/sparql_lint_differential_test.rs` (previously two independent implementations).
+- **`pack_decl_analyzer`** in `ggen-lsp` (author-time pack declaration analysis, wired into `check.rs`).
+- **Receipt head-log chain test**, dialect schema-registry test, and a `ggen-config` doc-count parity test (`system_doc_counts_parity_test.rs`).
+- **Marketplace `install.rs`** trust/verification additions (+136 lines).
+- **Drift guard** — `ggen-engine/tests/version_consistency_e2e.rs::no_stale_exact_self_pin_on_workspace_path_dependencies` fails if any exact version pin on an in-workspace path dependency differs from the workspace version.
+
+### Changed
+- **Workspace version 26.10.12 → 26.11.15**; exact self-pins bumped in root `Cargo.toml` (`ggen-cli-lib`, `ggen-graph`, `ggen-engine`), `ggen-engine` (`ggen-abb-sbb`, `=ggen-graph`), `ggen-lsp` (marketplace/config/graph), `ggen-cli` (config/marketplace/lsp). Also `ggen.toml` and `.specify/repo-facts.ttl` `rf:workspaceVersion`.
+- **`ggen-engine`** `graph.rs`/`law_engine.rs`/`sync.rs` revisions (parse-error and law-engine test updates).
+- Range reqs `>=26.10.10, <26.15` on ggen-config/ggen-marketplace and external `graphlaw 26.10.13` left unchanged.
+
+### Removed
+- Vendored sources trimmed from `bcinr-pddl`, `bcinr-mfw-ir`, `powl2-decompose` (61 files deleted, about 20k lines) in the wip snapshots.
+
 ## [26.10.11] — crates.io Release Chain, ABB-SBB Admission Gate, and Lint Closure (2026-10-10)
 
 ### Removed
