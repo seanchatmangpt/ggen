@@ -2,7 +2,7 @@
 //! `.validate`, `.admit` (Stage 2c, ggen-abb-sbb), `.generate`, `.emit`.
 //!
 //! A real in-process `tracing::Subscriber` is installed around a real
-//! `sync()` in a real TempDir. It only observes; every value was produced by
+//! `sync()` in a real `TempDir`. It only observes; every value was produced by
 //! the production span code in `src/sync.rs`.
 //!
 //! Asserts: all six spans appear exactly once, in stage order; each recorded

@@ -4,11 +4,11 @@
 //! observable filesystem state and typed `ErrorCategory`.
 //!
 //! Real defect found + fixed: `ggen_pack_query`'s `pack_id` was joined into
-//! `<packs_dir>/<pack_id>.toml` unvalidated (path traversal). The pack_id
+//! `<packs_dir>/<pack_id>.toml` unvalidated (path traversal). The `pack_id`
 //! courts below fail on the pre-fix code.
 //! Clean probes (documented here, pinned so they stay clean): symlinked
-//! template_path escape, `paths` traversal in check_project, write_apply
-//! with a missing/empty hash, receipt_verify on an absent receipt.
+//! `template_path` escape, `paths` traversal in `check_project`, `write_apply`
+//! with a missing/empty hash, `receipt_verify` on an absent receipt.
 #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)] // Chicago TDD: real-IO tests
 
 use ggen_mcp::error::ErrorCategory;
