@@ -72,6 +72,21 @@ fn strong_frontmatter(t: &toml::Table) -> bool {
     shapes || matches!(t.get("packs"), Some(toml::Value::Table(_)))
 }
 
+/// The classifier's positive confirmation for the frontmatter schema when no exclusive marker
+/// fires: the three-field conjunction `project.name` + `ontology.source` + `templates.dir`
+/// (`satisfies_frontmatter_minimum`). Re-derived from the raw table, independent of the classifier.
+fn frontmatter_minimum(t: &toml::Table) -> bool {
+    let str_at = |tbl: &str, key: &str| {
+        t.get(tbl)
+            .and_then(toml::Value::as_table)
+            .and_then(|x| x.get(key))
+            .and_then(toml::Value::as_str)
+    };
+    str_at("project", "name").is_some_and(|s| !s.is_empty())
+        && str_at("ontology", "source").is_some()
+        && str_at("templates", "dir").is_some()
+}
+
 #[test]
 fn every_repo_ggen_toml_is_classified_into_exactly_one_outcome() {
     let files = corpus();
@@ -102,8 +117,8 @@ fn every_repo_ggen_toml_is_classified_into_exactly_one_outcome() {
                                  path.display()
                 );
                 assert!(
-                    strong_frontmatter(&t),
-                    "{}: no frontmatter marker",
+                    strong_frontmatter(&t) || frontmatter_minimum(&t),
+                    "{}: Frontmatter without a strong marker or the three-field minimum",
                     path.display()
                 );
             }
