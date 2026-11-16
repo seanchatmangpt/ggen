@@ -255,6 +255,17 @@ mod tests {
     use super::*;
     use serial_test::serial;
 
+    #[test]
+    fn load_pack_metadata_refuses_ids_that_could_escape_the_packs_dir() {
+        for bad in ["../secret", "a/b", "a\\b", "..", "x..y", "nul\0byte"] {
+            let err = load_pack_metadata(bad).expect_err(bad);
+            assert!(
+                err.to_string().contains("Invalid pack id"),
+                "{bad:?} must be refused as an invalid pack id, got: {err}"
+            );
+        }
+    }
+
     /// Saves the prior value of an env var on construction and restores it
     /// (or removes it if previously unset) on Drop, so env mutation in one
     /// test cannot leak into another.

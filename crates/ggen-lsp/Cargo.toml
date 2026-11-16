@@ -45,7 +45,7 @@ tracing-subscriber = { workspace = true }
 # (mcp_server.rs's `ggen.construct` handler, mcp_packs.rs) now go through ggen-engine /
 # ggen-marketplace respectively -- see the `publish = false` comment above this table for why
 # this edge makes the crate unpublishable, and why that mirrors ggen-cli-lib's prior fix.
-ggen-engine = { path = "../ggen-engine", version = "26.7.13" }
+ggen-engine = { path = "../ggen-engine", version = "26.11.15" }
 ggen-marketplace = { path = "../ggen-marketplace", version = "26.11.15" }
 ggen-config = { path = "../ggen-config", version = "26.11.15" }
 ggen-graph = { path = "../ggen-graph", version = "26.11.15" }
