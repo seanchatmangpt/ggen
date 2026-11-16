@@ -7,6 +7,8 @@
 //! "BLOCKED-class" / "promoted" label) is stale and this test fails. Chicago
 //! style: reads the real files, no doubles.
 
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 use std::path::PathBuf;
 
 fn repo_root() -> PathBuf {

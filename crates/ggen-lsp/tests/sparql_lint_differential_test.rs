@@ -4,6 +4,8 @@
 //! through `ggen_config::manifest::sparql_lint::lint_query`; this test pins
 //! that no caller-side logic re-diverges.
 
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 use ggen_config::manifest::ManifestParser;
 use star_toml::Validate;
 use ggen_lsp::analyzers::sparql_analyzer::SparqlAnalyzer;
