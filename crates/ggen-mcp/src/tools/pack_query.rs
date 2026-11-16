@@ -60,6 +60,15 @@ pub fn pack_query(params: &PackQueryParams) -> Result<PackQueryResult, McpError>
         ));
     }
 
+    // `pack_id` is joined into a filesystem path by the registry loader
+    // (`<packs_dir>/<pack_id>.toml`). Refuse anything that is not a single
+    // plain path component BEFORE it reaches the loader, so `../../x`,
+    // absolute paths, separators, NUL and over-long ids cannot read a
+    // `.toml` outside the packs directory.
+    if let Some(id) = params.pack_id.as_deref() {
+        validate_pack_id(id)?;
+    }
+
     let outcome = run_pack_query(&params.sparql, params.pack_id.as_deref()).map_err(|e| {
         let category = if params.pack_id.is_some() && e.to_string().contains("not found") {
             ErrorCategory::NotFound
@@ -96,5 +105,25 @@ fn pack_value_to_json(value: &PackValue) -> serde_json::Value {
             .unwrap_or(serde_json::Value::Null),
         PackValue::Boolean(b) => serde_json::Value::Bool(*b),
         PackValue::Null => serde_json::Value::Null,
+    }
+}
+
+/// Accept only a single plain path component: non-empty, bounded, made of
+/// ASCII alphanumerics plus `-`, `_`, `.`, and not `.`/`..`.
+fn validate_pack_id(id: &str) -> Result<(), McpError> {
+    let ok = !id.is_empty()
+        && id.len() <= crate::limits::MAX_PATH_BYTES
+        && id != "."
+        && id != ".."
+        && id
+            .chars()
+            .all(|c| c.is_ascii_alphanumeric() || matches!(c, '-' | '_' | '.'));
+    if ok {
+        Ok(())
+    } else {
+        Err(McpError::new(
+            ErrorCategory::PathTraversal,
+            format!("pack_id {id:?} must be a single plain name (letters, digits, '-', '_', '.'); path components are refused"),
+        ))
     }
 }
