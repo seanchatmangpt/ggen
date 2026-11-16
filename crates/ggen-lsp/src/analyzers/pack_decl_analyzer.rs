@@ -124,10 +124,12 @@ mod tests {
         assert_eq!(d.law_id, "E0014");
         assert_eq!(d.lsp.severity, Some(DiagnosticSeverity::ERROR));
         assert!(d.lsp.message.contains("'ghost'") && d.lsp.message.contains("'r'"));
-        // `query = ...` is line index 11 (0-based); pack name starts after `{ pack = "`.
-        assert_eq!(d.lsp.range.start.line, 11);
-        assert_eq!(d.lsp.range.start.character, 17);
-        assert_eq!(d.lsp.range.end.character, 22);
+        // HEAD is 7 lines (indices 0..=6), so `[[generation.rules]]` is index 7 and
+        // `query = ...` is index 10 (0-based). The opening quote of `"ghost"` is at
+        // column 17, so the name itself spans columns 18..23.
+        assert_eq!(d.lsp.range.start.line, 10);
+        assert_eq!(d.lsp.range.start.character, 18);
+        assert_eq!(d.lsp.range.end.character, 23);
     }
 
     #[test]

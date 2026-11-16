@@ -99,4 +99,62 @@ fn every_repo_ggen_toml_is_classified_into_exactly_one_outcome() {
                 assert!(
                     !strong_declarative(&t),
                     "{}: Frontmatter but carries declarative-exclusive marker (both)",
-             
+                                 path.display()
+                );
+                assert!(
+                    strong_frontmatter(&t),
+                    "{}: no frontmatter marker",
+                    path.display()
+                );
+            }
+            C::Ambiguous { matched } => {
+                assert_eq!(got.code(), CONFIG_SCHEMA_AMBIGUOUS, "{}", path.display());
+                assert!(
+                    matched.iter().any(|m| m.starts_with("declarative:"))
+                        && matched.iter().any(|m| m.starts_with("frontmatter:")),
+                    "{}: Ambiguous must name markers from both schemas, got {matched:?}",
+                    path.display()
+                );
+            }
+            C::Unsupported { .. } => {
+                assert_eq!(got.code(), CONFIG_SCHEMA_UNSUPPORTED, "{}", path.display());
+            }
+            C::Malformed { .. } => {
+                assert_eq!(got.code(), CONFIG_PARSE_FAILED, "{}", path.display());
+            }
+        }
+    }
+    assert!(
+        supported > 0,
+        "no repo ggen.toml classified into a supported schema"
+    );
+}
+
+#[test]
+fn classification_is_deterministic_over_the_corpus() {
+    for (path, raw) in corpus() {
+        assert_eq!(
+            classify_ggen_toml(&raw),
+            classify_ggen_toml(&raw),
+            "{} classified differently on a second pass",
+            path.display()
+        );
+    }
+}
+
+#[test]
+fn hybrid_documents_are_refused_as_ambiguous_not_warned() {
+    // [generation] is declarative-exclusive; [law].shapes is frontmatter-exclusive.
+    let hybrids = [
+        "[project]\nname = \"h\"\n[generation]\noutput_dir = \"o\"\n[law]\nshapes = \"s.ttl\"\n",
+        "[generation]\noutput_dir = \"o\"\n[law]\nshapes = \"s.ttl\"\n",
+    ];
+    for raw in hybrids {
+        let got = classify_ggen_toml(raw);
+        assert!(
+            matches!(got, C::Ambiguous { .. }),
+            "hybrid must be Ambiguous (FM-CONFIG-101), got {got:?} for:\n{raw}"
+        );
+        assert_eq!(got.code(), CONFIG_SCHEMA_AMBIGUOUS);
+    }
+}

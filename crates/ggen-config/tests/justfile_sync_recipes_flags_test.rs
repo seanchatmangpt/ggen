@@ -35,7 +35,8 @@ fn recipe_body(justfile: &str, name: &str) -> Vec<String> {
         .collect()
 }
 
-fn check(name: &str, expect_dry: bool) {
+/// Validates the recipe uses only live-verb flags; returns whether it passes `--dry-run`.
+fn check(name: &str) -> bool {
     let justfile = std::fs::read_to_string(repo_root().join("justfile")).expect("read justfile");
     let accepted = live_verb_flags();
     assert!(accepted.contains(&"--dry-run".to_string()), "derived flags: {accepted:?}");
@@ -49,17 +50,17 @@ fn check(name: &str, expect_dry: bool) {
         assert!(t.starts_with("--"), "bare value `{t}` passed to switch-only verb: {}", body[0]);
         assert!(accepted.contains(&t.to_string()), "flag `{t}` not accepted by live verb {accepted:?}");
     }
-    assert_eq!(flags.iter().any(|t| **t == "--dry-run"), expect_dry, "{}", body[0]);
+    flags.iter().any(|t| **t == "--dry-run")
 }
 
 #[test]
 fn just_sync_uses_only_live_verb_flags() {
-    check("sync", false);
+    assert!(!check("sync"), "`just sync` must run the full pipeline, not --dry-run");
 }
 
 #[test]
 fn just_sync_dry_uses_only_live_verb_flags() {
-    check("sync-dry", true);
+    assert!(check("sync-dry"), "`just sync-dry` must pass --dry-run");
 }
 
 #[test]

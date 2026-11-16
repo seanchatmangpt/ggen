@@ -5,6 +5,7 @@
 //! that no caller-side logic re-diverges.
 
 use ggen_config::manifest::ManifestParser;
+use star_toml::Validate;
 use ggen_lsp::analyzers::sparql_analyzer::SparqlAnalyzer;
 use lsp_max::lsp_types::NumberOrString;
 use std::collections::BTreeSet;

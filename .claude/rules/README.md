@@ -17,7 +17,7 @@ OTEL spans are proof for LLM/external features; Chicago TDD only.
 a separate optional check. For LLM/external features also:
 `RUST_LOG=trace,ggen_ai=trace cargo test <test_name> 2>&1 | grep -E "llm\.|mcp\."`.
 
-**Stack**: Rust nightly | Tokio | Oxigraph | Tera | Clap | 14-crate workspace
+**Stack**: Rust nightly | Tokio | Oxigraph | Tera | Clap | 11-crate workspace
 ([architecture.md](architecture.md)) | Chicago TDD only.
 
 **Support**: https://github.com/seanchatmangpt/ggen
