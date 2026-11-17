@@ -1,0 +1,24 @@
+{
+  "migration": "chain_rule_rename",
+  "reason": "graphlaw 26.10.13 spells the v2-fold chain rule `graphlaw-chain/v2-fold`; it does not parse the legacy `praxis-chain/v2-fold` that ggen wrote before the praxis retirement (docs/v26_10_10_praxis_retirement_plan.md called it a frozen wire string; graphlaw did a hard cutover, not dual-read).",
+  "from_chain_rule": "praxis-chain/v2-fold",
+  "to_chain_rule": "graphlaw-chain/v2-fold",
+  "graphlaw_version": "26.10.13",
+  "edit": "byte-exact swap of the `\"chain_rule\"` field value only; no other byte changed",
+  "records_swapped": {
+    "receipt.json": 1,
+    "receipt-log.jsonl": 13
+  },
+  "log_records": 211,
+  "chain_hashes_unchanged": true,
+  "head_chain_hash_hex": "aa02e6e7179e6b8d1cb672fb4884a30da0d7b6a003848e4e38a28638a0b57118",
+  "signatures": "untouched; each signs chain_hash_hex, which did not change. Signature validity was NOT verified in this migration (signing key not available); verify with the original key.",
+  "sha256_before": {
+    ".ggen-v2/receipt.json": "62721a613a6a291b93388e3ce8a17fea16ebcc6f33f0f6f3b8c7aa2b2a128739",
+    ".ggen-v2/receipt-log.jsonl": "c5d42b314ac79bc6e80aac3b613c3382aa5a8a4f7217a8af3e0fc434005f3c18"
+  },
+  "sha256_after": {
+    ".ggen-v2/receipt.json": "86bb9dcc8e01262e183a341085ebb5c8ed228779409e0c5407d0ab00aadf8c8b",
+    ".ggen-v2/receipt-log.jsonl": "c2ede1d3c7f9d0b2e644a84761693f5abe6a0c28dcb6170f097b88e4feb6c684"
+  }
+}
