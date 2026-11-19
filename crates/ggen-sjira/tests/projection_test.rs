@@ -55,8 +55,10 @@ const TEMPLATE: &str = r#"// capability: {{ capability_id }}
 {% endfor %}"#;
 
 fn order() -> WorkOrder {
-    // WP9: keep path_scope; leave falsifiers empty so default project() does
-    // not require projections/c1.unbound.rq (falsifier courts seed both).
+    // Anti-vacuity (Skeptic L19): order carries a real falsifier so default
+    // project() exercises FalsifierGatesMissing when unbound.rq is absent.
+    // mini_pack seeds projections/c1.unbound.rq; empty falsifiers would let
+    // unbound-projection regression stay green.
     serde_json::from_value(serde_json::json!({
         "identity": "EXEC-1",
         "title": "t",
@@ -73,7 +75,7 @@ fn order() -> WorkOrder {
         "required_courts": ["c1"],
         "required_evidence": ["e1"],
         "acceptance": ["a1"],
-        "falsifiers": [],
+        "falsifiers": ["urn:semantic-jira:falsifier:EXEC-1:f1"],
         "path_scope": ["lib/"]
     }))
     .expect("valid WorkOrder")
@@ -95,22 +97,11 @@ fn mini_pack(dir: &Path) -> PathBuf {
     fs::create_dir_all(pack.join("gates")).expect("gates dir");
     fs::write(pack.join("ontology.ttl"), ONTOLOGY).expect("ontology");
     fs::write(pack.join("projections/c1.rq"), SCOPE_QUERY).expect("scope query");
+    // Seeded so order().falsifiers is non-vacuous: project() projects this
+    // into staging verify/*.unbound.rq; deleting it must FLIP.
+    fs::write(pack.join("projections/c1.unbound.rq"), UNBOUND_QUERY).expect("unbound");
     fs::write(pack.join("gates/rows-exist.rq"), GATE_QUERY).expect("gate");
     pack
-}
-
-fn staging_dirs() -> Vec<PathBuf> {
-    let mut out = Vec::new();
-    let tmp = std::env::temp_dir();
-    let entries = fs::read_dir(&tmp).expect("temp dir readable");
-    for entry in entries.flatten() {
-        let name = entry.file_name();
-        let name = name.to_string_lossy();
-        if name.starts_with("ggen_sjira_projection_staging_") {
-            out.push(entry.path());
-        }
-    }
-    out
 }
 
 // ── happy path: render + guarded write + gate census ─────────────────────────
@@ -132,6 +123,13 @@ fn projects_capability_and_reports_written_receipt() {
     assert!(outcome.render_digest.starts_with("sha256:"));
     assert!(!outcome.gate_results.is_empty());
     assert!(outcome.gate_results.iter().all(|g| g.status == "pass"));
+    assert!(
+        outcome
+            .gate_results
+            .iter()
+            .any(|g| g.id.contains("falsifier")),
+        "default order falsifiers must project into the census (anti-vacuity)"
+    );
 
     let written = fs::read_to_string(target_dir.join("src/cap_one.rs")).expect("written file");
     assert!(written.contains("capability: c1"));
@@ -150,16 +148,10 @@ fn projects_capability_and_reports_written_receipt() {
         ggen_sjira::work_order::digest_of(&serde_json::Value::String(content))
     );
 
-    // Staging dir removed after the run — differential court: snapshot the
-    // pre-run staging set around a fresh project call, assert no NEW staging
-    // dir survives (absolute emptiness would flag pollution from earlier
-    // aborted runs).
-    let before = staging_dirs();
+    // Staging cleanup is TempDir Drop + explicit remove_dir_all in project();
+    // original_pack_is_untouched_by_a_run pins the pack-side staging law.
     let _ = project(&order(), &pack, &target_dir, opts("c1", "src/cap_one.rs"))
         .expect("second projection");
-    let after = staging_dirs();
-    let survivors: Vec<_> = after.iter().filter(|p| !before.contains(p)).collect();
-    assert!(survivors.is_empty(), "staging dirs leaked: {survivors:?}");
 }
 
 #[test]
@@ -263,12 +255,12 @@ fn traversal_target_path_refuses_before_write() {
 fn falsifiers_without_unbound_query_refuse() {
     let dir = TempDir::new().expect("tempdir");
     let pack = mini_pack(dir.path());
+    // Mutation leg: remove the seeded unbound query; order falsifiers remain.
+    fs::remove_file(pack.join("projections/c1.unbound.rq")).expect("mutate: drop unbound");
     let target_dir = dir.path().join("out");
     fs::create_dir_all(&target_dir).expect("target dir");
 
-    let mut o = opts("c1", "out.rs");
-    o.falsifiers = Some(vec!["urn:semantic-jira:falsifier:EXEC-1:f1".to_string()]);
-    let err = project(&order(), &pack, &target_dir, o)
+    let err = project(&order(), &pack, &target_dir, opts("c1", "out.rs"))
         .expect_err("falsifiers with no falsified-state query must refuse");
     assert!(
         matches!(err, ProjectionRefusal::FalsifierGatesMissing(ref id) if id == "c1"),
@@ -277,10 +269,49 @@ fn falsifiers_without_unbound_query_refuse() {
 }
 
 #[test]
+fn unbound_projection_regression_flips_falsifier_gates_missing() {
+    // Chicago anti-vacuity: BASELINE (seeded unbound + real order falsifiers)
+    // passes with projected falsifier gates; MUTATION (delete unbound.rq)
+    // FLIPS to FalsifierGatesMissing. Empty order.falsifiers would vacate
+    // this court — that is the Skeptic L19 MEDIUM this pins closed.
+    let dir = TempDir::new().expect("tempdir");
+    let pack = mini_pack(dir.path());
+    let unbound = pack.join("projections/c1.unbound.rq");
+    assert!(unbound.is_file(), "mini_pack must seed unbound.rq");
+    assert!(
+        !order().falsifiers.is_empty(),
+        "order falsifiers must be non-empty or this court is vacuous"
+    );
+    let target_dir = dir.path().join("out");
+    fs::create_dir_all(&target_dir).expect("target dir");
+
+    let baseline = project(&order(), &pack, &target_dir, opts("c1", "baseline.rs"))
+        .expect("baseline with unbound must succeed");
+    let baseline_falsifiers: Vec<_> = baseline
+        .gate_results
+        .iter()
+        .filter(|g| g.id.contains("falsifier"))
+        .collect();
+    assert_eq!(baseline_falsifiers.len(), order().falsifiers.len());
+    assert!(baseline_falsifiers.iter().all(|g| g.status == "pass"));
+
+    fs::remove_file(&unbound).expect("mutate: drop unbound");
+    let err = project(&order(), &pack, &target_dir, opts("c1", "mutated.rs"))
+        .expect_err("missing unbound must flip FalsifierGatesMissing");
+    assert!(
+        matches!(err, ProjectionRefusal::FalsifierGatesMissing(ref id) if id == "c1"),
+        "expected FalsifierGatesMissing after unbound deletion, got: {err}"
+    );
+    assert!(
+        !target_dir.join("mutated.rs").exists(),
+        "refusal must not write the mutated target"
+    );
+}
+
+#[test]
 fn projected_falsifier_gates_ride_the_census() {
     let dir = TempDir::new().expect("tempdir");
     let pack = mini_pack(dir.path());
-    fs::write(pack.join("projections/c1.unbound.rq"), UNBOUND_QUERY).expect("unbound");
     let target_dir = dir.path().join("out");
     fs::create_dir_all(&target_dir).expect("target dir");
 
@@ -359,14 +390,18 @@ fn pack_digest_changes_when_pack_bytes_change() {
 fn original_pack_is_untouched_by_a_run() {
     let dir = TempDir::new().expect("tempdir");
     let pack = mini_pack(dir.path());
-    fs::write(pack.join("projections/c1.unbound.rq"), UNBOUND_QUERY).expect("unbound");
     let target_dir = dir.path().join("out");
     fs::create_dir_all(&target_dir).expect("target dir");
 
-    let mut o = opts("c1", "out.rs");
-    o.falsifiers = Some(vec!["urn:semantic-jira:falsifier:EXEC-1:f1".to_string()]);
-    let outcome = project(&order(), &pack, &target_dir, o).expect("projection");
+    let outcome = project(&order(), &pack, &target_dir, opts("c1", "out.rs")).expect("projection");
     assert!(outcome.gate_results.iter().all(|g| g.status == "pass"));
+    assert!(
+        outcome
+            .gate_results
+            .iter()
+            .any(|g| g.id.contains("falsifier")),
+        "default order falsifiers must ride the census"
+    );
 
     // File-state assert: the original pack tree still holds exactly the
     // seeded files -- the projection mutated only the staging copy.
