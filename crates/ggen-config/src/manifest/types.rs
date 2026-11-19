@@ -386,11 +386,12 @@ pub struct OntologyConfig {
     pub aggregate: Option<AggregateConfig>,
 }
 
-/// `[ontology.aggregate]` — aggregate-corpus declaration. `output` is a
-/// deterministic sorted concat of `constituents`; `auto_regen` opts into
-/// regeneration on staleness (default `false` = refuse-on-stale). Mirrors
-/// `ggen_engine::config::OntologyAggregate` (the engine-side type that owns
-/// the enforcement behavior).
+/// `[ontology.aggregate]` — aggregate-corpus declaration.
+///
+/// `output` is a deterministic sorted concat of `constituents`; `auto_regen`
+/// opts into regeneration on staleness (default `false` = refuse-on-stale).
+/// Mirrors `ggen_engine::config::OntologyAggregate` (the engine-side type
+/// that owns the enforcement behavior).
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 #[serde(deny_unknown_fields)]
 pub struct AggregateConfig {
