@@ -56,15 +56,15 @@ fn valid_order(identity: &str) -> Value {
 fn backlog() -> Value {
     json!([
         {
-            "work_order": valid_order("o1"),
+            "work_order": valid_order("O1"),
             "dependencies": [],
             "path_scope": [],
             "concurrency_key": "global"
         },
         {
-            "work_order": valid_order("o2"),
+            "work_order": valid_order("O2"),
             "dependencies": [
-                {"kind": "requiresSemanticIdentity", "upstream": "o1"}
+                {"kind": "requiresSemanticIdentity", "upstream": "O1"}
             ],
             "path_scope": [],
             "concurrency_key": "global"
@@ -147,7 +147,9 @@ fn issue_admit_refuses_missing_required_arg() {
 }
 
 #[test]
-fn system_frontier_without_authority_returns_blocked_fail_closed_kernel_answer() {
+fn system_frontier_without_authority_uses_canonical_index() {
+    // Hands-free ggen sjira frontier defaults to the embedded pack index.
+    // Non-pack origins (example.test) block as origin_not_admitted.
     require_ggen();
     let dir = workspace("frontier-no-auth");
     let orders = write_json(&dir, "orders.json", &backlog());
@@ -157,9 +159,9 @@ fn system_frontier_without_authority_returns_blocked_fail_closed_kernel_answer()
     )]))
     .expect("frontier without authority is a typed JSON answer, not a CLI crash");
     let blocked = out["blocked"].as_array().expect("blocked array");
-    assert_eq!(blocked.len(), 2);
+    assert_eq!(blocked.len(), 2, "frontier dump: {out}");
     for b in blocked {
-        assert_eq!(b["reason"], json!("authority_index_unavailable"));
+        assert_eq!(b["reason"], json!("origin_not_admitted"));
     }
     let _ = fs::remove_dir_all(&dir);
 }
