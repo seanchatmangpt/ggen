@@ -21,9 +21,12 @@
 //! 5. The order is admitted; a malformed order refuses
 //!    [`ReconcileRefusal::Unadmitted`].
 //! 6. The origin-authority law (SJ-002, closes the A1 class): the order's
-//!    `origin_authority` must resolve in the supplied
-//!    [`authority::AuthorityIndex`] - the same law frontier selection
-//!    applies. Missing index refuses
+//!    `origin_authority` must resolve in the authority index - the same law
+//!    frontier selection applies. When `opts.authority` is `None`, the
+//!    embedded [`authority::canonical_index`] loads (Elixir
+//!    `Authority.index_from/1` absent-default parity over the three pack
+//!    StrategicObjectives). An explicit `opts.pack_dir` with a present but
+//!    unreadable `authority.json` refuses
 //!    [`ReconcileRefusal::AuthorityIndexUnavailable`]; a resolution refusal
 //!    maps to [`ReconcileRefusal::OriginNotAdmitted`] carrying the typed
 //!    [`authority::OriginRefusal`].
@@ -35,14 +38,10 @@
 //!    Events and receipts without a `vc` never trip the law.
 //! 8. `candidate_sha` law: when the raw order JSON carries `candidate_sha`,
 //!    the receipt's must equal it, else
-//!    [`ReconcileRefusal::CandidateShaMismatch`]. Disclosed divergences: (a) the law
-//!    is checked BEFORE admission - the core fifteen-field `WorkOrder`
-//!    struct carries no `candidate_sha` field and admission refuses unknown
-//!    fields, so a candidate_sha-carrying order would otherwise die at
-//!    admission with the less precise refusal; the mismatch is diagnosed
-//!    first, and the order then still refuses `Unadmitted`. (b) The law
-//!    binds against the raw order JSON; the Elixir law treats a nil order
-//!    candidate_sha as vacuously satisfied, which this port preserves.
+//!    [`ReconcileRefusal::CandidateShaMismatch`]. Checked BEFORE admission
+//!    so a mismatch is diagnosed precisely; WorkOrder now carries optional
+//!    `candidate_sha` (WP9). A nil order candidate_sha is vacuously
+//!    satisfied (Elixir parity).
 //! 9. Projection over the log reuses the frontier's progression law
 //!    (UNKNOWN never skips to ALIVE in one event) and the standing
 //!    vocabulary; a malformed log refuses rather than silently projecting.
@@ -60,12 +59,12 @@
 //! unwrap on external input; typed refusals fail closed.
 
 use std::collections::BTreeMap;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use serde_json::{json, Map, Value};
 
 use crate::admit::{admit_work_order, valid_digest};
-use crate::authority::{AuthorityIndex, OriginRefusal};
+use crate::authority::{canonical_index, load_pack_authority_index, AuthorityIndex, OriginRefusal};
 use crate::ledger::{self, AppendOpts, AppendStatus, LedgerError};
 use crate::promote::{promote, PromoteRefusal};
 use crate::work_order::digest_of;
@@ -126,11 +125,18 @@ pub enum ReconcileRefusal {
 /// Options for [`reconcile`] (port of the Elixir `opts` keyword list).
 #[derive(Debug, Clone, Default)]
 pub struct ReconcileOpts {
-    /// The authority index the origin law resolves against. `None` refuses
-    /// [`ReconcileRefusal::AuthorityIndexUnavailable`] - fail closed: the
-    /// Elixir default (the canonical semantic-jira-pack index) has no Rust
-    /// equivalent, so a caller MUST supply one.
+    /// The authority index the origin law resolves against. `None` loads
+    /// [`canonical_index`] (or `<pack_dir>/authority.json` when
+    /// [`Self::pack_dir`] is set) — Elixir `Authority.index_from/1`
+    /// absent-default parity, so `ggen sjira reconcile` is hands-free.
     pub authority: Option<AuthorityIndex>,
+
+    /// Optional semantic-jira-pack directory. When [`Self::authority`] is
+    /// `None` and this is `Some`, [`load_pack_authority_index`] runs: a
+    /// present `authority.json` is loaded and pinned; a missing file falls
+    /// back to the embedded canonical index; a corrupt file refuses
+    /// [`ReconcileRefusal::AuthorityIndexUnavailable`].
+    pub pack_dir: Option<PathBuf>,
 }
 
 /// A successful reconcile: the appended (or replayed) event as it exists in
@@ -220,13 +226,32 @@ pub fn reconcile(
         }
     }
 
-    // 6. The origin law, against the caller-supplied index.
-    let index =
-        opts.authority
-            .as_ref()
-            .ok_or_else(|| ReconcileRefusal::AuthorityIndexUnavailable {
-                detail: "no authority index supplied (ReconcileOpts.authority is None)".to_string(),
+    // 6. The origin law — caller index, pack authority.json, or embedded
+    //    canonical semantic-jira-pack mirror (Elixir absent-default parity).
+    let owned_default;
+    let index: &AuthorityIndex = match (&opts.authority, &opts.pack_dir) {
+        (Some(idx), _) => idx,
+        (None, Some(dir)) => {
+            owned_default = load_pack_authority_index(dir).map_err(|e| match e {
+                OriginRefusal::AuthorityIndexUnavailable { path, detail } => {
+                    ReconcileRefusal::AuthorityIndexUnavailable {
+                        detail: match path {
+                            Some(p) => format!("{p}: {detail}"),
+                            None => detail,
+                        },
+                    }
+                }
+                other => ReconcileRefusal::AuthorityIndexUnavailable {
+                    detail: other.to_string(),
+                },
             })?;
+            &owned_default
+        }
+        (None, None) => {
+            owned_default = canonical_index();
+            &owned_default
+        }
+    };
     index
         .resolve(&admitted.work_order.origin_authority)
         .map_err(ReconcileRefusal::OriginNotAdmitted)?;

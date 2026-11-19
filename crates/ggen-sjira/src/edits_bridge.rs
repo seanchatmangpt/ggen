@@ -406,7 +406,17 @@ pub fn propose_work_order(
     for sym in &radius {
         required_evidence.push(format!("blast-radius:{sym}"));
     }
-    let identity = format!("EB-{}", evidence.batch_digest.trim_start_matches("sha256:"));
+    // B1 identity: ^[A-Z][A-Z0-9-]{1,63}$ — uppercase a short digest prefix
+    // (full sha256 hex overflows the 64-char cap).
+    let hex = evidence.batch_digest.trim_start_matches("sha256:");
+    let short = hex.get(..16).unwrap_or(hex).to_uppercase();
+    let identity = format!("EB-{short}");
+    let path_scope: Vec<String> = batch
+        .edits
+        .iter()
+        .map(|e| e.path.clone())
+        .filter(|p| !p.is_empty() && !p.starts_with('/'))
+        .collect();
     let work_order = WorkOrder {
         identity,
         title: batch.description.clone(),
@@ -433,6 +443,14 @@ pub fn propose_work_order(
         required_evidence,
         acceptance: vec![batch.verification_command.clone()],
         falsifiers: vec![batch.mutation_description.clone()],
+        path_scope,
+        authority_requirement: "NONE".to_string(),
+        dependencies: Vec::new(),
+        required_receipt_classes: Vec::new(),
+        candidate_sha: None,
+        origin_observation: None,
+        target_pack: None,
+        replay_required: false,
     };
     ProposedOrder {
         work_order,

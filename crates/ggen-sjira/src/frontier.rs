@@ -19,7 +19,7 @@ use serde_json::Value;
 use std::collections::BTreeMap;
 
 use crate::admit::{admit_work_order, Refusal};
-use crate::work_order::Standing;
+use crate::work_order::{Standing, WorkOrderDependency};
 
 /// The nine typed dependency classes (`@dependency_types`,
 /// semantic_jira.ex line 20).
@@ -36,22 +36,34 @@ pub const DEPENDENCY_TYPES: [&str; 9] = [
 ];
 
 /// One typed dependency edge (`requiresSemanticIdentity` etc.).
+///
+/// Wire key is `kind` (Rust frontier envelope) **or** `type` (Elixir
+/// WorkOrder `dependencies` SoT — `semantic_jira.ex` `dependencies/1`).
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct DependencyEdge {
     /// One of [`DEPENDENCY_TYPES`].
+    #[serde(alias = "type")]
     pub kind: String,
     /// Identity of the upstream work order this edge requires.
     pub upstream: String,
     /// Optional standing the upstream evidence must carry.
+    #[serde(default)]
     pub required_standing: Option<String>,
     /// Optional receipt digest the upstream evidence must deliver.
+    #[serde(default)]
     pub required_receipt_digest: Option<String>,
 }
 
 /// One frontier candidate: the raw work-order JSON (admitted inside
 /// [`frontier`]) plus the frontier-specific surface the core WorkOrder
 /// struct does not carry.
+///
+/// Elixir SoT (`{"work_orders":[...]}` flat WorkOrder maps) carries
+/// `dependencies` / `path_scope` on the work order itself. Legacy Rust
+/// CLI envelopes may instead supply them on this wrapper; [`frontier`]
+/// prefers the wrapper when non-empty, else the admitted work order
+/// (Elixir drop-in).
 #[derive(Debug, Clone)]
 pub struct FrontierInput {
     /// Raw work-order JSON, admitted via `admit_work_order`.
@@ -62,6 +74,106 @@ pub struct FrontierInput {
     pub path_scope: Vec<String>,
     /// Concurrency key for schedule fencing (lease issuance deferred).
     pub concurrency_key: String,
+}
+
+/// Decode an orders file in Elixir SemanticJira SoT form
+/// (`{"work_orders":[...]}` or a bare array of WorkOrder maps) **or** the
+/// legacy Rust CLI envelope
+/// (`[{work_order, dependencies?, path_scope?, concurrency_key?}, ...]`).
+///
+/// Flat WorkOrder maps keep `dependencies`/`path_scope` on the order
+/// (Elixir); [`frontier`] reads them after admit. Wrapped envelopes keep
+/// the prior Rust CLI surface for back-compat.
+pub fn orders_from_json(value: &Value) -> Result<Vec<FrontierInput>, String> {
+    let arr = match value {
+        Value::Array(a) => a.as_slice(),
+        Value::Object(o) => match o.get("work_orders") {
+            Some(Value::Array(a)) => a.as_slice(),
+            _ => {
+                return Err(
+                    "orders file must be a JSON array or {\"work_orders\": [...]} \
+                     (Elixir SemanticJira SoT)"
+                        .to_string(),
+                )
+            }
+        },
+        _ => {
+            return Err(
+                "orders file must be a JSON array or {\"work_orders\": [...]} \
+                 (Elixir SemanticJira SoT)"
+                    .to_string(),
+            )
+        }
+    };
+
+    let mut inputs = Vec::with_capacity(arr.len());
+    for (i, el) in arr.iter().enumerate() {
+        inputs.push(decode_order_element(i, el)?);
+    }
+    Ok(inputs)
+}
+
+fn decode_order_element(i: usize, el: &Value) -> Result<FrontierInput, String> {
+    let obj = el.as_object().ok_or_else(|| {
+        format!("orders[{i}]: expected a JSON object (WorkOrder or {{work_order,...}})")
+    })?;
+
+    if obj.contains_key("work_order") {
+        let work_order = obj
+            .get("work_order")
+            .cloned()
+            .ok_or_else(|| format!("orders[{i}]: missing `work_order` object"))?;
+        if !work_order.is_object() {
+            return Err(format!("orders[{i}].work_order: must be a JSON object"));
+        }
+        let dependencies = match obj.get("dependencies") {
+            Some(v) => serde_json::from_value::<Vec<DependencyEdge>>(v.clone())
+                .map_err(|e| format!("orders[{i}].dependencies: {e}"))?,
+            None => Vec::new(),
+        };
+        let path_scope: Vec<String> = match obj.get("path_scope") {
+            Some(v) => serde_json::from_value(v.clone())
+                .map_err(|e| format!("orders[{i}].path_scope: {e}"))?,
+            None => Vec::new(),
+        };
+        let concurrency_key = obj
+            .get("concurrency_key")
+            .and_then(|v| v.as_str())
+            .unwrap_or("global")
+            .to_string();
+        return Ok(FrontierInput {
+            work_order,
+            dependencies,
+            path_scope,
+            concurrency_key,
+        });
+    }
+
+    if obj.contains_key("identity") {
+        // Elixir flat WorkOrder: deps/path_scope live on the order.
+        return Ok(FrontierInput {
+            work_order: el.clone(),
+            dependencies: Vec::new(),
+            path_scope: Vec::new(),
+            concurrency_key: "global".to_string(),
+        });
+    }
+
+    Err(format!(
+        "orders[{i}]: expected a WorkOrder (`identity`) or legacy \
+         {{work_order, dependencies?, path_scope?, concurrency_key?}} object"
+    ))
+}
+
+fn dependency_edges_from_work_order(deps: &[WorkOrderDependency]) -> Vec<DependencyEdge> {
+    deps.iter()
+        .map(|d| DependencyEdge {
+            kind: d.dep_type.clone(),
+            upstream: d.upstream.clone(),
+            required_standing: d.required_standing.clone(),
+            required_receipt_digest: d.required_receipt_digest.clone(),
+        })
+        .collect()
 }
 
 /// A standing-transition event from the append-only log.
@@ -229,12 +341,29 @@ pub fn frontier(
         // AC-04: syntactic presence of an IRI is not origin admission.
         match index.get(&admitted.work_order.origin_authority) {
             Some(origin_digest) => {
-                let missing: Vec<String> = input
-                    .dependencies
+                // Elixir SoT: dependencies live on the admitted WorkOrder
+                // (`work_order["dependencies"]`). Legacy Rust envelopes may
+                // still supply them on FrontierInput — prefer the wrapper
+                // when non-empty so existing callers keep working.
+                let owned_edges;
+                let edges: &[DependencyEdge] = if input.dependencies.is_empty() {
+                    owned_edges =
+                        dependency_edges_from_work_order(&admitted.work_order.dependencies);
+                    &owned_edges
+                } else {
+                    &input.dependencies
+                };
+                let missing: Vec<String> = edges
                     .iter()
                     .filter(|dep| !dependency_satisfied(dep, &evidence))
                     .map(|dep| dep.upstream.clone())
                     .collect();
+
+                let path_scope = if input.path_scope.is_empty() {
+                    admitted.work_order.path_scope.clone()
+                } else {
+                    input.path_scope.clone()
+                };
 
                 if missing.is_empty() {
                     result.eligible.push(EligibleCandidate {
@@ -247,7 +376,7 @@ pub fn frontier(
                         definition_digest: admitted.definition_digest,
                         origin_authority: admitted.work_order.origin_authority.clone(),
                         origin_admission_digest: origin_digest.clone(),
-                        path_scope: input.path_scope.clone(),
+                        path_scope,
                         concurrency_key: input.concurrency_key.clone(),
                         authority: "NONE".to_string(),
                     });

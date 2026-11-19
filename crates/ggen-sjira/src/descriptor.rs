@@ -17,12 +17,9 @@
 //! - `execution_package/4` (kernel, line 427) is unported, so `build`'s
 //!   `package` key is caller-supplied via [`DescriptorOpts::package`];
 //!   when absent the descriptor omits `package` — never invented here.
-//! - the igniter's `dependencies` field and the court-map `dependencies`
-//!   walk are vacuous in this port: the core fifteen-field `WorkOrder`
-//!   carries no `dependencies` field (deny_unknown_fields), so the
-//!   dependency list is always empty and `DependencyNotAlive` /
-//!   `UnsupportedRequiredStanding` stay declared-but-unreachable until the
-//!   field lands.
+//! - court-map `dependencies` walk: WorkOrder now carries Elixir-aligned
+//!   `dependencies` (WP9); frontier/descriptor still primarily consume the
+//!   separate `FrontierInput.dependencies` surface for selection.
 //!
 //! Graph identity carried unchanged, ggen → XaaS: `definition_digest`,
 //! `snapshot_digest` (the admitted `work_order_digest`), `base_sha`,
@@ -658,9 +655,8 @@ pub fn build_xaas_contract(
     Ok(Value::Object(m))
 }
 
-/// The goal text (`goal/1`, line 524): identity/title, description,
-/// acceptance, falsifiers, path scope. The core WorkOrder carries no
-/// `path_scope` field, so the scope block is always absent here.
+/// The goal text (`goal/1`, descriptor.ex lines 558-572): identity/title,
+/// description, acceptance, falsifiers, path scope.
 fn goal(order: &crate::work_order::WorkOrder) -> Value {
     let mut lines: Vec<String> = Vec::new();
     lines.push(format!("{}: {}", order.identity, order.title));
@@ -675,6 +671,13 @@ fn goal(order: &crate::work_order::WorkOrder) -> Value {
     lines.push("Falsifiers:".to_string());
     for f in &order.falsifiers {
         lines.push(format!("- {}", f));
+    }
+    if !order.path_scope.is_empty() {
+        lines.push(String::new());
+        lines.push("Path scope:".to_string());
+        for p in &order.path_scope {
+            lines.push(format!("- {}", p));
+        }
     }
     Value::String(lines.join("\n"))
 }

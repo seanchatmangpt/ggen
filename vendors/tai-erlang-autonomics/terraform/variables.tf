@@ -16,9 +16,9 @@ variable "environment" {
 }
 
 variable "image_tag" {
-  description = "Container image tag"
+  description = "Container image tag (pinned; never use latest in production)"
   type        = string
-  default     = "latest"
+  default     = "v1.0.0"
 }
 
 variable "container_concurrency" {
@@ -90,7 +90,7 @@ variable "enable_public_access" {
 variable "enable_authenticated_access" {
   description = "Enable authenticated access to Cloud Run service"
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "alert_notification_channels" {

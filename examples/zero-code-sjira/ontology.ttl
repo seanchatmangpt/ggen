@@ -1,0 +1,262 @@
+@prefix cnv: <https://clap-noun-verb.dev/ontology#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Semantic Jira CLI surface over the ggen-sjira kernel (Fortune-500 zero-handcode).
+# Closed behaviors: system ping / echo / refuse (GENERATED shells only — no Rust).
+# CustomBehavior: domain logic ONLY in src/custom_handlers.rs (unless_exists;
+# never overwritten on re-sync; never duplicate process I/O into generated_*):
+#   issue admit, project frontier, project execute → ggen sjira {admit,frontier,execute}.
+
+cnv:SjiraCli
+    a cnv:Cli ;
+    cnv:binaryName "sjira" ;
+    cnv:crateName "sjira" ;
+    cnv:version "0.1.0" ;
+    cnv:edition "2024" ;
+    cnv:rustVersion "1.85" ;
+    cnv:about "Semantic Jira CLI — admit, frontier, and execute over the ggen-sjira kernel." ;
+    cnv:hasNoun cnv:IssueNoun, cnv:ProjectNoun, cnv:SystemNoun .
+
+# ── Nouns ────────────────────────────────────────────────────────────────────
+
+cnv:IssueNoun
+    a cnv:Noun ;
+    cnv:name "issue" ;
+    cnv:about "Admit a single work-order issue." ;
+    cnv:hasCommand cnv:IssueAdmit .
+
+cnv:ProjectNoun
+    a cnv:Noun ;
+    cnv:name "project" ;
+    cnv:about "Project-scoped frontier selection and execute loop." ;
+    cnv:hasCommand cnv:ProjectFrontier, cnv:ProjectExecute .
+
+cnv:SystemNoun
+    a cnv:Noun ;
+    cnv:name "system" ;
+    cnv:about "Liveness, echo, and explicit refusal paths." ;
+    cnv:hasCommand cnv:SystemPing, cnv:SystemEcho, cnv:SystemRefuse .
+
+# ── issue admit (CustomBehavior → custom_handlers::issue_admit) ──────────────
+
+cnv:IssueAdmit
+    a cnv:Command ;
+    cnv:name "admit" ;
+    cnv:about "Admit one WorkOrder JSON file through the ggen-sjira kernel." ;
+    cnv:belongsToNoun cnv:IssueNoun ;
+    cnv:hasArgument cnv:AdmitFile ;
+    cnv:hasBehavior cnv:IssueAdmitBehavior .
+
+cnv:AdmitFile
+    a cnv:Argument ;
+    cnv:name "file" ;
+    cnv:fieldName "file" ;
+    cnv:valueKind "path" ;
+    cnv:required true ;
+    cnv:position 1 ;
+    cnv:testValue "fixtures/work-order.json" ;
+    cnv:about "Path to a WorkOrder JSON file." .
+
+cnv:IssueAdmitBehavior a cnv:CustomBehavior .
+
+# ── project frontier (CustomBehavior → custom_handlers::project_frontier) ────
+
+cnv:ProjectFrontier
+    a cnv:Command ;
+    cnv:name "frontier" ;
+    cnv:about "Select the eligible frontier over real orders, events, evidence, and authority files." ;
+    cnv:belongsToNoun cnv:ProjectNoun ;
+    cnv:hasArgument cnv:FrontierOrdersPath, cnv:FrontierEventsPath, cnv:FrontierEvidencePath, cnv:FrontierAuthorityPath ;
+    cnv:hasBehavior cnv:ProjectFrontierBehavior .
+
+cnv:FrontierOrdersPath
+    a cnv:Argument ;
+    cnv:name "orders-path" ;
+    cnv:fieldName "orders_path" ;
+    cnv:valueKind "path" ;
+    cnv:required true ;
+    cnv:position 0 ;
+    cnv:longFlag "orders-path" ;
+    cnv:testValue "fixtures/orders.json" ;
+    cnv:about "JSON array of frontier inputs (work_order + optional dependencies)." .
+
+cnv:FrontierEventsPath
+    a cnv:Argument ;
+    cnv:name "events-path" ;
+    cnv:fieldName "events_path" ;
+    cnv:valueKind "path" ;
+    cnv:required false ;
+    cnv:position 0 ;
+    cnv:longFlag "events-path" ;
+    cnv:testValue "fixtures/events.json" ;
+    cnv:about "Optional transition-event journal JSON." .
+
+cnv:FrontierEvidencePath
+    a cnv:Argument ;
+    cnv:name "evidence-path" ;
+    cnv:fieldName "evidence_path" ;
+    cnv:valueKind "path" ;
+    cnv:required false ;
+    cnv:position 0 ;
+    cnv:longFlag "evidence-path" ;
+    cnv:testValue "fixtures/evidence.json" ;
+    cnv:about "Optional evidence index JSON." .
+
+cnv:FrontierAuthorityPath
+    a cnv:Argument ;
+    cnv:name "authority-path" ;
+    cnv:fieldName "authority_path" ;
+    cnv:valueKind "path" ;
+    cnv:required false ;
+    cnv:position 0 ;
+    cnv:longFlag "authority-path" ;
+    cnv:testValue "fixtures/authority.json" ;
+    cnv:about "Optional authority index JSON; absent ⇒ kernel fail-closed blocks." .
+
+cnv:ProjectFrontierBehavior a cnv:CustomBehavior .
+
+# ── project execute (CustomBehavior → custom_handlers::project_execute) ───────
+
+cnv:ProjectExecute
+    a cnv:Command ;
+    cnv:name "execute" ;
+    cnv:about "Run the kernel frontier→authority→plan→receipt→reconcile loop over a real ledger." ;
+    cnv:belongsToNoun cnv:ProjectNoun ;
+    cnv:hasArgument cnv:ExecuteOrdersPath, cnv:ExecuteLedgerPath, cnv:ExecuteAuthorityPath, cnv:ExecuteMax, cnv:ExecuteLeasePath, cnv:ExecuteEpochWatermarkPath, cnv:ExecuteEpochExtensionsPath ;
+    cnv:hasBehavior cnv:ProjectExecuteBehavior .
+
+cnv:ExecuteOrdersPath
+    a cnv:Argument ;
+    cnv:name "orders-path" ;
+    cnv:fieldName "orders_path" ;
+    cnv:valueKind "path" ;
+    cnv:required true ;
+    cnv:position 0 ;
+    cnv:longFlag "orders-path" ;
+    cnv:testValue "fixtures/orders.json" ;
+    cnv:about "JSON array of frontier inputs." .
+
+cnv:ExecuteLedgerPath
+    a cnv:Argument ;
+    cnv:name "ledger-path" ;
+    cnv:fieldName "ledger_path" ;
+    cnv:valueKind "path" ;
+    cnv:required true ;
+    cnv:position 0 ;
+    cnv:longFlag "ledger-path" ;
+    cnv:testValue "fixtures/ledger" ;
+    cnv:about "File-backed ledger directory path." .
+
+cnv:ExecuteAuthorityPath
+    a cnv:Argument ;
+    cnv:name "authority-path" ;
+    cnv:fieldName "authority_path" ;
+    cnv:valueKind "path" ;
+    cnv:required true ;
+    cnv:position 0 ;
+    cnv:longFlag "authority-path" ;
+    cnv:testValue "fixtures/authority.json" ;
+    cnv:about "Authority graph JSON." .
+
+cnv:ExecuteMax
+    a cnv:Argument ;
+    cnv:name "max" ;
+    cnv:fieldName "max" ;
+    cnv:valueKind "u64" ;
+    cnv:required false ;
+    cnv:position 0 ;
+    cnv:longFlag "max" ;
+    cnv:testValue "64" ;
+    cnv:about "Max execute-loop iterations (kernel default 64)." .
+
+cnv:ExecuteLeasePath
+    a cnv:Argument ;
+    cnv:name "lease-path" ;
+    cnv:fieldName "lease_path" ;
+    cnv:valueKind "path" ;
+    cnv:required false ;
+    cnv:position 0 ;
+    cnv:longFlag "lease-path" ;
+    cnv:testValue "fixtures/lease.json" ;
+    cnv:about "Optional admitted-lease JSON." .
+
+cnv:ExecuteEpochWatermarkPath
+    a cnv:Argument ;
+    cnv:name "epoch-watermark-path" ;
+    cnv:fieldName "epoch_watermark_path" ;
+    cnv:valueKind "path" ;
+    cnv:required false ;
+    cnv:position 0 ;
+    cnv:longFlag "epoch-watermark-path" ;
+    cnv:testValue "fixtures/epoch-watermark.json" ;
+    cnv:about "Optional epoch watermark JSON." .
+
+cnv:ExecuteEpochExtensionsPath
+    a cnv:Argument ;
+    cnv:name "epoch-extensions-path" ;
+    cnv:fieldName "epoch_extensions_path" ;
+    cnv:valueKind "path" ;
+    cnv:required false ;
+    cnv:position 0 ;
+    cnv:longFlag "epoch-extensions-path" ;
+    cnv:testValue "fixtures/epoch-extensions.json" ;
+    cnv:about "Optional epoch extensions JSON." .
+
+cnv:ProjectExecuteBehavior a cnv:CustomBehavior .
+
+# ── system ping / echo / refuse (closed behaviors) ───────────────────────────
+
+cnv:SystemPing
+    a cnv:Command ;
+    cnv:name "ping" ;
+    cnv:about "Return a deterministic ontology-owned liveness value." ;
+    cnv:belongsToNoun cnv:SystemNoun ;
+    cnv:hasBehavior cnv:PingBehavior .
+
+cnv:PingBehavior
+    a cnv:StaticJsonBehavior ;
+    cnv:jsonValue "{\"status\":\"alive\",\"binary\":\"sjira\",\"compiler\":\"clap-noun-verb-six-pack\"}" .
+
+cnv:SystemEcho
+    a cnv:Command ;
+    cnv:name "echo" ;
+    cnv:about "Return typed command inputs as a JSON object." ;
+    cnv:belongsToNoun cnv:SystemNoun ;
+    cnv:hasArgument cnv:EchoMessage, cnv:EchoUppercase ;
+    cnv:hasBehavior cnv:SystemEchoBehavior .
+
+cnv:EchoMessage
+    a cnv:Argument ;
+    cnv:name "message" ;
+    cnv:fieldName "message" ;
+    cnv:valueKind "string" ;
+    cnv:required true ;
+    cnv:position 1 ;
+    cnv:testValue "hello" ;
+    cnv:about "Message to return." .
+
+cnv:EchoUppercase
+    a cnv:Argument ;
+    cnv:name "uppercase" ;
+    cnv:fieldName "uppercase" ;
+    cnv:valueKind "bool" ;
+    cnv:required false ;
+    cnv:position 0 ;
+    cnv:longFlag "uppercase" ;
+    cnv:shortFlag "u" ;
+    cnv:testValue "true" ;
+    cnv:about "Include an uppercase-request flag in the returned input object." .
+
+cnv:SystemEchoBehavior a cnv:EchoBehavior .
+
+cnv:SystemRefuse
+    a cnv:Command ;
+    cnv:name "refuse" ;
+    cnv:about "Exercise a typed ontology-declared refusal path." ;
+    cnv:belongsToNoun cnv:SystemNoun ;
+    cnv:hasBehavior cnv:ExplicitRefusal .
+
+cnv:ExplicitRefusal
+    a cnv:RefusalBehavior ;
+    cnv:refusalCode "SJIRA_DEMONSTRATION_REFUSAL" ;
+    cnv:refusalMessage "This command is intentionally refused by the admitted sjira graph." .

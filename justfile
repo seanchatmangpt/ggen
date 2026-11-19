@@ -923,6 +923,37 @@ sjira-control:
 sjira-control-court:
     bash scripts/sjira_control_court.sh
 
+# GAP19 / WP9: Elixir↔Rust mutual admit of the committed golden fixture
+# (crates/ggen-sjira/tests/fixtures/golden_admit.json). Durable hands-free
+# gate — do not re-invent ad-hoc cargo/mix one-liners.
+#   just sjira-mutual-admit           # auto: Rust always; Elixir if env present
+#   just sjira-mutual-admit dry-run   # preflight only
+#   just sjira-mutual-admit strict    # fail if ggen_igniter/mix missing
+# GGEN_IGNITER overrides the sibling ../ggen_igniter default.
+sjira-mutual-admit mode="auto":
+    bash scripts/sjira_mutual_admit.sh {{mode}}
+
+# Hands-free reconcile: kernel loads the embedded canonical semantic-jira-pack
+# authority index when --authority-path is omitted (Elixir Authority.index_from/1
+# parity). Pass authority=<json> to inject a caller graph instead.
+#   just sjira-reconcile order.json receipt.json ./ledger
+#   just sjira-reconcile order.json receipt.json ./ledger authority=auth.json
+sjira-reconcile order receipt ledger authority="":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    if [ -n "{{authority}}" ]; then
+      cargo run -q -p ggen-cli -- sjira reconcile \
+        --order-path "{{order}}" \
+        --receipt-path "{{receipt}}" \
+        --ledger-path "{{ledger}}" \
+        --authority-path "{{authority}}"
+    else
+      cargo run -q -p ggen-cli -- sjira reconcile \
+        --order-path "{{order}}" \
+        --receipt-path "{{receipt}}" \
+        --ledger-path "{{ledger}}"
+    fi
+
 # ── E-c finding 4: weekly e2e backlog lane ────────────────────────────────────
 # The 202 #[ignore]d CLI e2e tests (119 #[ignore]s across the 9
 # crates/ggen-cli/tests/integration_*_e2e.rs files) and the 2 ggen-lsp
@@ -941,3 +972,7 @@ e2e:
 # same check standalone.
 fleet-disclose:
     python3 scripts/index_disclosure.py --check
+
+# Cross-repo Meta Court (ggen slice)
+meta-court:
+    python3 /Users/sac/ggen-marketplace/scripts/meta_court.py --repo ggen

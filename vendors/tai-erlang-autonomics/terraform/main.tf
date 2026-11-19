@@ -119,7 +119,7 @@ resource "google_pubsub_subscription" "signals" {
   name  = "erlang-autonomics-signals-sub"
   topic = google_pubsub_topic.signals.name
 
-  ack_deadline_seconds = 60
+  ack_deadline_seconds  = 60
   retain_acked_messages = false
 
   expiration_policy {
@@ -153,11 +153,11 @@ resource "google_pubsub_topic" "dead_letter" {
 
 # Firestore database (Native mode)
 resource "google_firestore_database" "tai_autonomics" {
-  project     = var.project_id
-  name        = "(default)"
-  location_id = var.firestore_location
-  type        = "FIRESTORE_NATIVE"
-  concurrency_mode = "OPTIMISTIC"
+  project                     = var.project_id
+  name                        = "(default)"
+  location_id                 = var.firestore_location
+  type                        = "FIRESTORE_NATIVE"
+  concurrency_mode            = "OPTIMISTIC"
   app_engine_integration_mode = "DISABLED"
 }
 
@@ -168,7 +168,7 @@ resource "google_cloud_run_service" "tai_autonomics" {
 
   template {
     spec {
-      service_account_name = google_service_account.tai_autonomics.email
+      service_account_name  = google_service_account.tai_autonomics.email
       container_concurrency = var.container_concurrency
 
       containers {
@@ -256,8 +256,8 @@ resource "google_cloud_run_service" "tai_autonomics" {
 
     metadata {
       annotations = {
-        "autoscaling.knative.dev/minScale" = tostring(var.min_instances)
-        "autoscaling.knative.dev/maxScale" = tostring(var.max_instances)
+        "autoscaling.knative.dev/minScale"         = tostring(var.min_instances)
+        "autoscaling.knative.dev/maxScale"         = tostring(var.max_instances)
         "run.googleapis.com/execution-environment" = var.execution_environment
       }
     }

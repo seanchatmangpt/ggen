@@ -1,5 +1,7 @@
 # Terraform Infrastructure for Erlang Autonomics
 
+> **ARCHIVED / NON-DEPLOYABLE**: This document is an archived historical reference for an earlier `.tf.tera` layout that is no longer maintained or deployable. Do not run `terraform apply` from this document.
+
 ## Overview
 
 This Terraform module system manages the complete GCP infrastructure for Erlang Autonomics SKUs at catalog scale:
@@ -106,7 +108,8 @@ skus = {
     image_uri                = "us-central1-docker.pkg.dev/YOUR_PROJECT/autonomics-skus/my_sku:latest"
     action_groups            = ["cloudrun"]
     allow_marketplace_public = true
-    marketplace_hmac_secret  = "$(openssl rand -hex 32)"
+    # Provide via TF_VAR_marketplace_hmac_secret or Secret Manager; never commit literal secrets
+    marketplace_hmac_secret  = "<REDACTED_PROVIDE_VIA_SECRET_MANAGER>"
   }
 }
 ```
@@ -367,7 +370,8 @@ skus = {
     image_uri                = "us-central1-docker.pkg.dev/PROJECT/autonomics-skus/new_sku:latest"
     action_groups            = ["cloudrun"]
     allow_marketplace_public = true
-    marketplace_hmac_secret  = "$(openssl rand -hex 32)"
+    # Provide via TF_VAR_marketplace_hmac_secret or Secret Manager; never commit literal secrets
+    marketplace_hmac_secret  = "<REDACTED_PROVIDE_VIA_SECRET_MANAGER>"
   }
 }
 ```

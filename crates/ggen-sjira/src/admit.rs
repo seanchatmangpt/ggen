@@ -1,15 +1,27 @@
 //! Typed admission of WorkOrders — port of `admit_work_order/1`
-//! (semantic_jira.ex lines 100-145) restricted to the core-slice field set.
-//!
-//! Validates required fields, regexes (40-hex sha, sha256 digest,
-//! owner/repo, absolute-IRI origin authority), non-empty string lists,
-//! the projection vocabulary, and the standing-at-UNKNOWN law. Authority is
-//! stamped `NONE`; admission never creates authority.
+//! (semantic_jira.ex lines 100-151) aligned to the Elixir SoT:
+//! B3 non-empty `path_scope`, 19-field definition take + defaults,
+//! closed standing vocabulary at admit (not UNKNOWN-only), opaque
+//! `replay_identity`, and strip-unknowns for Elixir optional extras.
 
 use serde_json::Value;
 use std::fmt;
 
-use crate::work_order::{definition_digest, digest_of, Standing, WorkOrder};
+use crate::work_order::{definition_digest, digest_of, WorkOrder};
+
+/// The nine typed dependency classes (`@dependency_types`, line 20).
+/// Kept here (not imported from `frontier`) to avoid an admit↔frontier cycle.
+const DEPENDENCY_TYPES: [&str; 9] = [
+    "requiresSemanticIdentity",
+    "requiresProjection",
+    "requiresCapability",
+    "requiresReceipt",
+    "requiresRuntime",
+    "requiresVerifier",
+    "requiresObservation",
+    "requiresPostcondition",
+    "requiresPublication",
+];
 
 /// The fifteen deterministic projection classes (`@projection_types`,
 /// semantic_jira.ex line 24).
@@ -31,25 +43,49 @@ pub const PROJECTION_TYPES: [&str; 15] = [
     "replay",
 ];
 
+/// Independent receipt classes (`@receipt_classes`, line 22).
+pub const RECEIPT_CLASSES: [&str; 9] = [
+    "manufacture",
+    "projection",
+    "authority_preparation",
+    "actuation",
+    "verification",
+    "postcondition",
+    "replay",
+    "publication",
+    "deployment",
+];
+
 /// Typed refusal vocabulary (`{:error, {:refused_work_order, reason}}`
 /// shape, rendered as typed variants with remediation text per house law).
 #[derive(Debug, Clone, PartialEq, Eq, thiserror::Error)]
 pub enum Refusal {
     #[error(
-        "MalformedWorkOrder: {0} — remediation: supply all fifteen required fields \
+        "MalformedWorkOrder: {0} — remediation: supply all required fields \
          (identity, title, description, subject, repository, base_sha, standing, \
          evidence_ceiling, promotion_rule, replay_identity, origin_authority, \
-         projections, required_courts, required_evidence, acceptance, falsifiers) \
-         with well-formed values"
+         projections, required_courts, required_evidence, acceptance, falsifiers, \
+         path_scope) with well-formed values"
     )]
     MalformedWorkOrder(String),
 
     #[error(
-        "StandingNotUnknown: order {identity} carries standing {found} — remediation: \
-         admission admits only UNKNOWN orders; standing transitions belong to the \
-         promotion/transition kernels, never to the admission payload"
+        "InvalidStanding: {value} — remediation: standing must be one of UNKNOWN, \
+         PARTIAL_ALIVE, ALIVE, BLOCKED, BUILD_BROKEN, UNSUPPORTED, or REFUSED(<reason>)"
     )]
-    StandingNotUnknown { identity: String, found: String },
+    InvalidStanding { value: String },
+
+    #[error(
+        "InvalidIdentity: {value} — remediation: identity must match \
+         ^[A-Z][A-Z0-9-]{{1,63}}$ (SHACL dcterms:identifier / B1)"
+    )]
+    InvalidIdentity { value: String },
+
+    #[error(
+        "InvalidPathScope: {detail} — remediation: path_scope must be a non-empty \
+         list of non-empty relative paths (no leading '/'); B3 sj:pathScope minCount 1"
+    )]
+    InvalidPathScope { detail: String },
 
     #[error(
         "InvalidOriginAuthority: {value} — remediation: origin_authority must be an \
@@ -57,6 +93,18 @@ pub enum Refusal {
          https://graph.test/auth/...), never a bare local name"
     )]
     InvalidOriginAuthority { value: String },
+
+    #[error(
+        "InvalidOriginObservation: {value} — remediation: origin_observation when \
+         present must be an absolute IRI"
+    )]
+    InvalidOriginObservation { value: String },
+
+    #[error(
+        "InvalidTargetPack: {value} — remediation: target_pack when present must match \
+         ^[a-z0-9][a-z0-9_-]*$ (FORMAT only; pack existence is sync-time WORLD)"
+    )]
+    InvalidTargetPack { value: String },
 
     #[error(
         "DigestMismatch: field {field} carries {found} — remediation: digests must be \
@@ -90,36 +138,54 @@ pub enum Refusal {
     UnsupportedProjectionType { value: String },
 
     #[error(
+        "UnsupportedReceiptClass: {value} — remediation: required_receipt_classes must \
+         come from the closed receipt-class vocabulary"
+    )]
+    UnsupportedReceiptClass { value: String },
+
+    #[error(
+        "InvalidDependency: {detail} — remediation: each dependency needs upstream + \
+         type in the closed dependency vocabulary; optional required_receipt_digest \
+         must be sha256:<64 hex>"
+    )]
+    InvalidDependency { detail: String },
+
+    #[error(
         "Deserialization: {0} — remediation: the payload is not a valid WorkOrder \
-         JSON object (unknown fields are refused: deny_unknown_fields)"
+         JSON object (unknown keys are stripped; required fields must be present)"
     )]
     Deserialization(String),
 }
 
 /// An admitted WorkOrder: the order plus its stamped authority and derived
-/// digests. Mirrors the igniter's normalized-map output (lines 120-137).
+/// digests. Mirrors the igniter's normalized-map output (lines 126-143).
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct AdmittedWorkOrder {
     pub work_order: WorkOrder,
-    /// Always `NONE` — admission never creates authority (line 132).
+    /// Always `NONE` — admission never creates authority (line 138).
     pub authority: String,
     /// Snapshot digest: over the full order including standing.
     pub work_order_digest: String,
-    /// Definition digest: over the closed subset, standing excluded.
+    /// Definition digest: over the closed 19-field subset, standing excluded.
     pub definition_digest: String,
 }
 
 /// Admits and normalizes one WorkOrder-shaped JSON value without creating
 /// authority. Port of `admit_work_order/1`.
 pub fn admit_work_order(value: &Value) -> Result<AdmittedWorkOrder, Refusal> {
-    let order: WorkOrder = serde_json::from_value(value.clone())
+    let mut order: WorkOrder = serde_json::from_value(value.clone())
         .map_err(|e| Refusal::Deserialization(e.to_string()))?;
 
-    // required/2 (line 1361): deny_unknown_fields + Deserialize covers
-    // presence; the blank-string checks in validate/1 cover the igniter's
-    // blank? law.
+    // Apply Elixir put_new defaults explicitly (serde defaults already cover
+    // most; re-stamp authority_requirement if somehow empty).
+    if order.authority_requirement.trim().is_empty() {
+        order.authority_requirement = "NONE".to_string();
+    }
+
     validate(&order)?;
 
+    // Snapshot digest over the raw payload (caller key order independent via
+    // canonical/); definition digest over the closed 19-field normalized take.
     let work_order_digest = digest_of(value);
     let definition_digest = definition_digest(&order);
 
@@ -149,6 +215,13 @@ fn validate(order: &WorkOrder) -> Result<(), Refusal> {
         }
     }
 
+    // B1: dcterms:identifier pattern.
+    if !valid_identity(&order.identity) {
+        return Err(Refusal::InvalidIdentity {
+            value: order.identity.clone(),
+        });
+    }
+
     if !valid_repo(&order.repository) {
         return Err(Refusal::InvalidRepository {
             value: order.repository.clone(),
@@ -162,20 +235,37 @@ fn validate(order: &WorkOrder) -> Result<(), Refusal> {
         });
     }
 
+    if let Some(ref cand) = order.candidate_sha {
+        if !valid_sha(cand) {
+            return Err(Refusal::InvalidSha {
+                field: "candidate_sha".to_string(),
+                found: cand.clone(),
+            });
+        }
+    }
+
     if !valid_iri(&order.origin_authority) {
         return Err(Refusal::InvalidOriginAuthority {
             value: order.origin_authority.clone(),
         });
     }
 
-    // Standing-at-UNKNOWN law: admission admits only UNKNOWN orders.
-    // REFUSED(...) standing is legal vocabulary but never UNKNOWN.
-    if order.standing != Standing::Unknown {
-        return Err(Refusal::StandingNotUnknown {
-            identity: order.identity.clone(),
-            found: order.standing.as_str(),
-        });
+    if let Some(ref obs) = order.origin_observation {
+        if !valid_iri(obs) {
+            return Err(Refusal::InvalidOriginObservation { value: obs.clone() });
+        }
     }
+
+    if let Some(ref pack) = order.target_pack {
+        if !valid_pack_name(pack) {
+            return Err(Refusal::InvalidTargetPack {
+                value: pack.clone(),
+            });
+        }
+    }
+
+    // Standing: any closed vocabulary value (or REFUSED(...)) — matches
+    // Elixir `standing/1`. Deserialize already parsed; nothing further.
 
     for (field, list) in [
         ("projections", &order.projections),
@@ -197,15 +287,52 @@ fn validate(order: &WorkOrder) -> Result<(), Refusal> {
         }
     }
 
-    // replay_identity carries the sha256 digest shape (`@digest` regex,
-    // line 44).
-    if !valid_digest(&order.replay_identity) {
-        return Err(Refusal::DigestMismatch {
-            field: "replay_identity".to_string(),
-            found: order.replay_identity.clone(),
-        });
+    // B3 path_scope.
+    validate_path_scope(&order.path_scope)?;
+
+    // B4 receipt classes (empty OK; unsupported refused).
+    for c in &order.required_receipt_classes {
+        if !RECEIPT_CLASSES.contains(&c.as_str()) {
+            return Err(Refusal::UnsupportedReceiptClass { value: c.clone() });
+        }
     }
 
+    for dep in &order.dependencies {
+        if dep.upstream.trim().is_empty() {
+            return Err(Refusal::InvalidDependency {
+                detail: "blank upstream".to_string(),
+            });
+        }
+        if !DEPENDENCY_TYPES.contains(&dep.dep_type.as_str()) {
+            return Err(Refusal::InvalidDependency {
+                detail: format!("unsupported type {:?}", dep.dep_type),
+            });
+        }
+        if let Some(ref dig) = dep.required_receipt_digest {
+            if !valid_digest(dig) {
+                return Err(Refusal::DigestMismatch {
+                    field: "required_receipt_digest".to_string(),
+                    found: dig.clone(),
+                });
+            }
+        }
+    }
+
+    // replay_identity: Elixir requires non-blank only (already checked).
+    Ok(())
+}
+
+fn validate_path_scope(values: &[String]) -> Result<(), Refusal> {
+    if values.is_empty() {
+        return Err(Refusal::InvalidPathScope {
+            detail: "empty or omitted".to_string(),
+        });
+    }
+    if values.iter().any(|s| s.is_empty() || s.starts_with('/')) {
+        return Err(Refusal::InvalidPathScope {
+            detail: format!("{values:?}"),
+        });
+    }
     Ok(())
 }
 
@@ -213,6 +340,21 @@ impl fmt::Display for AdmittedWorkOrder {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{} ({})", self.work_order.identity, self.authority)
     }
+}
+
+/// B1 identity pattern: `\\A[A-Z][A-Z0-9-]{1,63}\\z`.
+pub fn valid_identity(s: &str) -> bool {
+    let mut chars = s.chars();
+    match chars.next() {
+        Some(c) if c.is_ascii_uppercase() => {}
+        _ => return false,
+    }
+    let rest: String = chars.collect();
+    if rest.is_empty() || rest.len() > 63 {
+        return false;
+    }
+    rest.bytes()
+        .all(|b| matches!(b, b'A'..=b'Z' | b'0'..=b'9' | b'-'))
 }
 
 /// `@sha` regex (line 43): `\\A[0-9a-f]{40}\\z`.
@@ -248,8 +390,7 @@ fn repo_char(b: u8) -> bool {
     b.is_ascii_alphanumeric() || matches!(b, b'.' | b'_' | b'-')
 }
 
-/// `@iri` regex (line 54): `\\A[A-Za-z][A-Za-z0-9+.\\-]*:\\S+\\z` — scheme
-/// prefix plus a non-empty, whitespace-free rest.
+/// `@iri` regex (line 54): `\\A[A-Za-z][A-Za-z0-9+.\\-]*:\\S+\\z`.
 pub fn valid_iri(s: &str) -> bool {
     let mut chars = s.chars();
     match chars.next() {
@@ -273,6 +414,16 @@ pub fn valid_iri(s: &str) -> bool {
         Some(i) => !s[i + 1..].is_empty() && !s[i + 1..].chars().any(|c| c.is_whitespace()),
         None => false,
     }
+}
+
+/// `@pack_name` regex (line 50): `\\A[a-z0-9][a-z0-9_-]*\\z`.
+pub fn valid_pack_name(s: &str) -> bool {
+    let mut chars = s.chars();
+    match chars.next() {
+        Some(c) if c.is_ascii_lowercase() || c.is_ascii_digit() => {}
+        _ => return false,
+    }
+    chars.all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || c == '_' || c == '-')
 }
 
 #[cfg(test)]
@@ -299,5 +450,11 @@ mod tests {
         assert!(valid_iri("urn:gall:002"));
         assert!(!valid_iri("local_name"));
         assert!(!valid_iri("has space:https://x"));
+        assert!(valid_identity("SJ-ALIGN-001"));
+        assert!(valid_identity("X1"));
+        assert!(!valid_identity("A"));
+        assert!(!valid_identity("lowercase"));
+        assert!(valid_pack_name("semantic-jira"));
+        assert!(!valid_pack_name("BadPack"));
     }
 }

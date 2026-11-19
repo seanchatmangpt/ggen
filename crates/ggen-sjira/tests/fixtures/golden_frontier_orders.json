@@ -1,0 +1,54 @@
+{
+  "work_orders": [
+    {
+      "identity": "SJ-FRONT-A",
+      "title": "Root order",
+      "description": "Independent frontier root — mutual Elixir/Rust SoT fixture.",
+      "subject": "urn:subject:front-a",
+      "repository": "seanchatmangpt/ggen_igniter",
+      "base_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "standing": "UNKNOWN",
+      "evidence_ceiling": "repository-local",
+      "promotion_rule": "exact subject and independent evidence",
+      "replay_identity": "semantic-jira:frontier:a",
+      "dependencies": [],
+      "required_courts": ["court:test"],
+      "required_evidence": ["source"],
+      "acceptance": ["acceptance:test"],
+      "falsifiers": ["falsifier:test"],
+      "projections": ["jira"],
+      "required_receipt_classes": ["verification"],
+      "path_scope": ["lib/"],
+      "authority_requirement": "NONE",
+      "origin_authority": "https://ggen-igniter.dev/ontology/semantic-jira#objective-code-work-authority"
+    },
+    {
+      "identity": "SJ-FRONT-B",
+      "title": "Dependent order",
+      "description": "Eligible only after SJ-FRONT-A is ALIVE — Elixir `type` dependency key.",
+      "subject": "urn:subject:front-b",
+      "repository": "seanchatmangpt/ggen_igniter",
+      "base_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "standing": "UNKNOWN",
+      "evidence_ceiling": "repository-local",
+      "promotion_rule": "exact subject and independent evidence",
+      "replay_identity": "semantic-jira:frontier:b",
+      "dependencies": [
+        {
+          "upstream": "SJ-FRONT-A",
+          "type": "requiresReceipt",
+          "required_standing": "ALIVE"
+        }
+      ],
+      "required_courts": ["court:test"],
+      "required_evidence": ["source"],
+      "acceptance": ["acceptance:test"],
+      "falsifiers": ["falsifier:test"],
+      "projections": ["jira"],
+      "required_receipt_classes": ["verification"],
+      "path_scope": ["test/"],
+      "authority_requirement": "NONE",
+      "origin_authority": "https://ggen-igniter.dev/ontology/semantic-jira#objective-code-work-authority"
+    }
+  ]
+}

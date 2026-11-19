@@ -24,7 +24,8 @@ fn valid_order() -> serde_json::Value {
         "required_courts": ["court-vacuity"],
         "required_evidence": ["cargo test"],
         "acceptance": ["verify_chain Ok"],
-        "falsifiers": ["f1"]
+        "falsifiers": ["f1"],
+        "path_scope": ["lib/"]
     })
 }
 

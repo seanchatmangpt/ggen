@@ -1,0 +1,204 @@
+@prefix cnv: <https://clap-noun-verb.dev/ontology#> .
+
+# Hands-free Semantic Jira wrapper (Fortune-500 zero-handcode sibling):
+# GENERATED clap-noun-verb shells + CustomBehavior domain logic ONLY in
+# src/custom_handlers.rs (shell out to `ggen sjira` admit/frontier/execute).
+# Closed `system ping` stays on the six-primitive GENERATED path (no Rust).
+
+cnv:SjiraHandsFreeCli
+    a cnv:Cli ;
+    cnv:binaryName "sjira-hands-free" ;
+    cnv:crateName "sjira-hands-free" ;
+    cnv:version "0.1.0" ;
+    cnv:edition "2024" ;
+    cnv:rustVersion "1.85" ;
+    cnv:about "Hands-free sjira: CustomBehavior handlers that call ggen sjira." ;
+    cnv:hasNoun cnv:IssueNoun, cnv:SystemNoun .
+
+# ── Closed command (no Rust) ────────────────────────────────────────────────
+
+cnv:SystemNoun
+    a cnv:Noun ;
+    cnv:name "system" ;
+    cnv:about "Inspect the wrapper and drive sjira frontier/execute." ;
+    cnv:hasCommand cnv:SystemPing, cnv:SystemFrontier, cnv:SystemExecute .
+
+cnv:SystemPing
+    a cnv:Command ;
+    cnv:name "ping" ;
+    cnv:about "Return a deterministic liveness value." ;
+    cnv:belongsToNoun cnv:SystemNoun ;
+    cnv:hasBehavior cnv:PingBehavior .
+
+cnv:PingBehavior
+    a cnv:StaticJsonBehavior ;
+    cnv:jsonValue "{\"status\":\"alive\",\"surface\":\"sjira-hands-free\"}" .
+
+# ── Opted-out commands (shell out to ggen sjira) ────────────────────────────
+
+cnv:IssueNoun
+    a cnv:Noun ;
+    cnv:name "issue" ;
+    cnv:about "Admit a WorkOrder through ggen sjira." ;
+    cnv:hasCommand cnv:IssueAdmit .
+
+cnv:IssueAdmit
+    a cnv:Command ;
+    cnv:name "admit" ;
+    cnv:about "Admit one WorkOrder JSON file via ggen sjira admit." ;
+    cnv:belongsToNoun cnv:IssueNoun ;
+    cnv:hasArgument cnv:IssueAdmitFile ;
+    cnv:hasBehavior cnv:IssueAdmitBehavior .
+
+cnv:IssueAdmitFile
+    a cnv:Argument ;
+    cnv:name "file" ;
+    cnv:fieldName "file" ;
+    cnv:valueKind "path" ;
+    cnv:required true ;
+    cnv:position 1 ;
+    cnv:testValue "fixtures/order.json" ;
+    cnv:about "Path to a WorkOrder JSON file." .
+
+cnv:IssueAdmitBehavior a cnv:CustomBehavior .
+
+cnv:SystemFrontier
+    a cnv:Command ;
+    cnv:name "frontier" ;
+    cnv:about "Select the ready frontier via ggen sjira frontier." ;
+    cnv:belongsToNoun cnv:SystemNoun ;
+    cnv:hasArgument cnv:FrontierOrders, cnv:FrontierEvents, cnv:FrontierEvidence, cnv:FrontierAuthority ;
+    cnv:hasBehavior cnv:SystemFrontierBehavior .
+
+cnv:FrontierOrders
+    a cnv:Argument ;
+    cnv:name "orders-path" ;
+    cnv:fieldName "orders_path" ;
+    cnv:valueKind "path" ;
+    cnv:required true ;
+    cnv:position 0 ;
+    cnv:longFlag "orders-path" ;
+    cnv:testValue "fixtures/orders.json" ;
+    cnv:about "JSON array of frontier order entries." .
+
+cnv:FrontierEvents
+    a cnv:Argument ;
+    cnv:name "events-path" ;
+    cnv:fieldName "events_path" ;
+    cnv:valueKind "path" ;
+    cnv:required false ;
+    cnv:position 0 ;
+    cnv:longFlag "events-path" ;
+    cnv:testValue "fixtures/events.json" ;
+    cnv:about "Optional transition-event log JSON." .
+
+cnv:FrontierEvidence
+    a cnv:Argument ;
+    cnv:name "evidence-path" ;
+    cnv:fieldName "evidence_path" ;
+    cnv:valueKind "path" ;
+    cnv:required false ;
+    cnv:position 0 ;
+    cnv:longFlag "evidence-path" ;
+    cnv:testValue "fixtures/evidence.json" ;
+    cnv:about "Optional evidence map JSON." .
+
+cnv:FrontierAuthority
+    a cnv:Argument ;
+    cnv:name "authority-path" ;
+    cnv:fieldName "authority_path" ;
+    cnv:valueKind "path" ;
+    cnv:required false ;
+    cnv:position 0 ;
+    cnv:longFlag "authority-path" ;
+    cnv:testValue "fixtures/authority-index.json" ;
+    cnv:about "Optional authority IRI → digest index JSON." .
+
+cnv:SystemFrontierBehavior a cnv:CustomBehavior .
+
+cnv:SystemExecute
+    a cnv:Command ;
+    cnv:name "execute" ;
+    cnv:about "Run the sjira execute loop via ggen sjira execute." ;
+    cnv:belongsToNoun cnv:SystemNoun ;
+    cnv:hasArgument cnv:ExecuteOrders, cnv:ExecuteLedger, cnv:ExecuteAuthority, cnv:ExecuteMax, cnv:ExecuteLease, cnv:ExecuteEpochWatermark, cnv:ExecuteEpochExtensions ;
+    cnv:hasBehavior cnv:SystemExecuteBehavior .
+
+cnv:ExecuteOrders
+    a cnv:Argument ;
+    cnv:name "orders-path" ;
+    cnv:fieldName "orders_path" ;
+    cnv:valueKind "path" ;
+    cnv:required true ;
+    cnv:position 0 ;
+    cnv:longFlag "orders-path" ;
+    cnv:testValue "fixtures/orders.json" ;
+    cnv:about "JSON array of frontier order entries." .
+
+cnv:ExecuteLedger
+    a cnv:Argument ;
+    cnv:name "ledger-path" ;
+    cnv:fieldName "ledger_path" ;
+    cnv:valueKind "path" ;
+    cnv:required true ;
+    cnv:position 0 ;
+    cnv:longFlag "ledger-path" ;
+    cnv:testValue "fixtures/ledger.jsonl" ;
+    cnv:about "Path to the real file ledger." .
+
+cnv:ExecuteAuthority
+    a cnv:Argument ;
+    cnv:name "authority-path" ;
+    cnv:fieldName "authority_path" ;
+    cnv:valueKind "path" ;
+    cnv:required true ;
+    cnv:position 0 ;
+    cnv:longFlag "authority-path" ;
+    cnv:testValue "fixtures/authority-graph.json" ;
+    cnv:about "Authority graph JSON for execute." .
+
+cnv:ExecuteMax
+    a cnv:Argument ;
+    cnv:name "max" ;
+    cnv:fieldName "max" ;
+    cnv:valueKind "u64" ;
+    cnv:required false ;
+    cnv:position 0 ;
+    cnv:longFlag "max" ;
+    cnv:testValue "2" ;
+    cnv:about "Optional max execute-loop iterations." .
+
+cnv:ExecuteLease
+    a cnv:Argument ;
+    cnv:name "lease-path" ;
+    cnv:fieldName "lease_path" ;
+    cnv:valueKind "path" ;
+    cnv:required false ;
+    cnv:position 0 ;
+    cnv:longFlag "lease-path" ;
+    cnv:testValue "fixtures/lease.json" ;
+    cnv:about "Optional admitted lease JSON." .
+
+cnv:ExecuteEpochWatermark
+    a cnv:Argument ;
+    cnv:name "epoch-watermark-path" ;
+    cnv:fieldName "epoch_watermark_path" ;
+    cnv:valueKind "path" ;
+    cnv:required false ;
+    cnv:position 0 ;
+    cnv:longFlag "epoch-watermark-path" ;
+    cnv:testValue "fixtures/epoch-watermark.json" ;
+    cnv:about "Optional epoch watermark JSON." .
+
+cnv:ExecuteEpochExtensions
+    a cnv:Argument ;
+    cnv:name "epoch-extensions-path" ;
+    cnv:fieldName "epoch_extensions_path" ;
+    cnv:valueKind "path" ;
+    cnv:required false ;
+    cnv:position 0 ;
+    cnv:longFlag "epoch-extensions-path" ;
+    cnv:testValue "fixtures/epoch-extensions.json" ;
+    cnv:about "Optional epoch extensions JSON." .
+
+cnv:SystemExecuteBehavior a cnv:CustomBehavior .

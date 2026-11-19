@@ -1,8 +1,8 @@
 //! Chicago admission tests over real serde_json payloads — port of the
 //! igniter admission CASES (valid admit, missing-field refusal, bad-regex
-//! refusal, standing-not-unknown refusal, digest determinism). Real
-//! collaborators (serde, sha2), state-based assertions on the returned
-//! values; no mocks.
+//! refusal, closed-standing admit, opaque replay_identity, digest
+//! determinism). Real collaborators (serde, sha2), state-based assertions
+//! on the returned values; no mocks.
 
 use ggen_sjira::{admit_work_order, definition_digest, Refusal, Standing, WorkOrder};
 use serde_json::{json, Value};
@@ -18,13 +18,14 @@ fn valid_order() -> Value {
         "standing": "UNKNOWN",
         "evidence_ceiling": "UNVERIFIED",
         "promotion_rule": "courts-then-receipt",
-        "replay_identity": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+        "replay_identity": "semantic-jira:align:1",
         "origin_authority": "https://graph.test/auth/XAAS-26922-21",
         "projections": ["jira", "fond"],
         "required_courts": ["admission-court"],
         "required_evidence": ["exact_head_verification_evidence"],
         "acceptance": ["cargo test -p ggen-sjira"],
-        "falsifiers": ["changing an OCEL outcome does not change plan ranking"]
+        "falsifiers": ["changing an OCEL outcome does not change plan ranking"],
+        "path_scope": ["lib/"]
     })
 }
 
@@ -35,6 +36,8 @@ fn valid_order_is_admitted_with_authority_none() {
     assert_eq!(admitted.authority, "NONE");
     assert_eq!(admitted.work_order.standing, Standing::Unknown);
     assert_eq!(admitted.work_order.identity, "XAAS-26922-21");
+    assert_eq!(admitted.work_order.path_scope, vec!["lib/".to_string()]);
+    assert_eq!(admitted.work_order.authority_requirement, "NONE");
     assert!(admitted.work_order_digest.starts_with("sha256:"));
     assert!(admitted.definition_digest.starts_with("sha256:"));
     // snapshot digest != definition digest: standing is excluded from the
@@ -57,18 +60,42 @@ fn missing_field_is_refused() {
 }
 
 #[test]
-fn unknown_field_is_refused() {
+fn elixir_optional_extras_are_stripped_not_refused() {
+    // Elixir admit keeps extras then stamps authority/admitted; Rust strips
+    // unknowns via serde (no deny_unknown_fields) so the same payloads admit.
     let mut raw = valid_order();
     raw["authority"] = json!("NONE");
+    raw["admitted"] = json!(true);
+    raw["dimensions"] = json!({"observed": false});
+    raw["candidate_sha"] = json!("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
+
+    let admitted = admit_work_order(&raw).expect("Elixir extras must not refuse admit");
+    assert_eq!(admitted.authority, "NONE");
+    assert_eq!(
+        admitted.work_order.candidate_sha.as_deref(),
+        Some("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb")
+    );
+}
+
+#[test]
+fn empty_path_scope_is_refused() {
+    let mut raw = valid_order();
+    raw["path_scope"] = json!([]);
 
     match admit_work_order(&raw) {
-        Err(Refusal::Deserialization(msg)) => {
-            assert!(
-                msg.contains("authority"),
-                "refusal must name the unknown field: {msg}"
-            );
-        }
-        other => panic!("expected Deserialization refusal for unknown field, got {other:?}"),
+        Err(Refusal::InvalidPathScope { .. }) => {}
+        other => panic!("expected InvalidPathScope, got {other:?}"),
+    }
+}
+
+#[test]
+fn absolute_path_scope_is_refused() {
+    let mut raw = valid_order();
+    raw["path_scope"] = json!(["/abs"]);
+
+    match admit_work_order(&raw) {
+        Err(Refusal::InvalidPathScope { .. }) => {}
+        other => panic!("expected InvalidPathScope, got {other:?}"),
     }
 }
 
@@ -111,44 +138,45 @@ fn bare_local_name_origin_authority_is_refused() {
 }
 
 #[test]
-fn bad_replay_digest_is_refused() {
+fn opaque_replay_identity_is_admitted() {
+    // Elixir: replay_identity is required non-blank, not @digest-shaped.
     let mut raw = valid_order();
     raw["replay_identity"] = json!("replay-001");
 
+    let admitted = admit_work_order(&raw).expect("opaque replay_identity must admit");
+    assert_eq!(admitted.work_order.replay_identity, "replay-001");
+}
+
+#[test]
+fn blank_replay_identity_is_refused() {
+    let mut raw = valid_order();
+    raw["replay_identity"] = json!("");
+
     match admit_work_order(&raw) {
-        Err(Refusal::DigestMismatch { field, found }) => {
-            assert_eq!(field, "replay_identity");
-            assert_eq!(found, "replay-001");
-        }
-        other => panic!("expected DigestMismatch refusal, got {other:?}"),
+        Err(Refusal::MalformedWorkOrder(msg)) => assert!(msg.contains("replay_identity")),
+        other => panic!("expected MalformedWorkOrder for blank replay_identity, got {other:?}"),
     }
 }
 
 #[test]
-fn standing_not_unknown_is_refused() {
+fn closed_standing_partial_alive_is_admitted() {
     let mut raw = valid_order();
     raw["standing"] = json!("PARTIAL_ALIVE");
 
-    match admit_work_order(&raw) {
-        Err(Refusal::StandingNotUnknown { identity, found }) => {
-            assert_eq!(identity, "XAAS-26922-21");
-            assert_eq!(found, "PARTIAL_ALIVE");
-        }
-        other => panic!("expected StandingNotUnknown refusal, got {other:?}"),
-    }
+    let admitted = admit_work_order(&raw).expect("Elixir admits any closed standing");
+    assert_eq!(admitted.work_order.standing, Standing::PartialAlive);
 }
 
 #[test]
-fn refused_standing_vocabulary_is_legal_but_not_admittable() {
+fn refused_standing_vocabulary_is_admittable() {
     let mut raw = valid_order();
     raw["standing"] = json!("REFUSED(bad evidence)");
 
-    match admit_work_order(&raw) {
-        Err(Refusal::StandingNotUnknown { found, .. }) => {
-            assert_eq!(found, "REFUSED(bad evidence)");
-        }
-        other => panic!("expected StandingNotUnknown refusal, got {other:?}"),
-    }
+    let admitted = admit_work_order(&raw).expect("REFUSED(...) is closed standing vocab");
+    assert_eq!(
+        admitted.work_order.standing,
+        Standing::Refused("bad evidence".to_string())
+    );
 }
 
 #[test]

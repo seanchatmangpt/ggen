@@ -28,7 +28,8 @@ fn valid_order() -> Value {
         "required_courts": ["admission-court"],
         "required_evidence": ["exact_head_verification_evidence"],
         "acceptance": ["cargo test -p ggen-sjira"],
-        "falsifiers": ["changing an OCEL outcome does not change plan ranking"]
+        "falsifiers": ["changing an OCEL outcome does not change plan ranking"],
+        "path_scope": ["lib/"]
     })
 }
 

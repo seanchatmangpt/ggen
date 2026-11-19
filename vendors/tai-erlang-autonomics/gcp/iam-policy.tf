@@ -21,13 +21,13 @@ resource "google_service_account" "taiea_admin" {
 # Custom role for tenant-scoped data access
 # Restricts service accounts to accessing only their assigned tenant's data in Firestore
 
-resource "google_project_custom_role" "tenant_firestore_reader" {
+resource "google_project_iam_custom_role" "tenant_firestore_reader" {
   role_id     = "tenantFirestoreReader"
   title       = "Tenant Firestore Reader"
   description = "Read-only access to tenant-scoped Firestore documents"
   project     = var.project_id
 
-  included_permissions = [
+  permissions = [
     "datastore.databases.get",
     "datastore.entities.get",
     "datastore.entities.list",
@@ -36,13 +36,13 @@ resource "google_project_custom_role" "tenant_firestore_reader" {
   ]
 }
 
-resource "google_project_custom_role" "tenant_firestore_writer" {
+resource "google_project_iam_custom_role" "tenant_firestore_writer" {
   role_id     = "tenantFirestoreWriter"
   title       = "Tenant Firestore Writer"
   description = "Read-write access to tenant-scoped Firestore documents"
   project     = var.project_id
 
-  included_permissions = [
+  permissions = [
     "datastore.databases.get",
     "datastore.entities.create",
     "datastore.entities.delete",
@@ -188,57 +188,6 @@ resource "google_project_iam_member" "billing_service_bigquery_editor" {
 # ==============================
 # Credential Configuration
 # ==============================
-
-# Admin service account key (for CI/CD pipelines)
-resource "google_service_account_key" "admin_key" {
-  count              = var.create_admin_service_account_key ? 1 : 0
-  service_account_id = google_service_account.taiea_admin.name
-  public_key_type    = "TYPE_X509_PEM_FILE"
-
-  depends_on = [
-    google_service_account.taiea_admin
-  ]
-}
-
-# API client service account key (for development)
-resource "google_service_account_key" "api_client_key" {
-  count              = var.create_api_client_key ? 1 : 0
-  service_account_id = google_service_account.api_client.name
-  public_key_type    = "TYPE_X509_PEM_FILE"
-
-  depends_on = [
-    google_service_account.api_client
-  ]
-}
-
-# Save keys to local files
-resource "local_file" "admin_key_file" {
-  count    = var.create_admin_service_account_key ? 1 : 0
-  filename = "${path.root}/credentials/taiea-admin-key.json"
-  content = base64decode(
-    google_service_account_key.admin_key[0].private_key
-  )
-  file_permission = "0600"
-
-  depends_on = [
-    google_service_account_key.admin_key
-  ]
-}
-
-resource "local_file" "api_client_key_file" {
-  count    = var.create_api_client_key ? 1 : 0
-  filename = "${path.root}/credentials/taiea-api-client-key.json"
-  content = base64decode(
-    google_service_account_key.api_client_key[0].private_key
-  )
-  file_permission = "0600"
-
-  depends_on = [
-    google_service_account_key.api_client_key
-  ]
-}
-
-# ==============================
 # Workload Identity Binding
 # ==============================
 # Allows Kubernetes workloads to impersonate service accounts (for GKE deployments)
@@ -273,24 +222,12 @@ output "billing_service_account_email" {
   value       = google_service_account.billing_service.email
 }
 
-output "admin_key_path" {
-  description = "Path to admin service account key file"
-  value       = var.create_admin_service_account_key ? local_file.admin_key_file[0].filename : null
-  sensitive   = true
-}
-
-output "api_client_key_path" {
-  description = "Path to API client service account key file"
-  value       = var.create_api_client_key ? local_file.api_client_key_file[0].filename : null
-  sensitive   = true
-}
-
 output "tenant_firestore_reader_role_id" {
   description = "Custom role ID for tenant-scoped Firestore reader"
-  value       = google_project_custom_role.tenant_firestore_reader.id
+  value       = google_project_iam_custom_role.tenant_firestore_reader.id
 }
 
 output "tenant_firestore_writer_role_id" {
   description = "Custom role ID for tenant-scoped Firestore writer"
-  value       = google_project_custom_role.tenant_firestore_writer.id
+  value       = google_project_iam_custom_role.tenant_firestore_writer.id
 }

@@ -310,8 +310,8 @@ resource "google_monitoring_dashboard" "tai_autonomics" {
                     timeSeriesFilter = {
                       filter = "metric.type=\"custom.googleapis.com/tai_autonomics/governor_state_transitions\""
                       aggregation = {
-                        alignmentPeriod  = "60s"
-                        perSeriesAligner = "ALIGN_RATE"
+                        alignmentPeriod    = "60s"
+                        perSeriesAligner   = "ALIGN_RATE"
                         crossSeriesReducer = "REDUCE_SUM"
                         groupByFields = [
                           "metric.governor",
@@ -341,8 +341,8 @@ resource "google_monitoring_dashboard" "tai_autonomics" {
                     timeSeriesFilter = {
                       filter = "metric.type=\"custom.googleapis.com/tai_autonomics/receipts_total\""
                       aggregation = {
-                        alignmentPeriod  = "60s"
-                        perSeriesAligner = "ALIGN_RATE"
+                        alignmentPeriod    = "60s"
+                        perSeriesAligner   = "ALIGN_RATE"
                         crossSeriesReducer = "REDUCE_SUM"
                         groupByFields = [
                           "metric.receipt_type"
@@ -446,11 +446,11 @@ resource "google_monitoring_dashboard" "tai_autonomics" {
 
 # BigQuery dataset for logs
 resource "google_bigquery_dataset" "tai_logs" {
-  dataset_id           = "tai_autonomics_logs"
-  friendly_name        = "TAI Autonomics Logs"
-  description          = "Cloud Logging sink for TAI Erlang Autonomics"
-  location             = var.region
-  default_table_expiration_ms = 7776000000  # 90 days
+  dataset_id                  = "tai_autonomics_logs"
+  friendly_name               = "TAI Autonomics Logs"
+  description                 = "Cloud Logging sink for TAI Erlang Autonomics"
+  location                    = var.region
+  default_table_expiration_ms = 7776000000 # 90 days
 
   labels = {
     environment = var.environment
@@ -555,7 +555,7 @@ resource "google_bigquery_table" "tai_logs_table" {
   time_partitioning {
     type          = "DAY"
     field         = "timestamp"
-    expiration_ms = 7776000000  # 90 days
+    expiration_ms = 7776000000 # 90 days
   }
 
   clustering = ["severity", "resource.type"]
@@ -666,7 +666,7 @@ resource "google_bigquery_table" "trace_spans" {
   time_partitioning {
     type          = "DAY"
     field         = "start_time"
-    expiration_ms = 2592000000  # 30 days
+    expiration_ms = 2592000000 # 30 days
   }
 
   clustering = ["operation_name", "status"]
@@ -877,7 +877,7 @@ resource "google_monitoring_alert_policy" "no_traffic" {
       threshold_value = 0
 
       aggregations {
-        alignment_period  = "300s"
+        alignment_period   = "300s"
         per_series_aligner = "ALIGN_RATE"
       }
 

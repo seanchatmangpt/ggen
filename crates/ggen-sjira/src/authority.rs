@@ -20,6 +20,12 @@
 //! - [`AuthorityGraph::from_json`] / [`AuthorityGraph::from_json_str`] — the
 //!   authority graph source (JSON variant; TTL parsing deferred — disclosed
 //!   at [`AuthorityGraph::from_json`]);
+//! - [`canonical_authority_graph`] / [`canonical_index`] — Elixir
+//!   `Authority.canonical_index/0` parity: the three pinned StrategicObjectives
+//!   of `semantic-jira-pack/ontology.ttl`, stamped under the Rust digest law
+//!   (TTL N-Triples digests diverge; IRIs + pin law match);
+//! - [`load_pack_authority_index`] — load `<pack_dir>/authority.json` when a
+//!   caller names a pack path (fail closed on unreadable/unparseable JSON);
 //! - [`AuthorityIndex::build`] + [`AuthorityIndex::resolve`] — the ONE origin
 //!   law every selection/promotion surface resolves through;
 //! - [`AuthorityTrustRoot`] / [`pins`] — the pin law (G1 hardening);
@@ -50,6 +56,29 @@ pub const AUTHORITY_CLASSES: [&str; 2] = ["StrategicObjective", "GoalCheckpoint"
 /// Prose classes — never code-work authority, whatever else they are typed as
 /// (ADR-012; `@prose_classes`, lines 54-59).
 pub const PROSE_CLASSES: [&str; 2] = ["Proposition", "ProseObservation"];
+
+/// Canonical pack IRI: Semantic Jira MVP strategy
+/// (`sj:objective-semantic-jira-mvp` in semantic-jira-pack/ontology.ttl).
+pub const OBJECTIVE_SEMANTIC_JIRA_MVP: &str =
+    "https://ggen-igniter.dev/ontology/semantic-jira#objective-semantic-jira-mvp";
+
+/// Canonical pack IRI: project manufacturer strategy
+/// (`sj:objective-project-manufacturer`).
+pub const OBJECTIVE_PROJECT_MANUFACTURER: &str =
+    "https://ggen-igniter.dev/ontology/semantic-jira#objective-project-manufacturer";
+
+/// Canonical pack IRI: code-work origin authority
+/// (`sj:objective-code-work-authority`) — the origin golden_admit.json carries.
+pub const OBJECTIVE_CODE_WORK_AUTHORITY: &str =
+    "https://ggen-igniter.dev/ontology/semantic-jira#objective-code-work-authority";
+
+/// Durable locator stamped on the three canonical trust roots (matches the
+/// pack ontology's `sj:sourceLocator` on the trust-root individuals).
+pub const CANONICAL_SOURCE_LOCATOR: &str = "git:seanchatmangpt/ggen_igniter@4988ac61bb6903d2cd9c6855d9c0c942ac9eb57e:priv/ggen/semantic-jira-pack/ontology.ttl";
+
+/// Pack-relative JSON authority graph name (Rust mirror; Elixir indexes
+/// `ontology.ttl` — TTL parse is deferred here).
+pub const PACK_AUTHORITY_JSON: &str = "authority.json";
 
 /// The digest pattern (`@digest_pattern`, line 64): `sha256:<64 hex>`.
 pub fn valid_digest(s: &str) -> bool {
@@ -354,6 +383,98 @@ impl AuthorityTrustRoot {
     }
 }
 
+/// One stamped StrategicObjective for the embedded canonical pack mirror.
+fn stamp_canonical_objective(iri: &str, label: &str, description: &str) -> AuthorityNode {
+    let mut statements = BTreeMap::new();
+    statements.insert("rdfs:label".to_string(), vec![label.to_string()]);
+    statements.insert(
+        "dcterms:description".to_string(),
+        vec![description.to_string()],
+    );
+    let mut node = AuthorityNode {
+        iri: iri.to_string(),
+        types: vec!["StrategicObjective".to_string()],
+        statements,
+    };
+    let digest = admission_digest(&node);
+    node.statements
+        .insert("admissionDigest".to_string(), vec![digest]);
+    node
+}
+
+fn trust_root_for(node: &AuthorityNode, trust_local: &str) -> TrustRootCandidate {
+    let digest = node
+        .statements
+        .get("admissionDigest")
+        .and_then(|v| v.first())
+        .cloned()
+        .unwrap_or_default();
+    TrustRootCandidate {
+        node: format!("{SJ_NAMESPACE}{trust_local}"),
+        authority_iri: node.iri.clone(),
+        admission_digest: digest,
+        source_locator: CANONICAL_SOURCE_LOCATOR.to_string(),
+    }
+}
+
+/// The three pinned StrategicObjectives of semantic-jira-pack, as a JSON
+/// authority graph under the Rust digest law (Elixir
+/// `Authority.canonical_index/0` IRI + pin parity; digests are stamped here
+/// because TTL N-Triples digests do not recompute under the JSON line form).
+pub fn canonical_authority_graph() -> AuthorityGraph {
+    let mvp = stamp_canonical_objective(
+        OBJECTIVE_SEMANTIC_JIRA_MVP,
+        "Semantic Jira MVP strategy",
+        "Canonical RDF work-order graph, SHACL admission court, typed receipts; \
+         origin of SJ-001; projects work from admitted graph state, never from \
+         generated Markdown.",
+    );
+    let manufacturer = stamp_canonical_objective(
+        OBJECTIVE_PROJECT_MANUFACTURER,
+        "Project manufacturer strategy",
+        "Receipt-replayable GALL checkpoint ladder, every rung closes through an \
+         independent exact-subject court and survives byte-identical replay; \
+         origin of GALL-001..032.",
+    );
+    let code_work = stamp_canonical_objective(
+        OBJECTIVE_CODE_WORK_AUTHORITY,
+        "Code work originates from admitted semantic authority",
+        "All code work originates from admitted semantic authority in the \
+         canonical graph; agents communicate only through sJira state; prose, \
+         chat, and Markdown are observation surfaces, never work authority.",
+    );
+    let trust_roots = vec![
+        trust_root_for(&mvp, "trust-root-objective-semantic-jira-mvp"),
+        trust_root_for(&manufacturer, "trust-root-objective-project-manufacturer"),
+        trust_root_for(&code_work, "trust-root-objective-code-work-authority"),
+    ];
+    AuthorityGraph {
+        authorities: vec![mvp, manufacturer, code_work],
+        trust_roots,
+    }
+}
+
+/// Pinned admission index of [`canonical_authority_graph`] — the hands-free
+/// default when a caller does not supply an authority index (Elixir
+/// `Authority.index_from/1` with absent `:authority`).
+pub fn canonical_index() -> AuthorityIndex {
+    AuthorityIndex::build_pinned(&canonical_authority_graph())
+}
+
+/// Load `<pack_dir>/authority.json` and build a pinned index. Missing file
+/// falls through to [`canonical_index`] (TTL ontology parse is deferred;
+/// the embedded pack-IRI mirror is the honest hands-free default). Present
+/// but unreadable/unparseable refuses
+/// [`OriginRefusal::AuthorityIndexUnavailable`].
+pub fn load_pack_authority_index(pack_dir: &Path) -> Result<AuthorityIndex, OriginRefusal> {
+    let path = pack_dir.join(PACK_AUTHORITY_JSON);
+    if !path.is_file() {
+        return Ok(canonical_index());
+    }
+    let graph = AuthorityGraph::from_path(&path)?;
+    Ok(AuthorityIndex::build_pinned(&graph))
+}
+
 /// The pin map of a graph's well-formed trust roots:
 /// `authority_iri -> digest`. An IRI pinned to two different digests is
 /// ambiguous and pins nothing (fail closed). Malformed trust roots (bad
@@ -654,6 +775,50 @@ mod tests {
             .statements
             .insert("admissionDigest".to_string(), vec![d1.clone()]);
         assert_eq!(admission_digest(&stamped), d1);
+    }
+
+    #[test]
+    fn canonical_index_admits_three_pack_objectives() {
+        let index = canonical_index();
+        for iri in [
+            OBJECTIVE_SEMANTIC_JIRA_MVP,
+            OBJECTIVE_PROJECT_MANUFACTURER,
+            OBJECTIVE_CODE_WORK_AUTHORITY,
+        ] {
+            assert!(
+                index.resolve(iri).is_ok(),
+                "canonical index must admit {iri}"
+            );
+        }
+        assert!(matches!(
+            index.resolve("https://graph.test/auth/fresh"),
+            Err(OriginRefusal::AuthorityNotAdmitted { .. })
+        ));
+    }
+
+    #[test]
+    fn load_pack_missing_authority_json_falls_back_to_canonical() {
+        let dir =
+            std::env::temp_dir().join(format!("sjira-auth-pack-missing-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(&dir).expect("mkdir");
+        let index = load_pack_authority_index(&dir).expect("fallback");
+        assert!(index.resolve(OBJECTIVE_CODE_WORK_AUTHORITY).is_ok());
+        let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    #[test]
+    fn load_pack_corrupt_authority_json_refuses_unavailable() {
+        let dir =
+            std::env::temp_dir().join(format!("sjira-auth-pack-corrupt-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(&dir).expect("mkdir");
+        std::fs::write(dir.join(PACK_AUTHORITY_JSON), "not-json").expect("write");
+        assert!(matches!(
+            load_pack_authority_index(&dir),
+            Err(OriginRefusal::AuthorityIndexUnavailable { .. })
+        ));
+        let _ = std::fs::remove_dir_all(&dir);
     }
 
     #[test]

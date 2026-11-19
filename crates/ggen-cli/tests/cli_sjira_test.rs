@@ -35,7 +35,8 @@ fn valid_order(identity: &str) -> Value {
         "required_courts": ["c1"],
         "required_evidence": ["e1"],
         "acceptance": ["a1"],
-        "falsifiers": ["f1"]
+        "falsifiers": ["f1"],
+        "path_scope": ["lib/"]
     })
 }
 
@@ -190,6 +191,38 @@ fn frontier_eligible_with_authority() {
     assert_eq!(blocked.len(), 1);
     assert_eq!(blocked[0]["identity"], json!("o2"));
     assert_eq!(blocked[0]["reason"], json!("dependencies_unsatisfied"));
+}
+
+/// Elixir SoT drop-in: `{"work_orders":[...]}` with deps keyed `"type"`
+/// (no Rust `{work_order,...}` wrap). Identities are B1-valid.
+#[test]
+fn frontier_accepts_elixir_work_orders_envelope() {
+    let dir = TempDir::new().unwrap();
+    let index = authority_index();
+    let mut a = valid_order("SJ-O1");
+    a.as_object_mut()
+        .unwrap()
+        .insert("path_scope".into(), json!(["lib/"]));
+    let mut b = valid_order("SJ-O2");
+    {
+        let obj = b.as_object_mut().unwrap();
+        obj.insert("path_scope".into(), json!(["test/"]));
+        obj.insert(
+            "dependencies".into(),
+            json!([{"type": "requiresSemanticIdentity", "upstream": "SJ-O1"}]),
+        );
+    }
+    let elixir_sot = json!({"work_orders": [a, b]});
+    let orders_f = write_file(&dir, "orders.json", &elixir_sot);
+    let index_f = write_file(&dir, "index.json", &index);
+    let out = sjira::frontier(orders_f, None, None, Some(index_f)).unwrap();
+    assert_eq!(out["eligible_count"], json!(1), "result: {out}");
+    assert_eq!(out["eligible"][0]["identity"], json!("SJ-O1"));
+    assert_eq!(out["blocked"][0]["identity"], json!("SJ-O2"));
+    assert_eq!(
+        out["blocked"][0]["reason"],
+        json!("dependencies_unsatisfied")
+    );
 }
 
 #[test]
@@ -405,4 +438,66 @@ fn epoch_check_accepts_fresh_plan() {
     let wm_f = write_file(&dir, "watermark.json", &wm);
     let out = sjira::epoch_check(order_f, Some(wm_f)).unwrap();
     assert_eq!(out["epoch"], json!("ok"));
+}
+
+// ── reconcile (hands-free canonical authority) ───────────────────────────
+
+fn reconcile_receipt(order: &Value) -> Value {
+    let admitted = ggen_sjira::admit_work_order(order).expect("fixture order admits");
+    json!({
+        "definition_digest": admitted.definition_digest,
+        "snapshot_digest": format!("sha256:{}", "a".repeat(64)),
+        "target": "PARTIAL_ALIVE",
+        "evidence": {
+            "subject": order["subject"],
+            "repository": order["repository"],
+            "base_sha": order["base_sha"],
+            "court_results": {"c1": {"passed": true}},
+            "evidence_types": ["e1"],
+            "acceptance_results": {"a1": true},
+            "falsifier_results": {"f1": "survived"}
+        }
+    })
+}
+
+#[test]
+fn reconcile_hands_free_with_canonical_pack_origin() {
+    use ggen_sjira::authority::OBJECTIVE_CODE_WORK_AUTHORITY;
+
+    let dir = TempDir::new().unwrap();
+    let mut order = valid_order("X1");
+    order["origin_authority"] = json!(OBJECTIVE_CODE_WORK_AUTHORITY);
+    order["evidence_ceiling"] = json!("VERIFIED");
+    let receipt = reconcile_receipt(&order);
+    let order_f = write_file(&dir, "order.json", &order);
+    let receipt_f = write_file(&dir, "receipt.json", &receipt);
+    let ledger = dir.path().join("ledger");
+    let out = sjira::reconcile(order_f, receipt_f, ledger.clone(), None, None).unwrap();
+    assert_eq!(out["status"], json!("appended"));
+    assert_eq!(out["event"]["identity"], json!("X1"));
+    assert_eq!(out["event"]["to"], json!("PARTIAL_ALIVE"));
+    assert!(ledger.is_dir(), "ledger must materialize as a dir");
+}
+
+#[test]
+fn reconcile_hands_free_refuses_unknown_origin() {
+    let dir = TempDir::new().unwrap();
+    let mut order = valid_order("X1");
+    order["evidence_ceiling"] = json!("VERIFIED");
+    // origin is https://example.test/auth/X1 — not in the canonical pack.
+    let receipt = reconcile_receipt(&order);
+    let err = sjira::reconcile(
+        write_file(&dir, "order.json", &order),
+        write_file(&dir, "receipt.json", &receipt),
+        dir.path().join("ledger"),
+        None,
+        None,
+    )
+    .unwrap_err();
+    let msg = err.to_string();
+    assert!(msg.contains("REFUSED:SEMANTIC_JIRA"), "{msg}");
+    assert!(
+        msg.contains("origin_not_admitted") || msg.contains("AuthorityNotAdmitted"),
+        "{msg}"
+    );
 }

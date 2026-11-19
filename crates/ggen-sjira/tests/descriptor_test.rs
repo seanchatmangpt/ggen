@@ -35,7 +35,8 @@ fn order_json(identity: &str) -> Value {
         "required_courts": ["c1"],
         "required_evidence": ["e1"],
         "acceptance": ["a1"],
-        "falsifiers": ["f1"]
+        "falsifiers": ["f1"],
+        "path_scope": ["lib/"]
     })
 }
 
@@ -171,11 +172,12 @@ fn xaas_contract_happy_path_carries_bridge_and_goal() {
     assert_eq!(d["execution_repo_alias"], "ggen-main");
     assert_eq!(d["execution_policy"], "autonomic_wave_attempt");
     assert_eq!(d["graph_digest"], d["bridge"]["source_snapshot_digest"]);
-    // goal text carries identity/title, acceptance, falsifiers
+    // goal text carries identity/title, acceptance, falsifiers, path scope
     let goal = d["goal"].as_str().expect("goal is text");
     assert!(goal.contains("X1: ship the kernel"));
     assert!(goal.contains("Acceptance:\n- a1"));
     assert!(goal.contains("Falsifiers:\n- f1"));
+    assert!(goal.contains("Path scope:\n- lib/"));
     // bridge requires = the snapshot's three lists
     assert_eq!(d["bridge"]["requires"]["courts"], json!(["c1"]));
     assert_eq!(d["bridge"]["requires"]["falsifiers"], json!(["f1"]));

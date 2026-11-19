@@ -2,15 +2,15 @@
 //! admission kernel, core slice.
 //!
 //! Ported (this slice):
-//! - `WorkOrder` representation with the igniter's fifteen required fields
-//!   (`@required`, semantic_jira.ex lines 29) and the standing vocabulary
-//!   (`@standings` + the `REFUSED(<reason>)` form, lines 17 / 1431-1439).
-//! - `admit_work_order/1`: required-field, regex, standing, and list
-//!   validation with typed refusals and remediation text (lines 100-145).
-//! - `definition_digest`: sha256 over the CLOSED definition-field subset
-//!   (`@definition_fields`, lines 38-41, restricted to the fields this
-//!   struct carries — standing, candidate_sha, origin_observation, dims,
-//!   and every derived digest excluded by the same law).
+//! - `WorkOrder` representation aligned to Elixir `admit_work_order/1`:
+//!   `@required` fields plus B3 `path_scope`, definition defaults
+//!   (`authority_requirement`, `dependencies`, `required_receipt_classes`,
+//!   …), and the standing vocabulary (`@standings` + `REFUSED(<reason>)`).
+//! - `admit_work_order/1`: required-field, regex, closed-standing, B3
+//!   path_scope, and list validation with typed refusals (lines 100-151).
+//! - `definition_digest`: sha256 over the CLOSED 19-field
+//!   `@definition_fields` take (lines 38-41) — standing, candidate_sha,
+//!   origin_observation, dims, and every derived digest excluded.
 //!
 //! Ported modules (see each module's own doc for the exact Elixir lines):
 //! `work_order` + `admit` (representation/digests/admission), `receipts`
@@ -53,14 +53,18 @@ pub mod target_pack;
 pub mod work_order;
 
 pub use admit::{admit_work_order, AdmittedWorkOrder, Refusal};
+pub use authority::{
+    canonical_authority_graph, canonical_index, load_pack_authority_index,
+    OBJECTIVE_CODE_WORK_AUTHORITY, OBJECTIVE_PROJECT_MANUFACTURER, OBJECTIVE_SEMANTIC_JIRA_MVP,
+};
 pub use descriptor::{
     build_xaas_contract, identity, receipt_digest, receipt_from_xaas, DescriptorOpts,
     DescriptorRefusal, ReceiptRefusal, SCHEMA,
 };
 pub use frontier::{
-    frontier, project_standing, schedule, ActiveLease, AuthorityIndex, BlockedEntry,
-    DependencyEdge, EligibleCandidate, Evidence, FrontierInput, FrontierResult, Standings,
-    TransitionEvent,
+    frontier, orders_from_json, project_standing, schedule, ActiveLease, AuthorityIndex,
+    BlockedEntry, DependencyEdge, EligibleCandidate, Evidence, FrontierInput, FrontierResult,
+    Standings, TransitionEvent,
 };
 pub use promote::{promote, PromoteRefusal, PromotionIntent};
 pub use receipts::{
@@ -69,4 +73,6 @@ pub use receipts::{
 pub use reconcile::{
     reconcile, tail_digest, ReconcileOpts, ReconcileRefusal, Reconciled, GENESIS_DIGEST,
 };
-pub use work_order::{canonical, definition_digest, digest_of, Standing, WorkOrder};
+pub use work_order::{
+    canonical, definition_digest, digest_of, Standing, WorkOrder, WorkOrderDependency,
+};

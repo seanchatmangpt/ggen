@@ -9,10 +9,10 @@
 
 # Email notification channel (requires var.alert_email)
 resource "google_monitoring_notification_channel" "email" {
-  count           = var.alert_email != "" ? 1 : 0
-  display_name    = "TAI Autonomics Email Alerts"
-  type            = "email"
-  enabled         = true
+  count        = var.alert_email != "" ? 1 : 0
+  display_name = "TAI Autonomics Email Alerts"
+  type         = "email"
+  enabled      = true
   labels = {
     email_address = var.alert_email
   }
@@ -51,8 +51,8 @@ resource "google_monitoring_notification_channel" "pagerduty" {
 resource "google_monitoring_slo" "uptime_slo" {
   service_level_indicator {
     request_based {
-      good_filter   = "resource.type=\"cloud_run_revision\" AND resource.labels.service_name=\"${google_cloud_run_service.tai_autonomics.name}\" AND metric.response_code_class!=\"5xx\""
-      total_filter  = "resource.type=\"cloud_run_revision\" AND resource.labels.service_name=\"${google_cloud_run_service.tai_autonomics.name}\""
+      good_filter  = "resource.type=\"cloud_run_revision\" AND resource.labels.service_name=\"${google_cloud_run_service.tai_autonomics.name}\" AND metric.response_code_class!=\"5xx\""
+      total_filter = "resource.type=\"cloud_run_revision\" AND resource.labels.service_name=\"${google_cloud_run_service.tai_autonomics.name}\""
     }
   }
 
@@ -67,8 +67,8 @@ resource "google_monitoring_slo" "uptime_slo" {
 resource "google_monitoring_slo" "success_rate_slo" {
   service_level_indicator {
     request_based {
-      good_filter   = "resource.type=\"cloud_run_revision\" AND resource.labels.service_name=\"${google_cloud_run_service.tai_autonomics.name}\" AND metric.response_code_class=\"2xx\""
-      total_filter  = "resource.type=\"cloud_run_revision\" AND resource.labels.service_name=\"${google_cloud_run_service.tai_autonomics.name}\""
+      good_filter  = "resource.type=\"cloud_run_revision\" AND resource.labels.service_name=\"${google_cloud_run_service.tai_autonomics.name}\" AND metric.response_code_class=\"2xx\""
+      total_filter = "resource.type=\"cloud_run_revision\" AND resource.labels.service_name=\"${google_cloud_run_service.tai_autonomics.name}\""
     }
   }
 
@@ -83,8 +83,8 @@ resource "google_monitoring_slo" "success_rate_slo" {
 resource "google_monitoring_slo" "latency_slo" {
   service_level_indicator {
     request_based {
-      good_filter   = "resource.type=\"cloud_run_revision\" AND resource.labels.service_name=\"${google_cloud_run_service.tai_autonomics.name}\" AND metric.response_time < 500"
-      total_filter  = "resource.type=\"cloud_run_revision\" AND resource.labels.service_name=\"${google_cloud_run_service.tai_autonomics.name}\""
+      good_filter  = "resource.type=\"cloud_run_revision\" AND resource.labels.service_name=\"${google_cloud_run_service.tai_autonomics.name}\" AND metric.response_time < 500"
+      total_filter = "resource.type=\"cloud_run_revision\" AND resource.labels.service_name=\"${google_cloud_run_service.tai_autonomics.name}\""
     }
   }
 
@@ -194,7 +194,7 @@ resource "google_monitoring_alert_policy" "cascading_failures" {
       filter          = "resource.type=\"cloud_run_revision\" AND resource.labels.service_name=\"${google_cloud_run_service.tai_autonomics.name}\" AND metric.response_code_class=\"5xx\""
       duration        = "60s"
       comparison      = "COMPARISON_GREATER_THAN"
-      threshold_value = 50  # % of requests
+      threshold_value = 50 # % of requests
 
       aggregations {
         alignment_period   = "60s"
@@ -395,16 +395,16 @@ output "latency_slo_id" {
 output "alert_policies" {
   description = "Map of alert policies"
   value = {
-    high_error_rate        = try(google_monitoring_alert_policy.high_error_rate.display_name, "")
-    high_latency           = try(google_monitoring_alert_policy.high_latency.display_name, "")
-    high_cpu               = try(google_monitoring_alert_policy.high_cpu.display_name, "")
-    high_memory            = try(google_monitoring_alert_policy.high_memory.display_name, "")
-    service_errors         = try(google_monitoring_alert_policy.service_errors.display_name, "")
-    error_budget_50        = try(google_monitoring_alert_policy.error_budget_50_percent.display_name, "")
-    error_budget_100       = try(google_monitoring_alert_policy.error_budget_100_percent.display_name, "")
-    cascading_failures     = try(google_monitoring_alert_policy.cascading_failures.display_name, "")
-    out_of_memory          = try(google_monitoring_alert_policy.out_of_memory.display_name, "")
-    governor_error         = try(google_monitoring_alert_policy.governor_error_state.display_name, "")
-    high_refusal_rate      = try(google_monitoring_alert_policy.high_refusal_rate.display_name, "")
+    high_error_rate    = try(google_monitoring_alert_policy.high_error_rate.display_name, "")
+    high_latency       = try(google_monitoring_alert_policy.high_latency.display_name, "")
+    high_cpu           = try(google_monitoring_alert_policy.high_cpu.display_name, "")
+    high_memory        = try(google_monitoring_alert_policy.high_memory.display_name, "")
+    service_errors     = try(google_monitoring_alert_policy.service_errors.display_name, "")
+    error_budget_50    = try(google_monitoring_alert_policy.error_budget_50_percent.display_name, "")
+    error_budget_100   = try(google_monitoring_alert_policy.error_budget_100_percent.display_name, "")
+    cascading_failures = try(google_monitoring_alert_policy.cascading_failures.display_name, "")
+    out_of_memory      = try(google_monitoring_alert_policy.out_of_memory.display_name, "")
+    governor_error     = try(google_monitoring_alert_policy.governor_error_state.display_name, "")
+    high_refusal_rate  = try(google_monitoring_alert_policy.high_refusal_rate.display_name, "")
   }
 }

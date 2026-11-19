@@ -375,7 +375,8 @@ mod tests {
             "required_courts": ["c"],
             "required_evidence": ["e"],
             "acceptance": ["a"],
-            "falsifiers": ["f"]
+            "falsifiers": ["f"],
+            "path_scope": ["lib/"]
         })
     }
 

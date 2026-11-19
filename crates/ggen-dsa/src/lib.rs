@@ -15,6 +15,8 @@
 //! 2026-11-05: no in-repo fips203/fips202 kernel exists (repo-wide grep, zero
 //! hits), so prior-art-first routed to the published crate instead.
 
+pub mod cabi;
+
 pub const ML_DSA_65_SIGNATURE_LEN: usize = 3309;
 pub const ML_DSA_65_VERIFYING_KEY_LEN: usize = 1952;
 pub const ML_DSA_65_SIGNING_SEED_LEN: usize = 32;

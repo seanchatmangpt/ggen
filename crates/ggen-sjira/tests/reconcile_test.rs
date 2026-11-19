@@ -8,7 +8,10 @@
 //! file's on-disk event count.
 
 use ggen_sjira::admit_work_order;
-use ggen_sjira::authority::{admission_digest, AuthorityGraph, AuthorityIndex};
+use ggen_sjira::authority::{
+    admission_digest, AuthorityGraph, AuthorityIndex, OBJECTIVE_CODE_WORK_AUTHORITY,
+    PACK_AUTHORITY_JSON,
+};
 use ggen_sjira::ledger;
 use ggen_sjira::reconcile::{
     reconcile, tail_digest, ReconcileOpts, ReconcileRefusal, GENESIS_DIGEST,
@@ -62,7 +65,8 @@ fn order_json() -> Value {
         "required_courts": ["c1"],
         "required_evidence": ["e1"],
         "acceptance": ["a1"],
-        "falsifiers": ["f1"]
+        "falsifiers": ["f1"],
+        "path_scope": ["lib/"]
     })
 }
 
@@ -87,6 +91,7 @@ fn receipt(order: &Value) -> Value {
 fn opts() -> ReconcileOpts {
     ReconcileOpts {
         authority: Some(authority_index()),
+        pack_dir: None,
     }
 }
 
@@ -275,16 +280,96 @@ fn origin_not_admitted_refuses_when_authority_fresh() {
 }
 
 #[test]
-fn missing_authority_index_refuses_unavailable() {
-    let dir = ledger_dir("no-index");
+fn none_authority_loads_canonical_and_refuses_unknown_origin() {
+    // Hands-free default: absent index → embedded canonical pack mirror.
+    // Fixture origin `https://graph.test/auth/x1` is not a pack IRI, so the
+    // origin law still refuses (fail closed on unresolved origin).
+    let dir = ledger_dir("no-index-canonical");
     let order = order_json();
     let rcpt = receipt(&order);
-    assert_eq!(
-        reconcile(&order, &rcpt, &dir, &ReconcileOpts { authority: None }),
-        Err(ReconcileRefusal::AuthorityIndexUnavailable {
-            detail: "no authority index supplied (ReconcileOpts.authority is None)".to_string(),
-        })
-    );
+    assert!(matches!(
+        reconcile(
+            &order,
+            &rcpt,
+            &dir,
+            &ReconcileOpts {
+                authority: None,
+                pack_dir: None,
+            }
+        ),
+        Err(ReconcileRefusal::OriginNotAdmitted(
+            ggen_sjira::authority::OriginRefusal::AuthorityNotAdmitted { .. }
+        ))
+    ));
+    assert_eq!(ledger::fetch(&dir).expect("readable").len(), 0);
+    fs::remove_dir_all(&dir).ok();
+}
+
+#[test]
+fn none_authority_hands_free_admits_canonical_pack_origin() {
+    let dir = ledger_dir("hands-free-canonical");
+    let mut order = order_json();
+    order["origin_authority"] = json!(OBJECTIVE_CODE_WORK_AUTHORITY);
+    let rcpt = receipt(&order);
+    let out = reconcile(
+        &order,
+        &rcpt,
+        &dir,
+        &ReconcileOpts {
+            authority: None,
+            pack_dir: None,
+        },
+    )
+    .expect("canonical origin admits hands-free");
+    assert_eq!(out.status, ledger::AppendStatus::Appended);
+    assert_eq!(ledger::fetch(&dir).expect("readable").len(), 1);
+    fs::remove_dir_all(&dir).ok();
+}
+
+#[test]
+fn pack_dir_corrupt_authority_json_refuses_unavailable() {
+    let dir = ledger_dir("pack-corrupt");
+    let pack = dir.join("pack");
+    fs::create_dir_all(&pack).expect("mkdir pack");
+    fs::write(pack.join(PACK_AUTHORITY_JSON), "{not json").expect("write");
+    let mut order = order_json();
+    order["origin_authority"] = json!(OBJECTIVE_CODE_WORK_AUTHORITY);
+    let rcpt = receipt(&order);
+    assert!(matches!(
+        reconcile(
+            &order,
+            &rcpt,
+            &dir,
+            &ReconcileOpts {
+                authority: None,
+                pack_dir: Some(pack),
+            }
+        ),
+        Err(ReconcileRefusal::AuthorityIndexUnavailable { .. })
+    ));
+    assert_eq!(ledger::fetch(&dir).expect("readable").len(), 0);
+    fs::remove_dir_all(&dir).ok();
+}
+
+#[test]
+fn pack_dir_missing_authority_json_falls_back_to_canonical() {
+    let dir = ledger_dir("pack-missing");
+    let pack = dir.join("pack");
+    fs::create_dir_all(&pack).expect("mkdir pack");
+    let mut order = order_json();
+    order["origin_authority"] = json!(OBJECTIVE_CODE_WORK_AUTHORITY);
+    let rcpt = receipt(&order);
+    let out = reconcile(
+        &order,
+        &rcpt,
+        &dir,
+        &ReconcileOpts {
+            authority: None,
+            pack_dir: Some(pack),
+        },
+    )
+    .expect("missing authority.json falls back to embedded canonical");
+    assert_eq!(out.status, ledger::AppendStatus::Appended);
     fs::remove_dir_all(&dir).ok();
 }
 

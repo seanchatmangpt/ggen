@@ -260,7 +260,10 @@ jobs:
           sudo apt-get install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
 
       - name: Build release
-        run: cargo build --release --target ${{ matrix.target }} -p ggen-cli-lib --bin ggen
+        run: |
+          export SOURCE_DATE_EPOCH="$(git log -1 --format=%ct)"
+          export RUSTFLAGS="--remap-path-prefix=${GITHUB_WORKSPACE}=/ggen-src --remap-path-prefix=${CARGO_HOME:-$HOME/.cargo}=/cargo-home --remap-path-prefix=${HOME}=/home"
+          cargo build --release --target ${{ matrix.target }} -p ggen-cli-lib --bin ggen
         env:
           CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER: aarch64-linux-gnu-gcc
           CC_aarch64_unknown_linux_gnu: aarch64-linux-gnu-gcc
@@ -457,7 +460,10 @@ jobs:
           sudo apt-get install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
 
       - name: Build release (replica ${{ matrix.replica }}, cold — no cache)
-        run: cargo build --release --target ${{ matrix.target }} -p ggen-cli-lib --bin ggen --locked
+        run: |
+          export SOURCE_DATE_EPOCH="$(git log -1 --format=%ct)"
+          export RUSTFLAGS="--remap-path-prefix=${GITHUB_WORKSPACE}=/ggen-src --remap-path-prefix=${CARGO_HOME:-$HOME/.cargo}=/cargo-home --remap-path-prefix=${HOME}=/home"
+          cargo build --release --target ${{ matrix.target }} -p ggen-cli-lib --bin ggen --locked
         env:
           CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER: aarch64-linux-gnu-gcc
           CC_aarch64_unknown_linux_gnu: aarch64-linux-gnu-gcc
@@ -466,6 +472,9 @@ jobs:
       - name: Hash replica ${{ matrix.replica }} binary
         run: |
           set -euo pipefail
+          if [[ "${{ matrix.target }}" == *-apple-darwin ]]; then
+            bash scripts/normalize-macho.sh "target/${{ matrix.target }}/release/ggen"
+          fi
           SHA=$(shasum -a 256 target/${{ matrix.target }}/release/ggen | awk '{print $1}')
           mkdir -p repro-hash
           printf '%s\n' "${SHA}" > "repro-hash/sha256-${{ matrix.replica }}-${{ matrix.target }}.txt"

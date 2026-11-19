@@ -53,7 +53,8 @@ fn order_json(identity: &str) -> Value {
         "required_courts": ["c1"],
         "required_evidence": ["e1"],
         "acceptance": ["a1"],
-        "falsifiers": ["f1"]
+        "falsifiers": ["f1"],
+        "path_scope": ["lib/"]
     })
 }
 

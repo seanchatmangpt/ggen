@@ -17,10 +17,11 @@
 //!   exit 5 (the documented Andon class); every other typed sjira refusal
 //!   exits 1 (validation class). Exits 2/3/4 are other error families'
 //!   (SparqlError/TemplateError/OutputInvalid) and are never emitted here.
-//!
-//! `reconcile` is deferred: DS-1's kernel reconcile API has not landed in
-//! ggen-sjira yet (no `pub` reconcile entry point in this snapshot); this
-//! verb is added when the kernel surface lands.
+//! * `reconcile --order <file> --receipt <file> --ledger <path>
+//!   [--authority <file>] [--pack-dir <dir>]` — verified receipt → ledger
+//!   standing transition. Absent `--authority` / `--pack-dir`, the kernel
+//!   loads the embedded canonical semantic-jira-pack authority index
+//!   (hands-free; Elixir `Authority.index_from/1` parity).
 //!
 //! Every verb is a thin wrapper: read real files, call the kernel pub API,
 //! render the typed result or the typed refusal (with remediation) — the
@@ -33,10 +34,11 @@ use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
 
 use ggen_sjira::epoch::Refusal as EpochRefusal;
-use ggen_sjira::frontier::{DependencyEdge, FrontierInput};
+use ggen_sjira::ledger::AppendStatus;
+use ggen_sjira::reconcile::{reconcile as kernel_reconcile, ReconcileOpts};
 use ggen_sjira::{
-    execute, frontier as kernel_frontier, lease, AdmittedWorkOrder, Evidence, FrontierResult,
-    TransitionEvent,
+    execute, frontier as kernel_frontier, lease, orders_from_json, AdmittedWorkOrder, Evidence,
+    FrontierResult, TransitionEvent,
 };
 
 // ── refusal helpers ───────────────────────────────────────────────────────
@@ -72,47 +74,11 @@ fn read_json(path: &Path, what: &str) -> Result<Value> {
 
 // ── decoding: CLI JSON shapes → kernel types ─────────────────────────────
 
-/// Decode the frontier/execute `--orders` file: a JSON array of
-/// `{work_order: {...}, dependencies?: [...], path_scope?: [...],
-/// concurrency_key?: "..."}` objects. `dependencies` elements are the
-/// kernel's typed `DependencyEdge` (decode through serde, so a malformed
-/// edge fails closed); the other two are optional with kernel-honest
-/// defaults.
-fn decode_orders(value: &Value) -> Result<Vec<FrontierInput>> {
-    let arr = value.as_array().ok_or_else(|| {
-        NounVerbError::argument_error(
-            "orders file must be a JSON array of {work_order, dependencies?, \
-             path_scope?, concurrency_key?} objects",
-        )
-    })?;
-    let mut inputs = Vec::with_capacity(arr.len());
-    for (i, el) in arr.iter().enumerate() {
-        let work_order = el
-            .get("work_order")
-            .ok_or_else(|| refused(format!("orders[{i}]: missing `work_order` object")))?;
-        let dependencies = match el.get("dependencies") {
-            Some(v) => serde_json::from_value::<Vec<DependencyEdge>>(v.clone())
-                .map_err(|e| refused(format!("orders[{i}].dependencies: {e}")))?,
-            None => Vec::new(),
-        };
-        let path_scope: Vec<String> = match el.get("path_scope") {
-            Some(v) => serde_json::from_value(v.clone())
-                .map_err(|e| refused(format!("orders[{i}].path_scope: {e}")))?,
-            None => Vec::new(),
-        };
-        let concurrency_key = el
-            .get("concurrency_key")
-            .and_then(|v| v.as_str())
-            .unwrap_or("global")
-            .to_string();
-        inputs.push(FrontierInput {
-            work_order: work_order.clone(),
-            dependencies,
-            path_scope,
-            concurrency_key,
-        });
-    }
-    Ok(inputs)
+/// Decode the frontier/execute `--orders` file. Accepts Elixir SemanticJira
+/// SoT (`{"work_orders":[...]}` / bare WorkOrder array) and the legacy Rust
+/// `{work_order, dependencies?, path_scope?, concurrency_key?}` envelope.
+fn decode_orders(value: &Value) -> Result<Vec<ggen_sjira::FrontierInput>> {
+    orders_from_json(value).map_err(refused)
 }
 
 /// Decode the optional `--events` file: a JSON array of typed
@@ -536,5 +502,59 @@ pub fn epoch_check(order_path: PathBuf, watermark_path: Option<PathBuf>) -> Resu
                      pass --watermark <file>",
             }
         ))),
+    }
+}
+
+/// `ggen sjira reconcile`: verified receipt → lawful ledger standing transition.
+///
+/// Absent `--authority` and `--pack-dir`, the kernel loads the embedded
+/// canonical semantic-jira-pack authority index (hands-free). Supply
+/// `--authority` for a full JSON authority graph, or `--pack-dir` for
+/// `<dir>/authority.json` (missing file → same embedded default; corrupt
+/// file → typed refuse).
+#[verb]
+pub fn reconcile(
+    order_path: PathBuf, receipt_path: PathBuf, ledger_path: PathBuf,
+    authority_path: Option<PathBuf>, pack_dir: Option<PathBuf>,
+) -> Result<Value> {
+    // Poka-Yoke verb-complexity guard: keep the #[verb] fn to one delegation.
+    reconcile_impl(
+        order_path,
+        receipt_path,
+        ledger_path,
+        authority_path,
+        pack_dir,
+    )
+}
+
+/// Domain helper for the reconcile verb (authority load + kernel call).
+fn reconcile_impl(
+    order_path: PathBuf, receipt_path: PathBuf, ledger_path: PathBuf,
+    authority_path: Option<PathBuf>, pack_dir: Option<PathBuf>,
+) -> Result<Value> {
+    let order = read_json(&order_path, "order")?;
+    let receipt = read_json(&receipt_path, "receipt")?;
+    let authority = match &authority_path {
+        Some(p) => {
+            let value = read_json(p, "authority graph")?;
+            let graph = ggen_sjira::authority::AuthorityGraph::from_json(&value)
+                .map_err(|e| refused(format!("authority graph: {e}")))?;
+            Some(ggen_sjira::authority::AuthorityIndex::build_pinned(&graph))
+        }
+        None => None,
+    };
+    let opts = ReconcileOpts {
+        authority,
+        pack_dir,
+    };
+    match kernel_reconcile(&order, &receipt, &ledger_path, &opts) {
+        Ok(out) => Ok(serde_json::json!({
+            "status": match out.status {
+                AppendStatus::Appended => "appended",
+                AppendStatus::AlreadyRecorded => "already_recorded",
+            },
+            "event": out.event,
+        })),
+        Err(r) => Err(refused(format!("reconcile refused: {r}"))),
     }
 }

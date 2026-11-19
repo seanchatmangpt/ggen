@@ -9,31 +9,6 @@ resource "google_service_account" "taiea" {
   project      = var.project_id
 }
 
-# Service Account Key (for local development if needed)
-resource "google_service_account_key" "taiea_key" {
-  count              = var.create_service_account_key ? 1 : 0
-  service_account_id = google_service_account.taiea.name
-  public_key_type    = "TYPE_X509_PEM_FILE"
-
-  depends_on = [
-    google_service_account.taiea
-  ]
-}
-
-# Save the service account key to local file (for export)
-resource "local_file" "taiea_key_file" {
-  count    = var.create_service_account_key ? 1 : 0
-  filename = "${path.root}/taiea-service-account-key.json"
-  content = base64decode(
-    google_service_account_key.taiea_key[0].private_key
-  )
-  file_permission = "0600"
-
-  depends_on = [
-    google_service_account_key.taiea_key
-  ]
-}
-
 # ==============================
 # Firestore IAM Bindings
 # ==============================
@@ -217,10 +192,4 @@ output "taiea_service_account_email" {
 output "taiea_service_account_id" {
   description = "ID of the TAIEA service account"
   value       = google_service_account.taiea.unique_id
-}
-
-output "taiea_service_account_key_path" {
-  description = "Path to service account key file (if created)"
-  value       = var.create_service_account_key ? local_file.taiea_key_file[0].filename : null
-  sensitive   = true
 }

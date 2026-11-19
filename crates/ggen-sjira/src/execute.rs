@@ -346,8 +346,8 @@ pub fn run(
             // a refusal here leaves the ledger byte-unchanged. It precedes
             // re-admission because the epoch extension fields (`epoch`,
             // `plan_touches`, `manufacture_plan`, `source_artifacts`) ride
-            // OUTSIDE the strict WorkOrder schema (deny_unknown_fields) —
-            // the gate judges them before the strict envelope is decoded.
+            // outside the WorkOrder admit envelope — the gate judges them
+            // before the order is re-admitted (unknown keys are stripped).
             // Honest scoping: this kernel has NO write authority (execute
             // caps at PARTIAL_ALIVE, the Go-side execution is the
             // consumer's), so the gate admits the PLAN+RECEIPT emission —

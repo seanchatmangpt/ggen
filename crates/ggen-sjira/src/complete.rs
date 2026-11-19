@@ -86,12 +86,9 @@ pub struct CompleteOpts {
     /// exclusive with `pack_dir` — both present is exit 2.
     pub packs_root: Option<PathBuf>,
     /// Per-order pack resolution (`sj:targetPack`), keyed by order
-    /// identity. DISCLOSED DEVIATION from complete.ex lines 135-153:
-    /// there the target pack rides the loose order map
-    /// (`order["target_pack"]`); the typed Rust `WorkOrder` refuses
-    /// unknown fields (`deny_unknown_fields`), so the resolution input
-    /// rides the opts instead. The resolution itself is unchanged:
-    /// `<packs_root>/<target_pack>` when the identity names a pack.
+    /// identity. WorkOrder now admits optional `target_pack` (WP9); this
+    /// opts map remains the complete-driver override /
+    /// `<packs_root>/<target_pack>` resolution input.
     pub target_packs: BTreeMap<String, String>,
 }
 

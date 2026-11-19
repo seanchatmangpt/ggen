@@ -2,7 +2,8 @@
 //!
 //! Port of `GgenIgniter.SemanticJira`'s representation + digest half:
 //! the `@required` field set, the standing vocabulary, and the canonical
-//! sorted-key sha256 digest over the closed definition-field subset.
+//! sorted-key sha256 digest over the closed 19-field `@definition_fields`
+//! take (semantic_jira.ex lines 38-41), including Elixir admission defaults.
 
 use serde::de::Error as DeError;
 use serde::{Deserialize, Deserializer, Serialize};
@@ -13,7 +14,7 @@ use std::collections::BTreeMap;
 use crate::admit::Refusal;
 
 /// Canonical semantic standing values (`@standings`, semantic_jira.ex line 17)
-/// plus the `REFUSED(<reason>)` string form (lines 1431-1439).
+/// plus the `REFUSED(<reason>)` string form (lines 1437-1445).
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Standing {
     Unknown,
@@ -39,10 +40,9 @@ impl Standing {
                 if let Some(reason) = refused_reason(other) {
                     Ok(Standing::Refused(reason.to_string()))
                 } else {
-                    Err(Refusal::MalformedWorkOrder(format!(
-                        "invalid standing {other:?}: expected one of UNKNOWN, PARTIAL_ALIVE, \
-                         ALIVE, BLOCKED, BUILD_BROKEN, UNSUPPORTED, or REFUSED(<reason>)"
-                    )))
+                    Err(Refusal::InvalidStanding {
+                        value: other.to_string(),
+                    })
                 }
             }
         }
@@ -90,14 +90,30 @@ fn refused_reason(s: &str) -> Option<&str> {
     }
 }
 
-/// The WorkOrder, restricted to the igniter's fifteen required fields
-/// (`@required`, semantic_jira.ex line 29) — the core-slice scope.
-///
-/// `deny_unknown_fields` refuses any input carrying fields outside this
-/// closed set; authority is stamped `NONE` by admission, never carried in
-/// the wire form (see `crate::admit`).
+/// Wire-form dependency edge on a WorkOrder (`dependencies/1`, lines
+/// 1447-1460). Key is `"type"` to match Elixir / RDF pack JSON.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
+pub struct WorkOrderDependency {
+    pub upstream: String,
+    #[serde(rename = "type")]
+    pub dep_type: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub required_standing: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub required_receipt_digest: Option<String>,
+}
+
+fn default_authority_requirement() -> String {
+    "NONE".to_string()
+}
+
+/// The WorkOrder aligned to Elixir `admit_work_order/1` normalization.
+///
+/// Unknown JSON keys are stripped (serde default), matching Elixir's
+/// keep-and-normalize admit which tolerates extras while stamping
+/// `authority`/`admitted`/defaults. Optional Elixir keys carry the same
+/// `put_new` defaults as semantic_jira.ex lines 126-138.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct WorkOrder {
     pub identity: String,
     pub title: String,
@@ -111,25 +127,45 @@ pub struct WorkOrder {
     pub standing: Standing,
     pub evidence_ceiling: String,
     pub promotion_rule: String,
+    /// Opaque replay identity string (Elixir: required non-blank; NOT
+    /// constrained to `sha256:<64 hex>` at admit).
     pub replay_identity: String,
     pub origin_authority: String,
-    /// The fifteen deterministic projection classes (`@projection_types`,
-    /// line 24).
+    /// The fifteen deterministic projection classes (`@projection_types`).
     pub projections: Vec<String>,
-    /// Non-empty list of non-empty strings (`nonempty_lists/2`, lines
-    /// 1368-1376).
+    /// Non-empty list of non-empty strings (`nonempty_lists/2`).
     pub required_courts: Vec<String>,
     pub required_evidence: Vec<String>,
     pub acceptance: Vec<String>,
     pub falsifiers: Vec<String>,
+    /// B3: `sj:pathScope` minCount 1 — relative, non-empty strings
+    /// (semantic_jira.ex `path_scope/1`, lines 1487-1500). Omitted/empty
+    /// refuse at admit.
+    #[serde(default)]
+    pub path_scope: Vec<String>,
+    /// Default `"NONE"` (`Map.put_new(..., "authority_requirement", "NONE")`).
+    #[serde(default = "default_authority_requirement")]
+    pub authority_requirement: String,
+    /// Default `[]`.
+    #[serde(default)]
+    pub dependencies: Vec<WorkOrderDependency>,
+    /// B4 deliberate default `[]` until audited (kernel_alignment_test).
+    #[serde(default)]
+    pub required_receipt_classes: Vec<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub candidate_sha: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub origin_observation: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub target_pack: Option<String>,
+    #[serde(default)]
+    pub replay_required: bool,
 }
 
 impl WorkOrder {
-    /// The closed definition-field subset (`@definition_fields`, lines
-    /// 38-41, restricted to the fields this struct carries). Standing is
-    /// excluded by the same law: standing changes never move the
-    /// definition digest. Derived digests are excluded by construction
-    /// (they are not fields of this struct).
+    /// The closed 19-field definition take (`@definition_fields`, lines
+    /// 38-41). Standing / candidate_sha / origin_observation / dimensions /
+    /// derived digests are excluded by the same law.
     fn definition_subset(&self) -> BTreeMap<&'static str, Value> {
         let mut m = BTreeMap::new();
         m.insert("identity", json_str(&self.identity));
@@ -139,14 +175,32 @@ impl WorkOrder {
         m.insert("repository", json_str(&self.repository));
         m.insert("base_sha", json_str(&self.base_sha));
         m.insert("evidence_ceiling", json_str(&self.evidence_ceiling));
+        m.insert(
+            "authority_requirement",
+            json_str(&self.authority_requirement),
+        );
         m.insert("promotion_rule", json_str(&self.promotion_rule));
         m.insert("replay_identity", json_str(&self.replay_identity));
-        m.insert("origin_authority", json_str(&self.origin_authority));
-        m.insert("projections", json_vec(&self.projections));
+        m.insert(
+            "dependencies",
+            Value::Array(
+                self.dependencies
+                    .iter()
+                    .map(|d| serde_json::to_value(d).expect("WorkOrderDependency is serializable"))
+                    .collect(),
+            ),
+        );
         m.insert("required_courts", json_vec(&self.required_courts));
         m.insert("required_evidence", json_vec(&self.required_evidence));
+        m.insert(
+            "required_receipt_classes",
+            json_vec(&self.required_receipt_classes),
+        );
         m.insert("acceptance", json_vec(&self.acceptance));
         m.insert("falsifiers", json_vec(&self.falsifiers));
+        m.insert("projections", json_vec(&self.projections));
+        m.insert("path_scope", json_vec(&self.path_scope));
+        m.insert("origin_authority", json_str(&self.origin_authority));
         m
     }
 }
@@ -160,7 +214,7 @@ fn json_vec(v: &[String]) -> Value {
 }
 
 /// Canonical sorted-key JSON encoding (`canonical/1` + `strings/1`,
-/// semantic_jira.ex lines 1498-1524): object keys sorted, each key-value
+/// semantic_jira.ex lines 1528-1538): object keys sorted, each key-value
 /// pair a two-element array, arrays recursed in order, scalars unchanged.
 pub fn canonical(value: &Value) -> Value {
     match value {
@@ -186,9 +240,8 @@ pub fn digest_of(value: &Value) -> String {
     format!("sha256:{}", hex(&hasher.finalize()))
 }
 
-/// Digest over the CLOSED definition-field subset. Port of
-/// `definition_digest_of/1` restricted to the struct's fields; standing is
-/// excluded, so standing changes never move it.
+/// Digest over the CLOSED 19-field definition take. Port of
+/// `definition_digest_of/1`; standing changes never move it.
 pub fn definition_digest(order: &WorkOrder) -> String {
     let mut map = serde_json::Map::new();
     for (k, v) in order.definition_subset() {
@@ -248,17 +301,46 @@ mod tests {
             "standing": "UNKNOWN",
             "evidence_ceiling": "UNVERIFIED",
             "promotion_rule": "courts",
-            "replay_identity": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+            "replay_identity": "semantic-jira:align:1",
             "origin_authority": "https://example.test/auth/X1",
             "projections": ["jira"],
             "required_courts": ["c1"],
             "required_evidence": ["e1"],
             "acceptance": ["a1"],
-            "falsifiers": ["f1"]
+            "falsifiers": ["f1"],
+            "path_scope": ["lib/"]
         });
         let before = definition_digest(&serde_json::from_value::<WorkOrder>(raw.clone()).unwrap());
         raw["standing"] = Value::String("PARTIAL_ALIVE".into());
         let after = definition_digest(&serde_json::from_value::<WorkOrder>(raw).unwrap());
         assert_eq!(before, after);
+    }
+
+    #[test]
+    fn definition_subset_is_nineteen_fields() {
+        let order: WorkOrder = serde_json::from_value(serde_json::json!({
+            "identity": "X1",
+            "title": "t",
+            "description": "d",
+            "subject": "src/x1.rs",
+            "repository": "owner/repo",
+            "base_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "standing": "UNKNOWN",
+            "evidence_ceiling": "UNVERIFIED",
+            "promotion_rule": "courts",
+            "replay_identity": "semantic-jira:align:1",
+            "origin_authority": "https://example.test/auth/X1",
+            "projections": ["jira"],
+            "required_courts": ["c1"],
+            "required_evidence": ["e1"],
+            "acceptance": ["a1"],
+            "falsifiers": ["f1"],
+            "path_scope": ["lib/"]
+        }))
+        .unwrap();
+        assert_eq!(order.definition_subset().len(), 19);
+        assert_eq!(order.authority_requirement, "NONE");
+        assert!(order.dependencies.is_empty());
+        assert!(order.required_receipt_classes.is_empty());
     }
 }

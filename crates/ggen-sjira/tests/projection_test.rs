@@ -55,6 +55,8 @@ const TEMPLATE: &str = r#"// capability: {{ capability_id }}
 {% endfor %}"#;
 
 fn order() -> WorkOrder {
+    // WP9: keep path_scope; leave falsifiers empty so default project() does
+    // not require projections/c1.unbound.rq (falsifier courts seed both).
     serde_json::from_value(serde_json::json!({
         "identity": "EXEC-1",
         "title": "t",
@@ -71,7 +73,8 @@ fn order() -> WorkOrder {
         "required_courts": ["c1"],
         "required_evidence": ["e1"],
         "acceptance": ["a1"],
-        "falsifiers": []
+        "falsifiers": [],
+        "path_scope": ["lib/"]
     }))
     .expect("valid WorkOrder")
 }

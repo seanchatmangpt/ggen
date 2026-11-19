@@ -9,6 +9,16 @@ rustc-wrapper = "sccache"
 jobs = 16
 pipelining = true
 
+# DETB-4 path-independent builds. Cargo does not expand variables in rustflags, so only
+# literal checkout roots can live here; CI (release.yml) sets RUSTFLAGS from
+# $GITHUB_WORKSPACE, which overrides this key. Entries: canonical local checkout and the
+# two DETB-4 verification extraction roots.
+rustflags = [
+    "--remap-path-prefix=/Users/sac/ggen=/ggen-src",
+    "--remap-path-prefix=/tmp/detb4-x/ggen=/ggen-src",
+    "--remap-path-prefix=/tmp/detb4-yy/ggen=/ggen-src",
+]
+
 [term]
 # Always show colors
 color = "always"

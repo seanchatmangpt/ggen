@@ -71,7 +71,8 @@ fn valid_order() -> Value {
         "required_courts": ["admission-court"],
         "required_evidence": ["exact_head_verification_evidence"],
         "acceptance": ["cargo test -p ggen-sjira controller"],
-        "falsifiers": ["a protected-path write is admitted by propose"]
+        "falsifiers": ["a protected-path write is admitted by propose"],
+        "path_scope": ["lib/"]
     })
 }
 

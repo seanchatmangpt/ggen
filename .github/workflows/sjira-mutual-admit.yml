@@ -1,0 +1,49 @@
+# GAP19: durable Elixir↔Rust golden mutual-admit gate.
+# Hands-free entry: `just sjira-mutual-admit` (script: scripts/sjira_mutual_admit.sh).
+# On ggen-only runners the Elixir leg dry-run-skips when ggen_igniter/mix is absent;
+# Rust shared_fixture_admission_test still runs and must EXIT 0.
+name: sjira-mutual-admit
+
+on:
+  pull_request:
+    paths:
+      - 'crates/ggen-sjira/**'
+      - 'scripts/sjira_mutual_admit.sh'
+      - 'justfile'
+      - '.github/workflows/sjira-mutual-admit.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'crates/ggen-sjira/**'
+      - 'scripts/sjira_mutual_admit.sh'
+      - 'justfile'
+      - '.github/workflows/sjira-mutual-admit.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: sjira-mutual-admit-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  mutual-admit:
+    name: golden mutual admit
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Install just
+        uses: extractions/setup-just@e33eabd166b2050af4085ec509190861595da63b # v3
+      - name: Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@f13886b937689471ec72163fe75d13d54516e343 # v2
+        with:
+          workspaces: '.'
+      - name: Mutual admit gate
+        run: just sjira-mutual-admit

@@ -1102,3 +1102,11 @@ examples/industry/*/ggen.lock
 *.tsbuildinfo
 # Lane hygiene
 .venv/
+
+# Terraform state & local plugin cache
+*.tfstate*
+.terraform/
+
+# Session / agent scratch (sjira gap-close hygiene)
+loop_receipt.json
+**/loop_receipt.json
