@@ -46,3 +46,8 @@ cargo test -p ggen-cli-lib --test cli_sjira_test reconcile_
 - TTL parse of pack `ontology.ttl` remains deferred; embedded JSON-shaped
   mirror is the Rust default (honest parity on IRIs/pins, not byte digests).
 - Frontier still fails closed without `--authority` (out of this gap's scope).
+
+## L03 follow-on (2026-11-19)
+
+CLI `frontier` now loads the same canonical index when `--authority` is absent
+(`fd4f99bbd` on preserve/v26.11.16-main). Reconcile courts still EXIT=0 (16+2).
