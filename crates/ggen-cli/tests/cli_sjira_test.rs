@@ -58,11 +58,11 @@ fn order_entry(order: Value, deps: Value) -> Value {
 /// Two-order backlog: o1 independent, o2 requires upstream o1.
 fn backlog() -> Value {
     json!([
-        order_entry(valid_order("o1"), json!([])),
+        order_entry(valid_order("O1"), json!([])),
         order_entry(
-            valid_order("o2"),
+            valid_order("O2"),
             json!([
-                {"kind": "requiresSemanticIdentity", "upstream": "o1"}
+                {"kind": "requiresSemanticIdentity", "upstream": "O1"}
             ])
         )
     ])
@@ -167,15 +167,47 @@ fn admit_refuses_non_json() {
 // ── frontier ─────────────────────────────────────────────────────────────
 
 #[test]
-fn frontier_without_authority_fails_closed() {
+fn frontier_without_authority_uses_canonical_index() {
+    // Hands-free CLI default = embedded pack index (Elixir index_from/1 parity).
+    // Non-pack origins are blocked as origin_not_admitted — not
+    // authority_index_unavailable (that remains a kernel-None path only).
     let dir = TempDir::new().unwrap();
     let f = write_file(&dir, "orders.json", &backlog());
     let out = sjira::frontier(f, None, None, None).unwrap();
     let blocked = out["blocked"].as_array().unwrap();
-    assert_eq!(blocked.len(), 2);
+    assert_eq!(blocked.len(), 2, "frontier dump: {out}");
     for b in blocked {
-        assert_eq!(b["reason"], json!("authority_index_unavailable"));
+        assert_eq!(b["reason"], json!("origin_not_admitted"));
     }
+    assert_eq!(out["eligible_count"], json!(0));
+}
+
+#[test]
+fn frontier_hands_free_admits_canonical_code_work_origin() {
+    // Friday twin: Mix eligible=[FRI-FMT-A] with pack objective-code-work-authority
+    // and no --authority-graph; Rust CLI must match without --authority-path.
+    let dir = TempDir::new().unwrap();
+    let mut a = valid_order("FRI-FMT-A");
+    a["origin_authority"] = json!(ggen_sjira::OBJECTIVE_CODE_WORK_AUTHORITY);
+    a["path_scope"] = json!(["lib"]);
+    let mut b = valid_order("FRI-FMT-B");
+    b["origin_authority"] = json!(ggen_sjira::OBJECTIVE_CODE_WORK_AUTHORITY);
+    b["path_scope"] = json!(["test"]);
+    b["dependencies"] = json!([{
+        "type": "requiresReceipt",
+        "upstream": "FRI-FMT-A",
+        "required_standing": "ALIVE"
+    }]);
+    let orders = json!({"work_orders": [a, b]});
+    let f = write_file(&dir, "orders.json", &orders);
+    let out = sjira::frontier(f, None, None, None).unwrap();
+    assert_eq!(out["eligible_count"], json!(1), "frontier dump: {out}");
+    let eligible = out["eligible"].as_array().unwrap();
+    assert_eq!(eligible[0]["identity"], json!("FRI-FMT-A"));
+    let blocked = out["blocked"].as_array().unwrap();
+    assert_eq!(blocked.len(), 1);
+    assert_eq!(blocked[0]["identity"], json!("FRI-FMT-B"));
+    assert_eq!(blocked[0]["reason"], json!("dependencies_unsatisfied"));
 }
 
 #[test]
@@ -186,10 +218,10 @@ fn frontier_eligible_with_authority() {
     let index_f = write_file(&dir, "index.json", &index);
     let out = sjira::frontier(orders_f, None, None, Some(index_f)).unwrap();
     // o1 is eligible; o2 requires upstream evidence o1 has not stamped yet.
-    assert_eq!(out["eligible_count"], json!(1));
+    assert_eq!(out["eligible_count"], json!(1), "frontier dump: {out}");
     let blocked = out["blocked"].as_array().unwrap();
     assert_eq!(blocked.len(), 1);
-    assert_eq!(blocked[0]["identity"], json!("o2"));
+    assert_eq!(blocked[0]["identity"], json!("O2"));
     assert_eq!(blocked[0]["reason"], json!("dependencies_unsatisfied"));
 }
 
@@ -234,7 +266,7 @@ fn frontier_events_unlock_dependents() {
     let orders_f = write_file(&dir, "orders.json", &backlog());
     let index_f = write_file(&dir, "index.json", &index);
     let events = json!([
-        {"work_order_id": "o1", "from_standing": "UNKNOWN",
+        {"work_order_id": "O1", "from_standing": "UNKNOWN",
          "to_standing": "PARTIAL_ALIVE", "seq": 1,
          "receipt_digest": "sha256:".to_owned() + &"c".repeat(64)}
     ]);
@@ -246,9 +278,9 @@ fn frontier_events_unlock_dependents() {
     assert_eq!(out["eligible_count"], json!(1));
     let blocked = out["blocked"].as_array().unwrap();
     assert_eq!(blocked.len(), 1);
-    assert_eq!(blocked[0]["identity"], json!("o1"));
+    assert_eq!(blocked[0]["identity"], json!("O1"));
     assert_eq!(blocked[0]["reason"], json!("standing=PARTIAL_ALIVE"));
-    assert_eq!(out["standings"]["o1"], json!("PARTIAL_ALIVE"));
+    assert_eq!(out["standings"]["O1"], json!("PARTIAL_ALIVE"));
 }
 
 // ── execute over a real ledger (Chicago: assert the file really grew) ────
@@ -279,9 +311,9 @@ fn execute_runs_two_order_backlog() {
     for f in entries {
         ledger_body.push_str(&std::fs::read_to_string(f).unwrap());
     }
-    assert!(ledger_body.contains("o1"));
-    assert!(ledger_body.contains("o2"));
-    assert_eq!(out["standings"]["o1"], json!("PARTIAL_ALIVE"));
+    assert!(ledger_body.contains("O1"));
+    assert!(ledger_body.contains("O2"));
+    assert_eq!(out["standings"]["O1"], json!("PARTIAL_ALIVE"));
 }
 
 #[test]

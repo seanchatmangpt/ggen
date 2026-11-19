@@ -5,7 +5,9 @@
 //!
 //! * `admit <file>` — admit one WorkOrder JSON file.
 //! * `frontier --orders <file> [--events] [--evidence] [--authority]` —
-//!   frontier selection over real files.
+//!   frontier selection over real files. Absent `--authority`, loads the
+//!   embedded canonical semantic-jira-pack authority index (hands-free;
+//!   Elixir `Authority.index_from/1` parity — same default as `reconcile`).
 //! * `execute --orders <file> --ledger <path> --authority <file> [--max N]`
 //!   — the kernel's frontier→authority→plan→receipt→reconcile loop over a
 //!   REAL file ledger.
@@ -336,9 +338,12 @@ fn render_admitted(admitted: &AdmittedWorkOrder) -> Value {
 
 /// `ggen sjira frontier`: frontier selection over real files.
 ///
-/// With no `--authority` file the kernel fails closed (every order blocked with
-/// `authority_index_unavailable`) — surfaced as a successful JSON result,
-/// because "blocked" IS the kernel's typed answer, not a CLI error.
+/// Absent `--authority`, loads the embedded canonical semantic-jira-pack
+/// authority index (hands-free; Elixir `Authority.index_from/1` / Mix frontier
+/// default parity — same path as [`reconcile`]). An explicit `--authority`
+/// file still wins. Kernel `None` fail-closed
+/// (`authority_index_unavailable`) remains for direct library callers; the
+/// CLI never leaves the index unset.
 #[verb]
 pub fn frontier(
     orders_path: PathBuf, events_path: Option<PathBuf>, evidence_path: Option<PathBuf>,
@@ -350,13 +355,29 @@ pub fn frontier(
         None => Vec::new(),
     };
     let evidence = decode_evidence(read_json_opt(evidence_path.as_deref())?.as_ref())?;
-    let authority = decode_authority_index(read_json_opt(authority_path.as_deref())?.as_ref())?;
+    let owned_index =
+        match decode_authority_index(read_json_opt(authority_path.as_deref())?.as_ref())? {
+            Some(explicit) => explicit,
+            None => map_membership_from_typed(&ggen_sjira::canonical_index()),
+        };
 
-    let result = kernel_frontier(&orders, &events, &evidence, authority.as_ref());
+    let result = kernel_frontier(&orders, &events, &evidence, Some(&owned_index));
     let eligible_count = result.eligible.len();
     let mut out = render_frontier(&result);
     out["eligible_count"] = Value::from(eligible_count);
     Ok(out)
+}
+
+/// Project a typed [`ggen_sjira::authority::AuthorityIndex`] into the
+/// map-membership shape [`kernel_frontier`] consumes (IRI → admission digest).
+fn map_membership_from_typed(
+    typed: &ggen_sjira::authority::AuthorityIndex,
+) -> BTreeMap<String, String> {
+    let mut map = BTreeMap::new();
+    for (iri, admitted) in typed.admitted.iter() {
+        map.insert(iri.clone(), admitted.admission_digest.clone());
+    }
+    map
 }
 
 /// Read a file that may legitimately not exist (optional inputs). A
