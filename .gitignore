@@ -1110,3 +1110,7 @@ examples/industry/*/ggen.lock
 # Session / agent scratch (sjira gap-close hygiene)
 loop_receipt.json
 **/loop_receipt.json
+
+# ggen sync runtime under examples/packs (leases/receipts; regenerable)
+.ggen-v2/
+**/.ggen-v2/
