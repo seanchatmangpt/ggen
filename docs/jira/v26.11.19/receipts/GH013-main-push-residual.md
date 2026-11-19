@@ -7,7 +7,7 @@ Standing: BLOCKED
 | Field | Value |
 |---|---|
 | Date | 2026-11-19 |
-| Subject tip | `d2d4988e6fb9575831a21decbea500ef58d28d19` |
+| Subject tip | `883dbb8dd395ae5915a964951ec642387335e8ec` |
 | Lawful land | `origin/preserve/v26.11.16-main` (= tip) |
 | Dogfood floor | `fd4f99bbd4971fb1ca5a0f3a3a2382aaba32261e` (ancestor of tip) |
 | `origin/main` | `b21cbfa5a9312901be2915afef23fb880a308f69` (preserve ahead **135**) |
@@ -77,7 +77,7 @@ once layer A alone blocks `main`.
 
 | Check | Result |
 |---|---|
-| `origin/preserve/v26.11.16-main` | `d2d4988e6fb9575831a21decbea500ef58d28d19` |
+| `origin/preserve/v26.11.16-main` | `883dbb8dd395ae5915a964951ec642387335e8ec` |
 | `fd4f99bbd` ancestor of preserve | yes |
 | `git push origin HEAD:preserve/v26.11.16-main` | EXIT=0 (up-to-date) |
 | `~/.local/bin/ggen` | `26.11.5`; sha256 matches `target/debug/ggen` built from tip |
