@@ -141,7 +141,7 @@ fn tree_digest(root: &Path) -> Vec<(String, String)> {
 }
 
 fn assert_cli_success(ggen_bin: &Path, project: &Path, args: &[&str]) {
-    let output = CliHarness::from_path(ggen_bin.to_path_buf())
+    let output = CliHarness::from_path(ggen_bin)
         .args(args)
         .current_dir(project)
         .run()

@@ -29,7 +29,6 @@
 
 use assert_cmd::Command;
 use predicates::prelude::*;
-use std::fs;
 use tempfile::TempDir;
 
 /// Resolve the real `ggen` binary the same way `cli_boundary.rs::ggen_bin`

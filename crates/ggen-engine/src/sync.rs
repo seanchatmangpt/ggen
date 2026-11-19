@@ -2795,6 +2795,7 @@ impl Drop for ReceiptLogLock {
 /// `[FM-CHAIN-012]` when another (live) sync holds the lock; `[FM-CHAIN-009]`
 /// when the lock directory cannot be created or the lock cannot be written.
 pub(crate) fn acquire_receipt_log_lock(root: &Path) -> Result<ReceiptLogLock> {
+    use std::io::Write as _;
     let dir = root.join(".ggen-v2");
     std::fs::create_dir_all(&dir).map_err(|e| {
         AppError::fm_chain(
@@ -2861,9 +2862,7 @@ pub(crate) fn acquire_receipt_log_lock(root: &Path) -> Result<ReceiptLogLock> {
     let pid = std::process::id();
     let ts = SystemTime::now()
         .duration_since(SystemTime::UNIX_EPOCH)
-        .map(|d| d.as_secs())
-        .unwrap_or(0);
-    use std::io::Write as _;
+        .map_or(0, |d| d.as_secs());
     let mut file = file;
     writeln!(file, "pid {pid}").ok();
     writeln!(file, "acquired {ts}").ok();
@@ -2884,8 +2883,7 @@ fn receipt_log_lock_is_stale(path: &Path) -> bool {
     match std::fs::metadata(path).and_then(|m| m.modified()) {
         Ok(mtime) => SystemTime::now()
             .duration_since(mtime)
-            .map(|age| age.as_secs() >= RECEIPT_LOG_LOCK_STALE_SECS)
-            .unwrap_or(true),
+            .map_or(true, |age| age.as_secs() >= RECEIPT_LOG_LOCK_STALE_SECS),
         Err(_) => true,
     }
 }
@@ -2982,6 +2980,7 @@ pub(crate) struct AggregateOutcome {
 /// The `srve` consumer precedent: `ontology-corpus.ttl` is a generated
 /// concat of constituent TTLs (LOCK-RECEIPT concat shape), regenerated
 /// after content changes; this makes the engine own that freshness law.
+#[allow(clippy::too_many_lines)] // aggregate freshness law is one linear stage; splitting obscures the refusal ladder
 pub(crate) fn enforce_ontology_aggregate(
     root: &Path, aggregate: Option<&OntologyAggregate>, dry_run: bool,
 ) -> Result<Option<AggregateOutcome>> {
@@ -4686,6 +4685,7 @@ fn write_subject_digest_ledger(path: &Path, digests: &BTreeMap<String, String>) 
 /// previous ledger): the summary says so instead of pretending an empty
 /// diff was observed.
 fn write_sync_diff_summary(root: &Path, diff: Option<&GraphDiff>) -> Result<()> {
+    use std::fmt::Write as _;
     let path = root.join(SYNC_DIFF_REL_PATH);
     let dir = path.parent().unwrap_or_else(|| Path::new("."));
     std::fs::create_dir_all(dir).map_err(|e| {
@@ -4714,26 +4714,27 @@ fn write_sync_diff_summary(root: &Path, diff: Option<&GraphDiff>) -> Result<()> 
         })?;
         return Ok(());
     };
-    body.push_str(&format!(
+    let _ = write!(
+        body,
         "- added subjects: {}\n- removed subjects: {}\n- changed subjects: {}\n",
         diff.added.len(),
         diff.removed.len(),
         diff.changed.len()
-    ));
+    );
     for (label, list) in [
         ("added", &diff.added),
         ("removed", &diff.removed),
         ("changed", &diff.changed),
     ] {
         for s in list {
-            body.push_str(&format!("- {label}: `{s}`\n"));
+            let _ = writeln!(body, "- {label}: `{s}`");
             if let Some(attr) = diff.per_source.get(s) {
-                body.push_str(&format!("  - source: {attr}\n"));
+                let _ = writeln!(body, "  - source: {attr}");
             }
         }
     }
     if let Some(note) = &diff.note {
-        body.push_str(&format!("\n> NOTE: {note}\n"));
+        let _ = write!(body, "\n> NOTE: {note}\n");
     }
     if diff.added.is_empty()
         && diff.removed.is_empty()
@@ -4907,6 +4908,7 @@ pub(crate) fn write_receipt(
     root: &Path, report: &SyncReport, graph: &dyn GraphEngine,
     receipt_origin: Option<&'static str>, partial: bool, ea_admission_skipped: bool,
 ) -> Result<bool> {
+    use std::io::Write as _;
     // Returns `Ok(true)` = receipt line appended, `Ok(false)` =
     // skipped-as-retry (KD-G18 idempotence fence outcome, threaded into
     // `SyncReport::log_append` by the caller).
@@ -5540,7 +5542,6 @@ pub(crate) fn write_receipt(
     let appended = append_receipt_line(&log_path, &line, receipt.record.chain_hash_hex.as_str())?;
     // fsync the head pointer too (G11 item 3(b)): a returned success must
     // survive a machine crash for BOTH halves of the two-file write.
-    use std::io::Write as _;
     let mut head = std::fs::File::create(&receipt_path)?;
     head.write_all(&serde_json::to_vec(&receipt)?)?;
     head.sync_all()?;
@@ -5926,8 +5927,8 @@ mod tests {
             !root.join(RECEIPT_LOCK_REL_PATH).exists(),
             "dropping the guard removes the lock file"
         );
-        let _g2 = acquire_receipt_log_lock(root).expect("reacquire after release");
-        drop(_g2);
+        let g2 = acquire_receipt_log_lock(root).expect("reacquire after release");
+        drop(g2);
 
         // 3. Staleness steal: a lock older than the window is stolen.
         let lock_path = root.join(RECEIPT_LOCK_REL_PATH);

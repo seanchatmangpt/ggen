@@ -10,6 +10,8 @@
 //! Chicago: real collaborator (real sync over a real temp project), assert
 //! final on-disk state.
 
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 use tempfile::TempDir;
 
 const ONTOLOGY: &str = r#"
@@ -21,12 +23,12 @@ fn write_project(dir: &std::path::Path, generation_body: &str) {
     let manifest = format!(
         "[project]\nname = \"gendemo\"\nversion = \"0.1.0\"\n\n[ontology]\nsource = \"ontology.ttl\"\n\n{generation_body}"
     );
-    std::fs::write(dir.join("ggen.toml"), manifest).unwrap();
-    std::fs::write(dir.join("ontology.ttl"), ONTOLOGY).unwrap();
+    std::fs::write(dir.join("ggen.toml"), manifest).expect("write ggen.toml");
+    std::fs::write(dir.join("ontology.ttl"), ONTOLOGY).expect("write ontology.ttl");
 }
 
 fn sync_flag(generation_body: &str) -> (TempDir, ggen_engine::sync::SyncReport) {
-    let dir = TempDir::new().unwrap();
+    let dir = TempDir::new().expect("tempdir");
     write_project(dir.path(), generation_body);
     let report = ggen_engine::sync::sync(
         dir.path(),
@@ -35,7 +37,7 @@ fn sync_flag(generation_body: &str) -> (TempDir, ggen_engine::sync::SyncReport) 
             ..Default::default()
         },
     )
-    .unwrap();
+    .expect("sync");
     (dir, report)
 }
 
@@ -45,10 +47,10 @@ fn flag_on_renders_tsconfig_verify_json_and_verify_mjs() {
         "[[generation.rules]]\nname = \"types\"\nquery = { inline = \"SELECT ?name WHERE { ?s <http://example.org/name> ?name } ORDER BY ?name\" }\ntemplate = { inline = \"export const names = [\\\"{{ row.name }}\\\"];\" }\noutput_file = \"src/types/names.ts\"\n\n[generation.verification_harness]\npeers = [\"xstate\"]\n",
     );
 
-    let tsconfig =
-        std::fs::read_to_string(dir.path().join(".ggen-v2/verify/tsconfig.verify.json")).unwrap();
-    let verify_mjs =
-        std::fs::read_to_string(dir.path().join(".ggen-v2/verify/verify.mjs")).unwrap();
+    let tsconfig = std::fs::read_to_string(dir.path().join(".ggen-v2/verify/tsconfig.verify.json"))
+        .expect("read tsconfig.verify.json");
+    let verify_mjs = std::fs::read_to_string(dir.path().join(".ggen-v2/verify/verify.mjs"))
+        .expect("read verify.mjs");
 
     // Golden shapes: the two harness files, with manifest-derived aliases.
     assert!(

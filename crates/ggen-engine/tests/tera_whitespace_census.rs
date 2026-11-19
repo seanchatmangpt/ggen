@@ -265,6 +265,7 @@ fn poisoned_fixture_renders_with_no_newline_after_interpolation() {
 }
 
 #[test]
+#[allow(clippy::too_many_lines)] // census asserts textual grounding across two vendored tera trees
 fn grammar_law_is_textually_grounded_in_both_engine_versions() {
     let cargo_home = std::env::var("CARGO_HOME")
         .map(PathBuf::from)

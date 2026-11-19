@@ -233,7 +233,7 @@ fn check_corpus_freshness_flag_off(root: &std::path::Path, config: &GgenConfig) 
     let ontology_dir = root.join("ontology");
     let mut constituents: Vec<std::path::PathBuf> = match std::fs::read_dir(&ontology_dir) {
         Ok(entries) => entries
-            .filter_map(|entry| entry.ok())
+            .filter_map(std::result::Result::ok)
             .map(|entry| entry.path())
             .filter(|p| p.is_file() && p.extension().and_then(|e| e.to_str()) == Some("ttl"))
             .collect(),
@@ -1569,6 +1569,10 @@ pub fn handle_law_export() -> Result<serde_json::Value> {
 /// HAND-EDITED (lane L2, G11 sequenced item 3, 2026-11-07): handler for
 /// `ggen sync repair-log` — explicit torn-tail recovery over the project
 /// root, reporting what was truncated.
+///
+/// # Errors
+/// Receipt-log repair failures (`FM-CHAIN-*`) and JSON serialization errors
+/// are mapped to a `NounVerbError` execution error.
 pub fn handle_sync_repair_log() -> Result<serde_json::Value> {
     let root = project_root()?;
     let repair = crate::sync::repair_receipt_log(&root).map_err(exec_err)?;
