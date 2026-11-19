@@ -1037,8 +1037,7 @@ fn harness_path_aliases(manifest: &GgenManifest) -> Vec<(String, String)> {
         let path = Path::new(&joined);
         let is_ts = path
             .extension()
-            .map(|e| e == "ts" || e == "tsx")
-            .unwrap_or(false);
+            .is_some_and(|e| e == "ts" || e == "tsx");
         if !is_ts {
             continue;
         }

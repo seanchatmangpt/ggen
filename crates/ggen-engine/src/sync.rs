@@ -2714,6 +2714,7 @@ pub fn repair_receipt_log(root: &Path) -> Result<ReceiptLogRepair> {
         marker_appended: false,
     };
     {
+        use std::io::{Seek as _, Write as _};
         let _lock = acquire_receipt_log_lock(root)?;
         let mut f = std::fs::OpenOptions::new()
             .write(true)
@@ -2736,7 +2737,6 @@ pub fn repair_receipt_log(root: &Path) -> Result<ReceiptLogRepair> {
             "{{\"ggen_receipt_log_repair\":{{\"ts_ns\":0,\"bytes_dropped\":{}}}}}\n",
             repair.bytes_dropped
         );
-        use std::io::{Seek as _, Write as _};
         f.seek(std::io::SeekFrom::End(0)).map_err(|e| {
             AppError::fm_chain(
                 4,
