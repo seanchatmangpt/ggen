@@ -13,9 +13,13 @@
 //!   pre-admitted [`AdmittedWorkOrder`] and is pure/IO-free — callers
 //!   compose `admit_work_order` and the authority gate themselves
 //!   (descriptor/reconcile slices do exactly that);
-//! - the `dependencies` check is vacuously true in this port: the core
-//!   fifteen-field `WorkOrder` struct carries no `dependencies` field (the
-//!   igniter's normalized map defaults it to `[]` when absent);
+//! - the `dependencies` check mirrors Elixir `dependencies_satisfied?/2`
+//!   (`semantic_jira.ex` ~681-685 + `dependency_satisfied?/2` ~1321): every
+//!   `WorkOrder.dependencies` edge must be witnessed under
+//!   `evidence.dependency_evidence[upstream]` with matching
+//!   `required_standing` / `required_receipt_digest` when declared; empty
+//!   deps stay vacuously true, non-empty unmet deps fail closed as
+//!   [`PromoteRefusal::DependenciesUnsatisfied`];
 //! - the igniter's failed-check list maps 1:1 to typed refusals except two
 //!   checks the roadmap's refusal list did not name: an unwitnessed
 //!   acceptance item refuses `AcceptanceUnwitnessed` and
@@ -91,6 +95,18 @@ pub enum PromoteRefusal {
          not set inherited_standing=true (no-inherited-crown law)"
     )]
     InheritedStanding,
+
+    #[error(
+        "DependenciesUnsatisfied: upstream {upstream:?} does not satisfy \
+         required_standing={required_standing:?} \
+         required_receipt_digest={required_receipt_digest:?} — remediation: present \
+         dependency_evidence[{upstream:?}] with the required standing/receipt"
+    )]
+    DependenciesUnsatisfied {
+        upstream: String,
+        required_standing: Option<String>,
+        required_receipt_digest: Option<String>,
+    },
 }
 
 /// The promotion calculus's output: a `standing_transition_intent` with a
@@ -133,6 +149,23 @@ pub fn promote(
         && ev("base_sha") == Some(&Value::String(order.work_order.base_sha.clone()));
     if !subject_exact {
         return Err(PromoteRefusal::ReplayIdentityMismatch);
+    }
+
+    // dependencies_satisfied? (line ~681): every dependsOn / requiredStanding
+    // edge under work_order.dependencies is witnessed in
+    // evidence.dependency_evidence — fail closed when unmet (never vacuous
+    // for a non-empty dependency list).
+    let dep_evidence = evidence
+        .get("dependency_evidence")
+        .and_then(|v| v.as_object());
+    for dep in &order.work_order.dependencies {
+        if !dependency_edge_satisfied(dep, dep_evidence) {
+            return Err(PromoteRefusal::DependenciesUnsatisfied {
+                upstream: dep.upstream.clone(),
+                required_standing: dep.required_standing.clone(),
+                required_receipt_digest: dep.required_receipt_digest.clone(),
+            });
+        }
     }
 
     // courts_satisfied? (line ~716): every required court has a passing
@@ -226,6 +259,35 @@ pub fn promote(
     }
 
     build_intent(order, target)
+}
+
+/// Elixir `dependency_satisfied?/2` (semantic_jira.ex ~1321) over promote
+/// evidence: upstream entry must exist and be non-empty; optional
+/// `required_standing` / `required_receipt_digest` must match exactly.
+fn dependency_edge_satisfied(
+    dep: &crate::work_order::WorkOrderDependency, dep_evidence: Option<&Map<String, Value>>,
+) -> bool {
+    let Some(table) = dep_evidence else {
+        return false;
+    };
+    let Some(observed) = table.get(&dep.upstream) else {
+        return false;
+    };
+    let Some(obj) = observed.as_object() else {
+        return false;
+    };
+    if obj.is_empty() {
+        return false;
+    }
+    let standing_ok = match &dep.required_standing {
+        Some(req) => obj.get("standing").and_then(|v| v.as_str()) == Some(req.as_str()),
+        None => true,
+    };
+    let receipt_ok = match &dep.required_receipt_digest {
+        Some(req) => obj.get("receipt_digest").and_then(|v| v.as_str()) == Some(req.as_str()),
+        None => true,
+    };
+    standing_ok && receipt_ok
 }
 
 /// Assembles the `standing_transition_intent` (Elixir `promotion_result/3`,
@@ -437,5 +499,55 @@ mod tests {
             promote(&admitted(), "PARTIAL_ALIVE", &ev),
             Err(PromoteRefusal::ReplayIdentityMismatch)
         ));
+    }
+
+    fn order_with_dep() -> Value {
+        let mut o = order_json();
+        o["dependencies"] = json!([{
+            "upstream": "UPSTREAM-1",
+            "type": "requiresReceipt",
+            "required_standing": "ALIVE"
+        }]);
+        o
+    }
+
+    #[test]
+    fn unmet_dependency_refuses_promote() {
+        let admitted = admit_work_order(&order_with_dep()).expect("dep order admits");
+        let mut ev = evidence();
+        // Rebind digest to the dependent order; leave dependency_evidence empty.
+        ev["work_order_digest"] = json!(admitted.work_order_digest.clone());
+        assert_eq!(
+            promote(&admitted, "PARTIAL_ALIVE", &ev),
+            Err(PromoteRefusal::DependenciesUnsatisfied {
+                upstream: "UPSTREAM-1".to_string(),
+                required_standing: Some("ALIVE".to_string()),
+                required_receipt_digest: None,
+            })
+        );
+
+        // Wrong standing still refuses (requiredStanding not met).
+        ev["dependency_evidence"] = json!({
+            "UPSTREAM-1": {"standing": "PARTIAL_ALIVE"}
+        });
+        assert_eq!(
+            promote(&admitted, "PARTIAL_ALIVE", &ev),
+            Err(PromoteRefusal::DependenciesUnsatisfied {
+                upstream: "UPSTREAM-1".to_string(),
+                required_standing: Some("ALIVE".to_string()),
+                required_receipt_digest: None,
+            })
+        );
+    }
+
+    #[test]
+    fn met_dependency_allows_promote() {
+        let admitted = admit_work_order(&order_with_dep()).expect("dep order admits");
+        let mut ev = evidence();
+        ev["work_order_digest"] = json!(admitted.work_order_digest.clone());
+        ev["dependency_evidence"] = json!({
+            "UPSTREAM-1": {"standing": "ALIVE"}
+        });
+        assert!(promote(&admitted, "PARTIAL_ALIVE", &ev).is_ok());
     }
 }
