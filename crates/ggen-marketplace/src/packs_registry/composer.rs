@@ -9,6 +9,31 @@
 //! 2. The deterministic capability composition kernel (`compose`,
 //!    `PackCompositionPlan`, `CompositionRefusal`): a pure function over a
 //!    pack set with typed refusals for unsound compositions.
+//!
+//! ## Vocabulary mapping (WO-03 §3: composer ↔ kernel depgraph)
+//!
+//! Pack-import intent must agree on **canonical pack ids / ports**, not on raw
+//! capability URNs. This module's `compose()` path never reads `pack.toml`
+//! `[graph]`; Stage 2c admission consumes graph facts via `ggen_abb_sbb::depgraph`.
+//!
+//! | Surface | Example | Kernel `PackManifest` (`ggen_abb_sbb`) |
+//! |---------|---------|----------------------------------------|
+//! | `[capabilities] provides` | `urn:ggen:pack:base-pack` | `provides` port `base-pack` |
+//! | `[capabilities] requires` | `urn:ggen:pack:base-pack` | `depends_on` + `requires` port `base-pack` |
+//! | `[graph] provides` / `requires` (kernel only) | `hashing` | same port id (already canonical) |
+//! | `[graph] depends_on` (kernel only) | `base-pack` | `depends_on` pack id |
+//!
+//! **Normalization:** pack-import capability URNs use the exact prefix
+//! `urn:ggen:pack:`; `ggen_abb_sbb::depgraph` strips only that prefix (no
+//! case-fold, no trim) and treats the suffix as the pack id / graph port. The
+//! suffix must satisfy kernel canonical port law (`[a-z0-9-]+`, lowercase
+//! ASCII letters, digits, and dashes only).
+//!
+//! **Composer vs kernel:** `[graph]` is an optional override/additive surface on
+//! `pack.toml` consumed only by `ggen_abb_sbb::depgraph::extract_pack_manifest`.
+//! Non-pack capability URNs (any other scheme, e.g. `urn:ggen:cap:…`) are
+//! **composer-only** — they bind in `compose()` here but the kernel depgraph
+//! ignores them at extract time.
 
 use crate::marketplace::error::{Error, Result};
 use crate::packs_registry::dependency_graph::DependencyGraph;
