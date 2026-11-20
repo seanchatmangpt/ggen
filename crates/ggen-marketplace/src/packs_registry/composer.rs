@@ -9,6 +9,26 @@
 //! 2. The deterministic capability composition kernel (`compose`,
 //!    `PackCompositionPlan`, `CompositionRefusal`): a pure function over a
 //!    pack set with typed refusals for unsound compositions.
+//!
+//! ## Vocabulary mapping (WO-03 §3: composer ↔ kernel depgraph)
+//!
+//! Pack import is declared in two surfaces that must agree on **pack ids**, not
+//! raw URNs:
+//!
+//! | Authoring surface | Example | Kernel `PackManifest` |
+//! |-----------------|---------|------------------------|
+//! | `[capabilities] provides` | `urn:ggen:pack:base-pack` | `provides` port `base-pack` |
+//! | `[capabilities] requires` | `urn:ggen:pack:base-pack` | `depends_on` + `requires` port `base-pack` |
+//! | `[graph] provides` / `requires` | `hashing` | same port id (already canonical) |
+//! | `[graph] depends_on` | `base-pack` | `depends_on` pack id |
+//!
+//! **Normalization rule:** only URNs with the exact prefix `urn:ggen:pack:` are
+//! pack-import edges. The kernel strips that prefix verbatim (no case-fold, no
+//! trim) and treats the suffix as the pack id / port string, which must match
+//! `[pack] name` and satisfy canonical port law (`[a-z0-9-]+`). Capability URNs
+//! outside that namespace (e.g. `urn:ggen:cap:…`) are **composer-only**: they
+//! participate in `compose()` binding and cycle handling here but do not project
+//! into `ggen-abb-sbb` Stage 2c depgraph extraction.
 
 use crate::marketplace::error::{Error, Result};
 use crate::packs_registry::dependency_graph::DependencyGraph;
