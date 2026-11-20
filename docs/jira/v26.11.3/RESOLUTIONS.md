@@ -98,3 +98,28 @@ fallout (~100 declarative fixtures loudly refusing FM-LAW-015) recorded in
 the receipt as follow-up work, not rounded up. Receipt:
 `docs/jira/v26.11.3/receipts/f2-declarative-admission.md` (landed,
 verified on disk 2026-11-03).
+
+## R15 — Cycle law split: structural graph vs capability ordering edges (WO-03 §4)
+
+WO-03 §4 ("Reconcile cycle laws") requires a RESOLUTIONS row naming which
+law governs each edge kind when composer admission and kernel Stage 2c
+depgraph admission overlap on the same pack set
+(`docs/jira/v26.11.3/WO-03-composer-stage2c.md`). Ruling:
+
+- **kernel-refuses-all** governs `[graph] depends_on` and consumer `depends_on`
+  edges in `ggen-abb-sbb` `resolve_sync_order` / `depgraph.rs`: any hard
+  structural cycle is a `CYCLIC_PACK_DEPENDENCY` refusal at Stage 2c — no
+  silent drop.
+- **composer-drops** governs `capabilities.requires` URN-derived ordering
+  edges in `packs_registry::composer` Kahn (`order_with_capability_edges`):
+  cycle-closing ordering edges are dropped deterministically so topological
+  sort terminates; cycle **refusal** remains dependencies-only (see
+  `crates/ggen-marketplace/src/packs_registry/composer.rs` step 5 comment,
+  lines 274–279: "these edges NEVER refuse; an edge that would close a cycle
+  is dropped … cycle refusal remains dependencies-only").
+
+Falsifier: a structural `[graph]` or consumer-edge cycle that the composer
+admits but the kernel refuses (or the reverse), or a capability-ordering
+cycle treated as `CYCLIC_PACK_DEPENDENCY` without this row, is a contract
+defect. WO-03 contradiction-test clause (§ Acceptance #3) binds. Coordinator
+merged at integration; verified on disk 2026-11-20.
