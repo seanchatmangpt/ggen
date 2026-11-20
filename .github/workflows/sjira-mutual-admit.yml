@@ -32,6 +32,13 @@ jobs:
     name: golden mutual admit
     runs-on: ubuntu-24.04
     timeout-minutes: 20
+    # Bespoke dtolnay/rust-toolchain path (not setup-ggen-build): .cargo/config.toml
+    # sets rustc-wrapper = "sccache" unconditionally. Empty RUSTC_WRAPPER matches
+    # live-examples / architecture-autonomics / etc. so cargo runs without installing
+    # sccache on this narrow gate (CI_CONVENTIONS: install via composite OR unset).
+    env:
+      CARGO_TERM_COLOR: always
+      RUSTC_WRAPPER: ""
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
