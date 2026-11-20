@@ -38,7 +38,7 @@ provides = ["urn:ggen:pack:strata-protocol-pack",
 
 The earlier equality invariant (provides == {self-IRI} exactly) wrongly
 banned these domain URNs; it was corrected to self-IRI-presence +
-global-uniqueness. Corpus examples (all under `packs/`):
+global-uniqueness. Corpus examples — **`ggen/packs/` on disk (this tree)**:
 
 ```toml
 # packs/fortune5-required-capabilities-pack/pack.toml
@@ -47,17 +47,45 @@ provides = ["urn:ggen:pack:fortune5-required-capabilities-pack"]
 ```
 
 ```toml
-# packs/clap-noun-verb-pack/pack.toml
+# packs/clap-noun-verb-pack/pack.toml (compatibility route; deprecated)
 [capabilities]
 provides = ["urn:ggen:pack:clap-noun-verb-pack"]
-requires = ["urn:ggen:pack:praxis-core-pack", "urn:ggen:pack:star-toml-pack"]
+requires = []
 ```
 
 ```toml
-# packs/chicago-tdd-tools-pack/pack.toml
+# packs/chicago-tdd-tools-pack/pack.toml — `requires` key absent
 [capabilities]
-requires = ["urn:ggen:pack:clap-noun-verb-pack"]
 provides = ["urn:ggen:pack:chicago-tdd-tools-pack"]
+```
+
+```toml
+# packs/mcpp-pack/pack.toml — provides only
+[capabilities]
+provides = ["urn:ggen:pack:mcpp-pack"]
+```
+
+**Standing (this checkout):** every top-level `packs/*/pack.toml` here
+carries `requires = []` or omits `requires`. Older prose that listed
+nonempty `requires` on `clap-noun-verb-pack`, `chicago-tdd-tools-pack`,
+or `mcpp-pack` was corpus drift — not current disk.
+
+Nonempty `urn:ggen:pack:` requires in-repo today live under
+`marketplace/packs/` (strata chain) and Chicago fixtures, e.g.:
+
+```toml
+# marketplace/packs/strata-temprun-pack.toml
+[capabilities]
+provides = ["urn:ggen:pack:strata-temprun-pack"]
+requires = ["urn:ggen:pack:strata-protocol-pack"]
+```
+
+**Synthetic teaching fixture** (shape only; not a `packs/` manifest):
+
+```toml
+[capabilities]
+provides = ["urn:ggen:pack:consumer-pack"]
+requires = ["urn:ggen:pack:provider-pack"]
 ```
 
 Declare `provides` for every pack (the corpus convention). Declare
@@ -149,24 +177,30 @@ capability string is satisfied by exactly one of two scopes:
 `[packs]` table declares `<name>`. These URNs are consumer-advice
 annotations, not dependency-closure edges. Why not closure edges:
 mutual requires between packs would create false dependency cycles.
-Real-corpus evidence: `packs/self-monitoring-pack` and
-`packs/dogfood-lifecycle-pack` each `requires` the other's URN.
+**On this tree:** `packs/self-monitoring-pack` and
+`packs/dogfood-lifecycle-pack` each declare only their self-IRI in
+`provides` — they no longer carry mutual `requires` on disk after the
+evidence-contract purge. Use the strata manifests or the external
+marketplace walkthrough below for nonempty Tier-1 examples.
 
 ```toml
-# packs/dogfood-lifecycle-pack/pack.toml (URN form)
+# marketplace/packs/strata-temprun-pack.toml (URN form)
 [capabilities]
-requires = ["urn:ggen:pack:self-monitoring-pack"]
+requires = ["urn:ggen:pack:strata-protocol-pack"]
+provides = ["urn:ggen:pack:strata-temprun-pack"]
 ```
 
 ```toml
-# consumer ggen.toml — the declaration IS the satisfaction
+# consumer ggen.toml — the declaration IS the satisfaction (Tier 1)
 [packs]
-self-monitoring-pack = { path = "packs/self-monitoring-pack" }
+strata-protocol-pack = { path = "marketplace/packs/strata-protocol-pack.toml" }
+strata-temprun-pack = { path = "marketplace/packs/strata-temprun-pack.toml" }
 ```
 
-This is the cross_pack_matrix fixture shape
-(`crates/ggen-engine/tests/cross_pack_matrix.rs`): a consumer project
-declaring sibling packs by name in `[packs]`, resolving green.
+Mutual URN requires (consumer-advice, not closure edges) still appear in
+the end-to-end walkthrough on **external** marketplace paths
+(`a2a-conformance-pack` ↔ `a2a-durability-pack`); that pattern is not
+represented in `ggen/packs/` today.
 
 **Tier 2 — non-URN requires (any other string): strict
 dependency-closure scope.** The provider must appear in the pack's
@@ -214,6 +248,25 @@ Satisfaction itself is unchanged: Tier 1 stays
 consumer-declaration-based and Tier 2 stays dependency-closure-based.
 Verified in `crates/ggen-engine/tests/capability_topology_exp.rs`
 (4 tests).
+
+### ABB/SBB Stage 2c and `urn:ggen:pack:` import edges (PLANNED — not ALIVE on kernel extract)
+
+`crates/ggen-marketplace/src/packs_registry/composer.rs` (module doc
+"Vocabulary mapping", WO-03 §3) defines the target mapping:
+`[capabilities] requires` URNs with the exact prefix `urn:ggen:pack:` strip
+to a pack id for `ggen pack compose` binding; URNs outside that namespace
+are composer-only and do not project into the kernel depgraph.
+
+**When the URN→depgraph bridge lands:** ABB/SBB Stage 2c
+(`ggen-abb-sbb` `resolve_sync_order`) is intended to treat those normalized
+`urn:ggen:pack:` requires as pack-import edges, unioned with `[graph]
+depends_on` and port `requires` — see
+`docs/jira/v26.11.3/WO-03-composer-stage2c.md` and RESOLUTIONS R15.
+
+**Standing today:** `crates/ggen-abb-sbb/src/depgraph.rs::extract_pack_manifest`
+reads only the optional `[graph]` table; it does **not** ingest
+`[capabilities]` URNs. Do not claim ALIVE for `[capabilities].requires` as a
+Stage 2c import edge until that bridge ships.
 
 Status (landed, VERIFIED 11/0): SJIRA-10 part 2 extends the
 composer's surfaces from `packages`/`dependencies` to also consume
@@ -615,10 +668,18 @@ providing dependency (Tier 2), or drop the requirement.
 
 ## Worked example: two-tier satisfaction + domain URNs (executed 2026-10-10, ggen@26.10.10 debug build)
 
-Every block below is pasted from a real run of
-`/Users/sac/ggen/target/debug/ggen` (exit codes shown). No edits.
+Blocks below are pasted from a 2026-10-10 run of
+`/Users/sac/ggen/target/debug/ggen` (exit codes shown). Manifest fields may
+drift from this repo's `packs/` tree — see the corpus standing note at the
+top of this guide; `marketplace/packs/strata-*.toml` still carries real
+nonempty `requires` on disk here.
 
-### Example 1 — `mcpp-pack` requires `clap-noun-verb-pack` (Tier 1)
+### Example 1 — Tier 1 CLI shape (historical transcript; `ggen/packs` drift)
+
+On **this repo**, `packs/mcpp-pack/pack.toml` and
+`packs/clap-noun-verb-pack/pack.toml` have empty or absent `requires`. The
+blocks below are from a 2026-10-10 marketplace run illustrating Tier 1 JSON
+shape — not current `ggen/packs` manifest truth.
 
 ```text
 $ ggen pack capabilities mcpp-pack
@@ -646,7 +707,7 @@ $ ggen pack capabilities mcpp-pack
 EXIT:0
 ```
 
-The provider itself chains further (also real):
+The provider chain below is **historical** (same drift; disk has `requires = []`):
 
 ```text
 $ ggen pack capabilities clap-noun-verb-pack
