@@ -1,0 +1,26 @@
+[pack]
+packages = []
+category = "uncategorized"
+id = "trade-reticle-electrical"
+name = "trade-reticle-electrical"
+version = "0.1.0"
+description = """
+High-voltage electrical & switchgear Mechanical Prior trade reticle pack
+(multi-trade expansion, lane Z14): formalizes Vince's trade skepticism for
+commercial electrical claims. Ontology of DiagnosticTree claim types
+(main_breaker_replacement, switchgear_trip_investigation, transformer_failure,
+motor_circuit_fault) with per-claim required telemetry (resistance_readings_log,
+voltage_log, thermal_image_id, breaker_serial_photo), physical priors
+(equipment lifetimes, ambient-temperature trip curves as textual ranges, USD
+part-cost baselines), and counter-punch evidence demands. Generates a
+TradeReticle.Electrical Elixir module implementing the
+AshA2A.Twin.MechanicalPrior behaviour (prior_verdict/2: admit | challenge |
+refuse, fail-closed on unknown claim types or missing telemetry).
+"""
+
+[dependencies]
+"praxis-core-pack" = "0.1.0"
+
+[capabilities]
+provides = ["urn:ggen:pack:trade-reticle-electrical"]
+requires = []

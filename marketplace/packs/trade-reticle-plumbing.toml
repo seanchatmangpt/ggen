@@ -1,0 +1,24 @@
+[pack]
+packages = []
+category = "uncategorized"
+id = "trade-reticle-plumbing"
+name = "trade-reticle-plumbing"
+version = "0.1.0"
+description = """
+First Mechanical Prior trade reticle pack (Capability-2): formalizes Vince's
+trade skepticism for commercial plumbing. Ontology of DiagnosticTree claim
+types (drain_line_replacement, sewer_main_backup, water_heater_failure,
+grease_trap_overflow) with per-claim required telemetry, physical priors
+(pipe-material lifetimes, failure modes, USD part-cost baselines), and
+counter-punch evidence demands. Generates a TradeReticle.Plumbing Elixir
+module implementing the AshA2A.Twin.MechanicalPrior behaviour
+(prior_verdict/2: admit | challenge | refuse, fail-closed on unknown claim
+types or missing telemetry).
+"""
+
+[dependencies]
+"praxis-core-pack" = "0.1.0"
+
+[capabilities]
+provides = ["urn:ggen:pack:trade-reticle-plumbing"]
+requires = []

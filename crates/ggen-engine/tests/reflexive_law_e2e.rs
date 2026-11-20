@@ -132,6 +132,15 @@ fn scaffold_synthetic_consumer(
         ),
     )
     .expect("write ggen.toml");
+    // Stub EA graph (lane CL-D): the fail-closed FM-LAW-015 admission gate
+    // refuses any sync whose root lacks ea.graph.json; these scaffolds test
+    // pack laws, not admission, so they carry a valid-but-empty graph
+    // (zero candidate SBBs, so admission admits trivially and honestly).
+    std::fs::write(
+        project.join("ea.graph.json"),
+        "{\"schema\":\"ggen.ea.graph.v1\",\"strategy\":{\"id\":\"s\",\"title\":\"t\"},\"capabilities\":[],\"abbs\":[],\"contracts\":[],\"candidate_sbbs\":[],\"qualifications\":[],\"packs\":[]}",
+    )
+    .expect("write ea.graph.json");
     project
 }
 
@@ -299,6 +308,15 @@ fn reflexive_receipts_second_sync_sees_first() {
          [law]\nreflexive = true\n",
     )
     .expect("write ggen.toml");
+    // Stub EA graph (lane CL-D): the fail-closed FM-LAW-015 admission gate
+    // refuses any sync whose root lacks ea.graph.json; these scaffolds test
+    // pack laws, not admission, so they carry a valid-but-empty graph
+    // (zero candidate SBBs, so admission admits trivially and honestly).
+    std::fs::write(
+        project.join("ea.graph.json"),
+        "{\"schema\":\"ggen.ea.graph.v1\",\"strategy\":{\"id\":\"s\",\"title\":\"t\"},\"capabilities\":[],\"abbs\":[],\"contracts\":[],\"candidate_sbbs\":[],\"qualifications\":[],\"packs\":[]}",
+    )
+    .expect("write ea.graph.json");
     std::fs::write(
         project.join("templates/count.txt.tmpl"),
         "---\n\
@@ -364,6 +382,15 @@ fn reflexive_off_by_default_is_unaffected() {
          [templates]\ndir = \"templates\"\n",
     )
     .expect("write ggen.toml");
+    // Stub EA graph (lane CL-D): the fail-closed FM-LAW-015 admission gate
+    // refuses any sync whose root lacks ea.graph.json; these scaffolds test
+    // pack laws, not admission, so they carry a valid-but-empty graph
+    // (zero candidate SBBs, so admission admits trivially and honestly).
+    std::fs::write(
+        project.join("ea.graph.json"),
+        "{\"schema\":\"ggen.ea.graph.v1\",\"strategy\":{\"id\":\"s\",\"title\":\"t\"},\"capabilities\":[],\"abbs\":[],\"contracts\":[],\"candidate_sbbs\":[],\"qualifications\":[],\"packs\":[]}",
+    )
+    .expect("write ea.graph.json");
     std::fs::write(
         project.join("templates/hello.txt.tmpl"),
         "---\nto: hello.txt\nforce: true\n---\nhello\n",
@@ -424,6 +451,15 @@ fn malformed_receipt_log_line_is_skipped_not_fatal() {
          [law]\nreflexive = true\n",
     )
     .expect("write ggen.toml");
+    // Stub EA graph (lane CL-D): the fail-closed FM-LAW-015 admission gate
+    // refuses any sync whose root lacks ea.graph.json; these scaffolds test
+    // pack laws, not admission, so they carry a valid-but-empty graph
+    // (zero candidate SBBs, so admission admits trivially and honestly).
+    std::fs::write(
+        project.join("ea.graph.json"),
+        "{\"schema\":\"ggen.ea.graph.v1\",\"strategy\":{\"id\":\"s\",\"title\":\"t\"},\"capabilities\":[],\"abbs\":[],\"contracts\":[],\"candidate_sbbs\":[],\"qualifications\":[],\"packs\":[]}",
+    )
+    .expect("write ea.graph.json");
     std::fs::write(
         project.join("templates/count.txt.tmpl"),
         "---\n\

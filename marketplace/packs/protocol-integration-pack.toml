@@ -1,0 +1,88 @@
+[pack]
+packages = []
+category = "uncategorized"
+id = "protocol-integration-pack"
+name = "protocol-integration-pack"
+version = "26.10.4"
+description = """
+Canonical protocol/transport/adapter vocabulary: an Adapter binds one
+Capability to one Protocol/Transport pair by REUSING that Capability's
+existing semantic definition, never redefining it. Instantiates real
+individuals for a Protocol, a Transport, a Capability, an Adapter binding
+that Capability to the Protocol/Transport pair, and a second Adapter binding
+the SAME Capability to a distinct second Protocol without redefining its
+semantics -- proving one Capability can bind to multiple Protocols without
+semantic duplication. Refuses (gates/010_no_semantic_redefinition.rq) any
+Adapter that asserts its own competing semanticDefinition for the Capability
+it binds instead of reusing the Capability's own.
+
+v26.9.13 (2026-09-13): added the real-dependency + adapter convention. A
+pr:PriorArtAdapter individual can now carry eight admitted properties
+(pr:realDependencyCoordinate, pr:realDependencyApp, pr:adapterModuleName,
+pr:adapterModulePath, pr:adapterEntrypointModule, pr:adapterEntrypointFunction,
+pr:adapterTestModuleName, pr:adapterTestPath) plus pr:priorArtFixtureOnly (the
+opt-out marker, mirroring ash-extension-pack's aex:fixtureOnly idiom) and
+three new templates (mix_dep_install.ex.tmpl, adapter.ex.tmpl,
+adapter_test.exs.tmpl) that manufacture a real Igniter mix.exs dependency
+installer, a thin real-function adapter, and a real-collaborator ExUnit test --
+instead of leaving PriorArtAdapter individuals as pure description forever.
+gates/010_real_dependency_adapter_contract.rq refuses any non-fixture-only
+PriorArtAdapter missing one of the eight properties. This pack.toml stays
+identity-only -- the real dependency itself is declared in the GENERATED
+CONSUMER's own mix.exs via mix_dep_install.ex.tmpl, never in this pack.toml.
+
+v26.9.14 (2026-09-14): added the cli-subprocess adapter convention, for real
+dependencies that are compiled CLI binaries with no in-process Elixir/Mix
+collaborator to call (e.g. Rust Cargo binary crates with no lib.rs, such as
+open-ontologies and deepwiki-rs in kudzu-case-studies-pack -- both named that
+exact gap in an rdfs:comment before this capability existed). A
+pr:PriorArtAdapter individual can now set pr:integrationMode "cli-subprocess"
+and carry three new properties (pr:adapterBinaryPath, pr:adapterSubcommand,
+plus the existing pr:adapterModuleName/pr:adapterModulePath) alongside two new
+templates (subprocess_adapter.ex.tmpl, subprocess_adapter_test.exs.tmpl) that
+manufacture a thin Elixir adapter shelling out for real via System.cmd/3 --
+no shell string interpolation, no Port mocking -- and a real Chicago-style
+ExUnit test asserting on the real returned exit code. gates/020_subprocess_
+adapter_contract.rq refuses any non-fixture-only cli-subprocess PriorArtAdapter
+missing one of six required properties (adapterBinaryPath, adapterSubcommand,
+adapterModuleName, adapterModulePath, adapterTestModuleName, adapterTestPath)
+-- a different required set than gates/010's eight, since a cli-subprocess
+adapter has no in-process dependency coordinate or entrypoint module/function
+to declare. gates/010 was extended with one FILTER NOT EXISTS excluding
+pr:integrationMode "cli-subprocess" individuals so the two gates never both
+fire on the same individual; its original eight-property check for in-process
+adapters is otherwise unchanged.
+
+v26.10.4 (2026-10-04): added the gRPC transport adapter convention, grounded
+in the landed ash_a2a gRPC surface (lane Z20, 2026-10-04:
+lib/ash_a2a/transport/grpc/{framing,dispatch,server}.ex, priv/proto/a2a.proto).
+A new pi:GRPCAdapter class (rdfs:subClassOf pi:Adapter) carries the
+service/rpc-methods/streaming-flags/status-mapping facts; the canonical
+dispatch table (11 A2A v1.0 RPCs, two server-streaming) and the 15-entry
+JSON-RPC -> gRPC status table (A2A v1.0 §3.3.2) are grounded as
+pi:inDispatchTable-true pi:RpcMethod and pi:StatusMapping individuals
+verbatim from dispatch.ex, so adapters REUSE the canonical tables and never
+redefine a competing method set. New template grpc_adapter.ex.tmpl
+manufactures a gRPC server adapter wiring one proto service to one existing
+Capability entrypoint by delegating every RPC to the dispatch module, with a
+compile-time method-set court: the generated function set is derived from
+{{ dispatch_module }}.methods() and cross-checked against the pb descriptor's
+__rpc_calls__/0, so drift between generated adapter and dispatched method set
+fails compilation (the pack falsifier is structural, not aspirational). New
+gate gates/030_grpc_adapter_contract.rq refuses any non-fixture GRPCAdapter
+that is (a) missing one of eight codegen-pointer properties, (b) incomplete
+against the canonical dispatch table, or (c) non-total on the canonical
+status mapping. Verified 2026-10-04: ontology tables match dispatch.ex
+exactly (11/11 methods, 15/15 mappings, programmatic cross-check); gate is
+non-vacuous (dropped method/mapping/property each produce exactly one
+violation row; fixture-only exemption fires); rendered adapter compiles
+against the real ash_a2a dev build and exports exactly the 11 dispatched rpc
+functions (9 unary + send_streaming_message/subscribe_to_task); the
+compile-time court refuses all three drift classes (dispatch-missing-rpc,
+flag drift, ghost dispatch entry) while compiling the lawful stub pair; a
+real unary call through AshA2A.Transport.Grpc.Dispatch maps A2A -32001 to
+gRPC NOT_FOUND(5) and bridges a real task to %Lf.A2a.V1.Task{}.
+"""
+
+[capabilities]
+provides = ["urn:ggen:pack:protocol-integration-pack"]

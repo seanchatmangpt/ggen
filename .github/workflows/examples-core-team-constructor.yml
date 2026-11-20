@@ -17,6 +17,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   construct:
     name: Construct core-team example closure
@@ -42,6 +46,32 @@ jobs:
           printf 'EXPECTED=%s\nOBSERVED=%s\n' "$expected" "$observed"
           test "$observed" = "$expected"
           printf '%s\n' "$expected" > /tmp/original-head
+
+      - name: Provision pinned ggen-marketplace sibling
+        shell: bash
+        run: |
+          set -euo pipefail
+          # The industry consumer manifests (examples/industry/*) reference
+          # packs by the relative sibling path ../../../../ggen-marketplace/
+          # packs/... (absolute /Users/sac paths were retired this wave). On a
+          # fresh checkout that path does not exist, so sync refuses every
+          # industry manifest with FM-CONFIG-003 ("Query file not found" /
+          # "Ontology source not found"). Provision the marketplace checkout
+          # at the exact sibling path the manifests resolve to, pinned to a
+          # known-good commit (floating HEAD is forbidden — same law as
+          # setup-ggen-build's sibling table). Bump deliberately.
+          org="https://github.com/seanchatmangpt"
+          sha="ee4c589be6aa7ce0cd40e105a34db53605f60e9c"
+          dest="$GITHUB_WORKSPACE/../../ggen-marketplace"
+          if [ -d "$dest/.git" ]; then
+            echo "sibling already present: ggen-marketplace"
+          else
+            git init -q "$dest"
+            git -C "$dest" remote add origin "$org/ggen-marketplace"
+            git -C "$dest" fetch -q --depth 1 origin "$sha"
+            git -C "$dest" checkout -q FETCH_HEAD
+          fi
+          test -f "$dest/packs/industry-aero-defense/queries/artifacts.rq"
 
       - name: Apply core-team source repairs
         shell: bash
@@ -225,6 +255,12 @@ jobs:
           git add .github/workflows/live-examples.yml examples packs/wasm4pm-interview-assist-pack/templates/010_package_json.tmpl
           git -c user.name='ggen core-team constructor' -c user.email='actions@users.noreply.github.com' commit -m 'construct: core-team source repairs'
 
+      - name: Reclaim runner disk space
+        run: |
+          df -h /
+          sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/lib/android || true
+          df -h /
+
       - name: Install pinned Rust toolchain
         uses: dtolnay/rust-toolchain@b3b07ba8b418998c39fb20f53e8b695cdcc8de1b
         with:
@@ -242,11 +278,10 @@ jobs:
 
           # Interview Sandbox: prove current history refuses, restore exactly the prior
           # receipt head, then prove the restored chain before any new actuation.
-          if (cd examples/interview-sandbox && "$GGEN_BIN" receipt history); then
-            echo 'expected the known invalid head to refuse before repair' >&2
-            exit 1
-          fi
-          python3 - <<'PY'
+          # Idempotent: if the head is already valid (repair landed in-tree,
+          # a3e01321c), skip; only repair when history actually refuses.
+          if ! (cd examples/interview-sandbox && "$GGEN_BIN" receipt history); then
+            python3 - <<'PY'
           import json
           from pathlib import Path
           root = Path('examples/interview-sandbox/.ggen-v2')
@@ -259,7 +294,8 @@ jobs:
           log.write_text('\n'.join(lines[:-1]) + '\n')
           (root / 'receipt.json').write_text(restored + '\n')
           PY
-          (cd examples/interview-sandbox && "$GGEN_BIN" receipt history)
+            (cd examples/interview-sandbox && "$GGEN_BIN" receipt history)
+          fi
 
           # TCPS: its own verifier is the authority that refreshes graph-bound evidence.
           (cd examples/tcps-generated && bash scripts/verify.sh) | tee tcps-verify-refresh.log

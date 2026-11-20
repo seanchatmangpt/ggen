@@ -15,6 +15,7 @@ pub mod bblock;
 pub mod capability;
 pub mod court;
 pub mod doctor;
+pub mod ea;
 #[cfg(feature = "experimental")]
 pub mod framework;
 #[cfg(feature = "lsp")]
@@ -28,6 +29,7 @@ pub mod packs;
 pub mod packs_receipt;
 pub mod policy;
 pub mod sbb;
+pub mod sjira;
 pub mod telco;
 pub mod utils;
 pub mod vision2030;
@@ -83,6 +85,15 @@ fn register_doctor_noun() {
 }
 
 #[linkme::distributed_slice(::clap_noun_verb::cli::registry::__NOUN_REGISTRY)]
+static REGISTER_EA_NOUN: fn() = register_ea_noun;
+fn register_ea_noun() {
+    register_noun(
+        "ea",
+        "ABB/SBB admission kernel surface: plan, admit, manufacture, replay, verify-receipt. The capability-density feature `ggen sbb` is a different noun (WO-02 R6) — admission logic lives only here.",
+    );
+}
+
+#[linkme::distributed_slice(::clap_noun_verb::cli::registry::__NOUN_REGISTRY)]
 static REGISTER_MAXIMALISM_NOUN: fn() = register_maximalism_noun;
 fn register_maximalism_noun() {
     register_noun(
@@ -129,7 +140,16 @@ static REGISTER_SBB_NOUN: fn() = register_sbb_noun;
 fn register_sbb_noun() {
     register_noun(
         "sbb",
-        "Solution Building Block capability density, distribution, receipts, and replay.",
+        "Solution Building Block capability density, distribution, receipts, and replay. The ABB/SBB admission kernel lives under `ggen ea` (WO-02 R6) — this noun shares no code with it.",
+    );
+}
+
+#[linkme::distributed_slice(::clap_noun_verb::cli::registry::__NOUN_REGISTRY)]
+static REGISTER_SJIRA_NOUN: fn() = register_sjira_noun;
+fn register_sjira_noun() {
+    register_noun(
+        "sjira",
+        "Semantic Jira admission kernel — typed WorkOrder admission over ggen-sjira (refusals carry remediation).",
     );
 }
 

@@ -54,7 +54,11 @@ fn exact_repository_inventory_manufactures_partial_alive_evidence() {
     // 84 -> 85 (2026-09-26, PR #753): abb-sbb-manufacture.yml is the ABB/SBB manufacture
     // kernel's own court (independent workspace root, same admission discipline as
     // gall-001-replay); the manifest admits it and this assertion admits the real 85.
-    assert!(inventory.contains("\"observed_workflow_count\": 85"));
+    // 85 -> 87 (2026-11-07, G0 drift re-observation): e2e-periodic.yml and publish.yml are
+    // real, separately-merged workflows (weekly ignored-e2e backlog runner; crates.io
+    // trusted-publishing pipeline); the manifest admits them and this assertion admits the
+    // real 87.
+    assert!(inventory.contains("\"observed_workflow_count\": 87"));
     assert!(inventory.contains("\"state\": \"UNKNOWN\""));
     assert!(!inventory.contains("\"standing\": \"ALIVE\""));
 
@@ -70,7 +74,7 @@ fn exact_repository_inventory_manufactures_partial_alive_evidence() {
     let topology = fs::read_to_string(&topology_path)
         .unwrap_or_else(|error| panic!("missing {}: {error}", topology_path.display()));
     assert!(topology.contains("\"standing\": \"PARTIAL_ALIVE\""));
-    assert!(topology.contains("\"workflow_count\": 85"));
+    assert!(topology.contains("\"workflow_count\": 87"));
     assert!(topology.contains("\"trigger_fanout\""));
     assert!(topology.contains("\"permission_ceiling\""));
     assert!(topology.contains("\"mutable_action_references\""));

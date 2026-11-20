@@ -1,0 +1,40 @@
+# MESSAGE: PipelineStage requires exactly one tpot:stageId (xsd:string).
+# MESSAGE: PipelineStage requires exactly one tpot:stageOrder (xsd:integer).
+# MESSAGE: PipelineStage requires exactly one tpot:forCategory (xsd:string)
+# MESSAGE: in the 9 frozen pi:category strings.
+# Gate equivalent of tpot:PipelineStageShape (SHACL-at-sync retired, FM-LAW-017).
+# Any row = violation.
+PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+PREFIX tpot: <https://wasm4pm.dev/tpot#>
+
+SELECT ?stage ?problem
+WHERE {
+  ?stage a tpot:PipelineStage .
+  {
+    VALUES ?problem { "missing or non-string tpot:stageId" }
+    FILTER NOT EXISTS { ?stage tpot:stageId ?v . FILTER(datatype(?v) = xsd:string) }
+  } UNION {
+    VALUES ?problem { "tpot:stageId has more than one value" }
+    ?stage tpot:stageId ?v1, ?v2 .
+    FILTER(STR(?v1) != STR(?v2))
+  } UNION {
+    VALUES ?problem { "missing or non-integer tpot:stageOrder" }
+    FILTER NOT EXISTS { ?stage tpot:stageOrder ?v . FILTER(datatype(?v) = xsd:integer) }
+  } UNION {
+    VALUES ?problem { "tpot:stageOrder has more than one value" }
+    ?stage tpot:stageOrder ?v1, ?v2 .
+    FILTER(STR(?v1) != STR(?v2))
+  } UNION {
+    VALUES ?problem { "missing tpot:forCategory" }
+    FILTER NOT EXISTS { ?stage tpot:forCategory ?v . FILTER(datatype(?v) = xsd:string) }
+  } UNION {
+    VALUES ?problem { "tpot:forCategory not in the 9 frozen categories" }
+    ?stage tpot:forCategory ?v .
+    FILTER(?v != "import_export" && ?v != "discovery" && ?v != "object_centric" && ?v != "discovery_analytics" && ?v != "conformance" && ?v != "ml_analytics" && ?v != "prediction" && ?v != "simulation" && ?v != "agentic")
+  } UNION {
+    VALUES ?problem { "tpot:forCategory has more than one value" }
+    ?stage tpot:forCategory ?v1, ?v2 .
+    FILTER(STR(?v1) != STR(?v2))
+  }
+}
+ORDER BY STR(?stage) STR(?problem)

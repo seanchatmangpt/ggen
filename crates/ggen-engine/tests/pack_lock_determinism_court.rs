@@ -155,10 +155,24 @@ fn phase1_rerun_same_root_ggen_lock_byte_identical() {
     let dir = TempDir::new().unwrap();
     write_fixture(dir.path(), &BASE_DIALECTS);
 
-    sync(dir.path(), SyncOptions::default()).expect("first sync succeeds");
+    sync(
+        dir.path(),
+        SyncOptions {
+            skip_ea_admission: true,
+            ..Default::default()
+        },
+    )
+    .expect("first sync succeeds");
     let lock1 = read_lock(dir.path());
 
-    sync(dir.path(), SyncOptions::default()).expect("second sync succeeds");
+    sync(
+        dir.path(),
+        SyncOptions {
+            skip_ea_admission: true,
+            ..Default::default()
+        },
+    )
+    .expect("second sync succeeds");
     let lock2 = read_lock(dir.path());
 
     assert!(
@@ -205,8 +219,22 @@ fn phase2_cross_root_full_file_byte_identical() {
     write_fixture(dir_a.path(), &BASE_DIALECTS);
     write_fixture(dir_b.path(), &BASE_DIALECTS);
 
-    sync(dir_a.path(), SyncOptions::default()).expect("sync at root A");
-    sync(dir_b.path(), SyncOptions::default()).expect("sync at root B");
+    sync(
+        dir_a.path(),
+        SyncOptions {
+            skip_ea_admission: true,
+            ..Default::default()
+        },
+    )
+    .expect("sync at root A");
+    sync(
+        dir_b.path(),
+        SyncOptions {
+            skip_ea_admission: true,
+            ..Default::default()
+        },
+    )
+    .expect("sync at root B");
 
     let lock_a = read_lock(dir_a.path());
     let lock_b = read_lock(dir_b.path());
@@ -263,8 +291,22 @@ fn phase3_dialect_reorder_changes_lock_semantics_unchanged() {
     reversed.reverse();
     write_fixture(dir_rev.path(), &reversed);
 
-    sync(dir_base.path(), SyncOptions::default()).expect("baseline sync");
-    sync(dir_rev.path(), SyncOptions::default()).expect("reordered sync");
+    sync(
+        dir_base.path(),
+        SyncOptions {
+            skip_ea_admission: true,
+            ..Default::default()
+        },
+    )
+    .expect("baseline sync");
+    sync(
+        dir_rev.path(),
+        SyncOptions {
+            skip_ea_admission: true,
+            ..Default::default()
+        },
+    )
+    .expect("reordered sync");
 
     let (_, hash_base) = parse_lock(&read_lock(dir_base.path()))
         .get("alpha")
@@ -306,7 +348,14 @@ fn phase4_receipt_pack_hashes_match_recomputation() {
     let dir = TempDir::new().unwrap();
     write_fixture(dir.path(), &BASE_DIALECTS);
 
-    sync(dir.path(), SyncOptions::default()).expect("sync succeeds");
+    sync(
+        dir.path(),
+        SyncOptions {
+            skip_ea_admission: true,
+            ..Default::default()
+        },
+    )
+    .expect("sync succeeds");
 
     let receipt_raw =
         std::fs::read_to_string(dir.path().join(".ggen-v2/receipt.json")).expect("receipt written");

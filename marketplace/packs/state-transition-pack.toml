@@ -1,0 +1,17 @@
+[pack]
+packages = []
+category = "uncategorized"
+id = "state-transition-pack"
+name = "state-transition-pack"
+version = "26.9.13"
+description = """
+Canonical state transition semantics: observed/selected/constructed/executed/
+verified state stages for a single subject, connected by real precedes
+transition edges. Instantiates all five stages for one concrete subject and
+refuses (gates/010_no_skipping_executed.rq) any st:VerifiedState that has no
+real st:precedes predecessor typed st:ExecutedState -- a verified claim
+cannot skip the executed stage. Also carries an FSM individual schema (st:Machine/State/Transition/Guard) with ts/py/rs/ex templates and replay/conformance and hash-chain helpers, the fond-hddl-mx-loop machine, a ChainPolicy (sha256 default), and gates 020 (no skipped transitions), 030 (reachable states), 040 (chain policy per-language support), 050 (template literal scan).
+"""
+
+[capabilities]
+provides = ["urn:ggen:pack:state-transition-pack"]

@@ -225,4 +225,3 @@ The TAI Erlang Autonomics project has test infrastructure in place but needs fix
 - **Integration testing** needs migration to Common Test format
 
 Once these issues are fixed, the test suite should provide good coverage of the core autonomics behavior.
-

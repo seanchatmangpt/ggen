@@ -299,4 +299,3 @@ Before swarm deployment, every agent must:
 **This brief is the mission contract for Phase 5 execution.**
 
 Swarm standing by for deployment authorization. ⚙️
-

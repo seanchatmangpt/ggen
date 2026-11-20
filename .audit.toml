@@ -1,0 +1,17 @@
+# NOTE: cargo-audit 0.22.2 does NOT read `.audit.toml` — its config locations
+# are `~/.cargo/audit.toml` or `./.cargo/audit.toml`. The operative file is
+# `.cargo/audit.toml` (keep both in sync if you edit one). This copy exists to
+# satisfy the file-ownership contract of ZB-8 and for discoverability.
+#
+# cargo-audit's schema takes bare advisory ID strings only ({id, reason} table
+# form is a parse error on 0.22.2); the reason strings live in deny.toml
+# [advisories] ignore (which cargo-deny 0.20.2 parses as {id, reason}) and in
+# the comment block of .cargo/audit.toml.
+#
+# Registered divergence: quick-xml 0.37.5 upstream-blocked by process_mining
+# ^0.37.4 — see docs/jira/v26.11.3/receipts/xc-8-cve-bump.md
+[advisories]
+ignore = [
+    "RUSTSEC-2026-0194",
+    "RUSTSEC-2026-0195",
+]

@@ -1,0 +1,19 @@
+[pack]
+packages = []
+category = "uncategorized"
+id = "experience-projection-pack"
+name = "experience-projection-pack"
+version = "26.9.12"
+description = """
+Deterministic experience-projection semantics (Machine Experience / MX):
+a xp:Capability may be projected for machine consumption
+(xp:MachineExperienceProjection) or for human consumption
+(xp:HumanExperienceProjection) of the exact same underlying capability. A
+machine projection is only lawful if it is real, verified discoverable,
+composable, verifiable, and replayable; refuses
+(gates/010_mx_projection_integrity.rq) any MachineExperienceProjection
+individual where any of those four booleans is false.
+"""
+
+[capabilities]
+provides = ["urn:ggen:pack:experience-projection-pack"]

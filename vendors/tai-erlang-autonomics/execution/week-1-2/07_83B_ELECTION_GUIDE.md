@@ -376,4 +376,3 @@ As the Corporation, TAI Autonomics must:
 **Version**: 1.0
 
 **DISCLAIMER**: This guide is informational only. Founders must consult with their own CPA or tax attorney regarding their specific situation. TAI Autonomics does not provide tax advice.
-

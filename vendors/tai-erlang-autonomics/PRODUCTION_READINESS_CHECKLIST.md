@@ -632,4 +632,3 @@ Before deploying to production:
   - RFC-001: Governor state machine design (gen_server vs gen_statem)
   - RFC-002: Error type standardization
   - RFC-003: HTTP handler architecture
-

@@ -64,7 +64,14 @@ fn sparql_results_alias_is_available_alongside_results() {
     );
     write_ontology(dir.path(), ONTOLOGY_ALICE_BOB);
 
-    let report = sync(dir.path(), SyncOptions::default()).expect("sync must succeed");
+    let report = sync(
+        dir.path(),
+        SyncOptions {
+            skip_ea_admission: true,
+            ..Default::default()
+        },
+    )
+    .expect("sync must succeed");
     assert_eq!(report.written, vec![std::path::PathBuf::from("out.txt")]);
     let content = std::fs::read_to_string(dir.path().join("out.txt")).expect("read output");
     assert_eq!(
@@ -95,7 +102,14 @@ fn static_rule_flattens_first_row_columns_to_top_level_context() {
     );
     write_ontology(dir.path(), ONTOLOGY_ALICE_BOB);
 
-    let report = sync(dir.path(), SyncOptions::default()).expect("sync must succeed");
+    let report = sync(
+        dir.path(),
+        SyncOptions {
+            skip_ea_admission: true,
+            ..Default::default()
+        },
+    )
+    .expect("sync must succeed");
     assert_eq!(
         report.written,
         vec![std::path::PathBuf::from("greeting.txt")]
@@ -143,8 +157,14 @@ fn orphaned_broken_template_file_does_not_abort_unrelated_rule() {
     )
     .expect("write broken orphaned template");
 
-    let report = sync(dir.path(), SyncOptions::default())
-        .expect("an orphaned, unreferenced broken template must not abort the sync");
+    let report = sync(
+        dir.path(),
+        SyncOptions {
+            skip_ea_admission: true,
+            ..Default::default()
+        },
+    )
+    .expect("an orphaned, unreferenced broken template must not abort the sync");
     assert_eq!(report.written, vec![std::path::PathBuf::from("out.txt")]);
     let content = std::fs::read_to_string(dir.path().join("out.txt")).expect("read output");
     assert_eq!(content, "alice;bob;");
@@ -177,8 +197,14 @@ fn included_broken_template_file_still_fails_loudly() {
     )
     .expect("write template that includes the broken one");
 
-    let err = sync(dir.path(), SyncOptions::default())
-        .expect_err("a rule that actually uses the broken file must fail, not silently succeed");
+    let err = sync(
+        dir.path(),
+        SyncOptions {
+            skip_ea_admission: true,
+            ..Default::default()
+        },
+    )
+    .expect_err("a rule that actually uses the broken file must fail, not silently succeed");
     let msg = err.to_string();
     assert!(msg.contains("FM-GEN-008"), "{msg}");
     assert!(
@@ -207,7 +233,14 @@ fn missing_context_variable_is_classified_as_variable_missing() {
     );
     write_ontology(dir.path(), ONTOLOGY_ALICE_BOB);
 
-    let err = sync(dir.path(), SyncOptions::default()).expect_err("must fail");
+    let err = sync(
+        dir.path(),
+        SyncOptions {
+            skip_ea_admission: true,
+            ..Default::default()
+        },
+    )
+    .expect_err("must fail");
     let msg = err.to_string();
     assert!(msg.contains("[FM-GEN-008]"), "{msg}");
     assert!(msg.contains("[TEMPLATE_VARIABLE_MISSING]"), "{msg}");
@@ -235,7 +268,14 @@ fn broken_output_file_pattern_is_classified_as_output_path_invalid() {
     );
     write_ontology(dir.path(), ONTOLOGY_ALICE_BOB);
 
-    let err = sync(dir.path(), SyncOptions::default()).expect_err("must fail");
+    let err = sync(
+        dir.path(),
+        SyncOptions {
+            skip_ea_admission: true,
+            ..Default::default()
+        },
+    )
+    .expect_err("must fail");
     let msg = err.to_string();
     assert!(msg.contains("[FM-GEN-008]"), "{msg}");
     assert!(msg.contains("[TEMPLATE_OUTPUT_PATH_INVALID]"), "{msg}");
@@ -257,7 +297,14 @@ fn unknown_filter_is_classified_as_filter_unknown() {
     );
     write_ontology(dir.path(), ONTOLOGY_ALICE_BOB);
 
-    let err = sync(dir.path(), SyncOptions::default()).expect_err("must fail");
+    let err = sync(
+        dir.path(),
+        SyncOptions {
+            skip_ea_admission: true,
+            ..Default::default()
+        },
+    )
+    .expect_err("must fail");
     let msg = err.to_string();
     assert!(msg.contains("[FM-GEN-008]"), "{msg}");
     assert!(msg.contains("[TEMPLATE_FILTER_UNKNOWN]"), "{msg}");
@@ -283,7 +330,14 @@ fn yaml_file_tree_meta_spec_is_classified_as_schema_incompatible() {
     );
     write_ontology(dir.path(), ONTOLOGY_ALICE_BOB);
 
-    let err = sync(dir.path(), SyncOptions::default()).expect_err("must fail");
+    let err = sync(
+        dir.path(),
+        SyncOptions {
+            skip_ea_admission: true,
+            ..Default::default()
+        },
+    )
+    .expect_err("must fail");
     let msg = err.to_string();
     assert!(msg.contains("[FM-GEN-008]"), "{msg}");
     assert!(

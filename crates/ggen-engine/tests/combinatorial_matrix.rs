@@ -286,6 +286,16 @@ fn write_project(root: &Path, n_entities: usize, n_templates: usize, paths: &[St
         "[project]\nname = \"prop\"\n\n[ontology]\nsource = \"onto.ttl\"\n\n[templates]\ndir = \"templates\"\n",
     )
     .expect("write ggen.toml");
+    // Collision repair (lane G2, disclosed in g2-typed-refusals receipt):
+    // WO-01's fail-closed EA admission gate (FM-LAW-015) refuses any sync
+    // whose root lacks ea.graph.json; these tests exercise property/idempotence
+    // and skip-empty mechanics, not EA admission, so the fixture carries a
+    // minimal valid-but-empty EA graph (zero candidate SBBs).
+    std::fs::write(
+        root.join("ea.graph.json"),
+        "{\"schema\":\"ggen.ea.graph.v1\",\"strategy\":{\"id\":\"s\",\"title\":\"t\"},\"capabilities\":[],\"abbs\":[],\"contracts\":[],\"candidate_sbbs\":[],\"qualifications\":[],\"packs\":[]}",
+    )
+    .expect("write ea.graph.json");
     let mut ttl = String::from("@prefix ex: <http://example.org/> .\n");
     for i in 0..n_entities {
         let _ = writeln!(ttl, "ex:e{i} ex:name \"entity_{i}\" .");
@@ -340,7 +350,7 @@ proptest! {
             .collect();
         write_project(dir.path(), n_entities, n_templates, &paths);
 
-        let r1 = sync(dir.path(), SyncOptions::default()).expect("sync 1");
+        let r1 = sync(dir.path(), SyncOptions { skip_ea_admission: true, ..Default::default() }).expect("sync 1");
         prop_assert_eq!(r1.written.len(), n_templates);
         let p1 = read_receipt_payload(dir.path());
         let bytes1: Vec<Vec<u8>> = paths
@@ -348,7 +358,7 @@ proptest! {
             .map(|p| std::fs::read(dir.path().join(p)).expect("read out 1"))
             .collect();
 
-        let r2 = sync(dir.path(), SyncOptions::default()).expect("sync 2");
+        let r2 = sync(dir.path(), SyncOptions { skip_ea_admission: true, ..Default::default() }).expect("sync 2");
         // force:true, content unchanged → identical-content Skip now wins
         // over force (see TECH-DEBT-003 fix note above): nothing is
         // (re-)written on the second sync.
@@ -574,6 +584,16 @@ fn when_sparql_skip_empty_cross() {
                     "[project]\nname = \"cross\"\n\n[ontology]\nsource = \"onto.ttl\"\n\n[templates]\ndir = \"templates\"\n",
                 )
                 .expect("toml");
+                // Collision repair (lane G2, disclosed in g2-typed-refusals receipt):
+                // WO-01's fail-closed EA admission gate (FM-LAW-015) refuses any sync
+                // whose root lacks ea.graph.json; these tests exercise property/idempotence
+                // and skip-empty mechanics, not EA admission, so the fixture carries a
+                // minimal valid-but-empty EA graph (zero candidate SBBs).
+                std::fs::write(
+                    dir.path().join("ea.graph.json"),
+                    "{\"schema\":\"ggen.ea.graph.v1\",\"strategy\":{\"id\":\"s\",\"title\":\"t\"},\"capabilities\":[],\"abbs\":[],\"contracts\":[],\"candidate_sbbs\":[],\"qualifications\":[],\"packs\":[]}",
+                )
+                .expect("write ea.graph.json");
                 std::fs::write(
                     dir.path().join("onto.ttl"),
                     "@prefix ex: <http://example.org/> .\nex:a ex:name \"alpha\" .\n",
@@ -596,7 +616,14 @@ fn when_sparql_skip_empty_cross() {
                 );
                 std::fs::write(dir.path().join("templates/t.tmpl"), tmpl).expect("tmpl");
 
-                let report = sync(dir.path(), SyncOptions::default()).expect("sync");
+                let report = sync(
+                    dir.path(),
+                    SyncOptions {
+                        skip_ea_admission: true,
+                        ..Default::default()
+                    },
+                )
+                .expect("sync");
                 let decision = report
                     .decisions
                     .get("out.rs")

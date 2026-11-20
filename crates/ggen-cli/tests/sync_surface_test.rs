@@ -77,6 +77,18 @@ fn scaffold() -> TempDir {
     let dir = TempDir::new().expect("tempdir");
     std::fs::write(dir.path().join("ggen.toml"), GGEN_TOML).expect("write ggen.toml");
     std::fs::write(dir.path().join("ontology.ttl"), ONTOLOGY).expect("write ontology");
+    // K2 (same FM-LAW-015 remediation pass as the 44 ggen-engine pack-e2e
+    // fixtures): WO-01's fail-closed EA admission gate refuses any sync whose
+    // root lacks ea.graph.json. These pins test the CLI surface (default
+    // verb, dry-run honesty, receipt writes), not EA admission, so the
+    // fixture carries a minimal valid-but-empty EA graph (zero candidate
+    // SBBs — the admit loop iterates candidate_sbbs, so empty admits
+    // trivially and honestly: nothing to admit).
+    std::fs::write(
+        dir.path().join("ea.graph.json"),
+        "{\"schema\":\"ggen.ea.graph.v1\",\"strategy\":{\"id\":\"s\",\"title\":\"t\"},\"capabilities\":[],\"abbs\":[],\"contracts\":[],\"candidate_sbbs\":[],\"qualifications\":[],\"packs\":[]}",
+    )
+    .expect("write ea.graph.json");
     std::fs::create_dir_all(dir.path().join("templates")).expect("mkdir templates");
     std::fs::write(dir.path().join("templates/one.tmpl"), TEMPLATE).expect("write template");
     dir

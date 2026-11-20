@@ -141,4 +141,3 @@ cargo install weaver
 - Weaver: Installed and functional
 
 All components are ready for use in integration tests and development.
-

@@ -1,0 +1,157 @@
+@prefix scip: <https://ggen.dev/ontology/scip#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.crtef.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+# SCIP-JSON vocabulary for ggen's index (R80-04, v26.11.3, lane R80-04).
+# Mirrors the structs in crates/ggen-scip/src/lib.rs (R80-3 lane); the
+# text-level parity court in crates/ggen-scip/tests/scip_ontology_test.rs
+# enforces struct fields <-> shape properties set equality in both
+# directions. One ontology, one shapes file, one court; no second
+# implementation of the same calculus.
+#
+# Wire form notes (from crates/ggen-scip/src/lib.rs):
+#   symbol wire:   `ggen <package> <dotted.identifier>`
+#   range:         [start_line, start_col, end_col], 0-based, byte columns
+#   roles bitmask: bit0 = reference (scip:roleReference), bit1 = definition
+#                  (scip:roleDefinition)
+
+<https://ggen.dev/ontology/scip> a owl:Ontology ;
+    dcterms:title "ggen SCIP-JSON vocabulary" ;
+    dcterms:creator "R80-04 lane" ;
+    rdfs:comment "SCIP-JSON index vocabulary for ggen: typed symbols, occurrences, documents, and the index envelope. The emitter (crates/ggen-scip) writes .ggen/scip.json; this vocabulary is its RDF projection." ;
+    owl:versionInfo "0.1.0" .
+
+## ------------------------------------------------------------------
+## Classes
+## ------------------------------------------------------------------
+
+scip:Index a rdfs:Class ;
+    rdfs:comment "The index envelope: metadata plus the set of documents, sorted by path." .
+
+scip:Metadata a rdfs:Class ;
+    rdfs:comment "Index metadata: project root, emitter identity, and the shapes IRI the emitted index claims conformance to (scip:conformsTo)." .
+
+scip:Document a rdfs:Class ;
+    rdfs:comment "One source document's occurrences." .
+
+scip:Symbol a rdfs:Class ;
+    rdfs:comment "Typed SCIP symbol: scheme `ggen`, package = crate name, identifier = dotted path. Wire form `ggen <package> <identifier>`." .
+
+scip:Occurrence a rdfs:Class ;
+    rdfs:comment "A definition or reference at a range in a document, carrying a role bitmask." .
+
+scip:DefInfo a rdfs:Class ;
+    rdfs:comment "Extra info carried on definition occurrences only (roles bit 1 set): simple name and item kind (fn | struct | enum | const)." .
+
+scip:Dotted a rdfs:Class ;
+    rdfs:comment "Dotted identifier path (e.g. `generated_commands.COMMANDS_REFERENCE`); a newtype over xsd:string." .
+
+## ------------------------------------------------------------------
+## Properties (one per struct field in crates/ggen-scip/src/lib.rs)
+## ------------------------------------------------------------------
+
+scip:metadata a rdf:Property ;
+    rdfs:domain scip:Index ;
+    rdfs:range scip:Metadata ;
+    rdfs:comment "Index metadata (struct Index.metadata)." .
+
+scip:documents a rdf:Property ;
+    rdfs:domain scip:Index ;
+    rdfs:range rdf:List ;
+    rdfs:comment "Documents sorted by path (struct Index.documents)." .
+
+scip:project_root a rdf:Property ;
+    rdfs:domain scip:Metadata ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Project root, absolute path at emit time (struct Metadata.project_root)." .
+
+scip:emitter a rdf:Property ;
+    rdfs:domain scip:Metadata ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Emitter identity string (struct Metadata.emitter), e.g. `ggen-scip 0.1.0`." .
+
+scip:conformsTo a rdf:Property ;
+    rdfs:domain scip:Metadata ;
+    rdfs:range xsd:anyURI ;
+    rdfs:seeAlso <https://ggen.dev/ontology/shapes/scip-index> ;
+    rdfs:comment "Shapes IRI the emitted index claims conformance to; the emitter writes it into metadata.conformsTo so every scip.json self-describes its governing shapes (contract item 4)." .
+
+scip:path a rdf:Property ;
+    rdfs:domain scip:Document ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Path relative to the project root (struct Document.path)." .
+
+scip:occurrences a rdf:Property ;
+    rdfs:domain scip:Document ;
+    rdfs:range rdf:List ;
+    rdfs:comment "Occurrences sorted by (range, symbol) (struct Document.occurrences)." .
+
+scip:symbol a rdf:Property ;
+    rdfs:domain scip:Occurrence ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Full wire symbol `ggen <package> <identifier>` (struct Occurrence.symbol)." .
+
+scip:range a rdf:Property ;
+    rdfs:domain scip:Occurrence ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "[start_line, start_col, end_col], 0-based, byte columns (struct Occurrence.range; three integers; JSON array in the wire form)." .
+
+scip:roles a rdf:Property ;
+    rdfs:domain scip:Occurrence ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Role bitmask (struct Occurrence.roles): bit0 = reference, bit1 = definition; lawful values 0..3." .
+
+scip:def_info a rdf:Property ;
+    rdfs:domain scip:Occurrence ;
+    rdfs:range scip:DefInfo ;
+    rdfs:comment "Definition info; present only when roles bit 1 is set (struct Occurrence.def_info, optional)." .
+
+scip:scheme a rdf:Property ;
+    rdfs:domain scip:Symbol ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Symbol scheme; always `ggen` for this emitter (struct Symbol.scheme)." .
+
+scip:package a rdf:Property ;
+    rdfs:domain scip:Symbol ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Rust crate (package) name, e.g. `ggen-cli-lib` (struct Symbol.package)." .
+
+scip:identifier a rdf:Property ;
+    rdfs:domain scip:Symbol ;
+    rdfs:range scip:Dotted ;
+    rdfs:comment "Dotted identifier path (struct Symbol.identifier)." .
+
+scip:name a rdf:Property ;
+    rdfs:domain scip:DefInfo ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Simple name of the defined item (struct DefInfo.name)." .
+
+scip:kind a rdf:Property ;
+    rdfs:domain scip:DefInfo ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Item kind: fn | struct | enum | const (struct DefInfo.kind)." .
+
+## ------------------------------------------------------------------
+## Role individuals (roles bitmask)
+## ------------------------------------------------------------------
+
+scip:roleReference a scip:Role ;
+    rdfs:comment "Reference role, bit 0 (ROLE_REFERENCE = 1 << 0)." .
+
+scip:roleDefinition a scip:Role ;
+    rdfs:comment "Definition role, bit 1 (ROLE_DEFINITION = 1 << 1)." .
+
+scip:Role a rdfs:Class ;
+    rdfs:comment "A single role bit individual for the scip:roles bitmask." .
+
+## ------------------------------------------------------------------
+## Reserved (no struct field yet; deliberately absent from the shapes and
+## the parity court so the flat set-equality stays exact)
+## ------------------------------------------------------------------
+
+scip:contentDigest a rdf:Property ;
+    rdfs:comment "Reserved: sha256 hex digest of a document's content, for future index integrity. No struct field exists yet, so scip-index.shacl.ttl carries no sh:path for it; adding a digest field to the emitter structs is the admission step that adds the shape constraint (sha256 hex pattern ^[0-9a-f]{64}$)." .

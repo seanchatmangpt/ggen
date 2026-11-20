@@ -67,6 +67,8 @@ fn written_ordering_is_stable_and_lexicographic_regardless_of_creation_order() {
     let r1 = sync(
         d1.path(),
         SyncOptions {
+            // K2: FM-LAW-015 EA-admission opt-out (test pins a non-EA law)
+            skip_ea_admission: true,
             consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
@@ -76,6 +78,8 @@ fn written_ordering_is_stable_and_lexicographic_regardless_of_creation_order() {
     let r2 = sync(
         d2.path(),
         SyncOptions {
+            // K2: FM-LAW-015 EA-admission opt-out (test pins a non-EA law)
+            skip_ea_admission: true,
             consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
@@ -114,12 +118,24 @@ fn receipt_payload_bytes_identical_across_fresh_syncs_of_identical_input() {
     for d in [d1.path(), d2.path()] {
         let keys_dir = d.join(".ggen/keys");
         std::fs::create_dir_all(&keys_dir).expect("mkdir keys");
-        std::fs::write(keys_dir.join("signing.key"), SHARED_SEED_HEX).expect("seed signing key");
+        let key_path = keys_dir.join("signing.key");
+        std::fs::write(&key_path, SHARED_SEED_HEX).expect("seed signing key");
+        // FM-KEY-013 gate (substrate hardening): the validator refuses keys
+        // with group/other read bits. The fixture must conform to the same
+        // law a real user's key obeys — 0600 — never a validator carve-out.
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::PermissionsExt;
+            std::fs::set_permissions(&key_path, std::fs::Permissions::from_mode(0o600))
+                .expect("chmod 600 signing key fixture");
+        }
     }
 
     sync(
         d1.path(),
         SyncOptions {
+            // K2: FM-LAW-015 EA-admission opt-out (test pins a non-EA law)
+            skip_ea_admission: true,
             consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
@@ -129,6 +145,8 @@ fn receipt_payload_bytes_identical_across_fresh_syncs_of_identical_input() {
     sync(
         d2.path(),
         SyncOptions {
+            // K2: FM-LAW-015 EA-admission opt-out (test pins a non-EA law)
+            skip_ea_admission: true,
             consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
@@ -157,6 +175,8 @@ fn second_sync_of_multi_template_project_is_fully_unchanged() {
     let first = sync(
         dir.path(),
         SyncOptions {
+            // K2: FM-LAW-015 EA-admission opt-out (test pins a non-EA law)
+            skip_ea_admission: true,
             consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()
@@ -168,6 +188,8 @@ fn second_sync_of_multi_template_project_is_fully_unchanged() {
     let second = sync(
         dir.path(),
         SyncOptions {
+            // K2: FM-LAW-015 EA-admission opt-out (test pins a non-EA law)
+            skip_ea_admission: true,
             consumer_mode: Default::default(),
             dry_run: false,
             ..Default::default()

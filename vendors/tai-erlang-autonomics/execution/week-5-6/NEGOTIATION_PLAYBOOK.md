@@ -808,4 +808,3 @@ Before you get off the final negotiation call, confirm:
 **Document Version**: 1.0
 **Last Updated**: 2026-01-26
 **Status**: Ready for VP Sales use
-

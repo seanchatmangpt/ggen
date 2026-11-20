@@ -617,4 +617,3 @@ This tracker monitors 30+ legal documents across 5 categories:
 - 🟡 Bank account: Needed before hiring employees or paying vendors
 
 **Next Checkpoint**: End of Week 2 (Jan 31, 2026)
-

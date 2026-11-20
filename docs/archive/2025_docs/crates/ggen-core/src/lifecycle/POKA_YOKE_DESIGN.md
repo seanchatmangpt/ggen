@@ -314,5 +314,3 @@ use_state(state)?; // Type ensures validated
 Poka-yoke design uses Rust's type system to prevent entire classes of errors at compile time. By making invalid states unrepresentable and invalid operations impossible, we eliminate runtime errors and improve code safety.
 
 **Key Principle**: "Make invalid states unrepresentable" - Use types to encode invariants, preventing errors through design rather than detection.
-
-

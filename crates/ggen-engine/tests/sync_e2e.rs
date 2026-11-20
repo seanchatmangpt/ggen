@@ -45,6 +45,9 @@ fn first_sync_writes_second_sync_skips_unchanged_and_hash_is_stable() {
         SyncOptions {
             consumer_mode: Default::default(),
             dry_run: false,
+            // These tests pin render/write/dry-run laws, not EA admission;
+            // skip the fail-loud FM-LAW-015 admission gate explicitly.
+            skip_ea_admission: true,
             ..Default::default()
         },
     )
@@ -67,6 +70,9 @@ fn first_sync_writes_second_sync_skips_unchanged_and_hash_is_stable() {
         SyncOptions {
             consumer_mode: Default::default(),
             dry_run: false,
+            // These tests pin render/write/dry-run laws, not EA admission;
+            // skip the fail-loud FM-LAW-015 admission gate explicitly.
+            skip_ea_admission: true,
             ..Default::default()
         },
     )
@@ -100,6 +106,7 @@ fn dry_run_writes_nothing() {
         SyncOptions {
             consumer_mode: Default::default(),
             dry_run: true,
+            skip_ea_admission: true,
             ..Default::default()
         },
     )
@@ -130,6 +137,9 @@ fn non_dry_sync_emits_verifiable_receipt() {
         SyncOptions {
             consumer_mode: Default::default(),
             dry_run: false,
+            // These tests pin render/write/dry-run laws, not EA admission;
+            // skip the fail-loud FM-LAW-015 admission gate explicitly.
+            skip_ea_admission: true,
             ..Default::default()
         },
     )
@@ -168,6 +178,9 @@ fn missing_ggen_toml_fails_closed() {
         SyncOptions {
             consumer_mode: Default::default(),
             dry_run: false,
+            // These tests pin render/write/dry-run laws, not EA admission;
+            // skip the fail-loud FM-LAW-015 admission gate explicitly.
+            skip_ea_admission: true,
             ..Default::default()
         },
     )
@@ -195,6 +208,9 @@ fn render_failure_names_available_context_keys() {
         SyncOptions {
             consumer_mode: Default::default(),
             dry_run: false,
+            // These tests pin render/write/dry-run laws, not EA admission;
+            // skip the fail-loud FM-LAW-015 admission gate explicitly.
+            skip_ea_admission: true,
             ..Default::default()
         },
     )
@@ -235,6 +251,9 @@ fn when_guard_that_is_not_an_ask_query_is_refused_with_fm_tpl_016() {
         SyncOptions {
             consumer_mode: Default::default(),
             dry_run: false,
+            // These tests pin render/write/dry-run laws, not EA admission;
+            // skip the fail-loud FM-LAW-015 admission gate explicitly.
+            skip_ea_admission: true,
             ..Default::default()
         },
     )
@@ -270,6 +289,9 @@ fn oversized_rendered_output_is_refused() {
         SyncOptions {
             consumer_mode: Default::default(),
             dry_run: false,
+            // These tests pin render/write/dry-run laws, not EA admission;
+            // skip the fail-loud FM-LAW-015 admission gate explicitly.
+            skip_ea_admission: true,
             ..Default::default()
         },
     )
@@ -309,6 +331,9 @@ fn a_render_failure_leaves_no_writes_from_other_templates_in_the_same_run() {
         SyncOptions {
             consumer_mode: Default::default(),
             dry_run: false,
+            // These tests pin render/write/dry-run laws, not EA admission;
+            // skip the fail-loud FM-LAW-015 admission gate explicitly.
+            skip_ea_admission: true,
             ..Default::default()
         },
     )
@@ -343,6 +368,9 @@ fn duplicate_render_targets_are_refused() {
         SyncOptions {
             consumer_mode: Default::default(),
             dry_run: false,
+            // These tests pin render/write/dry-run laws, not EA admission;
+            // skip the fail-loud FM-LAW-015 admission gate explicitly.
+            skip_ea_admission: true,
             ..Default::default()
         },
     )
@@ -370,6 +398,9 @@ fn nondeterministic_to_path_violates_determinism_check() {
         SyncOptions {
             consumer_mode: Default::default(),
             dry_run: false,
+            // These tests pin render/write/dry-run laws, not EA admission;
+            // skip the fail-loud FM-LAW-015 admission gate explicitly.
+            skip_ea_admission: true,
             ..Default::default()
         },
     )
@@ -394,6 +425,7 @@ fn dry_run_refuses_non_utf8_existing_target() {
         SyncOptions {
             consumer_mode: Default::default(),
             dry_run: true,
+            skip_ea_admission: true,
             ..Default::default()
         },
     )

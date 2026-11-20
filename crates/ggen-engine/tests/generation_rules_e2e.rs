@@ -70,7 +70,14 @@ fn static_rule_with_file_query_and_file_template_renders_real_query_results() {
     )
     .expect("write template file");
 
-    let report = sync(dir.path(), SyncOptions::default()).expect("sync");
+    let report = sync(
+        dir.path(),
+        SyncOptions {
+            skip_ea_admission: true,
+            ..Default::default()
+        },
+    )
+    .expect("sync");
     assert_eq!(
         report.written,
         vec![std::path::PathBuf::from("out/names.txt")]
@@ -136,7 +143,14 @@ fn per_row_rule_with_inline_query_and_template_creates_one_file_per_row() {
     );
     write_ontology(dir.path(), ONTOLOGY_ALICE_BOB);
 
-    let report = sync(dir.path(), SyncOptions::default()).expect("sync");
+    let report = sync(
+        dir.path(),
+        SyncOptions {
+            skip_ea_admission: true,
+            ..Default::default()
+        },
+    )
+    .expect("sync");
     assert_eq!(
         report.written,
         vec![
@@ -186,7 +200,14 @@ fn when_guard_false_and_skip_empty_produce_documented_skips_not_writes() {
     );
     write_ontology(dir.path(), ONTOLOGY_ALICE_BOB);
 
-    let report = sync(dir.path(), SyncOptions::default()).expect("sync");
+    let report = sync(
+        dir.path(),
+        SyncOptions {
+            skip_ea_admission: true,
+            ..Default::default()
+        },
+    )
+    .expect("sync");
     assert!(
         report.written.is_empty(),
         "neither rule should write: {:?}",
@@ -237,7 +258,14 @@ fn merge_mode_preserves_hand_edits_across_two_syncs_with_changed_query_data() {
 
     // First sync: no existing file, so `merge_sections` wraps the generated
     // body in fresh markers with a placeholder manual section.
-    let first = sync(dir.path(), SyncOptions::default()).expect("first sync");
+    let first = sync(
+        dir.path(),
+        SyncOptions {
+            skip_ea_admission: true,
+            ..Default::default()
+        },
+    )
+    .expect("first sync");
     assert_eq!(
         first.written,
         vec![std::path::PathBuf::from("src/generated.rs")]
@@ -265,7 +293,14 @@ fn merge_mode_preserves_hand_edits_across_two_syncs_with_changed_query_data() {
         "@prefix ex: <http://example.org/> .\nex:proj ex:version \"v2\" .\n",
     );
 
-    let second = sync(dir.path(), SyncOptions::default()).expect("second sync");
+    let second = sync(
+        dir.path(),
+        SyncOptions {
+            skip_ea_admission: true,
+            ..Default::default()
+        },
+    )
+    .expect("second sync");
     assert_eq!(
         second.written,
         vec![std::path::PathBuf::from("src/generated.rs")],
@@ -304,7 +339,14 @@ fn create_mode_writes_once_then_leaves_hand_edits_alone() {
     );
     write_ontology(dir.path(), ONTOLOGY_ALICE_BOB);
 
-    let first = sync(dir.path(), SyncOptions::default()).expect("first sync");
+    let first = sync(
+        dir.path(),
+        SyncOptions {
+            skip_ea_admission: true,
+            ..Default::default()
+        },
+    )
+    .expect("first sync");
     assert_eq!(
         first.written,
         vec![std::path::PathBuf::from("src/scaffold.rs")]
@@ -317,7 +359,14 @@ fn create_mode_writes_once_then_leaves_hand_edits_alone() {
     )
     .expect("hand-complete");
 
-    let second = sync(dir.path(), SyncOptions::default()).expect("second sync");
+    let second = sync(
+        dir.path(),
+        SyncOptions {
+            skip_ea_admission: true,
+            ..Default::default()
+        },
+    )
+    .expect("second sync");
     assert!(
         second.written.is_empty(),
         "mode=Create must never rewrite an existing target: {:?}",
@@ -352,7 +401,14 @@ fn overwrite_mode_replaces_content_and_skips_when_unchanged() {
         "@prefix ex: <http://example.org/> .\nex:proj ex:version \"v1\" .\n",
     );
 
-    let first = sync(dir.path(), SyncOptions::default()).expect("first sync");
+    let first = sync(
+        dir.path(),
+        SyncOptions {
+            skip_ea_admission: true,
+            ..Default::default()
+        },
+    )
+    .expect("first sync");
     assert_eq!(
         first.written,
         vec![std::path::PathBuf::from("out/version.txt")]
@@ -363,7 +419,14 @@ fn overwrite_mode_replaces_content_and_skips_when_unchanged() {
     );
 
     // Second sync, unchanged ontology: content is identical -> Skipped.
-    let second = sync(dir.path(), SyncOptions::default()).expect("second sync");
+    let second = sync(
+        dir.path(),
+        SyncOptions {
+            skip_ea_admission: true,
+            ..Default::default()
+        },
+    )
+    .expect("second sync");
     assert!(second.written.is_empty(), "{:?}", second.written);
     assert!(
         second.skipped[0].1.contains("unchanged"),
@@ -376,7 +439,14 @@ fn overwrite_mode_replaces_content_and_skips_when_unchanged() {
         dir.path(),
         "@prefix ex: <http://example.org/> .\nex:proj ex:version \"v2\" .\n",
     );
-    let third = sync(dir.path(), SyncOptions::default()).expect("third sync");
+    let third = sync(
+        dir.path(),
+        SyncOptions {
+            skip_ea_admission: true,
+            ..Default::default()
+        },
+    )
+    .expect("third sync");
     assert_eq!(
         third.written,
         vec![std::path::PathBuf::from("out/version.txt")]
@@ -409,7 +479,14 @@ fn query_source_pack_with_no_local_path_is_a_typed_refusal_not_a_silent_skip() {
     );
     write_ontology(dir.path(), ONTOLOGY_ALICE_BOB);
 
-    let err = sync(dir.path(), SyncOptions::default()).expect_err("must refuse, not silently skip");
+    let err = sync(
+        dir.path(),
+        SyncOptions {
+            skip_ea_admission: true,
+            ..Default::default()
+        },
+    )
+    .expect_err("must refuse, not silently skip");
     let msg = err.to_string();
     assert!(msg.contains("FM-GEN-006"), "{msg}");
     assert!(msg.contains("some-pack"), "{msg}");
@@ -434,7 +511,14 @@ fn query_source_pack_with_local_path_but_no_package_toml_is_a_typed_refusal_on_m
     // Deliberately no package.toml and no queries/x.rq anywhere under the
     // pack root (which is the project root here, path = ".").
 
-    let err = sync(dir.path(), SyncOptions::default()).expect_err("must refuse, not silently skip");
+    let err = sync(
+        dir.path(),
+        SyncOptions {
+            skip_ea_admission: true,
+            ..Default::default()
+        },
+    )
+    .expect_err("must refuse, not silently skip");
     let msg = err.to_string();
     assert!(msg.contains("FM-GEN-005"), "{msg}");
     assert!(msg.contains("some-pack"), "{msg}");
@@ -477,8 +561,14 @@ fn query_and_template_source_pack_resolves_through_package_toml_outputs_table() 
     );
     write_ontology(dir.path(), ONTOLOGY_ALICE_BOB);
 
-    sync(dir.path(), SyncOptions::default())
-        .expect("sync must succeed via real [pack.outputs] resolution");
+    sync(
+        dir.path(),
+        SyncOptions {
+            skip_ea_admission: true,
+            ..Default::default()
+        },
+    )
+    .expect("sync must succeed via real [pack.outputs] resolution");
 
     let body = std::fs::read_to_string(dir.path().join("out/names.txt")).expect("read output");
     assert!(body.contains("alice"), "{body}");
@@ -495,7 +585,14 @@ fn unimplemented_template_source_git_is_a_typed_refusal() {
     );
     write_ontology(dir.path(), ONTOLOGY_ALICE_BOB);
 
-    let err = sync(dir.path(), SyncOptions::default()).expect_err("must refuse");
+    let err = sync(
+        dir.path(),
+        SyncOptions {
+            skip_ea_admission: true,
+            ..Default::default()
+        },
+    )
+    .expect_err("must refuse");
     let msg = err.to_string();
     assert!(msg.contains("FM-GEN-007"), "{msg}");
     assert!(msg.contains("not implemented"), "{msg}");
@@ -522,7 +619,14 @@ fn duplicate_render_targets_from_per_row_rule_are_refused() {
         "@prefix ex: <http://example.org/> .\nex:a ex:name \"anna\" .\nex:b ex:name \"bert\" .\n",
     );
 
-    let err = sync(dir.path(), SyncOptions::default()).expect_err("must refuse");
+    let err = sync(
+        dir.path(),
+        SyncOptions {
+            skip_ea_admission: true,
+            ..Default::default()
+        },
+    )
+    .expect_err("must refuse");
     let msg = err.to_string();
     assert!(msg.contains("FM-GEN-004"), "{msg}");
     assert!(msg.contains("same output"), "{msg}");
@@ -552,7 +656,14 @@ fn two_generation_rules_syncs_chain_receipts() {
     );
     write_ontology(dir.path(), ONTOLOGY_ALICE_BOB);
 
-    sync(dir.path(), SyncOptions::default()).expect("first sync");
+    sync(
+        dir.path(),
+        SyncOptions {
+            skip_ea_admission: true,
+            ..Default::default()
+        },
+    )
+    .expect("first sync");
     let receipt1: SyncReceipt = serde_json::from_str(
         &std::fs::read_to_string(dir.path().join(RECEIPT_REL_PATH)).expect("receipt 1"),
     )
@@ -560,7 +671,14 @@ fn two_generation_rules_syncs_chain_receipts() {
 
     // Second sync of the unchanged project: output is identical, so no file
     // is (re)written, but the receipt is still emitted and must chain.
-    sync(dir.path(), SyncOptions::default()).expect("second sync");
+    sync(
+        dir.path(),
+        SyncOptions {
+            skip_ea_admission: true,
+            ..Default::default()
+        },
+    )
+    .expect("second sync");
     let receipt2: SyncReceipt = serde_json::from_str(
         &std::fs::read_to_string(dir.path().join(RECEIPT_REL_PATH)).expect("receipt 2"),
     )
@@ -598,7 +716,14 @@ fn empty_rendered_body_is_refused_not_silently_written() {
     );
     write_ontology(dir.path(), ONTOLOGY_ALICE_BOB);
 
-    let err = sync(dir.path(), SyncOptions::default()).expect_err("must refuse empty output");
+    let err = sync(
+        dir.path(),
+        SyncOptions {
+            skip_ea_admission: true,
+            ..Default::default()
+        },
+    )
+    .expect_err("must refuse empty output");
     let msg = err.to_string();
     assert!(msg.contains("FM-GEN-011"), "{msg}");
     assert!(!dir.path().join("out/blank.txt").exists());
@@ -629,7 +754,14 @@ fn inference_rule_construct_is_visible_to_generation_rule_query() {
     );
     write_ontology(dir.path(), ONTOLOGY_REX_DOG);
 
-    let report = sync(dir.path(), SyncOptions::default()).expect("sync");
+    let report = sync(
+        dir.path(),
+        SyncOptions {
+            skip_ea_admission: true,
+            ..Default::default()
+        },
+    )
+    .expect("sync");
     assert_eq!(
         report.written,
         vec![std::path::PathBuf::from("out/animals.txt")]
@@ -652,7 +784,14 @@ fn inference_rule_when_guard_false_skips_construct() {
     );
     write_ontology(dir.path(), ONTOLOGY_REX_DOG);
 
-    let report = sync(dir.path(), SyncOptions::default()).expect("sync");
+    let report = sync(
+        dir.path(),
+        SyncOptions {
+            skip_ea_admission: true,
+            ..Default::default()
+        },
+    )
+    .expect("sync");
     assert!(
         report.written.is_empty(),
         "when: guard is false (no ex:Cat) -- inference must not run, so the generation \
@@ -682,8 +821,14 @@ fn law_gate_denial_violation_refuses_declarative_rules_sync() {
     std::fs::create_dir_all(dir.path().join("rules")).expect("mkdir rules");
     std::fs::write(dir.path().join("rules/no-dogs.n3"), DENIAL_N3).expect("write denial rule");
 
-    let err = sync(dir.path(), SyncOptions::default())
-        .expect_err("asserted dog under a no-dogs denial must refuse");
+    let err = sync(
+        dir.path(),
+        SyncOptions {
+            skip_ea_admission: true,
+            ..Default::default()
+        },
+    )
+    .expect_err("asserted dog under a no-dogs denial must refuse");
     let msg = err.to_string();
     assert!(msg.contains("FM-LAW-016"), "{msg}");
     assert!(msg.contains("DENIED"), "{msg}");
@@ -716,8 +861,14 @@ fn law_gate_violation_refuses_declarative_rules_sync_naming_offending_node() {
     std::fs::create_dir_all(dir.path().join("gates")).expect("mkdir gates");
     std::fs::write(dir.path().join("gates/dog.rq"), GATE).expect("write gate");
 
-    let err = sync(dir.path(), SyncOptions::default())
-        .expect_err("unlicensed dog must refuse the SPARQL gate");
+    let err = sync(
+        dir.path(),
+        SyncOptions {
+            skip_ea_admission: true,
+            ..Default::default()
+        },
+    )
+    .expect_err("unlicensed dog must refuse the SPARQL gate");
     let msg = err.to_string();
     assert!(msg.contains("FM-LAW-018"), "{msg}");
     assert!(
@@ -747,8 +898,14 @@ fn legacy_validation_shacl_is_refused_loudly() {
     std::fs::create_dir_all(dir.path().join("shapes")).expect("mkdir shapes");
     std::fs::write(dir.path().join("shapes/dog.ttl"), "# legacy\n").expect("write shapes");
 
-    let err = sync(dir.path(), SyncOptions::default())
-        .expect_err("a non-empty [validation].shacl must refuse loudly");
+    let err = sync(
+        dir.path(),
+        SyncOptions {
+            skip_ea_admission: true,
+            ..Default::default()
+        },
+    )
+    .expect_err("a non-empty [validation].shacl must refuse loudly");
     let msg = err.to_string();
     assert!(msg.contains("FM-LAW-017"), "{msg}");
     assert!(msg.contains("no longer supported"), "{msg}");
@@ -779,8 +936,14 @@ fn validation_rule_error_severity_violation_refuses_declarative_rules_sync() {
     );
     write_ontology(dir.path(), ONTOLOGY_REX_DOG);
 
-    let err = sync(dir.path(), SyncOptions::default())
-        .expect_err("an unlicensed dog must violate the default-severity (Error) rule");
+    let err = sync(
+        dir.path(),
+        SyncOptions {
+            skip_ea_admission: true,
+            ..Default::default()
+        },
+    )
+    .expect_err("an unlicensed dog must violate the default-severity (Error) rule");
     let msg = err.to_string();
     assert!(msg.contains("FM-LAW-020"), "{msg}");
     assert!(
@@ -811,8 +974,14 @@ fn validation_rule_warning_severity_violation_logs_and_continues() {
     );
     write_ontology(dir.path(), ONTOLOGY_REX_DOG);
 
-    let report = sync(dir.path(), SyncOptions::default())
-        .expect("a Warning-severity violation must not refuse the sync");
+    let report = sync(
+        dir.path(),
+        SyncOptions {
+            skip_ea_admission: true,
+            ..Default::default()
+        },
+    )
+    .expect("a Warning-severity violation must not refuse the sync");
     assert_eq!(
         report.written,
         vec![std::path::PathBuf::from("out/static.txt")],
@@ -843,7 +1012,14 @@ fn output_dir_is_joined_onto_rendered_output_file() {
     );
     write_ontology(dir.path(), ONTOLOGY_REX_DOG);
 
-    let report = sync(dir.path(), SyncOptions::default()).expect("sync");
+    let report = sync(
+        dir.path(),
+        SyncOptions {
+            skip_ea_admission: true,
+            ..Default::default()
+        },
+    )
+    .expect("sync");
     assert_eq!(
         report.written,
         vec![std::path::PathBuf::from("generated/out/static.txt")],
@@ -880,8 +1056,14 @@ fn no_unsafe_refuses_rendered_output_containing_unsafe_block() {
     );
     write_ontology(dir.path(), ONTOLOGY_REX_DOG);
 
-    let err = sync(dir.path(), SyncOptions::default())
-        .expect_err("no_unsafe = true must refuse rendered output containing an unsafe block");
+    let err = sync(
+        dir.path(),
+        SyncOptions {
+            skip_ea_admission: true,
+            ..Default::default()
+        },
+    )
+    .expect_err("no_unsafe = true must refuse rendered output containing an unsafe block");
     let msg = err.to_string();
     assert!(msg.contains("FM-GEN-015"), "{msg}");
     assert!(
@@ -904,8 +1086,14 @@ fn no_unsafe_defaults_to_false_and_allows_unsafe_block() {
     );
     write_ontology(dir.path(), ONTOLOGY_REX_DOG);
 
-    let report = sync(dir.path(), SyncOptions::default())
-        .expect("no_unsafe defaults to false; unsafe blocks must be allowed by default");
+    let report = sync(
+        dir.path(),
+        SyncOptions {
+            skip_ea_admission: true,
+            ..Default::default()
+        },
+    )
+    .expect("no_unsafe defaults to false; unsafe blocks must be allowed by default");
     assert_eq!(
         report.written,
         vec![std::path::PathBuf::from("out/risky.rs")]
@@ -925,7 +1113,14 @@ fn validate_syntax_true_refuses_rs_output_as_not_yet_implemented() {
     );
     write_ontology(dir.path(), ONTOLOGY_REX_DOG);
 
-    let err = sync(dir.path(), SyncOptions::default()).expect_err(
+    let err = sync(
+        dir.path(),
+        SyncOptions {
+            skip_ea_admission: true,
+            ..Default::default()
+        },
+    )
+    .expect_err(
         "validate_syntax = true must refuse loudly (not implemented) rather than silently no-op",
     );
     let msg = err.to_string();
@@ -946,8 +1141,14 @@ fn validate_syntax_true_does_not_refuse_non_rust_output() {
     );
     write_ontology(dir.path(), ONTOLOGY_REX_DOG);
 
-    let report = sync(dir.path(), SyncOptions::default())
-        .expect("validate_syntax only concerns .rs output; a .txt target must sync normally");
+    let report = sync(
+        dir.path(),
+        SyncOptions {
+            skip_ea_admission: true,
+            ..Default::default()
+        },
+    )
+    .expect("validate_syntax only concerns .rs output; a .txt target must sync normally");
     assert_eq!(
         report.written,
         vec![std::path::PathBuf::from("out/static.txt")]
@@ -975,8 +1176,14 @@ fn static_rule_supplies_row_alias_and_flattened_keys_matching_fanout_context() {
     );
     write_ontology(dir.path(), ONTOLOGY_ALICE_BOB);
 
-    let report = sync(dir.path(), SyncOptions::default())
-        .expect("static rule must supply `row` and flattened keys like the fan-out branch");
+    let report = sync(
+        dir.path(),
+        SyncOptions {
+            skip_ea_admission: true,
+            ..Default::default()
+        },
+    )
+    .expect("static rule must supply `row` and flattened keys like the fan-out branch");
     assert_eq!(
         report.written,
         vec![std::path::PathBuf::from("out/agent.txt")]
@@ -1002,8 +1209,14 @@ fn static_rule_multi_row_query_uses_first_row_values() {
     );
     write_ontology(dir.path(), ONTOLOGY_ALICE_BOB);
 
-    let _report = sync(dir.path(), SyncOptions::default())
-        .expect("multi-row static rule renders with first-row values");
+    let _report = sync(
+        dir.path(),
+        SyncOptions {
+            skip_ea_admission: true,
+            ..Default::default()
+        },
+    )
+    .expect("multi-row static rule renders with first-row values");
     let content = std::fs::read_to_string(dir.path().join("out/agent.txt")).expect("read output");
     assert_eq!(
         content, "name=alice row=alice\n",
@@ -1031,9 +1244,14 @@ fn static_rule_optional_unbound_binding_does_not_leak_first_row_value() {
         "@prefix ex: <http://example.org/> .\nex:child ex:name \"child\" ; ex:parent ex:root .\nex:root ex:name \"root\" .\n",
     );
 
-    let err = sync(dir.path(), SyncOptions::default()).expect_err(
-        "unbound `row.parent` on the root row must fail loudly, never leak child's parent",
-    );
+    let err = sync(
+        dir.path(),
+        SyncOptions {
+            skip_ea_admission: true,
+            ..Default::default()
+        },
+    )
+    .expect_err("unbound `row.parent` on the root row must fail loudly, never leak child's parent");
     let msg = err.to_string();
     assert!(
         msg.contains("row.parent"),
@@ -1056,8 +1274,14 @@ fn static_rule_optional_unbound_binding_renders_default_filter_value() {
         "@prefix ex: <http://example.org/> .\nex:child ex:name \"child\" ; ex:parent ex:root .\nex:root ex:name \"root\" .\n",
     );
 
-    let _report = sync(dir.path(), SyncOptions::default())
-        .expect("default-filter idiom renders heterogeneous rows");
+    let _report = sync(
+        dir.path(),
+        SyncOptions {
+            skip_ea_admission: true,
+            ..Default::default()
+        },
+    )
+    .expect("default-filter idiom renders heterogeneous rows");
     let content = std::fs::read_to_string(dir.path().join("out/chain.txt")).expect("read output");
     assert_eq!(
         content, "child=root;root=-;\n",
@@ -1078,8 +1302,14 @@ fn static_rule_zero_rows_keeps_loud_refusal_for_missing_variables() {
     );
     write_ontology(dir.path(), ONTOLOGY_REX_DOG);
 
-    let err = sync(dir.path(), SyncOptions::default())
-        .expect_err("zero rows must leave `{{ name }}` unbound -> loud render failure");
+    let err = sync(
+        dir.path(),
+        SyncOptions {
+            skip_ea_admission: true,
+            ..Default::default()
+        },
+    )
+    .expect_err("zero rows must leave `{{ name }}` unbound -> loud render failure");
     let msg = err.to_string();
     assert!(
         msg.contains("name") && (msg.contains("not found") || msg.contains("undefined")),

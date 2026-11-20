@@ -286,4 +286,3 @@ TAI Autonomics will need to register in other states IF:
 **Version**: 1.0
 
 **Note**: This guide assumes TAI Autonomics will operate in California. If headquarters changes, consult with tax advisor on additional state registrations needed.
-

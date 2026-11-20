@@ -36,7 +36,8 @@ ggenspec:GenerationConfig
         ggenspec:GenerationConfig-output_dir ,
         ggenspec:GenerationConfig-enable_llm ,
         ggenspec:GenerationConfig-llm_provider ,
-        ggenspec:GenerationConfig-llm_model .
+        ggenspec:GenerationConfig-llm_model ,
+        ggenspec:GenerationConfig-verification_harness .
 
 ggenspec:GenerationConfig-rules
     a ggenspec:Field ; ggenspec:name "rules" ; ggenspec:type ggenspec:ListOfGenerationRule ;
@@ -69,6 +70,10 @@ ggenspec:GenerationConfig-llm_provider
 ggenspec:GenerationConfig-llm_model
     a ggenspec:Field ; ggenspec:name "llm_model" ; ggenspec:type xsd:string ;
     ggenspec:required false ; rdfs:comment "LLM model identifier. Optional." .
+
+ggenspec:GenerationConfig-verification_harness
+    a ggenspec:Field ; ggenspec:name "verification_harness" ; ggenspec:type ggenspec:VerificationHarnessConfig ;
+    ggenspec:required false ; rdfs:comment "Opt-in `[generation.verification_harness]` section (sync-hardening item 4): emits a `.ggen-v2/verify/` verification harness (tsconfig.verify.json + verify.mjs). Absent section = nothing emitted." .
 
 # ---------------------------------------------------------------------------
 # [[generation.rules]] — GenerationRule

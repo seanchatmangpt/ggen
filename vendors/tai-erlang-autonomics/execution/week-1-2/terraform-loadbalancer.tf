@@ -70,10 +70,10 @@ resource "google_compute_security_policy" "tai_autonomics" {
       versioned_expr = "FIREWALL_RULES"
     }
     rate_limit_options {
-      conform_action = "allow"
-      exceed_action  = "deny(429)"
-      enforce_on_key = "IP"
-      ban_duration_sec = 600  # 10 minute ban
+      conform_action   = "allow"
+      exceed_action    = "deny(429)"
+      enforce_on_key   = "IP"
+      ban_duration_sec = 600 # 10 minute ban
       rate_limit_threshold {
         count        = 100
         interval_sec = 60
@@ -115,11 +115,11 @@ resource "google_compute_health_check" "tai_autonomics" {
 
   # Use HTTP health check (Cloud Run returns 200 on /health)
   http_health_check {
-    port              = 8080
-    request_path      = "/health"
-    check_interval_sec = 30
-    timeout_sec       = 5
-    healthy_threshold = 2
+    port                = 8080
+    request_path        = "/health"
+    check_interval_sec  = 30
+    timeout_sec         = 5
+    healthy_threshold   = 2
     unhealthy_threshold = 3
   }
 
@@ -135,12 +135,12 @@ resource "google_compute_health_check" "tai_autonomics" {
 # ============================================================================
 
 resource "google_compute_backend_service" "tai_autonomics" {
-  name                = "tai-autonomics-backend-service"
-  project             = var.project_id
-  health_checks       = [google_compute_health_check.tai_autonomics.id]
-  protocol            = "HTTP2"
-  timeout_sec         = 30
-  session_affinity    = "NONE"
+  name                  = "tai-autonomics-backend-service"
+  project               = var.project_id
+  health_checks         = [google_compute_health_check.tai_autonomics.id]
+  protocol              = "HTTP2"
+  timeout_sec           = 30
+  session_affinity      = "NONE"
   load_balancing_scheme = "EXTERNAL"
 
   # Configure backend
@@ -164,9 +164,6 @@ resource "google_compute_backend_service" "tai_autonomics" {
     max_requests                = 1000
     max_requests_per_connection = 100
   }
-
-  # Session affinity
-  session_affinity = "NONE"
 
   depends_on = [
     google_compute_network_endpoint_group.tai_autonomics,
@@ -242,12 +239,12 @@ resource "google_compute_target_https_proxy" "tai_autonomics" {
 }
 
 resource "google_compute_global_forwarding_rule" "tai_autonomics_https" {
-  name       = "tai-autonomics-https-rule"
-  project    = var.project_id
-  ip_version = "IPV4"
+  name                  = "tai-autonomics-https-rule"
+  project               = var.project_id
+  ip_version            = "IPV4"
   load_balancing_scheme = "EXTERNAL"
-  port_range = "443"
-  target     = google_compute_target_https_proxy.tai_autonomics.id
+  port_range            = "443"
+  target                = google_compute_target_https_proxy.tai_autonomics.id
 }
 
 # ============================================================================
@@ -272,10 +269,10 @@ resource "google_compute_target_http_proxy" "http_redirect" {
 }
 
 resource "google_compute_global_forwarding_rule" "http_redirect" {
-  name       = "tai-autonomics-http-rule"
-  project    = var.project_id
-  port_range = "80"
-  target     = google_compute_target_http_proxy.http_redirect.id
+  name                  = "tai-autonomics-http-rule"
+  project               = var.project_id
+  port_range            = "80"
+  target                = google_compute_target_http_proxy.http_redirect.id
   load_balancing_scheme = "EXTERNAL"
 }
 

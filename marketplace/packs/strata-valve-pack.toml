@@ -1,0 +1,26 @@
+[pack]
+packages = []
+category = "uncategorized"
+
+id = "strata-valve-pack"
+name = "strata-valve-pack"
+version = "0.1.0"
+description = "Strata valve refusal taxonomy (constant-time, opaque, fail-closed) projected from RDF to Elixir refusal module skeletons."
+owner = "platform-engineering"
+license = "MIT"
+namespace = "https://strata.chatman.ai/ontology/valve#"
+access = "public"
+status = "alpha"
+
+[capabilities]
+provides = [
+  "urn:ggen:pack:strata-valve-pack",
+  "urn:strata:valve:refusal-taxonomy",
+]
+
+[validation]
+gates = [
+  "gates/010_refusal_atom_closure.rq",
+  "gates/020_wire_class_present.rq",
+  "gates/040_window_capacity_closure.rq",
+]

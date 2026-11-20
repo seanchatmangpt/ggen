@@ -1,0 +1,6 @@
+# Term-closure gate: refuse any work order lacking a declared term.
+PREFIX sj: <http://example.org/sj#>
+SELECT ?wo WHERE {
+  ?wo a sj:WorkOrder .
+  FILTER NOT EXISTS { ?wo sj:term ?term }
+}

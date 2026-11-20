@@ -20,15 +20,17 @@ use support::{count_md_files, read, scaffold_pack};
 use tempfile::TempDir;
 
 fn packs_dir() -> PathBuf {
-    Path::new(env!("CARGO_MANIFEST_DIR")).join("../../packs")
+    Path::new(env!("CARGO_MANIFEST_DIR")).join("../../../ggen-marketplace/packs")
 }
 
 fn scaffold() -> (TempDir, PathBuf) {
     scaffold_pack(&packs_dir().join("gh-terraform-pack"))
 }
 
-const TF_FILES: [&str; 16] = [
+const TF_FILES: [&str; 21] = [
     "versions.tf",
+    "providers.tf",
+    "backend.tf",
     "variables.tf",
     "repository.tf",
     "branch-protection.tf",
@@ -42,6 +44,9 @@ const TF_FILES: [&str; 16] = [
     "secrets.tf",
     "webhooks.tf",
     "files.tf",
+    "org-security.tf",
+    "orgs/org_retail/backend.tf",
+    "orgs/org_retail/repos.tf",
     "outputs.tf",
     "README.md",
 ];
@@ -90,12 +95,56 @@ fn gh_terraform_pack_generates_full_surface_and_is_idempotent() {
     .expect("first sync");
     assert!(!first.written.is_empty(), "pack must write files");
 
-    // (1) All 16 terraform-directory files exist.
+    // (1) All 21 terraform-directory files exist.
     for f in TF_FILES {
         assert!(
             project.join("infra/terraform/github").join(f).is_file(),
             "missing infra/terraform/github/{f}"
         );
+    }
+
+    // (1-fmt) Real `terraform fmt -check -recursive` on the generated HCL surface.
+    let tf_dir = project.join("infra/terraform/github");
+    if Command::new("terraform")
+        .arg("version")
+        .output()
+        .is_ok_and(|o| o.status.success())
+    {
+        let fmt_out = Command::new("terraform")
+            .args(["fmt", "-check", "-recursive", "-no-color"])
+            .arg(&tf_dir)
+            .output()
+            .expect("spawn terraform fmt");
+        assert!(
+            fmt_out.status.success(),
+            "terraform fmt -check failed:\nstdout: {}\nstderr: {}",
+            String::from_utf8_lossy(&fmt_out.stdout),
+            String::from_utf8_lossy(&fmt_out.stderr)
+        );
+
+        let init_out = Command::new("terraform")
+            .arg(format!("-chdir={}", tf_dir.display()))
+            .args(["init", "-backend=false", "-no-color"])
+            .output()
+            .expect("spawn terraform init");
+        if init_out.status.success() {
+            let val_out = Command::new("terraform")
+                .arg(format!("-chdir={}", tf_dir.display()))
+                .args(["validate", "-no-color"])
+                .output()
+                .expect("spawn terraform validate");
+            assert!(
+                val_out.status.success(),
+                "terraform validate failed:\nstdout: {}\nstderr: {}",
+                String::from_utf8_lossy(&val_out.stdout),
+                String::from_utf8_lossy(&val_out.stderr)
+            );
+        } else {
+            eprintln!(
+                "=== NOTE: terraform init -backend=false failed (likely offline); skipping terraform validate: {}",
+                String::from_utf8_lossy(&init_out.stderr)
+            );
+        }
     }
 
     // (1a) versions.tf pins integrations/github 5.41.0.

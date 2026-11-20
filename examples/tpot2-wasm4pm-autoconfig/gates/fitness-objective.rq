@@ -1,0 +1,27 @@
+# MESSAGE: FitnessObjective requires one tpot:metric in {qualityTier, speedTier}
+# MESSAGE: and one tpot:direction in {maximize, minimize}.
+# Gate equivalent of tpot:FitnessObjectiveShape (SHACL-at-sync retired, FM-LAW-017).
+# Any row = violation.
+PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+PREFIX tpot: <https://wasm4pm.dev/tpot#>
+
+SELECT ?objective ?problem
+WHERE {
+  ?objective a tpot:FitnessObjective .
+  {
+    VALUES ?problem { "missing or non-string tpot:metric" }
+    FILTER NOT EXISTS { ?objective tpot:metric ?v . FILTER(datatype(?v) = xsd:string) }
+  } UNION {
+    VALUES ?problem { "tpot:metric not in {qualityTier, speedTier}" }
+    ?objective tpot:metric ?v .
+    FILTER(?v != "qualityTier" && ?v != "speedTier")
+  } UNION {
+    VALUES ?problem { "missing or non-string tpot:direction" }
+    FILTER NOT EXISTS { ?objective tpot:direction ?v . FILTER(datatype(?v) = xsd:string) }
+  } UNION {
+    VALUES ?problem { "tpot:direction not in {maximize, minimize}" }
+    ?objective tpot:direction ?v .
+    FILTER(?v != "maximize" && ?v != "minimize")
+  }
+}
+ORDER BY STR(?objective) STR(?problem)

@@ -140,6 +140,3 @@ The OpenAPI example meets all quality assurance criteria:
 - ✅ Deterministic output (when generation works)
 
 The example is production-ready for when full ggen.toml CLI support is available.
-
-
-

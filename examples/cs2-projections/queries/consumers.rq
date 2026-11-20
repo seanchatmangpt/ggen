@@ -2,7 +2,7 @@ PREFIX cs2: <https://chatman.ai/cs2#>
 
 SELECT ?subject ?authority ?consumer ?work_id ?projection
 WHERE {
-  VALUES ?subject { cs2:RFC-CS2-001 }
+  BIND(cs2:RFC-CS2-001 AS ?subject)
 
   ?subject a cs2:SemanticWorld ;
            cs2:authorityCeiling ?authority_iri .

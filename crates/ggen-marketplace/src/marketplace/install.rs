@@ -849,11 +849,20 @@ impl<R: AsyncRepository> Installer<R> {
                 reason: format!("Failed to read ZIP entry {}: {}", i, e),
             })?;
 
+            // zip 9: name() is fallible (decode can fail); resolve it once so the
+            // traversal-error path doesn't borrow `file` while `enclosed_name()` holds it.
+            let raw_name = file
+                .name()
+                .map_err(|e| Error::InstallationFailed {
+                    reason: format!("Failed to decode ZIP entry {} name: {}", i, e),
+                })?
+                .into_owned();
+
             // enclosed_name() rejects path traversal (..) and absolute paths.
             let entry_name = file
                 .enclosed_name()
                 .ok_or_else(|| Error::InstallationFailed {
-                    reason: format!("Path traversal detected in ZIP entry: {}", file.name()),
+                    reason: format!("Path traversal detected in ZIP entry: {}", raw_name),
                 })?;
 
             let target = dest.join(entry_name);

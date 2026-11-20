@@ -152,8 +152,16 @@ def pure(repo:Path)->None:
 def verify_source(text:str)->None:
     if any(t in text.lower() for t in FORBIDDEN): raise Refusal(CODES["G6"],"actuator import found")
 
+def target_dir(crate:Path)->Path:
+    # ZD-128: honor CARGO_TARGET_DIR — cargo puts tai-rebuild in the redirected
+    # target root when the caller (e.g. gbb-certification.yml) sets it; a relative
+    # CARGO_TARGET_DIR resolves the same way cargo does, against the crate root cwd.
+    env=os.environ.get("CARGO_TARGET_DIR")
+    if not env: return crate/"target"
+    p=Path(env); return p if p.is_absolute() else (crate/p).resolve()
+
 def blake(crate:Path,path:Path)->str:
-    out=proc([str(crate/"target/debug/tai-rebuild"),"digest",str(path)],crate); return json.loads(str(out))["digest"]
+    target=Path(target_dir(crate)); out=proc([str(target/"debug/tai-rebuild"),"digest",str(path)],crate); return json.loads(str(out))["digest"]
 
 def materialize(root:Path,plan:dict[str,Any])->dict[str,Any]:
     final=root/"materialized/TAI-ROADMAP-PLAN.json"; stage=Path(tempfile.mkdtemp(prefix="tai-cmd-stage-",dir=root.parent)); staged=stage/final.name

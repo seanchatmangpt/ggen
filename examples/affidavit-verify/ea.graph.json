@@ -1,0 +1,86 @@
+{
+  "schema": "ggen.ea.graph.v1",
+  "strategy": {
+    "id": "strategy:affidavit-verify",
+    "title": "affidavit-verify: committed real consumer of affidavit-pack, manufacturing the receipt data model + certify pipeline from RDF"
+  },
+  "capabilities": [
+    {
+      "id": "cap:affidavit-manufacture",
+      "strategy": "strategy:affidavit-verify"
+    }
+  ],
+  "abbs": [
+    {
+      "id": "abb:affidavit-manufacture",
+      "capability": "cap:affidavit-manufacture",
+      "contract": "contract:affidavit-manufacture"
+    }
+  ],
+  "contracts": [
+    {
+      "id": "contract:affidavit-manufacture",
+      "abb": "abb:affidavit-manufacture",
+      "version": "1.0.0",
+      "max_artifacts": 32,
+      "authority_ceiling": "CONSTRUCT",
+      "required_ports": [
+        "affidavit-types",
+        "affidavit-certify-pipeline",
+        "affidavit-reference-doc"
+      ]
+    }
+  ],
+  "candidate_sbbs": [
+    {
+      "id": "sbb:affidavit-manufacture",
+      "abb": "abb:affidavit-manufacture",
+      "pack": "pack:affidavit-pack",
+      "digest": "sha256:e0b4fecd5d5f2b457f6646b5624f80fd83ad4d1051c94589c2ef667b8d61000e",
+      "mutable": false,
+      "authority": "CONSTRUCT",
+      "provides_ports": [
+        "affidavit-types",
+        "affidavit-certify-pipeline",
+        "affidavit-reference-doc"
+      ],
+      "artifacts": [
+        {
+          "path": "src/affidavit_types.rs",
+          "template": "# {{abb}} realized by {{sbb}} for {{capability}}\ncontract {{contract}}@{{contract_version}}\n"
+        },
+        {
+          "path": "src/affidavit_certify.rs",
+          "template": "# {{abb}} realized by {{sbb}} for {{capability}}\ncontract {{contract}}@{{contract_version}}\n"
+        },
+        {
+          "path": "src/affidavit_catalog.rs",
+          "template": "# {{abb}} realized by {{sbb}} for {{capability}}\ncontract {{contract}}@{{contract_version}}\n"
+        },
+        {
+          "path": "src/affidavit_lib_wiring.rs",
+          "template": "# {{abb}} realized by {{sbb}} for {{capability}}\ncontract {{contract}}@{{contract_version}}\n"
+        },
+        {
+          "path": "docs/affidavit_reference.md",
+          "template": "# {{abb}} realized by {{sbb}} for {{capability}}\ncontract {{contract}}@{{contract_version}}\n"
+        }
+      ]
+    }
+  ],
+  "qualifications": [
+    {
+      "id": "qual:affidavit-manufacture",
+      "sbb": "sbb:affidavit-manufacture",
+      "sbb_digest": "sha256:e0b4fecd5d5f2b457f6646b5624f80fd83ad4d1051c94589c2ef667b8d61000e",
+      "contract": "contract:affidavit-manufacture",
+      "contract_digest": "sha256:3557f51812f66bc4cd805e650cd5aee7f987011c9aa2a79ded98b0855600fc67",
+      "verdict": "QUALIFIED"
+    }
+  ],
+  "packs": [
+    {
+      "id": "pack:affidavit-pack"
+    }
+  ]
+}

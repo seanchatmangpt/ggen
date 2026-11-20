@@ -1,0 +1,18 @@
+[pack]
+packages = []
+category = "uncategorized"
+id = "xstate-v5-machine-pack"
+name = "xstate-v5-machine-pack"
+version = "0.1.0"
+description = """
+XState v5 actor-machine semantics pack: projects typed machine definitions
+(xs5:Machine) with state nodes, events, guards, and services into per-language
+type shapes, smoke-test scaffolds, compile-shape assertions, conformance
+cases, and a TTL baseline fixture. Vocabulary is pack-scoped (xs5:) with
+rdfs:seeAlso alignment to state-transition-pack's st: FSM schema (Machine/
+State/Transition/Guard) -- same concept, same owning IRI, per the M15
+cross-pack convention.
+"""
+
+[capabilities]
+provides = ["urn:ggen:pack:xstate-v5-machine-pack"]

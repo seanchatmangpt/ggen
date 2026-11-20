@@ -1,0 +1,24 @@
+[pack]
+packages = []
+category = "uncategorized"
+id = "aaif-vanilla-pack"
+name = "aaif-vanilla-pack"
+version = "0.3.0"
+description = """
+Comprehensive enterprise configuration pack for the Agentic AI Foundation (AAIF) standards suite:
+- A2A Protocol (.well-known/agent.json per a2a-protocol.org, BiDi streaming, elicitation)
+- Model Context Protocol (mcp_servers.json per modelcontextprotocol.io, progressive discovery)
+- Agentgateway (config.json per agentgateway/agentgateway, ELA-ITL envelope defense)
+- Agent Router / Envoy AI Gateway (Kubernetes CRDs per theagentrouter/agent-router)
+- Goose agent client (config.yaml per aaif-goose/goose)
+- AGENTS.md open specification
+- ash_a2a high-assurance BEAM/WASM execution runtime (unforgeable auth, card signing, TRACE affidavits)
+- autofde-lab formal decision planning core (scikit-decide solver matching, bounded rollouts)
+- affidavit post-quantum cryptographic trust plane (ML-DSA-65, SLH-DSA, hybrid ES256, PQ-SEAL-v1)
+- GCP Marketplace SaaS enterprise distribution (partner procurement and service control metering)
+"""
+
+
+[capabilities]
+provides = ["urn:ggen:pack:aaif-vanilla-pack"]
+requires = []

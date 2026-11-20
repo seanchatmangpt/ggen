@@ -8,7 +8,7 @@ resource "google_cloud_run_service" "taiea" {
 
   template {
     spec {
-      service_account_name = google_service_account.taiea.email
+      service_account_name  = google_service_account.taiea.email
       container_concurrency = var.container_concurrency
       timeout_seconds       = var.timeout_seconds
 
@@ -101,17 +101,6 @@ resource "google_cloud_run_service" "taiea" {
           period_seconds        = 10
           failure_threshold     = 3
         }
-
-        # Readiness probe: ensure service can handle traffic
-        readiness_probe {
-          http_get {
-            path = "/health/ready"
-          }
-          initial_delay_seconds = 5
-          timeout_seconds       = 3
-          period_seconds        = 5
-          failure_threshold     = 2
-        }
       }
     }
 
@@ -137,31 +126,11 @@ resource "google_cloud_run_service" "taiea" {
     latest_revision = true
   }
 
-  # Labels for organization
-  labels = {
-    environment = var.environment
-    service     = "taiea"
-    managed-by  = "terraform"
-  }
-
   depends_on = [
     google_project_service.required_apis["run.googleapis.com"],
     google_service_account.taiea,
     google_firestore_database.receipts
   ]
-}
-
-# Cloud Run Service Update (for more granular control)
-resource "google_cloud_run_service_update" "taiea_update" {
-  service  = google_cloud_run_service.taiea.name
-  location = google_cloud_run_service.taiea.location
-
-  autogenerate_revision_name = true
-  metadata {
-    annotations = {
-      "run.googleapis.com/client-name" = "terraform-provider"
-    }
-  }
 }
 
 # Output the Cloud Run service URL
@@ -177,5 +146,5 @@ output "cloud_run_service_name" {
 
 output "cloud_run_revision" {
   description = "Latest revision of Cloud Run service"
-  value       = google_cloud_run_service.taiea.status[0].latest_revision
+  value       = google_cloud_run_service.taiea.status[0].latest_created_revision_name
 }

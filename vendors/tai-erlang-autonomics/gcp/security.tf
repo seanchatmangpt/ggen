@@ -1,28 +1,3 @@
-terraform {
-  required_version = ">= 1.5"
-
-  required_providers {
-    google = {
-      source  = "hashicorp/google"
-      version = "~> 5.0"
-    }
-    google-beta = {
-      source  = "hashicorp/google-beta"
-      version = "~> 5.0"
-    }
-  }
-}
-
-provider "google" {
-  project = var.gcp_project_id
-  region  = var.gcp_region
-}
-
-provider "google-beta" {
-  project = var.gcp_project_id
-  region  = var.gcp_region
-}
-
 # ============================================================================
 # VPC NETWORK CONFIGURATION
 # ============================================================================
@@ -37,15 +12,14 @@ resource "google_compute_network" "tai_vpc" {
 
 # Primary subnet for application workloads
 resource "google_compute_subnetwork" "primary_subnet" {
-  name            = "tai-primary-subnet"
-  ip_cidr_range   = "10.0.1.0/24"
-  region          = var.gcp_region
-  network         = google_compute_network.tai_vpc.id
+  name                     = "tai-primary-subnet"
+  ip_cidr_range            = "10.0.1.0/24"
+  region                   = var.gcp_region
+  network                  = google_compute_network.tai_vpc.id
   private_ip_google_access = true
 
   log_config {
     aggregation_interval = "INTERVAL_5_SEC"
-    flow_logs_enabled    = true
     metadata             = "INCLUDE_ALL_METADATA"
   }
 
@@ -54,15 +28,14 @@ resource "google_compute_subnetwork" "primary_subnet" {
 
 # Database subnet with strict isolation
 resource "google_compute_subnetwork" "database_subnet" {
-  name            = "tai-database-subnet"
-  ip_cidr_range   = "10.0.2.0/24"
-  region          = var.gcp_region
-  network         = google_compute_network.tai_vpc.id
+  name                     = "tai-database-subnet"
+  ip_cidr_range            = "10.0.2.0/24"
+  region                   = var.gcp_region
+  network                  = google_compute_network.tai_vpc.id
   private_ip_google_access = true
 
   log_config {
     aggregation_interval = "INTERVAL_5_SEC"
-    flow_logs_enabled    = true
     metadata             = "INCLUDE_ALL_METADATA"
   }
 
@@ -71,15 +44,14 @@ resource "google_compute_subnetwork" "database_subnet" {
 
 # Management subnet for bastion hosts and monitoring
 resource "google_compute_subnetwork" "management_subnet" {
-  name            = "tai-management-subnet"
-  ip_cidr_range   = "10.0.3.0/24"
-  region          = var.gcp_region
-  network         = google_compute_network.tai_vpc.id
+  name                     = "tai-management-subnet"
+  ip_cidr_range            = "10.0.3.0/24"
+  region                   = var.gcp_region
+  network                  = google_compute_network.tai_vpc.id
   private_ip_google_access = true
 
   log_config {
     aggregation_interval = "INTERVAL_5_SEC"
-    flow_logs_enabled    = true
     metadata             = "INCLUDE_ALL_METADATA"
   }
 
@@ -92,8 +64,8 @@ resource "google_compute_subnetwork" "management_subnet" {
 
 # Default deny all ingress traffic
 resource "google_compute_firewall" "deny_all_ingress" {
-  name    = "tai-deny-all-ingress"
-  network = google_compute_network.tai_vpc.id
+  name     = "tai-deny-all-ingress"
+  network  = google_compute_network.tai_vpc.id
   priority = 65534
 
   deny {
@@ -106,8 +78,8 @@ resource "google_compute_firewall" "deny_all_ingress" {
 
 # Allow Cloud Run to receive HTTPS traffic
 resource "google_compute_firewall" "allow_cloud_run" {
-  name    = "tai-allow-cloud-run"
-  network = google_compute_network.tai_vpc.id
+  name     = "tai-allow-cloud-run"
+  network  = google_compute_network.tai_vpc.id
   priority = 1000
 
   allow {
@@ -122,8 +94,8 @@ resource "google_compute_firewall" "allow_cloud_run" {
 
 # Allow internal VPC communication
 resource "google_compute_firewall" "allow_internal" {
-  name    = "tai-allow-internal"
-  network = google_compute_network.tai_vpc.id
+  name     = "tai-allow-internal"
+  network  = google_compute_network.tai_vpc.id
   priority = 900
 
   allow {
@@ -153,9 +125,9 @@ resource "google_compute_security_policy" "tai_armor" {
     priority    = 2147483647
     description = "Default rule"
     match {
-      versioned_expr = "VERSIONED_EXPR_V1"
-      expr {
-        expression = "*"
+      versioned_expr = "SRC_IPS_V1"
+      config {
+        src_ip_ranges = ["*"]
       }
     }
     preview = false
@@ -163,16 +135,12 @@ resource "google_compute_security_policy" "tai_armor" {
 
   # Rule 1: Block SQL Injection attempts
   rule {
-    action   = "deny(403)"
-    priority = 100
+    action      = "deny(403)"
+    priority    = 100
     description = "Block SQL Injection attacks"
     match {
-      versioned_expr = "VERSIONED_EXPR_V1"
       expr {
-        expression = "evaluatePreconfiguredExpr('sqli-v33-stable', ['owasp-crs-v030001-id942251-sqli',
-                                                  'owasp-crs-v030001-id942420-sqli',
-                                                  'owasp-crs-v030001-id942431-sqli',
-                                                  'owasp-crs-v030001-id942460-sqli'])"
+        expression = "evaluatePreconfiguredExpr('sqli-v33-stable', ['owasp-crs-v030001-id942251-sqli', 'owasp-crs-v030001-id942420-sqli', 'owasp-crs-v030001-id942431-sqli', 'owasp-crs-v030001-id942460-sqli'])"
       }
     }
     preview = false
@@ -180,15 +148,12 @@ resource "google_compute_security_policy" "tai_armor" {
 
   # Rule 2: Block XSS attacks
   rule {
-    action   = "deny(403)"
-    priority = 101
+    action      = "deny(403)"
+    priority    = 101
     description = "Block Cross-Site Scripting attacks"
     match {
-      versioned_expr = "VERSIONED_EXPR_V1"
       expr {
-        expression = "evaluatePreconfiguredExpr('xss-v33-stable', ['owasp-crs-v030001-id941110-xss',
-                                                 'owasp-crs-v030001-id941120-xss',
-                                                 'owasp-crs-v030001-id941130-xss'])"
+        expression = "evaluatePreconfiguredExpr('xss-v33-stable', ['owasp-crs-v030001-id941110-xss', 'owasp-crs-v030001-id941120-xss', 'owasp-crs-v030001-id941130-xss'])"
       }
     }
     preview = false
@@ -196,11 +161,10 @@ resource "google_compute_security_policy" "tai_armor" {
 
   # Rule 3: Block Remote Code Execution attempts
   rule {
-    action   = "deny(403)"
-    priority = 102
+    action      = "deny(403)"
+    priority    = 102
     description = "Block RCE attempts"
     match {
-      versioned_expr = "VERSIONED_EXPR_V1"
       expr {
         expression = "evaluatePreconfiguredExpr('rce-v33-stable', ['owasp-crs-v030001-id930100-rce'])"
       }
@@ -210,11 +174,10 @@ resource "google_compute_security_policy" "tai_armor" {
 
   # Rule 4: Block Local File Inclusion
   rule {
-    action   = "deny(403)"
-    priority = 103
+    action      = "deny(403)"
+    priority    = 103
     description = "Block Local File Inclusion attacks"
     match {
-      versioned_expr = "VERSIONED_EXPR_V1"
       expr {
         expression = "evaluatePreconfiguredExpr('lfi-v33-stable', [])"
       }
@@ -224,11 +187,10 @@ resource "google_compute_security_policy" "tai_armor" {
 
   # Rule 5: Block Remote File Inclusion
   rule {
-    action   = "deny(403)"
-    priority = 104
+    action      = "deny(403)"
+    priority    = 104
     description = "Block Remote File Inclusion attacks"
     match {
-      versioned_expr = "VERSIONED_EXPR_V1"
       expr {
         expression = "origin.region_code == 'CN' || origin.region_code == 'RU'"
       }
@@ -238,11 +200,10 @@ resource "google_compute_security_policy" "tai_armor" {
 
   # Rule 6: Rate limiting - 100 requests per minute per IP
   rule {
-    action   = "rate_based_ban"
-    priority = 200
+    action      = "rate_based_ban"
+    priority    = 200
     description = "Rate limit: 100 req/min per IP"
     match {
-      versioned_expr = "VERSIONED_EXPR_V1"
       expr {
         expression = "true"
       }
@@ -263,11 +224,10 @@ resource "google_compute_security_policy" "tai_armor" {
 
   # Rule 7: Custom rule - Block requests without Authorization header
   rule {
-    action   = "deny(401)"
-    priority = 300
+    action      = "deny(401)"
+    priority    = 300
     description = "Block unauthenticated requests (except /health)"
     match {
-      versioned_expr = "VERSIONED_EXPR_V1"
       expr {
         expression = "request.path != '/health' && !has(request.headers['authorization'])"
       }
@@ -277,11 +237,10 @@ resource "google_compute_security_policy" "tai_armor" {
 
   # Rule 8: Allow health check requests
   rule {
-    action   = "allow"
-    priority = 50
+    action      = "allow"
+    priority    = 50
     description = "Allow health check requests"
     match {
-      versioned_expr = "VERSIONED_EXPR_V1"
       expr {
         expression = "request.path == '/health' || request.path == '/healthz'"
       }
@@ -289,7 +248,9 @@ resource "google_compute_security_policy" "tai_armor" {
     preview = false
   }
 
-  log_level = "VERBOSE"
+  advanced_options_config {
+    log_level = "VERBOSE"
+  }
 }
 
 # ============================================================================
@@ -316,7 +277,6 @@ resource "google_compute_router_nat" "tai_nat" {
   source_subnetwork_ip_ranges_to_nat = "ALL_SUBNETWORKS_ALL_IP_RANGES"
 
   # Logging
-  enable_logging = true
   log_config {
     enable = true
     filter = "ERRORS_ONLY"
@@ -346,7 +306,7 @@ resource "google_kms_key_ring" "tai_keyring" {
 resource "google_kms_crypto_key" "tai_firestore_key" {
   name            = "tai-firestore-encryption-key"
   key_ring        = google_kms_key_ring.tai_keyring.id
-  rotation_period = "7776000s"  # 90 days
+  rotation_period = "7776000s" # 90 days
   version_template {
     algorithm = "GOOGLE_SYMMETRIC_ENCRYPTION"
   }
@@ -370,7 +330,7 @@ resource "google_secret_manager_secret" "jwt_signing_key" {
   secret_id = "tai-jwt-signing-key"
 
   replication {
-    automatic = true
+    auto {}
   }
 
   labels = {
@@ -383,7 +343,7 @@ resource "google_secret_manager_secret" "database_password" {
   secret_id = "tai-database-password"
 
   replication {
-    automatic = true
+    auto {}
   }
 
   labels = {
@@ -396,7 +356,7 @@ resource "google_secret_manager_secret" "api_key" {
   secret_id = "tai-api-key"
 
   replication {
-    automatic = true
+    auto {}
   }
 
   labels = {

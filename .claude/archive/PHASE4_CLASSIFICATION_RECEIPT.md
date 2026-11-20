@@ -288,4 +288,3 @@ test result: ok. 14 passed; 0 failed
 - All boundaries preserved (Genesis/ggen/runtime/Truex separation)
 - Machine-to-machine closure protocol validated
 - Constitutional Non-Deletion Doctrine codified
-

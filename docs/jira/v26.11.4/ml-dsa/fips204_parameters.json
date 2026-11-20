@@ -1,0 +1,35 @@
+{
+  "document": "FIPS-204 parameter-set scaffold (OI-3 / ZP-22 Phase 1)",
+  "source": {
+    "spec": "NIST FIPS 204, 'Module-Lattice-Based Digital Signature Standard', approved 2024-08-13, doi:10.6028/NIST.FIPS.204",
+    "table2": "Parameter sets sets consistent with FIPS 204 Table 2 (Section 5.1); ML-DSA-65 == Dilithium3 parameters."
+  },
+  "parameter_sets": {
+    "ML-DSA-44": {
+      "lambda_bits": 128, "n": 256, "q": 8380417, "d_ropped_bits": 13,
+      "tau": 39, "beta": 78, "gamma1": 131072, "gamma2": 95232,
+      "k": 6, "l": 4, "eta": 2,
+      "pk_bytes": 1312, "sig_bytes": 2420, "sk_bytes": 2560
+    },
+    "ML-DSA-65": {
+      "lambda_bits": 192, "n": 256, "q": 8380417, "d_ropped_bits": 13,
+      "tau": 49, "beta": 196, "gamma1": 131072, "gamma2": 261888,
+      "k": 6, "l": 5, "eta": 4,
+      "pk_bytes": 1952, "sig_bytes": 2420, "sk_bytes": 4032
+    },
+    "ML-DSA-87": {
+      "lambda_bits": 256, "n": 256, "q": 8380417, "d_ropped_bits": 13,
+      "tau": 60, "beta": 120, "gamma1": 131072, "gamma2": 261888,
+      "k": 8, "l": 7, "eta": 2,
+      "pk_bytes": 2592, "sig_bytes": 4627, "sk_bytes": 4880
+    }
+  },
+  "shared_constants": {
+    "omega": 256,
+    "q_minus_1": 8380416,
+    "gamma2_formula": "gamma2 = (q-1)/32 for ML-DSA-65/87; (q-1)/80 for ML-DSA-44",
+    "mu_bytes": 64, "tr_bytes": 64, "rnd_bytes": 32, "xi_bytes": 32,
+    "seed_expansion": "(rho, sigma, K) = SHAKE-256(xi || k || l, 128); k and l are single octets, k first (FIPS 204 final keygen derivation; witness-validated 3/3 against NIST ACVP by loader_court.py)",
+    "mu_derivation": "mu = SHAKE-256(tr || msg, 64), tr = SHAKE-256(pk, 64) (FIPS 204 Section 5.4)"
+  }
+}

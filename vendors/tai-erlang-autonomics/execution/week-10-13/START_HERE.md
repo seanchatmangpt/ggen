@@ -248,4 +248,3 @@ By Week 13 you'll have:
 ```
 🚀 BEGIN EXECUTION MONDAY, JANUARY 27
 ```
-

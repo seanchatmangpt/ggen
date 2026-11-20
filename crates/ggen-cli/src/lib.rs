@@ -106,15 +106,15 @@ pub use clap_noun_verb::{run, Result as ClapNounVerbResult};
 // Re-export Result type for use in cmds
 pub use crate::utils::error::Result;
 
+/// Main entry point using clap-noun-verb v26.5.19 auto-discovery.
+///
+/// This function delegates to `clap-noun-verb::run()` which automatically
+/// discovers all `\[verb\]` functions in the cmds module and its submodules.
+/// The version flag is handled automatically by clap-noun-verb.
 ///
 /// # Errors
 ///
 /// Returns an error if the operation cannot be completed.
-/// Main entry point using clap-noun-verb v26.5.19 auto-discovery
-///
-/// This function delegates to `clap-noun-verb::run()` which automatically discovers
-/// all `\[verb\]` functions in the cmds module and its submodules.
-/// The version flag is handled automatically by clap-noun-verb.
 pub async fn cli_match() -> crate::utils::error::Result<()> {
     // OCEL/receipt telemetry determinism: `clap-noun-verb` writes per-invocation
     // events (wall-clock nanos event ids + `Utc::now()` timestamps) to

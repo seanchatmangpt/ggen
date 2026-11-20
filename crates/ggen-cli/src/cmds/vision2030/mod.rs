@@ -371,7 +371,7 @@ fn verify_signature(public_key_hex: &str, signature_hex: &str, message: &[u8]) -
 }
 
 /// Return the executable Vision 2030 contract.
-#[verb]
+#[verb("schema", "vision2030")]
 ///
 /// # Errors
 ///
@@ -399,7 +399,7 @@ pub fn schema() -> Result<Value> {
 }
 
 /// Inspect the complete program report without mutation.
-#[verb]
+#[verb("inspect", "vision2030")]
 ///
 /// # Errors
 ///
@@ -409,7 +409,7 @@ pub fn inspect(manifest: String) -> Result<Value> {
 }
 
 /// Validate achievement, standing, coverage, and measured multiplier.
-#[verb]
+#[verb("validate", "vision2030")]
 ///
 /// # Errors
 ///
@@ -419,7 +419,7 @@ pub fn validate(manifest: String) -> Result<Value> {
 }
 
 /// Return horizon gates and missing accepted capability counts.
-#[verb]
+#[verb("roadmap", "vision2030")]
 ///
 /// # Errors
 ///
@@ -429,7 +429,7 @@ pub fn roadmap(manifest: String) -> Result<Value> {
 }
 
 /// Return Blue Ocean ERRC coverage.
-#[verb]
+#[verb("blue_ocean", "vision2030")]
 ///
 /// # Errors
 ///
@@ -439,7 +439,7 @@ pub fn blue_ocean(manifest: String) -> Result<Value> {
 }
 
 /// Diagnose the developer-experience capability surface.
-#[verb]
+#[verb("dx", "vision2030")]
 ///
 /// # Errors
 ///
@@ -449,7 +449,7 @@ pub fn dx(manifest: String) -> Result<Value> {
 }
 
 /// Diagnose the quality-of-life capability surface.
-#[verb]
+#[verb("qol", "vision2030")]
 ///
 /// # Errors
 ///
@@ -459,7 +459,7 @@ pub fn qol(manifest: String) -> Result<Value> {
 }
 
 /// Diagnose defects and deterministic remediations without actuation.
-#[verb]
+#[verb("doctor", "vision2030")]
 ///
 /// # Errors
 ///
@@ -469,7 +469,7 @@ pub fn doctor(manifest: String) -> Result<Value> {
 }
 
 /// Emit the deterministic report and chained receipts.
-#[verb]
+#[verb("receipt", "vision2030")]
 ///
 /// # Errors
 ///
@@ -479,7 +479,7 @@ pub fn receipt(manifest: String, output: String) -> Result<Value> {
 }
 
 /// Replay the report and receipt chain against exact evidence.
-#[verb]
+#[verb("replay", "vision2030")]
 ///
 /// # Errors
 ///

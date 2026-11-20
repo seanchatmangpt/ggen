@@ -147,4 +147,3 @@ cargo test --test otel_validation_tests -- --ignored
    ```
 
 3. Monitor test execution times and optimize slow tests
-

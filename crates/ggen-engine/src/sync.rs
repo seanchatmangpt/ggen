@@ -24,7 +24,7 @@ use std::{
     collections::{BTreeMap, BTreeSet},
     path::{Path, PathBuf},
     sync::Arc,
-    time::Instant,
+    time::{Instant, SystemTime},
 };
 
 use crate::receipt_chain_seam::{
@@ -36,11 +36,11 @@ use crate::receipt_chain_seam::{
     Andon, ChainStanding, ChainVerification, ReceiptRecord, CHAIN_RULE_V2_FOLD,
     RECEIPT_RECORD_VERSION,
 };
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use tera::Value;
 
 use crate::{
-    config::GgenConfig,
+    config::{GgenConfig, OntologyAggregate},
     error::{AppError, Result},
     generation_rules::duration_ms,
     graph::{
@@ -217,6 +217,12 @@ pub struct SyncOptions {
     /// (either source enables it). Default `false`: existing behavior
     /// byte-identical.
     pub consumer_mode: bool,
+    /// WO-01 (e), 2026-11-03: explicit opt-out for the now fail-closed EA
+    /// admission gate. Default `false` — a sync whose project root lacks
+    /// `ea.graph.json` is REFUSED (`FM-LAW-015`) unless this flag (CLI
+    /// `--skip-ea-admission`, wired in ggen-cli) is set. A skip is an
+    /// explicit, disclosed default, never a silent bypass.
+    pub skip_ea_admission: bool,
 }
 
 /// The outcome of one [`sync`] run.
@@ -233,12 +239,23 @@ pub struct SyncReport {
     pub decisions: BTreeMap<String, String>,
     /// Pack name → BLAKE3 hex of the pack's content hash.
     pub packs: BTreeMap<String, String>,
-    /// Input-closure binding: root-relative input path (ontology, pack
-    /// ontologies, template files, `from:` bodies) → BLAKE3 hex of the file
+    /// Input-closure binding: root-relative input path → BLAKE3 hex of the file
     /// bytes, plus an `actuator` entry naming the generator version. A
     /// declared input that cannot be read at binding time is recorded as
     /// `MISSING`, never dropped.
     pub closure: BTreeMap<String, String>,
+    /// Per-subject graph diff against the previous run's digest ledger
+    /// (G2 sync-hardening item 2). `None` on a dry run (read-only diff
+    /// against a nonexistent ledger) and on the first (baseline) sync.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub graph_diff: Option<GraphDiff>,
+    /// Receipt-log append outcome (G11 sequenced item 3, KD-G18 idempotence
+    /// threading): `Some("appended")` when this run's receipt line landed,
+    /// `Some("skipped-retry")` when the at-most-once fence recognized a
+    /// byte-identical retry and skipped it, `None` when no receipt write was
+    /// attempted (dry run).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub log_append: Option<&'static str>,
 }
 
 /// Relative path of the sync receipt under the project root.
@@ -278,6 +295,47 @@ enum ProjectionMode {
 /// Relative path of the append-only receipt history log (one JSON line per
 /// non-dry-run sync) under the project root.
 pub const RECEIPT_LOG_REL_PATH: &str = ".ggen-v2/receipt-log.jsonl";
+
+/// Relative path of the per-subject graph digest ledger (one JSON line per
+/// subject: `{"subject": "<iri>", "digest": "<blake3 hex>"}`) under the
+/// project root. Written every non-dry-run sync (G2 sync-hardening item 2);
+/// the next sync diffs its post-Enrich graph against it.
+pub const GRAPH_DIGEST_REL_PATH: &str = ".ggen-v2/graph-digest.jsonl";
+
+/// Relative path of the human-readable graph-diff summary under the project
+/// root, rewritten every non-dry-run sync.
+pub const SYNC_DIFF_REL_PATH: &str = ".ggen-v2/sync-diff.md";
+
+/// The per-subject graph diff one sync observed against the previous run's
+/// `.ggen-v2/graph-digest.jsonl` ledger (G2 sync-hardening item 2).
+///
+/// Each subject's digest is the BLAKE3 hex of its sorted predicate-object
+/// set, serialized deterministically, so `added`/`removed`/`changed` name
+/// the subjects whose terms moved between runs. `per_source` attributes each
+/// moved subject to the input-closure source doc(s) whose bytes changed in
+/// the same run (single changed source → attributed; several → listed; none
+/// → the outside-closure note). `note` carries the two loud diagnostics:
+/// emission-neutral (closure source bytes changed, terms did not) and
+/// outside-closure (terms changed, closure source class did not).
+#[derive(Debug, Clone, Serialize, serde::Deserialize, Default, PartialEq)]
+pub struct GraphDiff {
+    /// Subjects present this run but absent from the previous ledger.
+    pub added: Vec<String>,
+    /// Subjects present in the previous ledger but absent this run.
+    pub removed: Vec<String>,
+    /// Subjects present in both runs whose predicate-object digest changed.
+    pub changed: Vec<String>,
+    /// Moved subject → contributing source-doc attribution.
+    pub per_source: BTreeMap<String, String>,
+    /// Loud diagnostic, when either mismatch class fired.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub note: Option<String>,
+}
+
+/// Relative path of the advisory lock guarding the receipt-log append +
+/// receipt.json head write against concurrent syncs (G11 sequenced item 3,
+/// receipt-log hardening). Held for the two-file critical section only.
+pub const RECEIPT_LOCK_REL_PATH: &str = ".ggen-v2/receipt-log.lock";
 
 /// On-disk shape of `<root>/.ggen-v2/receipt.json`.
 #[derive(Debug, Clone, Serialize, serde::Deserialize)]
@@ -326,6 +384,125 @@ pub struct ReceiptPayload {
     /// admits against any baseline).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub generation: Option<u64>,
+    /// Bypass-marked-receipt law (ZD-44/CARRY-04, 2026-11-04): when this run
+    /// skipped EA admission via the explicit `--skip-ea-admission` opt-out
+    /// (FM-LAW-015), the receipt MUST carry the disclosure — a bypassed gate
+    /// that leaves no mark is a silent bypass. Additive; `None` (serialized
+    /// as nothing) on every admitted run, and only on admitted runs.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub ea_admission_skipped: Option<String>,
+    /// Per-subject graph diff against the previous run's digest ledger
+    /// (G2 sync-hardening item 2; see [`GraphDiff`]). Additive;
+    /// `None` (serialized as nothing) on baseline runs and dry runs.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub graph_diff: Option<GraphDiff>,
+}
+
+/// EA graph (ABB/SBB) admission — Stage 2c's EA half, extracted verbatim from
+/// the frontmatter path's inline region (WO-01, 2026-11-03) so BOTH
+/// `ggen.toml` schema paths run the SAME admission (DEF-K6-2, 2026-11-03).
+/// The frontmatter path calls this from Stage 2c with the run's smallest
+/// template-declared envelope IRI; the declarative-rules path calls it from
+/// `sync()`'s Stage 0 dispatch branch (before `generation_rules::run`) with
+/// `None` (declarative manifests declare no template frontmatter envelopes,
+/// so the kernel's built-in caps apply).
+///
+/// Fail-closed on missing `ea.graph.json` (WO-01 defect (e)): a project with
+/// no EA graph and no explicit opt-out is a REFUSED transition, not a silent
+/// skip — the admission gate is the authority boundary and silently bypassing
+/// it would launder unadmitted manufacture. The only lawful opt-out is the
+/// explicit `skip_ea_admission` flag (CLI `--skip-ea-admission`, wired in
+/// ggen-cli); a skip is loud, never silent.
+///
+/// `pub(crate)`: shared by the two schema paths; not a public API.
+pub(crate) fn run_ea_graph_admission(
+    root: &Path, skip_ea_admission: bool, envelope_iri: Option<&str>, prior_generation: u64,
+) -> Result<()> {
+    let ea_graph_path = root.join("ea.graph.json");
+    if !ea_graph_path.is_file() && !skip_ea_admission {
+        return Err(AppError::fm_law(
+            15,
+            format!(
+                "EA admission gate: `{}` is absent and no admission \
+                 opt-out was given. Every sync must either admit its \
+                 candidate SBBs against an EA graph or explicitly skip \
+                 with `--skip-ea-admission`. Remediation: add \
+                 ea.graph.json, or pass --skip-ea-admission to run \
+                 without architecture admission.",
+                ea_graph_path.display()
+            ),
+        ));
+    }
+    if ea_graph_path.is_file() {
+        let content = std::fs::read_to_string(&ea_graph_path).map_err(|e| {
+            AppError::fm_law(
+                15,
+                format!(
+                    "ea.graph.json at `{}` unreadable: {e}",
+                    ea_graph_path.display()
+                ),
+            )
+        })?;
+        let ea_graph = ggen_abb_sbb::parse_graph(&content).map_err(|refusal| {
+            AppError::fm_law(
+                15,
+                format!(
+                    "EA graph at `{}` malformed: {refusal}",
+                    ea_graph_path.display()
+                ),
+            )
+        })?;
+        // Validate graph integrity
+        ea_graph.validate().map_err(|refusal| {
+            AppError::fm_law(
+                15,
+                format!(
+                    "EA graph at `{}` failed validation: {refusal}",
+                    ea_graph_path.display()
+                ),
+            )
+        })?;
+        // Envelope caps for the kernel: the caller's envelope IRI governs
+        // the Stage 2c admission caps (frontmatter path: smallest
+        // template-declared envelope, exactly as it governs the Stage 2c-caps
+        // render ceilings; declarative path: `None` → kernel
+        // DEFAULT_MAX_ARTIFACTS). (WO-01 defect (a).)
+        let abb_caps = crate::envelope::abb_envelope_caps(root, envelope_iri);
+        // Admit every candidate SBB defined in the graph, against the
+        // envelope-translated caps and a pinned graph digest (WO-01
+        // defects (a)/(c)).
+        for sbb in &ea_graph.candidate_sbbs {
+            let req = ggen_abb_sbb::Request {
+                abb: sbb.abb.clone(),
+                sbb: sbb.id.clone(),
+                requested_authority: ggen_abb_sbb::Authority::Construct,
+                // Digest pinning (WO-01 (c)): the request is bound to
+                // the exact parsed subject; a graph mutated between
+                // parse and admit refuses GRAPH_DIGEST_MISMATCH.
+                expected_graph_digest: Some(ea_graph.digest()),
+                // Stage 2c-epoch lease generation from the receipt-log
+                // tail (frontmatter path reads it at Stage 2c-epoch; the
+                // declarative path reads it at dispatch).
+                receipt_generation: prior_generation,
+                // WO-01 (c) follow-up: no artifact-baseline source
+                // exists yet (the receipt log tracks no per-artifact
+                // baseline); 0 = untracked keeps the kernel's
+                // stale-lease gate dormant. Wire a real baseline when
+                // a baseline source lands (WO-01 follow-up).
+                artifact_baseline_generation: 0,
+            };
+            ggen_abb_sbb::admit_with_caps(&ea_graph, &req, abb_caps.as_ref()).map_err(
+                |refusal| {
+                    AppError::abb_refusal(
+                        "FM-LAW-015",
+                        format!("EA SBB admission for `{}`", sbb.id),
+                        refusal,
+                    )
+                },
+            )?;
+        }
+    }
+    Ok(())
 }
 
 /// Run the five-stage pipeline rooted at `root` (the directory containing
@@ -362,6 +539,23 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
     let config = match parsed {
         crate::schema_dispatch::ParsedGgenToml::DeclarativeRules(mut manifest) => {
             absorb_manifest_rules(root, &mut manifest)?;
+            // DEF-K6-2 (2026-11-03): the declarative-rules path previously
+            // had ZERO Stage 2c wiring — a repo-root declarative manifest
+            // never ran EA admission even with a clean receipt chain. Run
+            // the SAME admission sequence the frontmatter path runs at its
+            // Stage 2c, before any rule executes. The receipt-log
+            // generation tail is read here (the Stage 2c-epoch span itself
+            // stays on the frontmatter path, which has the refusal-envelope
+            // context the epoch gate needs); declarative manifests carry no
+            // template frontmatter envelopes, so the kernel's built-in caps
+            // apply (`None`).
+            let prior_generation = read_receipt_log_generation(root)?;
+            run_ea_graph_admission(
+                root,
+                opts.skip_ea_admission,
+                None,
+                prior_generation.unwrap_or(0),
+            )?;
             return crate::generation_rules::run(root, &manifest, opts);
         }
         crate::schema_dispatch::ParsedGgenToml::Frontmatter(config) => *config,
@@ -377,6 +571,14 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
         "pipeline.duration_ms" = tracing::field::Empty,
     );
     let load_guard = load_span.enter();
+
+    // ── Stage 1a: [ontology.aggregate] freshness enforcement ────────────
+    // Runs BEFORE the ontology is read: the aggregate output is commonly
+    // the `[ontology].source` itself (srve consumer precedent: the
+    // ontology-corpus is a generated concat of constituent TTLs), so a
+    // regeneration must land on disk before Stage 1 admits the graph.
+    let _aggregate_enforced =
+        enforce_ontology_aggregate(root, config.ontology.aggregate.as_ref(), opts.dry_run)?;
 
     let ontology_path = root.join(&config.ontology.source);
     let (ontology_label, ttl) = read_ontology_file(root, &ontology_path)?;
@@ -545,6 +747,22 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
         for (declared, extra_path) in &pack.extra_ontology_paths {
             closure.insert(declared.clone(), hash_file_or_missing(extra_path));
         }
+    }
+    // G2 sync-hardening item 1: when `[ontology.aggregate]` is declared, the
+    // constituents (and the freshness marker this stage just wrote) join the
+    // input closure — they determine the aggregate, which determines (or is)
+    // the ontology, so a constituent edit without a marker refresh must be
+    // visible in the next receipt's closure instead of silently narrowing it.
+    if let Some(agg) = &config.ontology.aggregate {
+        for constituent in &agg.constituents {
+            let path = root.join(constituent);
+            closure.insert(rel_display(root, &path), hash_file_or_missing(&path));
+        }
+        let marker_path = root.join(AGGREGATE_MARKER_REL);
+        closure.insert(
+            AGGREGATE_MARKER_REL.to_string(),
+            hash_file_or_missing(&marker_path),
+        );
     }
     for (tpl_path, tpl) in &templates {
         closure.insert(rel_display(root, tpl_path), hash_file_or_missing(tpl_path));
@@ -1012,86 +1230,103 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
     // In addition, if packs define [graph] dependencies or ports, resolve
     // cross-pack DAG, cycles, and port completeness.
     {
-        // 1. Pack-level dependency/port resolution
-        let mut pack_manifests = Vec::new();
-        for pack in &packs {
-            let manifest_path = pack.root.join("pack.toml");
-            if manifest_path.is_file() {
-                if let Ok(content) = std::fs::read_to_string(&manifest_path) {
-                    if let Ok(pm) = ggen_abb_sbb::depgraph::extract_pack_manifest(&content) {
-                        pack_manifests.push(pm);
-                    }
+        // 1. Pack-level dependency/port resolution. FAIL-CLOSED (v26.11.3
+        // follow-up to WO-01): a pack manifest that cannot be read, or that
+        // the kernel refuses to extract (e. g. non-canonical port ids,
+        // v26.10.12+), is a REFUSED transition — the old `if let Ok(pm)`
+        // silently skipped the depgraph admission check on exactly the
+        // manifests that most needed it. Refusals ride the same
+        // FM-PACK-015 typed path as the resolve_sync_order gate below.
+        //
+        // WO-03 follow-up (lane e80-10): when a persisted composition plan
+        // exists at `<root>/.ggen-v2/composition-plan.json` (written by
+        // `ggen pack compose --out <path>`), Stage 2c consumes it instead of
+        // re-extracting every `pack.toml` from disk and re-deriving the
+        // admission order with `resolve_sync_order` — the cycle/unbound-port
+        // admission already ran at compose time, so the persisted plan is
+        // the register of truth for this run's order. Fail-closed on schema
+        // mismatch (FM-PACK-022) and on a stale plan whose pack set no
+        // longer matches the manifest's `[packs]` (FM-PACK-023, stale-plan
+        // law); absent plan → legacy path below, byte-identical behavior.
+        // Note (honest scoping): `resolve_sync_order`'s returned order was
+        // already discarded at this call site before this change (the call
+        // is a pure admission gate); "consuming the plan's order" therefore
+        // means admitting via the plan instead of re-deriving, not
+        // re-plumbing the order into a downstream consumer that does not
+        // exist.
+        let composition_plan = read_composition_plan(root)?;
+        if let Some(plan) = &composition_plan {
+            validate_composition_plan(plan, &packs)?;
+        } else {
+            let mut pack_manifests = Vec::new();
+            for pack in &packs {
+                let manifest_path = pack.root.join("pack.toml");
+                if manifest_path.is_file() {
+                    let content = std::fs::read_to_string(&manifest_path).map_err(|e| {
+                        AppError::fm_pack(
+                            15,
+                            format!(
+                                "Pack manifest at `{}` unreadable: {e}. The \
+                                 cross-pack dependency admission check cannot \
+                                 run, so sync refuses rather than skip it.",
+                                manifest_path.display()
+                            ),
+                        )
+                    })?;
+                    let pm = ggen_abb_sbb::depgraph::extract_pack_manifest(&content).map_err(
+                        |refusal| {
+                            AppError::abb_refusal(
+                                "FM-PACK-015",
+                                "Pack manifest extraction",
+                                refusal,
+                            )
+                        },
+                    )?;
+                    pack_manifests.push(pm);
                 }
             }
-        }
-        if !pack_manifests.is_empty() {
-            let consumer_edges = if manifest_path.is_file() {
-                std::fs::read_to_string(&manifest_path).ok().and_then(|c| {
-                    ggen_abb_sbb::depgraph::extract_consumer_edges(&c)
-                        .ok()
-                        .flatten()
-                })
-            } else {
-                None
-            };
-            ggen_abb_sbb::depgraph::resolve_sync_order(&pack_manifests, consumer_edges.as_ref())
-                .map_err(|refusal| {
-                    AppError::fm_pack(
-                        15,
-                        format!("Cross-pack dependency graph admission refused: {refusal}"),
-                    )
-                })?;
-        }
-
-        // 2. EA graph admission: if ea.graph.json exists or is embedded
-        let ea_graph_path = root.join("ea.graph.json");
-        if ea_graph_path.is_file() {
-            let content = std::fs::read_to_string(&ea_graph_path).map_err(|e| {
-                AppError::fm_law(
-                    15,
-                    format!(
-                        "ea.graph.json at `{}` unreadable: {e}",
-                        ea_graph_path.display()
-                    ),
-                )
-            })?;
-            let ea_graph = ggen_abb_sbb::parse_graph(&content).map_err(|refusal| {
-                AppError::fm_law(
-                    15,
-                    format!(
-                        "EA graph at `{}` malformed: {refusal}",
-                        ea_graph_path.display()
-                    ),
-                )
-            })?;
-            // Validate graph integrity
-            ea_graph.validate().map_err(|refusal| {
-                AppError::fm_law(
-                    15,
-                    format!(
-                        "EA graph at `{}` failed validation: {refusal}",
-                        ea_graph_path.display()
-                    ),
-                )
-            })?;
-            // Admit every candidate SBB defined in the graph
-            for sbb in &ea_graph.candidate_sbbs {
-                let req = ggen_abb_sbb::Request {
-                    abb: sbb.abb.clone(),
-                    sbb: sbb.id.clone(),
-                    requested_authority: ggen_abb_sbb::Authority::Construct,
-                    expected_graph_digest: None,
-                    receipt_generation: prior_generation.unwrap_or(0),
-                    artifact_baseline_generation: 0,
+            if !pack_manifests.is_empty() {
+                let consumer_edges = if manifest_path.is_file() {
+                    std::fs::read_to_string(&manifest_path).ok().and_then(|c| {
+                        ggen_abb_sbb::depgraph::extract_consumer_edges(&c)
+                            .ok()
+                            .flatten()
+                    })
+                } else {
+                    None
                 };
-                ggen_abb_sbb::admit(&ea_graph, &req).map_err(|refusal| {
-                    AppError::fm_law(
-                        15,
-                        format!("EA SBB admission refused for `{}`: {refusal}", sbb.id),
+                ggen_abb_sbb::depgraph::resolve_sync_order(
+                    &pack_manifests,
+                    consumer_edges.as_ref(),
+                )
+                .map_err(|refusal| {
+                    AppError::abb_refusal(
+                        "FM-PACK-015",
+                        "Cross-pack dependency graph admission",
+                        refusal,
                     )
                 })?;
             }
         }
+
+        // 2. EA graph admission — hoisted to [`run_ea_graph_admission`]
+        // (DEF-K6-2): the identical admission sequence now runs on BOTH
+        // `ggen.toml` schema paths, dispatched from `sync()`'s Stage 0
+        // branch for the declarative-rules schema. The envelope IRI that
+        // governs the admission caps is unchanged: the first
+        // (deterministically smallest) envelope IRI declared across this
+        // run's templates; no declared envelope → `None` → kernel
+        // DEFAULT_MAX_ARTIFACTS.
+        let stage2c_envelope_iri: Option<String> = templates
+            .iter()
+            .filter_map(|(_, t)| t.frontmatter.envelope.clone())
+            .min();
+        run_ea_graph_admission(
+            root,
+            opts.skip_ea_admission,
+            stage2c_envelope_iri.as_deref(),
+            prior_generation.unwrap_or(0),
+        )?;
     }
 
     // ── Stage 2c-caps: envelope CapTable extraction (v26.10.20) ─────────
@@ -1109,6 +1344,16 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
     validate_span.record("envelope.iri", envelope_iri.as_deref().unwrap_or("NONE"));
 
     let graph_hash_hex = hex32(&graph.state_hash()?);
+
+    // ── G2 sync-hardening item 2: per-subject graph digest diff ─────────
+    //
+    // Diff this run's post-Enrich graph against the previous run's
+    // `.ggen-v2/graph-digest.jsonl` ledger, attribute the moved subjects to
+    // the changed source docs, fire the two loud diagnostics
+    // (emission-neutral / outside-closure), then persist the new ledger and
+    // the human summary. A dry run still computes the diff but writes
+    // nothing (zero-side-effect contract).
+    let graph_diff = compute_graph_diff(root, graph.as_ref(), &closure, opts.dry_run)?;
 
     // ── Stages 3–4: Extract, Render every template into memory ──────────
     //
@@ -1701,13 +1946,15 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
         })
         .collect();
 
-    let report = SyncReport {
+    let mut report = SyncReport {
         written,
         skipped,
         graph_hash_hex,
         decisions,
         packs: pack_hashes,
         closure,
+        graph_diff,
+        log_append: None,
     };
 
     if !opts.dry_run {
@@ -1718,8 +1965,24 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
         // binds the files that *did* land, closing the drift window instead
         // of leaving the previous (now-stale) receipt as the last word on
         // them.
-        if let Err(receipt_err) = write_receipt(root, &report, graph.as_ref(), opts.receipt_origin)
-        {
+        let appended = write_receipt(
+            root,
+            &report,
+            graph.as_ref(),
+            opts.receipt_origin,
+            emit_err.is_some(),
+            opts.skip_ea_admission,
+        );
+        // Thread the KD-G18 idempotence fence's outcome into the report
+        // (G11 sequenced item 3(e)): the operator sees appended vs
+        // skipped-retry, never has to guess whether the line landed. A
+        // failed receipt write still reports its own error below.
+        if let Ok(true) = &appended {
+            report.log_append = Some("appended");
+        } else if let Ok(false) = &appended {
+            report.log_append = Some("skipped-retry");
+        }
+        if let Err(receipt_err) = appended {
             return Err(match emit_err {
                 // The write-stage failure is the operative incident; a
                 // receipt-write failure on top of it must be surfaced too
@@ -2108,6 +2371,182 @@ fn expand_gate_glob(root: &Path, pattern: &str) -> Result<Vec<String>> {
 /// # Errors
 /// `[FM-CHAIN-009]` when the log is unreadable, `[FM-CHAIN-010]` when the
 /// tail line is corrupt.
+/// The `.ggen-v2/composition-plan.json` wire shape (WO-03: the JSON written
+/// by `ggen pack compose --out <path>`). Mirrors
+/// `ggen_marketplace::packs_registry::composer::PackCompositionPlan` field
+/// for field; defined locally because ggen-engine must stay a pure consumer
+/// of the wire shape (ggen-marketplace has no dependency back on this
+/// crate, and the plan struct there is `Serialize`-only).
+///
+/// Fail-closed by construction: `deny_unknown_fields` refuses any plan
+/// carrying keys this schema does not know, and serde refuses any plan
+/// missing a required key — both surface as FM-PACK-022.
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub(crate) struct PersistedCompositionPlan {
+    pub pack_ids: BTreeSet<String>,
+    pub provides: BTreeMap<String, BTreeSet<String>>,
+    pub order: Vec<String>,
+    pub artifact_paths: BTreeMap<String, BTreeSet<String>>,
+    pub self_satisfied: Vec<String>,
+    pub transitive_deps: BTreeMap<String, BTreeSet<String>>,
+}
+
+/// Read the persisted composition plan at `<root>/.ggen-v2/composition-plan.json`.
+///
+/// Absent file → `Ok(None)` (legacy path: Stage 2c re-extracts and
+/// re-derives admission from disk, byte-identical to pre-WO-03 behavior).
+/// Present-but-unreadable or schema-invalid → typed refusal
+/// (fail-closed), never a silent skip.
+///
+/// # Errors
+///
+/// FM-PACK-022 when the file exists but cannot be read or does not
+/// validate against the plan schema.
+pub(crate) fn read_composition_plan(root: &Path) -> Result<Option<PersistedCompositionPlan>> {
+    let plan_path = root.join(".ggen-v2").join("composition-plan.json");
+    let raw = match std::fs::read_to_string(&plan_path) {
+        Ok(raw) => raw,
+        Err(e) if e.kind() == std::io::ErrorKind::NotFound => return Ok(None),
+        Err(e) => {
+            return Err(AppError::fm_pack(
+                22,
+                format!(
+                    "Persisted composition plan at `{}` unreadable: {e}. A plan \
+                     that exists but cannot be read is an undecidable admission \
+                     baseline — fix or delete `.ggen-v2/composition-plan.json`, \
+                     or regenerate it with `ggen pack compose --out \
+                     .ggen-v2/composition-plan.json`.",
+                    plan_path.display()
+                ),
+            ))
+        }
+    };
+    serde_json::from_str(&raw).map(Some).map_err(|e| {
+        AppError::fm_pack(
+            22,
+            format!(
+                "Persisted composition plan at `{}` failed schema validation: \
+                     {e}. The plan must be the exact JSON written by `ggen pack \
+                     compose --out` (pack_ids/provides/order/artifact_paths/\
+                     self_satisfied/transitive_deps).",
+                plan_path.display()
+            ),
+        )
+    })
+}
+
+/// Validate a persisted composition plan against this run's resolved packs
+/// (the manifest's `[packs]`).
+///
+/// Two fail-closed laws:
+/// 1. Stale-plan law (FM-PACK-023): the plan's `pack_ids` must equal the
+///    manifest's pack-name set exactly — extra or missing packs mean the
+///    plan was composed for a different manifest state and its order cannot
+///    be trusted for this run.
+/// 2. Order integrity (FM-PACK-022): `order` must be a permutation of
+///    `pack_ids` (same length, same membership ⇒ no duplicates, no gaps).
+///
+/// # Errors
+///
+/// FM-PACK-023 on stale pack set; FM-PACK-022 on a malformed order.
+pub(crate) fn validate_composition_plan(
+    plan: &PersistedCompositionPlan, packs: &[crate::pack::Pack],
+) -> Result<()> {
+    let manifest_ids: BTreeSet<String> = packs.iter().map(|p| p.name.clone()).collect();
+    if plan.pack_ids != manifest_ids {
+        let missing: Vec<String> = manifest_ids.difference(&plan.pack_ids).cloned().collect();
+        let extra: Vec<String> = plan.pack_ids.difference(&manifest_ids).cloned().collect();
+        return Err(AppError::fm_pack(
+            23,
+            format!(
+                "Persisted composition plan is STALE: its pack set no longer \
+                 matches the manifest's `[packs]` (missing from plan: \
+                 {missing:?}; not in manifest: {extra:?}). Re-run \
+                 `ggen pack compose --out .ggen-v2/composition-plan.json` \
+                 against the current manifest.",
+            ),
+        ));
+    }
+    if plan.order.len() != plan.pack_ids.len() {
+        return Err(AppError::fm_pack(
+            22,
+            format!(
+                "Persisted composition plan has a malformed order: {} order \
+                 entries for {} packs. `order` must be a permutation of \
+                 `pack_ids`.",
+                plan.order.len(),
+                plan.pack_ids.len()
+            ),
+        ));
+    }
+    let order_set: BTreeSet<&String> = plan.order.iter().collect();
+    let id_set: BTreeSet<&String> = plan.pack_ids.iter().collect();
+    if order_set != id_set {
+        return Err(AppError::fm_pack(
+            22,
+            "Persisted composition plan has a malformed order: `order` is \
+                 not a permutation of `pack_ids` (duplicate or foreign pack id \
+                 in `order`)."
+                .to_string(),
+        ));
+    }
+    // Schema integrity: per-pack maps are keyed by pack id, and the
+    // capability map is valued by provider pack id — foreign ids mean the
+    // plan body and its pack set disagree (schema mismatch, not merely
+    // staleness). (`provides` maps capability -> provider pack ids, so its
+    // KEYS are capability names and are not checked here.)
+    for (field, keys) in [
+        ("artifact_paths", plan.artifact_paths.keys()),
+        ("transitive_deps", plan.transitive_deps.keys()),
+    ] {
+        let foreign: Vec<String> = keys
+            .filter(|k| !plan.pack_ids.contains(*k))
+            .cloned()
+            .collect();
+        if !foreign.is_empty() {
+            return Err(AppError::fm_pack(
+                22,
+                format!(
+                    "Persisted composition plan has a schema mismatch: \
+                     `{field}` is keyed by pack ids outside `pack_ids`: \
+                     {foreign:?}."
+                ),
+            ));
+        }
+    }
+    for (capability, providers) in &plan.provides {
+        let foreign: Vec<String> = providers.difference(&plan.pack_ids).cloned().collect();
+        if !foreign.is_empty() {
+            return Err(AppError::fm_pack(
+                22,
+                format!(
+                    "Persisted composition plan has a schema mismatch: \
+                     `provides[\"{capability}\"]` names provider pack ids \
+                     outside `pack_ids`: {foreign:?}."
+                ),
+            ));
+        }
+    }
+    let foreign_self: Vec<String> = plan
+        .self_satisfied
+        .iter()
+        .filter(|id| !plan.pack_ids.contains(*id))
+        .cloned()
+        .collect();
+    if !foreign_self.is_empty() {
+        return Err(AppError::fm_pack(
+            22,
+            format!(
+                "Persisted composition plan has a schema mismatch: \
+                 `self_satisfied` names pack ids outside `pack_ids`: \
+                 {foreign_self:?}."
+            ),
+        ));
+    }
+    Ok(())
+}
+
 pub(crate) fn read_receipt_log_generation(root: &Path) -> Result<Option<u64>> {
     let log_path = root.join(RECEIPT_LOG_REL_PATH);
     let raw = match std::fs::read_to_string(&log_path) {
@@ -2124,16 +2563,18 @@ pub(crate) fn read_receipt_log_generation(root: &Path) -> Result<Option<u64>> {
             ))
         }
     };
-    let Some(tail) = raw.lines().rev().find(|l| !l.trim().is_empty()) else {
+    let Some(tail) = last_receipt_log_line(&raw) else {
         return Ok(None);
     };
     let receipt: SyncReceipt = serde_json::from_str(tail).map_err(|e| {
         AppError::fm_chain(
             10,
             format!(
-                "receipt-log tail at `{}` does not deserialize ({e}); the generation \
-                 baseline is undecidable. Remediation: repair or truncate the corrupted \
-                 tail line, then re-run sync.",
+                "receipt-log tail at `{}` is TORN-TAIL (EOF/truncation class: a sync \
+                 crashed mid-append, leaving a partial JSON line): does not deserialize \
+                 ({e}); the generation baseline is undecidable. Remediation: run \
+                 `ggen sync repair-log` to truncate the torn tail (last valid record is \
+                 preserved and a repair marker is appended), then re-run sync.",
                 log_path.display()
             ),
         )
@@ -2141,21 +2582,317 @@ pub(crate) fn read_receipt_log_generation(root: &Path) -> Result<Option<u64>> {
     Ok(receipt.payload.generation)
 }
 
+/// The last meaningful receipt-log line: skips blank lines and torn-tail
+/// repair-marker lines (`{"ggen_receipt_log_repair":...}` written by
+/// [`repair_receipt_log`]). Returns `None` when the log carries no receipt
+/// record at all.
+fn last_receipt_log_line(raw: &str) -> Option<&str> {
+    raw.lines().rev().find(|l| {
+        let t = l.trim();
+        !t.is_empty() && !t.starts_with("{\"ggen_receipt_log_repair\"")
+    })
+}
+
+/// Byte-offset scan of a receipt log used by [`repair_receipt_log`]: walks
+/// lines in order, tracking the offset just past the last line that is a
+/// valid receipt record (or a repair marker). Classification is
+/// fail-closed: the FIRST torn line ends the scan — anything after it must
+/// be blank, or the damage is mid-log and is refused, never truncated.
+#[derive(Debug, Default)]
+struct ReceiptLogScan {
+    /// Byte offset just past the last valid record/marker line (including
+    /// its newline). The lawful truncation point for a torn tail.
+    valid_end: usize,
+    /// A torn (non-deserializing, non-marker, non-blank) line was found.
+    torn: bool,
+    /// Non-blank content followed the torn line — mid-log damage, only
+    /// reported when `torn` is set; repair refuses this shape.
+    mid_log_damage: bool,
+    /// Bytes between `valid_end` and end-of-file when `torn` is set.
+    torn_bytes: usize,
+}
+
+fn scan_receipt_log(raw: &str) -> ReceiptLogScan {
+    let mut scan = ReceiptLogScan::default();
+    let mut cursor = 0usize;
+    for line in raw.split('\n') {
+        let line_end = cursor + line.len() + 1; // +1 for the '\n' (may be virtual at EOF)
+        let t = line.trim();
+        if t.is_empty() {
+            cursor = line_end;
+            continue;
+        }
+        if t.starts_with("{\"ggen_receipt_log_repair\"") {
+            scan.valid_end = line_end;
+            cursor = line_end;
+            continue;
+        }
+        if serde_json::from_str::<SyncReceipt>(line).is_ok() {
+            scan.valid_end = line_end;
+            cursor = line_end;
+            continue;
+        }
+        // First torn line ends the walk. Only content AFTER the torn line
+        // (its newline onward) counts as mid-log damage — the torn line
+        // itself is the tail being repaired.
+        scan.torn = true;
+        scan.torn_bytes = raw.len().saturating_sub(cursor);
+        let after_torn = &raw[(cursor + line.len() + 1).min(raw.len())..];
+        scan.mid_log_damage = after_torn.split('\n').any(|rest| {
+            let rt = rest.trim();
+            !rt.is_empty() && !rt.starts_with("{\"ggen_receipt_log_repair\"")
+        });
+        break;
+    }
+    scan
+}
+
+/// Outcome of [`repair_receipt_log`] — serialized by `ggen sync repair-log`.
+#[derive(Debug, Default, serde::Serialize)]
+pub struct ReceiptLogRepair {
+    /// `true` when a torn tail was found and truncated; `false` when the log
+    /// was already clean (no-op, nothing written).
+    pub torn_tail: bool,
+    /// Bytes dropped by the truncation (the partial JSON line plus anything
+    /// blank after it).
+    pub bytes_dropped: u64,
+    /// Whether a `{"ggen_receipt_log_repair":...}` marker line was appended
+    /// (only on an actual repair, never on a clean log).
+    pub marker_appended: bool,
+}
+
+/// Explicit recovery verb for a torn receipt-log tail (G11 sequenced item 3;
+/// fail-closed default is refusal — recovery is never automatic). Scans the
+/// log for a torn (crashed mid-append) tail line; if found — and only if
+/// the damage is confined to the tail (nothing but blank lines after the
+/// torn line) — truncates the log to the last valid record, appends a
+/// `{"ggen_receipt_log_repair":...}` marker line (skipped by every receipt
+/// reader; [`last_receipt_log_line`]), fsyncs, and reports what was
+/// dropped. A clean log is a no-op. Mid-log corruption is refused, never
+/// silently truncated.
+///
+/// # Errors
+/// `[FM-CHAIN-009]` unreadable log; `[FM-CHAIN-010]` torn line is followed
+/// by non-blank content (mid-log corruption — manual repair required).
+pub fn repair_receipt_log(root: &Path) -> Result<ReceiptLogRepair> {
+    let log_path = root.join(RECEIPT_LOG_REL_PATH);
+    let raw = match std::fs::read_to_string(&log_path) {
+        Ok(raw) => raw,
+        Err(e) if e.kind() == std::io::ErrorKind::NotFound => {
+            return Ok(ReceiptLogRepair::default())
+        }
+        Err(e) => {
+            return Err(AppError::fm_chain(
+                9,
+                format!(
+                    "receipt log `{}` unreadable during torn-tail scan: {e}. \
+                     Remediation: fix the file's permissions.",
+                    log_path.display()
+                ),
+            ))
+        }
+    };
+    let scan = scan_receipt_log(&raw);
+    if !scan.torn {
+        return Ok(ReceiptLogRepair::default());
+    }
+    if scan.mid_log_damage {
+        return Err(AppError::fm_chain(
+            10,
+            format!(
+                "receipt log `{}` has a torn line followed by non-blank content — \
+                 mid-log corruption cannot be safely truncated. Remediation: repair \
+                 manually (e.g. restore from `git` or backups); `ggen sync repair-log` \
+                 only truncates a torn TAIL.",
+                log_path.display()
+            ),
+        ));
+    }
+    let mut repair = ReceiptLogRepair {
+        torn_tail: true,
+        bytes_dropped: scan.torn_bytes as u64,
+        marker_appended: false,
+    };
+    {
+        use std::io::{Seek as _, Write as _};
+        let _lock = acquire_receipt_log_lock(root)?;
+        let mut f = std::fs::OpenOptions::new()
+            .write(true)
+            .open(&log_path)
+            .map_err(|e| {
+                AppError::fm_chain(
+                    4,
+                    format!("receipt log `{}` truncate failed: {e}", log_path.display()),
+                )
+            })?;
+        f.set_len(scan.valid_end as u64).map_err(|e| {
+            AppError::fm_chain(
+                4,
+                format!("receipt log `{}` truncate failed: {e}", log_path.display()),
+            )
+        })?;
+        // Marker line records the repair inside the log itself, so the
+        // truncation is a first-class receipted event, not a silent rewrite.
+        let marker = format!(
+            "{{\"ggen_receipt_log_repair\":{{\"ts_ns\":0,\"bytes_dropped\":{}}}}}\n",
+            repair.bytes_dropped
+        );
+        f.seek(std::io::SeekFrom::End(0)).map_err(|e| {
+            AppError::fm_chain(
+                4,
+                format!("receipt log `{}` seek failed: {e}", log_path.display()),
+            )
+        })?;
+        f.write_all(marker.as_bytes()).map_err(|e| {
+            AppError::fm_chain(
+                4,
+                format!(
+                    "receipt log `{}` marker write failed: {e}",
+                    log_path.display()
+                ),
+            )
+        })?;
+        f.sync_all().map_err(|e| {
+            AppError::fm_chain(
+                4,
+                format!("receipt log `{}` fsync failed: {e}", log_path.display()),
+            )
+        })?;
+        repair.marker_appended = true;
+    }
+    Ok(repair)
+}
+
+/// Advisory lock serializing the receipt-log append + receipt.json head
+/// write across concurrent syncs (G11 sequenced item 3(d)). Created
+/// create-exclusive; a contended lock fails closed with `[FM-CHAIN-012]`
+/// unless the holder is stale ([`RECEIPT_LOG_LOCK_STALE_SECS`] without
+/// refresh — a crashed sync's leftover, stealable exactly like the
+/// stale-verifying-key precedent in `crate::keys`). Dropping the guard
+/// removes the lock file.
+#[derive(Debug)]
+pub(crate) struct ReceiptLogLock {
+    path: PathBuf,
+}
+
+/// Age at which a receipt-log lock file is considered abandoned and may be
+/// stolen. Generous: a live sync holds the lock for milliseconds; a crashed
+/// sync leaves the file forever.
+const RECEIPT_LOG_LOCK_STALE_SECS: u64 = 10;
+
+impl Drop for ReceiptLogLock {
+    fn drop(&mut self) {
+        // Best-effort removal; a leaked lock is recoverable via the
+        // staleness window, never fatal.
+        let _ = std::fs::remove_file(&self.path);
+    }
+}
+
+/// Acquire the receipt-log critical-section lock (fail-closed on a live
+/// holder, steal-on-staleness for a crashed one).
+///
+/// # Errors
+/// `[FM-CHAIN-012]` when another (live) sync holds the lock; `[FM-CHAIN-009]`
+/// when the lock directory cannot be created or the lock cannot be written.
+pub(crate) fn acquire_receipt_log_lock(root: &Path) -> Result<ReceiptLogLock> {
+    use std::io::Write as _;
+    let dir = root.join(".ggen-v2");
+    std::fs::create_dir_all(&dir).map_err(|e| {
+        AppError::fm_chain(
+            9,
+            format!(
+                "receipt-log lock dir `{}` create failed: {e}",
+                dir.display()
+            ),
+        )
+    })?;
+    let path = dir.join("receipt-log.lock");
+    let try_create = || -> std::io::Result<std::fs::File> {
+        std::fs::OpenOptions::new()
+            .write(true)
+            .create_new(true)
+            .open(&path)
+    };
+    let file = match try_create() {
+        Ok(f) => f,
+        Err(e) if e.kind() == std::io::ErrorKind::AlreadyExists => {
+            if receipt_log_lock_is_stale(&path) {
+                // Crashed holder: steal. The remove+create pair is racy
+                // against another stealer; a lost race surfaces as
+                // AlreadyExists here and is reported as contention — the
+                // winner proceeds lawfully.
+                let _ = std::fs::remove_file(&path);
+                try_create().map_err(|e| {
+                    AppError::fm_chain(
+                        12,
+                        format!(
+                            "receipt-log lock `{}` is stale but could not be \
+                             re-acquired: {e}. Another sync likely stole it \
+                             concurrently. Remediation: re-run sync.",
+                            path.display()
+                        ),
+                    )
+                })?
+            } else {
+                return Err(AppError::fm_chain(
+                    12,
+                    format!(
+                        "another sync holds the receipt-log lock `{}` (live: \
+                         younger than {RECEIPT_LOG_LOCK_STALE_SECS}s). Concurrent \
+                         receipt appends are refused, not queued. Remediation: wait \
+                         for the other sync to finish, then re-run.",
+                        path.display()
+                    ),
+                ));
+            }
+        }
+        Err(e) => {
+            return Err(AppError::fm_chain(
+                9,
+                format!(
+                    "receipt-log lock `{}` create failed: {e}. Remediation: fix \
+                     `.ggen-v2/` permissions.",
+                    path.display()
+                ),
+            ))
+        }
+    };
+    // Record holder identity for humans inspecting a leftover lock; the
+    // staleness law is mtime-based, so this content is diagnostic only.
+    let pid = std::process::id();
+    let ts = SystemTime::now()
+        .duration_since(SystemTime::UNIX_EPOCH)
+        .map_or(0, |d| d.as_secs());
+    let mut file = file;
+    writeln!(file, "pid {pid}").ok();
+    writeln!(file, "acquired {ts}").ok();
+    file.sync_all().map_err(|e| {
+        AppError::fm_chain(
+            9,
+            format!("receipt-log lock `{}` fsync failed: {e}", path.display()),
+        )
+    })?;
+    Ok(ReceiptLogLock { path })
+}
+
+/// A lock file older than [`RECEIPT_LOG_LOCK_STALE_SECS`] is abandoned
+/// (crashed holder) and may be stolen. An unreadable timestamp is treated
+/// as stale: the steal path itself is create-exclusive, so a wrong steal
+/// still fails closed rather than double-appending.
+fn receipt_log_lock_is_stale(path: &Path) -> bool {
+    match std::fs::metadata(path).and_then(|m| m.modified()) {
+        Ok(mtime) => SystemTime::now()
+            .duration_since(mtime)
+            .map_or(true, |age| age.as_secs() >= RECEIPT_LOG_LOCK_STALE_SECS),
+        Err(_) => true,
+    }
+}
+
 /// Emit the portable refusal envelope (RFC-GPACK-001 §54/§55) for a
 /// gate-stage refusal, then return `original` unchanged — the typed
 /// `[FM-LAW-*]`/`[FM-PACK-*]` refusal stays the operative incident.
-///
-/// §57: the envelope existing is not standing — it REPORTS standing, so a
-/// refused sync's envelope carries the typed `REFUSED:<code>` identity in
-/// `admission.refusals` and `REFUSED:<code>` as `standing`, with empty
-/// `consequences` (gates precede every write). `graph.canonical_digest` is
-/// computed from the live graph (`"UNKNOWN"` if that itself fails — §54:
-/// present, never invented). A dry run writes no envelope at all (zero
-/// side effects, same contract as the legacy receipt).
-///
-/// If the envelope cannot be persisted, the original refusal is returned
-/// wrapped with the additional failure (never silently dropped, never
-/// replacing the original).
+/// (Header restored by lane G11 graph-diff as a compile-freeze SLA unblock;
+/// a concurrent lane's in-flight edit had clobbered the signature line.)
 fn refuse_with_portable_envelope(
     root: &Path, packs: &[crate::pack::Pack], graph: &dyn GraphEngine, gates_attempted: &[String],
     refusal_code: &str, dry_run: bool, original: AppError,
@@ -2207,6 +2944,168 @@ pub(crate) fn hash_file_or_missing(path: &Path) -> String {
         Ok(bytes) => blake3::hash(&bytes).to_hex().to_string(),
         Err(_) => "MISSING".to_string(),
     }
+}
+
+/// Root-relative freshness marker path for `[ontology.aggregate]` — records
+/// the BLAKE3 hex of the sorted-constituent freshness hash as of the last
+/// successful (re)generation, so the next sync can detect constituent drift
+/// without re-hashing the whole corpus twice per run.
+pub(crate) const AGGREGATE_MARKER_REL: &str = ".ggen-v2/aggregate-freshness";
+
+/// What [`enforce_ontology_aggregate`] did this run.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) struct AggregateOutcome {
+    /// Whether the aggregate output was (re)written from constituents.
+    pub regenerated: bool,
+}
+
+/// Enforce `[ontology.aggregate]` freshness (sync-hardening plan item 1, G2).
+///
+/// Absent section → `Ok(None)`, byte-identical legacy behavior (no reads
+/// beyond the section check, no marker, no writes). Present section:
+///
+/// 1. Freshness hash = BLAKE3 over each constituent's
+///    sorted-rel-path + NUL + content + NUL, in sorted rel-path order.
+/// 2. Fresh when the output file exists, its bytes equal the deterministic
+///    concat of the constituents, AND the marker file equals the hash.
+/// 3. Stale: `auto_regen = false` (the default) → typed refusal
+///    `[FM-ONTOLOGY-AGG-001]` (write-expansion risk per plan — a sync must
+///    never silently rewrite a governed corpus). `auto_regen = true` →
+///    regenerate the concat, refresh the marker, then continue.
+/// 4. `dry_run` never writes: a stale-but-auto_regen run reports the
+///    regeneration it WOULD perform and proceeds reading the on-disk
+///    (stale) corpus, keeping the read-only invariant the MCP dry-run
+///    path depends on.
+///
+/// The `srve` consumer precedent: `ontology-corpus.ttl` is a generated
+/// concat of constituent TTLs (LOCK-RECEIPT concat shape), regenerated
+/// after content changes; this makes the engine own that freshness law.
+#[allow(clippy::too_many_lines)] // aggregate freshness law is one linear stage; splitting obscures the refusal ladder
+pub(crate) fn enforce_ontology_aggregate(
+    root: &Path, aggregate: Option<&OntologyAggregate>, dry_run: bool,
+) -> Result<Option<AggregateOutcome>> {
+    let Some(agg) = aggregate else {
+        return Ok(None);
+    };
+    if agg.constituents.is_empty() {
+        return Err(AppError::fm_config(
+            14,
+            "[FM-ONTOLOGY-AGG-002] `[ontology.aggregate]` declares no constituents. \
+             Remediation: list at least one constituent file or drop the section."
+                .to_string(),
+        ));
+    }
+
+    // Deterministic freshness hash + deterministic concat, both over the
+    // constituents in sorted rel-path order (LOCK-RECEIPT concat precedent).
+    let mut parts: Vec<(String, String)> = Vec::with_capacity(agg.constituents.len());
+    for constituent in &agg.constituents {
+        let rel = constituent.to_string_lossy().to_string();
+        let path = root.join(constituent);
+        let content = std::fs::read_to_string(&path).map_err(|e| {
+            AppError::fm_config(
+                14,
+                format!(
+                    "[FM-ONTOLOGY-AGG-003] constituent `{rel}` unreadable at `{}`: {e}. \
+                     Remediation: fix or remove the constituent.",
+                    path.display()
+                ),
+            )
+        })?;
+        parts.push((rel, content));
+    }
+    parts.sort_by(|a, b| a.0.cmp(&b.0));
+
+    let mut hasher = blake3::Hasher::new();
+    for (rel, content) in &parts {
+        hasher.update(rel.as_bytes());
+        hasher.update(&[0u8]);
+        hasher.update(content.as_bytes());
+        hasher.update(&[0u8]);
+    }
+    let freshness = hasher.finalize().to_hex().to_string();
+    let mut concat = parts
+        .iter()
+        .map(|(_, content)| content.as_str())
+        .collect::<Vec<_>>()
+        .join("\n");
+    if !concat.ends_with('\n') {
+        concat.push('\n');
+    }
+
+    let output_path = root.join(&agg.output);
+    let marker_path = root.join(AGGREGATE_MARKER_REL);
+    let on_disk = std::fs::read_to_string(&output_path).ok();
+    let marker = std::fs::read_to_string(&marker_path).ok();
+    let fresh = on_disk.as_deref() == Some(concat.as_str())
+        && marker.as_deref() == Some(freshness.as_str());
+
+    if fresh {
+        return Ok(Some(AggregateOutcome { regenerated: false }));
+    }
+
+    if !agg.auto_regen {
+        // Default: refuse typed, never expand writes silently.
+        return Err(AppError::fm_config(
+            14,
+            format!(
+                "[FM-ONTOLOGY-AGG-001] aggregate corpus `{}` is stale: constituents \
+                 hash {freshness} but the marker ({AGGREGATE_MARKER_REL}) does not match \
+                 (or the output bytes diverge from the constituent concat). \
+                 Remediation: run `ggen sync run` with `[ontology.aggregate] \
+                 auto_regen = true` once to regenerate, or regenerate the corpus \
+                 manually and re-sync.",
+                agg.output.display()
+            ),
+        ));
+    }
+
+    if dry_run {
+        // Read-only invariant: report the write the real run WOULD make and
+        // continue against the on-disk (stale) corpus.
+        tracing::info!(
+            aggregate.output = %agg.output.display(),
+            "dry_run: aggregate corpus stale; auto_regen would rewrite it"
+        );
+        return Ok(Some(AggregateOutcome { regenerated: false }));
+    }
+
+    crate::write::ensure_parent(&output_path)?;
+    std::fs::write(&output_path, concat.as_bytes()).map_err(|e| {
+        AppError::fm_config(
+            14,
+            format!(
+                "[FM-ONTOLOGY-AGG-004] failed to write aggregate output `{}`: {e}",
+                output_path.display()
+            ),
+        )
+    })?;
+    if let Some(parent) = marker_path.parent() {
+        std::fs::create_dir_all(parent).map_err(|e| {
+            AppError::fm_config(
+                14,
+                format!(
+                    "[FM-ONTOLOGY-AGG-004] failed to create marker dir `{}`: {e}",
+                    parent.display()
+                ),
+            )
+        })?;
+    }
+    std::fs::write(&marker_path, &freshness).map_err(|e| {
+        AppError::fm_config(
+            14,
+            format!(
+                "[FM-ONTOLOGY-AGG-004] failed to write freshness marker `{}`: {e}",
+                marker_path.display()
+            ),
+        )
+    })?;
+    tracing::info!(
+        aggregate.output = %output_path.display(),
+        aggregate.constituents = parts.len(),
+        "aggregate corpus regenerated from constituents"
+    );
+    Ok(Some(AggregateOutcome { regenerated: true }))
 }
 
 /// The outcome of [`extract_query_results`] when the `when:` guard (if any)
@@ -3503,6 +4402,358 @@ fn compare_closure_class(
     ))
 }
 
+// ── G2 sync-hardening item 2: per-subject graph digest diff ─────────────
+
+/// One JSON line of `.ggen-v2/graph-digest.jsonl`.
+#[derive(Debug, serde::Serialize, serde::Deserialize)]
+struct SubjectDigestLine {
+    subject: String,
+    digest: String,
+}
+
+/// The current run's per-subject digests: subject IRI → BLAKE3 hex of its
+/// sorted predicate-object set (each pair rendered `p o`, joined with `\n`),
+/// enumerated engine-independently via `SELECT ?s ?p ?o`. Blank nodes arrive
+/// canonically relabeled (see `GraphEngine::query`'s determinism contract),
+/// so digests are stable across independent loads of identical input.
+fn current_subject_digests(graph: &dyn GraphEngine) -> Result<BTreeMap<String, String>> {
+    const SELECT_ALL: &str = "SELECT ?s ?p ?o WHERE { ?s ?p ?o }";
+    let EngineQueryResults::Solutions(rows) = graph.query(SELECT_ALL)? else {
+        return Err(AppError::fm_graph(
+            3,
+            "graph-diff: SELECT ?s ?p ?o did not return solutions",
+        ));
+    };
+    let mut triples: Vec<(String, String, String)> = Vec::with_capacity(rows.len());
+    for row in rows {
+        let (Some(s), Some(p), Some(o)) = (row.get("s"), row.get("p"), row.get("o")) else {
+            return Err(AppError::fm_graph(
+                3,
+                "graph-diff: SELECT ?s ?p ?o row is missing a binding",
+            ));
+        };
+        // Variant-tagged rendering: identical lexical values under different
+        // RDF term types must digest differently (an `xsd:integer 5` is not
+        // a plain string "5"), and every variant must render deterministically.
+        let repr = |v: &EngineValue| match v {
+            EngineValue::Bool(b) => format!("bool:{b}"),
+            EngineValue::Int(i) => format!("int:{i}"),
+            EngineValue::Float(f) => format!("float:{f:?}"),
+            EngineValue::String(s) => format!("str:{s}"),
+        };
+        // Subjects stay raw IRIs/blank-node labels (they name the ledger
+        // line and the human summary); only predicate/object positions get
+        // the variant tag.
+        let EngineValue::String(subject) = s else {
+            return Err(AppError::fm_graph(
+                3,
+                "graph-diff: SELECT ?s ?p ?o subject binding is not a string term",
+            ));
+        };
+        triples.push((subject.clone(), repr(p), repr(o)));
+    }
+    let mut by_subject: BTreeMap<String, Vec<String>> = BTreeMap::new();
+    for (s, p, o) in triples {
+        by_subject.entry(s).or_default().push(format!("{p} {o}"));
+    }
+    Ok(by_subject
+        .into_iter()
+        .map(|(s, mut po)| {
+            po.sort();
+            po.dedup();
+            (
+                s,
+                blake3::hash(po.join("\n").as_bytes()).to_hex().to_string(),
+            )
+        })
+        .collect())
+}
+
+/// Read the previous run's subject-digest ledger. `Ok(None)` = absent
+/// (baseline run). A line that does not parse is fail-closed: a corrupted
+/// ledger must not silently read as "no previous state" and fake a clean
+/// diff.
+fn read_subject_digest_ledger(path: &Path) -> Result<Option<BTreeMap<String, String>>> {
+    let raw = match std::fs::read_to_string(path) {
+        Ok(raw) => raw,
+        Err(e) if e.kind() == std::io::ErrorKind::NotFound => return Ok(None),
+        Err(e) => {
+            return Err(AppError::fm_chain(
+                8,
+                format!(
+                    "graph-digest ledger `{}` unreadable: {e}. Remediation: fix the \
+                     file's permissions, or delete it to re-baseline.",
+                    path.display()
+                ),
+            ))
+        }
+    };
+    let mut out = BTreeMap::new();
+    for (idx, line) in raw.lines().enumerate() {
+        if line.trim().is_empty() {
+            continue;
+        }
+        let parsed: SubjectDigestLine = serde_json::from_str(line).map_err(|e| {
+            AppError::fm_chain(
+                10,
+                format!(
+                    "graph-digest ledger `{}` line {} does not deserialize ({e}); the \
+                     previous graph state is undecidable. Remediation: repair the ledger, \
+                     or delete it to re-baseline.",
+                    path.display(),
+                    idx + 1
+                ),
+            )
+        })?;
+        out.insert(parsed.subject, parsed.digest);
+    }
+    Ok(Some(out))
+}
+
+/// The previous receipt's input closure, for source attribution. An absent
+/// or unreadable previous receipt yields an empty map (attribution then
+/// reports the outside-closure diagnostic honestly rather than guessing).
+fn read_previous_receipt_closure(root: &Path) -> BTreeMap<String, String> {
+    let path = root.join(RECEIPT_REL_PATH);
+    std::fs::read_to_string(path)
+        .ok()
+        .and_then(|raw| serde_json::from_str::<SyncReceipt>(&raw).ok())
+        .map(|r| r.payload.closure)
+        .unwrap_or_default()
+}
+
+/// Which input-closure source keys changed since the previous receipt, with
+/// a `changed`/`added`/`removed` verb each. Only the `source` equivalence
+/// class participates (see [`closure_equivalence_class`]): config-class
+/// changes (manifest, project, actuator) parameterize the pipeline but do
+/// not contribute graph terms, so attributing subjects to them would
+/// overclaim provenance.
+fn changed_source_keys(
+    current: &BTreeMap<String, String>, previous: &BTreeMap<String, String>,
+) -> Vec<String> {
+    let mut out = Vec::new();
+    for (k, v) in current {
+        if closure_equivalence_class(k) != Some("source") {
+            continue;
+        }
+        match previous.get(k) {
+            None => out.push(format!("added `{k}`")),
+            Some(pv) if pv != v => out.push(format!("changed `{k}`")),
+            Some(_) => {}
+        }
+    }
+    for k in previous.keys() {
+        if closure_equivalence_class(k) != Some("source") {
+            continue;
+        }
+        if !current.contains_key(k) {
+            out.push(format!("removed `{k}`"));
+        }
+    }
+    out.sort();
+    out
+}
+
+/// Compute the per-subject graph diff (G2 sync-hardening item 2), fire the
+/// two loud diagnostics, and — on a non-dry run — persist the refreshed
+/// ledger and the human summary at `.ggen-v2/sync-diff.md`. `Ok(None)` on a
+/// baseline run (no previous ledger): the ledger is still written.
+pub(crate) fn compute_graph_diff(
+    root: &Path, graph: &dyn GraphEngine, closure: &BTreeMap<String, String>, dry_run: bool,
+) -> Result<Option<GraphDiff>> {
+    let ledger_path = root.join(GRAPH_DIGEST_REL_PATH);
+    let previous = read_subject_digest_ledger(&ledger_path)?;
+    let Some(previous) = previous else {
+        if !dry_run {
+            let current = current_subject_digests(graph)?;
+            write_subject_digest_ledger(&ledger_path, &current)?;
+            write_sync_diff_summary(root, None)?;
+        }
+        return Ok(None);
+    };
+    let current = current_subject_digests(graph)?;
+    let diff = diff_subject_digests(&current, &previous);
+
+    let prev_closure = read_previous_receipt_closure(root);
+    let sources = changed_source_keys(closure, &prev_closure);
+    let diff_empty = diff.added.is_empty() && diff.removed.is_empty() && diff.changed.is_empty();
+    let mut diff = diff;
+
+    // The two loud diagnostics. Emission-neutral: source-class closure
+    // bytes moved but the terms did not. Outside-closure: terms moved but
+    // the source class did not — some input the closure does not track
+    // changed the graph.
+    let note = if !sources.is_empty() && diff_empty {
+        Some(format!(
+            "emission-neutral: {} source input(s) changed ({}), but the per-subject \
+             graph terms are unchanged — file bytes moved, emitted terms did not.",
+            sources.len(),
+            sources.join(", ")
+        ))
+    } else if sources.is_empty() && !diff_empty {
+        Some(
+            "input changed outside the input closure: per-subject graph terms moved \
+             while every tracked source input is byte-identical to the previous \
+             receipt."
+                .to_string(),
+        )
+    } else {
+        None
+    };
+    diff.note = note;
+
+    // Source attribution. Single changed source → attributed directly;
+    // several → listed; none → the outside-closure diagnostic.
+    let attribution: Option<String> = match sources.len() {
+        0 => None,
+        1 => Some(sources[0].clone()),
+        _ => Some(format!(
+            "multiple source inputs changed: {}",
+            sources.join(", ")
+        )),
+    };
+    let mut moved = diff.added.iter().chain(&diff.removed).chain(&diff.changed);
+    if let (Some(attr), true) = (&attribution, moved.next().is_some()) {
+        let attr = attr.clone();
+        for s in diff.added.iter().chain(&diff.removed).chain(&diff.changed) {
+            diff.per_source.insert(s.clone(), attr.clone());
+        }
+    }
+
+    if !dry_run {
+        write_subject_digest_ledger(&ledger_path, &current)?;
+        write_sync_diff_summary(root, Some(&diff))?;
+    }
+    Ok(Some(diff))
+}
+
+/// Diff two per-subject digest maps into sorted added/removed/changed lists.
+fn diff_subject_digests(
+    current: &BTreeMap<String, String>, previous: &BTreeMap<String, String>,
+) -> GraphDiff {
+    let mut out = GraphDiff::default();
+    for (s, d) in current {
+        match previous.get(s) {
+            None => out.added.push(s.clone()),
+            Some(p) if p != d => out.changed.push(s.clone()),
+            Some(_) => {}
+        }
+    }
+    for s in previous.keys() {
+        if !current.contains_key(s) {
+            out.removed.push(s.clone());
+        }
+    }
+    out
+}
+
+/// Persist the ledger (one JSON line per subject, sorted by subject for a
+/// byte-deterministic file) and the human summary.
+fn write_subject_digest_ledger(path: &Path, digests: &BTreeMap<String, String>) -> Result<()> {
+    let dir = path.parent().unwrap_or_else(|| Path::new("."));
+    std::fs::create_dir_all(dir).map_err(|e| {
+        AppError::fm_write(
+            12,
+            format!(
+                "graph-diff: cannot create `{}`: {e}. Remediation: fix permissions.",
+                dir.display()
+            ),
+        )
+    })?;
+    let mut body = String::new();
+    for (subject, digest) in digests {
+        let line = SubjectDigestLine {
+            subject: subject.clone(),
+            digest: digest.clone(),
+        };
+        body.push_str(&serde_json::to_string(&line)?);
+        body.push('\n');
+    }
+    std::fs::write(path, body).map_err(|e| {
+        AppError::fm_write(
+            12,
+            format!(
+                "graph-digest ledger `{}` unwritable: {e}. Remediation: fix permissions.",
+                path.display()
+            ),
+        )
+    })
+}
+
+/// Write `.ggen-v2/sync-diff.md`, the human-readable summary of this run's
+/// per-subject graph diff. `None` = baseline run (first sync, or no
+/// previous ledger): the summary says so instead of pretending an empty
+/// diff was observed.
+fn write_sync_diff_summary(root: &Path, diff: Option<&GraphDiff>) -> Result<()> {
+    use std::fmt::Write as _;
+    let path = root.join(SYNC_DIFF_REL_PATH);
+    let dir = path.parent().unwrap_or_else(|| Path::new("."));
+    std::fs::create_dir_all(dir).map_err(|e| {
+        AppError::fm_write(
+            12,
+            format!(
+                "sync-diff summary: cannot create `{}`: {e}. Remediation: fix permissions.",
+                dir.display()
+            ),
+        )
+    })?;
+    let mut body = String::from("# sync diff\n\n");
+    let Some(diff) = diff else {
+        body.push_str(
+            "Baseline run: no previous graph-digest ledger, so no diff was \
+                       computed. The ledger written this run is the baseline.\n",
+        );
+        std::fs::write(&path, body).map_err(|e| {
+            AppError::fm_write(
+                12,
+                format!(
+                    "sync-diff summary `{}` unwritable: {e}. Remediation: fix permissions.",
+                    path.display()
+                ),
+            )
+        })?;
+        return Ok(());
+    };
+    let _ = write!(
+        body,
+        "- added subjects: {}\n- removed subjects: {}\n- changed subjects: {}\n",
+        diff.added.len(),
+        diff.removed.len(),
+        diff.changed.len()
+    );
+    for (label, list) in [
+        ("added", &diff.added),
+        ("removed", &diff.removed),
+        ("changed", &diff.changed),
+    ] {
+        for s in list {
+            let _ = writeln!(body, "- {label}: `{s}`");
+            if let Some(attr) = diff.per_source.get(s) {
+                let _ = writeln!(body, "  - source: {attr}");
+            }
+        }
+    }
+    if let Some(note) = &diff.note {
+        let _ = write!(body, "\n> NOTE: {note}\n");
+    }
+    if diff.added.is_empty()
+        && diff.removed.is_empty()
+        && diff.changed.is_empty()
+        && diff.note.is_none()
+    {
+        body.push_str("\nNo graph terms changed since the previous run.\n");
+    }
+    std::fs::write(&path, body).map_err(|e| {
+        AppError::fm_write(
+            12,
+            format!(
+                "sync-diff summary `{}` unwritable: {e}. Remediation: fix permissions.",
+                path.display()
+            ),
+        )
+    })
+}
+
 /// Which [`ComponentLevels`] axis an admitted external `ver:Check` fact's
 /// stable name (`ver:name`, e.g. `test-workspace`, `clippy-reference-gate`,
 /// `fmt-check`, `build`) feeds. Substring-based on purpose: the verify-pack
@@ -3654,10 +4905,13 @@ fn compare_producer_class(
 // boundaries rather than shrink real complexity.
 #[allow(clippy::too_many_lines)]
 pub(crate) fn write_receipt(
-    root: &Path, report: &SyncReport, graph: &dyn GraphEngine, receipt_origin: Option<&'static str>,
-) -> Result<()> {
+    root: &Path, report: &SyncReport, graph: &dyn GraphEngine,
+    receipt_origin: Option<&'static str>, partial: bool, ea_admission_skipped: bool,
+) -> Result<bool> {
     use std::io::Write as _;
-
+    // Returns `Ok(true)` = receipt line appended, `Ok(false)` =
+    // skipped-as-retry (KD-G18 idempotence fence outcome, threaded into
+    // `SyncReport::log_append` by the caller).
     // This run's receipt-generation epoch, established from the log tail
     // (first sync = 1). The Stage-2c gate already verified the tail is
     // honest; the same baseline is recorded into the payload and every
@@ -3698,6 +4952,9 @@ pub(crate) fn write_receipt(
         closure: report.closure.clone(),
         build_provenance: Some(crate::build_provenance::BUILD_PROVENANCE_HEX.to_string()),
         generation: Some(run_generation),
+        ea_admission_skipped: ea_admission_skipped
+            .then(|| "skipped: --skip-ea-admission (FM-LAW-015 gate not evaluated)".to_string()),
+        graph_diff: report.graph_diff.clone(),
     };
     let payload_bytes = serde_json::to_vec(&payload)?;
     let payload_hash_hex = blake3::hash(&payload_bytes).to_hex().to_string();
@@ -3716,42 +4973,44 @@ pub(crate) fn write_receipt(
     // chain hash, so it is read as the legacy-bounded epoch below, never as
     // the stored (unprovable) payload.
     let prev_chain_standing = match &prev_head {
-        Some(prev) => match prev.record.verify_chain().map_err(|e| {
-            AppError::fm_chain(9, format!("previous receipt chain recompute failed: {e}"))
-        })? {
-            ChainVerification::Verified(ChainStanding::LegacyV2Unbound) => {
-                // Never extend a downgraded head: a legacy head after a
-                // declared record is exactly what `receipt history` refuses.
-                if let Some(first) = first_declared_chain_rule_in_log(&log_path, 9)? {
-                    return Err(AppError::fm_chain(
-                        9,
-                        format!(
+        Some(prev) => {
+            match crate::receipt_chain_seam::verify_chain_compat(&prev.record).map_err(|e| {
+                AppError::fm_chain(9, format!("previous receipt chain recompute failed: {e}"))
+            })? {
+                ChainVerification::Verified(ChainStanding::LegacyV2Unbound) => {
+                    // Never extend a downgraded head: a legacy head after a
+                    // declared record is exactly what `receipt history` refuses.
+                    if let Some(first) = first_declared_chain_rule_in_log(&log_path, 9)? {
+                        return Err(AppError::fm_chain(
+                            9,
+                            format!(
                             "previous receipt head is invalid: chain-rule downgrade -- the head \
                              verifies only as `{}` but receipt log record {first} declared a \
                              chain rule. Refusing to extend a downgraded chain. Remediation: run \
                              `ggen receipt history` and restore the receipts.",
                             ChainStanding::LegacyV2Unbound.as_str()
                         ),
-                    ));
+                        ));
+                    }
+                    Some(ChainStanding::LegacyV2Unbound)
                 }
-                Some(ChainStanding::LegacyV2Unbound)
-            }
-            ChainVerification::Verified(standing) => Some(standing),
-            ChainVerification::Mismatch { rule, recomputed } => {
-                return Err(AppError::fm_chain(
-                    9,
-                    format!(
-                        "previous receipt head is invalid: stored chain hash {} does not \
+                ChainVerification::Verified(standing) => Some(standing),
+                ChainVerification::Mismatch { rule, recomputed } => {
+                    return Err(AppError::fm_chain(
+                        9,
+                        format!(
+                            "previous receipt head is invalid: stored chain hash {} does not \
                          match recompute {} (chain rule `{}`). Refusing to extend a tampered \
                          chain. Remediation: run `ggen receipt history` and restore the \
                          receipts.",
-                        prev.record.chain_hash_hex,
-                        hex32(&recomputed),
-                        rule.as_str()
-                    ),
-                ));
+                            prev.record.chain_hash_hex,
+                            hex32(&recomputed),
+                            rule.as_str()
+                        ),
+                    ));
+                }
             }
-        },
+        }
         None => None,
     };
     let prev_chain_hash_hex = match &prev_head {
@@ -4196,19 +5455,34 @@ pub(crate) fn write_receipt(
 
     // The legacy top-level `Andon` field is derived from the same v2
     // precedence, not hardcoded -- this is the hardcoded-`Green` literal
-    // this migration replaces.
-    let legacy_andon = match epoch.andon {
-        AndonLevel::Green => Andon::Green,
-        AndonLevel::Yellow => Andon::Overridden {
-            by: "ggen.sync.v2".to_string(),
-            reason: "quarantined admission item(s); see receipt v2.admission".to_string(),
-            at: 0,
-        },
-        AndonLevel::Red => Andon::Halted {
+    // this migration replaces. A partial run (write stage stopped early)
+    // must never present itself
+    // as a complete Green sync: its `outputs` map binds only the files that
+    // landed before the refusal, and the reflexive output-count-regression
+    // gate compares consecutive Green receipts. Recording a partial run as
+    // Green would (a) mislabel reality and (b) manufacture a false shrink
+    // signal for the next complete sync (witnessed: ZD-41, tcps-generated's
+    // 43-vs-134 refusal was exactly a partial receipt labeled Green).
+    let legacy_andon = if partial {
+        Andon::Halted {
             unmet: Vec::new(),
             refusals: Vec::new(),
             at: 0,
-        },
+        }
+    } else {
+        match epoch.andon {
+            AndonLevel::Green => Andon::Green,
+            AndonLevel::Yellow => Andon::Overridden {
+                by: "ggen.sync.v2".to_string(),
+                reason: "quarantined admission item(s); see receipt v2.admission".to_string(),
+                at: 0,
+            },
+            AndonLevel::Red => Andon::Halted {
+                unmet: Vec::new(),
+                refusals: Vec::new(),
+                at: 0,
+            },
+        }
     };
     let legacy_obligation_count = epoch.obligation_count.remaining().unwrap_or(0);
 
@@ -4259,22 +5533,97 @@ pub(crate) fn write_receipt(
 
     // Append-only history first (it is the chain's source of truth for the
     // next sync), head pointer second: if the head write fails, a re-run
-    // chains from the log tail and the history stays linear.
+    // chains from the log tail and the history stays linear. Both writes
+    // run under the advisory receipt lock (G11 item 3(d)) so concurrent
+    // syncs serialize (or fail closed) instead of interleaving appends.
+    let _lock = acquire_receipt_log_lock(root)?;
     let mut line = serde_json::to_vec(&receipt)?;
     line.push(b'\n');
+    let appended = append_receipt_line(&log_path, &line, receipt.record.chain_hash_hex.as_str())?;
+    // fsync the head pointer too (G11 item 3(b)): a returned success must
+    // survive a machine crash for BOTH halves of the two-file write.
+    let mut head = std::fs::File::create(&receipt_path)?;
+    head.write_all(&serde_json::to_vec(&receipt)?)?;
+    head.sync_all()?;
+    Ok(appended)
+}
+
+/// Depth of the KD-G18 dedupe window: retries are matched against the last
+/// N receipt lines (blank and repair-marker lines skipped), not just the
+/// literal last line — a retry that lands after a repair marker or a
+/// concurrent append is still recognized.
+const APPEND_DEDUPE_WINDOW: usize = 8;
+
+/// Append one serialized receipt line to `.ggen-v2/receipt-log.jsonl`,
+/// idempotent against retry-after-ambiguous-write (KD-G18 at-most-once
+/// law): if the new line is byte-identical to any of the last
+/// [`APPEND_DEDUPE_WINDOW`] receipt lines AND its `chain_hash_hex` matches,
+/// the append is a retry of an already-landed record and is skipped
+/// (traced, not an error). The window (not just the literal last line)
+/// covers retries that arrive after a repair marker or a concurrent
+/// append. A record sharing the previous chain hash but differing in body
+/// still appends — that would be a real fork, which the chain-verify fence
+/// catches downstream; this fence only dedupes exact retries. The append
+/// is fsynced before `Ok(true)` — a returned success must survive a
+/// machine crash.
+fn append_receipt_line(log_path: &Path, line: &[u8], chain_hash_hex: &str) -> Result<bool> {
+    use std::io::Write as _;
+
+    let body = &line[..line.len().saturating_sub(1)]; // strip trailing '\n'
+    if let Ok(raw) = std::fs::read_to_string(log_path) {
+        let mut window = 0usize;
+        for candidate in raw.lines().rev() {
+            let t = candidate.trim();
+            if t.is_empty() || t.starts_with("{\"ggen_receipt_log_repair\"") {
+                continue;
+            }
+            let candidate = candidate.trim_end_matches('\r');
+            window += 1;
+            if candidate.as_bytes() == body {
+                // Byte-identical body: confirm the chain hash also matches
+                // before declaring this an idempotent retry.
+                let same_hash = serde_json::from_str::<serde_json::Value>(candidate)
+                    .ok()
+                    .and_then(|v| {
+                        v.get("record")
+                            .and_then(|r| r.get("chain_hash_hex"))
+                            .and_then(|h| h.as_str())
+                            .map(|h| h == chain_hash_hex)
+                    })
+                    .unwrap_or(false);
+                if same_hash {
+                    tracing::debug!(
+                        chain_hash = %chain_hash_hex,
+                        window_offset = window,
+                        "receipt-log append skipped: byte-identical retry within the \
+                         last {window} receipt lines (KD-G18 idempotence fence)"
+                    );
+                    return Ok(false);
+                }
+            }
+            if window >= APPEND_DEDUPE_WINDOW {
+                break;
+            }
+        }
+    }
+    if let Some(parent) = log_path.parent() {
+        std::fs::create_dir_all(parent)?;
+    }
     std::fs::OpenOptions::new()
         .create(true)
         .append(true)
-        .open(&log_path)
-        .and_then(|mut f| f.write_all(&line))
+        .open(log_path)
+        .and_then(|mut f| {
+            f.write_all(line)?;
+            f.sync_all()
+        })
         .map_err(|e| {
             AppError::fm_chain(
                 4,
                 format!("receipt log `{}` append failed: {e}", log_path.display()),
             )
         })?;
-    std::fs::write(&receipt_path, serde_json::to_vec(&receipt)?)?;
-    Ok(())
+    Ok(true)
 }
 
 /// Escape a plain string for embedding in a Turtle `"..."` literal
@@ -4303,11 +5652,301 @@ mod tests {
     use std::{collections::BTreeMap, path::Path};
 
     use super::{
-        check_determinism_guard_agrees_false, check_determinism_rows_agree_empty,
-        hash_file_or_missing, resolve_gate_entries, ExtractedRows, SyncReceipt,
-        RECEIPT_LOG_REL_PATH, RECEIPT_REL_PATH,
+        append_receipt_line, check_determinism_guard_agrees_false,
+        check_determinism_rows_agree_empty, hash_file_or_missing, resolve_gate_entries,
+        ExtractedRows, SyncReceipt, RECEIPT_LOG_REL_PATH, RECEIPT_REL_PATH,
     };
 
+    /// KD-G18 at-most-once fence: two consecutive byte-identical appends
+    /// (the retry-after-ambiguous-write shape) land exactly one line.
+    #[test]
+    fn duplicate_append_is_idempotent_single_line() {
+        let dir = tempfile::tempdir().expect("tempdir");
+        let log = dir.path().join(RECEIPT_LOG_REL_PATH);
+        let line = serde_json::to_vec(&serde_json::json!({
+            "record": { "chain_hash_hex": "aa".repeat(32) },
+            "payload": {}
+        }))
+        .expect("serialize");
+        let mut line = line;
+        line.push(b'\n');
+
+        assert!(append_receipt_line(&log, &line, &"aa".repeat(32)).expect("first append"));
+        let skipped = append_receipt_line(&log, &line, &"aa".repeat(32)).expect("retry append");
+        assert!(!skipped, "identical retry must be skipped, not appended");
+
+        let raw = std::fs::read_to_string(&log).expect("read log");
+        assert_eq!(raw.lines().count(), 1, "exactly one line lands: {raw}");
+    }
+
+    /// A same-prev-different-body record (different chain hash) still
+    /// appends — that is a real fork the downstream chain fence catches,
+    /// never something this fence silently drops.
+    #[test]
+    fn distinct_append_still_lands_second_line() {
+        let dir = tempfile::tempdir().expect("tempdir");
+        let log = dir.path().join(RECEIPT_LOG_REL_PATH);
+        let mk = |hash: &str| {
+            let mut v = serde_json::to_vec(&serde_json::json!({
+                "record": { "chain_hash_hex": hash },
+                "payload": {}
+            }))
+            .expect("serialize");
+            v.push(b'\n');
+            v
+        };
+        let a = mk(&"aa".repeat(32));
+        let b = mk(&"bb".repeat(32));
+
+        assert!(append_receipt_line(&log, &a, &"aa".repeat(32)).expect("first"));
+        assert!(append_receipt_line(&log, &b, &"bb".repeat(32)).expect("second distinct"));
+
+        let raw = std::fs::read_to_string(&log).expect("read log");
+        assert_eq!(raw.lines().count(), 2, "both distinct lines land: {raw}");
+    }
+
+    /// A schema-valid receipt line for torn-tail tests: a real
+    /// `SyncReceipt` (minimal v1 record, empty v2-less payload), serialized
+    /// with the engine's own types so the log scan's strict
+    /// deserialization check accepts it.
+    fn valid_receipt_line(hash: &str, generation: Option<u64>) -> Vec<u8> {
+        let record = crate::receipt_chain_seam::ReceiptRecord {
+            version: 1,
+            instruction_id: 0,
+            activity_idx: 0,
+            activity: None,
+            node_kind: 0,
+            ts_ns: 0,
+            duration_ms: None,
+            origin: None,
+            payload_hash_hex: hash.to_string(),
+            prev_chain_hash_hex: "0".repeat(64),
+            chain_hash_hex: hash.to_string(),
+            andon: crate::receipt_chain_seam::Andon::Green,
+            obligation_count: 0,
+            object_ids: Vec::new(),
+            signature_hex: None,
+            schema: "ggen-receipt/v2".to_string(),
+            v2: None,
+            chain_rule: None,
+        };
+        let payload: super::ReceiptPayload = serde_json::from_value(serde_json::json!({
+            "graph_hash": hash,
+            "outputs": {},
+            "generation": generation
+        }))
+        .expect("minimal payload");
+        let mut v =
+            serde_json::to_vec(&super::SyncReceipt { record, payload }).expect("serialize receipt");
+        v.push(b'\n');
+        v
+    }
+
+    /// G11 sequenced item 3(a): a torn tail (sync crashed mid-append) is
+    /// refused with a typed, EOF/truncation-classified `[FM-CHAIN-010]`
+    /// naming the recovery verb; `repair_receipt_log` truncates to the last
+    /// valid record, appends a repair marker, and the generation reader
+    /// reads the preserved record — the exact torn-tail recovery ladder.
+    #[test]
+    fn torn_tail_refused_then_repaired() {
+        use super::{read_receipt_log_generation, repair_receipt_log};
+
+        let dir = tempfile::tempdir().expect("tempdir");
+        let root = dir.path();
+        let ggen = root.join(".ggen-v2");
+        std::fs::create_dir_all(&ggen).expect("mkdir .ggen-v2");
+        let log = ggen.join("receipt-log.jsonl");
+        let valid = valid_receipt_line(&"aa".repeat(32), Some(7));
+        let mut torn_setup = valid.clone();
+        torn_setup.extend_from_slice(br#"{"record":{"chain_hash_hex":"bb"#);
+        std::fs::write(&log, &torn_setup).expect("write torn log");
+        let torn_len = torn_setup.len() - valid.len();
+
+        // 1. Refused, typed, EOF/truncation-classified.
+        let err = read_receipt_log_generation(root).expect_err("torn tail refused");
+        let msg = err.to_string();
+        assert!(msg.contains("FM-CHAIN-010"), "{msg}");
+        assert!(msg.contains("TORN-TAIL"), "{msg}");
+        assert!(msg.contains("repair-log"), "{msg}");
+
+        // 2. Explicit recovery: truncate + marker, last valid record kept.
+        let repair = repair_receipt_log(root).expect("repair succeeds");
+        assert!(repair.torn_tail, "repair must report the torn tail");
+        assert!(repair.marker_appended, "marker must be appended");
+        assert_eq!(repair.bytes_dropped, torn_len as u64);
+        let raw = std::fs::read_to_string(&log).expect("read repaired log");
+        assert!(
+            raw.contains("ggen_receipt_log_repair"),
+            "marker line present: {raw}"
+        );
+        assert!(
+            !raw.contains(r#""chain_hash_hex":"bb"#),
+            "torn bytes are gone: {raw}"
+        );
+
+        // 3. Generation reader recovers the preserved record.
+        assert_eq!(
+            read_receipt_log_generation(root).expect("read generation"),
+            Some(7),
+            "the preserved record's generation survives the repair"
+        );
+
+        // 4. Repair on the now-clean log is a no-op.
+        let again = repair_receipt_log(root).expect("second repair");
+        assert!(!again.torn_tail, "clean log repair is a no-op");
+        assert_eq!(again.bytes_dropped, 0);
+
+        // 5. Appends still land after a marker (marker skipped by readers
+        // and by the dedupe scan).
+        let line = valid_receipt_line(&"cc".repeat(32), Some(8));
+        assert!(
+            append_receipt_line(&log, &line, &"cc".repeat(32)).expect("append after repair"),
+            "a fresh record after a repair marker still lands"
+        );
+    }
+
+    /// Mid-log corruption (a torn line followed by more receipts) is
+    /// REFUSED by repair, never truncated — the verb only removes a torn
+    /// TAIL.
+    #[test]
+    fn mid_log_corruption_is_refused_not_truncated() {
+        use super::repair_receipt_log;
+        let dir = tempfile::tempdir().expect("tempdir");
+        let root = dir.path();
+        let ggen = root.join(".ggen-v2");
+        std::fs::create_dir_all(&ggen).expect("mkdir .g2");
+        let log = ggen.join("receipt-log.jsonl");
+        let mk = |h: &str| valid_receipt_line(h, Some(1));
+        let mut raw = mk(&"aa".repeat(32));
+        raw.extend_from_slice(br#"{"record": BROKEN,"#);
+        raw.push(b'\n');
+        raw.extend_from_slice(&mk(&"bb".repeat(32)));
+        std::fs::write(&log, &raw).expect("write log");
+        let before = std::fs::read(&log).expect("read log").len();
+
+        let err = repair_receipt_log(root).expect_err("mid-log damage refused");
+        let msg = err.to_string();
+        assert!(msg.contains("FM-CHAIN-010"), "{msg}");
+        assert!(
+            msg.contains("mid-log"),
+            "refusal must name the mid-log class: {msg}"
+        );
+        // Fail-closed: the log is untouched.
+        assert_eq!(
+            std::fs::read(&log).expect("read log").len(),
+            before,
+            "refused repair must not write anything"
+        );
+    }
+
+    /// G11 sequenced item 3(c): the KD-G18 dedupe window scans the last
+    /// [`APPEND_DEDUPE_WINDOW`] receipt lines (marker/blank lines skipped),
+    /// so a retry arriving after a repair marker — or after concurrent
+    /// appends — is still recognized, not double-landed.
+    #[test]
+    fn dedupe_window_recognizes_retry_beyond_last_line() {
+        let dir = tempfile::tempdir().expect("tempdir");
+        let log = dir.path().join(RECEIPT_LOG_REL_PATH);
+        std::fs::create_dir_all(log.parent().expect("parent")).expect("mkdir .ggen-v2");
+        let mk = |h: &str| {
+            let mut v = serde_json::to_vec(&serde_json::json!({
+                "record": { "chain_hash_hex": h },
+                "payload": {}
+            }))
+            .expect("serialize");
+            v.push(b'\n');
+            v
+        };
+
+        let build = |fillers: usize, marker: bool| {
+            let mut raw = mk(&"aa".repeat(32));
+            if marker {
+                raw.extend_from_slice(
+                    br#"{"ggen_receipt_log_repair":{"ts_ns":0,"bytes_dropped":31}}"#,
+                );
+                raw.push(b'\n');
+            }
+            for i in 0..fillers {
+                let hash = format!("{i:0>64}");
+                raw.extend_from_slice(&mk(&hash));
+            }
+            raw
+        };
+
+        // In-window (marker + 7 fillers => retry target at receipt-position
+        // 8): skipped.
+        std::fs::write(&log, build(7, true)).expect("write log");
+        let a = mk(&"aa".repeat(32));
+        assert!(
+            !append_receipt_line(&log, &a, &"aa".repeat(32)).expect("in-window retry"),
+            "retry at window depth 8 must be skipped"
+        );
+        assert_eq!(
+            std::fs::read_to_string(&log).expect("read").lines().count(),
+            9,
+            "no line lands for an in-window retry"
+        );
+
+        // Out-of-window (8 fillers => target at receipt-position 9):
+        // appends.
+        // Out-of-window (8 fillers => target at receipt-position 9):
+        // appends.
+        std::fs::write(&log, build(8, true)).expect("write log");
+        assert!(
+            append_receipt_line(&log, &a, &"aa".repeat(32)).expect("out-of-window retry"),
+            "retry beyond the window must land"
+        );
+        assert_eq!(
+            std::fs::read_to_string(&log).expect("read").lines().count(),
+            11,
+            "the out-of-window line lands"
+        );
+    }
+
+    /// G11 sequenced item 3(d): a live lock holder fails a second acquirer
+    /// closed with `[FM-CHAIN-012]`; dropping the guard releases; a stale
+    /// (crashed-holder) lock older than the staleness window is stolen.
+    #[test]
+    fn receipt_lock_fails_closed_releases_and_steals_stale() {
+        use super::{acquire_receipt_log_lock, RECEIPT_LOCK_REL_PATH};
+        use std::time::{Duration, SystemTime};
+
+        let dir = tempfile::tempdir().expect("tempdir");
+        let root = dir.path();
+
+        // 1. Contention: live holder refuses a second acquirer, typed.
+        let guard = acquire_receipt_log_lock(root).expect("first acquire");
+        let err = acquire_receipt_log_lock(root).expect_err("contended acquire");
+        let msg = err.to_string();
+        assert!(msg.contains("FM-CHAIN-012"), "{msg}");
+        assert!(msg.contains("receipt-log lock"), "{msg}");
+        drop(guard);
+
+        // 2. Release: file removed, reacquire succeeds.
+        assert!(
+            !root.join(RECEIPT_LOCK_REL_PATH).exists(),
+            "dropping the guard removes the lock file"
+        );
+        let g2 = acquire_receipt_log_lock(root).expect("reacquire after release");
+        drop(g2);
+
+        // 3. Staleness steal: a lock older than the window is stolen.
+        let lock_path = root.join(RECEIPT_LOCK_REL_PATH);
+        std::fs::create_dir_all(root.join(".ggen-v2")).expect("mkdir");
+        std::fs::write(&lock_path, b"pid 999999\nacquired 0\n").expect("write stale lock");
+        {
+            let f = std::fs::OpenOptions::new()
+                .write(true)
+                .open(&lock_path)
+                .expect("open stale lock");
+            let old = SystemTime::now()
+                .checked_sub(Duration::from_secs(60))
+                .expect("60s ago");
+            f.set_times(std::fs::FileTimes::new().set_modified(old))
+                .expect("set old mtime");
+        }
+        let _g3 = acquire_receipt_log_lock(root).expect("stale lock stolen");
+    }
     /// Gate-path glob expansion (fix-forward): a `gates/*.rq` entry over a
     /// 3-file gates dir expands to exactly those 3 files, in sorted order;
     /// a non-matching glob is a typed, fail-closed `[FM-CONFIG-014]`

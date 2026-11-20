@@ -58,20 +58,56 @@ A pack may depend on these surfaces, but it must not silently absorb their respo
 The companion listing is stored at [`src/listings/appendix-C-appendix-c-canonical-ggen-toml.toml`](../listings/appendix-C-appendix-c-canonical-ggen-toml.toml). It is intentionally small enough to inspect while retaining the chapter's load-bearing boundary.
 
 ```toml
-[pack]
-name = "chapter-000-appendix-c-canonical-ggen-toml"
-version = "26.7.19"
+# Canonical `ggen.toml` — declarative-rules schema (schema 1).
+# Live-verified against the installed binary (ggen 26.10.11): dry-run + real
+# sync rendered out/things.rs (scratch repro 2026-11-03, SA-6 lane).
+[project]
+name = "chapter-appendix-c-canonical-ggen-toml"
+version = "1.0.0"
 description = "Appendix C — Canonical `ggen.toml`"
+authors = ["ggen-book"]
+license = "MIT"
 
-[law]
-ontology = "ontology.ttl"
-gates = ["gates/010_admission.rq"] # SPARQL admission gates; a legacy shapes.ttl now refuses with FM-PACK-012
+[ontology]
+source = "ontology.ttl"
+standard_only = false
 
-[verification]
-independent_reference = "reference/"
-sync_twice = true
-refuse_unexplained_drift = true
+[generation]
+output_dir = "."
+
+[[generation.rules]]
+name = "things"
+query = { file = "queries/extract.rq" }
+template = { file = "templates/thing.tera" }
+output_file = "out/things.rs"
+mode = "Overwrite"
 ```
+
+### Two schemas — dispatch before writing anything
+
+`ggen.toml` has **two mutually exclusive schemas**, and the installed binary
+refuses any mix with `[FM-CONFIG-101]` (verified live 2026-11-03, ggen
+26.10.11):
+
+- **Schema 1 — declarative rules** (above): you author
+  `[[generation.rules]]`; ggen renders each one. `standard_only = true` is
+  accepted only under this schema.
+- **Schema 2 — pack composition** (used by this book's own
+  `book/ggen.toml`): `[project]` **without** `version`, plus
+  `[ontology].imports`, `[templates].dir` (`.tmpl` files only), and
+  `[packs]`.
+- A manifest matching **neither** schema is `[FM-CONFIG-102]`.
+- `output_dir`/`output_file` paths that escape the manifest's directory
+  refuse with `[FM-WRITE-002]` (the older name FM-YIELD-002 is retired;
+  verified live 2026-11-03).
+- `ggen sync run` accepts `--dry-run`, `--format`, `--select`, `--watch`,
+  `--consumer-mode`, `--introspect`, `--structured-errors`, `--autonomic`
+  (last-verified 2026-11-03 against the installed 26.10.11 binary). The
+  installed binary's `--help` is the surface of record; for flags present
+  only in source ≥ 26.11.3, trust `--help`, not this page.
+- Invocation is cwd-only: there is no `--manifest` flag; `ggen sync run`
+  reads `ggen.toml` from its current working directory, and output paths
+  resolve relative to that manifest.
 
 ## Verification procedure
 

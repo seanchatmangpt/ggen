@@ -1,0 +1,5 @@
+@prefix sj: <http://example.org/sj#> .
+
+sj:wo1 a sj:WorkOrder ;
+    sj:targetPack "mini-pack" ;
+    sj:capabilityId "cap-alpha" .

@@ -103,6 +103,7 @@ The pattern also creates obligations. The new source law must remain inspectable
 - **Union leakage:** a shared RDF class causes one pack to select another pack's individuals.
 - **Multiple writers:** two templates or packs claim the same path.
 - **False green:** a missing compiler, SDK, runner, or signer is reported as success instead of an explicit bounded outcome.
+- **Fill-forward leak (verified engine behavior, ggen 26.10.11, 2026-11-03):** when an `OPTIONAL` binds on some rows only, the unbound columns of a row are **filled forward from the previous row** — wrong values enter the generated output with no error at all. A column that never binds at all still refuses at render time with `[FM-GEN-008][TEMPLATE_VARIABLE_MISSING]`. `is defined` guards work only if the variable is never referenced unguarded anywhere in the template. Restructure the query (separate rules, or `COALESCE`/`BIND` so every row binds every column explicitly) rather than trusting the render. Never trust a render that mixes bound and unbound `OPTIONAL` columns.
 
 ## Falsifier
 

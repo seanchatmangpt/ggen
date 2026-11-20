@@ -35,5 +35,8 @@
     "@vitest/ui": "^3.2.6",
     "@vitest/coverage-v8": "^3.2.6"
   },
-  "dependencies": {}
+  "dependencies": {},
+  "overrides": {
+    "tinypool": "^2.1.2"
+  }
 }

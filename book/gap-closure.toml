@@ -181,7 +181,7 @@ marker = "thirty_one_packs_compose_with_verify_gates_active"
 
 [evidence."real-cli-harness"]
 path = "crates/ggen-engine/tests/composed_packs_e2e.rs"
-marker = "CliHarness::cargo_bin"
+marker = "CliHarness::from_path"
 
 [evidence."sabotage-refusal"]
 path = "crates/ggen-engine/tests/composed_packs_e2e.rs"
@@ -218,3 +218,13 @@ marker = "OK: TCPS reference=132"
 [evidence."tcps-generated-suite"]
 path = "examples/tcps-generated/Cargo.toml"
 marker = "tcps-generated"
+
+[[obligation]]
+id = "pack-praxis-core"
+subject = "packs/praxis-core-pack"
+kind = "pack"
+evidence = ["praxis-composition"]
+
+[evidence."praxis-composition"]
+path = "crates/ggen-engine/tests/pack_compose_capabilities_e2e.rs"
+marker = 'corpus_pack("praxis-core-pack")'

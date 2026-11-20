@@ -3,7 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "engines": { "node": ">=22" },
+  "engines": {
+    "node": ">=22"
+  },
   "packageManager": "pnpm@10.14.0",
   "scripts": {
     "dev": "next dev",
@@ -15,18 +17,20 @@
   },
   "dependencies": {
     "@monaco-editor/react": "4.7.0",
-    "next": "16.2.11",
+    "next": "16.4.5",
     "react": "19.2.0",
     "react-dom": "19.2.0"
   },
   "devDependencies": {
-    "@playwright/test": "1.54.2",
+    "@playwright/test": "1.64.1",
     "@types/node": "24.1.0",
     "@types/react": "19.1.9",
     "@types/react-dom": "19.1.7",
     "typescript": "5.8.3",
-    "vite": "7.0.6",
-    "vitest": "3.2.4"
+    "vite": "^7.3.7",
+    "vitest": "^5.1.0"
+  },
+  "overrides": {
+    "dompurify": "^3.4.17"
   }
 }
-

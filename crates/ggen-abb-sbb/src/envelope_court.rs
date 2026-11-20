@@ -11,13 +11,23 @@
 //! [`envelope_court`] replays the receipt against the declared caps and returns
 //! a [`ReplayVerdict`]:
 //!
-//! * `Pass` — every cap the receipt consumed is declared and exactly binds the
-//!   receipt's measured output count.
+//! * `Pass` — every cap the receipt consumed is declared and the receipt's
+//!   measured output count is within the declared ceiling (HIGH-1 fix,
+//!   v26.11.3: a ceiling is a maximum, not an equality — the court previously
+//!   inverted this and passed only `declared == measured`).
 //! * `VacuousGate` — the receipt consumed a cap id absent from the cap table.
 //!   An undeclared cap is vacuity, never a pass: exit code 1, typed, loud
 //!   (RESOLUTIONS.md refusal registry `VACUOUS_COURT` family).
-//! * `Refused` — a declared cap does not match the receipt-bound contract
-//!   ceiling (e.g. an x10-raised cap): exit code 2.
+//! * `Refused` — a declared cap sits below the receipt's measured output count
+//!   (e.g. a ceiling clamped under what was manufactured), or the envelope's
+//!   graph digest does not bind the receipt's graph digest (HIGH-2,
+//!   `ENVELOPE_GRAPH_MISMATCH`): exit code 2.
+//!
+//! Freshness (WO-06 R8, registered): ontology-hash / timestamp / generation
+//! freshness semantics are DELEGATED to the kernel's
+//! [`crate::verify_receipt`] (`src/lib.rs:1056`), which owns them. The court
+//! does not duplicate freshness checks — one calculus, one implementation
+//! (the N-implementations-of-one-calculus drift class).
 
 use crate::{canonical_digest, CapTable, Envelope, ManufactureReceipt, ReplayVerdict};
 
@@ -39,9 +49,22 @@ pub fn envelope_digest(env: &Envelope) -> String {
     canonical_digest(env)
 }
 
-/// Replay the envelope's receipt against its declared cap table.
+/// Replay the envelope's receipt against its declared cap table and graph
+/// digest binding.
 pub fn envelope_court(env: &Envelope) -> ReplayVerdict {
     let r = &env.receipt;
+    // HIGH-2: the envelope and the receipt it embeds must bind the same graph
+    // subject. An envelope assembled around a receipt from a different graph
+    // is a smuggled subject, not a replay.
+    if env.graph_digest != r.graph_digest {
+        return ReplayVerdict::Refused {
+            code: "ENVELOPE_GRAPH_MISMATCH".into(),
+            detail: format!(
+                "envelope binds graph {}, receipt was manufactured against graph {}",
+                env.graph_digest, r.graph_digest
+            ),
+        };
+    }
     let base_cap = r.capability.clone();
     let cap_id = consumed_cap_id(r);
     let measured = r.outputs.len() as u64;
@@ -55,7 +78,13 @@ pub fn envelope_court(env: &Envelope) -> ReplayVerdict {
                 detail,
             }
         }
-        Some(&declared) if declared == measured => ReplayVerdict::Pass,
+        // HIGH-1 fix (v26.11.3): CapTable is documented "cap id -> maximum
+        // value", so the lawful relation is `measured <= declared`. The
+        // previous `declared == measured` inverted ceiling semantics: an
+        // envelope declaring headroom passed only when the receipt happened to
+        // fill the ceiling exactly. Receipt claims below the ceiling pass; a
+        // receipt measuring more than the ceiling refuses.
+        Some(&declared) if measured <= declared => ReplayVerdict::Pass,
         Some(&declared) => ReplayVerdict::Refused {
             code: "CAP_CEILING_MISMATCH".into(),
             detail: format!(

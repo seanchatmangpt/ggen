@@ -198,8 +198,16 @@ workspace = true
 [dependencies.ggen-graph]
 workspace = true
 
+[dependencies.ggen-abb-sbb]
+path = "../ggen-abb-sbb"
+version = "26.10.11"
+
 [dependencies.ggen-engine]
 workspace = true
+
+[dependencies.ggen-sjira]
+path = "../ggen-sjira"
+version = "26.10.12"
 
 [dependencies.ggen-config]
 path = "../ggen-config"
@@ -242,9 +250,6 @@ workspace = true
 [dependencies.oxigraph]
 version = "0.5.11"
 features = [ "rdf-12",]
-
-[dependencies.genai]
-workspace = true
 
 [dev-dependencies.reqwest]
 # Moved from [dependencies] (2026-07-22): confirmed via full-crate grep the

@@ -1,0 +1,176 @@
+{
+  "schema": "ggen.ea.graph.v1",
+  "strategy": {
+    "id": "strategy:cyberpunk-tv-platform",
+    "title": "cyberpunk-tv-platform manufactures the capability-dense television runtime (web, WASM, control-plane, governance/settlement, verification) from ontology/platform.ttl via 27 generation rules"
+  },
+  "capabilities": [
+    {
+      "id": "cap:tv-runtime-manufacture",
+      "strategy": "strategy:cyberpunk-tv-platform"
+    }
+  ],
+  "abbs": [
+    {
+      "id": "abb:tv-runtime-manufacture",
+      "capability": "cap:tv-runtime-manufacture",
+      "contract": "contract:tv-manufacture"
+    }
+  ],
+  "contracts": [
+    {
+      "id": "contract:tv-manufacture",
+      "abb": "abb:tv-runtime-manufacture",
+      "version": "1.0.0",
+      "max_artifacts": 32,
+      "authority_ceiling": "CONSTRUCT",
+      "required_ports": [
+        "tv-runtime-web",
+        "tv-runtime-wasm",
+        "tv-runtime-governance",
+        "tv-runtime-verify"
+      ]
+    }
+  ],
+  "candidate_sbbs": [
+    {
+      "id": "sbb:tv-runtime-manufacture",
+      "abb": "abb:tv-runtime-manufacture",
+      "pack": "pack:cyberpunk-tv-platform",
+      "digest": "sha256:4bccb830f0edc6b4028eba7498ef6d6203873ae212f36c482ae2ae67d5ae1e07",
+      "mutable": false,
+      "authority": "CONSTRUCT",
+      "provides_ports": [
+        "tv-runtime-web",
+        "tv-runtime-wasm",
+        "tv-runtime-governance",
+        "tv-runtime-verify"
+      ],
+      "artifacts": [
+        {
+          "path": "package.json",
+          "template": "templates/package.json.tera"
+        },
+        {
+          "path": "index.html",
+          "template": "templates/index.html.tera"
+        },
+        {
+          "path": "src/main.js",
+          "template": "templates/main.js.tera"
+        },
+        {
+          "path": "src/style.css",
+          "template": "templates/style.css.tera"
+        },
+        {
+          "path": "src/world.json",
+          "template": "templates/world.json.tera"
+        },
+        {
+          "path": "src/world.ttl",
+          "template": "templates/world.ttl.tera"
+        },
+        {
+          "path": "src/capabilities.json",
+          "template": "templates/capabilities.json.tera"
+        },
+        {
+          "path": "src/vision2030.json",
+          "template": "templates/vision2030.json.tera"
+        },
+        {
+          "path": "scripts/control-plane.mjs",
+          "template": "templates/control-plane.mjs.tera"
+        },
+        {
+          "path": "src/projections.json",
+          "template": "templates/projections.json.tera"
+        },
+        {
+          "path": "src/runtime-config.json",
+          "template": "templates/runtime-config.json.tera"
+        },
+        {
+          "path": "src/governance.json",
+          "template": "templates/governance.json.tera"
+        },
+        {
+          "path": "src/rights.json",
+          "template": "templates/rights.json.tera"
+        },
+        {
+          "path": "src/system.mmd",
+          "template": "templates/system.mmd.tera"
+        },
+        {
+          "path": "src/settlement.rq",
+          "template": "templates/settlement.rq.tera"
+        },
+        {
+          "path": "rules/escrow.n3",
+          "template": "rules/escrow.n3"
+        },
+        {
+          "path": "rules/settlement.dl",
+          "template": "rules/settlement.dl"
+        },
+        {
+          "path": "public/manifest.webmanifest",
+          "template": "templates/manifest.webmanifest.tera"
+        },
+        {
+          "path": "public/sw.js",
+          "template": "templates/service-worker.js.tera"
+        },
+        {
+          "path": "rust-toolchain.toml",
+          "template": "templates/rust-toolchain.toml.tera"
+        },
+        {
+          "path": "wasm/Cargo.toml",
+          "template": "templates/Cargo.toml.tera"
+        },
+        {
+          "path": "wasm/src/lib.rs",
+          "template": "templates/lib.rs.tera"
+        },
+        {
+          "path": "wasm/src/bin/receipt.rs",
+          "template": "templates/receipt.rs.tera"
+        },
+        {
+          "path": "scripts/verify.mjs",
+          "template": "templates/verify.mjs.tera"
+        },
+        {
+          "path": "scripts/replay.mjs",
+          "template": "templates/replay.mjs.tera"
+        },
+        {
+          "path": "scripts/e2e.mjs",
+          "template": "templates/e2e.mjs.tera"
+        },
+        {
+          "path": "README.md",
+          "template": "templates/README.md.tera"
+        }
+      ]
+    }
+  ],
+  "qualifications": [
+    {
+      "id": "qual:tv-runtime-manufacture",
+      "sbb": "sbb:tv-runtime-manufacture",
+      "sbb_digest": "sha256:4bccb830f0edc6b4028eba7498ef6d6203873ae212f36c482ae2ae67d5ae1e07",
+      "contract": "contract:tv-manufacture",
+      "contract_digest": "sha256:b29da0149bfdc1c7b91053e05e6d83eebb63a393ac46581b323036e85fcb62e2",
+      "verdict": "QUALIFIED"
+    }
+  ],
+  "packs": [
+    {
+      "id": "pack:cyberpunk-tv-platform"
+    }
+  ]
+}

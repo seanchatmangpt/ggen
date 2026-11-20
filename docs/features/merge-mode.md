@@ -499,6 +499,21 @@ impl User {
 - **Manual sections may contain sensitive logic** (review before open-sourcing)
 - **Conflicts may expose internal implementation details** in error messages
 
+## Marker-Sweep Whitelist (READ BEFORE FLAGGING "CONFLICTS")
+
+The `<<<<<<< GENERATED` / `=======` / `>>>>>>> MANUAL` markers in generator-owned
+outputs — repo-root `CLAUDE.md` and `README.md` (merge_sections,
+`crates/ggen-engine/src/generation_rules.rs`) — are **lawful merge-mode output
+(mode=Merge), NOT git conflict artifacts**. Two separate sweep lanes have
+misread them as damage (historically 37958ed93; D74, 2026-11-04). Any
+conflict-marker sweep across merge-mode outputs MUST whitelist these files.
+
+The file-level signature of a *genuinely* damaged generation is **placeholder
+text plus missing content** (e.g. D67's README: `// Add your manual code here`
+placeholder with the generated body absent), NOT the presence of markers
+themselves. Markers with populated GENERATED and MANUAL sections on both sides
+are the generator working correctly.
+
 ## Related Documentation
 
 - [Force Flag](force-flag.md) - Alternative to merge mode (full regeneration)

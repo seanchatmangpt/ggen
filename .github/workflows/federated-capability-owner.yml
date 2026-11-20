@@ -10,6 +10,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   federation:
     uses: seanchatmangpt/chatman-ecosystem/.github/workflows/federated-capability-owner.yml@7430dfc9b3ca138e703430d25de7c6f48a8d6ade

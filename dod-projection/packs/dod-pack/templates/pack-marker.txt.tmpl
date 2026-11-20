@@ -1,0 +1,9 @@
+---
+to: .ggen/dod-pack-marker.txt
+force: true
+sparql:
+  count: >
+    PREFIX dod: <urn:ggen:dod:>
+    SELECT (COUNT(?g) AS ?n) WHERE { ?g a dod:PubGate . } ORDER BY ?n
+---
+dod-pack v0.1.0 loaded; PubGate count: {{ count[0].n }}

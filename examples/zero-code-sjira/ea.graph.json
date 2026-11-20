@@ -1,0 +1,13 @@
+{
+  "schema": "ggen.ea.graph.v1",
+  "strategy": {
+    "id": "strategy:sjira-zero-code-cli",
+    "title": "sjira: zero-code clap-noun-verb CLI manufactured from RDF by the clap-noun-verb packs"
+  },
+  "capabilities": [],
+  "abbs": [],
+  "contracts": [],
+  "candidate_sbbs": [],
+  "qualifications": [],
+  "packs": []
+}

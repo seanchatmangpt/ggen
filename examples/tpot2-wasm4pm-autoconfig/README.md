@@ -156,7 +156,7 @@ tpot2-wasm4pm-autoconfig/
 
    | Rule | Query | Template | Output |
    |------|-------|----------|--------|
-   | `generate-ggen-toml`          | `extract-pareto-pipeline.rq`   | `generated-ggen-toml.tera`    | `generated/ggen.toml` |
+   | `generate-ggen-toml`          | `extract-pareto-pipeline.rq`   | `generated-ggen-toml.tera`    | `generated/pipeline-spec.toml` |
    | `generate-tpot-config`        | `extract-operators.rq`         | `tpot-config-dict.py.tera`    | `generated/tpot_config.py` |
    | `generate-pipeline-manifest`  | `extract-pareto-pipeline.rq`   | `pipeline-manifest.json.tera` | `generated/pipeline.json` |
    | `generate-search-space-report`| `extract-operators.rq`         | `search-space-report.md.tera` | `generated/SEARCH_SPACE.md` |

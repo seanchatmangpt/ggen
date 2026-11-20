@@ -921,6 +921,11 @@ fn scaffold_synthetic_consumer(
 
     let project = dir.join("consumer");
     std::fs::create_dir_all(project.join("templates")).expect("mkdir templates");
+    std::fs::write(
+        project.join("ea.graph.json"),
+        "{\"schema\":\"ggen.ea.graph.v1\",\"strategy\":{\"id\":\"s\",\"title\":\"t\"},\"capabilities\":[],\"abbs\":[],\"contracts\":[],\"candidate_sbbs\":[],\"qualifications\":[],\"packs\":[]}",
+    )
+    .expect("write ea.graph.json");
     std::fs::write(project.join("ontology.ttl"), "").expect("write ontology.ttl");
     let packs_lines: String = pack_names.iter().fold(String::new(), |mut lines, n| {
         let _ = writeln!(lines, "{n} = {{ path = \"../{n}\" }}");

@@ -1,6 +1,17 @@
 //! Cross-pack Datalog resolver: dependency facts extracted from `ggen.toml`/`pack.toml`,
 //!
-//! forward-chained through the transitive-dependency rules, and refused on cycles, unbound ports, and artifact collisions — with a topological sync order as the result.  Datalog rules (forward chaining over pack facts):  ```text dep(P, Q)        <- pack.toml [graph] depends_on / ggen.toml consumer edges. transitive_dep(P, R) :- dep(P, Q), transitive_dep(Q, R). transitive_dep(P, Q) :- dep(P, Q). cyclic(P)        :- transitive_dep(P, P). unbound_port(P, T) :- requires(P, T), not provided_by_closure(P, T). ```  The resolver is IO-free: extraction is from in-memory TOML text, the gate takes values and returns values (`SyncPlan` / [`Refusal`]). Chicago tests below exercise real TOML documents end to end.
+//! forward-chained through the transitive-dependency rules, and refused on cycles,
+//! unbound ports, and artifact collisions: Gate 2 below refuses two packs in one
+//! graph writing the same path (pinned by `refuses_duplicate_artifact_path_across_packs`);
+//! collisions across separately composed graphs remain the composer's responsibility.
+//! Datalog rules (forward
+//! chaining over pack facts): ```text dep(P, Q) <- pack.toml [graph] depends_on /
+//! ggen.toml consumer edges. transitive_dep(P, R) :- dep(P, Q), transitive_dep(Q, R).
+//! transitive_dep(P, Q) :- dep(P, Q). cyclic(P) :- transitive_dep(P, P).
+//! unbound_port(P, T) :- requires(P, T), not provided_by_closure(P, T). ``` The
+//! resolver is IO-free: extraction is from in-memory TOML text, the gate takes values
+//! and returns values (`SyncPlan` / [`Refusal`]). Chicago tests below exercise real
+//! TOML documents end to end.
 
 use crate::Refusal;
 use serde::{Deserialize, Serialize};
@@ -25,11 +36,18 @@ pub struct PackManifest {
 }
 
 /// The consumer's own `ggen.toml` edges: a name plus the packs it wires.
+///
+/// `requires` is optional (serde default) so legacy `ggen.toml` files without
+/// `[graph] requires` parse unchanged; empty means the consumer demands no port.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ConsumerEdges {
     pub name: String,
     #[serde(default)]
     pub depends_on: BTreeSet<String>,
+    /// Ports the consumer demands from the pack graph as a whole (checked in
+    /// Gate 4 against every pack's `provides`, since a consumer consumes all packs).
+    #[serde(default)]
+    pub requires: BTreeSet<String>,
 }
 
 /// Result of a clean resolution: a topological sync order plus the computed
@@ -42,13 +60,56 @@ pub struct SyncPlan {
     pub transitive_deps: BTreeMap<String, BTreeSet<String>>,
 }
 
+/// Canonical port-name law: a port is canonical iff it is non-empty, contains
+/// no whitespace (leading/trailing included), and consists only of lowercase
+/// ASCII letters, digits, and dashes. Non-canonical ports are refused at
+/// extract time with `NON_CANONICAL_PORT` — trim/case-fold at comparison time
+/// is rejected by design because silently equating two spellings is fail-open.
+fn is_canonical_port(port: &str) -> bool {
+    !port.trim().is_empty()
+        && port.trim() == port
+        && port
+            .chars()
+            .all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || c == '-')
+}
+
+fn non_canonical_port_refusal(pack: &str, field: &str, port: &str) -> Refusal {
+    Refusal::NonCanonicalPort {
+        pack: pack.to_string(),
+        field: field.to_string(),
+        port: port.to_string(),
+    }
+}
+
+fn canonical_port_set(
+    graph: Option<&toml::Value>, field: &str, pack: &str,
+) -> Result<BTreeSet<String>, Refusal> {
+    let Some(arr) = graph.and_then(|g| g.get(field)).and_then(|v| v.as_array()) else {
+        return Ok(BTreeSet::new());
+    };
+    let mut set = BTreeSet::new();
+    for x in arr {
+        let port = x.as_str().ok_or_else(|| Refusal::MalformedGraph {
+            reason: format!(
+                "MALFORMED_GRAPH: pack '{pack}' field '{field}' has a non-string entry"
+            ),
+        })?;
+        if !is_canonical_port(port) {
+            return Err(non_canonical_port_refusal(pack, field, port));
+        }
+        set.insert(port.to_string());
+    }
+    Ok(set)
+}
+
 /// Extract [`PackManifest`] facts from a `pack.toml` document.
 ///
 /// `name` is read from `[pack] name` (the existing pack format); dependency
 /// facts are read from an optional `[graph]` table (`depends_on`, `provides`,
-/// `requires`, `artifacts`). Packs without a `[graph]` table are
-/// dependency-free facts (`dep(P, nothing)`) — every existing pack parses
-/// clean under this law.
+/// `requires`, `artifacts`). Port fields (`provides`, `requires`) are
+/// canonicality-checked at extract time (see [`is_canonical_port`]). Packs
+/// without a `[graph]` table are dependency-free facts (`dep(P, nothing)`) —
+/// every existing pack parses clean under this law.
 pub fn extract_pack_manifest(pack_toml: &str) -> Result<PackManifest, Refusal> {
     let value: toml::Value =
         star_toml::from_str(pack_toml).map_err(|e| Refusal::MalformedGraph {
@@ -75,10 +136,10 @@ pub fn extract_pack_manifest(pack_toml: &str) -> Result<PackManifest, Refusal> {
             .unwrap_or_default()
     };
     Ok(PackManifest {
-        name,
+        name: name.clone(),
         depends_on: set_of("depends_on"),
-        provides: set_of("provides"),
-        requires: set_of("requires"),
+        provides: canonical_port_set(graph, "provides", &name)?,
+        requires: canonical_port_set(graph, "requires", &name)?,
         artifacts: set_of("artifacts"),
     })
 }
@@ -109,7 +170,12 @@ pub fn extract_consumer_edges(ggen_toml: &str) -> Result<Option<ConsumerEdges>, 
                 .collect()
         })
         .unwrap_or_default();
-    Ok(Some(ConsumerEdges { name, depends_on }))
+    let requires = canonical_port_set(Some(graph), "requires", &name)?;
+    Ok(Some(ConsumerEdges {
+        name,
+        depends_on,
+        requires,
+    }))
 }
 
 /// Resolve the full cross-pack graph: gates, transitive closure, sync order.
@@ -167,28 +233,20 @@ pub fn resolve_sync_order(
         edges.insert(c.name.clone(), c.depends_on.clone());
     }
 
-    // transitive_dep forward-chaining fixpoint.
-    let mut transitive: BTreeMap<String, BTreeSet<String>> = BTreeMap::new();
-    for name in edges.keys() {
-        transitive.insert(name.clone(), BTreeSet::new());
-    }
-    loop {
-        let mut changed = false;
-        for (p, deps) in &edges {
-            let mut next = transitive[p].clone();
-            for q in deps {
-                next.insert(q.clone());
-                next.extend(transitive[q].iter().cloned());
-            }
-            if next != transitive[p] {
-                transitive.insert(p.clone(), next);
-                changed = true;
-            }
-        }
-        if !changed {
-            break;
-        }
-    }
+    // transitive_dep forward-chaining fixpoint. A converging fixpoint over V
+    // nodes needs at most V passes (each pass either grows a finite set or
+    // terminates); the cap is 2*|packs|^2 with a small-graph floor — generous
+    // headroom, so exceeding it means the rules cannot converge on this graph,
+    // not a slow-but-honest computation. Runs away are refused, never looped.
+    const MIN_CLOSURE_ITERATIONS: usize = 16;
+    let max_iterations = packs
+        .len()
+        .saturating_mul(packs.len())
+        .saturating_mul(2)
+        .max(MIN_CLOSURE_ITERATIONS);
+    let transitive = closure_fixpoint(&edges, max_iterations)?;
+
+    // Gate 3: cycles — transitive_dep(P, P).
 
     // Gate 3: cycles — transitive_dep(P, P).
     for (p, ts) in &transitive {
@@ -223,6 +281,19 @@ pub fn resolve_sync_order(
         }
     }
 
+    // Gate 4 (consumer): the consumer consumes every pack by construction, so
+    // its requires resolve against ALL packs' provides, not just a closure.
+    if let Some(c) = consumer {
+        for port in &c.requires {
+            if !packs.iter().any(|p| p.provides.contains(port)) {
+                return Err(Refusal::UnboundPort {
+                    pack: c.name.clone(),
+                    port: port.clone(),
+                });
+            }
+        }
+    }
+
     // Kahn topological order (consumer, if any, sorts with the packs).
     let mut order = Vec::new();
     let mut remaining: BTreeMap<String, BTreeSet<String>> = edges.clone();
@@ -233,8 +304,14 @@ pub fn resolve_sync_order(
             .map(|(n, _)| n.clone())
             .collect();
         if ready.is_empty() {
-            // Unreachable given the cycle gate above; kept as a loud
-            // invariant violation rather than a silent partial order.
+            // Invariant citation: Gate 3 refuses on transitive_dep(P, P) for
+            // any P, so a cycle-free graph reaches this loop. A non-empty
+            // `remaining` with no ready node (every node still has an unmet
+            // dependency among `remaining`) implies a cycle among those nodes
+            // — which Gate 3 must already have refused. This branch is
+            // therefore reachable only if Gate 3 and the Kahn phase disagree
+            // on cycle detection, i.e. a resolver invariant violation, not a
+            // pack-authoring error. Kept loud on purpose; never a partial order.
             return Err(Refusal::CyclicPackDependency {
                 cycle: remaining.keys().cloned().collect(),
             });
@@ -264,6 +341,44 @@ pub fn resolve_sync_order(
             .filter(|(n, _)| Some(n.as_str()) != consumer.map(|c| c.name.as_str()))
             .collect(),
     })
+}
+
+/// The bounded transitive-closure fixpoint.
+///
+/// Each pass grows finite sets until no set changes; `max_iterations` caps
+/// passes so a graph the rules cannot converge on refuses typed
+/// (`CLOSURE_BOUND_EXCEEDED`) instead of hanging. Exposed as a seam so the bound guard is court-testable with a tight bound —
+/// with the production bound (2*|packs|^2, floor 16) no fixed-edge graph can
+/// exceed it, since V nodes need at most V passes.
+pub fn closure_fixpoint(
+    edges: &BTreeMap<String, BTreeSet<String>>, max_iterations: usize,
+) -> Result<BTreeMap<String, BTreeSet<String>>, Refusal> {
+    let mut transitive: BTreeMap<String, BTreeSet<String>> = BTreeMap::new();
+    for name in edges.keys() {
+        transitive.insert(name.clone(), BTreeSet::new());
+    }
+    let mut iterations = 0usize;
+    loop {
+        iterations += 1;
+        if iterations > max_iterations {
+            return Err(Refusal::ClosureBoundExceeded { max_iterations });
+        }
+        let mut changed = false;
+        for (p, deps) in edges {
+            let mut next = transitive[p].clone();
+            for q in deps {
+                next.insert(q.clone());
+                next.extend(transitive[q].iter().cloned());
+            }
+            if next != transitive[p] {
+                transitive.insert(p.clone(), next);
+                changed = true;
+            }
+        }
+        if !changed {
+            return Ok(transitive);
+        }
+    }
 }
 
 /// Reconstruct an actual cycle path ending at `start` (DFS with visited set).
@@ -349,6 +464,7 @@ artifacts = ["src/affidavit_catalog.rs"]
         let consumer = ConsumerEdges {
             name: "consumer:app".into(),
             depends_on: std::iter::once("a".to_string()).collect(),
+            requires: BTreeSet::new(),
         };
         let packs = vec![
             manifest("a"),
@@ -470,6 +586,7 @@ artifacts = ["src/affidavit_catalog.rs"]
         let consumer = ConsumerEdges {
             name: "app".into(),
             depends_on: std::iter::once("ghost".to_string()).collect(),
+            requires: BTreeSet::new(),
         };
         let err = resolve_sync_order(&packs, Some(&consumer)).unwrap_err();
         assert!(err.to_string().contains("DANGLING_REFERENCE"));

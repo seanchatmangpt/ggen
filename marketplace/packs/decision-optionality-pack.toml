@@ -1,0 +1,29 @@
+[pack]
+packages = []
+category = "uncategorized"
+id = "decision-optionality-pack"
+name = "decision-optionality-pack"
+version = "26.9.12"
+description = """
+Canonical Design for Combinatorial Maximalism (DfCM) vocabulary for candidate
+spaces, reversible options, evidence requirements, falsifiers, selections,
+portfolios, and rollback. Instantiates a real candidate frontier (do:Frontier)
+with member do:Candidate individuals carrying do:reversible/do:status facts,
+an do:EvidenceRequirement and do:Falsifier pair, a do:Portfolio grouping
+option sets, and a do:Selection/do:Rollback pair -- so a consumer can query
+"which reversible candidates remain unexhausted" or "was this selection made
+irreversibly while a reversible alternative was still live" directly against
+this pack's own facts.
+
+Consumer contract: declare your own do:Frontier of do:Candidate individuals
+(do:reversible true/false, do:status "available"/"falsified"/"selected"),
+group them under a do:Portfolio, and record any do:Selection via
+do:selects. gates/010_irreversible_before_reversible_exhausted.rq refuses
+generation when a do:Selection selects a do:reversible false candidate while
+a do:reversible true candidate in the same do:Frontier still has
+do:status "available" -- the DfCM law that irreversible selection must never
+precede exhaustion of lawful reversible possibility.
+"""
+
+[capabilities]
+provides = ["urn:ggen:pack:decision-optionality-pack"]

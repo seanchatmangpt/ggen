@@ -141,4 +141,3 @@ real `.ggen/packs.lock` files, real Ed25519-signed receipts — no mocks):
   (lockfile digest, signed receipt that verifies). Sabotage: nonexistent-pack
   install fails closed (no lockfile), a tampered receipt fails verification, and
   `--dry_run` writes no durable state.
-

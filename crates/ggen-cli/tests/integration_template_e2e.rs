@@ -5,25 +5,30 @@
     clippy::needless_raw_string_hashes,
     clippy::ignore_without_reason
 )]
-//! End-to-end integration tests for template workflow
+//! End-to-end integration tests for the template/pack authoring workflow.
+//!
+//! History: these tests originally pinned the removed `ggen template`
+//! noun. The capability moved to `ggen pack` / `ggen packs` (listing,
+//! detail, validation) and `ggen sync run` (generation pipeline).
+//! Re-pinned 2026-11-08, V8-GGEN-R3 lane, against witnessed CLI probes.
+//! Sixteen tests were deleted rather than re-pinned (cited in the lane
+//! receipt): 4 in the R3 pass (see the DELETED comment below) and the 12
+//! remaining `#[ignore = "REGISTERED-GAP"]` tests in the V8-R1-f pass —
+//! all still pinned the removed `template` noun and referenced the deleted
+//! `create_test_template` helper (compile error E0425 after R3's cleanup).
+//! - `template new` x2: `ggen pack new` currently refuses every
+//!   construction with FM-LAW-015 (`ea.graph.json` absent) — finding F2.
+//! - `template generate_tree` + `template regenerate`: the generation
+//!   pipeline under `ggen sync run` requires an authored manifest, and
+//!   the scaffold manifest `ggen init` emits itself fails FM-CONFIG-003
+//!   (inference rule without ORDER BY) — finding F3.
 //!
 //! **Chicago TDD Principles**:
-//! - REAL template rendering with Tera engine
-//! - REAL file system operations
-//! - REAL template validation and linting
-//! - REAL state verification
-//! - NO mocking of template engine
-//!
-//! **Critical User Workflows (80/20)**:
-//! 1. Create new template
-//! 2. List available templates
-//! 3. Show template details
-//! 4. Lint template for errors
-//! 5. Generate file tree from template
+//! - REAL CLI process execution, REAL file system operations
+//! - REAL state verification, NO mocking of the template engine
 
 use assert_cmd::Command;
 use predicates::prelude::*;
-use std::fs;
 use tempfile::TempDir;
 
 /// Resolve the real `ggen` binary the same way `cli_boundary.rs::ggen_bin`
@@ -81,387 +86,79 @@ fn ggen() -> Command {
     Command::new(ggen_bin())
 }
 
-/// Helper to create test template
-fn create_test_template(temp_dir: &TempDir, name: &str) -> std::path::PathBuf {
-    let templates_dir = temp_dir.path().join(".ggen/templates");
-    fs::create_dir_all(&templates_dir).expect("Failed to create templates dir");
-
-    let template_dir = templates_dir.join(name);
-    fs::create_dir_all(&template_dir).expect("Failed to create template dir");
-
-    // Create template file with Tera syntax
-    let template_content = r#"# {{ project_name }}
-
-## Description
-{{ description | default(value="A template-generated project") }}
-
-## Features
-{% for feature in features %}
-- {{ feature }}
-{% endfor %}
-"#;
-
-    fs::write(template_dir.join("README.md.tera"), template_content)
-        .expect("Failed to write template");
-
-    // Create template metadata
-    let metadata = r#"
-name = "{{ name }}"
-version = "1.0.0"
-description = "Test template"
-
-[variables]
-project_name = { type = "string", prompt = "Project name?" }
-description = { type = "string", optional = true }
-features = { type = "array", default = [] }
-"#;
-
-    fs::write(template_dir.join("template.toml"), metadata).expect("Failed to write metadata");
-
-    template_dir
+/// Hermetic pack-add environment: `pack add` installs into
+/// `$HOME/.ggen/packs/<id>` (via `dirs::home_dir()`), so overriding HOME to
+/// a fresh temp dir isolates the global pack cache, while `GGEN_PACKS_DIR`
+/// is pointed back at the real registry so pack *lookup* still resolves.
+/// Witnessed: with HOME=<fresh tmp> + GGEN_PACKS_DIR=<real registry>,
+/// `pack add repository-lifecycle-pack` is rc=0 and writes the project
+/// lockfile under the temp cwd, never touching the caller's HOME.
+fn hermetic_pack_add() -> (String, String) {
+    let packs_dir = std::env::var("HOME")
+        .map(|h| format!("{h}/.ggen/packs"))
+        .unwrap_or_default();
+    ("GGEN_PACKS_DIR".to_string(), packs_dir)
 }
 
+// DELETED (2026-11-08, V8-GGEN-R3): `template new` -> `pack new` re-pin is
+// blocked by finding F2: `ggen pack new <name> --description D --namespace N`
+// refuses with FM-LAW-015 ("ea.graph.json is absent") for every invocation
+// after a fresh `ggen init` + `ggen init-self`; the verb has no admission
+// opt-out flag. The old ".ggen/templates/<name>/template.toml" state assert
+// has no reachable successor. See lane receipt.
+
 #[test]
-#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
-fn test_template_new_creates_structure() {
-    // Chicago TDD: Verify real file system state after template creation
+// Re-pin (2026-11-08, V8-GGEN-R3): `template list` -> `pack list`
+// (embedded marketplace registry). Witnessed: rc=0, JSON with "packs" key.
+fn test_template_list_empty() {
     let temp_dir = TempDir::new().unwrap();
 
     ggen()
-        .arg("template")
-        .arg("new")
-        .arg("my-template")
+        .args(["pack", "list"])
+        .current_dir(&temp_dir)
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("packs"));
+}
+
+#[test]
+// Re-pin (2026-11-08, V8-GGEN-R3): "shows installed" now means the pack
+// lockfile roundtrip: hermetic `pack add`, then `packs list` must report
+// the pack by id. Witnessed: integrity entry with pack_id present.
+fn test_template_list_shows_installed() {
+    let temp_dir = TempDir::new().unwrap();
+    let home = TempDir::new().unwrap();
+    let (var, packs_dir) = hermetic_pack_add();
+
+    ggen()
+        .args(["pack", "add", "repository-lifecycle-pack"])
+        .env("HOME", home.path())
+        .env(&var, &packs_dir)
         .current_dir(&temp_dir)
         .assert()
         .success();
 
-    // Verify state: Template directory created
-    let template_path = temp_dir.path().join(".ggen/templates/my-template");
-    assert!(
-        template_path.exists(),
-        "Template directory should be created"
-    );
-
-    // Verify state: Template metadata file exists
-    assert!(
-        template_path.join("template.toml").exists()
-            || template_path.join("template.yaml").exists(),
-        "Template metadata should exist"
-    );
-}
-
-#[test]
-#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
-fn test_template_list_empty() {
-    // Chicago TDD: Verify state when no templates exist
-    let temp_dir = TempDir::new().unwrap();
-
     ggen()
-        .arg("template")
-        .arg("list")
+        .args(["packs", "list"])
         .current_dir(&temp_dir)
         .assert()
         .success()
-        .stdout(
-            predicate::str::contains("No templates found")
-                .or(predicate::str::contains("templates")),
-        );
+        .stdout(predicate::str::contains("repository-lifecycle-pack"));
 }
 
 #[test]
-#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
-fn test_template_list_shows_installed() {
-    // Chicago TDD: Verify state includes existing templates
-    let temp_dir = TempDir::new().unwrap();
-    create_test_template(&temp_dir, "test-template");
-
-    ggen()
-        .arg("template")
-        .arg("list")
-        .current_dir(&temp_dir)
-        .assert()
-        .success()
-        .stdout(predicate::str::contains("test-template"));
-}
-
-#[test]
-#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
+// Re-pin (2026-11-08, V8-GGEN-R3): `template list --json` -> `pack list`
+// (always JSON). Assert parseable JSON state, not just exit code.
 fn test_template_list_json_format() {
-    // Chicago TDD: Verify JSON state representation
     let temp_dir = TempDir::new().unwrap();
-    create_test_template(&temp_dir, "test-template");
 
     let output = ggen()
-        .arg("template")
-        .arg("list")
-        .arg("--json")
+        .args(["pack", "list"])
         .current_dir(&temp_dir)
         .output()
         .expect("Failed to execute");
 
     assert!(output.status.success());
-
-    // Verify valid JSON state
     let stdout = String::from_utf8_lossy(&output.stdout);
-    if !stdout.is_empty() {
-        serde_json::from_str::<serde_json::Value>(&stdout).expect("Output should be valid JSON");
-    }
-}
-
-#[test]
-#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
-fn test_template_show_displays_details() {
-    // Chicago TDD: Verify template metadata state is displayed
-    let temp_dir = TempDir::new().unwrap();
-    create_test_template(&temp_dir, "detailed-template");
-
-    ggen()
-        .arg("template")
-        .arg("show")
-        .arg("detailed-template")
-        .current_dir(&temp_dir)
-        .assert()
-        .success()
-        .stdout(predicate::str::contains("detailed-template"))
-        .stdout(predicate::str::contains("version").or(predicate::str::contains("Version")));
-}
-
-#[test]
-#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
-fn test_template_show_missing_template() {
-    // Chicago TDD: Verify error state for nonexistent template
-    let temp_dir = TempDir::new().unwrap();
-
-    ggen()
-        .arg("template")
-        .arg("show")
-        .arg("nonexistent-template")
-        .current_dir(&temp_dir)
-        .assert()
-        .failure()
-        .stderr(predicate::str::contains("not found").or(predicate::str::contains("error")));
-}
-
-#[test]
-#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
-fn test_template_lint_valid_template() {
-    // Chicago TDD: Verify linting validates template structure
-    let temp_dir = TempDir::new().unwrap();
-    let template_path = create_test_template(&temp_dir, "valid-template");
-
-    ggen()
-        .arg("template")
-        .arg("lint")
-        .arg(template_path.to_str().unwrap())
-        .current_dir(&temp_dir)
-        .assert()
-        .success();
-}
-
-#[test]
-#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
-fn test_template_lint_invalid_syntax() {
-    // Chicago TDD: Verify linting catches syntax errors
-    let temp_dir = TempDir::new().unwrap();
-    let templates_dir = temp_dir.path().join(".ggen/templates");
-    fs::create_dir_all(&templates_dir).unwrap();
-
-    let template_dir = templates_dir.join("invalid-template");
-    fs::create_dir_all(&template_dir).unwrap();
-
-    // Create template with invalid Tera syntax
-    let invalid_content = r#"{{ unclosed_variable"#;
-    fs::write(template_dir.join("invalid.tera"), invalid_content).unwrap();
-
-    // Lint may succeed if it's lenient, or fail if strict
-    let _ = ggen()
-        .arg("template")
-        .arg("lint")
-        .arg(template_dir.to_str().unwrap())
-        .current_dir(&temp_dir)
-        .output();
-
-    // Either way, command should complete (not crash)
-}
-
-#[test]
-#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
-fn test_template_generate_tree_basic() {
-    // Chicago TDD: Verify file tree generation from template
-    let temp_dir = TempDir::new().unwrap();
-    create_test_template(&temp_dir, "tree-template");
-
-    // Create data file
-    let data_content = r#"
-project_name: "MyProject"
-description: "A test project"
-features:
-  - "Fast"
-  - "Reliable"
-"#;
-    fs::write(temp_dir.path().join("data.yaml"), data_content).unwrap();
-
-    ggen()
-        .arg("template")
-        .arg("generate_tree")
-        .arg("tree-template")
-        .arg("--data")
-        .arg(temp_dir.path().join("data.yaml").to_str().unwrap())
-        .arg("--output")
-        .arg(temp_dir.path().to_str().unwrap())
-        .current_dir(&temp_dir)
-        .assert()
-        .success();
-
-    // Verify state: Generated file exists
-    let output_file = temp_dir.path().join("README.md");
-    assert!(output_file.exists(), "Generated file should exist");
-
-    // Verify state: Template variables were rendered
-    let content = fs::read_to_string(&output_file).unwrap();
-    assert!(
-        content.contains("MyProject"),
-        "Template should render project name"
-    );
-    assert!(
-        content.contains("A test project"),
-        "Template should render description"
-    );
-}
-
-#[test]
-#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
-fn test_template_regenerate_basic() {
-    // Chicago TDD: Verify delta-driven regeneration
-    let temp_dir = TempDir::new().unwrap();
-    create_test_template(&temp_dir, "regen-template");
-
-    // Create initial file
-    let initial_content = r#"# Project
-<!-- ggen:start -->
-Generated content
-<!-- ggen:end -->
-
-User content
-"#;
-    fs::write(temp_dir.path().join("output.md"), initial_content).unwrap();
-
-    ggen()
-        .arg("template")
-        .arg("regenerate")
-        .arg("regen-template")
-        .current_dir(&temp_dir)
-        .assert()
-        .success();
-
-    // Verify state: File still exists
-    assert!(temp_dir.path().join("output.md").exists());
-}
-
-#[test]
-#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
-fn test_template_help_output() {
-    // Chicago TDD: Verify help state is comprehensive
-    ggen()
-        .arg("template")
-        .arg("--help")
-        .assert()
-        .success()
-        .stdout(predicate::str::contains("Template management"))
-        .stdout(predicate::str::contains("new"))
-        .stdout(predicate::str::contains("list"))
-        .stdout(predicate::str::contains("show"))
-        .stdout(predicate::str::contains("lint"));
-}
-
-#[test]
-#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
-fn test_template_new_help() {
-    // Chicago TDD: Verify verb-specific help
-    ggen()
-        .arg("template")
-        .arg("new")
-        .arg("--help")
-        .assert()
-        .success()
-        .stdout(predicate::str::contains("Create a new template"));
-}
-
-#[test]
-#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
-fn test_template_invalid_verb() {
-    // Chicago TDD: Verify error handling for invalid verbs
-    ggen()
-        .arg("template")
-        .arg("invalid-verb")
-        .assert()
-        .failure()
-        .stderr(predicate::str::contains("error").or(predicate::str::contains("invalid")));
-}
-
-#[test]
-#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
-fn test_template_new_with_description() {
-    // Chicago TDD: Verify template creation with metadata
-    let temp_dir = TempDir::new().unwrap();
-
-    ggen()
-        .arg("template")
-        .arg("new")
-        .arg("described-template")
-        .arg("--description")
-        .arg("A template with description")
-        .current_dir(&temp_dir)
-        .assert()
-        .success();
-
-    // Verify state: Metadata includes description
-    let template_path = temp_dir.path().join(".ggen/templates/described-template");
-    assert!(template_path.exists());
-}
-
-#[test]
-#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
-fn test_template_generate_tree_missing_template() {
-    // Chicago TDD: Verify error state for missing template
-    let temp_dir = TempDir::new().unwrap();
-
-    ggen()
-        .arg("template")
-        .arg("generate_tree")
-        .arg("nonexistent-template")
-        .current_dir(&temp_dir)
-        .assert()
-        .failure()
-        .stderr(predicate::str::contains("not found").or(predicate::str::contains("error")));
-}
-
-#[test]
-#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
-fn test_template_performance_list() {
-    // Chicago TDD: Verify performance for listing templates
-    let temp_dir = TempDir::new().unwrap();
-
-    // Create multiple templates
-    for i in 0..10 {
-        create_test_template(&temp_dir, &format!("template-{}", i));
-    }
-
-    let start = std::time::Instant::now();
-
-    ggen()
-        .arg("template")
-        .arg("list")
-        .current_dir(&temp_dir)
-        .assert()
-        .success();
-
-    let duration = start.elapsed();
-
-    // Should complete quickly even with multiple templates
-    assert!(
-        duration.as_secs() < 5,
-        "Listing templates should be fast: {:?}",
-        duration
-    );
+    serde_json::from_str::<serde_json::Value>(&stdout).expect("Output should be valid JSON");
 }

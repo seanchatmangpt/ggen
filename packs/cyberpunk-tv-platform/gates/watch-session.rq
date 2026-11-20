@@ -1,0 +1,19 @@
+# Gate equivalent of tv:WatchSessionShape (SHACL-at-sync retired, FM-LAW-017).
+# true = violation.
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>PREFIX tv: <https://ggen.dev/ontology/cyberpunk-tv#>
+ASK {
+  ?subject a tv:WatchSession .
+  {
+    FILTER NOT EXISTS { ?subject tv:sessionId ?v . FILTER(datatype(?v) = xsd:string) }
+  } UNION {
+    ?subject tv:sessionId ?s1, ?s2 . FILTER(STR(?s1) != STR(?s2))
+  } UNION {
+    FILTER NOT EXISTS { ?subject tv:sessionState ?k . FILTER(?k IN ("scheduled", "ready", "playing", "paused", "completed", "refused")) }
+  } UNION {
+    FILTER NOT EXISTS { ?subject tv:driftToleranceMillis ?d . FILTER(?d >= 0 && ?d <= 5000) }
+  } UNION {
+    FILTER NOT EXISTS { ?subject tv:hasMediaBinding ?b . ?b a tv:MediaBinding . }
+  } UNION {
+    FILTER NOT EXISTS { ?subject tv:receiptedBy ?r . ?r a tv:ReceiptPolicy . }
+  }
+}

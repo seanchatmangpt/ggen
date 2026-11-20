@@ -406,4 +406,3 @@ The smoke test suite covers:
 
 **Created by**: Agent 16 (Smoke Test & CLI Tools)
 **Status**: COMPLETE AND VERIFIED ✓
-

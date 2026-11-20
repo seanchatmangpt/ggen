@@ -1,0 +1,58 @@
+# GAP19: durable Elixir↔Rust golden mutual-admit gate.
+# Hands-free entry: `just sjira-mutual-admit` (script: scripts/sjira_mutual_admit.sh).
+# On ggen-only runners the Elixir leg dry-run-skips when ggen_igniter/mix is absent;
+# Rust shared_fixture_admission_test still runs and must EXIT 0.
+name: sjira-mutual-admit
+
+on:
+  pull_request:
+    paths:
+      - 'crates/ggen-sjira/**'
+      - 'scripts/sjira_mutual_admit.sh'
+      - 'justfile'
+      - '.github/workflows/sjira-mutual-admit.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'crates/ggen-sjira/**'
+      - 'scripts/sjira_mutual_admit.sh'
+      - 'justfile'
+      - '.github/workflows/sjira-mutual-admit.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: sjira-mutual-admit-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  mutual-admit:
+    name: golden mutual admit
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    # Bespoke dtolnay/rust-toolchain path (not setup-ggen-build): .cargo/config.toml
+    # sets rustc-wrapper = "sccache" unconditionally. Empty RUSTC_WRAPPER matches
+    # live-examples / architecture-autonomics / etc. so cargo runs without installing
+    # sccache on this narrow gate (CI_CONVENTIONS: install via composite OR unset).
+    env:
+      CARGO_TERM_COLOR: always
+      RUSTC_WRAPPER: ""
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Install just
+        # v3 tag / v3.1.0 peel (prior pin e33eabd… was not a real commit → Unable to resolve action)
+        uses: extractions/setup-just@f8a3cce218d9f83db3a2ecd90e41ac3de6cdfd9b # v3
+      - name: Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+      - name: Cache cargo
+        # v2.8.1 peel (same SHA as .github/actions/setup-ggen-build; prior f13886b9…471e… was a mangled non-commit)
+        uses: Swatinem/rust-cache@f13886b937689c021905a6b90929199931d60db1 # v2.8.1
+        with:
+          workspaces: '.'
+      - name: Mutual admit gate
+        run: just sjira-mutual-admit

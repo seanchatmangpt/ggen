@@ -249,4 +249,3 @@ fn run_build_container(client: &ContainerClient) -> TestcontainersResult<()> {
 ⚠️ **Future Enhancement**: Higher-level fixture helpers may be added in future versions
 
 The current API provides full control and is production-ready. The fixture-based helpers mentioned in documentation would be a convenience layer on top of this API.
-

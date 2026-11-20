@@ -312,4 +312,3 @@ This package follows the **RDF-First Specification paradigm**:
 ---
 
 **For questions or clarifications, contact**: VP, Ops Engineering or HR Program Lead
-

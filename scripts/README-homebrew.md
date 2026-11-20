@@ -206,4 +206,3 @@ If release assets are missing:
 - `vendors/homebrew-ggen/Formula/ggen.rb`: Homebrew formula file
 - `.github/workflows/homebrew-release.yml`: CI/CD workflow
 - `scripts/update-homebrew-formula.sh`: Legacy script (uses homebrew-tap)
-

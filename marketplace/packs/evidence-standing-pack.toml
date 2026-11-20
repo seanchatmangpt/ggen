@@ -1,0 +1,16 @@
+[pack]
+packages = []
+category = "uncategorized"
+id = "evidence-standing-pack"
+name = "evidence-standing-pack"
+version = "26.9.14"
+description = """
+Canonical receipt/replay/standing invariants: NoReceipt implies NoStanding.
+Instantiates real individuals for identity, authority, consequential action,
+receipt, replay, and standing, and refuses (gates/010_no_receipt_no_standing.rq)
+any consequential action asserted with a standing claim stronger than
+es:UNKNOWN that lacks a real, authority-backed es:Receipt.
+"""
+
+[capabilities]
+provides = ["urn:ggen:pack:evidence-standing-pack"]

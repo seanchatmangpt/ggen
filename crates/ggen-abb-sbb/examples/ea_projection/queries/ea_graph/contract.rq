@@ -1,0 +1,6 @@
+PREFIX geag: <https://ggen.dev/ns/ea-graph#>
+SELECT ?id ?abb ?version ?max_artifacts ?authority_ceiling
+WHERE {
+  ?s a geag:ArchitectureContract ; geag:id ?id ; geag:abb ?abb ; geag:version ?version ; geag:max_artifacts ?max_artifacts ; geag:authority_ceiling ?authority_ceiling .
+}
+ORDER BY ?id

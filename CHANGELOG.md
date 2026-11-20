@@ -5,6 +5,64 @@ All notable changes to ggen will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [26.11.5] - 2026-11-07
+
+### Added
+- **KD-G18: idempotent receipt-log fence** — duplicate receipt-log lines
+  are now suppressed at write time; the fence is courted (anti-vacuity
+  mutation proves the gate refuses a real duplicate) and field-motivated
+  (witnessed duplicate-line growth in the receipt log).
+- **Corpus regen aggregate-freshness gate (S-14)** — `sync` now detects a
+  stale `ontology-corpus.ttl` and regenerates it deterministically before
+  projection, replacing the manual corpus-regen step; gated by
+  `VerificationHarnessConfig` in the manifest schema (`aggregate` field).
+  Landed with a 5-test verification harness
+  (`tests/ontology_aggregate_regen.rs`); was previously deferred to
+  26.12.0, included here because the implementation is tested and green.
+
+### Changed
+- **Consumer note**: consumers appending to the receipt log will observe
+  suppressed duplicate lines — a log that previously accumulated exact
+  duplicate entries now records each receipt once. Downstream parsers
+  keyed on line counts should read content, not counts.
+
+### Internal
+- Workspace version bump 26.11.4 → 26.11.5 (`version.workspace = true`;
+  `ggen-engine` follows via workspace inheritance).
+
+## [26.11.3] - 2026-11-03
+
+### Added
+- **Closure-wave surfaces (v26.11.3)** — sealed per
+  `docs/jira/v26.11.3/closure/v26.11.3-closure.md`:
+  - **FM registry** (`docs/FM_REGISTRY.md`) — 118 unique FM codes documented,
+    with a parity court re-deriving the code census (two-mechanism method,
+    118/52 divergence analysis; 52 of 118 codes carry `none` test mapping).
+  - **sjira CLI** (`crates/ggen-cli/src/cmds/sjira.rs`) — `sjira` noun over
+    `ggen-sjira`'s admission kernel, 5 verbs — `admit`, `frontier`,
+    `execute`, `lease_admit`, `epoch_check`; typed refusals, exit-5
+    Andon class.
+  - **ggen-sjira suite** — 211/0 across 20 suites (cited in
+    `docs/jira/v26.11.3/closure/v26.11.3-closure.md` and
+    `receipts/gd-2-ggen-dod.md`).
+  - **Descope ledger v2** (`docs/jira/v26.11.3/closure/descope-ledger.md`)
+    — typed descope rulings D-1..D-4 with re-open conditions; open drift
+    carried explicitly.
+  - **Index exit gate** — 177/177 PASS (`receipts/cl-close-2.md`); 71+
+    wave receipts under `docs/jira/v26.11.3/receipts/`.
+
+### Changed
+- **`ggen-engine` version now workspace-inherited** —
+  `crates/ggen-engine/Cargo.toml` drops the hardcoded
+  `version = "26.10.12"` in favor of `version.workspace = true`, resolving
+  to the root workspace's `26.11.3`; `publish = true` unchanged. Verified:
+  `cargo check -p ggen-engine` and `cargo build -p ggen-engine` both exit 0
+  (ggen-engine compiles as v26.11.3).
+
+> Note: `docs/CHANGELOG.md` is a stale divergent copy (its newest entry is
+> 26.10.11); it is NOT the canonical changelog and was not updated in this
+> entry. This root `CHANGELOG.md` is canonical.
+
 ## 26.10.20 - 2026-10-20
 
 ### Added

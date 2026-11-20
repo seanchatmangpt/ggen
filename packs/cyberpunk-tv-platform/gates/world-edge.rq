@@ -1,0 +1,15 @@
+# Gate equivalent of tv:WorldEdgeShape (SHACL-at-sync retired, FM-LAW-017).
+# true = violation.
+PREFIX tv: <https://ggen.dev/ontology/cyberpunk-tv#>
+ASK {
+  ?subject a tv:WorldEdge .
+  {
+    FILTER NOT EXISTS { ?subject tv:sourceNode ?s . ?s a tv:WorldNode . }
+  } UNION {
+    FILTER NOT EXISTS { ?subject tv:targetNode ?t . ?t a tv:WorldNode . }
+  } UNION {
+    FILTER NOT EXISTS { ?subject tv:weight ?w . FILTER(?w >= 1) }
+  } UNION {
+    ?subject tv:weight ?w1, ?w2 . FILTER(STR(?w1) != STR(?w2))
+  }
+}

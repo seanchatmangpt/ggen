@@ -349,7 +349,7 @@ pub(super) fn report_digest(report: &Report) -> Result<String> {
     })
 }
 
-#[verb]
+#[verb("schema", "maximalism")]
 ///
 /// # Errors
 ///
@@ -372,7 +372,7 @@ pub fn schema() -> Result<Value> {
     }))
 }
 
-#[verb]
+#[verb("inspect", "maximalism")]
 ///
 /// # Errors
 ///
@@ -381,7 +381,7 @@ pub fn inspect(manifest: String) -> Result<Value> {
     evaluation::as_value(Path::new(&manifest))
 }
 
-#[verb]
+#[verb("validate", "maximalism")]
 ///
 /// # Errors
 ///
@@ -390,7 +390,7 @@ pub fn validate(manifest: String) -> Result<Value> {
     evaluation::validation(Path::new(&manifest))
 }
 
-#[verb]
+#[verb("combinations", "maximalism")]
 ///
 /// # Errors
 ///
@@ -399,7 +399,7 @@ pub fn combinations(manifest: String) -> Result<Value> {
     evaluation::combinations(Path::new(&manifest))
 }
 
-#[verb]
+#[verb("outcomes", "maximalism")]
 ///
 /// # Errors
 ///
@@ -408,7 +408,7 @@ pub fn outcomes(manifest: String) -> Result<Value> {
     evaluation::outcome_report(Path::new(&manifest))
 }
 
-#[verb]
+#[verb("receipt", "maximalism")]
 ///
 /// # Errors
 ///
@@ -417,7 +417,7 @@ pub fn receipt(manifest: String, output: String) -> Result<Value> {
     receipts::issue(Path::new(&manifest), Path::new(&output))
 }
 
-#[verb]
+#[verb("replay", "maximalism")]
 ///
 /// # Errors
 ///

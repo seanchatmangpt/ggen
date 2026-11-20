@@ -1,0 +1,17 @@
+[pack]
+name = "dod-pack"
+version = "0.1.0"
+description = """ggen v26.11.3 publish definition-of-done pack: four sync-time SPARQL
+closure gates over the PubGate/PubDefect graph and the publish-readiness
+report template."""
+
+[capabilities]
+provides = ["urn:ggen:pack:dod-pack"]
+
+[validation]
+gates = [
+  "gates/010_gate_metadata.rq",
+  "gates/020_met_requires_receipt.rq",
+  "gates/030_defect_carried.rq",
+  "gates/040_defect_named_bench.rq",
+]

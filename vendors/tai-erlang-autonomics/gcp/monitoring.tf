@@ -59,7 +59,7 @@ resource "google_bigquery_dataset_iam_member" "sink_dataset_editor" {
 # ==============================
 
 resource "google_monitoring_dashboard" "taiea_main" {
-  count          = var.enable_monitoring_dashboard ? 1 : 0
+  count = var.enable_monitoring_dashboard ? 1 : 0
   dashboard_json = jsonencode({
     displayName = "TAIEA Main Dashboard"
 
@@ -196,7 +196,7 @@ resource "google_monitoring_alert_policy" "high_error_rate" {
     condition_threshold {
       filter          = "resource.type=\"cloud_run_revision\" AND resource.labels.service_name=\"${google_cloud_run_service.taiea.name}\""
       duration        = "300s"
-      comparison      = "COMPARISON_GREATER_THAN"
+      comparison      = "COMPARISON_GT"
       threshold_value = 0.05
 
       aggregations {
@@ -225,7 +225,7 @@ resource "google_monitoring_alert_policy" "high_latency" {
     condition_threshold {
       filter          = "resource.type=\"cloud_run_revision\" AND resource.labels.service_name=\"${google_cloud_run_service.taiea.name}\" AND metric.type=\"run.googleapis.com/request_latencies\""
       duration        = "300s"
-      comparison      = "COMPARISON_GREATER_THAN"
+      comparison      = "COMPARISON_GT"
       threshold_value = 2000 # milliseconds
 
       aggregations {
@@ -255,7 +255,7 @@ resource "google_monitoring_alert_policy" "instance_crash" {
     condition_threshold {
       filter          = "resource.type=\"cloud_run_revision\" AND resource.labels.service_name=\"${google_cloud_run_service.taiea.name}\" AND metric.type=\"run.googleapis.com/request_count\" AND metric.response_code=\"500\""
       duration        = "60s"
-      comparison      = "COMPARISON_GREATER_THAN"
+      comparison      = "COMPARISON_GT"
       threshold_value = 10 # More than 10 errors in 60s
 
       aggregations {
@@ -284,7 +284,7 @@ resource "google_monitoring_alert_policy" "firestore_storage_growth" {
     condition_threshold {
       filter          = "resource.type=\"firestore.googleapis.com/Database\" AND metric.type=\"firestore.googleapis.com/firestore/document_count\""
       duration        = "300s"
-      comparison      = "COMPARISON_GREATER_THAN"
+      comparison      = "COMPARISON_GT"
       threshold_value = 90 * 1024 * 1024 * 1024 # 90GB in bytes
 
       aggregations {

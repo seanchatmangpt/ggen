@@ -8,4 +8,3 @@ This directory contains ontologies belonging to the FIBO Loan (LOAN) domain. Thi
 
 - [FIBO Viewer](https://spec.edmcouncil.org/fibo/ontology/LOAN/MetadataLOAN/LOANDomain)
 - [WIKI](https://wiki.edmcouncil.org/display/LOAN)
-

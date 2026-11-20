@@ -53,9 +53,15 @@ def run_git(root: Path, *args: str) -> str:
     return result.stdout.decode("utf-8", errors="strict")
 
 
-def tracked_paths(root: Path) -> list[str]:
+def tracked_paths(root: Path, revision: str | None = None) -> list[str]:
+    """Tracked paths at ``revision`` (or the index when unbound).
+
+    The revision-bound form reads the exact committed tree of the observation
+    revision, so a shifted HEAD cannot change the observed path set.
+    """
+    git_args = ["ls-tree", "-r", "--name-only", "-z", revision] if revision else ["ls-files", "-z"]
     raw = subprocess.run(
-        ["git", "-C", str(root), "ls-files", "-z"],
+        ["git", "-C", str(root), *git_args],
         check=True,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
@@ -231,9 +237,9 @@ def finding(
     }
 
 
-def observe(root: Path) -> dict[str, Any]:
-    paths = tracked_paths(root)
-    revision = run_git(root, "rev-parse", "HEAD").strip()
+def observe(root: Path, revision: str | None = None) -> dict[str, Any]:
+    paths = tracked_paths(root, revision)
+    revision = revision or run_git(root, "rev-parse", "HEAD").strip()
     files: list[dict[str, Any]] = []
     text_cache: dict[str, str] = {}
     for rel in paths:
@@ -643,14 +649,54 @@ def write_outputs(root: Path, observation: dict[str, Any], check: bool) -> int:
     return 0
 
 
+def recorded_revision(root: Path) -> str | None:
+    """Revision bound into the committed observation receipt, or None when absent."""
+    receipt = root / "self-host" / "observed" / "observation-receipt.json"
+    if not receipt.is_file():
+        return None
+    try:
+        data = json.loads(receipt.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+    revision = data.get("revision")
+    return str(revision) if revision else None
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", type=Path, help="repository root; defaults to the script's repository")
     parser.add_argument("--check", action="store_true", help="refuse if observation outputs differ")
     args = parser.parse_args()
     root = (args.root or Path(os.environ.get("GGEN_SELF_HOST_ROOT", Path(__file__).resolve().parents[2]))).resolve()
-    observation = observe(root)
-    return write_outputs(root, observation, args.check)
+    # E-2 re-pin discipline (C21-class): --check replays against the observation
+    # commit recorded in the committed receipt, never literal HEAD -- a commit
+    # cannot contain its own receipt, so binding to HEAD re-breaks the binding
+    # on every post-landing commit by construction.
+    revision = recorded_revision(root) if args.check else None
+    try:
+        observation = observe(root, revision=revision)
+        return write_outputs(root, observation, args.check)
+    except subprocess.CalledProcessError as error:
+        # E-2 re-pin discipline: a recorded revision git cannot materialize
+        # (stale/bogus pin in the committed receipt) refuses with a typed
+        # drift message instead of an uncaught traceback. Fail-closed.
+        recorded = revision if revision is not None else "unknown"
+        try:
+            current = (
+                subprocess.run(
+                    ["git", "-C", str(root), "rev-parse", "HEAD"],
+                    check=True,
+                    capture_output=True,
+                    text=True,
+                ).stdout.strip()
+            )
+        except subprocess.CalledProcessError:
+            current = "unknown"
+        print(
+            f"GGEN_SELF_HOST_DRIFT: stale observation revision {recorded} != {current}",
+            file=sys.stderr,
+        )
+        return 1
 
 
 if __name__ == "__main__":

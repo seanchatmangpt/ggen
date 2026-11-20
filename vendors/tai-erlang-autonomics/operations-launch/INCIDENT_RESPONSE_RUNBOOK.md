@@ -1591,4 +1591,3 @@ Datadog Support: https://support.datadoghq.com
 ---
 
 **This runbook is a living document. Update based on actual incidents.**
-

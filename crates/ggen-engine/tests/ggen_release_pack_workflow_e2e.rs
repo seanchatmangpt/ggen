@@ -180,6 +180,15 @@ mode        = "Overwrite"
 "#,
     )
     .expect("write ggen.toml");
+    // Stub EA graph (lane CL-D): the fail-closed FM-LAW-015 admission gate
+    // refuses any sync whose root lacks ea.graph.json; these scaffolds test
+    // pack laws, not admission, so they carry a valid-but-empty graph
+    // (zero candidate SBBs, so admission admits trivially and honestly).
+    std::fs::write(
+        project.join("ea.graph.json"),
+        "{\"schema\":\"ggen.ea.graph.v1\",\"strategy\":{\"id\":\"s\",\"title\":\"t\"},\"capabilities\":[],\"abbs\":[],\"contracts\":[],\"candidate_sbbs\":[],\"qualifications\":[],\"packs\":[]}",
+    )
+    .expect("write ea.graph.json");
 
     // `[templates] dir = "templates"` requires the directory to exist even
     // though no ad-hoc `.tmpl` files live in it for this rule (the pack's own

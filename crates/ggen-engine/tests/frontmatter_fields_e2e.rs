@@ -28,6 +28,14 @@ ex:alice ex:name "alice" .
 "#;
 
 fn scaffold(root: &Path) {
+    // K2: WO-01 fail-closed EA admission gate (FM-LAW-015) — this suite
+    // pins non-EA laws, so scaffold carries a minimal valid-but-empty EA
+    // graph (zero candidate SBBs admits trivially in sync.rs's admit loop).
+    std::fs::write(
+        root.join("ea.graph.json"),
+        "{\"schema\":\"ggen.ea.graph.v1\",\"strategy\":{\"id\":\"s\",\"title\":\"t\"},\"capabilities\":[],\"abbs\":[],\"contracts\":[],\"candidate_sbbs\":[],\"qualifications\":[],\"packs\":[]}",
+    )
+    .expect("write ea.graph.json");
     std::fs::write(root.join("ggen.toml"), GGEN_TOML).expect("write ggen.toml");
     std::fs::write(root.join("ontology.ttl"), ONTOLOGY).expect("write ontology");
     std::fs::create_dir_all(root.join("templates")).expect("mkdir templates");

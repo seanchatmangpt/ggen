@@ -1,0 +1,72 @@
+{
+  "schema": "ggen.ea.graph.v1",
+  "strategy": {
+    "id": "strategy:part-passport",
+    "title": "part-passport: crown-kernel part passport manufactured from RDF by declarative generation rules"
+  },
+  "capabilities": [
+    {
+      "id": "cap:crown-kernel",
+      "strategy": "strategy:part-passport"
+    }
+  ],
+  "abbs": [
+    {
+      "id": "abb:crown-kernel",
+      "capability": "cap:crown-kernel",
+      "contract": "contract:crown-kernel"
+    }
+  ],
+  "contracts": [
+    {
+      "id": "contract:crown-kernel",
+      "abb": "abb:crown-kernel",
+      "version": "1.0.0",
+      "max_artifacts": 32,
+      "authority_ceiling": "CONSTRUCT",
+      "required_ports": [
+        "passport-json",
+        "passport-nameplate"
+      ]
+    }
+  ],
+  "candidate_sbbs": [
+    {
+      "id": "sbb:crown-kernel-passport",
+      "abb": "abb:crown-kernel",
+      "pack": "pack:part-passport-manufacture",
+      "digest": "sha256:adf22cccf99c4474abc607902ba594c2417233b1dcd5f90c9b8cb75611c89799",
+      "mutable": false,
+      "authority": "CONSTRUCT",
+      "provides_ports": [
+        "passport-json",
+        "passport-nameplate"
+      ],
+      "artifacts": [
+        {
+          "path": "generated/crown-kernel.json",
+          "template": "# {{abb}} realized by {{sbb}} for {{capability}}\ncontract {{contract}}@{{contract_version}}\n"
+        },
+        {
+          "path": "generated/crown-kernel.nameplate.txt",
+          "template": "# {{abb}} realized by {{sbb}} for {{capability}}\ncontract {{contract}}@{{contract_version}}\n"
+        }
+      ]
+    }
+  ],
+  "qualifications": [
+    {
+      "id": "qual:crown-kernel-passport",
+      "sbb": "sbb:crown-kernel-passport",
+      "sbb_digest": "sha256:adf22cccf99c4474abc607902ba594c2417233b1dcd5f90c9b8cb75611c89799",
+      "contract": "contract:crown-kernel",
+      "contract_digest": "sha256:826fbf6f7c6d630b4e164c8dc7023ec97a5ad8dc70d9060806cc925509704f8f",
+      "verdict": "QUALIFIED"
+    }
+  ],
+  "packs": [
+    {
+      "id": "pack:part-passport-manufacture"
+    }
+  ]
+}

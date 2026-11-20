@@ -696,4 +696,3 @@ The **Integration Adapter Framework** is specification-complete and ready for Wa
 **Date**: 2026-01-18
 
 **Duration**: 25 minutes specification design (RDF-first, no code)
-

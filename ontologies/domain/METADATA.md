@@ -132,4 +132,3 @@ All downloads verified:
 - ✓ Base URIs and namespaces resolvable
 - ✓ Version metadata extracted
 - ✓ Real downloads from official sources (not cached/proxy)
-

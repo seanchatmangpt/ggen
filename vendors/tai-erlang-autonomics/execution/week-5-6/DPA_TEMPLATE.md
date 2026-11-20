@@ -549,4 +549,3 @@ This DPA incorporates the Standard Contractual Clauses (Module 2: Controller to 
    - [ ] Sub-processor list (update if using different vendors)
 3. **Legal Review**: Have your attorney review before sending to customer
 4. **Include in MSA**: DPA is "Exhibit B" to MSA (mandatory for GDPR compliance)
-

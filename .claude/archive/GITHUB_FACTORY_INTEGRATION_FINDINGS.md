@@ -432,4 +432,3 @@ For ggen, this becomes:
 - **Pattern unification progress** (shared-error, shared-crypto, shared-test-utils adoption metrics)
 
 All receipted. All auditable. All reproducible from OCEL alone.
-

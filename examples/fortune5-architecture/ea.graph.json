@@ -1,0 +1,78 @@
+{
+  "schema": "ggen.ea.graph.v1",
+  "strategy": {
+    "id": "strategy:fortune5-architecture",
+    "title": "Fortune 5 enterprise-architecture program manufactured from RDF by the fortune5-architecture-pack"
+  },
+  "capabilities": [
+    {
+      "id": "cap:fortune5-architecture-docs",
+      "strategy": "strategy:fortune5-architecture"
+    }
+  ],
+  "abbs": [
+    {
+      "id": "abb:fortune5-architecture-docs",
+      "capability": "cap:fortune5-architecture-docs",
+      "contract": "contract:fortune5-architecture-docs"
+    }
+  ],
+  "contracts": [
+    {
+      "id": "contract:fortune5-architecture-docs",
+      "abb": "abb:fortune5-architecture-docs",
+      "version": "1.0.0",
+      "max_artifacts": 8,
+      "authority_ceiling": "CONSTRUCT",
+      "required_ports": [
+        "port:fortune5-ontology"
+      ]
+    }
+  ],
+  "candidate_sbbs": [
+    {
+      "id": "sbb:fortune5-architecture-docs",
+      "abb": "abb:fortune5-architecture-docs",
+      "pack": "pack:fortune5-architecture-pack",
+      "digest": "sha256:13ab37a3a176e93ea0362f4e36b8a413bfa86e43db2e6118b1f38f1e8cd6cef0",
+      "mutable": false,
+      "authority": "CONSTRUCT",
+      "provides_ports": [
+        "port:fortune5-ontology"
+      ],
+      "artifacts": [
+        {
+          "path": "docs/FORTUNE5_ARCHITECTURE_CATALOG.md",
+          "template": "# {{abb}} realized by {{sbb}} for {{capability}}\ncontract {{contract}}@{{contract_version}}\n"
+        },
+        {
+          "path": "docs/FORTUNE5_ARCHITECTURE_DAG.dot",
+          "template": "# {{abb}} realized by {{sbb}} for {{capability}}\ncontract {{contract}}@{{contract_version}}\n"
+        },
+        {
+          "path": "docs/FORTUNE5_CONTROL_MATRIX.md",
+          "template": "# {{abb}} manufactures docs via {{sbb}} under {{contract}}@{{contract_version}}\n"
+        },
+        {
+          "template": "# {{abb}} realized by {{sbb}} for {{capability}}\ncontract {{contract}}@{{contract_version}}\n",
+          "path": "docs/FORTUNE5_WORKFLOW_PATTERN_COVERAGE.md"
+        }
+      ]
+    }
+  ],
+  "qualifications": [
+    {
+      "id": "qual:fortune5-architecture-docs",
+      "sbb": "sbb:fortune5-architecture-docs",
+      "sbb_digest": "sha256:13ab37a3a176e93ea0362f4e36b8a413bfa86e43db2e6118b1f38f1e8cd6cef0",
+      "contract": "contract:fortune5-architecture-docs",
+      "contract_digest": "sha256:d361d6cd21fb29e3c5bf5f913024e8daf7c9b677f2bdade88b32f37cf99e23e5",
+      "verdict": "QUALIFIED"
+    }
+  ],
+  "packs": [
+    {
+      "id": "pack:fortune5-architecture-pack"
+    }
+  ]
+}

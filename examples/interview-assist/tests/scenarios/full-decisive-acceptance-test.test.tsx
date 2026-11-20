@@ -132,29 +132,24 @@ describe("TICKET-053 THE DECISIVE ACCEPTANCE TEST (real composed evidence, all 1
   });
 
   it(
-    `acceptance-step/1 (${"build the system"}): real tsc type-check passes; real 'next build' currently fails with the disclosed, reproduced checksum-adapter.ts regression (PARTIAL -- both facts asserted for real, neither rounded up)`,
+    `acceptance-step/1 (${"build the system"}): real tsc type-check passes; real 'next build' succeeds (checksum-adapter node:module regression repaired via next.config serverExternalPackages; re-pinned 2026-11-04 after the fix landed -- premise rot, not a relaxation)`,
     () => {
       const tsc = execFileSync("npx", ["tsc", "--noEmit"], { cwd: REPO_ROOT + "/examples/interview-assist", encoding: "utf8" });
       expect(tsc).toBe(""); // real: zero type errors, zero stdout
 
-      let buildFailed = false;
-      let buildOutput = "";
-      try {
-        buildOutput = execFileSync("npx", ["next", "build"], {
-          cwd: REPO_ROOT + "/examples/interview-assist",
-          encoding: "utf8",
-          timeout: 90_000,
-        });
-      } catch (err) {
-        buildFailed = true;
-        buildOutput = String((err as { stdout?: string }).stdout ?? (err as Error).message);
-      }
-      // Real, reproduced fact (not assumed from a stale prior run): the
-      // production build currently fails at exactly the disclosed chunk.
-      expect(buildFailed).toBe(true);
-      expect(buildOutput).toContain("node:module");
+      // Real, reproduced fact (re-verified 2026-11-04 on next 16.4.5): the
+      // production build now SUCCEEDS -- next.config serverExternalPackages
+      // keeps checksum-adapter.ts's node:module import server-side. The
+      // prior assertion (build must FAIL) pinned the disclosed regression
+      // after its fix landed; re-pinned to the new lawful behavior.
+      execFileSync("npx", ["next", "build"], {
+        cwd: REPO_ROOT + "/examples/interview-assist",
+        encoding: "utf8",
+        timeout: 120_000,
+        stdio: "pipe",
+      });
     },
-    100_000,
+    180_000,
   );
 
   it("acceptance-step/2 (create the sandbox): a real hydra:Operation dispatch slot exists and a fresh session is admitted by the real reducer, with real preconditions correctly gating start-interview until create-session", () => {

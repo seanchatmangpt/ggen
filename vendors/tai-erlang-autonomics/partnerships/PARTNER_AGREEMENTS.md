@@ -1140,4 +1140,3 @@ All notices must be sent to the authorized representatives:
 5. **Negotiation** with priority partners (AWS, Azure, GCP, Accenture, Deloitte)
 
 **Target**: Execute first 3-5 partnership agreements by Q3 2026
-

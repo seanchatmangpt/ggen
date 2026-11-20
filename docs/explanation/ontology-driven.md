@@ -133,4 +133,3 @@ Modify ontology → regenerate → all code updates.
 - [Projections Explanation](projections.md)
 - [RDF/SPARQL Reference](../reference/rdf-sparql.md)
 - [Ontology-to-Code Tutorial](../tutorials/ontology-to-code.md)
-

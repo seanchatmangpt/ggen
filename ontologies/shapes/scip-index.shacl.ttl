@@ -1,0 +1,185 @@
+@prefix scip: <https://ggen.dev/ontology/scip#> .
+@prefix shapes: <https://ggen.dev/ontology/shapes/scip-index#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# SHACL shapes for ggen's SCIP-JSON index (R80-04, v26.11.3, lane R80-04).
+# Schema-mirror pattern (precedent: ggen-engine's frontmatter canonical
+# schema courts, frontmatter_schema_match.rs family): one closed shape per
+# struct in crates/ggen-scip/src/lib.rs, one sh:path per struct field.
+# The parity court crates/ggen-scip/tests/scip_ontology_test.rs enforces
+# set equality in BOTH directions on the real files; deleting a sh:path
+# from a scratch copy must flip the court red (anti-vacuity arm).
+#
+# Shapes IRI (written into emitted scip.json metadata.conformsTo):
+#   <https://ggen.dev/ontology/shapes/scip-index>
+
+shapes:IndexShape a sh:NodeShape ;
+    sh:targetClass scip:Index ;
+    sh:closed true ;
+    sh:property [
+        sh:path scip:metadata ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:node shapes:MetadataShape ;
+        sh:name "metadata" ;
+        sh:description "Index metadata (required)." ;
+    ] ;
+    sh:property [
+        sh:path scip:documents ;
+        sh:minCount 0 ;
+        sh:node shapes:DocumentShape ;
+        sh:name "documents" ;
+        sh:description "Documents, sorted by path." ;
+    ] .
+
+shapes:MetadataShape a sh:NodeShape ;
+    sh:targetClass scip:Metadata ;
+    sh:closed true ;
+    sh:property [
+        sh:path scip:project_root ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:name "project_root" ;
+        sh:description "Project root, absolute path at emit time." ;
+    ] ;
+    sh:property [
+        sh:path scip:emitter ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:name "emitter" ;
+        sh:description "Emitter identity string, e.g. `ggen-scip 0.1.0`." ;
+    ] ;
+    sh:property [
+        sh:path scip:conformsTo ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:anyURI ;
+        sh:hasValue <https://ggen.dev/ontology/shapes/scip-index> ;
+        sh:name "conformsTo" ;
+        sh:description "Self-reference pin: the shapes IRI the emitted index conforms to. The emitter writes it into metadata so every scip.json self-describes its governing shapes (contract item 4)." ;
+    ] .
+
+shapes:DocumentShape a sh:NodeShape ;
+    sh:targetClass scip:Document ;
+    sh:closed true ;
+    sh:property [
+        sh:path scip:path ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:name "path" ;
+        sh:description "Path relative to the project root." ;
+    ] ;
+    sh:property [
+        sh:path scip:occurrences ;
+        sh:minCount 0 ;
+        sh:node shapes:OccurrenceShape ;
+        sh:name "occurrences" ;
+        sh:description "Occurrences sorted by (range, symbol)." ;
+    ] .
+
+shapes:OccurrenceShape a sh:NodeShape ;
+    sh:targetClass scip:Occurrence ;
+    sh:closed true ;
+    sh:property [
+        sh:path scip:symbol ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^ggen [A-Za-z0-9_-]+ [A-Za-z0-9_.]+$" ;
+        sh:name "symbol" ;
+        sh:description "Wire symbol `ggen <package> <dotted.identifier>`; ggen scheme pattern." ;
+    ] ;
+    sh:property [
+        sh:path scip:range ;
+        sh:minCount 1 ;
+        sh:datatype xsd:integer ;
+        sh:name "range" ;
+        sh:description "[start_line, start_col, end_col], 0-based, byte columns (three integers on the wire)." ;
+    ] ;
+    sh:property [
+        sh:path scip:roles ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 3 ;
+        sh:name "roles" ;
+        sh:description "Role bitmask: bit0 = reference, bit1 = definition; lawful values 0..3." ;
+    ] ;
+    sh:property [
+        sh:path scip:def_info ;
+        sh:minCount 0 ;
+        sh:maxCount 1 ;
+        sh:node shapes:DefInfoShape ;
+        sh:name "def_info" ;
+        sh:description "Present only when roles bit 1 (definition) is set." ;
+    ] .
+
+shapes:DefInfoShape a sh:NodeShape ;
+    sh:targetClass scip:DefInfo ;
+    sh:closed true ;
+    sh:property [
+        sh:path scip:name ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:name "name" ;
+        sh:description "Simple name of the defined item." ;
+    ] ;
+    sh:property [
+        sh:path scip:kind ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:in ( "fn" "struct" "enum" "const" ) ;
+        sh:name "kind" ;
+        sh:description "Item kind, one of fn | struct | enum | const." ;
+    ] .
+
+shapes:SymbolShape a sh:NodeShape ;
+    sh:targetClass scip:Symbol ;
+    sh:closed true ;
+    sh:property [
+        sh:path scip:scheme ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^ggen$" ;
+        sh:name "scheme" ;
+        sh:description "Symbol scheme; always `ggen` for this emitter." ;
+    ] ;
+    sh:property [
+        sh:path scip:package ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[A-Za-z0-9_-]+$" ;
+        sh:name "package" ;
+        sh:description "Rust crate (package) name." ;
+    ] ;
+    sh:property [
+        sh:path scip:identifier ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:node shapes:DottedShape ;
+        sh:name "identifier" ;
+        sh:description "Dotted identifier path." ;
+    ] .
+
+shapes:DottedShape a sh:NodeShape ;
+    sh:targetClass scip:Dotted ;
+    sh:closed true ;
+    sh:property [
+        sh:path rdf:value ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[A-Za-z0-9_.]+$" ;
+        sh:name "value" ;
+        sh:description "The newtype's inner dotted path string. scip:Dotted is a Rust newtype over String (no named struct fields), so this shape's path is rdf:value and the parity court skips it on the struct side, loudly (tuple-struct count assertion)." ;
+    ] .

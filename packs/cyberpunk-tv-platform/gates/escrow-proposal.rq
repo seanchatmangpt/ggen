@@ -1,0 +1,17 @@
+# Gate equivalent of tv:EscrowProposalShape (SHACL-at-sync retired, FM-LAW-017).
+# true = violation.
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>PREFIX tv: <https://ggen.dev/ontology/cyberpunk-tv#>
+ASK {
+  ?subject a tv:EscrowProposal .
+  {
+    FILTER NOT EXISTS { ?subject tv:constructText ?v . FILTER(datatype(?v) = xsd:string) }
+  } UNION {
+    ?subject tv:constructText ?c1, ?c2 . FILTER(STR(?c1) != STR(?c2))
+  } UNION {
+    FILTER NOT EXISTS { ?subject tv:constructText ?t . FILTER(CONTAINS(UCASE(STR(?t)), "CONSTRUCT")) }
+  } UNION {
+    FILTER NOT EXISTS { ?subject tv:proposalDigest ?d . }
+  } UNION {
+    ?subject tv:proposalDigest ?d1, ?d2 . FILTER(STR(?d1) != STR(?d2))
+  }
+}

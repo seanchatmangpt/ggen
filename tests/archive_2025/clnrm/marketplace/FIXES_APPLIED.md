@@ -73,4 +73,3 @@ resources = { "service.name" = "my-service" }
 2. Run tests: `clnrm run search_test.clnrm.toml p2p_test.clnrm.toml`
 3. Update Docker images when ggen services are built
 4. Add more comprehensive test scenarios
-

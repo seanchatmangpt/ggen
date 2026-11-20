@@ -1,0 +1,62 @@
+[project]
+name = "legal-ediscovery-consumer"
+version = "0.1.0"
+description = "Consumer example for the industry-legal-ediscovery marketplace pack."
+authors = ["Sean Chatman"]
+license = "MIT"
+
+[ontology]
+source = "ontology.ttl"
+imports = [
+  "../../../../ggen-marketplace/packs/industry-legal-ediscovery/ontology.ttl",
+]
+
+[ontology.prefixes]
+lex = "https://seanchatmangpt.github.io/packs/industry-legal-ediscovery#"
+rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+rdfs = "http://www.w3.org/2000/01/rdf-schema#"
+prov = "http://www.w3.org/ns/prov#"
+xsd = "http://www.w3.org/2001/XMLSchema#"
+
+[generation]
+output_dir = "."
+
+[[generation.rules]]
+name = "evidence-shapes"
+query = { inline = """
+PREFIX lex: <https://seanchatmangpt.github.io/packs/industry-legal-ediscovery#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT ?matter ?matter_id ?matter_label
+WHERE {
+  ?matter a lex:Matter ;
+          lex:matterId ?matter_id ;
+          rdfs:label ?matter_label .
+}
+ORDER BY ?matter_id
+""" }
+template = { file = "templates/evidence_shapes.ttl.tmpl" }
+output_file = "generated/2026-Q-0001/evidence-shapes.ttl"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "custody-walkthrough"
+query = { inline = """
+PREFIX lex: <https://seanchatmangpt.github.io/packs/industry-legal-ediscovery#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT ?matter ?matter_id ?matter_label ?doc ?bates ?custodian ?blob_container ?cosmos_doc_id
+WHERE {
+  ?matter a lex:Matter ;
+          lex:matterId ?matter_id ;
+          rdfs:label ?matter_label .
+  ?doc a lex:EvidenceDocument ;
+       lex:batesId ?bates ;
+       lex:hasCustodian ?custodian ;
+       lex:collectedIn ?matter ;
+       lex:blobHoldContainer ?blob_container ;
+       lex:cosmosCustodyDocId ?cosmos_doc_id .
+}
+ORDER BY ?bates
+""" }
+template = { file = "templates/custody_walkthrough.md.tmpl" }
+output_file = "generated/2026-Q-0001/custody-walkthrough.md"
+mode = "Overwrite"

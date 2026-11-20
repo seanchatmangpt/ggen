@@ -1,0 +1,19 @@
+[pack]
+packages = []
+category = "uncategorized"
+id = "semantic-projection-pack"
+name = "semantic-projection-pack"
+version = "26.9.12"
+description = """
+Canonical vocabulary for deterministic semantic projection, lineage, and the
+generated-artifact boundary: a CanonicalSemanticSource is the sole sovereign
+source, a ProjectionEvent renders it into a GeneratedArtifact while carrying
+an explicit lineage link back to the source, and every GeneratedArtifact is
+asserted non-sovereign (never itself a CanonicalSemanticSource). Refuses
+(gates/010_no_sovereign_generated_artifact.rq) any GeneratedArtifact asserted
+as a semantic source, and any ProjectionEvent missing a lineage link to its
+source.
+"""
+
+[capabilities]
+provides = ["urn:ggen:pack:semantic-projection-pack"]

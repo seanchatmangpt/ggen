@@ -1,0 +1,113 @@
+# Demo EA graph individual set -- Turtle transcription of the checked-in kernel
+# fixture crates/ggen-abb-sbb/fixtures/marketplace-ea-graph.json (WO-04
+# deliverable 3). Authoring surface for the Turtle -> ggen.ea.graph.v1
+# projection: authoring happens here, in the geag: vocabulary defined by
+# ontologies/shapes/ea-graph.shacl.ttl; ea.graph.json is GENERATED, never
+# hand-edited.
+#
+# Byte-law: every literal below is the exact value the golden JSON carries
+# (ids, digests, artifact templates, ports). The projected output must be
+# byte-identical to the fixture.
+@prefix geag: <https://ggen.dev/ns/ea-graph#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# ---- Strategy --------------------------------------------------------------
+<https://ggen.dev/ns/ea-graph#node-strategy> a geag:Strategy ;
+    geag:id "strategy:real-time-ops" ;
+    geag:title "Real-time operations" .
+
+# ---- Capability ------------------------------------------------------------
+<https://ggen.dev/ns/ea-graph#node-cap-1> a geag:Capability ;
+    geag:id "cap:event-ingest" ;
+    geag:strategy "strategy:real-time-ops" .
+
+# ---- Abb -------------------------------------------------------------------
+<https://ggen.dev/ns/ea-graph#node-abb-1> a geag:Abb ;
+    geag:id "abb:event-ingest" ;
+    geag:capability "cap:event-ingest" ;
+    geag:contract "contract:ingest" .
+
+# ---- ArchitectureContract --------------------------------------------------
+<https://ggen.dev/ns/ea-graph#node-contract-1> a geag:ArchitectureContract ;
+    geag:id "contract:ingest" ;
+    geag:abb "abb:event-ingest" ;
+    geag:version "1.0.0" ;
+    geag:max_artifacts 3 ;
+    geag:authority_ceiling "CONSTRUCT" ;
+    geag:required_ports "port:events-in" ,
+        "port:receipts-out" .
+
+# ---- CandidateSbb 0000 -----------------------------------------------------
+<https://ggen.dev/ns/ea-graph#node-sbb-0000> a geag:CandidateSbb ;
+    geag:id "sbb:ingest-0000" ;
+    geag:abb "abb:event-ingest" ;
+    geag:pack "pack:ingest-0000" ;
+    geag:digest "sha256:70e6782cb595b2868f61919b848ac161fd2e2ea67cb8f1b5a17475d59d2f0930" ;
+    geag:mutable false ;
+    geag:authority "CONSTRUCT" ;
+    geag:provides_ports "port:events-in" ,
+        "port:receipts-out" ;
+    geag:artifacts <https://ggen.dev/ns/ea-graph#art-0000-0> ,
+        <https://ggen.dev/ns/ea-graph#art-0000-1> ,
+        <https://ggen.dev/ns/ea-graph#art-0000-2> .
+
+<https://ggen.dev/ns/ea-graph#art-0000-0> a geag:ArtifactSpec ;
+    geag:path "gen/0000/module_0000.rs" ;
+    geag:template "// abb {{abb}} realized by {{sbb}} for {{capability}}\npub const CONTRACT: &str = \"{{contract}}@{{contract_version}}\";\n" .
+
+<https://ggen.dev/ns/ea-graph#art-0000-1> a geag:ArtifactSpec ;
+    geag:path "gen/0000/module_0001.rs" ;
+    geag:template "// abb {{abb}} realized by {{sbb}} for {{capability}}\npub const CONTRACT: &str = \"{{contract}}@{{contract_version}}\";\n" .
+<https://ggen.dev/ns/ea-graph#art-0000-2> a geag:ArtifactSpec ;
+    geag:path "gen/0000/module_0002.rs" ;
+    geag:template "// abb {{abb}} realized by {{sbb}} for {{capability}}\npub const CONTRACT: &str = \"{{contract}}@{{contract_version}}\";\n" .
+
+# ---- CandidateSbb 0001 -----------------------------------------------------
+<https://ggen.dev/ns/ea-graph#node-sbb-0001> a geag:CandidateSbb ;
+    geag:id "sbb:ingest-0001" ;
+    geag:abb "abb:event-ingest" ;
+    geag:pack "pack:ingest-0001" ;
+    geag:digest "sha256:c39b7f9e68a36050bb5da7c0f0ca7188e54239abbfab3f59885e2481218f1f78" ;
+    geag:mutable false ;
+    geag:authority "CONSTRUCT" ;
+    geag:provides_ports "port:events-in" ,
+        "port:receipts-out" ;
+    geag:artifacts <https://ggen.dev/ns/ea-graph#art-0001-0> ,
+        <https://ggen.dev/ns/ea-graph#art-0001-1> ,
+        <https://ggen.dev/ns/ea-graph#art-0001-2> .
+
+<https://ggen.dev/ns/ea-graph#art-0001-0> a geag:ArtifactSpec ;
+    geag:path "gen/0001/module_0000.rs" ;
+    geag:template "// abb {{abb}} realized by {{sbb}} for {{capability}}\npub const CONTRACT: &str = \"{{contract}}@{{contract_version}}\";\n" .
+
+<https://ggen.dev/ns/ea-graph#art-0001-1> a geag:ArtifactSpec ;
+    geag:path "gen/0001/module_0001.rs" ;
+    geag:template "// abb {{abb}} realized by {{sbb}} for {{capability}}\npub const CONTRACT: &str = \"{{contract}}@{{contract_version}}\";\n" .
+
+<https://ggen.dev/ns/ea-graph#art-0001-2> a geag:ArtifactSpec ;
+    geag:path "gen/0001/module_0002.rs" ;
+    geag:template "// abb {{abb}} realized by {{sbb}} for {{capability}}\npub const CONTRACT: &str = \"{{contract}}@{{contract_version}}\";\n" .
+
+# ---- Qualification ---------------------------------------------------------
+<https://ggen.dev/ns/ea-graph#node-qual-0000> a geag:Qualification ;
+    geag:id "qual:ingest-0000" ;
+    geag:sbb "sbb:ingest-0000" ;
+    geag:sbb_digest "sha256:70e6782cb595b2868f61919b848ac161fd2e2ea67cb8f1b5a17475d59d2f0930" ;
+    geag:contract "contract:ingest" ;
+    geag:contract_digest "sha256:e107ace33101539d8aac875844b63d488395e35ba572e009bc3a7b603dbf5fdf" ;
+    geag:verdict "QUALIFIED" .
+
+<https://ggen.dev/ns/ea-graph#node-qual-0001> a geag:Qualification ;
+    geag:id "qual:ingest-0001" ;
+    geag:sbb "sbb:ingest-0001" ;
+    geag:sbb_digest "sha256:c39b7f9e68a36050bb5da7c0f0ca7188e54239abbfab3f59885e2481218f1f78" ;
+    geag:contract "contract:ingest" ;
+    geag:contract_digest "sha256:e107ace33101539d8aac875844b63d488395e35ba572e009bc3a7b603dbf5fdf" ;
+    geag:verdict "QUALIFIED" .
+
+# ---- Pack ------------------------------------------------------------------
+<https://ggen.dev/ns/ea-graph#node-pack-0000> a geag:Pack ;
+    geag:id "pack:ingest-0000" .
+
+<https://ggen.dev/ns/ea-graph#node-pack-0001> a geag:Pack ;
+    geag:id "pack:ingest-0001" .

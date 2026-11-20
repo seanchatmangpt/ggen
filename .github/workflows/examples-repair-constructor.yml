@@ -16,6 +16,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   construct:
     name: Construct and verify repair candidate
@@ -73,43 +77,64 @@ jobs:
               p.parent.mkdir(parents=True, exist_ok=True)
               p.write_text('')
 
-          p = Path('examples/interview-assist/ggen.toml')
-          s = p.read_text()
-          old = 'wasm4pm-interview-assist-pack = { path = "/Users/sac/ggen/packs/wasm4pm-interview-assist-pack" }'
-          new = 'wasm4pm-interview-assist-pack = { path = "../../packs/wasm4pm-interview-assist-pack" }'
-          assert old in s
-          p.write_text(s.replace(old, new))
+          # XD-18 (ZB-13 item 5): each repair is idempotent-or-honest. If the
+          # pre-repair string is present, apply it. If the post-repair string
+          # is already present, it is an idempotent no-op (repair landed via
+          # the normal tree). If NEITHER matches, the pinned strings have rotted
+          # against the live tree — refuse loudly with a named error instead of
+          # a bare AssertionError with no disclosure.
+          def apply_repair(path, old, new, applied_markers=()):
+              p = Path(path)
+              s = p.read_text()
+              if old in s:
+                  p.write_text(s.replace(old, new))
+              elif new in s or any(m in s for m in applied_markers):
+                  pass  # already applied (or superseded by a successor form); idempotent no-op
+              else:
+                  raise SystemExit(
+                      'REPAIR-CONSTRUCTOR-DRIFT: %s matches neither its '
+                      'pre-repair nor its post-repair pinned state. The '
+                      'pinned strings in .github/workflows/'
+                      'examples-repair-constructor.yml have rotted against '
+                      'the live tree and must be re-derived before this '
+                      'constructor can run (ZB-13 premise-rot class).' % path
+                  )
 
-          p = Path('examples/tai-enterprise-rebuild/ggen.toml')
-          s = p.read_text()
-          for line in [
-              'version = "26.7.31"\n',
-              'description = "Generate and simulate the roadmap for rebuilding Technology Applications, Inc."\n',
-              'authors = ["Sean Chatman"]\n',
-              'license = "MIT"\n',
-              'base_iri = "https://chatmangpt.com/ontology/tai-rebuild#"\n',
-              'imports = ["cmd.ttl", "options.ttl"]\n',
-          ]:
-              assert line in s, line
-              s = s.replace(line, '')
-          old = 'tai-enterprise-rebuild-pack = { path = "../../packs/tai-enterprise-rebuild-pack" }'
-          new = 'tai-enterprise-rebuild-pack = { path = "../../packs/tai-enterprise-rebuild-pack", extra_ontologies = ["cmd.ttl", "options.ttl"] }'
-          assert old in s
-          p.write_text(s.replace(old, new))
+          apply_repair(
+              'examples/interview-assist/ggen.toml',
+              'wasm4pm-interview-assist-pack = { path = "/Users/sac/ggen/packs/wasm4pm-interview-assist-pack" }',
+              'wasm4pm-interview-assist-pack = { path = "../../packs/wasm4pm-interview-assist-pack" }',
+          )
 
-          p = Path('examples/tpot2-wasm4pm-autoconfig/ggen.toml')
-          s = p.read_text()
-          old = 'shacl = ["ontology/tpot-shapes.ttl"]'
-          new = 'gates = ["gates/010_tpot_invariants.rq"]'
-          assert old in s
-          p.write_text(s.replace(old, new))
+          apply_repair(
+              'examples/tai-enterprise-rebuild/ggen.toml',
+              'tai-enterprise-rebuild-pack = { path = "../../packs/tai-enterprise-rebuild-pack" }',
+              'tai-enterprise-rebuild-pack = { path = "../../packs/tai-enterprise-rebuild-pack", extra_ontologies = ["cmd.ttl", "options.ttl"] }',
+          )
 
-          p = Path('.github/workflows/live-examples.yml')
-          s = p.read_text()
-          old = '      - name: Checkout\n        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1\n'
-          new = '      - name: Checkout exact subject\n        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1\n        with:\n          ref: ${{ github.event.pull_request.head.sha || github.sha }}\n          fetch-depth: 0\n\n      - name: Verify checkout identity\n        if: github.event_name == \'pull_request\'\n        run: test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha }}"\n'
-          assert old in s
-          p.write_text(s.replace(old, new))
+          apply_repair(
+              'examples/tpot2-wasm4pm-autoconfig/ggen.toml',
+              'shacl = ["ontology/tpot-shapes.ttl"]',
+              'gates = ["gates/010_tpot_invariants.rq"]',
+              # The live tree superseded this repair with engine-independent
+              # SPARQL gate queries (see the HISTORY comment in that ggen.toml);
+              # treat any gates list as already-applied.
+              applied_markers=('gates = ["gates/',),
+          )
+
+          apply_repair(
+              '.github/workflows/live-examples.yml',
+              '      - name: Checkout\n        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1\n',
+              '      - name: Checkout exact subject\n        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1\n        with:\n          ref: ${{ github.event.pull_request.head.sha || github.sha }}\n          fetch-depth: 0\n\n      - name: Verify checkout identity\n        if: github.event_name == \'pull_request\'\n        run: test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha }}"\n',
+              # The exact-subject checkout repair has LANDED in the tree
+              # (live-examples.yml already carries it). Recognize the landed
+              # state idempotently via markers that avoid `${{ ... }}` --
+              # Actions substitutes those expressions inside run: scripts
+              # before the heredoc executes, so any pinned string containing
+              # them rots on every run (premise-rot class, XD-18). The
+              # markers below are expression-free.
+              applied_markers=('Checkout exact subject', 'Verify checkout identity'),
+          )
           PY
 
           mkdir -p examples/tpot2-wasm4pm-autoconfig/gates

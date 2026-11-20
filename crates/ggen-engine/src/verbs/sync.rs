@@ -12,8 +12,12 @@ use clap_noun_verb::Result;
 /// * `dry_run` - Resolve and render but do not write any files to disk; report what would change.
 /// * `watch` - Watch the filesystem and re-run the pipeline automatically whenever a watched file changes.
 /// * `consumer_mode` - Suppress installer emission of outputs derived from `fixtureOnly`-marked specs (OS-13 consumer mode).
+/// * `skip_ea_admission` - Skip the Stage 2c EA (ABB/SBB) admission gate; lawful only when the project intentionally runs without architecture admission.
 #[clap_noun_verb_macros::verb("run")]
-fn sync_run(dry_run: bool, watch: bool, consumer_mode: bool) -> Result<serde_json::Value> {
+#[allow(clippy::fn_params_excessive_bools)] // flags mirror the generated CLI verb surface; restructuring would break routing
+fn sync_run(
+    dry_run: bool, watch: bool, consumer_mode: bool, skip_ea_admission: bool,
+) -> Result<serde_json::Value> {
     // HAND-EDITED (lane dryrun-written, 2026-10-10): dry-run reports renamed
     // the `written` key to `planned_writes` and gained `dry_run: true`. The
     // engine's `SyncReport` still serializes `written` (typed API surface,
@@ -23,7 +27,8 @@ fn sync_run(dry_run: bool, watch: bool, consumer_mode: bool) -> Result<serde_jso
     // NOTE: this hand edit lives below the GENERATED routing annotation and
     // must be re-applied if `mode = Overwrite` regeneration ever rewrites
     // this file.
-    let mut report = crate::verbs::handlers::handle_sync_run(dry_run, watch, consumer_mode)?;
+    let mut report =
+        crate::verbs::handlers::handle_sync_run(dry_run, watch, consumer_mode, skip_ea_admission)?;
     if dry_run {
         if let Some(obj) = report.as_object_mut() {
             if let Some(planned) = obj.remove("written") {
@@ -33,4 +38,16 @@ fn sync_run(dry_run: bool, watch: bool, consumer_mode: bool) -> Result<serde_jso
         }
     }
     Ok(report)
+}
+
+// HAND-EDITED (lane L2, receipt-log hardening G11 sequenced item 3,
+// 2026-11-07): explicit recovery verb for a torn receipt-log tail — same
+// hand-edit-below-generated-routing precedent as `sync_run` above. Reapply
+// if `mode = Overwrite` regeneration rewrites this file.
+/// Repair a torn tail in `.ggen-v2/receipt-log.jsonl`: truncate to the last
+/// valid record, append a repair marker, fsync. Fail-closed default is
+/// refusal — recovery runs only when this verb is invoked explicitly.
+#[clap_noun_verb_macros::verb("repair-log")]
+fn sync_repair_log() -> Result<serde_json::Value> {
+    crate::verbs::handlers::handle_sync_repair_log()
 }

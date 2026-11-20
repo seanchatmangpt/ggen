@@ -158,5 +158,3 @@ All identified error modes can be prevented through:
 5. **Hook validation** - Prevents circular and invalid dependencies
 
 These poka-yoke mechanisms make entire classes of errors impossible at compile time.
-
-

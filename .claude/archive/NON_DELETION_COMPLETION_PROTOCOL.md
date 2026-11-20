@@ -233,4 +233,3 @@ Or colder:
 **This protocol is now THE LAW for all coding agents on this project.**
 
 No exceptions. No rewrites. No deletes. Only finish.
-

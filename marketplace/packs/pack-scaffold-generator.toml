@@ -1,0 +1,28 @@
+[pack]
+packages = []
+category = "uncategorized"
+id = "pack-scaffold-generator"
+name = "pack-scaffold-generator"
+version = "0.1.0"
+description = """
+Ontology-backed generator for conforming new ggen marketplace packs. A consumer
+project declares a `psg:PackScaffold` individual (packName kebab-case, packIri,
+packProfile, packDescription, capabilityUrn); the pack's Tera templates render a
+complete semantic+gates pack: pack.toml, ontology.ttl (one Capability class +
+required capabilityId property + example individual), an SPARQL identity gate
+with pass/fail witnesses (anti-vacuity court contract, exact-stem), gate-court.toml,
+README.md, and a RECEIPT.md stub carrying `Standing: UNVERIFIED` (receipt-standing-law:
+no scaffold is ever born ALIVE). Generated packs pass scripts/check_gate_witness_courts.py
+stem court and rdflib gate execution.
+
+Falsifier (executed): qualification/falsifier.py builds a consumer graph declaring
+a scratch pack under tmp/ (never packs/), runs the real `ggen sync run` twice
+(determinism), asserts all 8 scaffold files render non-empty, parses the generated
+Turtle, and proves the generated gate FLIPS: 0 rows on the pass witness, >=1 row
+on the fail witness. A generator whose output passes when it should refuse is
+REFUSED.
+"""
+
+[capabilities]
+provides = ["urn:ggen:pack:pack-scaffold-generator"]
+requires = []

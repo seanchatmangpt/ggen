@@ -1,0 +1,7 @@
+PREFIX geag: <https://ggen.dev/ns/ea-graph#>
+SELECT ?id ?abb ?pack ?digest ?mutable ?authority
+WHERE {
+  ?s a geag:CandidateSbb ; geag:id ?id ; geag:abb ?abb ; geag:pack ?pack ; geag:mutable ?mutable ; geag:authority ?authority .
+  OPTIONAL { ?s geag:digest ?digest . }
+}
+ORDER BY ?id

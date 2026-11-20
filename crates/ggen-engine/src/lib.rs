@@ -9,6 +9,7 @@
 // Build-time provenance digest (BLAKE3 over commit SHA + 6 strata pack
 // digests + ontology triple count), embedded by `build.rs`. Fail-soft:
 // absent inputs are represented in-band, never a build failure.
+pub mod blast_radius;
 pub mod build_provenance;
 pub mod canonical;
 // L13 registry-projected closed refusal vocabulary (v26.10.20 lane A15).
@@ -69,6 +70,7 @@ mod schema_dispatch;
 pub mod shell_safety;
 pub mod sync;
 pub mod template;
+pub mod transactional;
 pub mod typed_boundary_census;
 pub mod types;
 pub mod write;

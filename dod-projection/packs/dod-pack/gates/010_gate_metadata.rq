@@ -1,0 +1,11 @@
+# MESSAGE: every PubGate must carry gateId, checkCommand, evidenceReceipt, status.
+PREFIX dod: <urn:ggen:dod:>
+SELECT ?gate WHERE {
+  ?gate a dod:PubGate .
+  FILTER (
+    NOT EXISTS { ?gate dod:gateId ?gid } ||
+    NOT EXISTS { ?gate dod:checkCommand ?cmd } ||
+    NOT EXISTS { ?gate dod:evidenceReceipt ?ev } ||
+    NOT EXISTS { ?gate dod:status ?st }
+  )
+} ORDER BY ?gate

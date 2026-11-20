@@ -462,6 +462,11 @@ ggen:sync_run a cli:Verb ;
         cli:type "bool" ;
         cli:required false ;
         cli:comment "Treat warnings as errors"
+    ] , [
+        cli:name "skip_ea_admission" ;
+        cli:type "bool" ;
+        cli:required false ;
+        cli:comment "Skip EA (ABB/SBB) admission; only lawful when the project has no ea.graph.json and architecture admission is intentionally bypassed"
     ] .
 
 # ============================================================================

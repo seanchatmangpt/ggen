@@ -114,39 +114,47 @@ fn nominal_cap_table_envelope_passes_with_exit_0() {
     );
 }
 
-// --- Court 2: cap-raise x10 mutant ---------------------------------------------------
+// --- Court 2: cap-clamp mutant (receipt-note: updated with H1 fix) -------------------
 
-/// Falsifies "the envelope digest is decorative": raising every declared cap
-/// x10 MUST change the envelope digest (the caps are inside the digest input)
-/// and MUST flip the verdict off PASS (the raised caps no longer match the
-/// receipt-bound contract ceiling). A court that passes both the original and
+/// Falsifies "the envelope digest is decorative": mutating every declared cap
+/// MUST change the envelope digest (the caps are inside the digest input) and
+/// MUST flip the verdict off PASS. A court that passes both the original and
 /// the mutant is vacuous.
+///
+/// RECEIPT NOTE (v26.11.3 lane G3, HIGH-1): this court originally raised every
+/// cap x10 and asserted refusal — that assertion encoded the OLD, wrong
+/// equality ceiling law (`declared == measured`), under which any headroom was
+/// a mismatch. Under the corrected ceiling law (`measured <= declared`), an
+/// x10 raise is lawful headroom and now PASSES by design; the mutant was
+/// therefore inverted to clamp every cap BELOW the measured output count,
+/// preserving the court's real intent (a cap ceiling the receipt exceeds must
+/// refuse).
 #[test]
-fn cap_raise_x10_mutant_changes_envelope_digest_and_flips_verdict() {
+fn cap_clamp_below_measured_mutant_changes_envelope_digest_and_flips_verdict() {
     let base = nominal_envelope();
     let base_digest = envelope_digest(&base);
     assert!(envelope_court(&base).is_pass());
 
     let mut mutant = base.clone();
-    let raised: Vec<(String, u64)> = mutant
+    let clamped: Vec<(String, u64)> = mutant
         .cap_table()
         .caps
         .iter()
-        .map(|(k, v)| (k.clone(), v.saturating_mul(10)))
+        .map(|(k, v)| (k.clone(), v.saturating_sub(1)))
         .collect();
-    for (k, v) in raised {
+    for (k, v) in clamped {
         mutant.cap_table_mut().caps.insert(k, v);
     }
 
     assert_ne!(
         envelope_digest(&mutant),
         base_digest,
-        "x10 cap raise left the envelope digest unchanged — caps are not digest-bound"
+        "cap clamp left the envelope digest unchanged — caps are not digest-bound"
     );
     let verdict = envelope_court(&mutant);
     assert!(
         !verdict.is_pass(),
-        "x10-raised cap table must not PASS: {verdict:?}"
+        "clamped-below-measured cap table must not PASS: {verdict:?}"
     );
     assert_ne!(
         verdict.exit_code(),

@@ -1,0 +1,101 @@
+{
+  "schema": "ggen.ea.graph.v1",
+  "strategy": {
+    "id": "strategy:inventoryctl-zero-code-cli",
+    "title": "inventoryctl: zero-code clap-noun-verb CLI manufactured from RDF by the clap-noun-verb packs"
+  },
+  "capabilities": [
+    {
+      "id": "cap:cli-manufacture",
+      "strategy": "strategy:inventoryctl-zero-code-cli"
+    }
+  ],
+  "abbs": [
+    {
+      "id": "abb:cli-manufacture",
+      "capability": "cap:cli-manufacture",
+      "contract": "contract:cli-manufacture"
+    }
+  ],
+  "contracts": [
+    {
+      "id": "contract:cli-manufacture",
+      "abb": "abb:cli-manufacture",
+      "version": "1.0.0",
+      "max_artifacts": 32,
+      "authority_ceiling": "CONSTRUCT",
+      "required_ports": [
+        "cli-binary-source",
+        "cli-manifest"
+      ]
+    }
+  ],
+  "candidate_sbbs": [
+    {
+      "id": "sbb:inventoryctl-cli",
+      "abb": "abb:cli-manufacture",
+      "pack": "pack:clap-noun-verb-crate-pack",
+      "digest": "sha256:fbc8bd01572318c2798dc13871668666a8c2f02f78e6efcd192834b3ab1ca09f",
+      "mutable": false,
+      "authority": "CONSTRUCT",
+      "provides_ports": [
+        "cli-manifest",
+        "cli-binary-source",
+        "cli-test-harness",
+        "cli-docs"
+      ],
+      "artifacts": [
+        {
+          "path": "Cargo.toml",
+          "template": "# {{abb}} realized by {{sbb}} for {{capability}}\ncontract {{contract}}@{{contract_version}}\n"
+        },
+        {
+          "path": "src/main.rs",
+          "template": "# {{abb}} realized by {{sbb}} for {{capability}}\ncontract {{contract}}@{{contract_version}}\n"
+        },
+        {
+          "path": "src/lib.rs",
+          "template": "# {{abb}} realized by {{sbb}} for {{capability}}\ncontract {{contract}}@{{contract_version}}\n"
+        },
+        {
+          "path": "src/generated_cli.rs",
+          "template": "# {{abb}} realized by {{sbb}} for {{capability}}\ncontract {{contract}}@{{contract_version}}\n"
+        },
+        {
+          "path": "src/generated_behavior.rs",
+          "template": "# {{abb}} realized by {{sbb}} for {{capability}}\ncontract {{contract}}@{{contract_version}}\n"
+        },
+        {
+          "path": "src/generated_boundaries.rs",
+          "template": "# {{abb}} realized by {{sbb}} for {{capability}}\ncontract {{contract}}@{{contract_version}}\n"
+        },
+        {
+          "path": "tests/zero_code_cli.rs",
+          "template": "# {{abb}} realized by {{sbb}} for {{capability}}\ncontract {{contract}}@{{contract_version}}\n"
+        },
+        {
+          "path": "docs/command-reference.md",
+          "template": "# {{abb}} realized by {{sbb}} for {{capability}}\ncontract {{contract}}@{{contract_version}}\n"
+        }
+      ]
+    }
+  ],
+  "qualifications": [
+    {
+      "id": "qual:inventoryctl-cli",
+      "sbb": "sbb:inventoryctl-cli",
+      "sbb_digest": "sha256:fbc8bd01572318c2798dc13871668666a8c2f02f78e6efcd192834b3ab1ca09f",
+      "contract": "contract:cli-manufacture",
+      "contract_digest": "sha256:cd921798842093a59a07333809eb2cd7fa08559218ab9257e3e033ec79a56633",
+      "verdict": "QUALIFIED"
+    }
+  ],
+  "packs": [
+    {
+      "id": "pack:clap-noun-verb-schema-pack"
+    },
+    {
+      "id": "pack:clap-noun-verb-crate-pack"
+    }
+  ]
+}

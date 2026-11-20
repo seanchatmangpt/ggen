@@ -708,4 +708,3 @@ Before cargo publish:
 ---
 
 **Guide Complete. Ready for 4-day sprint!**
-

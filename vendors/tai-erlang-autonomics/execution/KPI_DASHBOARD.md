@@ -461,4 +461,3 @@ OVERALL COMPLETION: 1 of 13 milestones = 7.7% complete (Day 1)
 ---
 
 **BOOKMARK THIS PAGE** - Check every Friday after standup!
-

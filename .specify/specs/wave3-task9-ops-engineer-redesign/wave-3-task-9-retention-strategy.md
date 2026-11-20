@@ -674,4 +674,3 @@ The $50M productivity gain comes from 500 autonomous engineers doing better work
 - Cohort 4 retention >90% (retaining high-value flight risks)
 
 This is execution. This is what turns spec into reality.
-

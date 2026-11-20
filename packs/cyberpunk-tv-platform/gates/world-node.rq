@@ -1,0 +1,19 @@
+# Gate equivalent of tv:WorldNodeShape (SHACL-at-sync retired, FM-LAW-017).
+# true = violation.
+PREFIX tv: <https://ggen.dev/ontology/cyberpunk-tv#>
+ASK {
+  ?subject a tv:WorldNode .
+  {
+    FILTER NOT EXISTS { ?subject <https://schema.org/name> ?v . }
+  } UNION {
+    ?subject <https://schema.org/name> ?n1, ?n2 . FILTER(STR(?n1) != STR(?n2))
+  } UNION {
+    FILTER NOT EXISTS { ?subject tv:longitude ?lon . FILTER(?lon >= -180 && ?lon <= 180) }
+  } UNION {
+    FILTER NOT EXISTS { ?subject tv:latitude ?lat . FILTER(?lat >= -90 && ?lat <= 90) }
+  } UNION {
+    FILTER NOT EXISTS { ?subject tv:weight ?w . FILTER(?w >= 1) }
+  } UNION {
+    ?subject tv:weight ?w1, ?w2 . FILTER(STR(?w1) != STR(?w2))
+  }
+}

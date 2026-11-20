@@ -459,4 +459,3 @@ As partnerships launch and mature, this section will include:
 ---
 
 **For questions or partnership inquiries**: partnerships@ggen.dev
-

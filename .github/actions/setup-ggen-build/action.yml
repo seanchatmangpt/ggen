@@ -41,6 +41,23 @@ outputs:
 runs:
   using: composite
   steps:
+    # STEP 0 — Reclaim runner disk space.
+    #
+    # Two CI failures at head 60c23d0bd (2026-11-04) were disk exhaustion, not
+    # law failures: `prove-emit-execute` died with `rustc-LLVM ERROR: IO failure
+    # on output stream: No space left on device` and `manufacture-and-self-play`
+    # died in oxrocksdb-sys's `ar cqD` archive step. The preinstalled dotnet/
+    # ghc/android SDKs cost ~25GB that this workspace never uses; the same
+    # reclaim recipe already runs inline in examples-core-team-constructor.yml.
+    # Linux-only guard: macOS runners (release.yml) do not ship these SDKs.
+    - name: Reclaim runner disk space
+      if: runner.os == 'Linux'
+      shell: bash
+      run: |
+        df -h /
+        sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/lib/android || true
+        df -h /
+
     # STEP 1 — Provision sibling dependency repos (THE root-cause fix).
     #
     # The workspace `[patch.crates-io]` in the root Cargo.toml points at:

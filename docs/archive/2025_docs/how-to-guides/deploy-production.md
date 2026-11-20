@@ -190,4 +190,3 @@ ggen template generate-rdf --ontology domain.ttl --template rust-models --output
 - **Production readiness:** See production readiness guide
 - **Troubleshooting:** [Troubleshooting Guide](troubleshoot.md)
 - **CLI reference:** [CLI Reference](../reference/cli.md)
-

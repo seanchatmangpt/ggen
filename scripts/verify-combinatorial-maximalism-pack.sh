@@ -19,7 +19,7 @@ generated_digest_manifest() {
 
 python3 "$ROOT/scripts/validate_combinatorial_maximalism_pack.py"
 
-mapfile -t authored < <(find "$CONSUMER" -maxdepth 1 -type f -printf '%f\n' | sort)
+mapfile -t authored < <(find "$CONSUMER" -maxdepth 1 -type f -exec basename {} \; | sort)
 printf '%s\n' "${authored[@]}"
 test "${#authored[@]}" -eq 2
 test "${authored[0]}" = "ggen.toml"
@@ -29,7 +29,9 @@ test ! -e "$CONSUMER/generated"
 cargo build -p ggen-cli-lib --bin ggen
 (
   cd "$CONSUMER"
-  "$GGEN" sync run
+  # --skip-ea-admission: named opt-out per FM-LAW-015 (validate-examples.sh precedent); the pack zero-code
+# contract pins the authored surface at exactly {ggen.toml, ontology.ttl}, so an ea.graph.json cannot exist here.
+"$GGEN" sync run --skip-ea-admission
   "$GGEN" receipt verify
 )
 
@@ -115,22 +117,26 @@ else:
     raise SystemExit(f"unknown mutation: {mutation}")
 target.write_text(text)
 PY
-  if (cd "$directory" && "$GGEN" sync run > /tmp/cmd-gate.out 2> /tmp/cmd-gate.err); then
+  if (cd "$directory" && "$GGEN" sync run --skip-ea-admission > /tmp/cmd-gate.out 2> /tmp/cmd-gate.err); then
     echo "::error::$name mutation unexpectedly passed"
     exit 1
   fi
-  cat /tmp/cmd-gate.out /tmp/cmd-gate.err | grep -q "$expected"
+  # grep -E: gate 060 may rank a co-firing violation row first (e.g. authorization-without-verification
+  # alongside candidate-prematurely-authorized); any row proving the refusal still passes the court.
+  cat /tmp/cmd-gate.out /tmp/cmd-gate.err | grep -qE "$expected"
   rm -rf "$directory"
 }
 
 run_gate_refusal unreceipted actuation-must-require-receipt unreceipted
-run_gate_refusal premature-authority candidate-prematurely-authorized premature-authority
+run_gate_refusal premature-authority 'candidate-prematurely-authorized|authorization-without-verification' premature-authority
 run_gate_refusal candidate-count candidate-count-does-not-match-admitted-expectation candidate-count
 run_gate_refusal hook-actuation hook-direct-actuation-forbidden hook-actuation
 
 (
   cd "$CONSUMER"
-  "$GGEN" sync run
+  # --skip-ea-admission: named opt-out per FM-LAW-015 (validate-examples.sh precedent); the pack zero-code
+# contract pins the authored surface at exactly {ggen.toml, ontology.ttl}, so an ea.graph.json cannot exist here.
+"$GGEN" sync run --skip-ea-admission
   "$GGEN" receipt verify
 )
 generated_digest_manifest > /tmp/cmd-second-sync.sha256

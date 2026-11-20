@@ -1,0 +1,24 @@
+@prefix fin: <https://ggen.io/ontology/financial-ledger#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+### Positive qualification fixture (synthetic admitted input):
+### a balanced two-leg entry over two declared accounts, all three
+### gates silent. Proves the pack's graph loads and its gates accept
+### a well-formed ledger subject; not an external observation.
+
+fin:acct-5001 a fin:Account ; fin:accountNumber "5001" .
+fin:acct-6002 a fin:Account ; fin:accountNumber "6002" .
+
+fin:je-q1 a fin:JournalEntry ;
+    fin:entryId "je-2026-9001" ;
+    fin:casEtag "0000000d-0000-0100-0000-0000000000q1" ;
+    fin:postedAt "2026-10-21T00:00:00Z"^^xsd:dateTime ;
+    fin:hasPosting fin:p-q1-a, fin:p-q1-b .
+
+fin:p-q1-a a fin:Posting ;
+    fin:account fin:acct-5001 ;
+    fin:debitAmount "125.50"^^xsd:decimal .
+
+fin:p-q1-b a fin:Posting ;
+    fin:account fin:acct-6002 ;
+    fin:creditAmount "125.50"^^xsd:decimal .

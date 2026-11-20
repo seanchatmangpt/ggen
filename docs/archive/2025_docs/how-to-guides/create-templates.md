@@ -212,4 +212,3 @@ ggen marketplace publish \
 - **Template reference:** [Template Syntax Reference](../reference/templates.md)
 - **SPARQL guide:** [RDF/SPARQL Reference](../reference/rdf-sparql.md)
 - **Examples:** See `examples/` directory for template examples
-

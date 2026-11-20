@@ -1,0 +1,19 @@
+{
+  "identity": "X1",
+  "title": "t",
+  "description": "d",
+  "subject": "src/X1.rs",
+  "repository": "owner/repo",
+  "base_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "standing": "UNKNOWN",
+  "evidence_ceiling": "UNVERIFIED",
+  "promotion_rule": "courts",
+  "replay_identity": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+  "origin_authority": "https://example.test/auth/X1",
+  "projections": ["jira"],
+  "required_courts": ["c1"],
+  "required_evidence": ["e1"],
+  "acceptance": ["a1"],
+  "falsifiers": ["f1"],
+  "path_scope": ["lib/"]
+}

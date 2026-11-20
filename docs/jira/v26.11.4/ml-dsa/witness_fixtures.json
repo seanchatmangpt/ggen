@@ -1,0 +1,39 @@
+{
+  "document": "ML-DSA-65 FIPS-204 witness fixtures (OI-3 / ZP-22 Phase 1)",
+  "vector_source": {
+    "origin": "NIST ACVP 'ML-DSA-keyGen-FIPS204' vector set (25 vectors), https://github.com/usnistgov/ACVP-Server/tree/master/gen-val/json-files/ML-DSA-keyGen-FIPS204",
+    "consumed_via": "BoringSSL mirror https://boringssl.googlesource.com/boringssl/+/refs/heads/main/crypto/mldsa/mldsa_nist_keygen_65_tests.txt (fetched 2026-11-04 into cgap crates/cgap-crypto/tests/mldsa65_kat_courts.rs; extracted here byte-exact)",
+    "law": "t03 vector-source law: real fetched vectors, source cited, never synthetic"
+  },
+  "seed_expansion_law": "(rho, sigma, K) = SHAKE-256(xi || k || l, 128) with k=0x06, l=0x05 for ML-DSA-65; rho=out[0:32], sigma=out[32:96], K=out[96:128]",
+  "vectors": [
+    {
+      "id": "keygen-0",
+      "seed_xi": "70CEFB9AED5B68E018B079DA8284B9D5CAD5499ED9C265FF73588005D85C225C",
+      "pk_prefix_rho": "D2FD03F3A1B7F635AF9F34D580A98F524C735BD5BA2355DC6E035BD21765580C",
+      "expected_rho": "D2FD03F3A1B7F635AF9F34D580A98F524C735BD5BA2355DC6E035BD21765580C",
+      "expected_sigma": "72C95C587B92F240352A63921EE9C0F454D8629A38E4DA8E2250603459D3F44CBD8D8D2BB8B1D78D0125DD2C81CE1925547D6EC07A0C3CC0185A0A6C6890A0D7",
+      "expected_k_seed": "E38D1C14F6467C35A9F380D27DE61F7C75031569EA2EC8260EEE9105261B7FE1"
+    },
+    {
+      "id": "keygen-1",
+      "seed_xi": "4B4B71C5A1BC1074F2167A1D68729CDB9E16ABA3651FF02A0A0F4C883CAAC827",
+      "pk_prefix_rho": "F8D4945A92CE46DD24D751DA02F068482C69B0DBF0501634C4A247E1ECF98B27",
+      "expected_rho": "F8D4945A92CE46DD24D751DA02F068482C69B0DBF0501634C4A247E1ECF98B27",
+      "expected_sigma": "90F9010CE52A6B56ABB027964B507B3C39974DEAA2BC4BDE83EA8AA5F549F1385E1A0E88E5649B9F81D04631361EB26BE3BBBCD409F07B57FA5F580D1683C857",
+      "expected_k_seed": "B870452948D3FD91DFABBA184B7778E2223C610196918C5AC471FFE27C45C216"
+    },
+    {
+      "id": "keygen-2",
+      "seed_xi": "FB27DBBB4ED8F4F7D2700283C2B092866694246932EEACEE72DB730EFD172576",
+      "pk_prefix_rho": "0FB4B45D59D6BA35576D1F75ECF682E5C901372E65678E959DD61F6652AE3F05",
+      "expected_rho": "0FB4B45D59D6BA35576D1F75ECF682E5C901372E65678E959DD61F6652AE3F05",
+      "expected_sigma": "5F8CEADF944EB5BB6F5273288B39997061D087EE86A3502AAB63FD51F4D227091785A9DC66D2382C097DD7A6EFD23278921B3B24383F6EE4E930DDD105BC3C7B",
+      "expected_k_seed": "E8F6C5312F27292980146AED5BD4CDCCCF105C59DC052E9A5604839CFBE13920"
+    }
+  ],
+  "registered_gaps": [
+    "Full pk (1952 B) and sk (4032 B) byte-exact fixtures not yet embedded; the witnessed surface this phase is the seed-expansion law (rho byte-exact vs ACVP pk[0:32], 3/3) plus sigma/K derived by the pinned law",
+    "sigGen vectors: Phase 2"
+  ]
+}

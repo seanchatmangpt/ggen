@@ -1,0 +1,50 @@
+# Consumer individuals for the 21 CFR Part 11 walkthrough.
+# Compliant chain: every record signed, attributed, trail complete, deviation
+# CAPA'd, mutation only through the WORM store.
+@prefix p11:  <https://seanchatmangpt.github.io/packs/industry-pharma-21cfr#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+p11:qa8 a prov:Agent ;
+    rdfs:label "QA reviewer 8 (badge QA-0008)" .
+
+p11:esig-201 a p11:ESignature ;
+    prov:agent p11:qa8 ;
+    p11:smaltSignKey "kv-key-batch-signing" ;
+    p11:signatureValue "PS256:MEUCIQD9k2...batch-201" ;
+    prov:generatedAtTime "2026-10-21T14:00:00Z"^^xsd:dateTime .
+
+p11:audit-trail-201 a p11:AuditTrail ;
+    p11:who "qa8" ;
+    p11:what "batch record creation" ;
+    p11:when "2026-10-21T14:00:00Z"^^xsd:dateTime ;
+    p11:why "21 CFR 211.188 batch production record" ;
+    prov:endedAtTime "2026-10-21T14:00:00Z"^^xsd:dateTime .
+
+p11:batch-201 a p11:BatchRecord ;
+    rdfs:label "Batch record B-2026-201" ;
+    prov:wasAttributedTo p11:qa8 ;
+    p11:eSignature p11:esig-201 ;
+    p11:hasAuditTrail p11:audit-trail-201 ;
+    p11:blobContainer "batch-records" ;
+    p11:blobContainerPolicy "locked-until-2031" .
+p11:blob-worm-01 a p11:WormStore ;
+    rdfs:label "Blob container batch-records under immutability lock" ;
+    p11:container "batch-records" ;
+    p11:immutabilityPolicy "locked-until-2031" .
+
+p11:signing-host-9 a prov:Agent ;
+    rdfs:label "Signing workstation (enclave-backed)" ;
+    p11:hostFingerprint "sha256:7b31..." ;
+    p11:attestRoute "POST /attest/:type" .
+
+p11:quality-flag-part11 a p11:QualityPolicyFlag ;
+    rdfs:label "AppConfig part-11 enforcement flag" ;
+    p11:flagKey "quality.part11.enforce" .
+
+p11:qualval-201 a p11:QualityValidationStep ;
+    rdfs:label "Quality validation step: batch-201 release review" ;
+    p11:stepFor p11:batch-201 ;
+    p11:gateFlag p11:quality-flag-part11 ;
+    prov:wasAttributedTo p11:qa8 .

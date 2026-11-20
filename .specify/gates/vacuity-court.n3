@@ -4,12 +4,31 @@
 # refuse, or whose control refuses, is VACUOUS — it carries no bits.
 
 @prefix log: <http://www.w3.org/2000/10/swap/log#> .
-@prefix vc: <http://ggen.io/vacuity-court#> .
+@prefix math: <http://www.w3.org/2000/10/swap/math#> .
+@prefix vc:<http://ggen.io/vacuity-court#> .
 
 {
     ?gate a vc:InvariantGate .
     ?run vc:gate ?gate ;
          vc:observed-refusal ?refusal .
+    ?control vc:gate ?gate ;
+         vc:subject vc:pristine ;
+         vc:outcome vc:passes .
+} log:implies {
+    ?run a vc:court_nonvacuous .
+} .
+
+# FNOX-SJ-VACU-4: focus-count rule for SHACL shape gates.
+# A shape gate run is court_nonvacuous iff, in addition to refusal + passing control,
+# the witness graph had vc:focus-count > 0. A shape with zero focus nodes validates
+# anything, so it carries no bits. Zero-focus runs derive nothing (absence of the type
+# is the VACUOUS verdict).
+{
+    ?gate a vc:ShapeGate .
+    ?run vc:gate ?gate ;
+         vc:observed-refusal ?refusal ;
+         vc:focus-count ?n .
+    ?n math:greaterThan 0 .
     ?control vc:gate ?gate ;
          vc:subject vc:pristine ;
          vc:outcome vc:passes .

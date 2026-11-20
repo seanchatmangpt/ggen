@@ -123,7 +123,6 @@ locals {
     environment = var.environment
     service     = "taiea"
     managed-by  = "terraform"
-    created-at  = timestamp()
   }
 
   # Image URI for Cloud Run
@@ -135,16 +134,11 @@ locals {
 # ==============================
 
 output "artifact_registry_repository" {
-  description = "Full name of the Artifact Registry repository"
-  value       = google_artifact_registry_repository.taiea_registry.repository_full_path
+  description = "Full resource ID of the Artifact Registry repository"
+  value       = google_artifact_registry_repository.taiea_registry.id
 }
 
 output "artifact_registry_docker_endpoint" {
   description = "Docker endpoint for Artifact Registry"
   value       = "${var.region}-docker.pkg.dev"
-}
-
-output "gcp_account_email" {
-  description = "Email of the authenticated GCP account"
-  value       = data.google_client_config.current.client_email
 }

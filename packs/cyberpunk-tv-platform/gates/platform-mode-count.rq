@@ -1,0 +1,10 @@
+# Count arm of tv:PlatformShape (minCount 6 modes). true = violation.
+PREFIX tv: <https://ggen.dev/ontology/cyberpunk-tv#>
+ASK {
+  {
+    SELECT (COUNT(?m) AS ?n) WHERE {
+      ?subject a tv:Platform . ?subject tv:hasMode ?m . ?m a tv:Mode .
+    } GROUP BY ?subject
+  }
+  FILTER(?n < 6)
+}

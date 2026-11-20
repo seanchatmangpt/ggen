@@ -122,4 +122,3 @@ ggen ai analyze <path> \
 - **Learn ontology creation:** [Use RDF Ontologies Guide](../how-to-guides/use-rdf-ontologies.md)
 - **CLI reference:** [AI Commands Reference](../reference/cli.md#ai-commands)
 - **Understand concepts:** [Ontology-Driven Explanation](../explanations/ontology-driven.md)
-

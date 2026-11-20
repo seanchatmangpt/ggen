@@ -1,0 +1,51 @@
+name: e2e-periodic
+
+on:
+  schedule:
+    # Mondays 06:23 UTC — weekly run of the ignored e2e backlog.
+    - cron: '23 6 * * 1'
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'crates/ggen-cli/tests/integration_*_e2e.rs'
+      - 'crates/ggen-lsp/tests/consolidate_002_sequence_equivalence.rs'
+      - 'crates/ggen-lsp/tests/oracle_tape_generator.rs'
+      - '.github/workflows/e2e-periodic.yml'
+
+concurrency:
+  group: e2e-periodic-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: CLI e2e backlog (ignored tests)
+        run: |
+          cargo test -p ggen-cli \
+            --test integration_ai_e2e \
+            --test integration_cli_ux_e2e \
+            --test integration_graph_e2e \
+            --test integration_marketplace_e2e \
+            --test integration_ontology_e2e \
+            --test integration_project_e2e -- --ignored --nocapture
+
+      - name: CLI e2e backlog (ignored tests, continued)
+        run: |
+          cargo test -p ggen-cli \
+            --test integration_template_e2e \
+            --test integration_utils_e2e \
+            --test integration_workflow_e2e -- --ignored --nocapture
+
+      - name: ggen-lsp fixture generators (ignored tests)
+        run: |
+          cargo test -p ggen-lsp \
+            --test consolidate_002_sequence_equivalence \
+            --test oracle_tape_generator -- --ignored --nocapture

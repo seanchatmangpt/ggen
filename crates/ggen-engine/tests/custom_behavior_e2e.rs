@@ -173,6 +173,11 @@ fn scaffold_consumer() -> (TempDir, PathBuf) {
 
     let project = directory.path().join("consumer");
     std::fs::create_dir_all(&project).expect("consumer directory");
+    std::fs::write(
+        project.join("ea.graph.json"),
+        "{\"schema\":\"ggen.ea.graph.v1\",\"strategy\":{\"id\":\"s\",\"title\":\"t\"},\"capabilities\":[],\"abbs\":[],\"contracts\":[],\"candidate_sbbs\":[],\"qualifications\":[],\"packs\":[]}",
+    )
+    .expect("write ea.graph.json");
     std::fs::write(project.join("ontology.ttl"), ONTOLOGY).expect("consumer ontology");
 
     let packs_table: String =
@@ -193,6 +198,17 @@ fn scaffold_consumer() -> (TempDir, PathBuf) {
         ),
     )
     .expect("consumer manifest");
+
+    // Collision repair (lane G2, disclosed in g2-typed-refusals receipt):
+    // WO-01's fail-closed EA admission gate (FM-LAW-015) refuses any sync
+    // whose root lacks ea.graph.json; these tests exercise custom-behavior
+    // routing, not EA admission, so the consumer carries a minimal
+    // valid-but-empty EA graph (zero candidate SBBs).
+    std::fs::write(
+        project.join("ea.graph.json"),
+        "{\"schema\":\"ggen.ea.graph.v1\",\"strategy\":{\"id\":\"s\",\"title\":\"t\"},\"capabilities\":[],\"abbs\":[],\"contracts\":[],\"candidate_sbbs\":[],\"qualifications\":[],\"packs\":[]}",
+    )
+    .expect("write ea.graph.json");
 
     (directory, project)
 }

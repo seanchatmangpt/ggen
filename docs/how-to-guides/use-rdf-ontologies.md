@@ -195,4 +195,3 @@ ex:UserShape a sh:NodeShape ;
 - **SPARQL reference:** [RDF/SPARQL Reference](../reference/rdf-sparql.md)
 - **Ontology concepts:** [Ontology-Driven Explanation](../explanations/ontology-driven.md)
 - **Tutorial:** [Ontology-to-Code Tutorial](../tutorials/ontology-to-code.md)
-

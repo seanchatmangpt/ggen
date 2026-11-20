@@ -359,4 +359,3 @@ A: Check the template syntax, verify SPARQL results match expectations, and insp
 - [Tera Template Documentation](https://keats.github.io/tera/)
 - [Zod Documentation](https://zod.dev/)
 - [JSDoc Documentation](https://jsdoc.app/)
-

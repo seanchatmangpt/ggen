@@ -1,0 +1,13 @@
+# Consumer project for the industry-pharma-21cfr pack.
+# Ontology = this consumer's own batch-record individuals; the pack supplies
+# the vocabulary, SHACL template and walkthrough template (frontmatter
+# `to:`/`sparql:` rendering through `ggen sync run`).
+[project]
+name = "pharma-21cfr-consumer"
+
+[ontology]
+source = "data.ttl"
+imports = ["pack-vocabulary.ttl"]
+
+[templates]
+dir = "templates"  # copied from packs/industry-pharma-21cfr/templates (pack pin)

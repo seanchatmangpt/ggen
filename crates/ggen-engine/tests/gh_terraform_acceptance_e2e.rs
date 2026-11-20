@@ -37,7 +37,7 @@ use tempfile::TempDir;
 // ── scaffold (same pattern as gh_terraform_pack_e2e.rs) ─────────────────────
 
 fn packs_dir() -> PathBuf {
-    Path::new(env!("CARGO_MANIFEST_DIR")).join("../../packs")
+    Path::new(env!("CARGO_MANIFEST_DIR")).join("../../../ggen-marketplace/packs")
 }
 
 fn copy_tree(src: &Path, dst: &Path) {

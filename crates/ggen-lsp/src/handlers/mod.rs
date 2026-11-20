@@ -8,6 +8,7 @@ pub mod folding_range;
 pub mod formatting;
 pub mod hover;
 pub mod inlay_hint;
+pub mod moniker;
 pub mod references;
 pub mod rename;
 pub mod semantic_tokens;

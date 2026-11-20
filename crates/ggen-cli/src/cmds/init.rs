@@ -136,7 +136,7 @@ output_dir = "."
 # Define inference rules (required for DMAIC quality gates)
 [inference]
 rules = [
-    { name = "standard-normalization", construct = "CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o }" }
+    { name = "standard-normalization", construct = "CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o } ORDER BY ?s ?p ?o" }
 ]
 
 # Define at least one generation rule (required)
@@ -155,6 +155,7 @@ WHERE {
          rdfs:label ?label .
   OPTIONAL { ?class rdfs:comment ?comment . }
 }
+ORDER BY ?class
 LIMIT 10
 """ }
 # Template file to render (relative to templates directory)
@@ -229,6 +230,13 @@ schema:age a rdf:Property ;
 # 3. Only extend schema.org if needed (stay standard-first)
 # 4. Run: ggen sync --validate-only
 "#;
+
+/// Minimal valid-but-empty EA graph (schema `ggen.ea.graph.v1`, zero
+/// candidate SBBs — the admit loop iterates `candidate_sbbs`, so empty admits
+/// trivially and honestly: nothing to admit). Ships with the scaffold so a
+/// fresh `ggen init` -> `ggen sync run` passes the fail-closed EA admission
+/// gate (FM-LAW-015) without needing the `--skip-ea-admission` opt-out.
+const EA_GRAPH_JSON: &str = r#"{"schema":"ggen.ea.graph.v1","strategy":{"id":"s","title":"t"},"capabilities":[],"abbs":[],"contracts":[],"candidate_sbbs":[],"qualifications":[],"packs":[]}"#;
 
 const MAKEFILE: &str = r#".PHONY: help setup build clean
 
@@ -712,6 +720,13 @@ fn perform_init(
     let makefile_path = base_path.join("Makefile");
     tx.write_file(&makefile_path, MAKEFILE)
         .map_err(|e| GgenError::CommandError(format!("Failed to write Makefile: {e}")))?;
+
+    // Create ea.graph.json — fail-closed EA admission gate (FM-LAW-015)
+    // requires an EA graph or explicit opt-out at every sync; the scaffold
+    // ships an empty graph so fresh projects sync out of the box.
+    let ea_graph_path = base_path.join("ea.graph.json");
+    tx.write_file(&ea_graph_path, EA_GRAPH_JSON)
+        .map_err(|e| GgenError::CommandError(format!("Failed to write ea.graph.json: {e}")))?;
 
     // Create example template (templates/example.txt.tera)
     let template_path = base_path.join("templates").join("example.txt.tera");

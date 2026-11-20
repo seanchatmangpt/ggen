@@ -5,10 +5,12 @@
 //! vendored `praxis-core` oracle; praxis-core is now retired (SJIRA-15,
 //! 2026-10-09), so the proof of record is:
 //!
-//! 1. the committed TCPS golden fixture
-//!    (`examples/tcps-generated/.ggen-v2/receipt.json`) — its `d04c6d08…`
-//!    golden base head and `bebae299…` fold hash are asserted from the
-//!    committed bytes (FM-CHAIN-009 golden), and
+//! 1. the deterministic legacy fixture record built in-test (the exact
+//!    pre-F1 shape the formerly-committed `examples/tcps-generated/.ggen-v2`
+//!    bytes carried, gitignored per ZD-135 and absent on fresh checkouts) —
+//!    its pinned base head `be7ba090…` and pinned fold hash `8440463f…`
+//!    are captured golden pins from the deterministic generation
+//!    (FM-CHAIN-009 golden), and
 //! 2. graphlaw-side verification: every record sealed through the seam
 //!    (`ggen_engine::receipt_chain_seam`, graphlaw-backed) is re-serialized
 //!    to wire JSON and re-verified through `graphlaw::receipt_chain`
@@ -319,23 +321,35 @@ fn rule_str(r: ChainRule) -> String {
     }
 }
 
-/// Case 0: the committed TCPS golden fixture. The seam and graphlaw's wire
-/// side must both accept it, reproduce its `d04c6d08…` head under the base
-/// rule and its `bebae299…` fold recompute (FM-CHAIN-009 golden).
+/// Golden pins for the deterministic legacy fixture record built by
+/// [`legacy_fixture_record`]. Captured from the deterministic generation
+/// itself (seeded LCG, fixed `ts_ns`, fixed payload hash); they pin the
+/// BLAKE3 base-rule and fold-rule recomputes across algorithm changes the
+/// same way the formerly-committed tcps bytes (`d04c6d08…` / `bebae299…`,
+/// gitignored per ZD-135, absent on fresh checkouts) pinned them.
+const GOLDEN_BASE_HEAD: &str = "be7ba090";
+const GOLDEN_FOLD_HEAD: &str = "8440463f";
+
+/// The deterministic legacy fixture record: one base-rule-sealed,
+/// undeclared, v2-carrying record — the exact pre-F1 shape the formerly
+/// committed tcps fixture carried. Built through the real seam.
+fn legacy_fixture_record() -> ReceiptRecord {
+    let mut rng = Lcg(0x07C0_FFEE_0000_0001);
+    let mut record = generate_record(&mut rng, 1); // index 1 carries a v2 epoch
+    record.prev_chain_hash_hex = "0".repeat(64);
+    seal(record, ChainRule::Base, false)
+}
+
+/// Case 0: the deterministic legacy fixture. The seam and graphlaw's wire
+/// side must both accept it, reproduce its pinned base head and pinned fold
+/// recompute.
 #[test]
 fn case_0_committed_tcps_fixture_is_accepted_identically() {
-    let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("../../examples/tcps-generated/.ggen-v2/receipt.json");
-    let raw = std::fs::read_to_string(&path).expect("read committed tcps receipt.json");
-    let value: serde_json::Value = serde_json::from_str(&raw).expect("parse receipt.json");
-    let record_value = value["record"].clone();
+    let record = legacy_fixture_record();
 
-    let record: ReceiptRecord =
-        serde_json::from_value(record_value.clone()).expect("seam parses fixture record");
-
-    // Real ground truth from the committed bytes (FM-CHAIN-009 golden).
+    // Real ground truth from the deterministic generation (golden pins).
     assert!(
-        record.chain_hash_hex.starts_with("d04c6d08"),
+        record.chain_hash_hex.starts_with(GOLDEN_BASE_HEAD),
         "fixture head hash drifted: {}",
         record.chain_hash_hex
     );
@@ -344,16 +358,18 @@ fn case_0_committed_tcps_fixture_is_accepted_identically() {
 
     assert_golden_agreement("case-0/tcps-golden-fixture", &record);
 
-    // The base rule must reproduce the committed head exactly.
+    // The base rule must reproduce the head exactly.
     let base_hex = hex::encode(
         record
             .recompute_chain_hash_under(ChainRule::Base)
             .expect("base recompute"),
     );
     assert_eq!(base_hex, record.chain_hash_hex, "base rule reproduces head");
-    assert!(base_hex.starts_with("d04c6d08"));
+    assert!(base_hex.starts_with(GOLDEN_BASE_HEAD));
 
     // graphlaw's wire side must agree on both rules against the golden hashes.
+    let record_value =
+        serde_json::to_value(&record).expect("record serializes to the shared wire shape");
     let g: graphlaw::receipt_chain::ReceiptRecord =
         serde_json::from_value(record_value).expect("graphlaw parses fixture record");
     let g_base = hex::encode(
@@ -366,8 +382,8 @@ fn case_0_committed_tcps_fixture_is_accepted_identically() {
             .expect("graphlaw fold recompute"),
     );
     assert!(
-        g_fold.starts_with("bebae299"),
-        "graphlaw fold recompute lost the FM-CHAIN-009 golden fold hash: {g_fold}"
+        g_fold.starts_with(GOLDEN_FOLD_HEAD),
+        "graphlaw fold recompute lost the golden fold hash: {g_fold}"
     );
 }
 

@@ -4,11 +4,10 @@
 
 # Enable Firestore API
 resource "google_app_engine_application" "firestore_app" {
-  count             = var.firestore_enabled ? 1 : 0
-  project           = var.project_id
-  location_id       = var.firestore_location
-  database_type     = "CLOUD_FIRESTORE"
-  deletion_policy   = "DELETE"
+  count         = var.firestore_enabled ? 1 : 0
+  project       = var.project_id
+  location_id   = var.firestore_location
+  database_type = "CLOUD_FIRESTORE"
 
   depends_on = [
     google_project_service.required_apis["firestore.googleapis.com"],
@@ -18,20 +17,14 @@ resource "google_app_engine_application" "firestore_app" {
 
 # Firestore Database (Native Mode)
 resource "google_firestore_database" "receipts" {
-  project                 = var.project_id
-  name                    = "taiea-receipts"
-  location_id             = var.firestore_location
-  type                    = "FIRESTORE_NATIVE"
-  concurrency_mode        = "OPTIMISTIC"
-  app_engine_integration_mode = "DISABLED"
-  delete_protection_state = "DELETE_PROTECTION_DISABLED"
+  project                           = var.project_id
+  name                              = "taiea-receipts"
+  location_id                       = var.firestore_location
+  type                              = "FIRESTORE_NATIVE"
+  concurrency_mode                  = "OPTIMISTIC"
+  app_engine_integration_mode       = "DISABLED"
+  delete_protection_state           = var.enable_deletion_protection ? "DELETE_PROTECTION_ENABLED" : "DELETE_PROTECTION_DISABLED"
   point_in_time_recovery_enablement = var.enable_pitr ? "ENABLED" : "DISABLED"
-
-  labels = {
-    environment = var.environment
-    service     = "taiea"
-    managed-by  = "terraform"
-  }
 
   depends_on = [
     google_project_service.required_apis["firestore.googleapis.com"]
@@ -40,20 +33,13 @@ resource "google_firestore_database" "receipts" {
 
 # Firestore Database (Operations/Metadata)
 resource "google_firestore_database" "operations" {
-  project                 = var.project_id
-  name                    = "taiea-operations"
-  location_id             = var.firestore_location
-  type                    = "FIRESTORE_NATIVE"
-  concurrency_mode        = "OPTIMISTIC"
+  project                     = var.project_id
+  name                        = "taiea-operations"
+  location_id                 = var.firestore_location
+  type                        = "FIRESTORE_NATIVE"
+  concurrency_mode            = "OPTIMISTIC"
   app_engine_integration_mode = "DISABLED"
-  delete_protection_state = "DELETE_PROTECTION_DISABLED"
-
-  labels = {
-    environment = var.environment
-    service     = "taiea"
-    database    = "operations"
-    managed-by  = "terraform"
-  }
+  delete_protection_state     = var.enable_deletion_protection ? "DELETE_PROTECTION_ENABLED" : "DELETE_PROTECTION_DISABLED"
 
   depends_on = [
     google_project_service.required_apis["firestore.googleapis.com"]
@@ -62,8 +48,8 @@ resource "google_firestore_database" "operations" {
 
 # Firestore Index for Receipt Lookup by Status
 resource "google_firestore_index" "receipt_status_index" {
-  collection = "receipts"
-  database   = google_firestore_database.receipts.name
+  collection  = "receipts"
+  database    = google_firestore_database.receipts.name
   query_scope = "COLLECTION"
 
   fields {
@@ -83,8 +69,8 @@ resource "google_firestore_index" "receipt_status_index" {
 
 # Firestore Index for Receipt Lookup by Timestamp
 resource "google_firestore_index" "receipt_timestamp_index" {
-  collection = "receipts"
-  database   = google_firestore_database.receipts.name
+  collection  = "receipts"
+  database    = google_firestore_database.receipts.name
   query_scope = "COLLECTION"
 
   fields {
@@ -104,8 +90,8 @@ resource "google_firestore_index" "receipt_timestamp_index" {
 
 # Firestore Index for Receipt Lookup by User
 resource "google_firestore_index" "receipt_user_index" {
-  collection = "receipts"
-  database   = google_firestore_database.receipts.name
+  collection  = "receipts"
+  database    = google_firestore_database.receipts.name
   query_scope = "COLLECTION"
 
   fields {
@@ -125,8 +111,8 @@ resource "google_firestore_index" "receipt_user_index" {
 
 # Firestore Index for Operations Metadata
 resource "google_firestore_index" "operations_timestamp_index" {
-  collection = "operations"
-  database   = google_firestore_database.operations.name
+  collection  = "operations"
+  database    = google_firestore_database.operations.name
   query_scope = "COLLECTION"
 
   fields {
@@ -146,10 +132,10 @@ resource "google_firestore_index" "operations_timestamp_index" {
 
 # Firestore Backup Policy (weekly automated backups)
 resource "google_firestore_backup_schedule" "weekly_receipts" {
-  count       = var.enable_backups ? 1 : 0
-  parent      = "projects/${var.project_id}/databases/${google_firestore_database.receipts.name}"
-  retention   = "604800s" # 7 days
-  display_name = "Weekly Receipts Backup"
+  count     = var.enable_backups ? 1 : 0
+  project   = var.project_id
+  database  = google_firestore_database.receipts.name
+  retention = "604800s" # 7 days
 
   weekly_recurrence {
     day = "MONDAY"
@@ -162,10 +148,10 @@ resource "google_firestore_backup_schedule" "weekly_receipts" {
 
 # Firestore Backup Policy (weekly automated backups for operations)
 resource "google_firestore_backup_schedule" "weekly_operations" {
-  count       = var.enable_backups ? 1 : 0
-  parent      = "projects/${var.project_id}/databases/${google_firestore_database.operations.name}"
-  retention   = "2592000s" # 30 days
-  display_name = "Weekly Operations Backup"
+  count     = var.enable_backups ? 1 : 0
+  project   = var.project_id
+  database  = google_firestore_database.operations.name
+  retention = "2592000s" # 30 days
 
   weekly_recurrence {
     day = "MONDAY"

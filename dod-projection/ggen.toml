@@ -1,0 +1,17 @@
+# ggen v26.11.3 publish definition-of-done projection (GD-2 lane).
+# Pack-composition (frontmatter) schema — the only schema that runs
+# pack.toml [validation] SPARQL gates at sync time (FM-CONFIG-101 makes
+# the schemas mutually exclusive; verified live, arcus precedent).
+
+[project]
+name = "ggen-dod"
+
+[ontology]
+source = "ontology/data.ttl"
+imports = ["packs/dod-pack/ontology.ttl"]
+
+[templates]
+dir = "templates"
+
+[packs]
+dod-pack = { path = "packs/dod-pack" }

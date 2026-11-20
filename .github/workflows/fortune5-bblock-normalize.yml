@@ -56,7 +56,14 @@ jobs:
           PY
 
       - name: Normalize only the bblock command surface
-        run: cargo fmt --manifest-path Cargo.toml --package ggen-cli-lib
+        run: |
+          # Scope fmt to the bblock files this workflow owns so the allowlist
+          # below stays honest; package-wide fmt debt is XD-13's sweep, not ours.
+          # Direct rustfmt under the repo's pinned toolchain (rust-toolchain.toml:
+          # nightly-2026-06-22), workspace edition 2021.
+          rustup run nightly-2026-06-22 rustfmt --edition 2021 \
+            crates/ggen-cli/src/cmds/bblock.rs \
+            crates/ggen-cli/src/cmds/mod.rs
 
       - name: Commit bounded normalized bytes
         run: |

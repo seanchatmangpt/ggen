@@ -1,0 +1,15 @@
+# Gate equivalent of tv:ProjectionShape (SHACL-at-sync retired, FM-LAW-017).
+# true = violation.
+PREFIX tv: <https://ggen.dev/ontology/cyberpunk-tv#>
+ASK {
+  ?subject a tv:Projection .
+  {
+    FILTER NOT EXISTS { ?subject tv:projectionId ?v . }
+  } UNION {
+    ?subject tv:projectionId ?p1, ?p2 . FILTER(STR(?p1) != STR(?p2))
+  } UNION {
+    ?subject tv:projectionKind ?k . FILTER(?k NOT IN ("deck.gl", "mermaid", "unrdf"))
+  } UNION {
+    FILTER NOT EXISTS { ?subject tv:requiresCapability ?c . ?c a tv:Capability . }
+  }
+}

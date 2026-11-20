@@ -22,21 +22,21 @@
     clippy::literal_string_with_formatting_args
 )]
 
-//! End-to-end integration tests for RDF graph operations
+//! End-to-end integration tests for the `graph` CLI noun.
 //!
 //! **Chicago TDD Principles**:
-//! - REAL RDF graph operations with Oxigraph
-//! - REAL SPARQL query execution
-//! - REAL file system operations for graph storage
-//! - REAL state verification of graph contents
-//! - NO mocking of RDF engine
+//! - REAL RDF validation via the real `ggen` binary
+//! - REAL file system operations (Turtle fixtures written to a TempDir)
+//! - REAL state verification of exit codes and output
+//! - NO mocking of the RDF engine
 //!
-//! **Critical User Workflows (80/20)**:
-//! 1. Load RDF data into graph
-//! 2. Query graph with SPARQL
-//! 3. Export graph data
-//! 4. Validate graph structure
-//! 5. Generate code from graph queries
+//! **Surface note (v26.11.8, lane V8-GGEN-R1)**: the `graph` noun survives,
+//! but only the `validate` sub-verb remains — `load`/`query`/`export`/
+//! `snapshot`/`stats`/`diff` were removed from the CLI surface (the
+//! capability retreated into the ggen-graph lib). Tests pinning removed
+//! verbs were DELETED (loud absence registered in
+//! docs/jira/v26.11.8/receipts/ggen-e2e-repair-survey.md); the surviving
+//! surface (`graph validate`, help) is re-pinned here.
 
 use assert_cmd::Command;
 use predicates::prelude::*;
@@ -98,7 +98,7 @@ fn ggen() -> Command {
     Command::new(ggen_bin())
 }
 
-/// Helper to create test RDF data
+/// Helper to create a valid test RDF (Turtle) fixture
 fn create_test_rdf(temp_dir: &TempDir) -> std::path::PathBuf {
     let rdf_file = temp_dir.path().join("test.ttl");
 
@@ -134,380 +134,112 @@ ex:jane a ex:Person ;
     rdf_file
 }
 
-#[test]
-#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
-fn test_graph_load_turtle_format() {
-    // Chicago TDD: Verify real RDF loading into graph store
-    let temp_dir = TempDir::new().unwrap();
-    let rdf_file = create_test_rdf(&temp_dir);
-
-    ggen()
-        .arg("graph")
-        .arg("load")
-        .arg(rdf_file.to_str().unwrap())
-        .current_dir(&temp_dir)
-        .assert()
-        .success();
-
-    // Verify state: Graph file created
-    let _graph_path = temp_dir.path().join(".ggen/graph");
-    // Note: Graph may be stored in memory or file, implementation-dependent
+/// Helper to create an invalid Turtle fixture
+fn create_invalid_rdf(temp_dir: &TempDir) -> std::path::PathBuf {
+    let bad_file = temp_dir.path().join("invalid.ttl");
+    fs::write(&bad_file, "not valid RDF @!#$%").expect("Failed to write fixture");
+    bad_file
 }
 
 #[test]
-#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
-fn test_graph_load_invalid_format() {
-    // Chicago TDD: Verify error state for invalid RDF
-    let temp_dir = TempDir::new().unwrap();
-    let invalid_file = temp_dir.path().join("invalid.ttl");
-    fs::write(&invalid_file, "not valid RDF @!#$%").unwrap();
-
-    ggen()
-        .arg("graph")
-        .arg("load")
-        .arg(invalid_file.to_str().unwrap())
-        .current_dir(&temp_dir)
-        .assert()
-        .failure()
-        .stderr(predicate::str::contains("error").or(predicate::str::contains("invalid")));
-}
-
-#[test]
-#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
-fn test_graph_query_sparql_select() {
-    // Chicago TDD: Verify real SPARQL query execution
-    let temp_dir = TempDir::new().unwrap();
-    let rdf_file = create_test_rdf(&temp_dir);
-
-    // Load graph first
-    ggen()
-        .arg("graph")
-        .arg("load")
-        .arg(rdf_file.to_str().unwrap())
-        .current_dir(&temp_dir)
-        .assert()
-        .success();
-
-    // Query for all persons
-    let query = "SELECT ?person WHERE { ?person a <http://example.org/Person> }";
-
-    ggen()
-        .arg("graph")
-        .arg("query")
-        .arg(query)
-        .current_dir(&temp_dir)
-        .assert()
-        .success()
-        .stdout(predicate::str::contains("person").or(predicate::str::contains("result")));
-}
-
-#[test]
-#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
-fn test_graph_query_invalid_sparql() {
-    // Chicago TDD: Verify error handling for invalid SPARQL
-    let temp_dir = TempDir::new().unwrap();
-
-    ggen()
-        .arg("graph")
-        .arg("query")
-        .arg("INVALID SPARQL SYNTAX")
-        .current_dir(&temp_dir)
-        .assert()
-        .failure()
-        .stderr(predicate::str::contains("error").or(predicate::str::contains("invalid")));
-}
-
-#[test]
-#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
-fn test_graph_export_turtle() {
-    // Chicago TDD: Verify graph export to file
-    let temp_dir = TempDir::new().unwrap();
-    let rdf_file = create_test_rdf(&temp_dir);
-
-    // Load graph
-    ggen()
-        .arg("graph")
-        .arg("load")
-        .arg(rdf_file.to_str().unwrap())
-        .current_dir(&temp_dir)
-        .assert()
-        .success();
-
-    // Export graph
-    let export_file = temp_dir.path().join("export.ttl");
-
-    ggen()
-        .arg("graph")
-        .arg("export")
-        .arg(export_file.to_str().unwrap())
-        .arg("--format")
-        .arg("turtle")
-        .current_dir(&temp_dir)
-        .assert()
-        .success();
-
-    // Verify state: Export file created
-    assert!(export_file.exists(), "Export file should be created");
-
-    // Verify state: Export contains RDF data
-    let content = fs::read_to_string(&export_file).unwrap();
-    assert!(
-        content.contains("@prefix") || !content.is_empty(),
-        "Export should contain RDF data"
-    );
-}
-
-#[test]
-#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
 fn test_graph_validate_structure() {
-    // Chicago TDD: Verify graph validation
+    // Chicago TDD: REAL validation of a valid Turtle ontology via `graph validate`.
+    // Re-pinned 2026-11-08: `graph load` removed; validate now takes `--files`.
     let temp_dir = TempDir::new().unwrap();
     let rdf_file = create_test_rdf(&temp_dir);
 
-    // Load graph
-    ggen()
-        .arg("graph")
-        .arg("load")
-        .arg(rdf_file.to_str().unwrap())
-        .current_dir(&temp_dir)
-        .assert()
-        .success();
-
-    // Validate graph
     ggen()
         .arg("graph")
         .arg("validate")
+        .arg("--files")
+        .arg(rdf_file.to_str().unwrap())
         .current_dir(&temp_dir)
         .assert()
         .success();
 }
 
 #[test]
-#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
-fn test_graph_stats_shows_metrics() {
-    // Chicago TDD: Verify graph statistics state
+fn test_graph_validate_reports_violations() {
+    // Chicago TDD: REAL error state for invalid RDF — validate exits non-zero
+    // and names the parse failure. Re-pinned 2026-11-08 from the removed
+    // `graph load` error-path tests (witnessed rc=1 + "invalid" on stderr).
     let temp_dir = TempDir::new().unwrap();
-    let rdf_file = create_test_rdf(&temp_dir);
+    let bad_file = create_invalid_rdf(&temp_dir);
 
-    // Load graph
     ggen()
         .arg("graph")
-        .arg("load")
-        .arg(rdf_file.to_str().unwrap())
+        .arg("validate")
+        .arg("--files")
+        .arg(bad_file.to_str().unwrap())
         .current_dir(&temp_dir)
         .assert()
-        .success();
-
-    // Get stats
-    ggen()
-        .arg("graph")
-        .arg("stats")
-        .current_dir(&temp_dir)
-        .assert()
-        .success()
-        .stdout(
-            predicate::str::contains("triples")
-                .or(predicate::str::contains("subjects"))
-                .or(predicate::str::contains("stats")),
+        .failure()
+        .stderr(
+            predicate::str::contains("invalid")
+                .or(predicate::str::contains("Parser error"))
+                .or(predicate::str::contains("error")),
         );
 }
 
 #[test]
-#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
-fn test_graph_snapshot_create() {
-    // Chicago TDD: Verify graph snapshot state creation
-    let temp_dir = TempDir::new().unwrap();
-    let rdf_file = create_test_rdf(&temp_dir);
-
-    // Load graph
-    ggen()
-        .arg("graph")
-        .arg("load")
-        .arg(rdf_file.to_str().unwrap())
-        .current_dir(&temp_dir)
-        .assert()
-        .success();
-
-    // Create snapshot
-    ggen()
-        .arg("graph")
-        .arg("snapshot")
-        .arg("create")
-        .arg("v1.0")
-        .current_dir(&temp_dir)
-        .assert()
-        .success();
-}
-
-#[test]
-#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
-fn test_graph_snapshot_list() {
-    // Chicago TDD: Verify snapshot listing state
+fn test_graph_validate_missing_file() {
+    // Chicago TDD: error state for a nonexistent file argument.
     let temp_dir = TempDir::new().unwrap();
 
     ggen()
         .arg("graph")
-        .arg("snapshot")
-        .arg("list")
+        .arg("validate")
+        .arg("--files")
+        .arg("/nonexistent/file.ttl")
         .current_dir(&temp_dir)
         .assert()
-        .success()
-        .stdout(
-            predicate::str::contains("snapshot")
-                .or(predicate::str::contains("No snapshots"))
-                .or(predicate::str::contains("Snapshots")),
+        .failure()
+        .stderr(
+            predicate::str::contains("not found")
+                .or(predicate::str::contains("invalid"))
+                .or(predicate::str::contains("error")),
         );
 }
 
 #[test]
-#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
-fn test_graph_diff_snapshots() {
-    // Chicago TDD: Verify snapshot diff functionality
-    let temp_dir = TempDir::new().unwrap();
-    let rdf_file = create_test_rdf(&temp_dir);
-
-    // Load and create first snapshot
-    ggen()
-        .arg("graph")
-        .arg("load")
-        .arg(rdf_file.to_str().unwrap())
-        .current_dir(&temp_dir)
-        .assert()
-        .success();
-
-    ggen()
-        .arg("graph")
-        .arg("snapshot")
-        .arg("create")
-        .arg("v1")
-        .current_dir(&temp_dir)
-        .assert()
-        .success();
-
-    // Diff command (may fail if only one snapshot exists)
-    let _ = ggen()
-        .arg("graph")
-        .arg("diff")
-        .arg("v1")
-        .arg("v1")
-        .current_dir(&temp_dir)
-        .output();
-}
-
-#[test]
-#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
 fn test_graph_help_output() {
-    // Chicago TDD: Verify help state is comprehensive
+    // Chicago TDD: help reflects the CURRENT surface (validate only).
+    // Re-pinned 2026-11-08: load/query/export verbs removed from the noun.
     ggen()
         .arg("graph")
         .arg("--help")
         .assert()
         .success()
-        .stdout(predicate::str::contains("RDF graph operations"))
-        .stdout(predicate::str::contains("load"))
-        .stdout(predicate::str::contains("query"))
-        .stdout(predicate::str::contains("export"));
+        .stdout(predicate::str::contains("Validate"))
+        .stdout(predicate::str::contains("validate"))
+        .stdout(predicate::str::contains("Usage"));
 }
 
 #[test]
-#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
-fn test_graph_query_help() {
-    // Chicago TDD: Verify verb-specific help
+fn test_graph_validate_help() {
+    // Chicago TDD: verb-specific help for the surviving verb.
+    // Re-pinned 2026-11-08 from `graph query --help` (query verb removed).
     ggen()
         .arg("graph")
-        .arg("query")
+        .arg("validate")
         .arg("--help")
         .assert()
         .success()
-        .stdout(predicate::str::contains("SPARQL").or(predicate::str::contains("query")));
+        .stdout(predicate::str::contains("Usage"))
+        .stdout(predicate::str::contains("validate"));
 }
 
 #[test]
-#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
 fn test_graph_invalid_verb() {
-    // Chicago TDD: Verify error handling for invalid verbs
+    // Chicago TDD: unknown sub-verb under the surviving noun still errors.
     ggen()
         .arg("graph")
         .arg("invalid-verb")
         .assert()
         .failure()
-        .stderr(predicate::str::contains("error").or(predicate::str::contains("invalid")));
-}
-
-#[test]
-#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
-fn test_graph_load_missing_file() {
-    // Chicago TDD: Verify error state for missing RDF file
-    let temp_dir = TempDir::new().unwrap();
-
-    ggen()
-        .arg("graph")
-        .arg("load")
-        .arg("/nonexistent/file.ttl")
-        .current_dir(&temp_dir)
-        .assert()
-        .failure()
-        .stderr(predicate::str::contains("not found").or(predicate::str::contains("error")));
-}
-
-#[test]
-#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
-fn test_graph_export_missing_graph() {
-    // Chicago TDD: Verify error state when no graph loaded
-    let temp_dir = TempDir::new().unwrap();
-
-    let export_file = temp_dir.path().join("export.ttl");
-
-    // Try to export without loading
-    let _ = ggen()
-        .arg("graph")
-        .arg("export")
-        .arg(export_file.to_str().unwrap())
-        .current_dir(&temp_dir)
-        .output();
-
-    // Command may succeed with empty graph or fail - both valid
-}
-
-#[test]
-#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
-fn test_graph_performance_large_query() {
-    // Chicago TDD: Verify performance for complex queries
-    let temp_dir = TempDir::new().unwrap();
-    let rdf_file = create_test_rdf(&temp_dir);
-
-    ggen()
-        .arg("graph")
-        .arg("load")
-        .arg(rdf_file.to_str().unwrap())
-        .current_dir(&temp_dir)
-        .assert()
-        .success();
-
-    let start = std::time::Instant::now();
-
-    let query = r#"
-        SELECT ?person ?name ?age WHERE {
-            ?person a <http://example.org/Person> .
-            ?person <http://example.org/name> ?name .
-            ?person <http://example.org/age> ?age .
-        }
-    "#;
-
-    ggen()
-        .arg("graph")
-        .arg("query")
-        .arg(query)
-        .current_dir(&temp_dir)
-        .assert()
-        .success();
-
-    let duration = start.elapsed();
-
-    // Query should complete quickly
-    assert!(
-        duration.as_secs() < 5,
-        "SPARQL query should be fast: {:?}",
-        duration
-    );
+        .stderr(
+            predicate::str::contains("error")
+                .or(predicate::str::contains("invalid"))
+                .or(predicate::str::contains("unrecognized")),
+        );
 }

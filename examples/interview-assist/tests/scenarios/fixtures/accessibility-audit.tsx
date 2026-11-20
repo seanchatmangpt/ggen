@@ -36,7 +36,7 @@ export function renderComposedSessionPage(): string {
     <main>
       <h1>InterviewAssist</h1>
       <PhaseIndicator phase="COMPLETE" />
-      <ProblemPanel problem={{ "problem/statement-of-work": "two-sum" }} />
+      <ProblemPanel problem={{ "problem/load-problem-statement": "two-sum" }} />
       <section aria-label="Track candidates controls">
         <TrackCandidatePanel candidates={[{ id: "family-hash-map", rank: 1, evidence: {} }]} />
       </section>

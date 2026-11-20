@@ -491,4 +491,3 @@ people/
 **Version**: 1.0.0
 **Last Updated**: January 25, 2026
 **Classification**: Internal - All Team Members
-

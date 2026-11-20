@@ -186,6 +186,17 @@ output_file = "src/api.rs"
     std::fs::create_dir_all(schema_dir.path()).unwrap();
     schema_dir.child("domain.ttl").write_str("").unwrap();
 
+    // SX-1 red #2 fix (v26.11.3 seal): WO-01's fail-closed EA admission gate
+    // (FM-LAW-015) refuses any sync whose root lacks ea.graph.json. This perf
+    // test exercises CLI cold-start latency, not EA admission, so it carries
+    // the same minimal valid-but-empty EA graph the cli_boundary scaffold
+    // (crates/ggen-engine/tests/cli_boundary.rs) uses (zero candidate SBBs).
+    std::fs::write(
+        temp.child("ea.graph.json"),
+        "{\"schema\":\"ggen.ea.graph.v1\",\"strategy\":{\"id\":\"s\",\"title\":\"t\"},\"capabilities\":[],\"abbs\":[],\"contracts\":[],\"candidate_sbbs\":[],\"qualifications\":[],\"packs\":[]}",
+    )
+    .unwrap();
+
     let queries_dir = temp.child("queries");
     std::fs::create_dir_all(queries_dir.path()).unwrap();
     queries_dir

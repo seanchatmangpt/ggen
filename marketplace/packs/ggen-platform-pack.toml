@@ -1,0 +1,11 @@
+[pack]
+packages = []
+category = "uncategorized"
+id = "ggen-platform-pack"
+name = "ggen-platform-pack"
+version = "26.9.30"
+description = "Front-door pack declaring the 11 canonical ggen Marketplace packs as components of the consolidated platform topology, with a gate refusing an incomplete or unrecognized component declaration."
+
+[capabilities]
+provides = ["urn:ggen:pack:ggen-platform-pack"]
+requires = []

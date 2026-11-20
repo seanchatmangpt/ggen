@@ -1100,4 +1100,3 @@ This research provides a **deterministic, CONSTRUCT-based framework for regulato
 - [Temporal Retrieval-Augmented Generation - ArXiv](https://arxiv.org/pdf/2510.16715)
 - [Research on Temporal Knowledge Graph Reasoning](https://www.clausiuspress.com/assets/default/article/2025/07/26/article_1753586155.pdf)
 - [Inference New Knowledge Using SPARQL CONSTRUCT](https://www.researchgate.net/publication/332037274_Inference_New_Knowledge_Using_Sparql_Construct_Query)
-

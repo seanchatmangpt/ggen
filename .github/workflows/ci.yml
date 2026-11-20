@@ -88,9 +88,12 @@ jobs:
           ref: ${{ needs.admission.outputs.head }}
           fetch-depth: 0
           persist-credentials: false
-      - name: Reclaim runner space
+      - name: Reclaim runner disk space
         if: matrix.lane == 'integration_deep'
-        run: sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc || true
+        run: |
+          df -h /
+          sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/lib/android || true
+          df -h /
       - name: Set up Rust evidence lane
         if: contains(fromJSON('["core_deep","integration_deep","quality_deep","security_deep","lsp_deep"]'), matrix.lane)
         uses: ./.github/actions/setup-ggen-build
@@ -121,7 +124,6 @@ jobs:
               python3 scripts/ci/test-g0-workflow-inventory.py
               ;;
             core_deep)
-              cargo check --workspace --exclude ggen-lsp
               cargo build --workspace --exclude ggen-lsp
               cargo test --workspace --lib --exclude ggen-lsp
               cargo test --doc --workspace --exclude ggen-lsp
@@ -138,10 +140,33 @@ jobs:
             *) echo "REFUSED:UNKNOWN_EVIDENCE_LANE:$LANE" >&2; exit 2 ;;
           esac
 
+  # Receipt standing-line gate (SD-21/O3 Gate 3 / S-10+S-12). Pure python3 —
+  # no Rust toolchain needed. Leg 1 re-runs the lint (regenerates the standing
+  # map); leg 2 is the census consumer: map hash currency + per-file sha256
+  # pins, so a receipt edited after the last lint or a vocabulary change
+  # without a re-lint fails the build. Non-vacuity: a receipt missing its
+  # standing line fails leg 1 (receipt_lint.py exit 1); a receipt mutated
+  # post-lint fails leg 2 (receipt_census.py exit 1, witnessed 2026-11-05).
+  receipt-lint:
+    name: Receipt Standing Gate
+    needs: admission
+    if: needs.admission.result == 'success'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ needs.admission.outputs.head }}
+          persist-credentials: false
+      - name: Lint receipt standing lines
+        run: python3 scripts/receipt_lint.py
+      - name: Census standing-map consumer
+        run: python3 scripts/ci/receipt_census.py
+
   ci-status:
     name: CI Status
     if: always()
-    needs: [admission, deep]
+    needs: [admission, deep, receipt-lint]
     runs-on: ubuntu-24.04
     timeout-minutes: 2
     steps:
@@ -149,6 +174,8 @@ jobs:
         env:
           ADMISSION: ${{ needs.admission.result }}
           DEEP: ${{ needs.deep.result }}
+          RECEIPTS: ${{ needs.receipt-lint.result }}
         run: |
           test "$ADMISSION" = success || { echo 'BUILD_BROKEN:FAST_GATE_FAILED' >&2; exit 1; }
           case "$DEEP" in success|skipped) ;; *) echo 'BUILD_BROKEN:DEEP_LANE_FAILED' >&2; exit 1;; esac
+          case "$RECEIPTS" in success|skipped) ;; *) echo 'BUILD_BROKEN:RECEIPT_STANDING_GATE_FAILED' >&2; exit 1;; esac

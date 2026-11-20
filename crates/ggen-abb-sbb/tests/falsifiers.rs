@@ -589,9 +589,17 @@ fn pack_colliding_with_any_element_id_is_refused_without_a_pack_list() {
     }
     // Positive control: the same edit with a fresh pack id admits, so the refusal above
     // is caused by the collision and not by clearing the pack list or re-signing.
+    // RECEIPT NOTE (v26.11.3 lane G3, HIGH-3): this control previously cleared the
+    // packs list and relied on the OLD law that an absent packs list disables the
+    // dangling-pack check. Under the corrected law an unresolvable pack refuses
+    // regardless of list presence, so the control now REGISTERS "pack:fresh" in the
+    // packs list — the admission still proves the collision (not pack resolution)
+    // caused the refusal above.
     let mut g = graph();
-    g.packs.clear();
     g.candidate_sbbs[0].pack = "pack:fresh".into();
+    g.packs.push(Pack {
+        id: "pack:fresh".into(),
+    });
     resign(&mut g.candidate_sbbs[0]);
     let d = g.candidate_sbbs[0].digest.clone().unwrap();
     g.qualifications[0].sbb_digest = d;

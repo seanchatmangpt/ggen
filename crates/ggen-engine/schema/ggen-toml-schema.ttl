@@ -80,7 +80,8 @@ ggenspec:Project-name
 ggenspec:Ontology
     a ggenspec:Section ; rdfs:label "Ontology" ;
     rdfs:comment "The RDF source of truth and its namespace prefixes (crate::config::Ontology)." ;
-    ggenspec:hasField ggenspec:Ontology-source , ggenspec:Ontology-imports , ggenspec:Ontology-prefixes .
+    ggenspec:hasField ggenspec:Ontology-source , ggenspec:Ontology-imports ,
+        ggenspec:Ontology-prefixes , ggenspec:Ontology-aggregate .
 
 ggenspec:Ontology-source
     a ggenspec:Field ; ggenspec:name "source" ; ggenspec:type ggenspec:Path ;
@@ -94,6 +95,10 @@ ggenspec:Ontology-imports
 ggenspec:Ontology-prefixes
     a ggenspec:Field ; ggenspec:name "prefixes" ; ggenspec:type ggenspec:MapOfString ;
     ggenspec:required false ; rdfs:comment "Prefix -> namespace IRI map. Defaults to empty." .
+
+ggenspec:Ontology-aggregate
+    a ggenspec:Field ; ggenspec:name "aggregate" ; ggenspec:type ggenspec:OntologyAggregate ;
+    ggenspec:required false ; rdfs:comment "Optional aggregate-corpus regeneration section (crate::config::OntologyAggregate). Absent = legacy behavior." .
 
 # ---------------------------------------------------------------------------
 # [packs.<name>] — PackRef (untagged: Path | Git)

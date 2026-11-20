@@ -28,6 +28,16 @@ fn scaffold(root: &std::path::Path) {
     )
     .expect("write ontology");
     std::fs::create_dir_all(root.join("templates")).expect("mkdir");
+    // Collision repair (lane G2, disclosed in g2-typed-refusals receipt):
+    // WO-01's fail-closed EA admission gate (FM-LAW-015) refuses any sync
+    // whose root lacks ea.graph.json. These boundary tests exercise CLI
+    // exit-code mechanics, not EA admission, so the scaffold carries a
+    // minimal valid-but-empty EA graph (zero candidate SBBs).
+    std::fs::write(
+        root.join("ea.graph.json"),
+        "{\"schema\":\"ggen.ea.graph.v1\",\"strategy\":{\"id\":\"s\",\"title\":\"t\"},\"capabilities\":[],\"abbs\":[],\"contracts\":[],\"candidate_sbbs\":[],\"qualifications\":[],\"packs\":[]}",
+    )
+    .expect("write ea.graph.json");
     std::fs::write(
         root.join("templates/one.tmpl"),
         "---\nto: out/names.txt\nforce: true\nsparql:\n  people: SELECT ?name WHERE { ?s <http://example.org/name> ?name } ORDER BY ?name\n---\n{% for row in results %}{{ row.name }}\n{% endfor %}",
@@ -281,8 +291,179 @@ fn sync_run_missing_manifest_exits_nonzero() {
 }
 
 // ---------------------------------------------------------------------
+// WO-01 follow-ups (v26.11.3): --skip-ea-admission CLI flag + Stage 2c
+// fail-closed pack-manifest admission. These courts exercise the REAL
+// binary against real pack manifests — no fixtures patched, no skips.
+// ---------------------------------------------------------------------
+
+/// Write `packs/pack-a` with the given `[graph]` TOML under `root`, and
+/// declare it in `root`'s ggen.toml.
+fn write_pack_with_graph(root: &std::path::Path, graph_toml: &str) {
+    let pack_a = root.join("packs/pack-a");
+    std::fs::create_dir_all(&pack_a).expect("mkdir pack-a");
+    std::fs::write(
+        pack_a.join("pack.toml"),
+        format!(
+            "[pack]\nname = \"pack-a\"\nversion = \"1.0.0\"\ndescription = \"Pack A\"\n\n[graph]\n{graph_toml}"
+        ),
+    )
+    .expect("write pack.toml");
+    std::fs::write(pack_a.join("ontology.ttl"), "").expect("write pack ontology");
+    std::fs::create_dir_all(pack_a.join("templates")).expect("mkdir pack templates");
+    std::fs::write(
+        pack_a.join("templates/a.tmpl"),
+        "---\nto: out/a.txt\n---\na\n",
+    )
+    .expect("write a.tmpl");
+    let ggen_toml = std::fs::read_to_string(root.join("ggen.toml")).expect("read ggen.toml");
+    std::fs::write(
+        root.join("ggen.toml"),
+        format!("{ggen_toml}\n[packs.pack-a]\npath = \"packs/pack-a\"\n"),
+    )
+    .expect("append pack to ggen.toml");
+}
+
+/// Mutation court, non-vacuity half: a pack manifest carrying a
+/// non-canonical port id must REFUSE sync through the real CLI — the old
+/// `if let Ok(pm)` fail-open silently skipped the depgraph admission check
+/// on exactly such manifests. Refusal is the FM-PACK-015 typed path with
+/// the kernel's `NON_CANONICAL_PORT` reason; nothing is written.
+#[test]
+fn sync_run_malformed_pack_port_refuses() {
+    let dir = TempDir::new().expect("tempdir");
+    scaffold(dir.path());
+    write_pack_with_graph(dir.path(), "provides = [\"Bad_Port\"]");
+    let output = CliHarness::from_path(ggen_bin())
+        .args(["sync", "run"])
+        .current_dir(dir.path())
+        .run()
+        .expect("run sync with malformed pack port");
+    let _ = output
+        .assert_failure()
+        .assert_stderr_contains("FM-PACK-015")
+        .assert_stderr_contains("NON_CANONICAL_PORT");
+    assert!(
+        !dir.path().join("out/a.txt").exists(),
+        "refused sync must write nothing"
+    );
+}
+
+/// Positive control for the court above: the same project shape with a
+/// well-formed, canonical port manifest passes and writes the pack output.
+#[test]
+fn sync_run_wellformed_pack_graph_passes() {
+    let dir = TempDir::new().expect("tempdir");
+    scaffold(dir.path());
+    write_pack_with_graph(dir.path(), "provides = [\"event-stream\"]");
+    let output = CliHarness::from_path(ggen_bin())
+        .args(["sync", "run"])
+        .current_dir(dir.path())
+        .run()
+        .expect("run sync with well-formed pack graph");
+    let _ = output.assert_success();
+    assert!(
+        dir.path().join("out/a.txt").exists(),
+        "admitted sync must write pack output"
+    );
+}
+
+/// End-to-end witness for the `--skip-ea-admission` verb flag (G1 blocker
+/// fix): without ea.graph.json, default sync refuses with FM-LAW-015; the
+/// same project with the flag admits and writes. Fail-loud is the default;
+/// the flag is an explicit, CLI-visible opt-out, not a silent bypass.
+#[test]
+fn sync_run_skip_ea_admission_flag_opt_out_of_fm_law_015() {
+    let dir = TempDir::new().expect("tempdir");
+    scaffold(dir.path());
+    std::fs::remove_file(dir.path().join("ea.graph.json")).expect("remove ea.graph.json");
+
+    let refused = CliHarness::from_path(ggen_bin())
+        .args(["sync", "run"])
+        .current_dir(dir.path())
+        .run()
+        .expect("run default sync without ea.graph.json");
+    let _ = refused
+        .assert_failure()
+        .assert_stderr_contains("FM-LAW-015")
+        .assert_stderr_contains("--skip-ea-admission");
+    assert!(
+        !dir.path().join("out/names.txt").exists(),
+        "refused sync must write nothing"
+    );
+
+    let admitted = CliHarness::from_path(ggen_bin())
+        .args(["sync", "run", "--skip-ea-admission"])
+        .current_dir(dir.path())
+        .run()
+        .expect("run sync with --skip-ea-admission");
+    let _ = admitted.assert_success();
+    assert!(
+        dir.path().join("out/names.txt").exists(),
+        "flagged sync must write output"
+    );
+}
+
+// ---------------------------------------------------------------------
 // sync run --watch
 //
+/// Bypass-marked-receipt law (ZD-44/CARRY-04): a sync that skipped EA
+/// admission via `--skip-ea-admission` must write a receipt whose payload
+/// carries the bypass disclosure; a normal admitted run's receipt must NOT
+/// carry it (the note marks a bypass, not membership). Fail-closed in both
+/// directions: a bypassed run whose receipt lacks the note flips this
+/// court; an admitted run whose receipt carries the note also flips it.
+#[test]
+fn sync_run_skip_flag_receipt_carries_bypass_mark_admitted_run_does_not() {
+    let dir = TempDir::new().expect("tempdir");
+    scaffold(dir.path());
+    std::fs::remove_file(dir.path().join("ea.graph.json")).expect("remove ea.graph.json");
+
+    let admitted_via_bypass = CliHarness::from_path(ggen_bin())
+        .args(["sync", "run", "--skip-ea-admission"])
+        .current_dir(dir.path())
+        .run()
+        .expect("run sync with --skip-ea-admission");
+    let _ = admitted_via_bypass.assert_success();
+    let receipt_bytes = std::fs::read(dir.path().join(".ggen-v2/receipt.json"))
+        .expect("bypassed sync must write .ggen-v2/receipt.json");
+    let receipt: serde_json::Value =
+        serde_json::from_slice(&receipt_bytes).expect("parse receipt.json");
+    let mark = receipt
+        .pointer("/payload/ea_admission_skipped")
+        .and_then(|v| v.as_str())
+        .unwrap_or_else(|| {
+            panic!(
+                "bypass-marked-receipt law: payload.ea_admission_skipped is absent from \
+                 .ggen-v2/receipt.json after a --skip-ea-admission run; the receipt must \
+                 disclose the bypass"
+            )
+        });
+    assert!(
+        mark.contains("--skip-ea-admission"),
+        "bypass mark must name the flag, got: {mark}"
+    );
+
+    // Fail-closed flip direction: an ADMITTED run (ea.graph.json present)
+    // must write a receipt with NO bypass mark — its payload binds an
+    // admitted gate evaluation, not a bypass.
+    let admitted_dir = TempDir::new().expect("tempdir");
+    scaffold(admitted_dir.path());
+    let admitted = CliHarness::from_path(ggen_bin())
+        .args(["sync", "run"])
+        .current_dir(admitted_dir.path())
+        .run()
+        .expect("run admitted sync");
+    let _ = admitted.assert_success();
+    let receipt_bytes = std::fs::read(admitted_dir.path().join(".ggen-v2/receipt.json"))
+        .expect("admitted sync must write .ggen-v2/receipt.json");
+    let receipt: serde_json::Value =
+        serde_json::from_slice(&receipt_bytes).expect("parse receipt.json");
+    assert!(
+        receipt.pointer("/payload/ea_admission_skipped").is_none(),
+        "admitted run's receipt must not carry the EA bypass mark"
+    );
+}
+
 // `--watch` runs one sync then blocks forever watching for filesystem
 // changes (see `watch.rs` module docs: no SIGINT handling, by design).
 // `CliHarness::run` waits for the child to exit, so it cannot be used for

@@ -45,18 +45,27 @@ jobs:
         with:
           cache-key-suffix: clap-noun-verb-zero-code
 
-      - name: Assert the consumer has only two authored source files
+      - name: Assert the consumer has only three authored source files
         working-directory: examples/zero-code-inventoryctl
         run: |
           set -euo pipefail
-          mapfile -t authored < <(find . -maxdepth 1 -type f -printf '%f\n' | sort)
+          # Authored surface is exactly {ea.graph.json, ggen.toml, ontology.ttl}.
+          # Everything else under this directory (Cargo.toml, src/, tests/,
+          # docs/, .ggen-v2/) is a committed `ggen sync run` artifact, not an
+          # authored file: it is excluded from the census and re-verified below
+          # when `ggen sync run` regenerates it byte-identically. ggen.lock is
+          # UNTRACKED by the CASR law (ZD-124: consumer locks are not authored
+          # surface and are re-minted each sync), so it is neither censused nor
+          # required-tracked.
+          mapfile -t authored < <(git ls-files -- . ':!.ggen-v2' ':!src' ':!tests' ':!docs' ':!Cargo.toml' ':!Cargo.lock' ':!ggen.lock' | sort)
           printf '%s\n' "${authored[@]}"
-          test "${#authored[@]}" -eq 2
-          test "${authored[0]}" = 'ggen.toml'
-          test "${authored[1]}" = 'ontology.ttl'
-          test ! -e Cargo.toml
-          test ! -e src
-          test ! -e tests
+          test "${#authored[@]}" -eq 3
+          test "${authored[0]}" = 'ea.graph.json'
+          test "${authored[1]}" = 'ggen.toml'
+          test "${authored[2]}" = 'ontology.ttl'
+          for generated in Cargo.toml src tests docs; do
+            git ls-files --error-unmatch "$generated" >/dev/null
+          done
 
       - name: Build the real ggen compiler
         run: cargo build -p ggen-cli-lib --bin ggen

@@ -176,4 +176,3 @@ All files were downloaded from **authoritative official sources**:
 6. **Add Contribution Ontology**: For compliance framework enforcement
 
 These ontologies are designed to interoperate and can be used together in a unified government/legal knowledge graph.
-

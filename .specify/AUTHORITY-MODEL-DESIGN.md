@@ -436,4 +436,3 @@ sh:sparql [
 - [GDPR: Article 5 (Principles of personal data processing)](https://gdpr-info.eu/art-5-gdpr/)
 - [SOX Section 404 (Internal control compliance)](https://en.wikipedia.org/wiki/Sarbanes%E2%80%93Oxley_Act)
 - [Event Sourcing Pattern](https://martinfowler.com/eaaDev/EventSourcing.html)
-

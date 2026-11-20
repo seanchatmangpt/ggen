@@ -832,4 +832,3 @@ Outcome-based revenue models must be disclosed to investors if "material" - defi
 **Document prepared**: January 2026
 **Sources**: 27 primary legal sources (statutes, regulations, case law, guidance documents)
 **Confidence level**: High (based on statutory text, published regulations, established industry practice)
-

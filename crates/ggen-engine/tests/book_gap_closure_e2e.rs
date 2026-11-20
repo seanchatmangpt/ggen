@@ -15,14 +15,15 @@ use tempfile::TempDir;
 /// Resolve the real `ggen` binary the same way `cli_boundary.rs::ggen_bin`
 /// does: `CARGO_BIN_EXE_ggen` (set by `cargo test -p ggen-cli-lib`, never by
 /// `-p ggen-engine`/`-p ggen-cli` — the root package is `autobins = false`),
-/// then the workspace `target/{debug,release}/ggen`, then `PATH`. Panics
-/// (loudly) if no candidate resolves, so failure happens at binary
-/// resolution, not at first spawn.
-fn ggen_bin() -> std::path::PathBuf {
+/// then the workspace `target/{debug,release}/ggen`, then `PATH`. Returns
+/// `None` (skip-with-reason, not a confusing panic) when no candidate
+/// resolves, so a missing binary reads as SKIP at the top of each test
+/// instead of a mid-test failure at first spawn.
+fn ggen_bin() -> Option<std::path::PathBuf> {
     if let Ok(path) = std::env::var("CARGO_BIN_EXE_ggen") {
         let p = std::path::PathBuf::from(path);
         if p.exists() {
-            return p;
+            return Some(p);
         }
     }
 
@@ -47,19 +48,27 @@ fn ggen_bin() -> std::path::PathBuf {
         for profile in &["debug", "release"] {
             let candidate = target.join(profile).join("ggen");
             if candidate.is_file() {
-                return candidate;
+                return Some(candidate);
             }
             let candidate_exe = target.join(profile).join("ggen.exe");
             if candidate_exe.is_file() {
-                return candidate_exe;
+                return Some(candidate_exe);
             }
         }
     }
 
-    panic!(
-        "could not resolve the `ggen` binary: CARGO_BIN_EXE_ggen unset and no \
-         target/debug/ggen found; build it with `cargo build -p ggen-cli-lib --bin ggen`"
-    );
+    None
+}
+
+/// Skip guard: print a named SKIP reason when the `ggen` binary is absent so
+/// `cargo test -p ggen-engine` does not fail confusingly on an environment
+/// gap. Call at the top of each test that spawns the binary.
+fn ggen_bin_or_skip() -> Option<std::path::PathBuf> {
+    let bin = ggen_bin();
+    if bin.is_none() {
+        eprintln!("SKIP: ggen bin not built; run cargo build -p ggen-cli-lib --bin ggen");
+    }
+    bin
 }
 
 /// Packs that were declared PARTIAL solely because the capability ledger did
@@ -131,8 +140,8 @@ fn tree_digest(root: &Path) -> Vec<(String, String)> {
     result
 }
 
-fn assert_cli_success(project: &Path, args: &[&str]) {
-    let output = CliHarness::from_path(ggen_bin())
+fn assert_cli_success(ggen_bin: &Path, project: &Path, args: &[&str]) {
+    let output = CliHarness::from_path(ggen_bin)
         .args(args)
         .current_dir(project)
         .run()
@@ -151,6 +160,27 @@ fn scaffold_gap_pack_consumer() -> (TempDir, PathBuf) {
     let project = directory.path().join("consumer");
     std::fs::create_dir_all(project.join("templates")).expect("templates directory");
     std::fs::write(project.join("ontology.ttl"), "").expect("consumer ontology");
+
+    // WO-01 fail-closed EA admission gate (FM-LAW-015): the CLI `sync run`
+    // has no --skip-ea-admission flag yet (ggen-cli wiring is a separate
+    // lane), so this green-path consumer fixture carries a minimal
+    // valid-but-empty EA graph (zero candidate SBBs -> nothing to admit),
+    // the same repair pattern used in src/watch.rs's watch-loop test.
+    std::fs::write(
+        project.join("ea.graph.json"),
+        r#"{
+  "schema": "ggen.ea.graph.v1",
+  "strategy": { "id": "s", "title": "t" },
+  "capabilities": [],
+  "abbs": [],
+  "contracts": [],
+  "candidate_sbbs": [],
+  "qualifications": [],
+  "packs": []
+}
+"#,
+    )
+    .expect("consumer ea.graph.json");
 
     let packs_table: String = GAP_PACKS.iter().fold(String::new(), |mut table, pack| {
         let _ = writeln!(table, "{pack} = {{ path = \"../{pack}\" }}");
@@ -172,10 +202,13 @@ fn scaffold_gap_pack_consumer() -> (TempDir, PathBuf) {
 
 #[test]
 fn five_gap_packs_resolve_compose_receipt_and_replay_idempotently() {
+    let Some(ggen) = ggen_bin_or_skip() else {
+        return;
+    };
     let (_directory, project) = scaffold_gap_pack_consumer();
 
-    assert_cli_success(&project, &["sync", "run"]);
-    assert_cli_success(&project, &["receipt", "verify"]);
+    assert_cli_success(&ggen, &project, &["sync", "run"]);
+    assert_cli_success(&ggen, &project, &["receipt", "verify"]);
 
     let lock = std::fs::read_to_string(project.join("ggen.lock")).expect("ggen.lock");
     for pack in GAP_PACKS {
@@ -190,8 +223,8 @@ fn five_gap_packs_resolve_compose_receipt_and_replay_idempotently() {
     }
 
     let first = tree_digest(&project);
-    assert_cli_success(&project, &["sync", "run"]);
-    assert_cli_success(&project, &["receipt", "verify"]);
+    assert_cli_success(&ggen, &project, &["sync", "run"]);
+    assert_cli_success(&ggen, &project, &["receipt", "verify"]);
     let second = tree_digest(&project);
     assert_eq!(first, second, "second sync must be byte-identical");
 }
@@ -212,12 +245,25 @@ fn run_cargo_test(project: &Path) {
 
 #[test]
 fn mfw_pcp_certificate_inventory_evolves_from_ontology_without_hand_repair() {
+    let Some(ggen) = ggen_bin_or_skip() else {
+        return;
+    };
     let directory = TempDir::new().expect("temporary directory");
     let project = directory.path().join("mfw-pcp-level5-pack");
     copy_tree(&packs_dir().join("mfw-pcp-level5-pack"), &project);
+    // Collision repair (lane G2, disclosed in g2-typed-refusals receipt):
+    // WO-01's fail-closed EA admission gate (FM-LAW-015) refuses any sync
+    // whose root lacks ea.graph.json; this test exercises certificate
+    // inventory evolution, not EA admission, so the pack root carries a
+    // minimal valid-but-empty EA graph (zero candidate SBBs).
+    std::fs::write(
+        project.join("ea.graph.json"),
+        "{\"schema\":\"ggen.ea.graph.v1\",\"strategy\":{\"id\":\"s\",\"title\":\"t\"},\"capabilities\":[],\"abbs\":[],\"contracts\":[],\"candidate_sbbs\":[],\"qualifications\":[],\"packs\":[]}",
+    )
+    .expect("write ea.graph.json");
 
-    assert_cli_success(&project, &["sync", "run"]);
-    assert_cli_success(&project, &["receipt", "verify"]);
+    assert_cli_success(&ggen, &project, &["sync", "run"]);
+    assert_cli_success(&ggen, &project, &["receipt", "verify"]);
     let generated = project.join("consumer/mfw-pcp-generated");
     run_cargo_test(&generated);
 
@@ -229,8 +275,8 @@ fn mfw_pcp_certificate_inventory_evolves_from_ontology_without_hand_repair() {
     );
     std::fs::write(&ontology_path, ontology).expect("mutated ontology");
 
-    assert_cli_success(&project, &["sync", "run"]);
-    assert_cli_success(&project, &["receipt", "verify"]);
+    assert_cli_success(&ggen, &project, &["sync", "run"]);
+    assert_cli_success(&ggen, &project, &["receipt", "verify"]);
     run_cargo_test(&generated);
 
     let certificates =
@@ -243,8 +289,8 @@ fn mfw_pcp_certificate_inventory_evolves_from_ontology_without_hand_repair() {
     assert!(!proof.contains("ALL.len(), 10"));
 
     let first = tree_digest(&generated);
-    assert_cli_success(&project, &["sync", "run"]);
-    assert_cli_success(&project, &["receipt", "verify"]);
+    assert_cli_success(&ggen, &project, &["sync", "run"]);
+    assert_cli_success(&ggen, &project, &["receipt", "verify"]);
     let second = tree_digest(&generated);
     assert_eq!(first, second, "evolved consumer must reach a fixed point");
 }

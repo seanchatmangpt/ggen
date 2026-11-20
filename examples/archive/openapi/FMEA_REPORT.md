@@ -850,6 +850,3 @@ The OpenAPI example has a solid foundation with good documentation and validatio
 These can be addressed with post-generation validation (PY-002) and determinism verification (PY-003). The prerequisite check script (PY-001) has already been implemented and addresses several low-to-medium priority issues.
 
 The example is well-prepared for when full `ggen.toml` support is available in the CLI.
-
-
-

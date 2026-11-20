@@ -52,6 +52,18 @@ pub(crate) fn scaffold_pack(pack_src_dir: &Path) -> (TempDir, PathBuf) {
     let project = dir.path().join("consumer");
     std::fs::create_dir_all(project.join("templates")).expect("mkdir templates");
     std::fs::write(project.join("ontology.ttl"), "").expect("write ontology.ttl");
+    // K2 (disclosed support-module repair, same shape as G2's
+    // scaffold_multi_pack fix): WO-01's fail-closed EA admission gate
+    // (FM-LAW-015) refuses any sync whose root lacks ea.graph.json. These
+    // scaffolds test pack composition, not EA admission, so they carry a
+    // minimal valid-but-empty EA graph (zero candidate SBBs — the admit
+    // loop in ggen-engine/src/sync.rs iterates candidate_sbbs, so empty
+    // admits trivially and honestly: nothing to admit).
+    std::fs::write(
+        project.join("ea.graph.json"),
+        "{\"schema\":\"ggen.ea.graph.v1\",\"strategy\":{\"id\":\"s\",\"title\":\"t\"},\"capabilities\":[],\"abbs\":[],\"contracts\":[],\"candidate_sbbs\":[],\"qualifications\":[],\"packs\":[]}",
+    )
+    .expect("write ea.graph.json");
     std::fs::write(
         project.join("ggen.toml"),
         format!(
@@ -104,6 +116,15 @@ pub(crate) fn scaffold_multi_pack(pack_names: &[&str]) -> (TempDir, PathBuf) {
     let project = dir.path().join("consumer");
     std::fs::create_dir_all(project.join("templates")).expect("mkdir templates");
     std::fs::write(project.join("ontology.ttl"), "").expect("write ontology.ttl");
+    // Collision repair (lane G2, disclosed in g2-typed-refusals receipt):
+    // WO-01's fail-closed EA admission gate (FM-LAW-015) refuses any sync
+    // whose root lacks ea.graph.json. Scaffolds here test composition, not
+    // EA admission, so they carry a minimal valid-but-empty EA graph.
+    std::fs::write(
+        project.join("ea.graph.json"),
+        "{\"schema\":\"ggen.ea.graph.v1\",\"strategy\":{\"id\":\"s\",\"title\":\"t\"},\"capabilities\":[],\"abbs\":[],\"contracts\":[],\"candidate_sbbs\":[],\"qualifications\":[],\"packs\":[]}",
+    )
+    .expect("write ea.graph.json");
 
     let packs_table = pack_names.iter().fold(String::new(), |mut table, name| {
         let _ = writeln!(table, "{name} = {{ path = \"../{name}\" }}");
@@ -193,6 +214,13 @@ pub(crate) fn write_single_pack_project(
     let project = root.join(project_name);
     std::fs::create_dir_all(project.join("templates")).expect("mkdir templates");
     std::fs::write(project.join("ontology.ttl"), "").expect("write ontology.ttl");
+    // K2 (support-module repair, see scaffold_pack above): valid-but-empty
+    // EA graph so the fail-closed FM-LAW-015 admission gate passes.
+    std::fs::write(
+        project.join("ea.graph.json"),
+        "{\"schema\":\"ggen.ea.graph.v1\",\"strategy\":{\"id\":\"s\",\"title\":\"t\"},\"capabilities\":[],\"abbs\":[],\"contracts\":[],\"candidate_sbbs\":[],\"qualifications\":[],\"packs\":[]}",
+    )
+    .expect("write ea.graph.json");
     std::fs::write(
         project.join("ggen.toml"),
         format!(
@@ -213,6 +241,13 @@ pub(crate) fn write_two_pack_project(root: &Path, pack_a: &str, pack_b: &str) ->
     let project = root.join("two-pack-project");
     std::fs::create_dir_all(project.join("templates")).expect("mkdir templates");
     std::fs::write(project.join("ontology.ttl"), "").expect("write ontology.ttl");
+    // K2 (support-module repair, see scaffold_pack above): valid-but-empty
+    // EA graph so the fail-closed FM-LAW-015 admission gate passes.
+    std::fs::write(
+        project.join("ea.graph.json"),
+        "{\"schema\":\"ggen.ea.graph.v1\",\"strategy\":{\"id\":\"s\",\"title\":\"t\"},\"capabilities\":[],\"abbs\":[],\"contracts\":[],\"candidate_sbbs\":[],\"qualifications\":[],\"packs\":[]}",
+    )
+    .expect("write ea.graph.json");
     std::fs::write(
         project.join("ggen.toml"),
         format!(
@@ -238,6 +273,9 @@ pub(crate) fn assert_idempotent(project: &Path) -> String {
         SyncOptions {
             consumer_mode: Default::default(),
             dry_run: false,
+            // WO-01 fail-closed EA gate: green-path premise — explicit
+            // opt-out.
+            skip_ea_admission: true,
             ..Default::default()
         },
     )
@@ -280,6 +318,10 @@ pub(crate) fn assert_gate_refuses(project: &Path, sabotage_ttl: &str, gate_name_
         SyncOptions {
             consumer_mode: Default::default(),
             dry_run: false,
+            // K2: explicit opt-out of the fail-closed FM-LAW-015 EA
+            // admission gate — the refusal under test here is the
+            // ontology gate's, not the admission gate's.
+            skip_ea_admission: true,
             ..Default::default()
         },
     )

@@ -1,0 +1,7 @@
+[pack]
+packages = []
+category = "uncategorized"
+id = "kafka-wire-pack"
+name = "kafka-wire-pack"
+version = "0.1.0"
+description = """Kafka wire-law pack: the canonical Kafka RDF graph — 61-byte magic-2 RecordBatch header field table built from the smalt records.ex parse clauses (baseOffset 0..8, batchLength 8..12, partitionLeaderEpoch 12..16, magic 16, crc 17..21, attributes 21..23, lastOffsetDelta 23..27, firstTimestamp 27..35, maxTimestamp 35..43, producerId 43..51, producerEpoch 51..53, baseSequence 53..57, recordsCount 57..61), CRC domains dispatched on magic (CRC32C Castagnoli poly 0x82F63B78 from attributes@21 for magic 2; CRC32-IEEE from byte 4 for legacy magic 0/1), canonical zigzag encoding cases, the served+client version matrix (served from smalt wire.ex version_matrix/0, clientMax from AST extraction of the vendored kafka-python-ng protocol module), the consumer-group API-key law (FindCoordinator is 10, never 9), KD-174/KD-174F/KD-180/KD-181 law individuals with named falsifiers, and broker error codes grounded in kafka/errors.py — projected into Elixir, Go, Rust, and Markdown templates, with nine sync-time closure gates: batch-field layout chain (moving recordsCount breaks the chain), SPARQL-recomputed zigzag encodings, CRC domain magic exclusivity, magic-first dispatch law presence, version-matrix closure (servedMax < flexibleFrom), crash-only falsifier presence, KD-174F dual-stamp both-true, template linkage, and KD grounding regex."""

@@ -192,4 +192,3 @@ If dry run shows no changes but validation fails:
 - `scripts/release-validate-version.sh` - Legacy version validation
 - `scripts/update-homebrew-formula-e2e.sh` - Update Homebrew formula
 - `scripts/validate-homebrew-formula.sh` - Validate Homebrew formula
-

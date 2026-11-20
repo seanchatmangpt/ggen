@@ -38,17 +38,13 @@ maintained as parallel handwritten schemas.
 
 ## Manufacture
 
-From the repository root:
+`ggen sync run` reads `ggen.toml` from its **current working directory
+only** — there is no `--manifest` flag. From the example directory:
 
 ```bash
-cargo run --quiet -p ggen-cli -- sync \
-  --manifest examples/cs2-projections/ggen.toml
-```
-
-If `ggen` is already installed:
-
-```bash
-ggen sync --manifest examples/cs2-projections/ggen.toml
+cd examples/cs2-projections
+ggen sync run --dry-run    # preview planned writes (JSON, no files written)
+ggen sync run              # render for real
 ```
 
 ## Qualification courts

@@ -1,0 +1,29 @@
+[project]
+name = "semantic-cad-bim"
+version = "26.10.22"
+
+[ontology]
+source = "ontology.ttl"
+
+# Pack composition edge: expressed as ../../..file references below — the
+# declarative schema cannot mix [packs] with [[generation.rules]] (FM-CONFIG-101;
+# same convention as xaas-public-ash-projection-pack/ggen.toml).
+
+[generation]
+output_dir = "."
+
+[[generation.rules]]
+name = "cad-shacl"
+query = { file = "../../../../ggen-marketplace/packs/industry-semantic-cad-bim/queries/10-design-surface.rq" }
+template = { file = "../../../../ggen-marketplace/packs/industry-semantic-cad-bim/templates/cad-shacl.ttl.tera" }
+output_file = "generated/cad-bim/shapes.ttl"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "cad-walkthrough"
+query = { file = "../../../../ggen-marketplace/packs/industry-semantic-cad-bim/queries/10-design-surface.rq" }
+template = { file = "../../../../ggen-marketplace/packs/industry-semantic-cad-bim/templates/walkthrough.md.tera" }
+output_file = "generated/cad-bim/walkthrough.md"
+skip_empty = false
+mode = "Overwrite"

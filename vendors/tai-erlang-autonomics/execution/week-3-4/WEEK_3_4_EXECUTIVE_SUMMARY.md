@@ -478,4 +478,3 @@ Won (First Revenue):   1-3 customers (Target: Week 7)
 ---
 
 **GO TIME.** 🚀
-

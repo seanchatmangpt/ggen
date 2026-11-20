@@ -27,6 +27,7 @@
 //! If this works, the core CLI command dispatch is functional.
 
 use assert_cmd::Command;
+use predicates::prelude::predicate;
 
 /// Resolve the real `ggen` binary the same way `cli_boundary.rs::ggen_bin`
 /// does: `CARGO_BIN_EXE_ggen` (set by `cargo test -p ggen-cli-lib`, never by
@@ -79,10 +80,13 @@ fn ggen_bin() -> std::path::PathBuf {
 }
 
 #[test]
-#[ignore = "e2e CLI test: spawns the built `ggen` binary via assert_cmd::Command::cargo_bin; not part of the fast --lib loop, run explicitly via `cargo test -- --ignored` after `cargo build`"]
+// Re-pin (2026-11-08, V8-GGEN-E2E-SURVEY lane): `template` noun removed from
+// the surface; the capability moved to `pack list` (embedded marketplace
+// registry). Witnessed live: `ggen pack list` returns rc=0 with a "packs" key.
 fn test_template_list() {
     Command::new(ggen_bin())
-        .args(["template", "list"])
+        .args(["pack", "list"])
         .assert()
-        .success();
+        .success()
+        .stdout(predicate::str::contains("packs"));
 }

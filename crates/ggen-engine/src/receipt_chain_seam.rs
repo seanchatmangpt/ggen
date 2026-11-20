@@ -32,8 +32,6 @@
 //! match praxis-core's `CoreError` exactly; documented drift absorbed at
 //! the seam).
 
-#![allow(dead_code)] // seam is ahead of call-site migration (documented follow-up)
-
 pub use graphlaw::receipt_chain::{Andon, CoreError};
 pub use graphlaw::receipt_chain::{
     ChainRule, ChainRuleMonotonicity, ChainStanding, ChainVerification, ReceiptRecord,
@@ -57,6 +55,44 @@ pub mod epoch {
         ObligationCount, ObservedOutcome, ReceiptEpochV2, ReceiptEpochV2Builder,
         ReceiptRecordV1Legacy, MIGRATION_LAW_1_TO_2, SCHEMA_V1, SCHEMA_V2,
     };
+}
+
+/// Legacy discriminator written by the retired praxis-graphlaw emission
+/// path (the repo-root ledger's records 199-214 were sealed under it; see
+/// `docs/jira/v26.11.3/receipts/k6-self-dogfood.md`, DEF-K6-1). The
+/// praxis → graphlaw retirement (SJIRA-15) renamed the crate prefix; the
+/// fold itself is the SAME algorithm — witnessed: every legacy entry in
+/// `tests/fixtures/receipt_chain_legacy_tail.jsonl` (the verbatim ledger
+/// bytes) recomputes its stored chain hash under
+/// [`ChainRule::V2Fold`] once the discriminator is aliased
+/// (`tests/receipt_chain_rule_test.rs`). Read-side compatibility window
+/// ONLY: emission continues to write [`CHAIN_RULE_V2_FOLD`] exclusively
+/// (sync.rs's single `chain_rule:` construction site), so new records are
+/// never the legacy form.
+pub const CHAIN_RULE_V2_FOLD_LEGACY: &str = "praxis-chain/v2-fold";
+
+/// Compat-window verification of a record's stored chain hash: identical
+/// to [`ReceiptRecord::verify_chain`] except that a record declaring the
+/// legacy [`CHAIN_RULE_V2_FOLD_LEGACY`] discriminator is verified under
+/// [`ChainRule::V2Fold`] (same fold, renamed discriminator — the aliasing
+/// is witnessed by the real-ledger fixture test). Anything else — including
+/// an unrecognized discriminator, or a legacy-declared record whose stored
+/// hash does NOT recompute under the fold — fails exactly as before:
+/// fail-closed, never defaulted to a passing rule.
+///
+/// Every read/verify call site (`ggen receipt verify`, `ggen receipt
+/// history`, `ggen sync`'s previous-head check) must go through this
+/// wrapper, not the raw method, so the window is enforced uniformly.
+///
+/// # Errors
+/// Same contract as [`ReceiptRecord::verify_chain`].
+pub fn verify_chain_compat(record: &ReceiptRecord) -> Result<ChainVerification, CoreError> {
+    if record.chain_rule.as_deref() == Some(CHAIN_RULE_V2_FOLD_LEGACY) {
+        let mut normalized = record.clone();
+        normalized.chain_rule = Some(CHAIN_RULE_V2_FOLD.to_string());
+        return normalized.verify_chain();
+    }
+    record.verify_chain()
 }
 
 /// Rule-aware verification of a record's stored chain hash.

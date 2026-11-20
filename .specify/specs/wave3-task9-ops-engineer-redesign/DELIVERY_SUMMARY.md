@@ -282,4 +282,3 @@ Refer to:
 - **Execution details**: wave-3-task-9-org-redesign-execution.md
 - **Retention specifics**: wave-3-task-9-retention-strategy.md
 - **Authoritative specs**: new-org-structure.ttl, ops-engineer-2-0-complete-program.ttl
-

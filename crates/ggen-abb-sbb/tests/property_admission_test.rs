@@ -369,6 +369,7 @@ fn consumer_only_graph_resolves_with_consumer_last() {
     let consumer = ConsumerEdges {
         name: "app".into(),
         depends_on: BTreeSet::new(),
+        requires: BTreeSet::new(), // WO-07: additive field (serde default) — minimal unblock, disclosed per lane SLA
     };
     let plan = resolve_sync_order(&[], Some(&consumer)).unwrap();
     assert_eq!(plan.order, vec!["app"]);

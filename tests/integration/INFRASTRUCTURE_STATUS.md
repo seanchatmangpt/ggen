@@ -110,4 +110,3 @@ Run `tests/integration/verify_infrastructure.sh` to verify all components:
 ```bash
 ./tests/integration/verify_infrastructure.sh
 ```
-

@@ -1,0 +1,6 @@
+PREFIX geag: <https://ggen.dev/ns/ea-graph#>
+SELECT ?id
+WHERE {
+  ?s a geag:Pack ; geag:id ?id .
+}
+ORDER BY ?id

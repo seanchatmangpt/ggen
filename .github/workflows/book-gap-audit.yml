@@ -3,24 +3,22 @@ name: Book Gap Audit
 on:
   pull_request:
     paths:
+      - 'docs/**'
       - 'book/**'
-      - 'packs/**'
-      - 'examples/**'
-      - 'marketplace/**'
-      - 'crates/ggen-engine/tests/book_gap_closure_e2e.rs'
       - '.github/workflows/book-gap-audit.yml'
   push:
     branches: [main]
     paths:
+      - 'docs/**'
       - 'book/**'
-      - 'packs/**'
-      - 'examples/**'
-      - 'marketplace/**'
-      - 'crates/ggen-engine/tests/book_gap_closure_e2e.rs'
       - '.github/workflows/book-gap-audit.yml'
 
 permissions:
   contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   census:

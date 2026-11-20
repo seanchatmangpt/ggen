@@ -95,6 +95,11 @@ fn scaffold() -> (TempDir, PathBuf) {
         &dir.path().join("demo-project"),
     );
     let project = dir.path().join("demo-project");
+    std::fs::write(
+        project.join("ea.graph.json"),
+        "{\"schema\":\"ggen.ea.graph.v1\",\"strategy\":{\"id\":\"s\",\"title\":\"t\"},\"capabilities\":[],\"abbs\":[],\"contracts\":[],\"candidate_sbbs\":[],\"qualifications\":[],\"packs\":[]}",
+    )
+    .expect("write ea.graph.json");
     (dir, project)
 }
 
@@ -133,6 +138,12 @@ fn write_pack(root: &Path, name: &str, class_name: &str, to_path: &str, body: &s
 /// templates of its own — only the two packs' templates run).
 fn write_two_pack_project(root: &Path, pack_a: &str, pack_b: &str) -> PathBuf {
     let project = root.join("two-pack-project");
+    std::fs::create_dir_all(&project).expect("mkdir project");
+    std::fs::write(
+        project.join("ea.graph.json"),
+        "{\"schema\":\"ggen.ea.graph.v1\",\"strategy\":{\"id\":\"s\",\"title\":\"t\"},\"capabilities\":[],\"abbs\":[],\"contracts\":[],\"candidate_sbbs\":[],\"qualifications\":[],\"packs\":[]}",
+    )
+    .expect("write ea.graph.json");
     std::fs::create_dir_all(project.join("templates")).expect("mkdir templates");
     std::fs::write(project.join("ontology.ttl"), "").expect("write ontology.ttl");
     std::fs::write(
@@ -257,6 +268,11 @@ fn git_resolved_pack_syncs_over_the_cli_boundary_and_caches_across_runs() {
 
     let project = dir.path().join("consumer");
     std::fs::create_dir_all(project.join("templates")).expect("mkdir templates");
+    std::fs::write(
+        project.join("ea.graph.json"),
+        "{\"schema\":\"ggen.ea.graph.v1\",\"strategy\":{\"id\":\"s\",\"title\":\"t\"},\"capabilities\":[],\"abbs\":[],\"contracts\":[],\"candidate_sbbs\":[],\"qualifications\":[],\"packs\":[]}",
+    )
+    .expect("write ea.graph.json");
     std::fs::write(project.join("ontology.ttl"), "").expect("write ontology.ttl");
     std::fs::write(
         project.join("ggen.toml"),

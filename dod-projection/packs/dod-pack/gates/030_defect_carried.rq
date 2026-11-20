@@ -1,0 +1,7 @@
+# MESSAGE: a PubDefect is always CARRIED — never silently dropped.
+PREFIX dod: <urn:ggen:dod:>
+SELECT ?defect WHERE {
+  ?defect a dod:PubDefect ;
+          dod:status ?st .
+  FILTER (?st != "CARRIED")
+} ORDER BY ?defect

@@ -579,7 +579,7 @@ pub fn resolve_target(root: &Path, rel_to: &str) -> Result<PathBuf> {
 }
 
 /// Create the parent directory chain for `target`.
-fn ensure_parent(target: &Path) -> Result<()> {
+pub(crate) fn ensure_parent(target: &Path) -> Result<()> {
     if let Some(parent) = target.parent() {
         std::fs::create_dir_all(parent)?;
     }

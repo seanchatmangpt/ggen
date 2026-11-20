@@ -145,4 +145,3 @@ ggen's architecture separates concerns into distinct layers: CLI, domain logic, 
 - [Ontology-Driven Explanation](ontology-driven.md)
 - [Projections Explanation](projections.md)
 - [Determinism Explanation](determinism.md)
-

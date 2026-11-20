@@ -46,4 +46,3 @@ These ontologies can be:
 - Integrated with existing SHACL shapes for validation
 - Queried via SPARQL for code generation
 - Enriched with custom manufacturing domain extensions
-

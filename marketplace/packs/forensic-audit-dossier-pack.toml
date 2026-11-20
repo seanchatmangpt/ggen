@@ -1,0 +1,24 @@
+[pack]
+packages = []
+category = "uncategorized"
+id = "forensic-audit-dossier-pack"
+name = "forensic-audit-dossier-pack"
+version = "0.1.0"
+description = """
+Forensic audit dossier pack: generates a deterministic (byte-identical,
+digest-bound) dossier exporter from an OCEL 2.0-aligned event/object
+vocabulary. Events carry id/activity/timestamp/attributes, objects are
+unique-id'd, relationships reference object ids; the exporter assembles
+{events, objects, subject_id} into a canonical JSON dossier plus a sha256
+content binding, refusing a relationship that references a nonexistent
+object id (typed refusal, fail-closed). Semantics aligned with
+ash_pplan ProcessEvidence.Event (id, activity, timestamp, objects with
+{object_id, object_type, qualifier}, attributes, subject_id).
+"""
+
+[dependencies]
+"praxis-core-pack" = "0.1.0"
+
+[capabilities]
+provides = ["urn:ggen:pack:forensic-audit-dossier-pack"]
+requires = []
