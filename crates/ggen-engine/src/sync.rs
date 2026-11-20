@@ -1229,6 +1229,15 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
     // architecture contract before proceeding to template rendering.
     // In addition, if packs define [graph] dependencies or ports, resolve
     // cross-pack DAG, cycles, and port completeness.
+    //
+    // Depgraph admission is refusal-only: `ggen_abb_sbb::depgraph::resolve_sync_order`
+    // and `PersistedCompositionPlan.order` are schema/admission witnesses — cycles,
+    // unbound ports, stale pack sets, and malformed permutations. Neither
+    // `SyncPlan::order` nor the persisted plan's `order` field is threaded into
+    // template discovery, rendering, or write order (those follow manifest `[packs]`
+    // resolution and path-sorted template dirs — see [`discover_templates`]).
+    // FALSIFIER:STAGE2C_SYNCPLAN_ORDER_ADMISSION_ONLY — court:
+    // `crates/ggen-engine/tests/abb_sbb_stage2c_syncplan_order_court.rs`.
     {
         // 1. Pack-level dependency/port resolution. FAIL-CLOSED (v26.11.3
         // follow-up to WO-01): a pack manifest that cannot be read, or that
@@ -1243,17 +1252,15 @@ pub fn sync(root: &Path, opts: SyncOptions) -> Result<SyncReport> {
         // `ggen pack compose --out <path>`), Stage 2c consumes it instead of
         // re-extracting every `pack.toml` from disk and re-deriving the
         // admission order with `resolve_sync_order` — the cycle/unbound-port
-        // admission already ran at compose time, so the persisted plan is
-        // the register of truth for this run's order. Fail-closed on schema
-        // mismatch (FM-PACK-022) and on a stale plan whose pack set no
-        // longer matches the manifest's `[packs]` (FM-PACK-023, stale-plan
-        // law); absent plan → legacy path below, byte-identical behavior.
-        // Note (honest scoping): `resolve_sync_order`'s returned order was
-        // already discarded at this call site before this change (the call
-        // is a pure admission gate); "consuming the plan's order" therefore
-        // means admitting via the plan instead of re-deriving, not
-        // re-plumbing the order into a downstream consumer that does not
-        // exist.
+        // admission already ran at compose time, so the persisted plan is the
+        // register of truth for this run's *admission baseline* (skip
+        // re-extract / re-derive), not for execution ordering downstream.
+        // Fail-closed on schema mismatch (FM-PACK-022) and on a stale plan
+        // whose pack set no longer matches the manifest's `[packs]`
+        // (FM-PACK-023, stale-plan law); absent plan → legacy path below,
+        // byte-identical behavior. `resolve_sync_order`'s `SyncPlan.order`
+        // and the plan's `order` field are validated then discarded here —
+        // the legacy call is a pure admission gate (refusal on Err only).
         let composition_plan = read_composition_plan(root)?;
         if let Some(plan) = &composition_plan {
             validate_composition_plan(plan, &packs)?;
@@ -2446,6 +2453,10 @@ pub(crate) fn read_composition_plan(root: &Path) -> Result<Option<PersistedCompo
 ///    be trusted for this run.
 /// 2. Order integrity (FM-PACK-022): `order` must be a permutation of
 ///    `pack_ids` (same length, same membership ⇒ no duplicates, no gaps).
+///
+/// The `order` field is checked for permutation integrity only; sync does not
+/// consume it for template discovery or rendering (admission-only — same law as
+/// the discarded `SyncPlan::order` from `resolve_sync_order` in Stage 2c).
 ///
 /// # Errors
 ///
