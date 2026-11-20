@@ -38,11 +38,13 @@ jobs:
         with:
           persist-credentials: false
       - name: Install just
-        uses: extractions/setup-just@e33eabd166b2050af4085ec509190861595da63b # v3
+        # v3 tag / v3.1.0 peel (prior pin e33eabd… was not a real commit → Unable to resolve action)
+        uses: extractions/setup-just@f8a3cce218d9f83db3a2ecd90e41ac3de6cdfd9b # v3
       - name: Rust toolchain
         uses: dtolnay/rust-toolchain@stable
       - name: Cache cargo
-        uses: Swatinem/rust-cache@f13886b937689471ec72163fe75d13d54516e343 # v2
+        # v2.8.1 peel (same SHA as .github/actions/setup-ggen-build; prior f13886b9…471e… was a mangled non-commit)
+        uses: Swatinem/rust-cache@f13886b937689c021905a6b90929199931d60db1 # v2.8.1
         with:
           workspaces: '.'
       - name: Mutual admit gate
