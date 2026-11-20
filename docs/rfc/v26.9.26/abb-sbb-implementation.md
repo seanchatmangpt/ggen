@@ -33,9 +33,7 @@ Kernel: `crates/ggen-abb-sbb` (IO-free, authority NONE, ceiling CONSTRUCT). Cour
 | 9 | ALIVE | `pack_named_as_abb_or_sbb_is_refused`, `pack_colliding_with_any_element_id_is_refused_without_a_pack_list` (a pack id may not equal any element id, with or without a `packs` list) |
 | 10 | ALIVE | `stale_qualification_is_refused_after_sbb_changes`, `changed_architecture_contract_invalidates_qualification` |
 
-Standing of the whole seed: PARTIAL_ALIVE. The kernel has no consumer yet (nothing in
-ggen-cli, ggen-engine or sync calls it); it is an independent workspace root listed in the root
-`Cargo.toml` `exclude`, and remains PARTIAL_ALIVE only because the kernel is not yet wired into ggen-cli/ggen-engine/sync and the EA graph is still a JSON projection rather than native RDF ingestion.
+Standing of the whole seed: PARTIAL_ALIVE, and only because DoD 1 still admits a JSON projection of the EA graph (`parse_graph`) rather than native RDF ingestion. The kernel is a root-workspace member (`Cargo.toml` `[workspace] members`, integrated v26.10.9) and is wired into ggen-engine Stage 2c: sync reads `ea.graph.json`, calls `ggen_abb_sbb::parse_graph` / `admit_with_caps`, and runs depgraph admission via `resolve_sync_order` (skippable with `--skip-ea-admission`). Lawful CLI consumers include the `ggen ea` verbs (`admit`, `plan`, `manufacture`, `replay`, `verify_receipt`) in `crates/ggen-cli/src/cmds/ea/`, which delegate to the same kernel surface.
 
 Benchmark: `cargo bench --manifest-path crates/ggen-abb-sbb/Cargo.toml`; recorded numbers
 in `crates/ggen-abb-sbb/bench/receipt.json`; regression bounds enforced by
