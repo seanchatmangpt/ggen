@@ -45,6 +45,11 @@ Each tool below closes one of those.
 | `ggen_rule_graph` | What rules exist, and what does each read and write? |
 | `ggen_capability_status` | Am I relying on a field that is accepted but not implemented? |
 | `ggen_write_apply` | *(the only destructive tool)* Apply the sync. |
+| `ggen_ea_plan` | EA plan over `ea.graph.json` under `root`. |
+| `ggen_ea_admit` | EA admit gate. |
+| `ggen_ea_manufacture` | Admit + manufacture in memory. |
+| `ggen_ea_verify_receipt` | Verify manufacture receipt (inline or path). |
+| `ggen_ea_replay` | Replay from graph + receipt JSON. |
 
 All are `readOnlyHint` except `ggen_write_apply`, which is `destructiveHint`
 and requires `confirm: true`. Read and write are separate tools, never one

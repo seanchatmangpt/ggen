@@ -44,7 +44,9 @@ const EXPECTED_TOOLS: &[&str] = &[
     "ggen_ea_plan",
     "ggen_ea_admit",
     "ggen_ea_verify_receipt",
-    "ggen_write_apply",
+        "ggen_ea_manufacture",
+    "ggen_ea_replay",
+"ggen_write_apply",
 ];
 
 /// The tool names architecture.md's "nine tools" claim anchors on. Every
@@ -59,7 +61,9 @@ const DOCUMENTED_TOOLS: &[&str] = &[
     "ggen_check_project",
     "ggen_rule_graph",
     "ggen_capability_status",
-    "ggen_write_apply",
+        "ggen_ea_manufacture",
+    "ggen_ea_replay",
+"ggen_write_apply",
 ];
 
 async fn listed_tools() -> Vec<rmcp::model::Tool> {

@@ -19,3 +19,7 @@ pub mod ea_admit;
 pub mod ea_common;
 pub mod ea_plan;
 pub mod ea_verify_receipt;
+
+pub mod ea_manufacture;
+
+pub mod ea_replay;

@@ -6,7 +6,8 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 #[derive(Debug, Deserialize, JsonSchema)]
 pub struct EaVerifyReceiptParams {
-    pub receipt_path: String,
+    #[serde(default)] pub receipt_path: Option<String>,
+    #[serde(default)] pub receipt: Option<Value>,
 }
 #[derive(Debug, Serialize, JsonSchema)]
 pub struct EaVerifyReceiptResult {
@@ -21,10 +22,14 @@ pub struct EaVerifyReceiptResult {
 pub fn ea_verify_receipt(
     params: &EaVerifyReceiptParams,
 ) -> Result<EaVerifyReceiptResult, McpError> {
-    let raw = std::fs::read_to_string(&params.receipt_path)
-        .map_err(|e| McpError::new(ErrorCategory::NotFound, e.to_string()))?;
-    let r: ggen_abb_sbb::ManufactureReceipt = serde_json::from_str(&raw)
-        .map_err(|e| McpError::new(ErrorCategory::Unsupported, e.to_string()))?;
+    let r: ggen_abb_sbb::ManufactureReceipt = if let Some(v) = &params.receipt {
+        serde_json::from_value(v.clone()).map_err(|e| McpError::new(ErrorCategory::Unsupported, e.to_string()))?
+    } else if let Some(path) = &params.receipt_path {
+        let raw = std::fs::read_to_string(path).map_err(|e| McpError::new(ErrorCategory::NotFound, e.to_string()))?;
+        serde_json::from_str(&raw).map_err(|e| McpError::new(ErrorCategory::Unsupported, e.to_string()))?
+    } else {
+        return Err(McpError::new(ErrorCategory::Unsupported, "one of receipt or receipt_path is required".into()));
+    };
     match ggen_abb_sbb::verify_receipt(&r) {
         Ok(()) => Ok(EaVerifyReceiptResult {
             ok: true,

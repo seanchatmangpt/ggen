@@ -154,7 +154,7 @@ impl Drop for McpClient {
 }
 
 #[test]
-fn handshake_advertises_identity_and_all_twelve_tools() {
+fn handshake_advertises_identity_and_all_seventeen_tools() {
     let mut c = McpClient::spawn();
     let init = c.initialize();
     assert_eq!(init["result"]["serverInfo"]["name"], "ggen-mcp");
@@ -186,7 +186,9 @@ fn handshake_advertises_identity_and_all_twelve_tools() {
         "ggen_ea_plan",
         "ggen_ea_admit",
         "ggen_ea_verify_receipt",
-        "ggen_write_apply",
+                "ggen_ea_manufacture",
+        "ggen_ea_replay",
+"ggen_write_apply",
     ] {
         assert!(
             names.contains(&expected.to_string()),
