@@ -211,6 +211,22 @@ pub fn extract_pack_manifest(pack_toml: &str) -> Result<PackManifest, Refusal> {
     })
 }
 
+/// Extract one [`PackManifest`] per `pack.toml` body (WO-03 court / Stage 2c seam).
+pub fn extract_pack_manifests(pack_tomls: &[&str]) -> Result<Vec<PackManifest>, Refusal> {
+    pack_tomls
+        .iter()
+        .map(|t| extract_pack_manifest(t))
+        .collect()
+}
+
+/// Project pack.toml documents to manifests and run kernel admission.
+pub fn resolve_sync_order_from_pack_tomls(
+    pack_tomls: &[&str], consumer: Option<&ConsumerEdges>,
+) -> Result<SyncPlan, Refusal> {
+    let manifests = extract_pack_manifests(pack_tomls)?;
+    resolve_sync_order(&manifests, consumer)
+}
+
 /// Extract [`ConsumerEdges`] from a consumer `ggen.toml` document (optional
 /// `[graph]` table with `name` and `depends_on`).
 pub fn extract_consumer_edges(ggen_toml: &str) -> Result<Option<ConsumerEdges>, Refusal> {
