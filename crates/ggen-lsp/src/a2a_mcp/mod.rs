@@ -22,7 +22,14 @@ pub use a2a::{
 pub use a2a_generated::{Agent, AgentFactory, Message, Port, UnifiedAgent, UnifiedAgentBuilder};
 pub use a2a_registry::{AgentEntry, AgentQuery, AgentRegistry, HealthMonitor, HealthStatus};
 
+pub mod lifecycle;
+pub mod mcp_lifecycle;
 pub mod mcp_packs;
 pub mod mcp_server;
 
+pub use mcp_lifecycle::{
+    apply_result, dispatch_lifecycle_tool, dry_run_result, ea_admit_result, ea_plan_result,
+    receipt_verify_result, LifecycleApplyParams, LifecycleDryRunParams, LifecycleEaAdmitParams,
+    LifecycleEaPlanParams, LifecycleReceiptVerifyParams, LIFECYCLE_TOOLS,
+};
 pub use mcp_packs::{dispatch_pack_tool, pack_agent_card, PackToolsAdapter, PACK_TOOLS};

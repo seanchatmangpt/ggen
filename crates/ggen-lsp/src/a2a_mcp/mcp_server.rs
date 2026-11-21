@@ -291,6 +291,61 @@ impl GgenMcpServer {
             .map_err(crate::a2a_mcp::mcp_packs::mcp_err)?;
         Ok(crate::a2a_mcp::mcp_packs::mcp_ok(value))
     }
+
+    #[tool(name = "ggen.lifecycle.dry_run", description = "Sync dry-run: graph_hash and decisions (writes nothing).")]
+    async fn lifecycle_dry_run(
+        &self,
+        Parameters(params): Parameters<crate::a2a_mcp::mcp_lifecycle::LifecycleDryRunParams>,
+    ) -> Result<CallToolResult, rmcp::model::ErrorData> {
+        crate::a2a_mcp::mcp_lifecycle::ocel_invoked("ggen.lifecycle.dry_run", &params.root);
+        let value = crate::a2a_mcp::mcp_lifecycle::dry_run_result(params)
+            .map_err(crate::a2a_mcp::mcp_lifecycle::mcp_err)?;
+        Ok(crate::a2a_mcp::mcp_lifecycle::mcp_ok(value))
+    }
+
+    #[tool(name = "ggen.lifecycle.apply", description = "Sync apply: requires confirm:true and expected_graph_hash from dry_run.")]
+    async fn lifecycle_apply(
+        &self,
+        Parameters(params): Parameters<crate::a2a_mcp::mcp_lifecycle::LifecycleApplyParams>,
+    ) -> Result<CallToolResult, rmcp::model::ErrorData> {
+        crate::a2a_mcp::mcp_lifecycle::ocel_invoked("ggen.lifecycle.apply", &params.root);
+        let value = crate::a2a_mcp::mcp_lifecycle::apply_result(params)
+            .map_err(crate::a2a_mcp::mcp_lifecycle::mcp_err)?;
+        Ok(crate::a2a_mcp::mcp_lifecycle::mcp_ok(value))
+    }
+
+    #[tool(name = "ggen.lifecycle.receipt_verify", description = "Verify .ggen-v2/receipt.json for the project root.")]
+    async fn lifecycle_receipt_verify(
+        &self,
+        Parameters(params): Parameters<crate::a2a_mcp::mcp_lifecycle::LifecycleReceiptVerifyParams>,
+    ) -> Result<CallToolResult, rmcp::model::ErrorData> {
+        crate::a2a_mcp::mcp_lifecycle::ocel_invoked("ggen.lifecycle.receipt_verify", &params.root);
+        let value = crate::a2a_mcp::mcp_lifecycle::receipt_verify_result(params)
+            .map_err(crate::a2a_mcp::mcp_lifecycle::mcp_err)?;
+        Ok(crate::a2a_mcp::mcp_lifecycle::mcp_ok(value))
+    }
+
+    #[tool(name = "ggen.lifecycle.ea_plan", description = "ABB/SBB kernel plan over an EA graph.")]
+    async fn lifecycle_ea_plan(
+        &self,
+        Parameters(params): Parameters<crate::a2a_mcp::mcp_lifecycle::LifecycleEaPlanParams>,
+    ) -> Result<CallToolResult, rmcp::model::ErrorData> {
+        crate::a2a_mcp::mcp_lifecycle::ocel_invoked("ggen.lifecycle.ea_plan", params.graph.as_deref().unwrap_or("ea.graph.json"));
+        let value = crate::a2a_mcp::mcp_lifecycle::ea_plan_result(params)
+            .map_err(crate::a2a_mcp::mcp_lifecycle::mcp_err)?;
+        Ok(crate::a2a_mcp::mcp_lifecycle::mcp_ok(value))
+    }
+
+    #[tool(name = "ggen.lifecycle.ea_admit", description = "ABB/SBB kernel admission over an EA graph.")]
+    async fn lifecycle_ea_admit(
+        &self,
+        Parameters(params): Parameters<crate::a2a_mcp::mcp_lifecycle::LifecycleEaAdmitParams>,
+    ) -> Result<CallToolResult, rmcp::model::ErrorData> {
+        crate::a2a_mcp::mcp_lifecycle::ocel_invoked("ggen.lifecycle.ea_admit", params.sbb.as_deref().unwrap_or("sbb:ingest-0000"));
+        let value = crate::a2a_mcp::mcp_lifecycle::ea_admit_result(params)
+            .map_err(crate::a2a_mcp::mcp_lifecycle::mcp_err)?;
+        Ok(crate::a2a_mcp::mcp_lifecycle::mcp_ok(value))
+    }
 }
 
 #[tool_handler(router = self.tool_router)]
