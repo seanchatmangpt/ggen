@@ -528,7 +528,6 @@ fn capability_status_omits_capabilities_key_when_no_pack_is_annotated() {
     assert!(!got.inert_fields.is_empty());
 }
 
-
 #[test]
 fn doctor_tool_reports_healthy_unsynced_project() {
     use ggen_mcp::tools::doctor::{doctor, DoctorParams};
@@ -539,8 +538,15 @@ fn doctor_tool_reports_healthy_unsynced_project() {
         "[project]\nname=\"t\"\n\n[ontology]\nsource=\"o.ttl\"\n\n[templates]\ndir=\"templates\"\n",
     )
     .unwrap();
-    std::fs::write(tmp.path().join("o.ttl"), "@prefix ex: <http://example.org/> .\n").unwrap();
-    let r = doctor(&DoctorParams { root: tmp.path().display().to_string() }).expect("doctor");
+    std::fs::write(
+        tmp.path().join("o.ttl"),
+        "@prefix ex: <http://example.org/> .\n",
+    )
+    .unwrap();
+    let r = doctor(&DoctorParams {
+        root: tmp.path().display().to_string(),
+    })
+    .expect("doctor");
     assert!(r.ok);
 }
 

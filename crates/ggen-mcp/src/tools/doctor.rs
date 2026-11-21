@@ -61,7 +61,9 @@ fn failure_summary(report: &serde_json::Value) -> String {
             (c.get("status").and_then(serde_json::Value::as_str) == Some("fail")).then(|| {
                 format!(
                     "{n}: {}",
-                    c.get("detail").and_then(serde_json::Value::as_str).unwrap_or("")
+                    c.get("detail")
+                        .and_then(serde_json::Value::as_str)
+                        .unwrap_or("")
                 )
             })
         })

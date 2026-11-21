@@ -84,7 +84,10 @@ pub fn pack_compose(params: &PackComposeParams) -> Result<PackComposeResult, Mcp
             continue;
         };
         let dir = toml.parent().ok_or_else(|| {
-            McpError::new(ErrorCategory::NotFound, format!("pack '{name}' has no parent"))
+            McpError::new(
+                ErrorCategory::NotFound,
+                format!("pack '{name}' has no parent"),
+            )
         })?;
         pack_files.push(load_pack_dir(dir, name)?);
     }
@@ -95,7 +98,11 @@ pub fn pack_compose(params: &PackComposeParams) -> Result<PackComposeResult, Mcp
             } else {
                 PathBuf::from(rel)
             };
-            let id = dir.file_name().and_then(|s| s.to_str()).unwrap_or("x").to_string();
+            let id = dir
+                .file_name()
+                .and_then(|s| s.to_str())
+                .unwrap_or("x")
+                .to_string();
             if !seen.insert(id.clone()) {
                 return Err(McpError::new(
                     ErrorCategory::SyntaxError,
@@ -145,7 +152,11 @@ fn to_json(plan: &PackCompositionPlan) -> PackCompositionPlanJson {
 
 fn corpus_roots() -> Vec<PathBuf> {
     match std::env::var("GGEN_CAPABILITY_CORPUS_ROOTS") {
-        Ok(s) if !s.is_empty() => s.split(':').filter(|p| !p.is_empty()).map(PathBuf::from).collect(),
+        Ok(s) if !s.is_empty() => s
+            .split(':')
+            .filter(|p| !p.is_empty())
+            .map(PathBuf::from)
+            .collect(),
         _ => CAPABILITY_CORPUS_ROOTS.iter().map(PathBuf::from).collect(),
     }
 }
@@ -174,17 +185,18 @@ fn find_pack_toml(project_root: Option<&Path>, name: &str) -> Option<PathBuf> {
 
 fn load_pack_dir(dir: &Path, ctx: &str) -> Result<PackFile, McpError> {
     pack_file_from_dir(dir).map_err(|e| {
-        McpError::new(ErrorCategory::GraphLoadError, format!("load pack '{ctx}': {e}"))
+        McpError::new(
+            ErrorCategory::GraphLoadError,
+            format!("load pack '{ctx}': {e}"),
+        )
     })
 }
 
 fn discover_packs(root: &Path) -> Result<Vec<String>, McpError> {
-    let raw = std::fs::read_to_string(root.join("ggen.toml")).map_err(|e| {
-        McpError::new(ErrorCategory::NotFound, format!("ggen.toml: {e}"))
-    })?;
-    let v: toml::Value = star_toml::from_str(&raw).map_err(|e| {
-        McpError::new(ErrorCategory::ConfigError, format!("ggen.toml parse: {e}"))
-    })?;
+    let raw = std::fs::read_to_string(root.join("ggen.toml"))
+        .map_err(|e| McpError::new(ErrorCategory::NotFound, format!("ggen.toml: {e}")))?;
+    let v: toml::Value = star_toml::from_str(&raw)
+        .map_err(|e| McpError::new(ErrorCategory::ConfigError, format!("ggen.toml parse: {e}")))?;
     let t = v.as_table().cloned().unwrap_or_default();
     let mut out = Vec::new();
     let mut push = |n: &str| {
@@ -199,7 +211,10 @@ fn discover_packs(root: &Path) -> Result<Vec<String>, McpError> {
             }
         }
     }
-    if let Some(rules) = t.get("generation").and_then(|g| g.get("rules")).and_then(|r| r.as_array())
+    if let Some(rules) = t
+        .get("generation")
+        .and_then(|g| g.get("rules"))
+        .and_then(|r| r.as_array())
     {
         for rule in rules {
             if let Some(p) = rule
