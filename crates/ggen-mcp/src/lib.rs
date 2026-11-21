@@ -227,6 +227,24 @@ tool_defs! {
          receipt. Writes nothing.",
         tools::receipt_verify::receipt_verify
     ),
+    "ggen_ea_plan" => (
+        tools::ea_plan::EaPlanParams,
+        read_only("Plan EA admission over ea.graph.json"),
+        "Run `ggen_abb_sbb::plan` for an ABB against `ea.graph.json` under `root`. Read-only.",
+        tools::ea_plan::ea_plan
+    ),
+    "ggen_ea_admit" => (
+        tools::ea_admit::EaAdmitParams,
+        read_only("Run EA admission gate over ea.graph.json"),
+        "Run `ggen_abb_sbb::admit` with ABB/SBB request flags. Read-only.",
+        tools::ea_admit::ea_admit
+    ),
+    "ggen_ea_verify_receipt" => (
+        tools::ea_verify_receipt::EaVerifyReceiptParams,
+        read_only("Verify an ABB/SBB manufacture receipt JSON file"),
+        "Validate a `ManufactureReceipt` via `ggen_abb_sbb::verify_receipt`. Read-only.",
+        tools::ea_verify_receipt::ea_verify_receipt
+    ),
     "ggen_write_apply" => (
         tools::write_apply::WriteApplyParams,
         destructive("Apply sync (WRITES FILES)"),
