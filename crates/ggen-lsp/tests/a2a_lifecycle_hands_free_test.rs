@@ -4,7 +4,9 @@
 
 use std::path::Path;
 
-use ggen_lsp::a2a_mcp::lifecycle::{apply, dry_run, receipt_verify, LifecycleApplyParams, LifecycleDryRunParams};
+use ggen_lsp::a2a_mcp::lifecycle::{
+    apply, dry_run, receipt_verify, LifecycleApplyParams, LifecycleDryRunParams,
+};
 use ggen_lsp::a2a_mcp::{
     dispatch_lifecycle_tool, ea_admit_result, ea_plan_result, LifecycleEaAdmitParams,
     LifecycleEaPlanParams,
@@ -90,11 +92,8 @@ fn dispatch_lifecycle_wire_matches_direct_handlers() {
     scaffold(dir.path());
     let root = dir.path().display().to_string();
 
-    let dry = dispatch_lifecycle_tool(
-        "ggen.lifecycle.dry_run",
-        &json!({ "root": root }),
-    )
-    .expect("dispatch dry_run");
+    let dry = dispatch_lifecycle_tool("ggen.lifecycle.dry_run", &json!({ "root": root }))
+        .expect("dispatch dry_run");
     let hash = dry["graph_hash"].as_str().expect("hash");
 
     dispatch_lifecycle_tool(

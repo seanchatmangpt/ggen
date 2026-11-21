@@ -122,14 +122,18 @@ fn parse_generation(raw: Option<&str>) -> Result<u64, McpLifecycleError> {
 pub struct McpLifecycleError(pub String);
 
 pub fn ocel_invoked(tool: &str, subject: &str) {
-    tracing::info!("OCEL: {}", json!({"event": "a2a.mcp.tool.invoked", "tool": tool, "lifecycle": subject}));
+    tracing::info!(
+        "OCEL: {}",
+        json!({"event": "a2a.mcp.tool.invoked", "tool": tool, "lifecycle": subject})
+    );
 }
 
 pub fn mcp_ok(value: Value) -> rmcp::model::CallToolResult {
     let text = serde_json::to_string_pretty(&value).unwrap_or_else(|_| value.to_string());
     let mut meta = rmcp::model::MetaObject::new();
     meta.0.insert("ggen_result".to_string(), value);
-    rmcp::model::CallToolResult::success(vec![rmcp::model::ContentBlock::text(text)]).with_meta(Some(meta))
+    rmcp::model::CallToolResult::success(vec![rmcp::model::ContentBlock::text(text)])
+        .with_meta(Some(meta))
 }
 
 pub fn mcp_err(e: McpLifecycleError) -> rmcp::model::ErrorData {
@@ -138,11 +142,21 @@ pub fn mcp_err(e: McpLifecycleError) -> rmcp::model::ErrorData {
 
 pub fn dispatch_lifecycle_tool(tool: &str, args: &Value) -> Result<Value, McpLifecycleError> {
     match tool {
-        "ggen.lifecycle.dry_run" => dry_run_result(serde_json::from_value(args.clone()).map_err(|e| McpLifecycleError(e.to_string()))?),
-        "ggen.lifecycle.apply" => apply_result(serde_json::from_value(args.clone()).map_err(|e| McpLifecycleError(e.to_string()))?),
-        "ggen.lifecycle.receipt_verify" => receipt_verify_result(serde_json::from_value(args.clone()).map_err(|e| McpLifecycleError(e.to_string()))?),
-        "ggen.lifecycle.ea_plan" => ea_plan_result(serde_json::from_value(args.clone()).map_err(|e| McpLifecycleError(e.to_string()))?),
-        "ggen.lifecycle.ea_admit" => ea_admit_result(serde_json::from_value(args.clone()).map_err(|e| McpLifecycleError(e.to_string()))?),
+        "ggen.lifecycle.dry_run" => dry_run_result(
+            serde_json::from_value(args.clone()).map_err(|e| McpLifecycleError(e.to_string()))?,
+        ),
+        "ggen.lifecycle.apply" => apply_result(
+            serde_json::from_value(args.clone()).map_err(|e| McpLifecycleError(e.to_string()))?,
+        ),
+        "ggen.lifecycle.receipt_verify" => receipt_verify_result(
+            serde_json::from_value(args.clone()).map_err(|e| McpLifecycleError(e.to_string()))?,
+        ),
+        "ggen.lifecycle.ea_plan" => ea_plan_result(
+            serde_json::from_value(args.clone()).map_err(|e| McpLifecycleError(e.to_string()))?,
+        ),
+        "ggen.lifecycle.ea_admit" => ea_admit_result(
+            serde_json::from_value(args.clone()).map_err(|e| McpLifecycleError(e.to_string()))?,
+        ),
         other => Err(McpLifecycleError(format!("unknown tool: {other}"))),
     }
 }

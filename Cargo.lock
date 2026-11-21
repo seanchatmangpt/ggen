@@ -2764,6 +2764,7 @@ dependencies = [
  "anyhow",
  "assert_cmd",
  "blake3",
+ "ggen-abb-sbb",
  "ggen-config",
  "ggen-engine",
  "ggen-graph",

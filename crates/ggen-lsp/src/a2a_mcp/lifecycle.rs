@@ -102,7 +102,9 @@ pub fn apply(p: &LifecycleApplyParams) -> Result<LifecycleApplyResult, Lifecycle
     )
     .map_err(|e| LifecycleError::Refused(e.to_string()))?;
     if pre.graph_hash_hex != p.expected_graph_hash {
-        return Err(LifecycleError::Refused("expected_graph_hash mismatch".into()));
+        return Err(LifecycleError::Refused(
+            "expected_graph_hash mismatch".into(),
+        ));
     }
     let report = sync(
         &root,
