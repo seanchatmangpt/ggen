@@ -124,6 +124,7 @@ fn full_mcp_tool_lifecycle_in_process() {
 fn write_apply_refuses_without_confirm_or_hash_on_same_fixture() {
     let tmp = TempDir::new().expect("tempdir");
     write_frontmatter_project(tmp.path());
+    std::fs::write(tmp.path().join("ea.graph.json"), EA_GRAPH_FIXTURE).expect("ea graph");
     let root = root_str(&tmp);
     let dry = sync_dry_run(&SyncDryRunParams { root: root.clone() }).expect("dry");
 
