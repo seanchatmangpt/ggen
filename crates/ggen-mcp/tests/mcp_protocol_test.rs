@@ -154,7 +154,7 @@ impl Drop for McpClient {
 }
 
 #[test]
-fn handshake_advertises_identity_and_all_twelve_tools() {
+fn handshake_advertises_identity_and_all_seventeen_tools() {
     let mut c = McpClient::spawn();
     let init = c.initialize();
     assert_eq!(init["result"]["serverInfo"]["name"], "ggen-mcp");
@@ -183,6 +183,11 @@ fn handshake_advertises_identity_and_all_twelve_tools() {
         "ggen_pack_capabilities",
         "ggen_pack_query",
         "ggen_receipt_verify",
+        "ggen_ea_plan",
+        "ggen_ea_admit",
+        "ggen_ea_manufacture",
+        "ggen_ea_verify_receipt",
+        "ggen_ea_replay",
         "ggen_write_apply",
     ] {
         assert!(
@@ -190,7 +195,7 @@ fn handshake_advertises_identity_and_all_twelve_tools() {
             "{expected} missing from {names:?}"
         );
     }
-    assert_eq!(names.len(), 12, "exactly twelve tools, got {names:?}");
+    assert_eq!(names.len(), 17, "exactly seventeen tools, got {names:?}");
 }
 
 /// The annotation contract, verifiable only over the wire: every tool is

@@ -4,7 +4,7 @@
 //! ggen's entire CLI is ten whole-pipeline verbs, none of which can run a
 //! SPARQL query, enumerate the legal frontmatter keys, or report why a
 //! template was skipped. This crate is that missing introspection surface:
-//! ten tools, read-only except one, over stdio.
+//! seventeen tools, read-only except one, over stdio.
 //!
 //! Design notes that are load-bearing rather than incidental:
 //!
@@ -226,6 +226,37 @@ tool_defs! {
          a typed `fm_code` (a `FM-CHAIN-0NN`-shaped code) on a tampered or malformed \
          receipt. Writes nothing.",
         tools::receipt_verify::receipt_verify
+    ),
+    "ggen_ea_plan" => (
+        tools::ea_plan::EaPlanParams,
+        read_only("Plan EA admission over ea.graph.json"),
+        "Run `ggen_abb_sbb::plan` for an ABB against `ea.graph.json` under `root`. Read-only.",
+        tools::ea_plan::ea_plan
+    ),
+    "ggen_ea_admit" => (
+        tools::ea_admit::EaAdmitParams,
+        read_only("Run EA admission gate over ea.graph.json"),
+        "Run `ggen_abb_sbb::admit` with ABB/SBB request flags. Read-only.",
+        tools::ea_admit::ea_admit
+    ),
+    "ggen_ea_manufacture" => (
+        tools::ea_manufacture::EaManufactureParams,
+        read_only("Admit and manufacture EA artifacts in memory"),
+        "Run ggen_abb_sbb::admit then manufacture for ea.graph.json under root. Returns artifact bytes and receipt JSON only.",
+        tools::ea_manufacture::ea_manufacture
+    ),
+    "ggen_ea_replay" => (
+        tools::ea_replay::EaReplayParams,
+        read_only("Replay EA manufacture"),
+        "Run ggen_abb_sbb::replay with graph under root and inline receipt JSON.",
+        tools::ea_replay::ea_replay
+    ),
+    "ggen_ea_verify_receipt" => (
+        tools::ea_verify_receipt::EaVerifyReceiptParams,
+        read_only("Verify an ABB/SBB manufacture receipt"),
+        "Validate a `ManufactureReceipt` via `ggen_abb_sbb::verify_receipt` from inline \
+         `receipt` or `receipt_path`. Read-only.",
+        tools::ea_verify_receipt::ea_verify_receipt
     ),
     "ggen_write_apply" => (
         tools::write_apply::WriteApplyParams,
