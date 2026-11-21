@@ -36,6 +36,7 @@ ggen-lsp = { path = "../ggen-lsp" }
 # crate pulls in no rmcp edge of its own, so it cannot reintroduce the
 # multi-rmcp-version problem the comment above guards against.
 ggen-marketplace = { path = "../ggen-marketplace" }
+ggen-abb-sbb = { path = "../ggen-abb-sbb" }
 # Diagnostic type (`Diagnostic`/`Range`/`NumberOrString`) used by
 # `crate::bridge` to build push-notification content -- same crate ggen-lsp
 # itself uses, not a re-derivation.

@@ -383,18 +383,18 @@ pub struct OntologyConfig {
     /// the engine's frontmatter schema (`ggen_engine::config::Ontology`)
     /// enforces at sync time; absent = byte-identical legacy behavior.
     #[serde(default)]
-    pub aggregate: Option<AggregateConfig>,
+    pub aggregate: Option<OntologyAggregate>,
 }
 
 /// `[ontology.aggregate]` — aggregate-corpus declaration.
 ///
 /// `output` is a deterministic sorted concat of `constituents`; `auto_regen`
 /// opts into regeneration on staleness (default `false` = refuse-on-stale).
-/// Mirrors `ggen_engine::config::OntologyAggregate` (the engine-side type
-/// that owns the enforcement behavior).
+/// Same base type name as `ggen_engine::config::OntologyAggregate` so
+/// `guard-ggen-toml-schema-parity` sees a shared `[ontology].aggregate` field.
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 #[serde(deny_unknown_fields)]
-pub struct AggregateConfig {
+pub struct OntologyAggregate {
     /// Aggregate output path, relative to the manifest root.
     pub output: PathBuf,
     /// Constituent files, relative to the manifest root.

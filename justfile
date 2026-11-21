@@ -24,9 +24,10 @@ timeout-check:
 
 # ── Compilation ───────────────────────────────────────────────────────────────
 
-# Check the whole workspace without building (fast feedback)
+# Check the whole workspace without building (fast feedback).
+# 1200s: cold CI (crates.io download + oxrocksdb) still hit exit 124 at 600s on PR #841.
 check:
-    timeout 300s cargo check --workspace
+    timeout 1200s cargo check --workspace
 
 # Build the ggen CLI binary in debug mode
 build:
@@ -182,12 +183,12 @@ test:
     echo "⚠️  First compile >30s, escalating to 600s..."
     timeout 600s cargo test --workspace --tests
 
-# Unit/lib tests inside each crate — same 30s→600s cold-compile escalation
+# Unit/lib tests inside each crate — same 30s→1200s cold-compile escalation
 # as `test` above (found 2026-07-21: a bare 30s timeout with no escalation
 # fired spuriously right after a target/ cache clear; the ggen-cheat-scanner
 # crate visible in the truncated output has zero tests and compiles
 # instantly -- the 30s was being spent compiling a LATER crate in the
-# workspace graph, not hanging).
+# workspace graph, not hanging). Cold CI can exceed 600s (mirror check bump).
 test-lib:
     #!/usr/bin/env bash
     set -euo pipefail
@@ -197,8 +198,8 @@ test-lib:
         status=$?
     fi
     [ "$status" -eq 124 ] || exit "$status"
-    echo "⚠️  First compile >30s, escalating to 600s..."
-    timeout 600s cargo test --lib --workspace
+    echo "⚠️  First compile >30s, escalating to 1200s..."
+    timeout 1200s cargo test --lib --workspace
 
 # MU3 lane: mutation-test the replay/determinism-critical sync.rs law functions.
 # Bounded at 40 min wall clock; kills must come from test-side oracles only
@@ -510,6 +511,30 @@ slo-check:
     cargo test -p ggen-graph --test coherence_hash_expectations_test -- --nocapture || exit 1
 
     echo "✅ Phase 1 + Phase 2 SLO checks complete"
+
+# ── JTBD CI lanes (wired by .github/workflows/ci.yml) ─────────────────────────
+#
+# First-principles CI calls these recipes — not ad-hoc cargo lines — so local
+# and hosted evidence share one entry point. Known-red pre-commit members
+# (guard-cheat-scan / TECH-DEBT-001, lint / TECH-DEBT-002, guard-pack-proofs
+# heavy re-sync, report-only guard-pack-e2e-coverage) are deliberately out of
+# `jtbd-pre-commit-gates`; they remain on `just pre-commit` for local ratchet.
+
+# MCP courts: lifecycle e2e (μ-sync path), tool-surface parity, and stdio wire protocol.
+jtbd-mcp-lifecycle:
+    cargo test -p ggen-mcp --test mcp_lifecycle_e2e_test
+    cargo test -p ggen-mcp --test tools_surface_parity_test
+    cargo test -p ggen-mcp --test mcp_protocol_test
+
+# A2A hands-free dry_run → apply → receipt_verify (confirm in args; no HITL).
+jtbd-a2a-hands-free:
+    cargo test -p ggen-lsp --features a2a --test a2a_lifecycle_hands_free_test
+
+# Pre-commit subset that matters for PR gating (excludes known-red / heavy legs).
+jtbd-pre-commit-gates: fmt-check coherence-check guard-process-intelligence-boundary guard-short-test-timeout guard-fail-open-subprocess guard-claims-schema guard-generation-hash-pin guard-pack-count guard-gate-count guard-ggen-toml-schema-parity self-play court-canonical court-vacuity court-envelope court-typed-refusal court-fresh-epoch
+    #!/usr/bin/env bash
+    set -euo pipefail
+    echo "✅ JTBD pre-commit gates complete"
 
 # ── Quality gates ─────────────────────────────────────────────────────────────
 

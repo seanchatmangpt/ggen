@@ -67,6 +67,15 @@ impl Board {
                  [templates]\ndir = \"templates\"\n"
             ),
         )?;
+        // WO-01 / FM-LAW-015: sync refuses a root with no ea.graph.json unless
+        // skip_ea_admission is set. Self-play is a lifecycle probe, not an EA
+        // subject — scaffold the same empty-candidate graph the engine's own
+        // e2e fixtures use so admission is a no-op success rather than a
+        // silent dry-run/apply Err that vacuates every write-path invariant.
+        std::fs::write(
+            consumer.join("ea.graph.json"),
+            r#"{"schema":"ggen.ea.graph.v1","strategy":{"id":"s","title":"t"},"capabilities":[],"abbs":[],"contracts":[],"candidate_sbbs":[],"qualifications":[],"packs":[]}"#,
+        )?;
         Ok(Self { arena, pack })
     }
 

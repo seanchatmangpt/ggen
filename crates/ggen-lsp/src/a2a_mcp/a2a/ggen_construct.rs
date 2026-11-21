@@ -96,6 +96,12 @@ pub struct GgenConstructInput {
     /// Artifact packaging format.
     #[serde(default)]
     pub output_format: String,
+
+    #[serde(default)]
+    pub confirm: bool,
+
+    #[serde(default)]
+    pub expected_graph_hash: String,
 }
 
 /// Proof gate result (pass/fail).
@@ -281,6 +287,14 @@ pub fn execute(input: GgenConstructInput) -> GgenConstructOutput {
                 base_path.display()
             ),
         );
+    }
+
+    if let Err(message) = crate::a2a_mcp::lifecycle::corroborate_graph_hash(
+        &base_path,
+        &input.expected_graph_hash,
+        input.confirm,
+    ) {
+        return error_output(input, message);
     }
 
     // Real μ₁–μ₅ actuation: load ggen.toml + ontology, enrich/extract, render
