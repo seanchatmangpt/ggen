@@ -5,7 +5,7 @@ pub use super::lifecycle::{
     LifecycleDryRunParams, LifecycleDryRunResult, LifecycleError,
 };
 
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 
 pub const LIFECYCLE_TOOLS: &[&str] = &[
