@@ -130,7 +130,10 @@ fn capabilities_missing_provider_refuses_fm_pack_015_dangling() {
     )
     .expect_err("missing capabilities provider must refuse at Stage 2c");
     let msg = err.to_string();
-    assert!(msg.contains("FM-PACK-015"), "expected FM-PACK-015, got: {msg}");
+    assert!(
+        msg.contains("FM-PACK-015"),
+        "expected FM-PACK-015, got: {msg}"
+    );
     assert!(
         msg.contains("DANGLING_REFERENCE"),
         "expected DANGLING_REFERENCE, got: {msg}"
