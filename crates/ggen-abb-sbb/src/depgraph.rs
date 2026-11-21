@@ -102,14 +102,71 @@ fn canonical_port_set(
     Ok(set)
 }
 
+/// Prefix for pack-import capability URNs in `[capabilities]`; the suffix is the
+/// kernel pack id / graph port (canonical `[a-z0-9-]+`). Other capability URNs are
+/// composer-only and do not project into the depgraph.
+const PACK_CAPABILITY_URN_PREFIX: &str = "urn:ggen:pack:";
+
+fn pack_id_from_pack_capability_urn(urn: &str) -> Option<&str> {
+    urn.strip_prefix(PACK_CAPABILITY_URN_PREFIX)
+}
+
+/// Project `urn:ggen:pack:<id>` entries from `[capabilities]` into graph facts
+/// (union with any `[graph]` table). Non-pack capability URNs are ignored here.
+fn merge_capabilities_into_manifest(
+    capabilities: Option<&toml::Value>, pack: &str, mut depends_on: BTreeSet<String>,
+    mut provides: BTreeSet<String>, mut requires: BTreeSet<String>,
+) -> Result<(BTreeSet<String>, BTreeSet<String>, BTreeSet<String>), Refusal> {
+    let Some(caps) = capabilities else {
+        return Ok((depends_on, provides, requires));
+    };
+    let ingest_pack_urn = |field: &str, urn: &str, on_pack_id: &mut dyn FnMut(&str)| {
+        if let Some(pack_id) = pack_id_from_pack_capability_urn(urn) {
+            if !is_canonical_port(pack_id) {
+                return Err(non_canonical_port_refusal(pack, field, pack_id));
+            }
+            on_pack_id(pack_id);
+        }
+        Ok(())
+    };
+    if let Some(arr) = caps.get("provides").and_then(|v| v.as_array()) {
+        for x in arr {
+            let urn = x.as_str().ok_or_else(|| Refusal::MalformedGraph {
+                reason: format!(
+                    "MALFORMED_GRAPH: pack '{pack}' field 'capabilities.provides' has a non-string entry"
+                ),
+            })?;
+            ingest_pack_urn("capabilities.provides", urn, &mut |pack_id| {
+                provides.insert(pack_id.to_string());
+            })?;
+        }
+    }
+    if let Some(arr) = caps.get("requires").and_then(|v| v.as_array()) {
+        for x in arr {
+            let urn = x.as_str().ok_or_else(|| Refusal::MalformedGraph {
+                reason: format!(
+                    "MALFORMED_GRAPH: pack '{pack}' field 'capabilities.requires' has a non-string entry"
+                ),
+            })?;
+            ingest_pack_urn("capabilities.requires", urn, &mut |pack_id| {
+                depends_on.insert(pack_id.to_string());
+                requires.insert(pack_id.to_string());
+            })?;
+        }
+    }
+    Ok((depends_on, provides, requires))
+}
+
 /// Extract [`PackManifest`] facts from a `pack.toml` document.
 ///
 /// `name` is read from `[pack] name` (the existing pack format); dependency
 /// facts are read from an optional `[graph]` table (`depends_on`, `provides`,
-/// `requires`, `artifacts`). Port fields (`provides`, `requires`) are
-/// canonicality-checked at extract time (see [`is_canonical_port`]). Packs
-/// without a `[graph]` table are dependency-free facts (`dep(P, nothing)`) —
-/// every existing pack parses clean under this law.
+/// `requires`, `artifacts`), unioned with pack-import edges from `[capabilities]`
+/// (`urn:ggen:pack:<id>` URNs — see WO-03 vocabulary mapping). Port fields
+/// (`provides`, `requires`) are canonicality-checked at extract time (see
+/// [`is_canonical_port`]). Packs without `[graph]` or pack-import `[capabilities]`
+/// are dependency-free facts (`dep(P, nothing)`) — every existing pack parses
+/// clean under this law.
 pub fn extract_pack_manifest(pack_toml: &str) -> Result<PackManifest, Refusal> {
     let value: toml::Value =
         star_toml::from_str(pack_toml).map_err(|e| Refusal::MalformedGraph {
@@ -135,13 +192,39 @@ pub fn extract_pack_manifest(pack_toml: &str) -> Result<PackManifest, Refusal> {
             })
             .unwrap_or_default()
     };
+    let depends_on = set_of("depends_on");
+    let provides = canonical_port_set(graph, "provides", &name)?;
+    let requires = canonical_port_set(graph, "requires", &name)?;
+    let (depends_on, provides, requires) = merge_capabilities_into_manifest(
+        value.get("capabilities"),
+        &name,
+        depends_on,
+        provides,
+        requires,
+    )?;
     Ok(PackManifest {
-        name: name.clone(),
-        depends_on: set_of("depends_on"),
-        provides: canonical_port_set(graph, "provides", &name)?,
-        requires: canonical_port_set(graph, "requires", &name)?,
+        name,
+        depends_on,
+        provides,
+        requires,
         artifacts: set_of("artifacts"),
     })
+}
+
+/// Extract one [`PackManifest`] per `pack.toml` body (WO-03 court / Stage 2c seam).
+pub fn extract_pack_manifests(pack_tomls: &[&str]) -> Result<Vec<PackManifest>, Refusal> {
+    pack_tomls
+        .iter()
+        .map(|t| extract_pack_manifest(t))
+        .collect()
+}
+
+/// Project pack.toml documents to manifests and run kernel admission.
+pub fn resolve_sync_order_from_pack_tomls(
+    pack_tomls: &[&str], consumer: Option<&ConsumerEdges>,
+) -> Result<SyncPlan, Refusal> {
+    let manifests = extract_pack_manifests(pack_tomls)?;
+    resolve_sync_order(&manifests, consumer)
 }
 
 /// Extract [`ConsumerEdges`] from a consumer `ggen.toml` document (optional
