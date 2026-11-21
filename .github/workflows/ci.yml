@@ -136,7 +136,10 @@ jobs:
               ;;
             security_deep) cargo audit || echo '::warning::pre-existing RUSTSEC debt remains advisory' ;;
             docs_deep) git diff --check "$BASE"...HEAD ;;
-            lsp_deep) cargo check -p ggen-lsp --all-features ;;
+            lsp_deep)
+              cargo check -p ggen-lsp --all-features
+              cargo test -p ggen-lsp --features a2a --test a2a_lifecycle_hands_free_test
+              ;;
             *) echo "REFUSED:UNKNOWN_EVIDENCE_LANE:$LANE" >&2; exit 2 ;;
           esac
 

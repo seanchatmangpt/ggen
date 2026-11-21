@@ -26,6 +26,16 @@ class RouterTests(unittest.TestCase):
         report = errc_router.route(["crates/ggen-engine/tests/receipt.rs"])
         self.assertTrue(report.booleans["integration_deep"])
 
+    def test_ggen_lsp_routes_lsp_deep_not_integration(self) -> None:
+        report = errc_router.route(["crates/ggen-lsp/tests/a2a_lifecycle_hands_free_test.rs"])
+        self.assertTrue(report.booleans["lsp_deep"])
+        self.assertFalse(report.booleans["integration_deep"])
+
+    def test_ggen_mcp_lifecycle_routes_integration_deep(self) -> None:
+        report = errc_router.route(["crates/ggen-mcp/tests/mcp_lifecycle_e2e_test.rs"])
+        self.assertTrue(report.booleans["integration_deep"])
+        self.assertFalse(report.booleans["lsp_deep"])
+
     def test_workflow_only_is_not_product(self) -> None:
         report = errc_router.route([".github/workflows/random.yml"])
         self.assertTrue(report.booleans["ci_deep"])
