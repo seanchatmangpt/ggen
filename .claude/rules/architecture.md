@@ -23,7 +23,7 @@ v26.10.9; ggen-engine's Stage 2c gate) · `pm4pytest-cli` (`cargo` wrapper aroun
 
 Removed (ERRC 2026-08-12): `cpmp`, `openapi-cnv-reflect`, `genesis-{types,core}-v2`.
 
-**102 packs** (`packs/*/pack.toml`): agent/workflow codegen, TCPS production, constitutional/
+**101 packs** (`packs/*/pack.toml`): agent/workflow codegen, TCPS production, constitutional/
 DfCM, Fortune-5, domain catalogs, release/CI, diagrams. Full table: `ggen sync run`.
 
 **v26.10.20 engine surfaces**: `ggen court` noun + court module in `ggen-engine`
