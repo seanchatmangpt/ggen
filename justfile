@@ -183,12 +183,12 @@ test:
     echo "⚠️  First compile >30s, escalating to 600s..."
     timeout 600s cargo test --workspace --tests
 
-# Unit/lib tests inside each crate — same 30s→600s cold-compile escalation
+# Unit/lib tests inside each crate — same 30s→1200s cold-compile escalation
 # as `test` above (found 2026-07-21: a bare 30s timeout with no escalation
 # fired spuriously right after a target/ cache clear; the ggen-cheat-scanner
 # crate visible in the truncated output has zero tests and compiles
 # instantly -- the 30s was being spent compiling a LATER crate in the
-# workspace graph, not hanging).
+# workspace graph, not hanging). Cold CI can exceed 600s (mirror check bump).
 test-lib:
     #!/usr/bin/env bash
     set -euo pipefail
@@ -198,8 +198,8 @@ test-lib:
         status=$?
     fi
     [ "$status" -eq 124 ] || exit "$status"
-    echo "⚠️  First compile >30s, escalating to 600s..."
-    timeout 600s cargo test --lib --workspace
+    echo "⚠️  First compile >30s, escalating to 1200s..."
+    timeout 1200s cargo test --lib --workspace
 
 # MU3 lane: mutation-test the replay/determinism-critical sync.rs law functions.
 # Bounded at 40 min wall clock; kills must come from test-side oracles only

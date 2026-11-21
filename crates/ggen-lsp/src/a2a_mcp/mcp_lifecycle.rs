@@ -44,18 +44,24 @@ fn dot() -> String {
     ".".into()
 }
 
+fn lifecycle_err(e: LifecycleError) -> McpLifecycleError {
+    match e {
+        LifecycleError::Refused(s) => McpLifecycleError(s),
+    }
+}
+
 pub fn dry_run_result(p: LifecycleDryRunParams) -> Result<Value, McpLifecycleError> {
-    let r = dry_run(&p).map_err(|e| McpLifecycleError(e.0))?;
+    let r = dry_run(&p).map_err(lifecycle_err)?;
     Ok(serde_json::to_value(r).unwrap())
 }
 
 pub fn apply_result(p: LifecycleApplyParams) -> Result<Value, McpLifecycleError> {
-    let r = apply(&p).map_err(|e| McpLifecycleError(e.0))?;
+    let r = apply(&p).map_err(lifecycle_err)?;
     Ok(serde_json::to_value(r).unwrap())
 }
 
 pub fn receipt_verify_result(p: LifecycleReceiptVerifyParams) -> Result<Value, McpLifecycleError> {
-    let valid = receipt_verify(&p.root).map_err(|e| McpLifecycleError(e.0))?;
+    let valid = receipt_verify(&p.root).map_err(lifecycle_err)?;
     Ok(json!({ "valid": valid }))
 }
 

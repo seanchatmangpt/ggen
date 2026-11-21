@@ -40,7 +40,7 @@ jobs:
   test-lib:
     name: Test lib
     runs-on: ubuntu-24.04
-    timeout-minutes: 45
+    timeout-minutes: 60
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -100,6 +100,33 @@ jobs:
         with:
           components: rustfmt,clippy
           cache-key-suffix: pre-commit-gates
+      # gen:G5's gen:commit (19c0d371…) is orphan vs the squash merge on main
+      # (db978ed4…). fetch-depth:0 still misses it; fetch the pin explicitly so
+      # guard-generation-hash-pin's `git cat-file -e <sha>^{commit}` succeeds.
+      - name: Fetch gen:G5 hash-pin commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          PIN=$(awk '
+            /^gen:G5 a gen:Generation/ { in_g5=1 }
+            in_g5 && /gen:commit/ {
+              if (match($0, /"[0-9a-f]{40}"/)) {
+                print substr($0, RSTART+1, RLENGTH-2)
+                exit
+              }
+            }
+            in_g5 && /^\./ { exit }
+          ' .specify/generations.ttl)
+          if [ -z "${PIN}" ]; then
+            echo "ANDON: could not extract gen:G5 gen:commit from .specify/generations.ttl"
+            exit 1
+          fi
+          echo "Fetching gen:G5 pin ${PIN}"
+          # persist-credentials:false strips checkout auth; re-auth for this orphan fetch only.
+          AUTH=$(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)
+          git -c "http.https://github.com/.extraheader=AUTHORIZATION: basic ${AUTH}" \
+            fetch --depth=1 origin "${PIN}"
       - name: just jtbd-pre-commit-gates
         run: just jtbd-pre-commit-gates
 
