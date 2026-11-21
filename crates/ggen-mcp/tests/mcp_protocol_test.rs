@@ -185,17 +185,17 @@ fn handshake_advertises_identity_and_all_seventeen_tools() {
         "ggen_receipt_verify",
         "ggen_ea_plan",
         "ggen_ea_admit",
+        "ggen_ea_manufacture",
         "ggen_ea_verify_receipt",
-                "ggen_ea_manufacture",
         "ggen_ea_replay",
-"ggen_write_apply",
+        "ggen_write_apply",
     ] {
         assert!(
             names.contains(&expected.to_string()),
             "{expected} missing from {names:?}"
         );
     }
-    assert_eq!(names.len(), 15, "exactly fifteen tools, got {names:?}");
+    assert_eq!(names.len(), 17, "exactly seventeen tools, got {names:?}");
 }
 
 /// The annotation contract, verifiable only over the wire: every tool is

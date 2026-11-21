@@ -251,10 +251,11 @@ tool_defs! {
         "Run ggen_abb_sbb::replay with graph under root and inline receipt JSON.",
         tools::ea_replay::ea_replay
     ),
-        "ggen_ea_verify_receipt" => (
+    "ggen_ea_verify_receipt" => (
         tools::ea_verify_receipt::EaVerifyReceiptParams,
-        read_only("Verify an ABB/SBB manufacture receipt JSON file"),
-        "Validate a `ManufactureReceipt` via `ggen_abb_sbb::verify_receipt`. Read-only.",
+        read_only("Verify an ABB/SBB manufacture receipt"),
+        "Validate a `ManufactureReceipt` via `ggen_abb_sbb::verify_receipt` from inline \
+         `receipt` or `receipt_path`. Read-only.",
         tools::ea_verify_receipt::ea_verify_receipt
     ),
     "ggen_write_apply" => (
