@@ -24,9 +24,10 @@ timeout-check:
 
 # ── Compilation ───────────────────────────────────────────────────────────────
 
-# Check the whole workspace without building (fast feedback)
+# Check the whole workspace without building (fast feedback).
+# 600s: cold CI cache can exceed the old 300s cap (exit 124) while oxrocksdb builds.
 check:
-    timeout 300s cargo check --workspace
+    timeout 600s cargo check --workspace
 
 # Build the ggen CLI binary in debug mode
 build:
