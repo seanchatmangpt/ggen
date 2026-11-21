@@ -70,7 +70,7 @@ pub fn ea_plan_result(p: LifecycleEaPlanParams) -> Result<Value, McpLifecycleErr
     Ok(json!({
         "ok": true,
         "verb": "plan",
-        "result": decision,
+        "result": serde_json::to_value(&decision).map_err(|e| McpLifecycleError(e.to_string()))?,
     }))
 }
 
