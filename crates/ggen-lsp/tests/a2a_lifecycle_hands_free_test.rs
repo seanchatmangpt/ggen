@@ -14,7 +14,7 @@ use ggen_lsp::a2a_mcp::{
 };
 use serde_json::json;
 
-const EA_GRAPH_FIXTURE: &str = include_str!("../ggen-abb-sbb/fixtures/ea-graph.json");
+const EA_GRAPH_FIXTURE: &str = include_str!("../../ggen-abb-sbb/fixtures/ea-graph.json");
 
 fn scaffold(root: &Path) {
     std::fs::write(
