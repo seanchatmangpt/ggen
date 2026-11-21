@@ -14,6 +14,7 @@ pub struct ConstructParams {
     pub task_id: String,
     pub jtbd: String,
     pub avatar: String,
+    pub expected_graph_hash: String,
 }
 
 #[derive(Debug, Clone)]
