@@ -55,6 +55,10 @@ fn board_manufactures_a_real_loadable_consumer() {
         consumer.join("ontology.ttl").is_file(),
         "consumer needs the pack's ontology"
     );
+    assert!(
+        consumer.join("ea.graph.json").is_file(),
+        "consumer needs ea.graph.json so FM-LAW-015 does not refuse dry-run/apply"
+    );
 
     let (_, obs) = board.play(&probe("liveness", "mermaid-pack"));
     // The query must have actually executed against a real graph.
