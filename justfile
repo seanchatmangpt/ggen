@@ -519,9 +519,11 @@ slo-check:
 # heavy re-sync, report-only guard-pack-e2e-coverage) are deliberately out of
 # `jtbd-pre-commit-gates`; they remain on `just pre-commit` for local ratchet.
 
-# MCP in-process μ-sync lifecycle court (classify → check → ea → dry-run → apply → verify).
+# MCP courts: lifecycle e2e (μ-sync path), tool-surface parity, and stdio wire protocol.
 jtbd-mcp-lifecycle:
     cargo test -p ggen-mcp --test mcp_lifecycle_e2e_test
+    cargo test -p ggen-mcp --test tools_surface_parity_test
+    cargo test -p ggen-mcp --test mcp_protocol_test
 
 # A2A hands-free dry_run → apply → receipt_verify (confirm in args; no HITL).
 jtbd-a2a-hands-free:
