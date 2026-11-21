@@ -527,3 +527,49 @@ fn capability_status_omits_capabilities_key_when_no_pack_is_annotated() {
     assert!(got.ok);
     assert!(!got.inert_fields.is_empty());
 }
+
+#[test]
+fn doctor_tool_reports_healthy_unsynced_project() {
+    use ggen_mcp::tools::doctor::{doctor, DoctorParams};
+    use tempfile::TempDir;
+    let tmp = TempDir::new().expect("tempdir");
+    std::fs::write(
+        tmp.path().join("ggen.toml"),
+        "[project]\nname=\"t\"\n\n[ontology]\nsource=\"o.ttl\"\n\n[templates]\ndir=\"templates\"\n",
+    )
+    .unwrap();
+    std::fs::write(
+        tmp.path().join("o.ttl"),
+        "@prefix ex: <http://example.org/> .\n",
+    )
+    .unwrap();
+    let r = doctor(&DoctorParams {
+        root: tmp.path().display().to_string(),
+    })
+    .expect("doctor");
+    assert!(r.ok);
+}
+
+#[test]
+fn pack_compose_refuses_duplicate_capability() {
+    use ggen_mcp::tools::pack_compose::{pack_compose, PackComposeParams};
+    use tempfile::TempDir;
+    let tmp = TempDir::new().expect("tempdir");
+    for (n, u) in [("a", "urn:x"), ("b", "urn:x")] {
+        let d = tmp.path().join("packs").join(n);
+        std::fs::create_dir_all(&d).unwrap();
+        std::fs::write(
+            d.join("pack.toml"),
+            format!("[pack]\nname=\"{n}\"\nversion=\"0\"\n[capabilities]\nprovides=[\"{u}\"]\n"),
+        )
+        .unwrap();
+    }
+    let r = pack_compose(&PackComposeParams {
+        root: Some(tmp.path().display().to_string()),
+        packs: Some(vec!["a".into(), "b".into()]),
+        pack_dirs: None,
+    })
+    .expect("compose");
+    assert!(!r.ok);
+    assert!(r.refusal.unwrap().contains("duplicate capability"));
+}

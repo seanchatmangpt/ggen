@@ -44,6 +44,11 @@ Each tool below closes one of those.
 | `ggen_check_project` | What do the cross-surface `GGEN-*`/`E00xx` diagnostics say? *(fast, incomplete-by-design first pass — escalate to `ggen_sync_dry_run`/`ggen_receipt_verify` for what it can't see)* |
 | `ggen_rule_graph` | What rules exist, and what does each read and write? |
 | `ggen_capability_status` | Am I relying on a field that is accepted but not implemented? |
+| `ggen_pack_capabilities` | What does one pack directory declare? |
+| `ggen_pack_query` | SPARQL over the local pack registry |
+| `ggen_pack_compose` | Deterministic multi-pack composition plan |
+| `ggen_doctor` | Lockfile drift, orphans, receipt staleness |
+| `ggen_receipt_verify` | Sync receipt chain verification |
 | `ggen_write_apply` | *(the only destructive tool)* Apply the sync. |
 
 All are `readOnlyHint` except `ggen_write_apply`, which is `destructiveHint`
