@@ -14,3 +14,8 @@ pub(crate) mod skip_classify;
 pub mod sync_dry_run;
 pub mod unattended_dispatch;
 pub mod write_apply;
+
+pub mod ea_admit;
+pub mod ea_common;
+pub mod ea_plan;
+pub mod ea_verify_receipt;

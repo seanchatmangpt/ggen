@@ -102,6 +102,7 @@ fn legacy_pack_without_graph_table_stays_dependency_free() {
     let src = "[pack]\nname = \"legacy-pack\"\n";
     let m = extract_pack_manifest(src).expect("test fixture: constructed value cannot fail");
     assert_eq!(m.name, "legacy-pack");
+    assert!(m.depends_on.is_empty());
     assert!(m.provides.is_empty());
     assert!(m.requires.is_empty());
 }

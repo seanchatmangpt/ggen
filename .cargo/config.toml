@@ -19,6 +19,10 @@ rustflags = [
     "--remap-path-prefix=/tmp/detb4-yy/ggen=/ggen-src",
 ]
 
+[target.x86_64-unknown-linux-gnu]
+# rust-lld does not inherit g++'s libstdc++ search path when CXX=g++-13 (JTBD fresh VM).
+rustflags = ["-C", "link-arg=-L/usr/lib/gcc/x86_64-linux-gnu/13"]
+
 [term]
 # Always show colors
 color = "always"

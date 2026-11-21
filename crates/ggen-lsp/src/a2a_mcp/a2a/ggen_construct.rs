@@ -96,6 +96,12 @@ pub struct GgenConstructInput {
     /// Artifact packaging format.
     #[serde(default)]
     pub output_format: String,
+
+    #[serde(default)]
+    pub confirm: bool,
+
+    #[serde(default)]
+    pub expected_graph_hash: String,
 }
 
 /// Proof gate result (pass/fail).
@@ -283,6 +289,14 @@ pub fn execute(input: GgenConstructInput) -> GgenConstructOutput {
         );
     }
 
+    if let Err(message) = crate::a2a_mcp::lifecycle::corroborate_graph_hash(
+        &base_path,
+        &input.expected_graph_hash,
+        input.confirm,
+    ) {
+        return error_output(input, message);
+    }
+
     // Real μ₁–μ₅ actuation: load ggen.toml + ontology, enrich/extract, render
     // via Tera, write outputs, and chain a receipt (graphlaw-backed since
     // the praxis-core retirement, SJIRA-15) over the
@@ -381,6 +395,7 @@ fn error_output(input: GgenConstructInput, message: String) -> GgenConstructOutp
 /// Test module: unwrap()/expect() acceptable after validating JSON structure in tests.
 mod tests {
     use super::*;
+    use ggen_engine::sync::{sync, SyncOptions};
 
     #[test]
     fn test_tool_definition_valid_schema() {
@@ -435,7 +450,25 @@ mod tests {
             ontology_uri,
             target_language: "rust".to_string(),
             output_format: "source".to_string(),
+            confirm: false,
+            expected_graph_hash: String::new(),
         }
+    }
+
+    fn input_gated(root: &std::path::Path, ontology_uri: String) -> GgenConstructInput {
+        let hash = sync(
+            root,
+            SyncOptions {
+                dry_run: true,
+                ..Default::default()
+            },
+        )
+        .expect("dry_run preflight for CP17 gate")
+        .graph_hash_hex;
+        let mut input = input_for(ontology_uri);
+        input.confirm = true;
+        input.expected_graph_hash = hash;
+        input
     }
 
     /// Chicago: real project on disk, real μ₁–μ₅ pipeline, real output file
@@ -446,7 +479,7 @@ mod tests {
         let (_dir, root) = scaffold_project();
         let ontology_uri = root.join("ontology.ttl").display().to_string();
 
-        let output = execute(input_for(ontology_uri));
+        let output = execute(input_gated(&root, ontology_uri));
 
         assert_eq!(output.status, "success", "message: {}", output.message);
         let result = output.result.expect("success must carry a result payload");
@@ -563,6 +596,8 @@ mod tests {
             ontology_uri: ".specify/myapp.ttl".to_string(),
             target_language: "rust".to_string(),
             output_format: "source".to_string(),
+            confirm: false,
+            expected_graph_hash: String::new(),
         };
 
         let output = execute(input);
@@ -581,6 +616,8 @@ mod tests {
             ontology_uri: "".to_string(),
             target_language: "rust".to_string(),
             output_format: "source".to_string(),
+            confirm: false,
+            expected_graph_hash: String::new(),
         };
 
         let output = execute(input);
@@ -590,13 +627,39 @@ mod tests {
         assert!(output.message.contains("ontology_uri"));
     }
 
+    #[test]
+    fn ungated_construct_refuses_without_confirm_cp17() {
+        let (_dir, root) = scaffold_project();
+        let ontology_uri = root.join("ontology.ttl").display().to_string();
+        let mut input = input_gated(&root, ontology_uri);
+        input.confirm = false;
+
+        let output = execute(input);
+        assert_eq!(output.status, "error");
+        assert!(output.message.contains("MISSING_CONFIRM"));
+        assert!(!root.join("generated/hello.txt").exists());
+    }
+
+    #[test]
+    fn ungated_construct_refuses_without_graph_hash_cp17() {
+        let (_dir, root) = scaffold_project();
+        let ontology_uri = root.join("ontology.ttl").display().to_string();
+        let mut input = input_for(ontology_uri);
+        input.confirm = true;
+
+        let output = execute(input);
+        assert_eq!(output.status, "error");
+        assert!(output.message.contains("MISSING_GRAPH_HASH"));
+        assert!(!root.join("generated/hello.txt").exists());
+    }
+
     /// Even with empty (defaultable) language/format, the pipeline still runs
     /// for a real project — defaults do not unlock or block real construction.
     #[test]
     fn test_execute_defaults_run_real_pipeline() {
         let (_dir, root) = scaffold_project();
         let ontology_uri = root.join("ontology.ttl").display().to_string();
-        let mut input = input_for(ontology_uri);
+        let mut input = input_gated(&root, ontology_uri);
         input.target_language = String::new();
         input.output_format = String::new();
 
