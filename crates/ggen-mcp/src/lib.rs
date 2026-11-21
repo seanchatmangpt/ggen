@@ -4,7 +4,7 @@
 //! ggen's entire CLI is ten whole-pipeline verbs, none of which can run a
 //! SPARQL query, enumerate the legal frontmatter keys, or report why a
 //! template was skipped. This crate is that missing introspection surface:
-//! ten tools, read-only except one, over stdio.
+//! fourteen tools, read-only except one, over stdio.
 //!
 //! Design notes that are load-bearing rather than incidental:
 //!
@@ -216,6 +216,18 @@ tool_defs! {
          installed (pack_id omitted). Distinct from ggen_query_preview, which queries \
          a project's own graph, not the marketplace.",
         tools::pack_query::pack_query
+    ),
+    "ggen_pack_compose" => (
+        tools::pack_compose::PackComposeParams,
+        read_only("Compose packs into a deterministic plan"),
+        "Run the same deterministic composition kernel as `ggen pack compose` over          named packs (corpus + project `packs/`), explicit pack directories, or packs          declared in `ggen.toml`. Returns plan JSON or a typed refusal.",
+        tools::pack_compose::pack_compose
+    ),
+    "ggen_doctor" => (
+        tools::doctor::DoctorParams,
+        read_only("Run ggen doctor run integrity checks"),
+        "Lockfile/pack drift, orphaned artifacts, and receipt-vs-disk staleness.          Does not cover `doctor inspect` or `doctor domain`.",
+        tools::doctor::doctor
     ),
     "ggen_receipt_verify" => (
         tools::receipt_verify::ReceiptVerifyParams,

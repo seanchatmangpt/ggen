@@ -1,9 +1,11 @@
 pub mod capability_status;
 pub mod check_project;
+pub mod doctor;
 pub mod config_classify;
 pub mod frontmatter_lint;
 pub mod frontmatter_schema;
 pub mod pack_capabilities;
+pub mod pack_compose;
 pub mod pack_query;
 pub(crate) mod protected_paths;
 pub mod query_preview;

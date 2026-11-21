@@ -40,6 +40,8 @@ const EXPECTED_TOOLS: &[&str] = &[
     "ggen_capability_status",
     "ggen_pack_capabilities",
     "ggen_pack_query",
+    "ggen_pack_compose",
+    "ggen_doctor",
     "ggen_receipt_verify",
     "ggen_write_apply",
 ];
