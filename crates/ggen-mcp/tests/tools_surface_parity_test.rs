@@ -41,6 +41,9 @@ const EXPECTED_TOOLS: &[&str] = &[
     "ggen_pack_capabilities",
     "ggen_pack_query",
     "ggen_receipt_verify",
+    "ggen_ea_plan",
+    "ggen_ea_admit",
+    "ggen_ea_verify_receipt",
     "ggen_write_apply",
 ];
 
