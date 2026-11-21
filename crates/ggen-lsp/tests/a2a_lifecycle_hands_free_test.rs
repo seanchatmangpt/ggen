@@ -4,6 +4,7 @@
 
 use std::path::Path;
 
+use ggen_lsp::a2a_mcp::a2a::ggen_construct::{execute, GgenConstructInput};
 use ggen_lsp::a2a_mcp::lifecycle::{
     apply, dry_run, receipt_verify, LifecycleApplyParams, LifecycleDryRunParams,
 };
@@ -62,6 +63,24 @@ fn apply_refuses_without_confirm() {
 }
 
 #[test]
+fn apply_refuses_graph_hash_mismatch() {
+    let dir = tempfile::tempdir().unwrap();
+    scaffold(dir.path());
+    let root_s = dir.path().display().to_string();
+    let dry = dry_run(&LifecycleDryRunParams {
+        root: root_s.clone(),
+    })
+    .expect("dry_run");
+    let err = apply(&LifecycleApplyParams {
+        root: root_s,
+        confirm: true,
+        expected_graph_hash: format!("{}deadbeef", dry.graph_hash),
+    })
+    .unwrap_err();
+    assert!(err.to_string().contains("mismatch"));
+}
+
+#[test]
 fn lifecycle_dry_run_apply_verify_without_hitl() {
     let dir = tempfile::tempdir().unwrap();
     let root = dir.path();
@@ -78,12 +97,54 @@ fn lifecycle_dry_run_apply_verify_without_hitl() {
     let applied = apply(&LifecycleApplyParams {
         root: root_s.clone(),
         confirm: true,
-        expected_graph_hash: dry.graph_hash,
+        expected_graph_hash: dry.graph_hash.clone(),
     })
     .expect("apply");
     assert!(applied.write_count > 0);
+    assert_eq!(applied.graph_hash, dry.graph_hash);
+    let names = std::fs::read_to_string(root.join("out/names.txt")).expect("names output");
+    assert!(names.trim().contains("alice"));
     assert!(root.join(".ggen-v2/receipt.json").exists());
+    assert_eq!(applied.receipt_path, ".ggen-v2/receipt.json");
     assert!(receipt_verify(&root_s).expect("verify"));
+}
+
+#[test]
+fn construct_hands_free_requires_prior_dry_run_hash() {
+    let dir = tempfile::tempdir().unwrap();
+    scaffold(dir.path());
+    let root_s = dir.path().display().to_string();
+    let dry = dry_run(&LifecycleDryRunParams {
+        root: root_s.clone(),
+    })
+    .expect("dry_run");
+
+    let refused = execute(GgenConstructInput {
+        task_id: "00000000-0000-4000-8000-000000000001".into(),
+        jtbd: "names artifact".into(),
+        avatar: "jtbd-court".into(),
+        ontology_uri: dir.path().join("ontology.ttl").display().to_string(),
+        target_language: "text".into(),
+        output_format: "source".into(),
+        confirm: false,
+        expected_graph_hash: dry.graph_hash.clone(),
+    });
+    assert_eq!(refused.status, "error");
+    assert!(refused.message.contains("confirm"));
+
+    let ok = execute(GgenConstructInput {
+        task_id: "00000000-0000-4000-8000-000000000002".into(),
+        jtbd: "names artifact".into(),
+        avatar: "jtbd-court".into(),
+        ontology_uri: dir.path().join("ontology.ttl").display().to_string(),
+        target_language: "text".into(),
+        output_format: "source".into(),
+        confirm: true,
+        expected_graph_hash: dry.graph_hash,
+    });
+    assert_eq!(ok.status, "success", "{}", ok.message);
+    let result = ok.result.expect("construct success carries result");
+    assert!(dir.path().join(&result.artifact_path).exists());
 }
 
 #[test]
@@ -96,11 +157,16 @@ fn dispatch_lifecycle_wire_matches_direct_handlers() {
         .expect("dispatch dry_run");
     let hash = dry["graph_hash"].as_str().expect("hash");
 
-    dispatch_lifecycle_tool(
+    let applied = dispatch_lifecycle_tool(
         "ggen.lifecycle.apply",
         &json!({ "root": root, "confirm": true, "expected_graph_hash": hash }),
     )
     .expect("dispatch apply");
+    assert!(
+        applied["write_count"].as_u64().is_some_and(|n| n > 0),
+        "{applied:?}"
+    );
+    assert!(dir.path().join("out/names.txt").exists());
 
     let verify = dispatch_lifecycle_tool("ggen.lifecycle.receipt_verify", &json!({ "root": root }))
         .expect("dispatch verify");
@@ -113,6 +179,7 @@ fn dispatch_lifecycle_wire_matches_direct_handlers() {
     })
     .expect("ea_plan");
     assert_eq!(plan["ok"], json!(true));
+    assert!(plan["result"].is_object());
 
     let admit = ea_admit_result(LifecycleEaAdmitParams {
         graph: Some(dir.path().join("ea.graph.json").display().to_string()),
@@ -125,4 +192,5 @@ fn dispatch_lifecycle_wire_matches_direct_handlers() {
     })
     .expect("ea_admit");
     assert_eq!(admit["ok"], json!(true));
+    assert_eq!(admit["result"]["sbb"], json!("sbb:ingest-0000"));
 }
