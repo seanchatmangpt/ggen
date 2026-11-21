@@ -126,6 +126,25 @@ fn write_apply_refuses_without_confirm_or_hash_on_same_fixture() {
     write_frontmatter_project(tmp.path());
     std::fs::write(tmp.path().join("ea.graph.json"), EA_GRAPH_FIXTURE).expect("ea graph");
     let root = root_str(&tmp);
+    let _plan = ea_plan(&EaPlanParams {
+        root: root.clone(),
+        graph_path: None,
+        abb: None,
+        authority: Some("SELECT".to_string()),
+    })
+    .expect("ea_plan");
+    let admit = ea_admit(&EaAdmitParams {
+        root: root.clone(),
+        graph_path: None,
+        abb: None,
+        sbb: Some("sbb:ingest-0000".to_string()),
+        authority: Some("CONSTRUCT".to_string()),
+        expected_graph_digest: None,
+        generation: None,
+        baseline_generation: None,
+    })
+    .expect("ea_admit");
+    assert!(admit.ok, "admit must succeed before dry run");
     let dry = sync_dry_run(&SyncDryRunParams { root: root.clone() }).expect("dry");
 
     let no_confirm = write_apply(&WriteApplyParams::new(
