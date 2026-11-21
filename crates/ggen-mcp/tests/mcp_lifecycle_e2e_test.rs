@@ -17,10 +17,10 @@ use std::path::Path;
 
 use common::write_frontmatter_project;
 
-use ggen_mcp::tools::ea_admit::{ea_admit, EaAdmitParams};
-use ggen_mcp::tools::ea_plan::{ea_plan, EaPlanParams};
 use ggen_mcp::tools::check_project::{check_project, CheckProjectParams};
 use ggen_mcp::tools::config_classify::{config_classify, ConfigClassifyParams};
+use ggen_mcp::tools::ea_admit::{ea_admit, EaAdmitParams};
+use ggen_mcp::tools::ea_plan::{ea_plan, EaPlanParams};
 use ggen_mcp::tools::receipt_verify::{receipt_verify, ReceiptVerifyParams};
 use ggen_mcp::tools::sync_dry_run::{sync_dry_run, SyncDryRunParams};
 use ggen_mcp::tools::write_apply::{write_apply, WriteApplyParams};
@@ -65,7 +65,9 @@ fn full_mcp_tool_lifecycle_in_process() {
     })
     .expect("ea_plan");
     assert!(plan.ok);
-    let decision = plan.decision.expect("admitted plan must carry decision JSON");
+    let decision = plan
+        .decision
+        .expect("admitted plan must carry decision JSON");
     assert!(decision.get("sbb").is_some() || decision.get("abb").is_some());
 
     let admit = ea_admit(&EaAdmitParams {
@@ -80,18 +82,15 @@ fn full_mcp_tool_lifecycle_in_process() {
     })
     .expect("ea_admit");
     assert!(admit.ok);
-    let admitted = admit.admitted.expect("admit ok must carry admitted payload");
+    let admitted = admit
+        .admitted
+        .expect("admit ok must carry admitted payload");
     assert_eq!(admitted["sbb"], json!("sbb:ingest-0000"));
-    assert!(
-        admitted["graph_digest"]
-            .as_str()
-            .is_some_and(|d| !d.is_empty())
-    );
+    assert!(admitted["graph_digest"]
+        .as_str()
+        .is_some_and(|d| !d.is_empty()));
 
-    let dry = sync_dry_run(&SyncDryRunParams {
-        root: root.clone(),
-    })
-    .expect("dry run");
+    let dry = sync_dry_run(&SyncDryRunParams { root: root.clone() }).expect("dry run");
     assert!(!dry.graph_hash.is_empty());
     assert!(dry.write_count >= 1);
     assert!(
@@ -115,10 +114,8 @@ fn full_mcp_tool_lifecycle_in_process() {
     assert!(body.contains("alice"));
     assert!(body.contains("bob"));
 
-    let receipt = receipt_verify(&ReceiptVerifyParams {
-        root: root.clone(),
-    })
-    .expect("receipt_verify");
+    let receipt =
+        receipt_verify(&ReceiptVerifyParams { root: root.clone() }).expect("receipt_verify");
     assert!(receipt.valid, "{receipt:?}");
     assert!(Path::new(&tmp.path().join(".ggen-v2/receipt.json")).exists());
 }
@@ -130,8 +127,12 @@ fn write_apply_refuses_without_confirm_or_hash_on_same_fixture() {
     let root = root_str(&tmp);
     let dry = sync_dry_run(&SyncDryRunParams { root: root.clone() }).expect("dry");
 
-    let no_confirm = write_apply(&WriteApplyParams::new(root.clone(), false, dry.graph_hash.clone()))
-        .expect_err("confirm:false must refuse");
+    let no_confirm = write_apply(&WriteApplyParams::new(
+        root.clone(),
+        false,
+        dry.graph_hash.clone(),
+    ))
+    .expect_err("confirm:false must refuse");
     assert!(
         no_confirm.message.contains("confirm"),
         "refusal must name confirm: {:?}",
