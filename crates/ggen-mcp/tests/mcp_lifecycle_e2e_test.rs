@@ -17,10 +17,10 @@ use std::path::Path;
 
 use common::write_frontmatter_project;
 
-use ggen_mcp::tools::ea_admit::{ea_admit, EaAdmitParams};
-use ggen_mcp::tools::ea_plan::{ea_plan, EaPlanParams};
 use ggen_mcp::tools::check_project::{check_project, CheckProjectParams};
 use ggen_mcp::tools::config_classify::{config_classify, ConfigClassifyParams};
+use ggen_mcp::tools::ea_admit::{ea_admit, EaAdmitParams};
+use ggen_mcp::tools::ea_plan::{ea_plan, EaPlanParams};
 use ggen_mcp::tools::receipt_verify::{receipt_verify, ReceiptVerifyParams};
 use ggen_mcp::tools::sync_dry_run::{sync_dry_run, SyncDryRunParams};
 use ggen_mcp::tools::write_apply::{write_apply, WriteApplyParams};
@@ -82,12 +82,8 @@ fn full_mcp_tool_lifecycle_in_process() {
     .expect("dry run");
     assert!(!dry.graph_hash.is_empty());
 
-    let apply = write_apply(&WriteApplyParams::new(
-        root_str(&tmp),
-        true,
-        dry.graph_hash,
-    ))
-    .expect("write_apply");
+    let apply = write_apply(&WriteApplyParams::new(root_str(&tmp), true, dry.graph_hash))
+        .expect("write_apply");
     assert!(apply.ok);
     assert!(tmp.path().join("out/names.txt").exists());
 

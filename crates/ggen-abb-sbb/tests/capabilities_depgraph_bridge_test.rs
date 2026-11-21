@@ -4,9 +4,7 @@
 
 #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 
-use ggen_abb_sbb::depgraph::{
-    extract_pack_manifest, resolve_sync_order, PackManifest,
-};
+use ggen_abb_sbb::depgraph::{extract_pack_manifest, resolve_sync_order, PackManifest};
 use std::collections::BTreeSet;
 
 fn manifest(name: &str) -> PackManifest {
