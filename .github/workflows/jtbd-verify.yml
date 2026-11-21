@@ -1,0 +1,81 @@
+# Minimal JTBD CI — format, compile, MCP lifecycle court, A2A lifecycle court.
+# No legacy workflow routers or inherited job matrices.
+
+name: JTBD verify
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: jtbd-verify-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+
+jobs:
+  format-gate:
+    name: format (just fmt-check)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1635ceea3e43724112d50571f2 # v4.2.2
+      - uses: dtolnay/rust-toolchain@b3b07ba8b418998c39fb20f53e8b695cdcc8de1b
+        with:
+          components: rustfmt
+      - uses: extractions/setup-just@v2
+      - uses: Swatinem/rust-cache@a72605b362aa118fecdfb2135cb78126dfe9a2c # v2.7.5
+      - name: just fmt-check
+        run: just fmt-check
+
+  workspace-check:
+    name: compile (just check)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1635ceea3e43724112d50571f2 # v4.2.2
+      - uses: dtolnay/rust-toolchain@b3b07ba8b418998c39fb20f53e8b695cdcc8de1b
+      - uses: extractions/setup-just@v2
+      - uses: Swatinem/rust-cache@a72605b362aa118fecdfb2135cb78126dfe9a2c # v2.7.5
+      - name: just check
+        run: just check
+
+  mcp-jtbd:
+    name: MCP lifecycle court
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1635ceea3e43724112d50571f2 # v4.2.2
+      - uses: dtolnay/rust-toolchain@b3b07ba8b418998c39fb20f53e8b695cdcc8de1b
+      - uses: Swatinem/rust-cache@a72605b362aa118fecdfb2135cb78126dfe9a2c # v2.7.5
+        with:
+          workspaces: |
+            .
+            crates/ggen-mcp
+      - name: MCP JTBD integration tests
+        run: |
+          cargo test -p ggen-mcp \
+            --test mcp_lifecycle_e2e_test \
+            --test tools_surface_parity_test \
+            --test mcp_protocol_test
+
+  a2a-jtbd:
+    name: A2A lifecycle court
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1635ceea3e43724112d50571f2 # v4.2.2
+      - uses: dtolnay/rust-toolchain@b3b07ba8b418998c39fb20f53e8b695cdcc8de1b
+      - uses: Swatinem/rust-cache@a72605b362aa118fecdfb2135cb78126dfe9a2c # v2.7.5
+        with:
+          workspaces: |
+            .
+            crates/ggen-lsp
+      - name: A2A JTBD integration test
+        run: cargo test -p ggen-lsp --features a2a --test a2a_lifecycle_hands_free_test
