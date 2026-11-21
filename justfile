@@ -511,6 +511,28 @@ slo-check:
 
     echo "✅ Phase 1 + Phase 2 SLO checks complete"
 
+# ── JTBD CI lanes (wired by .github/workflows/ci.yml) ─────────────────────────
+#
+# First-principles CI calls these recipes — not ad-hoc cargo lines — so local
+# and hosted evidence share one entry point. Known-red pre-commit members
+# (guard-cheat-scan / TECH-DEBT-001, lint / TECH-DEBT-002, guard-pack-proofs
+# heavy re-sync, report-only guard-pack-e2e-coverage) are deliberately out of
+# `jtbd-pre-commit-gates`; they remain on `just pre-commit` for local ratchet.
+
+# MCP in-process μ-sync lifecycle court (classify → check → ea → dry-run → apply → verify).
+jtbd-mcp-lifecycle:
+    cargo test -p ggen-mcp --test mcp_lifecycle_e2e_test
+
+# A2A hands-free dry_run → apply → receipt_verify (confirm in args; no HITL).
+jtbd-a2a-hands-free:
+    cargo test -p ggen-lsp --features a2a --test a2a_lifecycle_hands_free_test
+
+# Pre-commit subset that matters for PR gating (excludes known-red / heavy legs).
+jtbd-pre-commit-gates: fmt-check coherence-check guard-process-intelligence-boundary guard-short-test-timeout guard-fail-open-subprocess guard-claims-schema guard-generation-hash-pin guard-pack-count guard-gate-count guard-ggen-toml-schema-parity self-play court-canonical court-vacuity court-envelope court-typed-refusal court-fresh-epoch
+    #!/usr/bin/env bash
+    set -euo pipefail
+    echo "✅ JTBD pre-commit gates complete"
+
 # ── Quality gates ─────────────────────────────────────────────────────────────
 
 # Full pre-commit gate, in sequence, fail fast. The dependency list on the recipe line below

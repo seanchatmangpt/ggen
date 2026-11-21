@@ -14,8 +14,8 @@ Per-file checks (one PASS/FAIL line per file):
      full 40-char hex commit SHA. `@v4` / `@main` / `@<branch>` → FAIL.
 
 Repo-wide (cross-file) checks (one PASS/FAIL line each, after the per-file pass):
-  A. PR-TRIGGER SCOPE — exactly the 4 core workflows (ci.yml, quality.yml,
-     docs.yml, example-tpot2.yml) may carry an `on: pull_request:` trigger.
+  A. PR-TRIGGER SCOPE — exactly the core gating workflow (ci.yml) may carry an unfiltered
+     `on: pull_request:` trigger.
      Any other workflow with a real `pull_request:` trigger → FAIL. (String
      mentions of `pull_request` inside `if:`/`github.event_name` guards are NOT
      triggers and are ignored — only the `on:` block is inspected.)
@@ -52,18 +52,13 @@ except Exception:  # pragma: no cover - depends on runner env
 # .github/CI_ARCHITECTURE.md / CI_CONVENTIONS.md / CI_TEARDOWN.md).          #
 # --------------------------------------------------------------------------- #
 
-# These four core workflows may carry an UNFILTERED `on: pull_request:`
-# trigger (no `paths:` restriction -- they are meant to gate every PR).
-# Every OTHER workflow may also trigger on `pull_request`, but only if that
-# trigger carries a `paths:` filter scoping it to a specific pack/example/
-# doc set -- narrow-scoped PR triggers on pack-specific workflows are this
-# repo's real, working, intentional convention (confirmed 2026-08-07: all
-# 50 non-core workflows with a `pull_request` trigger already do this; zero
-# have an unfiltered one). The OLD version of this rule ("only these 4 may
-# trigger on pull_request at all") was stale prose that the actual, working
-# CI never followed -- see .github/CI_CONVENTIONS.md section 10.
+# The sole core gating workflow (ci.yml) may carry an UNFILTERED
+# `on: pull_request:` trigger. Every OTHER workflow may also trigger on
+# `pull_request`, but only with a `paths:` filter. First-principles CI
+# rewrite (2026-11-21): quality.yml / docs.yml / example-tpot2.yml were
+# deleted with the legacy workflow sprawl.
 PR_GATING_WORKFLOWS = frozenset(
-    {"ci.yml", "quality.yml", "docs.yml", "example-tpot2.yml"}
+    {"ci.yml"}
 )
 
 # The single required aggregate job in ci.yml. The advisory lsp-trio job
@@ -439,10 +434,9 @@ def pull_request_trigger_has_paths_filter(lines: list[str]) -> bool:
 
 
 def check_pr_trigger_scope(files: list[Path]) -> tuple[bool, list[str]]:
-    """A. The 4 core workflows may trigger on every `pull_request` (no
-    `paths:` filter required). Every other workflow may ALSO trigger on
-    `pull_request`, but only with a `paths:` filter scoping it to its own
-    pack/example/doc set -- narrow, not repo-wide.
+    """A. Core gating workflow(s) in PR_GATING_WORKFLOWS may trigger on every
+    `pull_request` (no `paths:` filter required). Every other workflow may
+    ALSO trigger on `pull_request`, but only with a `paths:` filter.
     """
     problems: list[str] = []
     for path in files:
@@ -454,7 +448,7 @@ def check_pr_trigger_scope(files: list[Path]) -> tuple[bool, list[str]]:
         if not pull_request_trigger_has_paths_filter(lines):
             problems.append(
                 f"{path.name}: has an unfiltered `on: pull_request:` trigger "
-                f"(no `paths:` key) but is not one of the 4 core PR-gating "
+                f"(no `paths:` key) but is not one of the core PR-gating "
                 f"workflows ({', '.join(sorted(PR_GATING_WORKFLOWS))}) -- "
                 f"either scope it to a `paths:` filter or add it to "
                 f"PR_GATING_WORKFLOWS if it's meant to gate every PR"
