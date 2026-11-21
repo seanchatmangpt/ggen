@@ -69,7 +69,7 @@ pub fn pack_compose(params: &PackComposeParams) -> Result<PackComposeResult, Mcp
     }
     let mut seen = BTreeSet::new();
     for n in &pack_names {
-        if !seen.insert(n.as_str()) {
+        if !seen.insert(n.clone()) {
             return Err(McpError::new(
                 ErrorCategory::SyntaxError,
                 format!("duplicate pack '{n}'"),
@@ -163,7 +163,8 @@ fn corpus_roots() -> Vec<PathBuf> {
 
 fn workspace_packs() -> Option<PathBuf> {
     let m = std::env::var("CARGO_MANIFEST_DIR").ok()?;
-    let ws = PathBuf::from(m).parent()?.parent()?;
+    let manifest = PathBuf::from(m);
+    let ws = manifest.parent()?.parent()?;
     let p = ws.join("packs");
     p.is_dir().then_some(p)
 }
