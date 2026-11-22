@@ -6,8 +6,8 @@
 | Companion | `ECOSYSTEM-SPEC-27.1.1` (economic-ops / Gate-0–Plane-5 adjacent) |
 | Target GA | **2027-01-01** |
 | Materialized | 2026-11-22 |
-| Observed ggen tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `1cedf846563fe7d90e56a61a4e6cf4cc08111bba` (tip-wins honesty reapply after CASTLE absorb `1cedf8465` on `1f335ea82`; sibling pin `fa2c782de` was NOT on crown; lineage ⊇ `1f335ea82`/`e73bf686c`/`27436608c`; smalt evidence unchanged) |
-| Observed smalt tip | FinOps `91997da76f0f356dc2be914bdb0a5b8227518719` (parent `875efbb87bde8422236cf9db7224412962dbc5a7`; 4-cloud courts `bc-ad9ebffa` + retry `bc-1e876087`) |
+| Observed ggen tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `f5f44571f9a331d46e2895657621b7efd7127f1b` (tip-wins absorb of sidebranch `cd28efed7` / `cursor/v2711-smalt-ga-residual-bc54`; crown ⊇ OOR retip11 `f5f44571f`/`96444e302` + CASTLE wire absorb `b01224bfa`/`05c4d69b5` + ui_layout `6a3a623ba` + Smalt tip-wins `a40338aea`/`1cedf8465`; smalt evidence pin held). |
+| Observed smalt tip | FinOps `91997da76f0f356dc2be914bdb0a5b8227518719` on smalt `cursor/v2711-smalt-finops-test-bc54` (parent `875efbb87bde8422236cf9db7224412962dbc5a7` = smalt `main` @ probe; 4-cloud courts `bc-ad9ebffa` + retry `bc-1e876087`) |
 | Crown standing (from ggen) | **PARTIAL_ALIVE** (full RAID / remaining GA economic face / b4b still open) — **6-column spine ALIVE**: doctor/aws/gcp/azure/twilio exits **0,0,0,0,0** @ `875efbb87`; `fin_ops` **ALIVE** @ `91997da76f0f` (`mix test test/fin_ops_calculator_test.exs` → exit **0**, **19 passed**). Never invent full RAID / Foundry crown `ALIVE`. |
 
 Standing vocabulary: `UNKNOWN` | `PARTIAL_ALIVE` | `ALIVE` | `BLOCKED` | `BUILD_BROKEN` | `UNSUPPORTED` | `REFUSED_*`.
@@ -128,14 +128,33 @@ mix test test/fin_ops_calculator_test.exs
 # → exit 0 (19 passed) ⇒ standing ALIVE
 ```
 
-### 4.3 Next exact verifier (remaining GA economic face)
+### 4.3 Next exact verifier (remaining GA economic face / b4b)
+
+Register + module surface is **PRESENT** @ `91997da76f0f` (clone + GitHub
+blob probe 2026-11-22 on `cursor/v2711-smalt-ga-residual-bc54`). KD docs
+themselves still say **UNVERIFIED** / SOURCE-CHECK **PARTIAL** — do **not**
+promote from presence. Mix/Elixir **ABSENT** in the ggen cloud env → live
+b4b courts **UNSUPPORTED** here (exact next is the sibling mount below).
+
+Admitted residual courts (GA economic face named by `docs/b4b/**`):
+
+| Plane | KD register | Module path | Module court | Register standing @ pin |
+|-------|-------------|-------------|--------------|-------------------------|
+| P1 Treasury | `docs/b4b/KD-P1-TREASURY.md` | `lib/smalt/treasury/**` **PRESENT** | `mix test test/treasury/treasury_test.exs` (+ vectors) | KD **UNVERIFIED** |
+| P3 Tax | `docs/b4b/KD-P3-TAX.md` | `lib/smalt/taxsanctions/**` **PRESENT** | `mix test test/taxsanctions/taxsanctions_test.exs` (+ vectors) | KD **UNVERIFIED** |
+| P5 ERP | `docs/b4b/KD-P5-ERP.md` | `lib/smalt/erp/**` **PRESENT** | `mix test test/erp/erp_test.exs` (+ vectors) | KD **UNVERIFIED** |
+| P10 Rates | `docs/b4b/KD-P10-RATES.md` | `lib/smalt/rates/**` **PRESENT** | `mix test test/rates/rates_test.exs` (+ vectors) | KD **UNVERIFIED** |
 
 ```text
-# After FinOps ALIVE, remaining GA economic face / b4b planes named by the
-# register still require HEAD-pinned green courts (or typed REFUSED_*):
-# 1. Admit remaining b4b / ERP face courts from the GA economic-ops register
-# 2. Run each named court → exit 0
-# 3. Cite HEAD SHA + exit 0 in this ledger before any full RAID ALIVE promotion
+cd /path/to/smalt   # tip 91997da76f0f356dc2be914bdb0a5b8227518719 (or newer HEAD that contains it)
+# Remaining GA economic face / b4b — each must exit 0 (or typed REFUSED_*):
+mix test test/treasury/treasury_test.exs
+mix test test/taxsanctions/taxsanctions_test.exs
+mix test test/erp/erp_test.exs
+mix test test/rates/rates_test.exs
+# Optional vector overlays (fixture-shape; loud [SKIP] only when module ABSENT):
+mix test test/treasury_vectors test/taxsanctions_vectors test/erp_vectors test/rates_vectors
+# Cite HEAD SHA + exit 0 / pass counts in this ledger before full RAID ALIVE
 ```
 
 Promotion rule:
@@ -146,8 +165,8 @@ Promotion rule:
 3. Four-cloud exits **0** + FinOps **ALIVE** without remaining GA economic face =
    **PARTIAL_ALIVE** only (FinOps closed; RAID crown not sealed).
 4. Full RAID / economic-ops `ALIVE` requires FinOps court exit **0** **and**
-   any remaining GA economic face named by the register — never from ggen
-   alone.
+   the four b4b plane courts above green (or typed `REFUSED_*`) — never from
+   ggen alone, never from module/`docs/b4b` presence alone.
 
 Until remaining GA economic face is green (or typed `REFUSED_*`), any ggen
 claim of full RAID / economic-ops `ALIVE` is `REFUSED_UNGROUNDED`. FinOps
@@ -195,7 +214,33 @@ rg -i -n '\bRAID\b|4-cloud|economic.?ops' \
 | This-env light probe | mix courts **UNSUPPORTED** here (no cargo / no smalt mount; ui_layout owns oxrocksdb) — does **not** demote sibling authority |
 | 6-column spine standing | **ALIVE** (doctor/aws/gcp/azure/twilio/fin_ops) |
 | Ledger crown | **PARTIAL_ALIVE** — full RAID / remaining GA economic face / b4b / Foundry crown **not** `ALIVE` |
-| Next verifier | §4.3 remaining GA economic face / b4b courts |
+| Next verifier | §4.3 four-plane b4b mix courts (treasury/tax/erp/rates) — residual courts **UNKNOWN**; mix **UNSUPPORTED** here |
+
+---
+
+## 6a. GA residual probe (2026-11-22 — b4b register / economic face)
+
+Sidebranch `cursor/v2711-smalt-ga-residual-bc54` @ `cd28efed7` branched from
+crown tip `6a3a623bacd33efdc1ec7efccf6a35141662ca53` (**no** crown push then);
+tip-wins absorbed onto crown `f5f44571f9a331d46e2895657621b7efd7127f1b`
+without dropping OOR retip11 / CASTLE wire content. Smalt sibling reachable via
+GitHub + shallow clone (not a ggen workspace mount).
+
+| Field | Value |
+|-------|-------|
+| Observed ggen tip (probe) | `6a3a623bacd33efdc1ec7efccf6a35141662ca53` (sidebranch base) |
+| Observed ggen tip (crown absorb) | `f5f44571f9a331d46e2895657621b7efd7127f1b` (tip-wins; ⊇ OOR/CASTLE) |
+| Observed smalt tip (pinned) | `91997da76f0f356dc2be914bdb0a5b8227518719` (clone HEAD match; FinOps restore commit; parent `875efbb87` = smalt `main`) |
+| Smalt `main` @ probe | `875efbb87bde8422236cf9db7224412962dbc5a7` — FinOps pin **not** on `main`; lives on `cursor/v2711-smalt-finops-test-bc54` |
+| FinOps court file | `test/fin_ops_calculator_test.exs` **PRESENT** @ pin (prior **ALIVE** authority retained; not re-run) |
+| b4b register tree | `docs/b4b/{KD-P1-TREASURY,KD-P3-TAX,KD-P5-ERP,KD-P10-RATES,SOURCE-CHECK-P1-P3,SOURCE-CHECK-P5-P10}.md` **PRESENT** |
+| b4b modules | `lib/smalt/{treasury,taxsanctions,erp,rates,fin_ops}/**` **PRESENT** @ pin (KD prose that still says “module absent” is **stale relative to tree**) |
+| b4b module courts (source) | `test/treasury/treasury_test.exs` (8), `test/taxsanctions/taxsanctions_test.exs` (8), `test/erp/erp_test.exs` (6+), `test/rates/rates_test.exs` (7) — **PRESENT**; exit codes **UNKNOWN** (not executed) |
+| This-env mix/elixir | **ABSENT** → b4b court execution **UNSUPPORTED** here |
+| SOURCE-CHECK / KD standing (author docs) | SOURCE-CHECK **PARTIAL**; KD-P1/P3/P5/P10 **UNVERIFIED** — presence ≠ green court |
+| 6-column spine | **ALIVE** retained (4-cloud @ `875efbb87` + FinOps @ `91997da76f0f`) |
+| Ledger crown | **PARTIAL_ALIVE** — full RAID / GA economic face / b4b **not** promoted; Foundry crown **not** invented |
+| Next verifier (crown absorb) | §4.3 four-plane mix courts → exit **0** at pinned HEAD; then cite receipts here |
 
 ---
 
@@ -232,3 +277,21 @@ repair reapplied standing content tip-wins. Observed ggen tip advanced
 `1f335ea82` → `1cedf8465`; smalt evidence pins **held** (`875efbb87` 4-cloud +
 `91997da76f0f` FinOps); ledger crown remains **PARTIAL_ALIVE**; full RAID /
 Foundry crown `ALIVE` **not** invented; no cargo; no ManagePullRequest.
+
+GA residual advance 2026-11-22 on `cursor/v2711-smalt-ga-residual-bc54` from
+live crown tip `6a3a623ba` (read-only fetch; **no** crown push; distinct from
+castle-wire / verify-witness-prod): shallow-cloned smalt @ `91997da76f0f`;
+b4b register + treasury/tax/erp/rates modules + module courts **PRESENT**; KD
+docs remain **UNVERIFIED**/SOURCE-CHECK **PARTIAL**; mix **UNSUPPORTED** this
+env → residual courts **UNKNOWN**; ledger crown stays **PARTIAL_ALIVE**; full
+RAID / Foundry `ALIVE` **not** invented; FOUNDRY spine Smalt row unchanged
+(already names residual); no ManagePullRequest.
+
+Tip-wins absorb 2026-11-22 on `cursor/v2711-smalt-ga-residual-absorb-da2d`
+onto live crown tip `f5f44571f` (cherry-pick `cd28efed7` + tip rewrite):
+Observed ggen tip advanced `6a3a623ba` → `f5f44571f` while preserving OOR
+retip11 (`96444e302`/`f5f44571f`) and CASTLE crown-wire absorb
+(`05c4d69b5`/`b01224bfa`); smalt pin `91997da76f0f` **held**; b4b **PRESENT**;
+residual courts **UNKNOWN** (mix **UNSUPPORTED** here); ledger crown remains
+**PARTIAL_ALIVE**; full RAID / Foundry crown `ALIVE` **not** invented; no cargo;
+no ManagePullRequest (parent owns #849).

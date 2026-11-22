@@ -329,7 +329,7 @@ Fence presence ≠ Plane-5 DO `ALIVE`.
 | Surface | Standing ceiling (ggen) | Ledger |
 |---------|-------------------------|--------|
 | GCP billing / cos ledger / servengine M4 / year-end SOW | **BLOCKED** / **UNKNOWN** — OUT OF SCOPE | [`GATE-0-STANDING.md`](./GATE-0-STANDING.md) |
-| Smalt 4-cloud RAID (Azure·AWS·GCP·Twilio) | **ALIVE** (6-column spine: doctor/aws/gcp/azure/twilio **0,0,0,0,0** @ `875efbb87` + FinOps **ALIVE** @ `91997da76f0f`); full RAID / remaining GA economic face still **PARTIAL_ALIVE** — ≠ Foundry crown | [`SMALT-RAID-STANDING.md`](./SMALT-RAID-STANDING.md) |
+| Smalt 4-cloud RAID (Azure·AWS·GCP·Twilio) | **ALIVE** (6-column spine: doctor/aws/gcp/azure/twilio **0,0,0,0,0** @ `875efbb87` + FinOps **ALIVE** @ `91997da76f0f`); full RAID / remaining GA economic face still **PARTIAL_ALIVE** (b4b **PRESENT**; residual courts **UNKNOWN**; mix **UNSUPPORTED** here) — ≠ Foundry crown; **do not** promote full RAID `ALIVE` | [`SMALT-RAID-STANDING.md`](./SMALT-RAID-STANDING.md) |
 | `revops.fnox.io` / `cos.fnox.io` / CindyCat·Fourth Watch front doors | **UNKNOWN** / **BLOCKED** — DO only via BRCE+AS-01 | [`REVOPS-COS-STANDING.md`](./REVOPS-COS-STANDING.md) |
 | Exact external next verifiers | OOR Gate 0/2/3 rows | [`OUT-OF-REPO-NEXT-VERIFIERS.md`](./OUT-OF-REPO-NEXT-VERIFIERS.md) |
 
