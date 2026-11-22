@@ -30,7 +30,7 @@ FinOps: FOUNDRY/OOR **ALIVE** @ `91997da76f0f` vs older §13.3 FinOps
 Compact return line:
 
 ```text
-tip=c11ea7f2a4b95bf40d9d18929a011f18dbbdd17d+
+tip=ef94ca9631ec2c366390e127e84155107fa5886d
 clause1=PARTIAL
 clause2=PARTIAL_ALIVE
 clause3=PARTIAL+BLOCKED
