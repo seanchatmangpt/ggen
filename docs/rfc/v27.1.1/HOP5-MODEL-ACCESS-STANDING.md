@@ -4,7 +4,7 @@
 |-------|-------|
 | Document ID | `HOP5-MODEL-ACCESS-STANDING-27.1.1` |
 | Branch | `cursor/v2711-hop5-secrets-probe-bc54` (probe land); prior `cursor/v2711-hop5-model-access-bc54` |
-| Companion | [`HOP5-ZCODE-RUNTIME-STANDING.md`](./HOP5-ZCODE-RUNTIME-STANDING.md), [`HOP5-FOUNDRY-LIVE2-STANDING.md`](./HOP5-FOUNDRY-LIVE2-STANDING.md), [`OUT-OF-REPO-NEXT-VERIFIERS.md`](./OUT-OF-REPO-NEXT-VERIFIERS.md) G2-9 |
+| Companion | [`HOP5-ZCODE-RUNTIME-STANDING.md`](./HOP5-ZCODE-RUNTIME-STANDING.md), [`HOP5-FOUNDRY-LIVE2-STANDING.md`](./HOP5-FOUNDRY-LIVE2-STANDING.md), [`OUT-OF-REPO-NEXT-VERIFIERS.md`](./OUT-OF-REPO-NEXT-VERIFIERS.md) G2-9, [`HITL-LIVE-NEXT-VERIFIER-STANDING.md`](./HITL-LIVE-NEXT-VERIFIER-STANDING.md) (Founder HITL absorb pin @ tip `00b53cec9`; **BLOCKED_HITL** ≠ `--live` `ALIVE`) |
 | Ecospec tip base | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `a29e1cd92fa1edc0cd0b744a3b628c871039e825` |
 | zcode-cli land | `/agent/repos/zcode-cli` @ `f32df08cdc4b3b8e114a8d1de8cf81acb80e1f3a` |
 | Host | Linux x86_64 cloud VM |

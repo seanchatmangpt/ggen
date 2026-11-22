@@ -4,8 +4,8 @@
 |-------|-------|
 | Document ID | `CROWN-PROGRESS-RECEIPT-27.1.1` |
 | Status | **PROGRESS RECEIPT** (honest; **not** goal-complete; **not** crown `ALIVE`) |
-| Observed tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `fe72be0fbc8e37cff6db04e08f64732273b7c893` (tip-wins absorb `cursor/v2711-brce-v8-bodies-bc54` @ `e54d58bac` onto VW+Smalt tip `fe72be0fb`; ⊇ OOR retip11 `f5f44571f` + CASTLE `b01224bfa` + Smalt GA residual) |
-| Tip subject | tip-wins absorb `cursor/v2711-brce-v8-bodies-bc54` @ `e54d58bac` onto `fe72be0fb`: pin BRCE **V8** **BLOCKED** + R-01…R-07 bodies **BLOCKED** with exact next verifiers/owners/HITL; retain seat+R01 contract exact tip-cargo **ALIVE** @ `e7569893a`; ui_layout exact tip-cargo **ALIVE** @ `a508e6bae`; VW prod honesty + Smalt GA residual + CASTLE wire + OOR retip11 cos **503** / revops **NXDOMAIN** held |
+| Observed tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `00b53cec9134e97cc2967bfd61af9a156e7defa7` (tip-wins absorb HITL `--live` next-verifier onto Smalt residual-mix tip `00b53cec9`; ⊇ OOR retip12 `79b64496b` + affidavit `7ddfd8b6e` + BRCE-V8 `1dbf1cc2e` + VW/Smalt/CASTLE) |
+| Tip subject | tip-wins absorb `cursor/v2711-hitl-live-next-bc54` @ `723c3a14f` (`bc-ea2b3d10`) onto `00b53cec9`: pin foundry `--live` **BLOCKED_HITL** with exact next `bun scripts/powl-foundry-loop.ts --live` → **foundry_exit=0**; **no** invented `--live` `ALIVE`; retain Smalt residual mix **ALIVE** + affidavit size-court **ALIVE** + BRCE **V8** **BLOCKED** + R-01…R-07 bodies **BLOCKED**; seat+R01 contract exact tip-cargo **ALIVE** @ `e7569893a`; ui_layout exact tip-cargo **ALIVE** @ `a508e6bae`; VW prod honesty + CASTLE wire + OOR retip12 cos **503** / revops **NXDOMAIN** held |
 | Ledger pins cited | Gate-1 pins; Truex **ALIVE** @ `68d2d233`; `shui:` **ALIVE (lineage tip-cargo)** @ `008a81d21`; CCS #3 **ALIVE** @ `861a6e73a`; CCS #2 `write_apply` **ALIVE** **7+1+1** @ `cde02d1f2`; `verify_witness` **ALIVE** @ `c91b22561`; `lifecycle.rs` **ALIVE**; `ui_layout` **ALIVE (exact tip-cargo)** @ `a508e6bae` (lineage `59c090984`); brand rhythm/completeness **ALIVE (exact tip-cargo)** @ `77eb46fd0` (unchanged); **FM-PACK-001** **ALIVE (lineage tip-cargo)** absorbed; `r01_r07` contract **ALIVE** (exact tip-cargo **7** @ `e7569893a`); BRCE AS-01 seat fence **ALIVE** (exact tip-cargo **6** @ `e7569893a`); **OOR:** cos **503** / revops **NXDOMAIN** / `--live` **BLOCKED_HITL** / BRCE **V8** **BLOCKED** / R-01…R-07 bodies **BLOCKED** |
 | Cargo this receipt | **no** this retip (docs-only residual honesty). Prior exact-tip `ui_layout_court` EXIT:0 @ `a508e6bae` retained; BRCE+R01 @ `e7569893a` retained. Production theme **UNSUPPORTED**; **V8**/bodies blockers held (no false `ALIVE`) |
 | Goal standing | **INCOMPLETE** — do **not** claim ECOSYSTEM-SPEC-27.1.1 crown complete |
@@ -31,12 +31,12 @@ FinOps: FOUNDRY/OOR **ALIVE** @ `91997da76f0f` vs older §13.3 FinOps
 Compact return line:
 
 ```text
-tip=fe72be0fbc8e37cff6db04e08f64732273b7c893
-subject=fe72be0fb+VW/Smalt/OOR/CASTLE
-side=cursor/v2711-brce-v8-bodies-bc54
+tip=00b53cec9134e97cc2967bfd61af9a156e7defa7
+subject=00b53cec9+HITL-LIVE-NEXT+SmaltMix/OOR12/affidavit/BRCE/VW/CASTLE
+side=cursor/v2711-hitl-live-next-bc54@723c3a14f
 cargo_tip_ui_layout=a508e6bae9e61d7894ad98df8c507fdb1fb28eb2
-oor_retip=retip11@2026-11-22T07:42:56PST
-clause1=PARTIAL (igniter clean-room ALIVE @f1492ed55/bc-53b0e099; hop1 Truex ALIVE @68d2d233 + shui lineage ALIVE @008a81d21; path crown still non-ALIVE; foundry --live BLOCKED_HITL)
+oor_retip=retip12@79b64496b
+clause1=PARTIAL (igniter clean-room ALIVE @f1492ed55/bc-53b0e099; hop1 Truex ALIVE @68d2d233 + shui lineage ALIVE @008a81d21; path crown still non-ALIVE; foundry --live BLOCKED_HITL exact next foundry_exit=0)
 clause2=PARTIAL_ALIVE (CCS#3 construct ALIVE @861a6e73a; CCS#2 write_apply tip-cargo ALIVE 7+1+1 @cde02d1f2; lifecycle ALIVE @513704d04/acd9705c1; BRCE seat fence ALIVE @e7569893a; r01_contract ALIVE @e7569893a; V8 broker BLOCKED owner=BRCE HITL; R01-R07 bodies BLOCKED owner=risk-register HITL G3-5; V9 BLOCKED)
 clause3=PARTIAL+BLOCKED (cos/readyz 503 DB_UNAVAILABLE; healthz 200 PARTIAL; revops NXDOMAIN UNKNOWN — retip11 held)
 clause4=PARTIAL
@@ -159,7 +159,7 @@ Recommended next Gate-1 falsifier: hop-5 foundry `--live` → **0** (provider ke
 
 | # | Blocker | Standing | Exact next |
 |---|---------|----------|------------|
-| 1 | foundry `--live` / ZCode runtime | **BLOCKED**/**REFUSED** | provider creds → `bun scripts/powl-foundry-loop.ts --live` → **0** ([`HOP5-ZCODE-RUNTIME-STANDING.md`](./HOP5-ZCODE-RUNTIME-STANDING.md); [`HOP5-MODEL-ACCESS-STANDING.md`](./HOP5-MODEL-ACCESS-STANDING.md)) |
+| 1 | foundry `--live` / ZCode runtime | **BLOCKED_HITL**/**REFUSED** | Founder HITL → `bun scripts/powl-foundry-loop.ts --live` → **foundry_exit=0** ([`HITL-LIVE-NEXT-VERIFIER-STANDING.md`](./HITL-LIVE-NEXT-VERIFIER-STANDING.md); [`HOP5-ZCODE-RUNTIME-STANDING.md`](./HOP5-ZCODE-RUNTIME-STANDING.md); [`HOP5-MODEL-ACCESS-STANDING.md`](./HOP5-MODEL-ACCESS-STANDING.md)) — **not** `ALIVE` until exit **0** |
 | 2 | remaining Gate-1 fence tip-cargo (`ui_layout`) | **ALIVE (exact tip-cargo)** @ `a508e6bae`/`bc-70188ac3` (brand_toml exact @ `77eb46fd0`; BRCE seat + R01 exact @ `e7569893a`; taffy+fluid+hotswap+shui **ALIVE**) | sealed — [`UILAYOUT-TIP-CARGO-STANDING.md`](./UILAYOUT-TIP-CARGO-STANDING.md) |
 | 3 | cos `/readyz` DB | **BLOCKED** (**503**) | curl → HTTP **200** |
 | 4 | Live WebAuthn / BRCE broker / Plane-5 DO | **UNSUPPORTED** / **BLOCKED** | **V8** (owner **BRCE**; Founder HITL mount+WebAuthn): mounted broker court without AS-01 → `REFUSED_*`; with seat → receipt+replay → **0**; then **V9** / OOR **G2-3…G2-5** ([`BRCE-WEBAUTHN-STANDING.md`](./BRCE-WEBAUTHN-STANDING.md) §5) |
@@ -200,6 +200,7 @@ Recommended next Gate-1 falsifier: hop-5 foundry `--live` → **0** (provider ke
 | Gate-1 honesty retip (FM-PACK absorb tip) | 2026-11-22 — `cursor/v2711-gate1-honesty-retip-dd93` tip-wins onto `e73bf686c`: pin tip to FM-PACK-001 ALIVE absorb after OOR retip9 `fbfaa3ad9`; brand_toml exact tip-cargo **ALIVE** unchanged @ `77eb46fd0`; `ui_layout` lineage **ALIVE** (exact-tip then in-flight @ `a508e6bae`/`bc-70188ac3`); OOR cos **503** / revops **NXDOMAIN** / `--live` **BLOCKED_HITL** / BRCE **V8** **BLOCKED** / R-01…R-07 bodies **BLOCKED**; docs-only; no cargo; no ManagePullRequest |
 | ui_layout exact tip-cargo ALIVE | 2026-11-22 — `cursor/uilayout-exact-tip-alive-9f6c` (`bc-70188ac3`) tip-wins: exclusive `/tmp/ggen-uilayout-exact-tip` → **11 passed; EXIT:0** @ cargo tip `a508e6bae` (sources ≡ live tip); promote lineage → **ALIVE (exact tip-cargo)**; no ManagePullRequest |
 | Affidavit gatekeeper size-court tip-wins absorb | 2026-11-22 — tip-wins absorb `cursor/v2711-vw-affidavit-court-bc54` @ `cc0ea07e4` (probe `bc-5f5786ff`) onto crown `1dbf1cc2e` (⊇ BRCE-V8 `1dbf1cc2e` + VW-prod `fe72be0fb` + Smalt `9173c6529` + OOR retip11 + CASTLE): affidavit pin size court **ALIVE** (EXIT **0**; `wc -c` **28673** @ `563eb322a`); ggen `GGEN_VERIFY_WITNESS_WASM` wire **UNSUPPORTED**/PARTIAL; **no** invented ggen production `ALIVE`; docs-only; no cargo; no ManagePullRequest; push `HEAD:cursor/ecosystem-spec-27-1-1-bc54` (no force) |
+| Founder HITL `--live` next-verifier tip-wins absorb | 2026-11-22 — tip-wins absorb `cursor/v2711-hitl-live-next-bc54` @ `723c3a14f` (`bc-ea2b3d10`) onto crown `00b53cec9` via `cursor/v2711-hitl-live-absorb-8df9` (⊇ Smalt residual mix `00b53cec9` + OOR retip12 `79b64496b` + affidavit `7ddfd8b6e` + BRCE-V8 `1dbf1cc2e` + VW/CASTLE): `--live` stays **BLOCKED_HITL** / **foundry_exit=1**; exact next `bun scripts/powl-foundry-loop.ts --live` → **foundry_exit=0**; **no** invented `--live` `ALIVE`; docs-only; no cargo; no ManagePullRequest; push `HEAD:cursor/ecosystem-spec-27-1-1-bc54` (no force) |
 | Clause-2 BRCE V8 / R01 bodies tip-wins absorb | 2026-11-22 — tip-wins absorb `cursor/v2711-brce-v8-bodies-bc54` @ `e54d58bac` onto crown `fe72be0fb` (⊇ VW absorb `fe72be0fb` + Smalt GA residual `9173c6529` + OOR retip11 `f5f44571f` + CASTLE `b01224bfa`): seat fence + R01 *contract* exact tip-cargo **ALIVE** retained @ `e7569893a`; BRCE **V8** broker **BLOCKED** (owner **BRCE**; Founder HITL; OOR **G2-3**); R-01…R-07 *bodies* **BLOCKED** (owner risk-register; Founder HITL; OOR **G3-5**); **no** invented V8/bodies `ALIVE`; docs-only; no cargo; no ManagePullRequest; push `HEAD:cursor/ecosystem-spec-27-1-1-bc54` (no force) |
 | Sources | GATE-1-GAP-MATRIX, PHOTOLITHOGRAPHY, FOUNDRY-FINISH, OUT-OF-REPO-NEXT-VERIFIERS, SMALT-RAID, CCS-AUTHORITY, BRCE-WEBAUTHN, ECOSYSTEM-SPEC §13 |
 | Method | Absorb tip-cargo ALIVE standing; no new cargo; no ManagePullRequest |
