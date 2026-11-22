@@ -6,9 +6,9 @@
 | Companion | `ECOSYSTEM-SPEC-27.1.1` (Gate 2–3 CASTLE publish); `REPO-INVENTORY-27.1.1` |
 | Subject | `seanchatmangpt/castle` on spine `ggen → Taffy → zcode-cli → CASTLE → Smalt → revops` |
 | Materialized | 2026-11-22 |
-| Observed ggen tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `60b15c7788ca7fb0c73ac19e7762759b61852603` (lineage through `c832cabdc` / `3ea41ffd0` / `a3b1c9410`) |
-| Tip pin | 2026-11-22 — absorb `cursor/v2711-castle-retip2-bc54` @ `371971c3a` (#923) onto tip `60b15c778` (prior retip2 vs `a3b1c9410+`; sibling courts **ALIVE** @ `2774039ea` / `bc-1bffb072` unchanged; tip-cargo spared; no cargo) |
-| Observed castle tip | `main` @ `2774039ea81bad508c93785a59dd7a99198ae256` (https://github.com/seanchatmangpt/castle/commit/2774039ea81bad508c93785a59dd7a99198ae256; live courts `bc-1bffb072`; not mounted in this ggen workspace) |
+| Observed ggen tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `1f335ea82cdd771215a9ede8b13393d847ed6b29` (honesty tip-pin after Gate-1 retip `1f335ea82`; lineage ⊇ `60b15c778` / Smalt RAID pin `fa2c782de`; see §10) |
+| Tip pin | 2026-11-22 — `cursor/v2711-castle-spine-honesty-f95e` tip-pins Observed from stale `60b15c778` → live crown `1f335ea82` (foundry-spine honesty; sibling courts **ALIVE** @ `2774039ea` / `bc-1bffb072` unchanged; crown wire **UNKNOWN**; tip-cargo spared; no cargo; no ManagePullRequest) |
+| Observed castle tip | `main` @ `2774039ea81bad508c93785a59dd7a99198ae256` (https://github.com/seanchatmangpt/castle/commit/2774039ea81bad508c93785a59dd7a99198ae256; live courts `bc-1bffb072`; not mounted in this ggen workspace; `main` HEAD reconfirmed = same SHA) |
 | Repo scope of this land | `seanchatmangpt/ggen` (standing ledger only — no CASTLE runtime / no tip-cargo this retip) |
 
 Standing vocabulary: `UNKNOWN` | `PARTIAL_ALIVE` | `ALIVE` | `BLOCKED` | `BUILD_BROKEN` | `UNSUPPORTED` | `REFUSED_*`.
@@ -175,3 +175,21 @@ Honesty retip 2026-11-22 (`cursor/v2711-foundry-honesty-bc54`) → ggen tip `4b2
 | CASTLE on horizontal spine (crown wire) | **UNKNOWN** / digest-bind **PARTIAL** residual — sibling **ALIVE** ≠ ggen digest-bound spine crown |
 | Zero-HITL / Foundry crown | **PARTIAL** — CASTLE sibling **ALIVE** does **not** imply crown zero-HITL **ALIVE** |
 | Exact next verifier | Crown residual: bind admitted ggen layout/brand digest into CASTLE mint receipt, then in castle @ `2774039ea` replay §3.1 (`publish_redaction_court` → **0**; `cli_publish_brand` → **0**; spine-probe mint → **0** / `redaction_court=ALIVE`) with digest asserted on the receipt. LinkedIn AND-gate remains **BLOCKED** on cos `/readyz` **200** ∧ 2× durable LOW |
+
+---
+
+## 10. Foundry-spine honesty tip-pin vs tip `1f335ea82` (2026-11-22)
+
+| Field | Value |
+|-------|-------|
+| Branch | `cursor/v2711-castle-spine-honesty-f95e` (no cargo; ui_layout exact-tip cargo under `/tmp/ggen-uilayout-exact-tip` spared; no ManagePullRequest) |
+| Tip before (doc pin) | Observed ggen tip lagged at `60b15c7788ca7fb0c73ac19e7762759b61852603` (§9 absorb) |
+| Tip after (live crown) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `1f335ea82cdd771215a9ede8b13393d847ed6b29` (ancestors ⊇ `fa2c782de` Smalt RAID tip-pin / `e73bf686c` / `77eb46fd0` / `60b15c778`) |
+| Stale pin repaired | Header Observed advanced `60b15c778` → `1f335ea82` — **standings held; pin only** |
+| Sibling castle tip | still `main` @ `2774039ea81bad508c93785a59dd7a99198ae256` (HEAD reconfirmed identical) |
+| Sibling courts | **ALIVE** — last recorded verifiers (`bc-1bffb072` @ `2774039ea`): `cargo test --test publish_redaction_court` → **13/13** exit **0**; `cargo test --test cli_publish_brand` → **6/6** exit **0**; `./target/debug/castle publish post --subject spine-probe --public-anonymize --brand brands/fourth-watch.brand.toml` → exit **0** / `redaction_court=ALIVE` |
+| In-ggen publish surface | **UNSUPPORTED** — `git grep 'castle publish\|RedactionCourt' crates packs` empty on tip `1f335ea82` |
+| CASTLE on horizontal spine (crown wire) | **UNKNOWN** / digest-bind residual — sibling **ALIVE** ≠ ggen digest-bound spine crown; **not** Foundry / zero-HITL `ALIVE` |
+| Foundry / zero-HITL crown | **PARTIAL** — CASTLE sibling **ALIVE** does **not** promote Foundry-finish crown |
+| LinkedIn / Jobs AND-gate | **BLOCKED** — cos `/readyz` **200** ∧ 2× durable LOW not observed this retip |
+| Exact next verifier | Crown residual (not fully **ALIVE**): bind admitted ggen layout/brand digest into CASTLE mint receipt, then in castle @ `2774039ea` replay §3.1 (`publish_redaction_court` → **0**; `cli_publish_brand` → **0**; spine-probe mint → **0** / `redaction_court=ALIVE`) with digest asserted on the receipt. LinkedIn AND-gate remains **BLOCKED** on `curl -sS -w '\nhttp=%{http_code}\n' https://cos.fnox.io/readyz` → HTTP **200** ∧ 2× durable LOW |
