@@ -1,11 +1,12 @@
 # FOUNDRY-HITL-ACTION-CARD — Founder `--live` action card (v27.1.1)
 
 ```text
-tip_base=6f0f646111e91830cb1b2a18db18f67049cfe90d
-branch=cursor/v2711-foundry-finish-honesty-bc54
-agent=bc-94d5f431-76af-5467-b369-49fbcc2fcc82
-utc=2026-11-22T19:03Z
+tip_base=b960245cf647ebfadb3fbc4d16bbc53852ba159f
+branch=cursor/v2711-foundry-live-retip-bc54
+agent=bc-23737a65-4398-52e6-a180-afd65acfa8f3
+utc=2026-11-22T19:13Z
 standing=BLOCKED_HITL
+foundry_exit=1
 foundry_finish=PARTIAL
 spine=PARTIAL (not daily-HITL-free)
 photolith_path_crown=PARTIAL
@@ -18,14 +19,14 @@ cargo=NOT_RUN
 | Field | Value |
 |-------|-------|
 | Document ID | `FOUNDRY-HITL-ACTION-CARD-27.1.1` |
-| Branch | `cursor/v2711-foundry-finish-honesty-bc54` (prior card land `cursor/v2711-foundry-hitl-action-retip-bc54`) |
-| Agent | `bc-94d5f431-76af-5467-b369-49fbcc2fcc82` (`https://cursor.com/agents/bc-94d5f431-76af-5467-b369-49fbcc2fcc82`); prior card `bc-64334001` |
+| Branch | `cursor/v2711-foundry-live-retip-bc54` (prior finish honesty `cursor/v2711-foundry-finish-honesty-bc54`; prior card land `cursor/v2711-foundry-hitl-action-retip-bc54`) |
+| Agent | `bc-23737a65-4398-52e6-a180-afd65acfa8f3` (`https://cursor.com/agents/bc-23737a65-4398-52e6-a180-afd65acfa8f3`); prior finish honesty `bc-94d5f431`; prior card `bc-64334001` |
 | Spec binding | `ECOSYSTEM-SPEC-27.1.1` §13.4 Foundry finish; OOR **G2-9** |
 | Companions | [`FOUNDRY-FINISH-SPINE-STANDING.md`](./FOUNDRY-FINISH-SPINE-STANDING.md); [`FOUNDRY-FINISH-STANDING.md`](./FOUNDRY-FINISH-STANDING.md); [`HITL-LIVE-NEXT-VERIFIER-STANDING.md`](./HITL-LIVE-NEXT-VERIFIER-STANDING.md) §3 / §8 / §10; [`PHOTOLITHOGRAPHY-PATH-STANDING.md`](./PHOTOLITHOGRAPHY-PATH-STANDING.md) |
-| Observed tip (write-time) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `d85104a02606ac77408cbea028a94c67c6382af1` (`d85104a02`; ⊇ tip7 Taffy absorb `4ebcb9d46` / Gate1 ALIVE trio @ `2685119bd` / prior card `376d0d283`) |
+| Observed tip (write-time) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `b960245cf647ebfadb3fbc4d16bbc53852ba159f` (`b960245cf`; ⊇ live re-probe `51cbe7830` / Gate1 close absorb / Foundry finish honesty) |
 | zcode-cli | `/agent/repos/zcode-cli` @ `f32df08cdc4b3b8e114a8d1de8cf81acb80e1f3a` — `scripts/powl-foundry-loop.ts` **PRESENT**; `~/.zcode/v2/provider_config.json` **ABSENT** this env |
-| Cargo / tip-cargo | **NOT RUN** (docs-only honesty retip; Gate1 trio sealed @ `2685119bd`; Taffy tip7 EXIT0 held @ `63da993cc`) |
-| Status | ACTION CARD — `--live` **BLOCKED_HITL**; Foundry finish / horizontal spine **PARTIAL**; photolith path crown **PARTIAL**; **never invent Foundry `ALIVE`** |
+| Cargo / tip-cargo | **NOT RUN** (live `--live` re-probe + honesty append; Gate1 tip-cargo held separately) |
+| Status | ACTION CARD — live re-probe **foundry_exit=1** → `--live` **BLOCKED_HITL**; Foundry finish / horizontal spine **PARTIAL**; photolith path crown **PARTIAL**; **never invent Foundry `ALIVE`** |
 
 Standing vocabulary: `UNKNOWN` | `PARTIAL` | `PARTIAL_ALIVE` | `ALIVE` | `BLOCKED` | `BLOCKED_HITL` | `UNSUPPORTED` | `REFUSED_*`.
 

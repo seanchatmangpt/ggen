@@ -1,10 +1,10 @@
 # FOUNDRY-FINISH-SPINE-STANDING — push-first honesty (v27.1.1)
 
 ```text
-tip_base=15eefb628368afcbb230d082d6ca00c286ca9d42
+tip_base=b960245cf647ebfadb3fbc4d16bbc53852ba159f
 branch=cursor/v2711-foundry-live-retip-bc54
 agent=bc-23737a65-4398-52e6-a180-afd65acfa8f3
-utc=2026-11-22T19:11Z
+utc=2026-11-22T19:13Z
 spine=ggen → Taffy → zcode-cli → CASTLE → Smalt → revops
 foundry_finish=PARTIAL
 spine_daily_HITL_free=PARTIAL (not daily-HITL-free)
@@ -23,7 +23,7 @@ refuse=Foundry_ALIVE
 | Agent | `bc-23737a65-4398-52e6-a180-afd65acfa8f3`; prior finish honesty `bc-94d5f431`; prior spine `bc-14b0377a` |
 | Spec binding | `ECOSYSTEM-SPEC-27.1.1` §13.4 Foundry finish (horizontal spine) |
 | Companions | [`FOUNDRY-HITL-ACTION-CARD.md`](./FOUNDRY-HITL-ACTION-CARD.md) §5 / §6; [`FOUNDRY-FINISH-STANDING.md`](./FOUNDRY-FINISH-STANDING.md); [`HITL-LIVE-NEXT-VERIFIER-STANDING.md`](./HITL-LIVE-NEXT-VERIFIER-STANDING.md); [`PHOTOLITHOGRAPHY-PATH-STANDING.md`](./PHOTOLITHOGRAPHY-PATH-STANDING.md); [`TAFFY-AOT-PREFLIGHT-STANDING.md`](./TAFFY-AOT-PREFLIGHT-STANDING.md); [`ZCODE-POWL-PATH-STANDING.md`](./ZCODE-POWL-PATH-STANDING.md); [`CASTLE-SPINE-STANDING.md`](./CASTLE-SPINE-STANDING.md); [`SMALT-RAID-STANDING.md`](./SMALT-RAID-STANDING.md); [`REVOPS-COS-STANDING.md`](./REVOPS-COS-STANDING.md) |
-| Observed tip (write-time) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `15eefb628368afcbb230d082d6ca00c286ca9d42` (`15eefb628`; ⊇ Gate1 close pin / tip-wins Gate1 EXIT0 absorb `712cdfafb` / Foundry finish honesty `436767a39`) |
+| Observed tip (write-time) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `b960245cf647ebfadb3fbc4d16bbc53852ba159f` (`b960245cf`; ⊇ live re-probe `51cbe7830` / Gate1 close absorb / Foundry finish honesty) |
 | zcode-cli | `/agent/repos/zcode-cli` @ `f32df08cdc4b3b8e114a8d1de8cf81acb80e1f3a` — `scripts/powl-foundry-loop.ts` **PRESENT**; `~/.zcode/v2/provider_config.json` **ABSENT** this env |
 | Cargo / tip-cargo | **NOT RUN** (live `--live` re-probe + honesty append) |
 | Status | LEDGER — live re-probe **foundry_exit=1** → `--live` **BLOCKED_HITL**; Foundry finish / horizontal spine **PARTIAL** (not daily-HITL-free); Gate1 trio **ALIVE** ≠ Foundry **ALIVE**; photolith path crown **PARTIAL**; **never invent Foundry `ALIVE`** |
