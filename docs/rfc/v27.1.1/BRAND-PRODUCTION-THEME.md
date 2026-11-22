@@ -10,17 +10,27 @@ completeness+rhythm **ALIVE (lineage tip-cargo)** @ `c91b22561` (jobs=1 `/tmp/gg
 fluid+hotswap tip-cargo **ALIVE** @ `19c08a3b0`; production **UNSUPPORTED**. Exact-tip reconfirm
 SCHEDULED (exclusive jobs=1 when cargo quiet). Receipt: [`BRAND-TOML-TIP-CARGO-STANDING.md`](./BRAND-TOML-TIP-CARGO-STANDING.md).
 
+**Hot-swap / production honesty retip** (`cursor/v2711-brand-hotswap-retip-bc54` /
+`bc-77f1df1f-0499-5eae-9e4f-68342a2f5414`) onto live tip
+`e6d1b839dabee76712cee9c57953626b77212826`: hot-swap tip-subject court
+**PARTIAL_ALIVE** (docs-only; no cargo — Gate1 tip6 owns thrash) with lineage
+**ALIVE** (**6** @ `19c08a3b0` / absorb `cde02d1f2`; blob ≡ tip). Production
+theme / production hot-swap remains **UNSUPPORTED** (`REFUSED_PRODUCTION`) —
+do **not** invent `ALIVE`. Full pin:
+[`BRAND-TOML-HOTSWAP-PROD-RETIP-STANDING.md`](./BRAND-TOML-HOTSWAP-PROD-RETIP-STANDING.md).
+
 | Surface | Standing | Evidence |
 |---------|----------|----------|
 | Rhythm schema + OEM stubs | **ALIVE** (lineage tip-cargo) | `brand_toml_rhythm_court` **12 passed; exit 0** @ `c91b22561` ([`BRAND-TOML-TIP-CARGO-STANDING.md`](./BRAND-TOML-TIP-CARGO-STANDING.md)) |
 | Completeness Incomplete refusals | **ALIVE** (lineage tip-cargo) | `brand_toml_completeness_court` **5 passed; exit 0** @ `c91b22561` (same tip-cargo run) |
 | Fluid clamp / cqi slopes | **ALIVE** (tip-cargo **6 passed; exit 0** @ crown `19c08a3b0`) | `brand_fluid_clamp_court` |
-| OEM hot-swap fence | **ALIVE** (tip-cargo **6 passed; exit 0** @ crown `19c08a3b0`) | `seed_hot_swap_slot` / `hot_swap_brand` + `brand_toml_hotswap_court` |
+| OEM hot-swap fence | lineage **ALIVE** (**6** @ `19c08a3b0`); tip-subject **PARTIAL_ALIVE** | `seed_hot_swap_slot` / `hot_swap_brand` + `brand_toml_hotswap_court` — tip reconfirm deferred ([`BRAND-TOML-HOTSWAP-PROD-RETIP-STANDING.md`](./BRAND-TOML-HOTSWAP-PROD-RETIP-STANDING.md)) |
 | Production runtime theme | **UNSUPPORTED** | `promote_production_theme` → `ProductionThemeRefusal::ProductionUnsupported` (code `REFUSED_PRODUCTION`) |
 
 Fluid clamp, hot-swap, and rhythm lineage tip-cargo are Gate-1 CONSTRUCT fences with
-standing **ALIVE**. They do **not** authorize production theme DO, CASTLE
-publish, or full DTCG color/type inventory `ALIVE`.
+lineage standing **ALIVE**. They do **not** authorize production theme DO, CASTLE
+publish, or full DTCG color/type inventory `ALIVE`. Tip-subject hot-swap remains
+**PARTIAL_ALIVE** until exclusive `brand_toml_hotswap_court` EXIT **0** on the live tip.
 
 ## In-repo fail-closed fence
 
