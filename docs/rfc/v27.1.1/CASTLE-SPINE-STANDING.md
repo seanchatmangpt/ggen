@@ -457,3 +457,11 @@ Do **not** promote Foundry / zero-HITL `ALIVE` from this retip or tip-wins absor
 | Standing | digest-bind wire replay **ALIVE**/`WIRED` — **≠ Foundry / zero-HITL / path `ALIVE`** |
 | Construct | ggen tip Construct **in_progress** @ `45081862735` / tip `7bb443e99` |
 
+### Sibling courts replay (same session)
+
+| Court | Result |
+|-------|--------|
+| `cargo test --test publish_redaction_court` | **13**/EXIT:**0** (`/tmp/castle-redaction.log`) |
+| `cargo test --test cli_publish_brand` | **6**/EXIT:**0** (`/tmp/castle-brand.log`) |
+
+≠ Foundry / zero-HITL / path `ALIVE`.
