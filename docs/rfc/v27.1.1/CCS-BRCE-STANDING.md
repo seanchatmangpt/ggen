@@ -5,8 +5,8 @@
 | Document ID | `CCS-BRCE-STANDING` |
 | Spec binding | `ECOSYSTEM-SPEC-27.1.1` §13.2 (Clause 2 — CCS / BRCE + WebAuthn AS-01) |
 | Companions | [`CCS-AUTHORITY-STANDING.md`](./CCS-AUTHORITY-STANDING.md) (~8 CCS ledger); [`BRCE-WEBAUTHN-STANDING.md`](./BRCE-WEBAUTHN-STANDING.md) (AS-01 / V1–V11); [`OUT-OF-REPO-NEXT-VERIFIERS.md`](./OUT-OF-REPO-NEXT-VERIFIERS.md) (G2-3…G2-5) |
-| Observed tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `98761f257e9b7a369001a3708148707ad581256d` (~`c11ea7f2a+`; lineage through `27436608c` + prior pins `c832cabdc` / `a3b1c9410`) |
-| Tip pin | 2026-11-22 — `cursor/v2711-construct-hash-retip-bc54` docs-only honesty absorb #932 onto tip `98761f257e9b7a369001a3708148707ad581256d` (~`c11ea7f2a+`); load high (LA≈5.7–7.7 on 4 cores, competing `rustc`/`cc1plus`) → **no cargo**; tip-cargo locks **spared** |
+| Observed tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `495a71c2e733373087834a76dca48c8a2d765676` (~`89ca2da9c+` / `d5c754712+`; lineage through `27436608c` + prior pins `c832cabdc` / `a3b1c9410`) |
+| Tip pin | 2026-11-22 — absorb `cursor/v2711-construct-hash-retip-bc54` @ `27f586390` (tip land `5cf9ffc5a`) onto tip `495a71c2e733373087834a76dca48c8a2d765676` (~`89ca2da9c+`); loadavg_1m>6 → **no cargo**; tip-cargo locks **spared** |
 | Repo | `seanchatmangpt/ggen` |
 | Clause-2 standing | **PARTIAL_ALIVE** |
 
@@ -22,15 +22,16 @@ Compact return line:
 ```text
 exit=spared
 standing=PARTIAL_ALIVE
-tip=f7284ce6f6ca70816289bbe7fd5ef32283a9259c
-next=CARGO_BUILD_JOBS=1 --target-dir /tmp/ggen-construct-hash-target cargo test -p ggen-lsp --lib construct_hash_gate; then as01 V7/V1; then V8→V9/G2-5
+tip=495a71c2e733373087834a76dca48c8a2d765676
+absorbed=27f586390
+next=CARGO_BUILD_JOBS=1 cargo test -p ggen-lsp --lib construct_hash_gate --target-dir /tmp/ggen-construct-hash-target --locked; then as01 V7/V1; then V8→V9/G2-5
 ```
 
 ---
 
 ## 0. Tip confirmation (inspection only — no cargo)
 
-| Subject | Evidence on tip `98761f257e9b7a369001a3708148707ad581256d` (~`c11ea7f2a+`) | Standing |
+| Subject | Evidence on tip `495a71c2e733373087834a76dca48c8a2d765676` (~`89ca2da9c+` / `d5c754712+`) | Standing |
 |---------|-----------------------------|----------|
 | **CCS #3 `construct_hash_gate`** | File **PRESENT**: `crates/ggen-lsp/src/a2a_mcp/construct_hash_gate.rs` (tip source **4** `#[test]`). Land `3ec8afd85` (PR **#901** MERGED 2026-11-22 — `feat(ccs): construct_hash_gate CP17 fail-closed fence`) is ancestor of tip. `lifecycle.rs` still **ABSENT**. | **PRESENT** / **PARTIAL_ALIVE** (tip-cargo spared — load high) |
 | **V7 ES256 / `:prime256v1` fixture court** | **PRESENT**: `crates/ggen-abb-sbb/src/as01_assertion.rs` + `tests/brce_as01_es256_assertion_court.rs` (tip source **4** `#[test]`); `p256` admitted in `ggen-abb-sbb` only. Land `fb6e7fc6e` ancestor; historical fixture court **4 passed; exit 0**. | Fixture court land **ALIVE** @ `fb6e7fc6e`; path **PARTIAL_ALIVE** (crypto shape); tip-cargo spared |
@@ -77,11 +78,11 @@ named claim. **This retip does not run cargo** (load high; tip-cargo locks spare
 
 ## 3. What this retip seals (and does not)
 
-**Sealed:** Clause-2 honesty pin at tip `98761f257e9b7a369001a3708148707ad581256d` (~`c11ea7f2a+`) —
-`construct_hash_gate` **PRESENT** (PR #901; tip **4** `#[test]`); as01 V7 (**4**)
-+ V1 seat (**6**) sources **PRESENT**; live WebAuthn **UNSUPPORTED**; BRCE broker
-+ Plane-5 DO **BLOCKED** with exact next **V8 → V9/G2-5**; tip-cargo named but
-**spared** (load high → docs-only).
+**Sealed:** Clause-2 honesty pin at tip `495a71c2e733373087834a76dca48c8a2d765676` (~`89ca2da9c+` / `d5c754712+`) —
+absorb `27f586390` already in tip via `5cf9ffc5a`; `construct_hash_gate` **PRESENT**
+(PR #901; tip **4** `#[test]`); as01 V7 (**4**) + V1 seat (**6**) sources **PRESENT**;
+live WebAuthn **UNSUPPORTED**; BRCE broker + Plane-5 DO **BLOCKED** with exact next
+**V8 → V9/G2-5**; tip-cargo named but **spared** (loadavg_1m>6 → docs-only).
 
 **Not sealed:** tip-cargo exit 0; live broker; live WebAuthn; Plane-5 DO;
 `lifecycle.rs`; zero-HITL / Foundry crown; any promotion of fixture exit 0 to
@@ -100,5 +101,5 @@ CONSTRUCT→DO `ALIVE`.
 | Live WebAuthn crypto | **UNSUPPORTED** |
 | Live BRCE broker | **BLOCKED** → **V8** |
 | Plane-5 DO | **BLOCKED** → **V9** / **G2-5** |
-| Cargo this retip | **none** (load high → docs-only PRESENT) |
-| Observed tip | `98761f257e9b7a369001a3708148707ad581256d` (~`c11ea7f2a+`) |
+| Cargo this retip | **none** (loadavg_1m>6 → docs-only PRESENT; absorb `27f586390` already in tip via `5cf9ffc5a`) |
+| Observed tip | `495a71c2e733373087834a76dca48c8a2d765676` (~`89ca2da9c+` / `d5c754712+`) |
