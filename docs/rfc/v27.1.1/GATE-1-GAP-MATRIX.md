@@ -63,7 +63,7 @@ Do not promote any Gate 0 row to `ALIVE` from this repository.
 | BRCE AS-01 seat | `brce_as01_seat_court` | merged via [#861](https://github.com/seanchatmangpt/ggen/pull/861) — replay |
 | zcode POWL stub | `zcode_powl_ocel_court` | merged on tip — replay; live CLI **UNSUPPORTED** |
 | `ui-layout-court` | `cargo test -p ggen-graph --test ui_layout_court` | **ALIVE** widths 320/375/414/768/1024/1440 + WCAG 1.5× on land `9c1ed0874` |
-| `ui-layout-court.ts` (sibling) | `find . -name 'ui-layout-court.ts'` | empty in ggen → sibling adapter **UNSUPPORTED** here |
+| `ui-layout-court.ts` (contract stub) | `docs/rfc/v27.1.1/fixtures/ui-layout-court.ts` | stub PRESENT; zcode-cli runner still **UNSUPPORTED** |
 | `verify_witness.wasm` (production) | `find . \( -name 'verify_witness*' -o -name '*witness*.wasm' \)` | placeholder only → production **UNSUPPORTED** |
 | `curve25519-dalek` | `rg -n 'name = "curve25519-dalek"' -A2 Cargo.lock` + pin standing | versions **4.1.3** + **5.0.0** present; pin doc [`CURVE25519-DALEK-PIN-STANDING.md`](./CURVE25519-DALEK-PIN-STANDING.md) → **PARTIAL_ALIVE**; policy court still open |
 | ggen_igniter checkout | local mount probe | **BLOCKED** (unmounted) |
