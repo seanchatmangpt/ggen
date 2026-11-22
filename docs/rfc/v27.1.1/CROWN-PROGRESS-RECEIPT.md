@@ -4,8 +4,8 @@
 |-------|-------|
 | Document ID | `CROWN-PROGRESS-RECEIPT-27.1.1` |
 | Status | **PROGRESS RECEIPT** (honest; **not** goal-complete; **not** crown `ALIVE`) |
-| Observed tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `46a026ae9f78052ae14529884cebdf47f29a4698` |
-| Tip subject | absorb #926 ui_layout tip-cargo **ALIVE** @ `8090022f4`/`27436608c` + #927 chicago @ `1b0072b6c`/`eeeb34319` + #928 Smalt @ `84f0d3eb2` (ALIVE supersedes PENDING; tip `46a026ae9f78052ae14529884cebdf47f29a4698`) |
+| Observed tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `2fd8971414519f5a1c51f6b04c1f7a85831def52` |
+| Tip subject | brand Gate-1 honesty `cursor/v2711-brand-gate1-retip-bc54` on tip `2fd897141` (~`120598fb3+`); absorb #926 ui_layout tip-cargo **ALIVE** + #927 chicago + #928 Smalt retained; hot-swap+fluid **PRESENT**; production theme **UNSUPPORTED** |
 | Ledger pins cited | Gate-1 / Photo / Foundry retipped for tip-cargo ALIVE; OOR / CCS / BRCE / CASTLE retain prior absorb pins |
 | Cargo this receipt | **yes** — exclusive quiet `ui_layout_court` **11 passed; exit 0** @ `ca52e9c16` |
 | Goal standing | **INCOMPLETE** — do **not** claim ECOSYSTEM-SPEC-27.1.1 crown complete |
@@ -30,7 +30,7 @@ FinOps: FOUNDRY/OOR **ALIVE** @ `91997da76f0f` vs older §13.3 FinOps
 Compact return line:
 
 ```text
-tip=522da1ee1755eede884aa6cca87d2195b7a6bba0
+tip=2fd8971414519f5a1c51f6b04c1f7a85831def52
 clause1=PARTIAL
 clause2=PARTIAL_ALIVE
 clause3=PARTIAL+BLOCKED
@@ -137,7 +137,7 @@ Do **not** invent zero daily founder HITL `ALIVE` from Gate-1 fence green, CASTL
 | `curve25519-dalek` pin | **PARTIAL_ALIVE** (lock+doc; policy court open) | pin standing §5 policy court |
 | `verify_witness` size | **PARTIAL_ALIVE**; production WASM **UNSUPPORTED** | size court; prod: [`VERIFY-WITNESS-PRODUCTION.md`](./VERIFY-WITNESS-PRODUCTION.md) |
 | R-01…R-07 contract | **ALIVE** (contract); bodies **BLOCKED** | `cargo test -p ggen-graph --test r01_r07_resolution_court` |
-| Brand rhythm / hot-swap | **PARTIAL_ALIVE**; production theme **UNSUPPORTED** (`REFUSED_PRODUCTION`) | rhythm/hotswap courts; [`BRAND-PRODUCTION-THEME.md`](./BRAND-PRODUCTION-THEME.md) |
+| Brand rhythm / hot-swap | hot-swap+fluid **PRESENT** (ceiling **PARTIAL_ALIVE**); production theme **UNSUPPORTED** (`ProductionThemeRefusal::ProductionUnsupported` / `REFUSED_PRODUCTION`) | `brand_toml_hotswap_court` / `brand_fluid_clamp_court` / `layout::brand::production_theme_tests`; [`BRAND-PRODUCTION-THEME.md`](./BRAND-PRODUCTION-THEME.md) |
 | BRCE AS-01 seat fence | **PARTIAL_ALIVE** | `cargo test -p ggen-abb-sbb --test brce_as01_seat_court` |
 | ggen_igniter manufacture | **ALIVE** (BrandTheme compare); mix NIF **BLOCKED** | manufacture replay → **0**; `mix … --check` → **0** |
 | Gate-0 cos | **BLOCKED** (external) | cos `/readyz` → **200** |
@@ -182,5 +182,6 @@ Recommended next Gate-1 falsifier (pick one): quiet tip-cargo reconfirm of remai
 |-------|------|
 | Materialized | 2026-11-22 — branch `cursor/v2711-crown-progress-bc54` against tip `ca52e9c16` |
 | Absorb retip | 2026-11-22 — `cursor/v2711-gate1-uilayout-alive-bc54` absorbs `8090022f4` onto tip `120598fb3` |
+| Brand Gate-1 honesty | 2026-11-22 — `cursor/v2711-brand-gate1-retip-bc54` tip `2fd8971414519f5a1c51f6b04c1f7a85831def52` (~`120598fb3+`); hot-swap+fluid **PRESENT**; production **UNSUPPORTED**; no cargo; no ManagePullRequest |
 | Sources | GATE-1-GAP-MATRIX, PHOTOLITHOGRAPHY, FOUNDRY-FINISH, OUT-OF-REPO-NEXT-VERIFIERS, SMALT-RAID, CCS-AUTHORITY, BRCE-WEBAUTHN, ECOSYSTEM-SPEC §13 |
 | Method | Absorb tip-cargo ALIVE standing; no new cargo; no ManagePullRequest |
