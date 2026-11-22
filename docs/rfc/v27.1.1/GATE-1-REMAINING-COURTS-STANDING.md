@@ -41,7 +41,7 @@ sources (pod OOM blocked exclusive `cargo test -p ggen-graph` under 15–21 conc
 | brand fluid tip-verify (`brand_fluid_clamp_court` + `brand_toml_rhythm_court`) | **6 + 11 passed** | **0** |
 | ui-layout tip-verify (`ui_layout_court` + remediation_bound) | **11 + 4 passed** (incl. anti-vacuity mutation) | **0** |
 
-### Chicago mirror reconfirm (tip `c832cabdc+`, 2026-11-22)
+### Chicago mirror reconfirm (tip `c832cabdc+`, 2026-11-22; absorb honesty)
 
 Backup path while tip exclusive flock `/tmp/ggen-uilayout-tip-alive-protected` was
 **HELD** (not taken). Oxigraph-free harness on
@@ -52,7 +52,8 @@ Backup path while tip exclusive flock `/tmp/ggen-uilayout-tip-alive-protected` w
 | ui-layout Chicago mirror (`ui_layout_court` tip sources; no oxigraph/oxrocksdb) | **11 passed** | **0** | **PARTIAL_ALIVE** |
 
 Ledger: [`UILAYOUT-CHICAGO-MIRROR-STANDING.md`](./UILAYOUT-CHICAGO-MIRROR-STANDING.md).
-Tip exclusive package court still required for Gate-1 **ALIVE**.
+Tip exclusive package court **ALIVE** absorbed via #926 @ tip `27436608c` —
+mirror stays backup **PARTIAL_ALIVE** only.
 
 Package falsifier (preferred CI): still `cargo test -p ggen-graph --test <court>` under
 `CARGO_TARGET_DIR=/tmp/target-gate1-remain` when exclusive headroom allows.

@@ -5,10 +5,10 @@
 | Document ID | `UILAYOUT-CHICAGO-MIRROR-STANDING-27.1.1` |
 | Branch | `cursor/v2711-uilayout-chicago-mirror-bc54` |
 | Source tip (harness sync) | `c832cabdcd3378ef528a4ee2ee387d5731d376a8` (~`c832cabdc+`; layout/`ui_layout_court` byte-identical through tip `a29e1cd92`) |
-| Branch head (this ledger) | `cursor/v2711-uilayout-chicago-mirror-bc54` atop `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `a29e1cd92` |
+| Branch head (this ledger) | absorbed onto tip via `cursor/v2711-absorb-smalt-uilayout-5cea` (source `cursor/v2711-uilayout-chicago-mirror-bc54` @ `1b0072b6c`) |
 | Agent | `bc-1e3f6f87` (backup path; prior notes `bc-365b004b`) |
-| Standing | **PARTIAL_ALIVE** |
-| Gate-1 package ALIVE | **not claimed** — tip exclusive `cargo test -p ggen-graph --test ui_layout_court` under `/tmp/ggen-uilayout-tip-alive-protected` still required |
+| Standing | **PARTIAL_ALIVE** (oxigraph-free mirror only) |
+| Gate-1 package ALIVE | **ALIVE on tip** via absorb of #926 @ `8090022f4` → tip `27436608c` (exclusive quiet **11 passed; exit 0** @ `ca52e9c16`). This mirror remains backup **PARTIAL_ALIVE** — do not double-count as a second package ALIVE |
 
 Standing vocabulary (`AGENTS.md` §2): `UNKNOWN` | `PARTIAL_ALIVE` | `ALIVE` |
 `BLOCKED` | `BUILD_BROKEN` | `UNSUPPORTED` | `REFUSED_*`.
@@ -23,12 +23,12 @@ package cargo.
 | Claim | Standing |
 |-------|----------|
 | Tip-synced `ui_layout_court` Chicago court via oxigraph-free harness | **PARTIAL_ALIVE** (**11 passed; exit 0**) |
-| Package `cargo test -p ggen-graph --test ui_layout_court` on tip | **PENDING** / tip exclusive (do **not** invent Gate-1 **ALIVE** from this mirror) |
-| Did not take tip exclusive flock | **ALIVE** (observation: flock **HELD** by tip-cargo; mirror used separate target) |
+| Package `cargo test -p ggen-graph --test ui_layout_court` on tip | **ALIVE** via #926 absorb @ tip `27436608c` (exclusive quiet @ `ca52e9c16`) — **not** from this mirror |
+| Did not take tip exclusive flock | **ALIVE** (observation: flock **HELD** by tip-cargo during mirror; mirror used separate target) |
 
-**Antifalsifier:** do **not** promote Gate-1 / hop-3b / path-crown `ALIVE` from this
-mirror alone. Tip exclusive package court exit **0** remains the Gate-1 ALIVE
-falsifier.
+**Antifalsifier:** this mirror alone never promotes Gate-1 / hop-3b / path-crown
+`ALIVE`. Tip exclusive package court exit **0** (#926) is the Gate-1 ALIVE
+falsifier; mirror stays **PARTIAL_ALIVE** backup evidence.
 
 ## Evidence (2026-11-22)
 
@@ -57,19 +57,15 @@ env -u RUSTC_WRAPPER SCCACHE_DISABLE=1 \
 # expect: 11 passed; exit 0; no oxrocksdb/oxigraph in the build
 ```
 
-## Exact next (Gate-1 ALIVE)
+## Exact next (post-absorb)
 
-```bash
-# Only when tip exclusive flock is free / held by the tip-alive agent:
-flock /tmp/ggen-uilayout-tip-alive-protected \
-  env CXX=g++ SCCACHE_DISABLE=1 CARGO_BUILD_JOBS=1 \
-  CARGO_TARGET_DIR=/tmp/ggen-uilayout-tip-alive-target \
-  cargo test -p ggen-graph --test ui_layout_court --locked -- --test-threads=1
-# expect: 11 passed; exit 0 → Gate-1 hop-3b tip-cargo ALIVE
-```
+Tip exclusive package court **ALIVE** already absorbed (#926 → tip `27436608c`).
+Mirror ledger remains **PARTIAL_ALIVE** backup. Next Gate-1 falsifiers: quiet
+tip-cargo reconfirm of remaining fences (`shui` / Taffy / brand) — not a second
+`ui_layout` ALIVE invent from this mirror.
 
 ## Return line
 
 ```text
-exit=0 standing=PARTIAL_ALIVE tip=c832cabdcd3378ef528a4ee2ee387d5731d376a8 next=tip-exclusive package ui_layout_court under /tmp/ggen-uilayout-tip-alive-protected
+exit=0 standing=PARTIAL_ALIVE tip=27436608c absorbed=#927 next=remaining Gate-1 tip-cargo fences (ui_layout ALIVE via #926)
 ```

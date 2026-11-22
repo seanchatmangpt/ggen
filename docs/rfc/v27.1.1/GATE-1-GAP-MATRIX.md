@@ -7,7 +7,7 @@ Companion to `ECOSYSTEM-SPEC-27.1.1.md` and `REPO-INVENTORY-27.1.1.md`.
 **Evidence refresh / live tip pin:** CindyCat dual-schema `[primitive.space]` from `[rhythm]` on `cursor/v2711-hop4-cindycat-space-bc54` (court `oem_fixtures_carry_dtcg_primitive_space_from_rhythm`).
 
 **Evidence refresh / live tip pin:** 2026-11-22 absorb `cursor/v2711-uilayout-tip-alive-bc54` @ `8090022f4` onto tip
-`120598fb3e395393d0ebe7fd86537bb499fc670d` (~`a29e1cd92+`; tip-wins: hop-5 runtime **PRESENT** / model access **REFUSED**; ui_layout tip-cargo **ALIVE**).
+`120598fb3e395393d0ebe7fd86537bb499fc670d` (~`27436608c+`; tip-wins: hop-5 runtime **PRESENT** / model access **REFUSED**; ui_layout tip-cargo **ALIVE**; chicago mirror **PARTIAL_ALIVE**; Smalt 6-column spine **ALIVE**).
 Truex+shui product admit → **ALIVE** (sibling **6/6 vitest exit 0** @
 `truex@68d2d2331696f18949f4877b994320018b6365e5` — [truex#6](https://github.com/seanchatmangpt/truex/pull/6)
 **MERGED** to `main` as `b4672131`; mount `/tmp/truex`; receipt
@@ -93,7 +93,7 @@ Do not promote any Gate 0 row to `ALIVE` from this repository.
 
 ### Command evidence log (this refresh)
 
-Live tip pin: `120598fb3e395393d0ebe7fd86537bb499fc670d` (absorb `8090022f4` ui_layout tip-cargo ALIVE onto tip past #923/#924/#925; sources ≡ tip).
+Live tip pin: `27436608c49224dfdc2e557a49f5030a1ab60e5e` (absorb #926 ui_layout ALIVE + #927 chicago mirror + #928 Smalt retip; sources ≡ tip).
 Historical exit-0 evidence tip: `0478fde59644cccd60c5a88d64d444ec292e6a3c` (≥ `a54b9803`; ancestor).
 ui-layout ancestor ALIVE: `eaf0dad40287a3347280a541766b3b16f3978cf8`.
 **Tip-cargo `ui_layout` ALIVE** this retip: exclusive flock `/tmp/ggen-uilayout-tip-alive-protected`;
