@@ -23,7 +23,7 @@ closure. “Closed” without an admitted risk-register body is `REFUSED_UNGROUN
 |---------|----------|----------|---------------------|
 | §11 enumeration R-01…R-07 | `ECOSYSTEM-SPEC-27.1.1.md` §11 table | **PARTIAL_ALIVE** (spec text) | Keep IDs stable; refuse invented R-08+ via court |
 | Closure rule: typed receipt **or** typed refusal before GA | Spec §11 “Closure rule” column | **PARTIAL_ALIVE** (doctrine) | Per-ID receipt/refusal after register admits body |
-| Ungrounded “closed” → `REFUSED_UNGROUNDED` | `ggen_graph::ecosystem_risk::resolve_closure` + Chicago court | **ALIVE** (lineage tip-cargo **7** @ `cd7c2433b`) | exact-tip reconfirm: `CARGO_BUILD_JOBS=1 cargo test -p ggen-graph --test r01_r07_resolution_court --locked -- --test-threads=1` |
+| Ungrounded “closed” → `REFUSED_UNGROUNDED` | `ggen_graph::ecosystem_risk::resolve_closure` + Chicago court | **ALIVE** (lineage tip-cargo **7** @ `cd7c2433b`; sources ≡ tip) | Replay: [`R01-R07-TIP-CARGO-STANDING.md`](./R01-R07-TIP-CARGO-STANDING.md); bodies stay **BLOCKED** |
 | Risk-register prose for each R-* | **Not mounted** in this checkout | **UNSUPPORTED** (bodies) | Admit sovereign risk register; materialize bodies without invention |
 
 The executable court seals the **contract fence**, not per-risk closure.
@@ -60,7 +60,7 @@ Do **not** promote any crown row to `ALIVE` from this repository while bodies ar
 
 - Standing census that R-01…R-07 remain open GA gates (bodies).
 - Typed stub `ecosystem_risk` that refuses ungrounded closed claims.
-- Chicago court binding stub ↔ ECOSYSTEM-SPEC §11 ↔ this standing file — tip-cargo **7 passed; exit 0** @ `cd7c2433b` (`/tmp/ggen-r01-r07-tip`; PID 1095281). Exact-tip reconfirm SCHEDULED.
+- Chicago court binding stub ↔ ECOSYSTEM-SPEC §11 ↔ this standing file — tip-cargo **7 passed; exit 0** @ `cd7c2433b` (`/tmp/ggen-r01-r07-tip`; PID 1095281); sources ≡ tip — exact-tip re-run not required for harness identity ([`R01-R07-TIP-CARGO-STANDING.md`](./R01-R07-TIP-CARGO-STANDING.md)).
 
 **Explicitly not sealed:**
 
