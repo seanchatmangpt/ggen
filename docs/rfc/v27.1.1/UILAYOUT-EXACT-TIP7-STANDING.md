@@ -15,7 +15,7 @@ standing=PARTIAL_ALIVE
 prior_exact_tip6=ALIVE@2e452873ad (11 passed; tip-cargo ALIVE held / superseded prior PARTIAL)
 prior_alive_lineage=a508e6bae / sealed 2685119bd (11 passed)
 peer_tip7_serial_alive=UILAYOUT-TIP7-STANDING.md EXIT0 @ /tmp/tip7-serial (bc-e40d4b25; not this probe)
-crown_absorb=ABSORBED@675c61405→SIDE←b0ad71fa8
+crown_absorb=ABSORBED@675c61405→b94ab14c4←b0ad71fa8
 ManagePullRequest=not_used
 force_push=sidebranch_lease_only
 Foundry_ALIVE=not_claimed
@@ -40,7 +40,7 @@ sibling_ts=UNSUPPORTED
 | Prior exact tip6 | **ALIVE** tip-cargo EXIT0 @ `2e452873ad` (11 passed) — lineage held; **not** reconfirmed by this exact-tip7 probe |
 | Peer tip7 serial | [`UILAYOUT-TIP7-STANDING.md`](./UILAYOUT-TIP7-STANDING.md) EXIT0 @ `/tmp/tip7-serial` (`bc-e40d4b25`) — **not** this agent's `/tmp/gate1-tip7-uilayout` EXIT:0 |
 | Sibling `ui-layout-court.ts` | **UNSUPPORTED** |
-| Crown absorb | tip-wins honesty ledger (PARTIAL; EXIT≠0) |
+| Crown absorb | tip-wins @  onto  ← side  (PARTIAL; EXIT≠0) |
 | ManagePullRequest | **not used** |
 | Force-push | sidebranch lease only (stale remote tip7 branch rewritten onto live crown) |
 | Foundry ALIVE | **not claimed** |
@@ -94,5 +94,5 @@ diagnostic=timeout_1500s_mid_compile_no_test_binary
 next=CXX=g++ SCCACHE_DISABLE=1 RUSTC_WRAPPER= CARGO_BUILD_JOBS=1 CARGO_TARGET_DIR=/tmp/gate1-tip7-uilayout cargo test -p ggen-graph --test ui_layout_court --locked --config build.jobs=1 -- --test-threads=1
 peer_tip7_serial_alive=UILAYOUT-TIP7-STANDING.md
 lineage_alive=a508e6bae / tip6 ALIVE@2e452873ad
-crown_absorb=tip-wins ManagePullRequest=not_used force_push=sidebranch_lease_only Foundry_ALIVE=not_claimed
+crown_absorb=ABSORBED@675c61405→b94ab14c4←b0ad71fa8 ManagePullRequest=not_used force_push=sidebranch_lease_only Foundry_ALIVE=not_claimed
 ```
