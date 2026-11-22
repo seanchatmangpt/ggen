@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|-------|
 | Document ID | `R01-R07-BODIES-NEXT-VERIFIER-STANDING-27.1.1` |
-| Branch | `cursor/v2711-brce-bodies-next-bc54` (sidebranch only; **no** crown push) |
+| Branch | `cursor/v2711-brce-bodies-next-bc54` @ `6e227c187` (sidebranch only; **no** crown push) |
 | Spec binding | `ECOSYSTEM-SPEC-27.1.1` §11 / D7; OOR **G3-5** / BRCE **V10** |
 | Companions | [`R01-R07-STANDING.md`](./R01-R07-STANDING.md) §2; [`R01-R07-TIP-CARGO-STANDING.md`](./R01-R07-TIP-CARGO-STANDING.md); [`BRCE-V8-NEXT-VERIFIER-STANDING.md`](./BRCE-V8-NEXT-VERIFIER-STANDING.md); [`BRCE-WEBAUTHN-STANDING.md`](./BRCE-WEBAUTHN-STANDING.md) §5 **V10**; [`CCS-BRCE-STANDING.md`](./CCS-BRCE-STANDING.md) §2; [`OUT-OF-REPO-NEXT-VERIFIERS.md`](./OUT-OF-REPO-NEXT-VERIFIERS.md) **G3-5** |
 | Observed ggen tip (side base) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `bebea5dd0d4c9af533457e04e0ed068ae8844f69` (⊇ HITL retip2 **BLOCKED_HITL** + zcode refusal **ALIVE** + OOR retip14) |
@@ -132,6 +132,6 @@ V8 residual (orthogonal): [`BRCE-V8-NEXT-VERIFIER-STANDING.md`](./BRCE-V8-NEXT-V
 
 | Event | Note |
 |-------|------|
-| Side-branch pin | 2026-11-22 — `cursor/v2711-brce-bodies-next-bc54` from crown tip `bebea5dd0` (`bc-6fa5335f`); docs-only; bodies **BLOCKED**; contract **ALIVE** retained; **no** V8/body `ALIVE`; no cargo; no ManagePullRequest; **no** crown push |
+| Side-branch pin | 2026-11-22 — `cursor/v2711-brce-bodies-next-bc54` @ `6e227c187acc76017e345ed6ac03aaec6c90002b` from crown tip `bebea5dd0` (`bc-6fa5335f`); docs-only; bodies **BLOCKED**; contract **ALIVE** retained; **no** V8/body `ALIVE`; no cargo; no ManagePullRequest; **no** crown push |
 | Prior evidence chain | `r01_r07_resolution_court` tip-cargo **ALIVE** @ `e7569893a` → R01-R07 standing bodies **BLOCKED** → BRCE-V8-NEXT bodies **BLOCKED** ahead of / parallel to V8 → OOR **G3-5** still open → this NEXT-VERIFIER honesty pin |
 | Replay | `test -f docs/rfc/v27.1.1/R01-R07-BODIES-NEXT-VERIFIER-STANDING.md` && `rg -n 'BLOCKED|REFUSED_UNGROUNDED|G3-5' docs/rfc/v27.1.1/R01-R07-BODIES-NEXT-VERIFIER-STANDING.md` |
