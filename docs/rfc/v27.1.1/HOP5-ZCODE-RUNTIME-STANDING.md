@@ -4,7 +4,7 @@
 |-------|-------|
 | Document ID | `HOP5-ZCODE-RUNTIME-STANDING-27.1.1` |
 | Branch | `cursor/v2711-hop5-foundry-live2-bc54` (runtime successor land) |
-| Companion | [`HOP5-FOUNDRY-LIVE2-STANDING.md`](./HOP5-FOUNDRY-LIVE2-STANDING.md), [`PHOTOLITHOGRAPHY-STANDING.md`](./PHOTOLITHOGRAPHY-STANDING.md) hop 5, [`OUT-OF-REPO-NEXT-VERIFIERS.md`](./OUT-OF-REPO-NEXT-VERIFIERS.md) G2-9, [`FOUNDRY-FINISH-STANDING.md`](./FOUNDRY-FINISH-STANDING.md) |
+| Companion | [`HOP5-FOUNDRY-LIVE2-STANDING.md`](./HOP5-FOUNDRY-LIVE2-STANDING.md), [`HOP5-MODEL-ACCESS-STANDING.md`](./HOP5-MODEL-ACCESS-STANDING.md), [`PHOTOLITHOGRAPHY-STANDING.md`](./PHOTOLITHOGRAPHY-STANDING.md) hop 5, [`OUT-OF-REPO-NEXT-VERIFIERS.md`](./OUT-OF-REPO-NEXT-VERIFIERS.md) G2-9, [`FOUNDRY-FINISH-STANDING.md`](./FOUNDRY-FINISH-STANDING.md) |
 | Ecospec tip base | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `1a32ea1b1` (#916/#917 absorb tip; ancestor `ca52e9c16`) |
 | zcode-cli land | `cursor/v2711-hop5-foundry-live2-bc54` @ `f32df08cdc4b3b8e114a8d1de8cf81acb80e1f3a` |
 | Host | Linux x86_64 cloud VM |
@@ -61,8 +61,11 @@ Receipt: `/tmp/cursor/hop5-zcode-runtime-receipt.md`.
 
 ```bash
 # Out-of-repo zcode-cli — runtime PRESENT; provider credentials required:
+# Exact keys / env / REFUSED live-bypass: HOP5-MODEL-ACCESS-STANDING.md
 cd /agent/repos/zcode-cli   # @ f32df08+; vendor/zcode.cjs PRESENT
-# provision model access: zcode /login or /setup, or write ~/.zcode/v2/provider_config.json
+# provision: /login|/setup OR ~/.zcode/v2/provider_config.json (non-empty
+#   config.providerConfigRules.providerRules[].config.access.apiKey +
+#   defaultModelSelection) OR preflight env (ANTHROPIC_API_KEY|ZCODE_API_KEY|…)
 bun scripts/powl-foundry-loop.ts --live
 # expect: foundry_exit=0 / aggregateStanding=ALIVE for hop-5 live crown
 
@@ -73,3 +76,4 @@ mix ggen_igniter.sync --check   # → 0 in igniter workspace
 Antifalsifier: runtime materialization alone ≠ hop-5 / path-crown `ALIVE`;
 `foundry_exit=1` with model access ABSENT is typed **BLOCKED**/**REFUSED**, not silent pass.
 Do not restate `ZCode runtime is missing` after tip-matched Linux vendor PRESENT.
+No admitted `--live` fixture bypass — dry-run PARTIAL ≠ live ALIVE.
