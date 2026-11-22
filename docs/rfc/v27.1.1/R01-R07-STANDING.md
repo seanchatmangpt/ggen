@@ -17,6 +17,10 @@ Standing vocabulary: `UNKNOWN` | `PARTIAL_ALIVE` | `ALIVE` | `BLOCKED` | `BUILD_
 **Law:** Do **not** invent risk bodies. Source presence of this standing file is not
 closure. “Closed” without an admitted risk-register body is `REFUSED_UNGROUNDED`.
 
+**Exact next verifier (all seven bodies — `NEXT_VERIFIER_RISK_REGISTER`):**
+Admit risk-register bodies for R-01…R-07 from the sovereign risk register
+(do not invent prose), then per-ID typed receipt or typed REFUSED_* before GA 2027-01-01.
+
 ---
 
 ## 1. Resolution contract (in-repo — falsifiable)
