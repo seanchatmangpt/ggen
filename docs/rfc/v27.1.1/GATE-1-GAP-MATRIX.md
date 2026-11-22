@@ -41,7 +41,7 @@ Do not promote any Gate 0 row to `ALIVE` from this repository.
 | Admit W3C `shui:` as public vocab (ggen fence) | **PARTIAL_ALIVE** (merged on tip; prior tip recorded `shui_public_prefix_court` **3 passed; exit 0** — reconfirm on `57626beaa`). Truex product admit is a separate row. | tip `57626beaa` (subject earlier `16239f823`) | `cargo test -p ggen-graph --test shui_public_prefix_court` | **ggen** (fence) |
 | Truex runtime admits `shui:` shapes | **UNKNOWN** — sibling `seanchatmangpt/truex` not mounted in this worktree | n/a (sibling) | in truex: admit-court that loads a `shui:`-prefixed shape graph and exits 0; refuse still holds for private `truex:` | **truex** |
 | Taffy AOT pre-flight (widths 320/375/393/600/840/1280 + WCAG 1.4.12 1.5×) | **PARTIAL_ALIVE** — `layout::taffy_aot` six-width seal present; prior tip court **6 passed; exit 0** (reconfirm on tip). Photolithography / zcode-cli consume still open → not crown `ALIVE`. Hop: [`PHOTOLITHOGRAPHY-STANDING.md`](./PHOTOLITHOGRAPHY-STANDING.md). | tip `57626beaa` | `cargo test -p ggen-graph --test taffy_aot_preflight_court` | **ggen** |
-| zcode-cli `ui-layout-court.ts` | **ABSENT** / **UNSUPPORTED** — `find`: **zero** `ui-layout-court.ts` in this repo tree (docs-only mentions) | n/a (sibling) | in zcode-cli: `pnpm test -- ui-layout-court` (or that repo’s exact court runner) against a ggen `AotSealReceipt` fixture | **zcode-cli** |
+| zcode-cli `ui-layout-court.ts` | **ALIVE** (in-repo ggen fence) — `layout::ui_layout_court` adapter + Chicago court `ui_layout_court` + fixtures `docs/rfc/v27.1.1/fixtures/ui-layout-{court.ts,valid.column.json}`; seals ggen→Taffy AOT seam + anti-vacuity mutation. **zcode-cli TS runner** remains **UNSUPPORTED** / **BLOCKED** (sibling unmounted); stub documents wire shape only. | tip `553b21668` (`cursor/v2711-ui-layout-onto-tip-32d4`) | `cargo test -p ggen-graph --test ui_layout_court` | **ggen** (fence); **zcode-cli** (live runner) |
 | zcode POWL/OCEL bounded remediation (in-repo stub) | **PARTIAL_ALIVE** — standing + `remediation_bound` + `ggen-sjira` IO-free court on tip (integrate / [#862](https://github.com/seanchatmangpt/ggen/pull/862)). Live sibling Chicago court **UNKNOWN** / **UNSUPPORTED** (unmounted). Ledger: [`ZCODE-POWL-OCEL-STANDING.md`](./ZCODE-POWL-OCEL-STANDING.md) | tip `57626beaa` | In-repo: `cargo test -p ggen-sjira --test zcode_powl_ocel_court`. Live: `bun test test/powl-ocel-chicago.test.ts` in zcode-cli | **ggen** (contract); **zcode-cli** (execution) |
 | `curve25519-dalek` v4 / cgap-aoq docs | **PARTIAL_ALIVE** (lock) / **UNKNOWN** (Gate-1 pin doc) — `Cargo.lock` resolves **4.1.3** and **5.0.0**; no dedicated pin/policy doc under `docs/rfc/v27.1.1/` | lock tip = branch `57626beaa` | `rg -n 'name = "curve25519-dalek"' -A2 Cargo.lock` then author `docs/rfc/v27.1.1/` (or cgap-aoq) pin doc; refuse undocumented major | **ggen** (+ cgap-aoq docs owner) |
 | `verify_witness` WASM &lt; 250KB | **ALIVE** (offline size court) — `ggen_graph::witness` API + court `verify_witness_size_court` **6 passed; exit 0** (2026-11-22) on tip `45974aaf6` (placeholder `&lt; 262144`); production runtime out-of-repo ([`VERIFY-WITNESS-PRODUCTION.md`](./VERIFY-WITNESS-PRODUCTION.md)) remains external / typed `UNSUPPORTED` — not production-artifact crown | tip `45974aaf6` (subject `180c9e4a8`) | `cargo test -p ggen-graph --test verify_witness_size_court` | **ggen** (size court) + external (witness/affidavit production build) |
@@ -62,7 +62,8 @@ Do not promote any Gate 0 row to `ALIVE` from this repository.
 | R-01…R-07 contract | `r01_r07_resolution_court` | merged on tip — replay exit reconfirm |
 | BRCE AS-01 seat | `brce_as01_seat_court` | merged via [#861](https://github.com/seanchatmangpt/ggen/pull/861) — replay |
 | zcode POWL stub | `zcode_powl_ocel_court` | merged on tip — replay; live CLI **UNSUPPORTED** |
-| `ui-layout-court.ts` | `find . -name 'ui-layout-court.ts'` | empty → **ABSENT** / **UNSUPPORTED** |
+| `ui-layout-court` (ggen fence) | `cargo test -p ggen-graph --test ui_layout_court` | **5 passed; 0 failed** → exit **0** on tip `82129ce71` (subject `f51aec6af` salvage) |
+| `ui-layout-court.ts` (zcode-cli live) | `find . -name 'ui-layout-court.ts'` → fixture stub under `docs/rfc/v27.1.1/fixtures/` | in-repo contract stub only; live sibling runner **UNSUPPORTED** |
 | `verify_witness.wasm` (production) | `find . \( -name 'verify_witness*' -o -name '*witness*.wasm' \)` | placeholder only → production **UNSUPPORTED** |
 | `curve25519-dalek` | `rg -n 'name = "curve25519-dalek"' -A2 Cargo.lock` | versions **4.1.3** + **5.0.0** present; pin doc absent |
 | ggen_igniter checkout | local mount probe | **BLOCKED** (unmounted) |
@@ -77,6 +78,7 @@ cargo test -p ggen-graph --test verify_witness_size_court
 cargo test -p ggen-graph --test r01_r07_resolution_court
 cargo test -p ggen-abb-sbb --test brce_as01_seat_court
 cargo test -p ggen-sjira --test zcode_powl_ocel_court
+cargo test -p ggen-graph --test ui_layout_court
 ```
 
 ---
@@ -95,5 +97,5 @@ ggen fences **merged** on tip (PARTIAL until tip exit reconfirm):
 
 Next **new** Gate-1 falsifier to author (pick one):
 
-1. Wire zcode-cli `ui-layout-court.ts` (or igniter) to consume `AotSealReceipt` without re-implementing geometry law — photolithography remains non-`ALIVE` until that boundary executes (**ABSENT** today). Hop ledger: [`PHOTOLITHOGRAPHY-STANDING.md`](./PHOTOLITHOGRAPHY-STANDING.md).
+1. Wire **mounted** zcode-cli to consume ggen `AotSealReceipt` + `seal_digest` without re-implementing geometry law (in-repo fence is **ALIVE**; live sibling runner still **UNSUPPORTED**). Hop ledger: [`PHOTOLITHOGRAPHY-STANDING.md`](./PHOTOLITHOGRAPHY-STANDING.md).
 2. Or advance sibling / docs rows still open: Truex `shui:` product admit; `curve25519-dalek` Gate-1 pin doc; production `verify_witness.wasm` build on the affidavit plane; igniter clean-room probe.
