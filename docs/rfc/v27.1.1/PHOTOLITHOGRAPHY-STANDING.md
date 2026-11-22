@@ -4,7 +4,7 @@
 |-------|-------|
 | Document ID | `PHOTOLITHOGRAPHY-STANDING-27.1.1` |
 | Companion | `ECOSYSTEM-SPEC-27.1.1.md`, `GATE-1-GAP-MATRIX.md`, `REPO-INVENTORY-27.1.1.md` |
-| Observed tip (this ledger) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `704025461a343ba95f4d3c4561825350bf6c9163` (hop-4 real manufacture **PARTIAL** exit **2** `REFUSED :no_primitive_space`; hop-5 live after layout-court [#884](https://github.com/seanchatmangpt/ggen/pull/884) / land `d37271961`/`6a89beb38`; `ggen-layout-court` **PRESENT**; ui-layout **ALIVE** evidence `eaf0dad40` exit 0 / 8 passed — ancestor; tip court land `7c0ba2a90`; tip source **11** `#[test]`; **tip-cargo reconfirm PENDING** quiet cgroup — not tip exit 0; hop-4 demotion antifalsifier retained) |
+| Observed tip (this ledger) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `99255d53c993ff93b80676463d0b5bd107d060f6` (Truex admit-court **ALIVE** @ `truex@68d2d233` / [truex#6](https://github.com/seanchatmangpt/truex/pull/6) **MERGED**; hop-4 real manufacture **PARTIAL** exit **2** `REFUSED :no_primitive_space`; hop-5 live after layout-court [#884](https://github.com/seanchatmangpt/ggen/pull/884) / land `d37271961`/`6a89beb38`; `ggen-layout-court` **PRESENT**; ui-layout **ALIVE** evidence `eaf0dad40` exit 0 / 8 passed — ancestor; tip court land `7c0ba2a90`; tip source **11** `#[test]`; **tip-cargo reconfirm PENDING** quiet cgroup — not tip exit 0; hop-4 demotion antifalsifier retained) |
 | Hop-4 manufacture | 2026-11-22 — `cursor/v2711-hop4-manufacture-bc54` / `/tmp/cursor/igniter-real-cleanroom.md` (`bc-72d61d31`) — BrandTheme.from_brand on tip `fourth-watch.brand.toml` → exit **2** `{:brand_theme_refused, :no_primitive_space}` |
 | Hop-5 live | 2026-11-22 — `cursor/v2711-hop5-live-bc54` / `/tmp/cursor/hop5-live-after-884.md` (prior PRESENT pin `cursor/v2711-hop5-present-pin-bc54`; prior cross-mount `/tmp/cursor/hop5-crossmount.md`) |
 | Status | LEDGER (path standings; **not** a crown `ALIVE` receipt) |
@@ -53,7 +53,7 @@ perimeter transducer
 
 | # | Hop | Standing | In-repo vs out-of-repo | Exact next verifier | Falsifier |
 |---|-----|----------|------------------------|---------------------|-----------|
-| 1 | Perimeter transducer (O → O\* admission fence) | **PARTIAL_ALIVE** (prefix fence only) | **In-repo** fence; product perimeter **out-of-repo** (Truex / brand plane) | `cargo test -p ggen-graph --test shui_public_prefix_court` | Court fails; or `shui` dropped from `ADMITTED_TURTLE_PREFIXES`; or private prefix (`truex`, `gall`, …) admits |
+| 1 | Perimeter transducer (O → O\* admission fence) | **PARTIAL_ALIVE** (ggen prefix fence) + Truex product admit-court **ALIVE** @ `truex@68d2d233` ([truex#6](https://github.com/seanchatmangpt/truex/pull/6) **MERGED**; vitest **6/6** exit 0) | **In-repo** fence; product perimeter **out-of-repo** (Truex **ALIVE** / brand plane) | Fence: `cargo test -p ggen-graph --test shui_public_prefix_court`. Truex replay: `pnpm exec vitest run test/admit/admit-court.test.ts` → exit 0 @ `68d2d233` | Court fails; or `shui` dropped from `ADMITTED_TURTLE_PREFIXES`; or private prefix (`truex`, `gall`, …) admits; or Truex admit-court regresses off merged tip |
 | 2 | `.ttl` / `.toml` law + brand rhythm | **PARTIAL_ALIVE** (rhythm + OCEL/POWL vocab); full DTCG inventory **UNSUPPORTED** | **In-repo** fixtures + vocabs; OEM token inventories Gate 2+ / brand plane | `cargo test -p ggen-graph --test brand_toml_rhythm_court` | Fixtures refuse or go missing; rhythm admits touch &lt;44 / gap &lt;8 / off-grid; Gate-2 tokens invented without source |
 | 3 | ggen + Taffy AOT pre-flight | **PARTIAL_ALIVE** (ggen six-width seal) | **In-repo** (`ggen-graph::layout::taffy_aot`); consumer adapters **out-of-repo** | `cargo test -p ggen-graph --test taffy_aot_preflight_court` | Six-width seal fails under WCAG 1.4.12 1.5×; overflow refusal omits failing width; silent drop of typed `AotRefusal` |
 | 3b | ggen `ui-layout` digest consume (D5 in-repo fence) | **ALIVE** — `layout::ui_layout` + `tests/ui_layout_court.rs`; evidence tip `eaf0dad40` **8 passed; exit 0** (`bc-c7c9d554`; ancestor); tip court land `7c0ba2a90`; tip source **11** `#[test]`; **tip-cargo PENDING** (quiet cgroup) | **In-repo** fence only; sibling `ui-layout-court.ts` remains **ABSENT** / **UNSUPPORTED** here | Replay: `cargo test -p ggen-graph --test ui_layout_court` | Court missing from tip; silent admit of missing/stale/mismatched digest; conflating with sibling `.ts`; inventing path-crown ALIVE from hop 3b alone; inventing tip exit 0 without quiet cargo |
@@ -88,8 +88,13 @@ prefix / private-namespace gate — not a file named “transducer”.
 | `crates/ggen-graph/src/bin/gall_actuate_code_evaluation.rs` | Private-namespace scan companion |
 | `crates/ggen-lsp/assets/policies/no-private-namespace.shacl.ttl` | Author-time SHACL companion |
 
-Truex product admission of `shui:` shapes remains **UNKNOWN** (sibling not
-mounted; see `GATE-1-GAP-MATRIX.md`).
+Truex product admission of `shui:` shapes is **ALIVE** — sibling Chicago
+admit-court **6/6 vitest exit 0** reconfirmed @
+`truex@68d2d2331696f18949f4877b994320018b6365e5` ([truex#6](https://github.com/seanchatmangpt/truex/pull/6)
+**MERGED** → `main` merge `b4672131`; mount `/tmp/truex`; receipt
+`/tmp/cursor/truex-merged-admit-alive.md`). ggen prefix fence remains a
+separate hop-1 leg (tip-cargo PENDING). See `GATE-1-GAP-MATRIX.md` /
+`OUT-OF-REPO-NEXT-VERIFIERS.md` G2-7.
 
 ### 2 — `.ttl` / `.toml`
 
