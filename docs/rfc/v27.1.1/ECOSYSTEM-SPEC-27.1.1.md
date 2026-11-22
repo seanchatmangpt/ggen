@@ -197,8 +197,9 @@ Gate-1 in-repo slice (this land): **visual rhythm only** — px/rem primitives,
 `docs/rfc/v27.1.1/fixtures/`. Full color/type/CASTLE inventories remain Gate 2+;
 inventing those token values here is still **REFUSED**.
 
-Standing: **PARTIAL_ALIVE** (rhythm schema + OEM stubs + Chicago court);
-token-inventory plane **UNSUPPORTED** until Gate 2+.
+Standing: **PARTIAL_ALIVE** (rhythm schema + OEM stubs + fluid `clamp`/`cqi`
+slope admission + Chicago court); token-inventory plane **UNSUPPORTED** until
+Gate 2+.
 
 In-repo **brand.toml hot-swap** fence (`seed_hot_swap_slot` / `hot_swap_brand`
 + `brand_toml_hotswap_court`): **PARTIAL_ALIVE** only — admits Fourth Watch ↔
