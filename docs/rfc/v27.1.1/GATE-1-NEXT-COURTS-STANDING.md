@@ -1,7 +1,7 @@
 # Gate-1 next courts — tip-cargo standing
 
 ```text
-tip=27436608c49224dfdc2e557a49f5030a1ab60e5e
+tip=26256ca9d413617f0e8b1418d101708ec4fbc2a3
 shui=ALIVE
 taffy=ALIVE
 brand=ALIVE
@@ -11,7 +11,7 @@ standing=ALIVE
 | Field | Value |
 |-------|-------|
 | Branch | `cursor/v2711-gate1-next-courts-bc54` |
-| Base tip | `27436608c49224dfdc2e557a49f5030a1ab60e5e` (absorb ui_layout tip-cargo ALIVE onto `120598fb3`) |
+| Base tip | `26256ca9d413617f0e8b1418d101708ec4fbc2a3` (quiet tip-cargo on `cursor/v2711-gate1-next-courts-bc54`; crown observed `678a6c106`) |
 | Constraint | `CARGO_BUILD_JOBS=1`; separate `/tmp` target-dirs; loadavg prefer ≤10 |
 | ManagePullRequest | **not used** |
 
@@ -31,7 +31,7 @@ Companion lib fence (post-fix): `cargo test -p ggen-graph --lib layout::brand::`
 
 Repair: parse as `toml::Table` (toml 1.x document root). Also `ref`-bind two lib-test `@` patterns that E0382 under current nightly when compiling `cfg(test)`.
 
-Pre-fix tip-cargo brand standing would have been **FAILED**; post-fix tip-cargo = **ALIVE**. Production theme remains **UNSUPPORTED** (`REFUSED_PRODUCTION`); hot-swap ceiling remains **PARTIAL_ALIVE**.
+Pre-fix tip-cargo brand standing would have been **FAILED**; post-fix tip-cargo = **ALIVE**. Production theme remains **UNSUPPORTED** (`REFUSED_PRODUCTION`); in-repo hot-swap fence is tip-cargo **ALIVE** on evidence `26256ca9d` (≠ production theme `ALIVE`).
 
 ## Replay
 
