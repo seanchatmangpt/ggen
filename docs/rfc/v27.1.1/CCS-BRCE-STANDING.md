@@ -5,8 +5,8 @@
 | Document ID | `CCS-BRCE-STANDING` |
 | Spec binding | `ECOSYSTEM-SPEC-27.1.1` §13.2 (Clause 2 — CCS / BRCE + WebAuthn AS-01) |
 | Companions | [`CCS-AUTHORITY-STANDING.md`](./CCS-AUTHORITY-STANDING.md) (~8 CCS ledger); [`BRCE-WEBAUTHN-STANDING.md`](./BRCE-WEBAUTHN-STANDING.md) (AS-01 / V1–V11); [`OUT-OF-REPO-NEXT-VERIFIERS.md`](./OUT-OF-REPO-NEXT-VERIFIERS.md) (G2-3…G2-5) |
-| Observed tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `a3b1c94103984e2d362c068deb61cd700615e158` |
-| Tip pin | 2026-11-22 — `cursor/v2711-ccs-brce-retip-ecd6` (docs-only honesty; **no cargo**; tip-cargo locks **spared**) |
+| Observed tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `c832cabdcd3378ef528a4ee2ee387d5731d376a8` (absorb; evidence lineage through `a3b1c9410`) |
+| Tip pin | 2026-11-22 — absorb `cursor/v2711-ccs-brce-retip-ecd6` @ `16d3c2f08` (#921) onto tip `c832cabdc` (docs-only honesty; **no cargo**; tip-cargo locks **spared**) |
 | Repo | `seanchatmangpt/ggen` |
 | Clause-2 standing | **PARTIAL_ALIVE** |
 
@@ -20,7 +20,7 @@ exit 0 remains **PARTIAL_ALIVE**.
 Compact return line:
 
 ```text
-tip=a3b1c94103984e2d362c068deb61cd700615e158
+tip=c832cabdcd3378ef528a4ee2ee387d5731d376a8
 standing=PARTIAL_ALIVE
 next=V8-broker→V9/G2-5; tip-cargo construct_hash_gate (spared)
 ```
@@ -29,7 +29,7 @@ next=V8-broker→V9/G2-5; tip-cargo construct_hash_gate (spared)
 
 ## 0. Tip confirmation (inspection only — no cargo)
 
-| Subject | Evidence on tip `a3b1c9410` | Standing |
+| Subject | Evidence on tip `c832cabdc` (ancestor `a3b1c9410`) | Standing |
 |---------|-----------------------------|----------|
 | **CCS #3 `construct_hash_gate`** | File **PRESENT**: `crates/ggen-lsp/src/a2a_mcp/construct_hash_gate.rs`. Land `3ec8afd85` (PR **#901** MERGED 2026-11-22 — `feat(ccs): construct_hash_gate CP17 fail-closed fence`) is ancestor of tip. `lifecycle.rs` still **ABSENT**. | **PARTIAL_ALIVE** (PRESENT; tip-cargo pending / **spared**) |
 | **V7 ES256 / `:prime256v1` fixture court** | **PRESENT**: `crates/ggen-abb-sbb/src/as01_assertion.rs` + `tests/brce_as01_es256_assertion_court.rs`; `p256` admitted in `ggen-abb-sbb` only. Land `fb6e7fc6e` ancestor; historical fixture court **4 passed; exit 0**. | Fixture court land **ALIVE** @ `fb6e7fc6e`; path **PARTIAL_ALIVE** (crypto shape) |

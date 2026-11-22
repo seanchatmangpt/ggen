@@ -9,7 +9,7 @@
 | Materialized | 2026-11-22 |
 | Hardened | 2026-11-22 — `cursor/v2711-oor-ledger-harden-bc54` |
 | Ops refresh | 2026-11-22 — `cursor/v2711-ops-standing-refresh-bc54` (tip pin + probe reconfirm; standings held) |
-| Tip pin | 2026-11-22 — absorb onto tip `60b15c778` (prior CCS/OOR absorb @ `60b15c778` on `c832cabdc`+fmt5 #920): castle-retip2 @ `371971c3a` (#923) + `cursor/v2711-ccs-brce-retip-ecd6` @ `16d3c2f08` (#921) + `cursor/v2711-oor-retip7-cos-bc54` @ `7532a71a7` (#922; + model-access `6f717e685`). Gate0/ops probe evidence retained from retip7 @ `a3b1c9410`: cos `/readyz` **503** `{"status":"DB_UNAVAILABLE"}` → cos readiness **BLOCKED**; `/healthz` **200** → liveness **PARTIAL** (≠ ALIVE); revops NXDOMAIN / curl exit **6** → **UNKNOWN**. WebAuthn live/production **UNSUPPORTED**. Hop5 `--live` tip-wins **BLOCKED**/**REFUSED** (model access). tip-cargo (`ui_layout`) **PENDING**/spared (exclusive locks untouched — no cargo). Spine tip-wins retained: hop-4 **ALIVE**; hop-5 aggregate **PARTIAL_ALIVE**; Smalt **ALIVE**; CASTLE sibling **ALIVE**; Truex admit-court **ALIVE**; Zero-HITL crown **PARTIAL**. No cargo. No ManagePullRequest. No false zero-HITL/`ALIVE` |
+| Tip pin | 2026-11-22 — absorb onto tip `93417d9f3+` (lineage `60b15c778`/`c832cabdc`): hop5-model-access @ `35522eff9` (#924) + gate1-standing-retip2 @ `6d6eb7812` (#925); prior #921/`16d3c2f08` + #922/`7532a71a7` + #923/`371971c3a` already on tip. Gate0/ops probe evidence retained from retip7 @ `a3b1c9410`: cos `/readyz` **503** `{"status":"DB_UNAVAILABLE"}` → cos readiness **BLOCKED**; `/healthz` **200** → liveness **PARTIAL** (≠ ALIVE); revops NXDOMAIN / curl exit **6** → **UNKNOWN**. WebAuthn live/production **UNSUPPORTED**. Hop5 `--live` tip-wins **BLOCKED**/**REFUSED** (model access). tip-cargo (`ui_layout`) **PENDING**/spared (exclusive locks untouched — no cargo). Spine tip-wins retained: hop-4 **ALIVE**; hop-5 aggregate **PARTIAL_ALIVE**; Smalt **ALIVE**; CASTLE sibling **ALIVE**; Truex admit-court **ALIVE**; Zero-HITL crown **PARTIAL**. No cargo. No ManagePullRequest. No false zero-HITL/`ALIVE` |
 | Hop-4 evidence | `/tmp/cursor/igniter-real-cleanroom.md` (`bc-4861c787`) — tip dual-schema BrandTheme manufacture compare `diff_exit=0` (**ALIVE**) |
 | Hop-5 evidence | [`HOP5-MIX-SUBJECT-STANDING.md`](./HOP5-MIX-SUBJECT-STANDING.md) (`adapter_exit=0` / `layout_exit=0`; Chicago **31/0`); runtime **PRESENT** ([`HOP5-ZCODE-RUNTIME-STANDING.md`](./HOP5-ZCODE-RUNTIME-STANDING.md)); foundry `--live` **foundry_exit=1** / **REFUSED** `Model access is not configured` @ zcode `f32df08` |
 | Repo scope | `seanchatmangpt/ggen` — **tracks** sibling standing; does not execute sibling DO |
@@ -103,7 +103,7 @@ GA horizon for all courts: **2027-01-01**.
 
 ---
 
-## BLOCKED / PENDING — exact next verifiers (OOR absorb @ tip `a88889ca6`; retip7 evidence `a3b1c9410`)
+## BLOCKED / PENDING — exact next verifiers (OOR absorb @ tip `93417d9f3+`; retip7 evidence `a3b1c9410`)
 
 | Subject | Standing | Exact next verifier |
 |---------|----------|---------------------|

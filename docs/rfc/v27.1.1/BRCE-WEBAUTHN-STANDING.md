@@ -4,8 +4,8 @@
 |-------|-------|
 | Document ID | `BRCE-WEBAUTHN-STANDING` |
 | Spec binding | `ECOSYSTEM-SPEC-27.1.1` §1.1 / Plane 5 |
-| Observed tip | tip lineage @ `a3b1c94103984e2d362c068deb61cd700615e158` (V7 land `fb6e7fc6e` + construct_hash PR **#901** / `3ec8afd85` are ancestors; prior pin `d05a131c`) |
-| Tip pin | 2026-11-22 — `cursor/v2711-ccs-brce-retip-ecd6` (honest retip: V7 fixture **PARTIAL**/fixture-court land exit 0; live WebAuthn crypto **UNSUPPORTED**; broker / Plane-5 **BLOCKED**; cargo not run; tip-cargo locks **spared**) |
+| Observed tip | tip lineage @ `c832cabdcd3378ef528a4ee2ee387d5731d376a8` (V7 land `fb6e7fc6e` + construct_hash PR **#901** / `3ec8afd85` are ancestors; prior pin `a3b1c9410` / `d05a131c`) |
+| Tip pin | 2026-11-22 — absorb `cursor/v2711-ccs-brce-retip-ecd6` @ `16d3c2f08` onto tip `c832cabdc` (honest retip: V7 fixture **PARTIAL**/fixture-court land exit 0; live WebAuthn crypto **UNSUPPORTED**; broker / Plane-5 **BLOCKED**; cargo not run; tip-cargo locks **spared**) |
 | Live filename | `BRCE-WEBAUTHN-STANDING.md` (AS-01 / V1–V11); Clause-2 crown binder [`CCS-BRCE-STANDING.md`](./CCS-BRCE-STANDING.md) |
 | Target GA | **2027-01-01** |
 | Slice standing | **PARTIAL_ALIVE** (doctrine + V1 presence fence + **V7 fixture crypto-shape**); live BRCE broker / live WebAuthn ceremony / Plane-5 DO still **BLOCKED** / **UNSUPPORTED** — never claim Plane-5 `ALIVE` from this land |
