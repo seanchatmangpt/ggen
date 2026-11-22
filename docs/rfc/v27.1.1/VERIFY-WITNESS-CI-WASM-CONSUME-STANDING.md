@@ -6,12 +6,12 @@
 | Branch | `cursor/v2711-vw-ci-consume-bc54` |
 | Spec binding | `ECOSYSTEM-SPEC-27.1.1` §10; OOR **G2-11** |
 | Companions | [`VERIFY-WITNESS-CI-WASM-NEXT-VERIFIER-STANDING.md`](./VERIFY-WITNESS-CI-WASM-NEXT-VERIFIER-STANDING.md) §3; [`VERIFY-WITNESS-PRODUCTION.md`](./VERIFY-WITNESS-PRODUCTION.md); [`VERIFY-WITNESS-CI-WASM-RETIP3-STANDING.md`](./VERIFY-WITNESS-CI-WASM-RETIP3-STANDING.md) |
-| Crown base | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `08941960b16f2445134964c526fb125d49835b29` |
+| Crown base | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `1aa20cdce` (pin land ⊇ `6a6957113`) |
 | Pin fixture | `crates/ggen-graph/fixtures/witness/affidavit_gatekeeper_verify_witness.pin.wasm` |
 | Pin bytes / SHA | **28673** / `5faae4642ca23c503e96d2a2ab938c056caffdde14e77516054fe4492aed0c97` |
 | Affidavit tip | `563eb322a16d805ebc99b2c16f1165462244d7e2` |
 | CI workflow | `.github/workflows/verify-witness-ci-wasm.yml` |
-| Status | LAND — mount + court + workflow **PRESENT**; local tip-cargo **11 passed; EXIT 0** @ `2f826872b` (`/tmp/vw-ci-consume-court3.log`); production-runtime ledger advance only after CI job EXIT **0**. API standing remains `PartialAlive` + `ExternalPath` (CONSTRUCT). **Never invent Foundry ALIVE.** |
+| Status | **ALIVE** (G2-11 production-runtime ledger) — CI Mount pin + consume EXIT **0** @ run [`45073805083`](https://github.com/seanchatmangpt/ggen/actions/runs/45073805083) on tip `6a6957113` (Step A + Step C). Local tip-cargo **11**/EXIT:**0** @ `2f826872b` held. API standing remains `PartialAlive` + `ExternalPath` (CONSTRUCT). **≠ Foundry / path / zero-HITL `ALIVE`.** |
 
 Standing vocabulary: `UNKNOWN` | `PARTIAL` | `PARTIAL_ALIVE` | `ALIVE` | `BLOCKED` | `UNSUPPORTED` | `REFUSED_*`.
 
@@ -23,9 +23,9 @@ Standing vocabulary: `UNKNOWN` | `PARTIAL` | `PARTIAL_ALIVE` | `ALIVE` | `BLOCKE
 | Pin identity court (size + SHA-256) | **encoded** | `affidavit_pin_fixture_matches_size_and_sha256` |
 | Production consume via explicit path | **encoded** | `affidavit_pin_production_consume_is_partial_alive_external` |
 | Production consume via `GGEN_VERIFY_WITNESS_WASM` | **encoded** | `env_ggen_verify_witness_wasm_courts_affidavit_pin_as_partial_external` |
-| CI workflow Step A + Step C | **PRESENT** | `verify-witness-ci-wasm.yml` |
-| ggen production runtime (ledger G2-11) | **PENDING_CI** until workflow EXIT **0** | then may promote from **UNSUPPORTED** → **ALIVE** (ledger) while API stays `PartialAlive` |
-| Foundry / path crown / cos / revops | **unchanged** | Foundry **BLOCKED_HITL**; cos **503**; revops **NXDOMAIN** |
+| CI workflow Step A + Step C | **ALIVE** | run `45073805083` EXIT **0** (Step A pin identity + Step C consume court) on `6a6957113` |
+| ggen production runtime (ledger G2-11) | **ALIVE** | CI consume EXIT **0**; API remains `PartialAlive` + `ExternalPath` |
+| Foundry / path crown / cos / revops | **unchanged** | Foundry **BLOCKED_HITL**; cos **503**; revops **NXDOMAIN** — **≠** G2-11 `ALIVE` |
 
 ## 2. Exact verifier
 

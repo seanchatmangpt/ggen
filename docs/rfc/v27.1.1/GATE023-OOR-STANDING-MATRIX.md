@@ -57,8 +57,8 @@ curl -sS -w '\nhttp=%{http_code}\n' --connect-timeout 10 https://revops.fnox.io/
 
 | Standing (primary) | Count | IDs / subjects |
 |--------------------|------:|----------------|
-| **ALIVE** | **5** | G2-6, G2-7, G2-10, G2-12, G3-2 |
-| **PARTIAL** / **PARTIAL_ALIVE** | **4** | G2-8, G2-9, G2-11, G3-3 |
+| **ALIVE** | **6** | G2-6, G2-7, G2-10, G2-11, G2-12, G3-2 |
+| **PARTIAL** / **PARTIAL_ALIVE** | **3** | G2-8, G2-9, G3-3 |
 | **BLOCKED** | **8** | G0-1, G0-2, G0-3, G2-2, G2-3, G2-5, G2-16, G3-5 |
 | **UNSUPPORTED** | **3** | G2-4, G2-13, G3-1 |
 | **UNKNOWN** | **5** | G0-4, G2-1, G2-14, G2-15, G3-4 |
@@ -119,7 +119,7 @@ Detail: [`GATE-0-STANDING.md`](./GATE-0-STANDING.md).
 | **G2-8** | zcode `ui-layout-court` / adapter | **PARTIAL** | tip `4060f9d6b`; adapter exit **0**; [`HOP5-MIX-SUBJECT-STANDING.md`](./HOP5-MIX-SUBJECT-STANDING.md) | Exact next: `bun scripts/powl-foundry-loop.ts --live` → **0** (G2-9) | **Founder HITL** (live) / **Agent** (adapter replay) |
 | **G2-9** | zcode foundry `--live` / HITL | **PARTIAL** (path); live **BLOCKED_HITL** | tip `4060f9d6b`; **foundry_exit=1** | `cd /agent/repos/zcode-cli && export PATH="/home/ubuntu/.bun/bin:$PATH" && bun bin/zcode.js login && bun scripts/powl-foundry-loop.ts --live` → **foundry_exit=0** | **Founder HITL** |
 | **G2-10** | ggen_igniter clean-room / manufacture | **ALIVE** (clean-room + BrandTheme); path crown **PARTIAL** | tip lineage; [`IGNITER-CLEANROOM-STANDING.md`](./IGNITER-CLEANROOM-STANDING.md) | Replay: `cd …/ggen_igniter && git diff --exit-code` → **0**; ≠ `--live` Foundry | **Agent** (replay) |
-| **G2-11** | verify_witness production WASM | **PARTIAL** (env + affidavit **ALIVE**); prod runtime **PENDING_CI** (was **UNSUPPORTED**) | tip `08941960b` + side [`VERIFY-WITNESS-CI-WASM-CONSUME-STANDING.md`](./VERIFY-WITNESS-CI-WASM-CONSUME-STANDING.md) / PR #950; local court **11**/EXIT:**0** @ `2f826872b` | Workflow `verify-witness-ci-wasm.yml` EXIT **0** (pin mount + `GGEN_VERIFY_WITNESS_WASM` consume) | **Agent** (court + CI) — Founder HITL only if CI mount refuses |
+| **G2-11** | verify_witness production WASM | **ALIVE** (CI Mount pin+consume EXIT **0** @ run `45073805083` / tip `6a6957113`); API `PartialAlive` held | tip `6a6957113`+; [`VERIFY-WITNESS-CI-WASM-CONSUME-STANDING.md`](./VERIFY-WITNESS-CI-WASM-CONSUME-STANDING.md); local **11**/EXIT:**0** @ `2f826872b` | Replay: workflow `verify-witness-ci-wasm.yml` EXIT **0** | **Agent** (replay) — **≠ Foundry ALIVE** |
 | **G2-12** | CASTLE publish / digest-bind | **ALIVE** (sibling courts); spine wire **PARTIAL** (`WIRED`); Foundry **PARTIAL** | castle `e0d99c6`; [`CASTLE-SPINE-STANDING.md`](./CASTLE-SPINE-STANDING.md) §14 | Replay digest-bind / redaction courts → **0**; ≠ LinkedIn send; ≠ zero-HITL | **Agent** (replay) |
 | **G2-13** | Full DTCG brand inventory | **UNSUPPORTED** | tip `4060f9d6b`; rhythm stubs only | Admit OEM token sources; castle/brand inventory court → exit **0** | **Founder HITL** / brand plane |
 | **G2-14** | CASTLE CindyCat public mint | **UNKNOWN** | tip `4060f9d6b`; mint receipt absent | `castle publish post --subject cindycat-mint-probe …` + redaction court; depends G2-2 | **Founder HITL** / CASTLE |
@@ -238,3 +238,7 @@ Tip **`6a6957113`** + receipt-exclude land. Emit-before-sync closed FM-PACK-013;
 ## Retip24 (2026-11-22 2:10:00 PM PST) — Foundry/cos/revops reconfirm + Construct local pathspec
 
 Tip **`c0be492e1`**. Foundry `--live` **foundry_exit=1** / `REFUSED` / provider **ABSENT** → **BLOCKED_HITL**. cos `/readyz` **503** `DB_UNAVAILABLE` (**BLOCKED**); `/healthz` **200** (**PARTIAL**); revops **NXDOMAIN** (**UNKNOWN**). Construct local double-sync + DRIFT_PATHSPEC EXIT **0** (**ALIVE** local ≠ CI). G2-11 Mount Step C still **in_progress** (**PENDING_CI**). Path crown **PARTIAL**. **No invented Foundry / zero-HITL / path ALIVE.** Detail: [`FOUNDRY-HITL-ACTION-CARD.md`](./FOUNDRY-HITL-ACTION-CARD.md) §7.
+
+## Retip25 (2026-11-22 2:15:00 PM PST) — G2-11 Mount pin ALIVE
+
+Tip **`1aa20cdce`**. G2-11 production-runtime ledger **ALIVE** — CI run [`45073805083`](https://github.com/seanchatmangpt/ggen/actions/runs/45073805083) EXIT **0** on `6a6957113` (Step A + Step C). API `PartialAlive` held. **≠ Foundry / path / zero-HITL `ALIVE`.** Foundry **BLOCKED_HITL** / cos **503** / revops **NXDOMAIN** / Construct CI **PENDING_CI** held. Detail: [`VERIFY-WITNESS-CI-WASM-CONSUME-STANDING.md`](./VERIFY-WITNESS-CI-WASM-CONSUME-STANDING.md).
