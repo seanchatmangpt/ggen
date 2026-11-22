@@ -35,7 +35,7 @@ Standing vocabulary: `UNKNOWN` | `PARTIAL_ALIVE` | `ALIVE` | `BLOCKED` | `BLOCKE
 | **brand.toml tip-cargo** (hot-swap + completeness + rhythm) | **ALIVE (exact tip-cargo)** | tip `941e93c89` ⊇ Gate1 close `15eefb628` ⊇ hot-swap EXIT:**0**/**6** @ cargo tip `c4e757a14` (land `3ae705d1c+`; [`BRAND-HOTSWAP-TIP-CARGO-STANDING.md`](./BRAND-HOTSWAP-TIP-CARGO-STANDING.md)) ∧ completeness **5** + rhythm **12** EXIT:**0** @ tip6 `cfd93c1cb` (absorb `31b495a6a`; lineage `2685119bd`; [`BRAND-TOML-EXACT-TIP6-STANDING.md`](./BRAND-TOML-EXACT-TIP6-STANDING.md)) — sealed at those cargo tips; **≠** live-tip reconfirm | hot-swap **6**/EXIT:**0**; completeness **5** + rhythm **12**/EXIT:**0** | sealed — replay only if sources drift: `CARGO_BUILD_JOBS=1 cargo test -p ggen-graph --test brand_toml_hotswap_court --locked --config build.jobs=1 -- --test-threads=1` → **6**/EXIT:**0**; `CXX=g++ SCCACHE_DISABLE=1 CARGO_BUILD_JOBS=1 cargo test -p ggen-graph --test brand_toml_completeness_court --test brand_toml_rhythm_court --locked --target-dir /tmp/ggen-brand-exact-tip6 --config build.jobs=1 -- --test-threads=1` → **5+12**/EXIT:**0** |
 | **brand.toml production theme / production hot-swap DO** | **UNSUPPORTED** (`REFUSED_PRODUCTION`) | tip `941e93c89` ⊇ [`BRAND-PRODUCTION-THEME.md`](./BRAND-PRODUCTION-THEME.md); `promote_production_theme` → `ProductionThemeRefusal::ProductionUnsupported` — **tip-cargo ALIVE ≠ production ALIVE** | tip-cargo this land: **none**; production refuse held | `cargo test -p ggen-graph --lib layout::brand::production_theme_tests` → expect `REFUSED_PRODUCTION` / **UNSUPPORTED** held |
 | **Smalt 4-Cloud RAID** / GA economic face | **ALIVE (lineage)** | ggen tip `941e93c89` ⊇ absorb `2c144954c` / base `571571720`; smalt pin `91997da76f0f` (parent `875efbb87`); warm `/tmp/smalt-probe` HEAD match | FinOps EXIT **0** / **19** + treasury **8** + tax/erp/rates **0,0,0** retained @ `91997da76f0f`; 4-cloud **0,0,0,0,0** @ `875efbb87` — **not re-run** | `cd /path/to/smalt # tip 91997da76f0f356dc2be914bdb0a5b8227518719` → `mix test test/fin_ops_calculator_test.exs` → exit **0** / **19 passed** ([`SMALT-RAID-STANDING.md`](./SMALT-RAID-STANDING.md) §4.2) |
-| **`verify_witness` size** (&lt;250KB) | **ALIVE (size court + measure)**; prod **UNSUPPORTED** | tip `941e93c89` ⊇ Gate1 close `15eefb628` ⊇ size court **8**/EXIT:**0** retip3 ([`VERIFY-WITNESS-CI-WASM-RETIP3-STANDING.md`](./VERIFY-WITNESS-CI-WASM-RETIP3-STANDING.md)); this land `wc -c` reconfirm | **`wc -c` = 28673** &lt; 250000 → measure **ALIVE**; size court **8**/EXIT:**0** sealed; **production runtime UNSUPPORTED** | Replay measure: `wc -c /tmp/affidavit/affidavit-gatekeeper-wasm/dist/affidavit_gatekeeper_verify_witness.wasm` → **28673**. Tip-cargo size court (sealed): `CARGO_TARGET_DIR=/tmp/ggen-vw-size-retip3-court cargo test -p ggen-graph --test verify_witness_size_court --locked --config build.jobs=1 -- --test-threads=1` → **8**/EXIT:**0**. Production: stay **UNSUPPORTED** until CI consume EXIT:**0** path |
+| **`verify_witness` size** (&lt;250KB) | **ALIVE (size court + measure)**; prod runtime **ALIVE** (G2-11 CI Mount) | tip `31395da0b` ⊇ Mount EXIT **0** run [`45073805083`](https://github.com/seanchatmangpt/ggen/actions/runs/45073805083) @ `6a6957113`; size court lineage held ([`VERIFY-WITNESS-CI-WASM-CONSUME-STANDING.md`](./VERIFY-WITNESS-CI-WASM-CONSUME-STANDING.md)) | **`wc -c` = 28673** &lt; 250000 → measure **ALIVE**; CI Step A+C EXIT **0** → prod ledger **ALIVE** (API `PartialAlive` held) | Replay: workflow `verify-witness-ci-wasm.yml` EXIT **0**. Size court (sealed): `cargo test -p ggen-graph --test verify_witness_size_court …` → EXIT **0**. **≠ Foundry ALIVE** |
 | **cos.fnox.io `/readyz`** | **BLOCKED** (HTTP **503** `DB_UNAVAILABLE`) | tip `941e93c89`; probe `2026-11-22T19:12:55Z` | `readyz` **503**; `/healthz` **200** → liveness **PARTIAL** ≠ readiness | `curl -sS -m 15 -w '\nhttp=%{http_code}\n' https://cos.fnox.io/readyz` → expect HTTP **200** + admitted ready body (**not** `DB_UNAVAILABLE`) |
 | **revops.fnox.io** front door | **UNKNOWN** (`NXDOMAIN`) | tip `941e93c89`; probe `2026-11-22T19:12:55Z` | `getent` exit **2** (empty); `curl` exit **6** / `http=000` | `getent hosts revops.fnox.io` → non-empty A/AAAA; then `curl -sS -m 15 -w '\nhttp=%{http_code}\n' https://revops.fnox.io/readyz` → HTTP **200** |
 
@@ -44,7 +44,7 @@ Standing vocabulary: `UNKNOWN` | `PARTIAL_ALIVE` | `ALIVE` | `BLOCKED` | `BLOCKE
 | Surface | Standing | Evidence tip/SHA | Exact next verifier |
 |---------|----------|------------------|---------------------|
 | **CASTLE** digest-bind wire | **ALIVE**/`WIRED` (sibling); spine crown **PARTIAL_ALIVE** | castle `e0d99c6`; sibling courts @ `2774039ea` | [`CASTLE-SPINE-STANDING.md`](./CASTLE-SPINE-STANDING.md) §13.2 / §14.2 |
-| **Foundry `--live`** (hop-5) | **BLOCKED_HITL** / **REFUSED** | zcode `f32df08+`; **foundry_exit=1** / `Model access is not configured` | Founder `/login`\|`/setup` → `bun scripts/powl-foundry-loop.ts --live` → **foundry_exit=0** ([`HITL-LIVE-NEXT-VERIFIER-STANDING.md`](./HITL-LIVE-NEXT-VERIFIER-STANDING.md)) |
+| **Foundry `--live`** (hop-5) | **BLOCKED_HITL** / **REFUSED** | zcode `f32df08`; **foundry_exit=1** @ 2026-11-22T22:10Z / `Model access is not configured`; provider **ABSENT** | `cd /agent/repos/zcode-cli && export PATH="/home/ubuntu/.bun/bin:$PATH" && bun bin/zcode.js login && bun scripts/powl-foundry-loop.ts --live` → **foundry_exit=0** (**not** `zcode /login`) ([`FOUNDRY-HITL-ACTION-CARD.md`](./FOUNDRY-HITL-ACTION-CARD.md) §7) |
 | **Foundry / zero-HITL crown** | **PARTIAL** — **not** `ALIVE` | [`FOUNDRY-FINISH-STANDING.md`](./FOUNDRY-FINISH-STANDING.md) | Close cos **503** + revops DNS + `--live` + BRCE V8 before any crown promote |
 
 ---
@@ -118,7 +118,7 @@ Plane-5 product `ALIVE` requires **both** cos `/readyz` **200** ∧ revops `/rea
 | brand.toml tip-cargo (hot-swap + completeness/rhythm) | **ALIVE (exact tip-cargo)** @ `2685119bd` (+ hot-swap @ `c4e757a14`) | **ALIVE (exact tip-cargo)** @ tip6 `cfd93c1cb` / absorb `31b495a6a` (+ hot-swap @ `c4e757a14`); tip ⊇ Gate1 close `15eefb628` | **held** — re-pinned onto Gate1-closed tip |
 | brand.toml production theme / production hot-swap | **UNSUPPORTED** | **UNSUPPORTED** | **held** |
 | Smalt 4-Cloud RAID | **ALIVE (lineage)** | **ALIVE (lineage)** | **held** |
-| `verify_witness` size | **ALIVE (28673 measure)**; tip-cargo size court not this land | **ALIVE (size court 8 + measure 28673)**; prod **UNSUPPORTED** | **promoted** size-court class (Gate1 retip3); prod fence **held UNSUPPORTED** |
+| `verify_witness` size / prod | **ALIVE (size court 8 + measure 28673)**; prod **UNSUPPORTED** | measure **ALIVE**; prod runtime **ALIVE** (G2-11 Mount EXIT **0** @ run `45073805083`) | **promoted** prod ledger class; API `PartialAlive` held; **≠ Foundry** |
 | cos `/readyz` | **BLOCKED** (503) | **BLOCKED** (503) | **held** (reconfirm `2026-11-22T19:12:55Z`) |
 | revops front door | **UNKNOWN** (NXDOMAIN) | **UNKNOWN** (NXDOMAIN) | **held** (reconfirm) |
 | Foundry / zero-HITL | **PARTIAL** / **BLOCKED_HITL** | **PARTIAL** / **BLOCKED_HITL** | **held** — not invented |
@@ -128,15 +128,17 @@ Plane-5 product `ALIVE` requires **both** cos `/readyz` **200** ∧ revops `/rea
 ## 6. Compact return
 
 ```text
-tip_base=941e93c89
+tip_base=31395da0b
 gate1_close=15eefb628
-branch=cursor/v2711-ops-gate1-closed-bc54
+branch=cursor/v2711-oor-construct-retip-bc54
 brand_tip_cargo=ALIVE(hotswap@c4e757a14+tip6@cfd93c1cb)
 brand_production=UNSUPPORTED
 smalt=ALIVE(lineage)@91997da76f0f
-vw_size=ALIVE(court8+28673) prod=UNSUPPORTED
+vw_size=ALIVE(court8+28673) prod=ALIVE(G2-11 Mount 45073805083) ≠Foundry
 cos_readyz=BLOCKED(503)
 revops=UNKNOWN(NXDOMAIN)
+truex_admit=ALIVE(6/6@68d2d233)
+igniter_cheap=ALIVE(diff_exit=0@b5a15528)
 foundry_live=BLOCKED_HITL
 Foundry_ALIVE=not_claimed
 cos_ALIVE=not_claimed
