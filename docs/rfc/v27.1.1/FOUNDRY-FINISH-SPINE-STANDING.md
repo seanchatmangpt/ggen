@@ -1,7 +1,7 @@
 # FOUNDRY-FINISH-SPINE-STANDING — push-first honesty (v27.1.1)
 
 ```text
-tip_base=1935ed718f1407232cbe97cf1e08f79d9ce11dfa
+tip_base=3d13c19e96b844cfb4d4cb9cdaa0f811c32833ed
 branch=cursor/v2711-foundry-spine-honesty-bc54
 agent=bc-14b0377a-f9c2-5db0-aeca-2f39ba0ad983
 utc=2026-11-22T18:26Z
@@ -19,7 +19,7 @@ refuse=Foundry_ALIVE
 | Agent | `bc-14b0377a-f9c2-5db0-aeca-2f39ba0ad983` |
 | Spec binding | `ECOSYSTEM-SPEC-27.1.1` §13.4 Foundry finish (horizontal spine) |
 | Companions | [`FOUNDRY-FINISH-STANDING.md`](./FOUNDRY-FINISH-STANDING.md); [`HITL-LIVE-NEXT-VERIFIER-STANDING.md`](./HITL-LIVE-NEXT-VERIFIER-STANDING.md); [`TAFFY-AOT-PREFLIGHT-STANDING.md`](./TAFFY-AOT-PREFLIGHT-STANDING.md); [`ZCODE-POWL-PATH-STANDING.md`](./ZCODE-POWL-PATH-STANDING.md); [`CASTLE-SPINE-STANDING.md`](./CASTLE-SPINE-STANDING.md); [`SMALT-RAID-STANDING.md`](./SMALT-RAID-STANDING.md); [`REVOPS-COS-STANDING.md`](./REVOPS-COS-STANDING.md) |
-| Observed tip (write-time) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `1935ed718f1407232cbe97cf1e08f79d9ce11dfa` (`3d13c19e9`; ⊇ O(N²) ops `e6d00965a` / Gate matrix §18 / tip6 courts / zcode path `552c85f29`) |
+| Observed tip (write-time) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `3d13c19e96b844cfb4d4cb9cdaa0f811c32833ed` (`3d13c19e9`; ⊇ O(N²) ops `e6d00965a` / Gate matrix §18 / tip6 courts / zcode path `552c85f29`) |
 | zcode-cli | `/agent/repos/zcode-cli` @ `f32df08cdc4b3b8e114a8d1de8cf81acb80e1f3a` — `scripts/powl-foundry-loop.ts` **PRESENT**; `~/.zcode/v2/provider_config.json` **ABSENT** this env |
 | Cargo / tip-cargo | **NOT RUN** (docs-only push-first honesty) |
 | Status | LEDGER — Foundry finish **PARTIAL**; `--live` **BLOCKED_HITL**; **never invent Foundry `ALIVE`** |
