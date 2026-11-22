@@ -4,7 +4,7 @@
 |-------|-------|
 | Document ID | `CROWN-PROGRESS-RECEIPT-27.1.1` |
 | Status | **PROGRESS RECEIPT** (honest; **not** goal-complete; **not** crown `ALIVE`) |
-| Observed tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `008a81d21f14d467be9da7951b39c8d655acb5f0` (prior `27436608c+` / absorb `cbeb11d44` lineage) |
+| Observed tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `97c61345233907a2d096ac188c28332ac4666c9f` (OOR honesty retip8; prior residual honesty `008a81d21` / lifecycle tip-wins `ebf4e8d08`) |
 | Tip subject | residual honesty `cursor/v2711-ccs-residual-honesty-bc54` on tip `008a81d21`; prior absorbs: ui_layout @ `ca52e9c16`, CCS #3 @ `861a6e73a` (`cbeb11d44`) |
 | Ledger pins cited | Gate-1 / Photo / Foundry prior pins; CCS #3 construct_hash **ALIVE** @ `861a6e73a`; CCS #2 `write_apply` tip-cargo **PENDING**; `lifecycle.rs` **PRESENT** (tip `513704d04`; tip-cargo ALIVE 6/6 @ `acd9705c1`) (land `cursor/mcp-a2a-hands-free-lifecycle-bc54`); **V8**/**V9** OOR **BLOCKED** unchanged |
 | Cargo this receipt | **no** for taffy — tip-exclusive thrash; prior exclusive quiet `ui_layout_court` **11 passed; exit 0** @ `ca52e9c16` retained |
@@ -30,7 +30,7 @@ FinOps: FOUNDRY/OOR **ALIVE** @ `91997da76f0f` vs older §13.3 FinOps
 Compact return line:
 
 ```text
-tip=008a81d21f14d467be9da7951b39c8d655acb5f0
+tip=97c61345233907a2d096ac188c28332ac4666c9f
 clause1=PARTIAL
 clause2=PARTIAL_ALIVE (CCS#3 ALIVE @861a6e73a; CCS#2 write_apply tip-cargo PENDING; lifecycle.rs PRESENT/ALIVE @513704d04; V8/V9 BLOCKED)
 clause3=PARTIAL+BLOCKED

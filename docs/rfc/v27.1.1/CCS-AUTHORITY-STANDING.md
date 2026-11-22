@@ -6,9 +6,9 @@
 | Companion | `ECOSYSTEM-SPEC-27.1.1` (planes / Gate schedule); `AGENTS.md` §3 Manufacture and authority |
 | Status | MATERIALIZED standing ledger (not an execution receipt) |
 | Materialized | 2026-11-22 |
-| Observed tip | crown @ `008a81d21f14d467be9da7951b39c8d655acb5f0` (`c329b7ee5+` / absorb `cbeb11d44`; construct_hash_gate land `3ec8afd85` / PR **#901** + V7 ES256 land `fb6e7fc6e` are ancestors) |
+| Observed tip | crown @ `97c61345233907a2d096ac188c28332ac4666c9f` (OOR honesty retip8; prior residual honesty pin `008a81d21` / absorb `cbeb11d44`; construct_hash_gate land `3ec8afd85` / PR **#901** + V7 ES256 land `fb6e7fc6e` are ancestors) |
 | Base (main) | `origin/main` @ `d173cad5792e837bd4fec730d120c582b9bc5d4c` |
-| Tip pin | 2026-11-22 — residual honesty `cursor/v2711-ccs-residual-honesty-bc54` on tip `008a81d21` (prior absorb `cursor/v2711-ccs-brce-tipcargo-bc54` @ `cbeb11d44`: CCS #3 **ALIVE** @ `861a6e73a`; CCS #2 `write_apply` tip-cargo **PENDING**; `lifecycle.rs` **PRESENT** (tip `513704d04`; tip-cargo ALIVE 6/6 @ `acd9705c1`) — land `cursor/mcp-a2a-hands-free-lifecycle-bc54`; **V8**/**V9** OOR **BLOCKED** unchanged); bind [`CCS-BRCE-STANDING.md`](./CCS-BRCE-STANDING.md) |
+| Tip pin | 2026-11-22 — OOR honesty retip8 `cursor/v2711-oor-honesty-retip8-bc54` on tip `f1492ed55` (probe-only; CCS residual honesty tip-wins retained; **V8**/**V9** OOR **BLOCKED** unchanged; no cargo) |
 | Live filename | `CCS-AUTHORITY-STANDING.md` (~8 CCS ledger); Clause-2 crown binder [`CCS-BRCE-STANDING.md`](./CCS-BRCE-STANDING.md) |
 | Repo | `seanchatmangpt/ggen` |
 

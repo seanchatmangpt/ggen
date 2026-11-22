@@ -8,7 +8,7 @@
 | Target GA | **2027-01-01** |
 | Repo scope | `seanchatmangpt/ggen` — Gate 0 work is **mostly OUT of ggen DO** |
 | Materialized | 2026-11-22 |
-| Base observed | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `22d108f54` (ecosystem tip); inventory paths also present on `origin/main` |
+| Base observed | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `97c61345233907a2d096ac188c28332ac4666c9f` (retip8 OOR honesty; prior materialization tip `22d108f54`); inventory paths also present on `origin/main` |
 
 Standing vocabulary (AGENTS.md / ECOSYSTEM-SPEC):
 `UNKNOWN` | `PARTIAL_ALIVE` | `ALIVE` | `BLOCKED` | `BUILD_BROKEN` | `UNSUPPORTED` | `REFUSED_*`.

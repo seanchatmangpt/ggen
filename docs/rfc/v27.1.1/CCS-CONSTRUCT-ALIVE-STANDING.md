@@ -5,7 +5,7 @@
 | Document ID | `CCS-CONSTRUCT-ALIVE-STANDING` |
 | Branch | `cursor/v2711-ccs-construct-alive-bc54` |
 | Spec binding | `ECOSYSTEM-SPEC-27.1.1` §13.2 CCS #3 (`construct_hash_gate`) |
-| Observed tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `f1492ed5563b29c7065d188bceac6156c3397ce2` (`678a6c106+`) |
+| Observed tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `97c61345233907a2d096ac188c28332ac4666c9f` (`678a6c106+`) |
 | Repo | `seanchatmangpt/ggen` |
 | CCS #3 path (`corroborate_hashes` in-lib courts) | **ALIVE** |
 | Clause-2 / full A2A lifecycle crown | **PARTIAL_ALIVE** (`lifecycle.rs` **PRESENT**; lifecycle package courts open) |
@@ -50,7 +50,7 @@ Shorter equivalent filter (same four tests): `construct_hash_gate::tests` (still
 ## Compact return line
 
 ```text
-tip=f1492ed5563b29c7065d188bceac6156c3397ce2
+tip=97c61345233907a2d096ac188c28332ac4666c9f
 filter=a2a_mcp::construct_hash_gate::tests
 result=4_passed_exit_0
 landed=cursor/v2711-ccs-construct-alive-bc54

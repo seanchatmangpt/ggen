@@ -5,8 +5,8 @@
 | Document ID | `CCS-BRCE-STANDING` |
 | Spec binding | `ECOSYSTEM-SPEC-27.1.1` §13.2 (Clause 2 — CCS / BRCE + WebAuthn AS-01) |
 | Companions | [`CCS-AUTHORITY-STANDING.md`](./CCS-AUTHORITY-STANDING.md) (~8 CCS ledger); [`CCS-CONSTRUCT-ALIVE-STANDING.md`](./CCS-CONSTRUCT-ALIVE-STANDING.md) (CCS #3 tip-cargo **ALIVE**; correct `--features a2a` filter); [`BRCE-WEBAUTHN-STANDING.md`](./BRCE-WEBAUTHN-STANDING.md) (AS-01 / V1–V11); [`OUT-OF-REPO-NEXT-VERIFIERS.md`](./OUT-OF-REPO-NEXT-VERIFIERS.md) (G2-3…G2-5) |
-| Observed tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `008a81d21f14d467be9da7951b39c8d655acb5f0` (`c329b7ee5+` / absorb `cbeb11d44` lineage) |
-| Tip pin | 2026-11-22 — residual honesty `cursor/v2711-ccs-residual-honesty-bc54` on tip `008a81d21` (prior absorb `cursor/v2711-ccs-brce-tipcargo-bc54` @ `cbeb11d44`; evidence `861a6e73a`: construct_hash **4** / es256 **4** / seat **6** **exit 0**). CCS #2 `write_apply` tip-cargo **PENDING**; `lifecycle.rs` **PRESENT** (tip `513704d04`; tip-cargo ALIVE 6/6 @ `acd9705c1`) — land from `cursor/mcp-a2a-hands-free-lifecycle-bc54` |
+| Observed tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `97c61345233907a2d096ac188c28332ac4666c9f` (OOR honesty retip8 atop CCS construct + hop-4 Jobs/C4 absorb; V8 broker still **BLOCKED**; no cargo this retip) |
+| Tip pin | 2026-11-22 — OOR honesty retip8 absorb onto tip `97c613452` (probe-only; tip-wins CCS-CONSTRUCT-ALIVE companion + CCS #3 / lifecycle tip-wins; **V8**/**V9** OOR **BLOCKED** unchanged; cargo not run) |
 | Repo | `seanchatmangpt/ggen` |
 | Clause-2 standing | **PARTIAL_ALIVE** (tip-cargo fences **ALIVE**; live broker **BLOCKED** — **not** V8 `ALIVE`) |
 
