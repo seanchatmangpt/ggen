@@ -106,7 +106,7 @@ recorded exit **0** on the admitted tip is **PARTIAL_ALIVE**, not `ALIVE`.
 | Court / surface | Branch evidence | Standing |
 |-----------------|-----------------|----------|
 | `corroborate_graph_hash` / `lifecycle.rs` | `cursor/mcp-a2a-hands-free-lifecycle-bc54` → `crates/ggen-lsp/src/a2a_mcp/lifecycle.rs` | **PARTIAL_ALIVE** (**ABSENT** on observed tip `750b8ef4a`) |
-| `construct_hash_gate` / `corroborate_expected_graph_hash` | `cursor/a2a-construct-hash-gate-bc54` → `crates/ggen-lsp/src/a2a_mcp/construct_hash_gate.rs` | **PARTIAL_ALIVE** (**ABSENT** on observed tip `750b8ef4a`) |
+| `construct_hash_gate` / `corroborate_expected_graph_hash` | `cursor/v2711-ccs3-construct-hash-bc54` → `crates/ggen-lsp/src/a2a_mcp/construct_hash_gate.rs` (also prior `cursor/a2a-construct-hash-gate-bc54`) | **PARTIAL_ALIVE** on feature branch (lib refuse courts **PRESENT**; tip cargo pending; **ABSENT** on crown until merge) |
 
 Do not claim A2A CP17 `ALIVE` until those gates merge and their package courts exit 0 on the admitted tip.
 
