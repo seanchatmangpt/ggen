@@ -1,36 +1,37 @@
-# brand.toml tip-cargo — ALIVE (lineage tip-cargo) receipt (v27.1.1)
+# brand.toml tip-cargo — ALIVE (exact tip-cargo) receipt (v27.1.1)
 
 ```text
-cargo_tip=c91b225614a3ca0472303c05bab25601db1d51e1
+cargo_tip=77eb46fd05d5bc847050a8f0a9147e1133e52c83
 completeness=ALIVE
 rhythm=ALIVE
 exit=0
-standing=ALIVE (lineage tip-cargo)
+standing=ALIVE (exact tip-cargo)
 ```
 
-**Honesty pin (Gate-1 retip `cursor/v2711-gate1-honesty-retip-5536` on tip `fdcad534d`):** lineage tip-cargo EXIT:0 @ `c91b22561` is retained as evidence. Tip-subject standing in [`GATE-1-GAP-MATRIX.md`](./GATE-1-GAP-MATRIX.md) / [`CROWN-PROGRESS-RECEIPT.md`](./CROWN-PROGRESS-RECEIPT.md) remains **COMPILING** / **PARTIAL_ALIVE** until exact live-crown EXIT:0. Do **not** invent tip-subject `ALIVE`.
+**Exact-tip reconfirm (bc-a184ad6e):** `CARGO_BUILD_JOBS=1` exclusive `/tmp/ggen-brand-exact-tip` EXIT:0 @ `77eb46fd0` for both courts. Live crown at absorb may advance on docs-only tip-wins; brand/graph sources ≡ through `77eb46fd0`. Prior lineage tip-cargo EXIT:0 @ `c91b22561` retained. Production theme remains **UNSUPPORTED** (`REFUSED_PRODUCTION`).
 
 | Field | Value |
 |-------|-------|
 | Document ID | `BRAND-TOML-TIP-CARGO-STANDING` |
-| Official evidence branch | `cursor/v2711-brand-toml-tip-dee5` @ `72b762f20` (bc-7f0c72b7) |
+| Official evidence branch | `cursor/v2711-brand-toml-exact-tip-7ac2` (bc-a184ad6e) tip-wins onto `cursor/ecosystem-spec-27-1-1-bc54` |
 | Spec binding | `ECOSYSTEM-SPEC-27.1.1` §8 brand rhythm / completeness |
-| Cargo evidence tip | `c91b225614a3ca0472303c05bab25601db1d51e1` — **ancestor of live crown**; label **ALIVE (lineage tip-cargo)** until exact-tip reconfirm EXIT:0 with `jobs=1` |
-| Target dir | `/tmp/ggen-brand-toml-tip` |
-| Constraint | `CARGO_BUILD_JOBS=1`; `build.jobs=1`; `--test-threads=1`; isolated worktree |
-| Exact-tip reconfirm | **SCHEDULED** — deferred while other oxrocksdb cargo (r01) is exclusive |
+| Cargo evidence tip | `77eb46fd05d5bc847050a8f0a9147e1133e52c83` — **exact tip-cargo ALIVE** (`jobs=1`; completeness 5 + rhythm 12) |
+| Lineage evidence | `c91b225614a3ca0472303c05bab25601db1d51e1` — prior **ALIVE (lineage tip-cargo)** |
+| Target dir | `/tmp/ggen-brand-exact-tip` |
+| Constraint | `CARGO_BUILD_JOBS=1`; `build.jobs=1`; `--test-threads=1`; isolated worktree `/tmp/ggen-brand-exact-tip-wt` |
+| Exact-tip reconfirm | **ALIVE** — EXIT:0 @ `77eb46fd0` (2026-11-22T15:09:37Z) |
 | OOR / `write_apply` | **untouched** (OOR stays **BLOCKED**; write_apply owned elsewhere) |
 | ManagePullRequest | **not used** (parent owns #849) |
 
 **Law:** Official `ggen-graph` tip-cargo EXIT **0** for `brand_toml_completeness_court` +
-`brand_toml_rhythm_court` promotes Gate-1 brand completeness from **PARTIAL_ALIVE** /
-**BUILD_BROKEN** to **ALIVE (lineage tip-cargo)**. Production theme remains **UNSUPPORTED**
+`brand_toml_rhythm_court` on the live crown promotes Gate-1 brand completeness to
+**ALIVE (exact tip-cargo)**. Production theme remains **UNSUPPORTED**
 (`REFUSED_PRODUCTION`). Full DTCG color/type/CASTLE inventory remains Gate 2+ /
-OOR **G2-13**. Do **not** promote to exact tip-cargo `ALIVE` without reconfirm on live crown.
+OOR **G2-13**.
 
 Prior land `cd7c2433b` absorbed `BrandRefusal::Incomplete` + court as
-**PARTIAL_ALIVE** (logic twin 5/5; official tip-cargo **BUILD_BROKEN** oxrocksdb OOM).
-This receipt closes the official tip-cargo gap at lineage SHA `c91b22561`.
+**PARTIAL_ALIVE**. Lineage tip-cargo closed at `c91b22561`. This receipt seals
+exact tip-cargo at `77eb46fd0`.
 
 ---
 
@@ -38,10 +39,10 @@ This receipt closes the official tip-cargo gap at lineage SHA `c91b22561`.
 
 | Court | Target | Result | Exit | Standing |
 |-------|--------|--------|------|----------|
-| `brand_toml_completeness_court` | `/tmp/ggen-brand-toml-tip` | **5 passed; 0 failed** | **0** | **ALIVE (lineage tip-cargo)** |
-| `brand_toml_rhythm_court` | `/tmp/ggen-brand-toml-tip` | **12 passed; 0 failed** | **0** | **ALIVE (lineage tip-cargo)** |
+| `brand_toml_completeness_court` | `/tmp/ggen-brand-exact-tip` | **5 passed; 0 failed** | **0** | **ALIVE (exact tip-cargo)** |
+| `brand_toml_rhythm_court` | `/tmp/ggen-brand-exact-tip` | **12 passed; 0 failed** | **0** | **ALIVE (exact tip-cargo)** |
 
-Log: `/tmp/cursor/brand-toml-tip-cargo.log` · status: `/tmp/cursor/brand-toml-tip-cargo.status`.
+Log: `/tmp/ggen-brand-exact-tip-run.log`.
 
 Completeness tests exercised (all **ok**):
 
@@ -57,7 +58,8 @@ Completeness tests exercised (all **ok**):
 
 ```bash
 git fetch origin cursor/ecosystem-spec-27-1-1-bc54
-# cargo evidence @ c91b22561 (ancestor); brand sources ≡ through live tip
+git rev-parse origin/cursor/ecosystem-spec-27-1-1-bc54
+# cargo evidence @ 77eb46fd0; brand sources ≡ through subsequent docs-only tip-wins
 df -h /tmp
 set -o pipefail
 CXX=g++ SCCACHE_DISABLE=1 CARGO_BUILD_JOBS=1 \
@@ -65,18 +67,10 @@ CXX=g++ SCCACHE_DISABLE=1 CARGO_BUILD_JOBS=1 \
   --test brand_toml_completeness_court \
   --test brand_toml_rhythm_court \
   --locked \
-  --target-dir /tmp/ggen-brand-toml-tip \
+  --target-dir /tmp/ggen-brand-exact-tip \
   --config build.jobs=1 \
   -- --test-threads=1
 # expect: completeness 5 passed; rhythm 12 passed; EXIT:0
-```
-
-Exact-tip reconfirm (only when no other oxrocksdb cargo / r01 is running):
-
-```bash
-git fetch origin cursor/ecosystem-spec-27-1-1-bc54
-git rev-parse origin/cursor/ecosystem-spec-27-1-1-bc54
-# same cargo command at live tip with jobs=1 → EXIT:0 promotes to exact tip-cargo ALIVE
 ```
 
 ---
@@ -84,12 +78,12 @@ git rev-parse origin/cursor/ecosystem-spec-27-1-1-bc54
 ## Compact return line
 
 ```text
-cargo_tip=c91b225614a3ca0472303c05bab25601db1d51e1
+cargo_tip=77eb46fd05d5bc847050a8f0a9147e1133e52c83
 EXIT=0
-standing=ALIVE (lineage tip-cargo)
+standing=ALIVE (exact tip-cargo)
 completeness=5
 rhythm=12
-landed=cursor/v2711-brand-toml-tip-dee5@72b762f20
-bc=bc-7f0c72b7
-next=exact-tip reconfirm when cargo exclusive; production theme UNSUPPORTED (BRAND-PRODUCTION-THEME); BRCE/R-01 tip-cargo; OOR BLOCKED
+landed=cursor/v2711-brand-toml-exact-tip-7ac2
+bc=bc-a184ad6e
+next=production theme UNSUPPORTED (BRAND-PRODUCTION-THEME); BRCE/R-01 tip-cargo sealed; OOR BLOCKED
 ```
