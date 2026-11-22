@@ -5,12 +5,14 @@ Companion to `ECOSYSTEM-SPEC-27.1.1` §8 and Gate-1 gap matrix row
 
 ## Standing (this tip)
 
+Tip pin: absorb tip `a3f1ec40f+` (~`2fd897141+` / `120598fb3+`; brand-gate1 @ `5c08f3312` absorbed).
+
 | Surface | Standing | Evidence |
 |---------|----------|----------|
 | Rhythm schema + OEM stubs | **PARTIAL_ALIVE** | `brand_toml_rhythm_court` |
 | Fluid clamp / cqi slopes | **PARTIAL_ALIVE** | `brand_fluid_clamp_court` |
 | OEM hot-swap fence | **PARTIAL_ALIVE** | `seed_hot_swap_slot` / `hot_swap_brand` + `brand_toml_hotswap_court` |
-| Production runtime theme | **UNSUPPORTED** | `promote_production_theme` → `REFUSED_PRODUCTION` |
+| Production runtime theme | **UNSUPPORTED** | `promote_production_theme` → `ProductionThemeRefusal::ProductionUnsupported` (code `REFUSED_PRODUCTION`) |
 
 Hot-swap and fluid-clamp are CONSTRUCT fences with standing ceiling
 `PARTIAL_ALIVE`. They do **not** authorize production theme DO, CASTLE publish,
@@ -20,7 +22,7 @@ or full DTCG color/type inventory `ALIVE`.
 
 | Path | Role |
 |------|------|
-| `crates/ggen-graph/src/layout/brand.rs` | `production_theme_standing`, `promote_production_theme`, `REFUSED_PRODUCTION` |
+| `crates/ggen-graph/src/layout/brand.rs` | `production_theme_standing`, `promote_production_theme`, `ProductionThemeRefusal::ProductionUnsupported`, `REFUSED_PRODUCTION` |
 | `layout::brand::production_theme_tests` | Lib-only Chicago refuse court (no oxrocksdb / integration harness) |
 
 Replay (lib-only; preferred under cgroup contention):
@@ -30,8 +32,9 @@ CARGO_BUILD_JOBS=1 CARGO_TARGET_DIR=/tmp/ggen-brand-prod \
   cargo test -p ggen-graph --lib layout::brand::production_theme_tests
 ```
 
-Expected: exit **0**; every promote path yields `ProductionThemeRefusal` with
-code `REFUSED_PRODUCTION`. Never `Ok` / never `ALIVE`.
+Expected: exit **0**; every promote path yields `ProductionThemeRefusal::ProductionUnsupported`
+with code `REFUSED_PRODUCTION`. Never `Ok` / never `ALIVE`. (Not `BrandThemeRefusal` —
+that type does not exist on this tip.)
 
 Companion PARTIAL fences (not production promote):
 

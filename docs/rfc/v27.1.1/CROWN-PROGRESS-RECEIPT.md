@@ -4,10 +4,10 @@
 |-------|-------|
 | Document ID | `CROWN-PROGRESS-RECEIPT-27.1.1` |
 | Status | **PROGRESS RECEIPT** (honest; **not** goal-complete; **not** crown `ALIVE`) |
-| Observed tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `55538fe6f5a6edc5e17c4dfd7519b10f3ef0cddf` |
-| Tip subject | absorb #929 verify_witness **PRESENT** @ `34631db8a`/`84909a70c` onto tip `2fd897141+`; #926 ui_layout tip-cargo **ALIVE** + #927 chicago **PARTIAL_ALIVE** + #928 Smalt **ALIVE** already on tip (ALIVE supersedes PENDING) |
-| Ledger pins cited | Gate-1 / Photo / Foundry retipped for tip-cargo ALIVE; OOR / CCS / BRCE / CASTLE retain prior absorb pins |
-| Cargo this receipt | **yes** — exclusive quiet `ui_layout_court` **11 passed; exit 0** @ `ca52e9c16` |
+| Observed tip | absorb tip `a3f1ec40f+` (pin after honesty finish; lineage `55538fe6f` / `84909a70c` / `2fd897141+`; ~`89ca2da9c+`) |
+| Tip subject | absorb brand-gate1 @ `5c08f3312` (#933) + #930 taffy **PRESENT** @ `ef6fb84ed` + #931 hop-4 BrandTheme **ALIVE** @ `d191cf792` + #932 construct_hash **PRESENT** @ `27f586390` onto tip past #926 ui_layout tip-cargo **ALIVE** / #927 chicago / #928 Smalt / #929 verify_witness **PRESENT** (ALIVE supersedes PENDING) |
+| Ledger pins cited | Gate-1 / Photo / Foundry / Brand / CCS retipped; taffy tip subject **PRESENT**; hop-4 **ALIVE** reconfirm; brand hot-swap+fluid **PRESENT** / production **UNSUPPORTED**; construct_hash **PRESENT**; OOR / BRCE / CASTLE retain prior absorb pins |
+| Cargo this receipt | **no** — construct_hash cargo + tip flocks busy; prior exclusive quiet `ui_layout_court` **11 passed; exit 0** @ `ca52e9c16` retained |
 | Goal standing | **INCOMPLETE** — do **not** claim ECOSYSTEM-SPEC-27.1.1 crown complete |
 
 Standing vocabulary (`AGENTS.md` §2): `UNKNOWN` | `PARTIAL_ALIVE` | `ALIVE` |
@@ -30,12 +30,12 @@ FinOps: FOUNDRY/OOR **ALIVE** @ `91997da76f0f` vs older §13.3 FinOps
 Compact return line:
 
 ```text
-tip=55538fe6f5a6edc5e17c4dfd7519b10f3ef0cddf
+tip=a3f1ec40f+ (absorb brand+#930+#931+#932; pin at honesty finish)
 clause1=PARTIAL
 clause2=PARTIAL_ALIVE
 clause3=PARTIAL+BLOCKED
 clause4=PARTIAL
-gate1=PARTIAL (ui_layout tip-cargo ALIVE; brand production UNSUPPORTED; BRCE honesty-demoted)
+gate1=PARTIAL (ui_layout tip-cargo ALIVE; taffy PRESENT tip-cargo PENDING; brand hot-swap+fluid PRESENT / production UNSUPPORTED; BRCE honesty-demoted)
 blockers=foundry--live; remaining-fence-tip-cargo; cos/readyz; WebAuthn/BRCE-V8/V9; revops-DNS; mix-NIF; R01-R07-bodies; verify_witness-prod; production-theme
 ```
 
@@ -48,7 +48,7 @@ blockers=foundry--live; remaining-fence-tip-cargo; cos/readyz; WebAuthn/BRCE-V8/
 | **Path crown** | **PARTIAL** / **non-ALIVE** |
 | Hop 1 perimeter (`shui:` fence + Truex admit) | Fence **PARTIAL_ALIVE**/evidence-**ALIVE** (tip-cargo PENDING); Truex admit-court **ALIVE** @ `truex@68d2d233` (merged) |
 | Hop 2 `.ttl`/`.toml` rhythm + dual-schema | **PARTIAL_ALIVE** (full DTCG/CASTLE inventory **UNSUPPORTED**) |
-| Hop 3 Taffy AOT six-width seal | **PARTIAL_ALIVE** (evidence exit 0 ancestor; tip-cargo PENDING; consumer bind open) |
+| Hop 3 Taffy AOT six-width seal | **PRESENT** tip subject (`git ls-tree` blob `d8923b07e` on `120598fb3+`/`a3f1ec40f+`); evidence exit 0 ancestor; tip-cargo **PENDING**/SKIPPED thrash; consumer bind open → path **PARTIAL_ALIVE** |
 | Hop 3b ggen `ui_layout` digest consume | **ALIVE** tip-cargo **11 passed; exit 0** @ `ca52e9c16` (≡ tip `120598fb3`); tip source **11**; prior evidence `eaf0dad40` |
 | Hop 4 ggen_igniter BrandTheme manufacture | **ALIVE** (`diff_exit=0` dual-schema tip brand vs igniter fixture); `mix sync` NIF **BLOCKED** |
 | Hop 5 zcode POWL/OCEL / foundry | **PARTIAL_ALIVE** — adapter exit **0**; Linux tip-matched runtime **PRESENT**; `powl-foundry-loop --live` **foundry_exit=1** / **REFUSED** (`Model access is not configured` @ zcode `f32df08`) |
@@ -72,7 +72,7 @@ Detail binder: [`CCS-BRCE-STANDING.md`](./CCS-BRCE-STANDING.md) (honesty retip `
 | **CCS / BRCE slice crown** | **PARTIAL_ALIVE** |
 | CCS #1 AS-01 CONSTRUCT→DO | **PARTIAL_ALIVE** — V1 seat + V7 ES256 fixture land (**4 passed; exit 0** @ `fb6e7fc6e`); live WebAuthn **UNSUPPORTED**; broker **BLOCKED**; Plane-5 DO **BLOCKED** |
 | CCS #2 MCP `ggen_write_apply` + CP17 | **PARTIAL_ALIVE** (courts PRESENT; tip-cargo pending/spared) |
-| CCS #3 `construct_hash_gate` | **PARTIAL_ALIVE** — **PRESENT** on tip (PR **#901** / land `3ec8afd85`); `lifecycle.rs` still **ABSENT**; tip-cargo **spared** |
+| CCS #3 `construct_hash_gate` | **PARTIAL_ALIVE** — **PRESENT** on tip (PR **#901** / land `3ec8afd85`; retip #932 @ `27f586390`); tip source **4** `#[test]`; `lifecycle.rs` still **ABSENT**; tip-cargo **spared** (load high) |
 | CCS #5 SovereignLease Ed25519 | Fixture **ALIVE**; **UNSUPPORTED** as AS-01/`prime256v1` |
 | CCS #8 Plane-5 front doors | **BLOCKED** / **UNKNOWN** (revops DNS; cos `/readyz` **503**) |
 
@@ -130,14 +130,14 @@ Do **not** invent zero daily founder HITL `ALIVE` from Gate-1 fence green, CASTL
 |-------------|----------|---------------------|
 | `shui:` public-prefix fence | **ALIVE** (evidence `0478fde59`); tip-cargo **PENDING** | `cargo test -p ggen-graph --test shui_public_prefix_court` |
 | Truex admits `shui:` | **ALIVE** @ `68d2d233` (merged) | `pnpm exec vitest run test/admit/admit-court.test.ts` → **0** |
-| Taffy AOT pre-flight | **ALIVE** (evidence); tip-cargo **PENDING** | `cargo test -p ggen-graph --test taffy_aot_preflight_court` |
+| Taffy AOT pre-flight | **PRESENT** (tip `ls-tree`); evidence exit 0 @ `0478fde59`; tip-cargo **PENDING** | Quiet exclusive: `CARGO_BUILD_JOBS=1 cargo test -p ggen-graph --test taffy_aot_preflight_court --target-dir /tmp/ggen-taffy-preflight-target` |
 | ggen `ui_layout_court` | **ALIVE** tip-cargo (**11 passed; exit 0** @ `ca52e9c16` ≡ tip `120598fb3`) | Replay: `CXX=g++ SCCACHE_DISABLE=1 CARGO_BUILD_JOBS=1 cargo test -p ggen-graph --test ui_layout_court --locked` |
 | FM-PACK-001 `packs/gh-terraform-pack` | **PRESENT** / **PARTIAL_ALIVE** (composed e2e SKIPPED) | loadavg&lt;10: `timeout 600s cargo test -p ggen-engine --test composed_packs_e2e` → **0** |
 | zcode POWL in-repo stub | **PARTIAL_ALIVE** | `cargo test -p ggen-sjira --test zcode_powl_ocel_court`; live: G2-9 foundry `--live` |
 | `curve25519-dalek` pin | **PARTIAL_ALIVE** (lock+doc; policy court open) | pin standing §5 policy court |
 | `verify_witness` size | **PARTIAL_ALIVE**; production WASM **UNSUPPORTED** | size court; prod: [`VERIFY-WITNESS-PRODUCTION.md`](./VERIFY-WITNESS-PRODUCTION.md) |
 | R-01…R-07 contract | **ALIVE** (contract); bodies **BLOCKED** | `cargo test -p ggen-graph --test r01_r07_resolution_court` |
-| Brand rhythm / hot-swap | **PARTIAL_ALIVE**; production theme **UNSUPPORTED** (`REFUSED_PRODUCTION`) | rhythm/hotswap courts; [`BRAND-PRODUCTION-THEME.md`](./BRAND-PRODUCTION-THEME.md) |
+| Brand rhythm / hot-swap | **PARTIAL_ALIVE** (hot-swap+fluid **PRESENT**); production theme **UNSUPPORTED** (`ProductionThemeRefusal::ProductionUnsupported` / `REFUSED_PRODUCTION`) | rhythm/fluid/hotswap courts; [`BRAND-PRODUCTION-THEME.md`](./BRAND-PRODUCTION-THEME.md) |
 | BRCE AS-01 seat fence | **PARTIAL_ALIVE** | `cargo test -p ggen-abb-sbb --test brce_as01_seat_court` |
 | ggen_igniter manufacture | **ALIVE** (BrandTheme compare); mix NIF **BLOCKED** | manufacture replay → **0**; `mix … --check` → **0** |
 | Gate-0 cos | **BLOCKED** (external) | cos `/readyz` → **200** |
@@ -183,4 +183,5 @@ Recommended next Gate-1 falsifier (pick one): quiet tip-cargo reconfirm of remai
 | Materialized | 2026-11-22 — branch `cursor/v2711-crown-progress-bc54` against tip `ca52e9c16` |
 | Absorb retip | 2026-11-22 — `cursor/v2711-gate1-uilayout-alive-bc54` absorbs `8090022f4` onto tip `120598fb3` |
 | Sources | GATE-1-GAP-MATRIX, PHOTOLITHOGRAPHY, FOUNDRY-FINISH, OUT-OF-REPO-NEXT-VERIFIERS, SMALT-RAID, CCS-AUTHORITY, BRCE-WEBAUTHN, ECOSYSTEM-SPEC §13 |
+| Absorb brand+#930+#931+#932 | 2026-11-22 — `cursor/v2711-absorb-brand-930-932-4618` onto tip `a3f1ec40f+` (~`89ca2da9c+`): brand-gate1 @ `5c08f3312`; #930 taffy **PRESENT**; #931 hop-4 **ALIVE**; #932 construct_hash **PRESENT**; ui_layout tip-cargo **ALIVE** tip-wins |
 | Method | Absorb tip-cargo ALIVE standing; no new cargo; no ManagePullRequest |
