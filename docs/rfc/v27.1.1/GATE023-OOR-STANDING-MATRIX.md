@@ -6,9 +6,9 @@
 | Binding | `ECOSYSTEM-SPEC-27.1.1` Gate 0 + Gate 2–3 out-of-repo legs; GA **2027-01-01** |
 | Companion index | [`OUT-OF-REPO-NEXT-VERIFIERS.md`](./OUT-OF-REPO-NEXT-VERIFIERS.md); [`GATE-0-2-3-NEXT-VERIFIERS.md`](./GATE-0-2-3-NEXT-VERIFIERS.md) |
 | Sidebranch | `cursor/v2711-oor-retip19-bc54` (`bc-f83f4cbf`; matrix origin `cursor/v2711-gate023-oor-matrix-bc54` / `bc-0754e974`) |
-| Observed ggen tip (write base) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ **`c0be492e1`** (⊇ Construct receipt-exclude); Foundry `--live` BLOCKED_HITL / cos BLOCKED / revops UNKNOWN **held** |
-| Probe time | 2026-11-22 2:10:00 PM PST / `2026-11-22T22:10Z` (retip24) |
-| Cargo / tip-cargo | Foundry `--live` **foundry_exit=1**; Construct local pathspec **ALIVE** ≠ CI Construct ALIVE (**PENDING_CI**) |
+| Observed ggen tip (write base) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ **`b07cda77c`** (⊇ Gate1 tip7 live-tip ALIVE + Construct receipt-exclude + G2-11 Mount ALIVE); Foundry `--live` BLOCKED_HITL / cos BLOCKED / revops UNKNOWN **held** |
+| Probe time | 2026-11-22 2:39:00 PM PST / `2026-11-22T22:39Z` (retip26) |
+| Cargo / tip-cargo | Gate1 tip7 **ALIVE** (shui **4** + uilayout **11**); Construct local **55/55**; Foundry `--live` **foundry_exit=1**; CI Construct **PENDING_CI** |
 | Crown absorb | tip-wins onto `origin/cursor/ecosystem-spec-27-1-1-bc54` (no force; parent owns ManagePullRequest) |
 | Companion retip | [`CONSTRUCT-RECEIPT-EXCLUDE-STANDING.md`](./CONSTRUCT-RECEIPT-EXCLUDE-STANDING.md); [`VERIFY-WITNESS-CI-WASM-CONSUME-STANDING.md`](./VERIFY-WITNESS-CI-WASM-CONSUME-STANDING.md) |
 
@@ -242,3 +242,7 @@ Tip **`c0be492e1`**. Foundry `--live` **foundry_exit=1** / `REFUSED` / provider 
 ## Retip25 (2026-11-22 2:15:00 PM PST) — G2-11 Mount pin ALIVE
 
 Tip **`1aa20cdce`**. G2-11 production-runtime ledger **ALIVE** — CI run [`45073805083`](https://github.com/seanchatmangpt/ggen/actions/runs/45073805083) EXIT **0** on `6a6957113` (Step A + Step C). API `PartialAlive` held. **≠ Foundry / path / zero-HITL `ALIVE`.** Foundry **BLOCKED_HITL** / cos **503** / revops **NXDOMAIN** / Construct CI **PENDING_CI** held. Detail: [`VERIFY-WITNESS-CI-WASM-CONSUME-STANDING.md`](./VERIFY-WITNESS-CI-WASM-CONSUME-STANDING.md).
+
+## Retip26 (2026-11-22 2:39:00 PM PST) — Gate1 tip7 live-tip ALIVE + Construct local 55/55
+
+Tip **`b07cda77c`**. Gate1 tip7 live-tip reconfirm **ALIVE**: shui **4**/EXIT:**0** + uilayout **11**/EXIT:**0** ([`GATE1-TIP7-LIVE-RECONFIRM-STANDING.md`](./GATE1-TIP7-LIVE-RECONFIRM-STANDING.md)). Local Construct **55/55 EXIT 0**. G2-11 Mount **ALIVE** held. CI Construct still **PENDING_CI** (Actions queue). Foundry **BLOCKED_HITL** / cos **503** / revops **NXDOMAIN** / path crown **PARTIAL** held. **No invented Foundry / zero-HITL / path ALIVE.**
