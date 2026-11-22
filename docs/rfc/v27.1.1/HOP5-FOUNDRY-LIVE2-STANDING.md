@@ -86,4 +86,3 @@ is typed **BLOCKED**/**REFUSED**, not silent pass.
 | Cargo | **NOT RUN** (docs-only) |
 
 Authority: [`HITL-LIVE-NEXT-VERIFIER-STANDING.md`](./HITL-LIVE-NEXT-VERIFIER-STANDING.md) §10; [`FOUNDRY-FINISH-STANDING.md`](./FOUNDRY-FINISH-STANDING.md) §9.
-

@@ -331,4 +331,3 @@ cd /agent/repos/zcode-cli && zcode /login && bun scripts/powl-foundry-loop.ts --
 | Runtime PRESENT / adapter exit 0 / dry-run PARTIAL | ≠ live / Foundry | held |
 
 **Refuse:** inventing `--live` / Foundry / hop-5 / zero-HITL `ALIVE` from this Retip3, from refusal-court standing, or from VW size ALIVE alone. Companion: [`FOUNDRY-FINISH-STANDING.md`](./FOUNDRY-FINISH-STANDING.md) §9.
-

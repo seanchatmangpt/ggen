@@ -366,4 +366,3 @@ cd /agent/repos/zcode-cli && zcode /login && bun scripts/powl-foundry-loop.ts --
 ```
 
 **Refuse:** promoting Foundry / zero-HITL / hop-5 to `ALIVE` from this Retip3, from refusal-court PARTIAL/ALIVE, or from VW size ALIVE alone.
-
