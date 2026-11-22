@@ -1,3 +1,5 @@
+<!-- tip6 ALIVE pin: see TAFFY-AOT-PREFLIGHT-TIP6-STANDING.md — EXIT0 @ 15eefb628 / tip6 branch -->
+
 # Taffy AOT preflight — ALIVE (exact tip-cargo) / v27.1.1
 
 ```text
