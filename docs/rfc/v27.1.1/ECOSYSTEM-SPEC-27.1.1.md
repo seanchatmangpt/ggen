@@ -323,6 +323,11 @@ Do not invent path-crown `ALIVE` from in-repo fence green alone.
 
 - Constitutional law: `SELECT ≠ CONSTRUCT ≠ DO`; sole CONSTRUCT→DO broker is
   **BRCE + WebAuthn AS-01** (`:prime256v1`) — §1.1 / Plane 5.
+- Clause-2 honesty binder (CCS inventory + BRCE **V8**/bodies + WebAuthn +
+  SELECT≠CONSTRUCT≠DO enforcement + exact next verifiers):
+  [`CCS-BRCE-WEBAUTHN-STANDING.md`](./CCS-BRCE-WEBAUTHN-STANDING.md)
+  (crown **PARTIAL_ALIVE**; **V8**/bodies **BLOCKED**; live WebAuthn
+  **UNSUPPORTED**; **no** Foundry / tip-cargo EXIT0 / WebAuthn `ALIVE`).
 - ~8 Crystallized Control Surfaces (CCS), CP17 hash-gate law, and plane map:
   [`CCS-AUTHORITY-STANDING.md`](./CCS-AUTHORITY-STANDING.md).
 - In-repo AS-01 ungated-DO seat fence vs live broker / crypto:
@@ -388,6 +393,7 @@ sibling courts, or Smalt 6-column spine `ALIVE` alone.
 | `docs/rfc/v27.1.1/FOUNDRY-FINISH-STANDING.md` | horizontal spine ggen→Taffy→zcode→CASTLE→Smalt→revops (zero daily founder HITL) |
 | `docs/rfc/v27.1.1/OUT-OF-REPO-NEXT-VERIFIERS.md` | Gate 0/2/3 exact next external verifiers |
 | `docs/rfc/v27.1.1/BRCE-WEBAUTHN-STANDING.md` | BRCE + WebAuthn AS-01 (`:prime256v1`) exists vs BLOCKED/UNSUPPORTED + GA verifiers |
+| `docs/rfc/v27.1.1/CCS-BRCE-WEBAUTHN-STANDING.md` | Clause-2 binder: ~8 CCS inventory + BRCE V8/bodies BLOCKED + WebAuthn UNSUPPORTED + SELECT≠CONSTRUCT≠DO enforcement |
 | `docs/rfc/v27.1.1/CCS-AUTHORITY-STANDING.md` | SELECT≠CONSTRUCT≠DO authority edges + A2A/BRCE fence census |
 | `docs/rfc/v27.1.1/CURVE25519-DALEK-PIN-STANDING.md` | Gate-1 `curve25519-dalek` / `ed25519-dalek` lock pin + policy court (**ALIVE** @ tip `bebea5dd0`) |
 | `docs/rfc/v27.1.1/VERIFY-WITNESS-PRODUCTION.md` | production `verify_witness` WASM build path (affidavit pin ALIVE ≠ ggen prod ALIVE) |
@@ -526,9 +532,9 @@ Companion matrices: [`GATE-1-GAP-MATRIX.md`](./GATE-1-GAP-MATRIX.md); [`GATE-0-2
 
 ### 18.3 CCS
 
-| Surface | Standing @ tip `c4e757a14` | Evidence ledger | Exact next verifier |
+| Surface | Standing @ tip `c4e757a14` / binder base `7d1c24584` (⊇ `e6d00965a`) | Evidence ledger | Exact next verifier |
 |---------|----------------------------|-----------------|---------------------|
-| Clause-2 CCS / BRCE crown | **PARTIAL** / **PARTIAL_ALIVE** (tip-cargo fences **ALIVE**; live broker **BLOCKED** — **not** V8 `ALIVE`) | [`CCS-BRCE-STANDING.md`](./CCS-BRCE-STANDING.md) | Close **V8** + **V9**/G2-5 + bodies before crown promote |
+| Clause-2 CCS / BRCE + WebAuthn crown | **PARTIAL** / **PARTIAL_ALIVE** (tip-cargo fences **ALIVE**; live broker **BLOCKED** — **not** V8 / WebAuthn / Foundry `ALIVE`) | [`CCS-BRCE-WEBAUTHN-STANDING.md`](./CCS-BRCE-WEBAUTHN-STANDING.md); [`CCS-BRCE-STANDING.md`](./CCS-BRCE-STANDING.md) | Close WebAuthn §3 → **V8** → **V9**/G2-5 + bodies before crown promote |
 | BRCE **V8** + R-01…R-07 bodies | **V8 BLOCKED**; bodies **BLOCKED** (contract fence **ALIVE** **7** @ `e7569893a` ≠ bodies / broker) | [`BRCE-V8-NEXT-VERIFIER-STANDING.md`](./BRCE-V8-NEXT-VERIFIER-STANDING.md); [`R01-R07-BODIES-NEXT-VERIFIER-STANDING.md`](./R01-R07-BODIES-NEXT-VERIFIER-STANDING.md) | V8: Founder HITL mount BRCE broker — without AS-01 → `REFUSED_*`; with seat → receipt+replay → EXIT:**0**. Bodies: admit sovereign risk-register → per-ID receipt/`REFUSED_*` |
 | WebAuthn AS-01 (live) | live **UNSUPPORTED**; V7 fixture **ALIVE** @ `fb6e7fc6e` ≠ live; V1 seat **ALIVE** @ `e7569893a` ≠ broker | [`WEBAUTHN-LIVE-NEXT-VERIFIER-STANDING.md`](./WEBAUTHN-LIVE-NEXT-VERIFIER-STANDING.md) §3 | Founder HITL: admit RP-ID → enroll hardware → live assertion court → EXIT:**0**; then **V8** |
 | CASTLE digest-bind wire | wire **ALIVE**/`WIRED` @ castle `e0d99c6` (**6/6**); spine crown **PARTIAL_ALIVE**; Foundry **PARTIAL** | [`CASTLE-SPINE-STANDING.md`](./CASTLE-SPINE-STANDING.md) §13–§14 | Replay: `cargo test --test publish_digest_bind_court` → **6/6**; spine residual: bind admitted ggen digest into mint + LinkedIn AND-gate after cos `/readyz` **200** |
