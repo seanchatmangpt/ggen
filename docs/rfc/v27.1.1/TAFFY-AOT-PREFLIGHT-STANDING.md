@@ -25,7 +25,7 @@ foundry=PARTIAL (no Foundry ALIVE)
 | Spec binding | `ECOSYSTEM-SPEC-27.1.1` Gate 1 D2 / photolithography **hop 3** (`ggen + Taffy AOT`) |
 | Companions | [`GATE-1-GAP-MATRIX.md`](./GATE-1-GAP-MATRIX.md); [`PHOTOLITHOGRAPHY-STANDING.md`](./PHOTOLITHOGRAPHY-STANDING.md); [`PERIMETER-TTL-TOML-PATH-STANDING.md`](./PERIMETER-TTL-TOML-PATH-STANDING.md); [`CROWN-PROGRESS-RECEIPT.md`](./CROWN-PROGRESS-RECEIPT.md); [`FOUNDRY-FINISH-STANDING.md`](./FOUNDRY-FINISH-STANDING.md) |
 | Prior sidebranches | `cursor/v2711-taffy-preflight-retip7-bc54` @ `1bc005fe3` (**PRESENT**; tip-wins absorb `c2cd54f56`); `…-retip` @ `ef6fb84ed` (**PRESENT**); `…-retip3`/`…-retip4`/`…-retip6` **remote ABSENT** |
-| Crown absorb | tip-wins **if race-safe** onto `cursor/ecosystem-spec-27-1-1-bc54` (docs-only FF) |
+| Crown absorb | **ABSORBED** tip-wins onto `cursor/ecosystem-spec-27-1-1-bc54` @ pre-absorb `a3e5d3109` (side `af9db256d`; FF) |
 | ManagePullRequest | **not used** |
 | Cargo | **NOT RUN** this land — Gate1 tip6 owns thrash; exact tip-cargo remains next verifier |
 
@@ -75,6 +75,7 @@ path_crown=PARTIAL (not ALIVE)
 foundry=PARTIAL (no Foundry ALIVE)
 next=§3 exact verifier → EXIT 0
 ManagePullRequest=not_used
+crown_absorb=ABSORBED @ a3e5d3109←af9db256d
 ```
 
 ---
