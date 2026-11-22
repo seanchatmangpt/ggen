@@ -37,7 +37,7 @@ standings count **open** against the crown objective.
 ## Compact return
 
 ```text
-open=23|closed=23|side=cursor/v2711-completion-audit-bc54|absorbed=2df0c478b|crown_tip=15eefb628
+open=23|closed=23|side=cursor/v2711-completion-audit-bc54|absorbed=bc481a111|crown_tip=bc481a111
 goal=NOT_COMPLETE
 Foundry=BLOCKED_HITL BRCE_V8=BLOCKED WebAuthn=UNSUPPORTED cos=BLOCKED revops=UNKNOWN path=PARTIAL
 ```
