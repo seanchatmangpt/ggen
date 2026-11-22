@@ -77,7 +77,7 @@ bun scripts/powl-foundry-loop.ts --live   # expect exit 0
 | tip-cargo (`ui_layout` + Taffy AOT) | **ALIVE** (prior) | exclusive quiet cargo **11 passed; exit 0** @ `ca52e9c16`; shui/taffy/rhythm/hot-swap **ALIVE** @ `26256ca9d`; `verify_witness` **6 passed; exit 0** @ crown `513704d04`; BRCE / R-01 / `write_apply` **PENDING** (`bc-a4aaf86a`) |
 | igniter clean-room | **ALIVE** EXIT:**0** @ `f1492ed55` | `cd …/ggen_igniter && git diff --exit-code` → **0** (`bc-53b0e099`); ≠ manufacture / Foundry crown |
 | Hop4 mix admitted `--check` | **ALIVE** EXIT:**0** @ `97c613452` | admitted `--pack-dir sample-pack … --check` → **0** (`bc-54b308e2`); bare `--check` **REFUSED_INVOCATION** antifalsifier |
-| foundry `--live` (hop-5) | **BLOCKED_HITL** / **REFUSED** | **foundry_exit=1** / `Model access is not configured` @ zcode `f32df08`+; bounded-refusal court may be in flight (`bc-45fb88ed`); next: provider `/login` or `~/.zcode/v2/provider_config.json` → `bun scripts/powl-foundry-loop.ts --live` → **0** |
+| foundry `--live` (hop-5) | **BLOCKED_HITL** / **REFUSED** | **foundry_exit=1** / `Model access is not configured` @ zcode `f32df08`+; in-repo bounded-refusal tip-cargo **ALIVE** @ `cd7c2433b`; next: provider `/login` or `~/.zcode/v2/provider_config.json` → `bun scripts/powl-foundry-loop.ts --live` → **0** |
 | `write_apply` tip-cargo | **PENDING** | exclusive quiet `cargo test -p ggen-mcp --test write_apply_confirm_test` → **0** (`bc-a4aaf86a` in flight); presence ≠ `ALIVE` |
 | cos DB / `/readyz` | **503 BLOCKED** | `curl -sS -w '\nhttp=%{http_code}\n' https://cos.fnox.io/readyz` → HTTP **200** |
 | WebAuthn live / BRCE V8 | **BLOCKED** | BRCE **V8** (broker AS-01 seat) then **V9** (Plane-5 DO) per [`BRCE-WEBAUTHN-STANDING.md`](./BRCE-WEBAUTHN-STANDING.md) §5 + OOR G2-3/G2-5 |
@@ -109,7 +109,7 @@ bun scripts/powl-foundry-loop.ts --live   # expect exit 0
 | Residual class | Where it bites | Clearance condition |
 |----------------|----------------|---------------------|
 | tip-cargo `ui_layout` ALIVE | exclusive quiet cargo **11 passed; exit 0** @ `ca52e9c16` (≡ tip `120598fb3`); other Gate-1 fences still PENDING | Replay remaining fences under `CARGO_BUILD_JOBS=1` |
-| foundry `--live` | hop-5 **BLOCKED_HITL**; runtime **PRESENT**; **foundry_exit=1** / `Model access is not configured`; `bc-45fb88ed` may land bounded court | provider creds → `bun scripts/powl-foundry-loop.ts --live` → **0** |
+| foundry `--live` | hop-5 **BLOCKED_HITL**; runtime **PRESENT**; **foundry_exit=1** / `Model access is not configured`; bounded-refusal tip-cargo **ALIVE** @ `cd7c2433b` | provider creds → `bun scripts/powl-foundry-loop.ts --live` → **0** |
 | cos DB | cos `/readyz` **503** `DB_UNAVAILABLE` | `curl … https://cos.fnox.io/readyz` → HTTP **200** |
 | WebAuthn live / BRCE V8 | BRCE broker **BLOCKED**; production AS-01 ceremony open | BRCE **V8** then **V9** ([`BRCE-WEBAUTHN-STANDING.md`](./BRCE-WEBAUTHN-STANDING.md) §5) |
 | mix sync NIF / Jobs/C4 | **ALIVE** EXIT:**0** @ `97c613452` (`bc-54b308e2`; bare `--check` antifalsifier held) | Replay pack/template `--check` → **0** |
