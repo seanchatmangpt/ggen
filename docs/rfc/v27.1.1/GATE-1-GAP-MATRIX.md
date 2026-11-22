@@ -4,19 +4,16 @@ Remaining-courts ledger: [`GATE-1-REMAINING-COURTS-STANDING.md`](./GATE-1-REMAIN
 
 Companion to `ECOSYSTEM-SPEC-27.1.1.md` and `REPO-INVENTORY-27.1.1.md`.
 
-**Evidence refresh / live tip pin:** 2026-11-22 honesty retip on
-`cursor/v2711-gate1-photo-retip2-bc54` to
-`d05a131c7521d5a6325ade2e8295fee650659d5a`
-(`origin/cursor/ecosystem-spec-27-1-1-bc54`, past ~`28c3f4d845`). Truex product
-admit-court → **ALIVE** (sibling **6/6 vitest exit 0** reconfirmed @
-`truex@68d2d2331696f18949f4877b994320018b6365e5` —
+**Evidence refresh / live tip pin:** CindyCat dual-schema `[primitive.space]` from `[rhythm]` on `cursor/v2711-hop4-cindycat-space-bc54` (court `oem_fixtures_carry_dtcg_primitive_space_from_rhythm`).
+
+**Evidence refresh / live tip pin:** 2026-11-22 absorb on `cursor/v2711-gate1-absorb-8a61` of `cursor/v2711-gate1-standing-retip-bc54` (#909) + `cursor/v2711-gate1-photo-retip2-bc54` + `cursor/v2711-hop5-foundry-live2-bc54` onto tip past `d05a131c7521d5a6325ade2e8295fee650659d5a` / `5ebf28a96+`. Truex product admit-court → **ALIVE** (sibling **6/6 vitest exit 0** reconfirmed @ `truex@68d2d2331696f18949f4877b994320018b6365e5` —
 [truex#6](https://github.com/seanchatmangpt/truex/pull/6) **MERGED** to `main`
 as `b4672131`; mount `/tmp/truex`; receipt
 `/tmp/cursor/truex-merged-admit-alive.md`). Hop-4 BrandTheme manufacture →
 **ALIVE** (`diff_exit=0` dual-schema tip brand vs igniter fixture; evidence
 `/tmp/cursor/igniter-real-cleanroom.md`; prior PARTIAL `:no_primitive_space`
 closed). Hop-5 aggregate → **PARTIAL_ALIVE** (default adapter exit **0**;
-foundry `--live` still **open** —
+foundry `--live` **foundry_exit=1** / **REFUSED** (`ZCode runtime is missing`) —
 [`HOP5-MIX-SUBJECT-STANDING.md`](./HOP5-MIX-SUBJECT-STANDING.md);
 [`PHOTOLITHOGRAPHY-STANDING.md`](./PHOTOLITHOGRAPHY-STANDING.md)).
 **brand.toml hot-swap** → **PARTIAL_ALIVE**; **production theme** →

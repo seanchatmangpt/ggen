@@ -7,8 +7,9 @@ use std::fs;
 use std::path::PathBuf;
 
 use ggen_graph::layout::brand::{
-    admit_brand, parse_and_admit_brand, parse_brand_toml, parse_cqi_slope, BrandRefusal,
-    DTCG_VERSION, INTER_TARGET_GAP_PX, TOUCH_FLOOR_APPLE_PX, TOUCH_FLOOR_MATERIAL_PX,
+    admit_brand, dtcg_has_primitive_space, parse_and_admit_brand, parse_brand_toml,
+    parse_cqi_slope, BrandRefusal, DTCG_VERSION, INTER_TARGET_GAP_PX, TOUCH_FLOOR_APPLE_PX,
+    TOUCH_FLOOR_MATERIAL_PX,
 };
 
 fn fixture(name: &str) -> PathBuf {
@@ -140,6 +141,33 @@ fn fourth_watch_fixture_admits_without_patronage_slots() {
     assert_eq!(receipt.brand_id, "fourth-watch");
     assert!(fourth.messaging.patronage.headline.is_none());
     assert!(fourth.messaging.commercial.custody_pct.is_none());
+}
+
+#[test]
+fn oem_fixtures_carry_dtcg_primitive_space_from_rhythm() {
+    // Arrange — dual-surface OEM stubs: [rhythm] + BrandTheme [primitive.space]
+    let fourth = load_fixture("fourth-watch.brand.toml");
+    let cindy = load_fixture("cindycat.brand.toml");
+
+    // Act — rhythm admit still holds with DTCG tables present (serde ignores extras)
+    let fourth_ok = parse_and_admit_brand(&fourth).expect("fourth-watch dual-surface admits");
+    let cindy_ok = parse_and_admit_brand(&cindy).expect("cindycat dual-surface admits");
+
+    // Assert — BrandTheme refuse gate cleared structurally (no Elixir required)
+    assert!(
+        dtcg_has_primitive_space(&fourth),
+        "fourth-watch must carry non-empty [primitive.space] $value leaves"
+    );
+    assert!(
+        dtcg_has_primitive_space(&cindy),
+        "cindycat must carry non-empty [primitive.space] $value leaves grown from [rhythm]"
+    );
+    assert_eq!(fourth_ok.brand_id, "fourth-watch");
+    assert_eq!(cindy_ok.brand_id, "cindycat");
+    assert!(
+        cindy.contains("[primitive.space.\"1_5\"]") || cindy.contains("[primitive.space.1_5]"),
+        "cindycat rhythm 12px step must map into DTCG primitive.space 1_5"
+    );
 }
 
 #[test]
