@@ -2,11 +2,15 @@
 
 Companion to `ECOSYSTEM-SPEC-27.1.1.md` and `REPO-INVENTORY-27.1.1.md`.
 
-**Evidence refresh / live tip pin:** 2026-11-22 tip-pin retip on
-`cursor/v2711-gate1-retip-bc54` to
-`5e00619a422a0d8e451029f0aaf8b7a63e27da46`
-(`origin/cursor/ecosystem-spec-27-1-1-bc54`). Historical court exits remain on
-ancestor `0478fde59644cccd60c5a88d64d444ec292e6a3c` (≥ `a54b9803`) and ui-layout
+**Evidence refresh / live tip pin:** 2026-11-22 tip-pin on
+`cursor/v2711-truex-admit-standing-bc54` to
+`58a93a94f688dbd5c3827d09dcc817d290ceda4d`
+(`origin/cursor/ecosystem-spec-27-1-1-bc54`). Truex product admit →
+**PARTIAL_ALIVE** (sibling admit-court **6/6 vitest exit 0** @
+`truex@e28e68300` on `cursor/v2711-truex-admit-court-bc54`; not crown
+`ALIVE` until PR merged to truex `main` + tip-sync ggen fence parity).
+Historical court exits remain on ancestor
+`0478fde59644cccd60c5a88d64d444ec292e6a3c` (≥ `a54b9803`) and ui-layout
 evidence `eaf0dad40287a3347280a541766b3b16f3978cf8` — both ancestors of tip.
 **Tip-cargo reconfirm PENDING** (quiet cgroup) — not tip exit 0.
 
@@ -54,7 +58,7 @@ Do not promote any Gate 0 row to `ALIVE` from this repository.
 | Requirement | Standing + live evidence | Tip SHA (subject) | Next exact verifier / command | Owner |
 |-------------|--------------------------|-------------------|-------------------------------|-------|
 | Admit W3C `shui:` as public vocab (ggen fence) | **ALIVE** — `shui_public_prefix_court` **3 passed; exit 0** on evidence tip `0478fde59` (ancestor). Tip source has **4** `#[test]`. **Tip-cargo reconfirm PENDING** (quiet cgroup) — not tip exit 0. Truex product admit is a separate row. | tip `5e00619a422a0d8e451029f0aaf8b7a63e27da46` (evidence `0478fde59`) | `cargo test -p ggen-graph --test shui_public_prefix_court` | **ggen** (fence) |
-| Truex runtime admits `shui:` shapes | **UNKNOWN** — sibling `seanchatmangpt/truex` not mounted in this worktree | n/a (sibling) | in truex: admit-court that loads a `shui:`-prefixed shape graph and exits 0; refuse still holds for private `truex:` | **truex** |
+| Truex runtime admits `shui:` shapes | **PARTIAL_ALIVE** — sibling Chicago admit-court **6/6 vitest exit 0** on `seanchatmangpt/truex` @ `e28e683001202fe3f37df1c498fb85d1df6c1322` (`cursor/v2711-truex-admit-court-bc54` / [truex#6](https://github.com/seanchatmangpt/truex/pull/6)): `shui:` → **ADMITTED**; private `truex:` → **REFUSED_PRIVATE**; unknown → **REFUSED_UNKNOWN**. Not full product `ALIVE` until PR merges to truex `main` + tip-sync ggen fence parity. ggen `shui:` fence remains a separate row. | truex@`e28e68300` (feature; not yet `main`) | Next: merge truex [#6](https://github.com/seanchatmangpt/truex/pull/6) to `main`; then tip-sync ggen fence parity (`cargo test -p ggen-graph --test shui_public_prefix_court`). Replay on feature: `pnpm exec vitest run test/admit/admit-court.test.ts` → exit 0 | **truex** |
 | Taffy AOT pre-flight (widths 320/375/414/768/1024/1440 + WCAG 1.4.12 1.5×) | **ALIVE** (six-width seal court) — `taffy_aot_preflight_court` **6 passed; exit 0** on evidence tip `0478fde59` (ancestor). Tip source has **7** `#[test]`. **Tip-cargo reconfirm PENDING** (quiet cgroup). Photolithography / zcode-cli consume still open as a separate hop → not claimed here. Hop: [`PHOTOLITHOGRAPHY-STANDING.md`](./PHOTOLITHOGRAPHY-STANDING.md). | tip `5e00619a422a0d8e451029f0aaf8b7a63e27da46` (evidence `0478fde59`) | `cargo test -p ggen-graph --test taffy_aot_preflight_court` | **ggen** |
 | ggen `ui-layout-court` (AotSealReceipt digest consume) | **ALIVE** — `layout::ui_layout` + expect-free `tests/ui_layout_court.rs` (Chicago match/panic; no `expect`/`expect_err`); six-width @ **320/375/414/768/1024/1440** + WCAG 1.4.12 **1.5×**; fail-closed on missing/stale/mismatched digests. Subject tip `30b30d70c` (expect-free anti-vacuity parse). Sibling `ui-layout-court.ts` remains out-of-repo / **UNSUPPORTED**. | tip `30b30d70c` | `CARGO_TARGET_DIR=/tmp/ggen-uilayout-wt CARGO_BUILD_JOBS=1 cargo test -p ggen-graph --test ui_layout_court`; next: `pnpm test -- ui-layout-court` in zcode-cli | **ggen** (in-repo fence); **zcode-cli** (TS adapter, separate) |
 | zcode POWL/OCEL bounded remediation (in-repo stub) | **PARTIAL_ALIVE** — standing + `remediation_bound` + `ggen-sjira` IO-free court on tip (integrate / [#862](https://github.com/seanchatmangpt/ggen/pull/862)). Live sibling Chicago court **UNKNOWN** / **UNSUPPORTED** (unmounted). Ledger: [`ZCODE-POWL-OCEL-STANDING.md`](./ZCODE-POWL-OCEL-STANDING.md) | tip `5e00619a422a0d8e451029f0aaf8b7a63e27da46` | In-repo: `cargo test -p ggen-sjira --test zcode_powl_ocel_court`. Live: `bun test test/powl-ocel-chicago.test.ts` in zcode-cli | **ggen** (contract); **zcode-cli** (execution) |
@@ -131,4 +135,4 @@ Next **new** Gate-1 falsifier to author (pick one):
 
 1. Quiet exclusive tip-cargo reconfirm of the four focus courts on tip `5e00619a4` (`shui` / Taffy / brand / `ui_layout`) with `CARGO_BUILD_JOBS=1` — then rewrite evidence SHAs to tip if exit 0.
 2. Mount sibling zcode-cli `ui-layout-court.ts` against a pinned ggen `AotSealReceipt` fixture (out-of-repo hop; in-repo fence already ALIVE on evidence). Hop ledger: [`PHOTOLITHOGRAPHY-STANDING.md`](./PHOTOLITHOGRAPHY-STANDING.md).
-3. Or advance sibling / docs rows still open: Truex `shui:` product admit; `curve25519-dalek` Gate-1 **policy court** (pin doc now PRESENT — [`CURVE25519-DALEK-PIN-STANDING.md`](./CURVE25519-DALEK-PIN-STANDING.md)); production `verify_witness.wasm` build on the affidavit plane; igniter clean-room probe.
+3. Or advance sibling / docs rows still open: Truex `shui:` product admit is **PARTIAL_ALIVE** (sibling court exit 0 @ `e28e68300`; next = merge truex PR + tip-sync ggen fence parity — not full `ALIVE` until truex `main`); `curve25519-dalek` Gate-1 **policy court** (pin doc now PRESENT — [`CURVE25519-DALEK-PIN-STANDING.md`](./CURVE25519-DALEK-PIN-STANDING.md)); production `verify_witness.wasm` build on the affidavit plane; igniter clean-room probe.
