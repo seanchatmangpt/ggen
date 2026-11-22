@@ -6,7 +6,7 @@
 | Status | **PROGRESS RECEIPT** (honest; **not** goal-complete; **not** crown `ALIVE`) |
 | Observed tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `008a81d21f14d467be9da7951b39c8d655acb5f0` (prior `27436608c+` / absorb `cbeb11d44` lineage) |
 | Tip subject | residual honesty `cursor/v2711-ccs-residual-honesty-bc54` on tip `008a81d21`; prior absorbs: ui_layout @ `ca52e9c16`, CCS #3 @ `861a6e73a` (`cbeb11d44`) |
-| Ledger pins cited | Gate-1 / Photo / Foundry prior pins; CCS #3 construct_hash **ALIVE** @ `861a6e73a`; CCS #2 `write_apply` tip-cargo **PENDING**; `lifecycle.rs` **ABSENT** (land `cursor/mcp-a2a-hands-free-lifecycle-bc54`); **V8**/**V9** OOR **BLOCKED** unchanged |
+| Ledger pins cited | Gate-1 / Photo / Foundry prior pins; CCS #3 construct_hash **ALIVE** @ `861a6e73a`; CCS #2 `write_apply` tip-cargo **PENDING**; `lifecycle.rs` **PRESENT** (tip `513704d04`; tip-cargo ALIVE 6/6 @ `acd9705c1`) (land `cursor/mcp-a2a-hands-free-lifecycle-bc54`); **V8**/**V9** OOR **BLOCKED** unchanged |
 | Cargo this receipt | **no** for taffy — tip-exclusive thrash; prior exclusive quiet `ui_layout_court` **11 passed; exit 0** @ `ca52e9c16` retained |
 | Goal standing | **INCOMPLETE** — do **not** claim ECOSYSTEM-SPEC-27.1.1 crown complete |
 
@@ -32,10 +32,10 @@ Compact return line:
 ```text
 tip=008a81d21f14d467be9da7951b39c8d655acb5f0
 clause1=PARTIAL
-clause2=PARTIAL_ALIVE (CCS#3 ALIVE @861a6e73a; CCS#2 write_apply tip-cargo PENDING; lifecycle.rs ABSENT; V8/V9 BLOCKED)
+clause2=PARTIAL_ALIVE (CCS#3 ALIVE @861a6e73a; CCS#2 write_apply tip-cargo PENDING; lifecycle.rs PRESENT/ALIVE @513704d04; V8/V9 BLOCKED)
 clause3=PARTIAL+BLOCKED
 clause4=PARTIAL
-gate1=PARTIAL (ui_layout tip-cargo ALIVE; construct_hash ALIVE @861a6e73a; write_apply PENDING; lifecycle ABSENT; taffy PRESENT tip-cargo PENDING; brand production UNSUPPORTED; BRCE V8 BLOCKED)
+gate1=PARTIAL (ui_layout tip-cargo ALIVE; construct_hash ALIVE @861a6e73a; write_apply PENDING; lifecycle PRESENT/ALIVE; taffy PRESENT tip-cargo PENDING; brand production UNSUPPORTED; BRCE V8 BLOCKED)
 blockers=foundry--live; remaining-fence-tip-cargo; cos/readyz; WebAuthn/BRCE-V8/V9; revops-DNS; mix-NIF; R01-R07-bodies; verify_witness-prod; production-theme
 ```
 
@@ -186,6 +186,6 @@ Recommended next Gate-1 falsifier (pick one): quiet tip-cargo reconfirm of remai
 | Absorb retip | 2026-11-22 — `cursor/v2711-gate1-uilayout-alive-bc54` absorbs `8090022f4` onto tip `120598fb3` |
 | Taffy preflight retip | 2026-11-22 — `cursor/v2711-taffy-preflight-retip-bc54`: `git ls-tree` **PRESENT** blob `d8923b07e` on tip `120598fb3`/`a29e1cd92`/`8090022f4`/`27436608c`; tip-cargo SKIPPED (thrash); standing **PRESENT** / tip-cargo **PENDING** — no tip-cargo `ALIVE` |
 | Absorb tip-cargo CCS | 2026-11-22 — `cursor/v2711-ccs-brce-tipcargo-bc54` @ `cbeb11d44` (evidence `861a6e73a`: construct_hash **4** + es256 **4** + seat **6** exit **0**) docs-only onto crown `c329b7ee5+`; tip-wins clause-2 ALIVE; V8 **BLOCKED**; production/hop-5 crown pins preserved; no cargo; no ManagePullRequest |
-| CCS residual honesty | 2026-11-22 — `cursor/v2711-ccs-residual-honesty-bc54` on tip `008a81d21`: CCS #3 **ALIVE** retained; CCS #2 tip-cargo **PENDING**; `lifecycle.rs` **ABSENT** (land `cursor/mcp-a2a-hands-free-lifecycle-bc54`); **V8**/**V9** **BLOCKED** unchanged; docs-only; no cargo; no ManagePullRequest |
+| CCS residual honesty | 2026-11-22 — `cursor/v2711-ccs-residual-honesty-bc54` on tip `008a81d21`: CCS #3 **ALIVE** retained; CCS #2 tip-cargo **PENDING**; `lifecycle.rs` **PRESENT** (tip `513704d04`; tip-cargo ALIVE 6/6 @ `acd9705c1`) (land `cursor/mcp-a2a-hands-free-lifecycle-bc54`); **V8**/**V9** **BLOCKED** unchanged; docs-only; no cargo; no ManagePullRequest |
 | Sources | GATE-1-GAP-MATRIX, PHOTOLITHOGRAPHY, FOUNDRY-FINISH, OUT-OF-REPO-NEXT-VERIFIERS, SMALT-RAID, CCS-AUTHORITY, BRCE-WEBAUTHN, ECOSYSTEM-SPEC §13 |
 | Method | Absorb tip-cargo ALIVE standing; no new cargo; no ManagePullRequest |

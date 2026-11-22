@@ -6,7 +6,7 @@
 | Spec binding | `ECOSYSTEM-SPEC-27.1.1` §13.2 (Clause 2 — CCS / BRCE + WebAuthn AS-01) |
 | Companions | [`CCS-AUTHORITY-STANDING.md`](./CCS-AUTHORITY-STANDING.md) (~8 CCS ledger); [`BRCE-WEBAUTHN-STANDING.md`](./BRCE-WEBAUTHN-STANDING.md) (AS-01 / V1–V11); [`OUT-OF-REPO-NEXT-VERIFIERS.md`](./OUT-OF-REPO-NEXT-VERIFIERS.md) (G2-3…G2-5) |
 | Observed tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `008a81d21f14d467be9da7951b39c8d655acb5f0` (`c329b7ee5+` / absorb `cbeb11d44` lineage) |
-| Tip pin | 2026-11-22 — residual honesty `cursor/v2711-ccs-residual-honesty-bc54` on tip `008a81d21` (prior absorb `cursor/v2711-ccs-brce-tipcargo-bc54` @ `cbeb11d44`; evidence `861a6e73a`: construct_hash **4** / es256 **4** / seat **6** **exit 0**). CCS #2 `write_apply` tip-cargo **PENDING**; `lifecycle.rs` **ABSENT** — land from `cursor/mcp-a2a-hands-free-lifecycle-bc54` |
+| Tip pin | 2026-11-22 — residual honesty `cursor/v2711-ccs-residual-honesty-bc54` on tip `008a81d21` (prior absorb `cursor/v2711-ccs-brce-tipcargo-bc54` @ `cbeb11d44`; evidence `861a6e73a`: construct_hash **4** / es256 **4** / seat **6** **exit 0**). CCS #2 `write_apply` tip-cargo **PENDING**; `lifecycle.rs` **PRESENT** (tip `513704d04`; tip-cargo ALIVE 6/6 @ `acd9705c1`) — land from `cursor/mcp-a2a-hands-free-lifecycle-bc54` |
 | Repo | `seanchatmangpt/ggen` |
 | Clause-2 standing | **PARTIAL_ALIVE** (tip-cargo fences **ALIVE**; live broker **BLOCKED** — **not** V8 `ALIVE`) |
 
@@ -52,7 +52,7 @@ next=CCS#2: cargo test -p ggen-mcp --test write_apply_confirm_test; cargo test -
 | Bucket | Subjects | Standing |
 |--------|----------|----------|
 | **ALIVE (tip-cargo / fixture courts)** | CCS #3 `construct_hash_gate` **4 passed; exit 0**; V7 ES256 assertion court tip replay **4 passed; exit 0**; V1 seat fence tip replay **6 passed; exit 0**; historical lands @ `fb6e7fc6e` / `0478fde59` | Fixture / kernel / CCS #3 path — **never** Plane-5 DO |
-| **PARTIAL_ALIVE** | Clause-2 crown; CCS #1 AS-01 slice; CCS #2 CP17 `write_apply` courts **PRESENT** — tip-cargo **PENDING** (§2.1); `lifecycle.rs` **ABSENT** on tip `008a81d21` — land `cursor/mcp-a2a-hands-free-lifecycle-bc54` | Crown ≠ CONSTRUCT→DO **ALIVE** until **V8**/**V9** |
+| **PARTIAL_ALIVE** | Clause-2 crown; CCS #1 AS-01 slice; CCS #2 CP17 `write_apply` courts **PRESENT** — tip-cargo **PENDING** (§2.1); `lifecycle.rs` **PRESENT** (tip `513704d04`; tip-cargo ALIVE 6/6 @ `acd9705c1`) on tip `008a81d21` — land `cursor/mcp-a2a-hands-free-lifecycle-bc54` | Crown ≠ CONSTRUCT→DO **ALIVE** until **V8**/**V9** |
 | **BLOCKED** | Live BRCE broker; Plane-5 front-door DO | **V8** then **V9**/G2-5 |
 | **UNSUPPORTED** | Live WebAuthn / FIDO2 ceremony; production RP+hardware; SovereignLease as AS-01/`prime256v1` | Beyond V7 fixture |
 
