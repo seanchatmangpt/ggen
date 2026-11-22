@@ -27,9 +27,11 @@ in-process zcode bun courts **ALIVE** (35 passed; exit 0); `ggen-layout-court`
 default `UiLayoutCourtAdapter.verifyPostTransition` **ALIVE** (exit **0** after
 mix-SUBJECT fix when layout_court PRESENT — Jobs/C4 deferred / ggen dry-run;
 see [`HOP5-MIX-SUBJECT-STANDING.md`](./HOP5-MIX-SUBJECT-STANDING.md)).
-`powl-foundry-loop --live` is **BLOCKED**/**REFUSED** (**foundry_exit=1**; executor wired @ zcode `f32df08`; exact failure `ZCode runtime is missing` — [`HOP5-FOUNDRY-LIVE2-STANDING.md`](./HOP5-FOUNDRY-LIVE2-STANDING.md)). Jobs/C4 `mix` remains **ABSENT**.
+`powl-foundry-loop --live` is **BLOCKED**/**REFUSED** (**foundry_exit=1**; executor wired @ zcode `f32df08`; exact failure `ZCode runtime is missing` — receipt `/tmp/cursor/hop5-foundry-live2-receipt.md`).
+`mix ggen_igniter.sync` NIF remains **BLOCKED** (hop-4 residual). Jobs/C4 `mix` remains **ABSENT**.
 Do **not** invent hop-5 / path-crown `ALIVE` from adapter alone.
-Do **not** restate mix SUBJECT_MISSING after layout_court PRESENT + spatial PASS. The in-repo ggen
+Do **not** restate mix SUBJECT_MISSING after layout_court PRESENT + spatial PASS.
+Do **not** claim `mix sync` ALIVE while NIF remains **BLOCKED**. The in-repo ggen
 ui-layout fence remains **ALIVE** on evidence tip `eaf0dad40` (**8 passed;
 exit 0**; `bc-c7c9d554`; ancestor of live tip `6fdcf4665`); tip court land
 `7c0ba2a90`; tip source **11** `#[test]`; **tip-cargo reconfirm PENDING**
@@ -58,7 +60,7 @@ perimeter transducer
 | 4 | ggen_igniter clean-room / manufacture | **ALIVE** — tip dual-schema `fourth-watch.brand.toml` (`[rhythm]` + DTCG `[primitive.space]`; emitter `99255d53c` on tip) → igniter `BrandTheme` emit vs igniter fixture CSS → `diff -rq` **0** + compare-subject `git diff --exit-code` → **0** (`/tmp/cursor/igniter-hop4-manufacture-alive.md`; tip `28c3f4d845`; prior `igniter-real-cleanroom.md` / `88e84d545`; reconfirm `cursor/v2711-hop4-primitive-space-bc54`; IGNITER manufacture row **ALIVE**). Mount **PRESENT**; clean-tree checkpoint also **0**. `mix ggen_igniter.sync` NIF path still **BLOCKED** (residual). In-repo contract **PARTIAL_ALIVE**. | **Out-of-repo** sibling `seanchatmangpt/ggen_igniter` @ `/home/ubuntu/ggen_igniter` / `/agent/repos/ggen_igniter`. Fixtures: `docs/rfc/v27.1.1/fixtures/{fourth-watch,cindycat}.brand.toml`. In-repo: [`IGNITER-CLEANROOM-STANDING.md`](./IGNITER-CLEANROOM-STANDING.md) + `igniter_cleanroom_court` | **Replay:** BrandTheme emit tip brand + igniter `test/fixtures/brand_theme/fourth-watch.brand.toml` (canon path for Source header) → `diff -rq` **0**; `git diff --exit-code` on compare subject → **0**. **Next residual:** exclusive `CXX=g++-13` NIF → `mix ggen_igniter.sync --check` → **0**. Checkpoint: `cd /home/ubuntu/ggen_igniter && git diff --exit-code`. In-repo: `cargo test -p ggen-sjira --test igniter_cleanroom_court` | Claiming hop-4 `ALIVE` from bare post-clone `git diff --exit-code` alone; claiming `mix sync` ALIVE while NIF **BLOCKED**; conflating igniter-fixture-only idempotent emit with tip manufacture; re-opening `:no_primitive_space` by dropping DTCG surface from tip fixture |
 | 5 | zcode-cli POWL/OCEL remediations (bounded refusal) | **PARTIAL_ALIVE** — in-process bun **ALIVE**; live `UiLayoutCourtAdapter` **ALIVE** (**exit 0** after mix-SUBJECT fix); `layout_court` exit **0**; foundry `--live` **foundry_exit=1** / **REFUSED** (`ZCode runtime is missing` after `createZcodeAgentExecutor` wire @ zcode `f32df08`) | **Out-of-repo** `zcode-cli` @ `f32df08`. Package `ggen-layout-court` **PRESENT**. Contract: [`ZCODE-POWL-OCEL-STANDING.md`](./ZCODE-POWL-OCEL-STANDING.md); mix: [`HOP5-MIX-SUBJECT-STANDING.md`](./HOP5-MIX-SUBJECT-STANDING.md); live2: [`HOP5-FOUNDRY-LIVE2-STANDING.md`](./HOP5-FOUNDRY-LIVE2-STANDING.md) | Exact next: provision ZCode runtime (`bun run sync:local` / supported `sync:locked`) + provider creds → `bun scripts/powl-foundry-loop.ts --live` → **0**; Jobs/C4 residual: `mix ggen_igniter.sync --check` → **0**. Replay adapter → **0**. GA falsifier **2027-01-01** | Inventing hop-5 crown `ALIVE` while foundry_exit≠0; inventing ALIVE from executor injection alone; restating `live executor not configured` after zcode `f32df08` |
 
-**Path standing (aggregate):** **PARTIAL** — hops 1–3 **PARTIAL_ALIVE**, hop 3b
+**Path standing (aggregate):** **PARTIAL** — hops 1–3 **PARTIAL_ALIVE** (as prior), hop 3b
 ggen ui-layout **ALIVE** (**8 passed; exit 0** on evidence `eaf0dad40`; tip land
 `7c0ba2a90`), hop 4 BrandTheme manufacture compare **ALIVE** (`diff_exit=0` on tip
 dual-schema vs igniter fixture; antifalsifier: bare post-clone ≠ `ALIVE`; `mix
@@ -313,7 +315,7 @@ ui-layout **11**. No path-crown `ALIVE` asserted.
 - Diagnosis: default adapter exit **2** after Taffy+Mode B PASS was `mix` SUBJECT_MISSING, not missing `layout_court`.
 - Fix (zcode-cli @ `fed6f166`): `resolveCleanRoomSyncCmd` — ggen dry-run fallback; spatial-only exit **0** when layout_court PRESENT + mix/ggen ABSENT; typed remediation when subject truly ABSENT.
 - Evidence (reconfirm): `layout_exit=0`; default `adapter_exit=0` (Jobs/C4 deferred diagnostic); Chicago **31 passed; exit 0**; see [`HOP5-MIX-SUBJECT-STANDING.md`](./HOP5-MIX-SUBJECT-STANDING.md).
-- Hop-5 aggregate remains **PARTIAL_ALIVE** (foundry `--live` / Jobs/C4 still open — next verifier `bun scripts/powl-foundry-loop.ts --live` → 0).
+- Hop-5 aggregate remains **PARTIAL_ALIVE** (foundry `--live` **foundry_exit=1** / **REFUSED** `ZCode runtime is missing`; Jobs/C4 open — next: `bun run sync:local` then `bun scripts/powl-foundry-loop.ts --live` → 0).
 - Do **not** invent hop-5 / path-crown `ALIVE`. **Tip-cargo `ui_layout` PENDING** unless proven exit 0.
 
 ### Gate1 photo retip2 (`cursor/v2711-gate1-photo-retip2-bc54`)
@@ -321,3 +323,9 @@ ui-layout **11**. No path-crown `ALIVE` asserted.
 - Observed tip: `d05a131c7521d5a6325ade2e8295fee650659d5a` (past ~`28c3f4d845`).
 - Honesty pin: Truex **ALIVE** @ `68d2d233`; hop-4 manufacture **ALIVE** (`diff=0`); hop-5 **PARTIAL_ALIVE** (adapter **0**; `--live` open); brand.toml hot-swap **PARTIAL_ALIVE** / production **UNSUPPORTED**; ui_layout tip-cargo **PENDING**; FM-PACK **PRESENT**/**PARTIAL_ALIVE** (inventory); cos **BLOCKED** (Gate-0 / Foundry).
 - Path crown remains **PARTIAL**. No cargo. No new `ALIVE` invented.
+### Foundry standing retip (`cursor/v2711-foundry-standing-retip-bc54`)
+
+- Observed tip: `d05a131c7521d5a6325ade2e8295fee650659d5a` (`d05a131c7`).
+- Honest path: hops 1–3 **PARTIAL_ALIVE** (unchanged); hop-4 **ALIVE**; hop-5 **PARTIAL_ALIVE**; `mix sync` NIF **BLOCKED**.
+- Exact next BLOCKED/PENDING: NIF → exclusive `CXX=g++-13` then `mix ggen_igniter.sync --check` → **0**; tip-cargo → `CARGO_BUILD_JOBS=1 cargo test -p ggen-graph --test ui_layout_court` → **0**; foundry `--live` → `bun run sync:local` (or supported `sync:locked`) + provider creds then `bun scripts/powl-foundry-loop.ts --live` → **0**.
+- No cargo on this retip. No path-crown / zero-HITL `ALIVE`.

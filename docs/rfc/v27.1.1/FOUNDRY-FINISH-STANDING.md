@@ -5,8 +5,8 @@
 | Document ID | `FOUNDRY-FINISH-STANDING` |
 | Companion to | `ECOSYSTEM-SPEC-27.1.1` (target GA **2027-01-01**) |
 | Status | STANDING LEDGER (not an execution receipt; not a Gate-1 rewrite) |
-| Observed tip | PR [#849](https://github.com/seanchatmangpt/ggen/pull/849) / `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `d05a131c7521d5a6325ade2e8295fee650659d5a` (past ~`28c3f4d845`; absorb standing-retip #909 + `cursor/v2711-gate1-photo-retip2-bc54` + `cursor/v2711-hop5-foundry-live2-bc54`; Truex **ALIVE** @ `68d2d233`; hop-4 manufacture **ALIVE** `diff=0`; hop-5 **PARTIAL_ALIVE** adapter **0** / foundry `--live` **foundry_exit=1** / **REFUSED** `ZCode runtime is missing` @ zcode `f32df08` (executor wired; prior SUBJECT_MISSING closed); brand.toml hot-swap **PARTIAL_ALIVE** / production **UNSUPPORTED**; ui_layout tip-cargo **PENDING**; FM-PACK **PRESENT**/**PARTIAL_ALIVE**; cos **BLOCKED**; `ggen-layout-court` **PRESENT**; CASTLE sibling courts **ALIVE** @ `2774039ea`; Smalt 4-cloud exit 0 @ `875efbb87` / fin_ops **PARTIAL**; Foundry crown stays **PARTIAL**) |
-| Prior tip note | Was `704025461` / live1 `live executor not configured (SUBJECT_MISSING)`; hop-5 mix-SUBJECT closed adapter to **0**; live2 closes executor SUBJECT_MISSING but runtime ABSENT → **foundry_exit=1** — **do not** invent live hop-5 / tip-cargo / full RAID / zero-HITL `ALIVE`. |
+| Observed tip | PR [#849](https://github.com/seanchatmangpt/ggen/pull/849) / `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `d05a131c7521d5a6325ade2e8295fee650659d5a` (`cursor/v2711-foundry-standing-retip-bc54` honesty retip; no cargo). Horizontal spine: **ggen+Taffy PRESENT**; **zcode adapter PARTIAL**; **CASTLE ALIVE** (sibling @ `2774039ea`); **Smalt ALIVE** (4-cloud @ `875efbb87` + FinOps @ `91997da76f0f`); **revops/cos BLOCKED**. Photolithography: hops 1–3 as prior; hop-4 **ALIVE**; hop-5 **PARTIAL_ALIVE**; `mix sync` NIF **BLOCKED**. Zero-HITL crown **PARTIAL** (founder HITL still needed for cos DB, WebAuthn live, tip-cargo, foundry `--live`). `ggen-layout-court` **PRESENT**; ui-layout **ALIVE** evidence `eaf0dad40`; **tip-cargo PENDING**) |
+| Prior tip note | Was `704025461` / hop-5 live SUBJECT_MISSING prose + Smalt spine **PARTIAL** / CASTLE spine **PARTIAL**. This retip aligns spine rows to PRESENT / PARTIAL / sibling ALIVE / Smalt ALIVE / revops BLOCKED without inventing zero-HITL `ALIVE`. |
 | Base (main) | `origin/main` @ `d173cad5792e837bd4fec730d120c582b9bc5d4c` |
 | Repo scope | `seanchatmangpt/ggen` names the spine; sibling planes are **tracked out-of-repo** |
 
@@ -20,9 +20,9 @@ Standing vocabulary (AGENTS.md / ECOSYSTEM-SPEC):
 
 | Crown claim standing | Reason |
 |----------------------|--------|
-| **PARTIAL** | Tip `d05a131c7`: Truex **ALIVE** @ `68d2d233`; hop-4 BrandTheme manufacture **ALIVE** (`diff=0`); hop-5 **PARTIAL_ALIVE** (adapter **0**; foundry `--live` **foundry_exit=1** / **REFUSED** `ZCode runtime is missing` after Gall executor wire @ zcode `f32df08`); brand.toml hot-swap **PARTIAL_ALIVE** / production **UNSUPPORTED**; ui_layout tip-cargo **PENDING**; FM-PACK **PRESENT**/**PARTIAL_ALIVE**; cos **BLOCKED**. In-repo fences: `shui:` / Taffy / brand / verify_witness / R-01…R-07 / BRCE AS-01 / zcode POWL stub / **ggen `ui-layout-court` ALIVE** (evidence `eaf0dad40`; tip source **11**; tip-cargo PENDING). `ggen-layout-court` **PRESENT** @ `d37271961` ≠ live hop-5 crown. CASTLE sibling courts **ALIVE** @ `2774039ea`; Smalt columns exit 0 @ `875efbb87` / fin_ops **PARTIAL** — Smalt spine **PARTIAL**. Plane-5 revops / cos **BLOCKED**. Clause-4 GA falsifiers still fire. **Do not invent crown `ALIVE`.** Zero daily founder HITL is **not** `ALIVE`. |
+| **PARTIAL** | Zero-HITL crown remains **PARTIAL** on tip `d05a131c7`. Spine honesty: **ggen+Taffy PRESENT** (layout courts + `ggen-layout-court` on tip; **tip-cargo PENDING** — not tip exit 0); **zcode adapter PARTIAL** (default adapter exit **0**; foundry `--live` **foundry_exit=1** / **REFUSED** `ZCode runtime is missing` @ zcode `f32df08`); **CASTLE ALIVE** (sibling courts @ `2774039ea` / `bc-1bffb072` — ≠ Foundry crown); **Smalt ALIVE** (doctor/aws/gcp/azure/twilio exits **0** @ `875efbb87` + FinOps **ALIVE** @ `91997da76f0f` exit **0**/19 — ≠ Foundry crown); **revops/cos BLOCKED** (revops DNS fail; cos `/readyz` **503** `DB_UNAVAILABLE`). Founder HITL still required for: **cos DB**, **WebAuthn live** (BRCE V8/V9), **tip-cargo**, **foundry `--live`**. Clause-4 GA falsifiers in §1 would still fire today. **Do not invent crown `ALIVE`.** |
 
-Do not promote source presence, fleet-census rows, workflow definitions, or historical jira prose to crown `ALIVE`. The ggen ui-layout in-repo fence is **ALIVE** on evidence tip `eaf0dad40` (matches [`GATE-1-GAP-MATRIX.md`](./GATE-1-GAP-MATRIX.md)); tip court land `7c0ba2a90` + tip source **11** + **tip-cargo PENDING** on `4b22529df2939412c41107fe5e9eea66ba6a4dad` — that does **not** promote the Foundry-finish path crown. `ggen-layout-court` **PRESENT** ≠ live hop-5 / Foundry crown `ALIVE`. Smalt column exits 0 ≠ Smalt spine / RAID / Foundry crown `ALIVE`.
+Do not promote source presence, fleet-census rows, workflow definitions, or historical jira prose to crown `ALIVE`. ggen+Taffy **PRESENT** + ui-layout evidence `eaf0dad40` **ALIVE** ≠ tip-cargo / Foundry crown `ALIVE`. CASTLE sibling **ALIVE** ≠ digest-bound spine crown. Smalt 4-cloud+FinOps **ALIVE** ≠ zero-HITL / Foundry crown `ALIVE`. zcode adapter exit 0 ≠ foundry `--live` `ALIVE`.
 
 ---
 
@@ -30,21 +30,34 @@ Do not promote source presence, fleet-census rows, workflow definitions, or hist
 
 | Component | Role on spine | Standing | HITL residual (founder) | Next exact verifier | GA `2027-01-01` falsifier |
 |-----------|---------------|----------|-------------------------|---------------------|---------------------------|
-| **ggen** | Manufacture kernel (`μ`): packs, graphs, layout pre-flight, brand rhythm, public-prefix fences, witness size court, R-01…R-07 contract, ui-layout digest consume, `ggen-layout-court` CLI | **PARTIAL** — tip `4b22529df2939412c41107fe5e9eea66ba6a4dad`; `ui_layout_court` **ALIVE** on evidence `eaf0dad40` (**8 passed; exit 0**); tip source **11**; **tip-cargo PENDING**; `ggen-layout-court` **PRESENT** @ `d37271961` (presence ≠ tip-cargo `ALIVE`). Zero-HITL fab not sealed | Daily merge/admission judgment; founder still gates “promote Gate-1 → GA”; risk bodies R-01…R-07 still **BLOCKED** out-of-repo | Exact next: quiet tip-cargo `CARGO_BUILD_JOBS=1 cargo test -p ggen-graph --test ui_layout_court` → exit 0 on `4b22529df` (also replay `shui_public_prefix_court` / `taffy_aot_preflight_court` / `brand_toml_rhythm_court` / `verify_witness_size_court` / `r01_r07_resolution_court`) | If on **2027-01-01** a founder must still manually admit ordinary spine manufacture (SELECT/CONSTRUCT) that courts already cover, crown claim is **falsified** |
-| **Taffy** | AOT layout pre-flight (widths `320/375/414/768/1024/1440` + WCAG 1.4.12 @ 1.5×) inside `ggen-graph::layout::taffy_aot` | **PARTIAL** — six-width seal court present; in-repo digest consume fence **ALIVE**; path crown not ALIVE until hop-4/5 bind | Founder still wires / retries zcode or igniter consume when receipt law drifts | Exact next: `cargo test -p ggen-graph --test taffy_aot_preflight_court` → exit 0 on tip `4b22529df` | If on **2027-01-01** geometry law still requires founder-edited exceptions instead of typed `LayoutRefusal` / seal receipts, Taffy row is **falsified** |
-| **zcode-cli** | Consume ggen layout court via sibling `UiLayoutCourtAdapter`; POWL/OCEL bounded remediations | **PARTIAL_ALIVE** — in-process bun **ALIVE** (**35 passed; exit 0**); `ggen-layout-court` **PRESENT** @ `d37271961`; default live adapter exit **0** (mix-SUBJECT fix; Jobs/C4 deferred); Gall `--live` @ `f32df08` injects `createZcodeAgentExecutor`; **foundry_exit=1** / **REFUSED** (`ZCode runtime is missing`). Do **not** invent live hop-5 / Foundry crown `ALIVE` | Founder must provision ZCode runtime + provider creds (+ Jobs/C4 `mix`) before hop-5 exits 0 | Exact next: `bun run sync:local` (or supported `sync:locked`) → `bun scripts/powl-foundry-loop.ts --live` → 0. Receipt: `/tmp/cursor/hop5-foundry-live2-receipt.md`; ledger [`HOP5-FOUNDRY-LIVE2-STANDING.md`](./HOP5-FOUNDRY-LIVE2-STANDING.md) | If on **2027-01-01** UI courts still need founder to paste/override layout digests or remediations run unbounded, zcode row is **falsified** |
-| **CASTLE** | Consequence / publish plane (`CONSEQUENTIAL_ADMISSIBILITY`); Gate 2–3 public mint | **PARTIAL** — sibling courts **ALIVE** @ castle `2774039ea` (`bc-1bffb072`); in-ggen publish **UNSUPPORTED**; spine crown wire **UNKNOWN** (no ggen digest bind). Do **not** promote Foundry crown | Founder still invents token inventories without admitted CASTLE sources; digest-bind + LinkedIn AND-gate open | Exact next crown: bind ggen layout/brand digest into mint, then replay `cargo test --test publish_redaction_court`; `cargo test --test cli_publish_brand`; `./target/debug/castle publish post --subject spine-probe --public-anonymize --brand brands/fourth-watch.brand.toml` → 0 / `redaction_court=ALIVE` | If on **2027-01-01** CASTLE publish still depends on daily founder token edits with no receipt, CASTLE row is **falsified** |
-| **Smalt** | 4-cloud RAID / economic-ops substrate (Azure·AWS·GCP·Twilio/fnox) | **PARTIAL** @ smalt `875efbb87` — doctor/aws/gcp/azure/twilio exits **0,0,0,0,0**; fin_ops burn **PARTIAL** / canonical **ABSENT**/**UNSUPPORTED**. Column exits ≠ full RAID/`ALIVE`; ≠ Foundry crown | Founder still restores canonical FinOps court; no hands-free RAID/`ALIVE` receipt | Exact next: restore `test/fin_ops_calculator_test.exs` then `mix test test/fin_ops_calculator_test.exs` → 0 | If on **2027-01-01** Smalt RAID still requires daily founder HITL to keep the membrane green, Smalt row is **falsified** |
-| **revops** | Plane-5 front door (`revops.fnox.io`) + cos adjacency — sole DO via **BRCE + WebAuthn AS-01** | **BLOCKED** for Plane-5 DO / readiness — `revops.fnox.io` DNS fail (**UNKNOWN**); cos `/readyz` **HTTP 503** `DB_UNAVAILABLE`. In-repo BRCE AS-01 fence **PARTIAL**; live BRCE **BLOCKED**; WebAuthn/`prime256v1` **UNSUPPORTED** | Founder still actuates Plane-5 without AS-01 runtime | Exact next: `getent hosts revops.fnox.io`; `curl -sS -w '\nhttp=%{http_code}\n' https://cos.fnox.io/readyz` → HTTP **200**; then BRCE+AS-01 Plane-5 court. Fence-only: `cargo test -p ggen-abb-sbb --test brce_as01_seat_court` | If on **2027-01-01** Plane-5 still depends on daily founder HITL for ordinary DO, revops row (and crown claim) is **falsified** |
+| **ggen** | Manufacture kernel (`μ`): packs, graphs, layout pre-flight, brand rhythm, public-prefix fences, witness size court, R-01…R-07 contract, ui-layout digest consume, `ggen-layout-court` CLI | **PRESENT** — tip `d05a131c7`; `ggen-layout-court` **PRESENT** @ `d37271961`; ui-layout **ALIVE** on evidence `eaf0dad40` (**8 passed; exit 0**); tip source **11**; **tip-cargo PENDING** (presence ≠ tip-cargo `ALIVE`). Zero-HITL fab not sealed | Founder still gates tip-cargo reconfirm + Gate-1→GA promote; R-01…R-07 bodies **BLOCKED** out-of-repo | Exact next (**PENDING** tip-cargo): quiet `CARGO_BUILD_JOBS=1 cargo test -p ggen-graph --test ui_layout_court` → exit **0** on `d05a131c7` (also replay `shui_public_prefix_court` / `taffy_aot_preflight_court` / `brand_toml_rhythm_court` / `verify_witness_size_court` / `r01_r07_resolution_court`) | If on **2027-01-01** a founder must still manually admit ordinary spine manufacture (SELECT/CONSTRUCT) that courts already cover, crown claim is **falsified** |
+| **Taffy** | AOT layout pre-flight (widths `320/375/414/768/1024/1440` + WCAG 1.4.12 @ 1.5×) inside `ggen-graph::layout::taffy_aot` | **PRESENT** — six-width seal court on tip; in-repo digest consume fence **ALIVE** on evidence; tip-cargo PENDING | Founder still retries consumer bind when receipt law drifts | Exact next: `cargo test -p ggen-graph --test taffy_aot_preflight_court` → exit **0** on tip `d05a131c7` | If on **2027-01-01** geometry law still requires founder-edited exceptions instead of typed `LayoutRefusal` / seal receipts, Taffy row is **falsified** |
+| **zcode-cli** | Consume ggen layout court via sibling `UiLayoutCourtAdapter`; POWL/OCEL bounded remediations | **PARTIAL** — in-process bun **ALIVE** (**35 passed; exit 0**); `ggen-layout-court` **PRESENT**; adapter exit **0** (mix-SUBJECT); Gall `--live` @ `f32df08` injects `createZcodeAgentExecutor`; **foundry_exit=1** / **REFUSED** (`ZCode runtime is missing`). Do **not** invent live hop-5 `ALIVE` | Founder must provision ZCode runtime + provider creds (+ Jobs/C4 `mix`) before hop-5 exits 0 | Exact next (**BLOCKED** foundry `--live`): `bun run sync:local` (or supported `sync:locked`) → `bun scripts/powl-foundry-loop.ts --live` → **0**. Receipt: `/tmp/cursor/hop5-foundry-live2-receipt.md` | If on **2027-01-01** UI courts still need founder to paste/override layout digests or remediations run unbounded, zcode row is **falsified** |
+| **CASTLE** | Consequence / publish plane (`CONSEQUENTIAL_ADMISSIBILITY`); Gate 2–3 public mint | **ALIVE** (sibling) @ castle `2774039ea` (`bc-1bffb072`: `publish_redaction_court` **13/13**, `cli_publish_brand` **6/6**, spine-probe `redaction_court=ALIVE`, exits **0,0,0**). In-ggen publish **UNSUPPORTED**; digest-bind crown wire **UNKNOWN**. Do **not** promote Foundry crown | Founder still needed for digest-bind + LinkedIn AND-gate (cos readiness) | Exact next crown residual: bind ggen layout/brand digest into mint, then replay sibling courts → **0** / `redaction_court=ALIVE`. LinkedIn AND-gate blocked on cos `/readyz` **200** | If on **2027-01-01** CASTLE publish still depends on daily founder token edits with no receipt, CASTLE row is **falsified** |
+| **Smalt** | 4-cloud RAID / economic-ops substrate (Azure·AWS·GCP·Twilio/fnox) | **ALIVE** @ smalt `91997da76f0f` (parent `875efbb87`) — doctor/aws/gcp/azure/twilio exits **0,0,0,0,0** @ `875efbb87`; FinOps **ALIVE** (`mix test test/fin_ops_calculator_test.exs` → exit **0**, **19 passed**). ≠ Foundry / zero-HITL crown | Remaining GA economic face / b4b may still need founder for non-spine residuals | Exact next residual (non-blocking spine): remaining GA economic face / b4b courts → exit **0**; cite HEAD in [`SMALT-RAID-STANDING.md`](./SMALT-RAID-STANDING.md). Replay: FinOps + §4.1 4-cloud commands | If on **2027-01-01** Smalt RAID still requires daily founder HITL to keep the membrane green, Smalt row is **falsified** |
+| **revops** | Plane-5 front door (`revops.fnox.io`) + cos adjacency — sole DO via **BRCE + WebAuthn AS-01** | **BLOCKED** — `revops.fnox.io` DNS fail (**UNKNOWN**); cos `/readyz` **HTTP 503** `DB_UNAVAILABLE`. In-repo BRCE AS-01 fence **PARTIAL**; live BRCE / WebAuthn production **BLOCKED**/**UNSUPPORTED** | Founder HITL: **cos DB** restore + **WebAuthn live** (V8/V9) before Plane-5 DO | Exact next (**BLOCKED**): `getent hosts revops.fnox.io`; `curl -sS -w '\nhttp=%{http_code}\n' https://cos.fnox.io/readyz` → HTTP **200** (not `DB_UNAVAILABLE`); then BRCE **V8** broker + **V9** Plane-5 court ([`BRCE-WEBAUTHN-STANDING.md`](./BRCE-WEBAUTHN-STANDING.md) §5). Fence-only: `cargo test -p ggen-abb-sbb --test brce_as01_seat_court` | If on **2027-01-01** Plane-5 still depends on daily founder HITL for ordinary DO, revops row (and crown claim) is **falsified** |
+
+### 1a. Zero-HITL crown + exact next for BLOCKED/PENDING
+
+| Crown / residual | Standing | Exact next verifier |
+|------------------|----------|---------------------|
+| **Zero-HITL Foundry crown** | **PARTIAL** | Promote only when §6 closure holds; today founder HITL still required for cos DB, WebAuthn live, tip-cargo, foundry `--live` |
+| tip-cargo (`ui_layout` + Gate-1 fences) | **PENDING** | `CARGO_BUILD_JOBS=1 cargo test -p ggen-graph --test ui_layout_court` → **0** on `d05a131c7` |
+| foundry `--live` | **BLOCKED**/**REFUSED** | `bun run sync:local` → `bun scripts/powl-foundry-loop.ts --live` → **0** (zcode `f32df08`+) |
+| `mix ggen_igniter.sync` NIF | **BLOCKED** | exclusive `CXX=g++-13` NIF → `mix ggen_igniter.sync --check` → **0** |
+| cos DB / `/readyz` | **BLOCKED** | `curl -sS -w '\nhttp=%{http_code}\n' https://cos.fnox.io/readyz` → HTTP **200** |
+| WebAuthn live / BRCE Plane-5 | **BLOCKED** | BRCE **V8** (broker AS-01 seat) then **V9** (Plane-5 DO) per [`BRCE-WEBAUTHN-STANDING.md`](./BRCE-WEBAUTHN-STANDING.md) §5 + OOR G2-3/G2-5 |
+| revops.fnox.io DNS | **UNKNOWN**/**BLOCKED** | `getent hosts revops.fnox.io`; `curl -sS -w '\nhttp=%{http_code}\n' https://revops.fnox.io/readyz` → DNS ∧ HTTP **200** |
+
 ---
 
 ## 1b. Adjacent Gate-1 / authority fences (not spine members; block zero-HITL)
 
-| Subject | Standing on tip `4b22529df2939412c41107fe5e9eea66ba6a4dad` (ui-layout evidence `eaf0dad40`; tip-cargo PENDING; layout_court PRESENT @ `d37271961`) | Next exact verifier |
+| Subject | Standing on tip `d05a131c7521d5a6325ade2e8295fee650659d5a` (ui-layout evidence `eaf0dad40`; tip-cargo PENDING; layout_court PRESENT @ `d37271961`) | Next exact verifier |
 |---------|-----------------------------|---------------------|
 | BRCE + WebAuthn AS-01 ungated-DO refusal ([#861](https://github.com/seanchatmangpt/ggen/pull/861)) | **PARTIAL_ALIVE** (presence/shape fence; Gate-1 honesty demotion aligns matrix to PARTIAL + tip-cargo PENDING); crypto verify **UNSUPPORTED**; live BRCE **BLOCKED** | `cargo test -p ggen-abb-sbb --test brce_as01_seat_court` |
 | `verify_witness` WASM &lt;250KB size court | **PARTIAL_ALIVE** (offline size court; historical exit 0 on `0478fde59`; tip-cargo PENDING) — production WASM out-of-repo [`VERIFY-WITNESS-PRODUCTION.md`](./VERIFY-WITNESS-PRODUCTION.md) remains **UNSUPPORTED**; never production-artifact `ALIVE` | `cargo test -p ggen-graph --test verify_witness_size_court` |
-| `shui:` public-prefix fence | **PARTIAL_ALIVE** (Gate-1 matrix: **ALIVE** on evidence `0478fde59` / tip source **4**; **tip-cargo PENDING** quiet cgroup) — Truex product admit **ALIVE** @ `truex@68d2d233` (separate sibling row) | `cargo test -p ggen-graph --test shui_public_prefix_court` |
+| `shui:` public-prefix fence | **PARTIAL_ALIVE** (Gate-1 matrix: **ALIVE** on evidence `0478fde59` / tip source **4**; **tip-cargo PENDING** quiet cgroup) — Truex product admit-court **ALIVE** @ `68d2d233` (fence ≠ Truex crown alone) | `cargo test -p ggen-graph --test shui_public_prefix_court` |
 | R-01…R-07 resolution contract | **PARTIAL_ALIVE** (merged contract court; Gate-1 matrix: evidence-ancestor **ALIVE** + tip-cargo PENDING); risk **bodies** **BLOCKED** / **UNSUPPORTED** [`R01-R07-STANDING.md`](./R01-R07-STANDING.md) | `cargo test -p ggen-graph --test r01_r07_resolution_court` |
 | Brand `.toml` rhythm (OEM stubs) | **PARTIAL_ALIVE** — evidence `0478fde59` **4 passed; exit 0**; tip source **11**; tip-cargo PENDING; hot-swap fence **PARTIAL_ALIVE** (`brand_toml_hotswap_court` PRESENT @ `f6cb18f86`; ceiling PARTIAL); **production theme UNSUPPORTED** (`REFUSED_PRODUCTION`); full DTCG/CASTLE inventory Gate 2+ | Rhythm/hot-swap: `cargo test -p ggen-graph --test brand_toml_rhythm_court`; `cargo test -p ggen-graph --test brand_toml_hotswap_court`. Production refuse: `cargo test -p ggen-graph --lib layout::brand::production_theme_tests`. Next promote: [`BRAND-PRODUCTION-THEME.md`](./BRAND-PRODUCTION-THEME.md) |
 | ggen `ui-layout-court` / `layout::ui_layout` / LayoutRefusal / fluid-clamp | **ALIVE** on evidence `eaf0dad40` (**8 passed; exit 0**; `bc-c7c9d554`; ancestor); tip court land `7c0ba2a90`; tip source **11** `#[test]`; **tip-cargo PENDING** quiet cgroup (not tip exit 0) | `cargo test -p ggen-graph --test ui_layout_court` |
@@ -61,19 +74,22 @@ Do not promote source presence, fleet-census rows, workflow definitions, or hist
 
 | Residual class | Where it bites | Clearance condition |
 |----------------|----------------|---------------------|
-| Gate-1 photolithography open | ui-layout **ALIVE** evidence + tip-cargo **PENDING**; hop-4 manufacture **ALIVE** (`diff=0`); hop-5 **PARTIAL_ALIVE** (adapter **0**; `--live` **foundry_exit=1** / runtime **REFUSED**); `mix` NIF residual **BLOCKED** | Close foundry `--live` → 0 after runtime provision; optional `mix ggen_igniter.sync --check` → 0 |
-| Live zcode / live BRCE | Chicago POWL court unmounted; BRCE broker unmounted; AS-01 crypto **UNSUPPORTED** | Mounted sibling courts + BRCE+AS-01 runtime receipt — fence alone is not ALIVE |
-| Out-of-repo planes unmounted | CASTLE, Smalt, revops, Truex product admit | Tracked standing docs + exact sibling verifiers (see §4) |
-| GA risk register open | R-01 … R-07 bodies | Typed receipt or typed refusal per risk before GA (contract fence ≠ body closure) |
-| Swarm merge HITL | Multiple Gate-1 slices → #849 | Merge coordinator lands courts without founder re-authoring law; tip exit reconfirm |
+| tip-cargo PENDING | Gate-1 fences **PRESENT**/evidence-ALIVE but tip exit not reconfirmed on `d05a131c7` | Quiet `CARGO_BUILD_JOBS=1 cargo test -p ggen-graph --test ui_layout_court` → **0** |
+| foundry `--live` | hop-5 **PARTIAL_ALIVE**; **foundry_exit=1** / **REFUSED** `ZCode runtime is missing` | `bun run sync:local` → `bun scripts/powl-foundry-loop.ts --live` → **0** |
+| cos DB | cos `/readyz` **503** `DB_UNAVAILABLE` | `curl … https://cos.fnox.io/readyz` → HTTP **200** |
+| WebAuthn live | BRCE broker **BLOCKED**; production AS-01 ceremony open | BRCE **V8** then **V9** ([`BRCE-WEBAUTHN-STANDING.md`](./BRCE-WEBAUTHN-STANDING.md) §5) |
+| mix sync NIF | hop-4 residual **BLOCKED** | `CXX=g++-13` NIF → `mix ggen_igniter.sync --check` → **0** |
+| GA risk register | R-01 … R-07 bodies | Typed receipt or typed refusal per risk before GA |
 
-Foundry finish is **not** “all crates compile.” It is **zero daily founder HITL** on the horizontal spine while preserving `SELECT ≠ CONSTRUCT ≠ DO`.
+Foundry finish is **not** “all crates compile.” It is **zero daily founder HITL** on the horizontal spine while preserving `SELECT ≠ CONSTRUCT ≠ DO`. Zero-HITL crown today: **PARTIAL**.
+
+---
 
 ---
 
 ## 3. Next aggregate verifier (this ledger)
 
-Replay cheapest high-information path first (all against tip `4b22529df2939412c41107fe5e9eea66ba6a4dad` or successor; **tip-cargo PENDING** before claiming tip exit 0; this honesty retip did **not** run cargo):
+Replay cheapest high-information path first (all against tip `d05a131c7521d5a6325ade2e8295fee650659d5a` or successor; **tip-cargo PENDING** before claiming tip exit 0; this honesty retip did **not** run cargo):
 
 ```text
 # Gate-1 in-repo fences on #849 tip (exit reconfirm)
@@ -110,7 +126,7 @@ Out-of-repo next verifiers remain owned by sibling ledgers; ggen must **track** 
 
 ## 4. Cross-links (companions + swarm standing ledgers)
 
-### 4.1 On PR #849 tip `4b22529df2939412c41107fe5e9eea66ba6a4dad` (foundry honesty retip; layout_court land `d37271961`)
+### 4.1 On PR #849 tip `d05a131c7521d5a6325ade2e8295fee650659d5a` (foundry standing retip; layout_court land `d37271961`)
 
 | Path | Role vs this ledger |
 |------|---------------------|
@@ -170,22 +186,15 @@ Promote Foundry-finish crown claim to `ALIVE` only when **all** hold:
 Until then, overall goal standing remains:
 
 ```text
-FOUNDRY_FINISH = PARTIAL
-  ∧ Truex ALIVE @ 68d2d233
-  ∧ hop-4 manufacture ALIVE (diff=0)
-  ∧ hop-5 PARTIAL_ALIVE (adapter 0; --live foundry_exit=1 / runtime REFUSED)  # ≠ hop-5 / path crown ALIVE
-  ∧ brand.toml hot-swap PARTIAL_ALIVE ∧ production UNSUPPORTED
-  ∧ Gate1 ui-layout ALIVE  # evidence eaf0dad40; tip-cargo PENDING on d05a131c7
-  ∧ FM-PACK PRESENT / PARTIAL_ALIVE  # presence ≠ composed e2e ALIVE
-  ∧ ggen-layout-court PRESENT @ d37271961  # ≠ live hop-5 ALIVE
-  ∧ CASTLE sibling spine courts ALIVE @ 2774039ea  # ≠ crown
-  ∧ ¬(CASTLE spine crown ALIVE)
-  ∧ Smalt 4-cloud courts exit 0 @ 875efbb87 + fin_ops PARTIAL/ABSENT  # spine PARTIAL
-  ∧ ¬(Smalt RAID / economic-ops ALIVE)
-  ∧ cos BLOCKED
-  ∧ ¬(revops ALIVE)
-  ∧ ¬(foundry --live / live BRCE ALIVE)
-  ∧ ¬(zero daily founder HITL ALIVE)
+FOUNDRY_FINISH = PARTIAL   # Zero-HITL crown PARTIAL
+  ∧ ggen+Taffy PRESENT on d05a131c7  # tip-cargo PENDING
+  ∧ zcode adapter PARTIAL  # adapter 0; foundry --live BLOCKED (ZCode runtime missing)
+  ∧ CASTLE sibling ALIVE @ 2774039ea  # ≠ Foundry crown
+  ∧ Smalt ALIVE @ 91997da76f0f (4-cloud + FinOps)  # ≠ Foundry crown
+  ∧ revops/cos BLOCKED  # DNS fail + cos DB 503
+  ∧ hop-4 manufacture ALIVE ∧ mix sync NIF BLOCKED
+  ∧ hop-5 PARTIAL_ALIVE
+  ∧ founder HITL still required: cos DB, WebAuthn live, tip-cargo, foundry --live
   ∧ clause-4 GA falsifiers would still fire if evaluated today
 ⇒ crown claim incomplete (zero daily founder HITL not ALIVE)
 ```
