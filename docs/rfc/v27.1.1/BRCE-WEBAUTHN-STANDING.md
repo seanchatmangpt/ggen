@@ -41,7 +41,7 @@ AS-01 seat cryptography named by the mandate: **ECDSA P-256 / `:prime256v1`**
 | ABB/SBB refuses DO authority | `crates/ggen-abb-sbb` `Refusal::AuthorityExceeded` / `unauthorized_do_request_is_refused` | **ALIVE** (CONSTRUCT ceiling) | Authority clamp ≠ AS-01 seat |
 | SovereignLease (Ed25519 / `EdDSA`) | `crates/ggen-sjira/src/lease.rs` + `execute` lease gate; CLI `sjira` | **ALIVE** (lease admit) | Multi-party Ed25519; **not** WebAuthn AS-01 / `prime256v1` |
 | Ed25519 sync receipts | `crates/ggen-engine` pack install signing; `ggen-mcp` receipt verify when sig present | **PARTIAL_ALIVE** | Receipt integrity; not seat DO gate |
-| `ed25519-dalek` 3.x / `curve25519-dalek` 4.x+5.x | workspace `Cargo.toml` / `Cargo.lock` | **PARTIAL_ALIVE** | Gate-1 pin/docs court still open per inventory |
+| `ed25519-dalek` 3.x / `curve25519-dalek` 4.x+5.x | workspace `Cargo.toml` / `Cargo.lock`; [`CURVE25519-DALEK-PIN-STANDING.md`](./CURVE25519-DALEK-PIN-STANDING.md) | **PARTIAL_ALIVE** | Pin doc PRESENT; Gate-1 policy court still open |
 | WebAuthn class in ontologies | `marketplace/packages/identity-access-management/ontology/identity_access_management.ttl`; autofde registry | **UNSUPPORTED** (runtime) | Catalogue / registry labels only |
 | Ungated-DO-without-seat typed refusal (this slice) | `crates/ggen-abb-sbb/src/as01_seat.rs` + `tests/brce_as01_seat_court.rs` | **PARTIAL_ALIVE** | Presence/shape fence only — **no crypto verify** |
 
@@ -91,7 +91,7 @@ named claim.
 | V3 | ABB/SBB still refuses DO authority | `cargo test -p ggen-abb-sbb --test falsifiers unauthorized_do_request_is_refused` | **ggen** |
 | V4 | SovereignLease remains Ed25519/`EdDSA` (non-AS-01) | `cargo test -p ggen-sjira --test lease_epoch_test` | **ggen** |
 | V5 | No silent `p256`/WebAuthn dep without docs | `rg -n 'p256|webauthn|web-authn|passkeys' Cargo.toml crates/*/Cargo.toml Cargo.lock` → empty or documented admit | **ggen** |
-| V6 | Gate-1 `curve25519-dalek` pin/docs court | document admitted path under `docs/rfc/v27.1.1/` + lock grep court (see `GATE-1-GAP-MATRIX.md`) | **ggen** (+ cgap-aoq) |
+| V6 | Gate-1 `curve25519-dalek` pin/docs court | pin doc [`CURVE25519-DALEK-PIN-STANDING.md`](./CURVE25519-DALEK-PIN-STANDING.md) PRESENT; next: policy court refusing undocumented major (see pin standing §5 / `GATE-1-GAP-MATRIX.md`) | **ggen** (+ cgap-aoq) |
 
 ### Gate 2–3 (post Gate 1 → GA 2027-01-01)
 
