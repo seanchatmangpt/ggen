@@ -21,7 +21,8 @@ Standing vocabulary (`AGENTS.md` §2): `UNKNOWN` | `PARTIAL_ALIVE` | `ALIVE` |
 [`OUT-OF-REPO-NEXT-VERIFIERS.md`](./OUT-OF-REPO-NEXT-VERIFIERS.md),
 [`SMALT-RAID-STANDING.md`](./SMALT-RAID-STANDING.md),
 [`CCS-AUTHORITY-STANDING.md`](./CCS-AUTHORITY-STANDING.md),
-[`BRCE-WEBAUTHN-STANDING.md`](./BRCE-WEBAUTHN-STANDING.md).
+[`BRCE-WEBAUTHN-STANDING.md`](./BRCE-WEBAUTHN-STANDING.md),
+[`CCS-BRCE-STANDING.md`](./CCS-BRCE-STANDING.md).
 Dedicated ledgers win over stale §13 prose where they disagree (notably Smalt
 FinOps: FOUNDRY/OOR **ALIVE** @ `91997da76f0f` vs older §13.3 FinOps
 **UNSUPPORTED** wording).
@@ -54,7 +55,7 @@ blockers=foundry--live; tip-cargo; cos/readyz; WebAuthn/BRCE-V8/V9; revops-DNS; 
 
 **Exact next verifiers**
 
-1. provider `/login` or `~/.zcode/v2/provider_config.json` → `bun scripts/powl-foundry-loop.ts --live` → **0** ([`HOP5-ZCODE-RUNTIME-STANDING.md`](./HOP5-ZCODE-RUNTIME-STANDING.md)).
+1. provider `/login` or `~/.zcode/v2/provider_config.json` → `bun scripts/powl-foundry-loop.ts --live` → **0** ([`HOP5-ZCODE-RUNTIME-STANDING.md`](./HOP5-ZCODE-RUNTIME-STANDING.md); keys [`HOP5-MODEL-ACCESS-STANDING.md`](./HOP5-MODEL-ACCESS-STANDING.md)).
 2. Quiet tip-cargo: `CARGO_BUILD_JOBS=1 cargo test -p ggen-graph --test ui_layout_court` → **0** on tip (also `shui` / `taffy_aot` / `brand_toml_rhythm`).
 3. Residual: `CXX=g++-13` → `mix ggen_igniter.sync --check` → **0**.
 
@@ -64,19 +65,21 @@ Antifalsifier: adapter exit 0 ≠ path crown `ALIVE`; runtime materialization al
 
 ## Clause 2 — CCS / BRCE + WebAuthn AS-01 (§13.2)
 
+Detail binder: [`CCS-BRCE-STANDING.md`](./CCS-BRCE-STANDING.md) (honesty retip `16d3c2f08` @ `a3b1c9410`; absorbed onto tip).
+
 | Claim | Standing |
 |-------|----------|
 | **CCS / BRCE slice crown** | **PARTIAL_ALIVE** |
 | CCS #1 AS-01 CONSTRUCT→DO | **PARTIAL_ALIVE** — V1 seat + V7 ES256 fixture land (**4 passed; exit 0** @ `fb6e7fc6e`); live WebAuthn **UNSUPPORTED**; broker **BLOCKED**; Plane-5 DO **BLOCKED** |
-| CCS #2 MCP `ggen_write_apply` + CP17 | **PARTIAL_ALIVE** (courts PRESENT; tip-cargo pending) |
-| CCS #3 `construct_hash_gate` | **PARTIAL_ALIVE** — **PRESENT** on tip (land `3ec8afd85`); `lifecycle.rs` still **ABSENT** |
+| CCS #2 MCP `ggen_write_apply` + CP17 | **PARTIAL_ALIVE** (courts PRESENT; tip-cargo pending/spared) |
+| CCS #3 `construct_hash_gate` | **PARTIAL_ALIVE** — **PRESENT** on tip (PR **#901** / land `3ec8afd85`); `lifecycle.rs` still **ABSENT**; tip-cargo **spared** |
 | CCS #5 SovereignLease Ed25519 | Fixture **ALIVE**; **UNSUPPORTED** as AS-01/`prime256v1` |
 | CCS #8 Plane-5 front doors | **BLOCKED** / **UNKNOWN** (revops DNS; cos `/readyz` **503**) |
 
 **Exact next verifiers**
 
-1. Tip-cargo: `cargo test -p ggen-abb-sbb --test brce_as01_es256_assertion_court`; `… --test brce_as01_seat_court`; `cargo test -p ggen-lsp --lib construct_hash_gate`.
-2. Live ladder: BRCE **V8** (broker AS-01 seat) → **V9** / OOR **G2-5** (Plane-5 DO probe).
+1. Live ladder: BRCE **V8** (broker AS-01 seat) → **V9** / OOR **G2-5** (Plane-5 DO probe).
+2. When tip-cargo free (locks spared this absorb): `cargo test -p ggen-lsp --lib construct_hash_gate`; `cargo test -p ggen-abb-sbb --test brce_as01_es256_assertion_court`; `… --test brce_as01_seat_court`.
 3. Residual: land/merge `lifecycle.rs` + package courts exit **0**.
 
 Fence / fixture exit 0 ≠ Plane-5 / CONSTRUCT→DO `ALIVE`.
@@ -149,7 +152,7 @@ Recommended next Gate-1 falsifier (pick one): quiet tip-cargo reconfirm of `shui
 
 | # | Blocker | Standing | Exact next |
 |---|---------|----------|------------|
-| 1 | foundry `--live` / ZCode runtime | **BLOCKED**/**REFUSED** | provider creds → `bun scripts/powl-foundry-loop.ts --live` → **0** ([`HOP5-ZCODE-RUNTIME-STANDING.md`](./HOP5-ZCODE-RUNTIME-STANDING.md)) |
+| 1 | foundry `--live` / ZCode runtime | **BLOCKED**/**REFUSED** | provider creds → `bun scripts/powl-foundry-loop.ts --live` → **0** ([`HOP5-ZCODE-RUNTIME-STANDING.md`](./HOP5-ZCODE-RUNTIME-STANDING.md); [`HOP5-MODEL-ACCESS-STANDING.md`](./HOP5-MODEL-ACCESS-STANDING.md)) |
 | 2 | tip-cargo Gate-1 fences | **PENDING** | `CARGO_BUILD_JOBS=1 cargo test -p ggen-graph --test ui_layout_court` (+ peers) → **0** |
 | 3 | cos `/readyz` DB | **BLOCKED** (**503**) | curl → HTTP **200** |
 | 4 | Live WebAuthn / BRCE broker / Plane-5 DO | **UNSUPPORTED** / **BLOCKED** | BRCE **V8** → **V9** / OOR **G2-3…G2-5** |
