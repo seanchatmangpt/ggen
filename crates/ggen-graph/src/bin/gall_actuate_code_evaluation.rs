@@ -1,6 +1,7 @@
 #![allow(clippy::unwrap_used, clippy::unnecessary_debug_formatting)]
 use chrono::Utc;
 use ggen_graph::graph::serialize::serialize_to_string;
+use ggen_graph::vocab::{is_admitted_turtle_prefix, is_open_admitted_namespace_iri};
 use oxigraph::io::{RdfFormat, RdfParser};
 use oxigraph::model::{BlankNode, GraphName, Literal, NamedNode, NamedOrBlankNode, Quad, Term};
 use oxigraph::store::Store;
@@ -349,10 +350,12 @@ fn check_uri(uri: &str) -> Option<String> {
     }
 
     // If it does not match a public vocabulary, it must start with http://example.org/, file://, or a known HTTPS vocabulary.
+    // ECOSYSTEM-SPEC-27.1.1 Gate 1: W3C `shui:` (SHACL 1.2 UI) is an open-admitted public namespace.
     if uri.starts_with("http://example.org/")
         || uri.starts_with("file://")
         || uri.starts_with("https://schema.org/")
         || uri.starts_with("http://schema.org/")
+        || is_open_admitted_namespace_iri(uri)
     {
         return None;
     }
@@ -369,11 +372,8 @@ fn scan_file_for_private_namespaces(
     let mut content = String::new();
     File::open(path)?.read_to_string(&mut content)?;
 
-    // Allowed prefixes — standard public vocabulary prefixes only.
-    let allowed_prefixes = [
-        "rdf", "rdfs", "owl", "xsd", "prov", "dcat", "dcterms", "dc", "skos", "sh", "time", "spdx",
-        "ocel", "schema", "mcp", "ex", "mp", "vann", "foaf",
-    ];
+    // Allowed prefixes — standard public vocabulary prefixes only
+    // (shared with `ggen_graph::vocab::public_prefixes`, includes W3C `shui:`).
 
     // 1. Scan prefix declarations in the Turtle text
     for line in content.lines() {
@@ -382,7 +382,7 @@ fn scan_file_for_private_namespaces(
             if let Some(col_idx) = trimmed.find(':') {
                 let prefix_part = &trimmed["@prefix".len()..col_idx];
                 let prefix_name = prefix_part.trim();
-                if !prefix_name.is_empty() && !allowed_prefixes.contains(&prefix_name) {
+                if !prefix_name.is_empty() && !is_admitted_turtle_prefix(prefix_name) {
                     return Ok(Some(format!("Banned prefix declared: {}", prefix_name)));
                 }
                 if prefix_name.to_lowercase().contains("gall") {
