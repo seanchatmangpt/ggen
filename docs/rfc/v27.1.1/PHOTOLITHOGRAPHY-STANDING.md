@@ -4,7 +4,7 @@
 |-------|-------|
 | Document ID | `PHOTOLITHOGRAPHY-STANDING-27.1.1` |
 | Companion | `ECOSYSTEM-SPEC-27.1.1.md`, `GATE-1-GAP-MATRIX.md`, `REPO-INVENTORY-27.1.1.md` |
-| Observed tip (this ledger) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `d05a131c7521d5a6325ade2e8295fee650659d5a` (Truex admit-court **ALIVE** @ `truex@68d2d233` / [truex#6](https://github.com/seanchatmangpt/truex/pull/6) **MERGED**; hop-4 BrandTheme manufacture **ALIVE**; hop-5 **PARTIAL_ALIVE** — adapter exit **0** / Jobs/C4 deferred; foundry `--live` **foundry_exit=1** / **REFUSED** `ZCode runtime is missing` after executor wire @ zcode `f32df08`; `ggen-layout-court` **PRESENT**; ui-layout **ALIVE** evidence `eaf0dad40`; **tip-cargo `ui_layout` PENDING**) |
+| Observed tip (this ledger) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `d05a131c7521d5a6325ade2e8295fee650659d5a` (past ~`28c3f4d845`; absorb `cursor/v2711-gate1-standing-retip-bc54` + `cursor/v2711-gate1-photo-retip2-bc54` + `cursor/v2711-hop5-foundry-live2-bc54`; Truex admit-court **ALIVE** @ `truex@68d2d233` / [truex#6](https://github.com/seanchatmangpt/truex/pull/6) **MERGED**; hop-4 BrandTheme manufacture **ALIVE** (`diff_exit=0`); hop-5 **PARTIAL_ALIVE** — adapter exit **0**; foundry `--live` **foundry_exit=1** / **REFUSED** `ZCode runtime is missing` after executor wire @ zcode `f32df08`; `ggen-layout-court` **PRESENT**; ui-layout **ALIVE** evidence `eaf0dad40`; **tip-cargo `ui_layout` PENDING**; FM-PACK **PRESENT**/**PARTIAL_ALIVE** tracked in Gate-1/inventory — not path-crown) |
 | Hop-4 manufacture | 2026-11-22 — `cursor/v2711-hop4-manufacture-bc54` / `/tmp/cursor/igniter-real-cleanroom.md` (`bc-4861c787`) — tip BrandTheme emit vs igniter fixture → **ALIVE** (`diff_exit=0`); prior PARTIAL exit **2** `:no_primitive_space` closed by dual-schema fixture |
 | Hop-5 mix SUBJECT | 2026-11-22 — `cursor/v2711-hop5-mix-subject-bc54` / [`HOP5-MIX-SUBJECT-STANDING.md`](./HOP5-MIX-SUBJECT-STANDING.md) — default adapter exit **0** after Taffy+Mode B PASS (not SUBJECT_MISSING) |
 | Hop-5 foundry live2 | 2026-11-22 — `cursor/v2711-hop5-foundry-live2-bc54` / [`HOP5-FOUNDRY-LIVE2-STANDING.md`](./HOP5-FOUNDRY-LIVE2-STANDING.md) — Gall `--live` injects `createZcodeAgentExecutor`; **foundry_exit=1** / **REFUSED** (runtime ABSENT); no false `ALIVE` |
@@ -303,3 +303,9 @@ ui-layout **11**. No path-crown `ALIVE` asserted.
 - Evidence (reconfirm): `layout_exit=0`; default `adapter_exit=0` (Jobs/C4 deferred diagnostic); Chicago **31 passed; exit 0**; see [`HOP5-MIX-SUBJECT-STANDING.md`](./HOP5-MIX-SUBJECT-STANDING.md).
 - Hop-5 aggregate remains **PARTIAL_ALIVE** (foundry `--live` / Jobs/C4 still open — next verifier `bun scripts/powl-foundry-loop.ts --live` → 0).
 - Do **not** invent hop-5 / path-crown `ALIVE`. **Tip-cargo `ui_layout` PENDING** unless proven exit 0.
+
+### Gate1 photo retip2 (`cursor/v2711-gate1-photo-retip2-bc54`)
+
+- Observed tip: `d05a131c7521d5a6325ade2e8295fee650659d5a` (past ~`28c3f4d845`).
+- Honesty pin: Truex **ALIVE** @ `68d2d233`; hop-4 manufacture **ALIVE** (`diff=0`); hop-5 **PARTIAL_ALIVE** (adapter **0**; `--live` open); brand.toml hot-swap **PARTIAL_ALIVE** / production **UNSUPPORTED**; ui_layout tip-cargo **PENDING**; FM-PACK **PRESENT**/**PARTIAL_ALIVE** (inventory); cos **BLOCKED** (Gate-0 / Foundry).
+- Path crown remains **PARTIAL**. No cargo. No new `ALIVE` invented.
