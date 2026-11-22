@@ -49,22 +49,13 @@ pub enum LayoutCourtRefusal {
     /// Geometry law refused via Taffy AOT (overflow, touch, gap, …).
     Geometry(AotRefusal),
     /// Fixture schema is not the admitted Gate-1 column schema.
-    SchemaUnsupported {
-        schema: String,
-    },
+    SchemaUnsupported { schema: String },
     /// Court noun does not match [`LAYOUT_COURT_NOUN`].
-    CourtMismatch {
-        court: String,
-    },
+    CourtMismatch { court: String },
     /// Expected seal digest present but does not match computed digest.
-    DigestMismatch {
-        expected: String,
-        actual: String,
-    },
+    DigestMismatch { expected: String, actual: String },
     /// JSON / decode failure (fail-closed).
-    Parse {
-        message: String,
-    },
+    Parse { message: String },
 }
 
 /// Standing for one court run — never silent-pass on broken geometry.
@@ -96,8 +87,7 @@ pub fn seal_digest(seal: &AotSealReceipt) -> String {
     let payload = format!(
         "v1|spacing={:.6}|widths={}|leaves={}",
         seal.text_spacing,
-        seal
-            .widths_px
+        seal.widths_px
             .iter()
             .map(|w| w.to_string())
             .collect::<Vec<_>>()

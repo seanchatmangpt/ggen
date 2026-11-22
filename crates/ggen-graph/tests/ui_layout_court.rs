@@ -23,9 +23,8 @@ fn fixture(name: &str) -> PathBuf {
 
 fn load_fixture(name: &str) -> String {
     let path = fixture(name);
-    fs::read_to_string(&path).unwrap_or_else(|e| {
-        panic!("expected layout-court fixture at {}: {e}", path.display())
-    })
+    fs::read_to_string(&path)
+        .unwrap_or_else(|e| panic!("expected layout-court fixture at {}: {e}", path.display()))
 }
 
 #[test]
@@ -39,9 +38,7 @@ fn valid_fixture_admits_via_adapter_into_taffy_aot() {
     // Assert
     match standing {
         LayoutCourtStanding::Admitted(receipt) => {
-            assert!(
-                (receipt.seal.text_spacing - WCAG_1412_TEXT_SPACING).abs() < f32::EPSILON
-            );
+            assert!((receipt.seal.text_spacing - WCAG_1412_TEXT_SPACING).abs() < f32::EPSILON);
             assert_eq!(receipt.seal.widths_px, vec![320, 375, 393, 600, 840, 1280]);
             assert_eq!(receipt.seal.leaf_count, 2);
             assert_eq!(receipt.seal_digest, seal_digest(&receipt.seal));
@@ -105,9 +102,9 @@ fn anti_vacuity_mutation_widened_text_is_refused_not_vacuous_pass() {
             assert!((text_spacing - WCAG_1412_TEXT_SPACING).abs() < f32::EPSILON);
             assert_eq!(leaf_id, "body_copy");
         }
-        other => panic!(
-            "mutated layout must be REFUSED (Overflow@320), got {other:?} — vacuous pass"
-        ),
+        other => {
+            panic!("mutated layout must be REFUSED (Overflow@320), got {other:?} — vacuous pass")
+        }
     }
 }
 
@@ -123,10 +120,7 @@ fn mismatched_expected_seal_digest_is_refused() {
 
     // Assert
     match standing {
-        LayoutCourtStanding::Refused(LayoutCourtRefusal::DigestMismatch {
-            expected,
-            actual,
-        }) => {
+        LayoutCourtStanding::Refused(LayoutCourtRefusal::DigestMismatch { expected, actual }) => {
             assert_eq!(expected.len(), 64);
             assert_eq!(actual.len(), 64);
             assert_ne!(expected, actual);
