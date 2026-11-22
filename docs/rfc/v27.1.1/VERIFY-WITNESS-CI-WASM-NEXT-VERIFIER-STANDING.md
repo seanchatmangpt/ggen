@@ -10,7 +10,7 @@
 | Env-wire evidence | tip-wins `b2f6e12d2` / crown code `f65434315` — Chicago **8/8** EXIT **0** held; `AFFIDAVIT_VERIFY_WITNESS_SIZE_BUDGET_BYTES=256_000` |
 | Affidavit pin evidence | `563eb322a16d805ebc99b2c16f1165462244d7e2` — `wc -c` **28673**; SHA-256 `5faae4642ca23c503e96d2a2ab938c056caffdde14e77516054fe4492aed0c97` (held; pin court not re-run this land) |
 | Cargo / tip-cargo | size-court cargo **BUILD_BROKEN** this retip — cgroup OOM / tip-exclusive thrash (**EXIT 137**); prior lineage **8/8** held; **not** a production substitute |
-| Status | LEDGER — env wire **PARTIAL**; affidavit pin size court **ALIVE** (bytes held); CI mount **ABSENT** (`GGEN_VERIFY_WITNESS_WASM` **UNSET**); production runtime **UNSUPPORTED**; **not** production `ALIVE`; Foundry **not** promoted |
+| Status | LEDGER — env wire **PARTIAL**; affidavit pin size court **ALIVE** (bytes held); CI mount fixture **PRESENT** on `cursor/v2711-vw-ci-consume-bc54` (`affidavit_gatekeeper_verify_witness.pin.wasm` + workflow); production runtime **PENDING_CI** until workflow EXIT **0** (was **UNSUPPORTED**); **not** production `ALIVE` until CI green; Foundry **not** promoted. Companion: [`VERIFY-WITNESS-CI-WASM-CONSUME-STANDING.md`](./VERIFY-WITNESS-CI-WASM-CONSUME-STANDING.md) |
 
 Standing vocabulary: `UNKNOWN` | `PARTIAL_ALIVE` | `ALIVE` | `BLOCKED` | `BUILD_BROKEN` | `UNSUPPORTED` | `REFUSED_*`.
 
