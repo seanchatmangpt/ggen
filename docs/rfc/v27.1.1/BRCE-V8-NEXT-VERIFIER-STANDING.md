@@ -3,13 +3,13 @@
 | Field | Value |
 |-------|-------|
 | Document ID | `BRCE-V8-NEXT-VERIFIER-STANDING-27.1.1` |
-| Branch | honesty retip `cursor/v2711-brce-v8-retip-bc54` from crown tip `893070836` (⊇ prior tip-wins absorb `d90d0189f` / `8d761d8a1`) |
+| Branch | tip-wins absorb `cursor/v2711-brce-v8-next-bc54` @ `d90d0189f` onto crown `8d761d8a1` (⊇ `f65434315` / `098f53ea8`) |
 | Spec binding | `ECOSYSTEM-SPEC-27.1.1` §13.2 Clause 2 — BRCE broker admits intent only with verified AS-01 seat |
-| Companions | [`BRCE-WEBAUTHN-STANDING.md`](./BRCE-WEBAUTHN-STANDING.md) §5 **V8**; [`CCS-BRCE-STANDING.md`](./CCS-BRCE-STANDING.md) §2; [`WEBAUTHN-LIVE-NEXT-VERIFIER-STANDING.md`](./WEBAUTHN-LIVE-NEXT-VERIFIER-STANDING.md) §3; [`R01-R07-STANDING.md`](./R01-R07-STANDING.md) §2; [`R01-R07-BODIES-NEXT-VERIFIER-STANDING.md`](./R01-R07-BODIES-NEXT-VERIFIER-STANDING.md); [`OUT-OF-REPO-NEXT-VERIFIERS.md`](./OUT-OF-REPO-NEXT-VERIFIERS.md) **G2-3** |
-| Observed ggen tip (retip base) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `893070836ef83ab711e657cfacc98bb4dc7ea369` (`893070836`; ⊇ examples-repair CI + Gate 0/2/3 next-verifier absorb + OOR retip16) |
-| Prior tip observation | Tip-wins absorb retained **BLOCKED** / **UNSUPPORTED** honesty on `8d761d8a1` — **no** V8 / body / live-crypto `ALIVE`; this retip re-pins the same honesty on live crown tip |
-| Cargo / tip-cargo | **NOT RUN** (docs-only honesty retip) |
-| Status | LEDGER — **V8** broker **BLOCKED** until broker admit; R-01…R-07 bodies **BLOCKED**; live WebAuthn **UNSUPPORTED**; R-01…R-07 *contract* tip-cargo **ALIVE** retained (**7** @ `e7569893a`); **no** V8 / body / live-crypto `ALIVE` |
+| Companions | [`BRCE-WEBAUTHN-STANDING.md`](./BRCE-WEBAUTHN-STANDING.md) §5 **V8**; [`CCS-BRCE-STANDING.md`](./CCS-BRCE-STANDING.md) §2; [`WEBAUTHN-LIVE-NEXT-VERIFIER-STANDING.md`](./WEBAUTHN-LIVE-NEXT-VERIFIER-STANDING.md) §3; [`R01-R07-STANDING.md`](./R01-R07-STANDING.md) §2; [`OUT-OF-REPO-NEXT-VERIFIERS.md`](./OUT-OF-REPO-NEXT-VERIFIERS.md) **G2-3** |
+| Observed ggen tip (absorb base) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `8d761d8a17925f19b2cee6bb7fbf1582bb4555a0` (`8d761d8a1`; ⊇ `f65434315` / `098f53ea8`) |
+| Prior tip observation | Sidebranch `d90d0189f` on `f65434315`; tip-wins absorb retains **BLOCKED** / **UNSUPPORTED** honesty — **no** V8 / body / live-crypto `ALIVE` |
+| Cargo / tip-cargo | **NOT RUN** (docs-only honesty pin) |
+| Status | LEDGER — **V8** broker **BLOCKED** (broker unmounted); R-01…R-07 bodies **BLOCKED** ahead of V8; live WebAuthn **UNSUPPORTED**; **no** V8 / body / live-crypto `ALIVE` |
 
 Standing vocabulary: `UNKNOWN` | `PARTIAL_ALIVE` | `ALIVE` | `BLOCKED` | `BUILD_BROKEN` | `UNSUPPORTED` | `REFUSED_*`.
 
