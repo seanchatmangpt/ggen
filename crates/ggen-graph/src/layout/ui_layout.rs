@@ -8,10 +8,31 @@
 //!
 //! See `docs/rfc/v27.1.1/PHOTOLITHOGRAPHY-STANDING.md` hop 3→5.
 
+use serde::{Deserialize, Serialize};
+
 use super::remediation_bound::{admit_remediation_bound, DEFAULT_MAX_REMEDIATION_ATTEMPTS};
 use super::taffy_aot::{
     preflight_column_six_widths, AotColumn, AotRefusal, AotSealReceipt, WCAG_1412_TEXT_SPACING,
 };
+
+/// Schema id zcode-cli / fixtures must declare for Gate-1 column trees.
+pub const LAYOUT_COURT_SCHEMA_V1: &str = "ggen.layout.aot.column/v1";
+
+/// Court noun mirrored from zcode-cli `ui-layout-court.ts`.
+pub const LAYOUT_COURT_NOUN: &str = "ui-layout-court";
+
+/// Wire fixture: layout nodes (+ optional expected seal digest) from zcode-cli.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct LayoutCourtCase {
+    pub court: String,
+    pub schema: String,
+    /// WCAG 1.4.12 spacing factor; Gate-1 courts use 1.5.
+    pub text_spacing: f32,
+    pub column: AotColumn,
+    /// When present, must match the seal digest after a successful court.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub expected_seal_digest: Option<String>,
+}
 
 /// Standing for a successful in-repo ui-layout consume court.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -56,6 +77,12 @@ pub enum UiLayoutRefusal {
     Geometry(AotRefusal),
     /// Remediation budget itself is unbounded (0) — refuse, do not loop.
     UnboundedRemediation { detail: &'static str },
+    /// Fixture schema is not the admitted Gate-1 column schema.
+    SchemaUnsupported { schema: String },
+    /// Court noun does not match [`LAYOUT_COURT_NOUN`].
+    CourtMismatch { court: String },
+    /// JSON / decode failure (fail-closed).
+    Parse { message: String },
 }
 
 impl UiLayoutRefusal {
@@ -67,8 +94,61 @@ impl UiLayoutRefusal {
             Self::StaleDigest { .. } => "REFUSED_UI_LAYOUT_STALE_DIGEST",
             Self::Geometry(_) => "REFUSED_UI_LAYOUT_GEOMETRY",
             Self::UnboundedRemediation { .. } => "REFUSED_UNBOUNDED_REMEDIATION",
+            Self::SchemaUnsupported { .. } => "REFUSED_UI_LAYOUT_SCHEMA",
+            Self::CourtMismatch { .. } => "REFUSED_UI_LAYOUT_COURT",
+            Self::Parse { .. } => "REFUSED_UI_LAYOUT_PARSE",
         }
     }
+}
+
+/// Parse a JSON layout-court case (fixture or zcode-cli handoff payload).
+pub fn parse_layout_court_case(json: &str) -> Result<LayoutCourtCase, UiLayoutRefusal> {
+    serde_json::from_str(json).map_err(|e| UiLayoutRefusal::Parse {
+        message: e.to_string(),
+    })
+}
+
+/// Feed a wire [`LayoutCourtCase`] into Taffy AOT + digest consume (real engine).
+pub fn run_layout_court_case(case: &LayoutCourtCase) -> Result<UiLayoutReceipt, UiLayoutRefusal> {
+    if case.court != LAYOUT_COURT_NOUN {
+        return Err(UiLayoutRefusal::CourtMismatch {
+            court: case.court.clone(),
+        });
+    }
+    if case.schema != LAYOUT_COURT_SCHEMA_V1 {
+        return Err(UiLayoutRefusal::SchemaUnsupported {
+            schema: case.schema.clone(),
+        });
+    }
+    // Spacing must match Gate-1 1.5× court; non-1.5 cases still seal via column path
+    // only when they equal WCAG_1412_TEXT_SPACING (fixture contract).
+    if (case.text_spacing - WCAG_1412_TEXT_SPACING).abs() >= f32::EPSILON {
+        return Err(UiLayoutRefusal::Parse {
+            message: format!(
+                "text_spacing must be {WCAG_1412_TEXT_SPACING} for Gate-1 ui-layout court"
+            ),
+        });
+    }
+    let receipt = court_ui_layout_column(&case.column)?;
+    if let Some(expected) = case.expected_seal_digest.as_deref() {
+        let expected = expected.trim();
+        if expected.is_empty() {
+            return Err(UiLayoutRefusal::MissingDigest);
+        }
+        if expected != receipt.digest {
+            return Err(UiLayoutRefusal::MismatchedDigest {
+                pinned: expected.to_string(),
+                observed: receipt.digest,
+            });
+        }
+    }
+    Ok(receipt)
+}
+
+/// Parse JSON then run the court (on-disk fixture harness entry point).
+pub fn run_layout_court_json(json: &str) -> Result<UiLayoutReceipt, UiLayoutRefusal> {
+    let case = parse_layout_court_case(json)?;
+    run_layout_court_case(&case)
 }
 
 /// Consume an AOT seal against a pinned digest — fail closed.
