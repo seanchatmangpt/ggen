@@ -344,7 +344,8 @@ Fence presence ≠ Plane-5 DO `ALIVE`.
 | GCP billing / cos ledger / servengine M4 / year-end SOW | **BLOCKED** / **UNKNOWN** — OUT OF SCOPE | [`GATE-0-STANDING.md`](./GATE-0-STANDING.md) |
 | Smalt 4-cloud RAID (Azure·AWS·GCP·Twilio) | **ALIVE** (6-column spine @ `875efbb87`/`91997da76f0f` + residual b4b treasury/tax/erp/rates exits **0,0,0,0** @ `91997da76f0f` — 8/8/8/7 passed; `bc-c700dafb`) — ≠ Foundry / zero-HITL crown | [`SMALT-RAID-STANDING.md`](./SMALT-RAID-STANDING.md) §4.3/§6b |
 | `revops.fnox.io` / `cos.fnox.io` / CindyCat·Fourth Watch front doors | **UNKNOWN** / **BLOCKED** — DO only via BRCE+AS-01 | [`REVOPS-COS-STANDING.md`](./REVOPS-COS-STANDING.md) |
-| Exact external next verifiers | OOR Gate 0/2/3 rows | [`OUT-OF-REPO-NEXT-VERIFIERS.md`](./OUT-OF-REPO-NEXT-VERIFIERS.md) |
+| O(N)→O(N²) ops honesty (brand prod / Smalt / VW size / cos / revops) | **PARTIAL** aggregate — prod theme **UNSUPPORTED**; Smalt **ALIVE (lineage)** ≠ Foundry; VW measure **ALIVE** / court **PARTIAL**; cos **BLOCKED**; revops **UNKNOWN** | [`OPS-SURFACES-ON2-STANDING.md`](./OPS-SURFACES-ON2-STANDING.md) |
+| Exact external next verifiers | OOR Gate 0/2/3 rows | [`OUT-OF-REPO-NEXT-VERIFIERS.md`](./OUT-OF-REPO-NEXT-VERIFIERS.md); [`GATE023-OOR-STANDING-MATRIX.md`](./GATE023-OOR-STANDING-MATRIX.md) |
 
 Commercial ops priority (CindyCat-first) is Gate 2 doctrine, not ops `ALIVE`:
 [`GATE-2-CINDYCAT-FIRST.md`](./GATE-2-CINDYCAT-FIRST.md).
@@ -393,6 +394,9 @@ sibling courts, or Smalt 6-column spine `ALIVE` alone.
 | `docs/rfc/v27.1.1/FOUNDRY-FINISH-STANDING.md` | horizontal spine ggen→Taffy→zcode→CASTLE→Smalt→revops (zero daily founder HITL) |
 | `docs/rfc/v27.1.1/FOUNDRY-FINISH-SPINE-STANDING.md` | Foundry finish horizontal spine honesty (PARTIAL + `--live` BLOCKED_HITL; no Foundry ALIVE) |
 | `docs/rfc/v27.1.1/OUT-OF-REPO-NEXT-VERIFIERS.md` | Gate 0/2/3 exact next external verifiers |
+| `docs/rfc/v27.1.1/GATE023-OOR-STANDING-MATRIX.md` | Gate 0/2/3 OOR standing honesty matrix through GA 2027-01-01 (tip pin `4060f9d6b` ⊆ `f0a0e07bc`; no invented ALIVE) |
+| `docs/rfc/v27.1.1/OPS-SURFACES-ON2-STANDING.md` | O(N)→O(N²) ops surfaces honesty (brand prod / Smalt / VW / cos / revops) |
+| `docs/rfc/v27.1.1/ECOSYSTEM-SPEC-27.1.1-MATERIALIZE-STANDING.md` | Materialize-verify receipt @ tip `f0a0e07bc` (docs-only; binder index gaps closed; no crown ALIVE) |
 | `docs/rfc/v27.1.1/BRCE-WEBAUTHN-STANDING.md` | BRCE + WebAuthn AS-01 (`:prime256v1`) exists vs BLOCKED/UNSUPPORTED + GA verifiers |
 | `docs/rfc/v27.1.1/CCS-BRCE-WEBAUTHN-STANDING.md` | Clause-2 binder: ~8 CCS inventory + BRCE V8/bodies BLOCKED + WebAuthn UNSUPPORTED + SELECT≠CONSTRUCT≠DO enforcement |
 | `docs/rfc/v27.1.1/CCS-AUTHORITY-STANDING.md` | SELECT≠CONSTRUCT≠DO authority edges + A2A/BRCE fence census |
