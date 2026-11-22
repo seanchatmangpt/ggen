@@ -6,7 +6,7 @@
 | Binding | `ECOSYSTEM-SPEC-27.1.1` Gate 0 + Gate 2–3 out-of-repo legs; GA **2027-01-01** |
 | Companion index | [`OUT-OF-REPO-NEXT-VERIFIERS.md`](./OUT-OF-REPO-NEXT-VERIFIERS.md); [`GATE-0-2-3-NEXT-VERIFIERS.md`](./GATE-0-2-3-NEXT-VERIFIERS.md) |
 | Sidebranch | `cursor/v2711-gate023-oor-matrix-bc54` (`bc-0754e974`) |
-| Observed ggen tip (write base) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ **`6ffc4aba8d233303042172c22bb46bf11d551be8`** (`6ffc4aba8`; tip-wins rebase onto live crown; Foundry `--live` BLOCKED_HITL / cos BLOCKED / revops UNKNOWN held) |
+| Observed ggen tip (write base) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ **`4060f9d6b59d4989c5534408bf51845877d765e8`** (`4060f9d6b`; tip-wins absorb parent; Foundry `--live` BLOCKED_HITL / cos BLOCKED / revops UNKNOWN held) |
 | Probe time | 2026-11-22 10:29:22 PST / `2026-11-22T18:29:22Z` |
 | Cargo / tip-cargo | **NOT RUN** (docs-only honesty matrix) |
 | Crown absorb | tip-wins onto `origin/cursor/ecosystem-spec-27-1-1-bc54` (no force; no ManagePullRequest) |
