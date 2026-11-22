@@ -49,12 +49,12 @@ Do **not** claim live zcode `ALIVE` from ggen CI, POWL/OCEL vocab modules, or th
 | zcode-cli as ggen workspace member / in-tree binary | **UNSUPPORTED** | Absent from `[workspace] members`; no path dep |
 | Sibling checkout mounted in this cloud workspace | **PARTIAL_ALIVE** (mounted `/agent/repos/zcode-cli`; tip-pinned ggen `07b689c97`) | Cross-mount `bc-be2c9600` |
 | In-process bun `ui-layout-court` courts | **ALIVE** (**35 passed; exit 0**) | `bun test test/ui-layout-court.test.ts test/ui-layout-court-chicago.test.ts` |
-| Live `UiLayoutCourtAdapter` / `ggen-layout-court` | **PARTIAL** (package **PRESENT** @ `d37271961`; live tip-exit **PENDING**) | Historical under ABSENT: adapter exit **2**. Exact next: `cargo run -p ggen-layout-court --bin layout_court -- fixtures/ui-layout-court/product-subject.json` → 0; then adapter → 0. Do **not** invent live `ALIVE` |
+| Live `UiLayoutCourtAdapter` / `ggen-layout-court` | **ALIVE** (spatial; exit **0**) when layout_court PRESENT — mix ABSENT no longer SUBJECT_MISSING after Taffy+Mode B PASS ([`HOP5-MIX-SUBJECT-STANDING.md`](./HOP5-MIX-SUBJECT-STANDING.md)); Jobs/C4 / foundry `--live` still **PARTIAL**/open | Replay: `layout_court` + product-subject → 0; adapter → 0; Chicago mix-ABSENT courts. Do **not** invent hop-5 crown `ALIVE` while foundry `--live` open |
 | Live foundry / Chicago POWL→OCEL | **BLOCKED** | `powl-foundry-loop --live` exit **1**; chicago 1 fail; needs layout court + `mix` |
 | Photolithography path crown (hops 1–5) | **non-ALIVE** | Hop 5 **PARTIAL** (in-process ALIVE ≠ live ALIVE) |
 | Claiming zcode `ALIVE` from ggen vocab alone | **REFUSED_UNGROUNDED** | Explicit |
 
-**Aggregate hop-5 standing for this land:** **PARTIAL** — in-process bun courts **ALIVE** (exit 0) + `ggen-layout-court` **PRESENT** on tip `4b22529df` (`d37271961`) + live consume tip-exit **PENDING**.
+**Aggregate hop-5 standing for this land:** **PARTIAL_ALIVE** — in-process bun courts **ALIVE** + live spatial adapter **ALIVE** (exit **0** after mix-SUBJECT fix; layout_court PRESENT) + Jobs/C4 / foundry `--live` still open (`mix` ABSENT). See [`HOP5-MIX-SUBJECT-STANDING.md`](./HOP5-MIX-SUBJECT-STANDING.md).
 
 ---
 

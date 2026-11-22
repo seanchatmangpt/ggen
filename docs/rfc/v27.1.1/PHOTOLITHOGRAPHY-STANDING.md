@@ -4,9 +4,9 @@
 |-------|-------|
 | Document ID | `PHOTOLITHOGRAPHY-STANDING-27.1.1` |
 | Companion | `ECOSYSTEM-SPEC-27.1.1.md`, `GATE-1-GAP-MATRIX.md`, `REPO-INVENTORY-27.1.1.md` |
-| Observed tip (this ledger) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `3a69becce90b3e8c9060eaf32b660cb906d40784` (Truex admit-court **ALIVE** @ `truex@68d2d233` / [truex#6](https://github.com/seanchatmangpt/truex/pull/6) **MERGED**; hop-4 BrandTheme manufacture **ALIVE** (`diff_exit=0` dual-schema; prior PARTIAL `:no_primitive_space` closed); hop-5 live after layout-court [#884](https://github.com/seanchatmangpt/ggen/pull/884) / land `d37271961`/`6a89beb38`; `ggen-layout-court` **PRESENT**; ui-layout **ALIVE** evidence `eaf0dad40` exit 0 / 8 passed — ancestor; tip court land `7c0ba2a90`; tip source **11** `#[test]`; **tip-cargo reconfirm PENDING** quiet cgroup — not tip exit 0) |
+| Observed tip (this ledger) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `88e84d5457c43d240115585a07641061c0da604e` (Truex admit-court **ALIVE** @ `truex@68d2d233` / [truex#6](https://github.com/seanchatmangpt/truex/pull/6) **MERGED**; hop-4 BrandTheme manufacture **ALIVE** (`diff_exit=0` dual-schema); hop-5 mix-SUBJECT fix — default adapter exit **0** / Jobs/C4 deferred; `ggen-layout-court` **PRESENT**; ui-layout **ALIVE** evidence `eaf0dad40`; foundry `--live` still open) |
 | Hop-4 manufacture | 2026-11-22 — `cursor/v2711-hop4-manufacture-bc54` / `/tmp/cursor/igniter-real-cleanroom.md` (`bc-4861c787`) — tip BrandTheme emit vs igniter fixture → **ALIVE** (`diff_exit=0`); prior PARTIAL exit **2** `:no_primitive_space` closed by dual-schema fixture |
-| Hop-5 live | 2026-11-22 — `cursor/v2711-hop5-live-bc54` / `/tmp/cursor/hop5-live-after-884.md` (prior PRESENT pin `cursor/v2711-hop5-present-pin-bc54`; prior cross-mount `/tmp/cursor/hop5-crossmount.md`) |
+| Hop-5 mix SUBJECT | 2026-11-22 — `cursor/v2711-hop5-mix-subject-bc54` / [`HOP5-MIX-SUBJECT-STANDING.md`](./HOP5-MIX-SUBJECT-STANDING.md) — default adapter exit **0** after Taffy+Mode B PASS (not SUBJECT_MISSING); foundry `--live` still open |
 | Status | LEDGER (path standings; **not** a crown `ALIVE` receipt) |
 
 Standing vocabulary (`AGENTS.md` §2): `UNKNOWN` | `PARTIAL_ALIVE` | `ALIVE` |
@@ -19,16 +19,15 @@ is **ALIVE** (`git diff --exit-code` → **0** on tip dual-schema brand vs ignit
 fixture CSS; evidence `/tmp/cursor/igniter-real-cleanroom.md`). **Antifalsifier:**
 bare `git diff --exit-code` on a post-clone / virgin working tree ≠ hop-4
 `ALIVE`; `mix ggen_igniter.sync` NIF path remains **BLOCKED** (separate residual).
-Hop 5 aggregate is **PARTIAL** —
+Hop 5 aggregate is **PARTIAL_ALIVE** —
 in-process zcode bun courts **ALIVE** (35 passed; exit 0); `ggen-layout-court`
-**PRESENT** (#884 / tip `6fdcf4665`); `layout_court` subject **ALIVE** (exit **0**;
-thrash blocked new cargo — prebuilt `target/debug/layout_court`); default
-`UiLayoutCourtAdapter.verifyPostTransition` **BLOCKED** (exit **2** — `mix`
-clean-room `SUBJECT_MISSING` after Taffy+Mode B PASS). **Antifalsifier:**
-`requireCleanRoom: false` exit 0 ≠ default adapter `ALIVE`; fold tip `3d9da101`
-`PARTIAL_ALIVE` (adapter 0) demoted. `powl-foundry-loop --live` remains
-**BLOCKED** (prior exit **1**). Do **not** invent hop-5 / path-crown `ALIVE`.
-Do **not** restate package **ABSENT** after land `d37271961`. The in-repo ggen
+**PRESENT** (#884 / tip `6fdcf4665`); `layout_court` subject **ALIVE** (exit **0**);
+default `UiLayoutCourtAdapter.verifyPostTransition` **ALIVE** (exit **0** after
+mix-SUBJECT fix when layout_court PRESENT — Jobs/C4 deferred / ggen dry-run;
+see [`HOP5-MIX-SUBJECT-STANDING.md`](./HOP5-MIX-SUBJECT-STANDING.md)).
+`powl-foundry-loop --live` remains **open**/`BLOCKED` (`mix` ABSENT; prior exit **1**).
+Do **not** invent hop-5 / path-crown `ALIVE` from adapter alone.
+Do **not** restate mix SUBJECT_MISSING after layout_court PRESENT + spatial PASS. The in-repo ggen
 ui-layout fence remains **ALIVE** on evidence tip `eaf0dad40` (**8 passed;
 exit 0**; `bc-c7c9d554`; ancestor of live tip `6fdcf4665`); tip court land
 `7c0ba2a90`; tip source **11** `#[test]`; **tip-cargo reconfirm PENDING**
@@ -54,19 +53,19 @@ perimeter transducer
 | 2 | `.ttl` / `.toml` law + brand rhythm | **PARTIAL_ALIVE** (rhythm + OCEL/POWL vocab); full DTCG inventory **UNSUPPORTED** | **In-repo** fixtures + vocabs; OEM token inventories Gate 2+ / brand plane | `cargo test -p ggen-graph --test brand_toml_rhythm_court` | Fixtures refuse or go missing; rhythm admits touch &lt;44 / gap &lt;8 / off-grid; Gate-2 tokens invented without source |
 | 3 | ggen + Taffy AOT pre-flight | **PARTIAL_ALIVE** (ggen six-width seal) | **In-repo** (`ggen-graph::layout::taffy_aot`); consumer adapters **out-of-repo** | `cargo test -p ggen-graph --test taffy_aot_preflight_court` | Six-width seal fails under WCAG 1.4.12 1.5×; overflow refusal omits failing width; silent drop of typed `AotRefusal` |
 | 3b | ggen `ui-layout` digest consume (D5 in-repo fence) | **ALIVE** — `layout::ui_layout` + `tests/ui_layout_court.rs`; evidence tip `eaf0dad40` **8 passed; exit 0** (`bc-c7c9d554`; ancestor); tip court land `7c0ba2a90`; tip source **11** `#[test]`; **tip-cargo PENDING** (quiet cgroup) | **In-repo** fence only; sibling `ui-layout-court.ts` remains **ABSENT** / **UNSUPPORTED** here | Replay: `cargo test -p ggen-graph --test ui_layout_court` | Court missing from tip; silent admit of missing/stale/mismatched digest; conflating with sibling `.ts`; inventing path-crown ALIVE from hop 3b alone; inventing tip exit 0 without quiet cargo |
-| 4 | ggen_igniter clean-room / manufacture | **ALIVE** — tip dual-schema `fourth-watch.brand.toml` (`[rhythm]` + DTCG `[primitive.space]`) → igniter `BrandTheme` emit vs igniter fixture CSS → `diff -rq` **0** + compare-subject `git diff --exit-code` → **0** (`/tmp/cursor/igniter-real-cleanroom.md`; tip base `3a69becce`). Mount **PRESENT**; clean-tree checkpoint also **0**. `mix ggen_igniter.sync` NIF path still **BLOCKED** (residual). In-repo contract **PARTIAL_ALIVE**. | **Out-of-repo** sibling `seanchatmangpt/ggen_igniter` @ `/home/ubuntu/ggen_igniter` / `/agent/repos/ggen_igniter`. Fixture: `docs/rfc/v27.1.1/fixtures/fourth-watch.brand.toml`. In-repo: [`IGNITER-CLEANROOM-STANDING.md`](./IGNITER-CLEANROOM-STANDING.md) + `igniter_cleanroom_court` | **Replay:** BrandTheme emit tip brand + igniter `test/fixtures/brand_theme/fourth-watch.brand.toml` (canon path for Source header) → `diff -rq` **0**; `git diff --exit-code` on compare subject → **0**. **Next residual:** exclusive `CXX=g++-13` NIF → `mix ggen_igniter.sync --check` → **0**. Checkpoint: `cd /home/ubuntu/ggen_igniter && git diff --exit-code`. In-repo: `cargo test -p ggen-sjira --test igniter_cleanroom_court` | Claiming hop-4 `ALIVE` from bare post-clone `git diff --exit-code` alone; claiming `mix sync` ALIVE while NIF **BLOCKED**; conflating igniter-fixture-only idempotent emit with tip manufacture; re-opening `:no_primitive_space` by dropping DTCG surface from tip fixture |
-| 5 | zcode-cli POWL/OCEL remediations (bounded refusal) | **PARTIAL** — in-process bun **ALIVE** (**35 passed; exit 0**); `ggen-layout-court` **PRESENT** (#884 / tip `6fdcf4665`); `layout_court` exit **0**; default `UiLayoutCourtAdapter.verifyPostTransition` exit **2** **BLOCKED** (`mix` clean-room `SUBJECT_MISSING` after Taffy+Mode B PASS); foundry `--live` prior exit **1**. Antifalsifier: fold tip `3d9da101` adapter-0 `PARTIAL_ALIVE` demoted (`requireCleanRoom: false` ≠ ALIVE) | **Out-of-repo** `zcode-cli` @ `/agent/repos/zcode-cli` @ `02a9d86e5`. Package `ggen-layout-court` **PRESENT** on tip (`crates/ggen-layout-court` + bin `layout_court`; land `d37271961`). In-repo contract: [`ZCODE-POWL-OCEL-STANDING.md`](./ZCODE-POWL-OCEL-STANDING.md) | Exact next: install Elixir/`mix`; default `UiLayoutCourtAdapter.verifyPostTransition(/agent/repos/ggen)` → exit **0**; `bun scripts/powl-foundry-loop.ts --live` → exit **0**. Replay: `layout_court fixtures/ui-layout-court/product-subject.json` → 0; Presence: `test -d crates/ggen-layout-court`; `bun test test/ui-layout-court.test.ts test/ui-layout-court-chicago.test.ts`. GA falsifier **2027-01-01** | Inventing default-adapter `ALIVE` from `requireCleanRoom: false` exit 0; inventing hop-5 / path-crown `ALIVE` from package PRESENT or `layout_court` exit 0 alone; restating package **ABSENT** after land `d37271961`; conflating hop-3b with live hop-5 |
+| 4 | ggen_igniter clean-room / manufacture | **ALIVE** — tip dual-schema `fourth-watch.brand.toml` (`[rhythm]` + DTCG `[primitive.space]`) → igniter `BrandTheme` emit vs igniter fixture CSS → `diff -rq` **0** + compare-subject `git diff --exit-code` → **0** (`/tmp/cursor/igniter-real-cleanroom.md`; tip base `88e84d545`). Mount **PRESENT**; clean-tree checkpoint also **0**. `mix ggen_igniter.sync` NIF path still **BLOCKED** (residual). In-repo contract **PARTIAL_ALIVE**. | **Out-of-repo** sibling `seanchatmangpt/ggen_igniter` @ `/home/ubuntu/ggen_igniter` / `/agent/repos/ggen_igniter`. Fixture: `docs/rfc/v27.1.1/fixtures/fourth-watch.brand.toml`. In-repo: [`IGNITER-CLEANROOM-STANDING.md`](./IGNITER-CLEANROOM-STANDING.md) + `igniter_cleanroom_court` | **Replay:** BrandTheme emit tip brand + igniter `test/fixtures/brand_theme/fourth-watch.brand.toml` (canon path for Source header) → `diff -rq` **0**; `git diff --exit-code` on compare subject → **0**. **Next residual:** exclusive `CXX=g++-13` NIF → `mix ggen_igniter.sync --check` → **0**. Checkpoint: `cd /home/ubuntu/ggen_igniter && git diff --exit-code`. In-repo: `cargo test -p ggen-sjira --test igniter_cleanroom_court` | Claiming hop-4 `ALIVE` from bare post-clone `git diff --exit-code` alone; claiming `mix sync` ALIVE while NIF **BLOCKED**; conflating igniter-fixture-only idempotent emit with tip manufacture; re-opening `:no_primitive_space` by dropping DTCG surface from tip fixture |
+| 5 | zcode-cli POWL/OCEL remediations (bounded refusal) | **PARTIAL_ALIVE** — in-process bun **ALIVE**; live `UiLayoutCourtAdapter` **ALIVE** (**exit 0** after mix-SUBJECT fix: layout_court PRESENT → spatial-only / ggen dry-run, not exit 2); `layout_court` exit **0**; foundry `--live` still **open** (`mix` ABSENT) | **Out-of-repo** `zcode-cli`. Package `ggen-layout-court` **PRESENT**. Contract: [`ZCODE-POWL-OCEL-STANDING.md`](./ZCODE-POWL-OCEL-STANDING.md); mix fix: [`HOP5-MIX-SUBJECT-STANDING.md`](./HOP5-MIX-SUBJECT-STANDING.md) | Exact next: `bun scripts/powl-foundry-loop.ts --live` → **0** (needs `mix`); replay adapter → **0**; `bun test test/ui-layout-court-chicago.test.ts` → **0**. GA falsifier **2027-01-01** | Inventing hop-5 crown `ALIVE` while foundry `--live` open; restating mix SUBJECT_MISSING after layout_court PRESENT + spatial PASS |
 
 **Path standing (aggregate):** **PARTIAL** — hops 1–3 **PARTIAL_ALIVE**, hop 3b
 ggen ui-layout **ALIVE** (**8 passed; exit 0** on evidence `eaf0dad40`; tip land
 `7c0ba2a90`), hop 4 BrandTheme manufacture compare **ALIVE** (`diff_exit=0` on tip
 dual-schema vs igniter fixture; antifalsifier: bare post-clone ≠ `ALIVE`; `mix
-sync` NIF still **BLOCKED**), hop 5 **PARTIAL** (in-process **ALIVE** +
-`layout_court` **ALIVE**; default live adapter **BLOCKED** on `mix`; foundry
-`--live` still open) → path crown **non-ALIVE** until hop-5 foundry `--live`
-exit 0 (and optional `mix sync --check`) on pinned tip. Pass-count footnotes
-(tip source, not tip exit 0): hop-1 `shui` **4**; hop-2 brand **11**; hop-3
-taffy **7**; hop-3b ui-layout **11**.
+sync` NIF still **BLOCKED**), hop 5 **PARTIAL_ALIVE** (in-process **ALIVE** + live
+adapter **ALIVE** exit 0 after mix-SUBJECT fix; foundry `--live` / Jobs/C4 still
+open) → path crown **non-ALIVE** until hop-5 foundry `--live` exit 0 (and optional
+`mix sync --check`) on pinned tip. Pass-count footnotes (tip source, not tip exit
+0): hop-1 `shui` **4**; hop-2 brand **11**; hop-3 taffy **7**; hop-3b ui-layout
+**11**.
 
 
 ---
@@ -292,3 +291,9 @@ ui-layout **11**. No path-crown `ALIVE` asserted.
 - In-process: `bun test test/ui-layout-court*.ts` → **35 passed; exit 0** (**ALIVE**).
 - Aggregate hop-5 standing: **PARTIAL**. Receipt: `/tmp/cursor/hop5-live-after-884.md`. No path-crown `ALIVE`.
 
+### Hop-5 mix SUBJECT_MISSING fix (`cursor/v2711-hop5-mix-subject-bc54`)
+
+- Diagnosis: default adapter exit **2** after Taffy+Mode B PASS was `mix` SUBJECT_MISSING, not missing `layout_court`.
+- Fix (zcode-cli @ `fed6f166`): `resolveCleanRoomSyncCmd` — ggen dry-run fallback; spatial-only exit **0** when layout_court PRESENT + mix/ggen ABSENT; typed remediation when subject truly ABSENT.
+- Evidence: live adapter exit **0**; Chicago **31 passed**; see [`HOP5-MIX-SUBJECT-STANDING.md`](./HOP5-MIX-SUBJECT-STANDING.md).
+- Hop-5 aggregate remains **PARTIAL_ALIVE** (foundry `--live` / Jobs/C4 still open).
