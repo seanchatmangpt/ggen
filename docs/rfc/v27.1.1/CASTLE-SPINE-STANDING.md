@@ -6,10 +6,10 @@
 | Companion | `ECOSYSTEM-SPEC-27.1.1` (Gate 2–3 CASTLE publish); `REPO-INVENTORY-27.1.1` |
 | Subject | `seanchatmangpt/castle` on spine `ggen → Taffy → zcode-cli → CASTLE → Smalt → revops` |
 | Materialized | 2026-11-22 |
-| Observed ggen tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `6a3a623bacd33efdc1ec7efccf6a35141662ca53` (ui_layout exact tip-cargo ALIVE land; see §11 wire probe — supersedes §10 pin `1f335ea82`) |
-| Tip pin | 2026-11-22 — `cursor/v2711-castle-wire-probe-bc54` from crown `6a3a623ba` (foundry clause-4 wire/digest-bind probe; **no** push to crown; sibling `main` reconfirmed `2774039ea`; digest-bind admit surface **ABSENT**; crown wire **UNKNOWN**; LinkedIn **BLOCKED**; no cargo; no ManagePullRequest) |
-| Observed castle tip | `main` @ `2774039ea81bad508c93785a59dd7a99198ae256` (https://github.com/seanchatmangpt/castle/commit/2774039ea81bad508c93785a59dd7a99198ae256; live courts `bc-1bffb072`; remote **REACHABLE** this probe via `git ls-remote` + shallow clone @ `/tmp/castle-wire-probe/castle`; **not** mounted in the ggen workspace tree) |
-| Repo scope of this land | `seanchatmangpt/ggen` (standing ledger only — no CASTLE runtime / no tip-cargo this retip) |
+| Observed ggen tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ tip-wins absorb onto post-webauthn crown (base `a7e190400` + webauthn absorb; ⊇ HITL BLOCKED_HITL + Smalt RAID ALIVE + OOR retip12); supersedes §11 pin `6a3a623ba` / sidebranch mirror `d0fec2f2f` |
+| Tip pin | 2026-11-22 — tip-wins absorb `cursor/v2711-castle-digest-bind-bc54` @ `3be9c1c80` onto crown after webauthn-next (stub PRESENT / wire ABSENT ⇒ crown wire **UNKNOWN**; Foundry stays **PARTIAL**). Castle stub: `cursor/digest-bind-admit-ca8a` @ `c89d9f2` on base `2774039ea` |
+| Observed castle tip | `main` @ `2774039ea81bad508c93785a59dd7a99198ae256` (sibling courts ALIVE historical); digest-bind stub sidebranch `cursor/digest-bind-admit-ca8a` @ `c89d9f2` (https://github.com/seanchatmangpt/castle/commit/c89d9f2) — stub API **PRESENT**, wire bind **ABSENT**, crown wire **UNKNOWN** |
+| Repo scope of this land | `seanchatmangpt/ggen` standing ledger mirror + `seanchatmangpt/castle` stub/admit sidebranch (no Foundry crown promote; no ManagePullRequest) |
 
 Standing vocabulary: `UNKNOWN` | `PARTIAL_ALIVE` | `ALIVE` | `BLOCKED` | `BUILD_BROKEN` | `UNSUPPORTED` | `REFUSED_*`.
 
@@ -249,3 +249,59 @@ curl -sS -w '\nhttp=%{http_code}\n' https://cos.fnox.io/readyz   # expect HTTP 2
 ```
 
 Until step 1+2 exit with digest asserted, **CASTLE on horizontal spine (crown)** stays **UNKNOWN**.
+
+## 12. Digest-bind stub land (castle `c89d9f2` / ggen mirror `d0fec2f2f`) — 2026-11-22
+
+| Field | Value |
+|-------|-------|
+| Branch (ggen) | tip-wins absorb `cursor/v2711-castle-digest-bind-bc54` @ `3be9c1c80` onto crown (probe base `d0fec2f2f`; stub ≠ ALIVE crown wire) |
+| Branch (castle) | `cursor/digest-bind-admit-ca8a` @ `c89d9f2` (parent `2774039ea`) — pushed |
+| Probe intent | Grow minimal digest-bind admit surface + red Chicago falsifier without racing ggen crown tip writers |
+| Castle stub API | **PRESENT** — `src/publish/digest_bind.rs` (`admit_ggen_layout_digest` / `bind_into_mint` / `assert_mint_binds_digest`); exported from `publish::mod`; hook comment in `wire::seal_public_artifact` |
+| Production wire bind | **ABSENT** — `seal_public_artifact` / `publish_subject_post` still omit `ggen_layout_digest` |
+| CLI `--ggen-layout-digest` | **ABSENT** (named by `CLI_FLAG_GGEN_LAYOUT_DIGEST` constant only) |
+| Chicago court | `cargo test --test publish_digest_bind_court` → stub rows **4 PASS**; `mint_receipt_must_bind_admitted_ggen_layout_digest` **FAIL** (expected red; `REFUSED_GGEN_DIGEST`) |
+| Lib unit | `cargo test --lib publish::digest_bind` → **4/4** exit **0** (`RUSTUP_TOOLCHAIN=nightly`) |
+| Sibling courts @ `2774039ea` | **ALIVE** retained (historical `bc-1bffb072`); not re-cargoed this land |
+| Crown wire | **UNKNOWN** (unchanged) — stub ≠ ALIVE crown wire |
+| Foundry / zero-HITL | **PARTIAL** — this land does **not** promote |
+| LinkedIn / Jobs | **BLOCKED** (cos `/readyz` residual orthogonal; not re-probed) |
+
+### 12.1 Standing delta (honesty)
+
+| Claim | Before (§11) | After (§12) |
+|-------|--------------|-------------|
+| Observed ggen tip pin | `6a3a623ba` | `d0fec2f2f` (mirror base; crown tip writers untouched) |
+| Sibling castle `main` SHA | `2774039ea` | `2774039ea` (unchanged) |
+| Digest-bind admit API | **ABSENT** / **UNSUPPORTED** | **PRESENT** (stub on castle `c89d9f2`) |
+| Production wire bind / mint `ggen_layout_digest` | **ABSENT** | **ABSENT** (red falsifier confirms) |
+| Crown wire | **UNKNOWN** | **UNKNOWN** (stub ≠ ALIVE) |
+| Sibling mint/redaction/brand courts | **ALIVE** | **ALIVE** (historical; not re-cargoed) |
+
+### 12.2 Exact next verifier
+
+```text
+# Castle sidebranch (stub PRESENT; wire ABSENT → crown UNKNOWN):
+cd /path/to/castle && git checkout cursor/digest-bind-admit-ca8a  # c89d9f2
+RUSTUP_TOOLCHAIN=nightly cargo test --lib publish::digest_bind
+# expect 4/4 exit 0
+RUSTUP_TOOLCHAIN=nightly cargo test --test publish_digest_bind_court -- --nocapture
+# expect stub_* PASS; mint_receipt_must_bind_admitted_ggen_layout_digest FAIL
+#   until wire::seal_public_artifact / publish_branded_post calls bind_into_mint
+#   and CLI/threaded pin supplies AotSealReceipt.digest (64-hex)
+
+# After wire + CLI pin land (still on castle):
+RUSTUP_TOOLCHAIN=nightly cargo test --test publish_digest_bind_court  # expect all PASS
+cargo test --test publish_redaction_court   # expect 13/13 exit 0
+cargo test --test cli_publish_brand         # expect 6/6 exit 0
+./target/debug/castle publish post \
+  --subject spine-probe \
+  --public-anonymize \
+  --brand brands/fourth-watch.brand.toml
+  # (+ eventual --ggen-layout-digest <64-hex>)
+# expect exit 0; redaction_court=ALIVE; ggen_layout_digest asserted
+
+# Docs: castle docs/sjira/v26.11.22/DIGEST-BIND-ADMIT.md
+```
+
+Until the red falsifier turns green **and** sibling courts stay exit 0 with digest asserted, **CASTLE on horizontal spine (crown)** stays **UNKNOWN**. Stub land alone must not be promoted to crown `ALIVE`.
