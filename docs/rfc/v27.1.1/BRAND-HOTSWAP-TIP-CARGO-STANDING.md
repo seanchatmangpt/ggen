@@ -1,60 +1,74 @@
-# brand.toml hot-swap tip-cargo — COMPILING / PARTIAL_ALIVE (exact tip) (v27.1.1)
+# brand.toml hot-swap tip-cargo — ALIVE (exact tip-cargo) receipt (v27.1.1)
 
 ```text
-tip=cc2a4ea662b12b35ac90246b3a2bfbd89db615e4
+cargo_tip=c4e757a14c91c6512438a8a94bbde304b0a6e921
 court=brand_toml_hotswap_court
 package=ggen-graph
-command=CXX=g++ SCCACHE_DISABLE=1 RUSTC_WRAPPER= CARGO_BUILD_JOBS=1 cargo test -p ggen-graph --test brand_toml_hotswap_court --locked --target-dir /tmp/ggen-brand-hotswap-exact-tip --config build.jobs=1 -- --test-threads=1
-EXIT=137
-standing=COMPILING / PARTIAL_ALIVE (exact tip not sealed)
+passed=6
+failed=0
+EXIT=0
+standing=ALIVE (exact tip-cargo)
 fence_ceiling=PARTIAL_ALIVE
 production=UNSUPPORTED
 lineage_tip_cargo=ALIVE @ 19c08a3b0 / absorb cde02d1f2 (6 passed; exit 0)
 ```
 
-**Exact-tip attempt (`cursor/v2711-brand-exact-retip-bc54`):** live crown tip
-`cc2a4ea66` (retipped through `acd3b8c89` → `8c8b1e6e5` → `167352d0d` →
-`2d7b47b2e` → `cc2a4ea66` while cargo contended). Exclusive `CARGO_BUILD_JOBS=1`
-runs did **not** reach tip EXIT **0**. Recorded exits: **143** (SIGTERM),
-**101** (oxrocksdb-sys SIGTERM), **137** (cgroup OOM SIGKILL; last). Do **not**
-invent tip-subject `ALIVE`. Fence API ceiling remains `HOT_SWAP_STANDING_CEILING`
-= **PARTIAL_ALIVE**. Production theme remains **UNSUPPORTED** /
-`REFUSED_PRODUCTION`.
+**Exact-tip reconfirm (`cursor/v2711-brand-exact-retip4-bc54` / `bc-479d54bf`):**
+`CARGO_BUILD_JOBS=1` on cargo tip `c4e757a14` (admitted base `~8c8b1e6e5+`;
+land tip may advance docs-only) for `brand_toml_hotswap_court` —
+**6 passed; 0 failed; EXIT:0** @ 2026-11-22T18:44:13Z
+(`/tmp/only-fafc690f-tip3-courts`). Prior exact-retip attempts recorded
+EXIT **137**/**143**/**101** under guardian/OOM thrash and correctly stayed
+**COMPILING** / **PARTIAL_ALIVE** — see
+[`BRAND-TOML-HOTSWAP-EXACT-RETIP4-STANDING.md`](./BRAND-TOML-HOTSWAP-EXACT-RETIP4-STANDING.md).
+Fence API ceiling remains `HOT_SWAP_STANDING_CEILING` = **PARTIAL_ALIVE**.
+Production theme remains **UNSUPPORTED** / `REFUSED_PRODUCTION`. Foundry /
+zero-HITL crown **not** invented from this fence. Crown absorb **not** performed
+on this branch.
 
 | Field | Value |
 |-------|-------|
 | Document ID | `BRAND-HOTSWAP-TIP-CARGO-STANDING` |
-| Official evidence branch | `cursor/v2711-brand-exact-retip-bc54` tip-wins onto `cursor/ecosystem-spec-27-1-1-bc54` |
+| Official evidence branch | `cursor/v2711-brand-exact-retip4-bc54` against `cursor/ecosystem-spec-27-1-1-bc54` |
 | Spec binding | `ECOSYSTEM-SPEC-27.1.1` §8 brand.toml hot-swap |
-| Live tip pin | `cc2a4ea662b12b35ac90246b3a2bfbd89db615e4` |
-| Exact-tip cargo | **COMPILING** — EXIT **137** (OOM); prior **143**/**101** under thrash |
-| Lineage evidence | `19c08a3b0` / absorb `cde02d1f2` — **ALIVE (lineage tip-cargo)** **6 passed; exit 0** (`/tmp/gate1-taffy`) |
-| Brand sources vs lineage | **UNCHANGED** (`git diff --stat 19c08a3b0..cc2a4ea66` on `layout/brand.rs` + `brand_toml_hotswap_court.rs` + OEM fixtures → empty) |
-| Target dirs attempted | `/tmp/ggen-brand-hotswap-exact-tip`, `/tmp/ggen-uilayout-exact-retip-warm`, `/tmp/gate1-exact-tip2/shui-target` |
-| Constraint | `CARGO_BUILD_JOBS=1`; `build.jobs=1`; `--test-threads=1`; `--locked`; worktree `/tmp/ggen-brand-exact-retip-wt` |
-| Cgroup | workload `memory.max`≈14.6 Gi; `oom_kill`≥37 during window |
-| Fence ceiling | **PARTIAL_ALIVE** (`seed_hot_swap_slot` / `hot_swap_brand` receipts) |
+| Cargo evidence tip | `c4e757a14c91c6512438a8a94bbde304b0a6e921` — **exact tip-cargo ALIVE** |
+| Admitted base | `8c8b1e6e5ed7314a4e37f3fdc6078e4383aecd26` |
+| Lineage evidence | `19c08a3b0` / absorb `cde02d1f2` — prior **ALIVE (lineage tip-cargo)** **6** |
+| Court blob | `22e417ab307428fdcaf228059923fec644ce57c3` (≡ lineage) |
+| Target dir | `/tmp/only-fafc690f-tip3-courts` |
+| Constraint | `CARGO_BUILD_JOBS=1`; `build.jobs=1`; `--test-threads=1`; `--locked`; `SCCACHE_DISABLE=1` |
+| Exact-tip reconfirm | **ALIVE** — EXIT:0 @ `c4e757a14` |
+| Fence ceiling | **PARTIAL_ALIVE** |
 | Production theme | **UNSUPPORTED** / `REFUSED_PRODUCTION` — [`BRAND-PRODUCTION-THEME.md`](./BRAND-PRODUCTION-THEME.md) |
+| Foundry / zero-HITL | **not ALIVE** |
 | ManagePullRequest | **not used** (parent owns #849) |
-| Crown tip-wins absorb | **ABSORBED** onto `cursor/ecosystem-spec-27-1-1-bc54` @ pre-absorb `e6d1b839d` (cherry-pick `08ad78dcb`+`548cd939d`) |
+| Crown absorb | **none** on this branch |
 
-**Law:** Exact-tip `ALIVE` requires recorded EXIT **0** for `brand_toml_hotswap_court`
-on the live tip under exclusive cargo. Lineage tip-cargo EXIT **0** does **not**
-promote the live tip to exact-tip `ALIVE` while thrash/OOM blocks the verifier.
-Court assertions themselves refuse the string `ALIVE` on hot-swap receipts
-(ceiling **PARTIAL_ALIVE**). Production theme is never `ALIVE` from this fence.
+**Law:** Official `ggen-graph` tip-cargo EXIT **0** for `brand_toml_hotswap_court`
+on the cargo tip seals Gate-1 OEM hot-swap tip-cargo as
+**ALIVE (exact tip-cargo)**. Court assertions themselves refuse the string
+`ALIVE` on hot-swap receipts (ceiling **PARTIAL_ALIVE**). Production theme is
+never `ALIVE` from this fence. Foundry zero-HITL is never `ALIVE` from this fence.
 
 ---
 
 ## Tip-cargo evidence
 
-| Court | Tip | Result | Exit | Standing |
-|-------|-----|--------|------|----------|
-| `brand_toml_hotswap_court` (exact tip) | `cc2a4ea66` | no completed run | **137** | **COMPILING** / **PARTIAL_ALIVE** |
-| `brand_toml_hotswap_court` (lineage) | `19c08a3b0` / absorb `cde02d1f2` | **6 passed; 0 failed** | **0** | **ALIVE (lineage tip-cargo)** |
+| Court | Target | Result | Exit | Standing |
+|-------|--------|--------|------|----------|
+| `brand_toml_hotswap_court` | `/tmp/only-fafc690f-tip3-courts` | **6 passed; 0 failed** | **0** | **ALIVE (exact tip-cargo)** |
 
-Logs: `/tmp/cursor/brand-hotswap-exact-tip{,2,3,4,5,6}*.log` · receipt:
-`/tmp/cursor/brand-hotswap-exact-tip-receipt.md`.
+Tests exercised (all **ok**):
+
+- `fourth_watch_to_cindycat_hot_swap_is_partial_alive`
+- `cindycat_back_to_fourth_watch_round_trips`
+- `rhythm_refusal_blocks_hot_swap`
+- `same_brand_hot_swap_is_refused`
+- `seed_of_unknown_oem_is_refused`
+- `unknown_oem_brand_id_is_refused`
+
+Log: `/tmp/cursor/brand-exact-retip4.log` · status: `/tmp/cursor/brand-exact-retip4.status` ·
+receipt: `/tmp/cursor/brand-exact-retip4-receipt.md`.
 
 ---
 
@@ -62,17 +76,14 @@ Logs: `/tmp/cursor/brand-hotswap-exact-tip{,2,3,4,5,6}*.log` · receipt:
 
 ```bash
 git fetch origin cursor/ecosystem-spec-27-1-1-bc54
-git rev-parse origin/cursor/ecosystem-spec-27-1-1-bc54
-# expect quiet cgroup (no concurrent oxrocksdb cargo); jobs=1
-df -h /tmp
+# cargo evidence @ c4e757a14; brand hot-swap sources ≡ through subsequent docs-only tip-wins
 set -o pipefail
 CXX=g++ SCCACHE_DISABLE=1 RUSTC_WRAPPER= CARGO_BUILD_JOBS=1 \
   cargo test -p ggen-graph --test brand_toml_hotswap_court --locked \
-  --target-dir /tmp/ggen-brand-hotswap-exact-tip \
+  --target-dir /tmp/ggen-brand-hotswap-exact-retip4 \
   --config build.jobs=1 \
   -- --test-threads=1
-# expect: 6 passed; EXIT:0 → then promote this receipt to ALIVE (exact tip-cargo)
-# until then: keep COMPILING / PARTIAL_ALIVE; fence ceiling PARTIAL_ALIVE; production UNSUPPORTED
+# expect: 6 passed; EXIT:0; standing string never ALIVE (ceiling PARTIAL_ALIVE)
 ```
 
 ---
@@ -80,12 +91,14 @@ CXX=g++ SCCACHE_DISABLE=1 RUSTC_WRAPPER= CARGO_BUILD_JOBS=1 \
 ## Compact return line
 
 ```text
-base_tip=cc2a4ea662b12b35ac90246b3a2bfbd89db615e4
-EXIT=137
-standing=COMPILING / PARTIAL_ALIVE
+cargo_tip=c4e757a14c91c6512438a8a94bbde304b0a6e921
+EXIT=0
+standing=ALIVE (exact tip-cargo)
+passed=6
 fence_ceiling=PARTIAL_ALIVE
 production=UNSUPPORTED
-lineage=ALIVE @ 19c08a3b0 (6 passed; exit 0)
-landed=tip-wins absorb onto crown (side cursor/v2711-brand-exact-retip-bc54 @ 548cd939d)
-next=exclusive quiet tip-cargo EXIT:0; production theme remains UNSUPPORTED
+foundry=not ALIVE
+landed=cursor/v2711-brand-exact-retip4-bc54
+bc=bc-479d54bf
+next=production theme UNSUPPORTED; no crown absorb
 ```
