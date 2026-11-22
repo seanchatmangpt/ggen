@@ -514,7 +514,7 @@ Crown: Plane-5 revops+cos product standing is **not** `ALIVE`. Labels in §1
 
 ## 20. Tip reconfirm (2026-11-22 09:20:38 PST) — retip17 `571571720`
 
-Observed on branch `cursor/v2711-oor-retip17-bc54` from tip
+Observed on branch `cursor/v2711-oor-retip17-bc54` @ `4cdbabff7` from tip
 `571571720620cd7462b9a740e3bf0b0fdeebc17a` (prior retip16 pin `acd3b8c89` /
 `423e7a831`). **No cargo.** Sidebranch only — crown **not** absorbed / **not**
 pushed to #849. Probe unchanged vs §19: cos `/readyz` **503**
