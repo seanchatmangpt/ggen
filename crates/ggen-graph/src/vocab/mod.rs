@@ -15,7 +15,8 @@ pub mod xsd;
 
 pub use public_prefixes::{
     is_admitted_turtle_prefix, is_open_admitted_namespace_iri, is_refused_private_prefix,
-    ADMITTED_TURTLE_PREFIXES, REFUSED_PRIVATE_PREFIXES,
+    turtle_prefix_standing, ADMITTED_TURTLE_PREFIXES, REFUSED_PRIVATE_PREFIXES,
+    TurtlePrefixStanding,
 };
 
 /// RDF Namespace Constant
