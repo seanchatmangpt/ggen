@@ -2,10 +2,11 @@
 
 ```text
 lineage=ALIVE(bounded_refusal tip-cargo @ cd7c2433b ⊆ crown)
-exact_tip_reconfirm=STALLED
-agents=bc-d4e6c905,bc-934bba30 RUNNING branchName=null
-remote_reconfirm_branch=ABSENT
-crown_tip=df9597c1817313f8d5173f425af28aaf485d114c
+exact_tip_reconfirm=SUPERSEDED_BY_ALIVE
+superseding=cursor/v2711-zcode-refusal-reconfirm-bc54@8bd3fe407 (bc-934bba30; sjira6/bound4 EXIT0)
+agents_at_stall_observation=bc-d4e6c905,bc-934bba30 RUNNING branchName=null
+remote_reconfirm_branch_at_stall=ABSENT
+crown_tip_at_stall=df9597c1817313f8d5173f425af28aaf485d114c
 prior_tip_win=c91b225614a3ca0472303c05bab25601db1d51e1 ⊆ crown
 ```
 
@@ -23,7 +24,7 @@ prior_tip_win=c91b225614a3ca0472303c05bab25601db1d51e1 ⊆ crown
 
 Standing vocabulary: `UNKNOWN` | `PARTIAL_ALIVE` | `ALIVE` | `BLOCKED` | `BLOCKED_HITL` | `BUILD_BROKEN` | `UNSUPPORTED` | `REFUSED_*` | `SCHEDULED` | `STALLED`.
 
-**Authority.** This document settles the stalled `zcode POWL refusal reconfirm` agents against tip evidence already on crown. It records lineage `ALIVE` from tip docs + prior tip-win ancestry. It does **not** invent a new exact-tip or hop-5 / foundry `--live` `ALIVE` from RUNNING agents that have not pushed.
+**Authority.** This document recorded the stalled `zcode POWL refusal reconfirm` agents against tip evidence already on crown at observation time. It is **superseded** for exact-tip refuse-path standing by [`ZCODE-POWL-REFUSAL-RECONFIRM-STANDING.md`](./ZCODE-POWL-REFUSAL-RECONFIRM-STANDING.md) (`8bd3fe407` / `bc-934bba30`; sjira **6**/bound **4** EXIT **0**). **refusal ALIVE ≠ `--live` ALIVE.**
 
 ---
 

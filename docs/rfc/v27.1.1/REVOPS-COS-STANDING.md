@@ -5,7 +5,7 @@
 | Document ID | `REVOPS-COS-STANDING` |
 | Companion | `ECOSYSTEM-SPEC-27.1.1.md`, `GATE-1-GAP-MATRIX.md`, `REPO-INVENTORY-27.1.1.md` |
 | Observed | 2026-11-22 |
-| Observation host | Cursor cloud agent on `seanchatmangpt/ggen` @ `origin/cursor/ecosystem-spec-27-1-1-bc54` tip `cc2b344bc` (tip-wins absorb `cursor/v2711-oor-retip13-bc54` @ `e2ca6a69a` onto crown `cc2b344bc`; ⊇ BRCE V8 absorb) / probe base `f654343155c902a003a852f61df345e986d98b5e` (retip13 reconfirm 2026-11-22 08:13:20 PST; prior `098f53ea8` + retip12/`7ddfd8b6e` + retip11/`6a3a623ba` + retip10/`a40338aea` + retip9/`a508e6bae` + retip8/`5e131a75e` + honesty-retip8/`97c613452` + retip7 `a3b1c9410`) |
+| Observation host | Cursor cloud agent on `seanchatmangpt/ggen` @ `origin/cursor/ecosystem-spec-27-1-1-bc54` tip `df9597c18` (sidebranch `cursor/v2711-oor-retip14-bc54`; tip-wins absorb via `cursor/v2711-zcode-alive-oor-absorb-2230`; ⊇ HITL `--live` re-probe + CASTLE digest-bind + OOR retip13 `e2ca6a69a` + BRCE V8) / probe base `df9597c1817313f8d5173f425af28aaf485d114c` (retip14 reconfirm 2026-11-22 08:29:02 PST; prior retip13/`f65434315` + `098f53ea8` + retip12/`7ddfd8b6e` + retip11/`6a3a623ba` + retip10/`a40338aea` + retip9/`a508e6bae` + retip8/`5e131a75e` + honesty-retip8/`97c613452` + retip7 `a3b1c9410`) |
 | Scope | Plane 5 front doors + Gate 0 cos/billing adjacency — **out of ggen DO** |
 
 Standing labels used here (per request; map to AGENTS.md as noted):
@@ -386,3 +386,42 @@ curl -sS -o /tmp/revops-readyz13.json -w '%{http_code}' https://revops.fnox.io/r
 
 Crown: Plane-5 revops+cos product standing is **not** `ALIVE`. Labels in §1
 **held**. Next exact verifiers unchanged from §4 / §9–§15.
+
+---
+
+## 17. Tip reconfirm (2026-11-22 08:29:02 PST) — retip14 `df9597c18`
+
+Observed on branch `cursor/v2711-oor-retip14-bc54` @ `72662eeff` from tip
+`df9597c1817313f8d5173f425af28aaf485d114c` (parent
+`7ea96a70df61ad782078775e20ff692de50ec067`; prior retip13 pin `f65434315` /
+`e2ca6a69a`). **No cargo.** Sidebranch only — crown **not** pushed. Probe
+unchanged vs §16: cos `/readyz` **503** `{"status":"DB_UNAVAILABLE"}`;
+`/healthz` **200** `{"status":"ok"}`; `dig +short revops.fnox.io A`/`AAAA`
+empty; `host` **NXDOMAIN**; `getent` exit **2**; `curl` exit **6** `http=000`.
+Labels **held** (cos readiness **BLOCKED**; liveness **PARTIAL**; revops
+**UNKNOWN**). No ManagePullRequest. No false `ALIVE`.
+
+Exact probe commands (this host, America/Los_Angeles):
+
+```text
+# 2026-11-22 08:29:02 PST
+curl -sS -w '\nhttp=%{http_code}\n' https://cos.fnox.io/readyz
+# → 503 ; body {"status":"DB_UNAVAILABLE"}
+curl -sS -w '\nhttp=%{http_code}\n' https://cos.fnox.io/healthz
+# → 200 ; body {"status":"ok"}
+curl -sS -w '\nhttp=%{http_code}\n' https://revops.fnox.io/readyz
+# → exit 6 ; http_code=000 ; Could not resolve host: revops.fnox.io (NXDOMAIN)
+```
+
+| Probe | Result | Standing |
+|-------|--------|----------|
+| `dig +short revops.fnox.io A` / `AAAA` | empty | **UNKNOWN** |
+| `host revops.fnox.io` | **NXDOMAIN** (exit 1) | **UNKNOWN** |
+| `getent hosts revops.fnox.io` | empty; exit **2** | **UNKNOWN** |
+| `curl https://revops.fnox.io/readyz` | exit **6** / `http=000` | **UNKNOWN** |
+| `dig +short cos.fnox.io A` | `34.8.148.142` | edge DNS **PARTIAL** |
+| `curl https://cos.fnox.io/healthz` | HTTP **200** body `{"status":"ok"}` | **PARTIAL** (liveness ≠ readiness) |
+| `curl https://cos.fnox.io/readyz` | HTTP **503** body `{"status":"DB_UNAVAILABLE"}` | **BLOCKED** |
+
+Crown: Plane-5 revops+cos product standing is **not** `ALIVE`. Labels in §1
+**held**. Next exact verifiers unchanged from §4 / §9–§16.

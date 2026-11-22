@@ -46,7 +46,7 @@ Do **not** claim live zcode `ALIVE` from ggen CI, POWL/OCEL vocab modules, or th
 |-------|----------|--------------------------|
 | In-repo hop-5 **contract** (subject pin, verifier strings, typed refusals, exit-0 admit shape) | **ALIVE** (tip-cargo) — **6 passed; exit 0** @ tip `cd7c2433b` (`cursor/v2711-zcode-powl-refusal-alive-bc54`) | `SCCACHE_DISABLE=1 CARGO_BUILD_JOBS=1 CARGO_TARGET_DIR=/home/ubuntu/zcode-powl-refusal-target cargo test -p ggen-sjira --test zcode_powl_ocel_court` |
 | In-repo remediation **bound vocabulary** (retry / write-scope caps) | **ALIVE** (tip-cargo) — **4 passed; exit 0** @ tip `cd7c2433b` | `SCCACHE_DISABLE=1 CARGO_BUILD_JOBS=1 CARGO_TARGET_DIR=/home/ubuntu/zcode-powl-refusal-target cargo test -p ggen-graph remediation_bound --lib` |
-| Bounded-refusal / refuse-path land | **ALIVE** | [`ZCODE-POWL-REFUSAL-ALIVE-STANDING.md`](./ZCODE-POWL-REFUSAL-ALIVE-STANDING.md) |
+| Bounded-refusal / refuse-path land | **ALIVE** (reconfirm **exit 0** @ tip `df9597c18`) | [`ZCODE-POWL-REFUSAL-ALIVE-STANDING.md`](./ZCODE-POWL-REFUSAL-ALIVE-STANDING.md); [`ZCODE-POWL-REFUSAL-RECONFIRM-STANDING.md`](./ZCODE-POWL-REFUSAL-RECONFIRM-STANDING.md) — **refusal ALIVE ≠ `--live` ALIVE** |
 | Foundry `--dry-run` (mounted sibling) | **PARTIAL_ALIVE** — exit **2** / aggregate `PARTIAL_ALIVE` @ zcode `f32df08` | `bun scripts/powl-foundry-loop.ts --dry-run` → **0** for dry-run promote; log `/tmp/cursor/zcode-powl-refusal-dryrun.log` |
 | zcode-cli as ggen workspace member / in-tree binary | **UNSUPPORTED** | Absent from `[workspace] members`; no path dep |
 | Sibling checkout mounted in this cloud workspace | **PARTIAL_ALIVE** (mounted `/agent/repos/zcode-cli`; tip-pinned ggen `07b689c97`) | Cross-mount `bc-be2c9600` |

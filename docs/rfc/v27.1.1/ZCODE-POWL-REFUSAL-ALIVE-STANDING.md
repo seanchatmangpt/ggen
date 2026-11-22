@@ -31,3 +31,7 @@ SCCACHE_DISABLE=1 CARGO_BUILD_JOBS=1 \
 ```
 
 Expect: **6 + 4 passed; exit 0**. Hop-5 crown / foundry `--live` remain non-ALIVE until provider creds + `--live` → **0**.
+
+## Reconfirm (2026-11-22)
+
+Photolithography clause 1 / hop 5 refuse-path reconfirm on tip `df9597c18` (`cursor/v2711-zcode-refusal-reconfirm-bc54`): sjira **6** + bound **4**; both **exit 0** under exclusive `/home/ubuntu/zcode-powl-refusal-target`. Court sources unchanged since `cd7c2433b`. Standing remains **ALIVE(bounded_refusal)** only — `--live` still **BLOCKED_HITL**. Ledger: [`ZCODE-POWL-REFUSAL-RECONFIRM-STANDING.md`](./ZCODE-POWL-REFUSAL-RECONFIRM-STANDING.md). **refusal ALIVE ≠ `--live` ALIVE.** Tip-wins absorb via `cursor/v2711-zcode-alive-oor-absorb-2230`.
