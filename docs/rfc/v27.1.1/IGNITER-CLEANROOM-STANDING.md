@@ -7,8 +7,8 @@
 | Subject | `seanchatmangpt/ggen_igniter` |
 | Crown claim | Working tree clean-room iff `git diff --exit-code` exits **0** |
 | Materialized | 2026-11-22 |
-| Tip pin (this land) | cheap EXIT0 honesty retip on live crown `7b38c25b43eb0601dfd29df57c10c66b77276e6a` (post uilayout exact-tip6 absorb; ⊇ photolith `6cdb97492` / `4af3c6ec5`+); prior retip3 crown `5a1129cc92d8971ea351238d630d6007085c871c`; prior tip-wins absorb onto pre-absorb `94ea8cf252f3a238ef89e7012f4c34d0ffbd98f2`; sidebranch evidence tip `893070836` / `bc-17cf3ea2`; prior tip-wins absorb `d0fec2f2f` (`bc-fd60df35`); prior ALIVE evidence tip `f1492ed5563b29c7065d188bceac6156c3397ce2` |
-| Land branch | `cursor/v2711-igniter-cheap-bc54` (`bc-b1fbe1c8`) from crown `ae34bf4bc`; prior retip3 `cursor/v2711-igniter-cleanroom-retip-bc54` (`bc-5cbc344a`) @ `5a1129cc9`; prior tip-wins absorb `5c6eae752` via `cursor/v2711-igniter-cleanroom-absorb-a038`; prior absorb `cursor/v2711-igniter-reconfirm-bc54` @ `ec079cc16` onto `d0fec2f2f`; prior land `cursor/v2711-igniter-cleanroom-alive-bc54` @ `49e986ee7` |
+| Tip pin (this land) | cheap EXIT0 honesty retip on live crown `4af998e9be1804a5ea0ccf6b4f2e0de20493aaa4` (post uilayout exact-tip6 absorb; ⊇ photolith `6cdb97492` / `4af3c6ec5`+); prior retip3 crown `5a1129cc92d8971ea351238d630d6007085c871c`; prior tip-wins absorb onto pre-absorb `94ea8cf252f3a238ef89e7012f4c34d0ffbd98f2`; sidebranch evidence tip `893070836` / `bc-17cf3ea2`; prior tip-wins absorb `d0fec2f2f` (`bc-fd60df35`); prior ALIVE evidence tip `f1492ed5563b29c7065d188bceac6156c3397ce2` |
+| Land branch | `cursor/v2711-igniter-cheap-bc54` (`bc-b1fbe1c8`) from crown `4af998e9b`; prior retip3 `cursor/v2711-igniter-cleanroom-retip-bc54` (`bc-5cbc344a`) @ `5a1129cc9`; prior tip-wins absorb `5c6eae752` via `cursor/v2711-igniter-cleanroom-absorb-a038`; prior absorb `cursor/v2711-igniter-reconfirm-bc54` @ `ec079cc16` onto `d0fec2f2f`; prior land `cursor/v2711-igniter-cleanroom-alive-bc54` @ `49e986ee7` |
 | Evidence | `/tmp/cursor/igniter-cheap.md` (`bc-b1fbe1c8`) — cheap mount `git diff --exit-code` → **0**; prior `/tmp/cursor/igniter-cleanroom-retip3.md` (`bc-5cbc344a`) EXIT **0**; prior `/tmp/cursor/igniter-cleanroom-retip.md` (`bc-17cf3ea2`) EXIT **0**; absorb reconfirm EXIT **0** (`bc-c717fdd5`); prior `/tmp/cursor/igniter-cleanroom-reconfirm.md` (`bc-fd60df35`); prior `/tmp/cursor/igniter-cleanroom-alive-tip.md` (`bc-53b0e099`) |
 | Repo scope of this land | `seanchatmangpt/ggen` (typed contract + standing only; tip-wins crown absorb; **igniter clean-room slice only** — photolithography path crown remains **PARTIAL**; no Foundry `ALIVE`; no ManagePullRequest #849; no cargo thrash — Gate1 tip6 owns cargo) |
 
@@ -180,7 +180,7 @@ replaying §4 (clean-tree) **and** §5b BrandTheme compare on the admitted tip.
 | Field | Value |
 |-------|-------|
 | Agent | `bc-b1fbe1c8-d810-5bcf-8451-bf3c8a8b191d` |
-| Sidebranch | `cursor/v2711-igniter-cheap-bc54` from `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `7b38c25b43eb0601dfd29df57c10c66b77276e6a` (live tip ⊇ uilayout exact-tip6 absorb / photolith `6cdb97492` / `4af3c6ec5`+) |
+| Sidebranch | `cursor/v2711-igniter-cheap-bc54` from `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `4af998e9be1804a5ea0ccf6b4f2e0de20493aaa4` (live tip ⊇ uilayout exact-tip6 absorb / photolith `6cdb97492` / `4af3c6ec5`+) |
 | Prior ALIVE lineage | **held** — retip3 EXIT0 + absorb ancestry (`893070836` / `5c6eae752` / `d0fec2f2f` / `f1492ed55`) |
 | Mount | `/home/ubuntu/ggen_igniter` @ `b5a15528eb6792dd366fe744ca87f24a80cc46fc` **PRESENT** |
 | Cheap probe | `git diff --exit-code` → EXIT **0**; cached **0**; porcelain **0** (evidence `/tmp/cursor/igniter-cheap.md`) |

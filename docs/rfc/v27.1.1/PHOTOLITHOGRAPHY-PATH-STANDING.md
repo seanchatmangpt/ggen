@@ -1,7 +1,7 @@
 # Photolithography path — push-first honesty ledger (v27.1.1)
 
 ```text
-tip=7b38c25b43eb0601dfd29df57c10c66b77276e6a
+tip=4af998e9be1804a5ea0ccf6b4f2e0de20493aaa4
 path=perimeter → .ttl/.toml → ggen+Taffy AOT → igniter clean-room → zcode POWL/OCEL
 path_crown=PARTIAL (non-ALIVE)
 foundry=BLOCKED_HITL (no Foundry ALIVE)
@@ -18,7 +18,7 @@ agent=bc-b1fbe1c8-d810-5bcf-8451-bf3c8a8b191d
 | Branch | `cursor/v2711-igniter-cheap-bc54` |
 | Spec binding | `ECOSYSTEM-SPEC-27.1.1` §13.1 hop chain |
 | Companions | [`PHOTOLITHOGRAPHY-STANDING.md`](./PHOTOLITHOGRAPHY-STANDING.md); [`PERIMETER-TTL-TOML-PATH-STANDING.md`](./PERIMETER-TTL-TOML-PATH-STANDING.md); [`SHUI-PUBLIC-PREFIX-ALIVE-STANDING.md`](./SHUI-PUBLIC-PREFIX-ALIVE-STANDING.md); [`TAFFY-AOT-PREFLIGHT-STANDING.md`](./TAFFY-AOT-PREFLIGHT-STANDING.md); [`IGNITER-CLEANROOM-STANDING.md`](./IGNITER-CLEANROOM-STANDING.md); [`ZCODE-POWL-PATH-STANDING.md`](./ZCODE-POWL-PATH-STANDING.md); [`FOUNDRY-HITL-ACTION-CARD.md`](./FOUNDRY-HITL-ACTION-CARD.md); [`GATE1-REMAINING-FALSIFIERS.md`](./GATE1-REMAINING-FALSIFIERS.md) |
-| Observed crown tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `7b38c25b43eb0601dfd29df57c10c66b77276e6a` (`ae34bf4bc`; past uilayout exact-tip6 absorb / photolith founder-CLI `6cdb97492` / `4af3c6ec5`; ⊇ Foundry HITL exact CLI / shui absorb `edf2ec22a` / brand tip6 `31b495a6a` / ui_layout `6f0f64611` / Taffy `c93277719`+tip7 `4ebcb9d46` / zcode retip4 `491801669`) |
+| Observed crown tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `4af998e9be1804a5ea0ccf6b4f2e0de20493aaa4` (`4af998e9b`; past uilayout exact-tip6 absorb / photolith founder-CLI `6cdb97492` / `4af3c6ec5`; ⊇ Foundry HITL exact CLI / shui absorb `edf2ec22a` / brand tip6 `31b495a6a` / ui_layout `6f0f64611` / Taffy `c93277719`+tip7 `4ebcb9d46` / zcode retip4 `491801669`) |
 | Agent | `bc-b1fbe1c8-d810-5bcf-8451-bf3c8a8b191d` |
 | UTC | `2026-11-22T19:37Z` |
 | Cargo | **NOT RUN** (docs-only cheap retip; Gate1 tip7 serial owns cargo; shui fence sealed EXIT:**0** **4**/4 @ `a4b3d3fb4`; Taffy/brand/uilayout sealed EXIT:**0** @ `2685119bd`) |
@@ -34,7 +34,7 @@ Shui hop tip-cargo **ALIVE** (**4**/4 @ `a4b3d3fb4`, absorb `edf2ec22a`) ≠ pat
 **ALIVE** ≠ Foundry **ALIVE**. Taffy hop tip-cargo **ALIVE** (**7** @ `2685119bd`,
 absorb `c93277719`) ≠ path crown **ALIVE** ≠ Foundry **ALIVE**. Sealed exact
 tip-cargo rows are at cargo tips `a4b3d3fb4` / `2685119bd` — that is **≠** a
-live-tip (`ae34bf4bc`) reconfirm unless a later EXIT:**0** on the live tip is
+live-tip (`4af998e9b`) reconfirm unless a later EXIT:**0** on the live tip is
 recorded. Shui tip7 thrash reconfirm **PARTIAL_ALIVE** EXIT:**101**
 ([`SHUI-PUBLIC-PREFIX-TIP7-STANDING.md`](./SHUI-PUBLIC-PREFIX-TIP7-STANDING.md))
 does **not** demote sealed ALIVE @ `a4b3d3fb4`. Igniter clean-room holds
@@ -62,9 +62,9 @@ perimeter transducer
 | 2 — `.ttl` / `.toml` (brand rhythm + completeness) | Exact tip-cargo **ALIVE** @ `2685119bd` — completeness **5** + rhythm **12** EXIT **0** (`/tmp/ggen-brand-exact-tip`); land `bf3165322`; tip6 absorb `31b495a6a`; [`BRAND-TOML-TIP-CARGO-STANDING.md`](./BRAND-TOML-TIP-CARGO-STANDING.md). Hot-swap exact tip-cargo **ALIVE** @ `c4e757a14` (**6**). Full DTCG/CASTLE inventory **UNSUPPORTED**; production theme **UNSUPPORTED** | Brand courts: **ALIVE (exact tip-cargo)** @ `2685119bd` (**≠** live-tip reconfirm). Full DTCG/CASTLE / production: **UNSUPPORTED**. Hop slice: **PARTIAL_ALIVE** (ALIVE courts + UNSUPPORTED production). **≠** path crown **ALIVE** | Brand **0** | Sealed — replay only if sources drift: `CXX=g++ SCCACHE_DISABLE=1 CARGO_BUILD_JOBS=1 cargo test -p ggen-graph --test brand_toml_completeness_court --test brand_toml_rhythm_court --locked --target-dir /tmp/ggen-brand-exact-tip --config build.jobs=1 -- --test-threads=1` → **5+12**/EXIT:**0**. Production stays **UNSUPPORTED** |
 | 3 — ggen + Taffy AOT preflight | Exact tip-cargo **ALIVE** — **7 passed; EXIT:0** @ tip `2685119bd` (`/tmp/gate1-taffy`); tip-wins absorb `c93277719`; tip7 reconfirm absorb `4ebcb9d46` @ `63da993cc`; [`TAFFY-AOT-PREFLIGHT-STANDING.md`](./TAFFY-AOT-PREFLIGHT-STANDING.md) / [`TAFFY-AOT-PREFLIGHT-TIP7-STANDING.md`](./TAFFY-AOT-PREFLIGHT-TIP7-STANDING.md) | **ALIVE (exact tip-cargo)** @ `2685119bd` (**≠** live-tip `4af3c6ec5` reconfirm). **≠** `photolithography_path_crown_ALIVE`. **≠** `Foundry_ALIVE` | **0** (sealed) | Sealed at `2685119bd` — replay only if sources drift: `CXX=g++ SCCACHE_DISABLE=1 RUSTC_WRAPPER= CARGO_BUILD_JOBS=1 CARGO_TARGET_DIR=/tmp/gate1-taffy cargo test -p ggen-graph --test taffy_aot_preflight_court --locked --config build.jobs=1 -- --test-threads=1` → **7**/EXIT:**0** |
 | 3b — ui-layout digest consume (in-repo fence) | Exact tip-cargo **ALIVE** — **11 passed; EXIT:0** @ tip `2685119bd` (`/tmp/ggen-uilayout-exact-retip5`); land `59b9fae1c`; tip-wins absorb `6f0f64611`; [`UILAYOUT-EXACT-RETIP5-STANDING.md`](./UILAYOUT-EXACT-RETIP5-STANDING.md). Sibling `ui-layout-court.ts` **UNSUPPORTED** | **ALIVE (exact tip-cargo)** @ `2685119bd` (**≠** live-tip reconfirm). **≠** path crown **ALIVE** | **0** (sealed) | Sealed — replay only if sources drift: `CXX=g++ SCCACHE_DISABLE=1 RUSTC_WRAPPER= CARGO_BUILD_JOBS=1 cargo test -p ggen-graph --test ui_layout_court --locked --target-dir /tmp/ggen-uilayout-exact-retip5 --config build.jobs=1 -- --test-threads=1` → **11**/EXIT:**0** |
-| 4 — ggen_igniter clean-room | Lineage **ALIVE** held — cheap retip crown `ae34bf4bc` / retip3 `5a1129cc9` / absorb evidence `893070836` / prior `d0fec2f2f` / `f1492ed55`; mount `/home/ubuntu/ggen_igniter` @ `b5a15528eb6792dd366fe744ca87f24a80cc46fc`; this land cheap probe `git diff --exit-code` → **0** (`/tmp/cursor/igniter-cheap.md`); BrandTheme manufacture compare **ALIVE** (held; [`IGNITER-CLEANROOM-STANDING.md`](./IGNITER-CLEANROOM-STANDING.md)) | Clean-room slice: **ALIVE (lineage)** + cheap reconfirm EXIT **0**. **≠** path crown **ALIVE**. **≠** Foundry `--live` **ALIVE** | Clean-room **0** (this land) | `cd /home/ubuntu/ggen_igniter && git diff --exit-code` → **0**. Contract (optional): `cargo test -p ggen-sjira --test igniter_cleanroom_court` |
+| 4 — ggen_igniter clean-room | Lineage **ALIVE** held — cheap retip crown `4af998e9b` / retip3 `5a1129cc9` / absorb evidence `893070836` / prior `d0fec2f2f` / `f1492ed55`; mount `/home/ubuntu/ggen_igniter` @ `b5a15528eb6792dd366fe744ca87f24a80cc46fc`; this land cheap probe `git diff --exit-code` → **0** (`/tmp/cursor/igniter-cheap.md`); BrandTheme manufacture compare **ALIVE** (held; [`IGNITER-CLEANROOM-STANDING.md`](./IGNITER-CLEANROOM-STANDING.md)) | Clean-room slice: **ALIVE (lineage)** + cheap reconfirm EXIT **0**. **≠** path crown **ALIVE**. **≠** Foundry `--live` **ALIVE** | Clean-room **0** (this land) | `cd /home/ubuntu/ggen_igniter && git diff --exit-code` → **0**. Contract (optional): `cargo test -p ggen-sjira --test igniter_cleanroom_court` |
 | 5 — zcode-cli POWL/OCEL | Path pin tip `83c954e5f` — [`ZCODE-POWL-PATH-STANDING.md`](./ZCODE-POWL-PATH-STANDING.md); refusal lineage **ALIVE** @ `cd7c2433b` (sjira **6** + bound **4**); retip4 refusal tip-cargo **ALIVE** **6+4**/EXIT:**0** @ `54164206f` / absorb `491801669` — [`ZCODE-POWL-RETIP4-STANDING.md`](./ZCODE-POWL-RETIP4-STANDING.md); mount **PRESENT** `@ f32df08`; `--live` **BLOCKED_HITL** (`foundry_exit=1`; Model access not configured). **Not Foundry ALIVE** | Hop-5 slice: **PARTIAL**. Refusal tip-cargo: **ALIVE** (held). Foundry `--live`: **BLOCKED_HITL**. **refusal ≠ Foundry ALIVE**. **≠** path crown **ALIVE** | Refusal **0**; `--live` **1** | Refusal sealed — replay only if sources drift. Live (exact CLI ≡ Foundry HITL card): `cd /agent/repos/zcode-cli && export PATH="/home/ubuntu/.bun/bin:$PATH" && bun bin/zcode.js login && bun scripts/powl-foundry-loop.ts --live` → **foundry_exit=0** (**not** `zcode /login`) |
-| **Path crown** | This ledger @ tip `ae34bf4bc`; aggregate of hops 1–5 | **PARTIAL** / **non-ALIVE** — shui/Taffy tip-cargo **ALIVE** ≠ path crown **ALIVE** | — | Close hop-5 `--live` → **0** before any path-crown promote (hop-1 shui sealed; refusal tip-cargo sealed) |
+| **Path crown** | This ledger @ tip `4af998e9b`; aggregate of hops 1–5 | **PARTIAL** / **non-ALIVE** — shui/Taffy tip-cargo **ALIVE** ≠ path crown **ALIVE** | — | Close hop-5 `--live` → **0** before any path-crown promote (hop-1 shui sealed; refusal tip-cargo sealed) |
 | **Foundry / zero-HITL** | [`HITL-LIVE-NEXT-VERIFIER-STANDING.md`](./HITL-LIVE-NEXT-VERIFIER-STANDING.md); [`FOUNDRY-FINISH-STANDING.md`](./FOUNDRY-FINISH-STANDING.md); [`FOUNDRY-HITL-ACTION-CARD.md`](./FOUNDRY-HITL-ACTION-CARD.md) | **BLOCKED_HITL** / **PARTIAL** — **not** Foundry `ALIVE` — **never invent** | `--live` **1** | Founder: `cd /agent/repos/zcode-cli && export PATH="/home/ubuntu/.bun/bin:$PATH" && bun bin/zcode.js login && bun scripts/powl-foundry-loop.ts --live` → **0** |
 
 ---
@@ -79,11 +79,11 @@ perimeter transducer
 | `ui_layout_court` | `2685119bd` | **ALIVE (exact tip-cargo)** | **0** (**11**) | Land `59b9fae1c`; absorb `6f0f64611`; ≠ path crown |
 | `zcode_powl_ocel` refuse path | `54164206f` | **ALIVE (exact tip-cargo refusal)** | **0** (**6+4**) | Absorb `491801669`; `--live` still **BLOCKED_HITL**; hop-5 **PARTIAL**; ≠ Foundry |
 
-All Gate1 tip-cargo falsifiers sealed ALIVE at cargo tips — **≠** live-tip (`ae34bf4bc`) reconfirm. This land does **not** re-run cargo. Foundry remains **BLOCKED_HITL**.
+All Gate1 tip-cargo falsifiers sealed ALIVE at cargo tips — **≠** live-tip (`4af998e9b`) reconfirm. This land does **not** re-run cargo. Foundry remains **BLOCKED_HITL**.
 
 ---
 
-## 3. Ancestry vs live crown `ae34bf4bc`
+## 3. Ancestry vs live crown `4af998e9b`
 
 Zero-cost `git merge-base --is-ancestor` (all **ok**):
 
@@ -93,7 +93,7 @@ Zero-cost `git merge-base --is-ancestor` (all **ok**):
 | `15eefb628` | Prior path ledger pin (shui-alive retip) |
 | `4af3c6ec5` | Foundry HITL exact CLI / prior path pin |
 | `6cdb97492` | Photolith founder-CLI absorb |
-| `ae34bf4bc` | Live crown tip this pin (uilayout exact-tip6 absorb) |
+| `4af998e9b` | Live crown tip this pin (uilayout exact-tip6 absorb) |
 | `a4b3d3fb4` | shui exact tip-cargo ALIVE (**4**/4) |
 | `edf2ec22a` | shui exact tip-cargo absorb onto crown |
 | `516fa63fc` | shui exact-tip6 ALIVE absorb (pre-`edf2ec22a`) |
@@ -119,7 +119,7 @@ Zero-cost `git merge-base --is-ancestor` (all **ok**):
 
 - Shui tip-cargo **ALIVE** (**4**/4 @ `a4b3d3fb4`) ≠ `photolithography_path_crown_ALIVE` ≠ `Foundry_ALIVE`.
 - Taffy tip-cargo **ALIVE** (**7** @ `2685119bd`) ≠ `photolithography_path_crown_ALIVE` ≠ `Foundry_ALIVE`.
-- Exact tip-cargo **ALIVE** @ cargo tips ≠ live-tip (`ae34bf4bc`) reconfirm.
+- Exact tip-cargo **ALIVE** @ cargo tips ≠ live-tip (`4af998e9b`) reconfirm.
 - Shui tip7 thrash EXIT:**101** ≠ demote sealed shui ALIVE @ `a4b3d3fb4`.
 - Igniter clean-room EXIT **0** ≠ path crown **ALIVE** ≠ Foundry `--live` **ALIVE**.
 - Zcode refusal tip-cargo **ALIVE** ≠ Foundry / `--live` **ALIVE**; hop-5 remains **PARTIAL**.
@@ -152,12 +152,12 @@ bun scripts/powl-foundry-loop.ts --live
 | Taffy-alive path retip | 2026-11-22 — `cursor/v2711-photolith-taffy-alive-bc54` (`bc-f8dfcebc`) from live crown `1db31e20d` (past `59b9fae1c`); docs-only; Taffy hop **ALIVE (exact tip-cargo)** @ `2685119bd` / absorb `c93277719`; brand+uilayout sealed **ALIVE** @ same cargo tip; shui fence **PARTIAL_ALIVE** (tip7 in flight); igniter clean-room **ALIVE** + cheap EXIT **0**; hop-5 **PARTIAL** / Foundry **BLOCKED_HITL**; path crown **PARTIAL**; **Taffy ALIVE ≠ path_crown ALIVE ≠ Foundry ALIVE**; no cargo; no ManagePullRequest |
 | Shui-alive path retip | 2026-11-22 — `cursor/v2711-photolith-shui-alive-bc54` (`bc-9dff3f82`) from live crown `15eefb628` (past `cfd93c1cb+` / Gate1 close); docs-only; shui hop **ALIVE (exact tip-cargo)** **4**/4 @ `a4b3d3fb4` / absorb `edf2ec22a`; Taffy/uilayout/igniter **ALIVE**; hop-5 **PARTIAL** / Foundry **BLOCKED_HITL**; path crown **PARTIAL**; **shui ALIVE ≠ path_crown ALIVE ≠ Foundry ALIVE**; no cargo; no ManagePullRequest |
 | Founder-CLI honesty retip | 2026-11-22 — `cursor/v2711-photolith-path-retip-bc54` (`bc-18c3bbc1`) from live crown `4af3c6ec5`; docs-only; material gap = hop-5 exact next verifier still cited invalid `zcode /login` after Foundry HITL card pinned `bun bin/zcode.js login`; tip pin advanced; shui tip7 EXIT101 noted non-demoting; hop matrix standings held; path crown **PARTIAL**; Foundry **BLOCKED_HITL**; **no** cargo; **no** ManagePullRequest; **never invent Foundry `ALIVE`** |
-| Igniter cheap EXIT0 retip | 2026-11-22 — `cursor/v2711-igniter-cheap-bc54` (`bc-b1fbe1c8`) from live crown `ae34bf4bc`; docs-only; mount `/home/ubuntu/ggen_igniter` @ `b5a15528…` `git diff --exit-code` → **0**; tip pin advanced; hop-4 **ALIVE (lineage)** + cheap EXIT **0** held; path crown **PARTIAL**; Foundry **BLOCKED_HITL**; **no** cargo; **no** ManagePullRequest; **never invent Foundry `ALIVE`** |
+| Igniter cheap EXIT0 retip | 2026-11-22 — `cursor/v2711-igniter-cheap-bc54` (`bc-b1fbe1c8`) from live crown `4af998e9b`; docs-only; mount `/home/ubuntu/ggen_igniter` @ `b5a15528…` `git diff --exit-code` → **0**; tip pin advanced; hop-4 **ALIVE (lineage)** + cheap EXIT **0** held; path crown **PARTIAL**; Foundry **BLOCKED_HITL**; **no** cargo; **no** ManagePullRequest; **never invent Foundry `ALIVE`** |
 
 ### Compact return
 
 ```text
-tip=7b38c25b43eb0601dfd29df57c10c66b77276e6a
+tip=4af998e9be1804a5ea0ccf6b4f2e0de20493aaa4
 hop1=ALIVE(shui exact tip-cargo@a4b3d3fb4 4/4 absorb edf2ec22a; Truex ALIVE@68d2d233) ≠ path_crown ≠ Foundry
 hop2=PARTIAL_ALIVE(brand ALIVE exact tip-cargo@2685119bd 5+12; prod UNSUPPORTED)
 hop3=ALIVE(exact tip-cargo)@2685119bd/absorb c93277719 (7) ≠ path_crown ≠ Foundry
