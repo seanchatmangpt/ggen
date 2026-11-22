@@ -1,0 +1,20 @@
+[pack]
+name = "industry-aero-defense"
+version = "26.10.22"
+description = """
+industry-aero-defense: KernelPack for air-gapped, zero-egress, PQC-positioned
+aerospace/defense/government-intelligence work. Ontology = PROV-O plus a minimal
+classified-artifact vocabulary (classification level, caveat, need-to-know
+principal, air-gap boundary, verifiable execution proof). Templates render SHACL
+shapes and an air-gapped client walkthrough over the smalt substrate faces
+(zero-egress console -> local Blob WORM -> local Confidential Ledger; network
+faces deliberately ABSENT). Gates encode the air-gap law: classified artifacts
+MUST carry classification + caveat + cleared principal, cross-level flow refuses,
+and any non-loopback endpoint in any rendered config refuses. PQC position typed
+honestly: primitives exist off-wire only (GAP(kv-pqc-keyface), smalt
+docs/jira/v26.10.22/azure-industry-matrix.md defense row). Grants no execution
+authority; classifications are synthetic admitted facts, not real program data.
+"""
+
+[capabilities]
+provides = ["urn:ggen:pack:industry-aero-defense"]

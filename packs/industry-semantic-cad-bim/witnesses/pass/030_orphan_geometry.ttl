@@ -1,0 +1,14 @@
+# PASS witness G3: every geometry attached to an element; expect 0 rows.
+# Elements carry full storey membership so the witness is clean under ALL
+# gates (exactly-one-law discipline; EXPL2 F2 repair).
+@prefix bot:  <https://w3id.org/bot#> .
+@prefix cad:  <https://seanchatmangpt.github.io/packs/industry-semantic-cad-bim#> .
+@prefix ex:   <https://example.invalid/cad/> .
+
+ex:storey1 a bot:Storey ; bot:hasElement ex:wall1 , ex:slab1 .
+
+ex:wall1 a bot:Element ; cad:hasGeometry ex:geom1 .
+ex:slab1 a bot:Element ; cad:hasGeometry ex:geom2 .
+
+ex:geom1 a cad:Geometry ; cad:geometryFormat "IFC-STEP" .
+ex:geom2 a cad:Geometry ; cad:geometryFormat "gltf" .

@@ -1,0 +1,27 @@
+# FAIL witness 040 (P1 storage segregation): one store holding a Secret and a
+# Confidential artifact — the segregation law is the ONLY law broken
+# (both artifacts complete + sealed; no flows; no endpoints).
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix ex: <https://example.org/aero-defense#> .
+@prefix ad: <https://seanchatmangpt.github.io/packs/industry-aero-defense#> .
+
+ex:analyst-040f a ad:Principal ;
+    ad:clearanceLevel ad:TopSecret .
+
+ex:store-mixed a ad:Store ;
+    rdfs:label "Mixed vault" .
+
+ex:secret-doc-x a ad:ClassifiedArtifact ;
+    ad:classification ad:Secret ; ad:caveat "NOFORN" ;
+    ad:needToKnowPrincipal ex:analyst-040f ;
+    ad:storedIn ex:store-mixed ;
+    ad:hasSeal ex:seal-040f .
+
+ex:conf-doc-x a ad:ClassifiedArtifact ;
+    ad:classification ad:Confidential ; ad:caveat "REL-ID" ;
+    ad:needToKnowPrincipal ex:analyst-040f ;
+    ad:storedIn ex:store-mixed ;
+    ad:hasSeal ex:seal-040f .
+
+ex:seal-040f a ad:Seal ;
+    ad:sealedRoot "sha256:22222f10a9c8d7e6f5a4b3c2d1e0f9a8b7c6d5e4f3a2b1c0d9e8f7a6b5c4d3e2" .

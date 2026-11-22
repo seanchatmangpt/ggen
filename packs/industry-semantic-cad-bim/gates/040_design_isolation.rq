@@ -1,0 +1,14 @@
+# MESSAGE: design artifact outside its project's isolated store.
+# P1 design isolation (per-project journal-path law, mirroring
+# industry-legal-ediscovery gate 040 matter isolation): every cad:DesignArtifact
+# MUST be cad:storedIn a cad:ProjectStore whose cad:journalPath matches
+# ^/data/smalt/journal/project_[^/]+/ — missing or cross-project store = refusal.
+PREFIX cad: <https://seanchatmangpt.github.io/packs/industry-semantic-cad-bim#>
+
+SELECT ?artifact WHERE {
+  ?artifact a cad:DesignArtifact ;
+            cad:storedIn ?store .
+  ?store cad:journalPath ?path .
+  FILTER (!REGEX(STR(?path), "^/data/smalt/journal/project_[^/]+/"))
+}
+ORDER BY ?artifact

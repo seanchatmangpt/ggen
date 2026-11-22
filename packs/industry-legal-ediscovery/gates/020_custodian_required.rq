@@ -1,0 +1,8 @@
+# MESSAGE: custodian-missing evidence.
+# Every lex:EvidenceDocument must name its accountable lex:Custodian via
+# lex:hasCustodian; ASK true = refusal.
+PREFIX lex: <https://seanchatmangpt.github.io/packs/industry-legal-ediscovery#>
+ASK WHERE {
+  ?doc a lex:EvidenceDocument .
+  FILTER NOT EXISTS { ?doc lex:hasCustodian ?custodian }
+}

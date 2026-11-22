@@ -1,0 +1,11 @@
+# FAIL witness 070 (P5 Merkle self-auth): settled batch whose seal lacks a
+# receipt digest — the 070 law is the ONLY law broken (no entries, stores,
+# completions; every other gate silent).
+@prefix fin: <https://ggen.io/ontology/financial-ledger#> .
+
+fin:batch-0799 a fin:SettledBatch ;
+    fin:hasMerkleSeal fin:seal-0799 .
+
+fin:seal-0799 a fin:MerkleSeal ;
+    fin:sealedRoot "sha256:aaaa2f10a9c8d7e6f5a4b3c2d1e0f9a8b7c6d5e4f3a2b1c0d9e8f7a6b5c4d3e2" .
+    # no fin:receiptDigest — the refusal

@@ -1,0 +1,16 @@
+# G2 MESSAGE: design revision without prov:wasRevisionOf predecessor.
+# Every cad:DesignRevision MUST have a prov:wasRevisionOf predecessor,
+# EXCEPT cad:RootRevision (the chain anchor, revisionIndex 0).
+# Note: no rdfs entailment is assumed — a RootRevision instance is not
+# materialized as cad:DesignRevision, so the predecessor type is not
+# re-checked here; the chain link itself is the law.
+# Each row is a refusal.
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX cad: <https://seanchatmangpt.github.io/packs/industry-semantic-cad-bim#>
+
+SELECT ?revision WHERE {
+  ?revision a cad:DesignRevision .
+  FILTER NOT EXISTS { ?revision a cad:RootRevision . }
+  FILTER NOT EXISTS { ?revision prov:wasRevisionOf ?pred . }
+}
+ORDER BY ?revision

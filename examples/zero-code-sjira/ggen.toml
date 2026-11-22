@@ -10,15 +10,15 @@ rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
 rdfs = "http://www.w3.org/2000/01/rdf-schema#"
 xsd = "http://www.w3.org/2001/XMLSchema#"
 
-# Six-pack family from ggen-marketplace (SoT) — never clap-noun-verb-pack
-# (deprecated, no suffix) and never the stale in-tree ggen/packs mirrors.
+# Six-pack family from in-repo packs/ (CI-closed; mirrors marketplace SoT) — never clap-noun-verb-pack
+# (deprecated, no suffix).
 [packs]
-clap-noun-verb-schema-pack = { path = "../../../ggen-marketplace/packs/clap-noun-verb-schema-pack" }
-clap-noun-verb-crate-pack = { path = "../../../ggen-marketplace/packs/clap-noun-verb-crate-pack" }
-clap-noun-verb-routing-pack = { path = "../../../ggen-marketplace/packs/clap-noun-verb-routing-pack" }
-clap-noun-verb-behavior-pack = { path = "../../../ggen-marketplace/packs/clap-noun-verb-behavior-pack" }
-clap-noun-verb-boundary-pack = { path = "../../../ggen-marketplace/packs/clap-noun-verb-boundary-pack" }
-clap-noun-verb-verification-pack = { path = "../../../ggen-marketplace/packs/clap-noun-verb-verification-pack" }
+clap-noun-verb-schema-pack = { path = "../../packs/clap-noun-verb-schema-pack" }
+clap-noun-verb-crate-pack = { path = "../../packs/clap-noun-verb-crate-pack" }
+clap-noun-verb-routing-pack = { path = "../../packs/clap-noun-verb-routing-pack" }
+clap-noun-verb-behavior-pack = { path = "../../packs/clap-noun-verb-behavior-pack" }
+clap-noun-verb-boundary-pack = { path = "../../packs/clap-noun-verb-boundary-pack" }
+clap-noun-verb-verification-pack = { path = "../../packs/clap-noun-verb-verification-pack" }
 
 [templates]
 dir = "."

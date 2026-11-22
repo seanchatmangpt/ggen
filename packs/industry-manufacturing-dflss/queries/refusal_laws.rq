@@ -1,0 +1,10 @@
+# One row per refusal law; drives both rendered artifacts (SHACL + walkthrough).
+PREFIX dflss: <https://seanchatmangpt.github.io/packs/industry-manufacturing-dflss#>
+SELECT ?lawId ?lawText ?targetClass ?requiredPath ?requiredClass WHERE {
+  ?law a dflss:RefusalLaw ;
+       dflss:lawId ?lawId ;
+       dflss:lawText ?lawText ;
+       dflss:targetClass ?targetClass ;
+       dflss:requiredPath ?requiredPath ;
+       dflss:requiredClass ?requiredClass .
+} ORDER BY ?lawId

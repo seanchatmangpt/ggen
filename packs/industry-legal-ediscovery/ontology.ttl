@@ -1,0 +1,137 @@
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix lex:  <https://seanchatmangpt.github.io/packs/industry-legal-ediscovery#> .
+
+<https://seanchatmangpt.github.io/packs/industry-legal-ediscovery>
+    a owl:Ontology ;
+    rdfs:label "industry-legal-ediscovery ontology" ;
+    rdfs:comment """
+    Chain-of-custody ontology for legal / e-discovery on the smalt emulator's
+    Azure faces. Reuses PROV-O (http://www.w3.org/nx/prov#) for provenance:
+    EvidenceDocument is a prov:Entity, CustodyEvent is a prov:Activity,
+    Custodian is a prov:Agent, and custody rides prov:wasGeneratedBy /
+    prov:wasAttributedTo. The lex: vocabulary adds the e-discovery minimum:
+    bates numbering, matters, custodians, ethical walls. Every Azure surface
+    cites its real landed source (smalt, BK-117 legal row).
+    """ .
+
+# Classes
+
+lex:Matter a rdfs:Class ;
+    rdfs:label "Matter" ;
+    rdfs:comment "A legal matter (case) - the scope of a preservation hold." .
+
+lex:Custodian a rdfs:Class ;
+    rdfs:label "Custodian" ;
+    rdfs:comment "A person or system accountable for evidence; a prov:Agent." ;
+    rdfs:subClassOf prov:Agent .
+
+lex:EvidenceDocument a rdfs:Class ;
+    rdfs:label "EvidenceDocument" ;
+    rdfs:comment "A collected evidence artifact; a prov:Entity. WORM-pinned in Blob under legal hold; custody record ETag-CAS'd in Cosmos." ;
+    rdfs:subClassOf prov:Entity .
+
+lex:CustodyEvent a rdfs:Class ;
+    rdfs:label "CustodyEvent" ;
+    rdfs:comment "A chain-of-custody activity (collection, seal, transfer); a prov:Activity." ;
+    rdfs:subClassOf prov:Activity .
+
+lex:EthicalWall a rdfs:Class ;
+    rdfs:label "EthicalWall" ;
+    rdfs:comment "An information barrier between matters. A custodian walled away from a matter must not hold evidence in it - gate 030 refuses the breach." .
+
+# Properties
+
+lex:matterId a rdf:Property ;
+    rdfs:label "matterId" ;
+    rdfs:comment "Short matter identifier (e.g. 2026-IR-0143) used to key rendered artifacts." ;
+    rdfs:domain lex:Matter ;
+    rdfs:range xsd:string .
+
+lex:batesId a rdf:Property ;
+    rdfs:label "batesId" ;
+    rdfs:comment "Bates number: opaque unique id stamped on every produced document (e.g. SMALT0000143). Required on every EvidenceDocument (gate 010)." ;
+    rdfs:domain lex:EvidenceDocument ;
+    rdfs:range xsd:string .
+
+lex:hasCustodian a rdf:Property ;
+    rdfs:label "hasCustodian" ;
+    rdfs:comment "The lex:Custodian accountable for the document. Required (gate 020)." ;
+    rdfs:domain lex:EvidenceDocument ;
+    rdfs:range lex:Custodian .
+
+lex:collectedIn a rdf:Property ;
+    rdfs:label "collectedIn" ;
+    rdfs:comment "The lex:Matter the evidence was collected in. Required." ;
+    rdfs:domain lex:EvidenceDocument ;
+    rdfs:range lex:Matter .
+
+lex:conflictedMatter a rdf:Property ;
+    rdfs:label "conflictedMatter" ;
+    rdfs:comment "Ethical-wall link on Custodian: a matter the custodian is walled away from. Evidence whose custodian has conflictedMatter to the evidence's collectedIn matter is a breach (gate 030)." ;
+    rdfs:domain lex:Custodian ;
+    rdfs:range lex:Matter .
+
+lex:blobHoldContainer a rdf:Property ;
+    rdfs:label "blobHoldContainer" ;
+    rdfs:comment "Blob container holding the evidence under legal hold / immutability policy (WORM). Face: smalt lib/smalt/data_plane/blob_storage.ex:273/:305/:516, blob_service.ex:105-106,201-222." ;
+    rdfs:domain lex:EvidenceDocument ;
+    rdfs:range xsd:string .
+
+lex:cosmosCustodyDocId a rdf:Property ;
+    rdfs:label "cosmosCustodyDocId" ;
+    rdfs:comment "Cosmos custody document id; mutations are ETag-CAS'd. Face: smalt lib/smalt/data_plane/cosmos.ex:133 (quoted etag = sha256 of record)." ;
+    rdfs:domain lex:EvidenceDocument ;
+    rdfs:range xsd:string .
+
+lex:MatterStore a rdfs:Class ;
+    rdfs:label "MatterStore" ;
+    rdfs:comment "Per-matter isolated journal/store. P1 matter-isolation: every EvidenceDocument custody path must land in a MatterStore whose journalPath matches ^/data/smalt/journal/matter_[^/]+/ (gate 040); a cross-matter path is a refusal. Face: smalt append-only journal layout, docs/NO_SLEEP_DOCTRINE.md sibling storage laws." .
+
+lex:SealedRecord a rdfs:Class ;
+    rdfs:label "SealedRecord" ;
+    rdfs:comment "A decrypted/sealed record released under SKR. P2 BYOK/SKR: it must carry prov:wasGeneratedBy an activity bound to a valid attestation measurement fingerprint (gate 050). Face: smalt lib/smalt/attestation/maa.ex secure_key_release/3 - token measurement_digest must equal expected fingerprint (AZ-2, BK-128/KD-168)." ;
+    rdfs:subClassOf prov:Entity .
+
+lex:AIAnnotation a rdfs:Class ;
+    rdfs:label "AIAnnotation" ;
+    rdfs:comment "An AI-derived annotation on evidence. P3 no-model-training / proposer-judge: every AIAnnotation must carry prov:wasGeneratedBy a lex:JudgeActivity (human- or sieve-adjudicated); unadjudicated AI proposals refuse (gate 060)." ;
+    rdfs:subClassOf prov:Entity .
+
+lex:JudgeActivity a rdfs:Class ;
+    rdfs:label "JudgeActivity" ;
+    rdfs:comment "A human- or sieve-adjudicated judging activity; the only lawful generator of AI-derived annotations (proposer-judge law)." ;
+    rdfs:subClassOf prov:Activity .
+
+lex:journalPath a rdf:Property ;
+    rdfs:label "journalPath" ;
+    rdfs:comment "Filesystem path of a MatterStore's append-only journal. Must match ^/data/smalt/journal/matter_[^/]+/ (gate 040)." ;
+    rdfs:domain lex:MatterStore ;
+    rdfs:range xsd:string .
+
+lex:custodyStoredIn a rdf:Property ;
+    rdfs:label "custodyStoredIn" ;
+    rdfs:comment "The MatterStore holding an EvidenceDocument's custody record. Required for custody-path provenance (gate 040)." ;
+    rdfs:domain lex:EvidenceDocument ;
+    rdfs:range lex:MatterStore .
+
+lex:attestationFingerprint a rdf:Property ;
+    rdfs:label "attestationFingerprint" ;
+    rdfs:comment "The MAA measurement fingerprint an activity was attested under (SKR shape: token measurement_digest == expected fingerprint). Required on the generating activity of every SealedRecord (gate 050). Face: smalt lib/smalt/attestation/maa.ex." ;
+    rdfs:domain prov:Activity ;
+    rdfs:range xsd:string .
+
+lex:retentionPolicy a rdf:Property ;
+    rdfs:label "retentionPolicy" ;
+    rdfs:comment "Retention/deletion policy individual for a matter. Every lex:Matter must carry one (gate 070, P5 retention)." ;
+    rdfs:domain lex:Matter ;
+    rdfs:range xsd:string .
+
+lex:kvSealThumbprint a rdf:Property ;
+    rdfs:label "kvSealThumbprint" ;
+    rdfs:comment "Thumbprint of the KV key (PS256 / RSA-PSS, KD-105/KD-119) that sealed the custody event. Face: smalt lib/smalt/data_plane/kv_pss.ex." ;
+    rdfs:domain lex:CustodyEvent ;
+    rdfs:range xsd:string .

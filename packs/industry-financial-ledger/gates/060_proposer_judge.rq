@@ -1,0 +1,13 @@
+# MESSAGE: unadjudicated AI categorization — P3 proposer-judge.
+# Every AI-categorized entry must carry prov:wasGeneratedBy a fin:JudgeActivity
+# before it commits. ASK true = refusal.
+PREFIX fin: <https://ggen.io/ontology/financial-ledger#>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+ASK WHERE {
+  ?e a fin:JournalEntry ;
+     fin:aiCategory ?cat .
+  FILTER NOT EXISTS {
+    ?e prov:wasGeneratedBy ?act .
+    ?act a fin:JudgeActivity .
+  }
+}

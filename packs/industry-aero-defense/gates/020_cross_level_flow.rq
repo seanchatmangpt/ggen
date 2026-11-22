@@ -1,0 +1,12 @@
+# MESSAGE: cross-level flow (target classification more restrictive than source).
+# A dataFlow whose target carries a HIGHER levelOrder than the source is a
+# cross-level spill; a row is a refusal.
+PREFIX ad: <https://seanchatmangpt.github.io/packs/industry-aero-defense#>
+SELECT ?source ?target ?srcLevel ?dstLevel WHERE {
+  ?source ad:dataFlow ?target ;
+          ad:classification ?srcLevel .
+  ?srcLevel ad:levelOrder ?so .
+  ?target ad:classification ?dstLevel .
+  ?dstLevel ad:levelOrder ?to .
+  FILTER (?so < ?to)
+}

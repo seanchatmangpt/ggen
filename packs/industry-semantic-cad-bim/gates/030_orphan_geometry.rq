@@ -1,0 +1,14 @@
+# G3 MESSAGE: orphan geometry.
+# Every cad:Geometry MUST be the object of cad:hasGeometry from some element
+# (bot:Element or subclass). Attachable to no element = orphan = refusal.
+PREFIX bot: <https://w3id.org/bot#>
+PREFIX cad: <https://seanchatmangpt.github.io/packs/industry-semantic-cad-bim#>
+
+SELECT ?geometry WHERE {
+  ?geometry a cad:Geometry .
+  FILTER NOT EXISTS {
+    ?element a bot:Element ;
+             cad:hasGeometry ?geometry .
+  }
+}
+ORDER BY ?geometry

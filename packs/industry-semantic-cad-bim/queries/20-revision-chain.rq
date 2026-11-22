@@ -1,0 +1,14 @@
+# Revision chain (time-travel axis): revisions with predecessors and valid time.
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX cad:  <https://seanchatmangpt.github.io/packs/industry-semantic-cad-bim#>
+PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?revision ?index ?predecessor ?validFrom ?validUntil ?kgDocument WHERE {
+  ?revision a cad:DesignRevision ;
+            cad:revisionIndex ?index .
+  OPTIONAL { ?revision prov:wasRevisionOf ?predecessor . }
+  OPTIONAL { ?revision cad:validFrom ?validFrom . }
+  OPTIONAL { ?revision cad:validUntil ?validUntil . }
+  OPTIONAL { ?revision cad:kgDocument ?kgDocument . }
+}
+ORDER BY ?index

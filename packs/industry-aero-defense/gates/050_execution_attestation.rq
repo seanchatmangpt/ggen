@@ -1,0 +1,10 @@
+# MESSAGE: execution proof without the attestor's measurement — P2 attestation.
+# AZ-2 shape (mirrors industry-legal-ediscovery gate 050, smalt
+# lib/smalt/attestation/maa.ex secure_key_release/3): every
+# ad:VerifiableExecutionProof must bind ad:measurementFingerprint.
+# ASK true = refusal.
+PREFIX ad: <https://seanchatmangpt.github.io/packs/industry-aero-defense#>
+ASK WHERE {
+  ?proof a ad:VerifiableExecutionProof .
+  FILTER NOT EXISTS { ?proof ad:measurementFingerprint ?fp . }
+}

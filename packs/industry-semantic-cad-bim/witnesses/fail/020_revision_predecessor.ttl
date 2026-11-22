@@ -1,0 +1,27 @@
+# FAIL witness G2: ex:rev2 has NO prov:wasRevisionOf; expect exactly 1 refusal row.
+# Otherwise lawful under the new gates: root sealed (G7), all revisions
+# attested (G5) — the ONLY law broken is the predecessor law.
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix cad:  <https://seanchatmangpt.github.io/packs/industry-semantic-cad-bim#> .
+@prefix ex:   <https://example.invalid/cad/> .
+
+ex:seal0 a cad:MerkleSeal ; cad:receiptDigest "c038f74f169af79201dcb0a4a85c48b1c78897baa23cedf7e09b2ab8e1533db3c038f74f169af79201dcb0a4a85c48b1c78897baa23cedf7e09b2ab8e1533db3c038f74f169af79201dcb0a4a85c48b1c78897baa23cedf7e09b2ab8e1533db3c038f74f169af79201dcb0a4a85c48b1c78897baa23cedf7e09b2ab8e1533db3c038f74f169af79201dcb0a4a85c48b1c78897baa23cedf7e09b2ab8e1533db3c038f74f169af79201dcb0a4a85c48b1c78897baa23cedf7e09b2ab8e1533db3c038f74f169af79201dcb0a4a85c48b1c78897baa23cedf7e09b2ab8e1533db3c038f74f169af79201dcb0a4a85c48b1c78897baa23cedf7e09b2ab8e1533db3c038f74f169af79201dcb0a4a85c48b1c78897baa23cedf7e09b2ab8e1533db3c038f74f169af79201dcb0a4a85c48b1c78897baa23cedf7e09b2ab8e1533db3" .
+
+ex:act0 a cad:AttestedActivity ; cad:attestationFingerprint "sha256:aa" .
+ex:act1 a cad:AttestedActivity ; cad:attestationFingerprint "sha256:bb" .
+ex:act2 a cad:AttestedActivity ; cad:attestationFingerprint "sha256:cc" .
+
+ex:rev0 a cad:DesignRevision, cad:RootRevision ;
+    cad:revisionIndex 0 ;
+    cad:sealedRoot ex:seal0 ;
+    prov:wasGeneratedBy ex:act0 .
+
+ex:rev1 a cad:DesignRevision ;
+    cad:revisionIndex 1 ;
+    prov:wasRevisionOf ex:rev0 ;
+    prov:wasGeneratedBy ex:act1 .
+
+# ex:rev2: revisionIndex 2 but no predecessor — refusal.
+ex:rev2 a cad:DesignRevision ;
+    cad:revisionIndex 2 ;
+    prov:wasGeneratedBy ex:act2 .

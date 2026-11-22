@@ -1,0 +1,21 @@
+# PASS witness 050 (P2 attestation): a VerifiableExecutionProof binding the
+# air-gap attestor's measurement fingerprint (AZ-2 shape); all gates silent.
+@prefix ex: <https://example.org/aero-defense#> .
+@prefix ad: <https://seanchatmangpt.github.io/packs/industry-aero-defense#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+
+ex:analyst-050 a ad:Principal ;
+    ad:clearanceLevel ad:Secret .
+
+ex:artifact-050 a ad:ClassifiedArtifact ;
+    ad:classification ad:Secret ; ad:caveat "NOFORN" ;
+    ad:needToKnowPrincipal ex:analyst-050 ;
+    ad:hasSeal ex:seal-050 .
+
+ex:seal-050 a ad:Seal ;
+    ad:sealedRoot "sha256:33332f10a9c8d7e6f5a4b3c2d1e0f9a8b7c6d5e4f3a2b1c0d9e8f7a6b5c4d3e2" .
+
+ex:proof-050 a ad:VerifiableExecutionProof ;
+    ad:proofDigest "sha256:aaaab3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2" ;
+    ad:measurementFingerprint "smq1:d617...44be" ;
+    ad:provesArtifact ex:artifact-050 .

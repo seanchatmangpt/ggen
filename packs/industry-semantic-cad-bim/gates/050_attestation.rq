@@ -1,0 +1,15 @@
+# MESSAGE: design revision without attested commit provenance.
+# P2 BYOK/SKR: every cad:DesignRevision MUST be prov:wasGeneratedBy an activity
+# bound to a cad:attestationFingerprint (the AZ-2 SKR shape: token
+# measurement_digest == expected fingerprint). Each row is a refusal.
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX cad: <https://seanchatmangpt.github.io/packs/industry-semantic-cad-bim#>
+
+SELECT ?revision WHERE {
+  ?revision a cad:DesignRevision .
+  FILTER NOT EXISTS {
+    ?revision prov:wasGeneratedBy ?act .
+    ?act cad:attestationFingerprint ?fp .
+  }
+}
+ORDER BY ?revision

@@ -1,0 +1,20 @@
+@prefix lex: <https://seanchatmangpt.github.io/packs/industry-legal-ediscovery#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# FAIL witness for gate 040 (P1): doc-f4's custody path lands OUTSIDE its
+# matter journal — a cross-matter path, the exact law gate 040 refuses.
+# All other pillar laws hold (retention present, no sealed/AI records).
+lex:matter-f4 a lex:Matter ;
+    rdfs:label "In re: Fail Fixture 4" ;
+    lex:retentionPolicy "hold-7y-then-purge" .
+
+lex:store-f4 a lex:MatterStore ;
+    lex:journalPath "/data/smalt/journal/other_matter/custody.jnl" .
+
+lex:custodian-f4 a lex:Custodian .
+
+lex:doc-f4 a lex:EvidenceDocument ;
+    lex:batesId "SMALT0000104" ;
+    lex:hasCustodian lex:custodian-f4 ;
+    lex:collectedIn lex:matter-f4 ;
+    lex:custodyStoredIn lex:store-f4 .

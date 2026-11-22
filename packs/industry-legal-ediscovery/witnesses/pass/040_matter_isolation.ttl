@@ -1,0 +1,19 @@
+@prefix lex: <https://seanchatmangpt.github.io/packs/industry-legal-ediscovery#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# PASS witness for gate 040 (P1 matter isolation): custody stored in a
+# MatterStore whose journalPath is inside its own matter_ journal directory.
+lex:matter-p4 a lex:Matter ;
+    rdfs:label "In re: Pass Fixture 4" ;
+    lex:retentionPolicy "hold-7y-then-purge" .
+
+lex:store-p4 a lex:MatterStore ;
+    lex:journalPath "/data/smalt/journal/matter_2026-IR-0143/custody.jnl" .
+
+lex:custodian-p4 a lex:Custodian .
+
+lex:doc-p4 a lex:EvidenceDocument ;
+    lex:batesId "SMALT0000004" ;
+    lex:hasCustodian lex:custodian-p4 ;
+    lex:collectedIn lex:matter-p4 ;
+    lex:custodyStoredIn lex:store-p4 .

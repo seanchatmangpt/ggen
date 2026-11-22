@@ -1,0 +1,8 @@
+# MESSAGE: matter without a retention policy.
+# P5 retention: every lex:Matter must carry a retention/deletion policy
+# individual (lex:retentionPolicy). ASK true = refusal.
+PREFIX lex: <https://seanchatmangpt.github.io/packs/industry-legal-ediscovery#>
+ASK WHERE {
+  ?matter a lex:Matter .
+  FILTER NOT EXISTS { ?matter lex:retentionPolicy ?policy }
+}

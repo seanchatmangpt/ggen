@@ -1,0 +1,92 @@
+{#- Rendered by [[generation.rules]] "custody-walkthrough": one row per
+    (matter, evidence document). smalt routing per the BK-117 legal row. -#}
+# Chain-of-custody walkthrough — matter {{ results[0].matter_label }} ({{ results[0].matter_id }})
+
+Rendered from the pack ontology bindings; every routing step rides
+`smaltFetch` (the workspace's only network path —
+`/Users/sac/smalt/workspace/lib/smalt.ts`, `assertLocalUrl` loopback
+enforcement) against the smalt emulator's Azure faces, per the BK-117
+legal row (`/Users/sac/smalt/docs/jira/v26.10.22/azure-industry-matrix.md`).
+
+{% for r in results -%}
+## Evidence {{ r.bates }} ({{ r.matter_id }})
+
+Custodian: `{{ r.custodian }}`
+Blob WORM container: `{{ r.blob_container }}`
+Cosmos custody doc: `{{ r.cosmos_doc_id }}`
+
+### 1. Blob WORM evidence put (legal hold / immutability policy)
+
+Paste in the Sovereign Console browser console:
+
+```js
+// Evidence bytes -> WORM container under legal hold.
+// Wire: PUT /{{ r.blob_container }}/evidence-{{ r.bates }}.bin (8443);
+// overwrites are refused 409 ContainerLocked
+// (lib/smalt/data_plane/blob_storage.ex:273 worm_blocked?/3).
+await smaltFetch("/{{ r.blob_container }}/evidence-{{ r.bates }}.bin", {
+  method: "PUT",
+  body: evidenceBytes,                     // the collected artifact
+  headers: { "x-ms-blob-type": "BlockBlob" },
+});
+// Container legal-hold face (set it before the put):
+//   GET/PUT /{{ r.blob_container }}?comp=legalhold&legalhold=true
+//   (lib/smalt/egress_router.ex:67-68 @container_put_comps/@container_get_comps)
+```
+
+### 2. Cosmos ETag-CAS custody document
+
+```js
+// Custody record in Cosmos; every mutation is ETag-CAS'd —
+// lib/smalt/data_plane/cosmos.ex:133 (quoted etag = sha256 of record).
+const custody = await smaltFetch(
+  "/dbs/lexdb/colls/{{ r.matter_id }}/docs", {
+    method: "POST",
+    body: JSON.stringify({
+      id: "{{ r.cosmos_doc_id }}",
+      bates: "{{ r.bates }}",
+      custodian: "{{ r.custodian }}",
+      blobContainer: "{{ r.blob_container }}",
+      blobPath: "/{{ r.blob_container }}/evidence-{{ r.bates }}.bin",
+    }),
+  });
+// Subsequent custody edits MUST carry If-Match: <etag> — a lost race
+// returns 412 and the custody chain stays append-consistent.
+```
+
+### 3. KV PS256 seal
+
+```js
+// Seal the custody event with the emulator's externally verifiable
+// RSA-PSS/PS256 key (lib/smalt/data_plane/kv_pss.ex, KD-105/KD-119).
+await smaltFetch("/keys/lex-seal/sign?api-version=7.4", {
+  method: "POST",
+  body: JSON.stringify({ alg: "PS256", value: custodyDigestB64 }),
+});
+// Verify offline with the public key + the SHA-256 digest of the custody
+// doc; PS256 is externally verifiable, not emulator-private.
+```
+
+### 4. Confidential Ledger custody chain (append-only)
+
+```js
+// Append the sealed custody event to the ledger face
+// (lib/smalt/egress/AttestRoutes.ex:38-58):
+await smaltFetch("/app/transactions", {
+  method: "POST",
+  body: JSON.stringify({ bates: "{{ r.bates }}", custodyDocId: "{{ r.cosmos_doc_id }}" }),
+});
+// GET /app/transactions/latest + /app/transactions/:tx_id replay the chain.
+```
+
+### 5. SB review-workflow queue (via MCP 9545)
+
+Review assign/escalate legs ride AMQP sb 5672; from the browser they go
+through the MCP tool surface (9545) per the routing shape.
+
+---
+
+{% endfor -%}
+Gate contract: this walkthrough is only rendered for matters whose
+evidence passes gates 010/020/030 (bates id, custodian, ethical wall);
+a gate refusal emits no file.

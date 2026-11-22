@@ -1,0 +1,8 @@
+@prefix lex: <https://seanchatmangpt.github.io/packs/industry-legal-ediscovery#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# PASS witness for gate 070 (P5 retention): every matter carries a
+# retention/deletion policy individual.
+lex:matter-p7 a lex:Matter ;
+    rdfs:label "In re: Pass Fixture 7" ;
+    lex:retentionPolicy "hold-7y-then-purge" .

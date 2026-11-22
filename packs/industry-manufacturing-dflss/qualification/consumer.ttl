@@ -1,0 +1,21 @@
+# Synthetic consumer facts (qualification contract): a compliant line snapshot
+# so qualification can drive the pack's projection without a real factory event.
+@prefix dflss: <https://seanchatmangpt.github.io/packs/industry-manufacturing-dflss#> .
+
+dflss:q-wo-1 a dflss:WorkOrder ;
+    dflss:hasGateOutcome dflss:q-qgo-1 .
+
+dflss:q-qgo-1 a dflss:QualityGateOutcome .
+
+dflss:q-stn-1 a dflss:Station .
+
+dflss:q-and-1 a dflss:AndonSignal ;
+    dflss:signalLevel "red" ;
+    dflss:triggersContainment dflss:q-cont-1 .
+
+dflss:q-cont-1 a dflss:Containment .
+
+dflss:q-def-1 a dflss:Defect ;
+    dflss:tracedToLot dflss:q-lot-1 .
+
+dflss:q-lot-1 a dflss:SupplierLot .

@@ -1,0 +1,25 @@
+# MESSAGE: Unbalanced journal entry refused — double-entry law.
+# For each fin:JournalEntry, sum(debitAmount) must equal sum(creditAmount)
+# across its fin:hasPosting legs (expressed as an ASK-style violation
+# probe: any emitted row IS the refusal). Entries with no postings at all
+# are refused by the 020 account-ref gate's orphan arm, not here.
+PREFIX fin: <https://ggen.io/ontology/financial-ledger#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?entry ?debits ?credits
+WHERE {
+  ?entry a fin:JournalEntry .
+  {
+    SELECT ?entry
+           (SUM(?d) AS ?debits)
+           (SUM(?c) AS ?credits)
+    WHERE {
+      ?entry fin:hasPosting ?p .
+      OPTIONAL { ?p fin:debitAmount ?d . }
+      OPTIONAL { ?p fin:creditAmount ?c . }
+    }
+    GROUP BY ?entry
+  }
+  FILTER(?debits != ?credits)
+}
+ORDER BY ?entry

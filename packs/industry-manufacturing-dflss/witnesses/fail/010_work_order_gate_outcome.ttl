@@ -1,0 +1,19 @@
+@prefix dflss: <https://seanchatmangpt.github.io/packs/industry-manufacturing-dflss#> .
+
+dflss:wo-1 a dflss:WorkOrder .
+
+dflss:qgo-1 a dflss:QualityGateOutcome .
+
+dflss:andon-1 a dflss:AndonSignal ;
+    dflss:signalLevel "red" ;
+    dflss:triggersContainment dflss:cont-1 .
+
+dflss:andon-2 a dflss:AndonSignal ;
+    dflss:signalLevel "green" .
+
+dflss:cont-1 a dflss:Containment .
+
+dflss:def-1 a dflss:Defect ;
+    dflss:tracedToLot dflss:lot-7 .
+
+dflss:lot-7 a dflss:SupplierLot .

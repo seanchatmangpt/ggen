@@ -1,0 +1,14 @@
+@prefix bot:  <https://w3id.org/bot#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix cad:  <https://seanchatmangpt.github.io/packs/industry-semantic-cad-bim#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix ex:   <https://example.invalid/cad/> .
+
+# FAIL witness G6 (P3): unadjudicated AI element mutation; expect exactly 1 refusal row.
+# Element carries storey membership so gate 010 stays silent (exactly-one-law).
+ex:storey1 a bot:Storey ; bot:hasElement ex:wall1 .
+ex:wall1 a bot:Element .
+
+# ex:ai1: mutates ex:wall1 with NO cad:adjudicatedBy JudgeActivity — refusal.
+ex:ai1 a cad:AIContribution ;
+    cad:mutatesElement ex:wall1 .

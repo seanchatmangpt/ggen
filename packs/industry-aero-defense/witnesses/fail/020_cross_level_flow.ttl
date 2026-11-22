@@ -1,0 +1,24 @@
+@prefix ex: <https://example.org/aero-defense#> .
+# FAIL witness 020: Confidential -> TopSecret is a cross-level spill (row = refusal).
+# Both artifacts are otherwise lawful (classification + caveat + cleared principal):
+# the ONLY law broken is the cross-level flow law.
+@prefix ad: <https://seanchatmangpt.github.io/packs/industry-aero-defense#> .
+
+ex:principal-020f a ad:Principal ;
+    ad:clearanceLevel ad:TopSecret .
+
+ex:conf-src a ad:ClassifiedArtifact ;
+    ad:classification ad:Confidential ; ad:caveat "REL-ID" ;
+    ad:needToKnowPrincipal ex:principal-020f .
+
+ex:ts-sink a ad:ClassifiedArtifact ;
+    ad:classification ad:TopSecret ; ad:caveat "NOFORN" ;
+    ad:needToKnowPrincipal ex:principal-020f .
+
+ex:conf-src ad:dataFlow ex:ts-sink .
+
+ex:conf-src ad:hasSeal ex:seal-060 .
+ex:ts-sink ad:hasSeal ex:seal-060 .
+
+ex:seal-060 a ad:Seal ;
+    ad:sealedRoot "sha256:6b4e2f10a9c8d7e6f5a4b3c2d1e0f9a8b7c6d5e4f3a2b1c0d9e8f7a6b5c4d3e2" .

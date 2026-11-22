@@ -1,0 +1,24 @@
+# PASS witness 010: balanced two-leg entry; all gates silent.
+@prefix fin: <https://ggen.io/ontology/financial-ledger#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+fin:acct-1001 a fin:Account ; fin:accountNumber "1001" .
+fin:acct-2002 a fin:Account ; fin:accountNumber "2002" .
+
+fin:je-0001 a fin:JournalEntry ;
+    fin:entryId "je-2026-0001" ;
+    fin:casEtag "0000000d-0000-0100-0000-0000000000e1" ;
+    fin:postedAt "2026-10-21T00:00:00Z"^^xsd:dateTime ;
+    fin:isolatedStore fin:store-1001 ;
+    fin:hasPosting fin:p-0001-a, fin:p-0001-b .
+
+fin:p-0001-a a fin:Posting ;
+    fin:account fin:acct-1001 ;
+    fin:debitAmount "250.00"^^xsd:decimal .
+
+fin:p-0001-b a fin:Posting ;
+    fin:account fin:acct-2002 ;
+    fin:creditAmount "250.00"^^xsd:decimal .
+
+fin:store-1001 a fin:LedgerStore ;
+    fin:journalPath "journals/1001/journal.ndjson" .

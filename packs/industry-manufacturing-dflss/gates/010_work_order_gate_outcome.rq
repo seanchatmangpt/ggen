@@ -1,0 +1,6 @@
+# Law 1: a work order MUST have a quality-gate outcome. SELECT rows = violations.
+PREFIX dflss: <https://seanchatmangpt.github.io/packs/industry-manufacturing-dflss#>
+SELECT ?workOrder WHERE {
+  ?workOrder a dflss:WorkOrder .
+  FILTER NOT EXISTS { ?workOrder dflss:hasGateOutcome ?outcome . }
+}

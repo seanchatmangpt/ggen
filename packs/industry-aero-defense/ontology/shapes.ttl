@@ -1,0 +1,74 @@
+@prefix ad: <https://seanchatmangpt.github.io/packs/industry-aero-defense#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Classified artifact MUST carry classification + caveat + cleared principal.
+ad:ClassifiedArtifactShape a sh:NodeShape ;
+    sh:targetClass ad:ClassifiedArtifact ;
+    sh:property [
+        sh:path ad:classification ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class ad:ClassificationLevel ;
+        sh:message "classified artifact MUST carry exactly one classification level" ;
+    ] ;
+    sh:property [
+        sh:path ad:caveat ;
+        sh:minCount 1 ;
+        sh:message "classified artifact MUST carry a caveat" ;
+    ] ;
+    sh:property [
+        sh:path ad:needToKnowPrincipal ;
+        sh:minCount 1 ;
+        sh:message "classified artifact MUST name at least one cleared need-to-know principal" ;
+    ] .
+
+# A need-to-know principal MUST hold a clearance at or above each artifact
+# classification they are named on; the cross-level check itself is SPARQL
+# (gates/020), SHACL pins the shape: principal has exactly one clearanceLevel.
+ad:PrincipalShape a sh:NodeShape ;
+    sh:targetClass ad:Principal ;
+    sh:property [
+        sh:path ad:clearanceLevel ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class ad:ClassificationLevel ;
+        sh:message "principal MUST carry exactly one clearance level" ;
+    ] .
+
+# Cross-level flow refuses: flow target classification must NOT be more
+# restrictive than source classification.
+ad:CrossLevelFlowShape a sh:NodeShape ;
+    sh:targetClass ad:ClassifiedArtifact ;
+    sh:message "cross-level flow refuses" ;
+    sh:sparql ad:CrossLevelFlowSparql .
+
+ad:CrossLevelFlowSparql a sh:SPARQLConstraint ;
+    sh:message "cross-level data flow refuses (target classification more restrictive than source)" ;
+    sh:select """
+    PREFIX ad: <https://seanchatmangpt.github.io/packs/industry-aero-defense#>
+    SELECT $this ?target ?srcLevel ?dstLevel
+    WHERE {
+      $this ad:dataFlow ?target .
+      $this ad:classification ?srcLevel .
+      ?srcLevel ad:levelOrder ?so .
+      ?target ad:classification ?dstLevel .
+      ?dstLevel ad:levelOrder ?do .
+      FILTER (?so < ?do)
+    }""" .
+
+# Air-gap boundary: every endpoint MUST be loopback. Encoded as SPARQL
+# constraint (literal regex); this is the air-gap law in shape form.
+ad:AirGapShape a sh:NodeShape ;
+    sh:targetClass ad:AirGapBoundary ;
+    sh:sparql ad:LoopbackOnlySparql .
+
+ad:LoopbackOnlySparql a sh:SPARQLConstraint ;
+    sh:message "non-loopback endpoint inside an air-gap boundary refuses" ;
+    sh:select """
+    PREFIX ad: <https://seanchatmangpt.github.io/packs/industry-aero-defense#>
+    SELECT $this ?endpoint
+    WHERE {
+      $this ad:endpoint ?endpoint .
+      FILTER (!REGEX(STR(?endpoint), "^https?://(127\\\\.0\\\\.0\\\\.1|localhost|\\\\[::1\\\\])(:|/|$)"))
+    }""" .

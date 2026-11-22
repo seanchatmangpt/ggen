@@ -1,0 +1,194 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ocel: <http://w3id.org/ocel/schema/> .
+@prefix dflss: <https://seanchatmangpt.github.io/packs/industry-manufacturing-dflss#> .
+
+<https://seanchatmangpt.github.io/packs/industry-manufacturing-dflss> a owl:Ontology ;
+    rdfs:label "Industry pack: Manufacturing & industrial supply chain (DfLSS + OCEL 2.0 + Andon)" ;
+    rdfs:comment """
+Real vocabulary basis. OCEL 2.0: the event-log vocabulary smalt's
+Smalt.Telemetry.OcelNdjson writes (top-level keys 'ocel:events' / 'ocel:objects' /
+'ocel:eventTypes' / 'ocel:objectTypes', lib/smalt/telemetry/ocel_ndjson.ex) and that
+unrdf's @unrdf/otel OCEL export produces from OTel spans
+(packages/otel/src/ocel/index.mjs) — the browser-side complement.
+DfLSS layer (this pack, minimal): WorkOrder, Station, AndonSignal (green/yellow/red),
+QualityGateOutcome, Defect, Containment, CorrectiveAction, SupplierLot.
+Three refusal laws: work order MUST have a quality-gate outcome; red-Andon MUST have
+containment; defect MUST trace to a supplier lot.
+""" .
+
+# ---------------------------------------------------------------- OCEL 2.0
+
+ocel:Event a rdfs:Class ;
+    rdfs:label "OCEL Event" ;
+    rdfs:comment "One process event. OcelNdjson.append/3 writes one complete OCEL 2.0 document per NDJSON line; @unrdf/otel spanToOcel maps OTel spans to events." .
+
+ocel:Object a rdfs:Class ;
+    rdfs:label "OCEL Object" ;
+    rdfs:comment "One process object an event acts on: work order, station, lot, defect, containment, agent." .
+
+ocel:Relation a rdfs:Class ;
+    rdfs:label "OCEL Relation" ;
+    rdfs:comment "Typed event-to-object edge (objectId + qualifier), e.g. prov:wasAssociatedWith (OcelNdjson agent chain)." .
+
+# ---------------------------------------------------------------- DfLSS vocabulary
+
+dflss:WorkOrder a rdfs:Class ;
+    rdfs:label "Work Order" ;
+    rdfs:comment "A manufacturing work order moving a unit through stations. MUST carry exactly one quality-gate outcome (gate 010)." .
+
+dflss:Station a rdfs:Class ;
+    rdfs:label "Station" ;
+    rdfs:comment "A line station. Station events ingest as EH telemetry per station event and emit OCEL events (matrix row 5: EH = line telemetry ingest, event_hubs/listener.ex:3, 5673)." .
+
+dflss:QualityGateOutcome a rdfs:Class ;
+    rdfs:label "Quality Gate Outcome" ;
+    rdfs:comment "Terminal outcome of a DfLSS quality gate on a work order (pass/fail measured at a station)." .
+
+dflss:AndonSignal a rdfs:Class ;
+    rdfs:label "Andon Signal" ;
+    rdfs:comment "Andon state: green (flowing), yellow (warranting attention), red (line stop, refusal). The refusal face is Smalt.Powl2.Andon.format_andon/4 (lib/smalt/powl2/andon.ex), wired on the Powl2 wire face (lib/smalt/powl2/andon_wire.ex)." .
+
+dflss:Defect a rdfs:Class ;
+    rdfs:label "Defect" ;
+    rdfs:comment "A measured defect on a unit; MUST trace to a supplier lot (gate 030)." .
+
+dflss:Containment a rdfs:Class ;
+    rdfs:label "Containment" ;
+    rdfs:comment "Immediate containment action taken on a red-Andon (line hold / quarantine). A red AndonSignal MUST trigger one (gate 020); the containment workflow rides SB queues (matrix row 5: SB = station workflow / DLQ, lib/smalt/powl2/sb_rules.ex)." .
+
+dflss:CorrectiveAction a rdfs:Class ;
+    rdfs:label "Corrective Action" ;
+    rdfs:comment "Root-cause corrective action following containment in the DfLSS DMAIC/DMEDI loop." .
+
+dflss:SupplierLot a rdfs:Class ;
+    rdfs:label "Supplier Lot" ;
+    rdfs:comment "A supplier material lot; every defect traces to one for supplier scoreboarding." .
+
+# ---- properties
+
+dflss:hasGateOutcome a rdf:Property ;
+    rdfs:domain dflss:WorkOrder ;
+    rdfs:range dflss:QualityGateOutcome ;
+    rdfs:comment "WorkOrder -> QualityGateOutcome. Gate 010 refuses a work order without one." .
+
+dflss:signalLevel a rdf:Property ;
+    rdfs:domain dflss:AndonSignal ;
+    rdfs:range xsd:string ;
+    rdfs:comment "One of green / yellow / red." .
+
+dflss:triggersContainment a rdf:Property ;
+    rdfs:domain dflss:AndonSignal ;
+    rdfs:range dflss:Containment ;
+    rdfs:comment "AndonSignal -> Containment. Gate 020 refuses a red signal without one." .
+
+dflss:tracedToLot a rdf:Property ;
+    rdfs:domain dflss:Defect ;
+    rdfs:range dflss:SupplierLot ;
+    rdfs:comment "Defect -> SupplierLot. Gate 030 refuses a defect without one." .
+
+dflss:atStation a rdf:Property ;
+    rdfs:domain dflss:QualityGateOutcome ;
+    rdfs:range dflss:Station ;
+    rdfs:comment "Where the gate outcome was measured." .
+
+dflss:hasDefect a rdf:Property ;
+    rdfs:domain dflss:WorkOrder ;
+    rdfs:range dflss:Defect ;
+    rdfs:comment "WorkOrder -> Defect observation." .
+
+dflss:followedBy a rdf:Property ;
+    rdfs:domain dflss:Containment ;
+    rdfs:range dflss:CorrectiveAction ;
+    rdfs:comment "Containment followed by root-cause corrective action (DfLSS sequence)." .
+
+# ---------------------------------------------------------------- example individuals (compliant)
+
+dflss:wo-1001 a dflss:WorkOrder ;
+    rdfs:label "WO-1001" ;
+    dflss:hasGateOutcome dflss:qgo-1001 .
+
+dflss:wo-1002 a dflss:WorkOrder ;
+    rdfs:label "WO-1002" ;
+    dflss:hasGateOutcome dflss:qgo-1002 .
+
+dflss:stn-10 a dflss:Station ;
+    rdfs:label "Station 10" .
+
+dflss:qgo-1001 a dflss:QualityGateOutcome ;
+    dflss:atStation dflss:stn-10 .
+
+dflss:qgo-1002 a dflss:QualityGateOutcome ;
+    dflss:atStation dflss:stn-10 .
+
+dflss:andon-1 a dflss:AndonSignal ;
+    dflss:signalLevel "red" ;
+    dflss:triggersContainment dflss:cont-1 .
+
+dflss:andon-2 a dflss:AndonSignal ;
+    dflss:signalLevel "green" .
+
+dflss:cont-1 a dflss:Containment ;
+    dflss:followedBy dflss:ca-1 .
+
+dflss:ca-1 a dflss:CorrectiveAction .
+
+dflss:def-1 a dflss:Defect ;
+    dflss:tracedToLot dflss:lot-77 .
+
+dflss:lot-77 a dflss:SupplierLot ;
+    rdfs:label "Supplier lot 77" .
+
+# ---------------------------------------------------------------- refusal laws (template bindings)
+
+dflss:RefusalLaw a rdfs:Class ;
+    rdfs:label "Refusal Law" ;
+    rdfs:comment "One DfLSS refusal law; bindings drive the rendered SHACL shapes and the walkthrough." .
+
+dflss:law-010 a dflss:RefusalLaw ;
+    rdfs:label "WorkOrder gate outcome" ;
+    dflss:lawId "010_work_order_gate_outcome" ;
+    dflss:targetClass dflss:WorkOrder ;
+    dflss:requiredPath dflss:hasGateOutcome ;
+    dflss:requiredClass dflss:QualityGateOutcome ;
+    dflss:lawText "A work order MUST have a quality-gate outcome." .
+
+dflss:law-020 a dflss:RefusalLaw ;
+    rdfs:label "Red-Andon containment" ;
+    dflss:lawId "020_red_andon_containment" ;
+    dflss:targetClass dflss:AndonSignal ;
+    dflss:requiredPath dflss:triggersContainment ;
+    dflss:requiredClass dflss:Containment ;
+    dflss:lawText "A red Andon signal MUST trigger a containment action." .
+
+dflss:law-030 a dflss:RefusalLaw ;
+    rdfs:label "Defect supplier-lot trace" ;
+    dflss:lawId "030_defect_supplier_lot" ;
+    dflss:targetClass dflss:Defect ;
+    dflss:requiredPath dflss:tracedToLot ;
+    dflss:requiredClass dflss:SupplierLot ;
+    dflss:lawText "A defect MUST trace to a supplier lot." .
+
+dflss:lawId a rdf:Property ;
+    rdfs:domain dflss:RefusalLaw ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Exact gate stem in gates/." .
+
+dflss:targetClass a rdf:Property ;
+    rdfs:domain dflss:RefusalLaw ;
+    rdfs:comment "Class the law targets." .
+
+dflss:requiredPath a rdf:Property ;
+    rdfs:domain dflss:RefusalLaw ;
+    rdfs:comment "Property the law requires." .
+
+dflss:requiredClass a rdf:Property ;
+    rdfs:domain dflss:RefusalLaw ;
+    rdfs:comment "Class of the required object." .
+
+dflss:lawText a rdf:Property ;
+    rdfs:domain dflss:RefusalLaw ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Human-readable MUST statement." .

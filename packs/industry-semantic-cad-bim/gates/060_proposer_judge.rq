@@ -1,0 +1,17 @@
+# MESSAGE: unadjudicated AI element mutation.
+# P3 no-model-training / proposer-judge: every cad:AIContribution that
+# cad:mutatesElement a design element MUST be cad:adjudicatedBy a
+# cad:JudgeActivity (human- or sieve-adjudicated) BEFORE the mutation;
+# unadjudicated proposals refuse. Each row is a refusal.
+PREFIX bot: <https://w3id.org/bot#>
+PREFIX cad: <https://seanchatmangpt.github.io/packs/industry-semantic-cad-bim#>
+
+SELECT ?contribution WHERE {
+  ?contribution a cad:AIContribution ;
+                cad:mutatesElement ?element .
+  FILTER NOT EXISTS {
+    ?contribution cad:adjudicatedBy ?act .
+    ?act a cad:JudgeActivity .
+  }
+}
+ORDER BY ?contribution

@@ -1,0 +1,25 @@
+[project]
+name = "industry-semantic-cad-bim"
+version = "26.10.22"
+
+[ontology]
+source = "ontology.ttl"
+
+[generation]
+output_dir = "."
+
+[[generation.rules]]
+name = "cad-shacl"
+query = { file = "queries/10-design-surface.rq" }
+template = { file = "templates/cad-shacl.ttl.tera" }
+output_file = "generated/cad-bim/shapes.ttl"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "cad-walkthrough"
+query = { file = "queries/10-design-surface.rq" }
+template = { file = "templates/walkthrough.md.tera" }
+output_file = "generated/cad-bim/walkthrough.md"
+skip_empty = false
+mode = "Overwrite"

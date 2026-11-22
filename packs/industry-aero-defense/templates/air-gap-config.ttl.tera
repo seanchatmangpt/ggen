@@ -1,0 +1,8 @@
+# RENDERED via ggen (industry-aero-defense). DO NOT hand-edit.
+# Air-gap config projection: loopback-only endpoints inside declared boundaries.
+# Gate 030 refuses any non-loopback endpoint here — the air-gap IS the gate.
+@prefix ad: <https://seanchatmangpt.github.io/packs/industry-aero-defense#> .
+
+{% for row in results %}<{{ row.boundary }}> a ad:AirGapBoundary ;
+    ad:endpoint "{{ row.endpoint }}" .
+{% endfor %}

@@ -1,0 +1,10 @@
+# All classified artifacts with their classification, caveat, and principal names.
+PREFIX ad: <https://seanchatmangpt.github.io/packs/industry-aero-defense#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT ?artifact ?level ?caveat ?principal WHERE {
+  ?artifact a ad:ClassifiedArtifact ;
+            ad:classification ?level ;
+            ad:caveat ?caveat ;
+            ad:needToKnowPrincipal ?principal .
+}
+ORDER BY ?artifact

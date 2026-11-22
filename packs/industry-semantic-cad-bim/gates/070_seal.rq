@@ -1,0 +1,16 @@
+# MESSAGE: root revision without a sealed Merkle root.
+# P5 Merkle self-authentication: every cad:RootRevision MUST be cad:sealedRoot
+# a cad:MerkleSeal whose cad:receiptDigest matches ^[0-9a-f]{640}$ (the
+# 320-byte receipt digest, hex-encoded). Each row is a refusal.
+PREFIX cad: <https://seanchatmangpt.github.io/packs/industry-semantic-cad-bim#>
+
+SELECT ?revision WHERE {
+  ?revision a cad:RootRevision .
+  FILTER NOT EXISTS {
+    ?revision cad:sealedRoot ?seal .
+    ?seal a cad:MerkleSeal ;
+          cad:receiptDigest ?digest .
+    FILTER (REGEX(STR(?digest), "^[0-9a-f]{640}$"))
+  }
+}
+ORDER BY ?revision

@@ -1,0 +1,19 @@
+# PASS witness G1: every element has bot:hasElement membership from a bot:Storey; expect 0 rows.
+# Synthetic data only (example.invalid IRIs).
+@prefix bot:  <https://w3id.org/bot#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix cad:  <https://seanchatmangpt.github.io/packs/industry-semantic-cad-bim#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix ex:   <https://example.invalid/cad/> .
+
+ex:site1 a bot:Site ; bot:hasBuilding ex:bldg1 .
+ex:bldg1 a bot:Building ;
+    bot:hasStorey ex:storey1 , ex:storey2 ;
+    bot:hasElement ex:wall1 , ex:slab1 , ex:door1 .
+
+ex:storey1 a bot:Storey ; bot:hasElement ex:wall1 .
+ex:storey2 a bot:Storey ; bot:hasElement ex:slab1 , ex:door1 .
+
+ex:wall1 a bot:Element .
+ex:slab1 a bot:Element .
+ex:door1 a bot:Element .

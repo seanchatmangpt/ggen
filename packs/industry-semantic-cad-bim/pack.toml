@@ -1,0 +1,20 @@
+[pack]
+name = "industry-semantic-cad-bim"
+version = "26.10.22"
+description = """
+industry-semantic-cad-bim: KernelPack for Semantic CAD/BIM. Builds an event-sourced temporal
+knowledge graph of building designs on real vocabularies: BOT (Building Topology Ontology,
+https://w3id.org/bot#) carries the spatial structure (site/building/storey/space/element) and
+PROV-O (http://www.w3.org/ns/prov#) carries the design-revision chain (prov:wasRevisionOf),
+which is the time-travel axis. Gates refuse: a design element with no bot:hasElement storey membership,
+a non-root design revision with no prov:wasRevisionOf predecessor, and orphan geometry (a
+geometry attachable to no element). Templates render (a) SHACL shapes for the same three
+refusals and (b) a client walkthrough: browser console -> design-decode events -> Blob
+(immutable design-artifact store) -> Cosmos (temporal KG documents) -> temporal query
+walkthrough (revision chain = time travel). Authority: gates and templates SELECT/CONSTRUCT
+only; no DO authority; generated artifacts claim NONE and stand UNKNOWN until a consumer
+court admits them.
+"""
+
+[capabilities]
+provides = ["urn:ggen:pack:industry-semantic-cad-bim"]

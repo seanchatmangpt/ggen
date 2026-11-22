@@ -1,0 +1,15 @@
+# MESSAGE: P5 Merkle seal gate — settled batch without a sealed Merkle root.
+# Every fin:SettledBatch must reference a fin:MerkleSeal carrying a
+# sha256 fin:sealedRoot and a fin:receiptDigest. A row is a refusal.
+PREFIX fin: <https://ggen.io/ontology/financial-ledger#>
+SELECT ?batch WHERE {
+  ?batch a fin:SettledBatch .
+  FILTER NOT EXISTS {
+    ?batch fin:hasMerkleSeal ?seal .
+    ?seal a fin:MerkleSeal ;
+          fin:sealedRoot ?root ;
+          fin:receiptDigest ?digest .
+    FILTER(STRSTARTS(STR(?root), "sha256:"))
+  }
+}
+ORDER BY ?batch

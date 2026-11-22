@@ -1,0 +1,14 @@
+# Design surface for walkthrough rendering: elements with storey + geometry.
+PREFIX bot: <https://w3id.org/bot#>
+PREFIX cad: <https://seanchatmangpt.github.io/packs/industry-semantic-cad-bim#>
+
+SELECT ?element ?storey ?geometry ?format WHERE {
+  ?element a bot:Element .
+  ?storey a bot:Storey ;
+          bot:hasElement ?element .
+  OPTIONAL {
+    ?element cad:hasGeometry ?geometry .
+    ?geometry cad:geometryFormat ?format .
+  }
+}
+ORDER BY ?storey ?element

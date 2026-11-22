@@ -1,0 +1,27 @@
+# PASS witness 060 (P3 proposer-judge): AI-categorized entry adjudicated by a
+# JudgeActivity before commit; all gates silent.
+@prefix fin: <https://ggen.io/ontology/financial-ledger#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+fin:acct-1001 a fin:Account ; fin:accountNumber "1001" .
+fin:acct-2002 a fin:Account ; fin:accountNumber "2002" .
+
+fin:store-1001 a fin:LedgerStore ;
+    fin:journalPath "journals/1001/journal.ndjson" .
+
+fin:je-judged a fin:JournalEntry ;
+    fin:entryId "je-2026-0601" ;
+    fin:casEtag "0000000d-0000-0100-0000-0000000000601" ;
+    fin:isolatedStore fin:store-1001 ;
+    fin:aiCategory "travel-expense" ;
+    prov:wasGeneratedBy fin:judge-0601 ;
+    fin:hasPosting fin:p-0601-1, fin:p-0601-2 .
+
+fin:judge-0601 a fin:JudgeActivity .
+
+fin:p-0601-1 a fin:Posting ; fin:account fin:acct-1001 ;
+    fin:debitAmount "42.00"^^xsd:decimal .
+
+fin:p-0601-2 a fin:Posting ; fin:account fin:acct-2002 ;
+    fin:creditAmount "42.00"^^xsd:decimal .

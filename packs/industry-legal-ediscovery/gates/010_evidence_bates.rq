@@ -1,0 +1,7 @@
+# MESSAGE: evidence without a bates id.
+# Every lex:EvidenceDocument must carry lex:batesId; ASK true = refusal.
+PREFIX lex: <https://seanchatmangpt.github.io/packs/industry-legal-ediscovery#>
+ASK WHERE {
+  ?doc a lex:EvidenceDocument .
+  FILTER NOT EXISTS { ?doc lex:batesId ?bates }
+}
