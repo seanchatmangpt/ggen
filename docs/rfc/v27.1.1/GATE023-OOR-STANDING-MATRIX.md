@@ -216,3 +216,8 @@ Retip19 (`cursor/v2711-oor-retip19-bc54` / `bc-f83f4cbf`) @ tip
 revops **NXDOMAIN** (**UNKNOWN**); `*.ggen.dev` aliases **NXDOMAIN**. Standings
 **held**; no invented `ALIVE`; docs-only; no cargo; no ManagePullRequest.
 
+
+
+## Retip20 (2026-11-22 11:19:24 PST)
+
+cos **BLOCKED** (HTTP 503) · revops **UNKNOWN** · next: readyz 200.
