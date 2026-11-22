@@ -2,6 +2,7 @@
 
 ```text
 tip_base=167352d0d22a6c90836fdf707a6eb3fbb2b1ee8f
+parent=2300c5d09196a2fa0a4713e7d49dd05ef9f4ce04
 branch=cursor/v2711-taffy-preflight-retip7-bc54
 bc=bc-4ba325d2-0de8-507b-9f23-f40f435ff2fa
 court=taffy_aot_preflight_court
@@ -17,6 +18,7 @@ standing=PARTIAL (PRESENT + lineage tip-cargo ALIVE held; exact tip reconfirm PE
 | Document ID | `TAFFY-AOT-PREFLIGHT-STANDING` |
 | Side branch | `cursor/v2711-taffy-preflight-retip7-bc54` |
 | Tip base (crown) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `167352d0d22a6c90836fdf707a6eb3fbb2b1ee8f` |
+| Side parent | `2300c5d09196a2fa0a4713e7d49dd05ef9f4ce04` (curve25519 honesty retip atop same crown tip; court blob unchanged) |
 | Spec binding | `ECOSYSTEM-SPEC-27.1.1` Gate 1 D2 / photolithography hop 3 |
 | Companions | [`GATE-1-GAP-MATRIX.md`](./GATE-1-GAP-MATRIX.md); [`PHOTOLITHOGRAPHY-STANDING.md`](./PHOTOLITHOGRAPHY-STANDING.md); [`CROWN-PROGRESS-RECEIPT.md`](./CROWN-PROGRESS-RECEIPT.md); [`FOUNDRY-FINISH-STANDING.md`](./FOUNDRY-FINISH-STANDING.md) |
 | Prior sidebranches | `cursor/v2711-taffy-preflight-retip-bc54` @ `ef6fb84ed` (**PRESENT** on origin); `…-retip3` / `…-retip4` / `…-retip6` local-only — **remote ABSENT** (never `ls-remote`) |
@@ -116,6 +118,7 @@ to `ALIVE`.
 
 ```text
 tip_base=167352d0d22a6c90836fdf707a6eb3fbb2b1ee8f
+parent=2300c5d09196a2fa0a4713e7d49dd05ef9f4ce04
 branch=cursor/v2711-taffy-preflight-retip7-bc54
 bc=bc-4ba325d2
 EXIT=skipped (PARTIAL; thrash)
