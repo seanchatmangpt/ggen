@@ -165,7 +165,16 @@ jobs:
           replacement = '''\n      const buildOutput = execFileSync("npm", ["run", "build"], {\n        cwd: EXAMPLE_ROOT,\n        encoding: "utf8",\n        timeout: 180_000,\n      });\n      expect(typeof buildOutput).toBe("string");'''
           s, n = pattern.subn(replacement, s)
           if n == 0:
-              assert 'npm", ["run", "build"]' in s, 'acceptance build block not updated'
+              # Idempotent when the acceptance court already expects a real
+              # succeeding production build (npm run build OR npx next build
+              # without the old buildFailed/node:module regression pin).
+              assert (
+                  'npm", ["run", "build"]' in s
+                  or (
+                      '["next", "build"]' in s
+                      and 'expect(buildFailed)' not in s
+                  )
+              ), 'acceptance build block not updated'
           s = s.replace('100_000,\n  );', '190_000,\n  );', 1)
           p.write_text(s)
 

@@ -86,9 +86,7 @@ pub enum AotRefusal {
         min_px: u32,
     },
     /// Taffy tree construction / layout failed (fail-closed).
-    LayoutEngine {
-        message: String,
-    },
+    LayoutEngine { message: String },
 }
 
 /// Run Taffy AOT pre-flight for `column` at `viewport_width_px` under `text_spacing`.
@@ -98,9 +96,7 @@ pub enum AotRefusal {
 /// against the 44px touch-target floor on the *laid-out* size; column `gap_px` must
 /// be ≥ 8px whenever two or more children are present.
 pub fn preflight_column(
-    column: &AotColumn,
-    viewport_width_px: f32,
-    text_spacing: f32,
+    column: &AotColumn, viewport_width_px: f32, text_spacing: f32,
 ) -> Result<AotReceipt, AotRefusal> {
     let viewport_u = viewport_width_px.round() as u32;
 
@@ -239,8 +235,7 @@ pub fn preflight_column(
 /// `viewport_width_px`, so a layout that only breaks at one width (e.g. 320) is
 /// refused naming that width.
 pub fn preflight_column_six_widths(
-    column: &AotColumn,
-    text_spacing: f32,
+    column: &AotColumn, text_spacing: f32,
 ) -> Result<AotSealReceipt, AotRefusal> {
     let mut widths_px = Vec::with_capacity(VIEWPORT_WIDTHS_PX.len());
     for &width in VIEWPORT_WIDTHS_PX {

@@ -18,8 +18,9 @@ pub fn is_admitted_turtle_prefix(prefix: &str) -> bool {
 }
 
 /// Project-private / banned prefix tokens (must remain refused).
-pub const REFUSED_PRIVATE_PREFIXES: &[&str] =
-    &["gall", "ggen", "gg", "kh", "pcst", "truex", "doc", "doctest"];
+pub const REFUSED_PRIVATE_PREFIXES: &[&str] = &[
+    "gall", "ggen", "gg", "kh", "pcst", "truex", "doc", "doctest",
+];
 
 /// Returns true when `prefix` is a known private/banned token.
 pub fn is_refused_private_prefix(prefix: &str) -> bool {

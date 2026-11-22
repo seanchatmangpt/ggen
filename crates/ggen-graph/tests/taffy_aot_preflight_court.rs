@@ -156,10 +156,11 @@ fn six_width_seal_admits_valid_layout_under_1_5x() {
 
     // Assert
     let receipt = seal.expect("valid layout must admit at all six Gate-1 widths under 1.5×");
-    assert!(
-        (receipt.text_spacing - WCAG_1412_TEXT_SPACING).abs() < f32::EPSILON
-    );
-    let expected: Vec<u32> = VIEWPORT_WIDTHS_PX.iter().map(|w| w.round() as u32).collect();
+    assert!((receipt.text_spacing - WCAG_1412_TEXT_SPACING).abs() < f32::EPSILON);
+    let expected: Vec<u32> = VIEWPORT_WIDTHS_PX
+        .iter()
+        .map(|w| w.round() as u32)
+        .collect();
     assert_eq!(
         receipt.widths_px, expected,
         "seal receipt must list every Gate-1 width in order"
@@ -221,9 +222,7 @@ fn six_width_seal_refuses_overflow_only_at_320_naming_failing_width() {
                 viewport_width_px, 320,
                 "typed refusal must name the failing width"
             );
-            assert!(
-                (text_spacing - WCAG_1412_TEXT_SPACING).abs() < f32::EPSILON
-            );
+            assert!((text_spacing - WCAG_1412_TEXT_SPACING).abs() < f32::EPSILON);
             assert_eq!(leaf_id, "narrow_copy");
         }
         other => panic!("expected Overflow at 320 from six-width seal, got {other:?}"),

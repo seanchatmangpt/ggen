@@ -19,9 +19,8 @@ fn fixture(name: &str) -> PathBuf {
 
 fn load_fixture(name: &str) -> String {
     let path = fixture(name);
-    fs::read_to_string(&path).unwrap_or_else(|e| {
-        panic!("expected admitted OEM fixture at {}: {e}", path.display())
-    })
+    fs::read_to_string(&path)
+        .unwrap_or_else(|e| panic!("expected admitted OEM fixture at {}: {e}", path.display()))
 }
 
 #[test]
@@ -66,8 +65,8 @@ fn fourth_watch_and_cindycat_fixtures_are_admitted() {
 #[test]
 fn touch_floor_under_44_is_refused() {
     // Arrange — Apple floor dropped below 44px
-    let mut manifest = parse_brand_toml(&load_fixture("fourth-watch.brand.toml"))
-        .expect("valid fixture parses");
+    let mut manifest =
+        parse_brand_toml(&load_fixture("fourth-watch.brand.toml")).expect("valid fixture parses");
     manifest.rhythm.touch_floor_apple_px = 40.0;
 
     // Act
@@ -91,8 +90,8 @@ fn touch_floor_under_44_is_refused() {
 #[test]
 fn inter_target_gap_under_8_is_refused() {
     // Arrange
-    let mut manifest = parse_brand_toml(&load_fixture("cindycat.brand.toml"))
-        .expect("valid fixture parses");
+    let mut manifest =
+        parse_brand_toml(&load_fixture("cindycat.brand.toml")).expect("valid fixture parses");
     manifest.rhythm.inter_target_gap_px = 4.0;
 
     // Act
@@ -111,8 +110,8 @@ fn inter_target_gap_under_8_is_refused() {
 #[test]
 fn non_grid_spacing_is_refused() {
     // Arrange — 6px is off the 4px/8px grid
-    let mut manifest = parse_brand_toml(&load_fixture("fourth-watch.brand.toml"))
-        .expect("valid fixture parses");
+    let mut manifest =
+        parse_brand_toml(&load_fixture("fourth-watch.brand.toml")).expect("valid fixture parses");
     manifest.rhythm.spacing[2].px = 6.0;
 
     // Act
