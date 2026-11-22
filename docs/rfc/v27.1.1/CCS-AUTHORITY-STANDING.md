@@ -6,7 +6,7 @@
 | Companion | `ECOSYSTEM-SPEC-27.1.1` (planes / Gate schedule); `AGENTS.md` §3 Manufacture and authority |
 | Status | MATERIALIZED standing ledger (not an execution receipt) |
 | Materialized | 2026-11-22 |
-| Observed tip | tip lineage @ `75c9c07cbc50e8ffad4689dd647fd652bad6bc33` (~`dd2822464+` / `2fd897141+`; construct_hash_gate land `3ec8afd85` / PR **#901** + V7 ES256 land `fb6e7fc6e` are ancestors; prior pins `c832cabdc` / `a3b1c9410` / `d05a131c` also ancestors) |
+| Observed tip | tip lineage @ `8743b874a8e6898cd795912a819a6b7335b461f8` (~`dd2822464+` / `2fd897141+`; construct_hash_gate land `3ec8afd85` / PR **#901** + V7 ES256 land `fb6e7fc6e` are ancestors; prior pins `c832cabdc` / `a3b1c9410` / `d05a131c` also ancestors) |
 | Base (main) | `origin/main` @ `d173cad5792e837bd4fec730d120c582b9bc5d4c` |
 | Tip pin | 2026-11-22 — absorb #932 onto tip `dd2822464+` (CCS #3 `construct_hash_gate` **PRESENT** PR #901 tip **4** tests; as01 V7 **4** / V1 seat **6** **PRESENT**; V7 crypto-shape **PARTIAL**; live WebAuthn **UNSUPPORTED**; broker / Plane-5 DO **BLOCKED**; docs-only; cargo **not** run; tip-cargo locks **spared**) |
 | Live filename | `CCS-AUTHORITY-STANDING.md` (~8 CCS ledger); Clause-2 crown binder [`CCS-BRCE-STANDING.md`](./CCS-BRCE-STANDING.md) |

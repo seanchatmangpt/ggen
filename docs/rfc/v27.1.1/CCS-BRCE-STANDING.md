@@ -5,7 +5,7 @@
 | Document ID | `CCS-BRCE-STANDING` |
 | Spec binding | `ECOSYSTEM-SPEC-27.1.1` §13.2 (Clause 2 — CCS / BRCE + WebAuthn AS-01) |
 | Companions | [`CCS-AUTHORITY-STANDING.md`](./CCS-AUTHORITY-STANDING.md) (~8 CCS ledger); [`BRCE-WEBAUTHN-STANDING.md`](./BRCE-WEBAUTHN-STANDING.md) (AS-01 / V1–V11); [`OUT-OF-REPO-NEXT-VERIFIERS.md`](./OUT-OF-REPO-NEXT-VERIFIERS.md) (G2-3…G2-5) |
-| Observed tip | absorb tip `cursor/v2711-absorb-931-933-e6e5` @ `75c9c07cbc50e8ffad4689dd647fd652bad6bc33` (~`dd2822464+` / `2fd897141+`; lineage through `27436608c` + prior pins `c832cabdc` / `a3b1c9410`) |
+| Observed tip | absorb tip `cursor/v2711-absorb-931-933-e6e5` @ `8743b874a8e6898cd795912a819a6b7335b461f8` (~`dd2822464+` / `2fd897141+`; lineage through `27436608c` + prior pins `c832cabdc` / `a3b1c9410`) |
 | Tip pin | 2026-11-22 — absorb #932 `cursor/v2711-construct-hash-retip-bc54` @ `27f586390` onto tip `dd2822464+` (docs-only; **no cargo**; tip-cargo locks **spared**) |
 | Repo | `seanchatmangpt/ggen` |
 | Clause-2 standing | **PARTIAL_ALIVE** |
@@ -22,7 +22,7 @@ Compact return line:
 ```text
 exit=spared
 standing=PARTIAL_ALIVE
-tip=75c9c07cbc50e8ffad4689dd647fd652bad6bc33
+tip=8743b874a8e6898cd795912a819a6b7335b461f8
 next=CARGO_BUILD_JOBS=1 --target-dir /tmp/ggen-construct-hash-target cargo test -p ggen-lsp --lib construct_hash_gate; then as01 V7/V1; then V8→V9/G2-5
 ```
 
@@ -101,4 +101,4 @@ CONSTRUCT→DO `ALIVE`.
 | Live BRCE broker | **BLOCKED** → **V8** |
 | Plane-5 DO | **BLOCKED** → **V9** / **G2-5** |
 | Cargo this retip | **none** (load high → docs-only PRESENT) |
-| Observed tip | `75c9c07cbc50e8ffad4689dd647fd652bad6bc33` (~`dd2822464+`) |
+| Observed tip | `8743b874a8e6898cd795912a819a6b7335b461f8` (~`dd2822464+`) |

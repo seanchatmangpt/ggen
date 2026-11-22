@@ -5,7 +5,7 @@ Companion to `ECOSYSTEM-SPEC-27.1.1` §8 and Gate-1 gap matrix row
 
 ## Standing (this tip)
 
-Tip pin: `75c9c07cbc50e8ffad4689dd647fd652bad6bc33` (~`dd2822464+`; absorb #933 `cursor/v2711-brand-gate1-retip-bc54`).
+Tip pin: `8743b874a8e6898cd795912a819a6b7335b461f8` (~`dd2822464+`; absorb #933 `cursor/v2711-brand-gate1-retip-bc54`).
 
 | Surface | Standing | Evidence |
 |---------|----------|----------|
