@@ -5,19 +5,24 @@ Remaining-courts ledger: [`GATE-1-REMAINING-COURTS-STANDING.md`](./GATE-1-REMAIN
 Companion to `ECOSYSTEM-SPEC-27.1.1.md` and `REPO-INVENTORY-27.1.1.md`.
 
 **Evidence refresh / live tip pin:** 2026-11-22 tip-pin on
-`cursor/v2711-truex-merged-standing-bc54` to
-`99255d53c993ff93b80676463d0b5bd107d060f6`
-(`origin/cursor/ecosystem-spec-27-1-1-bc54`). Truex product admit-court →
-**ALIVE** (sibling **6/6 vitest exit 0** reconfirmed @
-`truex@68d2d2331696f18949f4877b994320018b6365e5` — [truex#6](https://github.com/seanchatmangpt/truex/pull/6)
-**MERGED** to `main` as `b4672131`; mount `/tmp/truex`; receipt
-`/tmp/cursor/truex-merged-admit-alive.md`). Hop-4 igniter manufacture remains
-**PARTIAL** exit **2** `REFUSED :no_primitive_space` (tip brand `[rhythm]` →
-BrandTheme; evidence `/tmp/cursor/igniter-real-cleanroom.md`). ggen `shui:`
-fence remains a separate row (tip-cargo PENDING). Historical court exits remain
-on ancestor `0478fde59644cccd60c5a88d64d444ec292e6a3c` (≥ `a54b9803`) and
-ui-layout evidence `eaf0dad40287a3347280a541766b3b16f3978cf8` — both ancestors
-of tip. **Tip-cargo reconfirm PENDING** (quiet cgroup) — not tip exit 0 for
+`cursor/v2711-gate1-standing-retip-bc54` to
+`28c3f4d84596fc1a0735d268f51bc2c74db526b5`
+(`origin/cursor/ecosystem-spec-27-1-1-bc54`; ancestor `5f28d0f90` packs restore).
+Truex product admit-court → **ALIVE** (sibling **6/6 vitest exit 0**
+reconfirmed @ `truex@68d2d2331696f18949f4877b994320018b6365e5` —
+[truex#6](https://github.com/seanchatmangpt/truex/pull/6) **MERGED** to `main`
+as `b4672131`; mount `/tmp/truex`; receipt
+`/tmp/cursor/truex-merged-admit-alive.md`). Hop-4 BrandTheme manufacture →
+**ALIVE** (`diff_exit=0` dual-schema tip brand vs igniter fixture; evidence
+`/tmp/cursor/igniter-real-cleanroom.md`; prior PARTIAL `:no_primitive_space`
+closed). Hop-5 aggregate → **PARTIAL_ALIVE** (default adapter exit **0** after
+mix-SUBJECT fix; foundry `--live` still open —
+[`HOP5-MIX-SUBJECT-STANDING.md`](./HOP5-MIX-SUBJECT-STANDING.md);
+[`PHOTOLITHOGRAPHY-STANDING.md`](./PHOTOLITHOGRAPHY-STANDING.md)). ggen `shui:`
+fence remains a separate row. Historical court exits remain on ancestor
+`0478fde59644cccd60c5a88d64d444ec292e6a3c` (≥ `a54b9803`) and ui-layout evidence
+`eaf0dad40287a3347280a541766b3b16f3978cf8` — both ancestors of tip.
+**Tip-cargo `ui_layout` reconfirm PENDING** (quiet cgroup) — not tip exit 0 for
 in-repo fences.
 
 **Honesty demotion (`cursor/v2711-ccs-ops-honesty-bc54`):** BRCE seat / brand
@@ -78,12 +83,12 @@ Do not promote any Gate 0 row to `ALIVE` from this repository.
 
 ### Command evidence log (this refresh)
 
-Live tip pin: `5e00619a422a0d8e451029f0aaf8b7a63e27da46`.
+Live tip pin: `28c3f4d84596fc1a0735d268f51bc2c74db526b5`.
 Historical exit-0 evidence tip: `0478fde59644cccd60c5a88d64d444ec292e6a3c` (≥ `a54b9803`; ancestor).
 `CARGO_BUILD_JOBS=1`. Full `cargo test -p ggen-graph --test …` rebuilds were repeatedly
 SIGKILL/SIGTERM under shared-target OOM contention; exits below are from the named
 court harness on the **evidence** tip (warm court binary, tip-synced court crate, or exact
-`cargo test -p ggen-abb-sbb`). **Tip-cargo reconfirm PENDING** (quiet cgroup) on live tip —
+`cargo test -p ggen-abb-sbb`). **Tip-cargo `ui_layout` reconfirm PENDING** (quiet cgroup) on live tip —
 do **not** read this log as tip exit 0. Historical exit-0 SHAs are ancestors of
 tip and are preserved as PARTIAL evidence; BRCE / brand / verify_witness rows are
 honesty-demoted to **PARTIAL_ALIVE** (see header).
@@ -101,7 +106,7 @@ honesty-demoted to **PARTIAL_ALIVE** (see header).
 | `ui-layout-court.ts` (contract stub) | `docs/rfc/v27.1.1/fixtures/ui-layout-court.ts` | stub PRESENT; zcode-cli runner still **UNSUPPORTED** |
 | `verify_witness.wasm` (production) | `find . \( -name 'verify_witness*' -o -name '*witness*.wasm' \)` | placeholder only → production **UNSUPPORTED** |
 | `curve25519-dalek` | `rg -n 'name = "curve25519-dalek"' -A2 Cargo.lock` + pin standing | versions **4.1.3** + **5.0.0** present; pin doc → **PARTIAL_ALIVE**; policy court still open |
-| ggen_igniter checkout / manufacture | local mount + `git diff --exit-code` + BrandTheme.from_brand(tip brand) | mount **PRESENT**; clean-tree exit **0**; manufacture exit **2** `:no_primitive_space` → hop-4 **PARTIAL** (not `ALIVE`; bare post-clone diff ≠ `ALIVE`) |
+| ggen_igniter checkout / manufacture | local mount + BrandTheme emit tip dual-schema vs igniter fixture + `git diff --exit-code` | mount **PRESENT**; clean-tree exit **0**; manufacture compare `diff_exit=0` → hop-4 **ALIVE** (antifalsifier: bare post-clone diff ≠ `ALIVE`; `mix` NIF still **BLOCKED**) |
 
 Replay via Cargo (preferred CI falsifier; same courts; tip-cargo PENDING until quiet exclusive exit 0):
 
@@ -124,9 +129,11 @@ cargo test -p ggen-sjira --test zcode_powl_ocel_court
 ## Recommended next single falsifier (Gate 1)
 
 ggen fence courts **exit 0** on evidence tip `0478fde59` (ancestor of live tip
-`5e00619a422a0d8e451029f0aaf8b7a63e27da46`); **tip-cargo reconfirm PENDING**
-(quiet cgroup) — not tip exit 0. Honesty: BRCE / brand / verify_witness demoted
-to **PARTIAL_ALIVE** (dedicated standings win over matrix over-promotion):
+`28c3f4d84596fc1a0735d268f51bc2c74db526b5`); **tip-cargo `ui_layout` reconfirm
+PENDING** (quiet cgroup) — not tip exit 0. Honesty: Truex **ALIVE** @ `68d2d233`;
+hop-4 manufacture **ALIVE** (`diff=0`); hop-5 **PARTIAL_ALIVE** (adapter 0;
+`--live` open); BRCE / brand / verify_witness demoted to **PARTIAL_ALIVE**
+(dedicated standings win over matrix over-promotion):
 
 - `shui:` public-prefix fence → **ALIVE** (evidence 3; tip source **4**; tip-cargo PENDING)
 - brand rhythm → **PARTIAL_ALIVE** (evidence 4; tip source **11**; DTCG Gate 2+; hot-swap fence **PARTIAL_ALIVE**; production theme **UNSUPPORTED** / `REFUSED_PRODUCTION` — [`BRAND-PRODUCTION-THEME.md`](./BRAND-PRODUCTION-THEME.md))
@@ -141,6 +148,6 @@ ggen in-repo `ui-layout-court` digest consume → **ALIVE** on tested tip `eaf0d
 
 Next **new** Gate-1 falsifier to author (pick one):
 
-1. Quiet exclusive tip-cargo reconfirm of the four focus courts on tip `5e00619a4` (`shui` / Taffy / brand / `ui_layout`) with `CARGO_BUILD_JOBS=1` — then rewrite evidence SHAs to tip if exit 0.
-2. Mount sibling zcode-cli `ui-layout-court.ts` against a pinned ggen `AotSealReceipt` fixture (out-of-repo hop; in-repo fence already ALIVE on evidence). Hop ledger: [`PHOTOLITHOGRAPHY-STANDING.md`](./PHOTOLITHOGRAPHY-STANDING.md).
-3. Or advance sibling / docs rows still open: Truex `shui:` product admit-court is **ALIVE** @ `truex@68d2d233` ([truex#6](https://github.com/seanchatmangpt/truex/pull/6) **MERGED**; vitest **6/6** exit 0 reconfirmed) — tip-sync ggen `shui_public_prefix_court` still PENDING separately; `curve25519-dalek` Gate-1 **policy court** (pin doc now PRESENT — [`CURVE25519-DALEK-PIN-STANDING.md`](./CURVE25519-DALEK-PIN-STANDING.md)); production `verify_witness.wasm` build on the affidavit plane; igniter clean-room probe.
+1. Quiet exclusive tip-cargo reconfirm of the four focus courts on tip `28c3f4d84` (`shui` / Taffy / brand / `ui_layout`) with `CARGO_BUILD_JOBS=1` — then rewrite evidence SHAs to tip if exit 0. Until then **tip-cargo `ui_layout` stays PENDING**.
+2. Hop-5 foundry `--live`: `bun scripts/powl-foundry-loop.ts --live` → exit **0** (adapter already 0; Jobs/C4 still open — [`HOP5-MIX-SUBJECT-STANDING.md`](./HOP5-MIX-SUBJECT-STANDING.md); [`PHOTOLITHOGRAPHY-STANDING.md`](./PHOTOLITHOGRAPHY-STANDING.md)).
+3. Or advance sibling / docs rows still open: Truex admit-court already **ALIVE** @ `truex@68d2d233`; tip-sync ggen `shui_public_prefix_court` still PENDING separately; `curve25519-dalek` Gate-1 **policy court** (pin doc PRESENT — [`CURVE25519-DALEK-PIN-STANDING.md`](./CURVE25519-DALEK-PIN-STANDING.md)); production `verify_witness.wasm` build on the affidavit plane.

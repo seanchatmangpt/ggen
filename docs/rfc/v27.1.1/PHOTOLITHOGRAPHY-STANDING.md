@@ -4,7 +4,7 @@
 |-------|-------|
 | Document ID | `PHOTOLITHOGRAPHY-STANDING-27.1.1` |
 | Companion | `ECOSYSTEM-SPEC-27.1.1.md`, `GATE-1-GAP-MATRIX.md`, `REPO-INVENTORY-27.1.1.md` |
-| Observed tip (this ledger) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `88e84d5457c43d240115585a07641061c0da604e` (Truex admit-court **ALIVE** @ `truex@68d2d233` / [truex#6](https://github.com/seanchatmangpt/truex/pull/6) **MERGED**; hop-4 BrandTheme manufacture **ALIVE** (`diff_exit=0` dual-schema); hop-5 mix-SUBJECT fix — default adapter exit **0** / Jobs/C4 deferred; `ggen-layout-court` **PRESENT**; ui-layout **ALIVE** evidence `eaf0dad40`; foundry `--live` still open) |
+| Observed tip (this ledger) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `28c3f4d84596fc1a0735d268f51bc2c74db526b5` (Truex admit-court **ALIVE** @ `truex@68d2d233` / [truex#6](https://github.com/seanchatmangpt/truex/pull/6) **MERGED**; hop-4 BrandTheme manufacture **ALIVE** (`diff_exit=0` dual-schema); hop-5 **PARTIAL_ALIVE** — default adapter exit **0** / Jobs/C4 deferred; foundry `--live` still open; `ggen-layout-court` **PRESENT**; ui-layout **ALIVE** evidence `eaf0dad40`; **tip-cargo `ui_layout` PENDING** — not tip exit 0) |
 | Hop-4 manufacture | 2026-11-22 — `cursor/v2711-hop4-manufacture-bc54` / `/tmp/cursor/igniter-real-cleanroom.md` (`bc-4861c787`) — tip BrandTheme emit vs igniter fixture → **ALIVE** (`diff_exit=0`); prior PARTIAL exit **2** `:no_primitive_space` closed by dual-schema fixture |
 | Hop-5 mix SUBJECT | 2026-11-22 — `cursor/v2711-hop5-mix-subject-bc54` / [`HOP5-MIX-SUBJECT-STANDING.md`](./HOP5-MIX-SUBJECT-STANDING.md) — default adapter exit **0** after Taffy+Mode B PASS (not SUBJECT_MISSING); foundry `--live` still open |
 | Status | LEDGER (path standings; **not** a crown `ALIVE` receipt) |
@@ -296,9 +296,9 @@ ui-layout **11**. No path-crown `ALIVE` asserted.
 
 ### Hop-5 mix SUBJECT_MISSING fix (`cursor/v2711-hop5-mix-subject-bc54`)
 
-- Observed tip (rebase): `99255d53c993ff93b80676463d0b5bd107d060f6` (`origin/cursor/ecosystem-spec-27-1-1-bc54`).
+- Observed tip (retip): `28c3f4d84596fc1a0735d268f51bc2c74db526b5` (`origin/cursor/ecosystem-spec-27-1-1-bc54`; hop-5 absorbed on tip; ancestor `5f28d0f90`).
 - Diagnosis: default adapter exit **2** after Taffy+Mode B PASS was `mix` SUBJECT_MISSING, not missing `layout_court`.
 - Fix (zcode-cli @ `fed6f166`): `resolveCleanRoomSyncCmd` — ggen dry-run fallback; spatial-only exit **0** when layout_court PRESENT + mix/ggen ABSENT; typed remediation when subject truly ABSENT.
 - Evidence (reconfirm): `layout_exit=0`; default `adapter_exit=0` (Jobs/C4 deferred diagnostic); Chicago **31 passed; exit 0**; see [`HOP5-MIX-SUBJECT-STANDING.md`](./HOP5-MIX-SUBJECT-STANDING.md).
 - Hop-5 aggregate remains **PARTIAL_ALIVE** (foundry `--live` / Jobs/C4 still open — next verifier `bun scripts/powl-foundry-loop.ts --live` → 0).
-- Do **not** invent hop-5 / path-crown `ALIVE`.
+- Do **not** invent hop-5 / path-crown `ALIVE`. **Tip-cargo `ui_layout` PENDING** unless proven exit 0.
