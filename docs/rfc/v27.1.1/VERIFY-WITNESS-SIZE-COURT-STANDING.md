@@ -1,7 +1,7 @@
 # `verify_witness` size court standing (Clause 3 retip)
 
 ```text
-exit=skipped standing=PRESENT size=35 tip=8cee4246f8939a84f75427f6468284f7932880e0
+exit=skipped standing=PRESENT size=35 tip=8955b592183a2907749a50ece1ebbfd194fb2ad5
 ```
 
 | Field | Value |
