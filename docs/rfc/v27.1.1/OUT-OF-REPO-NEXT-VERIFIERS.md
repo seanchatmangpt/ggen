@@ -328,7 +328,7 @@ the BLOCKED/PENDING table above (cos `/readyz` → **200**; revops DNS ∧ `/rea
 
 ## 18. Retip15 honesty probe (2026-11-22 08:40:12 PST)
 
-Branch `cursor/v2711-oor-retip15-bc54` from probe tip
+Branch `cursor/v2711-oor-retip15-bc54` @ `5c969ac05` from probe tip
 `01eccfffb56c1c59be67a220eadb5bd98783c806` (parent
 `1f10949a78523348951f55583d94bdac7bf63c66`; prior retip14 pin `df9597c18` /
 `72662eeff`). **No cargo.** No ManagePullRequest on #849. Sidebranch only —

@@ -430,7 +430,7 @@ Crown: Plane-5 revops+cos product standing is **not** `ALIVE`. Labels in §1
 
 ## 18. Tip reconfirm (2026-11-22 08:40:12 PST) — retip15 `01eccfffb`
 
-Observed on branch `cursor/v2711-oor-retip15-bc54` from tip
+Observed on branch `cursor/v2711-oor-retip15-bc54` @ `5c969ac05` from tip
 `01eccfffb56c1c59be67a220eadb5bd98783c806` (parent
 `1f10949a78523348951f55583d94bdac7bf63c66`; prior retip14 pin `df9597c18` /
 `72662eeff`). **No cargo.** Sidebranch only — crown **not** pushed. Probe
