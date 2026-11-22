@@ -4,6 +4,8 @@ Remaining-courts ledger: [`GATE-1-REMAINING-COURTS-STANDING.md`](./GATE-1-REMAIN
 
 Companion to `ECOSYSTEM-SPEC-27.1.1.md` and `REPO-INVENTORY-27.1.1.md`.
 
+**Retip matrix (2026-11-22):** live tip `9c56420dd` honesty — [`ECOSYSTEM-SPEC-27.1.1.md`](./ECOSYSTEM-SPEC-27.1.1.md) §17 (`cursor/v2711-ecospec-matrix-retip-bc54` / `bc-5b3b2915`). Docs-only; no cargo; no invented `ALIVE`. Gate-1 in-repo rows at tip: Truex **ALIVE**; shui **PARTIAL_ALIVE**; Taffy **PARTIAL**; brand.toml **PARTIAL_ALIVE**; ui_layout **PARTIAL_ALIVE**; curve25519 **ALIVE**; VW measure **ALIVE**/court **PARTIAL**/prod **UNSUPPORTED**; zcode POWL refusal **PARTIAL**; igniter clean-room **ALIVE**.
+
 **Evidence refresh / live tip pin:** CindyCat dual-schema `[primitive.space]` from `[rhythm]` on `cursor/v2711-hop4-cindycat-space-bc54` (court `oem_fixtures_carry_dtcg_primitive_space_from_rhythm`).
 
 **Observed crown tip (ui_layout exact tip-cargo absorb 2026-11-22):** tip-wins onto

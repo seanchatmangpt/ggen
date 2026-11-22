@@ -411,3 +411,67 @@ Crown-objective body bind (§13 photo / CCS·BRCE / ops / foundry) + companion
 index completeness on `cursor/v2711-ecospec-audit-bc54` against tip
 `d11758cf4182181991ec3158e073b75b474d5cbe`.
 No Plane 5 / cos / GCP / Foundry / photolithography claim is asserted as `ALIVE`.
+
+---
+
+## 17. Retip matrix — live tip honesty (`9c56420dd`)
+
+| Field | Value |
+|-------|-------|
+| Retip branch | `cursor/v2711-ecospec-matrix-retip-bc54` (`bc-5b3b2915`) |
+| Observed tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ **`9c56420dd10bf1cf8cd231c84ceba67830fefe11`** (`9c56420dd`; ⊇ Smalt RAID FinOps `2c69230f2` + Foundry HITL Retip3 `6f920670f`) |
+| Cargo / tip-cargo | **NOT RUN** (docs-only honesty matrix; Gate-1 tip6 owns thrash) |
+| Law | Standings below are **held from tip companion ledgers only** — no invented `ALIVE` |
+
+Standing vocabulary: `UNKNOWN` | `PARTIAL` | `PARTIAL_ALIVE` | `ALIVE` | `BLOCKED` | `BLOCKED_HITL` | `UNSUPPORTED` | `REFUSED_*`.
+
+Companion matrices: [`GATE-1-GAP-MATRIX.md`](./GATE-1-GAP-MATRIX.md); [`GATE-0-2-3-NEXT-VERIFIERS.md`](./GATE-0-2-3-NEXT-VERIFIERS.md); [`OUT-OF-REPO-NEXT-VERIFIERS.md`](./OUT-OF-REPO-NEXT-VERIFIERS.md).
+
+### 17.1 Gate 1 — in-repo / sibling
+
+| Surface | Standing @ tip `9c56420dd` | Evidence ledger | Exact next verifier (non-`ALIVE` / replay) |
+|---------|---------------------------|-----------------|-------------------------------------------|
+| Truex admit `shui:` | **ALIVE** (sibling admit-court; ≠ Foundry) | [`TRUEX-ADMIT-EXACT-RETIP3-STANDING.md`](./TRUEX-ADMIT-EXACT-RETIP3-STANDING.md) — `truex@68d2d233` **6/6** EXIT **0** (merged `b4672131`) | Replay: `pnpm exec vitest run test/admit/admit-court.test.ts` → EXIT **0** |
+| `shui:` public-prefix fence | **PARTIAL_ALIVE** (exact-tip5 EXIT:**137**; lineage **ALIVE** @ `008a81d21` held) | [`SHUI-PUBLIC-PREFIX-EXACT-TIP5-ALIVE-STANDING.md`](./SHUI-PUBLIC-PREFIX-EXACT-TIP5-ALIVE-STANDING.md) | `CARGO_TARGET_DIR=/tmp/ggen-shui-exact-tip5 cargo test -p ggen-graph --test shui_public_prefix_court --locked --config build.jobs=1 -- --test-threads=1` → **4**/EXIT:**0** |
+| Taffy AOT preflight | **PARTIAL** (exact-tip reconfirm PENDING; lineage **ALIVE** **7** @ `19c08a3b0` held) | [`TAFFY-AOT-PREFLIGHT-STANDING.md`](./TAFFY-AOT-PREFLIGHT-STANDING.md) | `CARGO_TARGET_DIR=/tmp/gate1-taffy cargo test -p ggen-graph --test taffy_aot_preflight_court --locked --config build.jobs=1 -- --test-threads=1` → **7**/EXIT:**0** |
+| brand.toml rhythm/completeness | **PARTIAL_ALIVE** (retip5 budget miss; lineage **ALIVE** **5+12** @ `77eb46fd0` held) | [`BRAND-TOML-TIP-CARGO-STANDING.md`](./BRAND-TOML-TIP-CARGO-STANDING.md) | `CARGO_TARGET_DIR=/tmp/ggen-brand-exact-tip cargo test -p ggen-graph --test brand_toml_completeness_court --test brand_toml_rhythm_court --locked -- --test-threads=1` → EXIT:**0** |
+| `ui_layout` digest consume | **PARTIAL_ALIVE** (retip6 EXIT:**124**; lineage **ALIVE** **11** @ `a508e6bae` held) | [`UILAYOUT-EXACT-RETIP6-STANDING.md`](./UILAYOUT-EXACT-RETIP6-STANDING.md) | exclusive `ui_layout_court` `--target-dir /tmp/ggen-uilayout-exact-retip6` → **11**/EXIT:**0** |
+| `curve25519-dalek` pin | **ALIVE** (pin court **6**/EXIT:**0** @ `bebea5dd0`) | [`CURVE25519-DALEK-PIN-STANDING.md`](./CURVE25519-DALEK-PIN-STANDING.md) | Replay: `cargo test -p ggen-config --test curve25519_dalek_pin_court` → **6**/EXIT:**0** |
+| VW size (&lt;250KB) | measure **ALIVE** (`wc -c` **28673**); tip-cargo court **PARTIAL** (EXIT:**137**); production runtime **UNSUPPORTED** | [`VERIFY-WITNESS-SIZE-RETIP3-STANDING.md`](./VERIFY-WITNESS-SIZE-RETIP3-STANDING.md) | Tip-cargo next: `cargo test -p ggen-graph --test verify_witness_size_court` → **8**/EXIT:**0**; prod: [`VERIFY-WITNESS-CI-WASM-NEXT-VERIFIER-STANDING.md`](./VERIFY-WITNESS-CI-WASM-NEXT-VERIFIER-STANDING.md) §3 |
+| zcode POWL refusal | **PARTIAL** (retip6 EXIT:**137**; prior refusal **ALIVE** historical only; ≠ Foundry) | [`ZCODE-POWL-REFUSAL-RETIP6-STANDING.md`](./ZCODE-POWL-REFUSAL-RETIP6-STANDING.md) | `cargo test -p ggen-sjira --test zcode_powl_ocel_court` + `… remediation_bound --lib` → **6+4**/EXIT:**0** |
+| igniter clean-room | **ALIVE** (`git diff --exit-code` → **0**; ≠ path / Foundry `--live`) | [`IGNITER-CLEANROOM-STANDING.md`](./IGNITER-CLEANROOM-STANDING.md) | Replay: `cd /home/ubuntu/ggen_igniter && git diff --exit-code` → **0** |
+
+### 17.2 Ops
+
+| Surface | Standing @ tip `9c56420dd` | Evidence ledger | Exact next verifier |
+|---------|---------------------------|-----------------|---------------------|
+| Smalt RAID / FinOps | **ALIVE** (lineage; 4-cloud **0,0,0,0,0** + FinOps **19** + residual **0,0,0,0** @ `91997da76f0f`) — ≠ Foundry | [`SMALT-RAID-STANDING.md`](./SMALT-RAID-STANDING.md) §6c/§6d | Replay FinOps + §4.1 4-cloud + residual §4.3 |
+| cos / revops | cos `/readyz` **BLOCKED** (**503** `DB_UNAVAILABLE`); `/healthz` **PARTIAL**; revops **UNKNOWN** (**NXDOMAIN**) | [`REVOPS-COS-STANDING.md`](./REVOPS-COS-STANDING.md); OOR retip18 @ `47aebeb75` held through tip | `curl … https://cos.fnox.io/readyz` → **200**; `getent hosts revops.fnox.io` ∧ `curl … https://revops.fnox.io/readyz` → DNS ∧ **200** |
+| brand hot-swap / production theme | hot-swap fence lineage **ALIVE** (**6** @ `19c08a3b0`); **production theme UNSUPPORTED** (`REFUSED_PRODUCTION`) | [`BRAND-PRODUCTION-THEME.md`](./BRAND-PRODUCTION-THEME.md) | Fence replay: `… brand_toml_hotswap_court`; production promote: admit DTCG inventory (G2-13) + CASTLE bind (G2-12) + production apply court → EXIT:**0** (until then `promote_production_theme` → `REFUSED_PRODUCTION`) |
+
+### 17.3 CCS
+
+| Surface | Standing @ tip `9c56420dd` | Evidence ledger | Exact next verifier |
+|---------|---------------------------|-----------------|---------------------|
+| BRCE **V8** + R-01…R-07 bodies | **V8 BLOCKED**; bodies **BLOCKED** (contract fence **ALIVE** **7** @ `e7569893a` ≠ bodies / broker) | [`BRCE-V8-NEXT-VERIFIER-STANDING.md`](./BRCE-V8-NEXT-VERIFIER-STANDING.md); [`R01-R07-BODIES-NEXT-VERIFIER-STANDING.md`](./R01-R07-BODIES-NEXT-VERIFIER-STANDING.md) | V8: Founder HITL mount BRCE broker — without AS-01 → `REFUSED_*`; with seat → receipt+replay → EXIT:**0**. Bodies: admit sovereign risk-register → per-ID receipt/`REFUSED_*` |
+| WebAuthn AS-01 (live) | live **UNSUPPORTED**; V7 fixture **ALIVE** @ `fb6e7fc6e` ≠ live; V1 seat **ALIVE** @ `e7569893a` ≠ broker | [`WEBAUTHN-LIVE-NEXT-VERIFIER-STANDING.md`](./WEBAUTHN-LIVE-NEXT-VERIFIER-STANDING.md) §3 | Founder HITL: admit RP-ID → enroll hardware → live assertion court → EXIT:**0**; then **V8** |
+| CASTLE digest-bind wire | wire **ALIVE**/`WIRED` @ castle `e0d99c6` (**6/6**); spine crown **PARTIAL_ALIVE**; Foundry **PARTIAL** | [`CASTLE-SPINE-STANDING.md`](./CASTLE-SPINE-STANDING.md) §13–§14 | Replay: `cargo test --test publish_digest_bind_court` → **6/6**; spine residual: bind admitted ggen digest into mint + LinkedIn AND-gate after cos `/readyz` **200** |
+
+### 17.4 Foundry / `--live` HITL
+
+| Surface | Standing @ tip `9c56420dd` | Evidence ledger | Exact next verifier |
+|---------|---------------------------|-----------------|---------------------|
+| Foundry / zero-HITL crown | **PARTIAL** — **not** Foundry `ALIVE` | [`FOUNDRY-FINISH-STANDING.md`](./FOUNDRY-FINISH-STANDING.md) §9 | Close HITL residuals (cos DB + WebAuthn + `--live`) before any crown promote |
+| foundry `--live` | **BLOCKED_HITL** (`foundry_exit=1` / `Model access is not configured` @ zcode `f32df08`) | [`HITL-LIVE-NEXT-VERIFIER-STANDING.md`](./HITL-LIVE-NEXT-VERIFIER-STANDING.md) §10 | `cd /agent/repos/zcode-cli && zcode /login && bun scripts/powl-foundry-loop.ts --live` → **foundry_exit=0** |
+
+### 17.5 Compact surface→standing
+
+```text
+Truex=ALIVE  shui=PARTIAL_ALIVE  Taffy=PARTIAL  brand.toml=PARTIAL_ALIVE
+ui_layout=PARTIAL_ALIVE  curve25519=ALIVE  VW_size=ALIVE(measure)/PARTIAL(court)/UNSUPPORTED(prod)
+zcode_POWL_refusal=PARTIAL  igniter_cleanroom=ALIVE
+Smalt_RAID=ALIVE  cos=BLOCKED  revops=UNKNOWN  brand_hotswap_prod=UNSUPPORTED
+BRCE_V8=BLOCKED  R01_R07_bodies=BLOCKED  WebAuthn_live=UNSUPPORTED  CASTLE_wire=ALIVE/WIRED
+Foundry=PARTIAL  --live=BLOCKED_HITL
+tip=9c56420dd  cargo=NOT_RUN  invented_ALIVE=none
+```
