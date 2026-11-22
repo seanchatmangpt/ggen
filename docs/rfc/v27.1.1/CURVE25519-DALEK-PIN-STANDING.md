@@ -5,8 +5,9 @@
 | Document ID | `CURVE25519-DALEK-PIN-STANDING` |
 | Companion | `ECOSYSTEM-SPEC-27.1.1` §12; `GATE-1-GAP-MATRIX.md` row `curve25519-dalek` |
 | Subject | Workspace `curve25519-dalek` / `ed25519-dalek` lock pin |
-| Tip pin (observation) | `bebea5dd0d4c9af533457e04e0ed068ae8844f69` (`origin/cursor/ecosystem-spec-27-1-1-bc54`) |
+| Tip pin (observation) | `167352d0d22a6c90836fdf707a6eb3fbb2b1ee8f` (`origin/cursor/ecosystem-spec-27-1-1-bc54`; ⊇ `49ebdb27c+`; prior court land `bebea5dd0`) |
 | Court land | `cursor/v2711-curve25519-court-bc54` (sidebranch; no crown push) |
+| Honesty retip | `cursor/v2711-curve25519-retip-bc54` (sidebranch; no crown absorb) |
 | Materialized | 2026-11-22 |
 | Repo scope | `seanchatmangpt/ggen` (docs + lock census + policy court) |
 
@@ -144,3 +145,54 @@ cargo test -p ggen-sjira --test lease_epoch_test
 | Lock versions | curve25519-dalek **4.1.3** + **5.0.0**; ed25519-dalek **2.2.0** + **3.0.0** |
 | Standing | **ALIVE** (lock + pin doc + policy court EXIT 0 on tip) |
 | Crown push / ManagePullRequest | **none** (sidebranch only) |
+
+---
+
+## 7. Honesty retip (2026-11-22) — `cursor/v2711-curve25519-retip-bc54`
+
+| Field | Value |
+|-------|-------|
+| Tip base | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `167352d0d22a6c90836fdf707a6eb3fbb2b1ee8f` (`167352d0d`; `49ebdb27c+`; tip-wins Truex exact-tip4 absorb over OOR retip17) |
+| Sidebranch | `cursor/v2711-curve25519-retip-bc54` |
+| Agent | `bc-7a10d89f` (`https://cursor.com/agents/bc-7a10d89f-b1c4-591c-a8b9-701c0f2c5302`) |
+| UTC | `2026-11-22T17:36:18Z` (court); honesty land after tip race |
+| Crown absorb | **none** (sidebranch only; no ManagePullRequest; no force-push) |
+| Foundry | **not claimed** — this retip does **not** mint Foundry `ALIVE` |
+
+### Observed (this retip)
+
+| Probe | Result |
+|-------|--------|
+| Lock census `curve25519-dalek` | **4.1.3** + **5.0.0** (checksums unchanged vs §1) |
+| Lock census `ed25519-dalek` | **2.2.0** + **3.0.0** |
+| Policy court | `cargo test -p ggen-config --test curve25519_dalek_pin_court --locked` → **6 passed; 0 failed; EXIT 0** |
+| Target dir / log | `/tmp/ggen-curve25519-retip-court`; `/tmp/cursor/curve25519-dalek-pin-court-retip.log` |
+| Status file | `/tmp/cursor/curve25519-dalek-pin-court-retip.status` → `EXIT:0` |
+
+### Standing (this retip) — no false Foundry `ALIVE`
+
+| Claim | Standing |
+|-------|----------|
+| Lock resolves documented 4.1.3 + 5.0.0 @ tip `167352d0d` | **ALIVE** |
+| Policy court refuses undocumented major | **ALIVE** — **6 passed; EXIT 0** on tip base |
+| Gate-1 `curve25519-dalek` pin (subject) | **ALIVE** (reconfirm; prior land `bebea5dd0`) |
+| Crown crypto / AS-01 / Plane-5 | **UNSUPPORTED** from this pin (unchanged) |
+| Foundry / zero-HITL / hop-5 | **not this subject** — refuse Foundry `ALIVE` |
+
+```text
+ALIVE(curve25519-dalek Gate-1 pin court @ tip 167352d0d)
+  ⇔  Cargo.lock exact set {4.1.3, 5.0.0}
+  ∧  cargo test -p ggen-config --test curve25519_dalek_pin_court
+     → 6 passed; EXIT 0
+  ∧  this honesty retip cites tip base + EXIT + sidebranch
+```
+
+**Replay:**
+
+```bash
+export CARGO_BUILD_JOBS=1 CXX=g++ SCCACHE_DISABLE=1 RUSTC_WRAPPER=
+CARGO_TARGET_DIR=/tmp/ggen-curve25519-retip-court \
+  cargo test -p ggen-config --test curve25519_dalek_pin_court --locked \
+  --config build.jobs=1 -- --test-threads=1
+# expect: 6 passed; EXIT 0
+```
