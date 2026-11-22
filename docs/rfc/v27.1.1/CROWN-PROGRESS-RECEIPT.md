@@ -50,15 +50,15 @@ blockers=foundry--live; tip-cargo; cos/readyz; WebAuthn/BRCE-V8/V9; revops-DNS; 
 | Hop 3 Taffy AOT six-width seal | **PARTIAL_ALIVE** (evidence exit 0 ancestor; tip-cargo PENDING; consumer bind open) |
 | Hop 3b ggen `ui_layout` digest consume | **ALIVE** on evidence `eaf0dad40` (**8 passed; exit 0**); tip source **11**; **tip-cargo PENDING** |
 | Hop 4 ggen_igniter BrandTheme manufacture | **ALIVE** (`diff_exit=0` dual-schema tip brand vs igniter fixture); `mix sync` NIF **BLOCKED** |
-| Hop 5 zcode POWL/OCEL / foundry | **PARTIAL_ALIVE** — adapter exit **0**; `powl-foundry-loop --live` **foundry_exit=1** / **REFUSED** (`ZCode runtime is missing` @ zcode `f32df08`) |
+| Hop 5 zcode POWL/OCEL / foundry | **PARTIAL_ALIVE** — adapter exit **0**; Linux tip-matched runtime **PRESENT**; `powl-foundry-loop --live` **foundry_exit=1** / **REFUSED** (`Model access is not configured` @ zcode `f32df08`) |
 
 **Exact next verifiers**
 
-1. `bun run sync:local` (or supported `sync:locked`) → `bun scripts/powl-foundry-loop.ts --live` → **0** ([`HOP5-FOUNDRY-LIVE2-STANDING.md`](./HOP5-FOUNDRY-LIVE2-STANDING.md)).
+1. provider `/login` or `~/.zcode/v2/provider_config.json` → `bun scripts/powl-foundry-loop.ts --live` → **0** ([`HOP5-ZCODE-RUNTIME-STANDING.md`](./HOP5-ZCODE-RUNTIME-STANDING.md)).
 2. Quiet tip-cargo: `CARGO_BUILD_JOBS=1 cargo test -p ggen-graph --test ui_layout_court` → **0** on tip (also `shui` / `taffy_aot` / `brand_toml_rhythm`).
 3. Residual: `CXX=g++-13` → `mix ggen_igniter.sync --check` → **0**.
 
-Antifalsifier: adapter exit 0 ≠ path crown `ALIVE`; bare post-clone `git diff` ≠ hop-4 `ALIVE`.
+Antifalsifier: adapter exit 0 ≠ path crown `ALIVE`; runtime materialization alone ≠ hop-5 `ALIVE`; bare post-clone `git diff` ≠ hop-4 `ALIVE`.
 
 ---
 
@@ -149,7 +149,7 @@ Recommended next Gate-1 falsifier (pick one): quiet tip-cargo reconfirm of `shui
 
 | # | Blocker | Standing | Exact next |
 |---|---------|----------|------------|
-| 1 | foundry `--live` / ZCode runtime | **BLOCKED**/**REFUSED** | `bun run sync:local` → `bun scripts/powl-foundry-loop.ts --live` → **0** |
+| 1 | foundry `--live` / ZCode runtime | **BLOCKED**/**REFUSED** | provider creds → `bun scripts/powl-foundry-loop.ts --live` → **0** ([`HOP5-ZCODE-RUNTIME-STANDING.md`](./HOP5-ZCODE-RUNTIME-STANDING.md)) |
 | 2 | tip-cargo Gate-1 fences | **PENDING** | `CARGO_BUILD_JOBS=1 cargo test -p ggen-graph --test ui_layout_court` (+ peers) → **0** |
 | 3 | cos `/readyz` DB | **BLOCKED** (**503**) | curl → HTTP **200** |
 | 4 | Live WebAuthn / BRCE broker / Plane-5 DO | **UNSUPPORTED** / **BLOCKED** | BRCE **V8** → **V9** / OOR **G2-3…G2-5** |
