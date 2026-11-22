@@ -5,7 +5,7 @@ name = "gh-enterprise-repository-factory"
 source = "ontology.ttl"
 
 [packs]
-gh-terraform-pack = { path = "../../../ggen-marketplace/packs/gh-terraform-pack" }
+gh-terraform-pack = { path = "../../packs/gh-terraform-pack" }
 gh-enterprise-architecture-pack = { path = "../../packs/gh-enterprise-architecture-pack" }
 
 [templates]

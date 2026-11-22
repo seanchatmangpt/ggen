@@ -1,0 +1,27 @@
+# MESSAGE: fleet ⊕ composition law (D_r = B ⊕ O ⊕ X) violated: every ghtf:ManagedRepo
+# must carry a ghtf:tier (a repo without a tier is ungoverned — refuse); every
+# ghtf:permittedOverride on a ManagedRepo must name a surface its tier ghtf:tierPermits
+# (an override the tier does not permit is an unauthorized mutation claim — refuse);
+# every ghtf:acceptedDeviation must point at an individual carrying a ghtf:admissionRef
+# (a deviation without an admission reference is an unadmitted deviation — refuse).
+# Any row = the violating ManagedRepo plus the missing/unpermitted item.
+PREFIX ghtf: <http://seanchatmangpt.github.io/packs/gh-terraform#>
+SELECT ?repo ?violation WHERE {
+  {
+    ?repo a ghtf:ManagedRepo .
+    FILTER NOT EXISTS { ?repo ghtf:tier ?anytier }
+    BIND(ghtf:tier AS ?violation)
+  } UNION {
+    ?repo a ghtf:ManagedRepo ;
+          ghtf:tier ?tier ;
+          ghtf:permittedOverride ?ov .
+    FILTER NOT EXISTS { ?tier ghtf:tierPermits ?ov }
+    BIND(?ov AS ?violation)
+  } UNION {
+    ?repo a ghtf:ManagedRepo ;
+          ghtf:acceptedDeviation ?dev .
+    FILTER NOT EXISTS { ?dev ghtf:admissionRef ?ref }
+    BIND(?dev AS ?violation)
+  }
+}
+ORDER BY ?repo ?violation

@@ -20,7 +20,7 @@ use support::{count_md_files, read, scaffold_pack};
 use tempfile::TempDir;
 
 fn packs_dir() -> PathBuf {
-    Path::new(env!("CARGO_MANIFEST_DIR")).join("../../../ggen-marketplace/packs")
+    Path::new(env!("CARGO_MANIFEST_DIR")).join("../../packs")
 }
 
 fn scaffold() -> (TempDir, PathBuf) {

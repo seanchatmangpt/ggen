@@ -1,0 +1,54 @@
+# gates/030_policy.rq
+# Policy-as-code refusal gate. Non-empty result = violation; each row names
+# the offending subject, the rule it broke, and a diagnostic detail. Distinct
+# concern from 010_required.rq (structural completeness) and 020_fleet.rq
+# (⊕ composition law): this gate refuses cross-individual *policy* violations.
+PREFIX ghtf: <http://seanchatmangpt.github.io/packs/gh-terraform#>
+SELECT ?subject ?rule ?detail WHERE {
+  {
+    # Rule 1: tier=critical ManagedRepo must have branch protection with
+    # required_approving_review_count >= 2.
+    ?subject a ghtf:ManagedRepo ; ghtf:tier ghtf:TierChuukaku .
+    OPTIONAL {
+      ?subject ghtf:baselineProfile ?bp .
+      ?bp ghtf:member ?prot .
+      ?prot a ghtf:RepoManagementInstance ; ghtf:family "branch-protection" ;
+            ghtf:requiredApprovingReviewCount ?n .
+    }
+    FILTER(!BOUND(?prot) || ?n < 2)
+    BIND(ghtf:PolicyMinReviewers AS ?rule)
+    BIND(IF(!BOUND(?prot), "missing branch protection", CONCAT("required_approving_review_count=", STR(?n), " < 2")) AS ?detail)
+  } UNION {
+    # Rule 2: a TerraformResource marked deprecated without a successor
+    # AND without deadApi is refused (successor/deadApi already required by
+    # 010_required.rq; this rule additionally refuses any RepoManagementInstance
+    # that still instantiates such a resource).
+    ?subject a ghtf:RepoManagementInstance ; ghtf:instanceOf ?res .
+    ?res ghtf:deprecated true .
+    FILTER NOT EXISTS { ?res ghtf:successor ?s2 }
+    FILTER NOT EXISTS { ?res ghtf:deadApi true }
+    BIND(ghtf:PolicyNoDeprecatedWithoutSuccessor AS ?rule)
+    BIND("instance of deprecated resource with no successor/deadApi escape hatch" AS ?detail)
+  } UNION {
+    # Rule 3: repos under an OrgTenant whose org requires SSO must not carry
+    # an unauthenticated-webhook family instance.
+    ?subject a ghtf:ManagedRepo ; ghtf:org ?org ; ghtf:baselineProfile ?bp .
+    ?org ghtf:ssoRequired true .
+    ?bp ghtf:member ?wh .
+    ?wh a ghtf:RepoManagementInstance ; ghtf:family "webhook" .
+    FILTER NOT EXISTS { ?wh ghtf:webhookAuthSecretRef ?secret }
+    BIND(ghtf:PolicyNoUnauthWebhookOnSsoOrg AS ?rule)
+    BIND("webhook instance lacks webhookAuthSecretRef on SSO-required org" AS ?detail)
+  } UNION {
+    # Rule 4: secrets provisioned via github_actions_secret family must not
+    # carry a literal plaintext_value; must source it from a vault-backed
+    # data source OR a Terraform variable supplied at apply time (var.*),
+    # never an inline string literal (the 第十二章 convention already
+    # documented in this pack: secret values are never stored in RDF).
+    ?subject a ghtf:RepoManagementInstance ; ghtf:family "secrets" ; ghtf:hclBody ?body .
+    FILTER(CONTAINS(?body, "plaintext_value") && !CONTAINS(?body, "data.vault_") && !CONTAINS(?body, "plaintext_value = var."))
+    BIND(ghtf:PolicySecretsMustBeVaultBacked AS ?rule)
+    BIND("hclBody contains plaintext_value without a data.vault_ or var.* reference" AS ?detail)
+  }
+}
+ORDER BY ?subject ?rule
