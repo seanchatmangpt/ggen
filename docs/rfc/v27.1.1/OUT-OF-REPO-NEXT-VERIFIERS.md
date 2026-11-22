@@ -5,11 +5,11 @@
 | Document ID | `OUT-OF-REPO-NEXT-VERIFIERS` |
 | Companion | `ECOSYSTEM-SPEC-27.1.1`, `GATE-0-STANDING`, `GATE-3-RELEASE-COURTS-STANDING`, `FOUNDRY-FINISH-STANDING` |
 | Target GA | **2027-01-01** |
-| Observed ggen tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `97c61345233907a2d096ac188c28332ac4666c9f` (crown; post–lifecycle/verify_witness/CCS construct + hop-4 Jobs/C4 `--check` **ALIVE** @ `97c613452`; OOR honesty retip8) |
+| Observed ggen tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `5e131a75e6051eb54340f14f8856ce5a8825769f` (crown; post–write_apply tip-cargo restart pin; OOR retip8 reconfirm) |
 | Materialized | 2026-11-22 |
 | Hardened | 2026-11-22 — `cursor/v2711-oor-ledger-harden-bc54` |
 | Ops refresh | 2026-11-22 — `cursor/v2711-ops-standing-refresh-bc54` (tip pin + probe reconfirm; standings held) |
-| Tip pin | 2026-11-22 — `cursor/v2711-oor-honesty-retip8-bc54` onto tip `97c613452` (`97c61345233907a2d096ac188c28332ac4666c9f`). **Probe-only** reconfirm (no cargo; tip-cargo locks **untouched**): cos `/readyz` **503** `{"status":"DB_UNAVAILABLE"}` → readiness **BLOCKED**; `/healthz` **200** → liveness **PARTIAL** (≠ ALIVE); revops `getent` exit **2** / `host` **NXDOMAIN** / `curl` exit **6** `http=000` → **UNKNOWN**; Hop5/foundry `--live` HITL model access still **REFUSED** (`Model access is not configured`; runtime **PRESENT**); BRCE **V8** broker still **BLOCKED** (fixture ≠ broker). Tip-wins retained through `97c613452`: hop-4 Jobs/C4 admitted `--check` **ALIVE**; CCS #3 construct tip-cargo **ALIVE**; lifecycle **PRESENT**; `verify_witness` lineage **ALIVE** @ `513704d04`; ui_layout tip-cargo **ALIVE** @ `ca52e9c16`; Zero-HITL / Foundry crown **PARTIAL**. **No** OOR blocker promoted to `ALIVE`. No cargo. No ManagePullRequest. |
+| Tip pin | 2026-11-22 06:09:47 PST — `cursor/v2711-oor-retip8-bc54` onto tip `5e131a75e` (`5e131a75e6051eb54340f14f8856ce5a8825769f`): probe unchanged vs honesty-retip8/`97c613452` — cos `https://cos.fnox.io/readyz` **503** `{"status":"DB_UNAVAILABLE"}`; `/healthz` **200** `{"status":"ok"}`; `dig +short revops.fnox.io A`/`AAAA` empty; `host` **NXDOMAIN**; `curl` exit **6** `http=000` → standings held (cos readiness **BLOCKED**; liveness **PARTIAL** ≠ ALIVE; revops **UNKNOWN**). No cargo. No ManagePullRequest. No false `ALIVE`. |
 | Hop-4 evidence | `/tmp/cursor/igniter-real-cleanroom.md` (`bc-4861c787`) — tip dual-schema BrandTheme manufacture compare `diff_exit=0` (**ALIVE**); clean-room crown `/tmp/cursor/igniter-cleanroom-alive-tip.md` (`bc-53b0e099`) mount EXIT **0** (**ALIVE**) |
 | Hop-5 evidence | [`HOP5-MIX-SUBJECT-STANDING.md`](./HOP5-MIX-SUBJECT-STANDING.md) (`adapter_exit=0` / `layout_exit=0`; Chicago **31/0`); runtime **PRESENT** ([`HOP5-ZCODE-RUNTIME-STANDING.md`](./HOP5-ZCODE-RUNTIME-STANDING.md)); foundry `--live` **foundry_exit=1** / **REFUSED** `Model access is not configured` @ zcode `f32df08` |
 | Repo scope | `seanchatmangpt/ggen` — **tracks** sibling standing; does not execute sibling DO |
@@ -103,7 +103,7 @@ GA horizon for all courts: **2027-01-01**.
 
 ---
 
-## BLOCKED / PENDING — exact next verifiers (retip8 @ tip `97c613452`; probe held from retip7 `a3b1c9410`)
+## BLOCKED / PENDING — exact next verifiers (retip8 reconfirm @ tip `5e131a75e`; probe held from honesty-retip8/`97c613452` + retip7 `a3b1c9410`)
 
 | Subject | Standing | Exact next verifier |
 |---------|----------|---------------------|
@@ -260,3 +260,4 @@ Tip pin retipped on `cursor/v2711-oor-retip7-cos-bc54` onto tip `a3b1c9410`
 **PARTIAL**; revops **NXDOMAIN**/`getent` exit **2**/`curl` exit **6** →
 **UNKNOWN**; tip-cargo locks untouched / **PENDING**; no cargo; no
 ManagePullRequest; no false Plane-5/`ALIVE`.
+Tip pin retipped on `cursor/v2711-oor-retip8-bc54` onto tip `5e131a75e` at 2026-11-22 06:09:47 PST — probe unchanged: cos `/readyz` **503** `{"status":"DB_UNAVAILABLE"}`; `/healthz` **200**; `dig` A/AAAA empty; revops **NXDOMAIN**/curl exit **6** → standings held; no cargo; no ManagePullRequest; no false `ALIVE`.

@@ -5,7 +5,7 @@
 | Document ID | `REVOPS-COS-STANDING` |
 | Companion | `ECOSYSTEM-SPEC-27.1.1.md`, `GATE-1-GAP-MATRIX.md`, `REPO-INVENTORY-27.1.1.md` |
 | Observed | 2026-11-22 |
-| Observation host | Cursor cloud agent on `seanchatmangpt/ggen` @ `origin/cursor/ecosystem-spec-27-1-1-bc54` tip `97c61345233907a2d096ac188c28332ac4666c9f` (retip8 OOR honesty; prior retip7 probe `a3b1c9410`) |
+| Observation host | Cursor cloud agent on `seanchatmangpt/ggen` @ `origin/cursor/ecosystem-spec-27-1-1-bc54` tip `5e131a75e6051eb54340f14f8856ce5a8825769f` (retip8 reconfirm 2026-11-22 06:09:47 PST; prior honesty-retip8/`97c613452` + retip7 `a3b1c9410`) |
 | Scope | Plane 5 front doors + Gate 0 cos/billing adjacency — **out of ggen DO** |
 
 Standing labels used here (per request; map to AGENTS.md as noted):
@@ -233,3 +233,14 @@ promotion; no false `ALIVE`.
 
 Crown: Plane-5 revops+cos product standing is **not** `ALIVE`. Labels in §1
 **held**. Next exact verifiers unchanged from §4 / §9.
+
+---
+
+## 11. Tip reconfirm (2026-11-22 06:09:47 PST) — retip8 `5e131a75e`
+
+Observed on branch `cursor/v2711-oor-retip8-bc54` from tip
+`5e131a75e6051eb54340f14f8856ce5a8825769f`. **No cargo.** Probe unchanged vs
+§10: cos `/readyz` **503** `{"status":"DB_UNAVAILABLE"}`; `/healthz` **200**
+`{"status":"ok"}`; `dig +short revops.fnox.io A`/`AAAA` empty; `host`
+**NXDOMAIN**; `curl` exit **6** `http=000`. Labels **held** (cos readiness
+**BLOCKED**; liveness **PARTIAL**; revops **UNKNOWN**). No false `ALIVE`.
