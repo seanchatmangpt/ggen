@@ -52,6 +52,7 @@ pub mod reconcile;
 pub mod shacl;
 pub mod target_pack;
 pub mod work_order;
+pub mod zcode_powl_ocel;
 
 pub use admit::{admit_work_order, AdmittedWorkOrder, Refusal};
 pub use authority::{
