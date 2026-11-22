@@ -1,5 +1,7 @@
 # Gate-1 gap matrix — ECOSYSTEM-SPEC-27.1.1
 
+Remaining-courts ledger: [`GATE-1-REMAINING-COURTS-STANDING.md`](./GATE-1-REMAINING-COURTS-STANDING.md) (verify_witness / ui-layout / slope_cqi / LayoutRefusal).
+
 Companion to `ECOSYSTEM-SPEC-27.1.1.md` and `REPO-INVENTORY-27.1.1.md`.
 
 **Evidence refresh / live tip pin:** 2026-11-22 tip-pin on
