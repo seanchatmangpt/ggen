@@ -5,11 +5,11 @@
 | Document ID | `OUT-OF-REPO-NEXT-VERIFIERS` |
 | Companion | `ECOSYSTEM-SPEC-27.1.1`, `GATE-0-STANDING`, `GATE-3-RELEASE-COURTS-STANDING`, `FOUNDRY-FINISH-STANDING` |
 | Target GA | **2027-01-01** |
-| Observed ggen tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `750b8ef4a9042d22808a79be3dedff7944d4e321` |
+| Observed ggen tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `81774629e6dd4cde79d615b022962649bd884a85` |
 | Materialized | 2026-11-22 |
 | Hardened | 2026-11-22 — `cursor/v2711-oor-ledger-harden-bc54` |
 | Ops refresh | 2026-11-22 — `cursor/v2711-ops-standing-refresh-bc54` (tip pin + probe reconfirm; standings held) |
-| Tip pin | 2026-11-22 — `cursor/v2711-ccs-brce-next-bc54` after crown tip `750b8ef4a` (exact next verifiers for G2-4 WebAuthn crypto **UNSUPPORTED** + G2-5 Plane-5 DO **BLOCKED**; V7 court / `construct_hash_gate` still **ABSENT**; prior OOR retip5 reconfirm retained — cos `/readyz` **503**, revops **NXDOMAIN**, `ggen-layout-court` source **PRESENT**/live **BLOCKED**, bun **35/35**; Smalt RAID columns **ALIVE** + fin_ops **PARTIAL_ALIVE** @ `875efbb87` retained; no false `ALIVE`; cargo not run) |
+| Tip pin | 2026-11-22 — `cursor/v2711-smalt-finops-alive-bc54` after Smalt FinOps **ALIVE** @ `smalt@91997da76f0f` (parent `875efbb87` — tip includes both; prior partial pin `cursor/v2711-smalt-partial-bc54` / 4-cloud @ `875efbb87` via `bc-ad9ebffa`; Foundry crown stays **PARTIAL_ALIVE**; G2-12 **ALIVE** retained; CCS/BRCE exact next verifiers retained from `81774629e`; full RAID/`ALIVE` **not** invented) |
 | Hop-5 evidence | `/tmp/cursor/hop5-crossmount.md` (`bc-be2c9600`) |
 | Repo scope | `seanchatmangpt/ggen` — **tracks** sibling standing; does not execute sibling DO |
 
@@ -64,7 +64,7 @@ http=%{http_code}
 ' https://revops.fnox.io/readyz` → DNS ∧ HTTP **200**; (2) G2-2 `curl -sS -w '
 http=%{http_code}
 ' https://cos.fnox.io/readyz` → **200** not `DB_UNAVAILABLE`; (3) external host court — request **without** AS-01 → refuse; **with** AS-01 → BRCE receipt for the named front-door change ([`REVOPS-COS-STANDING.md`](./REVOPS-COS-STANDING.md) §4 item 6). Never promote from ggen fence alone. | Crown Foundry-finish falsifies if founder still actuates Plane-5 without BRCE+AS-01 |
-| G2-6 | **Smalt 4-cloud RAID** / economic ops | RAID columns **ALIVE** + fin_ops **PARTIAL_ALIVE** (crown row **PARTIAL_ALIVE**) | Sibling tip `smalt@875efbb87` via `bc-ad9ebffa`: `just doctor`→**0**; `mix test test/aws`→**0**; `mix test test/gcp`→**0**; `mix test test/data_plane test/internal` (Azure)→**0**; `mix test test/twilio`→**0**. Retry `bc-1e876087`: burn-path `mix test docs/jira/v26.10.18/burn/test/fin_ops_calculator_test.exs`→**0** ⇒ fin_ops **PARTIAL_ALIVE**; canonical `test/fin_ops_calculator_test.exs` **ABSENT**. Not full RAID/`ALIVE`. ggen has zero in-repo RAID surface | Next: restore `test/fin_ops_calculator_test.exs` on smalt tip, then `mix test test/fin_ops_calculator_test.exs` → exit **0**; cite HEAD + exit in [`SMALT-RAID-STANDING.md`](./SMALT-RAID-STANDING.md). Replay columns: §4.1; burn FinOps: §4.2 | GA fails if any column or **canonical** FinOps court lacks HEAD-pinned green receipt in smalt |
+| G2-6 | **Smalt 4-cloud RAID** / economic ops | **PARTIAL_ALIVE** | Sibling tip `smalt@91997da76f0f` (parent `875efbb87` — tip includes both): doctor/aws/gcp/azure/twilio exits **0,0,0,0,0** @ `875efbb87` (`bc-ad9ebffa`); FinOps **ALIVE** @ `91997da76f0f` — `mix test test/fin_ops_calculator_test.exs` → exit **0**, **19 passed**. Not full RAID/`ALIVE` (remaining GA economic face / b4b open). ggen has zero in-repo RAID surface | Replay FinOps: `mix test test/fin_ops_calculator_test.exs` → exit **0** @ `91997da76f0f`. Replay 4-cloud: §4.1 commands at `875efbb87` (⊆ tip). Next: remaining GA economic face / b4b courts → exit **0**; cite HEAD + exit in [`SMALT-RAID-STANDING.md`](./SMALT-RAID-STANDING.md) | GA fails if any column or FinOps court lacks HEAD-pinned green receipt in smalt |
 
 ### 2.2 Manufacture consumers (photolithography / UI / witness)
 
@@ -202,6 +202,11 @@ onto live crown tip `750b8ef4a9042d22808a79be3dedff7944d4e321` — G2-4 WebAuthn
 (`as01_assertion` **ABSENT**; named `brce_as01_es256_assertion_court` + V5 `rg`);
 G2-5 Plane-5 DO stays **BLOCKED** (G2-1/G2-2 curl ladder + AS-01 host court);
 retip5 probe standings tip-wins; Smalt G2-6 tip-wins (columns **ALIVE** +
-fin_ops **PARTIAL_ALIVE**); no false `ALIVE`; cargo not run. Standings synthesized from existing v27.1.1 standing ledgers only plus
+fin_ops **PARTIAL_ALIVE**); no false `ALIVE`; cargo not run. Tip pin retipped on `cursor/v2711-smalt-finops-alive-bc54` onto tip
+`81774629e` — G2-6 FinOps **ALIVE** @ `smalt@91997da76f0f` (parent
+`875efbb87` — tip includes both; `mix test test/fin_ops_calculator_test.exs`
+exit **0**, **19 passed**); 4-cloud retained @ `875efbb87`; CCS/BRCE
+G2-4/G2-5 exact next verifiers retained; retip5 probe tip-wins; Foundry crown stays
+**PARTIAL_ALIVE**; full RAID/`ALIVE` **not** invented. Standings synthesized from existing v27.1.1 standing ledgers only plus
 this worktree’s probes. Tracked rows remain **25** (`G0-1…4`, `G2-1…16`,
 `G3-1…5`).
