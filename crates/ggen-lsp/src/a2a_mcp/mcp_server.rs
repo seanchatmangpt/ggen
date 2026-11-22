@@ -14,6 +14,8 @@ pub struct ConstructParams {
     pub task_id: String,
     pub jtbd: String,
     pub avatar: String,
+    /// Graph hash from a prior dry-run (CP17). Empty/mismatched → refuse, no write.
+    pub expected_graph_hash: String,
 }
 
 #[derive(Debug, Clone)]
@@ -68,20 +70,20 @@ impl GgenMcpServer {
             ));
         }
 
-        // 2. Run the ggen-engine sync pipeline (T049: replaces the retired
-        // ggen-core ManifestParser::parse_and_validate + GenerationPipeline
-        // chain). `ggen_engine::sync::sync` loads `ggen.toml` and the ontology
-        // itself and handles BOTH the frontmatter-per-template schema and the
-        // `[[generation.rules]]` declarative schema automatically (T070), so
-        // the separate manifest-parse step is subsumed, not preserved.
+        // 2. CP17 corroborate expected_graph_hash, then run the ggen-engine
+        // sync pipeline (T049). Empty/mismatched hash refuses before write.
         let sync_started = std::time::Instant::now();
-        let report = ggen_engine::sync::sync(&base_path, ggen_engine::sync::SyncOptions::default())
-            .map_err(|e| {
-                rmcp::model::ErrorData::internal_error(
-                    format!("Generation pipeline failed: {}", e),
-                    None,
-                )
-            })?;
+        let report = crate::a2a_mcp::construct_hash_gate::sync_write_after_corroboration(
+            &base_path,
+            &params.expected_graph_hash,
+        )
+        .map_err(|e| {
+            if e.starts_with("REFUSED:") {
+                rmcp::model::ErrorData::invalid_params(e, None)
+            } else {
+                rmcp::model::ErrorData::internal_error(e, None)
+            }
+        })?;
         let duration_ms = sync_started.elapsed().as_millis();
 
         // NOTE: no LLM-service hook here. The old handler connected an
