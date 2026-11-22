@@ -145,3 +145,8 @@ cos_ALIVE=not_claimed
 revops_ALIVE=not_claimed
 cargo=none ManagePullRequest=not_used
 ```
+
+## Retip — Smalt TS FinOps replay (2026-11-22 3:31 PM PST)
+
+Clone `/tmp/smalt-raid` @ `91997da76f0f` (FinOps pin). Elixir **ABSENT** this VM → `just doctor` **FAIL** (`missing-binary` elixir) — ≠ demote Smalt RAID lineage **ALIVE**. TS FinOps court: `cd workspace && npx --yes tsx --test test/finops_report.test.ts` → **9**/EXIT:**0** (`/tmp/smalt-finops-ts.log`). **≠ Foundry / zero-HITL / path `ALIVE`.** Construct full job still **PENDING_CI** on tip `7bb443e99`.
+
