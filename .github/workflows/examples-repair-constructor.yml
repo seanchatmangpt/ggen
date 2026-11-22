@@ -282,6 +282,20 @@ jobs:
             git -c user.name='ggen repair constructor' -c user.email='actions@users.noreply.github.com' commit -m 'construct: regenerated example projections'
           fi
 
+      - name: Refresh tcps verification evidence after regenerate
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          # regenerate rewires tcps-generated's receipt graphHash; committed
+          # evidence must be re-emitted before validate-examples or
+          # FM-PACK-013 (030_evidence_fresh.rq) refuses.
+          (cd examples/tcps-generated && bash scripts/verify.sh)
+          git add examples/tcps-generated/evidence examples/tcps-generated/receipts
+          if ! git diff --cached --quiet; then
+            git -c user.name='ggen repair constructor' -c user.email='actions@users.noreply.github.com' commit -m 'construct: refresh tcps evidence after regenerate'
+          fi
+
       - name: Verify byte-identical replay
         if: success()
         shell: bash

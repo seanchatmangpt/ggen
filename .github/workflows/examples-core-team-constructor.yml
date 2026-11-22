@@ -335,6 +335,16 @@ jobs:
             git -c user.name='ggen core-team constructor' -c user.email='actions@users.noreply.github.com' commit -m 'construct: regenerate example projections'
           fi
 
+      - name: Refresh tcps verification evidence after regenerate
+        shell: bash
+        run: |
+          set -euo pipefail
+          (cd examples/tcps-generated && bash scripts/verify.sh) | tee tcps-verify-post-regen.log
+          git add examples/tcps-generated/evidence examples/tcps-generated/receipts
+          if ! git diff --cached --quiet; then
+            git -c user.name='ggen core-team constructor' -c user.email='actions@users.noreply.github.com' commit -m 'construct: refresh tcps evidence after regenerate'
+          fi
+
       - name: Verify byte-identical ggen replay
         shell: bash
         env:
