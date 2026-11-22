@@ -20,7 +20,7 @@ shui_standing=PARTIAL_ALIVE (lineage tip-cargo ALIVE @ 008a81d21; sources ≡ ti
 | Observed ggen tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `a3e5d310940c995be428a7760bfa8d73d9dc4456` |
 | Worktree | `/tmp/truex-exact-retip-wt` |
 | Observed at | `2026-11-22T18:10:40Z` |
-| Crown absorb | **not performed** (settle agent may absorb) |
+| Crown absorb | **ABSORBED** tip-wins onto `cursor/ecosystem-spec-27-1-1-bc54` @ pre-absorb `c661d228a` (side `0c329f811`; FF) |
 | ManagePullRequest | **not used** |
 | Force-push | **none** |
 
@@ -98,5 +98,6 @@ base_tip=a3e5d310940c995be428a7760bfa8d73d9dc4456
 sidebranch=cursor/v2711-truex-exact-retip-bc54
 truex_EXIT=0 truex_standing=ALIVE
 shui_EXIT=137 shui_standing=PARTIAL_ALIVE
-Foundry=NOT_CLAIMED ManagePullRequest=not_used force_push=none crown_absorb=none
+Foundry=NOT_CLAIMED ManagePullRequest=not_used force_push=none
+crown_absorb=ABSORBED @ c661d228a←0c329f811
 ```
