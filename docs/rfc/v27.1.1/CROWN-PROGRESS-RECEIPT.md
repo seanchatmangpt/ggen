@@ -4,10 +4,10 @@
 |-------|-------|
 | Document ID | `CROWN-PROGRESS-RECEIPT-27.1.1` |
 | Status | **PROGRESS RECEIPT** (honest; **not** goal-complete; **not** crown `ALIVE`) |
-| Observed tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ tip-wins `cursor/uilayout-exact-tip-alive-9f6c` (base `a40338aea`) |
-| Tip subject | tip-wins `ui_layout` **ALIVE (exact tip-cargo)** **11 passed; exit 0** @ `a508e6bae` (`bc-70188ac3`); brand_toml exact tip-cargo **ALIVE** (unchanged) @ `77eb46fd0`; FM-PACK-001 ALIVE absorb retained |
+| Observed tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `6a3a623bacd33efdc1ec7efccf6a35141662ca53` (OOR retip11 probe reconfirm after ui_layout exact tip-cargo absorb) |
+| Tip subject | tip-wins `ui_layout` **ALIVE (exact tip-cargo)** **11 passed; exit 0** @ `a508e6bae` (`bc-70188ac3`); OOR retip11 @ 2026-11-22 07:42:56 PST — cos `/readyz` **503** / `/healthz` **200** / revops **NXDOMAIN** (standings **held**); brand_toml exact tip-cargo **ALIVE** (unchanged) @ `77eb46fd0`; FM-PACK-001 ALIVE absorb retained |
 | Ledger pins cited | Gate-1 pins; Truex **ALIVE** @ `68d2d233`; `shui:` **ALIVE (lineage tip-cargo)** @ `008a81d21`; CCS #3 **ALIVE** @ `861a6e73a`; CCS #2 `write_apply` **ALIVE** **7+1+1** @ `cde02d1f2`; `verify_witness` **ALIVE** @ `c91b22561`; `lifecycle.rs` **ALIVE**; `ui_layout` **ALIVE (exact tip-cargo)** @ `a508e6bae` (lineage `59c090984`); brand rhythm/completeness **ALIVE (exact tip-cargo)** @ `77eb46fd0` (unchanged); **FM-PACK-001** **ALIVE (lineage tip-cargo)** absorbed; `r01_r07` contract **ALIVE** (exact tip-cargo **7** @ `e7569893a`); BRCE AS-01 seat fence **ALIVE** (exact tip-cargo **6** @ `e7569893a`); **OOR:** cos **503** / revops **NXDOMAIN** / `--live` **BLOCKED_HITL** / BRCE **V8** **BLOCKED** / R-01…R-07 bodies **BLOCKED** |
-| Cargo this receipt | **yes** — exact-tip `ui_layout_court` EXIT:0 @ `a508e6bae` (`/tmp/ggen-uilayout-exact-tip`; [`UILAYOUT-TIP-CARGO-STANDING.md`](./UILAYOUT-TIP-CARGO-STANDING.md)). Prior tip-cargo retained: brand exact @ `77eb46fd0`; FM-PACK lineage @ `19c08a3b0`/`a508e6bae`; BRCE+R01 @ `e7569893a`. Production theme **UNSUPPORTED**; OOR blockers unchanged |
+| Cargo this receipt | **no** this retip (docs-only OOR probe). Prior exact-tip `ui_layout_court` EXIT:0 @ `a508e6bae` retained (`/tmp/ggen-uilayout-exact-tip`; [`UILAYOUT-TIP-CARGO-STANDING.md`](./UILAYOUT-TIP-CARGO-STANDING.md)). Prior tip-cargo retained: brand exact @ `77eb46fd0`; FM-PACK lineage @ `19c08a3b0`/`a508e6bae`; BRCE+R01 @ `e7569893a`. Production theme **UNSUPPORTED**; OOR blockers unchanged (no false `ALIVE`) |
 | Goal standing | **INCOMPLETE** — do **not** claim ECOSYSTEM-SPEC-27.1.1 crown complete |
 
 Standing vocabulary (`AGENTS.md` §2): `UNKNOWN` | `PARTIAL_ALIVE` | `ALIVE` |
@@ -31,11 +31,12 @@ FinOps: FOUNDRY/OOR **ALIVE** @ `91997da76f0f` vs older §13.3 FinOps
 Compact return line:
 
 ```text
-tip=a40338aea16bccd72cbc8baffe26b004155b34d4+uilayout-exact-tip-alive
+tip=6a3a623bacd33efdc1ec7efccf6a35141662ca53
 cargo_tip_ui_layout=a508e6bae9e61d7894ad98df8c507fdb1fb28eb2
+oor_retip=retip11@2026-11-22T07:42:56PST
 clause1=PARTIAL (igniter clean-room ALIVE @f1492ed55/bc-53b0e099; hop1 Truex ALIVE @68d2d233 + shui lineage ALIVE @008a81d21; path crown still non-ALIVE; foundry --live BLOCKED_HITL)
 clause2=PARTIAL_ALIVE (CCS#3 construct ALIVE @861a6e73a; CCS#2 write_apply tip-cargo ALIVE 7+1+1 @cde02d1f2; lifecycle ALIVE @513704d04/acd9705c1; BRCE seat fence ALIVE @e7569893a; V8/V9 BLOCKED)
-clause3=PARTIAL+BLOCKED (cos/readyz 503; revops NXDOMAIN)
+clause3=PARTIAL+BLOCKED (cos/readyz 503 DB_UNAVAILABLE; healthz 200 PARTIAL; revops NXDOMAIN UNKNOWN — retip11 held)
 clause4=PARTIAL
 gate1=PARTIAL (Truex ALIVE @68d2d233; shui ALIVE lineage @008a81d21; ui_layout ALIVE exact tip-cargo @a508e6bae/bc-70188ac3; FM-PACK-001 ALIVE lineage absorbed; taffy/fluid/hotswap ALIVE @cde02d1f2/19c08a3b0; construct+lifecycle ALIVE; write_apply ALIVE @cde02d1f2; verify_witness ALIVE @c91b22561; brand_toml exact tip-cargo ALIVE @77eb46fd0 unchanged; r01_r07 ALIVE exact tip @e7569893a; BRCE seat ALIVE exact tip @e7569893a; brand production UNSUPPORTED; BRCE V8 BLOCKED)
 blockers=foundry--live; cos/readyz-503; WebAuthn/BRCE-V8/V9; revops-NXDOMAIN; R01-R07-bodies; verify_witness-prod; production-theme

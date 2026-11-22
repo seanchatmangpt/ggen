@@ -5,7 +5,7 @@
 | Document ID | `REVOPS-COS-STANDING` |
 | Companion | `ECOSYSTEM-SPEC-27.1.1.md`, `GATE-1-GAP-MATRIX.md`, `REPO-INVENTORY-27.1.1.md` |
 | Observed | 2026-11-22 |
-| Observation host | Cursor cloud agent on `seanchatmangpt/ggen` @ `origin/cursor/ecosystem-spec-27-1-1-bc54` tip `a40338aea16bccd72cbc8baffe26b004155b34d4` (retip10 reconfirm 2026-11-22 07:37:36 PST; prior retip9/`a508e6bae` + retip8/`5e131a75e` + honesty-retip8/`97c613452` + retip7 `a3b1c9410`) |
+| Observation host | Cursor cloud agent on `seanchatmangpt/ggen` @ `origin/cursor/ecosystem-spec-27-1-1-bc54` tip `6a3a623bacd33efdc1ec7efccf6a35141662ca53` (retip11 reconfirm 2026-11-22 07:42:56 PST; prior retip10/`a40338aea` + retip9/`a508e6bae` + retip8/`5e131a75e` + honesty-retip8/`97c613452` + retip7 `a3b1c9410`) |
 | Scope | Plane 5 front doors + Gate 0 cos/billing adjacency — **out of ggen DO** |
 
 Standing labels used here (per request; map to AGENTS.md as noted):
@@ -294,3 +294,29 @@ Observed on branch `cursor/v2711-oor-retip10-ecdf` from tip
 
 Crown: Plane-5 revops+cos product standing is **not** `ALIVE`. Labels in §1
 **held**. Next exact verifiers unchanged from §4 / §9–§12.
+
+---
+
+## 14. Tip reconfirm (2026-11-22 07:42:56 PST) — retip11 `6a3a623ba`
+
+Observed on branch `cursor/v2711-oor-retip11-fec0` from tip
+`6a3a623bacd33efdc1ec7efccf6a35141662ca53` (post–ui_layout exact tip-cargo
+absorb `6a3a623ba` on crown after retip10 `bdd84e105`). **No cargo.** Probe
+unchanged vs §13: cos `/readyz` **503** `{"status":"DB_UNAVAILABLE"}`;
+`/healthz` **200** `{"status":"ok"}`; `dig +short revops.fnox.io A`/`AAAA`
+empty; `host` **NXDOMAIN**; `getent` exit **2**; `curl` exit **6**
+`http=000`. Labels **held** (cos readiness **BLOCKED**; liveness
+**PARTIAL**; revops **UNKNOWN**). No ManagePullRequest. No false `ALIVE`.
+
+| Probe | Result | Standing |
+|-------|--------|----------|
+| `dig +short revops.fnox.io A` / `AAAA` | empty | **UNKNOWN** |
+| `host revops.fnox.io` | **NXDOMAIN** (exit 1) | **UNKNOWN** |
+| `getent hosts revops.fnox.io` | empty; exit **2** | **UNKNOWN** |
+| `curl https://revops.fnox.io/readyz` | exit **6** / `http=000` | **UNKNOWN** |
+| `dig +short cos.fnox.io A` | `34.8.148.142` | edge DNS **PARTIAL** |
+| `curl https://cos.fnox.io/healthz` | HTTP **200** body `{"status":"ok"}` | **PARTIAL** (liveness ≠ readiness) |
+| `curl https://cos.fnox.io/readyz` | HTTP **503** body `{"status":"DB_UNAVAILABLE"}` | **BLOCKED** |
+
+Crown: Plane-5 revops+cos product standing is **not** `ALIVE`. Labels in §1
+**held**. Next exact verifiers unchanged from §4 / §9–§13.
