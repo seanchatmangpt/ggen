@@ -4,7 +4,7 @@
 |-------|-------|
 | Document ID | `CROWN-PROGRESS-RECEIPT-27.1.1` |
 | Status | **PROGRESS RECEIPT** (honest; **not** goal-complete; **not** crown `ALIVE`) |
-| Observed tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `97c61345233907a2d096ac188c28332ac4666c9f` (OOR honesty retip8; prior residual honesty `008a81d21` / lifecycle tip-wins `ebf4e8d08`) |
+| Observed tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `32ced372a3d40ebf9c8b426d90a313879da907c6` (absorb igniter clean-room ALIVE; prior OOR honesty retip8 / Jobs/C4 ALIVE `97c613452`; residual honesty `008a81d21` / lifecycle tip-wins `ebf4e8d08`) |
 | Tip subject | residual honesty `cursor/v2711-ccs-residual-honesty-bc54` on tip `008a81d21`; prior absorbs: ui_layout @ `ca52e9c16`, CCS #3 @ `861a6e73a` (`cbeb11d44`) |
 | Ledger pins cited | Gate-1 / Photo / Foundry prior pins; CCS #3 construct_hash **ALIVE** @ `861a6e73a`; CCS #2 `write_apply` tip-cargo **PENDING**; `lifecycle.rs` **PRESENT** (tip `513704d04`; tip-cargo ALIVE 6/6 @ `acd9705c1`) (land `cursor/mcp-a2a-hands-free-lifecycle-bc54`); **V8**/**V9** OOR **BLOCKED** unchanged |
 | Cargo this receipt | **no** for taffy — tip-exclusive thrash; prior exclusive quiet `ui_layout_court` **11 passed; exit 0** @ `ca52e9c16` retained |
@@ -30,8 +30,8 @@ FinOps: FOUNDRY/OOR **ALIVE** @ `91997da76f0f` vs older §13.3 FinOps
 Compact return line:
 
 ```text
-tip=97c61345233907a2d096ac188c28332ac4666c9f
-clause1=PARTIAL
+tip=32ced372a3d40ebf9c8b426d90a313879da907c6
+clause1=PARTIAL (igniter clean-room ALIVE @f1492ed55/bc-53b0e099; path crown still non-ALIVE)
 clause2=PARTIAL_ALIVE (CCS#3 ALIVE @861a6e73a; CCS#2 write_apply tip-cargo PENDING; lifecycle.rs PRESENT/ALIVE @513704d04; V8/V9 BLOCKED)
 clause3=PARTIAL+BLOCKED
 clause4=PARTIAL
@@ -50,7 +50,7 @@ blockers=foundry--live; remaining-fence-tip-cargo; cos/readyz; WebAuthn/BRCE-V8/
 | Hop 2 `.ttl`/`.toml` rhythm + dual-schema | **PARTIAL_ALIVE** (full DTCG/CASTLE inventory **UNSUPPORTED**) |
 | Hop 3 Taffy AOT six-width seal | **PRESENT** tip subject (`git ls-tree` blob `d8923b07e` on `120598fb3+`); evidence exit 0 ancestor; tip-cargo **PENDING**/SKIPPED thrash; consumer bind open → path **PARTIAL_ALIVE** |
 | Hop 3b ggen `ui_layout` digest consume | **ALIVE** tip-cargo **11 passed; exit 0** @ `ca52e9c16` (≡ tip `120598fb3`); tip source **11**; prior evidence `eaf0dad40` |
-| Hop 4 ggen_igniter BrandTheme manufacture | **ALIVE** (`diff_exit=0` dual-schema tip brand vs igniter fixture); NIF **ALIVE**; Jobs/C4 admitted `--check` **ALIVE** (exit **0**; bare `--check` **REFUSED_INVOCATION** antifalsifier) |
+| Hop 4 ggen_igniter BrandTheme manufacture | **ALIVE** (`diff_exit=0` dual-schema tip brand vs igniter fixture); clean-room crown **ALIVE** evidence tip `f1492ed55` (`git diff --exit-code` → **0** @ `/home/ubuntu/ggen_igniter` / `bc-53b0e099`); NIF **ALIVE**; Jobs/C4 admitted `--check` **ALIVE** (exit **0**; bare `--check` **REFUSED_INVOCATION** antifalsifier) |
 | Hop 5 zcode POWL/OCEL / foundry | **PARTIAL_ALIVE** — adapter exit **0**; Linux tip-matched runtime **PRESENT**; `powl-foundry-loop --live` **foundry_exit=1** / **REFUSED** (`Model access is not configured` @ zcode `f32df08`) |
 
 **Exact next verifiers**
@@ -141,7 +141,7 @@ Do **not** invent zero daily founder HITL `ALIVE` from Gate-1 fence green, CASTL
 | R-01…R-07 contract | **ALIVE** (contract); bodies **BLOCKED** | `cargo test -p ggen-graph --test r01_r07_resolution_court` |
 | Brand rhythm / hot-swap | **PARTIAL_ALIVE**; production theme **UNSUPPORTED** (`REFUSED_PRODUCTION`) | rhythm/hotswap courts; [`BRAND-PRODUCTION-THEME.md`](./BRAND-PRODUCTION-THEME.md) |
 | BRCE AS-01 seat fence | **PARTIAL_ALIVE** | `cargo test -p ggen-abb-sbb --test brce_as01_seat_court` |
-| ggen_igniter manufacture | **ALIVE** (BrandTheme compare); NIF **ALIVE**; Jobs/C4 admitted `--check` **ALIVE** | manufacture replay → **0**; Jobs/C4 replay pack/template `--check` → **0** |
+| ggen_igniter manufacture | **ALIVE** (BrandTheme compare); clean-room crown **ALIVE** (`bc-53b0e099`); NIF **ALIVE**; Jobs/C4 admitted `--check` **ALIVE** | clean-room replay `git diff --exit-code` → **0**; manufacture replay → **0**; Jobs/C4 replay pack/template `--check` → **0** |
 | Gate-0 cos | **BLOCKED** (external) | cos `/readyz` → **200** |
 
 **Gate-1 aggregate:** **PARTIAL** — `ui_layout` tip-cargo **ALIVE** (**11 passed; exit 0** @ `ca52e9c16` ≡ tip `120598fb3`); brand production **UNSUPPORTED**; BRCE honesty-demoted (fence ≠ broker `ALIVE`); other fences tip-cargo PENDING / tip-subject **PRESENT**. Zero-HITL fab / production WASM / production brand theme / live BRCE **not** `ALIVE`.
@@ -186,6 +186,7 @@ Recommended next Gate-1 falsifier (pick one): quiet tip-cargo reconfirm of remai
 | Absorb retip | 2026-11-22 — `cursor/v2711-gate1-uilayout-alive-bc54` absorbs `8090022f4` onto tip `120598fb3` |
 | Taffy preflight retip | 2026-11-22 — `cursor/v2711-taffy-preflight-retip-bc54`: `git ls-tree` **PRESENT** blob `d8923b07e` on tip `120598fb3`/`a29e1cd92`/`8090022f4`/`27436608c`; tip-cargo SKIPPED (thrash); standing **PRESENT** / tip-cargo **PENDING** — no tip-cargo `ALIVE` |
 | Absorb tip-cargo CCS | 2026-11-22 — `cursor/v2711-ccs-brce-tipcargo-bc54` @ `cbeb11d44` (evidence `861a6e73a`: construct_hash **4** + es256 **4** + seat **6** exit **0**) docs-only onto crown `c329b7ee5+`; tip-wins clause-2 ALIVE; V8 **BLOCKED**; production/hop-5 crown pins preserved; no cargo; no ManagePullRequest |
+| Absorb igniter clean-room | 2026-11-22 — tip-wins cherry-pick `cursor/v2711-igniter-cleanroom-alive-bc54` @ `49e986ee7` onto crown `42717a7a0c8e2a67cdbeebdab259480eaf90138c`; evidence tip `f1492ed55` / `bc-53b0e099` mount `git diff --exit-code` → **0** → clause-1 clean-room **ALIVE**; Jobs/C4 tip-wins **ALIVE** retained (no mix/`write_apply` thrash); OOR **BLOCKED** unchanged; docs-only; no cargo; no ManagePullRequest |
 | CCS residual honesty | 2026-11-22 — `cursor/v2711-ccs-residual-honesty-bc54` on tip `008a81d21`: CCS #3 **ALIVE** retained; CCS #2 tip-cargo **PENDING**; `lifecycle.rs` **PRESENT** (tip `513704d04`; tip-cargo ALIVE 6/6 @ `acd9705c1`) (land `cursor/mcp-a2a-hands-free-lifecycle-bc54`); **V8**/**V9** **BLOCKED** unchanged; docs-only; no cargo; no ManagePullRequest |
 | Sources | GATE-1-GAP-MATRIX, PHOTOLITHOGRAPHY, FOUNDRY-FINISH, OUT-OF-REPO-NEXT-VERIFIERS, SMALT-RAID, CCS-AUTHORITY, BRCE-WEBAUTHN, ECOSYSTEM-SPEC §13 |
 | Method | Absorb tip-cargo ALIVE standing; no new cargo; no ManagePullRequest |
