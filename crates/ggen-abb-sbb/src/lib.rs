@@ -23,10 +23,12 @@ use sha2::{Digest, Sha256};
 use std::collections::{BTreeMap, BTreeSet};
 use thiserror::Error;
 
+pub mod as01_assertion;
 pub mod as01_seat;
 pub mod depgraph;
 pub mod envelope_court;
 
+pub use as01_assertion::{admit_as01_assertion, As01Assertion, As01AssertionRefusal};
 pub use as01_seat::{
     admit_do_with_as01_seat, As01SeatClaim, As01SeatRefusal, AS01_ALG, AS01_CURVE,
     REQUIRED_BROKER as AS01_REQUIRED_BROKER,

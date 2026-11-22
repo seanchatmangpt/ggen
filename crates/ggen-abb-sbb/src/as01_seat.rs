@@ -6,9 +6,9 @@
 //! and curve strings.
 //!
 //! It deliberately does **not** verify WebAuthn assertions, COSE signatures,
-//! or P-256 public keys. Crypto verify remains `UNSUPPORTED` until a BRCE
-//! adapter and `p256`/WebAuthn court land. Presence of a well-shaped claim is
-//! not ambient DO authority and must not be promoted to `ALIVE` seat verify.
+//! or P-256 public keys — that is [`crate::as01_assertion`] (V7 fixture court,
+//! **PARTIAL_ALIVE** crypto shape). Presence of a well-shaped claim is not
+//! ambient DO authority and must not be promoted to hardware / Plane-5 `ALIVE`.
 //!
 //! Distinct from `ggen-sjira::lease` (Ed25519 / `EdDSA` sovereign lease) and
 //! from this crate's manufacture ceiling (CONSTRUCT — [`crate::Authority`]).
