@@ -4,7 +4,7 @@
 |-------|-------|
 | Document ID | `CROWN-PROGRESS-RECEIPT-27.1.1` |
 | Status | **PROGRESS RECEIPT** (honest; **not** goal-complete; **not** crown `ALIVE`) |
-| Observed tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `84909a70c9f0bb66c2f3e6c8e4fe4d03397ee609` |
+| Observed tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `eee71d60a844f89adfebbfe2934d03482fcc9fe3` |
 | Tip subject | absorb #929 verify_witness **PRESENT** @ `34631db8a`/`84909a70c` onto tip `2fd897141+`; #926 ui_layout tip-cargo **ALIVE** + #927 chicago **PARTIAL_ALIVE** + #928 Smalt **ALIVE** already on tip (ALIVE supersedes PENDING) |
 | Ledger pins cited | Gate-1 / Photo / Foundry retipped for tip-cargo ALIVE; OOR / CCS / BRCE / CASTLE retain prior absorb pins |
 | Cargo this receipt | **yes** — exclusive quiet `ui_layout_court` **11 passed; exit 0** @ `ca52e9c16` |
@@ -30,7 +30,7 @@ FinOps: FOUNDRY/OOR **ALIVE** @ `91997da76f0f` vs older §13.3 FinOps
 Compact return line:
 
 ```text
-tip=84909a70c9f0bb66c2f3e6c8e4fe4d03397ee609
+tip=eee71d60a844f89adfebbfe2934d03482fcc9fe3
 clause1=PARTIAL
 clause2=PARTIAL_ALIVE
 clause3=PARTIAL+BLOCKED
