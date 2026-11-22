@@ -381,7 +381,9 @@ sibling courts, or Smalt 6-column spine `ALIVE` alone.
 | `docs/rfc/v27.1.1/BRCE-WEBAUTHN-STANDING.md` | BRCE + WebAuthn AS-01 (`:prime256v1`) exists vs BLOCKED/UNSUPPORTED + GA verifiers |
 | `docs/rfc/v27.1.1/CCS-AUTHORITY-STANDING.md` | SELECT≠CONSTRUCT≠DO authority edges + A2A/BRCE fence census |
 | `docs/rfc/v27.1.1/CURVE25519-DALEK-PIN-STANDING.md` | Gate-1 `curve25519-dalek` / `ed25519-dalek` lock pin + policy (PARTIAL_ALIVE) |
-| `docs/rfc/v27.1.1/VERIFY-WITNESS-PRODUCTION.md` | production `verify_witness` WASM build path (size court ≠ prod ALIVE) |
+| `docs/rfc/v27.1.1/VERIFY-WITNESS-PRODUCTION.md` | production `verify_witness` WASM build path (affidavit pin ALIVE ≠ ggen prod ALIVE) |
+| `docs/rfc/v27.1.1/VERIFY-WITNESS-AFFIDAVIT-SIZE-COURT-STANDING.md` | affidavit gatekeeper size court ALIVE @ `563eb322a` (ggen wire UNSUPPORTED) |
+| `docs/rfc/v27.1.1/VERIFY-WITNESS-SIZE-COURT-STANDING.md` | ggen placeholder size court tip-cargo ALIVE (≠ production) |
 | `docs/rfc/v27.1.1/BRAND-PRODUCTION-THEME.md` | brand.toml production theme `REFUSED_PRODUCTION` fence + next verifier (≠ hot-swap ALIVE) |
 | `docs/rfc/v27.1.1/IGNITER-CLEANROOM-STANDING.md` | ggen_igniter clean-room contract (hop 4) |
 | `docs/rfc/v27.1.1/ZCODE-POWL-OCEL-STANDING.md` | zcode POWL/OCEL bounded remediation (hop 5) |
