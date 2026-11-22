@@ -260,6 +260,7 @@ absent at materialization).
 | Path | Role |
 |------|------|
 | `docs/rfc/v27.1.1/REPO-INVENTORY-27.1.1.md` | path + standing census |
+| `docs/rfc/v27.1.1/GATE-0-STANDING.md` | Gate 0 billing / cos / servengine / SOW standing + stub citations |
 | `docs/rfc/v27.1.1/GATE-1-GAP-MATRIX.md` | requirement → evidence → verifier → owner |
 
 ---

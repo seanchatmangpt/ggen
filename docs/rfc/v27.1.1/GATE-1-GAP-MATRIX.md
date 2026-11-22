@@ -4,6 +4,8 @@ Companion to `ECOSYSTEM-SPEC-27.1.1.md` and `REPO-INVENTORY-27.1.1.md`.
 
 ## Gate 0 — out of scope for ggen
 
+Full standing matrix + stub citations: [`GATE-0-STANDING.md`](./GATE-0-STANDING.md).
+
 | Requirement | Current evidence | Next exact verifier | Owner |
 |-------------|------------------|---------------------|-------|
 | GCP billing | none in ggen | external billing console / infra receipt | external (infra) |
