@@ -4,10 +4,10 @@
 |-------|-------|
 | Document ID | `CROWN-PROGRESS-RECEIPT-27.1.1` |
 | Status | **PROGRESS RECEIPT** (honest; **not** goal-complete; **not** crown `ALIVE`) |
-| Observed tip | absorb tip `89ca2da9c37d7ba61abd665fe5c8de176201ae33` (~`2fd897141+` / `46a026ae9+`) |
-| Tip subject | absorb #930 taffy_aot_preflight **PRESENT** @ `ef6fb84ed` + #931 photo hop-4 BrandTheme **ALIVE** reconfirm @ `d191cf792` onto tip past #929 verify_witness **PRESENT**; tip-wins: ui_layout tip-cargo **ALIVE** preserved |
-| Ledger pins cited | Gate-1 / Photo / Foundry retipped; taffy tip subject **PRESENT** (ls-tree); photo hop-4 **ALIVE** reconfirm; OOR / CCS / BRCE / CASTLE retain prior absorb pins |
-| Cargo this receipt | **no** for #930/#931 — tip-exclusive thrash; prior exclusive quiet `ui_layout_court` **11 passed; exit 0** @ `ca52e9c16` retained |
+| Observed tip | absorb tip `c11ea7f2a4b95bf40d9d18929a011f18dbbdd17d` (~`89ca2da9c+` / `2fd897141+` / `46a026ae9+`) |
+| Tip subject | absorb hop-4 mix/NIF residual honesty @ `ae2acc52b` onto tip past #930/#931; PATH `mix` **ABSENT** / off-PATH **PRESENT** / NIF **BLOCKED**; tip-wins: ui_layout tip-cargo **ALIVE** preserved |
+| Ledger pins cited | Gate-1 / Photo / Foundry / HOP4-MIX-NIF retipped; taffy **PRESENT**; photo hop-4 **ALIVE**; mix/NIF residual ledger **PRESENT**; OOR / CCS / BRCE / CASTLE retain prior absorb pins |
+| Cargo this receipt | **no** for mix/NIF absorb — tip-exclusive thrash; prior exclusive quiet `ui_layout_court` **11 passed; exit 0** @ `ca52e9c16` retained (**ALIVE**) |
 | Goal standing | **INCOMPLETE** — do **not** claim ECOSYSTEM-SPEC-27.1.1 crown complete |
 
 Standing vocabulary (`AGENTS.md` §2): `UNKNOWN` | `PARTIAL_ALIVE` | `ALIVE` |
@@ -30,12 +30,12 @@ FinOps: FOUNDRY/OOR **ALIVE** @ `91997da76f0f` vs older §13.3 FinOps
 Compact return line:
 
 ```text
-tip=89ca2da9c37d7ba61abd665fe5c8de176201ae33
+tip=c11ea7f2a4b95bf40d9d18929a011f18dbbdd17d
 clause1=PARTIAL
 clause2=PARTIAL_ALIVE
 clause3=PARTIAL+BLOCKED
 clause4=PARTIAL
-gate1=PARTIAL (ui_layout tip-cargo ALIVE; taffy PRESENT tip-cargo PENDING; photo hop-4 ALIVE; verify_witness PRESENT; brand production UNSUPPORTED; BRCE honesty-demoted)
+gate1=PARTIAL (ui_layout tip-cargo ALIVE; taffy PRESENT tip-cargo PENDING; photo hop-4 ALIVE; mix/NIF PATH ABSENT off-PATH PRESENT NIF BLOCKED; verify_witness PRESENT; brand production UNSUPPORTED; BRCE honesty-demoted)
 blockers=foundry--live; remaining-fence-tip-cargo; cos/readyz; WebAuthn/BRCE-V8/V9; revops-DNS; mix-NIF; R01-R07-bodies; verify_witness-prod; production-theme
 ```
 
@@ -50,7 +50,7 @@ blockers=foundry--live; remaining-fence-tip-cargo; cos/readyz; WebAuthn/BRCE-V8/
 | Hop 2 `.ttl`/`.toml` rhythm + dual-schema | **PARTIAL_ALIVE** (full DTCG/CASTLE inventory **UNSUPPORTED**) |
 | Hop 3 Taffy AOT six-width seal | **PRESENT** tip subject (`git ls-tree` blob `d8923b07e` on `89ca2da9c+`); evidence exit 0 ancestor; tip-cargo **PENDING**/SKIPPED thrash; consumer bind open → path **PARTIAL_ALIVE** |
 | Hop 3b ggen `ui_layout` digest consume | **ALIVE** tip-cargo **11 passed; exit 0** @ `ca52e9c16` (≡ tip `120598fb3`); tip source **11**; prior evidence `eaf0dad40` |
-| Hop 4 ggen_igniter BrandTheme manufacture | **ALIVE** (`diff_exit=0` dual-schema tip brand vs igniter fixture); `mix sync` NIF **BLOCKED** |
+| Hop 4 ggen_igniter BrandTheme manufacture | **ALIVE** (`diff_exit=0` dual-schema tip brand vs igniter fixture); `mix sync` NIF **BLOCKED** (PATH `mix` **ABSENT**; off-PATH **PRESENT** w/o HITL — [`HOP4-MIX-NIF-STANDING.md`](./HOP4-MIX-NIF-STANDING.md)) |
 | Hop 5 zcode POWL/OCEL / foundry | **PARTIAL_ALIVE** — adapter exit **0**; Linux tip-matched runtime **PRESENT**; `powl-foundry-loop --live` **foundry_exit=1** / **REFUSED** (`Model access is not configured` @ zcode `f32df08`) |
 
 **Exact next verifiers**
@@ -184,5 +184,6 @@ Recommended next Gate-1 falsifier (pick one): quiet tip-cargo reconfirm of remai
 | Absorb retip | 2026-11-22 — `cursor/v2711-gate1-uilayout-alive-bc54` absorbs `8090022f4` onto tip `120598fb3` |
 | Absorb #929 | 2026-11-22 — verify_witness size court **PRESENT** @ `89ca2da9c` (~`2fd897141+`) |
 | Absorb #930/#931 | 2026-11-22 — taffy_aot_preflight **PRESENT** (`ls-tree` blob `d8923b07e`) + photo hop-4 BrandTheme **ALIVE** reconfirm onto tip `89ca2da9c+`; tip-cargo SKIPPED; ui_layout **ALIVE** preserved |
-| Sources | GATE-1-GAP-MATRIX, PHOTOLITHOGRAPHY, FOUNDRY-FINISH, OUT-OF-REPO-NEXT-VERIFIERS, SMALT-RAID, CCS-AUTHORITY, BRCE-WEBAUTHN, ECOSYSTEM-SPEC §13 |
+| Absorb hop-4 mix/NIF | 2026-11-22 — `cursor/v2711-hop4-mix-nif-bc54` @ `ae2acc52b` onto tip `c11ea7f2a+`; PATH `mix` **ABSENT**; off-PATH elixir-install **PRESENT**; NIF **BLOCKED**; ui_layout **ALIVE** preserved; no cargo |
+| Sources | GATE-1-GAP-MATRIX, PHOTOLITHOGRAPHY, FOUNDRY-FINISH, OUT-OF-REPO-NEXT-VERIFIERS, HOP4-MIX-NIF, SMALT-RAID, CCS-AUTHORITY, BRCE-WEBAUTHN, ECOSYSTEM-SPEC §13 |
 | Method | Absorb tip-wins honesty; no cargo; no ManagePullRequest |
