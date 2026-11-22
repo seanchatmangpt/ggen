@@ -5,9 +5,10 @@
 | Document ID | `CURVE25519-DALEK-PIN-STANDING` |
 | Companion | `ECOSYSTEM-SPEC-27.1.1` §12; `GATE-1-GAP-MATRIX.md` row `curve25519-dalek` |
 | Subject | Workspace `curve25519-dalek` / `ed25519-dalek` lock pin |
-| Tip pin (observation) | `9f6fecf83e6a554f946e82b50e8a29275d3dc3e2` (`origin/cursor/ecosystem-spec-27-1-1-bc54`) |
+| Tip pin (observation) | `bebea5dd0d4c9af533457e04e0ed068ae8844f69` (`origin/cursor/ecosystem-spec-27-1-1-bc54`) |
+| Court land | `cursor/v2711-curve25519-court-bc54` (sidebranch; no crown push) |
 | Materialized | 2026-11-22 |
-| Repo scope | `seanchatmangpt/ggen` (docs + lock census only) |
+| Repo scope | `seanchatmangpt/ggen` (docs + lock census + policy court) |
 
 Standing vocabulary: `UNKNOWN` | `PARTIAL_ALIVE` | `ALIVE` | `BLOCKED` | `BUILD_BROKEN` | `UNSUPPORTED` | `REFUSED_*`.
 
@@ -75,9 +76,9 @@ Archive / example crates under `examples/archive/**` that pin `ed25519-dalek` 2.
 
 | Claim | Standing | What would promote |
 |-------|----------|--------------------|
-| Lock resolves documented 4.1.3 + 5.0.0 | **PARTIAL_ALIVE** | — (already observed) |
-| Dedicated Gate-1 pin/policy doc present | **PARTIAL_ALIVE** | this document |
-| Policy court refuses undocumented major | **UNKNOWN** / absent | Chicago court (or equivalent CI grep court) that fails closed on lock majors outside `{4.1.3, 5.0.0}` without a doc bump |
+| Lock resolves documented 4.1.3 + 5.0.0 | **ALIVE** | tip `Cargo.lock` census @ `bebea5dd0` |
+| Dedicated Gate-1 pin/policy doc present | **ALIVE** | this document |
+| Policy court refuses undocumented major | **ALIVE** | `curve25519_dalek_pin_court` **6 passed; EXIT 0** @ tip `bebea5dd0` |
 | Crown crypto / AS-01 / Plane-5 | **UNSUPPORTED** from this pin | not this subject's claim |
 
 ```text
@@ -87,13 +88,24 @@ PARTIAL_ALIVE(curve25519-dalek Gate-1 pin)
 
 ALIVE(curve25519-dalek Gate-1 pin court)
   ⇔  PARTIAL_ALIVE above
-  ∧  a named policy court exits 0 on the subject tip
-     (refuse undocumented major; see next verifiers)
+  ∧  cargo test -p ggen-config --test curve25519_dalek_pin_court
+     exits 0 on the subject tip
+     (refuse undocumented major; exact set {4.1.3, 5.0.0})
 ```
 
 ---
 
 ## 5. Next exact verifiers
+
+Policy court (preferred Gate-1 falsifier):
+
+```bash
+export CARGO_BUILD_JOBS=1 CXX=g++ SCCACHE_DISABLE=1 RUSTC_WRAPPER=
+CARGO_TARGET_DIR=/tmp/ggen-curve25519-court \
+  cargo test -p ggen-config --test curve25519_dalek_pin_court --locked \
+  --config build.jobs=1 -- --test-threads=1
+# expect: 6 passed; EXIT 0
+```
 
 Lock census (no cargo build required):
 
@@ -116,7 +128,7 @@ Lease path still Ed25519 (non-AS-01):
 cargo test -p ggen-sjira --test lease_epoch_test
 ```
 
-**ALIVE falsifier still missing:** author a Gate-1 policy court (e.g. under `ggen-sjira` or `ggen-config`) that parses `Cargo.lock` for `curve25519-dalek` majors and refuses any set other than the admitted `{4.1.3, 5.0.0}` without a standing-doc bump. Until that court exits 0 on tip, keep standing at **PARTIAL_ALIVE**.
+**ALIVE pinned:** court land on sidebranch `cursor/v2711-curve25519-court-bc54` against tip `bebea5dd0`. Replay the court command above. Silent major drift still fails closed via `REFUSED_UNDOCUMENTED_MAJOR` until this standing + gap-matrix bump in the same change. Crown aggregate Gate-1 remains separate — this subject does not mint crown crypto / AS-01 / Plane-5 `ALIVE`.
 
 ---
 
@@ -124,8 +136,11 @@ cargo test -p ggen-sjira --test lease_epoch_test
 
 | Item | Value |
 |------|-------|
-| Tip pin SHA | `9f6fecf83e6a554f946e82b50e8a29275d3dc3e2` |
+| Tip pin SHA | `bebea5dd0d4c9af533457e04e0ed068ae8844f69` |
+| Sidebranch | `cursor/v2711-curve25519-court-bc54` |
 | Doc path | `docs/rfc/v27.1.1/CURVE25519-DALEK-PIN-STANDING.md` |
+| Court | `crates/ggen-config/tests/curve25519_dalek_pin_court.rs` |
+| Court result | **6 passed; 0 failed; EXIT 0** (`/tmp/ggen-curve25519-court`; log `/tmp/cursor/curve25519-dalek-pin-court.log`) |
 | Lock versions | curve25519-dalek **4.1.3** + **5.0.0**; ed25519-dalek **2.2.0** + **3.0.0** |
-| Standing | **PARTIAL_ALIVE** (lock + pin doc); policy court → future **ALIVE** |
-| Cargo builds this land | **none** (docs-only) |
+| Standing | **ALIVE** (lock + pin doc + policy court EXIT 0 on tip) |
+| Crown push / ManagePullRequest | **none** (sidebranch only) |
