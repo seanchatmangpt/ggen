@@ -179,11 +179,14 @@ Brand tokens SHALL ship as DTCG **2025.10**-aligned manifests in `.toml` form:
 - `fourth-watch.brand.toml`
 - `cindycat.brand.toml`
 
-ggen MAY later own schema validation / sync projection; at Gate 1 the manifests
-themselves are Gate 2+ deliverables. Inventing brand token values here is
-**REFUSED**.
+Gate-1 in-repo slice (this land): **visual rhythm only** — px/rem primitives,
+4px/8px grid, fluid clamp/cqi slopes, Material 48 / Apple 44 touch floors,
+8px inter-target gap — via `ggen_graph::layout::brand` + fixtures under
+`docs/rfc/v27.1.1/fixtures/`. Full color/type/CASTLE inventories remain Gate 2+;
+inventing those token values here is still **REFUSED**.
 
-Standing: **UNSUPPORTED** in-repo (zero `*.brand.toml` files).
+Standing: **PARTIAL_ALIVE** (rhythm schema + OEM stubs + Chicago court);
+token-inventory plane **UNSUPPORTED** until Gate 2+.
 
 ---
 

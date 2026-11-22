@@ -25,14 +25,20 @@ Do not promote any Gate 0 row to `ALIVE` from this repository.
 | zcode-cli `ui-layout-court.ts` | **UNSUPPORTED** in this repo | in zcode-cli: `pnpm test -- ui-layout-court` (or repo’s exact court runner) against a ggen layout receipt fixture | **zcode-cli** |
 | `curve25519-dalek` v4 / cgap-aoq docs | lock has 4.1.3 + 5.0.0; no Gate-1 pin doc | document admitted path; court: `rg -n 'curve25519-dalek' Cargo.lock` + dedicated docs path under `docs/rfc/v27.1.1/` or cgap-aoq tree; refuse undocumented major | **ggen** (+ cgap-aoq docs owner) |
 | `verify_witness` WASM &lt; 250KB | Affidavit pack **PARTIAL**; size court **UNKNOWN** | build witness wasm then `wc -c verify_witness.wasm` / size court asserting `&lt; 262144` | external (witness/affidavit) with optional ggen pack emit |
-| Brand `.toml` (Fourth Watch / CindyCat) | **UNSUPPORTED** | Gate 2 — listed here only as non-Gate-1 | brand / ggen schema (Gate 2+) |
+| Brand `.toml` rhythm schema + OEM stubs (Fourth Watch / CindyCat) | **PARTIAL_ALIVE** — `layout::brand` parse/admit + fixtures `docs/rfc/v27.1.1/fixtures/{fourth-watch,cindycat}.brand.toml`; court refuses touch &lt;44, gap &lt;8, off-grid spacing; admits both OEM stubs. Full DTCG color/type/CASTLE inventories remain Gate 2+ | `cargo test -p ggen-graph --test brand_toml_rhythm_court` | **ggen** (rhythm schema) + brand plane (token inventory Gate 2+) |
 | Plane 5 front doors | **UNKNOWN** / out of DO | Gate 2–3 — not a Gate-1 falsifier | external |
 
 ---
 
 ## Recommended next single falsifier (Gate 1)
 
-Taffy AOT stub + 375/1.5× overflow court is green (**PARTIAL_ALIVE**). Replay:
+Brand rhythm schema court is green (**PARTIAL_ALIVE**). Replay:
+
+```text
+cargo test -p ggen-graph --test brand_toml_rhythm_court
+```
+
+Taffy AOT stub + 375/1.5× overflow court remains green (**PARTIAL_ALIVE**):
 
 ```text
 cargo test -p ggen-graph --test taffy_aot_preflight_court -- overflow_at_375_with_text_spacing_1_5x_is_refused
