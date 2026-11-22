@@ -4,14 +4,16 @@ Companion to `ECOSYSTEM-SPEC-27.1.1` §10 and Gate-1 gap matrix row
 `verify_witness WASM < 250KB`.
 
 ```text
-base=origin/cursor/ecosystem-spec-27-1-1-bc54@f5f44571f9a331d46e2895657621b7efd7127f1b
+base=origin/cursor/ecosystem-spec-27-1-1-bc54@9173c65296cd8db544f6ae3544f3531a4bb9399c
 lineage_tip=6a3a623bacd33efdc1ec7efccf6a35141662ca53
-side=cursor/v2711-verify-witness-prod-bc54
-size_court=ALIVE (6 passed; EXIT=0 @ f5f44571f; warm /tmp/ggen-verify-witness-tip-ebf4)
+side=cursor/v2711-verify-witness-prod-bc54@6c2a9dc4c
+absorb=cursor/v2711-verify-witness-prod-absorb-55c2
+size_court=ALIVE (6 passed; EXIT=0 @ f5f44571f; warm /tmp/ggen-verify-witness-tip-ebf4; witness sources ≡ through Smalt absorb 9173c6529; no cargo this absorb)
 production_in_ggen=UNSUPPORTED
 affidavit_checkout=ABSENT
 wasm32_target=ABSENT (rustup installed targets: x86_64-unknown-linux-gnu only)
 GGEN_VERIFY_WITNESS_WASM=unset
+honesty=size_court_ALIVE_neq_production_WASM_ALIVE
 ```
 
 ## Ownership
@@ -51,8 +53,9 @@ CARGO_BUILD_JOBS=1 \
 echo EXIT=$?
 ```
 
-Reconfirm @ crown `f5f44571f` (lineage `6a3a623ba`): **6 passed; EXIT=0**
-(log `/tmp/cursor/verify-witness-prod-size-court-side.log`).
+Reconfirm @ tip-cargo subject `f5f44571f` (lineage `6a3a623ba`; absorb base
+`9173c6529` after Smalt tip-wins — witness sources ≡; **no cargo** this absorb):
+**6 passed; EXIT=0** (log `/tmp/cursor/verify-witness-prod-size-court-side.log`).
 
 ## Out-of-repo production SoT (affidavit) — observed, not absorbed
 
@@ -108,14 +111,15 @@ cargo build --locked --lib --target wasm32-unknown-unknown --profile wasm
 
 ## Standing discipline
 
-| Claim | Standing @ `f5f44571f` / this side branch |
+| Claim | Standing @ absorb base `9173c6529` (tip-cargo subject `f5f44571f`) |
 |-------|------------------------------------------|
-| ggen placeholder size court | **ALIVE** (tip-cargo **6** @ `f5f44571f`; prior `c91b22561`) |
+| ggen placeholder size court | **ALIVE** (tip-cargo **6** @ `f5f44571f`; prior `c91b22561`; sources ≡ `9173c6529`) |
 | In-repo production WASM build path | **UNSUPPORTED** (no `verify_witness` workspace member; no wasm32 target) |
 | Affidavit slim pin observed remotely | observation only — **≠** ggen production `ALIVE` |
 | Production WASM courted via mounted hand-off | **UNSUPPORTED** until next verifier above exits **0** in mounted affidavit + optional ggen consume |
 
 - Never promote inspection of this markdown file to `ALIVE`.
 - Never cite fat `affidavit-wasm` (718736 B) as the &lt;250KB gatekeeper.
-- Crown absorb of this honesty surface does not race tip-cargo fences; production
+- Tip-wins crown absorb of this honesty surface (after Smalt `9173c6529`) does
+  not race tip-cargo fences and does **not** invent production `ALIVE`; production
   remains out-of-repo until the exact next verifier closes.
