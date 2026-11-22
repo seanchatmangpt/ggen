@@ -71,7 +71,7 @@ Detail binder: [`CCS-BRCE-STANDING.md`](./CCS-BRCE-STANDING.md) (residual honest
 |-------|----------|
 | **CCS / BRCE slice crown** | **PARTIAL_ALIVE** |
 | CCS #1 AS-01 CONSTRUCT→DO | **PARTIAL_ALIVE** — V1 seat + V7 ES256 fixture land (**4 passed; exit 0** @ `fb6e7fc6e`); live WebAuthn **UNSUPPORTED**; broker **BLOCKED**; Plane-5 DO **BLOCKED** |
-| CCS #2 MCP `ggen_write_apply` + CP17 | **ALIVE** — tip-cargo **7+1+1** exit **0** on tip `c91b22561` (evidence `b5cb632c6`; [`CCS-WRITE-APPLY-ALIVE-STANDING.md`](./CCS-WRITE-APPLY-ALIVE-STANDING.md)) |
+| CCS #2 MCP `ggen_write_apply` + CP17 | **ALIVE** — tip-cargo **7+1+1** exit **0** on tip `cde02d1f2` (evidence `30f59f206`; [`CCS-WRITE-APPLY-ALIVE-STANDING.md`](./CCS-WRITE-APPLY-ALIVE-STANDING.md)) |
 | CCS #3 `construct_hash_gate` | **ALIVE** tip-cargo — **4 passed; exit 0** @ `861a6e73a` (`cursor/v2711-ccs-brce-tipcargo-bc54` / absorb `cbeb11d44`) |
 | `lifecycle.rs` (A2A CP17 path) | **ABSENT** on tip `008a81d21` — land `cursor/mcp-a2a-hands-free-lifecycle-bc54` @ `05c6032f0` → `crates/ggen-lsp/src/a2a_mcp/lifecycle.rs` |
 | CCS #5 SovereignLease Ed25519 | Fixture **ALIVE**; **UNSUPPORTED** as AS-01/`prime256v1` |
@@ -81,7 +81,7 @@ Detail binder: [`CCS-BRCE-STANDING.md`](./CCS-BRCE-STANDING.md) (residual honest
 
 1. Live ladder: BRCE **V8** (broker AS-01 seat) → **V9** / OOR **G2-5** (Plane-5 DO probe) — **BLOCKED** unchanged; no V8 `ALIVE`.
 2. Clause-2 tip-cargo **done** @ `861a6e73a`: CCS #3 construct_hash + as01 V7/V1 **exit 0** (binder [`CCS-BRCE-STANDING.md`](./CCS-BRCE-STANDING.md)).
-3. CCS #2 tip-cargo **ALIVE** (replay): `cargo test -p ggen-mcp --test write_apply_confirm_test`; `cargo test -p ggen-mcp --test pipeline_tools_test -- write_apply_refuses_a_fabricated_graph_hash_bypass`; `cargo test -p ggen-mcp --test pipeline_tools_test -- write_apply_accepts_a_real_dry_run_graph_hash` → **7+1+1** exit **0** @ `b5cb632c6`.
+3. CCS #2 tip-cargo **ALIVE** (replay): `cargo test -p ggen-mcp --test write_apply_confirm_test`; `cargo test -p ggen-mcp --test pipeline_tools_test -- write_apply_refuses_a_fabricated_graph_hash_bypass`; `cargo test -p ggen-mcp --test pipeline_tools_test -- write_apply_accepts_a_real_dry_run_graph_hash` → **7+1+1** exit **0** @ `30f59f206` on tip `cde02d1f2`.
 4. Land `lifecycle.rs` from `cursor/mcp-a2a-hands-free-lifecycle-bc54`; then A2A package courts exit **0**.
 
 Fence / fixture exit 0 ≠ Plane-5 / CONSTRUCT→DO `ALIVE`.
