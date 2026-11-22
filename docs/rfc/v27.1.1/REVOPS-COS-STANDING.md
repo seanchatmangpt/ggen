@@ -511,3 +511,43 @@ curl -sS -w '\nhttp_code=%{http_code}\nexit_curl=%{exitcode}\nerr=%{errormsg}\nt
 
 Crown: Plane-5 revops+cos product standing is **not** `ALIVE`. Labels in §1
 **held**. Next exact verifiers unchanged from §4 / §9–§18.
+
+## 20. Tip reconfirm (2026-11-22 09:20:38 PST) — retip17 `571571720`
+
+Observed on branch `cursor/v2711-oor-retip17-bc54` from tip
+`571571720620cd7462b9a740e3bf0b0fdeebc17a` (prior retip16 pin `acd3b8c89` /
+`423e7a831`). **No cargo.** Sidebranch only — crown **not** absorbed / **not**
+pushed to #849. Probe unchanged vs §19: cos `/readyz` **503**
+`{"status":"DB_UNAVAILABLE"}`; `/healthz` **200** `{"status":"ok"}`;
+`dig +short revops.fnox.io A`/`AAAA` empty; `host` **NXDOMAIN**; `getent` exit
+**2**; `curl` exit **6** `http=000`. Labels **held** (cos readiness **BLOCKED**;
+liveness **PARTIAL**; revops **UNKNOWN**). No ManagePullRequest. No false
+`ALIVE`. ALIVE gate unmet (requires cos `/readyz` **200** ∧ revops `/readyz`
+**200**).
+
+Exact probe commands (this host, America/Los_Angeles):
+
+```text
+# 2026-11-22 09:20:38 PST
+curl -sS -w '\nhttp_code=%{http_code}\nexit_curl=%{exitcode}\nerr=%{errormsg}\ntime_total=%{time_total}\nremote_ip=%{remote_ip}\n' https://cos.fnox.io/readyz
+# → 503 ; body {"status":"DB_UNAVAILABLE"} ; remote_ip=34.8.148.142 ; time_total≈0.21s
+curl -sS -w '\nhttp_code=%{http_code}\nexit_curl=%{exitcode}\nerr=%{errormsg}\ntime_total=%{time_total}\nremote_ip=%{remote_ip}\n' https://cos.fnox.io/healthz
+# → 200 ; body {"status":"ok"} ; remote_ip=34.8.148.142 ; time_total≈0.13s
+getent hosts revops.fnox.io
+# → empty; exit 2
+curl -sS -w '\nhttp_code=%{http_code}\nexit_curl=%{exitcode}\nerr=%{errormsg}\ntime_total=%{time_total}\n' https://revops.fnox.io/readyz
+# → exit 6 ; http_code=000 ; Could not resolve host: revops.fnox.io (NXDOMAIN)
+```
+
+| Probe | Result | Standing |
+|-------|--------|----------|
+| `dig +short revops.fnox.io A` / `AAAA` | empty | **UNKNOWN** |
+| `host revops.fnox.io` | **NXDOMAIN** (exit 1) | **UNKNOWN** |
+| `getent hosts revops.fnox.io` | empty; exit **2** | **UNKNOWN** |
+| `curl https://revops.fnox.io/readyz` | exit **6** / `http=000` | **UNKNOWN** |
+| `dig +short cos.fnox.io A` | `34.8.148.142` | edge DNS **PARTIAL** |
+| `curl https://cos.fnox.io/healthz` | HTTP **200** body `{"status":"ok"}` | **PARTIAL** (liveness ≠ readiness) |
+| `curl https://cos.fnox.io/readyz` | HTTP **503** body `{"status":"DB_UNAVAILABLE"}` | **BLOCKED** |
+
+Crown: Plane-5 revops+cos product standing is **not** `ALIVE`. Labels in §1
+**held**. Next exact verifiers unchanged from §4 / §9–§19.
