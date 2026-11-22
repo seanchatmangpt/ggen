@@ -22,20 +22,23 @@ fn ungated_do_without_seat_is_refused() {
     let broker = REQUIRED_BROKER;
 
     // Act
-    let err = admit_do_with_as01_seat(broker, None).expect_err("ungated DO must refuse");
+    let result = admit_do_with_as01_seat(broker, None);
 
     // Assert
-    assert_eq!(
-        err,
-        As01SeatRefusal::NoSeat {
-            broker: "BRCE".to_string()
-        }
-    );
-    let msg = err.to_string();
-    assert!(
-        msg.contains("REFUSED_NO_AS01_SEAT"),
-        "refusal must carry REFUSED_NO_AS01_SEAT marker, got {msg}"
-    );
+    assert!(result.is_err(), "ungated DO must refuse");
+    if let Err(err) = result {
+        assert_eq!(
+            err,
+            As01SeatRefusal::NoSeat {
+                broker: "BRCE".to_string()
+            }
+        );
+        let msg = err.to_string();
+        assert!(
+            msg.contains("REFUSED_NO_AS01_SEAT"),
+            "refusal must carry REFUSED_NO_AS01_SEAT marker, got {msg}"
+        );
+    }
 }
 
 #[test]
@@ -59,16 +62,18 @@ fn wrong_broker_is_refused_even_with_seat() {
     let seat = As01SeatClaim::declared("seat:as01:fixture-001");
 
     // Act
-    let err =
-        admit_do_with_as01_seat("NOT-BRCE", Some(&seat)).expect_err("non-BRCE broker must refuse");
+    let result = admit_do_with_as01_seat("NOT-BRCE", Some(&seat));
 
     // Assert
-    assert_eq!(
-        err,
-        As01SeatRefusal::WrongBroker {
-            got: "NOT-BRCE".to_string()
-        }
-    );
+    assert!(result.is_err(), "non-BRCE broker must refuse");
+    if let Err(err) = result {
+        assert_eq!(
+            err,
+            As01SeatRefusal::WrongBroker {
+                got: "NOT-BRCE".to_string()
+            }
+        );
+    }
 }
 
 #[test]
@@ -81,12 +86,14 @@ fn empty_seat_id_is_refused() {
     };
 
     // Act
-    let err = admit_do_with_as01_seat(REQUIRED_BROKER, Some(&seat))
-        .expect_err("empty seat_id must refuse");
+    let result = admit_do_with_as01_seat(REQUIRED_BROKER, Some(&seat));
 
     // Assert
-    assert!(matches!(err, As01SeatRefusal::SeatShape { .. }));
-    assert!(err.to_string().contains("REFUSED_AS01_SEAT_SHAPE"));
+    assert!(result.is_err(), "empty seat_id must refuse");
+    if let Err(err) = result {
+        assert!(matches!(err, As01SeatRefusal::SeatShape { .. }));
+        assert!(err.to_string().contains("REFUSED_AS01_SEAT_SHAPE"));
+    }
 }
 
 #[test]
@@ -99,14 +106,19 @@ fn ed25519_lease_alg_is_not_as01_seat() {
     };
 
     // Act
-    let err = admit_do_with_as01_seat(REQUIRED_BROKER, Some(&seat))
-        .expect_err("EdDSA must not satisfy AS-01 ES256/prime256v1");
+    let result = admit_do_with_as01_seat(REQUIRED_BROKER, Some(&seat));
 
     // Assert
-    assert!(matches!(err, As01SeatRefusal::SeatShape { .. }));
-    let msg = err.to_string();
     assert!(
-        msg.contains("ES256") || msg.contains("prime256v1"),
-        "shape refusal should name admitted AS-01 alg/curve, got {msg}"
+        result.is_err(),
+        "EdDSA must not satisfy AS-01 ES256/prime256v1"
     );
+    if let Err(err) = result {
+        assert!(matches!(err, As01SeatRefusal::SeatShape { .. }));
+        let msg = err.to_string();
+        assert!(
+            msg.contains("ES256") || msg.contains("prime256v1"),
+            "shape refusal should name admitted AS-01 alg/curve, got {msg}"
+        );
+    }
 }
