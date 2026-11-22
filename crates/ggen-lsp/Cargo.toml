@@ -49,6 +49,7 @@ ggen-engine = { path = "../ggen-engine", version = "26.7.13" }
 ggen-marketplace = { path = "../ggen-marketplace", version = "26.10.11" }
 ggen-config = { path = "../ggen-config", version = "26.10.11" }
 ggen-graph = { path = "../ggen-graph", version = "26.10.11" }
+ggen-abb-sbb = { path = "../ggen-abb-sbb", version = "=26.11.5", optional = true }
 # CP8: parses a template's frontmatter YAML block the same way
 # `ggen_engine::template::Frontmatter` does, so `frontmatter_shacl_analyzer`
 # can call `ggen_engine::frontmatter_rdf::validate_frontmatter_shacl` against
@@ -107,7 +108,7 @@ mcp = ["dep:rmcp", "dep:schemars"]
 # plus the A2A bridge over the mcp tools (ggen-lsp-a2a, absorbed). Depends on mcp
 # since the bridge dispatches to the mcp tool functions directly (one route engine,
 # two transports — no drift).
-a2a = ["mcp", "dep:async-trait", "dep:uuid", "dep:reqwest"]
+a2a = ["mcp", "dep:async-trait", "dep:uuid", "dep:reqwest", "dep:ggen-abb-sbb"]
 http-adapter = []
 all-adapters = ["http-adapter"]
 benchmark = ["dep:criterion"]
@@ -184,6 +185,11 @@ required-features = ["mcp"]
 [[test]]
 name = "a2a_mcp_pack_tools_test"
 path = "tests/a2a_mcp_pack_tools_test.rs"
+required-features = ["a2a"]
+
+[[test]]
+name = "a2a_lifecycle_hands_free_test"
+path = "tests/a2a_lifecycle_hands_free_test.rs"
 required-features = ["a2a"]
 
 [[test]]
