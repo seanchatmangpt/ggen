@@ -6,8 +6,9 @@ use taffy::TaffyTree;
 
 use crate::text_spacing::{spacing_required_height, spacing_width_delta, TextMetrics1412};
 
-/// AOT viewport sweep mirrored by zcode-cli `UI_LAYOUT_AOT_VIEWPORTS`.
-pub const VIEWPORTS: &[f32] = &[320.0, 375.0, 393.0, 600.0, 840.0, 1280.0];
+/// AOT viewport sweep — bind Gate-1 tip widths from `ggen-graph` (do not fork).
+/// Tip seal: 320 / 375 / 414 / 768 / 1024 / 1440 (ECOSYSTEM-SPEC-27.1.1 §6).
+pub const VIEWPORTS: &[f32] = ggen_graph::layout::taffy_aot::VIEWPORT_WIDTHS_PX;
 
 pub const MIN_TOUCH_TARGET_PX: f32 = 44.0;
 pub const MIN_TOUCH_GAP_PX: f32 = 8.0;
