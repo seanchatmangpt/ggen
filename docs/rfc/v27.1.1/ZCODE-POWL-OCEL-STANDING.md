@@ -44,17 +44,19 @@ Do **not** claim live zcode `ALIVE` from ggen CI, POWL/OCEL vocab modules, or th
 
 | Claim | Standing | Evidence / next verifier |
 |-------|----------|--------------------------|
-| In-repo hop-5 **contract** (subject pin, verifier strings, typed refusals, exit-0 admit shape) | **PARTIAL_ALIVE** | `cargo test -p ggen-sjira --test zcode_powl_ocel_court` |
-| In-repo remediation **bound vocabulary** (retry / write-scope caps) | **PARTIAL_ALIVE** | `cargo test -p ggen-graph remediation_bound --lib` |
+| In-repo hop-5 **contract** (subject pin, verifier strings, typed refusals, exit-0 admit shape) | **ALIVE** (tip-cargo) — **6 passed; exit 0** @ tip `cd7c2433b` (`cursor/v2711-zcode-powl-refusal-alive-bc54`) | `SCCACHE_DISABLE=1 CARGO_BUILD_JOBS=1 CARGO_TARGET_DIR=/home/ubuntu/zcode-powl-refusal-target cargo test -p ggen-sjira --test zcode_powl_ocel_court` |
+| In-repo remediation **bound vocabulary** (retry / write-scope caps) | **ALIVE** (tip-cargo) — **4 passed; exit 0** @ tip `cd7c2433b` | `SCCACHE_DISABLE=1 CARGO_BUILD_JOBS=1 CARGO_TARGET_DIR=/home/ubuntu/zcode-powl-refusal-target cargo test -p ggen-graph remediation_bound --lib` |
+| Bounded-refusal / refuse-path land | **ALIVE** | [`ZCODE-POWL-REFUSAL-ALIVE-STANDING.md`](./ZCODE-POWL-REFUSAL-ALIVE-STANDING.md) |
+| Foundry `--dry-run` (mounted sibling) | **PARTIAL_ALIVE** — exit **2** / aggregate `PARTIAL_ALIVE` @ zcode `f32df08` | `bun scripts/powl-foundry-loop.ts --dry-run` → **0** for dry-run promote; log `/tmp/cursor/zcode-powl-refusal-dryrun.log` |
 | zcode-cli as ggen workspace member / in-tree binary | **UNSUPPORTED** | Absent from `[workspace] members`; no path dep |
 | Sibling checkout mounted in this cloud workspace | **PARTIAL_ALIVE** (mounted `/agent/repos/zcode-cli`; tip-pinned ggen `07b689c97`) | Cross-mount `bc-be2c9600` |
 | In-process bun `ui-layout-court` courts | **ALIVE** (**35 passed; exit 0**) | `bun test test/ui-layout-court.test.ts test/ui-layout-court-chicago.test.ts` |
 | Live `UiLayoutCourtAdapter` / `ggen-layout-court` | **ALIVE** (spatial; exit **0**) when layout_court PRESENT — mix ABSENT no longer SUBJECT_MISSING after Taffy+Mode B PASS ([`HOP5-MIX-SUBJECT-STANDING.md`](./HOP5-MIX-SUBJECT-STANDING.md)); Jobs/C4 / foundry `--live` still **PARTIAL**/open | Replay: `layout_court` + product-subject → 0; adapter → 0; Chicago mix-ABSENT courts. Do **not** invent hop-5 crown `ALIVE` while foundry `--live` open |
-| Live foundry / Chicago POWL→OCEL | **BLOCKED** / **REFUSED** | Gall `--live` @ zcode `f32df08` wires `createZcodeAgentExecutor`; Linux tip-matched runtime **PRESENT**; **foundry_exit=1** (`Model access is not configured`); Jobs/C4 `mix` **ABSENT**. Exact next: provider creds + `bun scripts/powl-foundry-loop.ts --live` → 0 ([`HOP5-ZCODE-RUNTIME-STANDING.md`](./HOP5-ZCODE-RUNTIME-STANDING.md)) |
-| Photolithography path crown (hops 1–5) | **non-ALIVE** | Hop 5 **PARTIAL** (in-process ALIVE ≠ live ALIVE) |
+| Live foundry / Chicago POWL→OCEL | **BLOCKED_HITL** / **REFUSED** | Gall `--live` @ zcode `f32df08` wires `createZcodeAgentExecutor`; Linux tip-matched runtime **PRESENT**; **foundry_exit=1** (`Model access is not configured`); do **not** fake live model `ALIVE`. Exact next: provider creds + `bun scripts/powl-foundry-loop.ts --live` → 0 ([`HOP5-ZCODE-RUNTIME-STANDING.md`](./HOP5-ZCODE-RUNTIME-STANDING.md)) |
+| Photolithography path crown (hops 1–5) | **non-ALIVE** | Hop 5 **PARTIAL** (bounded-refusal ALIVE ≠ live crown ALIVE) |
 | Claiming zcode `ALIVE` from ggen vocab alone | **REFUSED_UNGROUNDED** | Explicit |
 
-**Aggregate hop-5 standing for this land:** **PARTIAL_ALIVE** — in-process bun courts **ALIVE** + live spatial adapter **ALIVE** (exit **0** after mix-SUBJECT fix; layout_court PRESENT) + Linux tip-matched runtime **PRESENT** + foundry `--live` **foundry_exit=1** / **REFUSED** (`Model access is not configured` @ `f32df08`) + Jobs/C4 `mix` **ABSENT**. See [`HOP5-MIX-SUBJECT-STANDING.md`](./HOP5-MIX-SUBJECT-STANDING.md) + [`HOP5-ZCODE-RUNTIME-STANDING.md`](./HOP5-ZCODE-RUNTIME-STANDING.md).
+**Aggregate hop-5 standing for this land:** **PARTIAL_ALIVE** — in-repo bounded-refusal tip-cargo **ALIVE** (sjira **6**/bound **4**) + in-process bun courts **ALIVE** + live spatial adapter **ALIVE** (exit **0**; layout_court PRESENT) + Linux tip-matched runtime **PRESENT** + foundry `--dry-run` **PARTIAL** (exit **2**) + foundry `--live` **BLOCKED_HITL** / **REFUSED** (`Model access is not configured` @ `f32df08`). See [`ZCODE-POWL-REFUSAL-ALIVE-STANDING.md`](./ZCODE-POWL-REFUSAL-ALIVE-STANDING.md) + [`HOP5-MIX-SUBJECT-STANDING.md`](./HOP5-MIX-SUBJECT-STANDING.md) + [`HOP5-ZCODE-RUNTIME-STANDING.md`](./HOP5-ZCODE-RUNTIME-STANDING.md).
 
 ---
 
@@ -170,10 +172,11 @@ Companion path ledger: [`PHOTOLITHOGRAPHY-STANDING.md`](./PHOTOLITHOGRAPHY-STAND
 
 | Claim | Standing |
 |-------|----------|
-| Contract module + Chicago court in ggen-sjira | **PARTIAL_ALIVE** |
-| Remediation bound stub in ggen-graph | **PARTIAL_ALIVE** |
-| Live sibling POWL/OCEL Chicago court | **BLOCKED** — checkout unmounted; next verifier §4.2 |
-| Live zcode `ui-layout-court` consume of ggen receipt | **UNSUPPORTED** in this workspace |
+| Contract module + Chicago court in ggen-sjira | **ALIVE** (tip-cargo **6 passed; exit 0** @ `cd7c2433b`) |
+| Remediation bound stub in ggen-graph | **ALIVE** (tip-cargo **4 passed; exit 0** @ `cd7c2433b`) |
+| Foundry `--dry-run` | **PARTIAL_ALIVE** (exit **2** @ zcode `f32df08`) |
+| Live sibling POWL/OCEL Chicago / foundry `--live` | **BLOCKED_HITL** — next verifier §4.2 / provider creds + `--live` → **0** |
+| Live zcode `ui-layout-court` consume of ggen receipt | spatial adapter **ALIVE**; Jobs/C4 / foundry open |
 | Photolithography path crown | **non-ALIVE** |
 
-Do not merge this document’s prose into a Plane-5 / release `ALIVE` without executing §4.2 on a mounted sibling.
+Do not merge this document’s prose into a Plane-5 / release `ALIVE` without executing §4.2 on a mounted sibling. Bounded-refusal tip-cargo `ALIVE` ≠ hop-5 crown / `--live` `ALIVE`.
