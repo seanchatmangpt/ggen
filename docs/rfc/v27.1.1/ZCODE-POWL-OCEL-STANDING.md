@@ -1,167 +1,177 @@
-# ZCODE-POWL-OCEL-STANDING — autonomic remediations with bounded refusal
+# ZCODE-POWL-OCEL-STANDING — photolithography hop 5 (bounded autonomic remediation)
 
 | Field | Value |
 |-------|-------|
 | Document ID | `ZCODE-POWL-OCEL-STANDING` |
-| Companion | `ECOSYSTEM-SPEC-27.1.1`, `GATE-1-GAP-MATRIX` |
+| Companion | `ECOSYSTEM-SPEC-27.1.1`, `PHOTOLITHOGRAPHY-STANDING`, `IGNITER-CLEANROOM-STANDING`, `GATE-1-GAP-MATRIX` |
+| Subject | `seanchatmangpt/zcode-cli` (POWL v2 → OCEL 2.0 autonomic remediations) |
+| Photolithography hop | **5** (after ggen_igniter clean-room) |
+| Crown claim | Sibling Chicago POWL/OCEL court exit **0** + bounded refusal (retry/cycle/write-scope) |
 | Materialized | 2026-11-22 |
-| Repo of record for this land | `seanchatmangpt/ggen` |
-| Execution owner | **zcode-cli** (sibling; not a workspace member) |
+| GA falsifier horizon | **2027-01-01** |
+| Repo scope of this land | `seanchatmangpt/ggen` (typed contract + standing only) |
 
 Standing vocabulary: `UNKNOWN` | `PARTIAL_ALIVE` | `ALIVE` | `BLOCKED` | `BUILD_BROKEN` | `UNSUPPORTED` | `REFUSED_*`.
 
-This document is an evidence ledger + contract fence. Connector-visible sibling
-source is never promoted to `ALIVE` for the out-of-repo CLI boundary.
+Source presence, connector inventory, in-repo bound stubs, and workflow definitions are **never** promoted to live zcode `ALIVE`.
 
 ---
 
-## 1. Subject
-
-Gate-1 / Plane-4 claim under audit:
-
-> **zcode-cli** drives hands-free `CONSTRUCT` remediations via POWL v2 ASTs and
-> IEEE OCEL 2.0 telemetry, with **explicit bounded refusal** (retry / cycle /
-> write-scope caps) — never unbounded autonomic rewrite.
-
-Primary sibling surfaces (observed on `seanchatmangpt/zcode-cli` default tip
-`fccef5d3a8927d8e7fbff99e8a5ccacd1d721a89`, 2026-11-22 connector read):
-
-| Path | Role |
-|------|------|
-| `src/powl-ocel-orchestrator.ts` | POWL v2 AST → Workflow-Net → token replay → OCEL 2.0; `runAutonomicLoop` |
-| `src/adapters/foundry-loop.ts` | Gall spine: courts + transactional rollback + `deriveFollowUpPowl` |
-| `src/adapters/ui-layout-court.ts` | Taffy/Playwright layout court; `maxRemediationAttempts` default **3** |
-| `scripts/powl-foundry-loop.ts` | Dry-run foundry driver (`--dry-run` default; live not ambient) |
-| `test/powl-ocel-chicago.test.ts` | Chicago zero-mock: real subprocess + disk OCEL SHA-256 + anti-vacuity |
-| `test/powl-ocel-orchestrator.test.ts` | Unit/orchestrator courts |
-| `docs/ecosystem-spec-27.1.1.md` | Sibling copy of ECOSYSTEM-SPEC; R-06 marked CLOSED for bounded remediation |
-
-In **this** repo: no `zcode-cli` workspace member; no `powl-ocel-orchestrator.ts`;
-no executable foundry loop. ggen OCEL (`crates/ggen-graph/src/ocel/`) and RWR
-autonomic controllers are **adjacent process-evidence / MAPE-K rails**, not the
-zcode CLI remediation engine.
-
----
-
-## 2. Standing matrix (ggen fence)
-
-| Claim | Standing | Why |
-|-------|----------|-----|
-| zcode-cli is a ggen workspace member / in-tree binary | **UNSUPPORTED** | Absent from `[workspace] members`; no path dep |
-| Sibling source for POWL/OCEL orchestrator exists (connector) | **PARTIAL_ALIVE** | GitHub contents + SHA above; not a mounted tree |
-| Autonomic remediation with **bounded refusal** (contract prose) | **PARTIAL_ALIVE** | Bounds enumerated below from sibling source; in-repo stub mirrors vocabulary only |
-| Out-of-repo CLI executes Chicago POWL→OCEL court green | **UNKNOWN** | Not executed in this workspace (sibling not checked out) |
-| Photolithography consume of ggen `AotSealReceipt` via `ui-layout-court.ts` | **UNSUPPORTED** → open | Adapter exists in sibling; ggen↔zcode receipt wire not receipted here |
-| Promote sandbox / dry-run / README claims to `ALIVE` | **REFUSED_UNGROUNDED** | Explicit |
-
-Do **not** claim `ALIVE` for zcode-cli POWL/OCEL remediations from ggen CI alone.
-
----
-
-## 3. Bounded refusal (must be explicit)
-
-Autonomic remediations are lawful only inside named bounds. Crossing a bound is
-a typed **refusal**, not a silent continue and not an ambient `DO`.
-
-### 3.1 Bound table (from sibling source + Gate-1 bridge stub)
-
-| Bound | Default / law | Refusal when exceeded | Owner surface |
-|-------|---------------|----------------------|---------------|
-| Max remediation attempts (layout court budget note) | `maxRemediationAttempts = 3` (`DEFAULT_MAX_REMEDIATION_ATTEMPTS`) | Court records `max_remediation_attempts=N` on `REFUSED`; foundry loop owns cycle halt | `ui-layout-court.ts` |
-| Max retries per failure signature | `SignatureRetryLimiter` default **3** (`maxRetriesPerSignature`) | `RETRY_BUDGET_EXHAUSTED` → OCEL standing `REFUSED` + `retry_budget_exhausted` event | `powl-ocel-orchestrator.ts` |
-| Foundry same-signature retries | `maxSameSignatureRetries` default **2** | `retryBudgetExhausted = true`; loop breaks | `foundry-loop.ts` |
-| Autonomic cycle cap | `maxCycles` (required for bounded tests; omit only under documented budget) | Loop stops; optional `ComplianceRefusalError("RETRY_BUDGET_EXHAUSTED")` | `runAutonomicLoop` / `runFoundryLoop` |
-| Write-scope disjointness | Unordered mutating leaves must not overlap scopes | `WRITE_SCOPE_CONFLICT` throw / fail-closed validate | `validateDisjointWriteScopes` / `validatePowlTree` |
-| Dirty timeout / rollback | Snapshot + Saga LIFO | `DIRTY_TIMEOUT_REFUSED` / `ROLLBACK_FAILED` → standing `REFUSED` | transactional net |
-| State-space soundness overflow | Murata reduction; `MAX_STATES` truncation | Standing **`UNKNOWN`** (never fake SOUND) | `verifyStructuralSoundness` |
-| Clean-room noop stubs | `["true"]` sync argv | **LOUD_SKIP** — never fake `ALIVE` | `ui-layout-court.ts` |
-| Sandbox / missing DO seals | `sandbox: true` | Aggregate demoted to **PARTIAL_ALIVE** at most | `foundry-loop.ts` |
-
-### 3.2 Explicit refusal codes (closed set for this standing)
+## 1. Crown claim
 
 ```text
-WRITE_SCOPE_CONFLICT
-RETRY_BUDGET_EXHAUSTED
-DIRTY_TIMEOUT_REFUSED
-ROLLBACK_FAILED
-REFUSED                 (OCEL object attribute / court standing)
-SUBJECT_MISSING         (exit 2 — binary/subject absent; not a geometry refuse)
-LOUD_SKIP               (exit 3 — disabled / noop; not ALIVE)
-UNKNOWN                 (truncated soundness — not SOUND, not ALIVE)
-REFUSED_UNGROUNDED      (ggen fence: claim without out-of-repo verifier)
-REFUSED_UNBOUNDED_REMEDIATION  (in-repo stub: max_attempts == 0 or missing bound)
+ALIVE(zcode-cli POWL/OCEL autonomic remediation)
+  ⇔  observed: in checkout seanchatmangpt/zcode-cli,
+               `bun test test/powl-ocel-chicago.test.ts` → exit 0
+               AND remediations remain inside explicit retry/cycle/write-scope bounds
 ```
 
-Any remediation path that retries without one of the numeric caps above is
-**REFUSED_UNBOUNDED_REMEDIATION** at the Gate-1 fence.
+Anything else is fail-closed:
 
-### 3.3 Authority separation
+| Observation | Standing | Typed refusal (in-repo) |
+|-------------|----------|-------------------------|
+| Sibling not mounted / not probed | **BLOCKED** | `REFUSED_ZCODE_CHECKOUT_UNMOUNTED` |
+| Probe exit ≠ 0 | **REFUSED_** (court) | `REFUSED_ZCODE_COURT_FAILED` |
+| Probe on wrong subject | **UNKNOWN** | `REFUSED_ZCODE_SUBJECT_MISMATCH` |
+| Probe exit 0 on admitted subject | **ALIVE** (that observation only) | — |
+| Unbounded remediation attempt (`max_attempts == 0`) | **REFUSED_** | `REFUSED_UNBOUNDED_REMEDIATION` (bound stub) |
 
-```text
-SELECT ≠ CONSTRUCT ≠ DO
-```
-
-POWL/OCEL remediations in zcode-cli are **CONSTRUCT** (edit admitted
-`.ttl`/`.toml`/templates, re-verify courts, emit OCEL + receipts). They do **not**
-grant Plane-5 / BRCE+WebAuthn AS-01 `DO`. Dry-run is the default foundry posture
-(`scripts/powl-foundry-loop.ts`).
+Do **not** claim live zcode `ALIVE` from ggen CI, POWL/OCEL vocab modules, or this ledger file.
 
 ---
 
-## 4. In-repo Gate-1 stub (non-ALIVE)
+## 2. Hop-5 standing matrix (this land)
 
-`ggen_graph::layout::remediation_bound` mirrors the bound vocabulary as a typed
-refusal enum + constants so ggen photolithography consumers can name the same
-caps without importing zcode-cli.
+| Claim | Standing | Evidence / next verifier |
+|-------|----------|--------------------------|
+| In-repo hop-5 **contract** (subject pin, verifier strings, typed refusals, exit-0 admit shape) | **PARTIAL_ALIVE** | `cargo test -p ggen-sjira --test zcode_powl_ocel_court` |
+| In-repo remediation **bound vocabulary** (retry / write-scope caps) | **PARTIAL_ALIVE** | `cargo test -p ggen-graph remediation_bound --lib` |
+| zcode-cli as ggen workspace member / in-tree binary | **UNSUPPORTED** | Absent from `[workspace] members`; no path dep |
+| Sibling checkout mounted in this cloud workspace | **BLOCKED** | Local `~/zcode-cli` / workspace mount absent |
+| Live Chicago POWL→OCEL court green | **BLOCKED** → open | §4 sibling verifier (not executed here) |
+| Photolithography path crown (hops 1–5) | **non-ALIVE** | Hop 4 **BLOCKED**; hop 5 consumer **UNSUPPORTED**/`BLOCKED` |
+| Claiming zcode `ALIVE` from ggen vocab alone | **REFUSED_UNGROUNDED** | Explicit |
 
-Standing of the stub itself: **PARTIAL_ALIVE** (compiles + unit court on refuse
-of unbounded attempts). Standing of zcode execution remains **UNKNOWN** /
-**UNSUPPORTED** until the out-of-repo verifier below exits 0.
-
----
-
-## 5. Next exact verifier (out-of-repo CLI)
-
-Materialize sibling checkout, then run the Chicago POWL/OCEL court (real
-subprocess + filesystem; not mocks):
-
-```text
-# From a mounted seanchatmangpt/zcode-cli tree at a pinned SHA:
-bun test test/powl-ocel-chicago.test.ts
-```
-
-Optional wider orchestrator court:
-
-```text
-bun test test/powl-ocel-orchestrator.test.ts
-```
-
-Optional dry-run foundry spine (must not claim ALIVE under `sandbox: true`):
-
-```text
-bun scripts/powl-foundry-loop.ts --dry-run
-```
-
-Acceptance for promoting the **autonomic bounded-remediation** claim toward
-`ALIVE` (still only inside zcode-cli evidence, never from ggen alone):
-
-1. `powl-ocel-chicago` exits 0 with fitness 1.0 + byte-exact OCEL SHA-256 on disk.
-2. Anti-vacuity case refuses (fitness &lt; 1) and emits a remediation follow-up POWL id.
-3. A deliberate unbounded attempt (`maxRemediationAttempts = 0` or exhausted
-   signature budget) surfaces one of the explicit refusal codes in §3.2 — not a
-   green `ALIVE` receipt.
-
-Until that boundary executes in a mounted tree, ggen standing stays
-**UNSUPPORTED** (execution) / **PARTIAL_ALIVE** (contract + connector inventory).
+**Aggregate hop-5 standing for this land:** **PARTIAL_ALIVE** (in-repo contract + bound stub) with live sibling execution **BLOCKED** / adapter consume **UNSUPPORTED**.
 
 ---
 
-## 6. Replay of this ggen land
+## 3. Predecessor hop (must stay distinct)
 
-```text
-test -f docs/rfc/v27.1.1/ZCODE-POWL-OCEL-STANDING.md
+Hop 4 is `seanchatmangpt/ggen_igniter` clean-room. Exact predecessor verifier:
+
+```bash
+cd /path/to/ggen_igniter
+git diff --exit-code
+# expected: exit 0 for hop-4 ALIVE; nonzero → REFUSED_CLEANROOM_DIRTY_TREE
+```
+
+In-repo hop-4 contract court:
+
+```bash
+cargo test -p ggen-sjira --test igniter_cleanroom_court
+```
+
+Standing ledger: [`IGNITER-CLEANROOM-STANDING.md`](./IGNITER-CLEANROOM-STANDING.md).
+
+A green hop-4 probe on `ggen_igniter` is **not** hop-5 evidence. The hop-5 court refuses subject mismatch when the observed subject is `seanchatmangpt/ggen_igniter` even if exit code is 0.
+
+---
+
+## 4. Next exact verifiers (crown ALIVE → 2027-01-01 GA)
+
+### 4.1 Immediate (this land — in-repo)
+
+```bash
+cargo test -p ggen-sjira --test zcode_powl_ocel_court
+cargo test -p ggen-sjira --test igniter_cleanroom_court
 cargo test -p ggen-graph remediation_bound --lib
 ```
 
-Falsifier: any commit that claims zcode POWL/OCEL remediations `ALIVE` without
-the §5 sibling court receipt is **REFUSED_UNGROUNDED**.
+### 4.2 Sibling mount (required for live standing movement)
+
+Materialize `seanchatmangpt/zcode-cli`, then:
+
+```bash
+# Crown hop-5 Chicago court (real subprocess + disk OCEL; not mocks)
+bun test test/powl-ocel-chicago.test.ts
+# expected: exit 0 for ALIVE observation; nonzero → REFUSED_ZCODE_COURT_FAILED
+
+# Layout consume companion (ggen AotSealReceipt; fail closed on missing/stale digest)
+pnpm test -- ui-layout-court
+# or that repo's exact court runner against a pinned ggen receipt fixture
+```
+
+Optional wider courts (still not ambient DO):
+
+```bash
+bun test test/powl-ocel-orchestrator.test.ts
+bun scripts/powl-foundry-loop.ts --dry-run
+```
+
+### 4.3 GA ladder through 2027-01-01
+
+| Date gate | Required standing movement | Exact verifier |
+|-----------|---------------------------|----------------|
+| Land (now) | Hop-5 contract **PARTIAL_ALIVE**; live zcode **BLOCKED** | §4.1 courts exit 0 |
+| Predecessor clear | Hop-4 clean-room **ALIVE** or typed dirty refuse | In `ggen_igniter`: `git diff --exit-code` |
+| Sibling wire | Chicago POWL/OCEL court **ALIVE** observation | In `zcode-cli`: `bun test test/powl-ocel-chicago.test.ts` |
+| Photolithography consume | `ui-layout-court` fails closed on missing/stale ggen digest | `pnpm test -- ui-layout-court` vs pinned `AotSealReceipt` |
+| **2027-01-01 GA** | Hop-5 may be promoted only with linked sibling receipts; else row **falsified** | Re-run §4.2; if courts still need founder paste/override of layout digests or unbounded retries, hop-5 is **falsified** |
+
+If on **2027-01-01** UI/POWL courts still require founder HITL to paste digests or retry without caps, the zcode row is **falsified** (see also `FOUNDRY-FINISH-STANDING.md`).
+
+---
+
+## 5. In-repo court (contract only)
+
+IO-free typed interface lives at:
+
+- `crates/ggen-sjira/src/zcode_powl_ocel.rs`
+- Court: `crates/ggen-sjira/tests/zcode_powl_ocel_court.rs`
+- Bound vocabulary: `crates/ggen-graph/src/layout/remediation_bound.rs`
+
+The sjira court deliberately does **not** shell out to bun/pnpm and does **not** require the sibling tree. It encodes the contract so ambient narrative cannot mint live zcode `ALIVE`.
+
+### 5.1 Bounded refusal vocabulary (closed set)
+
+```text
+REFUSED_ZCODE_CHECKOUT_UNMOUNTED
+REFUSED_ZCODE_SUBJECT_MISMATCH
+REFUSED_ZCODE_COURT_FAILED
+REFUSED_UNBOUNDED_REMEDIATION
+RETRY_BUDGET_EXHAUSTED
+WRITE_SCOPE_CONFLICT
+REFUSED_MAX_CYCLES_EXCEEDED
+REFUSED_UNGROUNDED
+```
+
+Default caps mirrored from sibling law (contract only): `maxRemediationAttempts = 3`, per-signature retries `3`, foundry same-signature `2`.
+
+---
+
+## 6. Path citation (photolithography)
+
+```text
+perimeter transducer
+  → .ttl / .toml
+  → ggen + Taffy AOT
+  → ggen_igniter clean-room (git diff --exit-code == 0)   # hop 4
+  → zcode-cli POWL/OCEL remediations (bounded refusal)    # hop 5 ← this ledger
+```
+
+Companion path ledger: [`PHOTOLITHOGRAPHY-STANDING.md`](./PHOTOLITHOGRAPHY-STANDING.md).
+
+---
+
+## 7. Standing receipt (this land)
+
+| Claim | Standing |
+|-------|----------|
+| Contract module + Chicago court in ggen-sjira | **PARTIAL_ALIVE** |
+| Remediation bound stub in ggen-graph | **PARTIAL_ALIVE** |
+| Live sibling POWL/OCEL Chicago court | **BLOCKED** — checkout unmounted; next verifier §4.2 |
+| Live zcode `ui-layout-court` consume of ggen receipt | **UNSUPPORTED** in this workspace |
+| Photolithography path crown | **non-ALIVE** |
+
+Do not merge this document’s prose into a Plane-5 / release `ALIVE` without executing §4.2 on a mounted sibling.

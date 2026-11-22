@@ -31,12 +31,13 @@ perimeter transducer
 | 1 | Perimeter transducer (O → O\* admission fence) | **PARTIAL_ALIVE** (prefix fence only) | **In-repo** fence; product perimeter **out-of-repo** (Truex / brand plane) | `cargo test -p ggen-graph --test shui_public_prefix_court` | Court fails; or `shui` dropped from `ADMITTED_TURTLE_PREFIXES`; or private prefix (`truex`, `gall`, …) admits |
 | 2 | `.ttl` / `.toml` law + brand rhythm | **PARTIAL_ALIVE** (rhythm + OCEL/POWL vocab); full DTCG inventory **UNSUPPORTED** | **In-repo** fixtures + vocabs; OEM token inventories Gate 2+ / brand plane | `cargo test -p ggen-graph --test brand_toml_rhythm_court` | Fixtures refuse or go missing; rhythm admits touch &lt;44 / gap &lt;8 / off-grid; Gate-2 tokens invented without source |
 | 3 | ggen + Taffy AOT pre-flight | **PARTIAL_ALIVE** (ggen six-width seal) | **In-repo** (`ggen-graph::layout::taffy_aot`); consumer adapters **out-of-repo** | `cargo test -p ggen-graph --test taffy_aot_preflight_court` | Six-width seal fails under WCAG 1.4.12 1.5×; overflow refusal omits failing width; silent drop of typed `AotRefusal` |
-| 4 | ggen_igniter clean-room | **BLOCKED** / **UNKNOWN** | **Out-of-repo** sibling `seanchatmangpt/ggen_igniter` (not mounted). In-repo: GALL clean-room observe + ADR pointer only — **not** the sibling crown | In sibling checkout: `git diff --exit-code` (exit **0** required). Optional local dry-run skip: `just sjira-mutual-admit dry-run` | Sibling dirty tree (exit ≠ 0); claiming `ALIVE` from unmounted checkout; conflating `gall_observe_clean_room` with igniter crown |
-| 5 | zcode-cli POWL/OCEL remediations (bounded refusal) | **UNSUPPORTED** (adapter); in-repo shapes **PARTIAL_ALIVE** | **Out-of-repo** `zcode-cli` (`ui-layout-court.ts`). **In-repo** POWL/OCEL vocab + OCEL surfaces only | In zcode-cli: `pnpm test -- ui-layout-court` (or that repo’s exact court) against a ggen `AotSealReceipt` fixture — must fail closed on missing/stale digest and emit bounded remediation refusal (no re-implemented geometry law) | Adapter re-implements Taffy law; missing/stale receipt admits; unbounded remediation; claiming zcode `ALIVE` from ggen vocab alone |
+| 4 | ggen_igniter clean-room | **BLOCKED** / **UNKNOWN**; in-repo contract **PARTIAL_ALIVE** | **Out-of-repo** sibling `seanchatmangpt/ggen_igniter` (not mounted). In-repo: [`IGNITER-CLEANROOM-STANDING.md`](./IGNITER-CLEANROOM-STANDING.md) + `igniter_cleanroom_court` — **not** live sibling crown | In-repo: `cargo test -p ggen-sjira --test igniter_cleanroom_court`. Live: in sibling checkout `git diff --exit-code` (exit **0** required). Optional: `just sjira-mutual-admit dry-run` | Sibling dirty tree (exit ≠ 0); claiming `ALIVE` from unmounted checkout; conflating `gall_observe_clean_room` with igniter crown |
+| 5 | zcode-cli POWL/OCEL remediations (bounded refusal) | **UNSUPPORTED** (live adapter); in-repo contract **PARTIAL_ALIVE**; live sibling **BLOCKED** | **Out-of-repo** `zcode-cli` Chicago POWL/OCEL + `ui-layout-court.ts`. **In-repo** typed refusal court + bound stub + POWL/OCEL vocab — see [`ZCODE-POWL-OCEL-STANDING.md`](./ZCODE-POWL-OCEL-STANDING.md) | In-repo: `cargo test -p ggen-sjira --test zcode_powl_ocel_court`. Predecessor hop-4: in `ggen_igniter` `git diff --exit-code`. Live: in zcode-cli `bun test test/powl-ocel-chicago.test.ts` then `pnpm test -- ui-layout-court` vs ggen `AotSealReceipt` (fail closed; bounded refusal). GA falsifier **2027-01-01** | Adapter re-implements Taffy law; missing/stale receipt admits; unbounded remediation; claiming zcode `ALIVE` from ggen vocab / unmounted checkout; conflating hop-4 igniter clean-room with hop-5 |
 
 **Path standing (aggregate):** **PARTIAL_ALIVE** at hops 1–3 (ggen fence),
-**BLOCKED/UNKNOWN** at hop 4, **UNSUPPORTED** at hop 5 consumer → crown
-**non-ALIVE** until hops 4–5 execute on mounted siblings with typed receipts.
+**BLOCKED/UNKNOWN** at hop 4, hop 5 in-repo contract **PARTIAL_ALIVE** with live
+consumer **UNSUPPORTED**/`BLOCKED` → crown **non-ALIVE** until hops 4–5 execute
+on mounted siblings with typed receipts.
 
 ---
 
@@ -110,7 +111,13 @@ not ggen_igniter clean-room.
 
 | Path | Role |
 |------|------|
-| *(sibling)* `zcode-cli` `ui-layout-court.ts` | Required adapter — **UNSUPPORTED** in this workspace |
+| *(sibling)* `seanchatmangpt/zcode-cli` | Crown subject — **out-of-repo**; typically unmounted → **BLOCKED** |
+| `bun test test/powl-ocel-chicago.test.ts` | Exact hop-5 Chicago crown verifier (exit **0** required for live ALIVE) |
+| `pnpm test -- ui-layout-court` | Layout consume companion vs ggen `AotSealReceipt` |
+| `docs/rfc/v27.1.1/ZCODE-POWL-OCEL-STANDING.md` | Hop-5 standing ledger + GA ladder through **2027-01-01** |
+| `crates/ggen-sjira/src/zcode_powl_ocel.rs` | IO-free typed refusal (`CheckoutUnmounted` / `SubjectMismatch` / court fail) |
+| `crates/ggen-sjira/tests/zcode_powl_ocel_court.rs` | Chicago in-repo contract court — **PARTIAL_ALIVE** |
+| `crates/ggen-graph/src/layout/remediation_bound.rs` | Bound vocabulary stub (retry/write-scope caps) |
 | `docs/jira/v26.11.17/code-alignment.md` | Historical `~/zcode-cli/scripts/docs_v261117.py` pointer — not Gate-1 court |
 | `crates/ggen-graph/src/vocab/powl.rs` | In-repo POWL shapes for repair routes |
 | `crates/ggen-graph/src/vocab/ocel.rs` + `crates/ggen-graph/src/ocel/` | In-repo OCEL shapes / events |
@@ -118,7 +125,9 @@ not ggen_igniter clean-room.
 
 Bounded refusal means: missing, stale, or mismatched layout digests fail closed
 with a typed remediation refusal; POWL/OCEL remediations must not escalate to
-ambient DO or silent admit.
+ambient DO or silent admit. Unmounted sibling checkout refuses ALIVE promotion
+(`REFUSED_ZCODE_CHECKOUT_UNMOUNTED`); wrong subject (including hop-4
+`ggen_igniter`) refuses retarget (`REFUSED_ZCODE_SUBJECT_MISMATCH`).
 
 ---
 
@@ -140,16 +149,20 @@ ambient DO or silent admit.
 cargo test -p ggen-graph --test shui_public_prefix_court
 cargo test -p ggen-graph --test brand_toml_rhythm_court
 cargo test -p ggen-graph --test taffy_aot_preflight_court
+cargo test -p ggen-sjira --test igniter_cleanroom_court
+cargo test -p ggen-sjira --test zcode_powl_ocel_court
+cargo test -p ggen-graph remediation_bound --lib
 just sjira-mutual-admit dry-run
 ```
 
 Sibling verifiers (not executable here without mounts):
 
 ```text
-# in seanchatmangpt/ggen_igniter
+# in seanchatmangpt/ggen_igniter (hop 4)
 git diff --exit-code
 
-# in zcode-cli
+# in seanchatmangpt/zcode-cli (hop 5)
+bun test test/powl-ocel-chicago.test.ts
 pnpm test -- ui-layout-court
 ```
 
