@@ -5,13 +5,13 @@
 | Document ID | `OUT-OF-REPO-NEXT-VERIFIERS` |
 | Companion | `ECOSYSTEM-SPEC-27.1.1`, `GATE-0-STANDING`, `GATE-3-RELEASE-COURTS-STANDING`, `FOUNDRY-FINISH-STANDING` |
 | Target GA | **2027-01-01** |
-| Observed ggen tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `99255d53c993ff93b80676463d0b5bd107d060f6` |
+| Observed ggen tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `5345d131e628e9f9a765f7f0be633ad2be6268da` |
 | Materialized | 2026-11-22 |
 | Hardened | 2026-11-22 — `cursor/v2711-oor-ledger-harden-bc54` |
 | Ops refresh | 2026-11-22 — `cursor/v2711-ops-standing-refresh-bc54` (tip pin + probe reconfirm; standings held) |
-| Tip pin | 2026-11-22 — `cursor/v2711-hop4-manufacture-bc54` — hop-4 BrandTheme manufacture **ALIVE** (`diff_exit=0` dual-schema; tip `3a69becce`); Truex admit-court **ALIVE** @ `truex@68d2d233` ([truex#6](https://github.com/seanchatmangpt/truex/pull/6) **MERGED**); hop-5 honesty (default adapter exit **2**) + Smalt FinOps **ALIVE** + G2-12 **ALIVE** retained; Foundry crown stays **PARTIAL_ALIVE**; full RAID/`ALIVE` **not** invented |
+| Tip pin | 2026-11-22 — `cursor/v2711-hop5-mix-subject-bc54` — hop-5 mix SUBJECT_MISSING fix (`resolveCleanRoomSyncCmd`) → default adapter exit **0** / Jobs/C4 deferred; hop-4 BrandTheme manufacture **ALIVE** (`diff_exit=0` dual-schema); Truex admit-court **ALIVE** @ `truex@68d2d233` ([truex#6](https://github.com/seanchatmangpt/truex/pull/6) **MERGED**); Smalt FinOps **ALIVE** + G2-12 **ALIVE** retained; Foundry crown stays **PARTIAL_ALIVE**; hop-5 aggregate **PARTIAL_ALIVE** (foundry `--live` open); full RAID/`ALIVE` **not** invented |
 | Hop-4 evidence | `/tmp/cursor/igniter-real-cleanroom.md` (`bc-4861c787`) — tip dual-schema BrandTheme manufacture compare `diff_exit=0` (**ALIVE**) |
-| Hop-5 evidence | `/tmp/cursor/hop5-live-after-884.md` (default `adapter_exit=2` / `layout_exit=0`; foundry_exit=1; prior false exit-0 PARTIAL_ALIVE demoted; prior `/tmp/cursor/hop5-crossmount.md`) |
+| Hop-5 evidence | [`HOP5-MIX-SUBJECT-STANDING.md`](./HOP5-MIX-SUBJECT-STANDING.md) (`adapter_exit=0` / `layout_exit=0`; Chicago **31/0**; foundry_exit=1 open; prior demote `/tmp/cursor/hop5-live-after-884.md`) |
 | Repo scope | `seanchatmangpt/ggen` — **tracks** sibling standing; does not execute sibling DO |
 
 Standing vocabulary: `UNKNOWN` | `PARTIAL_ALIVE` | `ALIVE` | `BLOCKED` | `BUILD_BROKEN` | `UNSUPPORTED` | `REFUSED_*`.
@@ -95,7 +95,7 @@ GA horizon for all courts: **2027-01-01**.
 |----|-------|-------|----------------------------|---------|---------------------|---------|
 | G3-1 | **RC-D1** | Zero-DOM WebGPU + FFB (D1) | **UNSUPPORTED** | No UI-plane repo mounted in ggen | Owner artifacts: [`ECOSYSTEM-SPEC-27.1.1.md`](./ECOSYSTEM-SPEC-27.1.1.md) §5 Mode A/B; [`GATE-3-RELEASE-COURTS-STANDING.md`](./GATE-3-RELEASE-COURTS-STANDING.md) RC-D1. In mounted UI-plane (Zero-DOM WebGPU / FFB) checkout: court that loads admitted ggen `AotSealReceipt` → paints Mode A canvas (or Mode B FFB) → exit 0; ambient DOM DO without BRCE+AS-01 → `REFUSED_*` | D1 required for GA per ECOSYSTEM §2 |
 | G3-2 | **RC-D3** | Truex `shui:` product | **ALIVE** (admit-court; same as G2-7) | Same as G2-7 (`truex@68d2d233` **MERGED**; vitest **6/6** exit 0) | Same as G2-7 replay + companion ggen `shui_public_prefix_court` (tip-cargo PENDING) | Admit-court **ALIVE** on merged tip; fence tip-sync still open |
-| G3-3 | **RC-D5** | zcode `ui-layout-court.ts` / live adapter | **PARTIAL_ALIVE** (default adapter exit **0**; foundry_exit=1) | Same as G2-8 (`ggen-layout-court` PRESENT; adapter exit **0** / Jobs/C4 deferred on tip `88e84d545`) | Exact next: `powl-foundry-loop --live` → 0 (G2-9) | RC-D5 ties to photolithography crown |
+| G3-3 | **RC-D5** | zcode `ui-layout-court.ts` / live adapter | **PARTIAL_ALIVE** (default adapter exit **0**; foundry_exit=1) | Same as G2-8 (`ggen-layout-court` PRESENT; adapter exit **0** / Jobs/C4 deferred; `resolveCleanRoomSyncCmd` path) | Exact next: `powl-foundry-loop --live` → 0 (G2-9) | RC-D5 ties to photolithography crown |
 | G3-4 | **RC-D6** | Plane 5 front doors | **UNKNOWN** / OUT OF SCOPE | Same as G2-1, G2-2, G2-5 (retip5: revops NXDOMAIN; cos **503**) | Same probe ladder as G2-1 + G2-2 + G2-5 (DNS/`readyz` + AS-01-gated BRCE receipt); [`REVOPS-COS-STANDING.md`](./REVOPS-COS-STANDING.md) §3–§4 | Never promote from ggen evidence alone |
 | G3-5 | **RC-D7** | Risks **R-01 … R-07** (D7) | **BLOCKED** (all seven bodies) | Sovereign risk-register bodies not mounted | Owner artifact: [`R01-R07-STANDING.md`](./R01-R07-STANDING.md) §2 crown matrix. Per ID R-01…R-07: admit body from sovereign risk register (no invention) → typed receipt **or** typed `REFUSED_*` before **2027-01-01**. In-repo contract fence only: `cargo test -p ggen-graph --test r01_r07_resolution_court` (does not close any body). | Hard GA gate; silent closure → **REFUSED_UNGROUNDED** |
 
@@ -221,6 +221,12 @@ Tip pin retipped on `cursor/v2711-truex-merged-standing-bc54` onto crown tip
 mount `/tmp/truex`; receipt `/tmp/cursor/truex-merged-admit-alive.md`); hop-4 BrandTheme manufacture
 **ALIVE** + hop-5 honesty (default adapter exit **2**) + G2-12 **ALIVE** +
 Smalt FinOps **ALIVE** retained; Foundry stays **PARTIAL_ALIVE**; no false
-path-crown / RAID `ALIVE`.
+path-crown / RAID `ALIVE`. Tip pin retipped on
+`cursor/v2711-hop5-mix-subject-bc54` onto crown tip `5345d131e` — G2-8 / G3-3
+**PARTIAL_ALIVE** after mix-SUBJECT / `resolveCleanRoomSyncCmd` fix (default
+adapter exit **0**; Jobs/C4 deferred; foundry `--live` open); Truex G2-7/G3-2
+**ALIVE** tip-wins; hop-4 BrandTheme manufacture **ALIVE** (`diff_exit=0`) +
+Smalt FinOps **ALIVE** + G2-12 **ALIVE** retained; Foundry stays **PARTIAL_ALIVE**;
+no false hop-5 / path-crown `ALIVE`.
 Standings synthesized from existing v27.1.1 standing ledgers only plus this
 worktree’s probes. Tracked rows remain **25** (`G0-1…4`, `G2-1…16`, `G3-1…5`).
