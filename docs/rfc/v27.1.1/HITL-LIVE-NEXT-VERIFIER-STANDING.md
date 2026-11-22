@@ -98,7 +98,8 @@ Jobs/C4 residual is **separate** (not this falsifier): admitted igniter pack `--
 | Side-branch pin | 2026-11-22 — `cursor/v2711-hitl-live-next-bc54` @ `723c3a14f` from crown tip `fe72be0fb` (`bc-ea2b3d10`); docs-only; no cargo; no ManagePullRequest; no crown push |
 | Tip-wins absorb | 2026-11-22 — `cursor/v2711-hitl-live-absorb-8df9` re-applies side pin onto live crown `00b53cec9` (⊇ Smalt residual mix / OOR retip12 / affidavit / BRCE V8+R01 / VW / CASTLE); standing remains **BLOCKED_HITL**; exact next `bun scripts/powl-foundry-loop.ts --live` → **foundry_exit=0**; **no** invented `--live` `ALIVE`; docs-only; no cargo; no ManagePullRequest; push `HEAD:cursor/ecosystem-spec-27-1-1-bc54` (no force) |
 | Prior evidence chain | hop5-foundry-live → live2 (`ZCode runtime is missing`) → zcode-runtime (vendor **PRESENT**; model access **ABSENT**) → model-access / secrets probe (registry/env **ABSENT**; MCP secret inventory **UNSUPPORTED**) → HITL next-verifier pin |
-| Re-probe retip | 2026-11-22 — `cursor/v2711-hitl-live-retip-bc54` from `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `d2c919401` (⊇ CASTLE digest-bind wire); exact §3 command re-run; **foundry_exit=1**; **BLOCKED_HITL** held; **no** invented `--live` / hop-5 / Foundry crown `ALIVE`; sidebranch push only; no ManagePullRequest |
+| Re-probe retip | 2026-11-22 — `cursor/v2711-hitl-live-retip-bc54` @ `0364129c5` from `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `d2c919401` (⊇ CASTLE digest-bind wire); `bc-cdfdae43`; exact §3 command re-run; **foundry_exit=1**; **BLOCKED_HITL** held; **no** invented `--live` / hop-5 / Foundry crown `ALIVE`; sidebranch push only; no ManagePullRequest |
+| Tip-wins absorb (re-probe) | 2026-11-22 — §6 body already tip-wins via `7ea96a70d` (CI blank-EOF + HITL retip absorb of `0364129c5` / `bc-cdfdae43` onto `d2c919401`); `cursor/v2711-hitl-live-retip-absorb-d91a` finishes absorb honesty + CROWN pin onto live crown `7ea96a70d` (⊇ CASTLE digest-bind / VW CI-wasm / OOR retip13 / CI blank-EOF); standing remains **BLOCKED_HITL** / **REFUSED** (`foundry_exit=1`; Model access not configured); exact next `bun scripts/powl-foundry-loop.ts --live` → **foundry_exit=0**; **no** invented `--live` `ALIVE`; docs-only; no cargo; no ManagePullRequest; push `HEAD:cursor/ecosystem-spec-27-1-1-bc54` (no force) |
 
 ---
 
@@ -135,4 +136,4 @@ Jobs/C4 residual is **separate** (not this falsifier): admitted igniter pack `--
 | Hop-5 live / Foundry crown | **PARTIAL** — **not** promoted; do **not** invent `ALIVE` |
 | Exact next (unchanged) | Founder HITL provision (§3 A/B/C) → `bun scripts/powl-foundry-loop.ts --live` → **foundry_exit=0** |
 
-**Antifalsifiers held:** dry-run / runtime PRESENT / adapter exit 0 / in-repo tip-cargo ≠ `--live` `ALIVE`. Sidebranch only — no crown push.
+**Antifalsifiers held:** dry-run / runtime PRESENT / adapter exit 0 / in-repo tip-cargo ≠ `--live` `ALIVE`. Tip-wins absorb onto crown `7ea96a70d+` (body @ `7ea96a70d`; honesty this land) — standing **not** promoted.
