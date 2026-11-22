@@ -8,6 +8,8 @@ exit=0
 standing=ALIVE (lineage tip-cargo)
 ```
 
+**Honesty pin (Gate-1 retip `cursor/v2711-gate1-honesty-retip-5536` on tip `fdcad534d`):** lineage tip-cargo EXIT:0 @ `c91b22561` is retained as evidence. Tip-subject standing in [`GATE-1-GAP-MATRIX.md`](./GATE-1-GAP-MATRIX.md) / [`CROWN-PROGRESS-RECEIPT.md`](./CROWN-PROGRESS-RECEIPT.md) remains **COMPILING** / **PARTIAL_ALIVE** until exact live-crown EXIT:0. Do **not** invent tip-subject `ALIVE`.
+
 | Field | Value |
 |-------|-------|
 | Document ID | `BRAND-TOML-TIP-CARGO-STANDING` |

@@ -25,7 +25,7 @@ Source presence is never promoted to path `ALIVE` without tip-cargo exit 0. Fixt
 | **ALIVE (fixture courts)** | ABB/SBB `unauthorized_do_request_is_refused`; SovereignLease Ed25519 admit; V7 ES256/`prime256v1` fixture court land **4 passed; exit 0** @ `fb6e7fc6e`; V1 ungated-DO seat fence historical **6 passed; exit 0** @ `0478fde59` | Fixture / kernel only — **never** Plane-5 DO |
 | **PARTIAL_ALIVE** | CCS #1–#7 path slices (CCS #2+#3 tip-cargo **ALIVE** subset); full A2A lifecycle package courts still open; land `cursor/mcp-a2a-hands-free-lifecycle-bc54` | Crown / broker rows still open |
 | **ALIVE (tip-cargo subset)** | CCS #3 `construct_hash_gate` **4 passed; exit 0** @ `861a6e73a`; V7/V1 fixture tip replay **exit 0** | Fixture + CCS #3 fence — **not** Plane-5 DO |
-| **BLOCKED** / **UNSUPPORTED** | Live WebAuthn / FIDO2 RP+hardware (**UNSUPPORTED**); live BRCE broker (**BLOCKED** → **V8**); Plane-5 front-door DO (**BLOCKED** → **V9** / OOR **G2-5**); `lifecycle.rs` still **ABSENT** | Exact next: [`CCS-BRCE-STANDING.md`](./CCS-BRCE-STANDING.md) §2; [`BRCE-WEBAUTHN-STANDING.md`](./BRCE-WEBAUTHN-STANDING.md) §5 |
+| **BLOCKED** / **UNSUPPORTED** | Live WebAuthn / FIDO2 RP+hardware (**UNSUPPORTED**); live BRCE broker (**BLOCKED** → **V8**); Plane-5 front-door DO (**BLOCKED** → **V9** / OOR **G2-5**) | Exact next: [`CCS-BRCE-STANDING.md`](./CCS-BRCE-STANDING.md) §2; [`BRCE-WEBAUTHN-STANDING.md`](./BRCE-WEBAUTHN-STANDING.md) §5 |
 
 ---
 
@@ -75,7 +75,7 @@ not onto PR comments, and not onto generated artifacts.
 |---|------|-------|----------------|----------|---------------|
 | 1 | **BRCE + WebAuthn AS-01** | Plane 5 — Front doors / constitutional DO | **BRCE + WebAuthn AS-01 `:prime256v1`** — exclusive CONSTRUCT→DO broker | **PARTIAL_ALIVE** — doctrine + V1 seat fence + **V7 ES256/`prime256v1` fixture crypto-shape** (**PRESENT**; land **4 passed; exit 0** @ `fb6e7fc6e`). Live WebAuthn RP/hardware **UNSUPPORTED**; live BRCE broker **BLOCKED**; Plane-5 DO **BLOCKED**. Slice is **not** CONSTRUCT→DO / Plane-5 `ALIVE`. | Replay fixtures: `cargo test -p ggen-abb-sbb --test brce_as01_es256_assertion_court` (V7); `… --test brce_as01_seat_court` (V1). Next live: **V8** (broker) → **V9** / OOR **G2-5**. Never promote path `ALIVE` from fixture alone. Clause-2 binder: [`CCS-BRCE-STANDING.md`](./CCS-BRCE-STANDING.md). |
 | 2 | **MCP `ggen_write_apply`** | Plane 1 — Manufacture (local write) | `confirm: true` **and** Gall **CP17** `expected_graph_hash` (independent dry-run corroboration). Not BRCE; cannot grant Plane-5 DO. | **ALIVE** tip-cargo — **7+1+1 passed; exit 0** @ `42c5b9ba4` on tip `cde02d1f2` (see [`CCS-WRITE-APPLY-ALIVE-STANDING.md`](./CCS-WRITE-APPLY-ALIVE-STANDING.md)); not Plane-5 DO | Replay: same three cargo commands; **V8**/**V9** remain **BLOCKED** |
-| 3 | **A2A construct / lifecycle apply** | Plane 1 — Manufacture (A2A/MCP lifecycle) | `confirm: true` + `construct_hash_gate` / `corroborate_expected_graph_hash` (CP17 parity with write_apply); lifecycle apply still open | **PARTIAL_ALIVE** — CCS #3 `construct_hash_gate` tip-cargo **ALIVE** **4 passed; exit 0** @ `861a6e73a` (`--features a2a`). `lifecycle.rs` **PRESENT** (tip `513704d04`; tip-cargo ALIVE 6/6 @ `acd9705c1`) on tip `008a81d21` — full A2A CP17 path **not** crown `ALIVE`. | Land: merge/cherry `crates/ggen-lsp/src/a2a_mcp/lifecycle.rs` from `cursor/mcp-a2a-hands-free-lifecycle-bc54` @ `05c6032f0`; then A2A package courts exit **0**. |
+| 3 | **A2A construct / lifecycle apply** | Plane 1 — Manufacture (A2A/MCP lifecycle) | `confirm: true` + `construct_hash_gate` / `corroborate_expected_graph_hash` (CP17 parity with write_apply) | **ALIVE** (construct + lifecycle tip-cargo) — CCS #3 `construct_hash_gate` **4 passed; exit 0** @ `861a6e73a`; `lifecycle.rs` **PRESENT** + tip-cargo **6/6** @ `513704d04`/`acd9705c1` ([`LIFECYCLE-TIPWINS-STANDING.md`](./LIFECYCLE-TIPWINS-STANDING.md)). BRCE **V8**/Plane-5 DO still **BLOCKED** — ≠ CONSTRUCT→DO crown `ALIVE`. | Replay: `cargo test -p ggen-lsp --features a2a --test a2a_lifecycle_hands_free_test`; construct_hash_gate court. Next live: BRCE **V8**. |
 | 4 | **Sync receipt verify** | Plane 2 — Trust | BLAKE3 receipt chain over `{graph_hash, outputs}`; `ggen receipt verify` (zero args → `.ggen-v2/receipt.json`) | **PARTIAL_ALIVE** — verb + handler live; proves consequence identity, not DO grant | `ggen receipt verify` after a real sync; `cargo test -p ggen-engine --test receipt_chain_e2e` (or package receipt courts) |
 | 5 | **SovereignLease** | Plane 2 — Trust / authority | ed25519-dalek multi-sig lease admission (`ggen-sjira`); IO-free kernel. Distinct from WebAuthn P-256 AS-01 — does not open Plane-5 DO. | **ALIVE** (lease admit fixture); **UNSUPPORTED** as AS-01 / `:prime256v1` | `cargo test -p ggen-sjira --test lease_epoch_test --test execute_lease_test` |
 | 6 | **ABB/SBB Stage 2c admission** | Plane 1 — Manufacture admission | `admit()` / `plan()` / depgraph (cycle + unbound-port refusal); Stage 2c gate into ggen-engine. Emits admitted structure only — no DO. | **PARTIAL_ALIVE** (path); DO-authority refuse fixture **ALIVE** | `cargo test -p ggen-abb-sbb --test falsifiers` (incl. `unauthorized_do_request_is_refused`) |
@@ -112,13 +112,13 @@ CCS #2 tip-cargo **ALIVE** @ evidence land `42c5b9ba4` (7+1+1 replay on absorb t
 | Implementation | `crates/ggen-mcp/src/tools/write_apply.rs` | CP17 preflight dry-run before write | (covered by courts above) |
 | **`construct_hash_gate` (CCS #3)** | `crates/ggen-lsp/src/a2a_mcp/construct_hash_gate.rs` | **ALIVE** tip-cargo — **4 passed; exit 0** @ `861a6e73a` (PR **#901** / `3ec8afd85`; `--features a2a`) | Replay: same command |
 
-### 4.2 Still ABSENT on tip — cite as PARTIAL_ALIVE / ABSENT
+### 4.2 Lifecycle on tip — **ALIVE** (construct + lifecycle)
 
 | Court / surface | Branch evidence | Standing |
 |-----------------|-----------------|----------|
-| `corroborate_graph_hash` / `lifecycle.rs` | Land path: `cursor/mcp-a2a-hands-free-lifecycle-bc54` @ `05c6032f0` → `crates/ggen-lsp/src/a2a_mcp/lifecycle.rs` | **ABSENT** on observed tip `008a81d21` (`git ls-tree` — no blob); branch holds file **PRESENT** |
+| `corroborate_graph_hash` / `lifecycle.rs` | `crates/ggen-lsp/src/a2a_mcp/lifecycle.rs` on tip | **ALIVE** — **PRESENT** + tip-cargo **6/6** @ `513704d04`/`acd9705c1` |
 
-Do not claim full A2A lifecycle CP17 `ALIVE` until `lifecycle.rs` lands and package courts exit 0 on the admitted tip. `construct_hash_gate` tip-cargo **ALIVE** ≠ full lifecycle **ALIVE**.
+Construct + lifecycle tip-cargo **ALIVE** on tip. Construct/lifecycle path **ALIVE** ≠ BRCE **V8** / Plane-5 DO `ALIVE`.
 
 ---
 
@@ -147,7 +147,7 @@ Observed in-repo (live crates + docs; ontology_catalogue noise excluded where no
 | CCS | This document crystallizes the standing set; prior prose used “control surface” loosely |
 | SELECT≠CONSTRUCT≠DO | `AGENTS.md`; ECOSYSTEM-SPEC-27.1.1 §1.1 (companion PR); CROWN/GALL docs |
 | `construct_hash_gate.rs` | **PRESENT** on tip `008a81d21` (§4.1; PR **#901**); tip-cargo **ALIVE** **4 passed; exit 0** @ `861a6e73a` |
-| `lifecycle.rs` | **ABSENT** on tip `008a81d21` (§4.2); land `cursor/mcp-a2a-hands-free-lifecycle-bc54` |
+| `lifecycle.rs` | **ALIVE** — **PRESENT**/tip-cargo **6/6** @ `513704d04`/`acd9705c1` |
 | confirm gates | `ggen_write_apply` + CP17 courts tip-cargo **ALIVE** **7+1+1 passed; exit 0** @ `42c5b9ba4` (§4.1) |
 | brand.toml hot-swap | **PARTIAL_ALIVE** on tip (`brand_toml_hotswap_court`); production theme **UNSUPPORTED** / `REFUSED_PRODUCTION` ([`BRAND-PRODUCTION-THEME.md`](./BRAND-PRODUCTION-THEME.md); Gate-1 / ECOSYSTEM §8) — not Plane-5 DO |
 | zero-HITL fab crown | **not** `ALIVE` — Foundry / ECOSYSTEM D1 remain incomplete until out-of-repo hops close |
