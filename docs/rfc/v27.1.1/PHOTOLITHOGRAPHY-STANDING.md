@@ -4,9 +4,9 @@
 |-------|-------|
 | Document ID | `PHOTOLITHOGRAPHY-STANDING-27.1.1` |
 | Companion | `ECOSYSTEM-SPEC-27.1.1.md`, `GATE-1-GAP-MATRIX.md`, `REPO-INVENTORY-27.1.1.md` |
-| Observed tip (this ledger) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ pre-absorb `8629691f8d713f8a5cd3d28c5daa3ec2ead18701` (tip-wins absorb perimeter→ttl/toml path honesty `cursor/v2711-perimeter-path-bc54` @ `46c347281` via `cursor/v2711-perimeter-path-absorb-ef01` onto tip ⊇ HITL action-card §8 — [`PERIMETER-TTL-TOML-PATH-STANDING.md`](./PERIMETER-TTL-TOML-PATH-STANDING.md); prior tip-wins absorb igniter reconfirm `ec079cc16` / `cursor/v2711-igniter-reconfirm-bc54` / `bc-fd60df35` mount `git diff --exit-code` → **0** @ `d0fec2f2f`; crown ⊇ HITL BLOCKED_HITL + Smalt mix ALIVE + OOR cos **503** / revops **NXDOMAIN**; Jobs/C4 admitted `--check` **ALIVE**; hop-4 BrandTheme manufacture **ALIVE**; hop-5 **PARTIAL_ALIVE** foundry `--live` **BLOCKED_HITL**; path crown **PARTIAL** — not path-crown ALIVE; **no** Foundry `ALIVE`) |
+| Observed tip (this ledger) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ pre-absorb `94ea8cf252f3a238ef89e7012f4c34d0ffbd98f2` (tip-wins absorb igniter clean-room retip `cursor/v2711-igniter-cleanroom-retip-bc54` @ `5c6eae752` via `cursor/v2711-igniter-cleanroom-absorb-a038` / evidence `bc-17cf3ea2` mount `git diff --exit-code` → **0**; ⊇ perimeter→ttl/toml `94ea8cf25` + HITL action-card §8 `8629691f8` — [`PERIMETER-TTL-TOML-PATH-STANDING.md`](./PERIMETER-TTL-TOML-PATH-STANDING.md); prior tip-wins absorb igniter reconfirm `ec079cc16` / `bc-fd60df35` @ `d0fec2f2f`; Jobs/C4 admitted `--check` **ALIVE**; hop-4 BrandTheme manufacture **ALIVE**; hop-5 **PARTIAL_ALIVE** foundry `--live` **BLOCKED_HITL**; path crown **PARTIAL** — not path-crown ALIVE; clean-room ALIVE ≠ `--live` Foundry ALIVE; **no** Foundry `ALIVE`) |
 | Hop-4 manufacture | 2026-11-22 — `cursor/v2711-hop4-manufacture-alive-bc54` + reconfirm `cursor/v2711-hop4-primitive-space-bc54` / `/tmp/cursor/igniter-hop4-manufacture-alive.md` (`bc-b528ad50`) — tip `fourth-watch.brand.toml` BrandTheme emit vs igniter fixture → **ALIVE** (`exit=0`, canon `diff -rq=0`, compare-subject `git diff --exit-code=0`); prior PARTIAL exit **2** `:no_primitive_space` closed by dual-schema + emitter ancestry; IGNITER manufacture row corrected REFUSED → **ALIVE** |
-| Hop-4 clean-room | 2026-11-22 — tip-wins absorb reconfirm `cursor/v2711-igniter-reconfirm-bc54` @ `ec079cc16` / `/tmp/cursor/igniter-cleanroom-reconfirm.md` (`bc-fd60df35`) onto crown `d0fec2f2f` (probe tip `1dbf1cc2e`; absorb land `d0fec2f2f`); prior `cursor/v2711-igniter-cleanroom-alive-bc54` / `/tmp/cursor/igniter-cleanroom-alive-tip.md` (`bc-53b0e099`) tip `f1492ed55`; `/home/ubuntu/ggen_igniter` @ `b5a15528…`; `git diff --exit-code` → **0** (**ALIVE** crown string); path crown **PARTIAL**; OOR cos **503** / revops **NXDOMAIN** held |
+| Hop-4 clean-room | 2026-11-22 — tip-wins absorb `cursor/v2711-igniter-cleanroom-retip-bc54` @ `5c6eae752` / `/tmp/cursor/igniter-cleanroom-retip.md` (`bc-17cf3ea2`) onto crown pre-absorb `94ea8cf25` via `cursor/v2711-igniter-cleanroom-absorb-a038` (prior tip-wins absorb reconfirm `cursor/v2711-igniter-reconfirm-bc54` @ `ec079cc16` / `bc-fd60df35` onto `d0fec2f2f`; prior `cursor/v2711-igniter-cleanroom-alive-bc54` / `bc-53b0e099` tip `f1492ed55`); `/home/ubuntu/ggen_igniter` @ `b5a15528…`; `git diff --exit-code` → **0** (**ALIVE** crown string); path crown **PARTIAL**; Foundry `--live` **BLOCKED_HITL** held (clean-room ≠ `--live` ALIVE) |
 | Hop-5 mix SUBJECT | 2026-11-22 — `cursor/v2711-hop5-mix-subject-bc54` / [`HOP5-MIX-SUBJECT-STANDING.md`](./HOP5-MIX-SUBJECT-STANDING.md) — default adapter exit **0** after Taffy+Mode B PASS (not SUBJECT_MISSING) |
 | Hop-5 foundry live2 | 2026-11-22 — `cursor/v2711-hop5-foundry-live2-bc54` / [`HOP5-FOUNDRY-LIVE2-STANDING.md`](./HOP5-FOUNDRY-LIVE2-STANDING.md) — Gall `--live` injects `createZcodeAgentExecutor`; **foundry_exit=1** / **REFUSED** (runtime ABSENT at live2); no false `ALIVE` |
 | Hop-5 zcode runtime | 2026-11-22 — `cursor/v2711-hop5-zcode-runtime-bc54` / [`HOP5-ZCODE-RUNTIME-STANDING.md`](./HOP5-ZCODE-RUNTIME-STANDING.md) — Linux tip-matched 3.14.4 `.deb` → `vendor/zcode.cjs` **PRESENT**; darwin `sync:locked`/`sync:local` **UNSUPPORTED**; `--live` **foundry_exit=1** / **REFUSED** (model access ABSENT); no false `ALIVE` |
@@ -153,19 +153,21 @@ Court **ALIVE (exact tip-cargo)** on cargo tip `a508e6bae` (`bc-70188ac3`: exclu
 | *(sibling)* `seanchatmangpt/ggen_igniter` | Clean-room / manufacture subject — **out-of-repo**; mount **PRESENT** at `/home/ubuntu/ggen_igniter` (HEAD `b5a15528…`) |
 | `docs/rfc/v27.1.1/fixtures/fourth-watch.brand.toml` | Dual-schema tip brand (`[rhythm]` + DTCG `[primitive.space]`) — BrandTheme manufacture input |
 | BrandTheme manufacture compare | **ALIVE** — tip emit vs igniter fixture CSS; compare-subject `git diff --exit-code` → **0** (`/tmp/cursor/igniter-hop4-manufacture-alive.md`; prior `igniter-real-cleanroom.md`) |
-| `git diff --exit-code` (bare mount) | Clean-room crown **ALIVE** — tip-wins absorb tip `d0fec2f2f` / `bc-fd60df35` (`/tmp/cursor/igniter-cleanroom-reconfirm.md` EXIT **0**; probe `1dbf1cc2e`); prior tip `f1492ed55` / absorb `42717a7a0…` / `bc-53b0e099`; mount `/home/ubuntu/ggen_igniter` @ `b5a15528…`; antifalsifier: alone ≠ BrandTheme manufacture `ALIVE`; alone ≠ path crown `ALIVE` |
+| `git diff --exit-code` (bare mount) | Clean-room crown **ALIVE** — tip-wins absorb onto pre-absorb `94ea8cf25` / side `5c6eae752` / `bc-17cf3ea2` (`/tmp/cursor/igniter-cleanroom-retip.md` EXIT **0**; absorb reconfirm EXIT **0**); prior tip-wins absorb `d0fec2f2f` / `bc-fd60df35` (`/tmp/cursor/igniter-cleanroom-reconfirm.md`); prior tip `f1492ed55` / `bc-53b0e099`; mount `/home/ubuntu/ggen_igniter` @ `b5a15528…`; antifalsifier: alone ≠ BrandTheme manufacture `ALIVE`; alone ≠ path crown `ALIVE`; alone ≠ Foundry `--live` `ALIVE` |
 | `mix ggen_igniter.sync --check` | Jobs/C4 **ALIVE** — admitted `--pack-dir sample-pack … --check` exit **0**; NIF **ALIVE**; bare `--check` **REFUSED_INVOCATION** exit **2** antifalsifier (default PATH `mix` **ABSENT**; see [`HOP4-MIX-NIF-STANDING.md`](./HOP4-MIX-NIF-STANDING.md)) |
 | `docs/reference/gate-conventions.md` | ggen vs ggen_igniter gate scoring orientation |
 | `crates/ggen-graph/src/bin/gall_observe_clean_room.rs` | In-repo GALL W3 clean-room **observe** — distinct subject |
 
 Standing now: clean-room crown **ALIVE** (`git diff --exit-code` → **0**;
-reconfirm `bc-fd60df35` tip-wins onto `d0fec2f2f`; probe `1dbf1cc2e`; prior
-`bc-53b0e099`); BrandTheme manufacture compare **ALIVE** (`diff_exit=0`);
-Jobs/C4 residual **ALIVE** (admitted `--check` exit **0**; tip-wins retained).
-Path crown remains **PARTIAL** / non-ALIVE — clean-room EXIT:0 does **not**
-promote the photolithography path. Do **not** claim BrandTheme manufacture
-`ALIVE` from bare post-clone alone (antifalsifier). Do **not** claim Jobs/C4
-`ALIVE` from NIF `.so` or bare exit-2 `REFUSED:INVOCATION`.
+tip-wins absorb `bc-17cf3ea2` / `5c6eae752` onto pre-absorb `94ea8cf25` via
+`cursor/v2711-igniter-cleanroom-absorb-a038`; prior `bc-fd60df35` tip-wins onto
+`d0fec2f2f`; prior `bc-53b0e099`); BrandTheme manufacture compare **ALIVE**
+(`diff_exit=0`); Jobs/C4 residual **ALIVE** (admitted `--check` exit **0**;
+tip-wins retained). Path crown remains **PARTIAL** / non-ALIVE — clean-room
+EXIT:0 does **not** promote the photolithography path and does **not** mint
+Foundry `--live` `ALIVE` (**BLOCKED_HITL** held). Do **not** claim BrandTheme
+manufacture `ALIVE` from bare post-clone alone (antifalsifier). Do **not**
+claim Jobs/C4 `ALIVE` from NIF `.so` or bare exit-2 `REFUSED:INVOCATION`.
 
 ### 5 — zcode-cli POWL/OCEL remediations (bounded refusal)
 
