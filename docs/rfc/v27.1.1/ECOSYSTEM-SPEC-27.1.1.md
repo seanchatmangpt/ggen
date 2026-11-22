@@ -143,8 +143,13 @@ ggen SHALL expose a deterministic layout pre-flight that:
 4. Is consumable by **zcode-cli** `ui-layout-court.ts` without re-implementing
    geometry law.
 
-Standing at materialization: **UNSUPPORTED** in ggen (no Taffy dependency /
-pre-flight crate surface).
+Standing on tip (post Gate-1 land): **PARTIAL_ALIVE** — workspace `taffy`
+dependency + `ggen_graph::layout::taffy_aot` six-width seal +
+`taffy_aot_preflight_court` (evidence tip `0478fde59`, exit 0). Photolithography /
+zcode-cli consume of `AotSealReceipt` remains open (not path-crown `ALIVE`).
+Exact refusal-code vocabulary still TBD in the Gate-1 seal; failures must not
+be silently dropped. Historical materialization note: surface was
+**UNSUPPORTED** before the Taffy land.
 
 ---
 
@@ -165,12 +170,17 @@ in worktree sanitizers and ORIGINAL_REQUEST doctrine. That ban is about the
 **project-private** `truex:` prefix, not about Truex-the-product admitting the
 **W3C** `shui:` namespace. Do not conflate the two.
 
-Standing at materialization:
+Standing on tip:
 
-- Truex repo admission of `shui:`: **UNKNOWN** (sibling `seanchatmangpt/truex`;
-  not mounted in this workspace).
-- ggen public-prefix alignment: see Gate-1 foundation slice in this PR
-  (`vocab::shui` + admitted-prefix court) — **PARTIAL_ALIVE** after land.
+- Truex product admission of `shui:`: **PARTIAL_ALIVE** — sibling Chicago
+  admit-court **6/6 vitest exit 0** on `seanchatmangpt/truex` @ `e28e68300`
+  (`cursor/v2711-truex-admit-court-bc54` / truex#6): `shui:` → **ADMITTED**;
+  private `truex:` → **REFUSED_PRIVATE**; unknown → **REFUSED_UNKNOWN**. Not
+  full product `ALIVE` until that PR merges to truex `main` + tip-sync ggen
+  fence parity. See [`GATE-1-GAP-MATRIX.md`](./GATE-1-GAP-MATRIX.md).
+- ggen public-prefix alignment: `vocab::shui` + `shui_public_prefix_court` —
+  **ALIVE** on evidence tip `0478fde59` (fence only; tip-cargo reconfirm may
+  still be PENDING).
 
 ---
 
@@ -275,10 +285,22 @@ Standing: **PARTIAL_ALIVE** (lock + pin doc present; policy court absent).
 | `docs/rfc/v27.1.1/REPO-INVENTORY-27.1.1.md` | path + standing census |
 | `docs/rfc/v27.1.1/GATE-0-STANDING.md` | Gate 0 billing / cos / servengine / SOW standing + stub citations |
 | `docs/rfc/v27.1.1/GATE-1-GAP-MATRIX.md` | requirement → evidence → verifier → owner |
+| `docs/rfc/v27.1.1/GATE-2-CINDYCAT-FIRST.md` | Gate 2 CindyCat-first commercial priority |
+| `docs/rfc/v27.1.1/GATE-3-RELEASE-COURTS-STANDING.md` | RC-D1…RC-D7 release-court standing ledger |
 | `docs/rfc/v27.1.1/R01-R07-STANDING.md` | R-01…R-07 resolution contract standing + next verifiers |
 | `docs/rfc/v27.1.1/PHOTOLITHOGRAPHY-STANDING.md` | hop ledger: perimeter → ttl/toml → Taffy AOT → igniter clean-room → zcode POWL/OCEL (no fake ALIVE) |
+| `docs/rfc/v27.1.1/FOUNDRY-FINISH-STANDING.md` | horizontal spine ggen→Taffy→zcode→CASTLE→Smalt→revops (zero daily founder HITL) |
+| `docs/rfc/v27.1.1/OUT-OF-REPO-NEXT-VERIFIERS.md` | Gate 0/2/3 exact next external verifiers |
 | `docs/rfc/v27.1.1/BRCE-WEBAUTHN-STANDING.md` | BRCE + WebAuthn AS-01 (`:prime256v1`) exists vs BLOCKED/UNSUPPORTED + GA verifiers |
+| `docs/rfc/v27.1.1/CCS-AUTHORITY-STANDING.md` | SELECT≠CONSTRUCT≠DO authority edges + A2A/BRCE fence census |
 | `docs/rfc/v27.1.1/CURVE25519-DALEK-PIN-STANDING.md` | Gate-1 `curve25519-dalek` / `ed25519-dalek` lock pin + policy (PARTIAL_ALIVE) |
+| `docs/rfc/v27.1.1/VERIFY-WITNESS-PRODUCTION.md` | production `verify_witness` WASM build path (size court ≠ prod ALIVE) |
+| `docs/rfc/v27.1.1/IGNITER-CLEANROOM-STANDING.md` | ggen_igniter clean-room contract (hop 4) |
+| `docs/rfc/v27.1.1/ZCODE-POWL-OCEL-STANDING.md` | zcode POWL/OCEL bounded remediation (hop 5) |
+| `docs/rfc/v27.1.1/CASTLE-SPINE-STANDING.md` | CASTLE publish / brand spine (Gate 2–3) |
+| `docs/rfc/v27.1.1/SMALT-RAID-STANDING.md` | Smalt 4-cloud RAID economic ops standing |
+| `docs/rfc/v27.1.1/REVOPS-COS-STANDING.md` | revops.fnox.io / cos.fnox.io Plane-5 standing |
+| `docs/rfc/v27.1.1/CINDYCAT-REVERSE-GLOO.md` | CindyCat Reverse Gloo deal pack |
 
 ---
 
@@ -287,5 +309,8 @@ Standing: **PARTIAL_ALIVE** (lock + pin doc present; policy court absent).
 Materialized from the Sovereign Ecosystem v27.1.1 mandate delivered to the
 executing agent (Document ID `ECOSYSTEM-SPEC-27.1.1`, superseding
 `ECOSYSTEM-SPEC-26.11.20`). Inventory standings were observed against
-`origin/main` tip at branch creation. No Plane 5 / cos / GCP claim is asserted
-as `ALIVE`.
+`origin/main` tip at branch creation; tip standing refresh on
+`cursor/v2711-ecospec-fill-bc54` (parent `origin/cursor/ecosystem-spec-27-1-1-bc54`
+@ `8f0a60ea1` — tip `5480d7ada+` / OOR retip4; CASTLE sibling spine courts
+**ALIVE** @ `5480d7ada`; Truex product admit **PARTIAL_ALIVE** @ `d0e3ba473`).
+No Plane 5 / cos / GCP claim is asserted as `ALIVE`.

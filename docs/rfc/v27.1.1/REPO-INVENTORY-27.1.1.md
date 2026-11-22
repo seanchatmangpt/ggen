@@ -5,7 +5,7 @@ Standing labels: ALIVE | PARTIAL_ALIVE | UNKNOWN | UNSUPPORTED | BLOCKED.
 
 | Subject | Paths / evidence | Standing | Notes |
 |---------|------------------|----------|-------|
-| Truex (product / sibling) | `docs/gh-terraform/FLEET-CENSUS.md` → `seanchatmangpt/truex`; `ontology_catalogue/open-ontologies/ontology/truex-ecosystem.ttl`; archived `docs/archive/**/07_TRUEX_LIFECYCLE_SPEC.md` | **UNKNOWN** | Sibling not mounted; catalogue TTL is description, not runtime admission |
+| Truex (product / sibling) | `docs/gh-terraform/FLEET-CENSUS.md` → `seanchatmangpt/truex`; sibling admit-court on `cursor/v2711-truex-admit-court-bc54` @ `e28e68300` (truex#6); catalogue TTL remains description-only | **PARTIAL_ALIVE** | Admit-court 6/6 vitest exit 0 (`shui:` ADMITTED; private `truex:` REFUSED); not full `ALIVE` until merge to truex `main` |
 | `truex:` as private prefix | `ORIGINAL_REQUEST.md` (banned); `crates/ggen-graph/src/bin/gall_observe_worktree.rs` banned IRI tokens; marketplace registry id `truex` | **ALIVE** (ban) | Private-prefix ban is live; distinct from W3C `shui:` |
 | `forbid_private_namespaces` / public prefix scan | `crates/ggen-graph/src/bin/gall_actuate_code_evaluation.rs` (`allowed_prefixes`, `check_uri`); `crates/ggen-lsp/assets/policies/no-private-namespace.shacl.ttl` | **PARTIAL_ALIVE** | Live scanners; `shui` absent until Gate-1 slice |
 | `shui:` (W3C SHACL 1.2 UI) | *(none prior to this PR)* | **UNSUPPORTED** → **PARTIAL_ALIVE** after `vocab::shui` land | Spec IRI `http://www.w3.org/ns/shacl-ui/` |
