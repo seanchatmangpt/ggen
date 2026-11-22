@@ -1,0 +1,24 @@
+{
+  "court": "ui-layout-court",
+  "schema": "ggen.layout.aot.column/v1",
+  "text_spacing": 1.5,
+  "column": {
+    "gap_px": 8.0,
+    "children": [
+      {
+        "id": "body_copy",
+        "width_px": 200.0,
+        "height_px": 32.0,
+        "is_text": true,
+        "is_interactive": false
+      },
+      {
+        "id": "primary_cta",
+        "width_px": 120.0,
+        "height_px": 44.0,
+        "is_text": false,
+        "is_interactive": true
+      }
+    ]
+  }
+}
