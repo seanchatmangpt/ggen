@@ -5,19 +5,18 @@ Companion to `ECOSYSTEM-SPEC-27.1.1` §8 and Gate-1 gap matrix row
 
 ## Standing (this tip)
 
-Tip pin: crown `678a6c106ad9aa78f0d198146ef8021a388fd8a4` (ecosystem-spec
-`cursor/v2711-companion-honesty-bc54` @ post–Gate-1 honesty `b565b8e83`; cargo
-evidence `26256ca9d413617f0e8b1418d101708ec4fbc2a3`).
+Tip pin: crown `19c08a3b0` (`cursor/v2711-taffy-brand-absorb-a77d`; fluid+hotswap tip-cargo
+**ALIVE**; production **UNSUPPORTED**; rhythm lineage retained @ `26256ca9d`).
 
 | Surface | Standing | Evidence |
 |---------|----------|----------|
-| Rhythm schema + OEM stubs | **ALIVE** (lineage) | `brand_toml_rhythm_court` **12 passed; exit 0** @ `26256ca9d` |
-| Fluid clamp / cqi slopes | **PARTIAL_ALIVE** | `brand_fluid_clamp_court` source **6** on crown; tip-cargo reconfirm optional |
-| OEM hot-swap fence | **ALIVE** (lineage) | `brand_toml_hotswap_court` **6 passed; exit 0** @ `26256ca9d` |
+| Rhythm schema + OEM stubs | **ALIVE** (lineage) | `brand_toml_rhythm_court` **12 passed; exit 0** @ `26256ca9d` (Official brand_toml owns cold reconfirm) |
+| Fluid clamp / cqi slopes | **ALIVE** (tip-cargo **6 passed; exit 0** @ crown `19c08a3b0`) | `brand_fluid_clamp_court` |
+| OEM hot-swap fence | **ALIVE** (tip-cargo **6 passed; exit 0** @ crown `19c08a3b0`) | `seed_hot_swap_slot` / `hot_swap_brand` + `brand_toml_hotswap_court` |
 | Production runtime theme | **UNSUPPORTED** | `promote_production_theme` → `ProductionThemeRefusal::ProductionUnsupported` (code `REFUSED_PRODUCTION`) |
 
-Hot-swap and rhythm lineage tip-cargo are Gate-1 CONSTRUCT fences with standing
-**ALIVE** (lineage). They do **not** authorize production theme DO, CASTLE
+Fluid clamp, hot-swap, and rhythm lineage tip-cargo are Gate-1 CONSTRUCT fences with
+standing **ALIVE**. They do **not** authorize production theme DO, CASTLE
 publish, or full DTCG color/type inventory `ALIVE`.
 
 ## In-repo fail-closed fence
