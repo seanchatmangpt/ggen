@@ -12,7 +12,7 @@ Standing labels: ALIVE | PARTIAL_ALIVE | UNKNOWN | UNSUPPORTED | BLOCKED.
 | Taffy / AOT layout | `taffy` workspace dep + `ggen-graph::layout::taffy_aot` six-width seal; court admits all six + refuses width-local overflow | **PARTIAL_ALIVE** (ggen fence sealed; zcode/igniter consume open) | Gate 1 photolithography still open |
 | `*.brand.toml` / DTCG rhythm | `layout::brand` + `docs/rfc/v27.1.1/fixtures/{fourth-watch,cindycat}.brand.toml` | **PARTIAL_ALIVE** (rhythm); token inventory Gate 2+ | Gate 1 schema / Gate 2+ inventory |
 | SUPPLE / ORC | no product surface under live crates | **UNKNOWN** | Name collision noise only (ORCID, ORCHESTRATOR_ALIVE prose) |
-| ui-layout / zcode-cli | not in workspace members; no `ui-layout-court.ts` | **UNSUPPORTED** | External sibling |
+| ui-layout / zcode-cli | ggen adapter `layout::ui_layout_court` + `docs/rfc/v27.1.1/fixtures/ui-layout-court.ts` contract stub + JSON fixture; zcode-cli package not in workspace | **PARTIAL_ALIVE** (ggen fence); TS runner **UNSUPPORTED** | External sibling owns executable court |
 | Zero-DOM / WebGPU | no live crate surface | **UNSUPPORTED** | Mode A |
 | FFB (UI Mode B) | no live crate surface | **UNSUPPORTED** | Unrelated “Mode A/B” in wasm4pm examples is process-mining, not FFB |
 | CASTLE | no publish/court surface in-repo | **UNKNOWN** | Gate 2–3 |

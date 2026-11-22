@@ -198,7 +198,10 @@ token-inventory plane **UNSUPPORTED** until Gate 2+.
 - fails closed on missing / stale / mismatched layout digests;
 - does not re-authorize DO.
 
-Standing: **UNSUPPORTED** in this repo (zcode-cli not a workspace member).
+Standing: **PARTIAL_ALIVE** for the in-repo Rust adapter + fixtures
+(`ggen_graph::layout::ui_layout_court`); TypeScript runner remains
+**UNSUPPORTED** / **BLOCKED** until zcode-cli is mounted and executes against
+those fixtures.
 
 ---
 
