@@ -42,7 +42,10 @@ fn unmounted_checkout_refuses_alive_promotion() {
         msg.starts_with("REFUSED_CLEANROOM_CHECKOUT_UNMOUNTED:"),
         "refusal must be typed with REFUSED_ prefix: {msg}"
     );
-    assert!(msg.contains(VERIFIER_COMMAND), "refusal must name the verifier");
+    assert!(
+        msg.contains(VERIFIER_COMMAND),
+        "refusal must name the verifier"
+    );
 }
 
 #[test]
