@@ -1,31 +1,31 @@
 # `verify_witness` size court standing (tip-cargo ALIVE)
 
 ```text
-exit=0 standing=ALIVE(size_court) passed=6 tip_cargo_subject=f5f44571f9a331d46e2895657621b7efd7127f1b
-absorb_base=9173c65296cd8db544f6ae3544f3531a4bb9399c
-lineage=6a3a623bacd33efdc1ec7efccf6a35141662ca53
+exit=0 standing=ALIVE(size_court) passed=8 tip_cargo_subject=b2f6e12d2e9cf74dcb0dcbb2b02d3526c0ae9e7d
+absorb_base=f654343155c902a003a852f61df345e986d98b5e
+lineage=f5f44571f9a331d46e2895657621b7efd7127f1b
 prior_reconfirm=c91b225614a3ca0472303c05bab25601db1d51e1
-production=UNSUPPORTED
-honesty=size_court_ALIVE_neq_production_WASM_ALIVE
-side=cursor/v2711-verify-witness-prod-bc54@6c2a9dc4c
-absorb=cursor/v2711-verify-witness-prod-absorb-55c2
+env_wire=PARTIAL
+production_runtime=UNSUPPORTED
+honesty=size_court_ALIVE_neq_env_wire_PARTIAL_neq_production_WASM_ALIVE
+side=cursor/v2711-vw-env-wire-bc54@b2f6e12d2
+absorb=tip-wins code @f65434315 + honesty retip onto cursor/ecosystem-spec-27-1-1-bc54
 ```
 
 | Field | Value |
 |-------|-------|
-| Branch (this honesty surface) | `cursor/v2711-verify-witness-prod-absorb-55c2` (side `cursor/v2711-verify-witness-prod-bc54` @ `6c2a9dc4c`) |
-| Ecosystem tip (absorb base) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `9173c65296cd8db544f6ae3544f3531a4bb9399c` (Smalt GA residual tip-wins on `f5f44571f`; OOR retip11 + CASTLE held) |
-| Court | `crates/ggen-graph/tests/verify_witness_size_court.rs` — **6** `#[test]` **PRESENT** |
-| API | `crates/ggen-graph/src/witness/mod.rs` **PRESENT** (`court_verify_witness_size`, budget `262_144`) |
-| Placeholder | `crates/ggen-graph/fixtures/witness/verify_witness.placeholder.wasm` **35** bytes (`< 262144` / &lt;250KB); SHA-256 `720b97972e97693b197444d46578b75546cd0b0487e7061fc7e1ea45f2953034` |
-| Tip-cargo (subject) | subject `f5f44571f` — warm target `/tmp/ggen-verify-witness-tip-ebf4` → **6 passed; EXIT=0** (`/tmp/cursor/verify-witness-prod-size-court-side.log`); witness sources ≡ through absorb base `9173c6529` (Smalt docs-only; **no cargo** this absorb) |
-| Tip-cargo (prior reconfirm) | subject `c91b22561` — **6 passed; EXIT=0** (`/tmp/cursor/verify-witness-tip-c91b-reconfirm.log`) |
-| Tip-cargo (cold) | subject `cd7c2433b` — **6 passed; EXIT=0** (`/tmp/cursor/verify-witness-tip-cd7c-build.log`) |
-| Ancestor cargo | `0478fde59` — **6 passed; exit 0** (retained) |
-| Standing (size court) | **ALIVE** (exact tip-cargo on `f5f44571f`; size court only; ≠ production WASM `ALIVE`) |
-| Production WASM | **UNSUPPORTED** in ggen — [`VERIFY-WITNESS-PRODUCTION.md`](./VERIFY-WITNESS-PRODUCTION.md). Affidavit pin size court **ALIVE** (**28673** B @ `563eb322a`) — [`VERIFY-WITNESS-AFFIDAVIT-SIZE-COURT-STANDING.md`](./VERIFY-WITNESS-AFFIDAVIT-SIZE-COURT-STANDING.md); ggen wire **UNSUPPORTED**. |
+| Branch (this honesty surface) | tip-wins absorb of `cursor/v2711-vw-env-wire-bc54` @ `b2f6e12d2` |
+| Ecosystem tip (absorb base) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `f65434315` (code tip-wins onto `098f53ea8`; past CASTLE/WebAuthn) |
+| Court | `crates/ggen-graph/tests/verify_witness_size_court.rs` — **8** `#[test]` **PRESENT** (env wire + affidavit ceiling) |
+| API | `crates/ggen-graph/src/witness/mod.rs` **PRESENT** (`AFFIDAVIT_VERIFY_WITNESS_SIZE_BUDGET_BYTES=256_000`; Gate-1 `262_144`) |
+| Placeholder | `crates/ggen-graph/fixtures/witness/verify_witness.placeholder.wasm` **35** bytes (`≪ 256000` / `262144`); SHA-256 `720b97972e97693b197444d46578b75546cd0b0487e7061fc7e1ea45f2953034` |
+| Tip-cargo (env-wire side) | subject `b2f6e12d2` — warm `/tmp/ggen-verify-witness-env-wire` → **8 passed; EXIT=0** (`/tmp/cursor/vw-env-wire-size-court.log`) |
+| Tip-cargo (prior size-only) | subject `f5f44571f` — **6 passed; EXIT=0** (`/tmp/cursor/verify-witness-prod-size-court-side.log`); prior `c91b22561` / cold `cd7c2433b` |
+| Standing (size court) | **ALIVE** (size court only; ≠ production WASM `ALIVE`) |
+| Env wire (`GGEN_VERIFY_WITNESS_WASM`) | **PARTIAL** — code + Chicago courts; CI env unset → typed `UNSUPPORTED` for production path |
+| Production WASM runtime | **UNSUPPORTED** in ggen CI — no CI-mounted real wasm; [`VERIFY-WITNESS-PRODUCTION.md`](./VERIFY-WITNESS-PRODUCTION.md). Affidavit pin size court **ALIVE** (**28673** B @ `563eb322a`) — [`VERIFY-WITNESS-AFFIDAVIT-SIZE-COURT-STANDING.md`](./VERIFY-WITNESS-AFFIDAVIT-SIZE-COURT-STANDING.md) |
 | ManagePullRequest | not used |
-| Crown push | tip-wins absorb onto `cursor/ecosystem-spec-27-1-1-bc54` after Smalt land |
+| Crown push | tip-wins absorb onto `cursor/ecosystem-spec-27-1-1-bc54` (no force) |
 
 ## Replay
 
@@ -34,24 +34,24 @@ set -o pipefail
 cd "$(git rev-parse --show-toplevel)"   # @ origin/cursor/ecosystem-spec-27-1-1-bc54 tip
 CARGO_BUILD_JOBS=1 \
   cargo test -p ggen-graph --test verify_witness_size_court --locked \
-  --target-dir /tmp/ggen-verify-witness-tip-ebf4 \
+  --target-dir /tmp/ggen-verify-witness-env-wire \
   --config build.jobs=1 -- --test-threads=1
 echo EXIT=$?
 ```
 
-Expect: **6 passed; exit 0** on tip witness sources (production path remains **UNSUPPORTED**).
+Expect: **8 passed; exit 0** on tip witness sources (env wire **PARTIAL**; production runtime remains **UNSUPPORTED**).
 
-## Exact next verifier for production (ggen wire — open)
+## Exact next verifier for production ALIVE (still open)
 
-Affidavit pin size court is **ALIVE** (EXIT **0**; **28673** B @ `563eb322a`) —
+Env wire is **PARTIAL**. Affidavit pin size court is **ALIVE** (EXIT **0**; **28673** B @ `563eb322a`) —
 [`VERIFY-WITNESS-AFFIDAVIT-SIZE-COURT-STANDING.md`](./VERIFY-WITNESS-AFFIDAVIT-SIZE-COURT-STANDING.md).
-Remaining owner path: ggen `GGEN_VERIFY_WITNESS_WASM` wire. See
-[`VERIFY-WITNESS-PRODUCTION.md`](./VERIFY-WITNESS-PRODUCTION.md):
+Production runtime `ALIVE` still requires a **CI-mounted** real wasm + consume EXIT 0:
 
 ```bash
 export GGEN_VERIFY_WITNESS_WASM=/abs/path/to/affidavit_gatekeeper_verify_witness.wasm
-# ggen_graph::witness::verify_production_witness(None) — still CONSTRUCT; never DO
+# ggen_graph::witness::verify_production_witness(None) → PartialAlive (CONSTRUCT; never DO)
+# CI job that sets the env + runs the court → still required for production ALIVE
 ```
 
-ggen placeholder size-court `ALIVE` + affidavit pin `ALIVE` ≠ ggen production
-`ALIVE` until the wire courts on tip.
+ggen size-court `ALIVE` + env-wire `PARTIAL` + affidavit pin `ALIVE` ≠ ggen production
+runtime `ALIVE`.

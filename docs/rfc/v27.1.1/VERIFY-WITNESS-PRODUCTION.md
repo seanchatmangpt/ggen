@@ -4,18 +4,19 @@ Companion to `ECOSYSTEM-SPEC-27.1.1` §10 and Gate-1 gap matrix row
 `verify_witness WASM < 250KB`.
 
 ```text
-base=origin/cursor/ecosystem-spec-27-1-1-bc54@098f53ea8
-side=tip-wins absorb cursor/v2711-vw-env-wire-bc54@b2f6e12d2
+base=origin/cursor/ecosystem-spec-27-1-1-bc54@f654343155c902a003a852f61df345e986d98b5e
+side=cursor/v2711-vw-env-wire-bc54@b2f6e12d2
 side_prod=cursor/v2711-verify-witness-prod-bc54@6c2a9dc4c
 side_affidavit=cursor/v2711-vw-affidavit-court-bc54@cc0ea07e4
 size_court=ALIVE (prior tip-cargo 6 @ f5f44571f; court extended to 8 for env wire)
-env_wire=PARTIAL (code PRESENT + Chicago courts; env unset in CI)
+env_wire=PARTIAL (code PRESENT + Chicago courts 8/8 EXIT 0; env unset in CI)
 affidavit_size_court=ALIVE (just gatekeeper-wasm-size-court EXIT=0; wc -c 28673 @ 563eb322a; bc-5f5786ff)
 production_runtime_ALIVE=UNSUPPORTED (no CI-mounted real wasm)
 affidavit_checkout=ABSENT (this worktree); probe mount ALIVE elsewhere
 wasm32_target=ABSENT (rustup installed targets: x86_64-unknown-linux-gnu only)
 GGEN_VERIFY_WITNESS_WASM=unset (CI default)
 honesty=env_wire_PARTIAL_neq_production_ALIVE
+absorb=code tip-wins @f65434315 (onto 098f53ea8); honesty retip (GATE-1/CROWN/SIZE/OOR) — no production ALIVE
 ```
 
 ## Ownership
@@ -134,12 +135,12 @@ cargo build --locked --lib --target wasm32-unknown-unknown --profile wasm
 
 | Claim | Standing |
 |-------|----------|
-| ggen placeholder size court | **ALIVE** (prior tip-cargo **6** @ `f5f44571f`; sidebranch **8**) |
-| ggen `GGEN_VERIFY_WITNESS_WASM` env wire + `<256000` bound | **PARTIAL** (code + Chicago courts on this sidebranch) |
+| ggen placeholder size court | **ALIVE** (prior tip-cargo **6** @ `f5f44571f`; tip-wins absorb **8**) |
+| ggen `GGEN_VERIFY_WITNESS_WASM` env wire + `<256000` bound | **PARTIAL** (code + Chicago courts **8/8** EXIT **0**; CI env unset) |
 | In-repo production WASM build path | **UNSUPPORTED** (no `verify_witness` workspace member; no wasm32 target) |
 | Affidavit production pin size court | **ALIVE** @ `563eb322a` (EXIT **0**; **28673** B) — [`VERIFY-WITNESS-AFFIDAVIT-SIZE-COURT-STANDING.md`](./VERIFY-WITNESS-AFFIDAVIT-SIZE-COURT-STANDING.md) |
 | Production runtime in ggen CI | **UNSUPPORTED** until CI mounts real wasm + consume EXIT 0 |
 
 - Never promote inspection of this markdown file to `ALIVE`.
 - Never cite fat `affidavit-wasm` (718736 B) as the &lt;250KB gatekeeper.
-- Sidebranch only — tip-wins absorb of honesty must not invent production `ALIVE`.
+- Tip-wins absorb must not invent production `ALIVE` from env-wire `PARTIAL`.
