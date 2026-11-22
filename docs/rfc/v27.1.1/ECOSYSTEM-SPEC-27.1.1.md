@@ -185,7 +185,8 @@ Gate-1 in-repo slice (this land): **visual rhythm only** — px/rem primitives,
 `docs/rfc/v27.1.1/fixtures/`. Full color/type/CASTLE inventories remain Gate 2+;
 inventing those token values here is still **REFUSED**.
 
-Standing: **PARTIAL_ALIVE** (rhythm schema + OEM stubs + Chicago court);
+Standing: **PARTIAL_ALIVE** (rhythm schema + OEM stubs + completeness court
+refusing missing touch floor / gap / grid);
 token-inventory plane **UNSUPPORTED** until Gate 2+.
 
 ---
