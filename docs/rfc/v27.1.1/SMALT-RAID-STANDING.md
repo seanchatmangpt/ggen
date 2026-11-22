@@ -385,3 +385,16 @@ invented; no cargo; no ManagePullRequest. See §6d.
 | Smalt RAID / GA economic face | **ALIVE (lineage)** **held** — prior ALIVE lineage still on crown tip; do **not** invent a fresh tip-cargo / mix `ALIVE` without EXIT0 |
 | Foundry / zero-HITL | **not** promoted — RAID lineage `ALIVE` ≠ Foundry crown `ALIVE` |
 | Next exact verifier | Replay §4.2 FinOps at pin (narrowest): `cd /path/to/smalt # tip 91997da76f0f356dc2be914bdb0a5b8227518719` → `mix test test/fin_ops_calculator_test.exs` → exit **0** / **19 passed**; residual replay §4.3; 4-cloud §4.1 if columns drift |
+
+## Retip — FinOps + doctor live replay (2026-11-22 3:36 PM PST)
+
+| Field | Value |
+|-------|-------|
+| Clone | `/tmp/smalt-raid` @ `91997da76f0f` |
+| Elixir | mise `elixir@1.20.5-otp-29` (OTP 29) |
+| `just doctor` | EXIT **0** (`/tmp/smalt-doctor3.log`) — after elixir+terraform+certs+tmp |
+| `mix test test/fin_ops_calculator_test.exs` | **19 passed**; EXIT **0** (`/tmp/smalt-finops-mix2.log`) |
+| TS FinOps (non-substitute) | **9**/EXIT:**0** (`/tmp/smalt-finops-ts.log`) |
+| Standing | Smalt RAID FinOps replay **ALIVE** at pin — **≠ Foundry / zero-HITL / path `ALIVE`** |
+| Construct | full job still **PENDING_CI** on ggen tip `7bb443e99` |
+
