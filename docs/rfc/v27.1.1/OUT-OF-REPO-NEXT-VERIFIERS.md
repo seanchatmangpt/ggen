@@ -5,11 +5,11 @@
 | Document ID | `OUT-OF-REPO-NEXT-VERIFIERS` |
 | Companion | `ECOSYSTEM-SPEC-27.1.1`, `GATE-0-STANDING`, `GATE-3-RELEASE-COURTS-STANDING`, `FOUNDRY-FINISH-STANDING` |
 | Target GA | **2027-01-01** |
-| Observed ggen tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `d0e3ba473dcaf26a90d963a767e4fa3f0600912f` |
+| Observed ggen tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `5480d7ada1eee2c5f48af2e262b59992c22f7e13` |
 | Materialized | 2026-11-22 |
 | Hardened | 2026-11-22 — `cursor/v2711-oor-ledger-harden-bc54` |
 | Ops refresh | 2026-11-22 — `cursor/v2711-ops-standing-refresh-bc54` (tip pin + probe reconfirm; standings held) |
-| Tip pin | 2026-11-22 — `cursor/v2711-castle-alive-bc54` after CASTLE sibling spine courts **ALIVE** @ `2774039ea` (`bc-1bffb072`; prior Truex pin `cursor/v2711-truex-admit-standing-bc54` / tip `d0e3ba473`; Foundry crown stays **PARTIAL_ALIVE**) |
+| Tip pin | 2026-11-22 — `cursor/v2711-oor-retip4-bc54` after crown tip `5480d7ada` (CASTLE sibling spine courts **ALIVE** land `5480d7ada` / prior Observed pin `d0e3ba473`; standings held — G2-12 **ALIVE** retained; Foundry crown stays **PARTIAL_ALIVE**; no false promotion; hop-4 **PARTIAL_ALIVE** + hop-5 **PARTIAL** retained) |
 | Hop-5 evidence | `/tmp/cursor/hop5-crossmount.md` (`bc-be2c9600`) |
 | Repo scope | `seanchatmangpt/ggen` — **tracks** sibling standing; does not execute sibling DO |
 
@@ -175,7 +175,11 @@ Tip pin retipped on `cursor/v2711-castle-alive-bc54` onto tip `d0e3ba473`
 — G2-12 CASTLE sibling spine courts **ALIVE** @ castle `2774039ea`
 (`bc-1bffb072`: `publish_redaction_court` 13/13, `cli_publish_brand` 6/6,
 spine-probe `redaction_court=ALIVE`, exits 0,0,0); Foundry/zero-HITL crown
-**not** promoted; spine crown wire remains **UNKNOWN**. Standings synthesized from
-existing v27.1.1 standing ledgers only. Sibling CASTLE courts executed on CASTLE live
-`bc-1bffb072` (not in this ggen workspace). Tracked rows remain
+**not** promoted; spine crown wire remains **UNKNOWN**. Tip pin retipped on
+`cursor/v2711-oor-retip4-bc54` onto live crown tip `5480d7ada` (post–CASTLE
+ALIVE land `5480d7ada`; prior Observed pin `d0e3ba473`; standings held —
+G2-12 **ALIVE** retained; Foundry stays **PARTIAL_ALIVE**; no false
+promotion). Standings synthesized from existing v27.1.1 standing ledgers
+only. Sibling CASTLE courts executed on CASTLE live `bc-1bffb072` (not in
+this ggen workspace). Tracked rows remain
 **25** (`G0-1…4`, `G2-1…16`, `G3-1…5`).
