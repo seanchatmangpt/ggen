@@ -110,13 +110,15 @@ git diff --exit-code                     # compare subject → 0
 ```
 
 **Residual (not hop-4 BrandTheme crown):** Jobs/C4 `mix ggen_igniter.sync
---check` → 0. Probe ledger:
+--check` → **ALIVE** (admitted `--pack-dir test/fixtures/sample-pack … --check`
+exit **0**; evidence `/tmp/cursor/hop4-mix-check-alive-probe.md`). Probe ledger:
 [`HOP4-MIX-NIF-STANDING.md`](./HOP4-MIX-NIF-STANDING.md) — default PATH `mix`
 **ABSENT**; off-PATH elixir-install **PRESENT** (exported); `CXX=g++-13` NIF
-**ALIVE** (nif2 land); bare `--check` **REFUSED_INVOCATION** (exit 2;
+**ALIVE**; bare `--check` **REFUSED_INVOCATION** (exit 2 antifalsifier;
 `--template`/`--pack` required). Do **not** invent Jobs/C4 `ALIVE` from NIF
-`.so` alone. Antifalsifier: bare post-clone `git diff --exit-code` ≠ hop-4
-manufacture `ALIVE`; off-PATH `mix` PRESENT ≠ Jobs/C4 `ALIVE`.
+`.so` alone or from bare exit-2. Antifalsifier: bare post-clone
+`git diff --exit-code` ≠ hop-4 manufacture `ALIVE`; off-PATH `mix` PRESENT ≠
+Jobs/C4 `ALIVE`.
 
 Do not merge this document’s prose into a Plane-5 / release `ALIVE` without
 executing §4 (clean-tree) **and** replaying §5b BrandTheme compare on the
