@@ -6,7 +6,7 @@
 | Branch | `cursor/v2711-ccs-write-apply-alive-bc54` |
 | Spec binding | `ECOSYSTEM-SPEC-27.1.1` §13.2 CCS #2 (`ggen_write_apply` + Gall CP17) |
 | Observed tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `cde02d1f2dc1dae70e6acd282f67a3931062759e` |
-| Evidence land | `30f59f206` (CCS #2 tip-cargo replay 7+1+1 exit **0** @ `cde02d1f2`; prior fixture `b5cb632c6`) |
+| Evidence land | `42c5b9ba4` (CCS #2 tip-cargo replay 7+1+1 exit **0** @ `cde02d1f2`; prior fixture `b5cb632c6`) |
 | Repo | `seanchatmangpt/ggen` |
 | CCS #2 path (confirm + CP17 courts) | **ALIVE** |
 | Clause-2 / Plane-5 / BRCE crown | **PARTIAL_ALIVE** — **V8**/**V9** OOR **BLOCKED** unchanged |
@@ -60,7 +60,7 @@ cargo test -p ggen-mcp --test pipeline_tools_test --locked --config build.jobs=1
 
 ```text
 tip=cde02d1f2dc1dae70e6acd282f67a3931062759e
-evidence=30f59f206
+evidence=42c5b9ba4
 v1=write_apply_confirm_test 7_passed_exit_0
 v2a=write_apply_refuses_a_fabricated_graph_hash_bypass 1_passed_exit_0
 v2b=write_apply_accepts_a_real_dry_run_graph_hash 1_passed_exit_0
