@@ -6,9 +6,9 @@
 | Companion | `ECOSYSTEM-SPEC-27.1.1` (economic-ops / Gate-0–Plane-5 adjacent) |
 | Target GA | **2027-01-01** |
 | Materialized | 2026-11-22 |
-| Observed ggen tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `79b64496b7cdf8a5db5782b0cdbe633f44ac4bbf` (tip-wins absorb of sidebranch `7334aa971` / `cursor/v2711-smalt-mix-courts-bc54`; crown ⊇ OOR retip12 `79b64496b` + affidavit size-court `7ddfd8b6e`/`41c09d019` + BRCE V8/R01 `1dbf1cc2e` + verify_witness prod `fe72be0fb` + Smalt GA residual `9173c6529`; smalt evidence pin held). |
-| Observed smalt tip | FinOps `91997da76f0f356dc2be914bdb0a5b8227518719` on smalt `cursor/v2711-smalt-finops-test-bc54` (parent `875efbb87bde8422236cf9db7224412962dbc5a7` = smalt `main` @ probe; 4-cloud courts `bc-ad9ebffa` + residual mix courts `bc-c700dafb`) |
-| Crown standing (from ggen) | **ALIVE** (Smalt RAID / GA economic face) — **6-column spine ALIVE** (doctor/aws/gcp/azure/twilio **0,0,0,0,0** @ `875efbb87` + `fin_ops` **ALIVE** @ `91997da76f0f`) **and** §4.3 residual b4b courts **ALIVE** @ `91997da76f0f` (treasury/tax/erp/rates exits **0,0,0,0**). Foundry / zero-HITL crown **≠** this claim — do **not** invent Foundry `ALIVE`. |
+| Observed ggen tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ tip-wins absorb of `99bd2938a` (`cursor/v2711-smalt-raid-retip-bc54`) onto crown `571571720` via `cursor/v2711-smalt-raid-retip-absorb-f21a` (exact-tip FinOps+treasury honesty reconfirm; crown lineage ⊇ CASTLE retip3 `571571720` + BRCE V8 / igniter / prior Smalt mix absorb `79b64496b` + residual `9173c6529`; smalt evidence pin held — see §6c). |
+| Observed smalt tip | FinOps `91997da76f0f356dc2be914bdb0a5b8227518719` on smalt `cursor/v2711-smalt-finops-test-bc54` (parent `875efbb87bde8422236cf9db7224412962dbc5a7` = smalt `main` @ probe; 4-cloud courts `bc-ad9ebffa` + residual mix courts `bc-c700dafb`; this-pass FinOps+treasury replay on clone HEAD match) |
+| Crown standing (from ggen) | **ALIVE** (Smalt RAID / GA economic face) — **held** (not newly promoted): 4-cloud doctor/aws/gcp/azure/twilio **0,0,0,0,0** retained @ `875efbb87` (`bc-ad9ebffa`; **not** re-run this pass) + `fin_ops` **ALIVE** reconfirmed EXIT **0** / **19 passed** @ `91997da76f0f` + §4.3 residual **ALIVE** (treasury reconfirm EXIT **0** / **8 passed**; tax/erp/rates retained). Foundry / zero-HITL crown **≠** this claim — do **not** invent Foundry `ALIVE`. |
 
 Standing vocabulary: `UNKNOWN` | `PARTIAL_ALIVE` | `ALIVE` | `BLOCKED` | `BUILD_BROKEN` | `UNSUPPORTED` | `REFUSED_*`.
 
@@ -321,3 +321,36 @@ affidavit size-court honesty, BRCE V8/R01 bodies, and verify_witness prod
 honesty; smalt pin `91997da76f0f` **held**; residual **ALIVE**; Smalt RAID /
 GA economic face **ALIVE**; Foundry / zero-HITL crown remains **PARTIAL** —
 **not** invented; no cargo; no ManagePullRequest.
+
+Exact-tip honesty reconfirm 2026-11-22 on `cursor/v2711-smalt-raid-retip-bc54`
+from live crown tip `571571720` (**no** crown push / no ManagePullRequest #849):
+smalt clone HEAD `91997da76f0f` — narrowest court
+`mix test test/fin_ops_calculator_test.exs` → EXIT **0**, **19 passed**;
+treasury residual replay EXIT **0**, **8 passed**; 4-cloud columns **retained**
+(not re-executed this pass) @ `875efbb87`; Smalt RAID / GA economic face
+**ALIVE** **held**; Foundry / zero-HITL crown **not** invented; no cargo.
+
+Tip-wins absorb 2026-11-22 on `cursor/v2711-smalt-raid-retip-absorb-f21a` onto live
+crown tip `571571720` (FF from sidebranch `99bd2938a` / `cursor/v2711-smalt-raid-retip-bc54`;
+tip stable — no race reapply): FinOps EXIT **0** / **19 passed** + treasury EXIT **0** /
+**8 passed** @ smalt `91997da76f0f` **held**; 4-cloud retained @ `875efbb87`; Smalt RAID /
+GA economic face **ALIVE** **held**; Foundry / zero-HITL crown remains **PARTIAL** —
+**not** invented; no cargo; no ManagePullRequest.
+
+---
+
+## 6c. Exact-tip honesty reconfirm (2026-11-22 — FinOps+treasury replay)
+
+| Field | Value |
+|-------|-------|
+| Sidebranch | `cursor/v2711-smalt-raid-retip-bc54` from `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `571571720620cd7462b9a740e3bf0b0fdeebc17a` |
+| Observed ggen tip | tip-wins absorb onto crown `571571720620cd7462b9a740e3bf0b0fdeebc17a` (sidebranch probe base identical; tip stable — no race reapply) |
+| Observed smalt tip | `91997da76f0f356dc2be914bdb0a5b8227518719` (clone `/tmp/smalt-probe`; parent `875efbb87`) |
+| Narrowest court | `mix test test/fin_ops_calculator_test.exs` |
+| FinOps EXIT | **0** — **19 passed** → **ALIVE** (reconfirm) |
+| Residual replay | `mix test test/treasury/treasury_test.exs` → EXIT **0** — **8 passed** → **ALIVE** |
+| 4-cloud this pass | **not re-run** — doctor/aws/gcp/azure/twilio exits **0,0,0,0,0** **retained** @ `875efbb87` (`bc-ad9ebffa`) |
+| tax/erp/rates this pass | **retained** @ `91997da76f0f` (`bc-c700dafb`) — exits **0,0,0** |
+| Smalt RAID / GA economic face | **ALIVE** **held** (FinOps+treasury reconfirm + retained 4-cloud/residual authority) |
+| Foundry / zero-HITL | **not** promoted — RAID `ALIVE` ≠ Foundry crown `ALIVE` |
+| Crown absorb | tip-wins `cursor/v2711-smalt-raid-retip-absorb-f21a` onto crown `571571720` (side `99bd2938a` / `cursor/v2711-smalt-raid-retip-bc54`; no ManagePullRequest) |
