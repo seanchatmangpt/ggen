@@ -4,10 +4,10 @@
 |-------|-------|
 | Document ID | `CROWN-PROGRESS-RECEIPT-27.1.1` |
 | Status | **PROGRESS RECEIPT** (honest; **not** goal-complete; **not** crown `ALIVE`) |
-| Observed tip | absorb tip `89ca2da9c37d7ba61abd665fe5c8de176201ae33` (~`2fd897141+` / `46a026ae9+`) |
-| Tip subject | absorb #930 taffy_aot_preflight **PRESENT** @ `ef6fb84ed` + #931 photo hop-4 BrandTheme **ALIVE** reconfirm @ `d191cf792` onto tip past #929 verify_witness **PRESENT**; tip-wins: ui_layout tip-cargo **ALIVE** preserved |
-| Ledger pins cited | Gate-1 / Photo / Foundry retipped; taffy tip subject **PRESENT** (ls-tree); photo hop-4 **ALIVE** reconfirm; OOR / CCS / BRCE / CASTLE retain prior absorb pins |
-| Cargo this receipt | **no** for #930/#931 — tip-exclusive thrash; prior exclusive quiet `ui_layout_court` **11 passed; exit 0** @ `ca52e9c16` retained |
+| Observed tip | absorb tip `89ca2da9c37d7ba61abd665fe5c8de176201ae33` (~`2fd897141+` / `46a026ae9+` / `c11ea7f2a+`) |
+| Tip subject | absorb #930 taffy **PRESENT** + #931 photo hop-4 **ALIVE** + #933 brand Gate-1 honesty onto tip past #929 verify_witness **PRESENT**; tip-wins: ui_layout tip-cargo **ALIVE** preserved; brand hot-swap+fluid **PRESENT**; production theme **UNSUPPORTED** |
+| Ledger pins cited | Gate-1 / Photo / Foundry retipped; taffy tip subject **PRESENT** (ls-tree); photo hop-4 **ALIVE** reconfirm; brand production **UNSUPPORTED**; OOR / CCS / BRCE / CASTLE retain prior absorb pins |
+| Cargo this receipt | **no** for this absorb — tip-exclusive thrash; prior exclusive quiet `ui_layout_court` **11 passed; exit 0** @ `ca52e9c16` retained |
 | Goal standing | **INCOMPLETE** — do **not** claim ECOSYSTEM-SPEC-27.1.1 crown complete |
 
 Standing vocabulary (`AGENTS.md` §2): `UNKNOWN` | `PARTIAL_ALIVE` | `ALIVE` |
@@ -137,7 +137,7 @@ Do **not** invent zero daily founder HITL `ALIVE` from Gate-1 fence green, CASTL
 | `curve25519-dalek` pin | **PARTIAL_ALIVE** (lock+doc; policy court open) | pin standing §5 policy court |
 | `verify_witness` size | **PARTIAL_ALIVE**; production WASM **UNSUPPORTED** | size court; prod: [`VERIFY-WITNESS-PRODUCTION.md`](./VERIFY-WITNESS-PRODUCTION.md) |
 | R-01…R-07 contract | **ALIVE** (contract); bodies **BLOCKED** | `cargo test -p ggen-graph --test r01_r07_resolution_court` |
-| Brand rhythm / hot-swap | **PARTIAL_ALIVE**; production theme **UNSUPPORTED** (`REFUSED_PRODUCTION`) | rhythm/hotswap courts; [`BRAND-PRODUCTION-THEME.md`](./BRAND-PRODUCTION-THEME.md) |
+| Brand rhythm / hot-swap | hot-swap+fluid **PRESENT** (ceiling **PARTIAL_ALIVE**); production theme **UNSUPPORTED** (`ProductionThemeRefusal::ProductionUnsupported` / `REFUSED_PRODUCTION`) | `brand_toml_hotswap_court` / `brand_fluid_clamp_court` / `layout::brand::production_theme_tests`; [`BRAND-PRODUCTION-THEME.md`](./BRAND-PRODUCTION-THEME.md) |
 | BRCE AS-01 seat fence | **PARTIAL_ALIVE** | `cargo test -p ggen-abb-sbb --test brce_as01_seat_court` |
 | ggen_igniter manufacture | **ALIVE** (BrandTheme compare); mix NIF **BLOCKED** | manufacture replay → **0**; `mix … --check` → **0** |
 | Gate-0 cos | **BLOCKED** (external) | cos `/readyz` → **200** |
@@ -184,5 +184,6 @@ Recommended next Gate-1 falsifier (pick one): quiet tip-cargo reconfirm of remai
 | Absorb retip | 2026-11-22 — `cursor/v2711-gate1-uilayout-alive-bc54` absorbs `8090022f4` onto tip `120598fb3` |
 | Absorb #929 | 2026-11-22 — verify_witness size court **PRESENT** @ `89ca2da9c` (~`2fd897141+`) |
 | Absorb #930/#931 | 2026-11-22 — taffy_aot_preflight **PRESENT** (`ls-tree` blob `d8923b07e`) + photo hop-4 BrandTheme **ALIVE** reconfirm onto tip `89ca2da9c+`; tip-cargo SKIPPED; ui_layout **ALIVE** preserved |
+| Brand Gate-1 honesty (#933) | 2026-11-22 — `cursor/v2711-brand-gate1-retip-bc54` @ `5c08f3312` onto tip `c11ea7f2a+`; hot-swap+fluid **PRESENT**; production **UNSUPPORTED**; no cargo; no ManagePullRequest |
 | Sources | GATE-1-GAP-MATRIX, PHOTOLITHOGRAPHY, FOUNDRY-FINISH, OUT-OF-REPO-NEXT-VERIFIERS, SMALT-RAID, CCS-AUTHORITY, BRCE-WEBAUTHN, ECOSYSTEM-SPEC §13 |
 | Method | Absorb tip-wins honesty; no cargo; no ManagePullRequest |
