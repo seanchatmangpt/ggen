@@ -6,10 +6,11 @@
 | Binding | `ECOSYSTEM-SPEC-27.1.1` Gate 0 + Gate 2–3 out-of-repo legs; GA **2027-01-01** |
 | Companion index | [`OUT-OF-REPO-NEXT-VERIFIERS.md`](./OUT-OF-REPO-NEXT-VERIFIERS.md); [`GATE-0-2-3-NEXT-VERIFIERS.md`](./GATE-0-2-3-NEXT-VERIFIERS.md) |
 | Sidebranch | `cursor/v2711-oor-retip19-bc54` (`bc-f83f4cbf`; matrix origin `cursor/v2711-gate023-oor-matrix-bc54` / `bc-0754e974`) |
-| Observed ggen tip (write base) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ **`dd61fefb29fa7ea6e1cf789f002ccd9879393988`** (`dd61fefb2`; tip-wins absorb parent; Foundry `--live` BLOCKED_HITL / cos BLOCKED / revops UNKNOWN **held**) |
-| Probe time | 2026-11-22 11:02:01 PST / `2026-11-22T19:02:01Z` (retip19) |
-| Cargo / tip-cargo | **NOT RUN** (docs-only honesty matrix) |
-| Crown absorb | tip-wins onto `origin/cursor/ecosystem-spec-27-1-1-bc54` (no force; no ManagePullRequest) |
+| Observed ggen tip (write base) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ **`6ae116c31636cddf8d7674c6012fe34bdcabfd07`** (`6ae116c31`; ⊇ Construct preempt `e568bef1d` + wasm-opt `6ae116c31`; Foundry `--live` BLOCKED_HITL / cos BLOCKED / revops UNKNOWN **held**) |
+| Probe time | 2026-11-22 12:36:00 PST / `2026-11-22T20:36Z` (retip21) |
+| Cargo / tip-cargo | **NOT RUN** this matrix (docs-only); companion Construct local **55/55** @ `e568bef1d` ≠ CI Construct ALIVE |
+| Crown absorb | tip-wins onto `origin/cursor/ecosystem-spec-27-1-1-bc54` (no force; parent owns ManagePullRequest) |
+| Companion retip | [`OOR-RETIP21-CONSTRUCT-PREEMPT-STANDING.md`](./OOR-RETIP21-CONSTRUCT-PREEMPT-STANDING.md) |
 
 Standing vocabulary: `UNKNOWN` | `PARTIAL` | `PARTIAL_ALIVE` | `ALIVE` | `BLOCKED` | `BLOCKED_HITL` | `UNSUPPORTED` | `REFUSED_*`.
 
@@ -221,3 +222,7 @@ revops **NXDOMAIN** (**UNKNOWN**); `*.ggen.dev` aliases **NXDOMAIN**. Standings
 ## Retip20 (2026-11-22 11:19:24 PST)
 
 cos **BLOCKED** (HTTP 503) · revops **UNKNOWN** · next: readyz 200.
+
+## Retip21 (2026-11-22 12:36:00 PST) — Construct preempt + OOR reconfirm
+
+Tip **`6ae116c31`**. Probe held: cos `/readyz` **503** `DB_UNAVAILABLE` (**BLOCKED**); `/healthz` **200** (**PARTIAL**); revops **NXDOMAIN** (**UNKNOWN**). In-repo Construct FM-WRITE-005 / FM-PACK-008/013 fixed @ `e568bef1d` (local validate-examples **55/55**); wasm-opt `--enable-bulk-memory` @ `6ae116c31` (local wasm-pack ALIVE; CI Manufacture **UNKNOWN** settling). Gate1 tip-cargo **CLOSED/ALIVE** held. Foundry `--live` **BLOCKED_HITL**. **No invented ALIVE.** Detail: [`OOR-RETIP21-CONSTRUCT-PREEMPT-STANDING.md`](./OOR-RETIP21-CONSTRUCT-PREEMPT-STANDING.md).

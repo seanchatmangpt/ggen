@@ -1,18 +1,19 @@
 # FOUNDRY-HITL-ACTION-CARD — Founder `--live` action card (v27.1.1)
 
 ```text
-tip_base=b960245cf647ebfadb3fbc4d16bbc53852ba159f
-branch=cursor/v2711-foundry-live-retip-bc54
-agent=bc-23737a65-4398-52e6-a180-afd65acfa8f3
-utc=2026-11-22T19:13Z
+tip_base=6ae116c31636cddf8d7674c6012fe34bdcabfd07
+branch=cursor/v2711-oor-construct-retip-bc54
+utc=2026-11-22T20:36Z
 standing=BLOCKED_HITL
 foundry_exit=1
 foundry_finish=PARTIAL
 spine=PARTIAL (not daily-HITL-free)
 photolith_path_crown=PARTIAL
-gate1_trio_ALIVE≠Foundry_ALIVE≠zero_HITL_ALIVE
+gate1_CLOSED_ALIVE≠Foundry_ALIVE≠zero_HITL_ALIVE
 --live=BLOCKED_HITL
 refuse=Foundry_ALIVE
+construct_local=55/55@e568bef1d
+wasm_opt=6ae116c31
 cargo=NOT_RUN
 ```
 
@@ -23,7 +24,7 @@ cargo=NOT_RUN
 | Agent | `bc-23737a65-4398-52e6-a180-afd65acfa8f3` (`https://cursor.com/agents/bc-23737a65-4398-52e6-a180-afd65acfa8f3`); prior finish honesty `bc-94d5f431`; prior card `bc-64334001` |
 | Spec binding | `ECOSYSTEM-SPEC-27.1.1` §13.4 Foundry finish; OOR **G2-9** |
 | Companions | [`FOUNDRY-FINISH-SPINE-STANDING.md`](./FOUNDRY-FINISH-SPINE-STANDING.md); [`FOUNDRY-FINISH-STANDING.md`](./FOUNDRY-FINISH-STANDING.md); [`HITL-LIVE-NEXT-VERIFIER-STANDING.md`](./HITL-LIVE-NEXT-VERIFIER-STANDING.md) §3 / §8 / §10; [`PHOTOLITHOGRAPHY-PATH-STANDING.md`](./PHOTOLITHOGRAPHY-PATH-STANDING.md) |
-| Observed tip (write-time) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `b960245cf647ebfadb3fbc4d16bbc53852ba159f` (`b960245cf`; ⊇ live re-probe `51cbe7830` / Gate1 close absorb / Foundry finish honesty) |
+| Observed tip (write-time) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `6ae116c31636cddf8d7674c6012fe34bdcabfd07` (`6ae116c31`; Construct+wasm preempt; Gate1 CLOSED/ALIVE held; `--live` still BLOCKED_HITL) |
 | zcode-cli | `/agent/repos/zcode-cli` @ `f32df08cdc4b3b8e114a8d1de8cf81acb80e1f3a` — `scripts/powl-foundry-loop.ts` **PRESENT**; `~/.zcode/v2/provider_config.json` **ABSENT** this env |
 | Cargo / tip-cargo | **NOT RUN** (live `--live` re-probe + honesty append; Gate1 tip-cargo held separately) |
 | Status | ACTION CARD — live re-probe **foundry_exit=1** → `--live` **BLOCKED_HITL**; Foundry finish / horizontal spine **PARTIAL**; photolith path crown **PARTIAL**; **never invent Foundry `ALIVE`** |

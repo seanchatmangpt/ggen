@@ -1,8 +1,9 @@
 # V2711-COMPLETION-AUDIT — requirement-by-requirement standing vs objective
 
-> **Retip** `2026-11-22T19:17Z` (America/Los_Angeles 11:17) @ crown **`52b88ae42b5ca2dab85619b4372019d5946c03bb`**
-> After: zcode POWL retip3 absorb `941e93c89` · Ops ON2 Gate1-closed `52b88ae42` · Foundry `--live` **foundry_exit=1** **BLOCKED_HITL**.
+> **Retip21** `2026-11-22T20:36Z` (America/Los_Angeles 12:36) @ crown **`6ae116c31636cddf8d7674c6012fe34bdcabfd07`**
+> After: Construct preempt (sjira/tcps) `e568bef1d` · wasm-opt bulk-memory `6ae116c31` · Gate1 tip-cargo **CLOSED/ALIVE** held · Foundry `--live` **BLOCKED_HITL** · cos **503** / revops **NXDOMAIN**.
 > Goal **NOT COMPLETE**. Never invent Foundry ALIVE. tip-cargo ALIVE ≠ live-tip reconfirm ≠ path crown ≠ Foundry ALIVE.
+> Companion: [`OOR-RETIP21-CONSTRUCT-PREEMPT-STANDING.md`](./OOR-RETIP21-CONSTRUCT-PREEMPT-STANDING.md).
 
 
 ```text
@@ -23,8 +24,8 @@ goal=NOT_COMPLETE
 |-------|-------|
 | Document ID | `V2711-COMPLETION-AUDIT-27.1.1` |
 | Objective | Close `ECOSYSTEM-SPEC-27.1.1` crown (photo + CCS/BRCE + ops O(N²) + Foundry zero-HITL + Gate1 + Gate0/2/3 OOR through **2027-01-01** GA) |
-| Observed crown tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ **`52b88ae42b5ca2dab85619b4372019d5946c03bb`** (Ops ON2 Gate1-closed; ⊇ zcode retip3 `941e93c89` · Foundry live retip `2e1b0f561` · prior audit land `bc481a111`) |
-| Sidebranch | `cursor/v2711-completion-audit-bc54` |
+| Observed crown tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ **`6ae116c31636cddf8d7674c6012fe34bdcabfd07`** (Construct+wasm preempt; Gate1 tip-cargo CLOSED/ALIVE held; Foundry BLOCKED_HITL) |
+| Sidebranch | `cursor/v2711-oor-construct-retip-bc54` |
 | Cargo / tip-cargo | **NOT RUN** (docs-only; evidence from companion ledgers only) |
 | Goal standing | **NOT COMPLETE** — Foundry **BLOCKED_HITL** ∧ BRCE **V8 BLOCKED** ∧ WebAuthn **UNSUPPORTED** ∧ cos **BLOCKED** ∧ revops **UNKNOWN** ∧ path crown **PARTIAL** |
 
