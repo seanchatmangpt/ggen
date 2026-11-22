@@ -661,7 +661,9 @@ fn quote_toml_key(key: &str) -> String {
     if key
         .chars()
         .all(|c| c.is_ascii_alphanumeric() || c == '_' || c == '-')
-        && key.chars().any(|c| c.is_ascii_alphabetic() || c == '_' || c == '-')
+        && key
+            .chars()
+            .any(|c| c.is_ascii_alphabetic() || c == '_' || c == '-')
         && !key.chars().next().is_some_and(|c| c.is_ascii_digit())
     {
         key.to_string()
@@ -919,8 +921,7 @@ pub fn production_theme_standing() -> ProductionThemeStanding {
 /// (full DTCG inventory + runtime apply court — see
 /// `docs/rfc/v27.1.1/BRAND-PRODUCTION-THEME.md`).
 pub fn promote_production_theme(
-    slot: &BrandHotSwapSlot,
-    _receipt: &HotSwapReceipt,
+    slot: &BrandHotSwapSlot, _receipt: &HotSwapReceipt,
 ) -> Result<ProductionThemeStanding, ProductionThemeRefusal> {
     Err(ProductionThemeRefusal::ProductionUnsupported {
         brand_id: slot.brand_id().to_string(),
@@ -1001,7 +1002,10 @@ slope_cqi = 2.0
             PRODUCTION_THEME_STANDING
         );
         assert_ne!(production_theme_standing().as_str(), "ALIVE");
-        assert_ne!(production_theme_standing().as_str(), HOT_SWAP_STANDING_CEILING);
+        assert_ne!(
+            production_theme_standing().as_str(),
+            HOT_SWAP_STANDING_CEILING
+        );
     }
 
     #[test]
@@ -1029,8 +1033,7 @@ slope_cqi = 2.0
                     "detail must name production UNSUPPORTED: {detail}"
                 );
                 assert!(
-                    detail.contains(HOT_SWAP_STANDING_CEILING)
-                        || detail.contains("PARTIAL_ALIVE"),
+                    detail.contains(HOT_SWAP_STANDING_CEILING) || detail.contains("PARTIAL_ALIVE"),
                     "detail must name hot-swap PARTIAL ceiling: {detail}"
                 );
             }

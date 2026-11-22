@@ -81,16 +81,14 @@ pub fn admit_as01_assertion(assertion: &As01Assertion) -> Result<(), As01Asserti
             reason: format!("public_key_sec1_hex: {reason}"),
         }
     })?;
-    let challenge = decode_hex(&assertion.challenge_hex).map_err(|reason| {
-        As01AssertionRefusal::Shape {
+    let challenge =
+        decode_hex(&assertion.challenge_hex).map_err(|reason| As01AssertionRefusal::Shape {
             reason: format!("challenge_hex: {reason}"),
-        }
-    })?;
-    let sig_bytes = decode_hex(&assertion.signature_hex).map_err(|reason| {
-        As01AssertionRefusal::Shape {
+        })?;
+    let sig_bytes =
+        decode_hex(&assertion.signature_hex).map_err(|reason| As01AssertionRefusal::Shape {
             reason: format!("signature_hex: {reason}"),
-        }
-    })?;
+        })?;
 
     let encoded = EncodedPoint::from_bytes(&pk_bytes).map_err(|_| As01AssertionRefusal::Shape {
         reason: "public_key_sec1_hex is not a valid SEC1 encoded point".to_string(),
