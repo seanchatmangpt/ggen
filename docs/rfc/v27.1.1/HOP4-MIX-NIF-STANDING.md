@@ -5,7 +5,7 @@
 | Document ID | `HOP4-MIX-NIF-STANDING-27.1.1` |
 | Branch | `cursor/v2711-hop4-mix-nif-bc54` |
 | Companion | [`PHOTOLITHOGRAPHY-STANDING.md`](./PHOTOLITHOGRAPHY-STANDING.md) hop 4, [`IGNITER-CLEANROOM-STANDING.md`](./IGNITER-CLEANROOM-STANDING.md), [`OUT-OF-REPO-NEXT-VERIFIERS.md`](./OUT-OF-REPO-NEXT-VERIFIERS.md) G2-10 residual, [`HOP5-MIX-SUBJECT-STANDING.md`](./HOP5-MIX-SUBJECT-STANDING.md) |
-| Ecospec tip base | absorb onto tip `c11ea7f2a` (~`89ca2da9c+` / `2fd897141+` / `46a026ae9+`; branch `cursor/v2711-absorb-mix-nif-8a5f`; source `ae2acc52b`) |
+| Ecospec tip base | absorb gate1-post+#936 onto tip `ba9824207` (~`8cee4246f+` / `c11ea7f2a+` / `89ca2da9c+`; branch `cursor/v2711-absorb-gate1-936-15e7`; mix/NIF source `ae2acc52b` tip-wins) |
 | igniter mount | `/home/ubuntu/ggen_igniter` @ `b5a15528eb6792dd366fe744ca87f24a80cc46fc` |
 | Host | Linux x86_64 cloud VM |
 | Status | LEDGER (not path-crown `ALIVE`; hop-4 BrandTheme manufacture remains **ALIVE**) |

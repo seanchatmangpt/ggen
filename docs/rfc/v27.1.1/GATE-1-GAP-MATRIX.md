@@ -6,8 +6,9 @@ Companion to `ECOSYSTEM-SPEC-27.1.1.md` and `REPO-INVENTORY-27.1.1.md`.
 
 **Evidence refresh / live tip pin:** CindyCat dual-schema `[primitive.space]` from `[rhythm]` on `cursor/v2711-hop4-cindycat-space-bc54` (court `oem_fixtures_carry_dtcg_primitive_space_from_rhythm`).
 
-**Evidence refresh / live tip pin:** 2026-11-22 absorb hop-4 mix/NIF residual honesty @ `ae2acc52b` onto tip
-`c11ea7f2a4b95bf40d9d18929a011f18dbbdd17d` (~`89ca2da9c+` / `2fd897141+` / `46a026ae9+`; tip-wins: hop-5 runtime **PRESENT** / model access **REFUSED**; ui_layout tip-cargo **ALIVE**; chicago mirror **PARTIAL_ALIVE**; Smalt 6-column spine **ALIVE**; verify_witness size court **PRESENT**; taffy_aot_preflight **PRESENT**; photo hop-4 **ALIVE** reconfirm; mix/NIF PATH **ABSENT** / off-PATH **PRESENT** / NIF **BLOCKED** — [`HOP4-MIX-NIF-STANDING.md`](./HOP4-MIX-NIF-STANDING.md)).
+**Evidence refresh / live tip pin:** 2026-11-22 absorb gate1-post-uilayout @ `7b1120d6e` + #936 crown-progress2 @ `0e25df932` onto tip
+`ba9824207e05ced75cf6b433789f6ca5a62bf368` (~`8cee4246f+` / `c11ea7f2a+` / `89ca2da9c+`; tip-wins: hop-5 runtime **PRESENT** / model access **REFUSED**; ui_layout tip-cargo **ALIVE**; chicago mirror **PARTIAL_ALIVE**; Smalt 6-column spine **ALIVE**; verify_witness size court **PRESENT**; taffy_aot_preflight **PRESENT**; photo hop-4 **ALIVE** reconfirm; mix/NIF PATH **ABSENT** / off-PATH **PRESENT** / NIF **BLOCKED** — [`HOP4-MIX-NIF-STANDING.md`](./HOP4-MIX-NIF-STANDING.md)).
+**Four in-repo falsifiers (gate1-post audit):** Truex+shui **ALIVE**; Taffy **PRESENT**; brand hot-swap **PRESENT**/production **UNSUPPORTED**; ui_layout tip-cargo **ALIVE** @ `ca52e9c16`/`8cee4246f`. Gate1 aggregate stays **PARTIAL**.
 Truex+shui product admit → **ALIVE** (sibling **6/6 vitest exit 0** @
 `truex@68d2d2331696f18949f4877b994320018b6365e5` — [truex#6](https://github.com/seanchatmangpt/truex/pull/6)
 **MERGED** to `main` as `b4672131`; mount `/tmp/truex`; receipt
@@ -32,7 +33,7 @@ Historical evidence exit **0** @ `0478fde59` retained. `verify_witness_size_cour
 dual-schema + `emit_brand_theme_dtcg` PRESENT; prior `diff_exit=0`).
 **ui_layout tip-cargo ALIVE** — exclusive quiet `CXX=g++ SCCACHE_DISABLE=1 CARGO_BUILD_JOBS=1 cargo test -p ggen-graph --test ui_layout_court --locked` under flock `/tmp/ggen-uilayout-tip-alive-protected` →
 **11 passed; 0 failed; exit 0** on tip lineage `ca52e9c1679d66d38d6cf7e196195ee758bee597` (ui_layout sources
-byte-identical through live tip `120598fb3e395393d0ebe7fd86537bb499fc670d`; absorb branch `cursor/v2711-gate1-uilayout-alive-bc54` from `cursor/v2711-uilayout-tip-alive-bc54` @ `8090022f4`). Other Gate-1 fences
+byte-identical through live tip `8cee4246f8939a84f75427f6468284f7932880e0` / `120598fb3e395393d0ebe7fd86537bb499fc670d`; absorb branch `cursor/v2711-gate1-uilayout-alive-bc54` from `cursor/v2711-uilayout-tip-alive-bc54` @ `8090022f4`; retry9 pin `8cee4246f`). Other Gate-1 fences
 remain tip-cargo PENDING. Ancestor evidence `eaf0dad40287a3347280a541766b3b16f3978cf8`
 retained. **FM-PACK-001** `packs/gh-terraform-pack` → **PRESENT** (presence only;
 composed e2e SKIPPED). Gate-0 **cos** → **BLOCKED** (external). ggen `shui:` fence
@@ -100,7 +101,7 @@ Do not promote any Gate 0 row to `ALIVE` from this repository.
 
 ### Command evidence log (this refresh)
 
-Live tip pin: `c11ea7f2a4b95bf40d9d18929a011f18dbbdd17d` (absorb hop-4 mix/NIF @ `ae2acc52b` onto tip past #930/#931; taffy **PRESENT** + photo hop-4 **ALIVE** + #929 verify_witness **PRESENT** / #926/#927/#928 ui_layout **ALIVE** + chicago **PARTIAL** + Smalt **ALIVE**; mix/NIF PATH **ABSENT** / off-PATH **PRESENT** / NIF **BLOCKED**; sources ≡ tip).
+Live tip pin: `ba9824207e05ced75cf6b433789f6ca5a62bf368` (absorb gate1-post @ `7b1120d6e` + #936 @ `0e25df932` onto tip past hop-4 mix/NIF; taffy **PRESENT** + photo hop-4 **ALIVE** + verify_witness **PRESENT** / ui_layout **ALIVE** @ `8cee4246f` + chicago **PARTIAL** + Smalt **ALIVE**; mix/NIF PATH **ABSENT** / off-PATH **PRESENT** / NIF **BLOCKED**; sources ≡ tip).
 Historical exit-0 evidence tip: `0478fde59644cccd60c5a88d64d444ec292e6a3c` (≥ `a54b9803`; ancestor).
 ui-layout ancestor ALIVE: `eaf0dad40287a3347280a541766b3b16f3978cf8`.
 **Tip-cargo `ui_layout` ALIVE** preserved this absorb: exclusive flock `/tmp/ggen-uilayout-tip-alive-protected`;
