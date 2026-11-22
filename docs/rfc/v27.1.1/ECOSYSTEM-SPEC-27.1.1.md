@@ -269,16 +269,86 @@ Standing: **PARTIAL_ALIVE** (lock + pin doc present; policy court absent).
 
 ---
 
-## 13. Non-goals for this ggen land
+## 13. Crown objective bindings (photo / CCS·BRCE / ops / foundry)
+
+These four crowns are **requirements bindings** on tip
+`origin/cursor/ecosystem-spec-27-1-1-bc54`. Detailed hop/standing ledgers live in
+the companion artifacts named below. Presence of this section does **not**
+promote any crown to `ALIVE`.
+
+### 13.1 Photolithography path
+
+Hop chain (aggregate standing **PARTIAL** / path crown **non-ALIVE**):
+
+```text
+perimeter → .ttl/.toml → ggen+Taffy AOT → ui-layout digest consume
+  → ggen_igniter clean-room → zcode-cli POWL/OCEL (bounded)
+```
+
+| Binding | Source of truth |
+|---------|-----------------|
+| Hop table + falsifiers | [`PHOTOLITHOGRAPHY-STANDING.md`](./PHOTOLITHOGRAPHY-STANDING.md) |
+| Hop 4 contract | [`IGNITER-CLEANROOM-STANDING.md`](./IGNITER-CLEANROOM-STANDING.md) |
+| Hop 5 contract | [`ZCODE-POWL-OCEL-STANDING.md`](./ZCODE-POWL-OCEL-STANDING.md) |
+| Gate-1 layout fences | §6 Taffy; §9 zcode-cli; [`GATE-1-GAP-MATRIX.md`](./GATE-1-GAP-MATRIX.md) |
+
+Do not invent path-crown `ALIVE` from in-repo fence green alone.
+
+### 13.2 CCS / BRCE + WebAuthn AS-01
+
+- Constitutional law: `SELECT ≠ CONSTRUCT ≠ DO`; sole CONSTRUCT→DO broker is
+  **BRCE + WebAuthn AS-01** (`:prime256v1`) — §1.1 / Plane 5.
+- ~8 Crystallized Control Surfaces (CCS), CP17 hash-gate law, and plane map:
+  [`CCS-AUTHORITY-STANDING.md`](./CCS-AUTHORITY-STANDING.md).
+- In-repo AS-01 ungated-DO seat fence vs live broker / crypto:
+  [`BRCE-WEBAUTHN-STANDING.md`](./BRCE-WEBAUTHN-STANDING.md)
+  (fence **PARTIAL_ALIVE**; WebAuthn/`prime256v1` crypto **UNSUPPORTED**; live
+  BRCE broker **BLOCKED**).
+
+Fence presence ≠ Plane-5 DO `ALIVE`.
+
+### 13.3 Ops surfaces (Gate 0 + economic ops + Plane 5)
+
+| Surface | Standing ceiling (ggen) | Ledger |
+|---------|-------------------------|--------|
+| GCP billing / cos ledger / servengine M4 / year-end SOW | **BLOCKED** / **UNKNOWN** — OUT OF SCOPE | [`GATE-0-STANDING.md`](./GATE-0-STANDING.md) |
+| Smalt 4-cloud RAID (Azure·AWS·GCP·Twilio) | **PARTIAL_ALIVE** (sibling); FinOps **UNSUPPORTED**; not RAID/`ALIVE` | [`SMALT-RAID-STANDING.md`](./SMALT-RAID-STANDING.md) |
+| `revops.fnox.io` / `cos.fnox.io` / CindyCat·Fourth Watch front doors | **UNKNOWN** / **BLOCKED** — DO only via BRCE+AS-01 | [`REVOPS-COS-STANDING.md`](./REVOPS-COS-STANDING.md) |
+| Exact external next verifiers | OOR Gate 0/2/3 rows | [`OUT-OF-REPO-NEXT-VERIFIERS.md`](./OUT-OF-REPO-NEXT-VERIFIERS.md) |
+
+Commercial ops priority (CindyCat-first) is Gate 2 doctrine, not ops `ALIVE`:
+[`GATE-2-CINDYCAT-FIRST.md`](./GATE-2-CINDYCAT-FIRST.md).
+
+### 13.4 Foundry finish (horizontal spine)
+
+Crown claim: spine
+`ggen → Taffy → zcode-cli → CASTLE → Smalt → revops` runs without **daily
+founder HITL**.
+
+| Binding | Source of truth |
+|---------|-----------------|
+| Spine table + HITL residuals + GA falsifiers | [`FOUNDRY-FINISH-STANDING.md`](./FOUNDRY-FINISH-STANDING.md) |
+| CASTLE publish / brand spine | [`CASTLE-SPINE-STANDING.md`](./CASTLE-SPINE-STANDING.md) |
+| Release courts RC-D1…RC-D7 | [`GATE-3-RELEASE-COURTS-STANDING.md`](./GATE-3-RELEASE-COURTS-STANDING.md) |
+
+Crown standing on tip: **PARTIAL_ALIVE** (incomplete). Zero daily founder HITL
+is **not** `ALIVE`. Do not invent Foundry crown from Gate-1 fence green, CASTLE
+sibling courts, or Smalt 4-cloud PARTIAL alone.
+
+---
+
+## 14. Non-goals for this ggen land
 
 - Plane 5 hosting, cos/FinFab ledger mutation, GCP billing.
 - Implementing Zero-DOM / WebGPU / FFB renderers inside ggen.
 - Publishing CASTLE or brand token inventories without admitted sources.
 - Claiming Truex product `ALIVE` from ontology catalogue mirrors alone.
+- Promoting photo / CCS·BRCE / ops / Foundry crowns to `ALIVE` from §13 prose
+  or companion presence alone.
 
 ---
 
-## 14. Companion artifacts
+## 15. Companion artifacts
 
 | Path | Role |
 |------|------|
@@ -301,10 +371,12 @@ Standing: **PARTIAL_ALIVE** (lock + pin doc present; policy court absent).
 | `docs/rfc/v27.1.1/SMALT-RAID-STANDING.md` | Smalt 4-cloud RAID economic ops standing |
 | `docs/rfc/v27.1.1/REVOPS-COS-STANDING.md` | revops.fnox.io / cos.fnox.io Plane-5 standing |
 | `docs/rfc/v27.1.1/CINDYCAT-REVERSE-GLOO.md` | CindyCat Reverse Gloo deal pack |
+| `docs/rfc/v27.1.1/LINKEDIN-DEAL-PLAYBOOK.md` | LinkedIn DM / content calendar companion to Gate-2 CindyCat-first |
+| `docs/rfc/v27.1.1/INTEGRATE-849-RECEIPT.md` | PR #849 Gate-1 integrate receipt (historical evidence pin) |
 
 ---
 
-## 15. Provenance
+## 16. Provenance
 
 Materialized from the Sovereign Ecosystem v27.1.1 mandate delivered to the
 executing agent (Document ID `ECOSYSTEM-SPEC-27.1.1`, superseding
@@ -313,4 +385,7 @@ executing agent (Document ID `ECOSYSTEM-SPEC-27.1.1`, superseding
 `cursor/v2711-ecospec-fill-bc54` (parent `origin/cursor/ecosystem-spec-27-1-1-bc54`
 @ `8f0a60ea1` — tip `5480d7ada+` / OOR retip4; CASTLE sibling spine courts
 **ALIVE** @ `5480d7ada`; Truex product admit **PARTIAL_ALIVE** @ `d0e3ba473`).
-No Plane 5 / cos / GCP claim is asserted as `ALIVE`.
+Crown-objective body bind (§13 photo / CCS·BRCE / ops / foundry) + companion
+index completeness on `cursor/v2711-ecospec-audit-bc54` against tip
+`d11758cf4182181991ec3158e073b75b474d5cbe`.
+No Plane 5 / cos / GCP / Foundry / photolithography claim is asserted as `ALIVE`.
