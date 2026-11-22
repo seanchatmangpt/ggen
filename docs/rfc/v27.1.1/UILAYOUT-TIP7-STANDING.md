@@ -15,7 +15,7 @@ standing=ALIVE
 prior_exact_tip6=PARTIAL_then_absorbed_ALIVE@7b38c25b4
 prior_alive_lineage=a508e6bae / sealed 2685119bd (11 passed)
 shui_tip7_peer=ALIVE EXIT0 @ ae34bf4bc /tmp/tip7-serial
-crown_absorb=PENDING
+crown_absorb=ABSORBED@ef3df3a8e→4dfbee817←97c162181
 ManagePullRequest=not_used
 force_push=none
 Foundry_ALIVE=not_claimed
@@ -110,5 +110,5 @@ standing=ALIVE
 target=/tmp/tip7-serial
 shui_tip7=ALIVE
 lineage_alive=2685119bd/a508e6bae
-crown_absorb=PENDING ManagePullRequest=not_used force_push=none Foundry_ALIVE=not_claimed
+crown_absorb=ABSORBED@ef3df3a8e→4dfbee817←97c162181 ManagePullRequest=not_used force_push=none Foundry_ALIVE=not_claimed
 ```

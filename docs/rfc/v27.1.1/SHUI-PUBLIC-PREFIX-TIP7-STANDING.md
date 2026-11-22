@@ -19,7 +19,7 @@ prior_exact_tip7_partial=881f2ec16 EXIT137
 prior_tip6_partial=c661d228a EXIT137
 prior_alive_lineage=008a81d21 / sealed a4b3d3fb4 (4 passed; tip-cargo ALIVE held)
 peer_taffy_tip6=ALIVE EXIT0 pid=3873369 /tmp/gate1-taffy-tip6
-crown_absorb=PENDING
+crown_absorb=ABSORBED@ef3df3a8e→4dfbee817←97c162181
 ManagePullRequest=not_used
 force_push=none
 Foundry_ALIVE=not_claimed
@@ -111,5 +111,5 @@ target=/tmp/tip7-serial
 peer_exit=0
 lineage_alive=a4b3d3fb4/008a81d21
 prior_partial=d35482374_EXIT101_superseded
-crown_absorb=PENDING ManagePullRequest=not_used force_push=none Foundry_ALIVE=not_claimed
+crown_absorb=ABSORBED@ef3df3a8e→4dfbee817←97c162181 ManagePullRequest=not_used force_push=none Foundry_ALIVE=not_claimed
 ```
