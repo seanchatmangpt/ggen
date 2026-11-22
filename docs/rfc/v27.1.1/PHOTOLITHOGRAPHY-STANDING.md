@@ -4,7 +4,7 @@
 |-------|-------|
 | Document ID | `PHOTOLITHOGRAPHY-STANDING-27.1.1` |
 | Companion | `ECOSYSTEM-SPEC-27.1.1.md`, `GATE-1-GAP-MATRIX.md`, `REPO-INVENTORY-27.1.1.md` |
-| Observed tip (this ledger) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `893070836ef83ab711e657cfacc98bb4dc7ea369` (perimeter→ttl/toml honesty pin `cursor/v2711-perimeter-path-bc54` — [`PERIMETER-TTL-TOML-PATH-STANDING.md`](./PERIMETER-TTL-TOML-PATH-STANDING.md); prior tip-wins absorb igniter reconfirm `ec079cc16` / `cursor/v2711-igniter-reconfirm-bc54` / `bc-fd60df35` mount `git diff --exit-code` → **0** @ `d0fec2f2f`; crown ⊇ HITL BLOCKED_HITL + Smalt mix ALIVE + OOR cos **503** / revops **NXDOMAIN**; Jobs/C4 admitted `--check` **ALIVE**; hop-4 BrandTheme manufacture **ALIVE**; hop-5 **PARTIAL_ALIVE** foundry `--live` **BLOCKED_HITL**; path crown **PARTIAL** — not path-crown ALIVE; **no** Foundry `ALIVE`) |
+| Observed tip (this ledger) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `d0fec2f2f2a539852e3977216b8057e1d5b2bb8a` (tip-wins absorb igniter reconfirm `ec079cc16` / `cursor/v2711-igniter-reconfirm-bc54` / `bc-fd60df35` mount `git diff --exit-code` → **0**; crown ⊇ HITL BLOCKED_HITL + Smalt mix ALIVE + OOR retip12 cos **503** / revops **NXDOMAIN**; prior ALIVE land `49e986ee7` / evidence tip `f1492ed55` / `bc-53b0e099`; Jobs/C4 admitted `--check` **ALIVE**; hop-4 BrandTheme manufacture **ALIVE**; hop-5 **PARTIAL_ALIVE** foundry `--live` **BLOCKED_HITL**; path crown **PARTIAL** — not path-crown ALIVE) |
 | Hop-4 manufacture | 2026-11-22 — `cursor/v2711-hop4-manufacture-alive-bc54` + reconfirm `cursor/v2711-hop4-primitive-space-bc54` / `/tmp/cursor/igniter-hop4-manufacture-alive.md` (`bc-b528ad50`) — tip `fourth-watch.brand.toml` BrandTheme emit vs igniter fixture → **ALIVE** (`exit=0`, canon `diff -rq=0`, compare-subject `git diff --exit-code=0`); prior PARTIAL exit **2** `:no_primitive_space` closed by dual-schema + emitter ancestry; IGNITER manufacture row corrected REFUSED → **ALIVE** |
 | Hop-4 clean-room | 2026-11-22 — tip-wins absorb reconfirm `cursor/v2711-igniter-reconfirm-bc54` @ `ec079cc16` / `/tmp/cursor/igniter-cleanroom-reconfirm.md` (`bc-fd60df35`) onto crown `d0fec2f2f` (probe tip `1dbf1cc2e`; absorb land `d0fec2f2f`); prior `cursor/v2711-igniter-cleanroom-alive-bc54` / `/tmp/cursor/igniter-cleanroom-alive-tip.md` (`bc-53b0e099`) tip `f1492ed55`; `/home/ubuntu/ggen_igniter` @ `b5a15528…`; `git diff --exit-code` → **0** (**ALIVE** crown string); path crown **PARTIAL**; OOR cos **503** / revops **NXDOMAIN** held |
 | Hop-5 mix SUBJECT | 2026-11-22 — `cursor/v2711-hop5-mix-subject-bc54` / [`HOP5-MIX-SUBJECT-STANDING.md`](./HOP5-MIX-SUBJECT-STANDING.md) — default adapter exit **0** after Taffy+Mode B PASS (not SUBJECT_MISSING) |
@@ -81,10 +81,6 @@ hop-5 foundry `--live` exit 0 on pinned tip. Pass-count footnotes (tip source, n
 ## Hop detail (cited paths)
 
 ### 1 — Perimeter transducer
-
-Path-honesty pin (tip `893070836`): [`PERIMETER-TTL-TOML-PATH-STANDING.md`](./PERIMETER-TTL-TOML-PATH-STANDING.md)
-— hops 1–2 **ALIVE** held; ggen sync / igniter / zcode refusal **ALIVE** vs
-`--live` **BLOCKED_HITL**; path crown / Foundry **non-ALIVE**.
 
 Admission edge that turns raw observation into bounded `O*` for manufacture
 (`A = μ(O*)`, `AGENTS.md` §3). In this repo the live fence is the public Turtle
