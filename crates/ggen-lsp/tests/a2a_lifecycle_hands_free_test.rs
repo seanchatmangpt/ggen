@@ -126,11 +126,10 @@ fn construct_hands_free_requires_prior_dry_run_hash() {
         ontology_uri: dir.path().join("ontology.ttl").display().to_string(),
         target_language: "text".into(),
         output_format: "source".into(),
-        confirm: false,
-        expected_graph_hash: dry.graph_hash.clone(),
+        expected_graph_hash: String::new(),
     });
     assert_eq!(refused.status, "error");
-    assert!(refused.message.contains("confirm"));
+    assert!(refused.message.contains("MISSING_EXPECTED_GRAPH_HASH"));
 
     let ok = execute(GgenConstructInput {
         task_id: "00000000-0000-4000-8000-000000000002".into(),
@@ -139,7 +138,6 @@ fn construct_hands_free_requires_prior_dry_run_hash() {
         ontology_uri: dir.path().join("ontology.ttl").display().to_string(),
         target_language: "text".into(),
         output_format: "source".into(),
-        confirm: true,
         expected_graph_hash: dry.graph_hash,
     });
     assert_eq!(ok.status, "success", "{}", ok.message);
