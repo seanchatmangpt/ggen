@@ -1,8 +1,9 @@
-//! Taffy AOT layout pre-flight stub (ECOSYSTEM-SPEC-27.1.1 Gate 1 D2).
+//! Taffy AOT layout pre-flight (ECOSYSTEM-SPEC-27.1.1 Gate 1 D2).
 //!
 //! Evaluates a column of leaves at a viewport width under a WCAG 1.4.12 text-spacing
 //! multiplier. Emits typed refusals for overflow, overlap, touch targets &lt; 44px, and
-//! gaps &lt; 8px. Full six-width seal remains out of scope for this stub.
+//! gaps &lt; 8px. The six-width seal ([`preflight_column_six_widths`]) admits only when
+//! every Gate-1 viewport passes under the supplied spacing factor.
 
 use taffy::prelude::*;
 use taffy::TaffyTree;
@@ -38,11 +39,20 @@ pub struct AotColumn {
     pub children: Vec<AotLeaf>,
 }
 
-/// Machine-readable admit receipt for a successful pre-flight.
+/// Machine-readable admit receipt for a successful single-width pre-flight.
 #[derive(Debug, Clone, PartialEq)]
 pub struct AotReceipt {
     pub viewport_width_px: u32,
     pub text_spacing: f32,
+    pub leaf_count: usize,
+}
+
+/// Machine-readable admit receipt for a successful six-width seal.
+#[derive(Debug, Clone, PartialEq)]
+pub struct AotSealReceipt {
+    pub text_spacing: f32,
+    /// Exact Gate-1 widths that admitted, in seal order.
+    pub widths_px: Vec<u32>,
     pub leaf_count: usize,
 }
 
@@ -219,6 +229,27 @@ pub fn preflight_column(
     Ok(AotReceipt {
         viewport_width_px: viewport_u,
         text_spacing,
+        leaf_count: column.children.len(),
+    })
+}
+
+/// Seal `column` across every Gate-1 viewport in [`VIEWPORT_WIDTHS_PX`] under `text_spacing`.
+///
+/// Fail-closed: the first width that refuses wins. Typed refusals already carry
+/// `viewport_width_px`, so a layout that only breaks at one width (e.g. 320) is
+/// refused naming that width.
+pub fn preflight_column_six_widths(
+    column: &AotColumn,
+    text_spacing: f32,
+) -> Result<AotSealReceipt, AotRefusal> {
+    let mut widths_px = Vec::with_capacity(VIEWPORT_WIDTHS_PX.len());
+    for &width in VIEWPORT_WIDTHS_PX {
+        let receipt = preflight_column(column, width, text_spacing)?;
+        widths_px.push(receipt.viewport_width_px);
+    }
+    Ok(AotSealReceipt {
+        text_spacing,
+        widths_px,
         leaf_count: column.children.len(),
     })
 }

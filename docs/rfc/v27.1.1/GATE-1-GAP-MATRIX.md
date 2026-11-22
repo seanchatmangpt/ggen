@@ -21,7 +21,7 @@ Do not promote any Gate 0 row to `ALIVE` from this repository.
 |-------------|------------------|-------------------------------|-------|
 | Admit W3C `shui:` as public vocab (ggen fence) | `vocab::shui` + `is_admitted_turtle_prefix("shui")` court (this PR); Truex product admission still external | `cargo test -p ggen-graph --test shui_public_prefix_court` | **ggen** (fence) + **truex** (product admit) |
 | Truex runtime admits `shui:` shapes | sibling `seanchatmangpt/truex` not mounted — **UNKNOWN** | in truex: admit-court that loads a `shui:`-prefixed shape graph and exits 0; refuse still holds for private `truex:` | **truex** |
-| Taffy AOT pre-flight (widths 320/375/393/600/840/1280 + WCAG 1.4.12 1.5×) | **PARTIAL_ALIVE** — `layout::taffy_aot` + `taffy` dep; court refuses overflow at 375 under 1.5× (+ touch/gap typed refusals + one admit); six-width seal still open | `cargo test -p ggen-graph --test taffy_aot_preflight_court -- overflow_at_375_with_text_spacing_1_5x_is_refused` | **ggen** |
+| Taffy AOT pre-flight (widths 320/375/393/600/840/1280 + WCAG 1.4.12 1.5×) | **PARTIAL_ALIVE** — `layout::taffy_aot` six-width seal (`preflight_column_six_widths`) admits valid trees at all six widths under 1.5×; refuses width-local overflow naming the failing width (e.g. 320); touch/gap/overlap typed refusals remain. Photolithography still open until zcode-cli / igniter consume the receipt | `cargo test -p ggen-graph --test taffy_aot_preflight_court` | **ggen** |
 | zcode-cli `ui-layout-court.ts` | **UNSUPPORTED** in this repo | in zcode-cli: `pnpm test -- ui-layout-court` (or repo’s exact court runner) against a ggen layout receipt fixture | **zcode-cli** |
 | `curve25519-dalek` v4 / cgap-aoq docs | lock has 4.1.3 + 5.0.0; no Gate-1 pin doc | document admitted path; court: `rg -n 'curve25519-dalek' Cargo.lock` + dedicated docs path under `docs/rfc/v27.1.1/` or cgap-aoq tree; refuse undocumented major | **ggen** (+ cgap-aoq docs owner) |
 | `verify_witness` WASM &lt; 250KB | Affidavit pack **PARTIAL**; size court **UNKNOWN** | build witness wasm then `wc -c verify_witness.wasm` / size court asserting `&lt; 262144` | external (witness/affidavit) with optional ggen pack emit |
@@ -38,13 +38,13 @@ Brand rhythm schema court is green (**PARTIAL_ALIVE**). Replay:
 cargo test -p ggen-graph --test brand_toml_rhythm_court
 ```
 
-Taffy AOT stub + 375/1.5× overflow court remains green (**PARTIAL_ALIVE**):
+Taffy AOT six-width seal court is green (**PARTIAL_ALIVE** — ggen fence only; zcode/igniter still open):
 
 ```text
-cargo test -p ggen-graph --test taffy_aot_preflight_court -- overflow_at_375_with_text_spacing_1_5x_is_refused
+cargo test -p ggen-graph --test taffy_aot_preflight_court
 ```
 
 Next **new** Gate-1 falsifier to author:
 
-1. Extend Taffy AOT pre-flight to the full width set `320 / 375 / 393 / 600 / 840 / 1280` under WCAG 1.4.12 1.5× (six-width seal), still Chicago AAA / no mocks.
+1. Wire zcode-cli `ui-layout-court.ts` (or igniter) to consume `AotSealReceipt` without re-implementing geometry law — photolithography remains non-ALIVE until that boundary executes.
 2. Or advance sibling rows still open: Truex `shui:` product admit; `curve25519-dalek` Gate-1 pin doc; `verify_witness` WASM size court.

@@ -1,12 +1,35 @@
-//! Chicago court: Taffy AOT pre-flight under WCAG 1.4.12 1.5× text spacing.
+//! Chicago court: Taffy AOT six-width seal under WCAG 1.4.12 1.5× text spacing.
 //!
 //! ECOSYSTEM-SPEC-27.1.1 Gate 1 D2 — AAA, no mocks, state-based.
 //! Falsifier:
-//! `cargo test -p ggen-graph --test taffy_aot_preflight_court -- overflow_at_375_with_text_spacing_1_5x_is_refused`
+//! `cargo test -p ggen-graph --test taffy_aot_preflight_court -- six_width_seal_admits_valid_layout_under_1_5x`
 
 use ggen_graph::layout::taffy_aot::{
-    preflight_column, AotColumn, AotLeaf, AotRefusal, WCAG_1412_TEXT_SPACING,
+    preflight_column, preflight_column_six_widths, AotColumn, AotLeaf, AotRefusal,
+    VIEWPORT_WIDTHS_PX, WCAG_1412_TEXT_SPACING,
 };
+
+fn valid_column() -> AotColumn {
+    AotColumn {
+        gap_px: 8.0,
+        children: vec![
+            AotLeaf {
+                id: "body_copy".into(),
+                width_px: 200.0,
+                height_px: 32.0,
+                is_text: true,
+                is_interactive: false,
+            },
+            AotLeaf {
+                id: "primary_cta".into(),
+                width_px: 120.0,
+                height_px: 44.0,
+                is_text: false,
+                is_interactive: true,
+            },
+        ],
+    }
+}
 
 #[test]
 fn overflow_at_375_with_text_spacing_1_5x_is_refused() {
@@ -50,25 +73,7 @@ fn overflow_at_375_with_text_spacing_1_5x_is_refused() {
 #[test]
 fn valid_layout_at_375_with_text_spacing_1_5x_is_admitted() {
     // Arrange — after 1.5× text expansion still fits; touch ≥44; gap ≥8
-    let column = AotColumn {
-        gap_px: 8.0,
-        children: vec![
-            AotLeaf {
-                id: "body_copy".into(),
-                width_px: 200.0,
-                height_px: 32.0,
-                is_text: true,
-                is_interactive: false,
-            },
-            AotLeaf {
-                id: "primary_cta".into(),
-                width_px: 120.0,
-                height_px: 44.0,
-                is_text: false,
-                is_interactive: true,
-            },
-        ],
-    };
+    let column = valid_column();
 
     // Act
     let result = preflight_column(&column, 375.0, WCAG_1412_TEXT_SPACING);
@@ -138,5 +143,89 @@ fn gap_under_8px_is_refused() {
             assert_eq!(min_px, 8);
         }
         other => panic!("expected GapTooSmall, got {other:?}"),
+    }
+}
+
+#[test]
+fn six_width_seal_admits_valid_layout_under_1_5x() {
+    // Arrange — text 200→300 at 1.5× fits 320; touch ≥44; gap ≥8
+    let column = valid_column();
+
+    // Act
+    let seal = preflight_column_six_widths(&column, WCAG_1412_TEXT_SPACING);
+
+    // Assert
+    let receipt = seal.expect("valid layout must admit at all six Gate-1 widths under 1.5×");
+    assert!(
+        (receipt.text_spacing - WCAG_1412_TEXT_SPACING).abs() < f32::EPSILON
+    );
+    let expected: Vec<u32> = VIEWPORT_WIDTHS_PX.iter().map(|w| w.round() as u32).collect();
+    assert_eq!(
+        receipt.widths_px, expected,
+        "seal receipt must list every Gate-1 width in order"
+    );
+    assert_eq!(receipt.leaf_count, 2);
+}
+
+#[test]
+fn six_width_seal_refuses_overflow_only_at_320_naming_failing_width() {
+    // Arrange — 220×1.5 = 330 overflows 320 only; admits at 375+
+    let column = AotColumn {
+        gap_px: 8.0,
+        children: vec![
+            AotLeaf {
+                id: "narrow_copy".into(),
+                width_px: 220.0,
+                height_px: 40.0,
+                is_text: true,
+                is_interactive: false,
+            },
+            AotLeaf {
+                id: "cta".into(),
+                width_px: 120.0,
+                height_px: 44.0,
+                is_text: false,
+                is_interactive: true,
+            },
+        ],
+    };
+
+    // Act — prove single-width baseline: fails only at 320 under 1.5×
+    let at_320 = preflight_column(&column, 320.0, WCAG_1412_TEXT_SPACING);
+    let at_375 = preflight_column(&column, 375.0, WCAG_1412_TEXT_SPACING);
+    let seal = preflight_column_six_widths(&column, WCAG_1412_TEXT_SPACING);
+
+    // Assert
+    assert!(
+        matches!(
+            at_320,
+            Err(AotRefusal::Overflow {
+                viewport_width_px: 320,
+                ..
+            })
+        ),
+        "fixture must overflow at 320 under 1.5×; got {at_320:?}"
+    );
+    assert!(
+        at_375.is_ok(),
+        "fixture must admit at 375 under 1.5× so the seal refusal is width-local; got {at_375:?}"
+    );
+    match seal {
+        Err(AotRefusal::Overflow {
+            viewport_width_px,
+            text_spacing,
+            leaf_id,
+            ..
+        }) => {
+            assert_eq!(
+                viewport_width_px, 320,
+                "typed refusal must name the failing width"
+            );
+            assert!(
+                (text_spacing - WCAG_1412_TEXT_SPACING).abs() < f32::EPSILON
+            );
+            assert_eq!(leaf_id, "narrow_copy");
+        }
+        other => panic!("expected Overflow at 320 from six-width seal, got {other:?}"),
     }
 }
