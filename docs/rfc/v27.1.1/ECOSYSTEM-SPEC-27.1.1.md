@@ -53,7 +53,7 @@ and standing.
 | # | Delta | Primary owners | GA posture |
 |---|-------|----------------|------------|
 | D1 | Deterministic zero-HITL mobile-first UIs — **Zero-DOM WebGPU canvas Mode A**; **FFB Mode B** | UI plane / sibling UI repos; ggen emits layout + brand tokens | required for GA |
-| D2 | **Taffy AOT layout pre-flight** in ggen (widths `320 / 375 / 393 / 600 / 840 / 1280` + WCAG 1.4.12 text spacing at **1.5×**) | **ggen** | Gate 1 seal |
+| D2 | **Taffy AOT layout pre-flight** in ggen (widths `320 / 375 / 414 / 768 / 1024 / 1440` + WCAG 1.4.12 text spacing at **1.5×**) | **ggen** | Gate 1 seal |
 | D3 | **Truex** admits W3C SHACL 1.2 **`shui:`** (`http://www.w3.org/ns/shacl-ui/`) | **truex** (admission); **ggen** (public-prefix / vocab fence alignment) | Gate 1 |
 | D4 | **DTCG 2025.10** brand manifests (`.toml`): `fourth-watch.brand.toml`, `cindycat.brand.toml` | brand plane + ggen schema/admission | Gate 2+ |
 | D5 | **zcode-cli** `ui-layout-court.ts` adapter | **zcode-cli** | Gate 1 |
@@ -132,7 +132,7 @@ implementation under live crates; see inventory).
 ggen SHALL expose a deterministic layout pre-flight that:
 
 1. Evaluates candidate UI trees at widths:
-   `320, 375, 393, 600, 840, 1280` (CSS px).
+   `320, 375, 414, 768, 1024, 1440` (CSS px).
 2. Re-evaluates under WCAG **1.4.12** text spacing at **1.5×** (line height,
    letter/word spacing factors as specified by WCAG 1.4.12).
 3. Emits a machine-readable refusal or receipt (overflow, clip, contrast-adjacent

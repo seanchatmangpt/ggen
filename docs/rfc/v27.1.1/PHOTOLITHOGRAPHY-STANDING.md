@@ -91,7 +91,7 @@ Full color/type/CASTLE inventories remain Gate 2+ — inventing them here is
 | `crates/ggen-graph/tests/taffy_aot_preflight_court.rs` | Chicago court for hop 3 |
 | `Cargo.toml` / workspace `taffy` dep | Layout engine pin |
 
-Widths sealed: `320 / 375 / 393 / 600 / 840 / 1280` under WCAG 1.4.12 **1.5×**.
+Widths sealed: `320 / 375 / 414 / 768 / 1024 / 1440` under WCAG 1.4.12 **1.5×**.
 This hop does **not** prove zcode-cli or igniter consumption.
 
 ### 3b — ggen ui-layout digest consume (in-repo D5 fence)

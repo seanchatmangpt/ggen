@@ -44,13 +44,21 @@ fn six_width_seal_under_1_5x_is_consumed_alive() {
     let column = valid_column();
 
     // Act
-    let receipt = court_ui_layout_column(&column).expect("valid layout must court ALIVE");
+    let receipt = match court_ui_layout_column(&column) {
+        Ok(r) => r,
+        Err(e) => panic!("valid layout must court ALIVE: {e:?}"),
+    };
 
     // Assert — seal lists every Gate-1 width; digest is 64-hex; standing ALIVE
     let expected_widths: Vec<u32> = VIEWPORT_WIDTHS_PX
         .iter()
         .map(|w| w.round() as u32)
         .collect();
+    assert_eq!(
+        expected_widths,
+        vec![320, 375, 414, 768, 1024, 1440],
+        "Gate-1 ui-layout viewport set must stay 320/375/414/768/1024/1440"
+    );
     assert_eq!(receipt.seal.widths_px, expected_widths);
     assert!((receipt.seal.text_spacing - WCAG_1412_TEXT_SPACING).abs() < f32::EPSILON);
     assert_eq!(receipt.seal.leaf_count, 2);
@@ -98,7 +106,7 @@ fn missing_seal_is_refused() {
 fn missing_pinned_digest_is_refused() {
     // Arrange — live seal, absent pin
     let seal = preflight_column_six_widths(&valid_column(), WCAG_1412_TEXT_SPACING)
-        .expect("fixture must seal");
+        .unwrap_or_else(|e| panic!("fixture must seal: {e:?}"));
 
     // Act
     let missing = consume_aot_seal(Some(&seal), None);
@@ -123,7 +131,7 @@ fn missing_pinned_digest_is_refused() {
 fn mismatched_digest_is_refused() {
     // Arrange
     let seal = preflight_column_six_widths(&valid_column(), WCAG_1412_TEXT_SPACING)
-        .expect("fixture must seal");
+        .unwrap_or_else(|e| panic!("fixture must seal: {e:?}"));
     let wrong = "0".repeat(64);
 
     // Act
@@ -144,7 +152,7 @@ fn mismatched_digest_is_refused() {
 fn stale_embedded_digest_is_refused() {
     // Arrange — tamper the embedded digest while keeping sealed fields
     let mut seal = preflight_column_six_widths(&valid_column(), WCAG_1412_TEXT_SPACING)
-        .expect("fixture must seal");
+        .unwrap_or_else(|e| panic!("fixture must seal: {e:?}"));
     let recomputed = seal.recompute_digest();
     seal.digest = "f".repeat(64);
     assert_ne!(seal.digest, recomputed);
@@ -215,11 +223,14 @@ fn geometry_overflow_refuses_before_consume() {
 fn consume_does_not_reimplement_geometry_on_prebuilt_seal() {
     // Arrange — hand a valid seal; consume path must not need the column
     let seal = preflight_column_six_widths(&valid_column(), WCAG_1412_TEXT_SPACING)
-        .expect("fixture must seal");
+        .unwrap_or_else(|e| panic!("fixture must seal: {e:?}"));
     let pin = seal.digest.clone();
 
     // Act — digest-only consume (no Taffy re-entry)
-    let receipt = consume_aot_seal(Some(&seal), Some(&pin)).expect("pin must admit");
+    let receipt = match consume_aot_seal(Some(&seal), Some(&pin)) {
+        Ok(r) => r,
+        Err(e) => panic!("pin must admit: {e:?}"),
+    };
 
     // Assert
     assert_eq!(receipt.standing, UiLayoutStanding::Alive);

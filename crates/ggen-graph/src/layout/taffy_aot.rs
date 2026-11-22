@@ -12,7 +12,7 @@ use taffy::prelude::*;
 use taffy::TaffyTree;
 
 /// Viewport widths required by ECOSYSTEM-SPEC-27.1.1 §6 (CSS px).
-pub const VIEWPORT_WIDTHS_PX: &[f32] = &[320.0, 375.0, 393.0, 600.0, 840.0, 1280.0];
+pub const VIEWPORT_WIDTHS_PX: &[f32] = &[320.0, 375.0, 414.0, 768.0, 1024.0, 1440.0];
 
 /// WCAG 1.4.12 text-spacing re-evaluation factor used by Gate-1 courts.
 pub const WCAG_1412_TEXT_SPACING: f32 = 1.5;
