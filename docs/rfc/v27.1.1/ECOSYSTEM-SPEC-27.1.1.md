@@ -469,7 +469,7 @@ Companion matrices: [`GATE-1-GAP-MATRIX.md`](./GATE-1-GAP-MATRIX.md); [`GATE-0-2
 | `ui_layout` digest consume | **PARTIAL_ALIVE** (retip6 EXIT:**124**; lineage **ALIVE** **11** @ `a508e6bae` held) | [`UILAYOUT-EXACT-RETIP6-STANDING.md`](./UILAYOUT-EXACT-RETIP6-STANDING.md) | exclusive `ui_layout_court` `--target-dir /tmp/ggen-uilayout-exact-retip6` → **11**/EXIT:**0** |
 | `curve25519-dalek` pin | **ALIVE** (pin court **6**/EXIT:**0** @ `bebea5dd0`) | [`CURVE25519-DALEK-PIN-STANDING.md`](./CURVE25519-DALEK-PIN-STANDING.md) | Replay: `cargo test -p ggen-config --test curve25519_dalek_pin_court` → **6**/EXIT:**0** |
 | VW size (&lt;250KB) | measure **ALIVE** (`wc -c` **28673**); tip-cargo court **PARTIAL** (EXIT:**137**); production runtime **UNSUPPORTED** | [`VERIFY-WITNESS-SIZE-RETIP3-STANDING.md`](./VERIFY-WITNESS-SIZE-RETIP3-STANDING.md) | Tip-cargo next: `cargo test -p ggen-graph --test verify_witness_size_court` → **8**/EXIT:**0**; prod: [`VERIFY-WITNESS-CI-WASM-NEXT-VERIFIER-STANDING.md`](./VERIFY-WITNESS-CI-WASM-NEXT-VERIFIER-STANDING.md) §3 |
-| zcode POWL refusal / hop-5 path | **PARTIAL** (retip6 EXIT:**137**; lineage refusal **ALIVE** held @ `cd7c2433b`; hop-5 slice **PARTIAL**; ≠ Foundry; `--live` **BLOCKED_HITL**) | [`ZCODE-POWL-PATH-STANDING.md`](./ZCODE-POWL-PATH-STANDING.md); [`ZCODE-POWL-REFUSAL-RETIP6-STANDING.md`](./ZCODE-POWL-REFUSAL-RETIP6-STANDING.md) | Tip-cargo: `cargo test -p ggen-sjira --test zcode_powl_ocel_court` + `… remediation_bound --lib` → **6+4**/EXIT:**0**. Live: `cd /agent/repos/zcode-cli && zcode /login && bun scripts/powl-foundry-loop.ts --live` → **0** |
+| zcode POWL refusal / hop-5 path | **PARTIAL** (retip6 EXIT:**137**; lineage refusal **ALIVE** held @ `cd7c2433b`; hop-5 slice **PARTIAL**; ≠ Foundry; `--live` **BLOCKED_HITL**) | [`ZCODE-POWL-PATH-STANDING.md`](./ZCODE-POWL-PATH-STANDING.md); [`ZCODE-POWL-REFUSAL-RETIP6-STANDING.md`](./ZCODE-POWL-REFUSAL-RETIP6-STANDING.md) | Tip-cargo: `cargo test -p ggen-sjira --test zcode_powl_ocel_court` + `… remediation_bound --lib` → **6+4**/EXIT:**0**. Live: `cd /agent/repos/zcode-cli && export PATH="/home/ubuntu/.bun/bin:$PATH" && bun bin/zcode.js login && bun scripts/powl-foundry-loop.ts --live` → **0** |
 | igniter clean-room | **ALIVE** (`git diff --exit-code` → **0**; ≠ path / Foundry `--live`) | [`IGNITER-CLEANROOM-STANDING.md`](./IGNITER-CLEANROOM-STANDING.md) | Replay: `cd /home/ubuntu/ggen_igniter && git diff --exit-code` → **0** |
 
 ### 17.2 Ops
@@ -493,7 +493,7 @@ Companion matrices: [`GATE-1-GAP-MATRIX.md`](./GATE-1-GAP-MATRIX.md); [`GATE-0-2
 | Surface | Standing @ tip `9c56420dd` | Evidence ledger | Exact next verifier |
 |---------|---------------------------|-----------------|---------------------|
 | Foundry / zero-HITL crown | **PARTIAL** — **not** Foundry `ALIVE` | [`FOUNDRY-FINISH-STANDING.md`](./FOUNDRY-FINISH-STANDING.md) §9 | Close HITL residuals (cos DB + WebAuthn + `--live`) before any crown promote |
-| foundry `--live` | **BLOCKED_HITL** (`foundry_exit=1` / `Model access is not configured` @ zcode `f32df08`) | [`HITL-LIVE-NEXT-VERIFIER-STANDING.md`](./HITL-LIVE-NEXT-VERIFIER-STANDING.md) §10 | `cd /agent/repos/zcode-cli && zcode /login && bun scripts/powl-foundry-loop.ts --live` → **foundry_exit=0** |
+| foundry `--live` | **BLOCKED_HITL** (`foundry_exit=1` / `Model access is not configured` @ zcode `f32df08`) | [`HITL-LIVE-NEXT-VERIFIER-STANDING.md`](./HITL-LIVE-NEXT-VERIFIER-STANDING.md) §10 | `cd /agent/repos/zcode-cli && export PATH="/home/ubuntu/.bun/bin:$PATH" && bun bin/zcode.js login && bun scripts/powl-foundry-loop.ts --live` → **foundry_exit=0** |
 
 ### 17.5 Compact surface→standing
 
@@ -535,7 +535,7 @@ Companion matrices: [`GATE-1-GAP-MATRIX.md`](./GATE-1-GAP-MATRIX.md); [`GATE-0-2
 | `ui_layout` digest consume | **PARTIAL** / **PARTIAL_ALIVE** (exact-tip6 EXIT:**137**; lineage **ALIVE** **11** @ `a508e6bae` held) | [`UILAYOUT-EXACT-TIP6-STANDING.md`](./UILAYOUT-EXACT-TIP6-STANDING.md) | exclusive `ui_layout_court` `--target-dir /tmp/ggen-uilayout-exact-tip6` → **11**/EXIT:**0** |
 | `curve25519-dalek` pin | **ALIVE** (pin court **6**/EXIT:**0** @ `bebea5dd0`) | [`CURVE25519-DALEK-PIN-STANDING.md`](./CURVE25519-DALEK-PIN-STANDING.md) | Replay: `cargo test -p ggen-config --test curve25519_dalek_pin_court` → **6**/EXIT:**0** |
 | VW size (&lt;250KB) | measure **ALIVE** (`wc -c` **28673**); tip-cargo court **PARTIAL** (EXIT:**137**); production runtime **UNSUPPORTED** | [`VERIFY-WITNESS-SIZE-RETIP3-STANDING.md`](./VERIFY-WITNESS-SIZE-RETIP3-STANDING.md) | Tip-cargo next: `cargo test -p ggen-graph --test verify_witness_size_court` → **8**/EXIT:**0**; prod: [`VERIFY-WITNESS-CI-WASM-NEXT-VERIFIER-STANDING.md`](./VERIFY-WITNESS-CI-WASM-NEXT-VERIFIER-STANDING.md) §3 |
-| zcode POWL / hop-5 path | **PARTIAL** (tip-cargo EXIT:**137**; lineage refusal **ALIVE** held @ `cd7c2433b`; hop-5 slice **PARTIAL**; ≠ Foundry; `--live` **BLOCKED_HITL**) | [`ZCODE-POWL-PATH-STANDING.md`](./ZCODE-POWL-PATH-STANDING.md) @ tip pin `83c954e5f`/`552c85f29`; [`ZCODE-POWL-REFUSAL-RETIP6-STANDING.md`](./ZCODE-POWL-REFUSAL-RETIP6-STANDING.md) | Tip-cargo: `cargo test -p ggen-sjira --test zcode_powl_ocel_court` + `… remediation_bound --lib` → **6+4**/EXIT:**0**. Live: `cd /agent/repos/zcode-cli && zcode /login && bun scripts/powl-foundry-loop.ts --live` → **foundry_exit=0** |
+| zcode POWL / hop-5 path | **PARTIAL** (tip-cargo EXIT:**137**; lineage refusal **ALIVE** held @ `cd7c2433b`; hop-5 slice **PARTIAL**; ≠ Foundry; `--live` **BLOCKED_HITL**) | [`ZCODE-POWL-PATH-STANDING.md`](./ZCODE-POWL-PATH-STANDING.md) @ tip pin `83c954e5f`/`552c85f29`; [`ZCODE-POWL-REFUSAL-RETIP6-STANDING.md`](./ZCODE-POWL-REFUSAL-RETIP6-STANDING.md) | Tip-cargo: `cargo test -p ggen-sjira --test zcode_powl_ocel_court` + `… remediation_bound --lib` → **6+4**/EXIT:**0**. Live: `cd /agent/repos/zcode-cli && export PATH="/home/ubuntu/.bun/bin:$PATH" && bun bin/zcode.js login && bun scripts/powl-foundry-loop.ts --live` → **foundry_exit=0** |
 | igniter clean-room | **ALIVE** (`git diff --exit-code` → **0**; ≠ path / Foundry `--live`) | [`IGNITER-CLEANROOM-STANDING.md`](./IGNITER-CLEANROOM-STANDING.md) | Replay: `cd /home/ubuntu/ggen_igniter && git diff --exit-code` → **0** |
 
 ### 18.2 Ops
@@ -559,7 +559,7 @@ Companion matrices: [`GATE-1-GAP-MATRIX.md`](./GATE-1-GAP-MATRIX.md); [`GATE-0-2
 | Surface | Standing @ tip `c4e757a14` | Evidence ledger | Exact next verifier |
 |---------|----------------------------|-----------------|---------------------|
 | Foundry / zero-HITL crown | **PARTIAL** — **not** Foundry `ALIVE` | [`FOUNDRY-FINISH-STANDING.md`](./FOUNDRY-FINISH-STANDING.md) §1a/§9 | Close HITL residuals (cos DB + WebAuthn + `--live`) before any crown promote |
-| foundry `--live` | **BLOCKED_HITL** (`foundry_exit=1` / `Model access is not configured` @ zcode `f32df08`) | [`HITL-LIVE-NEXT-VERIFIER-STANDING.md`](./HITL-LIVE-NEXT-VERIFIER-STANDING.md) §10; [`ZCODE-POWL-PATH-STANDING.md`](./ZCODE-POWL-PATH-STANDING.md) §3.2 | `cd /agent/repos/zcode-cli && zcode /login && bun scripts/powl-foundry-loop.ts --live` → **foundry_exit=0** |
+| foundry `--live` | **BLOCKED_HITL** (`foundry_exit=1` / `Model access is not configured` @ zcode `f32df08`) | [`HITL-LIVE-NEXT-VERIFIER-STANDING.md`](./HITL-LIVE-NEXT-VERIFIER-STANDING.md) §10; [`ZCODE-POWL-PATH-STANDING.md`](./ZCODE-POWL-PATH-STANDING.md) §3.2 | `cd /agent/repos/zcode-cli && export PATH="/home/ubuntu/.bun/bin:$PATH" && bun bin/zcode.js login && bun scripts/powl-foundry-loop.ts --live` → **foundry_exit=0** |
 
 ### 18.5 Compact surface→standing
 
@@ -626,7 +626,7 @@ Companion matrices: [`GATE1-REMAINING-FALSIFIERS.md`](./GATE1-REMAINING-FALSIFIE
 | Surface | Standing @ tip `ab0a52362` | Evidence ledger | Exact next verifier |
 |---------|----------------------------|-----------------|---------------------|
 | Foundry / zero-HITL crown | **PARTIAL** — **BLOCKED_HITL** residuals open — **not** Foundry `ALIVE` | [`FOUNDRY-FINISH-STANDING.md`](./FOUNDRY-FINISH-STANDING.md) §1a/§9 | Close HITL residuals (cos DB + WebAuthn + `--live`) before any crown promote |
-| foundry `--live` | **BLOCKED_HITL** (`foundry_exit=1` / `Model access is not configured` @ zcode `f32df08`) | [`HITL-LIVE-NEXT-VERIFIER-STANDING.md`](./HITL-LIVE-NEXT-VERIFIER-STANDING.md) §10; [`ZCODE-POWL-PATH-STANDING.md`](./ZCODE-POWL-PATH-STANDING.md) §3.2 | **Exact next:** `cd /agent/repos/zcode-cli && zcode /login && bun scripts/powl-foundry-loop.ts --live` → **foundry_exit=0** |
+| foundry `--live` | **BLOCKED_HITL** (`foundry_exit=1` / `Model access is not configured` @ zcode `f32df08`) | [`HITL-LIVE-NEXT-VERIFIER-STANDING.md`](./HITL-LIVE-NEXT-VERIFIER-STANDING.md) §10; [`ZCODE-POWL-PATH-STANDING.md`](./ZCODE-POWL-PATH-STANDING.md) §3.2 | **Exact next:** `cd /agent/repos/zcode-cli && export PATH="/home/ubuntu/.bun/bin:$PATH" && bun bin/zcode.js login && bun scripts/powl-foundry-loop.ts --live` → **foundry_exit=0** |
 
 ### 19.5 Compact surface→standing
 
@@ -674,7 +674,7 @@ Companion matrices: [`GATE1-REMAINING-FALSIFIERS.md`](./GATE1-REMAINING-FALSIFIE
 | `shui:` public-prefix fence | **ALIVE (exact tip-cargo)** **4**/EXIT:**0** @ `a4b3d3fb4` (absorb `edf2ec22a`; tip3 absorb held) — **≠ live-tip reconfirm** | [`SHUI-PUBLIC-PREFIX-ALIVE-STANDING.md`](./SHUI-PUBLIC-PREFIX-ALIVE-STANDING.md); [`GATE1-REMAINING-FALSIFIERS.md`](./GATE1-REMAINING-FALSIFIERS.md) | Sealed — tip6/tip7 PARTIAL superseded for tip-cargo class |
 | `curve25519-dalek` pin | **ALIVE** (pin court **6**/EXIT:**0** @ `bebea5dd0`) | [`CURVE25519-DALEK-PIN-STANDING.md`](./CURVE25519-DALEK-PIN-STANDING.md) | Replay: `cargo test -p ggen-config --test curve25519_dalek_pin_court` → **6**/EXIT:**0** |
 | VW size (&lt;250KB) | size court **ALIVE** (**8**/EXIT:**0** retip3); measure **ALIVE** (`wc -c` **28673**); production runtime **UNSUPPORTED** | [`VERIFY-WITNESS-CI-WASM-RETIP3-STANDING.md`](./VERIFY-WITNESS-CI-WASM-RETIP3-STANDING.md) | Production: CI consume EXIT:**0** path — stay **UNSUPPORTED** until then |
-| zcode POWL / hop-5 path | tip-cargo refusal **ALIVE** (**6+4**/EXIT:**0** retip4); path crown **PARTIAL**; `--live` **BLOCKED_HITL** — refusal ≠ Foundry | [`ZCODE-POWL-RETIP4-STANDING.md`](./ZCODE-POWL-RETIP4-STANDING.md); [`PHOTOLITHOGRAPHY-PATH-STANDING.md`](./PHOTOLITHOGRAPHY-PATH-STANDING.md) | **Exact next live:** founder `zcode /login` + `bun scripts/powl-foundry-loop.ts --live` → **foundry_exit=0** |
+| zcode POWL / hop-5 path | tip-cargo refusal **ALIVE** (**6+4**/EXIT:**0** retip4); path crown **PARTIAL**; `--live` **BLOCKED_HITL** — refusal ≠ Foundry | [`ZCODE-POWL-RETIP4-STANDING.md`](./ZCODE-POWL-RETIP4-STANDING.md); [`PHOTOLITHOGRAPHY-PATH-STANDING.md`](./PHOTOLITHOGRAPHY-PATH-STANDING.md) | **Exact next live:** founder `bun bin/zcode.js login` + `bun scripts/powl-foundry-loop.ts --live` → **foundry_exit=0** |
 | igniter clean-room | **ALIVE** (`git diff --exit-code` → **0**; ≠ path / Foundry `--live`) | [`IGNITER-CLEANROOM-STANDING.md`](./IGNITER-CLEANROOM-STANDING.md) | Replay: `cd /home/ubuntu/ggen_igniter && git diff --exit-code` → **0** |
 | Photolithography path crown | **PARTIAL** (non-ALIVE) — Gate1 tip-cargo green ≠ path crown | [`PHOTOLITHOGRAPHY-PATH-STANDING.md`](./PHOTOLITHOGRAPHY-PATH-STANDING.md) | Close hop residuals + Foundry `--live` before any path-crown promote |
 
@@ -701,12 +701,12 @@ Companion matrices: [`GATE1-REMAINING-FALSIFIERS.md`](./GATE1-REMAINING-FALSIFIE
 | Surface | Standing @ tip `15eefb628` | Evidence ledger | Exact next verifier |
 |---------|----------------------------|-----------------|---------------------|
 | Foundry finish / zero-HITL crown | **PARTIAL** + **BLOCKED_HITL** residuals — **not** Foundry `ALIVE` | [`FOUNDRY-FINISH-STANDING.md`](./FOUNDRY-FINISH-STANDING.md); [`FOUNDRY-FINISH-SPINE-STANDING.md`](./FOUNDRY-FINISH-SPINE-STANDING.md) | Close HITL residuals (cos DB + WebAuthn + `--live`) before any crown promote |
-| foundry `--live` | **BLOCKED_HITL** (`foundry_exit=1` / `Model access is not configured`) | [`FOUNDRY-HITL-ACTION-CARD.md`](./FOUNDRY-HITL-ACTION-CARD.md); [`HITL-LIVE-NEXT-VERIFIER-STANDING.md`](./HITL-LIVE-NEXT-VERIFIER-STANDING.md) §10 | **Exact next:** `cd /agent/repos/zcode-cli && zcode /login && bun scripts/powl-foundry-loop.ts --live` → **foundry_exit=0** |
+| foundry `--live` | **BLOCKED_HITL** (`foundry_exit=1` / `Model access is not configured`) | [`FOUNDRY-HITL-ACTION-CARD.md`](./FOUNDRY-HITL-ACTION-CARD.md); [`HITL-LIVE-NEXT-VERIFIER-STANDING.md`](./HITL-LIVE-NEXT-VERIFIER-STANDING.md) §10 | **Exact next:** `cd /agent/repos/zcode-cli && export PATH="/home/ubuntu/.bun/bin:$PATH" && bun bin/zcode.js login && bun scripts/powl-foundry-loop.ts --live` → **foundry_exit=0** |
 
 ### 20.5 Exact next (ordered)
 
 ```text
-1. founder: zcode /login && bun scripts/powl-foundry-loop.ts --live → foundry_exit=0
+1. founder: bun bin/zcode.js login && bun scripts/powl-foundry-loop.ts --live → foundry_exit=0
 2. cos /readyz → 200 ; revops DNS ∧ /readyz → 200
 3. BRCE V8 bodies (broker + R-01…R-07 typed receipts/refusals)
 4. WebAuthn AS-01 live assertion court → EXIT:0 (then V8)

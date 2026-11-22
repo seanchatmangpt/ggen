@@ -70,4 +70,4 @@ Foundry `--live` remains **BLOCKED_HITL** until provider creds; see
 | Cargo | **NOT RUN** on path pin (docs-only) |
 
 Exact next (unchanged): tip-cargo § above → **6+4**/EXIT:**0**; founder `--live`:
-`cd /agent/repos/zcode-cli && zcode /login && bun scripts/powl-foundry-loop.ts --live` → **0**.
+`cd /agent/repos/zcode-cli && export PATH="/home/ubuntu/.bun/bin:$PATH" && bun bin/zcode.js login && bun scripts/powl-foundry-loop.ts --live` → **0**.

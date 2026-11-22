@@ -80,8 +80,8 @@ is typed **BLOCKED**/**REFUSED**, not silent pass.
 | Crown tip (write-time) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `864ba13dce41ff3cd4432edcd7536aec88fb9602` |
 | Branch | `cursor/v2711-foundry-hitl-retip3-bc54` (`bc-6cdda390`) |
 | Foundry / zero-HITL | **PARTIAL** — **not** `ALIVE` |
-| `--live` | **BLOCKED_HITL** — model access / `zcode /login` not configured this env |
-| Exact next (canonical) | `cd /agent/repos/zcode-cli && zcode /login && bun scripts/powl-foundry-loop.ts --live` → **foundry_exit=0** |
+| `--live` | **BLOCKED_HITL** — model access / `bun bin/zcode.js login` not completed this env |
+| Exact next (canonical) | `cd /agent/repos/zcode-cli && export PATH="/home/ubuntu/.bun/bin:$PATH" && bun bin/zcode.js login && bun scripts/powl-foundry-loop.ts --live` → **foundry_exit=0** |
 | Antifalsifiers | refusal-court PARTIAL ≠ Foundry ALIVE; VW size ALIVE ≠ Foundry; runtime PRESENT ≠ live ALIVE |
 | Cargo | **NOT RUN** (docs-only) |
 

@@ -135,7 +135,7 @@ Detail: [`HITL-LIVE-NEXT-VERIFIER-STANDING.md`](./HITL-LIVE-NEXT-VERIFIER-STANDI
 |-------|------|
 | Sidebranch honesty pin | 2026-11-22 — `cursor/v2711-perimeter-path-bc54` @ `46c347281` from tip `893070836ef83ab711e657cfacc98bb4dc7ea369`; docs-only; `rg` census under `docs/rfc/v27.1.1` + `packs`/`examples`; hops 1–2 ALIVE held; ggen sync / igniter / zcode refusal ALIVE vs `--live` **BLOCKED_HITL**; **no** Foundry `ALIVE`; no cargo; no ManagePullRequest |
 | Tip-wins absorb | 2026-11-22 — `cursor/v2711-perimeter-path-absorb-ef01` re-applies `46c347281` onto live crown `8629691f8` (HITL action-card absorb raced ahead of FF from `893070836`); standing held — path crown **PARTIAL**; `--live` **BLOCKED_HITL**; **no** Foundry `ALIVE`; docs-only; no cargo; no ManagePullRequest; push `HEAD:cursor/ecosystem-spec-27-1-1-bc54` (no force) |
-| Foundry HITL Retip3 cross-pin | 2026-11-22 — `cursor/v2711-foundry-hitl-retip3-bc54` (`bc-6cdda390`) from crown tip `864ba13dc`: path crown stays **PARTIAL**; Foundry **PARTIAL**; `--live` **BLOCKED_HITL** (model access / `zcode /login` not configured); refusal-court PARTIAL ≠ Foundry; VW size ALIVE ≠ Foundry; exact next canonical `cd /agent/repos/zcode-cli && zcode /login && bun scripts/powl-foundry-loop.ts --live` → **0**; docs-only; no cargo — [`HITL-LIVE-NEXT-VERIFIER-STANDING.md`](./HITL-LIVE-NEXT-VERIFIER-STANDING.md) §10 |
+| Foundry HITL Retip3 cross-pin | 2026-11-22 — `cursor/v2711-foundry-hitl-retip3-bc54` (`bc-6cdda390`) from crown tip `864ba13dc`: path crown stays **PARTIAL**; Foundry **PARTIAL**; `--live` **BLOCKED_HITL** (model access / `bun bin/zcode.js login` not completed); refusal-court PARTIAL ≠ Foundry; VW size ALIVE ≠ Foundry; exact next canonical `cd /agent/repos/zcode-cli && export PATH="/home/ubuntu/.bun/bin:$PATH" && bun bin/zcode.js login && bun scripts/powl-foundry-loop.ts --live` → **0**; docs-only; no cargo — [`HITL-LIVE-NEXT-VERIFIER-STANDING.md`](./HITL-LIVE-NEXT-VERIFIER-STANDING.md) §10 |
 
 ### Compact return
 
@@ -147,5 +147,5 @@ ggen_sync+igniter+zcode_refusal=ALIVE(held)
 foundry_--live=BLOCKED_HITL foundry_exit=1
 path_crown=PARTIAL exact_next=bun scripts/powl-foundry-loop.ts --live → 0
 # Retip3 (2026-11-22 @ 864ba13dc): Foundry=PARTIAL --live=BLOCKED_HITL
-# exact_next=cd /agent/repos/zcode-cli && zcode /login && bun scripts/powl-foundry-loop.ts --live → 0
+# exact_next=cd /agent/repos/zcode-cli && export PATH="/home/ubuntu/.bun/bin:$PATH" && bun bin/zcode.js login && bun scripts/powl-foundry-loop.ts --live → 0
 ```

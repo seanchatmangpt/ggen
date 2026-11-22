@@ -42,7 +42,7 @@ crown `ALIVE` or zero-HITL closed-loop `ALIVE`.
 
 | Claim | Standing | Note |
 |-------|----------|------|
-| foundry `--live` (G2-9 / hop-5) | **BLOCKED_HITL** | model access / `zcode /login` not configured this env; prior **foundry_exit=1** |
+| foundry `--live` (G2-9 / hop-5) | **BLOCKED_HITL** | model access / `bun bin/zcode.js login` not completed this env (**not** bare `zcode /login`); prior **foundry_exit=1** |
 | Foundry finish / zero-HITL crown | **PARTIAL** | daily founder HITL still required — **refuse** Foundry `ALIVE` |
 | Horizontal spine daily-HITL-free? | **PARTIAL** — **not** daily-HITL-free | §5.2 |
 | Photolithography path crown | **PARTIAL** | ≠ Foundry `ALIVE` |
@@ -80,11 +80,11 @@ Canonical Path A condensed (≡ [`HITL-LIVE-NEXT-VERIFIER-STANDING.md`](./HITL-L
 # Antifalsifier: Gate1 tip-cargo ALIVE trio ≠ Foundry ALIVE ≠ zero-HITL ALIVE
 
 # --- Path A (preferred; condensed) ---
-cd /agent/repos/zcode-cli && zcode /login && bun scripts/powl-foundry-loop.ts --live
+cd /agent/repos/zcode-cli && export PATH="/home/ubuntu/.bun/bin:$PATH" && bun bin/zcode.js login && bun scripts/powl-foundry-loop.ts --live
 
 # --- Path A (split form; same verifier) ---
 # cd /agent/repos/zcode-cli   # @ f32df08+
-# # inside zcode: /login  —or— /setup
+# bun bin/zcode.js login   # Z.AI OAuth (HITL) — NOT slash /login; or /setup path
 # bun scripts/powl-foundry-loop.ts --live
 
 # --- Path B — materialize provider registry (non-interactive) ---
@@ -152,7 +152,7 @@ Gate1 tip-cargo ALIVE trio @ 2685119bd
 Photolithography path crown = PARTIAL (non-ALIVE)
 
 Foundry --live = BLOCKED_HITL
-  until founder: zcode /login + bun scripts/powl-foundry-loop.ts --live
+  until founder: bun bin/zcode.js login + bun scripts/powl-foundry-loop.ts --live
   yields foundry_exit=0
 ```
 
@@ -194,7 +194,7 @@ FOUNDRY_FINISH / HORIZONTAL_SPINE = PARTIAL
 ### 5.3 Exact next verifier (Founder HITL)
 
 ```bash
-cd /agent/repos/zcode-cli && zcode /login && bun scripts/powl-foundry-loop.ts --live
+cd /agent/repos/zcode-cli && export PATH="/home/ubuntu/.bun/bin:$PATH" && bun bin/zcode.js login && bun scripts/powl-foundry-loop.ts --live
 # PASS only if foundry_exit=0
 ```
 
@@ -242,7 +242,7 @@ foundry_exit=1
 ### 6.1 Exact next verifier (unchanged)
 
 ```bash
-cd /agent/repos/zcode-cli && zcode /login && bun scripts/powl-foundry-loop.ts --live
+cd /agent/repos/zcode-cli && export PATH="/home/ubuntu/.bun/bin:$PATH" && bun bin/zcode.js login && bun scripts/powl-foundry-loop.ts --live
 # PASS only if foundry_exit=0
 # FAIL / foundry_exit=1 → keep BLOCKED_HITL
 ```

@@ -300,7 +300,7 @@ Keys detail: [`HOP5-MODEL-ACCESS-STANDING.md`](./HOP5-MODEL-ACCESS-STANDING.md) 
 | zcode-cli | `/agent/repos/zcode-cli` @ `f32df08cdc4b3b8e114a8d1de8cf81acb80e1f3a` |
 | Provider registry | `~/.zcode/v2/provider_config.json` **ABSENT** this environment |
 | Failure held | `Model access is not configured. Run /login or /setup in zcode` → **foundry_exit=1** |
-| Standing held | Foundry / zero-HITL crown **PARTIAL** — **not** `ALIVE`; `--live` **BLOCKED_HITL** because model access / `zcode /login` not configured for founder in this environment |
+| Standing held | Foundry / zero-HITL crown **PARTIAL** — **not** `ALIVE`; `--live` **BLOCKED_HITL** because model access / `bun bin/zcode.js login` not completed for founder in this environment |
 | Cargo / tip-cargo | **NOT RUN** (docs-only Retip3; Gate1 tip6 courts own the cargo thrash budget) |
 | Crown absorb | optional tip-wins FF if race-safe; else settle absorb — no ManagePullRequest; no force-push |
 
@@ -310,7 +310,7 @@ Prior docs pin the closed command set as `cd /agent/repos/zcode-cli` then `bun s
 
 ```bash
 # Founder HITL Retip3 — Path A condensed (≡ §8 Path A + §3 falsifier):
-cd /agent/repos/zcode-cli && zcode /login && bun scripts/powl-foundry-loop.ts --live
+cd /agent/repos/zcode-cli && export PATH="/home/ubuntu/.bun/bin:$PATH" && bun bin/zcode.js login && bun scripts/powl-foundry-loop.ts --live
 # PASS: foundry_exit=0 (process exit 0)
 # FAIL: foundry_exit=1 + Model access not configured → keep BLOCKED_HITL
 #
@@ -325,7 +325,7 @@ cd /agent/repos/zcode-cli && zcode /login && bun scripts/powl-foundry-loop.ts --
 | Claim | Standing | Note |
 |-------|----------|------|
 | Foundry finish / zero-HITL crown | **PARTIAL** | **Refuse** Foundry `ALIVE` |
-| foundry `--live` (G2-9 / hop-5) | **BLOCKED_HITL** | model access / `zcode /login` not configured here |
+| foundry `--live` (G2-9 / hop-5) | **BLOCKED_HITL** | model access / `bun bin/zcode.js login` not completed here |
 | zcode POWL/OCEL refusal-court tip-cargo | lineage **ALIVE** / retip6 honesty **PARTIAL** | **refusal-court PARTIAL ≠ Foundry ALIVE** ([`ZCODE-POWL-REFUSAL-RETIP6-STANDING.md`](./ZCODE-POWL-REFUSAL-RETIP6-STANDING.md)) |
 | `verify_witness` size measure | measure **ALIVE** (`wc -c` **28673**) | **VW size ALIVE does not promote Foundry** ([`VERIFY-WITNESS-SIZE-RETIP3-STANDING.md`](./VERIFY-WITNESS-SIZE-RETIP3-STANDING.md)) |
 | Runtime PRESENT / adapter exit 0 / dry-run PARTIAL | ≠ live / Foundry | held |

@@ -94,7 +94,7 @@ CARGO_TARGET_DIR=/home/ubuntu/zcode-powl-refusal-target \
 
 ```bash
 # Founder HITL — Path A condensed (≡ HITL-LIVE §10):
-cd /agent/repos/zcode-cli && zcode /login && bun scripts/powl-foundry-loop.ts --live
+cd /agent/repos/zcode-cli && export PATH="/home/ubuntu/.bun/bin:$PATH" && bun bin/zcode.js login && bun scripts/powl-foundry-loop.ts --live
 # PASS: foundry_exit=0 (process exit 0)
 # FAIL: foundry_exit=1 + Model access not configured → keep BLOCKED_HITL
 #
@@ -136,5 +136,5 @@ tip_cargo=PARTIAL(EXIT137) lineage_refusal=ALIVE(held@cd7c2433b)
 hop5_autonomic_remediations=PARTIAL  --live=BLOCKED_HITL
 refusal≠Foundry_ALIVE  path_crown=PARTIAL
 exact_next_tip_cargo=zcode_powl_ocel_court+remediation_bound → 6+4/EXIT0
-exact_next_live=cd /agent/repos/zcode-cli && zcode /login && bun scripts/powl-foundry-loop.ts --live → 0
+exact_next_live=cd /agent/repos/zcode-cli && export PATH="/home/ubuntu/.bun/bin:$PATH" && bun bin/zcode.js login && bun scripts/powl-foundry-loop.ts --live → 0
 ```

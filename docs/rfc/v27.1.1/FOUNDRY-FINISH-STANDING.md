@@ -289,7 +289,7 @@ FOUNDRY_FINISH = PARTIAL   # Zero-HITL crown PARTIAL — daily founder HITL not 
 | Smalt residual mix courts | 2026-11-22 — sidebranch `cursor/v2711-smalt-mix-courts-bc54` @ `7334aa971` (`bc-c700dafb`) tip-wins absorbed onto crown `79b64496b` via `cursor/v2711-smalt-mix-absorb-7abb`: smalt `91997da76f0f` treasury/tax/erp/rates exits **0,0,0,0** (8/8/8/7) ⇒ residual **ALIVE**; Smalt RAID / GA economic face **ALIVE**; Foundry / zero-HITL crown stays **PARTIAL** — **not** invented (RAID ALIVE ≠ Foundry zero-HITL ALIVE); OOR retip12 cos **503** / revops **NXDOMAIN** **BLOCKED** held; no cargo; no ManagePullRequest |
 | Founder HITL `--live` next-verifier tip-wins absorb | 2026-11-22 — tip-wins absorb `cursor/v2711-hitl-live-next-bc54` @ `723c3a14f` (`bc-ea2b3d10`) onto crown `00b53cec9` via `cursor/v2711-hitl-live-absorb-8df9` (⊇ Smalt residual mix / OOR retip12 / affidavit / BRCE V8+R01 / VW / CASTLE): pin foundry `--live` **BLOCKED_HITL** / **REFUSED** (`Model access is not configured`); owner **Founder HITL** + **zcode-cli**; falsifier `cd /agent/repos/zcode-cli && bun scripts/powl-foundry-loop.ts --live` → **foundry_exit=0**; **no** invented `--live` `ALIVE`; docs-only; no cargo; no ManagePullRequest — [`HITL-LIVE-NEXT-VERIFIER-STANDING.md`](./HITL-LIVE-NEXT-VERIFIER-STANDING.md) |
 | Foundry partial honesty retip | 2026-11-22 — sidebranch `cursor/v2711-foundry-partial-retip-bc54` (`bc-42743036`) from tip `2c144954c` (⊇ Smalt RAID tip reconfirm + CASTLE wire retip3 + igniter clean-room + HITL §8 action card): **Foundry remains PARTIAL**; `--live` remains **BLOCKED_HITL** (founder `/login`\|`/setup` required); **refuse** Foundry / hop-5 / zero-HITL `ALIVE`; spine ALIVE held where previously proven (igniter cleanroom, CASTLE wire, Smalt FinOps/RAID residual, zcode refusal tip-cargo); zero-HITL crown stays **PARTIAL**; exact next = HITL-LIVE §8 Founder HITL action card → `bun scripts/powl-foundry-loop.ts --live` → **foundry_exit=0**; docs-only; no cargo; **no crown absorb**; no ManagePullRequest; no force-push — [`HITL-LIVE-NEXT-VERIFIER-STANDING.md`](./HITL-LIVE-NEXT-VERIFIER-STANDING.md) §8 / §9 |
-| Foundry HITL action-card Retip3 | 2026-11-22 — sidebranch `cursor/v2711-foundry-hitl-retip3-bc54` (`bc-6cdda390`) from live crown tip `864ba13dc`: **Foundry remains PARTIAL**; `--live` remains **BLOCKED_HITL** (model access / `zcode /login` not configured this env); **refuse** Foundry / hop-5 / zero-HITL `ALIVE`; refusal-court PARTIAL ≠ Foundry ALIVE; VW size ALIVE ≠ Foundry; exact next = canonical `cd /agent/repos/zcode-cli` + `bun scripts/powl-foundry-loop.ts --live` (Path A condensed: `cd /agent/repos/zcode-cli && zcode /login && bun scripts/powl-foundry-loop.ts --live`) → **foundry_exit=0**; docs-only; no cargo; no ManagePullRequest; no force-push — [`HITL-LIVE-NEXT-VERIFIER-STANDING.md`](./HITL-LIVE-NEXT-VERIFIER-STANDING.md) §10 / this ledger §9 |
+| Foundry HITL action-card Retip3 | 2026-11-22 — sidebranch `cursor/v2711-foundry-hitl-retip3-bc54` (`bc-6cdda390`) from live crown tip `864ba13dc`: **Foundry remains PARTIAL**; `--live` remains **BLOCKED_HITL** (model access / `bun bin/zcode.js login` not completed this env); **refuse** Foundry / hop-5 / zero-HITL `ALIVE`; refusal-court PARTIAL ≠ Foundry ALIVE; VW size ALIVE ≠ Foundry; exact next = canonical `cd /agent/repos/zcode-cli` + `bun scripts/powl-foundry-loop.ts --live` (Path A condensed: `cd /agent/repos/zcode-cli && export PATH="/home/ubuntu/.bun/bin:$PATH" && bun bin/zcode.js login && bun scripts/powl-foundry-loop.ts --live`) → **foundry_exit=0**; docs-only; no cargo; no ManagePullRequest; no force-push — [`HITL-LIVE-NEXT-VERIFIER-STANDING.md`](./HITL-LIVE-NEXT-VERIFIER-STANDING.md) §10 / this ledger §9 |
 
 ---
 
@@ -349,7 +349,7 @@ bun scripts/powl-foundry-loop.ts --live
 | Claim | Standing | Note |
 |-------|----------|------|
 | **Foundry finish / zero-HITL crown** | **PARTIAL** | **Do not invent Foundry `ALIVE`** |
-| foundry `--live` (hop-5 / G2-9) | **BLOCKED_HITL** | model access / `zcode /login` not configured for founder in this environment; held `foundry_exit=1` |
+| foundry `--live` (hop-5 / G2-9) | **BLOCKED_HITL** | model access / `bun bin/zcode.js login` not completed for founder in this environment; held `foundry_exit=1` |
 | zcode POWL/OCEL refusal-court | tip-cargo lineage **ALIVE** / retip6 honesty **PARTIAL** | **refusal-court PARTIAL ≠ Foundry ALIVE** |
 | `verify_witness` size measure | measure **ALIVE** (`wc -c` **28673**) | **VW size ALIVE does not promote Foundry** |
 | igniter / CASTLE wire / Smalt RAID | prior **ALIVE** held | ≠ Foundry / zero-HITL crown |
@@ -360,7 +360,7 @@ bun scripts/powl-foundry-loop.ts --live
 Canonical path preserved from [`HITL-LIVE-NEXT-VERIFIER-STANDING.md`](./HITL-LIVE-NEXT-VERIFIER-STANDING.md) §3 / §8 (do **not** invent a third path). Path A condensed (same verifier; `/login` inlined):
 
 ```bash
-cd /agent/repos/zcode-cli && zcode /login && bun scripts/powl-foundry-loop.ts --live
+cd /agent/repos/zcode-cli && export PATH="/home/ubuntu/.bun/bin:$PATH" && bun bin/zcode.js login && bun scripts/powl-foundry-loop.ts --live
 # PASS only: foundry_exit=0
 # Until then: BLOCKED_HITL — refuse Foundry / hop-5 / zero-HITL ALIVE
 ```

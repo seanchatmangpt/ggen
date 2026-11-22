@@ -54,7 +54,7 @@ receipt-bound loop with **no ambient daily founder HITL**.
 |-----------|-----------------|------------------------------------|---------------------|
 | **ggen** | Gate1 tip-cargo **ALIVE** trio @ `2685119bd` (brand **5+12** / Taffy **7** / ui_layout **11**) + lineage fences held — **≠** Foundry crown / **≠** zero-HITL closed-loop | **Yes** (Gate-1→GA promote + shui tip7 + bodies + Foundry `--live`) | Sealed trio replay only if sources drift; Founder card [`FOUNDRY-HITL-ACTION-CARD.md`](./FOUNDRY-HITL-ACTION-CARD.md) §5 |
 | **Taffy** | Tip-cargo **ALIVE** (**7** @ `2685119bd`); tip7 exact reconfirm **ALIVE** EXIT:**0** @ `63da993cc` / absorb `4ebcb9d46` — **≠** Foundry / **≠** path crown | **No** for ordinary AOT replay when lineage holds; **Yes** if receipt law drifts | Sealed: `CARGO_TARGET_DIR=/tmp/gate1-taffy cargo test -p ggen-graph --test taffy_aot_preflight_court --locked --config build.jobs=1 -- --test-threads=1` → **7**/EXIT:**0** |
-| **zcode-cli** | Hop-5 slice **PARTIAL**; refuse-path lineage **ALIVE** held @ `cd7c2433b`; tip-cargo honesty **PARTIAL** (EXIT **137**); `--live` **BLOCKED_HITL** — [`ZCODE-POWL-PATH-STANDING.md`](./ZCODE-POWL-PATH-STANDING.md) | **Yes** — model access / `zcode /login` | Founder card §3 / action card §5.3 → **foundry_exit=0** |
+| **zcode-cli** | Hop-5 slice **PARTIAL**; refuse-path lineage **ALIVE** held @ `cd7c2433b`; tip-cargo honesty **PARTIAL** (EXIT **137**); `--live` **BLOCKED_HITL** — [`ZCODE-POWL-PATH-STANDING.md`](./ZCODE-POWL-PATH-STANDING.md) | **Yes** — model access / `bun bin/zcode.js login` | Founder card §3 / action card §5.3 → **foundry_exit=0** |
 | **CASTLE** | Sibling courts **ALIVE** @ `2774039ea`; digest-bind wire **ALIVE**/`WIRED` @ `e0d99c6`; spine crown **PARTIAL_ALIVE** — [`CASTLE-SPINE-STANDING.md`](./CASTLE-SPINE-STANDING.md) | **Yes** for LinkedIn AND-gate (cos `/readyz` **200**) | Replay `cargo test --test publish_digest_bind_court` → **6/6**; then cos readiness ∧ 2× durable LOW |
 | **Smalt** | RAID / GA economic face **ALIVE** @ `91997da76f0f` (4-cloud + FinOps + residual) — ≠ Foundry — [`SMALT-RAID-STANDING.md`](./SMALT-RAID-STANDING.md) | **No** for ordinary RAID membrane when courts hold | Replay FinOps / residual mix courts @ `91997da76f0f` → EXIT **0** |
 | **revops** | `revops.fnox.io` **NXDOMAIN** **UNKNOWN**/**BLOCKED**; cos `/readyz` **503** `DB_UNAVAILABLE` **BLOCKED**; `/healthz` **PARTIAL** — [`REVOPS-COS-STANDING.md`](./REVOPS-COS-STANDING.md) | **Yes** — cos DB + DNS + BRCE V8 / WebAuthn live | `curl … https://cos.fnox.io/readyz` → **200**; `getent hosts revops.fnox.io` ∧ revops `/readyz` → DNS ∧ **200** |
@@ -105,7 +105,7 @@ remain **PARTIAL** (not daily-HITL-free) or **BLOCKED_HITL** on the live gate �
 Canonical Path A condensed (≡ [`HITL-LIVE-NEXT-VERIFIER-STANDING.md`](./HITL-LIVE-NEXT-VERIFIER-STANDING.md) §3 / §8 / §10 and [`FOUNDRY-HITL-ACTION-CARD.md`](./FOUNDRY-HITL-ACTION-CARD.md) §5.3 — **not** a third path):
 
 ```bash
-cd /agent/repos/zcode-cli && zcode /login && bun scripts/powl-foundry-loop.ts --live
+cd /agent/repos/zcode-cli && export PATH="/home/ubuntu/.bun/bin:$PATH" && bun bin/zcode.js login && bun scripts/powl-foundry-loop.ts --live
 # PASS only if foundry_exit=0
 ```
 
