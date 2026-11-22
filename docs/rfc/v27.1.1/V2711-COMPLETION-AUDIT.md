@@ -1,9 +1,12 @@
 # V2711-COMPLETION-AUDIT — requirement-by-requirement standing vs objective
 
 ```text
-crown_tip=15eefb628368afcbb230d082d6ca00c286ca9d42
+crown_tip=7646bce35803f99dfb97707382054f74aa872631
+pre_absorb_write=15eefb628368afcbb230d082d6ca00c286ca9d42
+absorb_land=bc481a111829c2cab4c08451ccf3239c018c6c34
+side=cursor/v2711-completion-audit-bc54@2df0c478b
 branch=cursor/v2711-completion-audit-bc54
-utc=2026-11-22T19:10Z
+utc=2026-11-22T19:14Z
 cargo=none (docs-only audit; standings held from companion ledgers)
 ManagePullRequest=not_used
 invented_ALIVE=none
@@ -15,7 +18,7 @@ goal=NOT_COMPLETE
 |-------|-------|
 | Document ID | `V2711-COMPLETION-AUDIT-27.1.1` |
 | Objective | Close `ECOSYSTEM-SPEC-27.1.1` crown (photo + CCS/BRCE + ops O(N²) + Foundry zero-HITL + Gate1 + Gate0/2/3 OOR through **2027-01-01** GA) |
-| Observed crown tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ **`15eefb628368afcbb230d082d6ca00c286ca9d42`** (`15eefb628`; ⊇ Gate1 close pin + tip-wins absorb Gate1 exact-tip EXIT0 sides `712cdfafb` + OOR retip19 + Foundry honesty) |
+| Observed crown tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ **`7646bce35803f99dfb97707382054f74aa872631`** (`7646bce35`; tip-wins absorb land `bc481a111` of this audit; pre-absorb write base `15eefb628`; ⊇ photolith shui-hop ALIVE absorb `07cd663e0` + Foundry `--live` re-probe `51cbe7830`) |
 | Sidebranch | `cursor/v2711-completion-audit-bc54` |
 | Cargo / tip-cargo | **NOT RUN** (docs-only; evidence from companion ledgers only) |
 | Goal standing | **NOT COMPLETE** — Foundry **BLOCKED_HITL** ∧ BRCE **V8 BLOCKED** ∧ WebAuthn **UNSUPPORTED** ∧ cos **BLOCKED** ∧ revops **UNKNOWN** ∧ path crown **PARTIAL** |
@@ -24,7 +27,7 @@ Standing vocabulary (`AGENTS.md` §2): `UNKNOWN` | `PARTIAL` | `PARTIAL_ALIVE` |
 
 **Law:** This audit cites existing ledgers under `docs/rfc/v27.1.1/`. It does **not**
 re-run cargo, probes, or ceremonies. Exact tip-cargo `ALIVE` is sealed at named
-cargo tips and is **≠** live-tip (`15eefb628`) reconfirm unless a later EXIT:**0**
+cargo tips and is **≠** live-tip (`7646bce35`) reconfirm unless a later EXIT:**0**
 on the live tip is recorded. **Never invent Foundry `ALIVE`.** Presence of this
 markdown file ≠ crown `ALIVE`.
 
@@ -37,7 +40,7 @@ standings count **open** against the crown objective.
 ## Compact return
 
 ```text
-open=23|closed=23|side=cursor/v2711-completion-audit-bc54|absorbed=bc481a111|crown_tip=bc481a111
+open=23|closed=23|side=cursor/v2711-completion-audit-bc54|absorbed=bc481a111|crown_tip=7646bce35
 goal=NOT_COMPLETE
 Foundry=BLOCKED_HITL BRCE_V8=BLOCKED WebAuthn=UNSUPPORTED cos=BLOCKED revops=UNKNOWN path=PARTIAL
 ```
@@ -168,7 +171,7 @@ Source ledgers: [`GATE1-REMAINING-FALSIFIERS.md`](./GATE1-REMAINING-FALSIFIERS.m
 | G7 | brand production theme (Gate1 residual) | **UNSUPPORTED** | [`BRAND-PRODUCTION-THEME.md`](./BRAND-PRODUCTION-THEME.md) | production refuse held until Gate2+ | Inventing production ALIVE |
 | G8 | Gate1 → Foundry / path-crown promote | **BLOCKED_HITL** / **PARTIAL** | Gate1 tip-cargo ALIVE ≠ Foundry / path crown; [`GATE1-REMAINING-FALSIFIERS.md`](./GATE1-REMAINING-FALSIFIERS.md) | Founder `--live` → **0**; do not re-thrash sealed courts | Inventing Foundry ALIVE from Gate1 EXIT0 |
 
-**Section note:** Gate1 tip-cargo falsifiers named by the task (Truex/shui/Taffy/brand/uilayout) are **closed** at cargo tips. Production theme + Foundry promote remain **open**. tip-cargo ALIVE ≠ live-tip (`15eefb628`) reconfirm.
+**Section note:** Gate1 tip-cargo falsifiers named by the task (Truex/shui/Taffy/brand/uilayout) are **closed** at cargo tips. Production theme + Foundry promote remain **open**. tip-cargo ALIVE ≠ live-tip (`7646bce35`) reconfirm.
 
 ---
 
@@ -246,7 +249,7 @@ Including nested OOR matrix IDs as additional evidence (5 closed / 20 open) with
 ## 10. Explicit non-claims
 
 1. This audit does **not** invent Foundry / path-crown / Plane-5 / production-theme / live-WebAuthn `ALIVE`.
-2. Exact tip-cargo `ALIVE` ≠ live-tip (`15eefb628`) reconfirm.
+2. Exact tip-cargo `ALIVE` ≠ live-tip (`7646bce35`) reconfirm.
 3. Smalt / CASTLE wire / Gate1 tip-cargo `ALIVE` ≠ Foundry zero-HITL `ALIVE`.
 4. ECOSYSTEM-SPEC **MATERIALIZED** ≠ crown goal complete.
 5. Docs-only; cargo **NOT RUN**; ManagePullRequest **not used**; no force-push.
@@ -257,10 +260,11 @@ Including nested OOR matrix IDs as additional evidence (5 closed / 20 open) with
 
 ```text
 repo=seanchatmangpt/ggen
-crown_tip=15eefb628368afcbb230d082d6ca00c286ca9d42
-side=cursor/v2711-completion-audit-bc54
-absorb=tip-wins→cursor/ecosystem-spec-27-1-1-bc54
-utc=2026-11-22T19:10Z
+crown_tip=7646bce35803f99dfb97707382054f74aa872631
+pre_absorb_write=15eefb628368afcbb230d082d6ca00c286ca9d42
+side=cursor/v2711-completion-audit-bc54@2df0c478b
+absorb=bc481a111 (tip-wins onto cursor/ecosystem-spec-27-1-1-bc54)
+utc=2026-11-22T19:14Z
 goal=NOT_COMPLETE
 open=23 closed=23
 Foundry=BLOCKED_HITL BRCE=BLOCKED WebAuthn=UNSUPPORTED cos=BLOCKED revops=UNKNOWN path=PARTIAL
