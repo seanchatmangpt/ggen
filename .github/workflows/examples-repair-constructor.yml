@@ -12,6 +12,18 @@ on:
       - 'Cargo.toml'
       - 'Cargo.lock'
       - 'rust-toolchain.toml'
+  push:
+    paths:
+      - '.github/workflows/examples-repair-constructor.yml'
+      - 'examples/**'
+      - 'packs/**'
+      - 'scripts/validate-examples.sh'
+      - 'scripts/regenerate-examples.sh'
+      - 'crates/ggen-cli/**'
+      - 'Cargo.toml'
+      - 'Cargo.lock'
+      - 'rust-toolchain.toml'
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -31,19 +43,20 @@ jobs:
       RUSTC_WRAPPER: ""
       CARGO_INCREMENTAL: 0
     steps:
-      - name: Checkout exact PR head
+      - name: Checkout exact subject
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{ github.event.pull_request.head.sha }}
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
 
       - name: Record admitted subject
         run: |
           set -euo pipefail
-          echo "EXPECTED=${{ github.event.pull_request.head.sha }}"
+          EXPECTED="${{ github.event.pull_request.head.sha || github.sha }}"
+          echo "EXPECTED=${EXPECTED}"
           echo "OBSERVED=$(git rev-parse HEAD)"
-          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha }}"
-          echo "${{ github.event.pull_request.head.sha }}" > /tmp/original-head
+          test "$(git rev-parse HEAD)" = "${EXPECTED}"
+          echo "${EXPECTED}" > /tmp/original-head
 
       - name: Apply source/config repairs
         shell: bash
