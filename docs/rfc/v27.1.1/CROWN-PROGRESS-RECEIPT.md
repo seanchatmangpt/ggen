@@ -4,7 +4,7 @@
 |-------|-------|
 | Document ID | `CROWN-PROGRESS-RECEIPT-27.1.1` |
 | Status | **PROGRESS RECEIPT** (honest; **not** goal-complete; **not** crown `ALIVE`) |
-| Observed tip | absorb tip `ba9824207e05ced75cf6b433789f6ca5a62bf368` (~`8cee4246f+` / `c11ea7f2a+` / `89ca2da9c+`) |
+| Observed tip | absorb tip `68d8499b8f029f4debda4cddc805e57687cfa47f` (~`ba9824207+` / `8cee4246f+` / `c11ea7f2a+`) |
 | Tip subject | absorb gate1-post-uilayout @ `7b1120d6e` (four-falsifier Gate1 **PARTIAL**) + #936 crown-progress2 @ `0e25df932` onto tip past hop-4 mix/NIF; tip-wins: ui_layout tip-cargo **ALIVE** preserved (`8cee4246f` / `ca52e9c16`) |
 | Ledger pins cited | Gate-1 / Photo / Foundry / HOP4-MIX-NIF retipped; ui_layout tip-cargo **ALIVE**; Truex **ALIVE**; taffy **PRESENT**; brand hot-swap **PRESENT** / production **UNSUPPORTED**; mix/NIF residual **PRESENT**; OOR / CCS / BRCE / CASTLE retain prior absorb pins |
 | Cargo this receipt | **no** — tip-cargo skipped; prior exclusive quiet `ui_layout_court` **11 passed; exit 0** @ `ca52e9c16` (+ retry9 @ `60b15c778` ≡ `8cee4246f`) retained (**ALIVE**) |
