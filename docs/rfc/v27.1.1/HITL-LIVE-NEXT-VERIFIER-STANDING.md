@@ -98,3 +98,41 @@ Jobs/C4 residual is **separate** (not this falsifier): admitted igniter pack `--
 | Side-branch pin | 2026-11-22 — `cursor/v2711-hitl-live-next-bc54` @ `723c3a14f` from crown tip `fe72be0fb` (`bc-ea2b3d10`); docs-only; no cargo; no ManagePullRequest; no crown push |
 | Tip-wins absorb | 2026-11-22 — `cursor/v2711-hitl-live-absorb-8df9` re-applies side pin onto live crown `00b53cec9` (⊇ Smalt residual mix / OOR retip12 / affidavit / BRCE V8+R01 / VW / CASTLE); standing remains **BLOCKED_HITL**; exact next `bun scripts/powl-foundry-loop.ts --live` → **foundry_exit=0**; **no** invented `--live` `ALIVE`; docs-only; no cargo; no ManagePullRequest; push `HEAD:cursor/ecosystem-spec-27-1-1-bc54` (no force) |
 | Prior evidence chain | hop5-foundry-live → live2 (`ZCode runtime is missing`) → zcode-runtime (vendor **PRESENT**; model access **ABSENT**) → model-access / secrets probe (registry/env **ABSENT**; MCP secret inventory **UNSUPPORTED**) → HITL next-verifier pin |
+| Re-probe retip | 2026-11-22 — `cursor/v2711-hitl-live-retip-bc54` from `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `d2c919401` (⊇ CASTLE digest-bind wire); exact §3 command re-run; **foundry_exit=1**; **BLOCKED_HITL** held; **no** invented `--live` / hop-5 / Foundry crown `ALIVE`; sidebranch push only; no ManagePullRequest |
+
+---
+
+## 6. Re-probe retip (2026-11-22) — `cursor/v2711-hitl-live-retip-bc54`
+
+| Field | Value |
+|-------|-------|
+| Base | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `d2c91940194f80bf855e7e9b8c0f114583440309` (`d2c919401+`) |
+| Branch | `cursor/v2711-hitl-live-retip-bc54` |
+| zcode-cli | `/agent/repos/zcode-cli` @ `f32df08cdc4b3b8e114a8d1de8cf81acb80e1f3a` |
+| Command | `cd /agent/repos/zcode-cli && bun scripts/powl-foundry-loop.ts --live` |
+| UTC | `2026-11-22T16:22:30Z` |
+| Cargo / tip-cargo | **NOT RUN** (docs-only retip + exact live probe) |
+
+### Observed
+
+| Probe | Result |
+|-------|--------|
+| `vendor/zcode.cjs` | **PRESENT** |
+| `~/.zcode/v2/provider_config.json` | **ABSENT** |
+| Host provider env names (`ANTHROPIC_*` / `ZCODE_*` / `ZAI_*` / `BIGMODEL_*` / `ZHIPU_*`) | **ABSENT** |
+| Model access configured | **NO** |
+| `foundry_exit` | **1** |
+| `aggregateStanding` | **REFUSED** |
+| `liveExecutor` | `createZcodeAgentExecutor` (injected; ≠ live pass) |
+| Diagnostic (WO-A / remediate-*) | `Model access is not configured. Run /login or /setup in zcode, or configure its API key before sending a prompt. No model request was sent.` |
+| Receipt artifacts | stdout `/tmp/cursor/hitl-live-retip-stdout.txt`; exit `/tmp/cursor/hitl-live-retip-exit.txt`; workspace `/tmp/zcode-foundry-yp8g5F`; loop receipt `/tmp/zcode-foundry-yp8g5F/out/loop_receipt.json` |
+
+### Standing (this retip)
+
+| Claim | Standing |
+|-------|----------|
+| Exact §3 verifier this probe | **BLOCKED_HITL** / **REFUSED** (`foundry_exit=1`; model access not configured) |
+| Hop-5 live / Foundry crown | **PARTIAL** — **not** promoted; do **not** invent `ALIVE` |
+| Exact next (unchanged) | Founder HITL provision (§3 A/B/C) → `bun scripts/powl-foundry-loop.ts --live` → **foundry_exit=0** |
+
+**Antifalsifiers held:** dry-run / runtime PRESENT / adapter exit 0 / in-repo tip-cargo ≠ `--live` `ALIVE`. Sidebranch only — no crown push.

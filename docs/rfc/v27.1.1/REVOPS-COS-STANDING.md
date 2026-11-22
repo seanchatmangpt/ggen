@@ -386,4 +386,3 @@ curl -sS -o /tmp/revops-readyz13.json -w '%{http_code}' https://revops.fnox.io/r
 
 Crown: Plane-5 revops+cos product standing is **not** `ALIVE`. Labels in §1
 **held**. Next exact verifiers unchanged from §4 / §9–§15.
-
