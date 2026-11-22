@@ -6,11 +6,11 @@
 | Binding | `ECOSYSTEM-SPEC-27.1.1` Gate 0 + Gate 2–3 out-of-repo legs; GA **2027-01-01** |
 | Companion index | [`OUT-OF-REPO-NEXT-VERIFIERS.md`](./OUT-OF-REPO-NEXT-VERIFIERS.md); [`GATE-0-2-3-NEXT-VERIFIERS.md`](./GATE-0-2-3-NEXT-VERIFIERS.md) |
 | Sidebranch | `cursor/v2711-oor-retip19-bc54` (`bc-f83f4cbf`; matrix origin `cursor/v2711-gate023-oor-matrix-bc54` / `bc-0754e974`) |
-| Observed ggen tip (write base) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ **`6ae116c31636cddf8d7674c6012fe34bdcabfd07`** (`6ae116c31`; ⊇ Construct preempt `e568bef1d` + wasm-opt `6ae116c31`; Foundry `--live` BLOCKED_HITL / cos BLOCKED / revops UNKNOWN **held**) |
-| Probe time | 2026-11-22 12:36:00 PST / `2026-11-22T20:36Z` (retip21) |
-| Cargo / tip-cargo | **NOT RUN** this matrix (docs-only); companion Construct local **55/55** @ `e568bef1d` ≠ CI Construct ALIVE |
+| Observed ggen tip (write base) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ **`6a6957113`** (⊇ CapDoctor + emit-before-sync + VW pin; Construct receipt-exclude tip-wins pending); Foundry `--live` BLOCKED_HITL / cos BLOCKED / revops UNKNOWN **held** |
+| Probe time | 2026-11-22 12:35:00 PST / `2026-11-22T20:35Z` (retip23) |
+| Cargo / tip-cargo | **NOT RUN** this matrix (docs-only); Construct CI **PENDING_CI** (receipt-exclude after FM-PACK-013 unmask) ≠ ALIVE |
 | Crown absorb | tip-wins onto `origin/cursor/ecosystem-spec-27-1-1-bc54` (no force; parent owns ManagePullRequest) |
-| Companion retip | [`OOR-RETIP21-CONSTRUCT-PREEMPT-STANDING.md`](./OOR-RETIP21-CONSTRUCT-PREEMPT-STANDING.md) |
+| Companion retip | [`CONSTRUCT-RECEIPT-EXCLUDE-STANDING.md`](./CONSTRUCT-RECEIPT-EXCLUDE-STANDING.md); [`VERIFY-WITNESS-CI-WASM-CONSUME-STANDING.md`](./VERIFY-WITNESS-CI-WASM-CONSUME-STANDING.md) |
 
 Standing vocabulary: `UNKNOWN` | `PARTIAL` | `PARTIAL_ALIVE` | `ALIVE` | `BLOCKED` | `BLOCKED_HITL` | `UNSUPPORTED` | `REFUSED_*`.
 
@@ -230,3 +230,7 @@ Tip **`6ae116c31`**. Probe held: cos `/readyz` **503** `DB_UNAVAILABLE` (**BLOCK
 ## Retip22 (2026-11-22 1:25:00 PST) — G2-11 pin consume + Construct settle
 
 Tip **`08941960b`**. G2-11 prod runtime **PENDING_CI** (pin fixture + workflow on PR #950; local court **11**/EXIT:**0** @ `2f826872b`) — not production `ALIVE` until CI EXIT **0**. Construct/polyglot re-settling after TCPS refresh + cyberpunk paren. Foundry `--live` re-probe **foundry_exit=1** → **BLOCKED_HITL**. cos **503** / revops **NXDOMAIN** held. **No invented Foundry ALIVE.** Detail: [`VERIFY-WITNESS-CI-WASM-CONSUME-STANDING.md`](./VERIFY-WITNESS-CI-WASM-CONSUME-STANDING.md).
+
+## Retip23 (2026-11-22 12:35:00 PST) — Construct receipt-exclude after FM-PACK-013 unmask
+
+Tip **`6a6957113`** + receipt-exclude land. Emit-before-sync closed FM-PACK-013; Construct check-mode then false-positived on tracked `**/.ggen-v2/**` receipt/lease churn (~92 paths) — same class as publish-candidate `DRIFT_PATHSPEC`. `scripts/validate-examples.sh` now excludes that churn; source projections still fail closed. G2-11 Mount pin Step C still **PENDING_CI**. Foundry **BLOCKED_HITL** / cos **503** / revops **NXDOMAIN** held. **No invented ALIVE.** Detail: [`CONSTRUCT-RECEIPT-EXCLUDE-STANDING.md`](./CONSTRUCT-RECEIPT-EXCLUDE-STANDING.md).

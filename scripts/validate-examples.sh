@@ -162,23 +162,27 @@ if [[ "$failures" -ne 0 ]]; then
 fi
 
 if [[ "$MODE" == "check" ]]; then
-    # Emit-before-sync for tcps refreshes evidence/receipts by design; exclude
-    # that churn from the byte-identical projection gate (other examples must
-    # stay clean).
-    if ! git diff --quiet -- examples/ \
-        ':(exclude)examples/tcps-generated/evidence/' \
-        ':(exclude)examples/tcps-generated/receipts/inspection-receipt.json' \
-        ':(exclude)examples/tcps-generated/receipts/EVIDENCE_SNAPSHOT.md' \
-        ':(exclude)examples/tcps-generated/receipts/EVIDENCE_NOTE.md'; then
+    # Byte-identical gate covers manufactured source projections only.
+    # Exclude runtime receipt/evidence churn that changes every sync by design
+    # (chained hashes, generation bumps, reflexive append) — same class as
+    # publish-candidate.yml docs-sync DRIFT_PATHSPEC and ZD-135 tcps .ggen-v2.
+    # Emit-before-sync for tcps also refreshes evidence/receipts intentionally;
+    # without these excludes, Construct check-mode false-positives once all
+    # manifests sync clean (FM-PACK-013 no longer masks the gate).
+    DRIFT_PATHSPEC=(
+        examples/
+        ':(exclude)**/.ggen-v2/**'
+        ':(exclude)examples/tcps-generated/evidence/**'
+        ':(exclude)examples/tcps-generated/receipts/**'
+    )
+    if ! git diff --quiet -- "${DRIFT_PATHSPEC[@]}"; then
         echo
         echo "BUILD_BROKEN: ggen sync run changed tracked example projections:" >&2
-        git status --short -- examples/ >&2
+        git status --short -- "${DRIFT_PATHSPEC[@]}" >&2
         exit 1
     fi
 
-    untracked="$(git ls-files --others --exclude-standard -- examples/ \
-        ':(exclude)examples/tcps-generated/evidence/' \
-        ':(exclude)examples/tcps-generated/receipts/')"
+    untracked="$(git ls-files --others --exclude-standard -- "${DRIFT_PATHSPEC[@]}")"
     if [[ -n "$untracked" ]]; then
         echo
         echo "BUILD_BROKEN: ggen sync run created untracked example projections:" >&2
