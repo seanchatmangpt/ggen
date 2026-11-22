@@ -24,7 +24,7 @@ WebAuthn ceremony, BRCE broker runtime, or Plane-5 DO path as `ALIVE`.
 | **ALIVE (fixture / tip-cargo courts)** | ABB/SBB `unauthorized_do_request_is_refused`; SovereignLease Ed25519 admit; V7 ES256/`prime256v1` fixture court land **4 passed; exit 0** @ `fb6e7fc6e`; V1 seat fence exact tip-cargo **6 passed; exit 0** @ `e7569893a` | Fixture / kernel / seat fence only | Replay: `cargo test -p ggen-abb-sbb --test brce_as01_es256_assertion_court`; `… --test brce_as01_seat_court`; `… --test falsifiers unauthorized_do_request_is_refused`; `cargo test -p ggen-sjira --test lease_epoch_test` |
 | **PARTIAL_ALIVE** | Whole AS-01 CONSTRUCT→DO slice; doctrine / CI broker fences; V7 crypto-shape path (fixture ≠ hardware) | Path ceiling | Seat fence **ALIVE** ≠ broker **ALIVE**; do not promote to live |
 | **BLOCKED** | Live BRCE broker (admit→actuate→receipt) — **V8** | Broker unmounted | **V8** — In mounted BRCE broker checkout: intent without AS-01 → `REFUSED_*`; with verified seat → execution receipt + replay digest → exit **0** → then **V9**/G2-5. Owner: **BRCE**. **HITL:** Founder mounts broker + live WebAuthn before V8 `ALIVE`. In-repo seat/V7 fences do **not** close. OOR **G2-3** |
-| **UNSUPPORTED** | Live WebAuthn / FIDO2 RP + hardware ceremony; full clientDataJSON / authenticatorData / RP-ID bind; Plane-5 DO from ggen alone | No RP deps; V7 is fixture ECDSA only | Production RP/hardware court (OOR G2-4 beyond fixture) + **V9** / OOR **G2-5** Plane-5 probe ladder |
+| **UNSUPPORTED** | Live WebAuthn / FIDO2 RP + hardware ceremony; full clientDataJSON / authenticatorData / RP-ID bind; Plane-5 DO from ggen alone | No RP deps; V7 is fixture ECDSA only | Exact next: Founder HITL live RP/hardware ceremony court — [`WEBAUTHN-LIVE-NEXT-VERIFIER-STANDING.md`](./WEBAUTHN-LIVE-NEXT-VERIFIER-STANDING.md) §3 (OOR **G2-4**). Owner **BRCE**/trust-plane + **Founder HITL**. Then **V8** broker (**BLOCKED**) ahead of **V9** / OOR **G2-5**. V7 fixture ≠ live `ALIVE`. |
 
 ---
 
@@ -110,7 +110,7 @@ named claim.
 | V4 | SovereignLease remains Ed25519/`EdDSA` (non-AS-01) | `cargo test -p ggen-sjira --test lease_epoch_test` | **ggen** |
 | V5 | No silent `p256`/WebAuthn dep without docs | `rg -n 'p256|webauthn|web-authn|passkeys' Cargo.toml crates/*/Cargo.toml Cargo.lock` → empty **or** documented admit (this slice: `p256` in `crates/ggen-abb-sbb/Cargo.toml` for V7 only; no `webauthn`/`passkeys` RP) | **ggen** |
 | V6 | Gate-1 `curve25519-dalek` pin/docs court | pin doc [`CURVE25519-DALEK-PIN-STANDING.md`](./CURVE25519-DALEK-PIN-STANDING.md) PRESENT; next: policy court refusing undocumented major (see pin standing §5 / `GATE-1-GAP-MATRIX.md`) | **ggen** (+ cgap-aoq) |
-| V7 | WebAuthn AS-01 assertion verifies under `ES256`/`prime256v1` | `cargo test -p ggen-abb-sbb --test brce_as01_es256_assertion_court` — known-good → admit; tampered → `REFUSED_AS01_SIGNATURE_INVALID`; alg≠ES256 → `REFUSED_AS01_ALG` | **ggen** (in-repo adapter; crypto-shape **PARTIAL**; fixture land exit 0 — **not** hardware/Plane-5 ALIVE; live ceremony still **UNSUPPORTED**) |
+| V7 | WebAuthn AS-01 assertion verifies under `ES256`/`prime256v1` | `cargo test -p ggen-abb-sbb --test brce_as01_es256_assertion_court` — known-good → admit; tampered → `REFUSED_AS01_SIGNATURE_INVALID`; alg≠ES256 → `REFUSED_AS01_ALG` | **ggen** (in-repo adapter; crypto-shape **PARTIAL**; fixture land exit 0 — **not** hardware/Plane-5 ALIVE; live ceremony still **UNSUPPORTED** — exact next [`WEBAUTHN-LIVE-NEXT-VERIFIER-STANDING.md`](./WEBAUTHN-LIVE-NEXT-VERIFIER-STANDING.md) §3) |
 
 ### Gate 2–3 (post Gate 1 → GA 2027-01-01)
 
@@ -129,7 +129,7 @@ named claim.
 | PARTIAL_ALIVE (crypto shape) | ALIVE (seat verify on tip) | V7 + tip-cargo replay exit 0 (still open this retip — cargo not run) |
 | ALIVE (seat) | ALIVE (CONSTRUCT→DO) | V8 broker receipt on exact tip |
 | any | Plane 5 ALIVE | V9 — **never** from ggen-only evidence |
-| any | Live WebAuthn ceremony ALIVE | RP/hardware court — V7 fixture alone is **REFUSED_UNGROUNDED** |
+| any | Live WebAuthn ceremony ALIVE | Founder HITL RP/hardware ceremony court ([`WEBAUTHN-LIVE-NEXT-VERIFIER-STANDING.md`](./WEBAUTHN-LIVE-NEXT-VERIFIER-STANDING.md) §3) — V7 fixture alone is **REFUSED_UNGROUNDED** |
 
 ---
 
@@ -145,6 +145,7 @@ named claim.
 | `crates/ggen-abb-sbb/src/as01_assertion.rs` | V7 ES256/`prime256v1` assertion verify (crypto shape) |
 | `crates/ggen-abb-sbb/tests/brce_as01_es256_assertion_court.rs` | Chicago falsifier (V7) |
 | [`OUT-OF-REPO-NEXT-VERIFIERS.md`](./OUT-OF-REPO-NEXT-VERIFIERS.md) | G2-3/G2-4/G2-5 live broker / WebAuthn / Plane-5 DO |
+| [`WEBAUTHN-LIVE-NEXT-VERIFIER-STANDING.md`](./WEBAUTHN-LIVE-NEXT-VERIFIER-STANDING.md) | Exact Founder HITL live WebAuthn/FIDO2 ceremony pin (G2-4 **UNSUPPORTED**) |
 | [`CCS-AUTHORITY-STANDING.md`](./CCS-AUTHORITY-STANDING.md) | ~8 CCS ledger (CCS-1 / CCS-3 / CCS-8) |
 | [`CCS-BRCE-STANDING.md`](./CCS-BRCE-STANDING.md) | Clause-2 crown honesty binder (tip pin + next V8→V9/G2-5) |
 
