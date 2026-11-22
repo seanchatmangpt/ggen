@@ -5,17 +5,19 @@ Companion to `ECOSYSTEM-SPEC-27.1.1` §8 and Gate-1 gap matrix row
 
 ## Standing (this tip)
 
-Tip pin: crown `19c08a3b0` (`cursor/v2711-taffy-brand-absorb-a77d`; fluid+hotswap tip-cargo
-**ALIVE**; production **UNSUPPORTED**; rhythm lineage retained @ `26256ca9d`).
+Tip pin: evidence `c91b22561` / live crown (`cursor/v2711-brand-toml-tip-dee5`;
+completeness+rhythm tip-cargo **ALIVE**; fluid+hotswap **ALIVE** @ `19c08a3b0`;
+production **UNSUPPORTED**).
 
 | Surface | Standing | Evidence |
 |---------|----------|----------|
-| Rhythm schema + OEM stubs | **ALIVE** (lineage) | `brand_toml_rhythm_court` **12 passed; exit 0** @ `26256ca9d` (Official brand_toml owns cold reconfirm) |
+| Rhythm schema + OEM stubs | **ALIVE** (exact tip-cargo) | `brand_toml_rhythm_court` **12 passed; exit 0** @ `c91b22561` ([`BRAND-TOML-TIP-CARGO-STANDING.md`](./BRAND-TOML-TIP-CARGO-STANDING.md)) |
+| Completeness Incomplete refusals | **ALIVE** (exact tip-cargo) | `brand_toml_completeness_court` **5 passed; exit 0** @ `c91b22561` (same tip-cargo run) |
 | Fluid clamp / cqi slopes | **ALIVE** (tip-cargo **6 passed; exit 0** @ crown `19c08a3b0`) | `brand_fluid_clamp_court` |
 | OEM hot-swap fence | **ALIVE** (tip-cargo **6 passed; exit 0** @ crown `19c08a3b0`) | `seed_hot_swap_slot` / `hot_swap_brand` + `brand_toml_hotswap_court` |
 | Production runtime theme | **UNSUPPORTED** | `promote_production_theme` → `ProductionThemeRefusal::ProductionUnsupported` (code `REFUSED_PRODUCTION`) |
 
-Fluid clamp, hot-swap, and rhythm lineage tip-cargo are Gate-1 CONSTRUCT fences with
+Completeness, rhythm, fluid, and hot-swap tip-cargo are Gate-1 CONSTRUCT fences with
 standing **ALIVE**. They do **not** authorize production theme DO, CASTLE
 publish, or full DTCG color/type inventory `ALIVE`.
 
@@ -40,8 +42,10 @@ that type does not exist on this tip.)
 Companion lineage fences (not production promote):
 
 ```bash
-CARGO_BUILD_JOBS=1 CARGO_TARGET_DIR=/tmp/gate1-next-brand \
-  cargo test -p ggen-graph --test brand_toml_rhythm_court --locked
+CARGO_BUILD_JOBS=1 cargo test -p ggen-graph \
+  --test brand_toml_completeness_court --test brand_toml_rhythm_court \
+  --locked --target-dir /tmp/ggen-brand-toml-tip --config build.jobs=1 \
+  -- --test-threads=1
 cargo test -p ggen-graph --test brand_toml_hotswap_court
 cargo test -p ggen-graph --test brand_fluid_clamp_court
 ```

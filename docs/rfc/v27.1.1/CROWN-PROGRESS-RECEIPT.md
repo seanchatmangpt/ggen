@@ -56,7 +56,7 @@ blockers=foundry--live; remaining-fence-tip-cargo; cos/readyz; WebAuthn/BRCE-V8/
 **Exact next verifiers**
 
 1. provider `/login` or `~/.zcode/v2/provider_config.json` → `bun scripts/powl-foundry-loop.ts --live` → **0** ([`HOP5-ZCODE-RUNTIME-STANDING.md`](./HOP5-ZCODE-RUNTIME-STANDING.md); keys [`HOP5-MODEL-ACCESS-STANDING.md`](./HOP5-MODEL-ACCESS-STANDING.md)).
-2. Remaining fence tip-cargo: quiet `CARGO_BUILD_JOBS=1` for official `brand_toml_completeness` / BRCE seat / R-01 (taffy+fluid+hotswap+ui_layout+shui already **ALIVE**).
+2. Remaining fence tip-cargo: quiet `CARGO_BUILD_JOBS=1` for BRCE seat / R-01 (taffy+fluid+hotswap+completeness+rhythm+ui_layout+shui already **ALIVE** — brand completeness closed @ `c91b22561`).
 3. Jobs/C4 residual **closed** — replay admitted `--pack-dir sample-pack … --check` → **0** ([`HOP4-MIX-NIF-STANDING.md`](./HOP4-MIX-NIF-STANDING.md)).
 
 Antifalsifier: adapter exit 0 ≠ path crown `ALIVE`; runtime materialization alone ≠ hop-5 `ALIVE`; bare post-clone `git diff` ≠ hop-4 `ALIVE`; NIF `.so` / bare exit-2 ≠ Jobs/C4 `ALIVE`.
@@ -118,7 +118,7 @@ Founder HITL still required for: **cos DB**, **WebAuthn live (V8/V9)**, **remain
 **Exact next verifiers (Foundry §1a)**
 
 1. `bun scripts/powl-foundry-loop.ts --live` → **0** (provider `/login` or `~/.zcode/v2/provider_config.json`; ui_layout already **ALIVE**).
-2. Remaining fence tip-cargo: quiet `CARGO_BUILD_JOBS=1` for official `brand_toml_completeness` / BRCE seat / R-01 (taffy+fluid+hotswap already **ALIVE**).
+2. Remaining fence tip-cargo: quiet `CARGO_BUILD_JOBS=1` for BRCE seat / R-01 (taffy+fluid+hotswap+completeness+rhythm already **ALIVE** @ `c91b22561` / `19c08a3b0`).
 3. `curl … https://cos.fnox.io/readyz` → **200**.
 4. BRCE **V8** then **V9**.
 
@@ -139,14 +139,14 @@ Do **not** invent zero daily founder HITL `ALIVE` from Gate-1 fence green, CASTL
 | `curve25519-dalek` pin | **PARTIAL_ALIVE** (lock+doc; policy court open) | pin standing §5 policy court |
 | `verify_witness` size | **ALIVE** (tip-cargo **6** @ `c91b22561`); production WASM **UNSUPPORTED** | size court; prod: [`VERIFY-WITNESS-PRODUCTION.md`](./VERIFY-WITNESS-PRODUCTION.md) |
 | R-01…R-07 contract | **ALIVE** (contract); bodies **BLOCKED** | `cargo test -p ggen-graph --test r01_r07_resolution_court` |
-| Brand rhythm / hot-swap | fluid+hot-swap tip-cargo **ALIVE** (**6+6** @ `19c08a3b0`); rhythm lineage **ALIVE**; production **UNSUPPORTED** (`REFUSED_PRODUCTION`) | fluid/hotswap/rhythm courts; [`BRAND-PRODUCTION-THEME.md`](./BRAND-PRODUCTION-THEME.md) |
+| Brand rhythm / completeness / hot-swap | tip-cargo **ALIVE** — completeness **5** + rhythm **12** @ `c91b22561` ([`BRAND-TOML-TIP-CARGO-STANDING.md`](./BRAND-TOML-TIP-CARGO-STANDING.md)); fluid+hot-swap **6+6** @ `19c08a3b0`; production **UNSUPPORTED** (`REFUSED_PRODUCTION`) | completeness/rhythm/fluid/hotswap courts; [`BRAND-PRODUCTION-THEME.md`](./BRAND-PRODUCTION-THEME.md) |
 | BRCE AS-01 seat fence | **PARTIAL_ALIVE** | `cargo test -p ggen-abb-sbb --test brce_as01_seat_court` |
 | ggen_igniter manufacture | **ALIVE** (BrandTheme compare); clean-room crown **ALIVE** (`bc-53b0e099`); NIF **ALIVE**; Jobs/C4 admitted `--check` **ALIVE** | clean-room replay `git diff --exit-code` → **0**; manufacture replay → **0**; Jobs/C4 replay pack/template `--check` → **0** |
 | Gate-0 cos | **BLOCKED** (external) | cos `/readyz` → **200** |
 
-**Gate-1 aggregate:** **PARTIAL** — `ui_layout` + Taffy + brand fluid/hotswap tip-cargo **ALIVE** @ crown `19c08a3b0`; production theme **UNSUPPORTED**; completeness official tip-cargo / BRCE / R-01 still open. Zero-HITL fab / production WASM / production brand theme / live BRCE **not** `ALIVE`.
+**Gate-1 aggregate:** **PARTIAL** — `ui_layout` + Taffy + brand completeness/rhythm/fluid/hotswap tip-cargo **ALIVE** (completeness+rhythm @ `c91b22561`; fluid/hotswap @ `19c08a3b0`); production theme **UNSUPPORTED**; BRCE / R-01 tip-cargo still open. Zero-HITL fab / production WASM / production brand theme / live BRCE **not** `ALIVE`.
 
-Recommended next Gate-1 falsifier (pick one): official `brand_toml_completeness` EXIT:0 (coord `bc-7f0c72b7`); **or** hop-5 foundry `--live` → **0** (provider keys).
+Recommended next Gate-1 falsifier (pick one): BRCE seat / R-01 tip-cargo EXIT:0; **or** hop-5 foundry `--live` → **0** (provider keys).
 
 ---
 
@@ -155,7 +155,7 @@ Recommended next Gate-1 falsifier (pick one): official `brand_toml_completeness`
 | # | Blocker | Standing | Exact next |
 |---|---------|----------|------------|
 | 1 | foundry `--live` / ZCode runtime | **BLOCKED**/**REFUSED** | provider creds → `bun scripts/powl-foundry-loop.ts --live` → **0** ([`HOP5-ZCODE-RUNTIME-STANDING.md`](./HOP5-ZCODE-RUNTIME-STANDING.md); [`HOP5-MODEL-ACCESS-STANDING.md`](./HOP5-MODEL-ACCESS-STANDING.md)) |
-| 2 | remaining Gate-1 fence tip-cargo (completeness/BRCE/R-01) | **PARTIAL** (taffy+fluid+hotswap+shui+ui_layout **ALIVE** @ `19c08a3b0`) | official `brand_toml_completeness_court` EXIT:0; `brce_as01_seat_court` / `r01_r07_resolution_court` → **0** |
+| 2 | remaining Gate-1 fence tip-cargo (BRCE/R-01) | **PARTIAL** (taffy+fluid+hotswap+completeness+rhythm+shui+ui_layout **ALIVE**; brand @ `c91b22561`) | `brce_as01_seat_court` / `r01_r07_resolution_court` → **0** |
 | 3 | cos `/readyz` DB | **BLOCKED** (**503**) | curl → HTTP **200** |
 | 4 | Live WebAuthn / BRCE broker / Plane-5 DO | **UNSUPPORTED** / **BLOCKED** | BRCE **V8** → **V9** / OOR **G2-3…G2-5** |
 | 5 | revops.fnox.io DNS | **UNKNOWN**/**BLOCKED** | `getent hosts` ∧ `/readyz` **200** |

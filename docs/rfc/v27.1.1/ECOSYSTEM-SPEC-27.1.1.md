@@ -199,15 +199,15 @@ Gate-1 in-repo slice (this land): **visual rhythm only** — px/rem primitives,
 `docs/rfc/v27.1.1/fixtures/`. Full color/type/CASTLE inventories remain Gate 2+;
 inventing those token values here is still **REFUSED**.
 
-Standing: **PARTIAL_ALIVE** (completeness land on crown) — lineage rhythm +
-hot-swap tip-cargo remain **ALIVE** (`brand_toml_rhythm_court` **12** /
-`brand_toml_hotswap_court` **6** @ `26256ca9d`); completeness court
-(`BrandRefusal::Incomplete` + `brand_toml_completeness_court`) **PRESENT**
-with logic twin **5 passed; exit 0**; official `ggen-graph` tip-cargo for
-`brand_toml_completeness_court` → **BUILD_BROKEN** (oxrocksdb OOM; no cold
-oxrocksdb this land) until EXIT **0** post-ENOSPC. `brand_fluid_clamp_court`
-source **PRESENT** (**6** `#[test]` on crown); full DTCG color/type/CASTLE
-token-inventory plane **UNSUPPORTED** until Gate 2+.
+Standing: **ALIVE** (official tip-cargo) — `brand_toml_completeness_court`
+**5** + `brand_toml_rhythm_court` **12** → EXIT **0** @ evidence tip
+`c91b22561` (`/tmp/ggen-brand-toml-tip`; brand sources ≡ live crown;
+[`BRAND-TOML-TIP-CARGO-STANDING.md`](./BRAND-TOML-TIP-CARGO-STANDING.md)).
+`BrandRefusal::Incomplete` + completeness court closed under official
+`ggen-graph` oxrocksdb path (prior **BUILD_BROKEN** OOM superseded). Hot-swap
+lineage remains **ALIVE** (`brand_toml_hotswap_court` **6** @ `26256ca9d`).
+`brand_fluid_clamp_court` tip-cargo **ALIVE** (**6** @ `19c08a3b0`); full DTCG
+color/type/CASTLE token-inventory plane **UNSUPPORTED** until Gate 2+.
 
 In-repo **brand.toml hot-swap** fence (`seed_hot_swap_slot` / `hot_swap_brand`
 + `brand_toml_hotswap_court`): **ALIVE** (lineage) — **6 passed; exit 0** @
