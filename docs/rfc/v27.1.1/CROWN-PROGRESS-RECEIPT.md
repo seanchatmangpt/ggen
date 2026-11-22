@@ -4,7 +4,7 @@
 |-------|-------|
 | Document ID | `CROWN-PROGRESS-RECEIPT-27.1.1` |
 | Status | **PROGRESS RECEIPT** (honest; **not** goal-complete; **not** crown `ALIVE`) |
-| Observed tip | `a3f1ec40f4b30bf045f96dd61da75a28373992ab` (~`55538fe6f+` / absorb #927/#928/#929) |
+| Observed tip | `0f62a0548871d686e6146515605db0ab4ac3b378` (~`a3f1ec40f+` / absorb #927/#928/#929) |
 | Tip subject | crown-progress2 honesty retip on `a3f1ec40f+`: Clause-1 hop-4 **ALIVE** / hop-5 **PARTIAL** / `--live` HITL **BLOCKED**; Clause-2 `construct_hash` **PRESENT** / WebAuthn **UNSUPPORTED** / V8 **BLOCKED**; Clause-3 Smalt **ALIVE** / cos **503** / revops NXDOMAIN / `verify_witness` **PRESENT**; Clause-4 Foundry **PARTIAL** (CASTLE/Smalt sibling **ALIVE** ≠ zero-HITL); Gate-1 **PARTIAL** (`ui_layout` tip-cargo **ALIVE** 11/exit0; Truex **ALIVE**; brand hot-swap **PRESENT** / production **UNSUPPORTED**; taffy **PRESENT**) |
 | Ledger pins cited | Gate-1 / Photo / Foundry: ui_layout **ALIVE** retained; taffy **PRESENT**; verify_witness size court **PRESENT**; hop-4 BrandTheme **ALIVE**; brand hot-swap **PRESENT** / production **UNSUPPORTED**; OOR / CCS / BRCE / CASTLE retain prior absorb pins |
 | Cargo this receipt | **no** — tip-cargo skipped; prior exclusive quiet `ui_layout_court` **11 passed; exit 0** @ `ca52e9c16` retained |
@@ -30,7 +30,7 @@ FinOps: FOUNDRY/OOR **ALIVE** @ `91997da76f0f` vs older §13.3 FinOps
 Compact return line:
 
 ```text
-tip=a3f1ec40f4b30bf045f96dd61da75a28373992ab
+tip=0f62a0548871d686e6146515605db0ab4ac3b378
 clause1=PARTIAL
 clause2=PARTIAL_ALIVE
 clause3=PARTIAL+BLOCKED
