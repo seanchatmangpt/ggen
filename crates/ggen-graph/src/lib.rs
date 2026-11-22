@@ -19,6 +19,7 @@ pub mod dialect;
 pub mod doctor;
 pub mod graph;
 pub mod interchangeable;
+pub mod layout;
 pub mod ocel;
 pub mod prelude;
 pub mod receipt;

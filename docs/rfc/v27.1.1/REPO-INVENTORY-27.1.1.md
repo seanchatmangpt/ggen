@@ -9,7 +9,7 @@ Standing labels: ALIVE | PARTIAL_ALIVE | UNKNOWN | UNSUPPORTED | BLOCKED.
 | `truex:` as private prefix | `ORIGINAL_REQUEST.md` (banned); `crates/ggen-graph/src/bin/gall_observe_worktree.rs` banned IRI tokens; marketplace registry id `truex` | **ALIVE** (ban) | Private-prefix ban is live; distinct from W3C `shui:` |
 | `forbid_private_namespaces` / public prefix scan | `crates/ggen-graph/src/bin/gall_actuate_code_evaluation.rs` (`allowed_prefixes`, `check_uri`); `crates/ggen-lsp/assets/policies/no-private-namespace.shacl.ttl` | **PARTIAL_ALIVE** | Live scanners; `shui` absent until Gate-1 slice |
 | `shui:` (W3C SHACL 1.2 UI) | *(none prior to this PR)* | **UNSUPPORTED** → **PARTIAL_ALIVE** after `vocab::shui` land | Spec IRI `http://www.w3.org/ns/shacl-ui/` |
-| Taffy / AOT layout | no `taffy` in workspace `Cargo.toml` / crates | **UNSUPPORTED** | Gate 1 seal required |
+| Taffy / AOT layout | `taffy` workspace dep + `ggen-graph::layout::taffy_aot`; court at 375/1.5× | **PARTIAL_ALIVE** (stub; six-width seal open) | Gate 1 seal required |
 | `*.brand.toml` / DTCG | zero matches | **UNSUPPORTED** | Gate 2+ |
 | SUPPLE / ORC | no product surface under live crates | **UNKNOWN** | Name collision noise only (ORCID, ORCHESTRATOR_ALIVE prose) |
 | ui-layout / zcode-cli | not in workspace members; no `ui-layout-court.ts` | **UNSUPPORTED** | External sibling |

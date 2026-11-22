@@ -21,7 +21,7 @@ Do not promote any Gate 0 row to `ALIVE` from this repository.
 |-------------|------------------|-------------------------------|-------|
 | Admit W3C `shui:` as public vocab (ggen fence) | `vocab::shui` + `is_admitted_turtle_prefix("shui")` court (this PR); Truex product admission still external | `cargo test -p ggen-graph --test shui_public_prefix_court` | **ggen** (fence) + **truex** (product admit) |
 | Truex runtime admits `shui:` shapes | sibling `seanchatmangpt/truex` not mounted — **UNKNOWN** | in truex: admit-court that loads a `shui:`-prefixed shape graph and exits 0; refuse still holds for private `truex:` | **truex** |
-| Taffy AOT pre-flight (widths 320/375/393/600/840/1280 + WCAG 1.4.12 1.5×) | **UNSUPPORTED** — no taffy dep | add crate surface + `cargo test -p <layout-crate> --test taffy_aot_preflight_court` asserting six widths × 1.5× spacing refusals | **ggen** |
+| Taffy AOT pre-flight (widths 320/375/393/600/840/1280 + WCAG 1.4.12 1.5×) | **PARTIAL_ALIVE** — `layout::taffy_aot` + `taffy` dep; court refuses overflow at 375 under 1.5× (+ touch/gap typed refusals + one admit); six-width seal still open | `cargo test -p ggen-graph --test taffy_aot_preflight_court -- overflow_at_375_with_text_spacing_1_5x_is_refused` | **ggen** |
 | zcode-cli `ui-layout-court.ts` | **UNSUPPORTED** in this repo | in zcode-cli: `pnpm test -- ui-layout-court` (or repo’s exact court runner) against a ggen layout receipt fixture | **zcode-cli** |
 | `curve25519-dalek` v4 / cgap-aoq docs | lock has 4.1.3 + 5.0.0; no Gate-1 pin doc | document admitted path; court: `rg -n 'curve25519-dalek' Cargo.lock` + dedicated docs path under `docs/rfc/v27.1.1/` or cgap-aoq tree; refuse undocumented major | **ggen** (+ cgap-aoq docs owner) |
 | `verify_witness` WASM &lt; 250KB | Affidavit pack **PARTIAL**; size court **UNKNOWN** | build witness wasm then `wc -c verify_witness.wasm` / size court asserting `&lt; 262144` | external (witness/affidavit) with optional ggen pack emit |
@@ -32,15 +32,13 @@ Do not promote any Gate 0 row to `ALIVE` from this repository.
 
 ## Recommended next single falsifier (Gate 1)
 
-After this land’s `shui` prefix court is green:
+Taffy AOT stub + 375/1.5× overflow court is green (**PARTIAL_ALIVE**). Replay:
 
 ```text
-cargo test -p ggen-graph --test shui_public_prefix_court
+cargo test -p ggen-graph --test taffy_aot_preflight_court -- overflow_at_375_with_text_spacing_1_5x_is_refused
 ```
 
-Next **new** Gate-1 falsifier to author (not yet present):
+Next **new** Gate-1 falsifier to author:
 
-1. Introduce a Taffy AOT pre-flight stub that **refuses** a fixture overflowing at width `375` under WCAG 1.4.12 1.5× spacing, with Chicago AAA and no mocks.
-2. Exact command once stubbed:  
-   `cargo test -p ggen-graph --test taffy_aot_preflight_court -- overflow_at_375_with_text_spacing_1_5x_is_refused`  
-   (crate name may move; keep the court name stable).
+1. Extend Taffy AOT pre-flight to the full width set `320 / 375 / 393 / 600 / 840 / 1280` under WCAG 1.4.12 1.5× (six-width seal), still Chicago AAA / no mocks.
+2. Or advance sibling rows still open: Truex `shui:` product admit; `curve25519-dalek` Gate-1 pin doc; `verify_witness` WASM size court.
