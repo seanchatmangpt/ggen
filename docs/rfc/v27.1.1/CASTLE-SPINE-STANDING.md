@@ -6,10 +6,10 @@
 | Companion | `ECOSYSTEM-SPEC-27.1.1` (Gate 2–3 CASTLE publish); `REPO-INVENTORY-27.1.1` |
 | Subject | `seanchatmangpt/castle` on spine `ggen → Taffy → zcode-cli → CASTLE → Smalt → revops` |
 | Materialized | 2026-11-22 |
-| Observed ggen tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ tip-wins absorb of `dabef8f5f` (CASTLE digest-bind wire) onto crown `87dbaad27` (⊇ VW CI-wasm + OOR retip13 + BRCE V8 + vw-env-wire + CASTLE stub `13e0ddc9e` + WebAuthn + HITL/Smalt); supersedes §12 stub pin |
-| Tip pin | 2026-11-22 — tip-wins absorb `cursor/v2711-castle-digest-bind-bc54` @ `dabef8f5f` onto crown after tip `87dbaad27` (⊇ OOR retip13 + BRCE V8 + VW CI-wasm): production wire **ALIVE**/`WIRED` @ castle `e0d99c6`; Foundry zero-HITL crown stays **PARTIAL** (HITL/OOR/WebAuthn open). Castle wire: `cursor/digest-bind-admit-ca8a` @ `e0d99c6` on base `2774039ea` |
-| Observed castle tip | `main` @ `2774039ea81bad508c93785a59dd7a99198ae256` (sibling courts ALIVE historical); digest-bind wire sidebranch `cursor/digest-bind-admit-ca8a` @ `e0d99c6` (https://github.com/seanchatmangpt/castle/commit/e0d99c6) — wire bind **WIRED** (optional pin); Foundry/zero-HITL crown still **PARTIAL** |
-| Repo scope of this land | `seanchatmangpt/ggen` standing ledger tip-wins absorb + `seanchatmangpt/castle` digest-bind wire sidebranch (no Foundry crown promote; no ManagePullRequest) |
+| Observed ggen tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `d73efb9b898c3a4398b90dd009e41826de8e30d1` (exact-tip CASTLE bind_into_mint / wire reconfirm §14; prior tip-wins digest-bind absorb of `dabef8f5f` onto `87dbaad27` retained) |
+| Tip pin | 2026-11-22 — sidebranch `cursor/v2711-castle-retip3-bc54` vs tip `d73efb9b8`: `publish_digest_bind_court` **6/6** EXIT **0** @ castle `e0d99c6` → digest-bind wire **ALIVE**/`WIRED`; Foundry zero-HITL crown stays **PARTIAL** (HITL/OOR/WebAuthn open). No crown absorb; no ManagePullRequest on #849 |
+| Observed castle tip | `main` @ `2774039ea81bad508c93785a59dd7a99198ae256` (sibling courts ALIVE historical); digest-bind wire sidebranch `cursor/digest-bind-admit-ca8a` @ `e0d99c65fb08b8f0d754872dba06df984bc3d21d` (https://github.com/seanchatmangpt/castle/commit/e0d99c6) — wire bind **WIRED** (optional pin); Foundry/zero-HITL crown still **PARTIAL** |
+| Repo scope of this land | `seanchatmangpt/ggen` standing ledger retip3 (docs) + `seanchatmangpt/castle` digest-bind wire reconfirm @ `e0d99c6` (no Foundry crown promote; no ManagePullRequest) |
 
 Standing vocabulary: `UNKNOWN` | `PARTIAL_ALIVE` | `ALIVE` | `BLOCKED` | `BUILD_BROKEN` | `UNSUPPORTED` | `REFUSED_*`.
 
@@ -355,3 +355,52 @@ curl -sS -w '\nhttp=%{http_code}\n' https://cos.fnox.io/readyz   # need HTTP 200
 ```
 
 Do **not** promote Foundry / zero-HITL `ALIVE` from CASTLE wire bind alone. Do **not** ManagePullRequest on #849.
+
+## 14. Exact-tip bind_into_mint / wire reconfirm vs tip `d73efb9b8` (2026-11-22)
+
+| Field | Value |
+|-------|-------|
+| Branch (ggen) | `cursor/v2711-castle-retip3-bc54` from `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `d73efb9b898c3a4398b90dd009e41826de8e30d1` (**sidebranch only** — no crown absorb; no ManagePullRequest on #849) |
+| Branch (castle) | `cursor/digest-bind-admit-ca8a` @ `e0d99c65fb08b8f0d754872dba06df984bc3d21d` (detached checkout; parent wire land) |
+| Probe intent | Exact-tip reconfirm of CASTLE `bind_into_mint` / production wire without Foundry / zero-HITL promotion |
+| Narrowest real verifier | `cd /tmp/castle-digest-bind/castle` @ `e0d99c6`; `RUSTUP_TOOLCHAIN=nightly CARGO_BUILD_JOBS=1 CARGO_TARGET_DIR=/tmp/castle-digest-bind/target cargo test --test publish_digest_bind_court -- --test-threads=1` |
+| EXIT | **0** — `test result: ok. 6 passed; 0 failed` (`mint_receipt_must_bind_…`, `seal_public_artifact_with_pin_binds_…`, `seal_public_artifact_without_pin_omits_…`, `stub_admit_*` ×2, `stub_bind_into_mint_attaches_digest_keys`) |
+| Observed wall time | 2026-11-22 17:14 UTC (compile+test ~6m38s cold target dir) |
+| In-ggen publish / RedactionCourt | **UNSUPPORTED** — `git grep 'castle publish\|RedactionCourt' -- crates packs` empty on tip `d73efb9b8` |
+| Sibling `main` courts | **ALIVE** retained historical @ `2774039ea` / `bc-1bffb072` (not re-cargoed this retip; wire court is the narrow subject) |
+| Digest-bind production wire | **ALIVE**/`WIRED` — reconfirmed EXIT **0** @ `e0d99c6` |
+| CASTLE horizontal-spine (crown) | **PARTIAL_ALIVE** (wire **ALIVE**/`WIRED`; cross-repo Foundry crown still open) |
+| Foundry / zero-HITL crown | **PARTIAL** — **not** promoted from wire EXIT 0 |
+| LinkedIn / Jobs AND-gate | **BLOCKED** (cos `/readyz` residual orthogonal; not re-probed this retip) |
+
+### 14.1 Standing delta (honesty)
+
+| Claim | Before (§13) | After (§14) |
+|-------|--------------|-------------|
+| Observed ggen tip pin | absorb onto `87dbaad27` / wire `dabef8f5f` | exact tip `d73efb9b898c3a4398b90dd009e41826de8e30d1` |
+| Chicago `publish_digest_bind_court` | **6/6** exit **0** (wire land) | **6/6** EXIT **0** reconfirmed this retip |
+| Digest-bind wire | **ALIVE**/`WIRED` @ `e0d99c6` | **ALIVE**/`WIRED` held (EXIT 0) |
+| Foundry / zero-HITL | **PARTIAL** | **PARTIAL** unchanged |
+| Spine crown | **PARTIAL_ALIVE** | **PARTIAL_ALIVE** unchanged |
+
+### 14.2 Exact next verifier
+
+```text
+# Wire already green — optional broader sibling replay @ e0d99c6:
+cd /path/to/castle && git checkout cursor/digest-bind-admit-ca8a  # e0d99c6
+RUSTUP_TOOLCHAIN=nightly cargo test --test publish_digest_bind_court  # expect 6/6 exit 0
+cargo test --test publish_redaction_court   # expect 13/13 exit 0
+cargo test --test cli_publish_brand         # expect 6/6 exit 0
+PIN=$(python3 -c 'print("ab"*16+"cd"*16)')
+./target/debug/castle publish post \
+  --subject spine-probe --public-anonymize \
+  --brand brands/fourth-watch.brand.toml \
+  --ggen-layout-digest "$PIN"
+# expect exit 0; redaction_court=ALIVE; ggen_layout_digest==PIN; digest_bind.crown_wire=WIRED
+
+# Foundry / LinkedIn still blocked (HITL/OOR/WebAuthn):
+curl -sS -w '\nhttp=%{http_code}\n' https://cos.fnox.io/readyz   # need HTTP 200
+# ∧ 2× durable LOW receipts on disk
+```
+
+Do **not** promote Foundry / zero-HITL `ALIVE` from this retip. Do **not** ManagePullRequest on #849. Do **not** absorb onto crown from this sidebranch alone.
