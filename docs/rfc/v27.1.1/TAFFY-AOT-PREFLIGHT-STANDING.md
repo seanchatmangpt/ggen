@@ -1,42 +1,45 @@
 # Taffy AOT preflight — path honesty retip (v27.1.1)
 
 ```text
-tip_base=a3e5d310940c995be428a7760bfa8d73d9dc4456
-tip_note=⊇ e24ce7a732c18b13c279c7c1ec1cf42558ebc212+
-branch=cursor/v2711-taffy-path-retip-bc54
-bc=bc-0064f363-9ad8-5b37-8034-2da0b63190af
+tip_base=e6d00965a0b0b96df9e284d857de1371c89a3dd2
+cargo_tip_obs=cc2a4ea662b12b35ac90246b3a2bfbd89db615e4
+branch=cursor/v2711-taffy-preflight-retip3-bc54
+bc=bc-dd12edfa-bea5-594c-8e87-b8fb6b7fa1c9
 court=taffy_aot_preflight_court
 package=ggen-graph
 blob=d8923b07eb4325ace90087a604b9daec0a83d29e
 impl_blob=275ea25dd5a0082eb16b23c56ac494dfa3018165
 tests=7
-cargo=SKIPPED (docs-only; Gate1 tip6 owns thrash)
-standing=PARTIAL / PARTIAL_ALIVE (path slice ggen+Taffy AOT; exact tip-cargo PENDING)
+EXIT=137
+prior_EXIT=143
+standing=PARTIAL_ALIVE (PRESENT + lineage ALIVE held; exact tip EXIT:0 not obtained)
 lineage_alive=19c08a3b0 / absorb cde02d1f2 (7 passed; exit 0)
 path_crown=PARTIAL (not full photolithography path ALIVE)
 foundry=PARTIAL (no Foundry ALIVE)
+ledger=TAFFY-AOT-PREFLIGHT-RETIP3-STANDING.md
 ```
 
 | Field | Value |
 |-------|-------|
 | Document ID | `TAFFY-AOT-PREFLIGHT-STANDING` |
-| Side branch | `cursor/v2711-taffy-path-retip-bc54` |
-| Tip base (crown) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `a3e5d310940c995be428a7760bfa8d73d9dc4456` (⊇ `e24ce7a73`+) |
+| Side branch (this pin) | `cursor/v2711-taffy-preflight-retip3-bc54` (`bc-dd12edfa`) |
+| Tip base (crown) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `e6d00965a0b0b96df9e284d857de1371c89a3dd2` |
 | Spec binding | `ECOSYSTEM-SPEC-27.1.1` Gate 1 D2 / photolithography **hop 3** (`ggen + Taffy AOT`) |
-| Companions | [`GATE-1-GAP-MATRIX.md`](./GATE-1-GAP-MATRIX.md); [`PHOTOLITHOGRAPHY-STANDING.md`](./PHOTOLITHOGRAPHY-STANDING.md); [`PERIMETER-TTL-TOML-PATH-STANDING.md`](./PERIMETER-TTL-TOML-PATH-STANDING.md); [`CROWN-PROGRESS-RECEIPT.md`](./CROWN-PROGRESS-RECEIPT.md); [`FOUNDRY-FINISH-STANDING.md`](./FOUNDRY-FINISH-STANDING.md) |
-| Prior sidebranches | `cursor/v2711-taffy-preflight-retip7-bc54` @ `1bc005fe3` (**PRESENT**; tip-wins absorb `c2cd54f56`); `…-retip` @ `ef6fb84ed` (**PRESENT**); `…-retip3`/`…-retip4`/`…-retip6` **remote ABSENT** |
-| Crown absorb | **ABSORBED** tip-wins onto `cursor/ecosystem-spec-27-1-1-bc54` @ pre-absorb `a3e5d3109` (side `af9db256d`; FF) |
+| Companions | [`TAFFY-AOT-PREFLIGHT-RETIP3-STANDING.md`](./TAFFY-AOT-PREFLIGHT-RETIP3-STANDING.md); [`GATE-1-GAP-MATRIX.md`](./GATE-1-GAP-MATRIX.md); [`PHOTOLITHOGRAPHY-STANDING.md`](./PHOTOLITHOGRAPHY-STANDING.md); [`FOUNDRY-FINISH-STANDING.md`](./FOUNDRY-FINISH-STANDING.md) |
+| Prior sidebranches | path-retip / retip7 **PRESENT** on origin (lineage); this retip3 push-first |
+| Crown absorb | **not performed** this land (leave crown alone) |
 | ManagePullRequest | **not used** |
-| Cargo | **NOT RUN** this land — Gate1 tip6 owns thrash; exact tip-cargo remains next verifier |
+| Cargo | **RAN** — EXIT:**137** (guardian/SIGKILL thrash); prior EXIT:**143**; **no** exact tip `ALIVE` |
 
 Standing vocabulary: `UNKNOWN` | `PARTIAL_ALIVE` | `ALIVE` | `BLOCKED` | `BUILD_BROKEN` | `UNSUPPORTED` | `REFUSED_*` | `PARTIAL` | `PRESENT` | `PENDING`.
 
 **Authority.** This document is the push-first **path-slice** honesty ledger for
-photolithography hop 3 (`ggen + Taffy AOT pre-flight`) on tip `a3e5d3109`
-(⊇ `e24ce7a73`+). It does **not** invent exact-tip tip-cargo `ALIVE` on this tip.
-Lineage tip-cargo **ALIVE** @ `19c08a3b0` / absorb `cde02d1f2` is **held**, not
-re-proven here. It does **not** promote the full photolithography path crown or
-Foundry / zero-HITL to `ALIVE`.
+photolithography hop 3 (`ggen + Taffy AOT pre-flight`) on tip `e6d00965a`
+(cargo obs `cc2a4ea66`; blobs ≡). Exact tip-cargo **EXIT:137** — it does **not**
+invent tip-cargo `ALIVE`. Lineage tip-cargo **ALIVE** @ `19c08a3b0` / absorb
+`cde02d1f2` is **held**, not re-proven as tip EXIT:0. It does **not** promote the
+full photolithography path crown or Foundry / zero-HITL to `ALIVE`. Detail:
+[`TAFFY-AOT-PREFLIGHT-RETIP3-STANDING.md`](./TAFFY-AOT-PREFLIGHT-RETIP3-STANDING.md).
 
 **Honesty law (held):**
 `PRESENT` ≠ `lineage_tip_cargo_ALIVE` ≠ `exact_tip_reconfirm_ALIVE` ≠
@@ -45,7 +48,7 @@ photolithography **path slice** `PARTIAL_ALIVE` ≠ photolithography **path crow
 
 ---
 
-## 1. Standing pin (this path retip @ `a3e5d3109`)
+## 1. Standing pin (retip3 @ `e6d00965a` / cargo obs `cc2a4ea66`)
 
 | Claim | Standing | Evidence (this land) |
 |-------|----------|----------------------|
@@ -138,14 +141,15 @@ crown verifiers close.
 ## 4. Compact return line
 
 ```text
-tip_base=a3e5d310940c995be428a7760bfa8d73d9dc4456
-tip_ancestor_pin=e24ce7a73+
-branch=cursor/v2711-taffy-path-retip-bc54
-bc=bc-0064f363
-EXIT=skipped (PARTIAL; docs-only; tip6 thrash)
-standing=PARTIAL / PARTIAL_ALIVE (PRESENT + lineage ALIVE held; exact tip PENDING; hop-3 path slice)
+tip_base=e6d00965a0b0b96df9e284d857de1371c89a3dd2
+cargo_tip_obs=cc2a4ea662b12b35ac90246b3a2bfbd89db615e4
+branch=cursor/v2711-taffy-preflight-retip3-bc54
+bc=bc-dd12edfa
+EXIT=137
+standing=PARTIAL_ALIVE (PRESENT + lineage ALIVE held; exact tip EXIT:0 not obtained)
 path_crown=PARTIAL (not full path ALIVE)
 foundry=PARTIAL (no Foundry ALIVE)
 next=CARGO_BUILD_JOBS=1 CARGO_TARGET_DIR=/tmp/gate1-taffy cargo test -p ggen-graph --test taffy_aot_preflight_court --locked → EXIT 0
 ManagePullRequest=not_used
+crown_absorb=none
 ```
