@@ -166,6 +166,12 @@ fn six_width_seal_admits_valid_layout_under_1_5x() {
         "seal receipt must list every Gate-1 width in order"
     );
     assert_eq!(receipt.leaf_count, 2);
+    assert_eq!(
+        receipt.digest,
+        receipt.recompute_digest(),
+        "seal digest must match domain-separated recomputation"
+    );
+    assert_eq!(receipt.digest.len(), 64);
 }
 
 #[test]
