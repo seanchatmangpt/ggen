@@ -99,7 +99,7 @@ Do not promote any Gate 0 row to `ALIVE` from this repository.
 
 ### Command evidence log (this refresh)
 
-`120598fb3e395393d0ebe7fd86537bb499fc670d` (~`2fd897141+` / `46a026ae9+` / `27436608c+`; tip-wins: hop-5 runtime **PRESENT** / model access **REFUSED**; ui_layout tip-cargo **ALIVE**; chicago mirror **PARTIAL_ALIVE**; Smalt 6-column spine **ALIVE**; photo hop-4 **ALIVE** reconfirm; verify_witness size court **PRESENT**; taffy_aot_preflight **PRESENT**).
+Live tip pin: `2fd8971414519f5a1c51f6b04c1f7a85831def52` (absorb photo-hop4 @ `d191cf792` + #929 verify_witness PRESENT + #930 taffy PRESENT onto tip past #926 ui_layout ALIVE + #927 chicago + #928 Smalt; sources ≡ tip).
 Historical exit-0 evidence tip: `0478fde59644cccd60c5a88d64d444ec292e6a3c` (≥ `a54b9803`; ancestor).
 ui-layout ancestor ALIVE: `eaf0dad40287a3347280a541766b3b16f3978cf8`.
 **Tip-cargo `ui_layout` ALIVE** retained: exclusive flock `/tmp/ggen-uilayout-tip-alive-protected`;

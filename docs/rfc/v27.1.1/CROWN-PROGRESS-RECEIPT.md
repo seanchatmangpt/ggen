@@ -35,7 +35,7 @@ clause1=PARTIAL
 clause2=PARTIAL_ALIVE
 clause3=PARTIAL+BLOCKED
 clause4=PARTIAL
-gate1=PARTIAL (ui_layout tip-cargo ALIVE; taffy PRESENT tip-cargo PENDING; brand production UNSUPPORTED; BRCE honesty-demoted)
+gate1=PARTIAL (ui_layout tip-cargo ALIVE; taffy PRESENT tip-cargo PENDING; verify_witness PRESENT tip-cargo PENDING; hop-4 ALIVE; brand production UNSUPPORTED; BRCE honesty-demoted)
 blockers=foundry--live; remaining-fence-tip-cargo; cos/readyz; WebAuthn/BRCE-V8/V9; revops-DNS; mix-NIF; R01-R07-bodies; verify_witness-prod; production-theme
 ```
 
@@ -157,7 +157,7 @@ Recommended next Gate-1 falsifier (pick one): quiet tip-cargo reconfirm of remai
 | 3 | cos `/readyz` DB | **BLOCKED** (**503**) | curl → HTTP **200** |
 | 4 | Live WebAuthn / BRCE broker / Plane-5 DO | **UNSUPPORTED** / **BLOCKED** | BRCE **V8** → **V9** / OOR **G2-3…G2-5** |
 | 5 | revops.fnox.io DNS | **UNKNOWN**/**BLOCKED** | `getent hosts` ∧ `/readyz` **200** |
-| 6 | `mix ggen_igniter.sync` NIF | **BLOCKED** | `CXX=g++-13` → `mix … --check` → **0** |
+| 6 | `mix ggen_igniter.sync` NIF | **BLOCKED** ([`HOP4-MIX-NIF-STANDING.md`](./HOP4-MIX-NIF-STANDING.md); PATH `mix` **ABSENT**; off-PATH **PRESENT** w/o HITL) | quiet exclusive `CXX=g++-13` → `mix … --check` → **0** |
 | 7 | R-01…R-07 risk bodies | **BLOCKED** | typed receipt or `REFUSED_*` per ID |
 | 8 | production `verify_witness.wasm` | **UNSUPPORTED** | [`VERIFY-WITNESS-PRODUCTION.md`](./VERIFY-WITNESS-PRODUCTION.md) |
 | 9 | production brand theme / CASTLE inventory | **UNSUPPORTED** | [`BRAND-PRODUCTION-THEME.md`](./BRAND-PRODUCTION-THEME.md) / OOR G2-12/G2-13 |
@@ -183,5 +183,6 @@ Recommended next Gate-1 falsifier (pick one): quiet tip-cargo reconfirm of remai
 | Materialized | 2026-11-22 — branch `cursor/v2711-crown-progress-bc54` against tip `ca52e9c16` |
 | Absorb retip | 2026-11-22 — `cursor/v2711-gate1-uilayout-alive-bc54` absorbs `8090022f4` onto tip `120598fb3` |
 | Taffy preflight retip | 2026-11-22 — `cursor/v2711-taffy-preflight-retip-bc54`: `git ls-tree` **PRESENT** blob `d8923b07e` on tip `120598fb3`/`a29e1cd92`/`8090022f4`/`27436608c`; tip-cargo SKIPPED (thrash); standing **PRESENT** / tip-cargo **PENDING** — no tip-cargo `ALIVE` |
+| Absorb photo+#929+#930 | 2026-11-22 — `cursor/v2711-absorb-photo-vw-taffy-04f3` onto tip `2fd897141`: photo-hop4 @ `d191cf792` hop-4 **ALIVE**; #929 verify_witness **PRESENT**; #930 taffy **PRESENT**; ui_layout **ALIVE** tip-wins |
 | Sources | GATE-1-GAP-MATRIX, PHOTOLITHOGRAPHY, FOUNDRY-FINISH, OUT-OF-REPO-NEXT-VERIFIERS, SMALT-RAID, CCS-AUTHORITY, BRCE-WEBAUTHN, ECOSYSTEM-SPEC §13 |
 | Method | Absorb tip-cargo ALIVE standing; no new cargo; no ManagePullRequest |

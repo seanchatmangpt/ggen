@@ -1,13 +1,13 @@
 # `verify_witness` size court standing (Clause 3 retip)
 
 ```text
-exit=skipped standing=PRESENT size=35 tip=27436608c49224dfdc2e557a49f5030a1ab60e5e
+exit=skipped standing=PRESENT size=35 tip=2fd8971414519f5a1c51f6b04c1f7a85831def52
 ```
 
 | Field | Value |
 |-------|-------|
-| Branch | `cursor/v2711-verify-witness-retip-bc54` |
-| Ecosystem tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `27436608c49224dfdc2e557a49f5030a1ab60e5e` (lineage ≥ `120598fb3` / `a29e1cd92`) |
+| Branch | absorbed via `cursor/v2711-absorb-photo-vw-taffy-04f3` (source #929 `cursor/v2711-verify-witness-retip-bc54`) |
+| Ecosystem tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `2fd8971414519f5a1c51f6b04c1f7a85831def52` (absorb onto tip ≥ `46a026ae9` / `27436608c` / `120598fb3`) |
 | Court | `crates/ggen-graph/tests/verify_witness_size_court.rs` — **6** `#[test]` **PRESENT** |
 | API | `crates/ggen-graph/src/witness/mod.rs` **PRESENT** (`court_verify_witness_size`, budget `262_144`) |
 | Placeholder | `fixtures/witness/verify_witness.placeholder.wasm` **35** bytes (`< 262144` / &lt;250KB) |
