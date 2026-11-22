@@ -9,7 +9,7 @@
 | Materialized | 2026-11-22 |
 | Hardened | 2026-11-22 — `cursor/v2711-oor-ledger-harden-bc54` |
 | Ops refresh | 2026-11-22 — `cursor/v2711-ops-standing-refresh-bc54` (tip pin + probe reconfirm; standings held) |
-| Tip pin | 2026-11-22 — `cursor/v2711-oor-retip2-bc54` after crown tip `5e00619a4` (standings held; no capability promotion; prior pin `61311cb53`) |
+| Tip pin | 2026-11-22 — `cursor/v2711-gate1-retip-bc54` after crown tip `5e00619a422a0d8e451029f0aaf8b7a63e27da46` (standings held; no capability promotion; prior pin `61311cb53`; tip-cargo reconfirm PENDING quiet cgroup — not tip exit 0) |
 | Repo scope | `seanchatmangpt/ggen` — **tracks** sibling standing; does not execute sibling DO |
 
 Standing vocabulary: `UNKNOWN` | `PARTIAL_ALIVE` | `ALIVE` | `BLOCKED` | `BUILD_BROKEN` | `UNSUPPORTED` | `REFUSED_*`.
@@ -65,7 +65,7 @@ Photolithography / spine hops that require mounted siblings are included when ex
 
 | ID | Subject | Standing | Blocker | Next exact verifier | GA note |
 |----|---------|----------|---------|---------------------|---------|
-| G2-7 | **Truex** admits W3C `shui:` shapes (D3 product) | **UNKNOWN** | Sibling `seanchatmangpt/truex` unmounted; ggen prefix fence **PARTIAL** only | In **truex**: admit-court loading a `shui:`-prefixed shape graph → exit 0; private `truex:` still refused. ggen non-substitute: `cargo test -p ggen-graph --test shui_public_prefix_court` | RC-D3 crown needs Truex **and** ggen fence green |
+| G2-7 | **Truex** admits W3C `shui:` shapes (D3 product) | **UNKNOWN** | Sibling `seanchatmangpt/truex` unmounted; ggen prefix fence **ALIVE** on evidence ancestor `0478fde59` (tip source **4** `#[test]`; **tip-cargo PENDING** quiet cgroup — not tip exit 0) — fence ≠ Truex product | In **truex**: admit-court loading a `shui:`-prefixed shape graph → exit 0; private `truex:` still refused. ggen non-substitute: `cargo test -p ggen-graph --test shui_public_prefix_court` | RC-D3 crown needs Truex **and** ggen fence green |
 | G2-8 | **zcode-cli** `ui-layout-court.ts` (D5) | **UNSUPPORTED** | Not in ggen tree; adapter lives in sibling only | In **zcode-cli**: `pnpm test -- ui-layout-court` (or exact court runner) against ggen `AotSealReceipt` fixture — fail closed on missing/stale digest ([`PHOTOLITHOGRAPHY-STANDING.md`](./PHOTOLITHOGRAPHY-STANDING.md) hop 5) | Taffy **PARTIAL** without consume → photolithography non-ALIVE at GA |
 | G2-9 | **zcode-cli** Chicago POWL/OCEL bounded remediation | **UNKNOWN** | Sibling not checked out here; connector inventory only **PARTIAL** | In mounted **zcode-cli**: `bun test test/powl-ocel-chicago.test.ts` ([`ZCODE-POWL-OCEL-STANDING.md`](./ZCODE-POWL-OCEL-STANDING.md) §5) | Unbounded remediation at GA → **REFUSED** per R-06 / ECOSYSTEM |
 | G2-10 | **ggen_igniter** clean-room crown | **BLOCKED** | Checkout unmounted in cloud workspace | In **ggen_igniter**: `git diff --exit-code` → exit **0** ([`IGNITER-CLEANROOM-STANDING.md`](./IGNITER-CLEANROOM-STANDING.md) §4) | Dirty igniter at GA blocks photolithography hop 4 |
@@ -151,9 +151,10 @@ capability row promoted; no false `ALIVE`). Tip pin retipped on
 `cursor/v2711-oor-retip3-bc54` to live crown tip `61311cb53` (post–CCS+BRCE
 standing retip `61311cb53` / fmt gate `f1639510e`; standings held — no
 capability row promoted; no false `ALIVE`). Tip pin retipped on
-`cursor/v2711-oor-retip2-bc54` to live crown tip `5e00619a4` (post–
-ui-layout JSON fixture harness `6ab75e6a3` + rustfmt tip fmt gate
-`5e00619a4`; standings held — no capability row promoted; no false
-`ALIVE`). Standings synthesized from
+`cursor/v2711-gate1-retip-bc54` to live crown tip
+`5e00619a422a0d8e451029f0aaf8b7a63e27da46` (post–ui-layout rustfmt tip;
+standings held — no capability row promoted; no false `ALIVE`; tip-cargo
+reconfirm PENDING quiet cgroup). Standings synthesized from
 existing v27.1.1 standing ledgers only. No sibling court was executed in this
-workspace pass. No out-of-repo row is asserted `ALIVE`.
+workspace pass. No out-of-repo row is asserted `ALIVE`. Tracked rows remain
+**25** (`G0-1…4`, `G2-1…16`, `G3-1…5`).
