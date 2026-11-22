@@ -5,9 +5,10 @@
 //! `cargo test -p ggen-graph --test verify_witness_size_court`
 
 use ggen_graph::witness::{
-    court_verify_witness_size, load_production_verify_witness, placeholder_artifact_path,
-    production_build_standing, verify_placeholder_witness, verify_production_witness,
-    verify_witness, ArtifactProvenance, WitnessRefusal, WitnessStanding,
+    affidavit_pin_artifact_path, court_verify_witness_size, load_production_verify_witness,
+    placeholder_artifact_path, production_build_standing, sha256_hex, verify_placeholder_witness,
+    verify_production_witness, verify_witness, ArtifactProvenance, WitnessRefusal, WitnessStanding,
+    AFFIDAVIT_GATEKEEPER_PIN_SHA256_HEX, AFFIDAVIT_GATEKEEPER_PIN_SIZE_BYTES,
     AFFIDAVIT_VERIFY_WITNESS_SIZE_BUDGET_BYTES, VERIFY_WITNESS_SIZE_BUDGET_BYTES, WASM_MAGIC,
 };
 
@@ -193,4 +194,68 @@ fn production_path_at_or_over_256000_is_refused_before_gate1() {
         }
         other => panic!("expected OverBudget at affidavit ceiling, got {other:?}"),
     }
+}
+
+#[test]
+fn affidavit_pin_fixture_matches_size_and_sha256() {
+    // Arrange — real gatekeeper pin bytes (affidavit @ 563eb322a), not invented
+    let path = affidavit_pin_artifact_path();
+    assert!(
+        path.is_file(),
+        "affidavit pin fixture must exist at {}",
+        path.display()
+    );
+    let bytes = std::fs::read(&path).expect("read pin wasm");
+
+    // Act
+    let digest = sha256_hex(&bytes);
+
+    // Assert — fail-closed pin identity (G2-11 Step A)
+    assert_eq!(bytes.len(), AFFIDAVIT_GATEKEEPER_PIN_SIZE_BYTES);
+    assert_eq!(digest, AFFIDAVIT_GATEKEEPER_PIN_SHA256_HEX);
+    assert!(bytes.len() >= 4 && &bytes[..4] == WASM_MAGIC.as_slice());
+}
+
+#[test]
+fn affidavit_pin_production_consume_is_partial_alive_external() {
+    // Arrange — explicit path to real pin (CI-mount equivalent; no mocks)
+    let path = affidavit_pin_artifact_path();
+    assert!(path.is_file(), "pin missing at {}", path.display());
+
+    // Act
+    let receipt = verify_production_witness(Some(&path))
+        .expect("affidavit pin must admit under affidavit+Gate-1 budgets");
+
+    // Assert — CONSTRUCT PartialAlive + ExternalPath (≠ Plane-4 DO ALIVE)
+    assert_eq!(receipt.size.size_bytes, AFFIDAVIT_GATEKEEPER_PIN_SIZE_BYTES);
+    assert!(receipt.size.size_bytes < AFFIDAVIT_VERIFY_WITNESS_SIZE_BUDGET_BYTES);
+    assert!(receipt.size.size_bytes < VERIFY_WITNESS_SIZE_BUDGET_BYTES);
+    assert_eq!(receipt.size.provenance, ArtifactProvenance::ExternalPath);
+    assert_eq!(receipt.size.standing, WitnessStanding::PartialAlive);
+    assert!(receipt.wasm_magic_ok);
+}
+
+#[test]
+fn env_ggen_verify_witness_wasm_courts_affidavit_pin_as_partial_external() {
+    // Arrange — G2-11 Step C: env wire to real pin (process-global; restore always)
+    let path = affidavit_pin_artifact_path();
+    assert!(path.is_file(), "pin missing at {}", path.display());
+    let prior = std::env::var_os("GGEN_VERIFY_WITNESS_WASM");
+    std::env::set_var("GGEN_VERIFY_WITNESS_WASM", &path);
+
+    // Act
+    let receipt = verify_production_witness(None);
+
+    // Restore
+    match prior {
+        None => std::env::remove_var("GGEN_VERIFY_WITNESS_WASM"),
+        Some(v) => std::env::set_var("GGEN_VERIFY_WITNESS_WASM", v),
+    }
+
+    // Assert
+    let receipt = receipt.expect("env-wired affidavit pin must court under budgets");
+    assert_eq!(receipt.size.size_bytes, AFFIDAVIT_GATEKEEPER_PIN_SIZE_BYTES);
+    assert_eq!(receipt.size.provenance, ArtifactProvenance::ExternalPath);
+    assert_eq!(receipt.size.standing, WitnessStanding::PartialAlive);
+    assert!(receipt.wasm_magic_ok);
 }

@@ -124,6 +124,36 @@ pub fn placeholder_artifact_path() -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR")).join("fixtures/witness/verify_witness.placeholder.wasm")
 }
 
+/// Affidavit gatekeeper pin size (bytes) @ `563eb322a`.
+///
+/// Real production gatekeeper wasm mounted for CI consume (G2-11) — **not** the
+/// 35 B placeholder. Owning plane remains affidavit; ggen courts CONSTRUCT only.
+pub const AFFIDAVIT_GATEKEEPER_PIN_SIZE_BYTES: usize = 28_673;
+
+/// SHA-256 of `affidavit_gatekeeper_verify_witness.wasm` @ pin `563eb322a`.
+pub const AFFIDAVIT_GATEKEEPER_PIN_SHA256_HEX: &str =
+    "5faae4642ca23c503e96d2a2ab938c056caffdde14e77516054fe4492aed0c97";
+
+/// Affidavit tip that sealed the pin size court (`just gatekeeper-wasm-size-court`).
+pub const AFFIDAVIT_GATEKEEPER_PIN_GIT_SHA: &str = "563eb322a16d805ebc99b2c16f1165462244d7e2";
+
+/// Resolve the in-repo **affidavit pin** gatekeeper wasm (CI-mount fixture).
+///
+/// Bytes are the real gatekeeper product (28673 B), not invented. Presence of this
+/// path alone does **not** promote production runtime `ALIVE` — CI consume EXIT 0
+/// with `GGEN_VERIFY_WITNESS_WASM` set is required (see VERIFY-WITNESS-CI-WASM pin).
+pub fn affidavit_pin_artifact_path() -> PathBuf {
+    Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("fixtures/witness/affidavit_gatekeeper_verify_witness.pin.wasm")
+}
+
+/// SHA-256 hex of `bytes` (lowercase).
+pub fn sha256_hex(bytes: &[u8]) -> String {
+    use sha2::{Digest, Sha256};
+    let digest = Sha256::digest(bytes);
+    hex::encode(digest)
+}
+
 /// Load the in-repo placeholder and run [`verify_witness`].
 ///
 /// Standing on success is [`WitnessStanding::PartialAlive`] — the Gate-1 size
