@@ -1,33 +1,36 @@
-# shui_public_prefix_court — exact-tip3 push-first honesty (v27.1.1)
+# shui_public_prefix_court — exact-tip3 ALIVE (v27.1.1)
 
 ```text
-tip=3d13c19e96b844cfb4d4cb9cdaa0f811c32833ed
+tip=3afe4545e97f8992c4e3af5d61001c6d2b38ecd3
 branch=cursor/v2711-shui-exact-tip3-bc54
 bc=bc-fafc690f-44f9-5b50-a390-5c6c1d8d7c56
 court=shui_public_prefix_court
-exit=COMPILING
-standing=PARTIAL_ALIVE
-lineage_alive=008a81d21 (4 passed; blob 3cda065f ≡ tip)
+passed=4
+failed=0
+exit=0
+standing=ALIVE (exact tip-cargo)
+target=/tmp/only-fafc690f-tip3-courts
 crown_absorb=none ManagePullRequest=not_used Foundry=NOT_CLAIMED
 ```
 
 | Field | Value |
 |-------|-------|
-| Observed tip | `3d13c19e96b844cfb4d4cb9cdaa0f811c32833ed` |
-| Court blob | `3cda065f` (≡ lineage ALIVE @ `008a81d21`) |
+| Observed tip | `3afe4545e97f8992c4e3af5d61001c6d2b38ecd3` |
+| Court blob | `3cda065f` |
 | Command | `CXX=g++ SCCACHE_DISABLE=1 CARGO_BUILD_JOBS=1 cargo test -p ggen-graph --test shui_public_prefix_court --locked --target-dir /tmp/only-fafc690f-tip3-courts --config build.jobs=1 -- --test-threads=1` |
-| This probe | **EXIT:COMPILING** @ 2026-11-22T18:25:59Z — oxrocksdb-sys rebuild under pod thrash (n≈3 cargo; loadavg 3.12 4.93 5.27); guardian kills rival cc1plus |
+| Result | **4 passed; 0 failed; EXIT 0** @ 2026-11-22T18:44:31Z |
 | Log | `/tmp/gate1-exact-tip3/shui.log` |
-| Lineage tip-cargo ALIVE | **held** — 4 passed EXIT 0 @ `008a81d21` — **not** tip-subject substitute |
+| Lineage | prior ALIVE @ `008a81d21` superseded by this tip-subject EXIT 0 |
 
-**Authority.** Tip3 push-first: no tip EXIT 0 yet → **PARTIAL_ALIVE**. Do not invent tip-subject ALIVE from blob≡lineage. No Foundry ALIVE; no crown absorb.
+**Authority.** Exact tip-cargo EXIT **0** promotes Gate-1 `shui:` fence to **ALIVE (exact tip-cargo)**. Not Foundry ALIVE; not Truex product crown; no crown absorb.
 
-## Exact next verifier
+## Replay
 
 ```bash
 git fetch origin cursor/ecosystem-spec-27-1-1-bc54
-export CXX=g++ SCCACHE_DISABLE=1 CARGO_BUILD_JOBS=1
-cargo test -p ggen-graph --test shui_public_prefix_court --locked \
+# tip ≡ 3afe4545e97f8992c4e3af5d61001c6d2b38ecd3 (or later tip-wins with court blob 3cda065f)
+CXX=g++ SCCACHE_DISABLE=1 CARGO_BUILD_JOBS=1 \
+  cargo test -p ggen-graph --test shui_public_prefix_court --locked \
   --target-dir /tmp/only-fafc690f-tip3-courts --config build.jobs=1 -- --test-threads=1
-# expect: 4 passed; EXIT 0 → promote to tip-cargo ALIVE
+# expect: 4 passed; EXIT 0
 ```
