@@ -4,7 +4,7 @@
 |-------|-------|
 | Document ID | `CCS-BRCE-STANDING` |
 | Spec binding | `ECOSYSTEM-SPEC-27.1.1` §13.2 (Clause 2 — CCS / BRCE + WebAuthn AS-01) |
-| Companions | [`CCS-AUTHORITY-STANDING.md`](./CCS-AUTHORITY-STANDING.md) (~8 CCS ledger); [`BRCE-WEBAUTHN-STANDING.md`](./BRCE-WEBAUTHN-STANDING.md) (AS-01 / V1–V11); [`OUT-OF-REPO-NEXT-VERIFIERS.md`](./OUT-OF-REPO-NEXT-VERIFIERS.md) (G2-3…G2-5) |
+| Companions | [`CCS-AUTHORITY-STANDING.md`](./CCS-AUTHORITY-STANDING.md); [`CCS-CONSTRUCT-ALIVE-STANDING.md`](./CCS-CONSTRUCT-ALIVE-STANDING.md) (CCS #3 tip-cargo **ALIVE**); [`BRCE-WEBAUTHN-STANDING.md`](./BRCE-WEBAUTHN-STANDING.md); [`OUT-OF-REPO-NEXT-VERIFIERS.md`](./OUT-OF-REPO-NEXT-VERIFIERS.md) (G2-3…G2-5) |
 | Observed tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `495a71c2e733373087834a76dca48c8a2d765676` (~`89ca2da9c+` / `d5c754712+`; lineage through `27436608c` + prior pins `c832cabdc` / `a3b1c9410`) |
 | Tip pin | 2026-11-22 — absorb `cursor/v2711-construct-hash-retip-bc54` @ `27f586390` (tip land `5cf9ffc5a`) onto tip `495a71c2e733373087834a76dca48c8a2d765676` (~`89ca2da9c+`); loadavg_1m>6 → **no cargo**; tip-cargo locks **spared** |
 | Repo | `seanchatmangpt/ggen` |
