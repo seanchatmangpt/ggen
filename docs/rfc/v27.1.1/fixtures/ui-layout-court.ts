@@ -5,7 +5,7 @@
  * STANDING in ggen: UNSUPPORTED / BLOCKED for the TypeScript runner itself.
  *
  * This file documents the wire shape ggen's Rust adapter
- * (`ggen_graph::layout::ui_layout_court`) admits. zcode-cli SHALL:
+ * (`ggen_graph::layout::ui_layout`) admits. zcode-cli SHALL:
  *   1. emit LayoutCourtCase JSON (or equivalent) for candidate UI trees;
  *   2. consume AotSealReceipt + seal_digest without re-implementing geometry;
  *   3. fail closed on missing / stale / mismatched digests;

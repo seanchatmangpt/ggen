@@ -8,6 +8,7 @@
 //! Seal receipts carry a domain-separated BLAKE3 digest consumable by
 //! [`super::ui_layout`] / zcode-cli `ui-layout-court` without re-deriving geometry.
 
+use serde::{Deserialize, Serialize};
 use taffy::prelude::*;
 use taffy::TaffyTree;
 
@@ -27,7 +28,7 @@ pub const MIN_TOUCH_TARGET_PX: f32 = 44.0;
 pub const MIN_GAP_PX: f32 = 8.0;
 
 /// A leaf box in an AOT column fixture.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct AotLeaf {
     pub id: String,
     pub width_px: f32,
@@ -39,7 +40,7 @@ pub struct AotLeaf {
 }
 
 /// Flex column of leaves with a uniform sibling gap.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct AotColumn {
     pub gap_px: f32,
     pub children: Vec<AotLeaf>,

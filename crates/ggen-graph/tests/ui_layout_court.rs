@@ -7,14 +7,32 @@
 //! Falsifier:
 //! `cargo test -p ggen-graph --test ui_layout_court`
 
+use std::fs;
+use std::path::PathBuf;
+
 use ggen_graph::layout::remediation_bound::DEFAULT_MAX_REMEDIATION_ATTEMPTS;
 use ggen_graph::layout::taffy_aot::{
     aot_seal_digest, preflight_column_six_widths, AotColumn, AotLeaf, AotRefusal, AotSealReceipt,
     VIEWPORT_WIDTHS_PX, WCAG_1412_TEXT_SPACING,
 };
 use ggen_graph::layout::ui_layout::{
-    consume_aot_seal, court_ui_layout_column, UiLayoutRefusal, UiLayoutStanding,
+    consume_aot_seal, court_ui_layout_column, parse_layout_court_case, run_layout_court_case,
+    run_layout_court_json, UiLayoutRefusal, UiLayoutStanding, LAYOUT_COURT_NOUN,
+    LAYOUT_COURT_SCHEMA_V1,
 };
+
+fn fixture(name: &str) -> PathBuf {
+    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("../../docs/rfc/v27.1.1/fixtures")
+        .join(name)
+}
+
+fn load_fixture(name: &str) -> String {
+    let path = fixture(name);
+    fs::read_to_string(&path).unwrap_or_else(|e| {
+        panic!("expected layout-court fixture at {}: {e}", path.display())
+    })
+}
 
 fn valid_column() -> AotColumn {
     AotColumn {
@@ -260,4 +278,70 @@ fn empty_embedded_digest_on_seal_is_refused() {
         matches!(result, Err(UiLayoutRefusal::MissingDigest)),
         "empty embedded digest must refuse: {result:?}"
     );
+}
+
+#[test]
+fn json_fixture_feeds_nodes_into_taffy_aot_and_admits() {
+    // Arrange — on-disk zcode-cli wire fixture (not an inline double)
+    let json = load_fixture("ui-layout-valid.column.json");
+
+    // Act
+    let receipt = match run_layout_court_json(&json) {
+        Ok(r) => r,
+        Err(e) => panic!("valid JSON fixture must admit via Taffy AOT: {e:?}"),
+    };
+
+    // Assert
+    assert_eq!(receipt.standing, UiLayoutStanding::Alive);
+    assert_eq!(receipt.seal.widths_px, vec![320, 375, 414, 768, 1024, 1440]);
+    assert_eq!(receipt.digest.len(), 64);
+}
+
+#[test]
+fn ts_contract_stub_documents_zcode_cli_boundary() {
+    let stub = load_fixture("ui-layout-court.ts");
+    assert!(stub.contains(LAYOUT_COURT_NOUN));
+    assert!(stub.contains(LAYOUT_COURT_SCHEMA_V1));
+    assert!(stub.contains("BLOCKED_ZCODE_CLI_OUT_OF_REPO"));
+    assert!(stub.contains("ui-layout-valid.column.json"));
+}
+
+#[test]
+fn anti_vacuity_mutation_widened_text_is_refused_not_vacuous_pass() {
+    // Arrange — admit the real fixture, then deliberately break geometry
+    let json = load_fixture("ui-layout-valid.column.json");
+    let baseline = run_layout_court_json(&json);
+    assert!(
+        baseline.is_ok(),
+        "anti-vacuity requires a green baseline; got {baseline:?}"
+    );
+
+    let mut case = parse_layout_court_case(&json).expect("valid fixture parses");
+    let before = case.column.children[0].width_px;
+    // 220 × 1.5 = 330 overflows Gate-1 width 320 only
+    case.column.children[0].width_px = 220.0;
+    assert_ne!(
+        case.column.children[0].width_px, before,
+        "mutation must actually change the layout node"
+    );
+
+    // Act
+    let standing = run_layout_court_case(&case);
+
+    // Assert — REFUSED with geometry Overflow@320 (not a vacuous pass)
+    match standing {
+        Err(UiLayoutRefusal::Geometry(AotRefusal::Overflow {
+            viewport_width_px,
+            text_spacing,
+            leaf_id,
+            ..
+        })) => {
+            assert_eq!(viewport_width_px, 320);
+            assert!((text_spacing - WCAG_1412_TEXT_SPACING).abs() < f32::EPSILON);
+            assert_eq!(leaf_id, "body_copy");
+        }
+        other => panic!(
+            "mutated layout must be REFUSED (Overflow@320), got {other:?} — vacuous pass"
+        ),
+    }
 }
