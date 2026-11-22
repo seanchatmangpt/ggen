@@ -6,8 +6,8 @@
 | Companion | `ECOSYSTEM-SPEC-27.1.1` (Gate 2–3 CASTLE publish); `REPO-INVENTORY-27.1.1` |
 | Subject | `seanchatmangpt/castle` on spine `ggen → Taffy → zcode-cli → CASTLE → Smalt → revops` |
 | Materialized | 2026-11-22 |
-| Observed ggen tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ tip-wins absorb of `dabef8f5f` (CASTLE digest-bind wire) onto crown `87dbaad27` (⊇ VW CI-wasm + OOR retip13 + BRCE V8 + vw-env-wire + CASTLE stub `13e0ddc9e` + WebAuthn + HITL/Smalt); supersedes §12 stub pin |
-| Tip pin | 2026-11-22 — tip-wins absorb `cursor/v2711-castle-digest-bind-bc54` @ `dabef8f5f` onto crown after tip `87dbaad27` (⊇ OOR retip13 + BRCE V8 + VW CI-wasm): production wire **ALIVE**/`WIRED` @ castle `e0d99c6`; Foundry zero-HITL crown stays **PARTIAL** (HITL/OOR/WebAuthn open). Castle wire: `cursor/digest-bind-admit-ca8a` @ `e0d99c6` on base `2774039ea` |
+| Observed ggen tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `893070836ef83ab711e657cfacc98bb4dc7ea369` (exact-tip retip4 `cursor/v2711-castle-retip4-bc54`; ⊇ digest-bind wire absorb `dabef8f5f` / crown lineage past `87dbaad27`) |
+| Tip pin | 2026-11-22 — `cursor/v2711-castle-retip4-bc54` exact-tip reconfirm: `cargo test --lib publish::digest_bind` → **4/4** EXIT **0** @ castle `e0d99c6` (`bind_into_mint_attaches_keys` ok); production wire **ALIVE**/`WIRED`; Foundry zero-HITL stays **PARTIAL** |
 | Observed castle tip | `main` @ `2774039ea81bad508c93785a59dd7a99198ae256` (sibling courts ALIVE historical); digest-bind wire sidebranch `cursor/digest-bind-admit-ca8a` @ `e0d99c6` (https://github.com/seanchatmangpt/castle/commit/e0d99c6) — wire bind **WIRED** (optional pin); Foundry/zero-HITL crown still **PARTIAL** |
 | Repo scope of this land | `seanchatmangpt/ggen` standing ledger tip-wins absorb + `seanchatmangpt/castle` digest-bind wire sidebranch (no Foundry crown promote; no ManagePullRequest) |
 
@@ -355,3 +355,21 @@ curl -sS -w '\nhttp=%{http_code}\n' https://cos.fnox.io/readyz   # need HTTP 200
 ```
 
 Do **not** promote Foundry / zero-HITL `ALIVE` from CASTLE wire bind alone. Do **not** ManagePullRequest on #849.
+
+---
+
+## 14. Exact-tip retip4 vs tip `893070836` — `bind_into_mint` (2026-11-22)
+
+| Field | Value |
+|-------|-------|
+| Agent | `bc-10c8f83c-8d4c-5129-afad-fd7222733773` |
+| Branch | `cursor/v2711-castle-retip4-bc54` from live crown `893070836ef83ab711e657cfacc98bb4dc7ea369` (**no** crown absorb; no ManagePullRequest) |
+| Observed ggen tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `893070836ef83ab711e657cfacc98bb4dc7ea369` |
+| Castle tip | `cursor/digest-bind-admit-ca8a` @ `e0d99c65fb08b8f0d754872dba06df984bc3d21d` (parent lineage `c89d9f2` / `2774039ea`) |
+| Narrowest court | `RUSTUP_TOOLCHAIN=nightly cargo test --lib publish::digest_bind` (covers `bind_into_mint_attaches_keys`) |
+| EXIT | **0** — **4 passed** (`admits_valid_aot_seal_shaped_digest`, `assert_mint_refuses_when_unwired`, `bind_into_mint_attaches_keys`, `refuses_missing_empty_and_bad_hex`) |
+| Evidence | `/tmp/cursor/castle-bind-into-mint-retip4.log` |
+| Standing | CASTLE digest-bind / `bind_into_mint` wire **ALIVE**/`WIRED` @ `e0d99c6` (reconfirmed); spine crown **PARTIAL_ALIVE**; Foundry / zero-HITL **PARTIAL** — **not** promoted |
+| In-ggen publish | **UNSUPPORTED** (unchanged) |
+| LinkedIn / Jobs | **BLOCKED** (cos `/readyz` residual orthogonal; not re-probed) |
+| Exact next verifier | Replay §13.2 full court set @ `e0d99c6` (`publish_digest_bind_court` **6/6** + redaction/brand + spine-probe with `--ggen-layout-digest`); Foundry remains open on HITL/OOR/WebAuthn |
