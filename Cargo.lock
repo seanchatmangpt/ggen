@@ -2754,6 +2754,7 @@ dependencies = [
  "blake3",
  "chrono",
  "criterion 0.8.2",
+ "ggen-abb-sbb",
  "ggen-config",
  "ggen-engine",
  "ggen-graph",
