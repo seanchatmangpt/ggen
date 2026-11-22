@@ -5,9 +5,9 @@
 | Document ID | `GATE023-OOR-STANDING-MATRIX-27.1.1` |
 | Binding | `ECOSYSTEM-SPEC-27.1.1` Gate 0 + Gate 2–3 out-of-repo legs; GA **2027-01-01** |
 | Companion index | [`OUT-OF-REPO-NEXT-VERIFIERS.md`](./OUT-OF-REPO-NEXT-VERIFIERS.md); [`GATE-0-2-3-NEXT-VERIFIERS.md`](./GATE-0-2-3-NEXT-VERIFIERS.md) |
-| Sidebranch | `cursor/v2711-gate023-oor-matrix-bc54` (`bc-0754e974`) |
-| Observed ggen tip (write base) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ **`4060f9d6b59d4989c5534408bf51845877d765e8`** (`4060f9d6b`; tip-wins absorb parent; Foundry `--live` BLOCKED_HITL / cos BLOCKED / revops UNKNOWN held) |
-| Probe time | 2026-11-22 10:29:22 PST / `2026-11-22T18:29:22Z` |
+| Sidebranch | `cursor/v2711-oor-retip19-bc54` (`bc-f83f4cbf`; matrix origin `cursor/v2711-gate023-oor-matrix-bc54` / `bc-0754e974`) |
+| Observed ggen tip (write base) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ **`dd61fefb29fa7ea6e1cf789f002ccd9879393988`** (`dd61fefb2`; tip-wins absorb parent; Foundry `--live` BLOCKED_HITL / cos BLOCKED / revops UNKNOWN **held**) |
+| Probe time | 2026-11-22 11:02:01 PST / `2026-11-22T19:02:01Z` (retip19) |
 | Cargo / tip-cargo | **NOT RUN** (docs-only honesty matrix) |
 | Crown absorb | tip-wins onto `origin/cursor/ecosystem-spec-27-1-1-bc54` (no force; no ManagePullRequest) |
 
@@ -26,20 +26,33 @@ automatable on an admitted mount once preconditions hold (still not ambient DO).
 
 ---
 
-## Tip probe reconfirm (2026-11-22 10:29:22 PST)
+## Tip probe reconfirm (2026-11-22 11:02:01 PST) — retip19
 
-Held vs OOR retip18 / ECOSYSTEM §18 ops — standings **held**; no false `ALIVE`.
+Held vs OOR retip18 / Gate023 matrix @ `4060f9d6b` — standings **held**; no false `ALIVE`.
+Task probe hosts `*.ggen.dev` are **NXDOMAIN** aliases (not the tracked Plane-5 subjects).
 
 | Probe | Result | Standing |
 |-------|--------|----------|
-| `curl -sS -w '\nhttp=%{http_code}\n' --connect-timeout 10 https://cos.fnox.io/readyz` | **503** `{"status":"DB_UNAVAILABLE"}` | **BLOCKED** |
-| `curl -sS -w '\nhttp=%{http_code}\n' --connect-timeout 10 https://cos.fnox.io/healthz` | **200** `{"status":"ok"}` | **PARTIAL** (liveness ≠ readiness) |
-| `getent hosts revops.fnox.io` | exit **2** | **UNKNOWN** |
-| `curl … https://revops.fnox.io/readyz` | exit **6** / `http=000` | **UNKNOWN** |
+| `curl … https://cos.fnox.io/readyz` | **503** `{"status":"DB_UNAVAILABLE"}` | **BLOCKED** |
+| `curl … https://cos.fnox.io/healthz` | **200** `{"status":"ok"}` | **PARTIAL** (liveness ≠ readiness) |
+| `getent hosts revops.fnox.io` / `host` | exit **2** / **NXDOMAIN** | **UNKNOWN** |
+| `curl … https://revops.fnox.io/` (and `/readyz`) | exit **6** / `http=000` | **UNKNOWN** |
+| `curl … https://cos.ggen.dev/readyz` | exit **6** / `http=000` (**NXDOMAIN**) | alias **UNKNOWN** (≠ readiness claim) |
+| `host revops.ggen.dev` / `curl … https://revops.ggen.dev/` | **NXDOMAIN** / exit **6** | alias **UNKNOWN** |
+
+Exact next verifiers (unchanged):
+
+```text
+curl -sS -w '\nhttp=%{http_code}\n' --connect-timeout 10 https://cos.fnox.io/readyz
+# pass: HTTP 200 (not DB_UNAVAILABLE)
+getent hosts revops.fnox.io
+curl -sS -w '\nhttp=%{http_code}\n' --connect-timeout 10 https://revops.fnox.io/readyz
+# pass: DNS non-empty ∧ HTTP 200
+```
 
 ---
 
-## Standing count @ tip `4060f9d6b` (25 tracked OOR rows + named crowns)
+## Standing count @ tip `dd61fefb2` (25 tracked OOR rows + named crowns; counts held)
 
 | Standing (primary) | Count | IDs / subjects |
 |--------------------|------:|----------------|
@@ -60,8 +73,8 @@ Named companion crowns (not extra G-rows): Foundry zero-HITL **PARTIAL**; foundr
 |---------|----------|--------------|---------------------|-------|
 | **Foundry `--live`** / hop-5 (G2-9) | **BLOCKED_HITL** / **REFUSED** (`foundry_exit=1`; `Model access is not configured` @ zcode `f32df08`) — Foundry crown **PARTIAL** ≠ `--live` `ALIVE` | tip `4060f9d6b`; pins [`HITL-LIVE-NEXT-VERIFIER-STANDING.md`](./HITL-LIVE-NEXT-VERIFIER-STANDING.md) §10; [`FOUNDRY-FINISH-STANDING.md`](./FOUNDRY-FINISH-STANDING.md) §1a/§9; [`HOP5-MODEL-ACCESS-STANDING.md`](./HOP5-MODEL-ACCESS-STANDING.md) | `cd /agent/repos/zcode-cli && zcode /login && bun scripts/powl-foundry-loop.ts --live` → **foundry_exit=0** | **Founder HITL** (+ zcode-cli surface) |
 | **Zero-HITL Foundry crown** | **PARTIAL** — **not** Foundry `ALIVE` | tip `4060f9d6b`; [`FOUNDRY-FINISH-STANDING.md`](./FOUNDRY-FINISH-STANDING.md) | Close HITL residuals: cos DB + WebAuthn live + `--live` → **0** before any crown promote | **Founder HITL** (residuals) / **Agent** (replay fences only) |
-| **cos** readiness + ledger (G0-2 / G2-2) | **BLOCKED** (`/readyz` **503** `DB_UNAVAILABLE`); `/healthz` **PARTIAL** ≠ ALIVE | tip `4060f9d6b`; probe 10:29 PST; [`REVOPS-COS-STANDING.md`](./REVOPS-COS-STANDING.md) §21 held | `curl -sS -w '\nhttp=%{http_code}\n' https://cos.fnox.io/readyz` → **200** (not `DB_UNAVAILABLE`); then mounted fnox `just cos-ledger-verify` (or named CI ledger replay) → exit **0** | **Founder HITL** (DB) / **Agent** (probe + ledger replay once mounted) |
-| **revops.fnox.io** front door (G2-1 / D6) | **UNKNOWN** (**NXDOMAIN**; curl exit **6**) | tip `4060f9d6b`; probe 10:29 PST; [`REVOPS-COS-STANDING.md`](./REVOPS-COS-STANDING.md) | `getent hosts revops.fnox.io`; `curl -sS -w '\nhttp=%{http_code}\n' https://revops.fnox.io/readyz` → DNS **and** HTTP **200** | **Founder HITL** (DNS/hosting) / **Agent** (probe) |
+| **cos** readiness + ledger (G0-2 / G2-2) | **BLOCKED** (`/readyz` **503** `DB_UNAVAILABLE`); `/healthz` **PARTIAL** ≠ ALIVE | tip `dd61fefb2`; probe 11:02 PST retip19; [`REVOPS-COS-STANDING.md`](./REVOPS-COS-STANDING.md) §22 held | `curl -sS -w '\nhttp=%{http_code}\n' https://cos.fnox.io/readyz` → **200** (not `DB_UNAVAILABLE`); then mounted fnox `just cos-ledger-verify` (or named CI ledger replay) → exit **0** | **Founder HITL** (DB) / **Agent** (probe + ledger replay once mounted) |
+| **revops.fnox.io** front door (G2-1 / D6) | **UNKNOWN** (**NXDOMAIN**; curl exit **6**) | tip `dd61fefb2`; probe 11:02 PST retip19; [`REVOPS-COS-STANDING.md`](./REVOPS-COS-STANDING.md) §22 | `getent hosts revops.fnox.io`; `curl -sS -w '\nhttp=%{http_code}\n' https://revops.fnox.io/readyz` → DNS **and** HTTP **200** | **Founder HITL** (DNS/hosting) / **Agent** (probe) |
 | **BRCE V8** broker (G2-3) | **BLOCKED** (broker unmounted; V1/V7 fences ≠ V8) | tip `4060f9d6b`; [`BRCE-V8-NEXT-VERIFIER-STANDING.md`](./BRCE-V8-NEXT-VERIFIER-STANDING.md) §3; [`BRCE-WEBAUTHN-STANDING.md`](./BRCE-WEBAUTHN-STANDING.md) §5 | After live WebAuthn §3 exit **0**: in mounted BRCE broker — intent **without** AS-01 → `REFUSED_*`; **with** verified seat → execution receipt + replay digest → exit **0** | **Founder HITL** (mount + seat) / **Agent** (court once mounted) |
 | **R-01…R-07 bodies** (G3-5 / RC-D7) | **BLOCKED** (all seven; contract fence **ALIVE** **7** @ `e7569893a` ≠ bodies) | tip `4060f9d6b`; [`R01-R07-BODIES-NEXT-VERIFIER-STANDING.md`](./R01-R07-BODIES-NEXT-VERIFIER-STANDING.md) | Admit sovereign risk-register → per-ID typed receipt **or** typed `REFUSED_*` before **2027-01-01**. Contract-only antifalsifier: `cargo test -p ggen-graph --test r01_r07_resolution_court` | **Founder HITL** (register admit) |
 | **WebAuthn AS-01** live/production (G2-4) | **UNSUPPORTED** (live); V7 fixture **PARTIAL_ALIVE** / land **ALIVE** @ `fb6e7fc6e` ≠ live | tip `4060f9d6b`; [`WEBAUTHN-LIVE-NEXT-VERIFIER-STANDING.md`](./WEBAUTHN-LIVE-NEXT-VERIFIER-STANDING.md) §3 | Founder HITL: admit RP-ID → enroll hardware → live assertion (`clientDataJSON` + `authenticatorData` + ES256/`prime256v1`) — known-good → exit **0**; tampered/missing RP-ID/alg≠ES256 → `REFUSED_*`. Then **V8** → **V9**. Non-substitute: `cargo test -p ggen-abb-sbb --test brce_as01_es256_assertion_court` | **Founder HITL** |
@@ -78,7 +91,7 @@ Detail: [`GATE-0-STANDING.md`](./GATE-0-STANDING.md).
 | ID | Subject | Standing | Evidence tip | Exact next verifier | Owner |
 |----|---------|----------|--------------|---------------------|-------|
 | **G0-1** | GCP billing | **BLOCKED** | tip `4060f9d6b`; billing-contract prose **PRESENT** ≠ live | Weekly reconciliation in `docs/marketplace/billing-contract.md` + GCP Billing console receipt → exit **0** / `✓ RECONCILED` | **Founder HITL** |
-| **G0-2** | cos ledger fixes | **BLOCKED** | tip `4060f9d6b`; `/readyz` **503** | `curl … https://cos.fnox.io/readyz` → **200**; then fnox ledger court → exit **0** | **Founder HITL** / **Agent** (probe) |
+| **G0-2** | cos ledger fixes | **BLOCKED** | tip `dd61fefb2`; `/readyz` **503** (retip19) | `curl … https://cos.fnox.io/readyz` → **200**; then fnox ledger court → exit **0** | **Founder HITL** / **Agent** (probe) |
 | **G0-3** | servengine M4 | **BLOCKED** | tip `4060f9d6b`; sibling ABSENT | In mounted servengine: CI/milestone job labeled **M4** → exit **0** + typed receipt | **Founder HITL** / **Agent** (once mounted) |
 | **G0-4** | year-end SOW | **UNKNOWN** | tip `4060f9d6b`; no register in ggen | Ops register: signed instrument parties+scope+period through **2027-01-01** | **Founder HITL** |
 
@@ -90,8 +103,8 @@ Detail: [`GATE-0-STANDING.md`](./GATE-0-STANDING.md).
 
 | ID | Subject | Standing | Evidence tip | Exact next verifier | Owner |
 |----|---------|----------|--------------|---------------------|-------|
-| **G2-1** | revops.fnox.io | **UNKNOWN** | tip `4060f9d6b`; NXDOMAIN / curl exit **6** | `getent hosts revops.fnox.io`; `curl … https://revops.fnox.io/readyz` → DNS ∧ **200** | **Founder HITL** / **Agent** (probe) |
-| **G2-2** | cos.fnox.io readiness + ledger | **BLOCKED** (readiness); healthz **PARTIAL** | tip `4060f9d6b`; `/readyz` **503** | `curl … https://cos.fnox.io/readyz` → **200**; then ledger court | **Founder HITL** / **Agent** (probe) |
+| **G2-1** | revops.fnox.io | **UNKNOWN** | tip `dd61fefb2`; NXDOMAIN / curl exit **6** (retip19) | `getent hosts revops.fnox.io`; `curl … https://revops.fnox.io/readyz` → DNS ∧ **200** | **Founder HITL** / **Agent** (probe) |
+| **G2-2** | cos.fnox.io readiness + ledger | **BLOCKED** (readiness); healthz **PARTIAL** | tip `dd61fefb2`; `/readyz` **503** (retip19) | `curl … https://cos.fnox.io/readyz` → **200**; then ledger court | **Founder HITL** / **Agent** (probe) |
 | **G2-3** | BRCE human seat broker (**V8**) | **BLOCKED** | tip `4060f9d6b`; [`BRCE-V8-NEXT-VERIFIER-STANDING.md`](./BRCE-V8-NEXT-VERIFIER-STANDING.md) | Live WebAuthn first → mounted broker refuse/admit court → exit **0** | **Founder HITL** |
 | **G2-4** | WebAuthn AS-01 production | **UNSUPPORTED** (live); V7 **PARTIAL** ≠ live | tip `4060f9d6b`; [`WEBAUTHN-LIVE-NEXT-VERIFIER-STANDING.md`](./WEBAUTHN-LIVE-NEXT-VERIFIER-STANDING.md) | Founder HITL RP + hardware ceremony → exit **0**; then **V8** | **Founder HITL** |
 | **G2-5** | Plane 5 DO path (aggregate) | **BLOCKED** | tip `4060f9d6b` | Ladder: G2-1 DNS∧**200** → G2-2 **200** → AS-01 host court (BRCE **V9**) | **Founder HITL** |
@@ -123,7 +136,7 @@ Detail: [`GATE-3-RELEASE-COURTS-STANDING.md`](./GATE-3-RELEASE-COURTS-STANDING.m
 | **G3-1** | **RC-D1** Zero-DOM WebGPU + FFB | **UNSUPPORTED** | tip `4060f9d6b`; UI-plane unmounted | Mounted UI-plane court: admitted `AotSealReceipt` → Mode A/B paint → exit **0**; ambient DOM DO without BRCE+AS-01 → `REFUSED_*` | **Founder HITL** / UI plane |
 | **G3-2** | **RC-D3** Truex `shui:` product | **ALIVE** (admit-court; ≡ G2-7); fence **PARTIAL** | `truex@68d2d233` | Same as G2-7 replay | **Agent** (replay) |
 | **G3-3** | **RC-D5** zcode ui-layout live | **PARTIAL** (≡ G2-8; foundry_exit=1) | tip `4060f9d6b` | `powl-foundry-loop --live` → **0** (G2-9 / HITL) | **Founder HITL** |
-| **G3-4** | **RC-D6** Plane 5 front doors | **UNKNOWN** / OUT OF SCOPE from ggen | tip `4060f9d6b`; revops NXDOMAIN; cos **503** | Same ladder as G2-1 + G2-2 + G2-5 | **Founder HITL** |
+| **G3-4** | **RC-D6** Plane 5 front doors | **UNKNOWN** / OUT OF SCOPE from ggen | tip `dd61fefb2`; revops NXDOMAIN; cos **503** (retip19) | Same ladder as G2-1 + G2-2 + G2-5 | **Founder HITL** |
 | **G3-5** | **RC-D7** R-01…R-07 bodies | **BLOCKED** (all seven) | tip `4060f9d6b`; [`R01-R07-BODIES-NEXT-VERIFIER-STANDING.md`](./R01-R07-BODIES-NEXT-VERIFIER-STANDING.md) | Admit sovereign risk-register → per-ID receipt/`REFUSED_*` before **2027-01-01** | **Founder HITL** |
 
 **RC-D2 / RC-D4** in-repo legs (Taffy seal, brand rhythm): tracked in Gate-1 matrices — not duplicated as OOR DO; consumer / inventory legs remain G2-8 / G2-13 for GA `ALIVE`.
@@ -146,7 +159,7 @@ Honorable mention (DNS): `getent hosts revops.fnox.io` ∧ `curl … https://rev
 
 - This matrix does **not** promote Gate 0 billing / cos / servengine / SOW to `ALIVE`.
 - Live WebAuthn stays **UNSUPPORTED**; BRCE **V8**/**V9** and R-01…R-07 bodies stay **BLOCKED**.
-- cos `/readyz` **503** and revops **NXDOMAIN** are reconfirmed — Plane-5 front doors are **not** `ALIVE`.
+- cos `/readyz` **503** and revops **NXDOMAIN** are reconfirmed (retip19 @ 11:02:01 PST) — Plane-5 front doors are **not** `ALIVE`. `*.ggen.dev` aliases are also **NXDOMAIN** (not a readiness promote).
 - foundry `--live` stays **BLOCKED_HITL** (`foundry_exit=1`) — refusal tip-cargo / runtime PRESENT / adapter exit 0 ≠ live `ALIVE`.
 - Smalt / Truex / CASTLE sibling / igniter clean-room `ALIVE` rows do **not** promote Foundry / zero-HITL / path crown / LinkedIn send.
 - No ManagePullRequest on #849. No force-push. No cargo.
@@ -196,3 +209,10 @@ CASTLE pins, plus HTTP+DNS probe reconfirm at 10:29:22 PST. Standings **held**;
 ManagePullRequest; tip-wins absorb onto crown (no force).
 
 Tip-wins absorb side `de9682e3ff1b017b666801c1826bb3177f360f60` onto crown parent `4060f9d6b59d4989c5534408bf51845877d765e8` (no force; no ManagePullRequest).
+
+Retip19 (`cursor/v2711-oor-retip19-bc54` / `bc-f83f4cbf`) @ tip
+`dd61fefb29fa7ea6e1cf789f002ccd9879393988` — probe 2026-11-22 11:02:01 PST /
+`2026-11-22T19:02:01Z`: cos `/readyz` **503** `DB_UNAVAILABLE` (**BLOCKED**);
+revops **NXDOMAIN** (**UNKNOWN**); `*.ggen.dev` aliases **NXDOMAIN**. Standings
+**held**; no invented `ALIVE`; docs-only; no cargo; no ManagePullRequest.
+
