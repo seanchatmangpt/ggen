@@ -315,7 +315,10 @@ fn anti_vacuity_mutation_widened_text_is_refused_not_vacuous_pass() {
         "anti-vacuity requires a green baseline; got {baseline:?}"
     );
 
-    let mut case = parse_layout_court_case(&json).expect("valid fixture parses");
+    let mut case = match parse_layout_court_case(&json) {
+        Ok(case) => case,
+        Err(refusal) => panic!("valid fixture must parse; got {refusal:?}"),
+    };
     let before = case.column.children[0].width_px;
     // 220 × 1.5 = 330 overflows Gate-1 width 320 only
     case.column.children[0].width_px = 220.0;
