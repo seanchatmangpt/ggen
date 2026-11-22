@@ -12,14 +12,14 @@ prior_tip_win=c91b225614a3ca0472303c05bab25601db1d51e1 ⊆ crown
 | Field | Value |
 |-------|-------|
 | Document ID | `ZCODE-POWL-REFUSAL-STANDING-27.1.1` |
-| Honesty sidebranch | `cursor/v2711-zcode-refusal-stall-bc54` (this land; **not** crown) |
+| Honesty sidebranch | `cursor/v2711-zcode-refusal-stall-bc54` @ `43c941f88` — tip-wins absorbed onto crown |
 | Crown tip observed | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `df9597c1817313f8d5173f425af28aaf485d114c` |
 | Prior tip-win | `cursor/v2711-zcode-powl-refusal-alive-bc54` @ `c91b225614a3ca0472303c05bab25601db1d51e1` — **already ⊆ crown** (`git merge-base --is-ancestor` → true) |
 | Lineage ALIVE receipt | [`ZCODE-POWL-REFUSAL-ALIVE-STANDING.md`](./ZCODE-POWL-REFUSAL-ALIVE-STANDING.md) (tip blob present) |
 | Companion ledger | [`ZCODE-POWL-OCEL-STANDING.md`](./ZCODE-POWL-OCEL-STANDING.md) |
 | Cargo this land | **NOT RUN** (docs-only honesty; do not mint new tip-cargo `ALIVE`) |
 | ManagePullRequest | **not used** |
-| Crown push | **not used** |
+| Crown push | tip-wins `HEAD:cursor/ecosystem-spec-27-1-1-bc54` (no force) via `cursor/v2711-zcode-refusal-stall-absorb-6523` |
 
 Standing vocabulary: `UNKNOWN` | `PARTIAL_ALIVE` | `ALIVE` | `BLOCKED` | `BLOCKED_HITL` | `BUILD_BROKEN` | `UNSUPPORTED` | `REFUSED_*` | `SCHEDULED` | `STALLED`.
 
@@ -107,7 +107,7 @@ SCCACHE_DISABLE=1 CARGO_BUILD_JOBS=1 \
 1. **Prior tip-win already ⊆ crown** — do not re-absorb `cursor/v2711-zcode-powl-refusal-alive-bc54` @ `c91b22561`.
 2. **Reconfirm sidebranch ABSENT** — no absorb of `cursor/v2711-zcode-refusal-reconfirm-bc54`.
 3. **Lineage standing held ALIVE** via tip docs; **exact-tip reconfirm STALLED**.
-4. This honesty sidebranch only; **no** crown push; **no** ManagePullRequest.
+4. Tip-wins absorb lands this honesty ledger onto crown; **no** ManagePullRequest; **no** invented exact-tip / hop-5 `ALIVE`.
 
 Replay ancestry check:
 
