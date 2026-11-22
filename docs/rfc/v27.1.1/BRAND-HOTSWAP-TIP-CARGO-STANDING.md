@@ -35,7 +35,8 @@ invent tip-subject `ALIVE`. Fence API ceiling remains `HOT_SWAP_STANDING_CEILING
 | Cgroup | workload `memory.max`≈14.6 Gi; `oom_kill`≥37 during window |
 | Fence ceiling | **PARTIAL_ALIVE** (`seed_hot_swap_slot` / `hot_swap_brand` receipts) |
 | Production theme | **UNSUPPORTED** / `REFUSED_PRODUCTION` — [`BRAND-PRODUCTION-THEME.md`](./BRAND-PRODUCTION-THEME.md) |
-| ManagePullRequest | **not used** (parent owns #849); **no crown absorb** |
+| ManagePullRequest | **not used** (parent owns #849) |
+| Crown tip-wins absorb | **ABSORBED** onto `cursor/ecosystem-spec-27-1-1-bc54` @ pre-absorb `e6d1b839d` (cherry-pick `08ad78dcb`+`548cd939d`) |
 
 **Law:** Exact-tip `ALIVE` requires recorded EXIT **0** for `brand_toml_hotswap_court`
 on the live tip under exclusive cargo. Lineage tip-cargo EXIT **0** does **not**
@@ -85,6 +86,6 @@ standing=COMPILING / PARTIAL_ALIVE
 fence_ceiling=PARTIAL_ALIVE
 production=UNSUPPORTED
 lineage=ALIVE @ 19c08a3b0 (6 passed; exit 0)
-landed=cursor/v2711-brand-exact-retip-bc54
+landed=tip-wins absorb onto crown (side cursor/v2711-brand-exact-retip-bc54 @ 548cd939d)
 next=exclusive quiet tip-cargo EXIT:0; production theme remains UNSUPPORTED
 ```
