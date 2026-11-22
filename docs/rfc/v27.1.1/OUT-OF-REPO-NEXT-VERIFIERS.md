@@ -294,4 +294,3 @@ Crown: Plane-5 revops+cos product standing is **not** `ALIVE`. Companion detail:
 [`REVOPS-COS-STANDING.md`](./REVOPS-COS-STANDING.md) §16. Next verifiers remain
 the BLOCKED/PENDING table above (cos `/readyz` → **200**; revops DNS ∧ `/readyz`
 **200**).
-
