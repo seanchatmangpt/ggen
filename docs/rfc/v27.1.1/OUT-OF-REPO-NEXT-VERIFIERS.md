@@ -5,7 +5,7 @@
 | Document ID | `OUT-OF-REPO-NEXT-VERIFIERS` |
 | Companion | `ECOSYSTEM-SPEC-27.1.1`, `GATE-0-STANDING`, `GATE-3-RELEASE-COURTS-STANDING`, `FOUNDRY-FINISH-STANDING` |
 | Target GA | **2027-01-01** |
-| Observed ggen tip | absorb tip `4f259b8c61b9a426d6932ccab98bcab6c176ba1e` (~`c11ea7f2a+` / `89ca2da9c+`) |
+| Observed ggen tip | absorb tip `bfc40dc1f316eb957b9c294165761fe31e7533ae` (~`c11ea7f2a+` / `89ca2da9c+`) |
 | Materialized | 2026-11-22 |
 | Hardened | 2026-11-22 — `cursor/v2711-oor-ledger-harden-bc54` |
 | Ops refresh | 2026-11-22 — `cursor/v2711-ops-standing-refresh-bc54` (tip pin + probe reconfirm; standings held) |
