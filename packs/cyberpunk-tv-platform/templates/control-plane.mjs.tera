@@ -151,7 +151,10 @@ async function doctor(args = [], silent = false) {
 
 function resolveDependency(capability) {
   if (!capability?.requires) return null;
-  return byKind('capability').find(candidate => capability.requires.endsWith(`#${candidate.id}`) || capability.requires.endsWith(candidate.id)) ?? null;
+  const req = String(capability.requires);
+  return byKind('capability').find(candidate =>
+    req === candidate.id || req.endsWith(`#${candidate.id}`) || req.endsWith(candidate.id)
+  ) ?? null;
 }
 
 async function explain(args = [], silent = false) {
