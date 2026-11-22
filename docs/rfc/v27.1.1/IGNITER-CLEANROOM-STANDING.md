@@ -109,14 +109,14 @@ diff -rq from_tip.css from_igniter.css   # expect 0
 git diff --exit-code                     # compare subject → 0
 ```
 
-**Residual (not hop-4 BrandTheme crown):** exclusive `CXX=g++-13` NIF →
-`mix ggen_igniter.sync --check` → 0. Probe ledger:
+**Residual (not hop-4 BrandTheme crown):** Jobs/C4 `mix ggen_igniter.sync
+--check` → 0. Probe ledger:
 [`HOP4-MIX-NIF-STANDING.md`](./HOP4-MIX-NIF-STANDING.md) — default PATH `mix`
-**ABSENT**; off-PATH elixir-install **PRESENT** without founder HITL; NIF
-**BLOCKED** (prior `oxrocksdb-sys` SIGTERM). Do **not** invent `mix sync`
-`ALIVE` while NIF **BLOCKED**. Antifalsifier: bare post-clone
-`git diff --exit-code` ≠ hop-4 manufacture `ALIVE`; off-PATH `mix` PRESENT ≠
-Jobs/C4 `ALIVE`.
+**ABSENT**; off-PATH elixir-install **PRESENT** (exported); `CXX=g++-13` NIF
+**ALIVE** (nif2 land); bare `--check` **REFUSED_INVOCATION** (exit 2;
+`--template`/`--pack` required). Do **not** invent Jobs/C4 `ALIVE` from NIF
+`.so` alone. Antifalsifier: bare post-clone `git diff --exit-code` ≠ hop-4
+manufacture `ALIVE`; off-PATH `mix` PRESENT ≠ Jobs/C4 `ALIVE`.
 
 Do not merge this document’s prose into a Plane-5 / release `ALIVE` without
 executing §4 (clean-tree) **and** replaying §5b BrandTheme compare on the

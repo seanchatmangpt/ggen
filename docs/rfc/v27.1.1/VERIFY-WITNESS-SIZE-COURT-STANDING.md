@@ -1,31 +1,28 @@
-# `verify_witness` size court standing (Clause 3 retip)
+# `verify_witness` size court standing (tip-cargo ALIVE)
 
 ```text
-exit=skipped standing=PRESENT size=35 tip=d48b763b88b58f2d7eb280202cf73f46c7aa3a87
+exit=0 standing=ALIVE(size_court) passed=6 tip=513704d048fcf19dffe5fad82ba23a8b647b6830
 ```
 
 | Field | Value |
 |-------|-------|
-| Branch | `cursor/v2711-verify-witness-absorb-c322` |
-| Source | #929 / `cursor/v2711-verify-witness-retip-bc54` @ `34631db8a57baae32fed51e6ba811b337d639d2e` |
-| Ecosystem tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `2fd8971414519f5a1c51f6b04c1f7a85831def52` (≥ `46a026ae9` / `27436608c` / `120598fb3`) |
+| Branch | `cursor/v2711-verify-witness-alive-bc54` |
+| Ecosystem tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `513704d048fcf19dffe5fad82ba23a8b647b6830` (witness surface ≡ `678a6c106` … crown) |
 | Court | `crates/ggen-graph/tests/verify_witness_size_court.rs` — **6** `#[test]` **PRESENT** |
 | API | `crates/ggen-graph/src/witness/mod.rs` **PRESENT** (`court_verify_witness_size`, budget `262_144`) |
 | Placeholder | `crates/ggen-graph/fixtures/witness/verify_witness.placeholder.wasm` **35** bytes (`< 262144` / &lt;250KB) |
-| Ancestor cargo | `0478fde59` — `verify_witness_size_court` **6 passed; exit 0** (sources unchanged on tip for witness surface) |
-| Prior session binary | `/tmp/gate1-finalbin-verify_witness_size_court.log` — **6 passed; exit 0** (warm binary path; not tip-exclusive package rebuild this pass) |
-| Tip exclusive flock | `/tmp/ggen-uilayout-tip-alive-protected` **HELD** — cargo not taken (preserve ui_layout tip-cargo **ALIVE**) |
-| Standing (size court) | **PRESENT** (docs-only absorb onto tip past `46a026ae9`). Tip-cargo package `ALIVE` **PENDING**. |
-| Tip-wins | ui_layout tip-cargo **ALIVE** retained; verify_witness stays **PRESENT** (not tip-cargo `ALIVE`) |
-| Production WASM | **UNSUPPORTED** — [`VERIFY-WITNESS-PRODUCTION.md`](./VERIFY-WITNESS-PRODUCTION.md) |
+| Tip-cargo | `CARGO_BUILD_JOBS=1 CARGO_TARGET_DIR=/tmp/ggen-verify-witness-target cargo test -p ggen-graph --test verify_witness_size_court --locked` → **6 passed; 0 failed; exit 0** (loadavg_1m ≤10; `/tmp/ggen-verify-witness-cargo.log`) |
+| Ancestor cargo | `0478fde59` — **6 passed; exit 0** (retained) |
+| Standing (size court) | **ALIVE** (lineage tip-cargo on crown `513704d04`; size court only) |
+| Absorb tip | docs tip-wins onto `ebf4e8d08` (lifecycle tip); EXIT:0 **not** reconfirmed tip-exclusive on `ebf4e8d08` (sibling owns tip-cargo / load) |
+| Production WASM | **UNSUPPORTED** — [`VERIFY-WITNESS-PRODUCTION.md`](./VERIFY-WITNESS-PRODUCTION.md) — never production-artifact `ALIVE` from placeholder fence |
 | ManagePullRequest | not used |
-| Cargo this absorb | **no** |
 
-## Falsifier (when tip exclusive free)
+## Replay
 
 ```bash
-CARGO_TARGET_DIR=/tmp/ggen-verify-witness-target CARGO_BUILD_JOBS=1 \
+CARGO_BUILD_JOBS=1 CARGO_TARGET_DIR=/tmp/ggen-verify-witness-target \
   cargo test -p ggen-graph --test verify_witness_size_court --locked
 ```
 
-Expect: **6 passed; exit 0** → standing promotes to tip-cargo **ALIVE** (size court only; production remains **UNSUPPORTED**).
+Expect: **6 passed; exit 0** on tip witness sources (production path remains **UNSUPPORTED**).
