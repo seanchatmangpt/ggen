@@ -5,7 +5,7 @@
 | Document ID | `CCS-BRCE-STANDING` |
 | Spec binding | `ECOSYSTEM-SPEC-27.1.1` §13.2 (Clause 2 — CCS / BRCE + WebAuthn AS-01) |
 | Companions | [`CCS-AUTHORITY-STANDING.md`](./CCS-AUTHORITY-STANDING.md) (~8 CCS ledger); [`BRCE-WEBAUTHN-STANDING.md`](./BRCE-WEBAUTHN-STANDING.md) (AS-01 / V1–V11); [`OUT-OF-REPO-NEXT-VERIFIERS.md`](./OUT-OF-REPO-NEXT-VERIFIERS.md) (G2-3…G2-5) |
-| Observed tip | absorb tip `ABSORB_TIP_SHA` (~`c11ea7f2a+` / `2fd897141+`; #932 construct_hash absorb) |
+| Observed tip | absorb tip `4f259b8c61b9a426d6932ccab98bcab6c176ba1e` (~`c11ea7f2a+` / `2fd897141+`; #932 construct_hash absorb) |
 | Tip pin | 2026-11-22 — absorb #932 `cursor/v2711-construct-hash-retip-bc54` @ `27f586390` onto tip `c11ea7f2a+`; docs-only honesty; tip-cargo locks **spared** (no cargo this absorb) |
 | Repo | `seanchatmangpt/ggen` |
 | Clause-2 standing | **PARTIAL_ALIVE** |
@@ -22,7 +22,7 @@ Compact return line:
 ```text
 exit=spared
 standing=PARTIAL_ALIVE
-tip=ABSORB_TIP_SHA
+tip=4f259b8c61b9a426d6932ccab98bcab6c176ba1e
 next=CARGO_BUILD_JOBS=1 --target-dir /tmp/ggen-construct-hash-target cargo test -p ggen-lsp --lib construct_hash_gate; then as01 V7/V1; then V8→V9/G2-5
 ```
 
@@ -30,7 +30,7 @@ next=CARGO_BUILD_JOBS=1 --target-dir /tmp/ggen-construct-hash-target cargo test 
 
 ## 0. Tip confirmation (inspection only — no cargo)
 
-| Subject | Evidence on tip `ABSORB_TIP_SHA` (~`c11ea7f2a+` / `2fd897141+`) | Standing |
+| Subject | Evidence on tip `4f259b8c61b9a426d6932ccab98bcab6c176ba1e` (~`c11ea7f2a+` / `2fd897141+`) | Standing |
 |---------|-----------------------------|----------|
 | **CCS #3 `construct_hash_gate`** | File **PRESENT**: `crates/ggen-lsp/src/a2a_mcp/construct_hash_gate.rs` (tip source **4** `#[test]`). Land `3ec8afd85` (PR **#901** MERGED 2026-11-22 — `feat(ccs): construct_hash_gate CP17 fail-closed fence`) is ancestor of tip. `lifecycle.rs` still **ABSENT**. | **PRESENT** / **PARTIAL_ALIVE** (tip-cargo spared — load high) |
 | **V7 ES256 / `:prime256v1` fixture court** | **PRESENT**: `crates/ggen-abb-sbb/src/as01_assertion.rs` + `tests/brce_as01_es256_assertion_court.rs` (tip source **4** `#[test]`); `p256` admitted in `ggen-abb-sbb` only. Land `fb6e7fc6e` ancestor; historical fixture court **4 passed; exit 0**. | Fixture court land **ALIVE** @ `fb6e7fc6e`; path **PARTIAL_ALIVE** (crypto shape); tip-cargo spared |

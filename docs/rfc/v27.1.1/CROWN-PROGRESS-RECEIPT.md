@@ -4,7 +4,7 @@
 |-------|-------|
 | Document ID | `CROWN-PROGRESS-RECEIPT-27.1.1` |
 | Status | **PROGRESS RECEIPT** (honest; **not** goal-complete; **not** crown `ALIVE`) |
-| Observed tip | absorb tip `ABSORB_TIP_SHA` (~`c11ea7f2a+` / `89ca2da9c+` / `2fd897141+`) |
+| Observed tip | absorb tip `4f259b8c61b9a426d6932ccab98bcab6c176ba1e` (~`c11ea7f2a+` / `89ca2da9c+` / `2fd897141+`) |
 | Tip subject | absorb uilayout@`8cee4246f` + crown-progress2@`0e25df932` + #932 construct_hash **PRESENT** + #933 brand Gate-1 + #934 hop-4 mix/NIF **BLOCKED** onto tip `c11ea7f2a+`; tip-wins: ui_layout tip-cargo **ALIVE** (retry9 **11/exit0** @ `60b15c778`); brand hot-swap+fluid **PRESENT**; production **UNSUPPORTED**; construct_hash tip-cargo spared |
 | Ledger pins cited | Gate-1 / Photo / Foundry / CCS / OOR retipped; taffy **PRESENT**; photo hop-4 **ALIVE**; brand production **UNSUPPORTED**; mix/NIF residual ledger **PRESENT**; crown-progress2 clause honesty retained |
 | Cargo this receipt | **no** — tip-exclusive thrash; prior exclusive quiet retry9 `ui_layout_court` **11 passed; exit 0** @ `60b15c778` retained (prior `ca52e9c16`) |
@@ -30,7 +30,7 @@ FinOps: FOUNDRY/OOR **ALIVE** @ `91997da76f0f` vs older §13.3 FinOps
 Compact return line:
 
 ```text
-tip=ABSORB_TIP_SHA
+tip=4f259b8c61b9a426d6932ccab98bcab6c176ba1e
 clause1=PARTIAL
 clause2=PARTIAL_ALIVE
 clause3=PARTIAL+BLOCKED
