@@ -6,9 +6,7 @@
 | Branch | tip-wins absorb `cursor/v2711-hitl-live-next-bc54` @ `723c3a14f` onto crown `00b53cec9` via `cursor/v2711-hitl-live-absorb-8df9` (⊇ Smalt residual mix `00b53cec9` + OOR retip12 `79b64496b` + affidavit `7ddfd8b6e` + BRCE V8+R01 `1dbf1cc2e` + VW prod `fe72be0fb` + Smalt GA residual `9173c6529` + CASTLE wire — **not** dropped) |
 | Companion | [`FOUNDRY-FINISH-STANDING.md`](./FOUNDRY-FINISH-STANDING.md) §1a / §2, [`HOP5-ZCODE-RUNTIME-STANDING.md`](./HOP5-ZCODE-RUNTIME-STANDING.md), [`HOP5-MODEL-ACCESS-STANDING.md`](./HOP5-MODEL-ACCESS-STANDING.md), [`OUT-OF-REPO-NEXT-VERIFIERS.md`](./OUT-OF-REPO-NEXT-VERIFIERS.md) **G2-9**, [`CROWN-PROGRESS-RECEIPT.md`](./CROWN-PROGRESS-RECEIPT.md) |
 | Observed ggen tip (absorb base) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `00b53cec9134e97cc2967bfd61af9a156e7defa7` (Smalt residual mix courts absorb after OOR retip12 / affidavit / BRCE V8+R01 / VW / CASTLE) |
-| Observed ggen tip (this action-card pin) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `893070836ef83ab711e657cfacc98bb4dc7ea369` (`893070836+`; ⊇ `d73efb9b8+` examples-repair CI) |
 | Side-branch evidence | `cursor/v2711-hitl-live-next-bc54` @ `723c3a14f5232db9e40c21858a6c41b2b1fa67c8` (`bc-ea2b3d10`); side base was `fe72be0fb` |
-| Action-card sidebranch | `cursor/v2711-hitl-action-card-bc54` (`bc-181ef196`) — docs-only; **no** crown absorb |
 | zcode-cli land | `/agent/repos/zcode-cli` @ `f32df08cdc4b3b8e114a8d1de8cf81acb80e1f3a` (Gall `--live` injects `createZcodeAgentExecutor`; Linux tip-matched `vendor/zcode.cjs` **PRESENT**) |
 | Cargo / tip-cargo | **NOT RUN** (docs-only honesty absorb) |
 | Status | LEDGER — **BLOCKED_HITL**; **not** hop-5 / Foundry / zero-HITL `ALIVE` |
@@ -104,7 +102,6 @@ Jobs/C4 residual is **separate** (not this falsifier): admitted igniter pack `--
 | Tip-wins absorb (re-probe) | 2026-11-22 — §6 body already tip-wins via `7ea96a70d` (CI blank-EOF + HITL retip absorb of `0364129c5` / `bc-cdfdae43` onto `d2c919401`); `cursor/v2711-hitl-live-retip-absorb-d91a` finishes absorb honesty + CROWN pin onto live crown `7ea96a70d` (⊇ CASTLE digest-bind / VW CI-wasm / OOR retip13 / CI blank-EOF); standing remains **BLOCKED_HITL** / **REFUSED** (`foundry_exit=1`; Model access not configured); exact next `bun scripts/powl-foundry-loop.ts --live` → **foundry_exit=0**; **no** invented `--live` `ALIVE`; docs-only; no cargo; no ManagePullRequest; push `HEAD:cursor/ecosystem-spec-27-1-1-bc54` (no force) |
 | Re-probe retip2 | 2026-11-22 — `cursor/v2711-hitl-retip2-bc54` from `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `01eccfffb` (⊇ zcode refusal reconfirm ALIVE + OOR retip14); `bc-43dfbc3c`; exact §3 command re-run; **foundry_exit=1**; **BLOCKED_HITL** held; **no** invented `--live` / hop-5 / Foundry crown `ALIVE`; sidebranch push only; no ManagePullRequest; **no** crown push |
 | Tip-wins absorb (retip2) | 2026-11-22 — `cursor/v2711-hitl-refusal-absorb-0f6f` tip-wins absorb of `a1ae2e30f` (+ refusal reconfirm `d1c9da98b`) onto crown tip `01eccfffb`; standing remains **BLOCKED_HITL** / **REFUSED** (`foundry_exit=1`; Model access not configured); Foundry crown **PARTIAL**; exact next `bun scripts/powl-foundry-loop.ts --live` → **foundry_exit=0**; **no** invented `--live` `ALIVE`; docs-only; no cargo; no ManagePullRequest; push `HEAD:cursor/ecosystem-spec-27-1-1-bc54` (no force) |
-| Founder HITL action card | 2026-11-22 — `cursor/v2711-hitl-action-card-bc54` (`bc-181ef196`) from tip `893070836` (`d73efb9b8+`); §8 pins exact `/login`\|`/setup` → `bun scripts/powl-foundry-loop.ts --live` → exit **0**; standing held **BLOCKED_HITL**; **refuse** Foundry `ALIVE`; docs-only; no cargo; **no** crown absorb; no ManagePullRequest; no force-push |
 
 ---
 
@@ -180,78 +177,3 @@ Jobs/C4 residual is **separate** (not this falsifier): admitted igniter pack `--
 | Exact next (unchanged) | Founder HITL provision (§3 A/B/C) → `bun scripts/powl-foundry-loop.ts --live` → **foundry_exit=0** |
 
 **Antifalsifiers held:** dry-run / runtime PRESENT / adapter exit 0 / in-repo refuse-path tip-cargo (reconfirm **ALIVE** @ `d1c9da98b` / `8bd3fe407` / `cd7c2433b`) ≠ `--live` `ALIVE`. Tip-wins absorb onto crown via `cursor/v2711-hitl-refusal-absorb-0f6f` — standing **not** promoted (**BLOCKED_HITL**; Foundry **PARTIAL**).
-
----
-
-## 8. Founder HITL action card (pinned 2026-11-22) — `cursor/v2711-hitl-action-card-bc54`
-
-| Field | Value |
-|-------|-------|
-| Tip base | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `893070836ef83ab711e657cfacc98bb4dc7ea369` (`893070836+`; ⊇ `d73efb9b8+`) |
-| Branch | `cursor/v2711-hitl-action-card-bc54` |
-| Agent | `bc-181ef196` (`https://cursor.com/agents/bc-181ef196-3abc-5115-a003-119a3caa4ce2`) |
-| zcode-cli | `/agent/repos/zcode-cli` @ `f32df08cdc4b3b8e114a8d1de8cf81acb80e1f3a` |
-| Failure held | `Model access is not configured. Run /login or /setup in zcode` → **foundry_exit=1** |
-| Standing held | **BLOCKED_HITL** / **REFUSED** — Foundry crown **PARTIAL**; **refuse** to claim Foundry / hop-5 / zero-HITL `ALIVE` |
-| Cargo / tip-cargo | **NOT RUN** (docs-only action-card pin) |
-| Crown absorb | **NONE** this land (sidebranch only; no ManagePullRequest; no force-push) |
-
-### Exact founder commands (copy/paste)
-
-```bash
-# === FOUNDER HITL ACTION CARD — ECOSYSTEM-SPEC-27.1.1 / G2-9 ===
-# Standing NOW: BLOCKED_HITL (foundry_exit=1; model access not configured)
-# Success ONLY when: foundry_exit=0 (process exit 0)
-# Do NOT claim Foundry / hop-5 / zero-HITL ALIVE until that exit.
-
-# --- Step 1: provision model access (pick ONE path) ---
-
-# Path A — interactive zcode (preferred on founder host):
-cd /agent/repos/zcode-cli   # @ f32df08+
-# start zcode TUI / REPL, then run ONE of:
-#   /login     # Linux: Coding Plan API key path (browser OAuth is macOS-only)
-#   /setup     # provider/model picker; writes ~/.zcode/v2/provider_config.json
-zcode
-# (inside zcode)  /login
-#            —or— /setup
-
-# Path B — materialize provider registry from example (non-interactive):
-mkdir -p ~/.zcode/v2
-cp /agent/repos/zcode-cli/provider.example.json /tmp/provider_config.template.json
-# edit: providerRules[].config.access.apiKey (non-empty secret),
-#       enabled=true, visibility≠hidden,
-#       access.type ∈ {api-key,zhipu-coding-plan-api-key},
-#       personalModelIds + defaultModelSelection.{providerId,modelId}
-install -m 600 /tmp/provider_config.template.json ~/.zcode/v2/provider_config.json
-
-# Path C — shell env only (names; Founder sets values; never commit):
-#   export ANTHROPIC_API_KEY=…        # or ANTHROPIC_AUTH_TOKEN /
-#   export ZCODE_API_KEY=…            # or ZCODE_MODEL_MAIN /
-#   # or other /^(?:ZCODE|ZAI|BIGMODEL|ZHIPU|ANTHROPIC)_.*(?:KEY|TOKEN|MODEL|CONFIG|PROVIDER|BASE_URL)/
-#   NOTE: OPENAI_API_KEY alone does NOT clear missingCodingPlanKey when registry ABSENT
-
-# --- Step 2: live foundry falsifier ---
-cd /agent/repos/zcode-cli
-bun scripts/powl-foundry-loop.ts --live
-# PASS:  exit 0 / foundry_exit=0
-# FAIL:  exit 1 + "Model access is not configured. Run /login or /setup in zcode"
-#        → keep standing BLOCKED_HITL; do NOT invent Foundry ALIVE
-```
-
-### Success criteria / held standing
-
-| Gate | Criterion | Standing if unmet | Standing if met |
-|------|-----------|-------------------|-----------------|
-| Model access | `/login` or `/setup` (or Path B/C) configured | **BLOCKED_HITL** | prerequisite only |
-| Live foundry | `bun scripts/powl-foundry-loop.ts --live` → **exit 0** | **BLOCKED_HITL** / **REFUSED** | hop-5 live path may advance; still must not invent zero-HITL Foundry `ALIVE` from this card alone without crown absorb |
-| This pin | docs-only action card | **BLOCKED_HITL** held | n/a — card does **not** promote |
-
-**Refuse:** inventing Foundry / hop-5 / zero-HITL `ALIVE` from runtime **PRESENT**, adapter exit **0**, dry-run **PARTIAL**, in-repo refuse-path tip-cargo, or this docs pin alone.
-
-Keys detail: [`HOP5-MODEL-ACCESS-STANDING.md`](./HOP5-MODEL-ACCESS-STANDING.md) §1–§2. Runtime PRESENT: [`HOP5-ZCODE-RUNTIME-STANDING.md`](./HOP5-ZCODE-RUNTIME-STANDING.md).
-
-### Provenance (this land)
-
-| Event | Note |
-|-------|------|
-| Action-card pin | 2026-11-22 — `cursor/v2711-hitl-action-card-bc54` from crown tip `893070836` (`d73efb9b8+`); append §8 exact Founder HITL commands (`/login`\|`/setup` → `--live` → exit **0**); standing held **BLOCKED_HITL**; **refuse** Foundry `ALIVE`; docs-only; no cargo; **no** crown absorb; no ManagePullRequest; no force-push |
