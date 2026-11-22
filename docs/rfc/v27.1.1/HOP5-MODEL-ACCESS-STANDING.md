@@ -5,7 +5,7 @@
 | Document ID | `HOP5-MODEL-ACCESS-STANDING-27.1.1` |
 | Branch | `cursor/v2711-hop5-model-access-bc54` |
 | Companion | [`HOP5-ZCODE-RUNTIME-STANDING.md`](./HOP5-ZCODE-RUNTIME-STANDING.md), [`HOP5-FOUNDRY-LIVE2-STANDING.md`](./HOP5-FOUNDRY-LIVE2-STANDING.md), [`OUT-OF-REPO-NEXT-VERIFIERS.md`](./OUT-OF-REPO-NEXT-VERIFIERS.md) G2-9 |
-| Ecospec tip base | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `3ea41ffd0524f63d342c2f23879038b889e28884` |
+| Ecospec tip base | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `c832cabdcd3378ef528a4ee2ee387d5731d376a8` |
 | zcode-cli land | `/agent/repos/zcode-cli` @ `f32df08cdc4b3b8e114a8d1de8cf81acb80e1f3a` |
 | Host | Linux x86_64 cloud VM |
 | Cargo / tip-cargo | **NOT RUN** (admitted scope: investigation only) |
