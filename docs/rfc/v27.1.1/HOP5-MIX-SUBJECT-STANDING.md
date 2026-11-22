@@ -50,7 +50,7 @@ Exact remediation (typed SUBJECT_MISSING when subject truly missing):
 | Claim | Standing |
 |-------|----------|
 | Live spatial adapter on ggen tip with layout_court PRESENT | **ALIVE** (exit **0**) |
-| Jobs/C4 / igniter `mix` / foundry `--live` | **PARTIAL** / open (`mix` ABSENT) |
+| Jobs/C4 / igniter `mix` / foundry `--live` | **PARTIAL** / foundry **BLOCKED**/**REFUSED** — `--live` **foundry_exit=1** (`ZCode runtime is missing` after executor wire; [`HOP5-FOUNDRY-LIVE2-STANDING.md`](./HOP5-FOUNDRY-LIVE2-STANDING.md)); `mix` **ABSENT** |
 | Hop-5 aggregate / path crown | **PARTIAL_ALIVE** — do **not** invent hop-5 crown `ALIVE` from adapter alone |
 
 ## Replay
