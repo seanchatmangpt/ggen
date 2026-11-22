@@ -266,6 +266,7 @@ Tip pin retipped on `cursor/v2711-oor-retip10-ecdf` onto tip `a40338aea` (`a4033
 Tip pin retipped on `cursor/v2711-oor-retip11-fec0` onto tip `6a3a623ba` (`6a3a623bacd33efdc1ec7efccf6a35141662ca53`) at 2026-11-22 07:42:56 PST — post–ui_layout exact tip-cargo absorb; probe unchanged vs retip10: cos `/readyz` **503** `{"status":"DB_UNAVAILABLE"}`; `/healthz` **200** `{"status":"ok"}`; `dig` A/AAAA empty; `host` **NXDOMAIN**; `getent` exit **2**; `curl` exit **6** `http=000` → standings held (cos readiness **BLOCKED**; liveness **PARTIAL**; revops **UNKNOWN**); no cargo; no ManagePullRequest; no false `ALIVE`.
 Tip pin retipped on `cursor/v2711-oor-retip12-5958` onto tip `7ddfd8b6e` (`7ddfd8b6efd10ed21cd514f7bb17a5a63056a79c`) at 2026-11-22 07:58:41 PST — tip-wins after affidavit absorb race (probe base `1dbf1cc2e`); probe unchanged vs retip11: cos `/readyz` **503** `{"status":"DB_UNAVAILABLE"}`; `/healthz` **200** `{"status":"ok"}`; `dig` A/AAAA empty; `host` **NXDOMAIN**; `getent` exit **2**; `curl` exit **6** `http=000` → standings held (cos readiness **BLOCKED**; liveness **PARTIAL**; revops **UNKNOWN**); no cargo; no ManagePullRequest; no false `ALIVE`.
 Tip pin retipped on `cursor/v2711-oor-retip13-bc54` onto tip `f65434315` (`f654343155c902a003a852f61df345e986d98b5e`; parent `098f53ea8`) at 2026-11-22 08:13:20 PST — tip-wins vw-env-wire absorb; probe unchanged vs retip12: cos `/readyz` **503** `{"status":"DB_UNAVAILABLE"}`; `/healthz` **200** `{"status":"ok"}`; `dig` A/AAAA empty; `host` **NXDOMAIN**; `getent` exit **2**; `curl` exit **6** `http=000` → standings held (cos readiness **BLOCKED**; liveness **PARTIAL**; revops **UNKNOWN**); no cargo; no ManagePullRequest; no false `ALIVE`. See §16. Tip-wins absorb onto crown `cc2b344bc` (⊇ BRCE V8).
+Tip pin retipped on `cursor/v2711-oor-retip14-bc54` onto tip `df9597c18` (`df9597c1817313f8d5173f425af28aaf485d114c`; parent `7ea96a70d`) at 2026-11-22 08:29:02 PST — tip-wins HITL `--live` re-probe absorb; probe unchanged vs retip13: cos `/readyz` **503** `{"status":"DB_UNAVAILABLE"}`; `/healthz` **200** `{"status":"ok"}`; `dig` A/AAAA empty; `host` **NXDOMAIN**; `getent` exit **2**; `curl` exit **6** `http=000` → standings held (cos readiness **BLOCKED**; liveness **PARTIAL**; revops **UNKNOWN**); no cargo; no ManagePullRequest; no false `ALIVE`. See §17. Sidebranch only — crown **not** pushed.
 
 ---
 
@@ -292,5 +293,32 @@ DNS corroboration: `dig +short revops.fnox.io A`/`AAAA` empty; `host` exit **1**
 
 Crown: Plane-5 revops+cos product standing is **not** `ALIVE`. Companion detail:
 [`REVOPS-COS-STANDING.md`](./REVOPS-COS-STANDING.md) §16. Next verifiers remain
+the BLOCKED/PENDING table above (cos `/readyz` → **200**; revops DNS ∧ `/readyz`
+**200**).
+
+---
+
+## 17. Retip14 honesty probe (2026-11-22 08:29:02 PST)
+
+Branch `cursor/v2711-oor-retip14-bc54` @ `5e67fce3a` from probe tip
+`df9597c1817313f8d5173f425af28aaf485d114c` (parent
+`7ea96a70df61ad782078775e20ff692de50ec067`; prior retip13 pin `f65434315` /
+`e2ca6a69a`). **No cargo.** No ManagePullRequest on #849. Sidebranch only —
+crown **not** pushed. Standings **held**; no false `ALIVE`.
+
+Exact probes (America/Los_Angeles):
+
+| Probe | HTTP / exit | Body / note | Standing |
+|-------|-------------|-------------|----------|
+| `curl -sS -w '\nhttp=%{http_code}\n' https://cos.fnox.io/readyz` | **503** | `{"status":"DB_UNAVAILABLE"}` | **BLOCKED** |
+| `curl -sS -w '\nhttp=%{http_code}\n' https://cos.fnox.io/healthz` | **200** | `{"status":"ok"}` | **PARTIAL** (liveness ≠ readiness) |
+| `curl -sS -w '\nhttp=%{http_code}\n' https://revops.fnox.io/readyz` | exit **6** / `http=000` | `Could not resolve host: revops.fnox.io` (**NXDOMAIN**) | **UNKNOWN** |
+
+DNS corroboration: `dig +short revops.fnox.io A`/`AAAA` empty; `host` exit **1**
+**NXDOMAIN**; `getent` exit **2**; `dig +short cos.fnox.io A` → `34.8.148.142`
+(edge **PARTIAL** only).
+
+Crown: Plane-5 revops+cos product standing is **not** `ALIVE`. Companion detail:
+[`REVOPS-COS-STANDING.md`](./REVOPS-COS-STANDING.md) §17. Next verifiers remain
 the BLOCKED/PENDING table above (cos `/readyz` → **200**; revops DNS ∧ `/readyz`
 **200**).
