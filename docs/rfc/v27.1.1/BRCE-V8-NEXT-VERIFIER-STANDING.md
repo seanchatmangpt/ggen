@@ -3,13 +3,13 @@
 | Field | Value |
 |-------|-------|
 | Document ID | `BRCE-V8-NEXT-VERIFIER-STANDING-27.1.1` |
-| Branch | tip-wins absorb `cursor/v2711-brce-v8-next-bc54` @ `d90d0189f` onto crown `8d761d8a1` (⊇ `f65434315` / `098f53ea8`) |
+| Branch | tip-wins absorb `cursor/v2711-brce-v8-retip-bc54` @ `7a7581393` onto crown tip `2bee92cd6` via `cursor/v2711-brce-v8-retip-absorb-08f2` (⊇ HITL action-card `8629691f8` + perimeter path `2bee92cd6`; prior tip-wins absorb `d90d0189f` / `8d761d8a1`) |
 | Spec binding | `ECOSYSTEM-SPEC-27.1.1` §13.2 Clause 2 — BRCE broker admits intent only with verified AS-01 seat |
-| Companions | [`BRCE-WEBAUTHN-STANDING.md`](./BRCE-WEBAUTHN-STANDING.md) §5 **V8**; [`CCS-BRCE-STANDING.md`](./CCS-BRCE-STANDING.md) §2; [`WEBAUTHN-LIVE-NEXT-VERIFIER-STANDING.md`](./WEBAUTHN-LIVE-NEXT-VERIFIER-STANDING.md) §3; [`R01-R07-STANDING.md`](./R01-R07-STANDING.md) §2; [`OUT-OF-REPO-NEXT-VERIFIERS.md`](./OUT-OF-REPO-NEXT-VERIFIERS.md) **G2-3** |
-| Observed ggen tip (absorb base) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `8d761d8a17925f19b2cee6bb7fbf1582bb4555a0` (`8d761d8a1`; ⊇ `f65434315` / `098f53ea8`) |
-| Prior tip observation | Sidebranch `d90d0189f` on `f65434315`; tip-wins absorb retains **BLOCKED** / **UNSUPPORTED** honesty — **no** V8 / body / live-crypto `ALIVE` |
-| Cargo / tip-cargo | **NOT RUN** (docs-only honesty pin) |
-| Status | LEDGER — **V8** broker **BLOCKED** (broker unmounted); R-01…R-07 bodies **BLOCKED** ahead of V8; live WebAuthn **UNSUPPORTED**; **no** V8 / body / live-crypto `ALIVE` |
+| Companions | [`BRCE-WEBAUTHN-STANDING.md`](./BRCE-WEBAUTHN-STANDING.md) §5 **V8**; [`CCS-BRCE-STANDING.md`](./CCS-BRCE-STANDING.md) §2; [`WEBAUTHN-LIVE-NEXT-VERIFIER-STANDING.md`](./WEBAUTHN-LIVE-NEXT-VERIFIER-STANDING.md) §3; [`R01-R07-STANDING.md`](./R01-R07-STANDING.md) §2; [`R01-R07-BODIES-NEXT-VERIFIER-STANDING.md`](./R01-R07-BODIES-NEXT-VERIFIER-STANDING.md); [`OUT-OF-REPO-NEXT-VERIFIERS.md`](./OUT-OF-REPO-NEXT-VERIFIERS.md) **G2-3** |
+| Observed ggen tip (absorb base) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `2bee92cd6827e77e4d8465dbeb834d43484eb675` (`2bee92cd6`; ⊇ HITL Founder action card §8 + perimeter→ttl/toml path honesty) |
+| Prior tip observation | Sidebranch honesty retip on `893070836` @ `7a7581393` (`bc-4de06fe4`); tip-wins absorb retains **BLOCKED** / **UNSUPPORTED** honesty — **no** V8 / body / live-crypto `ALIVE` |
+| Cargo / tip-cargo | **NOT RUN** (docs-only honesty retip absorb) |
+| Status | LEDGER — **V8** broker **BLOCKED** until broker admit; R-01…R-07 bodies **BLOCKED**; live WebAuthn **UNSUPPORTED**; R-01…R-07 *contract* tip-cargo **ALIVE** retained (**7** @ `e7569893a`); **no** V8 / body / live-crypto `ALIVE` |
 
 Standing vocabulary: `UNKNOWN` | `PARTIAL_ALIVE` | `ALIVE` | `BLOCKED` | `BUILD_BROKEN` | `UNSUPPORTED` | `REFUSED_*`.
 
@@ -110,3 +110,70 @@ Bodies residual: [`R01-R07-STANDING.md`](./R01-R07-STANDING.md) §2.
 | Side-branch pin | 2026-11-22 — `cursor/v2711-brce-v8-next-bc54` @ `d90d0189f` on observed tip `f65434315` (⊇ `098f53ea8`); docs-only; **V8** **BLOCKED** (broker unmounted); R-01…R-07 bodies **BLOCKED** ahead of V8; live WebAuthn **UNSUPPORTED**; no cargo; no ManagePullRequest; no crown push (`bc-493b3e0e`) |
 | Tip-wins absorb | 2026-11-22 — re-apply side pin onto live crown `8d761d8a1` (⊇ `f65434315` / vw-env-wire honesty retip); standing remains **V8** **BLOCKED**, R-01…R-07 bodies **BLOCKED**, live WebAuthn **UNSUPPORTED**; cite §3 verbatim; **no** invented V8 / body / live-crypto `ALIVE`; docs-only; no cargo; no ManagePullRequest; push `HEAD:cursor/ecosystem-spec-27-1-1-bc54` (no force) |
 | Prior evidence chain | BRCE seat fence tip-cargo **ALIVE** @ `e7569893a` → V7 ES256 fixture land @ `fb6e7fc6e` → CCS-BRCE / BRCE-WEBAUTHN residual honesty (V8 **BLOCKED**) → WebAuthn live next-verifier (**UNSUPPORTED**) → OOR **G2-3** broker still open |
+| Honesty retip | 2026-11-22 — `cursor/v2711-brce-v8-retip-bc54` @ `7a7581393` from crown tip `893070836` (`bc-4de06fe4`); docs-only; **V8** remains **BLOCKED** until broker admit; bodies **BLOCKED**; live WebAuthn **UNSUPPORTED**; R-01…R-07 *contract* **ALIVE** retained (**7** @ `e7569893a`); cite §3 + §6 verbatim; **no** false `ALIVE`; no cargo; no ManagePullRequest; sidebranch only at pin time |
+| Tip-wins absorb (retip) | 2026-11-22 — `cursor/v2711-brce-v8-retip-absorb-08f2` tip-wins absorb of `7a7581393` onto crown tip `2bee92cd6` (⊇ HITL action-card `8629691f8` + perimeter path); standing remains **V8** **BLOCKED**, bodies **BLOCKED**, live WebAuthn **UNSUPPORTED**; contract **ALIVE** retained; cite §3 + §6 verbatim; **no** invented V8 / body / live-crypto `ALIVE`; docs-only; no cargo; no ManagePullRequest; push `HEAD:cursor/ecosystem-spec-27-1-1-bc54` (no force) |
+
+---
+
+## 6. Honesty retip (2026-11-22) — `cursor/v2711-brce-v8-retip-bc54`
+
+| Field | Value |
+|-------|-------|
+| Base (retip) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `893070836ef83ab711e657cfacc98bb4dc7ea369` (`893070836`) |
+| Sidebranch | `cursor/v2711-brce-v8-retip-bc54` @ `7a7581393` |
+| Absorb branch | `cursor/v2711-brce-v8-retip-absorb-08f2` onto crown tip `2bee92cd6` (`bc-172dc079`) |
+| Agent (retip) | `bc-4de06fe4` (`https://cursor.com/agents/bc-4de06fe4-dbbe-5cad-a7a8-ec7ac6693888`) |
+| UTC | `2026-11-22T17:09:58Z` (retip); absorb `2026-11-22T17:15:00Z` |
+| Cargo / tip-cargo | **NOT RUN** (docs-only honesty retip absorb) |
+
+### Observed (this retip)
+
+| Probe | Result |
+|-------|--------|
+| Live BRCE broker mount (admit→actuate→receipt) in ggen | **ABSENT** → **V8** **BLOCKED** (doctrine + intent manufacture + V1/V7 fences only) |
+| `webauthn` / `web-authn` / `passkeys` RP deps (`rg` Cargo.toml / crates/*/Cargo.toml / Cargo.lock) | **ABSENT** (`rg` exit **1**) → live WebAuthn **UNSUPPORTED** |
+| `p256` in `crates/ggen-abb-sbb` (V7 fixture only) | **PRESENT** |
+| `brce_as01_seat_court` / `brce_as01_es256_assertion_court` | **PRESENT** (V1/V7 fences; ≠ broker / live ceremony) |
+| `r01_r07_resolution_court` | **PRESENT** — *contract* tip-cargo **ALIVE** retained (**7** @ `e7569893a`); ≠ body closure |
+| Sovereign risk-register R-01…R-07 bodies | **ABSENT** / unmounted → bodies **BLOCKED** |
+
+### Standing (this retip) — no false `ALIVE`
+
+| Claim | Standing |
+|-------|----------|
+| **V8** BRCE broker (G2-3) | **BLOCKED** until Founder HITL mounts broker + completes live WebAuthn AS-01 admit (§3 court exit **0**) |
+| R-01…R-07 *bodies* (G3-5 / V10) | **BLOCKED** (sovereign risk-register unmounted) |
+| Live WebAuthn / FIDO2 RP + hardware (G2-4) | **UNSUPPORTED** |
+| R-01…R-07 *contract* fence | tip-cargo **ALIVE** retained (**7** @ `e7569893a`) — contract ≠ body / V8 |
+| V1 seat fence / V7 ES256 fixture | tip-cargo / land **ALIVE** retained — fence ≠ broker `ALIVE` |
+| Plane-5 **V9** (G2-5) | **BLOCKED** (after **V8**) |
+
+### Exact next verifier commands (held; unchanged)
+
+**V8 / G2-3 (broker admit — until then BLOCKED):**
+
+```bash
+# Founder HITL — BRCE V8 broker court (OOR G2-3)
+# Preconditions: live WebAuthn §3 exit 0 first; mount BRCE broker checkout.
+# A) Intent WITHOUT verified AS-01 → REFUSED_*
+# B) Intent WITH verified AS-01 → execution receipt + replay digest → exit 0
+# Full falsifier: §3 above. Antifalsifiers: V1/V7/R01-contract/CCS tip-cargo ≠ V8 ALIVE.
+```
+
+**Bodies / G3-5 (until then BLOCKED):**
+
+```bash
+# Founder HITL — admit sovereign risk-register → per-ID typed receipt or REFUSED_*
+# In-repo contract replay only (non-substitute):
+CARGO_BUILD_JOBS=1 cargo test -p ggen-graph --test r01_r07_resolution_court \
+  --locked --config build.jobs=1 -- --test-threads=1
+```
+
+**Live WebAuthn / G2-4 (until then UNSUPPORTED):**
+
+```bash
+# Founder HITL — WEBAUTHN-LIVE-NEXT-VERIFIER-STANDING.md §3 ceremony court → exit 0
+# Antifalsifier: cargo test -p ggen-abb-sbb --test brce_as01_es256_assertion_court  # ≠ live ALIVE
+```
+
+**Non-claims:** this retip / tip-wins absorb does **not** invent V8 / body / live-crypto / Plane-5 `ALIVE`. Tip-wins absorb onto crown via `cursor/v2711-brce-v8-retip-absorb-08f2` — standing **not** promoted (**V8** **BLOCKED**; bodies **BLOCKED**; WebAuthn **UNSUPPORTED**; contract **ALIVE** retained). No ManagePullRequest; no force-push.

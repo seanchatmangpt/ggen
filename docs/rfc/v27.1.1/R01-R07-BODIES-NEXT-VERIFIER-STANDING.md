@@ -7,8 +7,9 @@
 | Spec binding | `ECOSYSTEM-SPEC-27.1.1` §11 / D7; OOR **G3-5** / BRCE **V10** |
 | Companions | [`R01-R07-STANDING.md`](./R01-R07-STANDING.md) §2; [`R01-R07-TIP-CARGO-STANDING.md`](./R01-R07-TIP-CARGO-STANDING.md); [`BRCE-V8-NEXT-VERIFIER-STANDING.md`](./BRCE-V8-NEXT-VERIFIER-STANDING.md); [`BRCE-WEBAUTHN-STANDING.md`](./BRCE-WEBAUTHN-STANDING.md) §5 **V10**; [`CCS-BRCE-STANDING.md`](./CCS-BRCE-STANDING.md) §2; [`OUT-OF-REPO-NEXT-VERIFIERS.md`](./OUT-OF-REPO-NEXT-VERIFIERS.md) **G3-5** |
 | Observed ggen tip (side base) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `bebea5dd0d4c9af533457e04e0ed068ae8844f69` (⊇ HITL retip2 **BLOCKED_HITL** + zcode refusal **ALIVE** + OOR retip14) |
-| Probe id | `bc-6fa5335f` |
-| Cargo / tip-cargo | **NOT RUN** (docs-only honesty pin) |
+| Honesty retip tip | `cursor/v2711-brce-v8-retip-bc54` @ `7a7581393` on `893070836` — companion absorb via `cursor/v2711-brce-v8-retip-absorb-08f2` onto crown tip `2bee92cd6` |
+| Probe id | `bc-6fa5335f` (pin); retip `bc-4de06fe4`; absorb `bc-172dc079` |
+| Cargo / tip-cargo | **NOT RUN** (docs-only honesty pin / retip absorb) |
 | Status | LEDGER — all seven *bodies* **BLOCKED** (sovereign risk-register unmounted); resolution *contract* tip-cargo **ALIVE** retained (**7** @ `e7569893a`); **no** body / V8 / live-ceremony `ALIVE` |
 
 Standing vocabulary: `UNKNOWN` | `PARTIAL_ALIVE` | `ALIVE` | `BLOCKED` | `BLOCKED_HITL` | `BUILD_BROKEN` | `UNSUPPORTED` | `REFUSED_*`.
@@ -139,3 +140,33 @@ V8 residual (orthogonal): [`BRCE-V8-NEXT-VERIFIER-STANDING.md`](./BRCE-V8-NEXT-V
 | Tip-wins absorb (content tip) | 2026-11-22 — tip-wins absorb `cursor/v2711-brce-bodies-next-bc54` @ `4f9a3685e` onto crown tip `a85bebfb2` (⊇ webauthn-retip2 **UNSUPPORTED** @ `7ac7fee56` content) via `cursor/v2711-webauthn-bodies-absorb-edb4`; bodies **BLOCKED** held; **no** invented body/V8 `ALIVE`; docs-only; no cargo; no ManagePullRequest; push `HEAD:cursor/ecosystem-spec-27-1-1-bc54` (no force) |
 | Prior evidence chain | `r01_r07_resolution_court` tip-cargo **ALIVE** @ `e7569893a` → R01-R07 standing bodies **BLOCKED** → BRCE-V8-NEXT bodies **BLOCKED** ahead of / parallel to V8 → OOR **G3-5** still open → this NEXT-VERIFIER honesty pin |
 | Replay | `test -f docs/rfc/v27.1.1/R01-R07-BODIES-NEXT-VERIFIER-STANDING.md` && `rg -n 'BLOCKED|REFUSED_UNGROUNDED|G3-5' docs/rfc/v27.1.1/R01-R07-BODIES-NEXT-VERIFIER-STANDING.md` |
+| Honesty retip (V8 companion) | 2026-11-22 — `cursor/v2711-brce-v8-retip-bc54` @ `7a7581393` from crown tip `893070836` (`bc-4de06fe4`); bodies remain **BLOCKED**; contract **ALIVE** retained (**7** @ `e7569893a`); **V8** **BLOCKED**; live WebAuthn **UNSUPPORTED**; cite §4 verbatim; **no** body/V8 `ALIVE`; docs-only; no cargo; sidebranch only at pin time |
+| Tip-wins absorb (V8 retip companion) | 2026-11-22 — `cursor/v2711-brce-v8-retip-absorb-08f2` tip-wins absorb of `7a7581393` onto crown tip `2bee92cd6` (⊇ HITL action-card + perimeter path); bodies **BLOCKED** held; contract **ALIVE** retained; **V8** **BLOCKED**; WebAuthn **UNSUPPORTED**; **no** invented body/V8 `ALIVE`; docs-only; no cargo; no ManagePullRequest; push `HEAD:cursor/ecosystem-spec-27-1-1-bc54` (no force) |
+
+---
+
+## 7. Honesty retip (2026-11-22) — companion of `cursor/v2711-brce-v8-retip-bc54`
+
+| Field | Value |
+|-------|-------|
+| Base (retip) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `893070836ef83ab711e657cfacc98bb4dc7ea369` (`893070836`) |
+| Sidebranch | `cursor/v2711-brce-v8-retip-bc54` @ `7a7581393` |
+| Absorb branch | `cursor/v2711-brce-v8-retip-absorb-08f2` onto crown tip `2bee92cd6` (`bc-172dc079`) |
+| Agent (retip) | `bc-4de06fe4` |
+| UTC | `2026-11-22T17:09:58Z` (retip); absorb `2026-11-22T17:15:00Z` |
+
+### Standing (this retip / tip-wins absorb) — no false `ALIVE`
+
+| Claim | Standing |
+|-------|----------|
+| R-01…R-07 *bodies* | **BLOCKED** (all seven) — sovereign risk-register unmounted |
+| R-01…R-07 *contract* | tip-cargo **ALIVE** retained (**7** @ `e7569893a`) |
+| BRCE **V8** broker | **BLOCKED** (orthogonal; broker unmounted) |
+| Live WebAuthn | **UNSUPPORTED** |
+
+**Exact next (bodies — §4 held):** Founder HITL admits sovereign risk-register → per-ID typed receipt or `REFUSED_*` before **2027-01-01**. Contract replay alone does **not** close:
+
+```bash
+CARGO_BUILD_JOBS=1 cargo test -p ggen-graph --test r01_r07_resolution_court \
+  --locked --config build.jobs=1 -- --test-threads=1
+```

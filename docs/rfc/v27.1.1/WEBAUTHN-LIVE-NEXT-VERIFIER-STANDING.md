@@ -117,6 +117,8 @@ Plane-5 probe detail: [`OUT-OF-REPO-NEXT-VERIFIERS.md`](./OUT-OF-REPO-NEXT-VERIF
 | Absorb guidance | Tip-wins later onto crown when safe; cite §3 verbatim; standing **UNSUPPORTED** until ceremony exit **0** — do **not** invent live-crypto / V8 / Plane-5 `ALIVE` |
 | Re-pin retip2 | 2026-11-22 — `cursor/v2711-webauthn-retip2-bc54` from `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `bebea5dd0` (⊇ HITL retip2 BLOCKED_HITL); `bc-83ab488f`; docs-only honesty re-pin; live WebAuthn **UNSUPPORTED** held; **V8** **BLOCKED**; exact next §3 Founder HITL ceremony; **no** invented live-crypto / V8 / Plane-5 `ALIVE`; sidebranch push only; no ManagePullRequest; **no** crown push |
 | Tip-wins absorb (retip2) | 2026-11-22 — `cursor/v2711-bodies-tip-absorb-1d17` absorbs `7ac7fee56` onto crown tip `59861d48a` (⊇ bodies-next BLOCKED + OOR retip15 + curve + zcode refusal); standing remains **UNSUPPORTED**; **V8** **BLOCKED**; **no** invented live-crypto / V8 / Plane-5 `ALIVE`; docs-only; no cargo; no ManagePullRequest; push `HEAD:cursor/ecosystem-spec-27-1-1-bc54` (no force) |
+| Honesty retip (V8 companion) | 2026-11-22 — `cursor/v2711-brce-v8-retip-bc54` @ `7a7581393` from crown tip `893070836` (`bc-4de06fe4`); live WebAuthn remains **UNSUPPORTED**; **V8** **BLOCKED**; bodies **BLOCKED**; contract **ALIVE** retained; cite §3 verbatim; **no** false live-crypto / V8 `ALIVE`; sidebranch only at pin time |
+| Tip-wins absorb (V8 retip companion) | 2026-11-22 — `cursor/v2711-brce-v8-retip-absorb-08f2` tip-wins absorb of `7a7581393` onto crown tip `2bee92cd6` (⊇ HITL action-card + perimeter path); standing remains **UNSUPPORTED**; **V8** **BLOCKED**; bodies **BLOCKED**; contract **ALIVE** retained; **no** invented live-crypto / V8 `ALIVE`; docs-only; no cargo; no ManagePullRequest; push `HEAD:cursor/ecosystem-spec-27-1-1-bc54` (no force) |
 
 ---
 
@@ -152,3 +154,26 @@ Plane-5 probe detail: [`OUT-OF-REPO-NEXT-VERIFIERS.md`](./OUT-OF-REPO-NEXT-VERIF
 **Exact next verifier one-liner (Founder HITL):** admit RP-ID + enroll hardware → live assertion court (`clientDataJSON` + `authenticatorData` + ES256/`prime256v1`) — known-good → exit **0**; tampered / missing RP-ID / alg≠ES256 → `REFUSED_*` (full falsifier: §3).
 
 **Antifalsifiers held:** V7 fixture / V1 seat fence / SovereignLease Ed25519 / CCS #2/#3 tip-cargo ≠ live WebAuthn `ALIVE`. Tip-wins absorb onto crown via `cursor/v2711-bodies-tip-absorb-1d17` — standing **not** promoted (**UNSUPPORTED**; **V8** **BLOCKED**).
+
+---
+
+## 7. Honesty retip (2026-11-22) — companion of `cursor/v2711-brce-v8-retip-bc54`
+
+| Field | Value |
+|-------|-------|
+| Base (retip) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `893070836ef83ab711e657cfacc98bb4dc7ea369` (`893070836`) |
+| Sidebranch | `cursor/v2711-brce-v8-retip-bc54` @ `7a7581393` |
+| Absorb branch | `cursor/v2711-brce-v8-retip-absorb-08f2` onto crown tip `2bee92cd6` (`bc-172dc079`) |
+| Agent (retip) | `bc-4de06fe4` |
+| UTC | `2026-11-22T17:09:58Z` (retip); absorb `2026-11-22T17:15:00Z` |
+
+### Standing (this retip / tip-wins absorb) — no false `ALIVE`
+
+| Claim | Standing |
+|-------|----------|
+| Live WebAuthn / FIDO2 RP + hardware ceremony (G2-4) | **UNSUPPORTED** |
+| BRCE **V8** broker (G2-3) | **BLOCKED** until broker admit |
+| R-01…R-07 *bodies* | **BLOCKED** |
+| R-01…R-07 *contract* | tip-cargo **ALIVE** retained (**7** @ `e7569893a`) |
+
+**Exact next (unchanged §3):** Founder HITL admit RP-ID → enroll hardware → live assertion court (`clientDataJSON` + `authenticatorData` + ES256/`prime256v1`) — known-good → exit **0**; tampered / missing RP-ID / alg≠ES256 → `REFUSED_*`. Then **V8** broker court ([`BRCE-V8-NEXT-VERIFIER-STANDING.md`](./BRCE-V8-NEXT-VERIFIER-STANDING.md) §3 / §6). Tip-wins absorb via `cursor/v2711-brce-v8-retip-absorb-08f2` — standing **not** promoted.
