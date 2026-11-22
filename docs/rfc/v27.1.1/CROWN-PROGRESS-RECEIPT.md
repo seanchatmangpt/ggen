@@ -65,7 +65,7 @@ Antifalsifier: adapter exit 0 ≠ path crown `ALIVE`; runtime materialization al
 
 ## Clause 2 — CCS / BRCE + WebAuthn AS-01 (§13.2)
 
-Detail binder: [`CCS-BRCE-STANDING.md`](./CCS-BRCE-STANDING.md) (honesty retip `16d3c2f08` @ `a3b1c9410`; absorbed onto tip).
+Detail binder: [`CCS-BRCE-STANDING.md`](./CCS-BRCE-STANDING.md) (honesty retip `16d3c2f08`; CASTLE retip2 `371971c3a`; absorbed onto tip `a88889ca6`).
 
 | Claim | Standing |
 |-------|----------|

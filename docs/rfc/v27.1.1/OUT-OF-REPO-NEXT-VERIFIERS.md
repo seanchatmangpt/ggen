@@ -103,7 +103,7 @@ GA horizon for all courts: **2027-01-01**.
 
 ---
 
-## BLOCKED / PENDING — exact next verifiers (OOR absorb @ tip `c832cabdc`; retip7 evidence `a3b1c9410`)
+## BLOCKED / PENDING — exact next verifiers (OOR absorb @ tip `a88889ca6`; retip7 evidence `a3b1c9410`)
 
 | Subject | Standing | Exact next verifier |
 |---------|----------|---------------------|
