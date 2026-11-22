@@ -4,10 +4,10 @@
 |-------|-------|
 | Document ID | `CROWN-PROGRESS-RECEIPT-27.1.1` |
 | Status | **PROGRESS RECEIPT** (honest; **not** goal-complete; **not** crown `ALIVE`) |
-| Observed tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `e7569893aba3bea6d3273bcf463b651bd94601d3` |
-| Tip subject | `cursor/v2711-gate1-brce-r01-alive-bc54` — BRCE seat + R01 exact tip-cargo **ALIVE** @ `e7569893a`; prior Truex+shui honesty / r01 lineage @ `cd7c2433b` |
-| Ledger pins cited | Gate-1 pins; Truex **ALIVE** @ `68d2d233`; `shui:` **ALIVE (lineage tip-cargo)** @ `008a81d21`; CCS #3 **ALIVE** @ `861a6e73a`; CCS #2 `write_apply` **ALIVE** **7+1+1** @ `cde02d1f2`; `verify_witness` **ALIVE** @ `c91b22561`; `lifecycle.rs` **ALIVE**; `ui_layout` **ALIVE** @ `59c090984`; brand rhythm/completeness **ALIVE (lineage tip-cargo)** @ `c91b22561`; `r01_r07` contract **ALIVE** (exact tip-cargo **7** @ `e7569893a`); BRCE AS-01 seat fence **ALIVE** (exact tip-cargo **6** @ `e7569893a`); **V8**/**V9** OOR **BLOCKED** unchanged |
-| Cargo this receipt | tip-cargo **yes** — `brce_as01_seat_court` **6** + `r01_r07_resolution_court` **7** EXIT:0 @ `e7569893a` (`/tmp/ggen-gate1-brce-r01-target`). Production theme **UNSUPPORTED**; R-01…R-07 bodies **BLOCKED**; BRCE **V8** **BLOCKED** |
+| Observed tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `e73bf686c416b7c96b27e9f93b4b07f02e5490a3` |
+| Tip subject | honesty retip on FM-PACK-001 ALIVE absorb after OOR retip9 `fbfaa3ad9`; brand_toml exact tip-cargo **ALIVE** (unchanged) @ `77eb46fd0`; `ui_layout` lineage **ALIVE** (exact-tip cargo **STILL RUNNING** @ `a508e6bae` / `bc-70188ac3`) |
+| Ledger pins cited | Gate-1 pins; Truex **ALIVE** @ `68d2d233`; `shui:` **ALIVE (lineage tip-cargo)** @ `008a81d21`; CCS #3 **ALIVE** @ `861a6e73a`; CCS #2 `write_apply` **ALIVE** **7+1+1** @ `cde02d1f2`; `verify_witness` **ALIVE** @ `c91b22561`; `lifecycle.rs` **ALIVE**; `ui_layout` **ALIVE (lineage)** @ `59c090984` (exact-tip **STILL RUNNING** @ `a508e6bae`); brand rhythm/completeness **ALIVE (exact tip-cargo)** @ `77eb46fd0` (unchanged); **FM-PACK-001** **ALIVE (lineage tip-cargo)** absorbed; `r01_r07` contract **ALIVE** (exact tip-cargo **7** @ `e7569893a`); BRCE AS-01 seat fence **ALIVE** (exact tip-cargo **6** @ `e7569893a`); **OOR:** cos **503** / revops **NXDOMAIN** / `--live` **BLOCKED_HITL** / BRCE **V8** **BLOCKED** / R-01…R-07 bodies **BLOCKED** |
+| Cargo this receipt | **no** (docs-only honesty retip). Prior tip-cargo retained: brand exact @ `77eb46fd0`; FM-PACK lineage @ `19c08a3b0`/`a508e6bae`; BRCE+R01 @ `e7569893a`. Production theme **UNSUPPORTED**; OOR blockers unchanged |
 | Goal standing | **INCOMPLETE** — do **not** claim ECOSYSTEM-SPEC-27.1.1 crown complete |
 
 Standing vocabulary (`AGENTS.md` §2): `UNKNOWN` | `PARTIAL_ALIVE` | `ALIVE` |
@@ -31,13 +31,13 @@ FinOps: FOUNDRY/OOR **ALIVE** @ `91997da76f0f` vs older §13.3 FinOps
 Compact return line:
 
 ```text
-tip=e7569893aba3bea6d3273bcf463b651bd94601d3
+tip=e73bf686c416b7c96b27e9f93b4b07f02e5490a3
 clause1=PARTIAL (igniter clean-room ALIVE @f1492ed55/bc-53b0e099; hop1 Truex ALIVE @68d2d233 + shui lineage ALIVE @008a81d21; path crown still non-ALIVE; foundry --live BLOCKED_HITL)
 clause2=PARTIAL_ALIVE (CCS#3 construct ALIVE @861a6e73a; CCS#2 write_apply tip-cargo ALIVE 7+1+1 @cde02d1f2; lifecycle ALIVE @513704d04/acd9705c1; BRCE seat fence ALIVE @e7569893a; V8/V9 BLOCKED)
 clause3=PARTIAL+BLOCKED (cos/readyz 503; revops NXDOMAIN)
 clause4=PARTIAL
-gate1=PARTIAL (Truex ALIVE @68d2d233; shui ALIVE lineage @008a81d21; ui_layout ALIVE @59c090984; taffy/fluid/hotswap ALIVE @cde02d1f2/19c08a3b0; construct+lifecycle ALIVE; write_apply ALIVE @cde02d1f2; verify_witness ALIVE @c91b22561; brand rhythm/completeness lineage @c91b22561; r01_r07 ALIVE exact tip @e7569893a; BRCE seat ALIVE exact tip @e7569893a; brand production UNSUPPORTED; BRCE V8 BLOCKED)
-blockers=foundry--live; brand-rhythm-completeness-tip-EXIT0; cos/readyz-503; WebAuthn/BRCE-V8/V9; revops-NXDOMAIN; R01-R07-bodies; verify_witness-prod; production-theme
+gate1=PARTIAL (Truex ALIVE @68d2d233; shui ALIVE lineage @008a81d21; ui_layout ALIVE lineage @59c090984 exact-tip STILL RUNNING @a508e6bae/bc-70188ac3; FM-PACK-001 ALIVE lineage absorbed; taffy/fluid/hotswap ALIVE @cde02d1f2/19c08a3b0; construct+lifecycle ALIVE; write_apply ALIVE @cde02d1f2; verify_witness ALIVE @c91b22561; brand_toml exact tip-cargo ALIVE @77eb46fd0 unchanged; r01_r07 ALIVE exact tip @e7569893a; BRCE seat ALIVE exact tip @e7569893a; brand production UNSUPPORTED; BRCE V8 BLOCKED)
+blockers=foundry--live; cos/readyz-503; WebAuthn/BRCE-V8/V9; revops-NXDOMAIN; R01-R07-bodies; verify_witness-prod; production-theme; ui_layout-exact-tip-STILL-RUNNING
 ```
 
 ---
@@ -48,16 +48,16 @@ blockers=foundry--live; brand-rhythm-completeness-tip-EXIT0; cos/readyz-503; Web
 |-------|----------|
 | **Path crown** | **PARTIAL** / **non-ALIVE** |
 | Hop 1 perimeter (`shui:` fence + Truex admit) | Fence **ALIVE (lineage tip-cargo)** — **4 passed; exit 0** @ `008a81d21` (sources ≡ tip `c5101d597`; **no tip EXIT:0**); Truex admit-court **ALIVE** @ `truex@68d2d233` (merged `b4672131`; not re-run) |
-| Hop 2 `.ttl`/`.toml` rhythm + dual-schema | **COMPILING** / **PARTIAL_ALIVE** (rhythm/completeness no tip EXIT:0; full DTCG/CASTLE inventory **UNSUPPORTED**) |
+| Hop 2 `.ttl`/`.toml` rhythm + dual-schema | brand rhythm/completeness **ALIVE (exact tip-cargo)** @ `77eb46fd0` (unchanged); full DTCG/CASTLE inventory **UNSUPPORTED** |
 | Hop 3 Taffy AOT six-width seal | In-repo fence tip-cargo **ALIVE** (**7 passed; exit 0** @ crown `19c08a3b0` absorb @ `cde02d1f2`); consumer bind open → path **PARTIAL_ALIVE** |
-| Hop 3b ggen `ui_layout` digest consume | **ALIVE** (lineage tip-cargo) **11 passed; exit 0** @ evidence `59c090984` (sources ≡ tip `6e78d4347`; `bc-921ca9e3`; closed ENOSPC); lineage `ca52e9c16` / `eaf0dad40`; tip source **11** |
+| Hop 3b ggen `ui_layout` digest consume | **ALIVE** (lineage tip-cargo) **11 passed; exit 0** @ evidence `59c090984` (sources ≡ tip `6e78d4347`; `bc-921ca9e3`; closed ENOSPC); exact-tip cargo **STILL RUNNING** @ `a508e6bae` (oxrocksdb-sys; `bc-70188ac3`); lineage `ca52e9c16` / `eaf0dad40`; tip source **11** |
 | Hop 4 ggen_igniter BrandTheme manufacture | **ALIVE** (`diff_exit=0` dual-schema tip brand vs igniter fixture); clean-room crown **ALIVE** evidence tip `f1492ed55` (`git diff --exit-code` → **0** @ `/home/ubuntu/ggen_igniter` / `bc-53b0e099`); NIF **ALIVE**; Jobs/C4 admitted `--check` **ALIVE** (exit **0**; bare `--check` **REFUSED_INVOCATION** antifalsifier) |
 | Hop 5 zcode POWL/OCEL / foundry | **PARTIAL_ALIVE** — in-repo bounded-refusal tip-cargo **ALIVE** (sjira **6**/bound **4** @ `cd7c2433b`); adapter exit **0**; Linux tip-matched runtime **PRESENT**; `--dry-run` exit **2** / **PARTIAL**; `--live` **BLOCKED_HITL** / **foundry_exit=1** / **REFUSED** (`Model access is not configured` @ zcode `f32df08`) |
 
 **Exact next verifiers**
 
 1. provider `/login` or `~/.zcode/v2/provider_config.json` → `bun scripts/powl-foundry-loop.ts --live` → **0** ([`HOP5-ZCODE-RUNTIME-STANDING.md`](./HOP5-ZCODE-RUNTIME-STANDING.md); keys [`HOP5-MODEL-ACCESS-STANDING.md`](./HOP5-MODEL-ACCESS-STANDING.md)).
-2. Remaining fence tip-cargo: quiet `CARGO_BUILD_JOBS=1` for official `brand_toml_rhythm` / `brand_toml_completeness` / BRCE seat / R-01 (taffy+fluid+hotswap+ui_layout+shui already **ALIVE**; rhythm/completeness currently **COMPILING**/**PARTIAL_ALIVE**).
+2. Await exact-tip `ui_layout` exit from `bc-70188ac3` @ `a508e6bae` (oxrocksdb-sys); brand_toml exact tip-cargo already **ALIVE** @ `77eb46fd0`; BRCE seat + R-01 already **ALIVE** @ `e7569893a`.
 3. Jobs/C4 residual **closed** — replay admitted `--pack-dir sample-pack … --check` → **0** ([`HOP4-MIX-NIF-STANDING.md`](./HOP4-MIX-NIF-STANDING.md)).
 
 Antifalsifier: adapter exit 0 ≠ path crown `ALIVE`; runtime materialization alone ≠ hop-5 `ALIVE`; bare post-clone `git diff` ≠ hop-4 `ALIVE`; NIF `.so` / bare exit-2 ≠ Jobs/C4 `ALIVE`.
@@ -119,7 +119,7 @@ Founder HITL still required for: **cos DB**, **WebAuthn live (V8/V9)**, **remain
 **Exact next verifiers (Foundry §1a)**
 
 1. `bun scripts/powl-foundry-loop.ts --live` → **0** (provider `/login` or `~/.zcode/v2/provider_config.json`; ui_layout already **ALIVE**).
-2. Remaining fence tip-cargo: quiet `CARGO_BUILD_JOBS=1` for official `brand_toml_completeness` / BRCE seat / R-01 (taffy+fluid+hotswap already **ALIVE**).
+2. Await exact-tip `ui_layout` from `bc-70188ac3` @ `a508e6bae` (brand_toml exact + BRCE seat + R-01 already **ALIVE**).
 3. `curl … https://cos.fnox.io/readyz` → **200**.
 4. BRCE **V8** then **V9**.
 
@@ -134,20 +134,20 @@ Do **not** invent zero daily founder HITL `ALIVE` from Gate-1 fence green, CASTL
 | `shui:` public-prefix fence | **ALIVE (lineage tip-cargo)** (**4 passed; exit 0** @ crown `008a81d21`; sources ≡ tip `c5101d597`; **no tip EXIT:0**) | `CARGO_BUILD_JOBS=1 CARGO_TARGET_DIR=/tmp/ggen-shui-prefix-target2 cargo test -p ggen-graph --test shui_public_prefix_court --locked` |
 | Truex admits `shui:` | **ALIVE** @ `68d2d233` (merged `b4672131`; not re-run) | `pnpm exec vitest run test/admit/admit-court.test.ts` → **0** |
 | Taffy AOT pre-flight | **ALIVE** tip-cargo (**7 passed; exit 0** @ crown `19c08a3b0`) | `CARGO_BUILD_JOBS=1 CARGO_TARGET_DIR=/tmp/gate1-taffy cargo test -p ggen-graph --test taffy_aot_preflight_court --locked` |
-| ggen `ui_layout_court` | **ALIVE** (lineage tip-cargo) (**11 passed; exit 0** @ `59c090984` ≡ tip `6e78d4347`; `bc-921ca9e3`) | Replay: `CXX=g++ SCCACHE_DISABLE=1 RUSTC_WRAPPER= CARGO_BUILD_JOBS=1 cargo test -p ggen-graph --test ui_layout_court --locked --target-dir /tmp/ggen-uilayout-retry-9d4a --config build.jobs=1 -- --test-threads=1` |
-| FM-PACK-001 `packs/gh-terraform-pack` | **ALIVE** (lineage tip-cargo `composed_packs_e2e` **2 passed; exit 0** @ evidence `19c08a3b0` / court tip `a508e6bae`; sources ≡ absorb tip) | Replay: `CARGO_BUILD_JOBS=1 cargo test -p ggen-engine --test composed_packs_e2e --target-dir /tmp/ggen-fm-pack-001-alive-target --config build.jobs=1 -- --nocapture` → **0**; ledger [`FM-PACK-001-ALIVE-STANDING.md`](./FM-PACK-001-ALIVE-STANDING.md) |
+| ggen `ui_layout_court` | **ALIVE** (lineage tip-cargo) (**11 passed; exit 0** @ `59c090984` ≡ tip `6e78d4347`; `bc-921ca9e3`); exact-tip cargo **STILL RUNNING** @ `a508e6bae` (oxrocksdb-sys; `bc-70188ac3`) | Replay: `CXX=g++ SCCACHE_DISABLE=1 RUSTC_WRAPPER= CARGO_BUILD_JOBS=1 cargo test -p ggen-graph --test ui_layout_court --locked --target-dir /tmp/ggen-uilayout-retry-9d4a --config build.jobs=1 -- --test-threads=1` |
+| FM-PACK-001 `packs/gh-terraform-pack` | **ALIVE** (lineage tip-cargo absorbed @ crown `e73bf686c`; `composed_packs_e2e` **2 passed; exit 0** @ evidence `19c08a3b0` / court tip `a508e6bae`; sources ≡ absorb tip) | Replay: `CARGO_BUILD_JOBS=1 cargo test -p ggen-engine --test composed_packs_e2e --target-dir /tmp/ggen-fm-pack-001-alive-target --config build.jobs=1 -- --nocapture` → **0**; ledger [`FM-PACK-001-ALIVE-STANDING.md`](./FM-PACK-001-ALIVE-STANDING.md) |
 | zcode POWL in-repo stub | **ALIVE** (bounded refusal tip-cargo **6+4**; exit 0 @ `cd7c2433b`) | Replay: `cargo test -p ggen-sjira --test zcode_powl_ocel_court`; `cargo test -p ggen-graph remediation_bound --lib`; live next: G2-9 foundry `--live` (**BLOCKED_HITL**) |
 | `curve25519-dalek` pin | **PARTIAL_ALIVE** (lock+doc; policy court open) | pin standing §5 policy court |
 | `verify_witness` size | **ALIVE** (tip-cargo **6** @ `c91b22561`); production WASM **UNSUPPORTED** | size court; prod: [`VERIFY-WITNESS-PRODUCTION.md`](./VERIFY-WITNESS-PRODUCTION.md) |
 | R-01…R-07 contract | **ALIVE** (exact tip-cargo **7** @ `e7569893a`); bodies **BLOCKED** | Replay: `cargo test -p ggen-graph --test r01_r07_resolution_court` → EXIT **0** |
-| Brand rhythm / hot-swap | fluid+hot-swap tip-cargo **ALIVE** (**6+6** @ `cde02d1f2`/`19c08a3b0`); rhythm+completeness **ALIVE (lineage tip-cargo)** (**5+12** @ `c91b22561`); production **UNSUPPORTED** (`REFUSED_PRODUCTION`) | exact-tip brand reconfirm; [`BRAND-PRODUCTION-THEME.md`](./BRAND-PRODUCTION-THEME.md) / [`BRAND-TOML-TIP-CARGO-STANDING.md`](./BRAND-TOML-TIP-CARGO-STANDING.md) |
+| Brand rhythm / hot-swap | fluid+hot-swap tip-cargo **ALIVE** (**6+6** @ `cde02d1f2`/`19c08a3b0`); rhythm+completeness **ALIVE (exact tip-cargo)** (**5+12** @ `77eb46fd0`, unchanged); production **UNSUPPORTED** (`REFUSED_PRODUCTION`) | Replay brand exact tip; [`BRAND-PRODUCTION-THEME.md`](./BRAND-PRODUCTION-THEME.md) / [`BRAND-TOML-TIP-CARGO-STANDING.md`](./BRAND-TOML-TIP-CARGO-STANDING.md) |
 | BRCE AS-01 seat fence | **ALIVE** (exact tip-cargo **6** @ `e7569893a`); **V8** **BLOCKED** | Replay: `cargo test -p ggen-abb-sbb --test brce_as01_seat_court`; next **V8** |
 | ggen_igniter manufacture | **ALIVE** (BrandTheme compare); clean-room crown **ALIVE** (`bc-53b0e099`); NIF **ALIVE**; Jobs/C4 admitted `--check` **ALIVE** | clean-room replay `git diff --exit-code` → **0**; manufacture replay → **0**; Jobs/C4 replay pack/template `--check` → **0** |
 | Gate-0 cos | **BLOCKED** (external) | cos `/readyz` → **200** |
 
-**Gate-1 aggregate:** **PARTIAL** — `ui_layout` + Taffy + brand fluid/hotswap tip-cargo **ALIVE** @ `cde02d1f2`/`19c08a3b0`; `write_apply` **ALIVE** @ `cde02d1f2`; construct+lifecycle **ALIVE**; brand rhythm/completeness **ALIVE (lineage tip-cargo)** @ `c91b22561`; `r01_r07` contract **ALIVE** (exact tip-cargo **7** @ `e7569893a`); BRCE AS-01 seat fence **ALIVE** (exact tip-cargo **6** @ `e7569893a`); production theme **UNSUPPORTED**; BRCE **V8** **BLOCKED**. Zero-HITL fab / production WASM / production brand theme / live BRCE **not** `ALIVE`.
+**Gate-1 aggregate:** **PARTIAL** — `ui_layout` **ALIVE (lineage)** @ `59c090984` (exact-tip **STILL RUNNING** @ `a508e6bae`/`bc-70188ac3`); **FM-PACK-001** **ALIVE (lineage tip-cargo)** absorbed @ `e73bf686c`; Taffy + brand fluid/hotswap tip-cargo **ALIVE** @ `cde02d1f2`/`19c08a3b0`; `write_apply` **ALIVE** @ `cde02d1f2`; construct+lifecycle **ALIVE**; brand rhythm/completeness **ALIVE (exact tip-cargo)** @ `77eb46fd0` (unchanged); `r01_r07` contract **ALIVE** (exact tip-cargo **7** @ `e7569893a`); BRCE AS-01 seat fence **ALIVE** (exact tip-cargo **6** @ `e7569893a`); production theme **UNSUPPORTED**; BRCE **V8** **BLOCKED**. Zero-HITL fab / production WASM / production brand theme / live BRCE **not** `ALIVE`.
 
-Recommended next Gate-1 falsifier (pick one): exact-tip brand rhythm/completeness reconfirm when exclusive; **or** hop-5 foundry `--live` → **0** (provider keys).
+Recommended next Gate-1 falsifier (pick one): land exact-tip `ui_layout` when `bc-70188ac3` exits; **or** hop-5 foundry `--live` → **0** (provider keys).
 
 ---
 
@@ -156,7 +156,7 @@ Recommended next Gate-1 falsifier (pick one): exact-tip brand rhythm/completenes
 | # | Blocker | Standing | Exact next |
 |---|---------|----------|------------|
 | 1 | foundry `--live` / ZCode runtime | **BLOCKED**/**REFUSED** | provider creds → `bun scripts/powl-foundry-loop.ts --live` → **0** ([`HOP5-ZCODE-RUNTIME-STANDING.md`](./HOP5-ZCODE-RUNTIME-STANDING.md); [`HOP5-MODEL-ACCESS-STANDING.md`](./HOP5-MODEL-ACCESS-STANDING.md)) |
-| 2 | remaining Gate-1 fence tip-cargo (exact-tip brand rhythm/completeness) | **PARTIAL** (BRCE seat + R01 exact tip-cargo **ALIVE** @ `e7569893a`; taffy+fluid+hotswap+shui+ui_layout **ALIVE**) | exact-tip brand rhythm/completeness reconfirm → **0** |
+| 2 | remaining Gate-1 fence tip-cargo (exact-tip `ui_layout`) | **PARTIAL** (brand_toml exact tip-cargo **ALIVE** @ `77eb46fd0`; BRCE seat + R01 exact tip-cargo **ALIVE** @ `e7569893a`; taffy+fluid+hotswap+shui+ui_layout-lineage **ALIVE**; exact-tip `ui_layout` **STILL RUNNING** @ `a508e6bae`/`bc-70188ac3`) | await `bc-70188ac3` EXIT:0 |
 | 3 | cos `/readyz` DB | **BLOCKED** (**503**) | curl → HTTP **200** |
 | 4 | Live WebAuthn / BRCE broker / Plane-5 DO | **UNSUPPORTED** / **BLOCKED** | BRCE **V8** → **V9** / OOR **G2-3…G2-5** |
 | 5 | revops.fnox.io DNS | **UNKNOWN**/**BLOCKED** (**NXDOMAIN**) | `getent hosts` ∧ `/readyz` **200** |
@@ -174,7 +174,7 @@ Recommended next Gate-1 falsifier (pick one): exact-tip brand rhythm/completenes
 - CCS/BRCE Plane-5 DO is **not** `ALIVE`.
 - Ops / Gate-0 / revops/cos are **not** `ALIVE` from ggen.
 - Foundry zero-HITL is **not** `ALIVE`.
-- `ui_layout` **ALIVE** (lineage tip-cargo) @ `59c090984`; taffy/fluid/hotswap tip-cargo **ALIVE** @ `cde02d1f2`/`19c08a3b0`; `write_apply` **ALIVE** **7+1+1** @ `cde02d1f2`; construct+lifecycle **ALIVE**. Brand rhythm/completeness **ALIVE (lineage tip-cargo)** @ `c91b22561`; `r01_r07` contract **ALIVE (lineage tip-cargo)** @ `cd7c2433b`. Production theme **UNSUPPORTED**. BRCE **V8** **BLOCKED**.
+- `ui_layout` **ALIVE** (lineage tip-cargo) @ `59c090984` (exact-tip cargo **STILL RUNNING** @ `a508e6bae`/`bc-70188ac3`); **FM-PACK-001** **ALIVE (lineage tip-cargo)** absorbed @ `e73bf686c`; taffy/fluid/hotswap tip-cargo **ALIVE** @ `cde02d1f2`/`19c08a3b0`; `write_apply` **ALIVE** **7+1+1** @ `cde02d1f2`; construct+lifecycle **ALIVE**. Brand rhythm/completeness **ALIVE (exact tip-cargo)** @ `77eb46fd0` (unchanged); `r01_r07` contract **ALIVE** exact tip @ `e7569893a`. Production theme **UNSUPPORTED**. BRCE **V8** **BLOCKED**. OOR: cos **503** / revops **NXDOMAIN** / `--live` **BLOCKED_HITL**.
 - Presence of this file is documentation standing only — never crown `ALIVE`.
 
 ---
@@ -193,5 +193,6 @@ Recommended next Gate-1 falsifier (pick one): exact-tip brand rhythm/completenes
 | Gate-1 honesty retip | 2026-11-22 — `cursor/v2711-gate1-honesty-retip-5536` tip-wins onto `fdcad534d`: pin `write_apply` **ALIVE** **7+1+1** @ `cde02d1f2`; taffy/fluid/hotswap **ALIVE** @ `cde02d1f2`; demote brand rhythm/completeness → **COMPILING**/**PARTIAL_ALIVE**; `r01_r07` → **PARTIAL**/**COMPILING**; construct+lifecycle **ALIVE**; BRCE **V8** **BLOCKED**; OOR cos **503** / revops **NXDOMAIN** / `--live` **BLOCKED_HITL**; docs-only; no cargo; no ManagePullRequest |
 | r01 + brand lineage tip-cargo absorb | 2026-11-22 — `cursor/v2711-r01-lineage-alive-2a69`: r01 **7** EXIT:0 @ `cd7c2433b` → **ALIVE (lineage tip-cargo)**; brand **5+12** @ `c91b22561` reaffirmed (honesty COMPILING demotion corrected to lineage ALIVE); bodies **BLOCKED**; exact-tip reconfirm SCHEDULED; dual thrash PID 1065550 killed; no ManagePullRequest |
 | Truex+shui honesty retip | 2026-11-22 — `cursor/v2711-truex-shui-honesty-9045` tip-wins onto `c5101d597` (retains r01 lineage ALIVE @ `cd7c2433b`): Truex admit-court **ALIVE** @ `68d2d233`/`b4672131`; ggen `shui:` fence → **ALIVE (lineage tip-cargo)** @ `008a81d21` (sources ≡ tip; **no tip EXIT:0**); Hop 1 tip-cargo PENDING cleared; docs-only; no cargo; no ManagePullRequest |
+| Gate-1 honesty retip (FM-PACK absorb tip) | 2026-11-22 — `cursor/v2711-gate1-honesty-retip-dd93` tip-wins onto `e73bf686c`: pin tip to FM-PACK-001 ALIVE absorb after OOR retip9 `fbfaa3ad9`; brand_toml exact tip-cargo **ALIVE** unchanged @ `77eb46fd0`; `ui_layout` lineage **ALIVE** + exact-tip cargo **STILL RUNNING** @ `a508e6bae`/`bc-70188ac3`; OOR cos **503** / revops **NXDOMAIN** / `--live` **BLOCKED_HITL** / BRCE **V8** **BLOCKED** / R-01…R-07 bodies **BLOCKED**; docs-only; no cargo; no ManagePullRequest |
 | Sources | GATE-1-GAP-MATRIX, PHOTOLITHOGRAPHY, FOUNDRY-FINISH, OUT-OF-REPO-NEXT-VERIFIERS, SMALT-RAID, CCS-AUTHORITY, BRCE-WEBAUTHN, ECOSYSTEM-SPEC §13 |
 | Method | Absorb tip-cargo ALIVE standing; no new cargo; no ManagePullRequest |
