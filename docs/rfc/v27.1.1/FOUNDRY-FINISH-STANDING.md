@@ -32,9 +32,9 @@ Do not promote source presence, fleet-census rows, workflow definitions, or hist
 | **ggen** | Manufacture kernel (`μ`): packs, graphs, layout pre-flight, brand rhythm, public-prefix fences | **PARTIAL_ALIVE** — live workspace; Gate-1 `shui:` / Taffy / brand.toml fences land on #849 as PARTIAL; full zero-HITL fab not sealed | Daily merge/admission judgment across swarm PRs; R-01…R-07 still open; founder still gates “promote Gate-1 → GA” | In-repo: `cargo test -p ggen-graph --test taffy_aot_preflight_court`; `cargo test -p ggen-graph --test brand_toml_rhythm_court`; `cargo test -p ggen-graph --test shui_public_prefix_court` (on #849 tip); replay `just check` | If on **2027-01-01** a founder must still manually admit ordinary spine manufacture (SELECT/CONSTRUCT) that courts already cover, crown claim is **falsified** |
 | **Taffy** | AOT layout pre-flight (widths `320/375/393/600/840/1280` + WCAG 1.4.12 @ 1.5×) inside `ggen-graph::layout::taffy_aot` | **PARTIAL_ALIVE** — six-width seal court green on #849 (`preflight_column_six_widths`); photolithography not ALIVE until a consumer court binds the receipt | Founder still wires / retries zcode or igniter consume when receipt law drifts; no hands-free photolithography loop | `cargo test -p ggen-graph --test taffy_aot_preflight_court` | If on **2027-01-01** geometry law still requires founder-edited exceptions instead of typed `LayoutRefusal` / seal receipts, Taffy row is **falsified** |
 | **zcode-cli** | `ui-layout-court.ts` consumes ggen `AotSealReceipt`; fails closed on missing/stale digests | **UNSUPPORTED** in this repo (not a workspace member; no `ui-layout-court.ts` on disk) | Founder must author/land adapter in sibling repo and re-run courts; ggen cannot self-prove consume | In **zcode-cli**: `pnpm test -- ui-layout-court` (or that repo’s exact court runner) against a ggen layout-receipt fixture | If on **2027-01-01** UI courts still need founder to paste/override layout digests, zcode row is **falsified** |
-| **CASTLE** | Brand / token inventory publish plane (Gate 2–3); full DTCG color/type inventories beyond Gate-1 rhythm stubs | **UNKNOWN** — no CASTLE publish/court surface in ggen; OEM rhythm stubs only (`docs/rfc/v27.1.1/fixtures/*.brand.toml` on #849) | Founder still invents or hand-publishes token inventories without admitted CASTLE sources (explicitly **REFUSED** in ECOSYSTEM-SPEC non-goals) | CASTLE-plane publish court + brand inventory replay (out of ggen DO); until mounted, standing stays UNKNOWN | If on **2027-01-01** CASTLE publish still depends on daily founder token edits with no receipt, CASTLE row is **falsified** |
-| **Smalt** | Sibling control / RAID / posh membrane plane (Elixir+Go surfaces historically cited in v26.11.4 closure docs) | **UNKNOWN** in this checkout — sibling `/Users/sac/smalt` not mounted; fleet census does not list a live Smalt product row as ALIVE | Founder still runs Smalt gate / KD / appconfig waves by hand (historical HITL); no ggen-admitted hands-free RAID receipt | Out-of-repo: Smalt gate suite / posh KD register courts in the Smalt repo (track tip SHA + exit 0); do not claim ALIVE from ggen jira citations alone | If on **2027-01-01** Smalt RAID still requires daily founder HITL to keep the membrane green, Smalt row is **falsified** |
-| **revops** | Plane-5 front door (`revops.fnox.io` and related hosting) — sole DO via **BRCE + WebAuthn AS-01** | **UNKNOWN** / **OUT OF SCOPE** for ggen DO — fleet census names `seanchatmangpt/revops` / `chatmangpt-org/revops` only | Founder still actuates Plane-5 without AS-01; BRCE doctrine is PARTIAL as text, runtime AS-01 **UNKNOWN** in ggen | Out-of-repo: revops / fnox Plane-5 court that proves BRCE+AS-01 admits DO and refuses ambient founder actuation; never promote from ggen alone | If on **2027-01-01** Plane-5 still depends on daily founder HITL for ordinary DO, revops row (and crown claim) is **falsified** |
+| **CASTLE** | Consequence / publish plane (`CONSEQUENTIAL_ADMISSIBILITY`); Gate 2–3 public mint + brand inventory beyond Gate-1 rhythm stubs | **UNKNOWN** in ggen (no publish/court surface); sibling ledger [`CASTLE-SPINE-STANDING.md`](./CASTLE-SPINE-STANDING.md) tracks castle tip without promoting ALIVE | Founder still invents or hand-publishes token inventories without admitted CASTLE sources (explicitly **REFUSED** in ECOSYSTEM-SPEC non-goals) | CASTLE-plane `castle publish` / RedactionCourt replay (out of ggen DO); see CASTLE-SPINE-STANDING next verifier | If on **2027-01-01** CASTLE publish still depends on daily founder token edits with no receipt, CASTLE row is **falsified** |
+| **Smalt** | 4-cloud RAID / economic-ops substrate (Azure·AWS·GCP·Twilio/fnox) | **UNKNOWN** + **BLOCKED** from ggen (sibling not mounted); see [`SMALT-RAID-STANDING.md`](./SMALT-RAID-STANDING.md) | Founder still runs Smalt gate / KD / RAID waves by hand; no ggen-admitted hands-free RAID receipt | Out-of-repo: Smalt 4-cloud parity / economic-ops courts in `seanchatmangpt/smalt` (track tip SHA + exit 0); do not claim ALIVE from ggen jira citations alone | If on **2027-01-01** Smalt RAID still requires daily founder HITL to keep the membrane green, Smalt row is **falsified** |
+| **revops** | Plane-5 front door (`revops.fnox.io`) + cos adjacency — sole DO via **BRCE + WebAuthn AS-01** | **UNKNOWN** / **OUT OF SCOPE** for ggen DO — live probe: `revops.fnox.io` DNS fail (**UNKNOWN**); cos `/readyz` **BLOCKED** (`DB_UNAVAILABLE`) per [`REVOPS-COS-STANDING.md`](./REVOPS-COS-STANDING.md) | Founder still actuates Plane-5 without AS-01; BRCE doctrine is PARTIAL as text, runtime AS-01 **UNKNOWN** in ggen | Out-of-repo: revops / fnox Plane-5 court that proves BRCE+AS-01 admits DO and refuses ambient founder actuation; cos `/readyz` → 200 without founder DB HITL; never promote from ggen alone | If on **2027-01-01** Plane-5 still depends on daily founder HITL for ordinary DO, revops row (and crown claim) is **falsified** |
 
 ---
 
@@ -83,19 +83,24 @@ Out-of-repo next verifiers remain owned by sibling ledgers; ggen must **track** 
 
 Paths above materialize on `cursor/ecosystem-spec-27-1-1-bc54` / PR #849; this branch may land the Foundry ledger ahead of that merge. Broken relative links until merge are **expected**, not evidence of ALIVE.
 
-### 4.2 Parallel standing ledgers (swarm; track even if not yet on tip)
+### 4.2 Parallel standing ledgers (swarm — observed 2026-11-22)
 
-Prefer these paths when present under `docs/rfc/v27.1.1/`:
+Landed on sibling `cursor/v2711-*` branches (merge into #849 via integrator):
+
+| Path | Branch / PR | Spine / plane coverage |
+|------|-------------|------------------------|
+| [`PHOTOLITHOGRAPHY-STANDING.md`](./PHOTOLITHOGRAPHY-STANDING.md) | `cursor/v2711-photo-ledger-bc54` | Taffy → igniter → zcode consume path |
+| [`CASTLE-SPINE-STANDING.md`](./CASTLE-SPINE-STANDING.md) | `cursor/v2711-castle-spine-bc54` | CASTLE publish / consequential admissibility |
+| [`SMALT-RAID-STANDING.md`](./SMALT-RAID-STANDING.md) | `cursor/v2711-smalt-raid-bc54` | Smalt 4-cloud RAID / economic ops |
+| [`REVOPS-COS-STANDING.md`](./REVOPS-COS-STANDING.md) | `cursor/v2711-revops-cos-bc54` ([#851](https://github.com/seanchatmangpt/ggen/pull/851)) | revops + cos Plane-5 |
+| [`GATE-0-STANDING.md`](./GATE-0-STANDING.md) | `cursor/v2711-gate0-billing-bc54` ([#852](https://github.com/seanchatmangpt/ggen/pull/852)) | Gate 0 billing / cos / servengine / SOW |
+| [`GATE-3-RELEASE-COURTS-STANDING.md`](./GATE-3-RELEASE-COURTS-STANDING.md) | `cursor/v2711-gate3-release-courts-bc54` | Seven Gate-3 release courts (D1–D7) |
+
+Still expected when present (swarm in flight):
 
 | Expected path | Spine / plane coverage |
 |---------------|------------------------|
-| `PHOTOLITHOGRAPHY-STANDING.md` | Taffy → zcode/igniter consume |
 | `ZCODE-POWL-OCEL-STANDING.md` (or `ZCODE-STANDING.md`) | zcode-cli courts / POWL·OCEL |
-| `CASTLE-SPINE-STANDING.md` (or `CASTLE-STANDING.md`) | CASTLE publish |
-| `SMALT-RAID-STANDING.md` | Smalt RAID / membrane |
-| `REVOPS-COS-STANDING.md` | revops + cos Plane-5 |
-| `GATE-0-BILLING-SOW-STANDING.md` | Gate 0 out-of-ggen residuals |
-| `GATE-3-RELEASE-COURTS-STANDING.md` | Gate 3 release courts |
 | `BRCE-WEBAUTHN-AS01-STANDING.md` | DO authority edge |
 | `CCS-AUTHORITY-STANDING.md` | CCS authority matrix |
 | `GGEN-IGNITER-STANDING.md` | igniter clean-room consume |
