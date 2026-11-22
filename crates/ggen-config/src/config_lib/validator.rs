@@ -4,7 +4,6 @@
 
 use crate::config_lib::{ConfigError, GgenConfig, Result};
 use star_toml::Validate;
-use std::collections::HashSet;
 
 /// Configuration validator
 pub struct ConfigValidator<'a> {
@@ -299,13 +298,6 @@ fn is_valid_size_format(size: &str) -> bool {
         size.strip_suffix(suffix)
             .is_some_and(|num_str| num_str.parse::<u32>().is_ok())
     })
-}
-
-/// Validate that there are no duplicate keys in a collection
-#[allow(dead_code)]
-fn has_duplicates<T: Eq + std::hash::Hash>(items: &[T]) -> bool {
-    let mut seen = HashSet::new();
-    items.iter().any(|item| !seen.insert(item))
 }
 
 #[cfg(test)]
