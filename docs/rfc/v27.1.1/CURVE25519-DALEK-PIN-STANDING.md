@@ -196,3 +196,55 @@ CARGO_TARGET_DIR=/tmp/ggen-curve25519-retip-court \
   --config build.jobs=1 -- --test-threads=1
 # expect: 6 passed; EXIT 0
 ```
+
+---
+
+## 8. Honesty retip2 (2026-11-22) — `cursor/v2711-curve25519-retip2-bc54`
+
+| Field | Value |
+|-------|-------|
+| Tip base | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `c2cd54f562f1fe675d9ea5fabf989b89a9f8a796` (≈ `167352d0d+`; ⊇ tip-wins absorb of retip @ `810a88912`) |
+| Sidebranch | `cursor/v2711-curve25519-retip2-bc54` |
+| Agent | `bc-cf179f93-ea03-5661-841d-7d083467b897` (`https://cursor.com/agents/bc-cf179f93-ea03-5661-841d-7d083467b897`) |
+| UTC | `2026-11-22T17:46:03Z` |
+| Crown absorb | **none** (sidebranch only; no ManagePullRequest; no force-push) |
+| Foundry | **not claimed** — this retip does **not** mint Foundry `ALIVE` |
+
+### Observed (this retip)
+
+| Probe | Result |
+|-------|--------|
+| Lock census `curve25519-dalek` @ tip | **4.1.3** + **5.0.0** |
+| Lock census `ed25519-dalek` | **2.2.0** + **3.0.0** |
+| Court sources vs tip | ≡ (only this standing doc drifted since `167352d0d`) |
+| Policy court | `cargo test -p ggen-config --test curve25519_dalek_pin_court --locked` → **6 passed; 0 failed; EXIT 0** in **141s** (&lt;3min) |
+| Target dir / log | `/tmp/ggen-curve25519-retip2-court`; `/tmp/cursor/curve25519-retip2-court.log` |
+| Status file | `/tmp/cursor/curve25519-retip2-court.status` → `EXIT:0 elapsed=141s` |
+
+### Standing (this retip) — no false Foundry `ALIVE`
+
+| Claim | Standing |
+|-------|----------|
+| Lock resolves documented 4.1.3 + 5.0.0 @ tip `c2cd54f562f1fe675d9ea5fabf989b89a9f8a796` | **ALIVE** |
+| Policy court refuses undocumented major | **ALIVE** — **6 passed; EXIT 0** (&lt;3min) |
+| Gate-1 `curve25519-dalek` pin (subject) | **ALIVE** (retip2 reconfirm) |
+| Crown crypto / AS-01 / Plane-5 | **UNSUPPORTED** from this pin |
+| Foundry / zero-HITL / hop-5 | **not this subject** — refuse Foundry `ALIVE` |
+
+```text
+ALIVE(curve25519-dalek Gate-1 pin court @ tip c2cd54f562f1fe675d9ea5fabf989b89a9f8a796)
+  ⇔  Cargo.lock exact set {4.1.3, 5.0.0}
+  ∧  cargo test -p ggen-config --test curve25519_dalek_pin_court
+     → 6 passed; EXIT 0 (&lt;3min)
+  ∧  this honesty retip2 cites tip base + EXIT + sidebranch
+```
+
+**Replay:**
+
+```bash
+export CARGO_BUILD_JOBS=1 CXX=g++ SCCACHE_DISABLE=1 RUSTC_WRAPPER=
+CARGO_TARGET_DIR=/tmp/ggen-curve25519-retip2-court \
+  cargo test -p ggen-config --test curve25519_dalek_pin_court --locked \
+  --config build.jobs=1 -- --test-threads=1
+# expect: 6 passed; EXIT 0
+```
