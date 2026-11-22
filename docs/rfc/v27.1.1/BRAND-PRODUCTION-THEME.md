@@ -5,12 +5,14 @@ Companion to `ECOSYSTEM-SPEC-27.1.1` §8 and Gate-1 gap matrix row
 
 ## Standing (this tip)
 
-Tip pin: crown `19c08a3b0` (`cursor/v2711-taffy-brand-absorb-a77d`; fluid+hotswap tip-cargo
-**ALIVE**; production **UNSUPPORTED**; rhythm lineage retained @ `26256ca9d`).
+Tip pin: absorb `cursor/v2711-brand-toml-alive-2a69` — completeness+rhythm **ALIVE (lineage tip-cargo)**
+@ `c91b22561` (jobs=1 `/tmp/ggen-brand-toml-tip`); fluid+hotswap tip-cargo **ALIVE** @ `19c08a3b0`;
+production **UNSUPPORTED**. Exact-tip reconfirm SCHEDULED (exclusive jobs=1 when cargo quiet).
 
 | Surface | Standing | Evidence |
 |---------|----------|----------|
-| Rhythm schema + OEM stubs | **ALIVE** (lineage) | `brand_toml_rhythm_court` **12 passed; exit 0** @ `26256ca9d` (Official brand_toml owns cold reconfirm) |
+| Rhythm schema + OEM stubs | **ALIVE** (lineage tip-cargo) | `brand_toml_rhythm_court` **12 passed; exit 0** @ `c91b22561` (`/tmp/ggen-brand-toml-tip`) |
+| Completeness Incomplete refusals | **ALIVE** (lineage tip-cargo) | `brand_toml_completeness_court` **5 passed; exit 0** @ `c91b22561` (`/tmp/ggen-brand-toml-tip`) |
 | Fluid clamp / cqi slopes | **ALIVE** (tip-cargo **6 passed; exit 0** @ crown `19c08a3b0`) | `brand_fluid_clamp_court` |
 | OEM hot-swap fence | **ALIVE** (tip-cargo **6 passed; exit 0** @ crown `19c08a3b0`) | `seed_hot_swap_slot` / `hot_swap_brand` + `brand_toml_hotswap_court` |
 | Production runtime theme | **UNSUPPORTED** | `promote_production_theme` → `ProductionThemeRefusal::ProductionUnsupported` (code `REFUSED_PRODUCTION`) |
@@ -40,10 +42,10 @@ that type does not exist on this tip.)
 Companion lineage fences (not production promote):
 
 ```bash
-CARGO_BUILD_JOBS=1 CARGO_TARGET_DIR=/tmp/gate1-next-brand \
-  cargo test -p ggen-graph --test brand_toml_rhythm_court --locked
-cargo test -p ggen-graph --test brand_toml_hotswap_court
-cargo test -p ggen-graph --test brand_fluid_clamp_court
+CARGO_BUILD_JOBS=1 CARGO_TARGET_DIR=/tmp/ggen-brand-toml-tip \
+  cargo test -p ggen-graph --test brand_toml_completeness_court --test brand_toml_rhythm_court --locked -- --test-threads=1
+CARGO_BUILD_JOBS=1 CARGO_TARGET_DIR=/tmp/gate1-taffy \
+  cargo test -p ggen-graph --test brand_toml_hotswap_court --test brand_fluid_clamp_court --locked
 ```
 
 ## Exact next verifier to promote production theme

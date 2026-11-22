@@ -10,7 +10,7 @@ Standing labels: ALIVE | PARTIAL_ALIVE | UNKNOWN | UNSUPPORTED | BLOCKED.
 | `forbid_private_namespaces` / public prefix scan | `crates/ggen-graph/src/bin/gall_actuate_code_evaluation.rs` (`allowed_prefixes`, `check_uri`); `crates/ggen-lsp/assets/policies/no-private-namespace.shacl.ttl` | **PARTIAL_ALIVE** | Live scanners; `shui` absent until Gate-1 slice |
 | `shui:` (W3C SHACL 1.2 UI) | *(none prior to this PR)* | **UNSUPPORTED** → **PARTIAL_ALIVE** after `vocab::shui` land | Spec IRI `http://www.w3.org/ns/shacl-ui/` |
 | Taffy / AOT layout | `taffy` workspace dep + `ggen-graph::layout::taffy_aot` six-width seal; court admits all six + refuses width-local overflow | **PARTIAL_ALIVE** (ggen fence sealed; zcode/igniter consume open) | Gate 1 photolithography still open |
-| `*.brand.toml` / DTCG rhythm | `layout::brand` + `docs/rfc/v27.1.1/fixtures/{fourth-watch,cindycat}.brand.toml` + `brand_toml_completeness_court` | **PARTIAL_ALIVE** (rhythm + completeness Incomplete refusals PRESENT; official tip-cargo BUILD_BROKEN until EXIT 0); token inventory Gate 2+ | Gate 1 schema / Gate 2+ inventory |
+| `*.brand.toml` / DTCG rhythm | `layout::brand` + `docs/rfc/v27.1.1/fixtures/{fourth-watch,cindycat}.brand.toml` + `brand_toml_completeness_court` | **ALIVE** (lineage tip-cargo completeness **5** + rhythm **12** EXIT 0 @ `c91b22561`); token inventory Gate 2+; production theme **UNSUPPORTED** | Gate 1 schema / Gate 2+ inventory |
 | SUPPLE / ORC | no product surface under live crates | **UNKNOWN** | Name collision noise only (ORCID, ORCHESTRATOR_ALIVE prose) |
 | ui-layout / zcode-cli | not in workspace members; no `ui-layout-court.ts` | **UNSUPPORTED** | External sibling |
 | Zero-DOM / WebGPU | no live crate surface | **UNSUPPORTED** | Mode A |
