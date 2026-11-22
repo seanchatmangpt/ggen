@@ -74,7 +74,7 @@ not onto PR comments, and not onto generated artifacts.
 | # | Name | Plane | Seal mechanism | Standing | Next verifier |
 |---|------|-------|----------------|----------|---------------|
 | 1 | **BRCE + WebAuthn AS-01** | Plane 5 — Front doors / constitutional DO | **BRCE + WebAuthn AS-01 `:prime256v1`** — exclusive CONSTRUCT→DO broker | **PARTIAL_ALIVE** — doctrine + V1 seat fence + **V7 ES256/`prime256v1` fixture crypto-shape** (**PRESENT**; land **4 passed; exit 0** @ `fb6e7fc6e`). Live WebAuthn RP/hardware **UNSUPPORTED**; live BRCE broker **BLOCKED**; Plane-5 DO **BLOCKED**. Slice is **not** CONSTRUCT→DO / Plane-5 `ALIVE`. | Replay fixtures: `cargo test -p ggen-abb-sbb --test brce_as01_es256_assertion_court` (V7); `… --test brce_as01_seat_court` (V1). Next live: **V8** (broker) → **V9** / OOR **G2-5**. Never promote path `ALIVE` from fixture alone. Clause-2 binder: [`CCS-BRCE-STANDING.md`](./CCS-BRCE-STANDING.md). |
-| 2 | **MCP `ggen_write_apply`** | Plane 1 — Manufacture (local write) | `confirm: true` **and** Gall **CP17** `expected_graph_hash` (independent dry-run corroboration). Not BRCE; cannot grant Plane-5 DO. | **ALIVE** tip-cargo — **7+1+1 passed; exit 0** @ `30f59f206` on tip `cde02d1f2` (see [`CCS-WRITE-APPLY-ALIVE-STANDING.md`](./CCS-WRITE-APPLY-ALIVE-STANDING.md)); not Plane-5 DO | Replay: same three cargo commands; **V8**/**V9** remain **BLOCKED** |
+| 2 | **MCP `ggen_write_apply`** | Plane 1 — Manufacture (local write) | `confirm: true` **and** Gall **CP17** `expected_graph_hash` (independent dry-run corroboration). Not BRCE; cannot grant Plane-5 DO. | **ALIVE** tip-cargo — **7+1+1 passed; exit 0** @ `42c5b9ba4` on tip `cde02d1f2` (see [`CCS-WRITE-APPLY-ALIVE-STANDING.md`](./CCS-WRITE-APPLY-ALIVE-STANDING.md)); not Plane-5 DO | Replay: same three cargo commands; **V8**/**V9** remain **BLOCKED** |
 | 3 | **A2A construct / lifecycle apply** | Plane 1 — Manufacture (A2A/MCP lifecycle) | `confirm: true` + `construct_hash_gate` / `corroborate_expected_graph_hash` (CP17 parity with write_apply); lifecycle apply still open | **PARTIAL_ALIVE** — CCS #3 `construct_hash_gate` tip-cargo **ALIVE** **4 passed; exit 0** @ `861a6e73a` (`--features a2a`). `lifecycle.rs` **PRESENT** (tip `513704d04`; tip-cargo ALIVE 6/6 @ `acd9705c1`) on tip `008a81d21` — full A2A CP17 path **not** crown `ALIVE`. | Land: merge/cherry `crates/ggen-lsp/src/a2a_mcp/lifecycle.rs` from `cursor/mcp-a2a-hands-free-lifecycle-bc54` @ `05c6032f0`; then A2A package courts exit **0**. |
 | 4 | **Sync receipt verify** | Plane 2 — Trust | BLAKE3 receipt chain over `{graph_hash, outputs}`; `ggen receipt verify` (zero args → `.ggen-v2/receipt.json`) | **PARTIAL_ALIVE** — verb + handler live; proves consequence identity, not DO grant | `ggen receipt verify` after a real sync; `cargo test -p ggen-engine --test receipt_chain_e2e` (or package receipt courts) |
 | 5 | **SovereignLease** | Plane 2 — Trust / authority | ed25519-dalek multi-sig lease admission (`ggen-sjira`); IO-free kernel. Distinct from WebAuthn P-256 AS-01 — does not open Plane-5 DO. | **ALIVE** (lease admit fixture); **UNSUPPORTED** as AS-01 / `:prime256v1` | `cargo test -p ggen-sjira --test lease_epoch_test --test execute_lease_test` |
@@ -102,11 +102,11 @@ or stale `expected_graph_hash` without touching the filesystem.
 
 ### 4.1 On tip `cde02d1f2` — CCS #2 tip-cargo **ALIVE**; CCS #3 **ALIVE**
 
-CCS #2 tip-cargo **ALIVE** @ evidence land `30f59f206` (7+1+1 replay on absorb tip). Full receipt: [`CCS-WRITE-APPLY-ALIVE-STANDING.md`](./CCS-WRITE-APPLY-ALIVE-STANDING.md). CCS #3 `construct_hash_gate` retains tip-cargo **ALIVE** @ `861a6e73a`.
+CCS #2 tip-cargo **ALIVE** @ evidence land `42c5b9ba4` (7+1+1 replay on absorb tip). Full receipt: [`CCS-WRITE-APPLY-ALIVE-STANDING.md`](./CCS-WRITE-APPLY-ALIVE-STANDING.md). CCS #3 `construct_hash_gate` retains tip-cargo **ALIVE** @ `861a6e73a`.
 
 | Court | Path | Claim | Command |
 |-------|------|-------|---------|
-| Confirm + CP17 behavioral court | `crates/ggen-mcp/tests/write_apply_confirm_test.rs` | **ALIVE** — **7 passed; exit 0** @ `30f59f206` | `cargo test -p ggen-mcp --test write_apply_confirm_test --locked` |
+| Confirm + CP17 behavioral court | `crates/ggen-mcp/tests/write_apply_confirm_test.rs` | **ALIVE** — **7 passed; exit 0** @ `42c5b9ba4` | `cargo test -p ggen-mcp --test write_apply_confirm_test --locked` |
 | Fabricated-hash bypass court | `crates/ggen-mcp/tests/pipeline_tools_test.rs` (`write_apply_refuses_a_fabricated_graph_hash_bypass`) | **ALIVE** — **1 passed; exit 0** | `cargo test -p ggen-mcp --test pipeline_tools_test -- write_apply_refuses_a_fabricated_graph_hash_bypass` |
 | Legitimate CP17 path | same file (`write_apply_accepts_a_real_dry_run_graph_hash`) | **ALIVE** — **1 passed; exit 0** | `cargo test -p ggen-mcp --test pipeline_tools_test -- write_apply_accepts_a_real_dry_run_graph_hash` |
 | Implementation | `crates/ggen-mcp/src/tools/write_apply.rs` | CP17 preflight dry-run before write | (covered by courts above) |
@@ -148,7 +148,7 @@ Observed in-repo (live crates + docs; ontology_catalogue noise excluded where no
 | SELECT≠CONSTRUCT≠DO | `AGENTS.md`; ECOSYSTEM-SPEC-27.1.1 §1.1 (companion PR); CROWN/GALL docs |
 | `construct_hash_gate.rs` | **PRESENT** on tip `008a81d21` (§4.1; PR **#901**); tip-cargo **ALIVE** **4 passed; exit 0** @ `861a6e73a` |
 | `lifecycle.rs` | **ABSENT** on tip `008a81d21` (§4.2); land `cursor/mcp-a2a-hands-free-lifecycle-bc54` |
-| confirm gates | `ggen_write_apply` + CP17 courts tip-cargo **ALIVE** **7+1+1 passed; exit 0** @ `30f59f206` (§4.1) |
+| confirm gates | `ggen_write_apply` + CP17 courts tip-cargo **ALIVE** **7+1+1 passed; exit 0** @ `42c5b9ba4` (§4.1) |
 | brand.toml hot-swap | **PARTIAL_ALIVE** on tip (`brand_toml_hotswap_court`); production theme **UNSUPPORTED** / `REFUSED_PRODUCTION` ([`BRAND-PRODUCTION-THEME.md`](./BRAND-PRODUCTION-THEME.md); Gate-1 / ECOSYSTEM §8) — not Plane-5 DO |
 | zero-HITL fab crown | **not** `ALIVE` — Foundry / ECOSYSTEM D1 remain incomplete until out-of-repo hops close |
 | Plane-5 DO | **BLOCKED** — exact next CCS #8 / BRCE **V9** / OOR **G2-5** probe ladder |
