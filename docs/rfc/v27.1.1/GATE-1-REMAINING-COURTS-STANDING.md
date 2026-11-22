@@ -28,3 +28,18 @@ Shared-pod cgroup ~15GB + concurrent oxrocksdb cold builds can SIGKILL full
 `ggen-graph` links; record exact tip SHA + exit 0 under exclusive target when
 reconfirming. Tip-synced oxigraph-free harnesses compiling the same `layout/*.rs`
 sources are **PARTIAL_ALIVE** until package courts exit 0 on that SHA.
+
+## Evidence recorded (tip `53dda8ffa7c65b12320854ee0db8a305372b0849`)
+
+Oxigraph-free tip-synced harnesses compiling the same `layout/*.rs` / witness
+sources (pod OOM blocked exclusive `cargo test -p ggen-graph` under 15–21 concurrent cargos):
+
+| Court harness | Result | Exit |
+|---------------|--------|------|
+| `verify_witness_size_court` warm binary (`/tmp/vw-tip-target`) | **6 passed** | **0** |
+| LayoutRefusal tip-verify (`taffy_aot` + court, tip SHA sources) | **7 passed** (Overflow/Overlap/Touch/Gap name width) | **0** |
+| brand fluid tip-verify (`brand_fluid_clamp_court` + `brand_toml_rhythm_court`) | **6 + 11 passed** | **0** |
+| ui-layout tip-verify (`ui_layout_court` + remediation_bound) | **11 + 4 passed** (incl. anti-vacuity mutation) | **0** |
+
+Package falsifier (preferred CI): still `cargo test -p ggen-graph --test <court>` under
+`CARGO_TARGET_DIR=/tmp/target-gate1-remain` when exclusive headroom allows.
