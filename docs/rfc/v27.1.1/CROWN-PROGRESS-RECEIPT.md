@@ -6,7 +6,7 @@
 | Status | **PROGRESS RECEIPT** (honest; **not** goal-complete; **not** crown `ALIVE`) |
 | Observed tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `27436608c49224dfdc2e557a49f5030a1ab60e5e` (court tip subject `120598fb3e395393d0ebe7fd86537bb499fc670d`) |
 | Tip subject | absorb `cursor/v2711-uilayout-tip-alive-bc54` @ `8090022f4` onto tip → `cursor/v2711-gate1-uilayout-alive-bc54` (cargo evidence `ca52e9c16`; tip pin `120598fb3`); taffy falsifier retip `cursor/v2711-taffy-preflight-retip-bc54` |
-| Ledger pins cited | Gate-1 / Photo / Foundry retipped for tip-cargo ALIVE; taffy tip subject **PRESENT** reconfirm; OOR / CCS / BRCE / CASTLE retain prior absorb pins |
+| Ledger pins cited | Gate-1 / Photo / Foundry retipped for tip-cargo ALIVE; taffy tip subject **PRESENT** reconfirm; CCS #3 construct_hash tip-cargo **ALIVE** @ `861a6e73a` (absorb `cbeb11d44`); OOR / BRCE / CASTLE retain prior absorb pins |
 | Cargo this receipt | **no** for taffy — tip-exclusive thrash; prior exclusive quiet `ui_layout_court` **11 passed; exit 0** @ `ca52e9c16` retained |
 | Goal standing | **INCOMPLETE** — do **not** claim ECOSYSTEM-SPEC-27.1.1 crown complete |
 
@@ -32,10 +32,10 @@ Compact return line:
 ```text
 tip=27436608c49224dfdc2e557a49f5030a1ab60e5e
 clause1=PARTIAL
-clause2=PARTIAL_ALIVE
+clause2=PARTIAL_ALIVE (construct_hash+as01 tip-cargo ALIVE @861a6e73a; V8 BLOCKED)
 clause3=PARTIAL+BLOCKED
 clause4=PARTIAL
-gate1=PARTIAL (ui_layout tip-cargo ALIVE; taffy PRESENT tip-cargo PENDING; brand production UNSUPPORTED; BRCE honesty-demoted)
+gate1=PARTIAL (ui_layout tip-cargo ALIVE; construct_hash tip-cargo ALIVE @861a6e73a; taffy PRESENT tip-cargo PENDING; brand production UNSUPPORTED; BRCE V8 BLOCKED)
 blockers=foundry--live; remaining-fence-tip-cargo; cos/readyz; WebAuthn/BRCE-V8/V9; revops-DNS; mix-NIF; R01-R07-bodies; verify_witness-prod; production-theme
 ```
 
@@ -72,15 +72,15 @@ Detail binder: [`CCS-BRCE-STANDING.md`](./CCS-BRCE-STANDING.md) (honesty retip `
 | **CCS / BRCE slice crown** | **PARTIAL_ALIVE** |
 | CCS #1 AS-01 CONSTRUCT→DO | **PARTIAL_ALIVE** — V1 seat + V7 ES256 fixture land (**4 passed; exit 0** @ `fb6e7fc6e`); live WebAuthn **UNSUPPORTED**; broker **BLOCKED**; Plane-5 DO **BLOCKED** |
 | CCS #2 MCP `ggen_write_apply` + CP17 | **PARTIAL_ALIVE** (courts PRESENT; tip-cargo pending/spared) |
-| CCS #3 `construct_hash_gate` | **PARTIAL_ALIVE** — **PRESENT** on tip (PR **#901** / land `3ec8afd85`); `lifecycle.rs` still **ABSENT**; tip-cargo **spared** |
+| CCS #3 `construct_hash_gate` | **ALIVE** tip-cargo — **4 passed; exit 0** @ `861a6e73a` (`cursor/v2711-ccs-brce-tipcargo-bc54` / absorb `cbeb11d44`); `lifecycle.rs` still **ABSENT** |
 | CCS #5 SovereignLease Ed25519 | Fixture **ALIVE**; **UNSUPPORTED** as AS-01/`prime256v1` |
 | CCS #8 Plane-5 front doors | **BLOCKED** / **UNKNOWN** (revops DNS; cos `/readyz` **503**) |
 
 **Exact next verifiers**
 
-1. Live ladder: BRCE **V8** (broker AS-01 seat) → **V9** / OOR **G2-5** (Plane-5 DO probe).
-2. When tip-cargo free (locks spared this absorb): `cargo test -p ggen-lsp --lib construct_hash_gate`; `cargo test -p ggen-abb-sbb --test brce_as01_es256_assertion_court`; `… --test brce_as01_seat_court`.
-3. Residual: land/merge `lifecycle.rs` + package courts exit **0**.
+1. Live ladder: BRCE **V8** (broker AS-01 seat) → **V9** / OOR **G2-5** (Plane-5 DO probe) — **BLOCKED**; no V8 `ALIVE`.
+2. Clause-2 tip-cargo **done** @ `861a6e73a`: construct_hash + as01 V7/V1 **exit 0** (binder [`CCS-BRCE-STANDING.md`](./CCS-BRCE-STANDING.md)).
+3. Residual: `lifecycle.rs` + CCS #2 `write_apply` tip-cargo + package courts exit **0**.
 
 Fence / fixture exit 0 ≠ Plane-5 / CONSTRUCT→DO `ALIVE`.
 
@@ -183,5 +183,6 @@ Recommended next Gate-1 falsifier (pick one): quiet tip-cargo reconfirm of remai
 | Materialized | 2026-11-22 — branch `cursor/v2711-crown-progress-bc54` against tip `ca52e9c16` |
 | Absorb retip | 2026-11-22 — `cursor/v2711-gate1-uilayout-alive-bc54` absorbs `8090022f4` onto tip `120598fb3` |
 | Taffy preflight retip | 2026-11-22 — `cursor/v2711-taffy-preflight-retip-bc54`: `git ls-tree` **PRESENT** blob `d8923b07e` on tip `120598fb3`/`a29e1cd92`/`8090022f4`/`27436608c`; tip-cargo SKIPPED (thrash); standing **PRESENT** / tip-cargo **PENDING** — no tip-cargo `ALIVE` |
+| Absorb tip-cargo CCS | 2026-11-22 — `cursor/v2711-ccs-brce-tipcargo-bc54` @ `cbeb11d44` (evidence `861a6e73a`: construct_hash **4** + es256 **4** + seat **6** exit **0**) docs-only onto crown `c329b7ee5+`; tip-wins clause-2 ALIVE; V8 **BLOCKED**; production/hop-5 crown pins preserved; no cargo; no ManagePullRequest |
 | Sources | GATE-1-GAP-MATRIX, PHOTOLITHOGRAPHY, FOUNDRY-FINISH, OUT-OF-REPO-NEXT-VERIFIERS, SMALT-RAID, CCS-AUTHORITY, BRCE-WEBAUTHN, ECOSYSTEM-SPEC §13 |
 | Method | Absorb tip-cargo ALIVE standing; no new cargo; no ManagePullRequest |
