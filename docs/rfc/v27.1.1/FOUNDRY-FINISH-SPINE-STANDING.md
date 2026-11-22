@@ -1,7 +1,7 @@
 # FOUNDRY-FINISH-SPINE-STANDING — push-first honesty (v27.1.1)
 
 ```text
-tip_base=d85104a02606ac77408cbea028a94c67c6382af1
+tip_base=6f0f646111e91830cb1b2a18db18f67049cfe90d
 branch=cursor/v2711-foundry-finish-honesty-bc54
 agent=bc-94d5f431-76af-5467-b369-49fbcc2fcc82
 utc=2026-11-22T19:03Z
