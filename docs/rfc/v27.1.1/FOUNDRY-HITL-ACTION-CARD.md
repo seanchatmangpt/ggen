@@ -253,3 +253,18 @@ cd /agent/repos/zcode-cli && zcode /login && bun scripts/powl-foundry-loop.ts --
 | **foundry_exit=1** (this probe) | keep **BLOCKED_HITL**; Foundry finish / spine stay **PARTIAL** |
 
 Provenance: 2026-11-22T19:11Z — live re-probe EXIT:**1**; tip-wins absorb base `15eefb628`; companion spine §6; no cargo; no ManagePullRequest; no force-push; no Foundry `ALIVE`.
+
+## Exact CLI (retip — command form)
+
+In this cloud image `zcode` is not on `PATH`. Use the repo bundle:
+
+```bash
+cd /agent/repos/zcode-cli
+export PATH="/home/ubuntu/.bun/bin:$PATH"
+bun bin/zcode.js login          # Z.AI OAuth (HITL) — NOT `zcode /login`
+bun scripts/powl-foundry-loop.ts --live
+# PASS only if JSON exitCode==0 / foundry_exit=0
+# Observed without login: exitCode=1 · aggregateStanding=REFUSED · "Model access is not configured"
+```
+
+`setup-pending` under `~/.zcode/cli/` confirms first-run setup incomplete. No model API keys in agent env. Never invent Foundry ALIVE.
