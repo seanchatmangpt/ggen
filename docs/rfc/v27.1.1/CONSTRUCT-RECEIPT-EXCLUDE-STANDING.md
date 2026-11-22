@@ -40,6 +40,16 @@ Source projection drift (e.g. `src/*.py`) still fails closed. Receipt-only dirti
 
 Local Construct **55/55 ALIVE**. CI validate-examples on tip `b07cda77c` also **55/55 EXIT 0** (run `45078869386`), then failed at Interview Assist `npm ci` (lock `next@16.4.5`/`vitest@5.1.0` vs `package.json` `next@16.2.11`/`vitest@^2.1.9`). Lock regenerated with `npm install --package-lock-only` → tip-wins `7bb443e99`. Full Construct job **PENDING_CI** on `7bb443e99` (run `45081862735`).
 
+## Local npm ci proof (2026-11-22 3:15 PM PST)
+
+| Step | Result |
+|------|--------|
+| Tip | crown `7bb443e99` (lock sync) |
+| `cd examples/interview-assist && npm ci --ignore-scripts` | EXIT **0** (`/tmp/interview-assist-npm-ci.log`; ~7s; 76 packages) |
+| Lock pins | `next@16.2.11` · `vitest@^2.1.9` (matches `package.json`) |
+
+Local `npm ci` **ALIVE** ≠ full Construct CI `ALIVE` (still **PENDING_CI** on tip). Closes the residual that failed run `45078869386`.
+
 ## Refuse
 
 - Inventing full Construct CI `ALIVE` before core-team + repair EXIT **0** on tip `7bb443e99+`.
