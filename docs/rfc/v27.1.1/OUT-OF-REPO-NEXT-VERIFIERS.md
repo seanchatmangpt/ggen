@@ -9,7 +9,7 @@
 | Materialized | 2026-11-22 |
 | Hardened | 2026-11-22 — `cursor/v2711-oor-ledger-harden-bc54` |
 | Ops refresh | 2026-11-22 — `cursor/v2711-ops-standing-refresh-bc54` (tip pin + probe reconfirm; standings held) |
-| Tip pin | 2026-11-22 — `cursor/v2711-oor-retip6-bc54` onto live crown tip `ca52e9c16` (post–FOUNDRY honesty `841019a37` + CCS/BRCE V7 retip `ca52e9c16`); absorb hop-5 foundry-live2 `01f85f32d` + #917 zcode-runtime (runtime **PRESENT** / model access **BLOCKED**). Non-cargo reconfirm: cos `/readyz` **503** `DB_UNAVAILABLE` → cos **BLOCKED**; `/ledger` **404**; revops **NXDOMAIN**/`curl` exit **6**. WebAuthn live/production ceremony **UNSUPPORTED** (V7 fixture crypto-shape **PARTIAL_ALIVE** @ `fb6e7fc6e` ≠ production). Linux tip-matched ZCode runtime **PRESENT** → Hop5 `--live` **BLOCKED**/**REFUSED** (`foundry_exit=1` / `Model access is not configured` @ zcode `f32df08`). tip-cargo (`ui_layout`) **PENDING**/in-flight (quiet cgroup; spared — no cargo this absorb). verify_witness / brand-inventory production **UNSUPPORTED**. Spine tip-wins retained: hop-4 **ALIVE**; hop-5 aggregate **PARTIAL_ALIVE**; Smalt **ALIVE**; CASTLE sibling **ALIVE**; Truex admit-court **ALIVE**; Zero-HITL crown **PARTIAL**. No cargo. No ManagePullRequest. No false zero-HITL/`ALIVE` |
+| Tip pin | 2026-11-22 — `cursor/v2711-oor-retip7-cos-bc54` onto tip `a3b1c9410` (`a3b1c94103984e2d362c068deb61cd700615e158`; lineage through retip6 `ca52e9c16`). Gate0/ops probe-only (no cargo; tip-cargo locks **untouched**): cos `/readyz` **503** `{"status":"DB_UNAVAILABLE"}` → cos readiness **BLOCKED**; `/healthz` **200** `{"status":"ok"}` → liveness **PARTIAL** (≠ ALIVE); revops `getent` exit **2** / `host` **NXDOMAIN** / `curl` exit **6** `http=000` → **UNKNOWN**. WebAuthn live/production ceremony **UNSUPPORTED** (V7 fixture crypto-shape **PARTIAL_ALIVE** @ `fb6e7fc6e` ≠ production). Hop5 `--live` tip-wins **BLOCKED**/**REFUSED**. tip-cargo (`ui_layout`) **PENDING**/in-flight (not run). Spine tip-wins retained: hop-4 **ALIVE**; hop-5 aggregate **PARTIAL_ALIVE**; Smalt **ALIVE**; CASTLE sibling **ALIVE**; Truex admit-court **ALIVE**; Zero-HITL crown **PARTIAL**. No cargo. No ManagePullRequest. No false zero-HITL/`ALIVE` |
 | Hop-4 evidence | `/tmp/cursor/igniter-real-cleanroom.md` (`bc-4861c787`) — tip dual-schema BrandTheme manufacture compare `diff_exit=0` (**ALIVE**) |
 | Hop-5 evidence | [`HOP5-MIX-SUBJECT-STANDING.md`](./HOP5-MIX-SUBJECT-STANDING.md) (`adapter_exit=0` / `layout_exit=0`; Chicago **31/0`); runtime **PRESENT** ([`HOP5-ZCODE-RUNTIME-STANDING.md`](./HOP5-ZCODE-RUNTIME-STANDING.md)); foundry `--live` **foundry_exit=1** / **REFUSED** `Model access is not configured` @ zcode `f32df08` |
 | Repo scope | `seanchatmangpt/ggen` — **tracks** sibling standing; does not execute sibling DO |
@@ -103,7 +103,7 @@ GA horizon for all courts: **2027-01-01**.
 
 ---
 
-## BLOCKED / PENDING — exact next verifiers (OOR retip6 `ca52e9c16`)
+## BLOCKED / PENDING — exact next verifiers (OOR retip7 `a3b1c9410`)
 
 | Subject | Standing | Exact next verifier |
 |---------|----------|---------------------|
@@ -111,9 +111,9 @@ GA horizon for all courts: **2027-01-01**.
 | tip-cargo (`ui_layout`) | **PENDING**/in-flight | `CARGO_BUILD_JOBS=1 cargo test -p ggen-graph --test ui_layout_court` → **0** on tip (spared — not run this absorb) |
 | foundry `--live` / model access (G2-9) | **BLOCKED**/**REFUSED** | Runtime **PRESENT**; provider creds → `bun scripts/powl-foundry-loop.ts --live` → **0** |
 | `mix ggen_igniter.sync` NIF (G2-10 residual) | **BLOCKED** | exclusive `CXX=g++-13` → `mix ggen_igniter.sync --check` → **0** |
-| cos DB / `/readyz` (G0-2 / G2-2) | **BLOCKED** | `curl -sS -w '\nhttp=%{http_code}\n' https://cos.fnox.io/readyz` → HTTP **200** |
+| cos DB / `/readyz` (G0-2 / G2-2) | **BLOCKED** | `curl -sS -w '\nhttp=%{http_code}\n' https://cos.fnox.io/readyz` → HTTP **200** (retip7 observed **503** `DB_UNAVAILABLE`) |
 | WebAuthn live/production (G2-4) + BRCE Plane-5 (G2-3 / G2-5) | **UNSUPPORTED** (WebAuthn production) / **BLOCKED** (broker + Plane-5) | BRCE **V8** then **V9** ([`BRCE-WEBAUTHN-STANDING.md`](./BRCE-WEBAUTHN-STANDING.md) §5); production RP/hardware ceremony court |
-| revops.fnox.io (G2-1) | **UNKNOWN**/**BLOCKED** | `getent hosts revops.fnox.io`; `curl -sS -w '\nhttp=%{http_code}\n' https://revops.fnox.io/readyz` → DNS ∧ HTTP **200** |
+| revops.fnox.io (G2-1) | **UNKNOWN** | `getent hosts revops.fnox.io`; `curl -sS -w '\nhttp=%{http_code}\n' https://revops.fnox.io/readyz` → DNS ∧ HTTP **200** (retip7: NXDOMAIN / curl exit **6**) |
 
 ---
 
