@@ -27,7 +27,7 @@ agent=bc-d4e6c905 live=BLOCKED_HITL refusal_ALIVE≠live_ALIVE
 | Prior stall ledger claim | **STALLED** / **SCHEDULED** — **cleared** by this EXIT **0** push |
 | Foundry `--live` | **BLOCKED_HITL** — not re-probed; prior `Model access is not configured` held ([`HITL-LIVE-NEXT-VERIFIER-STANDING.md`](./HITL-LIVE-NEXT-VERIFIER-STANDING.md)) |
 | Clause-1 / hop-5 path crown | **PARTIAL_ALIVE** / **non-ALIVE** |
-| Crown push | **none** — sidebranch only |
+| Crown push | tip-wins absorb onto `cursor/ecosystem-spec-27-1-1-bc54` via `cursor/v2711-hitl-refusal-absorb-0f6f` (no force) |
 | ManagePullRequest | **not used** |
 
 Standing vocabulary: `UNKNOWN` | `PARTIAL_ALIVE` | `ALIVE` | `BLOCKED` | `BLOCKED_HITL` | `BUILD_BROKEN` | `UNSUPPORTED` | `REFUSED_*` | `SCHEDULED` | `STALLED`.
@@ -42,7 +42,7 @@ Standing vocabulary: `UNKNOWN` | `PARTIAL_ALIVE` | `ALIVE` | `BLOCKED` | `BLOCKE
 |-------|----------|----------|
 | In-repo hop-5 contract court (`zcode_powl_ocel_court`) | **ALIVE** | **6 passed; exit 0** on tip `01eccfffb` |
 | In-repo remediation bound vocab (`remediation_bound`) | **ALIVE** | **4 passed; exit 0** on tip `01eccfffb` |
-| Bounded-refusal reconfirm (this land) | **ALIVE** | Both courts EXIT **0**; sidebranch push |
+| Bounded-refusal reconfirm (this land) | **ALIVE** | Both courts EXIT **0**; tip-wins absorb onto crown |
 | Lineage tip-cargo @ `cd7c2433b` | **ALIVE** | [`ZCODE-POWL-REFUSAL-ALIVE-STANDING.md`](./ZCODE-POWL-REFUSAL-ALIVE-STANDING.md); sources ≡ tip |
 | Sibling reconfirm @ `df9597c18` | **ALIVE** | [`ZCODE-POWL-REFUSAL-RECONFIRM-STANDING.md`](./ZCODE-POWL-REFUSAL-RECONFIRM-STANDING.md) |
 | Exact-tip reconfirm previously **STALLED** | **cleared** | Was RUNNING/`branchName=null`/remote ABSENT; now EXIT **0** + this push |
