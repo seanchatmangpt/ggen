@@ -730,3 +730,28 @@ tip-cargo≠live-tip-reconfirm≠path-crown≠Foundry
 exact_next=founder foundry_--live foundry_exit=0 ; cos/revops readyz 200 ; BRCE_V8 bodies ; WebAuthn_AS-01
 tip=15eefb628  cargo=NOT_RUN  invented_ALIVE=none  ManagePullRequest=not_used
 ```
+
+---
+
+## 21. Retip21 — Construct preempt + OOR honesty (`6ae116c31`)
+
+| Field | Value |
+|-------|-------|
+| Retip branch | `cursor/v2711-oor-construct-retip-bc54` |
+| Observed tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ **`6ae116c31636cddf8d7674c6012fe34bdcabfd07`** |
+| Companion | [`OOR-RETIP21-CONSTRUCT-PREEMPT-STANDING.md`](./OOR-RETIP21-CONSTRUCT-PREEMPT-STANDING.md); [`GATE023-OOR-STANDING-MATRIX.md`](./GATE023-OOR-STANDING-MATRIX.md) retip21; [`V2711-COMPLETION-AUDIT.md`](./V2711-COMPLETION-AUDIT.md) |
+| Cargo | **NOT RUN** this retip (docs-only). Local Construct **55/55** @ `e568bef1d` ≠ CI Construct ALIVE. Local wasm-pack ALIVE @ `6ae116c31` ≠ CI Manufacture ALIVE. |
+| Law | Gate1 tip-cargo **CLOSED/ALIVE** ≠ path-crown ALIVE ≠ Foundry ALIVE. **Never invent Foundry ALIVE.** |
+
+### 21.1 Compact
+
+```text
+Gate1_tip_cargo=CLOSED/ALIVE
+Construct_local=55/55@e568bef1d  Construct_CI=UNKNOWN(settling@6ae116c31)
+wasm_opt_template=6ae116c31  Manufacture_CI=UNKNOWN
+photolith_path=PARTIAL  Foundry=PARTIAL  --live=BLOCKED_HITL
+cos=BLOCKED(503)  revops=UNKNOWN(NXDOMAIN)
+BRCE_V8=BLOCKED  WebAuthn_live=UNSUPPORTED  CASTLE_wire=ALIVE/WIRED  Smalt=ALIVE
+goal=NOT_COMPLETE  tip=6ae116c31  invented_ALIVE=none
+exact_next=founder foundry_--live foundry_exit=0 ; cos/revops readyz 200 ; WebAuthn→V8 ; R01-R07 bodies
+```
