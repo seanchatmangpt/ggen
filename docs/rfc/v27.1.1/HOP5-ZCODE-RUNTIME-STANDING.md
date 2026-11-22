@@ -5,7 +5,7 @@
 | Document ID | `HOP5-ZCODE-RUNTIME-STANDING-27.1.1` |
 | Branch | `cursor/v2711-hop5-foundry-live2-bc54` (runtime successor land) |
 | Companion | [`HOP5-FOUNDRY-LIVE2-STANDING.md`](./HOP5-FOUNDRY-LIVE2-STANDING.md), [`PHOTOLITHOGRAPHY-STANDING.md`](./PHOTOLITHOGRAPHY-STANDING.md) hop 5, [`OUT-OF-REPO-NEXT-VERIFIERS.md`](./OUT-OF-REPO-NEXT-VERIFIERS.md) G2-9, [`FOUNDRY-FINISH-STANDING.md`](./FOUNDRY-FINISH-STANDING.md) |
-| Ecospec tip base | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `ca52e9c1679d66d38d6cf7e196195ee758bee597` (prior live2 pin `68b2f33c7` / `d05a131c`) |
+| Ecospec tip base | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `1a32ea1b1` (#916/#917 absorb tip; ancestor `ca52e9c16`) |
 | zcode-cli land | `cursor/v2711-hop5-foundry-live2-bc54` @ `f32df08cdc4b3b8e114a8d1de8cf81acb80e1f3a` |
 | Host | Linux x86_64 cloud VM |
 | Status | LEDGER (not path-crown `ALIVE`) |

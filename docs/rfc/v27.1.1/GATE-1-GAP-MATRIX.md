@@ -13,7 +13,9 @@ as `b4672131`; mount `/tmp/truex`; receipt
 **ALIVE** (`diff_exit=0` dual-schema tip brand vs igniter fixture; evidence
 `/tmp/cursor/igniter-real-cleanroom.md`; prior PARTIAL `:no_primitive_space`
 closed). Hop-5 aggregate → **PARTIAL_ALIVE** (default adapter exit **0**;
-foundry `--live` **foundry_exit=1** / **REFUSED** (`ZCode runtime is missing`) —
+foundry `--live` **foundry_exit=1** / **REFUSED** (`Model access is not configured`
+after Linux tip-matched runtime **PRESENT**) —
+[`HOP5-ZCODE-RUNTIME-STANDING.md`](./HOP5-ZCODE-RUNTIME-STANDING.md);
 [`HOP5-MIX-SUBJECT-STANDING.md`](./HOP5-MIX-SUBJECT-STANDING.md);
 [`PHOTOLITHOGRAPHY-STANDING.md`](./PHOTOLITHOGRAPHY-STANDING.md)).
 **brand.toml hot-swap** → **PARTIAL_ALIVE**; **production theme** →
