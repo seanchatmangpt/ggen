@@ -1,10 +1,11 @@
 //! DTCG 2025.10-aligned `*.brand.toml` rhythm schema (ECOSYSTEM-SPEC-27.1.1 D4 Gate-1 slice).
 //!
 //! Parses human-authored visual-rhythm manifests and emits typed refusals for
-//! touch floors, inter-target gaps, off-grid spacing, and fluid `clamp()` /
-//! `cqi` slope law. Optional brand / patronage messaging slots are accepted as
-//! plain TOML strings (no private ontology namespaces). Full brand token
-//! inventories (color/type/CASTLE) remain Gate 2+.
+//! incomplete manifests (missing touch floor / gap / grid), touch floors below
+//! law, inter-target gaps, off-grid spacing, and fluid `clamp()` / `cqi` slope
+//! law. Optional brand / patronage messaging slots are accepted as plain TOML
+//! strings (no private ontology namespaces). Full brand token inventories
+//! (color/type/CASTLE) remain Gate 2+.
 //!
 //! Also exposes an in-memory OEM **hot-swap** fence ([`seed_hot_swap_slot`] /
 //! [`hot_swap_brand`]) that admits Fourth Watch ↔ CindyCat transitions under
@@ -82,19 +83,17 @@ pub struct BrandMessaging {
 }
 
 /// Parsed `*.brand.toml` document (rhythm + optional patronage messaging).
-#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct BrandManifest {
     pub dtcg_version: String,
     pub brand_id: String,
     pub rhythm: BrandRhythm,
-    #[serde(default)]
     pub brand: BrandIdentity,
-    #[serde(default)]
     pub messaging: BrandMessaging,
 }
 
 /// Visual rhythm block: rem/grid primitives, touch floors, spacing, fluid clamps.
-#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct BrandRhythm {
     pub rem_base_px: f32,
     pub grid_base_px: u32,
@@ -103,7 +102,6 @@ pub struct BrandRhythm {
     pub touch_floor_apple_px: f32,
     pub inter_target_gap_px: f32,
     pub spacing: Vec<SpacingToken>,
-    #[serde(default)]
     pub fluid: Vec<FluidToken>,
 }
 
@@ -138,10 +136,26 @@ pub struct BrandReceipt {
     pub fluid_count: usize,
 }
 
+/// Gate-1 rhythm facets that must be present for completeness.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum BrandCompletenessFacet {
+    /// Material and/or Apple touch-floor keys.
+    TouchFloor,
+    /// Inter-target gap key.
+    Gap,
+    /// 4px/8px grid keys (`grid_base_px` / `grid_half_px`).
+    Grid,
+}
+
 /// Typed refusals for brand rhythm law failures.
 #[derive(Debug, Clone, PartialEq)]
 pub enum BrandRefusal {
     Parse(String),
+    /// Manifest omits a required Gate-1 rhythm facet (completeness court).
+    Incomplete {
+        missing: BrandCompletenessFacet,
+        field: &'static str,
+    },
     DtcgVersion {
         got: String,
         expected: String,
@@ -198,9 +212,86 @@ pub enum BrandRefusal {
     },
 }
 
+/// Wire shape: optional Gate-1 facets so missing keys become typed incompleteness.
+#[derive(Debug, Deserialize)]
+struct BrandManifestWire {
+    dtcg_version: String,
+    brand_id: String,
+    rhythm: BrandRhythmWire,
+    #[serde(default)]
+    brand: BrandIdentity,
+    #[serde(default)]
+    messaging: BrandMessaging,
+}
+
+#[derive(Debug, Deserialize)]
+struct BrandRhythmWire {
+    rem_base_px: Option<f32>,
+    grid_base_px: Option<u32>,
+    grid_half_px: Option<u32>,
+    touch_floor_material_px: Option<f32>,
+    touch_floor_apple_px: Option<f32>,
+    inter_target_gap_px: Option<f32>,
+    #[serde(default)]
+    spacing: Vec<SpacingToken>,
+    #[serde(default)]
+    fluid: Vec<FluidToken>,
+}
+
 /// Parse a `*.brand.toml` document from UTF-8 text.
+///
+/// Missing touch-floor, gap, or grid keys refuse as [`BrandRefusal::Incomplete`]
+/// rather than an opaque serde parse error.
 pub fn parse_brand_toml(raw: &str) -> Result<BrandManifest, BrandRefusal> {
-    toml::from_str(raw).map_err(|e| BrandRefusal::Parse(e.to_string()))
+    let wire: BrandManifestWire =
+        toml::from_str(raw).map_err(|e| BrandRefusal::Parse(e.to_string()))?;
+    let rhythm = complete_rhythm(wire.rhythm)?;
+    Ok(BrandManifest {
+        dtcg_version: wire.dtcg_version,
+        brand_id: wire.brand_id,
+        rhythm,
+        brand: wire.brand,
+        messaging: wire.messaging,
+    })
+}
+
+fn complete_rhythm(wire: BrandRhythmWire) -> Result<BrandRhythm, BrandRefusal> {
+    let touch_floor_material_px = wire
+        .touch_floor_material_px
+        .ok_or(BrandRefusal::Incomplete {
+            missing: BrandCompletenessFacet::TouchFloor,
+            field: "touch_floor_material_px",
+        })?;
+    let touch_floor_apple_px = wire.touch_floor_apple_px.ok_or(BrandRefusal::Incomplete {
+        missing: BrandCompletenessFacet::TouchFloor,
+        field: "touch_floor_apple_px",
+    })?;
+    let inter_target_gap_px = wire.inter_target_gap_px.ok_or(BrandRefusal::Incomplete {
+        missing: BrandCompletenessFacet::Gap,
+        field: "inter_target_gap_px",
+    })?;
+    let grid_base_px = wire.grid_base_px.ok_or(BrandRefusal::Incomplete {
+        missing: BrandCompletenessFacet::Grid,
+        field: "grid_base_px",
+    })?;
+    let grid_half_px = wire.grid_half_px.ok_or(BrandRefusal::Incomplete {
+        missing: BrandCompletenessFacet::Grid,
+        field: "grid_half_px",
+    })?;
+    let rem_base_px = wire
+        .rem_base_px
+        .ok_or(BrandRefusal::RemBaseInvalid { rem_base_px: 0.0 })?;
+
+    Ok(BrandRhythm {
+        rem_base_px,
+        grid_base_px,
+        grid_half_px,
+        touch_floor_material_px,
+        touch_floor_apple_px,
+        inter_target_gap_px,
+        spacing: wire.spacing,
+        fluid: wire.fluid,
+    })
 }
 
 /// Admit a parsed brand rhythm under Gate-1 visual-rhythm law.
