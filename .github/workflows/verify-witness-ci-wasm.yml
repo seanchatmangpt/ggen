@@ -11,6 +11,7 @@ on:
       - 'crates/ggen-graph/Cargo.toml'
       - '.github/workflows/verify-witness-ci-wasm.yml'
       - 'docs/rfc/v27.1.1/VERIFY-WITNESS*.md'
+      - 'docs/rfc/v27.1.1/GATE023-OOR-STANDING-MATRIX.md'
   push:
     branches: [main, 'cursor/ecosystem-spec-27-1-1-bc54']
     paths:
@@ -24,8 +25,9 @@ permissions:
   contents: read
 
 concurrency:
+  # Do not cancel: honesty docs retips were thrashing the consume court before it started.
   group: vw-ci-wasm-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 env:
   CARGO_TERM_COLOR: always
