@@ -4,7 +4,7 @@
 exit=0 standing=ALIVE(exact_tip_reconfirm)
 sjira=6/6 bound=4/4 tip=15eefb628368afcbb230d082d6ca00c286ca9d42
 agent=bc-a5e2f5df live=BLOCKED_HITL refusal_ALIVE≠live_ALIVE
-absorb=cursor/v2711-zcode-powl-retip3-absorb-9f55 tip_before=b960245cf
+absorb=cursor/v2711-zcode-powl-retip3-absorb-9f55 tip_before=2e1b0f561 tip_after=8c67bfd81
 absorb_agent=bc-4de431e2 Foundry=BLOCKED_HITL (held; not invented ALIVE)
 ```
 
@@ -16,7 +16,8 @@ absorb_agent=bc-4de431e2 Foundry=BLOCKED_HITL (held; not invented ALIVE)
 | Side agent | `bc-a5e2f5df-7249-5f0c-973d-a4521b671913` |
 | Absorb agent | `bc-4de431e2-a532-5e36-b6f9-55dc1efe9f55` |
 | Ecosystem tip (side observed) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `15eefb628368afcbb230d082d6ca00c286ca9d42` (⊇ Gate1 close / tip-wins Gate1 EXIT0 absorb `712cdfafb`) |
-| tip_before (absorb) | `b960245cf647ebfadb3fbc4d16bbc53852ba159f` |
+| tip_before (absorb) | `2e1b0f561c044ba5c55c5853bd9df5bb4f3b8c20` |
+| tip_after (absorb) | `8c67bfd8115c48dee54898aa5ba91a6d2a2bb8da` |
 | Cargo evidence tip | `edf2ec22aa2108905397be77665aa4c73f8a0000` (exact-tip reconfirm EXIT **0**; court sources unchanged through tip `15eefb6283`; prior compile `dd61fefb29` also EXIT **0**) |
 | Photolithography | Clause 1 / hop 5 — **bounded refusal** leg only |
 | Prior lineage ALIVE | [`ZCODE-POWL-REFUSAL-ALIVE-STANDING.md`](./ZCODE-POWL-REFUSAL-ALIVE-STANDING.md) @ evidence tip `cd7c2433b` (`c91b22561` ⊆ tip) |
@@ -38,7 +39,7 @@ absorb_agent=bc-4de431e2 Foundry=BLOCKED_HITL (held; not invented ALIVE)
 
 Standing vocabulary: `UNKNOWN` | `PARTIAL_ALIVE` | `ALIVE` | `BLOCKED` | `BLOCKED_HITL` | `BUILD_BROKEN` | `UNSUPPORTED` | `REFUSED_*` | `SCHEDULED` | `STALLED`.
 
-**Authority.** Exact tip-cargo replay of the stall-pin next verifier on tip `edf2ec22aa2108905397be77665aa4c73f8a0000` (court sources held through tip `15eefb628368afcbb230d082d6ca00c286ca9d42`) produced **EXIT 0** (sjira **6** + bound **4**). Exact-tip reconfirm standing is therefore **ALIVE**. Tip-wins absorb of side `dd7746b66` onto crown tip_before `b960245cf` does **not** mint hop-5 / foundry `--live` / photolithography path-crown `ALIVE`. Foundry `--live` stays **BLOCKED_HITL**.
+**Authority.** Exact tip-cargo replay of the stall-pin next verifier on tip `edf2ec22aa2108905397be77665aa4c73f8a0000` (court sources held through tip `15eefb628368afcbb230d082d6ca00c286ca9d42`) produced **EXIT 0** (sjira **6** + bound **4**). Exact-tip reconfirm standing is therefore **ALIVE**. Tip-wins absorb of side `dd7746b66` onto crown tip_before `2e1b0f561` (tip_after `8c67bfd81`) does **not** mint hop-5 / foundry `--live` / photolithography path-crown `ALIVE`. Foundry `--live` stays **BLOCKED_HITL**.
 
 ---
 
