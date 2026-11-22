@@ -40,7 +40,7 @@ sibling_ts=UNSUPPORTED
 | Prior exact tip6 | **ALIVE** tip-cargo EXIT0 @ `2e452873ad` (11 passed) — lineage held; **not** reconfirmed by this exact-tip7 probe |
 | Peer tip7 serial | [`UILAYOUT-TIP7-STANDING.md`](./UILAYOUT-TIP7-STANDING.md) EXIT0 @ `/tmp/tip7-serial` (`bc-e40d4b25`) — **not** this agent's `/tmp/gate1-tip7-uilayout` EXIT:0 |
 | Sibling `ui-layout-court.ts` | **UNSUPPORTED** |
-| Crown absorb | tip-wins @  onto  ← side  (PARTIAL; EXIT≠0) |
+| Crown absorb | tip-wins @ `b94ab14c4` onto `675c61405` ← side `b0ad71fa8` (PARTIAL; EXIT≠0) |
 | ManagePullRequest | **not used** |
 | Force-push | sidebranch lease only (stale remote tip7 branch rewritten onto live crown) |
 | Foundry ALIVE | **not claimed** |
