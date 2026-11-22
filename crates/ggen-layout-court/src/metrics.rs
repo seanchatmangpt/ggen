@@ -93,9 +93,15 @@ fn one() -> u32 {
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum ProductRefusal {
-    Parse { message: String },
-    MissingRoot { root: String },
-    LayoutEngine { message: String },
+    Parse {
+        message: String,
+    },
+    MissingRoot {
+        root: String,
+    },
+    LayoutEngine {
+        message: String,
+    },
     Overflow {
         viewport_width_px: u32,
         leaf_id: String,
@@ -219,7 +225,9 @@ pub fn run_product_subject(
     })
 }
 
-fn court_one_viewport(subject: &ProductSubject, viewport_width_px: f32) -> Result<(), ProductRefusal> {
+fn court_one_viewport(
+    subject: &ProductSubject, viewport_width_px: f32,
+) -> Result<(), ProductRefusal> {
     let viewport_u = viewport_width_px.round() as u32;
     let mut tree: TaffyTree<()> = TaffyTree::new();
     let mut id_to_node: std::collections::BTreeMap<String, NodeId> =
@@ -238,14 +246,18 @@ fn court_one_viewport(subject: &ProductSubject, viewport_width_px: f32) -> Resul
         if node.children.is_empty() {
             continue;
         }
-        let parent = *id_to_node.get(&node.id).ok_or_else(|| ProductRefusal::LayoutEngine {
-            message: format!("missing parent {}", node.id),
-        })?;
+        let parent = *id_to_node
+            .get(&node.id)
+            .ok_or_else(|| ProductRefusal::LayoutEngine {
+                message: format!("missing parent {}", node.id),
+            })?;
         let mut kids = Vec::with_capacity(node.children.len());
         for cid in &node.children {
-            let kid = *id_to_node.get(cid).ok_or_else(|| ProductRefusal::LayoutEngine {
-                message: format!("missing child {cid} of {}", node.id),
-            })?;
+            let kid = *id_to_node
+                .get(cid)
+                .ok_or_else(|| ProductRefusal::LayoutEngine {
+                    message: format!("missing child {cid} of {}", node.id),
+                })?;
             kids.push(kid);
         }
         tree.set_children(parent, &kids)

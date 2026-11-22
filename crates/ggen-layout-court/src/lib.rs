@@ -19,9 +19,7 @@ use ggen_graph::layout::ui_layout::{
 };
 use serde::Deserialize;
 
-use crate::metrics::{
-    parse_product_subject, run_product_subject, ProductRefusal, VIEWPORTS,
-};
+use crate::metrics::{parse_product_subject, run_product_subject, ProductRefusal, VIEWPORTS};
 
 pub const EXIT_PASS: i32 = 0;
 pub const EXIT_REFUSED: i32 = 1;
@@ -189,9 +187,11 @@ pub fn parse_cli_args(args: &[String]) -> Result<(std::path::PathBuf, Vec<f32>),
     while i < args.len() {
         let a = &args[i];
         if a == "--subject" || a == "-s" {
-            let path = args.get(i + 1).ok_or_else(|| CourtStanding::SubjectMissing {
-                detail: "layout_court requires <subject.json> after --subject/-s".into(),
-            })?;
+            let path = args
+                .get(i + 1)
+                .ok_or_else(|| CourtStanding::SubjectMissing {
+                    detail: "layout_court requires <subject.json> after --subject/-s".into(),
+                })?;
             subject = Some(std::path::PathBuf::from(path));
             i += 2;
             continue;
@@ -218,8 +218,9 @@ pub fn parse_cli_args(args: &[String]) -> Result<(std::path::PathBuf, Vec<f32>),
     }
 
     let path = subject.ok_or_else(|| CourtStanding::SubjectMissing {
-        detail: "layout_court requires <subject.json> after -- (full court JSON with metrics+spacing)"
-            .into(),
+        detail:
+            "layout_court requires <subject.json> after -- (full court JSON with metrics+spacing)"
+                .into(),
     })?;
     Ok((path, parse_viewports_csv(viewports_csv.as_deref())))
 }

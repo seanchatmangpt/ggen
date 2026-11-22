@@ -497,8 +497,7 @@ pub fn seed_hot_swap_slot(
 /// Refuses same-brand no-ops, unknown OEM ids, and rhythm law failures.
 /// Does not write files, publish CASTLE, or authorize production theme DO.
 pub fn hot_swap_brand(
-    slot: &mut BrandHotSwapSlot,
-    next_raw: &str,
+    slot: &mut BrandHotSwapSlot, next_raw: &str,
 ) -> Result<HotSwapReceipt, BrandHotSwapRefusal> {
     let (manifest, receipt) = admit_oem_manifest(next_raw)?;
     if manifest.brand_id == slot.active.brand_id {

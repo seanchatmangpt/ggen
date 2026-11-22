@@ -11,8 +11,8 @@ use std::fs;
 use std::path::PathBuf;
 
 use ggen_graph::layout::brand::{
-    hot_swap_brand, seed_hot_swap_slot, ADMITTED_OEM_BRAND_IDS, BrandHotSwapRefusal, BrandRefusal,
-    HotSwapStanding, HOT_SWAP_STANDING_CEILING,
+    hot_swap_brand, seed_hot_swap_slot, BrandHotSwapRefusal, BrandRefusal, HotSwapStanding,
+    ADMITTED_OEM_BRAND_IDS, HOT_SWAP_STANDING_CEILING,
 };
 
 fn fixture(name: &str) -> PathBuf {
@@ -51,7 +51,10 @@ fn fourth_watch_to_cindycat_hot_swap_is_partial_alive() {
     assert_ne!(swap.standing.as_str(), "ALIVE");
     assert_eq!(slot.brand_id(), "cindycat");
     assert_eq!(slot.receipt().brand_id, "cindycat");
-    assert_eq!(slot.manifest().brand.tagline.as_deref(), Some("Reverse Gloo"));
+    assert_eq!(
+        slot.manifest().brand.tagline.as_deref(),
+        Some("Reverse Gloo")
+    );
 }
 
 #[test]
@@ -98,7 +101,11 @@ fn same_brand_hot_swap_is_refused() {
         }
         other => panic!("expected SameBrand, got {other:?}"),
     }
-    assert_eq!(slot.brand_id(), "fourth-watch", "slot must stay put on refuse");
+    assert_eq!(
+        slot.brand_id(),
+        "fourth-watch",
+        "slot must stay put on refuse"
+    );
 }
 
 #[test]
@@ -136,11 +143,7 @@ fn unknown_oem_brand_id_is_refused() {
 fn rhythm_refusal_blocks_hot_swap() {
     // Arrange — Apple touch floor dropped below 44px on target
     let mut bad = load_fixture("cindycat.brand.toml");
-    bad = bad.replacen(
-        "touch_floor_apple_px = 44",
-        "touch_floor_apple_px = 40",
-        1,
-    );
+    bad = bad.replacen("touch_floor_apple_px = 44", "touch_floor_apple_px = 40", 1);
     let fourth = load_fixture("fourth-watch.brand.toml");
     let (mut slot, _) = seed_hot_swap_slot(&fourth).expect("seed");
 

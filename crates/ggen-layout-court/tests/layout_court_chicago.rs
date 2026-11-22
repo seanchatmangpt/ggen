@@ -56,10 +56,8 @@ fn missing_path_is_subject_missing() {
 
 #[test]
 fn empty_subject_file_is_subject_missing() {
-    let dir = std::env::temp_dir().join(format!(
-        "ggen-layout-court-chicago-{}",
-        std::process::id()
-    ));
+    let dir =
+        std::env::temp_dir().join(format!("ggen-layout-court-chicago-{}", std::process::id()));
     let _ = std::fs::remove_dir_all(&dir);
     std::fs::create_dir_all(&dir).expect("tmpdir");
     let path = dir.join("empty.json");
@@ -103,9 +101,7 @@ fn standing_vocabulary_is_closed() {
         code: "X".into(),
         detail: "d".into(),
     };
-    let missing = CourtStanding::SubjectMissing {
-        detail: "d".into(),
-    };
+    let missing = CourtStanding::SubjectMissing { detail: "d".into() };
     assert_eq!(alive.exit_code(), 0);
     assert_eq!(refused.exit_code(), 1);
     assert_eq!(missing.exit_code(), 2);
