@@ -6,7 +6,7 @@
 | Companion | `ECOSYSTEM-SPEC-27.1.1` (Gate 2–3 CASTLE publish); `REPO-INVENTORY-27.1.1` |
 | Subject | `seanchatmangpt/castle` on spine `ggen → Taffy → zcode-cli → CASTLE → Smalt → revops` |
 | Materialized | 2026-11-22 |
-| Observed ggen tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `d0e3ba473dcaf26a90d963a767e4fa3f0600912f` |
+| Observed ggen tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `4b22529df2939412c41107fe5e9eea66ba6a4dad` |
 | Tip pin | 2026-11-22 — `cursor/v2711-castle-alive-bc54` after sibling CASTLE spine courts **ALIVE** @ `2774039ea` (`bc-1bffb072`; prior pin `4e6ca0e2e` / `cursor/v2711-castle-retip-bc54`) |
 | Observed castle tip | `main` @ `2774039ea81bad508c93785a59dd7a99198ae256` (live courts `bc-1bffb072`; not mounted in this ggen workspace) |
 | Repo scope of this land | `seanchatmangpt/ggen` (standing ledger only — no CASTLE runtime executed here) |
@@ -145,7 +145,7 @@ GA claims that **CASTLE is `ALIVE` on the horizontal spine** are **REFUSED** / f
 
 | Field | Value |
 |-------|-------|
-| Observed ggen tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `d0e3ba473dcaf26a90d963a767e4fa3f0600912f` |
+| Observed ggen tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `4b22529df2939412c41107fe5e9eea66ba6a4dad` |
 | Sibling `seanchatmangpt/castle` tip | `2774039ea81bad508c93785a59dd7a99198ae256` — §3.1 courts **ALIVE** via `bc-1bffb072` (not mounted in this workspace) |
 | In-ggen `rg 'castle publish\|RedactionCourt' crates packs` | empty → publish surface **UNSUPPORTED** remains honest |
 | Brand rhythm (non-substitute) | `brand_toml_rhythm_court` evidence `0478fde59` **4 passed; exit 0** — rhythm only, not CASTLE inventory |
@@ -158,3 +158,5 @@ GA claims that **CASTLE is `ALIVE` on the horizontal spine** are **REFUSED** / f
 
 GOAL SLICE: CASTLE in horizontal spine (`ggen+Taffy+zcode-cli+CASTLE+Smalt+revops`) standing.
 Materialized as a ggen RFC ledger. Sibling spine courts promoted **ALIVE** from CASTLE live `bc-1bffb072` tip `2774039ea` (exits 0,0,0; publish_redaction_court 13/13; cli_publish_brand 6/6; spine-probe `redaction_court=ALIVE`). Tip pin on `cursor/v2711-castle-alive-bc54` against ggen tip `d0e3ba473`. Spine crown / zero-HITL / Foundry finish **not** promoted to `ALIVE`.
+
+Honesty retip 2026-11-22 (`cursor/v2711-foundry-honesty-bc54`) → ggen tip `4b22529df2939412c41107fe5e9eea66ba6a4dad`; sibling courts **ALIVE** @ `2774039ea` unchanged; spine crown **UNKNOWN**/row **PARTIAL**; no Foundry crown promotion.

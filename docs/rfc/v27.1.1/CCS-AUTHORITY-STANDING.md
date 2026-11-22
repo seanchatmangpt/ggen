@@ -6,9 +6,9 @@
 | Companion | `ECOSYSTEM-SPEC-27.1.1` (planes / Gate schedule); `AGENTS.md` §3 Manufacture and authority |
 | Status | MATERIALIZED standing ledger (not an execution receipt) |
 | Materialized | 2026-11-22 |
-| Observed tip | PR [#849](https://github.com/seanchatmangpt/ggen/pull/849) / `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `750b8ef4a9042d22808a79be3dedff7944d4e321` (2026-11-22; prior pins `5e00619a4` / `f1639510e`) |
+| Observed tip | PR [#849](https://github.com/seanchatmangpt/ggen/pull/849) / `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `4b22529df2939412c41107fe5e9eea66ba6a4dad` (foundry honesty retip; prior `5e00619a4`) |
 | Base (main) | `origin/main` @ `d173cad5792e837bd4fec730d120c582b9bc5d4c` |
-| Tip pin | 2026-11-22 — `cursor/v2711-ccs-brce-next-bc54` after crown tip `750b8ef4a` (exact V7 crypto **UNSUPPORTED** + Plane-5 DO **BLOCKED** next verifiers; `construct_hash_gate` still **ABSENT**; no false `ALIVE`; cargo not run) |
+| Tip pin | 2026-11-22 — `cursor/v2711-foundry-honesty-bc54` after crown tip `4b22529df` (CCS standings held PARTIAL; Plane-5 DO still not ALIVE; cargo not run) |
 | Live filename | `CCS-AUTHORITY-STANDING.md` (not `CCS-BRCE-STANDING.md`) |
 | Repo | `seanchatmangpt/ggen` |
 

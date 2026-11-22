@@ -6,9 +6,9 @@
 | Companion | `ECOSYSTEM-SPEC-27.1.1` (economic-ops / Gate-0–Plane-5 adjacent) |
 | Target GA | **2027-01-01** |
 | Materialized | 2026-11-22 |
-| Observed ggen tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `81774629e6dd4cde79d615b022962649bd884a85` (tip pin `cursor/v2711-smalt-finops-alive-bc54`) |
-| Observed smalt tip | `main` @ `91997da76f0f356dc2be914bdb0a5b8227518719` (parent `875efbb87` — tip includes both 4-cloud + FinOps restore; FinOps live court exit 0 / 19 passed; 4-cloud evidence retained @ `875efbb87` via `bc-ad9ebffa`; not mounted in this ggen workspace) |
-| Crown standing (from ggen) | **PARTIAL_ALIVE** — sibling 4-cloud columns exit **0** @ `875efbb87` (included by tip); `fin_ops` court **ALIVE** @ `91997da76f0f` (`mix test test/fin_ops_calculator_test.exs` → exit **0**, **19 passed**); remaining GA economic face / b4b register still open — **not** full RAID / economic-ops `ALIVE`; never invent Foundry crown `ALIVE` |
+| Observed ggen tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `4b22529df2939412c41107fe5e9eea66ba6a4dad` (honesty retip; prior `8a68da481` / `4b22529df` standing refresh) |
+| Observed smalt tip | `main` @ `875efbb87bde8422236cf9db7224412962dbc5a7` (live courts `bc-ad9ebffa` + retry `bc-1e876087`; not mounted in this ggen workspace) |
+| Crown standing (from ggen) | **PARTIAL_ALIVE** — RAID columns doctor/aws/gcp/azure/twilio **ALIVE** @ `875efbb87`; `fin_ops` **PARTIAL_ALIVE** (burn-path exit **0**; canonical `test/fin_ops_calculator_test.exs` **ABSENT**). **Do not** claim full Smalt RAID / economic-ops `ALIVE` while FinOps is non-canonical. Never invent Foundry crown `ALIVE`. |
 
 Standing vocabulary: `UNKNOWN` | `PARTIAL_ALIVE` | `ALIVE` | `BLOCKED` | `BUILD_BROKEN` | `UNSUPPORTED` | `REFUSED_*`.
 
@@ -187,8 +187,8 @@ rg -i -n '\bRAID\b|4-cloud|economic.?ops' \
 
 | Field | Value |
 |-------|-------|
-| Observed ggen tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `81774629e6dd4cde79d615b022962649bd884a85` |
-| Observed smalt tip | `91997da76f0f356dc2be914bdb0a5b8227518719` (parent `875efbb87` — tip includes both) |
+| Observed ggen tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `4b22529df2939412c41107fe5e9eea66ba6a4dad` (honesty retip; prior `8a68da481` / `4b22529df` standing refresh) |
+| Observed smalt tip | `875efbb87bde8422236cf9db7224412962dbc5a7` via `bc-ad9ebffa` + retry `bc-1e876087` |
 | Sibling mount in this ggen workspace | **not mounted** — courts ran on Smalt live |
 | 4-cloud exits | doctor=**0** aws=**0** gcp=**0** azure=**0** twilio=**0** @ `875efbb87` |
 | FinOps | **ALIVE** @ `91997da76f0f` — `mix test test/fin_ops_calculator_test.exs` → exit **0**, **19 passed** |
@@ -202,11 +202,12 @@ rg -i -n '\bRAID\b|4-cloud|economic.?ops' \
 Materialized as the v27.1.1 goal-slice standing ledger for **Smalt 4-Cloud RAID
 / economic ops**. Honesty tip pin 2026-11-22 on `5e00619a4`
 (`cursor/v2711-ccs-ops-honesty-bc54`) held **UNKNOWN**+**BLOCKED**. Live
-4-cloud promotion to **PARTIAL_ALIVE** recorded 2026-11-22 on branch
-`cursor/v2711-smalt-partial-bc54` against ggen tip `8a68da481` /
-smalt tip `875efbb87` (`bc-ad9ebffa`: doctor/aws/gcp/azure/twilio exits
-**0,0,0,0,0**; `fin_ops` then **UNSUPPORTED**). FinOps restore to **ALIVE**
-recorded 2026-11-22 on branch `cursor/v2711-smalt-finops-alive-bc54` against
-ggen tip `81774629e` / smalt tip `91997da76f0f` (parent `875efbb87` — tip
-includes both; `mix test test/fin_ops_calculator_test.exs` exit **0**,
-**19 passed**). Do not invent full RAID `ALIVE` or Foundry crown `ALIVE`.
+4-cloud land 2026-11-22 on `cursor/v2711-smalt-partial-bc54` against ggen tip
+`8a68da481` / smalt tip `875efbb87` (`bc-ad9ebffa`: doctor/aws/gcp/azure/twilio
+exits **0,0,0,0,0**). Retry honesty refresh (`bc-1e876087` / this land): RAID
+columns labeled **ALIVE**; FinOps upgraded **UNSUPPORTED**→**PARTIAL_ALIVE**
+via burn-path `docs/jira/v26.10.18/burn/test/fin_ops_calculator_test.exs`
+exit **0**; canonical path still **ABSENT**. Full Smalt RAID / economic-ops
+crown and Foundry crown stay **PARTIAL_ALIVE** / non-`ALIVE`.
+
+Honesty retip 2026-11-22 (`cursor/v2711-foundry-honesty-bc54`) → ggen tip `4b22529df2939412c41107fe5e9eea66ba6a4dad`; Smalt spine/Foundry row stays **PARTIAL** (column exits ≠ RAID/`ALIVE`); canonical FinOps still next.
