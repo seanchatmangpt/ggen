@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|-------|
 | Document ID | `R01-R07-BODIES-NEXT-VERIFIER-STANDING-27.1.1` |
-| Branch | tip-wins absorb of `cursor/v2711-brce-bodies-next-bc54` @ `4f9a3685e` (bodies pin `6e227c187`; prior absorb `ba5d26903`/`21e4cb941` content-≡) onto crown via `cursor/v2711-webauthn-bodies-absorb-edb4` |
+| Branch | tip-wins absorb of `cursor/v2711-brce-bodies-next-bc54` @ `4f9a3685e` (bodies pin `6e227c187`; prior absorb `ba5d26903`/`21e4cb941` content-≡) onto crown via `cursor/v2711-timer-settle-bb41` |
 | Spec binding | `ECOSYSTEM-SPEC-27.1.1` §11 / D7; OOR **G3-5** / BRCE **V10** |
 | Companions | [`R01-R07-STANDING.md`](./R01-R07-STANDING.md) §2; [`R01-R07-TIP-CARGO-STANDING.md`](./R01-R07-TIP-CARGO-STANDING.md); [`BRCE-V8-NEXT-VERIFIER-STANDING.md`](./BRCE-V8-NEXT-VERIFIER-STANDING.md); [`BRCE-WEBAUTHN-STANDING.md`](./BRCE-WEBAUTHN-STANDING.md) §5 **V10**; [`CCS-BRCE-STANDING.md`](./CCS-BRCE-STANDING.md) §2; [`OUT-OF-REPO-NEXT-VERIFIERS.md`](./OUT-OF-REPO-NEXT-VERIFIERS.md) **G3-5** |
 | Observed ggen tip (side base) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `bebea5dd0d4c9af533457e04e0ed068ae8844f69` (⊇ HITL retip2 **BLOCKED_HITL** + zcode refusal **ALIVE** + OOR retip14) |
