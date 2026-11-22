@@ -1,7 +1,7 @@
 # `verify_witness` size reconfirm — cheap `wc -c` (&lt;250KB)
 
 ```text
-exit=measure_0 standing=ALIVE(size_measure) bytes=28673 tip=5203efd759f31ae2a2f5680e9ae33a93a0b1c532
+exit=measure_0 standing=ALIVE(size_measure) bytes=28673 tip=6ffc4aba8d233303042172c22bb46bf11d551be8
 cargo=NOT_RUN (cheap reconfirm — no cargo)
 honesty=size_measure_ALIVE_neq_tip_cargo_ALIVE_neq_production_ALIVE_neq_Foundry_ALIVE
 side=cursor/v2711-vw-size-reconfirm-bc54
@@ -11,9 +11,9 @@ agent=bc-d90bd1f7-6269-5bf7-a89c-70e67614e43d
 | Field | Value |
 |-------|-------|
 | Branch | `cursor/v2711-vw-size-reconfirm-bc54` |
-| Crown tip (fetch base) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `5203efd759f31ae2a2f5680e9ae33a93a0b1c532` (live tip; last-known cite `4353560e9…` superseded on fetch) |
+| Crown tip (fetch base) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `6ffc4aba8d233303042172c22bb46bf11d551be8` (live tip; last-known cite `4353560e9…` superseded on fetch) |
 | Agent | `bc-d90bd1f7-6269-5bf7-a89c-70e67614e43d` |
-| UTC | `2026-11-22T18:29:36Z` |
+| UTC | `2026-11-22T18:30:04Z` |
 | Prior measure cite | **28673** ([`VERIFY-WITNESS-SIZE-RETIP3-STANDING.md`](./VERIFY-WITNESS-SIZE-RETIP3-STANDING.md), [`OPS-SURFACES-ON2-STANDING.md`](./OPS-SURFACES-ON2-STANDING.md)) |
 | Affidavit pin ledger | [`VERIFY-WITNESS-AFFIDAVIT-SIZE-COURT-STANDING.md`](./VERIFY-WITNESS-AFFIDAVIT-SIZE-COURT-STANDING.md) |
 | Cargo | **not run** (task: cheap reconfirm only) |
@@ -40,7 +40,7 @@ agent=bc-d90bd1f7-6269-5bf7-a89c-70e67614e43d
 | Foundry / hop-5 | **not this subject** |
 
 ```text
-ALIVE(size_measure @ tip 5203efd759f31ae2a2f5680e9ae33a93a0b1c532)
+ALIVE(size_measure @ tip 6ffc4aba8d233303042172c22bb46bf11d551be8)
   ⇔  file present: affidavit_gatekeeper_verify_witness.wasm
   ∧  wc -c = 28673
   ∧  28673 < 250000
