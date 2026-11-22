@@ -446,3 +446,14 @@ Do **not** promote Foundry / zero-HITL `ALIVE` from this retip or tip-wins absor
 | In-ggen publish | **UNSUPPORTED** (unchanged) |
 | LinkedIn / Jobs | **BLOCKED** (cos `/readyz` residual orthogonal; not re-probed) |
 | Exact next verifier | Replay §13.2 / §14.2 full court set @ `e0d99c6` (`publish_digest_bind_court` **6/6** + redaction/brand + spine-probe with `--ggen-layout-digest`); Foundry remains open on HITL/OOR/WebAuthn |
+
+## Retip — digest-bind lib replay (2026-11-22 3:40 PM PST)
+
+| Field | Value |
+|-------|-------|
+| Clone | `/tmp/castle-spine` @ `e0d99c65f` |
+| Command | `RUSTUP_TOOLCHAIN=nightly cargo test --lib publish::digest_bind` |
+| Result | **4 passed**; EXIT **0** (`/tmp/castle-digest-bind3.log`) |
+| Standing | digest-bind wire replay **ALIVE**/`WIRED` — **≠ Foundry / zero-HITL / path `ALIVE`** |
+| Construct | ggen tip Construct **in_progress** @ `45081862735` / tip `7bb443e99` |
+
