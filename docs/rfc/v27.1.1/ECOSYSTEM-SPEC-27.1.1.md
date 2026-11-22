@@ -172,12 +172,13 @@ in worktree sanitizers and ORIGINAL_REQUEST doctrine. That ban is about the
 
 Standing on tip:
 
-- Truex product admission of `shui:`: **PARTIAL_ALIVE** — sibling Chicago
-  admit-court **6/6 vitest exit 0** on `seanchatmangpt/truex` @ `e28e68300`
-  (`cursor/v2711-truex-admit-court-bc54` / truex#6): `shui:` → **ADMITTED**;
-  private `truex:` → **REFUSED_PRIVATE**; unknown → **REFUSED_UNKNOWN**. Not
-  full product `ALIVE` until that PR merges to truex `main` + tip-sync ggen
-  fence parity. See [`GATE-1-GAP-MATRIX.md`](./GATE-1-GAP-MATRIX.md).
+- Truex product admission of `shui:`: **ALIVE** — sibling Chicago admit-court
+  **6/6 vitest exit 0** on `seanchatmangpt/truex` @ `68d2d2331696f18949f4877b994320018b6365e5`
+  ([truex#6](https://github.com/seanchatmangpt/truex/pull/6) **MERGED** → `main`
+  `b4672131`; mount `/tmp/truex`): `shui:` → **ADMITTED**; private `truex:` →
+  **REFUSED_PRIVATE**; unknown → **REFUSED_UNKNOWN**. Replay:
+  `pnpm exec vitest run test/admit/admit-court.test.ts` → exit **0**. See
+  [`GATE-1-GAP-MATRIX.md`](./GATE-1-GAP-MATRIX.md).
 - ggen public-prefix alignment: `vocab::shui` + `shui_public_prefix_court` —
   **ALIVE** on evidence tip `0478fde59` (fence only; tip-cargo reconfirm may
   still be PENDING).
@@ -202,10 +203,10 @@ slope admission + Chicago court); token-inventory plane **UNSUPPORTED** until
 Gate 2+.
 
 In-repo **brand.toml hot-swap** fence (`seed_hot_swap_slot` / `hot_swap_brand`
-+ `brand_toml_hotswap_court`): **PARTIAL_ALIVE** only — admits Fourth Watch ↔
-CindyCat transitions under rhythm law; refuses unknown OEM ids / same-brand /
-rhythm failures. Does **not** authorize production runtime theme swap or CASTLE
-publish `ALIVE`.
++ `brand_toml_hotswap_court`): **PRESENT** only (tip source; tip-cargo pending) —
+admits Fourth Watch ↔ CindyCat transitions under rhythm law; refuses unknown OEM
+ids / same-brand / rhythm failures. Does **not** authorize production runtime
+theme swap or CASTLE publish `ALIVE`.
 
 Production theme promote (`promote_production_theme`) is fail-closed
 **UNSUPPORTED** → typed `REFUSED_PRODUCTION` on the Gate-1 path (lib court
@@ -223,7 +224,10 @@ production theme: [`BRAND-PRODUCTION-THEME.md`](./BRAND-PRODUCTION-THEME.md)
 - fails closed on missing / stale / mismatched layout digests;
 - does not re-authorize DO.
 
-Standing: **UNSUPPORTED** in this repo (zcode-cli not a workspace member).
+Standing: zcode-cli adapter **UNSUPPORTED** in this repo (not a workspace
+member). ggen in-repo `ui_layout_court` digest-consume fence is separately
+**ALIVE** tip-cargo (**11 passed; exit 0** @ `ca52e9c16`; sources ≡ tip
+`15ae6ef16+`) — fence ≠ sibling `.ts` `ALIVE`.
 
 ---
 

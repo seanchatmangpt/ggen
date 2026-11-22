@@ -1,7 +1,7 @@
 # `verify_witness` size court standing (Clause 3 retip)
 
 ```text
-exit=skipped standing=PRESENT size=35 tip=d48b763b88b58f2d7eb280202cf73f46c7aa3a87
+exit=skipped standing=PRESENT size=35 tip=TIPSHA_FINISH
 ```
 
 | Field | Value |
@@ -16,7 +16,7 @@ exit=skipped standing=PRESENT size=35 tip=d48b763b88b58f2d7eb280202cf73f46c7aa3a
 | Prior session binary | `/tmp/gate1-finalbin-verify_witness_size_court.log` — **6 passed; exit 0** (warm binary path; not tip-exclusive package rebuild this pass) |
 | Tip exclusive flock | `/tmp/ggen-uilayout-tip-alive-protected` **HELD** — cargo not taken (preserve ui_layout tip-cargo **ALIVE**) |
 | Standing (size court) | **PRESENT** (docs-only absorb onto tip past `46a026ae9`). Tip-cargo package `ALIVE` **PENDING**. |
-| Tip-wins | ui_layout tip-cargo **ALIVE** retained; verify_witness stays **PRESENT** (not tip-cargo `ALIVE`) |
+| Tip-wins | absorb #936/#937 onto `15ae6ef16+`; ui_layout tip-cargo **ALIVE** retained; verify_witness stays **PRESENT** (not tip-cargo `ALIVE`) |
 | Production WASM | **UNSUPPORTED** — [`VERIFY-WITNESS-PRODUCTION.md`](./VERIFY-WITNESS-PRODUCTION.md) |
 | ManagePullRequest | not used |
 | Cargo this absorb | **no** |
