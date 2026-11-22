@@ -19,7 +19,7 @@ prior_exact_tip7_partial=881f2ec16 EXIT137
 prior_tip6_partial=c661d228a EXIT137
 prior_alive_lineage=008a81d21 / sealed a4b3d3fb4 (4 passed; tip-cargo ALIVE held)
 peer_taffy_tip6=ALIVE EXIT0 pid=3873369 /tmp/gate1-taffy-tip6
-crown_absorb=ABSORBED@ef3df3a8e→4dfbee817←97c162181
+crown_absorb=ABSORBED@ef3df3a8e→02942a9f1←97c162181
 ManagePullRequest=not_used
 force_push=none
 Foundry_ALIVE=not_claimed
@@ -43,7 +43,7 @@ Foundry_ALIVE=not_claimed
 | Disk | `df` before orphan clean `113G/141G avail (45%)`; after `112G/142G (45%)`; at cargo `145G/109G (58%)` after warm seed |
 | Log / status | `/tmp/cursor/shui-tip7-retry.log` · `/tmp/cursor/shui-tip7-retry.status` → `SHUI_EXIT=0` |
 | Prior tip-cargo ALIVE (lineage) | **held** — 4 passed; EXIT 0 @ `a4b3d3fb4` / lineage `008a81d21` (blob `3cda065f`) |
-| Crown absorb | **PENDING** tip-wins onto `cursor/ecosystem-spec-27-1-1-bc54` |
+| Crown absorb | **ABSORBED** tip-wins onto `cursor/ecosystem-spec-27-1-1-bc54` @ pre-absorb `ef3df3a8e31b4ea49e3057d4b95cf21562fe5127` → absorb `02942a9f18086d5cdfa7994ab3d42513b28ef23d` (side `97c1621811c539d50dd3e1475d22a649a002d875`) |
 | ManagePullRequest | **not used** |
 | Force-push | **none** |
 | Foundry ALIVE | **not claimed** |
@@ -111,5 +111,5 @@ target=/tmp/tip7-serial
 peer_exit=0
 lineage_alive=a4b3d3fb4/008a81d21
 prior_partial=d35482374_EXIT101_superseded
-crown_absorb=ABSORBED@ef3df3a8e→4dfbee817←97c162181 ManagePullRequest=not_used force_push=none Foundry_ALIVE=not_claimed
+crown_absorb=ABSORBED@ef3df3a8e→02942a9f1←97c162181 ManagePullRequest=not_used force_push=none Foundry_ALIVE=not_claimed
 ```
