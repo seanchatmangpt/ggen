@@ -1,5 +1,10 @@
 # V2711-COMPLETION-AUDIT — requirement-by-requirement standing vs objective
 
+> **Retip** `2026-11-22T19:17Z` (America/Los_Angeles 11:17) @ crown **`52b88ae42b5ca2dab85619b4372019d5946c03bb`**
+> After: zcode POWL retip3 absorb `941e93c89` · Ops ON2 Gate1-closed `52b88ae42` · Foundry `--live` **foundry_exit=1** **BLOCKED_HITL**.
+> Goal **NOT COMPLETE**. Never invent Foundry ALIVE. tip-cargo ALIVE ≠ live-tip reconfirm ≠ path crown ≠ Foundry ALIVE.
+
+
 ```text
 crown_tip=7646bce35803f99dfb97707382054f74aa872631
 pre_absorb_write=15eefb628368afcbb230d082d6ca00c286ca9d42
@@ -18,7 +23,7 @@ goal=NOT_COMPLETE
 |-------|-------|
 | Document ID | `V2711-COMPLETION-AUDIT-27.1.1` |
 | Objective | Close `ECOSYSTEM-SPEC-27.1.1` crown (photo + CCS/BRCE + ops O(N²) + Foundry zero-HITL + Gate1 + Gate0/2/3 OOR through **2027-01-01** GA) |
-| Observed crown tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ **`7646bce35803f99dfb97707382054f74aa872631`** (`7646bce35`; tip-wins absorb land `bc481a111` of this audit; pre-absorb write base `15eefb628`; ⊇ photolith shui-hop ALIVE absorb `07cd663e0` + Foundry `--live` re-probe `51cbe7830`) |
+| Observed crown tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ **`52b88ae42b5ca2dab85619b4372019d5946c03bb`** (Ops ON2 Gate1-closed; ⊇ zcode retip3 `941e93c89` · Foundry live retip `2e1b0f561` · prior audit land `bc481a111`) |
 | Sidebranch | `cursor/v2711-completion-audit-bc54` |
 | Cargo / tip-cargo | **NOT RUN** (docs-only; evidence from companion ledgers only) |
 | Goal standing | **NOT COMPLETE** — Foundry **BLOCKED_HITL** ∧ BRCE **V8 BLOCKED** ∧ WebAuthn **UNSUPPORTED** ∧ cos **BLOCKED** ∧ revops **UNKNOWN** ∧ path crown **PARTIAL** |
@@ -40,7 +45,8 @@ standings count **open** against the crown objective.
 ## Compact return
 
 ```text
-open=23|closed=23|side=cursor/v2711-completion-audit-bc54|absorbed=bc481a111|crown_tip=7646bce35
+open=23|closed=23|side=cursor/v2711-completion-audit-retip-bc54|absorbed=pending|crown_tip=52b88ae42
+goal=NOT_COMPLETE (held) · Foundry=BLOCKED_HITL · Ops ON2 retipped · zcode retip3 ALIVE bounded
 goal=NOT_COMPLETE
 Foundry=BLOCKED_HITL BRCE_V8=BLOCKED WebAuthn=UNSUPPORTED cos=BLOCKED revops=UNKNOWN path=PARTIAL
 ```
