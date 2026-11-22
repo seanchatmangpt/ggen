@@ -42,6 +42,7 @@ pub mod epoch;
 pub mod execute;
 pub mod frontier;
 pub mod generated;
+pub mod igniter_cleanroom;
 pub mod lease;
 pub mod ledger;
 pub mod pack_health;
