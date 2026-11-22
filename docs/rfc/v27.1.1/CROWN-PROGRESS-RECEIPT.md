@@ -4,7 +4,7 @@
 |-------|-------|
 | Document ID | `CROWN-PROGRESS-RECEIPT-27.1.1` |
 | Status | **PROGRESS RECEIPT** (honest; **not** goal-complete; **not** crown `ALIVE`) |
-| Observed tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `2fd8971414519f5a1c51f6b04c1f7a85831def52` (~`46a026ae9+`) |
+| Observed tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `11019cbebf61a917511039e84518a03d5ab1ff27` (absorb photo+#929+#930 onto `2fd897141` ~`46a026ae9+`) |
 | Tip subject | absorb photo-hop4 @ `d191cf792` + #929 verify_witness PRESENT + #930 taffy PRESENT onto tip past #926 ui_layout tip-cargo **ALIVE** / #927 chicago / #928 Smalt (ALIVE supersedes PENDING) |
 | Ledger pins cited | Gate-1 / Photo / Foundry: ui_layout **ALIVE** retained; taffy **PRESENT** reconfirm; verify_witness size court **PRESENT**; hop-4 BrandTheme **ALIVE** reconfirm; OOR / CCS / BRCE / CASTLE retain prior absorb pins |
 | Cargo this receipt | **no** — tip-cargo skipped this absorb; prior exclusive quiet `ui_layout_court` **11 passed; exit 0** @ `ca52e9c16` retained |
@@ -30,7 +30,7 @@ FinOps: FOUNDRY/OOR **ALIVE** @ `91997da76f0f` vs older §13.3 FinOps
 Compact return line:
 
 ```text
-tip=76f8098b56f8ee72797b60d0208a5ded2937d508
+tip=11019cbebf61a917511039e84518a03d5ab1ff27
 clause1=PARTIAL
 clause2=PARTIAL_ALIVE
 clause3=PARTIAL+BLOCKED
