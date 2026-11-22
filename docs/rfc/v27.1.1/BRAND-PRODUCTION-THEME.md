@@ -5,7 +5,7 @@ Companion to `ECOSYSTEM-SPEC-27.1.1` §8 and Gate-1 gap matrix row
 
 ## Standing (this tip)
 
-Tip pin: absorb tip `a3f1ec40f+` (~`2fd897141+` / `120598fb3+`; brand-gate1 @ `5c08f3312` absorbed).
+Tip pin: absorb tip `cb1e2ac49` (~`2fd897141+` / `120598fb3+`; brand-gate1 @ `5c08f3312` absorbed).
 
 | Surface | Standing | Evidence |
 |---------|----------|----------|

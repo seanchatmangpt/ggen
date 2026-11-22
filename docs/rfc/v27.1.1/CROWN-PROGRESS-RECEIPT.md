@@ -4,7 +4,7 @@
 |-------|-------|
 | Document ID | `CROWN-PROGRESS-RECEIPT-27.1.1` |
 | Status | **PROGRESS RECEIPT** (honest; **not** goal-complete; **not** crown `ALIVE`) |
-| Observed tip | absorb tip `a3f1ec40f+` (pin after honesty finish; lineage `55538fe6f` / `84909a70c` / `2fd897141+`; ~`89ca2da9c+`) |
+| Observed tip | absorb tip `cb1e2ac49d4e6137b19023ae75da5aed0ca568fe` (lineage `a3f1ec40f` / `55538fe6f` / ~`89ca2da9c+`) |
 | Tip subject | absorb brand-gate1 @ `5c08f3312` (#933) + #930 taffy **PRESENT** @ `ef6fb84ed` + #931 hop-4 BrandTheme **ALIVE** @ `d191cf792` + #932 construct_hash **PRESENT** @ `27f586390` onto tip past #926 ui_layout tip-cargo **ALIVE** / #927 chicago / #928 Smalt / #929 verify_witness **PRESENT** (ALIVE supersedes PENDING) |
 | Ledger pins cited | Gate-1 / Photo / Foundry / Brand / CCS retipped; taffy tip subject **PRESENT**; hop-4 **ALIVE** reconfirm; brand hot-swap+fluid **PRESENT** / production **UNSUPPORTED**; construct_hash **PRESENT**; OOR / BRCE / CASTLE retain prior absorb pins |
 | Cargo this receipt | **no** — construct_hash cargo + tip flocks busy; prior exclusive quiet `ui_layout_court` **11 passed; exit 0** @ `ca52e9c16` retained |
@@ -30,7 +30,7 @@ FinOps: FOUNDRY/OOR **ALIVE** @ `91997da76f0f` vs older §13.3 FinOps
 Compact return line:
 
 ```text
-tip=a3f1ec40f+ (absorb brand+#930+#931+#932; pin at honesty finish)
+tip=cb1e2ac49d4e6137b19023ae75da5aed0ca568fe
 clause1=PARTIAL
 clause2=PARTIAL_ALIVE
 clause3=PARTIAL+BLOCKED
@@ -48,7 +48,7 @@ blockers=foundry--live; remaining-fence-tip-cargo; cos/readyz; WebAuthn/BRCE-V8/
 | **Path crown** | **PARTIAL** / **non-ALIVE** |
 | Hop 1 perimeter (`shui:` fence + Truex admit) | Fence **PARTIAL_ALIVE**/evidence-**ALIVE** (tip-cargo PENDING); Truex admit-court **ALIVE** @ `truex@68d2d233` (merged) |
 | Hop 2 `.ttl`/`.toml` rhythm + dual-schema | **PARTIAL_ALIVE** (full DTCG/CASTLE inventory **UNSUPPORTED**) |
-| Hop 3 Taffy AOT six-width seal | **PRESENT** tip subject (`git ls-tree` blob `d8923b07e` on `120598fb3+`/`a3f1ec40f+`); evidence exit 0 ancestor; tip-cargo **PENDING**/SKIPPED thrash; consumer bind open → path **PARTIAL_ALIVE** |
+| Hop 3 Taffy AOT six-width seal | **PRESENT** tip subject (`git ls-tree` blob `d8923b07e` on `120598fb3+`/`cb1e2ac49`); evidence exit 0 ancestor; tip-cargo **PENDING**/SKIPPED thrash; consumer bind open → path **PARTIAL_ALIVE** |
 | Hop 3b ggen `ui_layout` digest consume | **ALIVE** tip-cargo **11 passed; exit 0** @ `ca52e9c16` (≡ tip `120598fb3`); tip source **11**; prior evidence `eaf0dad40` |
 | Hop 4 ggen_igniter BrandTheme manufacture | **ALIVE** (`diff_exit=0` dual-schema tip brand vs igniter fixture); `mix sync` NIF **BLOCKED** |
 | Hop 5 zcode POWL/OCEL / foundry | **PARTIAL_ALIVE** — adapter exit **0**; Linux tip-matched runtime **PRESENT**; `powl-foundry-loop --live` **foundry_exit=1** / **REFUSED** (`Model access is not configured` @ zcode `f32df08`) |
@@ -183,5 +183,5 @@ Recommended next Gate-1 falsifier (pick one): quiet tip-cargo reconfirm of remai
 | Materialized | 2026-11-22 — branch `cursor/v2711-crown-progress-bc54` against tip `ca52e9c16` |
 | Absorb retip | 2026-11-22 — `cursor/v2711-gate1-uilayout-alive-bc54` absorbs `8090022f4` onto tip `120598fb3` |
 | Sources | GATE-1-GAP-MATRIX, PHOTOLITHOGRAPHY, FOUNDRY-FINISH, OUT-OF-REPO-NEXT-VERIFIERS, SMALT-RAID, CCS-AUTHORITY, BRCE-WEBAUTHN, ECOSYSTEM-SPEC §13 |
-| Absorb brand+#930+#931+#932 | 2026-11-22 — `cursor/v2711-absorb-brand-930-932-4618` onto tip `a3f1ec40f+` (~`89ca2da9c+`): brand-gate1 @ `5c08f3312`; #930 taffy **PRESENT**; #931 hop-4 **ALIVE**; #932 construct_hash **PRESENT**; ui_layout tip-cargo **ALIVE** tip-wins |
+| Absorb brand+#930+#931+#932 | 2026-11-22 — `cursor/v2711-absorb-brand-930-932-4618` onto tip `cb1e2ac49` (~`89ca2da9c+`): brand-gate1 @ `5c08f3312`; #930 taffy **PRESENT**; #931 hop-4 **ALIVE**; #932 construct_hash **PRESENT**; ui_layout tip-cargo **ALIVE** tip-wins |
 | Method | Absorb tip-cargo ALIVE standing; no new cargo; no ManagePullRequest |

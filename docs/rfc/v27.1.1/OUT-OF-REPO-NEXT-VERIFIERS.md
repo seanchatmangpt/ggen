@@ -5,11 +5,11 @@
 | Document ID | `OUT-OF-REPO-NEXT-VERIFIERS` |
 | Companion | `ECOSYSTEM-SPEC-27.1.1`, `GATE-0-STANDING`, `GATE-3-RELEASE-COURTS-STANDING`, `FOUNDRY-FINISH-STANDING` |
 | Target GA | **2027-01-01** |
-| Observed ggen tip | absorb tip `a3f1ec40f+` (honesty finish pin; lineage `55538fe6f` / ~`89ca2da9c+`) |
+| Observed ggen tip | absorb tip `cb1e2ac49d4e6137b19023ae75da5aed0ca568fe` (lineage `a3f1ec40f` / ~`89ca2da9c+`) |
 | Materialized | 2026-11-22 |
 | Hardened | 2026-11-22 — `cursor/v2711-oor-ledger-harden-bc54` |
 | Ops refresh | 2026-11-22 — `cursor/v2711-ops-standing-refresh-bc54` (tip pin + probe reconfirm; standings held) |
-| Tip pin | 2026-11-22 — absorb brand-gate1 @ `5c08f3312` + #930 taffy **PRESENT** @ `ef6fb84ed` + #931 hop-4 **ALIVE** @ `d191cf792` + #932 construct_hash **PRESENT** @ `27f586390` onto tip `a3f1ec40f+` (~`89ca2da9c+` / `55538fe6f`). Tip-wins: ui_layout tip-cargo **ALIVE** retained (#926); #927 chicago **PARTIAL_ALIVE**; #928 Smalt **ALIVE**; #929 verify_witness **PRESENT**. Brand production **UNSUPPORTED**. No cargo (construct_hash busy). No ManagePullRequest. |
+| Tip pin | 2026-11-22 — absorb brand-gate1 @ `5c08f3312` + #930 taffy **PRESENT** @ `ef6fb84ed` + #931 hop-4 **ALIVE** @ `d191cf792` + #932 construct_hash **PRESENT** @ `27f586390` onto tip `cb1e2ac49d4e6137b19023ae75da5aed0ca568fe` (~`89ca2da9c+` / `55538fe6f`). Tip-wins: ui_layout tip-cargo **ALIVE** retained (#926); #927 chicago **PARTIAL_ALIVE**; #928 Smalt **ALIVE**; #929 verify_witness **PRESENT**. Brand production **UNSUPPORTED**. No cargo (construct_hash busy). No ManagePullRequest. |
 | Hop-4 evidence | `/tmp/cursor/igniter-real-cleanroom.md` (`bc-4861c787`) — tip dual-schema BrandTheme manufacture compare `diff_exit=0` (**ALIVE**) |
 | Hop-5 evidence | [`HOP5-MIX-SUBJECT-STANDING.md`](./HOP5-MIX-SUBJECT-STANDING.md) (`adapter_exit=0` / `layout_exit=0`; Chicago **31/0`); runtime **PRESENT** ([`HOP5-ZCODE-RUNTIME-STANDING.md`](./HOP5-ZCODE-RUNTIME-STANDING.md)); foundry `--live` **foundry_exit=1** / **REFUSED** `Model access is not configured` @ zcode `f32df08` |
 | Repo scope | `seanchatmangpt/ggen` — **tracks** sibling standing; does not execute sibling DO |
