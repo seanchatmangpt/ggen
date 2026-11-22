@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|-------|
 | Document ID | `WEBAUTHN-LIVE-NEXT-VERIFIER-STANDING-27.1.1` |
-| Branch | sidebranch re-pin `cursor/v2711-webauthn-retip2-bc54` on tip `bebea5dd0` (prior tip-wins absorb `cursor/v2711-webauthn-next-bc54` @ `15854bbe2` → crown `33a5420ad` / `a7e190400` retained in lineage) |
+| Branch | tip-wins absorb of `cursor/v2711-webauthn-retip2-bc54` @ `7ac7fee56` via `cursor/v2711-bodies-tip-absorb-1d17` (prior tip-wins absorb `cursor/v2711-webauthn-next-bc54` @ `15854bbe2` → crown `33a5420ad` / `a7e190400` retained in lineage) |
 | Spec binding | `ECOSYSTEM-SPEC-27.1.1` §13.2 Clause 2 — CCS / BRCE + WebAuthn AS-01 |
 | Companions | [`BRCE-WEBAUTHN-STANDING.md`](./BRCE-WEBAUTHN-STANDING.md) §5 V7–V9; [`CCS-BRCE-STANDING.md`](./CCS-BRCE-STANDING.md); [`CCS-AUTHORITY-STANDING.md`](./CCS-AUTHORITY-STANDING.md) CCS #1; [`OUT-OF-REPO-NEXT-VERIFIERS.md`](./OUT-OF-REPO-NEXT-VERIFIERS.md) **G2-4** (→ **G2-3**/**G2-5**); [`BRCE-V8-NEXT-VERIFIER-STANDING.md`](./BRCE-V8-NEXT-VERIFIER-STANDING.md) |
 | Observed ggen tip (retip2 base) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `bebea5dd0d4c9af533457e04e0ed068ae8844f69` (`bebea5dd0`; ⊇ HITL retip2 BLOCKED_HITL absorb + zcode refusal ALIVE + OOR retip14) |
@@ -116,6 +116,7 @@ Plane-5 probe detail: [`OUT-OF-REPO-NEXT-VERIFIERS.md`](./OUT-OF-REPO-NEXT-VERIF
 | Prior evidence chain | BRCE seat fence tip-cargo **ALIVE** @ `e7569893a` → V7 ES256 fixture land @ `fb6e7fc6e` → CCS-BRCE residual honesty → OOR G2-4 production still **UNSUPPORTED** |
 | Absorb guidance | Tip-wins later onto crown when safe; cite §3 verbatim; standing **UNSUPPORTED** until ceremony exit **0** — do **not** invent live-crypto / V8 / Plane-5 `ALIVE` |
 | Re-pin retip2 | 2026-11-22 — `cursor/v2711-webauthn-retip2-bc54` from `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `bebea5dd0` (⊇ HITL retip2 BLOCKED_HITL); `bc-83ab488f`; docs-only honesty re-pin; live WebAuthn **UNSUPPORTED** held; **V8** **BLOCKED**; exact next §3 Founder HITL ceremony; **no** invented live-crypto / V8 / Plane-5 `ALIVE`; sidebranch push only; no ManagePullRequest; **no** crown push |
+| Tip-wins absorb (retip2) | 2026-11-22 — `cursor/v2711-bodies-tip-absorb-1d17` absorbs `7ac7fee56` onto crown tip `59861d48a` (⊇ bodies-next BLOCKED + OOR retip15 + curve + zcode refusal); standing remains **UNSUPPORTED**; **V8** **BLOCKED**; **no** invented live-crypto / V8 / Plane-5 `ALIVE`; docs-only; no cargo; no ManagePullRequest; push `HEAD:cursor/ecosystem-spec-27-1-1-bc54` (no force) |
 
 ---
 
@@ -150,4 +151,4 @@ Plane-5 probe detail: [`OUT-OF-REPO-NEXT-VERIFIERS.md`](./OUT-OF-REPO-NEXT-VERIF
 
 **Exact next verifier one-liner (Founder HITL):** admit RP-ID + enroll hardware → live assertion court (`clientDataJSON` + `authenticatorData` + ES256/`prime256v1`) — known-good → exit **0**; tampered / missing RP-ID / alg≠ES256 → `REFUSED_*` (full falsifier: §3).
 
-**Antifalsifiers held:** V7 fixture / V1 seat fence / SovereignLease Ed25519 / CCS #2/#3 tip-cargo ≠ live WebAuthn `ALIVE`. Sidebranch only — **no** crown push; standing **not** promoted.
+**Antifalsifiers held:** V7 fixture / V1 seat fence / SovereignLease Ed25519 / CCS #2/#3 tip-cargo ≠ live WebAuthn `ALIVE`. Tip-wins absorb onto crown via `cursor/v2711-bodies-tip-absorb-1d17` — standing **not** promoted (**UNSUPPORTED**; **V8** **BLOCKED**).
