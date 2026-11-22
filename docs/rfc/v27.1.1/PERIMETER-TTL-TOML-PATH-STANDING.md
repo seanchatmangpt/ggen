@@ -59,7 +59,7 @@ live under `docs/rfc/v27.1.1/fixtures/` + `crates/ggen-graph/`, not under packs.
 
 | Claim | Standing | Exact reason (held) |
 |-------|----------|---------------------|
-| Hop 1 — ggen perimeter fence (`shui:` / public prefixes) | **ALIVE (lineage tip-cargo)** | **4 passed; exit 0** @ `008a81d21`; sources ≡ tip `c5101d597`; **no exact tip EXIT:0** on live crown — do **not** invent tip-subject fence `ALIVE` |
+| Hop 1 — ggen perimeter fence (`shui:` / public prefixes) | **ALIVE (lineage tip-cargo)** + exact-tip4 **PARTIAL_ALIVE** | **4 passed; exit 0** @ `008a81d21`; sources ≡ tip (blob `3cda065f`); exact-tip4 @ `cc2a4ea66` → **EXIT 137** ([`SHUI-PUBLIC-PREFIX-EXACT-TIP4-STANDING.md`](./SHUI-PUBLIC-PREFIX-EXACT-TIP4-STANDING.md)) — do **not** invent tip-subject fence `ALIVE` |
 | Hop 1 — Truex product admit-court | **ALIVE** | vitest **6/6** exit 0 @ `truex@68d2d233` (merged `b4672131`; not re-run) |
 | Hop 2 — `.ttl`/`.toml` rhythm + completeness | **ALIVE (exact tip-cargo)** | completeness **5** + rhythm **12** EXIT 0 @ `77eb46fd0` ([`BRAND-TOML-TIP-CARGO-STANDING.md`](./BRAND-TOML-TIP-CARGO-STANDING.md)); dual-schema `[primitive.space]` held |
 | Hop 2 — full DTCG / CASTLE token inventory | **UNSUPPORTED** | Gate 2+ / brand plane; inventing tokens → `REFUSED_UNGROUNDED` |
