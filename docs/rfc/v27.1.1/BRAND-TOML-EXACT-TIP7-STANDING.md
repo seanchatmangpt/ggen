@@ -16,7 +16,7 @@ prior_tip6_partial=552c85f29 EXIT137
 lineage_alive_tip=77eb46fd0 / sealed 2685119bd
 prior_probe_tip7=EXIT124 cold /tmp/gate1-tip7-brand (PARTIAL superseded)
 exact_tip_reconfirm=ALIVE (EXIT:0 @ 675c614051c5c55eb96ee9454d290b1a646f189d)
-crown_absorb=pending
+crown_absorb=ABSORBED@6883aab70f7bf6d5ba5c5316983211127c28dc1f→2e0c4570d5dd1b2eb4737e5b46fe86f2c0d24d9d←82e62dc17a018130edf1f279f08d42b5842c782f
 ManagePullRequest=not_used
 force_push=none
 Foundry_ALIVE=not_claimed
@@ -39,7 +39,7 @@ Foundry_ALIVE=not_claimed
 | Lineage tip-cargo ALIVE | **held** — completeness **5** + rhythm **12**; EXIT 0 @ `77eb46fd0` / sealed `2685119bd` |
 | Prior tip6 | `cursor/v2711-brand-exact-tip6-bc54` — PARTIAL EXIT:**137** — [`BRAND-TOML-EXACT-TIP6-STANDING.md`](./BRAND-TOML-EXACT-TIP6-STANDING.md) |
 | Production theme | **UNSUPPORTED** (`REFUSED_PRODUCTION`) — unchanged |
-| Crown absorb | **pending** tip-wins onto `cursor/ecosystem-spec-27-1-1-bc54` (EXIT=0 → absorb authorized) |
+| Crown absorb | **ABSORBED** tip-wins onto `cursor/ecosystem-spec-27-1-1-bc54` @ pre-absorb `6883aab70f7bf6d5ba5c5316983211127c28dc1f` → absorb `2e0c4570d5dd1b2eb4737e5b46fe86f2c0d24d9d` (side `82e62dc17a018130edf1f279f08d42b5842c782f`) |
 | ManagePullRequest | **not used** |
 | Force-push | **none** |
 | Foundry ALIVE | **not claimed** |
@@ -122,5 +122,5 @@ standing=ALIVE
 tests=completeness_5+rhythm_12
 target=/tmp/tip7-serial
 lineage_alive=77eb46fd0/2685119bd
-crown_absorb=pending ManagePullRequest=not_used force_push=none Foundry_ALIVE=not_claimed
+crown_absorb=ABSORBED@6883aab70f7bf6d5ba5c5316983211127c28dc1f→2e0c4570d5dd1b2eb4737e5b46fe86f2c0d24d9d←82e62dc17a018130edf1f279f08d42b5842c782f ManagePullRequest=not_used force_push=none Foundry_ALIVE=not_claimed
 ```
