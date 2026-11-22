@@ -22,7 +22,7 @@ content_hash = "blake3:144319bc5cd21e0860ae7fc69a0f2ead7037b8472b6025dc5e77d2ce2
 
 [packs.tcps-release-pack]
 source = "path:../../packs/tcps-release-pack"
-content_hash = "blake3:19ffab983444d7fa336561a5e7a44591ba718efcbd04ab4fb39483cc03f0b106"
+content_hash = "blake3:723f6dc5a8eb0d8bd2c776334a410df57daf3146f40029f9b82ca708922470b0"
 
 [packs.tcps-std-pack]
 source = "path:../../packs/tcps-std-pack"
