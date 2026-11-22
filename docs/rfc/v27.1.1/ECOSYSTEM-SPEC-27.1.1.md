@@ -143,10 +143,11 @@ ggen SHALL expose a deterministic layout pre-flight that:
 4. Is consumable by **zcode-cli** `ui-layout-court.ts` without re-implementing
    geometry law.
 
-Standing on tip (post Gate-1 land): **PARTIAL_ALIVE** — workspace `taffy`
-dependency + `ggen_graph::layout::taffy_aot` six-width seal +
-`taffy_aot_preflight_court` (evidence tip `0478fde59`, exit 0). Photolithography /
-zcode-cli consume of `AotSealReceipt` remains open (not path-crown `ALIVE`).
+Standing on tip (post Gate-1 land): **ALIVE (exact tip-cargo)** —
+`taffy_aot_preflight_court` **7**/EXIT:**0** @ `2685119bd`
+([`TAFFY-AOT-PREFLIGHT-STANDING.md`](./TAFFY-AOT-PREFLIGHT-STANDING.md)).
+tip-cargo `ALIVE` ≠ live-tip reconfirm ≠ photolithography path-crown `ALIVE`
+(path remains **PARTIAL** — [`PHOTOLITHOGRAPHY-PATH-STANDING.md`](./PHOTOLITHOGRAPHY-PATH-STANDING.md)).
 Exact refusal-code vocabulary still TBD in the Gate-1 seal; failures must not
 be silently dropped. Historical materialization note: surface was
 **UNSUPPORTED** before the Taffy land.
@@ -182,11 +183,12 @@ Standing on tip:
   [`TRUEX-SHUI-EXACT-RETIP-STANDING.md`](./TRUEX-SHUI-EXACT-RETIP-STANDING.md) /
   [`GATE-1-GAP-MATRIX.md`](./GATE-1-GAP-MATRIX.md).
 - ggen public-prefix alignment: `vocab::shui` + `shui_public_prefix_court` —
-  **PARTIAL_ALIVE** (lineage tip-cargo **ALIVE** — **4 passed; exit 0** @
-  evidence `008a81d21`; sources ≡ tip `a3e5d3109`). Exact-tip cargo EXIT **137**
-  (OOM) — **not** tip-subject fence `ALIVE`. Fence ≠ Truex product crown alone.
+  **ALIVE (exact tip-cargo)** — **4 passed; EXIT:0** @ cargo tip `a4b3d3fb4`
+  ([`SHUI-PUBLIC-PREFIX-ALIVE-STANDING.md`](./SHUI-PUBLIC-PREFIX-ALIVE-STANDING.md);
+  absorb `edf2ec22a` / tip3 absorb held). tip-cargo `ALIVE` ≠ live-tip
+  (`15eefb628`+) reconfirm ≠ Truex product crown alone ≠ Foundry `ALIVE`.
   See [`TRUEX-SHUI-EXACT-RETIP-STANDING.md`](./TRUEX-SHUI-EXACT-RETIP-STANDING.md) /
-  [`GATE-1-GAP-MATRIX.md`](./GATE-1-GAP-MATRIX.md).
+  [`GATE1-REMAINING-FALSIFIERS.md`](./GATE1-REMAINING-FALSIFIERS.md).
 
 ---
 
@@ -406,15 +408,18 @@ sibling courts, or Smalt 6-column spine `ALIVE` alone.
 | `docs/rfc/v27.1.1/VERIFY-WITNESS-AFFIDAVIT-SIZE-COURT-STANDING.md` | affidavit gatekeeper size court ALIVE @ `563eb322a` (ggen wire UNSUPPORTED) |
 | `docs/rfc/v27.1.1/VERIFY-WITNESS-SIZE-COURT-STANDING.md` | ggen placeholder size court tip-cargo ALIVE (≠ production) |
 | `docs/rfc/v27.1.1/BRAND-HOTSWAP-TIP-CARGO-STANDING.md` | brand.toml hot-swap **ALIVE (exact tip-cargo)** **6**/EXIT:**0** @ `c4e757a14` (fence ceiling **PARTIAL_ALIVE**; ≠ production / Foundry) |
-| `docs/rfc/v27.1.1/BRAND-TOML-TIP-CARGO-STANDING.md` | brand.toml completeness+rhythm **ALIVE (exact tip-cargo)** **5+12**/EXIT:**0** @ `2685119bd` (≠ live-tip reconfirm / Foundry) |
+| `docs/rfc/v27.1.1/BRAND-TOML-TIP-CARGO-STANDING.md` | brand.toml completeness+rhythm **ALIVE (exact tip-cargo)** **5+12**/EXIT:**0** @ `2685119bd` / tip6 `cfd93c1cb` (≠ live-tip reconfirm / Foundry) |
 | `docs/rfc/v27.1.1/TAFFY-AOT-PREFLIGHT-STANDING.md` | Taffy AOT preflight **ALIVE (exact tip-cargo)** **7**/EXIT:**0** @ `2685119bd` (≠ path-crown / Foundry) |
 | `docs/rfc/v27.1.1/UILAYOUT-EXACT-RETIP5-STANDING.md` | `ui_layout_court` **ALIVE (exact tip-cargo)** **11**/EXIT:**0** @ `2685119bd` (≠ sibling `.ts` / Foundry) |
-| `docs/rfc/v27.1.1/GATE1-REMAINING-FALSIFIERS.md` | Gate1 remaining falsifiers after ALIVE trio absorb @ crown past `59b9fae1c` (shui EXIT0 in flight; no Foundry ALIVE) |
+| `docs/rfc/v27.1.1/SHUI-PUBLIC-PREFIX-ALIVE-STANDING.md` | `shui_public_prefix_court` **ALIVE (exact tip-cargo)** **4**/EXIT:**0** @ `a4b3d3fb4` (≠ live-tip reconfirm / Foundry) |
+| `docs/rfc/v27.1.1/GATE1-REMAINING-FALSIFIERS.md` | Gate1 in-repo falsifiers tip-cargo **ALIVE** closed (Truex/brand/Taffy/uilayout/shui); Foundry **BLOCKED_HITL**; no Foundry ALIVE |
+| `docs/rfc/v27.1.1/GATE1-EXACT-TIP-TIPWINS-ABSORB-STANDING.md` | tip-wins absorb Gate1 exact-tip EXIT0 sides onto crown (tip-cargo ≠ live-tip reconfirm; Foundry **BLOCKED_HITL**) |
 | `docs/rfc/v27.1.1/BRAND-PRODUCTION-THEME.md` | brand.toml production theme `REFUSED_PRODUCTION` fence + next verifier (≠ hot-swap ALIVE) |
 | `docs/rfc/v27.1.1/IGNITER-CLEANROOM-STANDING.md` | ggen_igniter clean-room contract (hop 4) |
 | `docs/rfc/v27.1.1/ZCODE-POWL-OCEL-STANDING.md` | zcode POWL/OCEL bounded remediation (hop 5) |
-| `docs/rfc/v27.1.1/ZCODE-POWL-PATH-STANDING.md` | hop-5 path honesty @ `83c954e5f` — tip-cargo PARTIAL (EXIT 137) vs lineage ALIVE held; slice PARTIAL; `--live` BLOCKED_HITL; refusal ≠ Foundry ALIVE |
-| `docs/rfc/v27.1.1/ZCODE-POWL-REFUSAL-RETIP6-STANDING.md` | tip-cargo refuse-path honesty PARTIAL (EXIT 137 @ `2685119bd`) |
+| `docs/rfc/v27.1.1/ZCODE-POWL-PATH-STANDING.md` | hop-5 path honesty — tip-cargo refusal **ALIVE** (retip4) ≠ `--live` / Foundry; path crown **PARTIAL**; `--live` **BLOCKED_HITL** |
+| `docs/rfc/v27.1.1/ZCODE-POWL-RETIP4-STANDING.md` | zcode POWL/OCEL tip-cargo **ALIVE** **6+4**/EXIT:**0** (refusal ≠ live / Foundry ALIVE) |
+| `docs/rfc/v27.1.1/ZCODE-POWL-REFUSAL-RETIP6-STANDING.md` | historical tip-cargo refuse-path PARTIAL (EXIT 137 @ `2685119bd`; superseded by retip4 ALIVE for tip-cargo class) |
 | `docs/rfc/v27.1.1/CASTLE-SPINE-STANDING.md` | CASTLE publish / brand spine (Gate 2–3) |
 | `docs/rfc/v27.1.1/SMALT-RAID-STANDING.md` | Smalt 4-cloud RAID economic ops standing |
 | `docs/rfc/v27.1.1/REVOPS-COS-STANDING.md` | revops.fnox.io / cos.fnox.io Plane-5 standing |
