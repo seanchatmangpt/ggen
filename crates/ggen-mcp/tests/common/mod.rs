@@ -46,10 +46,19 @@ pub const UNBOUND_VAR_TEMPLATE: &str = "---\nto: out/bad.txt\nsparql:\n  people:
 /// silently accepted.
 pub const JINJA_TERNARY_TEMPLATE: &str = "---\nto: out/ternary.txt\nsparql:\n  people: SELECT ?name WHERE { ?s <http://example.org/hasName> ?name }\n---\n{{ \"yes\" if true else \"no\" }}\n";
 
+/// Minimal valid-but-empty EA graph (zero candidate SBBs). WO-01 / FM-LAW-015
+/// refuses sync when `ea.graph.json` is absent; these MCP courts exercise
+/// CP17 confirm/hash gates and pipeline tools, not EA admission.
+pub const MINIMAL_EMPTY_EA_GRAPH: &str = "{\"schema\":\"ggen.ea.graph.v1\",\"strategy\":{\"id\":\"s\",\"title\":\"t\"},\"capabilities\":[],\"abbs\":[],\"contracts\":[],\"candidate_sbbs\":[],\"qualifications\":[],\"packs\":[]}";
+
 /// Write a frontmatter-schema project into `root`.
 pub fn write_frontmatter_project(root: &Path) {
     std::fs::write(root.join("ggen.toml"), FRONTMATTER_TOML).expect("write ggen.toml");
     std::fs::write(root.join("ontology.ttl"), ONTOLOGY).expect("write ontology.ttl");
+    // Collision repair (FM-LAW-015): same minimal empty-graph fixture as
+    // ggen-engine combinatorial_matrix / config_schema_dispatch_e2e.
+    std::fs::write(root.join("ea.graph.json"), MINIMAL_EMPTY_EA_GRAPH)
+        .expect("write ea.graph.json");
     std::fs::create_dir_all(root.join("templates")).expect("mkdir templates");
     std::fs::write(root.join("templates/names.tmpl"), GOOD_TEMPLATE).expect("write template");
 }
@@ -80,4 +89,6 @@ output_file = "out/packed.txt"
 "#;
     std::fs::write(root.join("ggen.toml"), toml).expect("write ggen.toml");
     std::fs::write(root.join("ontology.ttl"), ONTOLOGY).expect("write ontology.ttl");
+    std::fs::write(root.join("ea.graph.json"), MINIMAL_EMPTY_EA_GRAPH)
+        .expect("write ea.graph.json");
 }

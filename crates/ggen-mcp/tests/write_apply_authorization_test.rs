@@ -12,6 +12,9 @@ use ggen_mcp::tools::unattended_dispatch::{
 use ggen_mcp::tools::write_apply::{write_apply, WriteApplyParams};
 use tempfile::TempDir;
 
+/// Minimal valid-but-empty EA graph (FM-LAW-015 collision repair).
+const MINIMAL_EMPTY_EA_GRAPH: &str = "{\"schema\":\"ggen.ea.graph.v1\",\"strategy\":{\"id\":\"s\",\"title\":\"t\"},\"capabilities\":[],\"abbs\":[],\"contracts\":[],\"candidate_sbbs\":[],\"qualifications\":[],\"packs\":[]}";
+
 fn write_frontmatter_project(root: &std::path::Path) {
     std::fs::write(
         root.join("ggen.toml"),
@@ -24,6 +27,8 @@ fn write_frontmatter_project(root: &std::path::Path) {
         "@prefix ex: <http://example.org/> .\nex:owner a ex:Person .\n",
     )
     .expect("write ontology");
+    std::fs::write(root.join("ea.graph.json"), MINIMAL_EMPTY_EA_GRAPH)
+        .expect("write ea.graph.json");
     std::fs::create_dir_all(root.join("templates")).expect("mkdir templates");
 }
 
