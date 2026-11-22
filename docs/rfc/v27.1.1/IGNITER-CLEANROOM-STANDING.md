@@ -7,10 +7,10 @@
 | Subject | `seanchatmangpt/ggen_igniter` |
 | Crown claim | Working tree clean-room iff `git diff --exit-code` exits **0** |
 | Materialized | 2026-11-22 |
-| Tip pin (this land) | tip-wins absorb onto crown pre-absorb `94ea8cf252f3a238ef89e7012f4c34d0ffbd98f2` (⊇ perimeter `94ea8cf25` + HITL §8 `8629691f8`); sidebranch evidence tip `893070836` / `bc-17cf3ea2`; prior tip-wins absorb `d0fec2f2f` (`bc-fd60df35`); prior ALIVE evidence tip `f1492ed5563b29c7065d188bceac6156c3397ce2` |
-| Land branch | tip-wins absorb `cursor/v2711-igniter-cleanroom-retip-bc54` @ `5c6eae752` onto crown via `cursor/v2711-igniter-cleanroom-absorb-a038`; prior absorb `cursor/v2711-igniter-reconfirm-bc54` @ `ec079cc16` onto `d0fec2f2f`; prior land `cursor/v2711-igniter-cleanroom-alive-bc54` @ `49e986ee7` |
-| Evidence | `/tmp/cursor/igniter-cleanroom-retip.md` (`bc-17cf3ea2`) — mount `git diff --exit-code` → **0**; absorb reconfirm EXIT **0** (`bc-c717fdd5`); prior `/tmp/cursor/igniter-cleanroom-reconfirm.md` (`bc-fd60df35`); prior `/tmp/cursor/igniter-cleanroom-alive-tip.md` (`bc-53b0e099`) |
-| Repo scope of this land | `seanchatmangpt/ggen` (typed contract + standing only; tip-wins crown absorb; path crown remains **PARTIAL**; no ManagePullRequest #849) |
+| Tip pin (this land) | push-first honesty retip3 on live crown `5a1129cc92d8971ea351238d630d6007085c871c` (⊇ `2c69230f2`+); prior tip-wins absorb onto pre-absorb `94ea8cf252f3a238ef89e7012f4c34d0ffbd98f2` (⊇ perimeter `94ea8cf25` + HITL §8 `8629691f8`); sidebranch evidence tip `893070836` / `bc-17cf3ea2`; prior tip-wins absorb `d0fec2f2f` (`bc-fd60df35`); prior ALIVE evidence tip `f1492ed5563b29c7065d188bceac6156c3397ce2` |
+| Land branch | `cursor/v2711-igniter-cleanroom-retip-bc54` (retip3 / `bc-5cbc344a`) from crown `5a1129cc9`; prior tip-wins absorb `5c6eae752` via `cursor/v2711-igniter-cleanroom-absorb-a038`; prior absorb `cursor/v2711-igniter-reconfirm-bc54` @ `ec079cc16` onto `d0fec2f2f`; prior land `cursor/v2711-igniter-cleanroom-alive-bc54` @ `49e986ee7` |
+| Evidence | `/tmp/cursor/igniter-cleanroom-retip3.md` (`bc-5cbc344a`) — cheap mount `git diff --exit-code` → **0**; prior `/tmp/cursor/igniter-cleanroom-retip.md` (`bc-17cf3ea2`) EXIT **0**; absorb reconfirm EXIT **0** (`bc-c717fdd5`); prior `/tmp/cursor/igniter-cleanroom-reconfirm.md` (`bc-fd60df35`); prior `/tmp/cursor/igniter-cleanroom-alive-tip.md` (`bc-53b0e099`) |
+| Repo scope of this land | `seanchatmangpt/ggen` (typed contract + standing only; tip-wins crown absorb; **igniter clean-room slice only** — photolithography path crown remains **PARTIAL**; no Foundry `ALIVE`; no ManagePullRequest #849; no cargo thrash — Gate1 tip6 owns cargo) |
 
 Standing vocabulary: `UNKNOWN` | `PARTIAL_ALIVE` | `ALIVE` | `BLOCKED` | `BUILD_BROKEN` | `UNSUPPORTED` | `REFUSED_*`.
 
@@ -155,3 +155,20 @@ replaying §4 (clean-tree) **and** §5b BrandTheme compare on the admitted tip.
 | Claim holds | `git diff --exit-code == 0` **yes** |
 | Standing | Clean-room crown **ALIVE** (reconfirmed); photolithography path crown **PARTIAL** (unchanged — **not** promoted); Foundry `--live` **BLOCKED_HITL** (unchanged — clean-room ≠ `--live` ALIVE) |
 | Exact next verifier | BrandTheme manufacture compare replay → `diff -rq`/`git diff --exit-code` **0**; or Jobs/C4 admitted `mix ggen_igniter.sync --pack-dir test/fixtures/sample-pack … --check` → **0** (default PATH `mix` **ABSENT** this env); path crown next open: `bun scripts/powl-foundry-loop.ts --live` → **0** (**BLOCKED_HITL**) |
+
+---
+
+## 7. Push-first honesty reconfirm (2026-11-22 — retip3; docs + cheap mount; no cargo)
+
+| Field | Value |
+|-------|-------|
+| Agent | `bc-5cbc344a-6050-5660-b681-b38b5be8d2da` |
+| Sidebranch | `cursor/v2711-igniter-cleanroom-retip-bc54` from `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `5a1129cc92d8971ea351238d630d6007085c871c` (live tip ⊇ `2c69230f2`+) |
+| Prior ALIVE lineage | **held** — prior EXIT0 observations remain on crown ancestry (`893070836` ancestor of tip; absorb `2bee92cd6` / side `5c6eae752` / `bc-17cf3ea2`; prior `d0fec2f2f` / `bc-fd60df35`; prior `f1492ed55` / `bc-53b0e099`) |
+| Mount | `/home/ubuntu/ggen_igniter` @ `b5a15528eb6792dd366fe744ca87f24a80cc46fc` **PRESENT** |
+| Cheap probe | `git diff --exit-code` → EXIT **0**; cached **0**; porcelain **0** (evidence `/tmp/cursor/igniter-cleanroom-retip3.md`) |
+| Cargo / mix this pass | **none** — Gate1 tip6 owns cargo thrash; deliberately not re-run `igniter_cleanroom_court` / BrandTheme / Jobs/C4 |
+| Clean-room standing | **ALIVE (lineage)** — prior EXIT0 held + cheap mount reconfirm EXIT **0** this pass (igniter slice only) |
+| Photolithography path | perimeter → `.ttl`/`.toml` → ggen+Taffy → igniter → zcode — path crown **PARTIAL** (**not** promoted; this pin is the igniter clean-room slice only) |
+| Foundry `--live` | **BLOCKED_HITL** / **REFUSED** (`foundry_exit=1`) — **no** Foundry `ALIVE` |
+| Exact next verifier (clean-room reconfirm) | `cd /home/ubuntu/ggen_igniter && git diff --exit-code` → expect EXIT **0** (nonzero → `REFUSED_CLEANROOM_DIRTY_TREE`) |
