@@ -392,7 +392,8 @@ sibling courts, or Smalt 6-column spine `ALIVE` alone.
 | `docs/rfc/v27.1.1/PHOTOLITHOGRAPHY-STANDING.md` | hop ledger: perimeter → ttl/toml → Taffy AOT → igniter clean-room → zcode POWL/OCEL (no fake ALIVE) |
 | `docs/rfc/v27.1.1/PERIMETER-TTL-TOML-PATH-STANDING.md` | tip-wins absorb perimeter→ttl/toml path honesty (`46c347281` onto `8629691f8`; hops 1–2 ALIVE; path crown PARTIAL; `--live` BLOCKED_HITL; no Foundry ALIVE) |
 | `docs/rfc/v27.1.1/FOUNDRY-FINISH-STANDING.md` | horizontal spine ggen→Taffy→zcode→CASTLE→Smalt→revops (zero daily founder HITL) |
-| `docs/rfc/v27.1.1/FOUNDRY-FINISH-SPINE-STANDING.md` | Foundry finish horizontal spine honesty (PARTIAL + `--live` BLOCKED_HITL; no Foundry ALIVE) |
+| `docs/rfc/v27.1.1/FOUNDRY-FINISH-SPINE-STANDING.md` | Foundry finish horizontal spine honesty (PARTIAL / not daily-HITL-free + `--live` BLOCKED_HITL; Gate1 trio ≠ Foundry ALIVE) |
+| `docs/rfc/v27.1.1/FOUNDRY-HITL-ACTION-CARD.md` | Founder `--live` action card + finish honesty retip (§5: Gate1 ALIVE trio ≠ Foundry ≠ zero-HITL; spine PARTIAL; PASS only `foundry_exit=0`) |
 | `docs/rfc/v27.1.1/OUT-OF-REPO-NEXT-VERIFIERS.md` | Gate 0/2/3 exact next external verifiers |
 | `docs/rfc/v27.1.1/GATE023-OOR-STANDING-MATRIX.md` | Gate 0/2/3 OOR standing honesty matrix through GA 2027-01-01 (tip pin `4060f9d6b` ⊆ `f0a0e07bc`; no invented ALIVE) |
 | `docs/rfc/v27.1.1/OPS-SURFACES-ON2-STANDING.md` | O(N)→O(N²) ops surfaces honesty (brand prod / Smalt / VW / cos / revops) |
