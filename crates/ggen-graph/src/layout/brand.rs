@@ -419,8 +419,12 @@ pub struct BrandThemeEmitReceipt {
 /// Structural check: TOML text carries non-empty DTCG `[primitive.space]` leaves
 /// (`$value` dimension tokens). Mirrors igniter BrandTheme's first refuse gate
 /// without requiring Elixir.
+///
+/// Parses as `toml::Table` (toml 1.x document root). `str::parse::<toml::Value>()`
+/// rejects real documents under toml 1.1 (`unexpected content, expected nothing`),
+/// which falsely collapsed every OEM dual-surface fixture to `false`.
 pub fn dtcg_has_primitive_space(toml: &str) -> bool {
-    let Ok(table) = toml.parse::<toml::Value>() else {
+    let Ok(table) = toml.parse::<toml::Table>() else {
         return false;
     };
     let Some(space) = table.get("primitive").and_then(|p| p.get("space")) else {
@@ -430,7 +434,7 @@ pub fn dtcg_has_primitive_space(toml: &str) -> bool {
         return false;
     };
     map.iter().any(|(key, node)| {
-        key != "$type"
+        key.as_str() != "$type"
             && node
                 .get("$value")
                 .and_then(|v| v.as_str())
@@ -1023,7 +1027,12 @@ slope_cqi = 2.0
 
         // Assert
         match result {
-            Err(refused @ ProductionThemeRefusal::ProductionUnsupported { brand_id, detail }) => {
+            Err(
+                ref refused @ ProductionThemeRefusal::ProductionUnsupported {
+                    ref brand_id,
+                    ref detail,
+                },
+            ) => {
                 assert_eq!(brand_id, "cindycat");
                 assert_eq!(refused.code(), REFUSED_PRODUCTION);
                 assert!(
@@ -1173,7 +1182,12 @@ spacing = []
 
         // Assert
         match result {
-            Err(refused @ BrandThemeEmitRefusal::NoPrimitiveSpace { brand_id, detail }) => {
+            Err(
+                ref refused @ BrandThemeEmitRefusal::NoPrimitiveSpace {
+                    ref brand_id,
+                    ref detail,
+                },
+            ) => {
                 assert_eq!(brand_id, "fourth-watch");
                 assert_eq!(refused.code(), NO_PRIMITIVE_SPACE);
                 assert!(
