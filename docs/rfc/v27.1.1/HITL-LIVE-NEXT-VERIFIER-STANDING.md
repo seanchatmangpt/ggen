@@ -7,11 +7,12 @@
 | Companion | [`FOUNDRY-FINISH-STANDING.md`](./FOUNDRY-FINISH-STANDING.md) §1a / §2, [`HOP5-ZCODE-RUNTIME-STANDING.md`](./HOP5-ZCODE-RUNTIME-STANDING.md), [`HOP5-MODEL-ACCESS-STANDING.md`](./HOP5-MODEL-ACCESS-STANDING.md), [`OUT-OF-REPO-NEXT-VERIFIERS.md`](./OUT-OF-REPO-NEXT-VERIFIERS.md) **G2-9**, [`CROWN-PROGRESS-RECEIPT.md`](./CROWN-PROGRESS-RECEIPT.md) |
 | Observed ggen tip (absorb base) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `00b53cec9134e97cc2967bfd61af9a156e7defa7` (Smalt residual mix courts absorb after OOR retip12 / affidavit / BRCE V8+R01 / VW / CASTLE) |
 | Observed ggen tip (this action-card pin) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `893070836ef83ab711e657cfacc98bb4dc7ea369` (`893070836+`; ⊇ `d73efb9b8+` examples-repair CI) |
+| Observed ggen tip (foundry partial retip) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `2c144954c75ca516bc9225b1c85ac3478e21275b` — sidebranch `cursor/v2711-foundry-partial-retip-bc54` (`bc-42743036`); §8 card still exact next; Foundry **PARTIAL**; `--live` **BLOCKED_HITL** |
 | Side-branch evidence | `cursor/v2711-hitl-live-next-bc54` @ `723c3a14f5232db9e40c21858a6c41b2b1fa67c8` (`bc-ea2b3d10`); side base was `fe72be0fb` |
 | Action-card sidebranch | `cursor/v2711-hitl-action-card-bc54` @ `81fca62f7` (`bc-181ef196`) — docs-only §8 pin; tip-wins absorb via `cursor/v2711-hitl-action-absorb-549a` |
 | zcode-cli land | `/agent/repos/zcode-cli` @ `f32df08cdc4b3b8e114a8d1de8cf81acb80e1f3a` (Gall `--live` injects `createZcodeAgentExecutor`; Linux tip-matched `vendor/zcode.cjs` **PRESENT**) |
 | Cargo / tip-cargo | **NOT RUN** (docs-only honesty absorb) |
-| Status | LEDGER — **BLOCKED_HITL**; **not** hop-5 / Foundry / zero-HITL `ALIVE` |
+| Status | LEDGER — **BLOCKED_HITL**; Foundry / zero-HITL **PARTIAL**; **not** hop-5 / Foundry / zero-HITL `ALIVE` |
 
 Standing vocabulary: `UNKNOWN` | `PARTIAL_ALIVE` | `ALIVE` | `BLOCKED` | `BLOCKED_HITL` | `BUILD_BROKEN` | `UNSUPPORTED` | `REFUSED_*`.
 
@@ -106,6 +107,34 @@ Jobs/C4 residual is **separate** (not this falsifier): admitted igniter pack `--
 | Tip-wins absorb (retip2) | 2026-11-22 — `cursor/v2711-hitl-refusal-absorb-0f6f` tip-wins absorb of `a1ae2e30f` (+ refusal reconfirm `d1c9da98b`) onto crown tip `01eccfffb`; standing remains **BLOCKED_HITL** / **REFUSED** (`foundry_exit=1`; Model access not configured); Foundry crown **PARTIAL**; exact next `bun scripts/powl-foundry-loop.ts --live` → **foundry_exit=0**; **no** invented `--live` `ALIVE`; docs-only; no cargo; no ManagePullRequest; push `HEAD:cursor/ecosystem-spec-27-1-1-bc54` (no force) |
 | Founder HITL action card | 2026-11-22 — `cursor/v2711-hitl-action-card-bc54` (`bc-181ef196`) from tip `893070836` (`d73efb9b8+`); §8 pins exact `/login`\|`/setup` → `bun scripts/powl-foundry-loop.ts --live` → exit **0**; standing held **BLOCKED_HITL**; **refuse** Foundry `ALIVE`; docs-only; no cargo; sidebranch only at pin time |
 | Tip-wins absorb (action card) | 2026-11-22 — `cursor/v2711-hitl-action-absorb-549a` tip-wins absorb of `cursor/v2711-hitl-action-card-bc54` @ `81fca62f7` onto crown tip `893070836`; §8 Founder HITL action card lands; standing remains **BLOCKED_HITL** / **REFUSED** (`foundry_exit=1`; Model access not configured); Foundry crown **PARTIAL**; exact next `bun scripts/powl-foundry-loop.ts --live` → **foundry_exit=0**; **no** invented `--live` / Foundry `ALIVE`; docs-only; no cargo; no ManagePullRequest; push `HEAD:cursor/ecosystem-spec-27-1-1-bc54` (no force) |
+
+---
+
+## 9. Foundry partial honesty retip (2026-11-22) — `cursor/v2711-foundry-partial-retip-bc54`
+
+| Field | Value |
+|-------|-------|
+| Tip base | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `2c144954c75ca516bc9225b1c85ac3478e21275b` (`2c144954c+`; ⊇ Smalt RAID tip reconfirm + CASTLE wire retip3 + igniter clean-room + HITL §8) |
+| Branch | `cursor/v2711-foundry-partial-retip-bc54` |
+| Agent | `bc-42743036` (`https://cursor.com/agents/bc-42743036-5eec-523a-b60e-fa2532a89e8e`) |
+| zcode-cli | `/agent/repos/zcode-cli` @ `f32df08cdc4b3b8e114a8d1de8cf81acb80e1f3a` |
+| Failure held | `Model access is not configured. Run /login or /setup in zcode` → **foundry_exit=1** |
+| Standing held | **BLOCKED_HITL** / **REFUSED** — Foundry / zero-HITL crown **PARTIAL**; **refuse** Foundry / hop-5 / zero-HITL `ALIVE` |
+| Spine ALIVE held | igniter cleanroom **ALIVE**; CASTLE wire **ALIVE**/`WIRED`; Smalt FinOps/RAID residual **ALIVE**; zcode refusal tip-cargo **ALIVE** — none promote Foundry crown |
+| Cargo / tip-cargo | **NOT RUN** (docs-only honesty retip) |
+| Crown absorb | **NONE** — sidebranch push only; no ManagePullRequest; no force-push |
+
+### Exact next verifier (unchanged — §8 card)
+
+```bash
+# Founder HITL action card (§8): /login | /setup (or Path B/C) then:
+cd /agent/repos/zcode-cli
+bun scripts/powl-foundry-loop.ts --live
+# PASS: foundry_exit=0
+# FAIL: foundry_exit=1 + Model access not configured → keep BLOCKED_HITL
+```
+
+**Refuse:** inventing `--live` / Foundry / hop-5 / zero-HITL `ALIVE` from this retip or from runtime PRESENT / adapter exit 0 / dry-run PARTIAL / in-repo refuse-path tip-cargo alone. Companion: [`FOUNDRY-FINISH-STANDING.md`](./FOUNDRY-FINISH-STANDING.md) §8.
 
 ---
 
