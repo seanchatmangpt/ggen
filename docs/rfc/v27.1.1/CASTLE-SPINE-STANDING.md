@@ -7,9 +7,9 @@
 | Subject | `seanchatmangpt/castle` on spine `ggen → Taffy → zcode-cli → CASTLE → Smalt → revops` |
 | Materialized | 2026-11-22 |
 | Observed ggen tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `d0fec2f2f2a539852e3977216b8057e1d5b2bb8a` (sidebranch mirror base; see §12 — does **not** race crown tip writers; supersedes §11 pin `6a3a623ba` for this ledger only) |
-| Tip pin | 2026-11-22 — `cursor/v2711-castle-digest-bind-bc54` from tip `d0fec2f2f` (**side branch only** — **no** push to crown / ecosystem tip; no ManagePullRequest on #849). Castle stub land: `cursor/digest-bind-admit-ca8a` @ `c89d9f2` on base `2774039ea` |
-| Observed castle tip | `main` @ `2774039ea81bad508c93785a59dd7a99198ae256` (sibling courts ALIVE historical); digest-bind stub sidebranch `cursor/digest-bind-admit-ca8a` @ `c89d9f2` (https://github.com/seanchatmangpt/castle/commit/c89d9f2) — stub API **PRESENT**, wire bind **ABSENT**, crown wire **UNKNOWN** |
-| Repo scope of this land | `seanchatmangpt/ggen` standing ledger mirror + `seanchatmangpt/castle` stub/admit sidebranch (no Foundry crown promote; no ManagePullRequest) |
+| Tip pin | 2026-11-22 — `cursor/v2711-castle-digest-bind-bc54` from tip `d0fec2f2f` (**side branch only** — **no** push to crown / ecosystem tip; no ManagePullRequest on #849). Castle wire land: `cursor/digest-bind-admit-ca8a` @ `e0d99c6` on base `2774039ea` |
+| Observed castle tip | `main` @ `2774039ea81bad508c93785a59dd7a99198ae256` (sibling courts ALIVE historical); digest-bind wire sidebranch `cursor/digest-bind-admit-ca8a` @ `e0d99c6` (https://github.com/seanchatmangpt/castle/commit/e0d99c6) — wire bind **WIRED** (optional pin); Foundry/zero-HITL crown still **UNKNOWN**/orthogonal |
+| Repo scope of this land | `seanchatmangpt/ggen` standing ledger mirror + `seanchatmangpt/castle` digest-bind wire sidebranch (no Foundry crown promote; no ManagePullRequest) |
 
 Standing vocabulary: `UNKNOWN` | `PARTIAL_ALIVE` | `ALIVE` | `BLOCKED` | `BUILD_BROKEN` | `UNSUPPORTED` | `REFUSED_*`.
 
@@ -57,8 +57,8 @@ Intake host of record for CASTLE publish honesty: **`cos.fnox.io`**. Do not inve
 | Sibling Typst/JSON mint (`spine-probe`) | **ALIVE** | `bc-1bffb072` @ `2774039ea`: `castle publish post --subject spine-probe --public-anonymize --brand brands/fourth-watch.brand.toml` → exit **0**, `redaction_court=ALIVE` |
 | Sibling RedactionCourt / brand CLI courts | **ALIVE** | `bc-1bffb072` @ `2774039ea`: `cargo test --test publish_redaction_court` → **13/13** exit **0**; `cargo test --test cli_publish_brand` → **6/6** exit **0** |
 | LinkedIn / blast send on Jobs AND-gate | **BLOCKED** / stop-worked (per castle publish README) | `/readyz` ∧ 2× LOW not observed |
-| Spine wire: ggen brand/layout receipt → CASTLE `--brand` admit → Smalt → revops DO | **UNKNOWN** | No cross-repo digest-bind receipt |
-| **CASTLE on horizontal spine (crown)** | **UNKNOWN** | Sibling courts **ALIVE** ≠ spine crown; no ggen layout/brand digest bind into mint |
+| Spine wire: ggen brand/layout receipt → CASTLE `--brand` admit → Smalt → revops DO | **PARTIAL_ALIVE** (CASTLE digest-bind wire **WIRED**; cross-repo Foundry crown still open) | Castle `e0d99c6`: optional `--ggen-layout-digest` → mint `ggen_layout_digest` / `digest_bind.crown_wire=WIRED`; Smalt→revops DO still **UNKNOWN**/BLOCKED |
+| **CASTLE on horizontal spine (crown)** | **PARTIAL_ALIVE** (wire) / Foundry crown **UNKNOWN** | Sibling courts **ALIVE** + digest-bind wire **WIRED** @ `e0d99c6`; Foundry/zero-HITL still not crown `ALIVE` |
 
 Do **not** collapse sibling court **ALIVE** into Foundry-finish / zero-HITL / spine-crown `ALIVE`. Do **not** claim Plane-5 / revops / cos DO `ALIVE` from this repository.
 
@@ -305,3 +305,53 @@ cargo test --test cli_publish_brand         # expect 6/6 exit 0
 ```
 
 Until the red falsifier turns green **and** sibling courts stay exit 0 with digest asserted, **CASTLE on horizontal spine (crown)** stays **UNKNOWN**. Stub land alone must not be promoted to crown `ALIVE`.
+
+## 13. Digest-bind wire land (castle `e0d99c6` / ggen mirror) — 2026-11-22
+
+| Field | Value |
+|-------|-------|
+| Branch (ggen) | `cursor/v2711-castle-digest-bind-bc54` (**side only** — does **not** push crown; no ManagePullRequest on #849) |
+| Branch (castle) | `cursor/digest-bind-admit-ca8a` @ `e0d99c6` (parent `c89d9f2` / base `2774039ea`) — pushed |
+| Probe intent | Advance digest-bind from stub → production wire without racing ggen crown tip writers |
+| Wire actuation | **WIRED** — `seal_public_artifact` calls `bind_into_mint` when pin threaded; CLI `--ggen-layout-digest <64-hex>` |
+| Optional pin | Omit pin → mint omits `ggen_layout_digest` (sibling redaction/brand courts stay green) |
+| Chicago court | `RUSTUP_TOOLCHAIN=nightly cargo test --test publish_digest_bind_court` → **6/6** exit **0** (incl. `mint_receipt_must_bind_…`) |
+| Lib unit | `RUSTUP_TOOLCHAIN=nightly cargo test --lib publish::digest_bind` → **4/4** exit **0** |
+| Sibling courts | `publish_redaction_court` **13/13** exit **0**; `cli_publish_brand` **6/6** exit **0**; `cli_publish_anonymize` **5/5** exit **0**; `publish::wire` lib **15/15** exit **0** |
+| CLI spine-probe | without digest → exit **0** / `redaction_court=ALIVE` / no `ggen_layout_digest`; with `--ggen-layout-digest` → exit **0** / digest match / `digest_bind.crown_wire=WIRED`; bad hex → exit **2** / `REFUSED_GGEN_DIGEST` |
+| Standing | CASTLE digest-bind wire **ALIVE**/`WIRED`; Foundry / zero-HITL crown still **PARTIAL**/**UNKNOWN** (orthogonal) |
+| LinkedIn / Jobs | **BLOCKED** (cos `/readyz` residual orthogonal; not re-probed) |
+
+### 13.1 Standing delta (honesty)
+
+| Claim | Before (§12) | After (§13) |
+|-------|--------------|-------------|
+| Digest-bind admit API | **PRESENT** (stub @ `c89d9f2`) | **PRESENT** |
+| Production wire bind / mint `ggen_layout_digest` | **ABSENT** (red falsifier) | **WIRED** @ `e0d99c6` (optional pin) |
+| CLI `--ggen-layout-digest` | **ABSENT** | **PRESENT** |
+| Chicago `publish_digest_bind_court` | stub PASS + red falsifier FAIL | **6/6** exit **0** |
+| Sibling redaction/brand/CLI courts | **ALIVE** historical | **ALIVE** reconfirmed exit **0** this land |
+| Foundry / zero-HITL crown | **PARTIAL** / **UNKNOWN** | **unchanged** — wire ≠ Foundry crown `ALIVE` |
+| CASTLE horizontal-spine crown | **UNKNOWN** | **PARTIAL_ALIVE** (wire WIRED; Foundry crown still open) |
+
+### 13.2 Exact next verifier (Foundry / LinkedIn — orthogonal)
+
+```text
+# CASTLE wire already green @ e0d99c6 — replay:
+cd /path/to/castle && git checkout cursor/digest-bind-admit-ca8a  # e0d99c6
+RUSTUP_TOOLCHAIN=nightly cargo test --test publish_digest_bind_court  # expect 6/6 exit 0
+cargo test --test publish_redaction_court   # expect 13/13 exit 0
+cargo test --test cli_publish_brand         # expect 6/6 exit 0
+PIN=$(python3 -c 'print("ab"*16+"cd"*16)')
+./target/debug/castle publish post \
+  --subject spine-probe --public-anonymize \
+  --brand brands/fourth-watch.brand.toml \
+  --ggen-layout-digest "$PIN"
+# expect exit 0; redaction_court=ALIVE; ggen_layout_digest==PIN; digest_bind.crown_wire=WIRED
+
+# Foundry / LinkedIn still blocked:
+curl -sS -w '\nhttp=%{http_code}\n' https://cos.fnox.io/readyz   # need HTTP 200
+# ∧ 2× durable LOW receipts on disk
+```
+
+Do **not** promote Foundry / zero-HITL `ALIVE` from CASTLE wire bind alone. Do **not** ManagePullRequest on #849. Do **not** push this sidebranch to ecosystem crown.
