@@ -5,11 +5,11 @@
 | Document ID | `OUT-OF-REPO-NEXT-VERIFIERS` |
 | Companion | `ECOSYSTEM-SPEC-27.1.1`, `GATE-0-STANDING`, `GATE-3-RELEASE-COURTS-STANDING`, `FOUNDRY-FINISH-STANDING` |
 | Target GA | **2027-01-01** |
-| Observed ggen tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ tip-wins CASTLE digest-bind wire absorb of `dabef8f5f` onto `87dbaad27` (⊇ VW CI-wasm next `87dbaad27` + OOR retip13 `e2ca6a69a` + BRCE V8 + vw-env-wire `f65434315` + CASTLE stub `13e0ddc9e` + WebAuthn/igniter/HITL/Smalt/affidavit) — cos/revops standings **held** (BLOCKED/PARTIAL/UNKNOWN); env wire **PARTIAL**; production WASM runtime **UNSUPPORTED**; CASTLE digest-bind wire **ALIVE**/`WIRED` @ castle `e0d99c6`; Foundry zero-HITL crown **PARTIAL**; live WebAuthn **UNSUPPORTED**; **V8** **BLOCKED** |
+| Observed ggen tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `47aebeb7588da7c04b2de3233986c8ea2dac4252` (sidebranch `cursor/v2711-oor-retip18-bc54`; prior tip-wins CASTLE/VW/OOR retip17 lineage through `8c8b1e6e5`) — cos/revops standings **held** (BLOCKED/PARTIAL/UNKNOWN); env wire **PARTIAL**; production WASM runtime **UNSUPPORTED**; CASTLE digest-bind wire **ALIVE**/`WIRED` @ castle `e0d99c6`; Foundry zero-HITL crown **PARTIAL**; live WebAuthn **UNSUPPORTED**; **V8** **BLOCKED** |
 | Materialized | 2026-11-22 |
 | Hardened | 2026-11-22 — `cursor/v2711-oor-ledger-harden-bc54` |
 | Ops refresh | 2026-11-22 — `cursor/v2711-ops-standing-refresh-bc54` (tip pin + probe reconfirm; standings held) |
-| Tip pin | 2026-11-22 08:13:20 PST — `cursor/v2711-oor-retip13-bc54` onto tip `f65434315` (`f654343155c902a003a852f61df345e986d98b5e`; tip-wins vw-env-wire absorb on parent `098f53ea8`): probe unchanged vs retip12/`7ddfd8b6e` — cos `https://cos.fnox.io/readyz` **503** `{"status":"DB_UNAVAILABLE"}`; `/healthz` **200** `{"status":"ok"}`; `dig +short revops.fnox.io A`/`AAAA` empty; `host` **NXDOMAIN**; `getent` exit **2**; `curl` exit **6** `http=000` → standings held (cos readiness **BLOCKED**; liveness **PARTIAL** ≠ ALIVE; revops **UNKNOWN**). No cargo. No ManagePullRequest. No false `ALIVE`. |
+| Tip pin | 2026-11-22 09:56:16 PST — `cursor/v2711-oor-retip18-bc54` onto tip `47aebeb75` (`47aebeb7588da7c04b2de3233986c8ea2dac4252`; prior retip17/`571571720` absorb `8c8b1e6e5`): probe unchanged vs retip17 — cos `https://cos.fnox.io/readyz` **503** `{"status":"DB_UNAVAILABLE"}`; `/healthz` **200** `{"status":"ok"}`; `dig +short revops.fnox.io A`/`AAAA` empty; `host` **NXDOMAIN**; `getent` exit **2**; `curl` exit **6** `http=000` → standings held (cos readiness **BLOCKED**; liveness **PARTIAL** ≠ ALIVE; revops **UNKNOWN**). No cargo. No ManagePullRequest. No false `ALIVE`. |
 | Hop-4 evidence | `/tmp/cursor/igniter-real-cleanroom.md` (`bc-4861c787`) — tip dual-schema BrandTheme manufacture compare `diff_exit=0` (**ALIVE**); clean-room crown reconfirm `/tmp/cursor/igniter-cleanroom-reconfirm.md` (`bc-fd60df35`) mount EXIT **0** (**ALIVE**; prior `/tmp/cursor/igniter-cleanroom-alive-tip.md` / `bc-53b0e099`); path crown **PARTIAL** |
 | Hop-5 evidence | [`HOP5-MIX-SUBJECT-STANDING.md`](./HOP5-MIX-SUBJECT-STANDING.md) (`adapter_exit=0` / `layout_exit=0`; Chicago **31/0`); runtime **PRESENT** ([`HOP5-ZCODE-RUNTIME-STANDING.md`](./HOP5-ZCODE-RUNTIME-STANDING.md)); foundry `--live` **foundry_exit=1** / **REFUSED** `Model access is not configured` @ zcode `f32df08` |
 | Repo scope | `seanchatmangpt/ggen` — **tracks** sibling standing; does not execute sibling DO |
@@ -103,7 +103,7 @@ GA horizon for all courts: **2027-01-01**.
 
 ---
 
-## BLOCKED / PENDING — exact next verifiers (retip13 reconfirm @ tip `f65434315`; probe held from `098f53ea8` + retip12/`7ddfd8b6e` + retip11/`6a3a623ba` + retip10/`a40338aea` + retip9/`a508e6bae` + retip8/`5e131a75e` + honesty-retip8/`97c613452` + retip7 `a3b1c9410`)
+## BLOCKED / PENDING — exact next verifiers (retip18 reconfirm @ tip `47aebeb75`; probe held from retip17/`571571720` + retip16/`acd3b8c89` + retip15/`01eccfffb` + retip14/`df9597c18` + retip13/`f65434315` + `098f53ea8` + retip12/`7ddfd8b6e` + retip11/`6a3a623ba` + retip10/`a40338aea` + retip9/`a508e6bae` + retip8/`5e131a75e` + honesty-retip8/`97c613452` + retip7 `a3b1c9410`)
 
 | Subject | Standing | Exact next verifier |
 |---------|----------|---------------------|
@@ -111,9 +111,9 @@ GA horizon for all courts: **2027-01-01**.
 | tip-cargo (`ui_layout`) | **ALIVE (exact tip-cargo lineage)** @ `a508e6bae`; exact-retip5 tip reconfirm **PARTIAL_ALIVE** (EXIT:**124**) | Lineage: exclusive `/tmp/ggen-uilayout-exact-tip` → **11 passed; exit 0** @ `a508e6bae` (`bc-70188ac3`; sources ≡ live tip; [`UILAYOUT-TIP-CARGO-STANDING.md`](./UILAYOUT-TIP-CARGO-STANDING.md)). Exact-retip5 tip-wins onto `c2cd54f56` / side `7b5453e67` via content absorb `2685119bd` + ledger `cursor/v2711-uilayout-exact-retip5-absorb-25e7` ⇒ tip EXIT:**124** **PARTIAL_ALIVE** **held** ([`UILAYOUT-EXACT-RETIP5-STANDING.md`](./UILAYOUT-EXACT-RETIP5-STANDING.md)). Exact next: `--target-dir /tmp/ggen-uilayout-exact-retip5` → **11**/EXIT:**0**. Lineage prior: **11** @ `59c090984` / `ca52e9c16` |
 | foundry `--live` / model access (G2-9) | **REFUSED** / **BLOCKED_HITL** | Runtime **PRESENT**; **foundry_exit=1** / `Model access is not configured`; registry/env **ABSENT**; Founder HITL pin [`HITL-LIVE-NEXT-VERIFIER-STANDING.md`](./HITL-LIVE-NEXT-VERIFIER-STANDING.md); keys [`HOP5-MODEL-ACCESS-STANDING.md`](./HOP5-MODEL-ACCESS-STANDING.md) → `bun scripts/powl-foundry-loop.ts --live` → **foundry_exit=0** — hop-5 **REFUSED** until then; **do not invent** `--live` / Foundry crown `ALIVE` |
 | `mix ggen_igniter.sync` NIF / Jobs/C4 (G2-10 residual) | **ALIVE** — admitted `--pack-dir sample-pack … --check` exit **0**; NIF **ALIVE**; bare `--check` **REFUSED_INVOCATION** antifalsifier (default PATH `mix` **ABSENT**; off-PATH **PRESENT** — [`HOP4-MIX-NIF-STANDING.md`](./HOP4-MIX-NIF-STANDING.md)) | Replay admitted pack/template `--check` → **0** |
-| cos DB / `/readyz` (G0-2 / G2-2) | **BLOCKED** | `curl -sS -w '\nhttp=%{http_code}\n' https://cos.fnox.io/readyz` → HTTP **200** (retip13 reconfirm **503** `DB_UNAVAILABLE`) |
+| cos DB / `/readyz` (G0-2 / G2-2) | **BLOCKED** | `curl -sS -w '\nhttp=%{http_code}\n' https://cos.fnox.io/readyz` → HTTP **200** (retip18 reconfirm **503** `DB_UNAVAILABLE`; held from retip17) |
 | WebAuthn live/production (G2-4) + BRCE Plane-5 (G2-3 / G2-5) | **UNSUPPORTED** (WebAuthn production) / **BLOCKED** (broker + Plane-5) | Exact next WebAuthn: [`WEBAUTHN-LIVE-NEXT-VERIFIER-STANDING.md`](./WEBAUTHN-LIVE-NEXT-VERIFIER-STANDING.md) §3 (Founder HITL RP/hardware ceremony). Then BRCE **V8** broker then **V9** ([`BRCE-WEBAUTHN-STANDING.md`](./BRCE-WEBAUTHN-STANDING.md) §5) |
-| revops.fnox.io (G2-1) | **UNKNOWN** | `getent hosts revops.fnox.io`; `curl -sS -w '\nhttp=%{http_code}\n' https://revops.fnox.io/readyz` → DNS ∧ HTTP **200** (retip13: NXDOMAIN / curl exit **6**) |
+| revops.fnox.io (G2-1) | **UNKNOWN** | `getent hosts revops.fnox.io`; `curl -sS -w '\nhttp=%{http_code}\n' https://revops.fnox.io/readyz` → DNS ∧ HTTP **200** (retip18: NXDOMAIN / curl exit **6**; held from retip17) |
 
 ---
 
@@ -270,6 +270,7 @@ Tip pin retipped on `cursor/v2711-oor-retip14-bc54` onto tip `df9597c18` (`df959
 Tip pin retipped on `cursor/v2711-oor-retip15-bc54` onto tip `01eccfffb` (`01eccfffb56c1c59be67a220eadb5bd98783c806`; parent `1f10949a7`) at 2026-11-22 08:40:12 PST — tip-wins zcode refusal ALIVE + OOR retip14 absorb; probe unchanged vs retip14: cos `/readyz` **503** `{"status":"DB_UNAVAILABLE"}`; `/healthz` **200** `{"status":"ok"}`; `dig` A/AAAA empty; `host` **NXDOMAIN**; `getent` exit **2**; `curl` exit **6** `http=000` → standings held (cos readiness **BLOCKED**; liveness **PARTIAL**; revops **UNKNOWN**); no cargo; no ManagePullRequest; no false `ALIVE`. See §18. Tip-wins absorb onto crown (content @ `ee2e8f63c` ⊇ `7bcf6cff2`; absorb honesty via `cursor/v2711-oor15-curve-absorb-ded8`).
 Tip pin retipped on `cursor/v2711-oor-retip16-bc54` onto tip `acd3b8c89` (`acd3b8c89e57d3e4ced125f5a6f9440eb74b86d3`; parent `b49ca04ea`) at 2026-11-22 08:59:55 PST — probe unchanged vs retip15: cos `/readyz` **503** `{"status":"DB_UNAVAILABLE"}`; `/healthz` **200** `{"status":"ok"}`; `dig` A/AAAA empty; `host` **NXDOMAIN**; `getent` exit **2**; `curl` exit **6** `http=000` → standings held (cos readiness **BLOCKED**; liveness **PARTIAL**; revops **UNKNOWN**); no cargo; no ManagePullRequest; no false `ALIVE`. See §19.
 Tip pin retipped on `cursor/v2711-oor-retip17-bc54` onto tip `571571720` (`571571720620cd7462b9a740e3bf0b0fdeebc17a`; prior retip16 pin `acd3b8c89` / `423e7a831`) at 2026-11-22 09:20:38 PST — probe unchanged vs retip16: cos `/readyz` **503** `{"status":"DB_UNAVAILABLE"}`; `/healthz` **200** `{"status":"ok"}`; `dig` A/AAAA empty; `host` **NXDOMAIN**; `getent` exit **2**; `curl` exit **6** `http=000` → standings held (cos readiness **BLOCKED**; liveness **PARTIAL**; revops **UNKNOWN**); no cargo; no ManagePullRequest; no false `ALIVE`. See §20. Tip-wins absorb onto crown tip `8c8b1e6e5` (⊇ Foundry PARTIAL honesty + Smalt RAID absorb `2c144954c`; sidebranch `e5dadcc03` / honesty `4cdbabff7` / side tip `b9ddaa833`).
+Tip pin retipped on `cursor/v2711-oor-retip18-bc54` onto tip `47aebeb75` (`47aebeb7588da7c04b2de3233986c8ea2dac4252`; prior retip17 pin `571571720` / absorb `8c8b1e6e5`) at 2026-11-22 09:56:16 PST — probe unchanged vs retip17: cos `/readyz` **503** `{"status":"DB_UNAVAILABLE"}`; `/healthz` **200** `{"status":"ok"}`; `dig` A/AAAA empty; `host` **NXDOMAIN**; `getent` exit **2**; `curl` exit **6** `http=000` (revops readyz **and** healthz) → standings held (cos readiness **BLOCKED**; liveness **PARTIAL**; revops **UNKNOWN**); no cargo; no ManagePullRequest; no false `ALIVE`. See §21. Sidebranch only — leave tip-wins absorb for absorb agent.
 
 ---
 
@@ -409,5 +410,37 @@ DNS corroboration: `dig +short revops.fnox.io A`/`AAAA` empty; `host` exit **1**
 
 Crown: Plane-5 revops+cos product standing is **not** `ALIVE`. Companion detail:
 [`REVOPS-COS-STANDING.md`](./REVOPS-COS-STANDING.md) §20. Next verifiers remain
+the BLOCKED/PENDING table above (cos `/readyz` → **200**; revops DNS ∧ `/readyz`
+**200**).
+
+---
+
+## 21. Retip18 honesty probe (2026-11-22 09:56:16 PST)
+
+Branch `cursor/v2711-oor-retip18-bc54` from probe tip
+`47aebeb7588da7c04b2de3233986c8ea2dac4252` (live crown
+`origin/cursor/ecosystem-spec-27-1-1-bc54`; prior retip17 pin `571571720` /
+absorb `8c8b1e6e5` / honesty `4cdbabff7`). **No cargo.** No ManagePullRequest
+on #849. Sidebranch only — crown **not** absorbed (prefer leave for absorb
+agent). Standings **held**; no false `ALIVE`. ALIVE gate unmet (requires cos
+`/readyz` **200** ∧ revops `/readyz` **200**). Probe unchanged vs §20 /
+retip17 (cos ready z **503** `DB_UNAVAILABLE` **BLOCKED**; healthz **200**
+**PARTIAL**; revops **NXDOMAIN** **UNKNOWN**). No Foundry `ALIVE`.
+
+Exact probes (America/Los_Angeles):
+
+| Probe | HTTP / exit | Body / note | Standing |
+|-------|-------------|-------------|----------|
+| `curl -sS -w '\nhttp_code=%{http_code}\nexit_curl=%{exitcode}\n' https://cos.fnox.io/readyz` | **503** / exit **0** | `{"status":"DB_UNAVAILABLE"}` (`time_total≈0.42s`; `remote_ip=34.8.148.142`) | **BLOCKED** |
+| `curl -sS -w '\nhttp_code=%{http_code}\nexit_curl=%{exitcode}\n' https://cos.fnox.io/healthz` | **200** / exit **0** | `{"status":"ok"}` (`time_total≈0.13s`; `remote_ip=34.8.148.142`) | **PARTIAL** (liveness ≠ readiness) |
+| `curl -sS -w '\nhttp_code=%{http_code}\nexit_curl=%{exitcode}\n' https://revops.fnox.io/readyz` | exit **6** / `http=000` | `Could not resolve host: revops.fnox.io` (**NXDOMAIN**) | **UNKNOWN** |
+| `curl -sS -w '\nhttp_code=%{http_code}\nexit_curl=%{exitcode}\n' https://revops.fnox.io/healthz` | exit **6** / `http=000` | `Could not resolve host: revops.fnox.io` (**NXDOMAIN**) | **UNKNOWN** |
+
+DNS corroboration: `dig +short revops.fnox.io A`/`AAAA` empty; `host` exit **1**
+**NXDOMAIN**; `getent` exit **2**; `dig +short cos.fnox.io A` → `34.8.148.142`
+(edge **PARTIAL** only).
+
+Crown: Plane-5 revops+cos product standing is **not** `ALIVE`. Companion detail:
+[`REVOPS-COS-STANDING.md`](./REVOPS-COS-STANDING.md) §21. Next verifiers remain
 the BLOCKED/PENDING table above (cos `/readyz` → **200**; revops DNS ∧ `/readyz`
 **200**).
