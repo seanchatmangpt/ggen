@@ -172,12 +172,13 @@ in worktree sanitizers and ORIGINAL_REQUEST doctrine. That ban is about the
 
 Standing on tip:
 
-- Truex product admission of `shui:`: **PARTIAL_ALIVE** — sibling Chicago
-  admit-court **6/6 vitest exit 0** on `seanchatmangpt/truex` @ `e28e68300`
-  (`cursor/v2711-truex-admit-court-bc54` / truex#6): `shui:` → **ADMITTED**;
-  private `truex:` → **REFUSED_PRIVATE**; unknown → **REFUSED_UNKNOWN**. Not
-  full product `ALIVE` until that PR merges to truex `main` + tip-sync ggen
-  fence parity. See [`GATE-1-GAP-MATRIX.md`](./GATE-1-GAP-MATRIX.md).
+- Truex product admission of `shui:`: **ALIVE** — sibling Chicago admit-court
+  **6/6 vitest exit 0** on `seanchatmangpt/truex` @ `68d2d2331696f18949f4877b994320018b6365e5`
+  ([truex#6](https://github.com/seanchatmangpt/truex/pull/6) **MERGED** → `main`
+  `b4672131`; mount `/tmp/truex`): `shui:` → **ADMITTED**; private `truex:` →
+  **REFUSED_PRIVATE**; unknown → **REFUSED_UNKNOWN**. Replay:
+  `pnpm exec vitest run test/admit/admit-court.test.ts` → exit **0**. See
+  [`GATE-1-GAP-MATRIX.md`](./GATE-1-GAP-MATRIX.md).
 - ggen public-prefix alignment: `vocab::shui` + `shui_public_prefix_court` —
   **ALIVE** on evidence tip `0478fde59` (fence only; tip-cargo reconfirm may
   still be PENDING).
@@ -202,10 +203,10 @@ slope admission + Chicago court); token-inventory plane **UNSUPPORTED** until
 Gate 2+.
 
 In-repo **brand.toml hot-swap** fence (`seed_hot_swap_slot` / `hot_swap_brand`
-+ `brand_toml_hotswap_court`): **PARTIAL_ALIVE** only — admits Fourth Watch ↔
-CindyCat transitions under rhythm law; refuses unknown OEM ids / same-brand /
-rhythm failures. Does **not** authorize production runtime theme swap or CASTLE
-publish `ALIVE`.
++ `brand_toml_hotswap_court`): **PRESENT** only (tip source; tip-cargo pending) —
+admits Fourth Watch ↔ CindyCat transitions under rhythm law; refuses unknown OEM
+ids / same-brand / rhythm failures. Does **not** authorize production runtime
+theme swap or CASTLE publish `ALIVE`.
 
 Production theme promote (`promote_production_theme`) is fail-closed
 **UNSUPPORTED** → typed `REFUSED_PRODUCTION` on the Gate-1 path (lib court
@@ -223,7 +224,10 @@ production theme: [`BRAND-PRODUCTION-THEME.md`](./BRAND-PRODUCTION-THEME.md)
 - fails closed on missing / stale / mismatched layout digests;
 - does not re-authorize DO.
 
-Standing: **UNSUPPORTED** in this repo (zcode-cli not a workspace member).
+Standing: zcode-cli adapter **UNSUPPORTED** in this repo (not a workspace
+member). ggen in-repo `ui_layout_court` digest-consume fence is separately
+**ALIVE** tip-cargo (**11 passed; exit 0** @ `ca52e9c16`; sources ≡ tip
+`8cee4246f`) — fence ≠ sibling `.ts` `ALIVE`.
 
 ---
 
@@ -319,7 +323,7 @@ Fence presence ≠ Plane-5 DO `ALIVE`.
 | Surface | Standing ceiling (ggen) | Ledger |
 |---------|-------------------------|--------|
 | GCP billing / cos ledger / servengine M4 / year-end SOW | **BLOCKED** / **UNKNOWN** — OUT OF SCOPE | [`GATE-0-STANDING.md`](./GATE-0-STANDING.md) |
-| Smalt 4-cloud RAID (Azure·AWS·GCP·Twilio) | **PARTIAL_ALIVE** (sibling); FinOps **UNSUPPORTED**; not RAID/`ALIVE` | [`SMALT-RAID-STANDING.md`](./SMALT-RAID-STANDING.md) |
+| Smalt 4-cloud RAID (Azure·AWS·GCP·Twilio) | **ALIVE** (6-column spine: doctor/aws/gcp/azure/twilio **0,0,0,0,0** @ `875efbb87` + FinOps **ALIVE** @ `91997da76f0f`); full RAID / remaining GA economic face still **PARTIAL_ALIVE** — ≠ Foundry crown | [`SMALT-RAID-STANDING.md`](./SMALT-RAID-STANDING.md) |
 | `revops.fnox.io` / `cos.fnox.io` / CindyCat·Fourth Watch front doors | **UNKNOWN** / **BLOCKED** — DO only via BRCE+AS-01 | [`REVOPS-COS-STANDING.md`](./REVOPS-COS-STANDING.md) |
 | Exact external next verifiers | OOR Gate 0/2/3 rows | [`OUT-OF-REPO-NEXT-VERIFIERS.md`](./OUT-OF-REPO-NEXT-VERIFIERS.md) |
 
@@ -340,7 +344,7 @@ founder HITL**.
 
 Crown standing on tip: **PARTIAL_ALIVE** (incomplete). Zero daily founder HITL
 is **not** `ALIVE`. Do not invent Foundry crown from Gate-1 fence green, CASTLE
-sibling courts, or Smalt 4-cloud PARTIAL alone.
+sibling courts, or Smalt 6-column spine `ALIVE` alone.
 
 ---
 

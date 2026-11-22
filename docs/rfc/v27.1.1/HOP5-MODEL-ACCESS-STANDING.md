@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|-------|
 | Document ID | `HOP5-MODEL-ACCESS-STANDING-27.1.1` |
-| Branch | `cursor/v2711-hop5-model-access-bc54` |
+| Branch | `cursor/v2711-hop5-secrets-probe-bc54` (probe land); prior `cursor/v2711-hop5-model-access-bc54` |
 | Companion | [`HOP5-ZCODE-RUNTIME-STANDING.md`](./HOP5-ZCODE-RUNTIME-STANDING.md), [`HOP5-FOUNDRY-LIVE2-STANDING.md`](./HOP5-FOUNDRY-LIVE2-STANDING.md), [`OUT-OF-REPO-NEXT-VERIFIERS.md`](./OUT-OF-REPO-NEXT-VERIFIERS.md) G2-9 |
 | Ecospec tip base | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `a29e1cd92fa1edc0cd0b744a3b628c871039e825` |
 | zcode-cli land | `/agent/repos/zcode-cli` @ `f32df08cdc4b3b8e114a8d1de8cf81acb80e1f3a` |
@@ -17,8 +17,10 @@
 |-------|--------|
 | `vendor/zcode.cjs` | **PRESENT** (prior runtime land) |
 | `~/.zcode/v2/provider_config.json` | **ABSENT** |
-| `~/.zcode/cli/setup-pending` | **PRESENT** (ISO timestamp only — setup incomplete; ≠ credentials) |
+| `~/.zcode/cli/setup-pending` | **UNKNOWN** (no `~/.zcode/v2/` tree on this VM at secrets probe) |
 | Env provider token names | **ABSENT** (see §3) |
+| `cursor-cloud` MCP `list-available-secrets` | **UNSUPPORTED** — tool absent from namespace catalog; invoke → `Tool … was not found` (no secret **names** returned; values never queried) |
+| Cursor **app** `bind-app-secrets` / publish secrets | **wrong surface** for hop-5 VM zcode — does not materialize `~/.zcode/v2/provider_config.json` on cloud agent disk without HITL |
 | Admitting `--live` fixture / dry-run bypass | **REFUSED** (see §2) |
 
 Failure text (prior / expected until provisioned):
@@ -102,9 +104,12 @@ standing is typed **BLOCKED** / **REFUSED**, never false `ALIVE`.
 |------------|----------|
 | `ANTHROPIC_*` / `ZAI_*` / `ZHIPU_*` / `BIGMODEL_*` / `ZCODE_*KEY*` / `ZCODE_*TOKEN*` / `OPENAI_*` | **ABSENT** |
 | Cursor cloud / app provider tokens (by env name) | **ABSENT** |
+| Cursor cloud MCP secret name inventory (`list-available-secrets`, `project_dir=/workspace`) | **UNSUPPORTED** on this pod — **not** admitted as usable keys |
 | Agent infra only | `CURSOR_AGENT`, `CURSOR_AGENT_SOCKET`, `CURSOR_CONVERSATION_ID`, `CURSOR_REQUEST_ID`, `CURSOR_RIPGREP_PATH`, `CURSOR_SPAWN_CWD_HOP`, `CURSOR_WORKLOAD_CGROUP`, `__CURSOR_SANDBOX_ENV_RESTORE` — **not** provider credentials |
 
-`secrets_present_names=` (usable provider tokens): _(empty)_
+`secrets_present_names=` (usable provider tokens): _(empty — MCP inventory **UNSUPPORTED**; host env names **ABSENT**)_
+
+Required provider key **names** to match when inventory exists (never print values): non-empty `config.providerConfigRules.providerRules[].config.access.apiKey` plus `config.defaultModelSelection.{providerId,modelId}`; or preflight env names `ANTHROPIC_API_KEY`, `ANTHROPIC_AUTH_TOKEN`, `ZCODE_API_KEY`, `ZCODE_MODEL_MAIN`, or other matches of §1 deferral regex.
 
 ## Standing
 
@@ -119,12 +124,17 @@ standing is typed **BLOCKED** / **REFUSED**, never false `ALIVE`.
 ## Exact next verifier (OOR)
 
 ```bash
-# 1) Provision real credentials (HITL / secret bind — not inventable here):
+# 1) Provision real credentials (HITL — agent cannot read Cursor secret values here):
 #    Interactive:  zcode → /login (Coding Plan API key on Linux) or /setup
-#    Or write ~/.zcode/v2/provider_config.json with non-empty
-#      config.providerConfigRules.providerRules[].config.access.apiKey
-#      + defaultModelSelection.{providerId,modelId}
-#    Or export a non-empty preflight env (e.g. ANTHROPIC_API_KEY / ZCODE_API_KEY)
+#    Or materialize ~/.zcode/v2/provider_config.json from schema (paste apiKey locally):
+mkdir -p ~/.zcode/v2
+cp /agent/repos/zcode-cli/provider.example.json /tmp/provider_config.template.json
+# edit in editor: set providerRules[].config.access.apiKey (non-empty secret),
+#   enabled=true, visibility≠hidden, access.type api-key or zhipu-coding-plan-api-key,
+#   personalModelIds + defaultModelSelection.{providerId,modelId}; then:
+install -m 600 /tmp/provider_config.template.json ~/.zcode/v2/provider_config.json
+#    Or export a non-empty preflight env for this shell only (names only; you set values):
+#      export ANTHROPIC_API_KEY=…   # or ZCODE_API_KEY / ANTHROPIC_AUTH_TOKEN / …
 # 2) Re-run live foundry (zcode-cli @ f32df08+; vendor PRESENT):
 cd /agent/repos/zcode-cli
 bun scripts/powl-foundry-loop.ts --live
