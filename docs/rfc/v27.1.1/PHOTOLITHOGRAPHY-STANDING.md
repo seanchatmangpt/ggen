@@ -155,7 +155,7 @@ Standing now: BrandTheme manufacture compare **ALIVE** (`diff_exit=0`). Do
 | Path | Role |
 |------|------|
 | *(sibling)* `seanchatmangpt/zcode-cli` | Crown subject — **out-of-repo**; typically unmounted → **BLOCKED** |
-| `crates/ggen-layout-court` (bin `layout_court`) | Live consume subject — **PRESENT** on tip @ land `d37271961` (workspace member); `layout_court` exit **0**; default adapter exit **2** (`mix` SUBJECT_MISSING) — do **not** invent default-adapter `ALIVE` |
+| `crates/ggen-layout-court` (bin `layout_court`) | Live consume subject — **PRESENT** on tip @ land `d37271961`; `layout_court` exit **0**; default adapter exit **0** (spatial ALIVE; Jobs/C4 deferred when mix/ggen ABSENT) — do **not** invent hop-5 crown `ALIVE` |
 | `bun test test/powl-ocel-chicago.test.ts` | Exact hop-5 Chicago crown verifier (exit **0** required for live ALIVE) |
 | `pnpm test -- ui-layout-court` | Layout consume companion vs ggen `AotSealReceipt` (sibling `.ts`) |
 | `docs/rfc/v27.1.1/ZCODE-POWL-OCEL-STANDING.md` | Hop-5 standing ledger + GA ladder through **2027-01-01** |
@@ -169,17 +169,20 @@ Standing now: BrandTheme manufacture compare **ALIVE** (`diff_exit=0`). Do
 | `crates/ggen-graph/src/layout/ui_layout.rs` + `tests/ui_layout_court.rs` | In-repo D5 fence (hop 3b) — not hop-5 live ALIVE |
 
 Standing now: package **PRESENT** + `layout_court` exit **0**; default live
-adapter exit **2** **BLOCKED** (`mix` SUBJECT_MISSING); foundry `--live` still
-**open**/`BLOCKED`. **Antifalsifier:** `requireCleanRoom: false` exit 0 ≠
-default-adapter `ALIVE`; fold tip `3d9da101` `PARTIAL_ALIVE` demoted to
-**PARTIAL**. Bounded refusal means: missing, stale, or mismatched layout
-digests fail closed with a typed remediation refusal; POWL/OCEL remediations
-must not escalate to ambient DO or silent admit. Unmounted sibling checkout
-refuses ALIVE promotion (`REFUSED_ZCODE_CHECKOUT_UNMOUNTED`); wrong subject
-(including hop-4 `ggen_igniter`) refuses retarget
-(`REFUSED_ZCODE_SUBJECT_MISMATCH`). Do **not** promote hop 5 / path crown to
-`ALIVE` from package presence, `layout_court` exit 0, or non-default adapter
-alone. Do **not** restate package **ABSENT** after land `d37271961`.
+adapter exit **0** (spatial **ALIVE**; Jobs/C4 deferred when `mix`/`ggen`
+ABSENT — not SUBJECT_MISSING); foundry `--live` still **open**/`BLOCKED`
+(prior exit **1** `live executor not configured`). Hop-5 aggregate
+**PARTIAL_ALIVE**. **Antifalsifier:** `requireCleanRoom: false` exit 0 ≠
+Jobs/C4 `ALIVE`; adapter exit 0 while foundry `--live` open ≠ hop-5 crown
+`ALIVE`; fold tip `3d9da101` false crown claim demoted. Bounded refusal
+means: missing, stale, or mismatched layout digests fail closed with a typed
+remediation refusal; POWL/OCEL remediations must not escalate to ambient DO
+or silent admit. Unmounted sibling checkout refuses ALIVE promotion
+(`REFUSED_ZCODE_CHECKOUT_UNMOUNTED`); wrong subject (including hop-4
+`ggen_igniter`) refuses retarget (`REFUSED_ZCODE_SUBJECT_MISMATCH`). Do
+**not** promote hop 5 / path crown to `ALIVE` from package presence,
+`layout_court` exit 0, or spatial-only adapter alone. Do **not** restate
+mix SUBJECT_MISSING after layout_court PRESENT + spatial PASS.
 
 ---
 
@@ -228,11 +231,11 @@ cd /home/ubuntu/ggen_igniter && git diff --exit-code
 # antifalsifier: bare git diff --exit-code post-clone ≠ ALIVE
 # residual: mix ggen_igniter.sync --check (NIF) still BLOCKED
 
-# in seanchatmangpt/zcode-cli (hop 5) — default adapter exit 2 (mix SUBJECT_MISSING); foundry --live open
-bun test test/powl-ocel-chicago.test.ts
-pnpm test -- ui-layout-court
-# exact next: default UiLayoutCourtAdapter.verifyPostTransition(<ggen tip>) → 0
-# next live crown: bun scripts/powl-foundry-loop.ts --live → 0
+# in seanchatmangpt/zcode-cli (hop 5) — default adapter exit 0 (Jobs/C4 deferred); foundry --live open
+bun test test/ui-layout-court-chicago.test.ts
+# expect 31 passed; exit 0 (incl. mix ABSENT + layout_court PRESENT → exit 0)
+# live: UiLayoutCourtAdapter.verifyPostTransition(<ggen tip>) → 0
+# next live crown: bun scripts/powl-foundry-loop.ts --live → 0 (needs live executor / mix)
 ```
 
 ---
@@ -293,7 +296,9 @@ ui-layout **11**. No path-crown `ALIVE` asserted.
 
 ### Hop-5 mix SUBJECT_MISSING fix (`cursor/v2711-hop5-mix-subject-bc54`)
 
+- Observed tip (rebase): `99255d53c993ff93b80676463d0b5bd107d060f6` (`origin/cursor/ecosystem-spec-27-1-1-bc54`).
 - Diagnosis: default adapter exit **2** after Taffy+Mode B PASS was `mix` SUBJECT_MISSING, not missing `layout_court`.
 - Fix (zcode-cli @ `fed6f166`): `resolveCleanRoomSyncCmd` — ggen dry-run fallback; spatial-only exit **0** when layout_court PRESENT + mix/ggen ABSENT; typed remediation when subject truly ABSENT.
-- Evidence: live adapter exit **0**; Chicago **31 passed**; see [`HOP5-MIX-SUBJECT-STANDING.md`](./HOP5-MIX-SUBJECT-STANDING.md).
-- Hop-5 aggregate remains **PARTIAL_ALIVE** (foundry `--live` / Jobs/C4 still open).
+- Evidence (reconfirm): `layout_exit=0`; default `adapter_exit=0` (Jobs/C4 deferred diagnostic); Chicago **31 passed; exit 0**; see [`HOP5-MIX-SUBJECT-STANDING.md`](./HOP5-MIX-SUBJECT-STANDING.md).
+- Hop-5 aggregate remains **PARTIAL_ALIVE** (foundry `--live` / Jobs/C4 still open — next verifier `bun scripts/powl-foundry-loop.ts --live` → 0).
+- Do **not** invent hop-5 / path-crown `ALIVE`.

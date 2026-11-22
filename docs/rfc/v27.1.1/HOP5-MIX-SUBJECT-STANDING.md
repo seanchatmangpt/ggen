@@ -42,8 +42,8 @@ Exact remediation (typed SUBJECT_MISSING when subject truly missing):
 | Probe | Exit | Standing |
 |-------|------|----------|
 | `layout_court` + `fixtures/ui-layout-court/product-subject.json` | **0** | ALIVE (product_subject) |
-| default `UiLayoutCourtAdapter.verifyPostTransition(/workspace)` (`mix`/`ggen` ABSENT; layout_court PRESENT) | **0** | ALIVE + Jobs/C4 deferred diagnostic |
-| `bun test test/ui-layout-court-chicago.test.ts` (zcode-cli) | **0** | **31 passed** (incl. mix-ABSENT / layout_court PRESENT / ggen fallback / typed remediation) |
+| default `UiLayoutCourtAdapter.verifyPostTransition(<ggen tip>)` (`mix`/`ggen` ABSENT; layout_court PRESENT) | **0** | spatial ALIVE + Jobs/C4 deferred diagnostic (reconfirm on tip `88e84d545`) |
+| `bun test test/ui-layout-court-chicago.test.ts` (zcode-cli @ `fed6f166`) | **0** | **31 passed** (incl. mix-ABSENT / layout_court PRESENT / ggen fallback / typed remediation) |
 
 ## Standing
 
