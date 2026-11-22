@@ -5,7 +5,7 @@
 | Document ID | `OUT-OF-REPO-NEXT-VERIFIERS` |
 | Companion | `ECOSYSTEM-SPEC-27.1.1`, `GATE-0-STANDING`, `GATE-3-RELEASE-COURTS-STANDING`, `FOUNDRY-FINISH-STANDING` |
 | Target GA | **2027-01-01** |
-| Observed ggen tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `f654343155c902a003a852f61df345e986d98b5e` (crown; tip-wins vw-env-wire code @ `f65434315` onto `098f53ea8`; ⊇ CASTLE digest-bind `13e0ddc9e` + WebAuthn `33a5420ad` + igniter/HITL/Smalt/OOR/affidavit) — env wire **PARTIAL**; production WASM runtime **UNSUPPORTED**; CASTLE crown wire **UNKNOWN**; live WebAuthn **UNSUPPORTED**; **V8** **BLOCKED** |
+| Observed ggen tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `cc2b344bc30604fd0801c532b9748b073222af97` (crown; tip-wins absorb OOR retip13 `cursor/v2711-oor-retip13-bc54` @ `e2ca6a69a` onto `cc2b344bc`; ⊇ BRCE V8 absorb + vw-env-wire `f65434315` / `098f53ea8` + CASTLE/WebAuthn/igniter/HITL/Smalt/affidavit) — cos/revops standings **held** (BLOCKED/PARTIAL/UNKNOWN); env wire **PARTIAL**; production WASM runtime **UNSUPPORTED**; CASTLE crown wire **UNKNOWN**; live WebAuthn **UNSUPPORTED**; **V8** **BLOCKED** |
 | Materialized | 2026-11-22 |
 | Hardened | 2026-11-22 — `cursor/v2711-oor-ledger-harden-bc54` |
 | Ops refresh | 2026-11-22 — `cursor/v2711-ops-standing-refresh-bc54` (tip pin + probe reconfirm; standings held) |
@@ -265,15 +265,16 @@ Tip pin retipped on `cursor/v2711-oor-retip9-0e29` onto tip `a508e6bae` (`a508e6
 Tip pin retipped on `cursor/v2711-oor-retip10-ecdf` onto tip `a40338aea` (`a40338aea16bccd72cbc8baffe26b004155b34d4`) at 2026-11-22 07:37:36 PST — probe unchanged vs retip9: cos `/readyz` **503** `{"status":"DB_UNAVAILABLE"}`; `/healthz` **200** `{"status":"ok"}`; `dig` A/AAAA empty; `host` **NXDOMAIN**; `getent` exit **2**; `curl` exit **6** `http=000` → standings held (cos readiness **BLOCKED**; liveness **PARTIAL**; revops **UNKNOWN**); no cargo; no ManagePullRequest; no false `ALIVE`.
 Tip pin retipped on `cursor/v2711-oor-retip11-fec0` onto tip `6a3a623ba` (`6a3a623bacd33efdc1ec7efccf6a35141662ca53`) at 2026-11-22 07:42:56 PST — post–ui_layout exact tip-cargo absorb; probe unchanged vs retip10: cos `/readyz` **503** `{"status":"DB_UNAVAILABLE"}`; `/healthz` **200** `{"status":"ok"}`; `dig` A/AAAA empty; `host` **NXDOMAIN**; `getent` exit **2**; `curl` exit **6** `http=000` → standings held (cos readiness **BLOCKED**; liveness **PARTIAL**; revops **UNKNOWN**); no cargo; no ManagePullRequest; no false `ALIVE`.
 Tip pin retipped on `cursor/v2711-oor-retip12-5958` onto tip `7ddfd8b6e` (`7ddfd8b6efd10ed21cd514f7bb17a5a63056a79c`) at 2026-11-22 07:58:41 PST — tip-wins after affidavit absorb race (probe base `1dbf1cc2e`); probe unchanged vs retip11: cos `/readyz` **503** `{"status":"DB_UNAVAILABLE"}`; `/healthz` **200** `{"status":"ok"}`; `dig` A/AAAA empty; `host` **NXDOMAIN**; `getent` exit **2**; `curl` exit **6** `http=000` → standings held (cos readiness **BLOCKED**; liveness **PARTIAL**; revops **UNKNOWN**); no cargo; no ManagePullRequest; no false `ALIVE`.
-Tip pin retipped on `cursor/v2711-oor-retip13-bc54` onto tip `f65434315` (`f654343155c902a003a852f61df345e986d98b5e`; parent `098f53ea8`) at 2026-11-22 08:13:20 PST — tip-wins vw-env-wire absorb; probe unchanged vs retip12: cos `/readyz` **503** `{"status":"DB_UNAVAILABLE"}`; `/healthz` **200** `{"status":"ok"}`; `dig` A/AAAA empty; `host` **NXDOMAIN**; `getent` exit **2**; `curl` exit **6** `http=000` → standings held (cos readiness **BLOCKED**; liveness **PARTIAL**; revops **UNKNOWN**); no cargo; no ManagePullRequest; no false `ALIVE`. See §16.
+Tip pin retipped on `cursor/v2711-oor-retip13-bc54` onto tip `f65434315` (`f654343155c902a003a852f61df345e986d98b5e`; parent `098f53ea8`) at 2026-11-22 08:13:20 PST — tip-wins vw-env-wire absorb; probe unchanged vs retip12: cos `/readyz` **503** `{"status":"DB_UNAVAILABLE"}`; `/healthz` **200** `{"status":"ok"}`; `dig` A/AAAA empty; `host` **NXDOMAIN**; `getent` exit **2**; `curl` exit **6** `http=000` → standings held (cos readiness **BLOCKED**; liveness **PARTIAL**; revops **UNKNOWN**); no cargo; no ManagePullRequest; no false `ALIVE`. See §16. Tip-wins absorb onto crown `cc2b344bc` (⊇ BRCE V8).
 
 ---
 
 ## 16. Retip13 honesty probe (2026-11-22 08:13:20 PST)
 
-Branch `cursor/v2711-oor-retip13-bc54` from `origin/cursor/ecosystem-spec-27-1-1-bc54`
-@ `f654343155c902a003a852f61df345e986d98b5e` (parent `098f53ea8589c7ab05195fb6563c374bbc7765a4`).
-**No cargo.** Sidebranch only — no crown push; no ManagePullRequest on #849.
+Branch `cursor/v2711-oor-retip13-bc54` @ `e2ca6a69a` from probe tip
+`f654343155c902a003a852f61df345e986d98b5e` (parent `098f53ea8589c7ab05195fb6563c374bbc7765a4`);
+tip-wins absorb onto crown `cc2b344bc` (⊇ BRCE V8 / `8d761d8a1`).
+**No cargo.** No ManagePullRequest on #849.
 Standings **held**; no false `ALIVE`. First probe pass 08:11:26 PST on
 `098f53ea8`; tip-wins reconfirm 08:13:20 PST on `f65434315` — identical codes.
 

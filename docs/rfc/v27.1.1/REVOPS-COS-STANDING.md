@@ -5,7 +5,7 @@
 | Document ID | `REVOPS-COS-STANDING` |
 | Companion | `ECOSYSTEM-SPEC-27.1.1.md`, `GATE-1-GAP-MATRIX.md`, `REPO-INVENTORY-27.1.1.md` |
 | Observed | 2026-11-22 |
-| Observation host | Cursor cloud agent on `seanchatmangpt/ggen` @ `origin/cursor/ecosystem-spec-27-1-1-bc54` tip `8d761d8a1` / probe base `f654343155c902a003a852f61df345e986d98b5e` (retip13 reconfirm 2026-11-22 08:13:20 PST; prior `098f53ea8` + retip12/`7ddfd8b6e` + retip11/`6a3a623ba` + retip10/`a40338aea` + retip9/`a508e6bae` + retip8/`5e131a75e` + honesty-retip8/`97c613452` + retip7 `a3b1c9410`) |
+| Observation host | Cursor cloud agent on `seanchatmangpt/ggen` @ `origin/cursor/ecosystem-spec-27-1-1-bc54` tip `cc2b344bc` (tip-wins absorb `cursor/v2711-oor-retip13-bc54` @ `e2ca6a69a` onto crown `cc2b344bc`; ⊇ BRCE V8 absorb) / probe base `f654343155c902a003a852f61df345e986d98b5e` (retip13 reconfirm 2026-11-22 08:13:20 PST; prior `098f53ea8` + retip12/`7ddfd8b6e` + retip11/`6a3a623ba` + retip10/`a40338aea` + retip9/`a508e6bae` + retip8/`5e131a75e` + honesty-retip8/`97c613452` + retip7 `a3b1c9410`) |
 | Scope | Plane 5 front doors + Gate 0 cos/billing adjacency — **out of ggen DO** |
 
 Standing labels used here (per request; map to AGENTS.md as noted):
@@ -351,10 +351,11 @@ Crown: Plane-5 revops+cos product standing is **not** `ALIVE`. Labels in §1
 
 ## 16. Tip reconfirm (2026-11-22 08:13:20 PST) — retip13 `f65434315`
 
-Observed on branch `cursor/v2711-oor-retip13-bc54` from tip lineage
-`8d761d8a1` ⊇ probe base `f654343155c902a003a852f61df345e986d98b5e`
-(parent `098f53ea8589c7ab05195fb6563c374bbc7765a4`; prior retip12 pin
-`7ddfd8b6e`). **No cargo.** Probe unchanged vs §15: cos `/readyz` **503**
+Observed on branch `cursor/v2711-oor-retip13-bc54` @ `e2ca6a69a`; tip-wins
+absorb onto crown `cc2b344bc` (⊇ BRCE V8 / `8d761d8a1`) retaining probe base
+`f654343155c902a003a852f61df345e986d98b5e` (parent
+`098f53ea8589c7ab05195fb6563c374bbc7765a4`; prior retip12 pin `7ddfd8b6e`).
+**No cargo.** Probe unchanged vs §15: cos `/readyz` **503**
 `{"status":"DB_UNAVAILABLE"}`; `/healthz` **200** `{"status":"ok"}`;
 `dig +short revops.fnox.io A`/`AAAA` empty; `host` **NXDOMAIN**; `getent`
 exit **2**; `curl` exit **6** `http=000`. Labels **held** (cos readiness
