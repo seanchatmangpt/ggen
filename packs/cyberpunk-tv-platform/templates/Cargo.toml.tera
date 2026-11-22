@@ -21,6 +21,12 @@ serde_json = "1.0"
 serde-wasm-bindgen = "0.6"
 wasm-bindgen = "0.2"
 
+# wasm-pack's bundled wasm-opt defaults omit --enable-bulk-memory; rustc emits
+# memory.copy under our release profile, so optimization must enable bulk memory
+# (CI manufacture job, 2026-11-22).
+[package.metadata.wasm-pack.profile.release]
+wasm-opt = ["-O", "--enable-bulk-memory"]
+
 [profile.release]
 lto = true
 opt-level = "z"
