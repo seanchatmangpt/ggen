@@ -5,9 +5,10 @@
 //! `cargo test -p ggen-graph --test verify_witness_size_court`
 
 use ggen_graph::witness::{
-    court_verify_witness_size, load_production_verify_witness, production_build_standing,
-    verify_placeholder_witness, verify_witness, ArtifactProvenance, WitnessRefusal,
-    WitnessStanding, VERIFY_WITNESS_SIZE_BUDGET_BYTES, WASM_MAGIC,
+    court_verify_witness_size, load_production_verify_witness, placeholder_artifact_path,
+    production_build_standing, verify_placeholder_witness, verify_production_witness,
+    verify_witness, ArtifactProvenance, WitnessRefusal, WitnessStanding,
+    AFFIDAVIT_VERIFY_WITNESS_SIZE_BUDGET_BYTES, VERIFY_WITNESS_SIZE_BUDGET_BYTES, WASM_MAGIC,
 };
 
 #[test]
@@ -128,5 +129,68 @@ fn production_build_without_wasm_target_is_unsupported_or_partial() {
             );
         }
         other => panic!("unexpected standing {other:?}"),
+    }
+}
+
+#[test]
+fn env_ggen_verify_witness_wasm_courts_placeholder_as_partial_external() {
+    // Arrange — real on-disk placeholder via env wire (no mocks).
+    // Env mutations are process-global; restore before asserts that may panic.
+    let path = placeholder_artifact_path();
+    assert!(
+        path.is_file(),
+        "placeholder fixture must exist at {}",
+        path.display()
+    );
+    let prior = std::env::var_os("GGEN_VERIFY_WITNESS_WASM");
+    std::env::set_var("GGEN_VERIFY_WITNESS_WASM", &path);
+
+    // Act
+    let receipt = verify_production_witness(None);
+
+    // Restore
+    match prior {
+        None => std::env::remove_var("GGEN_VERIFY_WITNESS_WASM"),
+        Some(v) => std::env::set_var("GGEN_VERIFY_WITNESS_WASM", v),
+    }
+
+    // Assert — env wire PRESENT; standing is PARTIAL (not production ALIVE)
+    let receipt = receipt.expect("env-wired placeholder must court under affidavit+Gate-1 budget");
+    assert!(receipt.size.size_bytes < AFFIDAVIT_VERIFY_WITNESS_SIZE_BUDGET_BYTES);
+    assert!(receipt.size.size_bytes < VERIFY_WITNESS_SIZE_BUDGET_BYTES);
+    assert_eq!(receipt.size.provenance, ArtifactProvenance::ExternalPath);
+    assert_eq!(receipt.size.standing, WitnessStanding::PartialAlive);
+    assert!(receipt.wasm_magic_ok);
+}
+
+#[test]
+fn production_path_at_or_over_256000_is_refused_before_gate1() {
+    // Arrange — wasm-shaped payload that clears Gate-1 (<262144) but hits
+    // affidavit hand-off ceiling (>=256000). Proves production wire uses
+    // the tighter bound.
+    let mut over = WASM_MAGIC.to_vec();
+    over.extend(
+        std::iter::repeat(0u8).take(AFFIDAVIT_VERIFY_WITNESS_SIZE_BUDGET_BYTES - WASM_MAGIC.len()),
+    );
+    assert_eq!(over.len(), AFFIDAVIT_VERIFY_WITNESS_SIZE_BUDGET_BYTES);
+    assert!(over.len() < VERIFY_WITNESS_SIZE_BUDGET_BYTES);
+
+    let dir = tempfile::tempdir().expect("tempdir");
+    let wasm_path = dir.path().join("over_affidavit_budget.wasm");
+    std::fs::write(&wasm_path, &over).expect("write temp wasm");
+
+    // Act — explicit path (same loader as env; avoids racing other env tests)
+    let result = verify_production_witness(Some(&wasm_path));
+
+    // Assert
+    match result {
+        Err(WitnessRefusal::OverBudget {
+            size_bytes,
+            budget_bytes,
+        }) => {
+            assert_eq!(size_bytes, AFFIDAVIT_VERIFY_WITNESS_SIZE_BUDGET_BYTES);
+            assert_eq!(budget_bytes, AFFIDAVIT_VERIFY_WITNESS_SIZE_BUDGET_BYTES);
+        }
+        other => panic!("expected OverBudget at affidavit ceiling, got {other:?}"),
     }
 }

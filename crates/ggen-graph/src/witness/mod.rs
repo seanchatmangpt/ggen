@@ -139,9 +139,21 @@ pub fn verify_placeholder_witness() -> Result<VerifyWitnessReceipt, WitnessRefus
     verify_witness(&bytes, ArtifactProvenance::Placeholder)
 }
 
+/// Affidavit gatekeeper hand-off size ceiling (owning-plane size court).
+///
+/// Affidavit `affidavit-gatekeeper-wasm` refuses when measured bytes exceed
+/// **256_000**. ggen Gate-1 budget remains [`VERIFY_WITNESS_SIZE_BUDGET_BYTES`]
+/// (`< 262_144`). Production consume via [`verify_production_witness`] applies
+/// **both**: admit only when `len < 256_000` (hence also `< 262_144`).
+/// Pin observed remotely: **28673** B @ affidavit `563eb322a`.
+pub const AFFIDAVIT_VERIFY_WITNESS_SIZE_BUDGET_BYTES: usize = 256_000;
+
 /// Attempt to load a **production** artifact.
 ///
-/// Looks for `GGEN_VERIFY_WITNESS_WASM` (absolute path) or `path` if provided.
+/// **Env wire (PRESENT):** looks for `GGEN_VERIFY_WITNESS_WASM` (absolute path)
+/// or `path` if provided. This is the ggen-side hand-off for an affidavit-built
+/// gatekeeper wasm — not a claim that production runtime is `ALIVE` in CI.
+///
 /// When neither yields a readable file, returns typed
 /// [`WitnessRefusal::Unsupported`] — the Gate-1 size court still exists via
 /// [`verify_placeholder_witness`].
@@ -171,10 +183,23 @@ pub fn load_production_verify_witness(
 }
 
 /// Verify a production artifact when present; otherwise typed `UNSUPPORTED`.
+///
+/// Size discipline for production hand-off:
+/// 1. Affidavit ceiling: `len < AFFIDAVIT_VERIFY_WITNESS_SIZE_BUDGET_BYTES` (256_000);
+/// 2. Gate-1 court via [`verify_witness`]: `len < VERIFY_WITNESS_SIZE_BUDGET_BYTES` (262_144).
+///
+/// Success standing is [`WitnessStanding::PartialAlive`] (CONSTRUCT court) —
+/// never production runtime `ALIVE` without a CI-mounted real wasm + consume exit 0.
 pub fn verify_production_witness(
     path: Option<&Path>,
 ) -> Result<VerifyWitnessReceipt, WitnessRefusal> {
     let (bytes, _resolved) = load_production_verify_witness(path)?;
+    if bytes.len() >= AFFIDAVIT_VERIFY_WITNESS_SIZE_BUDGET_BYTES {
+        return Err(WitnessRefusal::OverBudget {
+            size_bytes: bytes.len(),
+            budget_bytes: AFFIDAVIT_VERIFY_WITNESS_SIZE_BUDGET_BYTES,
+        });
+    }
     verify_witness(&bytes, ArtifactProvenance::ExternalPath)
 }
 
@@ -220,6 +245,8 @@ mod unit_tests {
     #[test]
     fn budget_constant_matches_gate1_matrix() {
         assert_eq!(VERIFY_WITNESS_SIZE_BUDGET_BYTES, 262_144);
+        assert_eq!(AFFIDAVIT_VERIFY_WITNESS_SIZE_BUDGET_BYTES, 256_000);
+        assert!(AFFIDAVIT_VERIFY_WITNESS_SIZE_BUDGET_BYTES < VERIFY_WITNESS_SIZE_BUDGET_BYTES);
     }
 
     #[test]
