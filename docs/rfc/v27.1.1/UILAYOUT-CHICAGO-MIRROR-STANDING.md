@@ -67,5 +67,5 @@ tip-cargo reconfirm of remaining fences (`shui` / Taffy / brand) — not a secon
 ## Return line
 
 ```text
-exit=0 standing=PARTIAL_ALIVE tip=27436608c absorbed=#927 next=remaining Gate-1 tip-cargo fences (ui_layout ALIVE via #926)
+exit=0 standing=PARTIAL_ALIVE tip=522da1ee1755eede884aa6cca87d2195b7a6bba0 absorbed=#926+#927 next=remaining Gate-1 tip-cargo fences (ui_layout ALIVE via #926)
 ```
