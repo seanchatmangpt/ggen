@@ -180,8 +180,9 @@ Standing on tip:
   `pnpm exec vitest run test/admit/admit-court.test.ts` → exit **0**. See
   [`GATE-1-GAP-MATRIX.md`](./GATE-1-GAP-MATRIX.md).
 - ggen public-prefix alignment: `vocab::shui` + `shui_public_prefix_court` —
-  **ALIVE** on evidence tip `0478fde59` (fence only; tip-cargo reconfirm may
-  still be PENDING).
+  **ALIVE** (lineage tip-cargo) — **4 passed; exit 0** @ evidence `26256ca9d`
+  (sources ≡ crown `678a6c106`; ancestor `0478fde59` **3 passed**). Fence ≠
+  Truex product crown alone. See [`GATE-1-GAP-MATRIX.md`](./GATE-1-GAP-MATRIX.md).
 
 ---
 
@@ -198,15 +199,17 @@ Gate-1 in-repo slice (this land): **visual rhythm only** — px/rem primitives,
 `docs/rfc/v27.1.1/fixtures/`. Full color/type/CASTLE inventories remain Gate 2+;
 inventing those token values here is still **REFUSED**.
 
-Standing: **PARTIAL_ALIVE** (rhythm schema + OEM stubs + fluid `clamp`/`cqi`
-slope admission + Chicago court); token-inventory plane **UNSUPPORTED** until
-Gate 2+.
+Standing: **ALIVE** (lineage rhythm + hot-swap tip-cargo) —
+`brand_toml_rhythm_court` **12 passed; exit 0** @ `26256ca9d`;
+`brand_fluid_clamp_court` source **PRESENT** (**6** `#[test]` on crown);
+full DTCG color/type/CASTLE token-inventory plane **UNSUPPORTED** until Gate 2+.
 
 In-repo **brand.toml hot-swap** fence (`seed_hot_swap_slot` / `hot_swap_brand`
-+ `brand_toml_hotswap_court`): **PRESENT** only (tip source; tip-cargo pending) —
-admits Fourth Watch ↔ CindyCat transitions under rhythm law; refuses unknown OEM
-ids / same-brand / rhythm failures. Does **not** authorize production runtime
-theme swap or CASTLE publish `ALIVE`.
++ `brand_toml_hotswap_court`): **ALIVE** (lineage) — **6 passed; exit 0** @
+`26256ca9d` (sources ≡ crown `678a6c106`). Admits Fourth Watch ↔ CindyCat
+transitions under rhythm law; refuses unknown OEM ids / same-brand / rhythm
+failures. Does **not** authorize production runtime theme swap or CASTLE publish
+`ALIVE`.
 
 Production theme promote (`promote_production_theme`) is fail-closed
 **UNSUPPORTED** → typed `REFUSED_PRODUCTION` on the Gate-1 path (lib court

@@ -5,18 +5,20 @@ Companion to `ECOSYSTEM-SPEC-27.1.1` §8 and Gate-1 gap matrix row
 
 ## Standing (this tip)
 
-Tip pin: absorb `98761f257e9b7a369001a3708148707ad581256d` (~`c11ea7f2a+` / mix-NIF `ba9824207`; `cursor/v2711-absorb-932-936-4b0b`; content from #933 @ `5c08f3312`).
+Tip pin: crown `678a6c106ad9aa78f0d198146ef8021a388fd8a4` (ecosystem-spec
+`cursor/v2711-companion-honesty-bc54` @ post–Gate-1 honesty `b565b8e83`; cargo
+evidence `26256ca9d413617f0e8b1418d101708ec4fbc2a3`).
 
 | Surface | Standing | Evidence |
 |---------|----------|----------|
-| Rhythm schema + OEM stubs | **PARTIAL_ALIVE** | `brand_toml_rhythm_court` |
-| Fluid clamp / cqi slopes | **PARTIAL_ALIVE** | `brand_fluid_clamp_court` |
-| OEM hot-swap fence | **PARTIAL_ALIVE** | `seed_hot_swap_slot` / `hot_swap_brand` + `brand_toml_hotswap_court` |
+| Rhythm schema + OEM stubs | **ALIVE** (lineage) | `brand_toml_rhythm_court` **12 passed; exit 0** @ `26256ca9d` |
+| Fluid clamp / cqi slopes | **PARTIAL_ALIVE** | `brand_fluid_clamp_court` source **6** on crown; tip-cargo reconfirm optional |
+| OEM hot-swap fence | **ALIVE** (lineage) | `brand_toml_hotswap_court` **6 passed; exit 0** @ `26256ca9d` |
 | Production runtime theme | **UNSUPPORTED** | `promote_production_theme` → `ProductionThemeRefusal::ProductionUnsupported` (code `REFUSED_PRODUCTION`) |
 
-Hot-swap and fluid-clamp are CONSTRUCT fences with standing ceiling
-`PARTIAL_ALIVE`. They do **not** authorize production theme DO, CASTLE publish,
-or full DTCG color/type inventory `ALIVE`.
+Hot-swap and rhythm lineage tip-cargo are Gate-1 CONSTRUCT fences with standing
+**ALIVE** (lineage). They do **not** authorize production theme DO, CASTLE
+publish, or full DTCG color/type inventory `ALIVE`.
 
 ## In-repo fail-closed fence
 
@@ -36,12 +38,13 @@ Expected: exit **0**; every promote path yields `ProductionThemeRefusal::Product
 with code `REFUSED_PRODUCTION`. Never `Ok` / never `ALIVE`. (Not `BrandThemeRefusal` —
 that type does not exist on this tip.)
 
-Companion PARTIAL fences (not production promote):
+Companion lineage fences (not production promote):
 
 ```bash
+CARGO_BUILD_JOBS=1 CARGO_TARGET_DIR=/tmp/gate1-next-brand \
+  cargo test -p ggen-graph --test brand_toml_rhythm_court --locked
 cargo test -p ggen-graph --test brand_toml_hotswap_court
 cargo test -p ggen-graph --test brand_fluid_clamp_court
-cargo test -p ggen-graph --test brand_toml_rhythm_court
 ```
 
 ## Exact next verifier to promote production theme
@@ -81,7 +84,7 @@ as the exact in-repo verifier that production theme stays **UNSUPPORTED** /
 
 ## Standing discipline
 
-- Hot-swap green → `PARTIAL_ALIVE` only.
+- Hot-swap / rhythm lineage tip-cargo green → **ALIVE** (lineage) only — never production `ALIVE`.
 - `promote_production_theme` → always `REFUSED_PRODUCTION` on Gate-1 path.
 - Never promote inspection of this markdown file to `ALIVE`.
 - Never claim production theme `ALIVE` from rhythm / fluid / hot-swap courts alone.
