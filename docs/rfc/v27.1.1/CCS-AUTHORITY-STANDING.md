@@ -25,7 +25,7 @@ SELECT ≠ CONSTRUCT ≠ DO
 - **CONSTRUCT** manufactures reversible artifacts, plans, intents, graphs, and receipts.
 - **DO** actuates machine state through an authorized boundary only.
 
-**Humans act only at Crystallized Control Surfaces (CCS).**  
+**Humans act only at Crystallized Control Surfaces (CCS).**
 Raw model output, generated code, proof text, hooks, tickets, agents, and semantic
 derivations have **no ambient DO authority** (`AGENTS.md` §3; ECOSYSTEM-SPEC-27.1.1 §1.1).
 
