@@ -23,7 +23,7 @@ absorb=cursor/v2711-verify-witness-prod-absorb-55c2
 | Tip-cargo (cold) | subject `cd7c2433b` — **6 passed; EXIT=0** (`/tmp/cursor/verify-witness-tip-cd7c-build.log`) |
 | Ancestor cargo | `0478fde59` — **6 passed; exit 0** (retained) |
 | Standing (size court) | **ALIVE** (exact tip-cargo on `f5f44571f`; size court only; ≠ production WASM `ALIVE`) |
-| Production WASM | **UNSUPPORTED** in ggen — [`VERIFY-WITNESS-PRODUCTION.md`](./VERIFY-WITNESS-PRODUCTION.md). Sibling affidavit pin observed **28673** B remotely ≠ ggen production `ALIVE`. |
+| Production WASM | **UNSUPPORTED** in ggen — [`VERIFY-WITNESS-PRODUCTION.md`](./VERIFY-WITNESS-PRODUCTION.md). Affidavit pin size court **ALIVE** (**28673** B @ `563eb322a`) — [`VERIFY-WITNESS-AFFIDAVIT-SIZE-COURT-STANDING.md`](./VERIFY-WITNESS-AFFIDAVIT-SIZE-COURT-STANDING.md); ggen wire **UNSUPPORTED**. |
 | ManagePullRequest | not used |
 | Crown push | tip-wins absorb onto `cursor/ecosystem-spec-27-1-1-bc54` after Smalt land |
 
@@ -41,16 +41,17 @@ echo EXIT=$?
 
 Expect: **6 passed; exit 0** on tip witness sources (production path remains **UNSUPPORTED**).
 
-## Exact next verifier for production (crown absorb of prod claim)
+## Exact next verifier for production (ggen wire — open)
 
-Owner: **affidavit** (`seanchatmangpt/affidavit`). See
+Affidavit pin size court is **ALIVE** (EXIT **0**; **28673** B @ `563eb322a`) —
+[`VERIFY-WITNESS-AFFIDAVIT-SIZE-COURT-STANDING.md`](./VERIFY-WITNESS-AFFIDAVIT-SIZE-COURT-STANDING.md).
+Remaining owner path: ggen `GGEN_VERIFY_WITNESS_WASM` wire. See
 [`VERIFY-WITNESS-PRODUCTION.md`](./VERIFY-WITNESS-PRODUCTION.md):
 
 ```bash
-# mounted affidavit @ 563eb322a (or tip retaining pin)
-just gatekeeper-wasm-size-court
-wc -c affidavit-gatekeeper-wasm/dist/affidavit_gatekeeper_verify_witness.wasm  # pin 28673
+export GGEN_VERIFY_WITNESS_WASM=/abs/path/to/affidavit_gatekeeper_verify_witness.wasm
+# ggen_graph::witness::verify_production_witness(None) — still CONSTRUCT; never DO
 ```
 
-ggen crown absorb of **this honesty doc surface** does not require that
-verifier; absorb only records size-court `ALIVE` + production `UNSUPPORTED`.
+ggen placeholder size-court `ALIVE` + affidavit pin `ALIVE` ≠ ggen production
+`ALIVE` until the wire courts on tip.
