@@ -7,7 +7,7 @@ Companion to `ECOSYSTEM-SPEC-27.1.1.md` and `REPO-INVENTORY-27.1.1.md`.
 **Evidence refresh / live tip pin:** CindyCat dual-schema `[primitive.space]` from `[rhythm]` on `cursor/v2711-hop4-cindycat-space-bc54` (court `oem_fixtures_carry_dtcg_primitive_space_from_rhythm`).
 
 **Evidence refresh / live tip pin:** 2026-11-22 absorb #932 construct_hash **PRESENT** + #933 brand Gate-1 honesty onto tip
-`c11ea7f2a+` (~`89ca2da9c+` / `2fd897141+` / `0a3863c01+`; tip-wins: hop-5 runtime **PRESENT** / model access **REFUSED**; ui_layout tip-cargo **ALIVE**; chicago mirror **PARTIAL_ALIVE**; Smalt 6-column spine **ALIVE**; verify_witness size court **PRESENT**; taffy_aot_preflight **PRESENT**; photo hop-4 **ALIVE** reconfirm; brand hot-swap+fluid **PRESENT**; production theme **UNSUPPORTED**; construct_hash **PRESENT**).
+`ef94ca9631ec2c366390e127e84155107fa5886d` (~`89ca2da9c+` / `2fd897141+` / `0a3863c01+`; tip-wins: hop-5 runtime **PRESENT** / model access **REFUSED**; ui_layout tip-cargo **ALIVE**; chicago mirror **PARTIAL_ALIVE**; Smalt 6-column spine **ALIVE**; verify_witness size court **PRESENT**; taffy_aot_preflight **PRESENT**; photo hop-4 **ALIVE** reconfirm; brand hot-swap+fluid **PRESENT**; production theme **UNSUPPORTED**; construct_hash **PRESENT**).
 Truex+shui product admit → **ALIVE** (sibling **6/6 vitest exit 0** @
 `truex@68d2d2331696f18949f4877b994320018b6365e5` — [truex#6](https://github.com/seanchatmangpt/truex/pull/6)
 **MERGED** to `main` as `b4672131`; mount `/tmp/truex`; receipt
@@ -100,7 +100,7 @@ Do not promote any Gate 0 row to `ALIVE` from this repository.
 
 ### Command evidence log (this refresh)
 
-Live tip pin: `c11ea7f2a+` (~`89ca2da9c+` / `0a3863c01+`; absorb #932 construct_hash **PRESENT** + #933 brand Gate-1 honesty onto tip past #930 taffy **PRESENT** + #931 photo hop-4 **ALIVE** / #929 verify_witness **PRESENT** / #926/#927/#928 ui_layout **ALIVE** + chicago **PARTIAL** + Smalt **ALIVE**; sources ≡ tip).
+Live tip pin: `ef94ca9631ec2c366390e127e84155107fa5886d` (~`c11ea7f2a+` / `0a3863c01+`; absorb #932 construct_hash **PRESENT** + #933 brand Gate-1 honesty onto tip past #930 taffy **PRESENT** + #931 photo hop-4 **ALIVE** / #929 verify_witness **PRESENT** / #926/#927/#928 ui_layout **ALIVE** + chicago **PARTIAL** + Smalt **ALIVE**; sources ≡ tip).
 Historical exit-0 evidence tip: `0478fde59644cccd60c5a88d64d444ec292e6a3c` (≥ `a54b9803`; ancestor).
 ui-layout ancestor ALIVE: `eaf0dad40287a3347280a541766b3b16f3978cf8`.
 **Tip-cargo `ui_layout` ALIVE** preserved this absorb: exclusive flock `/tmp/ggen-uilayout-tip-alive-protected`;
