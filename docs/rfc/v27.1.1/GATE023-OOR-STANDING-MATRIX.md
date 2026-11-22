@@ -6,9 +6,9 @@
 | Binding | `ECOSYSTEM-SPEC-27.1.1` Gate 0 + Gate 2–3 out-of-repo legs; GA **2027-01-01** |
 | Companion index | [`OUT-OF-REPO-NEXT-VERIFIERS.md`](./OUT-OF-REPO-NEXT-VERIFIERS.md); [`GATE-0-2-3-NEXT-VERIFIERS.md`](./GATE-0-2-3-NEXT-VERIFIERS.md) |
 | Sidebranch | `cursor/v2711-oor-retip19-bc54` (`bc-f83f4cbf`; matrix origin `cursor/v2711-gate023-oor-matrix-bc54` / `bc-0754e974`) |
-| Observed ggen tip (write base) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ **`6a6957113`** (⊇ CapDoctor + emit-before-sync + VW pin; Construct receipt-exclude tip-wins pending); Foundry `--live` BLOCKED_HITL / cos BLOCKED / revops UNKNOWN **held** |
-| Probe time | 2026-11-22 12:35:00 PST / `2026-11-22T20:35Z` (retip23) |
-| Cargo / tip-cargo | **NOT RUN** this matrix (docs-only); Construct CI **PENDING_CI** (receipt-exclude after FM-PACK-013 unmask) ≠ ALIVE |
+| Observed ggen tip (write base) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ **`c0be492e1`** (⊇ Construct receipt-exclude); Foundry `--live` BLOCKED_HITL / cos BLOCKED / revops UNKNOWN **held** |
+| Probe time | 2026-11-22 2:10:00 PM PST / `2026-11-22T22:10Z` (retip24) |
+| Cargo / tip-cargo | Foundry `--live` **foundry_exit=1**; Construct local pathspec **ALIVE** ≠ CI Construct ALIVE (**PENDING_CI**) |
 | Crown absorb | tip-wins onto `origin/cursor/ecosystem-spec-27-1-1-bc54` (no force; parent owns ManagePullRequest) |
 | Companion retip | [`CONSTRUCT-RECEIPT-EXCLUDE-STANDING.md`](./CONSTRUCT-RECEIPT-EXCLUDE-STANDING.md); [`VERIFY-WITNESS-CI-WASM-CONSUME-STANDING.md`](./VERIFY-WITNESS-CI-WASM-CONSUME-STANDING.md) |
 
@@ -234,3 +234,7 @@ Tip **`08941960b`**. G2-11 prod runtime **PENDING_CI** (pin fixture + workflow o
 ## Retip23 (2026-11-22 12:35:00 PST) — Construct receipt-exclude after FM-PACK-013 unmask
 
 Tip **`6a6957113`** + receipt-exclude land. Emit-before-sync closed FM-PACK-013; Construct check-mode then false-positived on tracked `**/.ggen-v2/**` receipt/lease churn (~92 paths) — same class as publish-candidate `DRIFT_PATHSPEC`. `scripts/validate-examples.sh` now excludes that churn; source projections still fail closed. G2-11 Mount pin Step C still **PENDING_CI**. Foundry **BLOCKED_HITL** / cos **503** / revops **NXDOMAIN** held. **No invented ALIVE.** Detail: [`CONSTRUCT-RECEIPT-EXCLUDE-STANDING.md`](./CONSTRUCT-RECEIPT-EXCLUDE-STANDING.md).
+
+## Retip24 (2026-11-22 2:10:00 PM PST) — Foundry/cos/revops reconfirm + Construct local pathspec
+
+Tip **`c0be492e1`**. Foundry `--live` **foundry_exit=1** / `REFUSED` / provider **ABSENT** → **BLOCKED_HITL**. cos `/readyz` **503** `DB_UNAVAILABLE` (**BLOCKED**); `/healthz` **200** (**PARTIAL**); revops **NXDOMAIN** (**UNKNOWN**). Construct local double-sync + DRIFT_PATHSPEC EXIT **0** (**ALIVE** local ≠ CI). G2-11 Mount Step C still **in_progress** (**PENDING_CI**). Path crown **PARTIAL**. **No invented Foundry / zero-HITL / path ALIVE.** Detail: [`FOUNDRY-HITL-ACTION-CARD.md`](./FOUNDRY-HITL-ACTION-CARD.md) §7.

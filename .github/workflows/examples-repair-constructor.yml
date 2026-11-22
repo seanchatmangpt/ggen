@@ -29,8 +29,9 @@ permissions:
   contents: read
 
 concurrency:
+  # Keep long Construct runs from being cancelled by crown docs retips.
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   construct:

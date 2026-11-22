@@ -3,8 +3,8 @@
 | Field | Value |
 |-------|-------|
 | Spec binding | Construct core-team / repair example closure |
-| Tip (land) | `cursor/v2711-construct-receipt-exclude-bc54` → crown tip-wins |
-| Status | **IMPLEMENTED** in-tree; CI Construct **PENDING_CI** until EXIT **0** |
+| Tip (land) | crown `c0be492e1` (side `cursor/v2711-construct-receipt-exclude-bc54` / PR #952) |
+| Status | **IMPLEMENTED** in-tree; local pathspec **ALIVE**; CI Construct **PENDING_CI** until EXIT **0** |
 
 ## Finding
 
@@ -28,6 +28,16 @@ examples/
 ```
 
 Source projection drift (e.g. `src/*.py`) still fails closed. Receipt-only dirtiness is ignored.
+
+## Local proof (2026-11-22 2:10 PM PST)
+
+| Step | Result |
+|------|--------|
+| `ggen sync run --skip-ea-admission` ×2 in `examples/all-modules-coverage` | EXIT **0** / EXIT **0** |
+| `git diff --quiet` with DRIFT_PATHSPEC (excludes `**/.ggen-v2/**`) | EXIT **0** |
+| Same tree without exclude (`.ggen-v2` only) | EXIT **1** (receipt/log dirty — expected) |
+
+Local pathspec **ALIVE** ≠ crown Construct CI `ALIVE` (still **PENDING_CI** on `c0be492e1`).
 
 ## Refuse
 

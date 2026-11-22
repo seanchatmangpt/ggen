@@ -18,8 +18,10 @@ permissions:
   contents: read
 
 concurrency:
+  # Docs / standing retips on the crown tip must not thrash a 45–60m
+  # Construct cold-compile mid-flight (same class as verify-witness-ci-wasm).
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   construct:

@@ -1,9 +1,9 @@
 # FOUNDRY-HITL-ACTION-CARD — Founder `--live` action card (v27.1.1)
 
 ```text
-tip_base=08941960b16f2445134964c526fb125d49835b29
-branch=cursor/v2711-vw-ci-consume-bc54
-utc=2026-11-22T21:24Z
+tip_base=c0be492e1d76efea4a87e00c767ae0725196eeb2
+branch=cursor/v2711-oor-construct-retip-bc54
+utc=2026-11-22T22:10Z
 standing=BLOCKED_HITL
 foundry_exit=1
 foundry_finish=PARTIAL
@@ -12,9 +12,11 @@ photolith_path_crown=PARTIAL
 gate1_CLOSED_ALIVE≠Foundry_ALIVE≠zero_HITL_ALIVE
 --live=BLOCKED_HITL
 refuse=Foundry_ALIVE
-construct_tip=08941960b (tcps refresh + cyberpunk paren)
-vw_local_court=11/11@2f826872b
+construct_tip=c0be492e1 (receipt-exclude; local pathspec ALIVE ≠ CI ALIVE)
+vw_mount=PENDING_CI (Step C in_progress @6a695)
 cargo=foundry_reprobe_exit1
+cos=503_DB_UNAVAILABLE
+revops=NXDOMAIN
 ```
 
 | Field | Value |
@@ -24,9 +26,9 @@ cargo=foundry_reprobe_exit1
 | Agent | `bc-23737a65-4398-52e6-a180-afd65acfa8f3` (`https://cursor.com/agents/bc-23737a65-4398-52e6-a180-afd65acfa8f3`); prior finish honesty `bc-94d5f431`; prior card `bc-64334001` |
 | Spec binding | `ECOSYSTEM-SPEC-27.1.1` §13.4 Foundry finish; OOR **G2-9** |
 | Companions | [`FOUNDRY-FINISH-SPINE-STANDING.md`](./FOUNDRY-FINISH-SPINE-STANDING.md); [`FOUNDRY-FINISH-STANDING.md`](./FOUNDRY-FINISH-STANDING.md); [`HITL-LIVE-NEXT-VERIFIER-STANDING.md`](./HITL-LIVE-NEXT-VERIFIER-STANDING.md) §3 / §8 / §10; [`PHOTOLITHOGRAPHY-PATH-STANDING.md`](./PHOTOLITHOGRAPHY-PATH-STANDING.md) |
-| Observed tip (write-time) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `08941960b16f2445134964c526fb125d49835b29` (Construct TCPS refresh + cyberpunk paren; Gate1 CLOSED/ALIVE held; `--live` still BLOCKED_HITL) |
+| Observed tip (write-time) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `c0be492e1d76efea4a87e00c767ae0725196eeb2` (Construct receipt-exclude; Gate1 CLOSED/ALIVE held; `--live` still BLOCKED_HITL) |
 | zcode-cli | `/agent/repos/zcode-cli` @ `f32df08cdc4b3b8e114a8d1de8cf81acb80e1f3a` — `scripts/powl-foundry-loop.ts` **PRESENT**; `~/.zcode/v2/provider_config.json` **ABSENT** this env |
-| Cargo / tip-cargo | Live `--live` re-probe **foundry_exit=1** @ 2026-11-22T21:24Z (`Model access is not configured`); VW size court local **11**/EXIT:**0** @ `2f826872b` (≠ Foundry) |
+| Cargo / tip-cargo | Live `--live` re-probe **foundry_exit=1** @ 2026-11-22T22:10Z (`Model access is not configured`); log `/tmp/foundry-live-retip23.log`; cos `/readyz` **503**; revops **NXDOMAIN**; Construct local pathspec **ALIVE** ≠ CI Construct ALIVE; VW Mount **PENDING_CI** |
 | Status | ACTION CARD — live re-probe **foundry_exit=1** → `--live` **BLOCKED_HITL**; Foundry finish / horizontal spine **PARTIAL**; photolith path crown **PARTIAL**; **never invent Foundry `ALIVE`** |
 
 Standing vocabulary: `UNKNOWN` | `PARTIAL` | `PARTIAL_ALIVE` | `ALIVE` | `BLOCKED` | `BLOCKED_HITL` | `UNSUPPORTED` | `REFUSED_*`.
@@ -269,3 +271,25 @@ bun scripts/powl-foundry-loop.ts --live
 ```
 
 `setup-pending` under `~/.zcode/cli/` confirms first-run setup incomplete. No model API keys in agent env. Never invent Foundry ALIVE.
+
+---
+
+## 7. Live re-probe — foundry_exit=1 held (2026-11-22T22:10Z / 2:10 PM PST)
+
+Tip **`c0be492e1`**. Re-ran exact `--live` verifier. **Do not invent Foundry `ALIVE`.**
+
+| Field | Value |
+|-------|-------|
+| zcode-cli | `/agent/repos/zcode-cli` @ `f32df08` |
+| Provider registry | **ABSENT** |
+| Command | `bun scripts/powl-foundry-loop.ts --live` |
+| Log | `/tmp/foundry-live-retip23.log` |
+| **foundry_exit** | **1** |
+| `aggregateStanding` | **REFUSED** |
+| Exact failure | `Model access is not configured…` |
+| cos `/readyz` | **503** `DB_UNAVAILABLE` (**BLOCKED**) |
+| cos `/healthz` | **200** (**PARTIAL**) |
+| revops.fnox.io | **NXDOMAIN** (**UNKNOWN**) |
+| Construct local | double-sync AMC + DRIFT_PATHSPEC exit **0** (receipts dirty; sources clean) — **≠** CI Construct `ALIVE` |
+| VW Mount | Step C **in_progress** on `6a695` (**PENDING_CI**) |
+| Standing | `--live` **BLOCKED_HITL**; Foundry finish **PARTIAL**; path crown **PARTIAL** |
