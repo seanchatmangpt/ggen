@@ -79,7 +79,7 @@ ancestors of tip (not demoted for thrash/OOM).
 | R-01…R-07 contract | tip-synced `r01_r07_resolution_court` harness | evidence `7 passed; 0 failed` → exit **0** @ `0478fde59`; tip source **7**; tip-cargo PENDING |
 | BRCE AS-01 seat | `cargo test -p ggen-abb-sbb --test brce_as01_seat_court` | evidence `6 passed; 0 failed` → exit **0** @ `0478fde59`; tip source **6**; tip-cargo PENDING |
 | zcode POWL stub | `zcode_powl_ocel_court` | not in this reconfirm set; live CLI **UNSUPPORTED** |
-| `ui-layout-court` | `CARGO_TARGET_DIR=/tmp/ggen-uilayout-wt CARGO_BUILD_JOBS=1 cargo test -p ggen-graph --test ui_layout_court` | **ALIVE** on tip `30b30d70c` (expect-free); TS runner still **UNSUPPORTED** | **ALIVE** — **8 passed; exit 0** on tested tip `eaf0dad40` (`bc-c7c9d554`); tip land `7c0ba2a90`; tip source **11** `#[test]`; **tip-cargo PENDING** (quiet cgroup) |
+| `ui-layout-court` | `CARGO_TARGET_DIR=/tmp/ggen-uilayout-wt CARGO_BUILD_JOBS=1 cargo test -p ggen-graph --test ui_layout_court` | **ALIVE** on tip `07b689c97` / expect-free subject `30b30d70c`; prior **8 passed; exit 0** on `eaf0dad40`; tip-cargo quiet reconfirm still valuable under cgroup contention |
 | `ui-layout-court.ts` (contract stub) | `docs/rfc/v27.1.1/fixtures/ui-layout-court.ts` | stub PRESENT; zcode-cli runner still **UNSUPPORTED** |
 | `verify_witness.wasm` (production) | `find . \( -name 'verify_witness*' -o -name '*witness*.wasm' \)` | placeholder only → production **UNSUPPORTED** |
 | `curve25519-dalek` | `rg -n 'name = "curve25519-dalek"' -A2 Cargo.lock` + pin standing | versions **4.1.3** + **5.0.0** present; pin doc → **PARTIAL_ALIVE**; policy court still open |
