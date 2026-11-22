@@ -4,10 +4,10 @@ Companion to `ECOSYSTEM-SPEC-27.1.1` §10 and Gate-1 gap matrix row
 `verify_witness WASM < 250KB`.
 
 ```text
-base=origin/cursor/ecosystem-spec-27-1-1-bc54@96444e302aae49e5e2c590160fcf4113db7c228a
+base=origin/cursor/ecosystem-spec-27-1-1-bc54@f5f44571f9a331d46e2895657621b7efd7127f1b
 lineage_tip=6a3a623bacd33efdc1ec7efccf6a35141662ca53
 side=cursor/v2711-verify-witness-prod-bc54
-size_court=ALIVE (6 passed; EXIT=0 @ 96444e302; warm /tmp/ggen-verify-witness-tip-ebf4)
+size_court=ALIVE (6 passed; EXIT=0 @ f5f44571f; warm /tmp/ggen-verify-witness-tip-ebf4)
 production_in_ggen=UNSUPPORTED
 affidavit_checkout=ABSENT
 wasm32_target=ABSENT (rustup installed targets: x86_64-unknown-linux-gnu only)
@@ -51,8 +51,8 @@ CARGO_BUILD_JOBS=1 \
 echo EXIT=$?
 ```
 
-Reconfirm @ crown `96444e302` (lineage `6a3a623ba`): **6 passed; EXIT=0**
-(log `/tmp/cursor/verify-witness-prod-size-court-96444.log`).
+Reconfirm @ crown `f5f44571f` (lineage `6a3a623ba`): **6 passed; EXIT=0**
+(log `/tmp/cursor/verify-witness-prod-size-court-side.log`).
 
 ## Out-of-repo production SoT (affidavit) — observed, not absorbed
 
@@ -108,9 +108,9 @@ cargo build --locked --lib --target wasm32-unknown-unknown --profile wasm
 
 ## Standing discipline
 
-| Claim | Standing @ `96444e302` / this side branch |
+| Claim | Standing @ `f5f44571f` / this side branch |
 |-------|------------------------------------------|
-| ggen placeholder size court | **ALIVE** (tip-cargo **6** @ `96444e302`; prior `c91b22561`) |
+| ggen placeholder size court | **ALIVE** (tip-cargo **6** @ `f5f44571f`; prior `c91b22561`) |
 | In-repo production WASM build path | **UNSUPPORTED** (no `verify_witness` workspace member; no wasm32 target) |
 | Affidavit slim pin observed remotely | observation only — **≠** ggen production `ALIVE` |
 | Production WASM courted via mounted hand-off | **UNSUPPORTED** until next verifier above exits **0** in mounted affidavit + optional ggen consume |
