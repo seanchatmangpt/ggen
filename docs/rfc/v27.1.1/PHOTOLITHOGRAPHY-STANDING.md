@@ -4,8 +4,8 @@
 |-------|-------|
 | Document ID | `PHOTOLITHOGRAPHY-STANDING-27.1.1` |
 | Companion | `ECOSYSTEM-SPEC-27.1.1.md`, `GATE-1-GAP-MATRIX.md`, `REPO-INVENTORY-27.1.1.md` |
-| Observed tip (this ledger) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `d05a131c7521d5a6325ade2e8295fee650659d5a` (past ~`28c3f4d845`; absorb `cursor/v2711-gate1-standing-retip-bc54` + `cursor/v2711-gate1-photo-retip2-bc54` + `cursor/v2711-hop5-foundry-live2-bc54`; Truex admit-court **ALIVE** @ `truex@68d2d233` / [truex#6](https://github.com/seanchatmangpt/truex/pull/6) **MERGED**; hop-4 BrandTheme manufacture **ALIVE** (`diff_exit=0`); hop-5 **PARTIAL_ALIVE** — adapter exit **0**; foundry `--live` **foundry_exit=1** / **REFUSED** `ZCode runtime is missing` after executor wire @ zcode `f32df08`; `ggen-layout-court` **PRESENT**; ui-layout **ALIVE** evidence `eaf0dad40`; **tip-cargo `ui_layout` PENDING**; FM-PACK **PRESENT**/**PARTIAL_ALIVE** tracked in Gate-1/inventory — not path-crown) |
-| Hop-4 manufacture | 2026-11-22 — `cursor/v2711-hop4-manufacture-bc54` / `/tmp/cursor/igniter-real-cleanroom.md` (`bc-4861c787`) — tip BrandTheme emit vs igniter fixture → **ALIVE** (`diff_exit=0`); prior PARTIAL exit **2** `:no_primitive_space` closed by dual-schema fixture |
+| Observed tip (this ledger) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `d05a131c7521d5a6325ade2e8295fee650659d5a` (past ~`28c3f4d845`; absorb `cursor/v2711-gate1-standing-retip-bc54` #909 + `cursor/v2711-gate1-photo-retip2-bc54` + `cursor/v2711-hop5-foundry-live2-bc54`; emitter `99255d53c` + dual-schema `88e84d545` ancestors; hop-4 BrandTheme manufacture **ALIVE** reconfirm `exit=0` / `git_diff=0`; Truex admit-court **ALIVE** @ `truex@68d2d233` / [truex#6](https://github.com/seanchatmangpt/truex/pull/6) **MERGED**; hop-5 **PARTIAL_ALIVE** — adapter exit **0**; foundry `--live` **foundry_exit=1** / **REFUSED** `ZCode runtime is missing` after executor wire @ zcode `f32df08`; `ggen-layout-court` **PRESENT**; ui-layout **ALIVE** evidence `eaf0dad40`; **tip-cargo `ui_layout` PENDING**; FM-PACK **PRESENT**/**PARTIAL_ALIVE** tracked in Gate-1/inventory — not path-crown) |
+| Hop-4 manufacture | 2026-11-22 — `cursor/v2711-hop4-manufacture-alive-bc54` / `/tmp/cursor/igniter-hop4-manufacture-alive.md` (`bc-b528ad50`) — tip `fourth-watch.brand.toml` BrandTheme emit vs igniter fixture → **ALIVE** (`exit=0`, canon `diff -rq=0`, compare-subject `git diff --exit-code=0`); prior PARTIAL exit **2** `:no_primitive_space` closed by dual-schema + emitter ancestry |
 | Hop-5 mix SUBJECT | 2026-11-22 — `cursor/v2711-hop5-mix-subject-bc54` / [`HOP5-MIX-SUBJECT-STANDING.md`](./HOP5-MIX-SUBJECT-STANDING.md) — default adapter exit **0** after Taffy+Mode B PASS (not SUBJECT_MISSING) |
 | Hop-5 foundry live2 | 2026-11-22 — `cursor/v2711-hop5-foundry-live2-bc54` / [`HOP5-FOUNDRY-LIVE2-STANDING.md`](./HOP5-FOUNDRY-LIVE2-STANDING.md) — Gall `--live` injects `createZcodeAgentExecutor`; **foundry_exit=1** / **REFUSED** (runtime ABSENT); no false `ALIVE` |
 | Status | LEDGER (path standings; **not** a crown `ALIVE` receipt) |
@@ -17,7 +17,8 @@ Standing vocabulary (`AGENTS.md` §2): `UNKNOWN` | `PARTIAL_ALIVE` | `ALIVE` |
 `ALIVE`. Source presence, workflow definitions, IO-free contracts, and sibling
 repo names do not promote the path crown. Hop 4 BrandTheme manufacture compare
 is **ALIVE** (`git diff --exit-code` → **0** on tip dual-schema brand vs igniter
-fixture CSS; evidence `/tmp/cursor/igniter-real-cleanroom.md`). **Antifalsifier:**
+fixture CSS; reconfirm evidence `/tmp/cursor/igniter-hop4-manufacture-alive.md`
+on tip `28c3f4d845`; prior `/tmp/cursor/igniter-real-cleanroom.md`). **Antifalsifier:**
 bare `git diff --exit-code` on a post-clone / virgin working tree ≠ hop-4
 `ALIVE`; `mix ggen_igniter.sync` NIF path remains **BLOCKED** (separate residual).
 Hop 5 aggregate is **PARTIAL_ALIVE** —
@@ -54,7 +55,7 @@ perimeter transducer
 | 2 | `.ttl` / `.toml` law + brand rhythm | **PARTIAL_ALIVE** (rhythm + OCEL/POWL vocab); full DTCG inventory **UNSUPPORTED** | **In-repo** fixtures + vocabs; OEM token inventories Gate 2+ / brand plane | `cargo test -p ggen-graph --test brand_toml_rhythm_court` | Fixtures refuse or go missing; rhythm admits touch &lt;44 / gap &lt;8 / off-grid; Gate-2 tokens invented without source |
 | 3 | ggen + Taffy AOT pre-flight | **PARTIAL_ALIVE** (ggen six-width seal) | **In-repo** (`ggen-graph::layout::taffy_aot`); consumer adapters **out-of-repo** | `cargo test -p ggen-graph --test taffy_aot_preflight_court` | Six-width seal fails under WCAG 1.4.12 1.5×; overflow refusal omits failing width; silent drop of typed `AotRefusal` |
 | 3b | ggen `ui-layout` digest consume (D5 in-repo fence) | **ALIVE** — `layout::ui_layout` + `tests/ui_layout_court.rs`; evidence tip `eaf0dad40` **8 passed; exit 0** (`bc-c7c9d554`; ancestor); tip court land `7c0ba2a90`; tip source **11** `#[test]`; **tip-cargo PENDING** (quiet cgroup) | **In-repo** fence only; sibling `ui-layout-court.ts` remains **ABSENT** / **UNSUPPORTED** here | Replay: `cargo test -p ggen-graph --test ui_layout_court` | Court missing from tip; silent admit of missing/stale/mismatched digest; conflating with sibling `.ts`; inventing path-crown ALIVE from hop 3b alone; inventing tip exit 0 without quiet cargo |
-| 4 | ggen_igniter clean-room / manufacture | **ALIVE** — tip dual-schema `fourth-watch.brand.toml` (`[rhythm]` + DTCG `[primitive.space]`) → igniter `BrandTheme` emit vs igniter fixture CSS → `diff -rq` **0** + compare-subject `git diff --exit-code` → **0** (`/tmp/cursor/igniter-real-cleanroom.md`; tip base `88e84d545`). Mount **PRESENT**; clean-tree checkpoint also **0**. `mix ggen_igniter.sync` NIF path still **BLOCKED** (residual). In-repo contract **PARTIAL_ALIVE**. | **Out-of-repo** sibling `seanchatmangpt/ggen_igniter` @ `/home/ubuntu/ggen_igniter` / `/agent/repos/ggen_igniter`. Fixture: `docs/rfc/v27.1.1/fixtures/fourth-watch.brand.toml`. In-repo: [`IGNITER-CLEANROOM-STANDING.md`](./IGNITER-CLEANROOM-STANDING.md) + `igniter_cleanroom_court` | **Replay:** BrandTheme emit tip brand + igniter `test/fixtures/brand_theme/fourth-watch.brand.toml` (canon path for Source header) → `diff -rq` **0**; `git diff --exit-code` on compare subject → **0**. **Next residual:** exclusive `CXX=g++-13` NIF → `mix ggen_igniter.sync --check` → **0**. Checkpoint: `cd /home/ubuntu/ggen_igniter && git diff --exit-code`. In-repo: `cargo test -p ggen-sjira --test igniter_cleanroom_court` | Claiming hop-4 `ALIVE` from bare post-clone `git diff --exit-code` alone; claiming `mix sync` ALIVE while NIF **BLOCKED**; conflating igniter-fixture-only idempotent emit with tip manufacture; re-opening `:no_primitive_space` by dropping DTCG surface from tip fixture |
+| 4 | ggen_igniter clean-room / manufacture | **ALIVE** — tip dual-schema `fourth-watch.brand.toml` (`[rhythm]` + DTCG `[primitive.space]`; emitter `99255d53c` on tip) → igniter `BrandTheme` emit vs igniter fixture CSS → `diff -rq` **0** + compare-subject `git diff --exit-code` → **0** (`/tmp/cursor/igniter-hop4-manufacture-alive.md`; tip `28c3f4d845`; prior `igniter-real-cleanroom.md` / `88e84d545`). Mount **PRESENT**; clean-tree checkpoint also **0**. `mix ggen_igniter.sync` NIF path still **BLOCKED** (residual). In-repo contract **PARTIAL_ALIVE**. | **Out-of-repo** sibling `seanchatmangpt/ggen_igniter` @ `/home/ubuntu/ggen_igniter` / `/agent/repos/ggen_igniter`. Fixture: `docs/rfc/v27.1.1/fixtures/fourth-watch.brand.toml`. In-repo: [`IGNITER-CLEANROOM-STANDING.md`](./IGNITER-CLEANROOM-STANDING.md) + `igniter_cleanroom_court` | **Replay:** BrandTheme emit tip brand + igniter `test/fixtures/brand_theme/fourth-watch.brand.toml` (canon path for Source header) → `diff -rq` **0**; `git diff --exit-code` on compare subject → **0**. **Next residual:** exclusive `CXX=g++-13` NIF → `mix ggen_igniter.sync --check` → **0**. Checkpoint: `cd /home/ubuntu/ggen_igniter && git diff --exit-code`. In-repo: `cargo test -p ggen-sjira --test igniter_cleanroom_court` | Claiming hop-4 `ALIVE` from bare post-clone `git diff --exit-code` alone; claiming `mix sync` ALIVE while NIF **BLOCKED**; conflating igniter-fixture-only idempotent emit with tip manufacture; re-opening `:no_primitive_space` by dropping DTCG surface from tip fixture |
 | 5 | zcode-cli POWL/OCEL remediations (bounded refusal) | **PARTIAL_ALIVE** — in-process bun **ALIVE**; live `UiLayoutCourtAdapter` **ALIVE** (**exit 0** after mix-SUBJECT fix); `layout_court` exit **0**; foundry `--live` **foundry_exit=1** / **REFUSED** (`ZCode runtime is missing` after `createZcodeAgentExecutor` wire @ zcode `f32df08`) | **Out-of-repo** `zcode-cli` @ `f32df08`. Package `ggen-layout-court` **PRESENT**. Contract: [`ZCODE-POWL-OCEL-STANDING.md`](./ZCODE-POWL-OCEL-STANDING.md); mix: [`HOP5-MIX-SUBJECT-STANDING.md`](./HOP5-MIX-SUBJECT-STANDING.md); live2: [`HOP5-FOUNDRY-LIVE2-STANDING.md`](./HOP5-FOUNDRY-LIVE2-STANDING.md) | Exact next: provision ZCode runtime (`bun run sync:local` / supported `sync:locked`) + provider creds → `bun scripts/powl-foundry-loop.ts --live` → **0**; Jobs/C4 residual: `mix ggen_igniter.sync --check` → **0**. Replay adapter → **0**. GA falsifier **2027-01-01** | Inventing hop-5 crown `ALIVE` while foundry_exit≠0; inventing ALIVE from executor injection alone; restating `live executor not configured` after zcode `f32df08` |
 
 **Path standing (aggregate):** **PARTIAL** — hops 1–3 **PARTIAL_ALIVE**, hop 3b
@@ -141,7 +142,7 @@ Court **ALIVE** on evidence tip `eaf0dad40` (`bc-c7c9d554`: `cargo test -p ggen-
 |------|------|
 | *(sibling)* `seanchatmangpt/ggen_igniter` | Clean-room / manufacture subject — **out-of-repo**; mount **PRESENT** at `/home/ubuntu/ggen_igniter` (HEAD `b5a15528…`) |
 | `docs/rfc/v27.1.1/fixtures/fourth-watch.brand.toml` | Dual-schema tip brand (`[rhythm]` + DTCG `[primitive.space]`) — BrandTheme manufacture input |
-| BrandTheme manufacture compare | **ALIVE** — tip emit vs igniter fixture CSS; compare-subject `git diff --exit-code` → **0** (`/tmp/cursor/igniter-real-cleanroom.md`) |
+| BrandTheme manufacture compare | **ALIVE** — tip emit vs igniter fixture CSS; compare-subject `git diff --exit-code` → **0** (`/tmp/cursor/igniter-hop4-manufacture-alive.md`; prior `igniter-real-cleanroom.md`) |
 | `git diff --exit-code` (bare mount) | Clean-tree **checkpoint** (exit **0**) — antifalsifier: alone ≠ hop-4 `ALIVE` |
 | `mix ggen_igniter.sync --check` | **BLOCKED** residual (NIF/oxrocksdb) |
 | `docs/reference/gate-conventions.md` | ggen vs ggen_igniter gate scoring orientation |
@@ -194,7 +195,7 @@ mix SUBJECT_MISSING after layout_court PRESENT + spatial PASS.
 | Hop 1 `ALIVE` | Product perimeter + ggen fence both execute with typed admit/refuse | Vocab constants alone |
 | Hop 3 `ALIVE` as photolithography | ggen seal **and** consumer (zcode/igniter) consumes `AotSealReceipt` | `taffy_aot_preflight_court` green alone |
 | Hop 3b `ALIVE` | `ui_layout_court` **8 passed; exit 0** on evidence `eaf0dad40` (this ledger; ancestor); tip land `7c0ba2a90`; tip source **11** `#[test]`; **tip-cargo PENDING** quiet cgroup on `5e00619a4` | Presence alone; inventing tip exit 0 without quiet cargo evidence |
-| Hop 4 `ALIVE` | Mounted `ggen_igniter` + **manufacture compare** (tip dual-schema BrandTheme emit vs igniter fixture) exit 0, then `git diff --exit-code` on that comparison subject — **met** 2026-11-22 (`diff_exit=0`; `/tmp/cursor/igniter-real-cleanroom.md`) | Bare post-clone `git diff --exit-code`; GALL `gall_observe_clean_room`; docs citing the sibling; clean-tree checkpoint alone; igniter-fixture-only idempotent emit |
+| Hop 4 `ALIVE` | Mounted `ggen_igniter` + **manufacture compare** (tip dual-schema BrandTheme emit vs igniter fixture) exit 0, then `git diff --exit-code` on that comparison subject — **met** 2026-11-22 (`diff_exit=0`; reconfirm `/tmp/cursor/igniter-hop4-manufacture-alive.md` @ `28c3f4d845`; prior `igniter-real-cleanroom.md`) | Bare post-clone `git diff --exit-code`; GALL `gall_observe_clean_room`; docs citing the sibling; clean-tree checkpoint alone; igniter-fixture-only idempotent emit |
 | Hop 5 `ALIVE` | Default live `UiLayoutCourtAdapter` exit 0 **and** `powl-foundry-loop --live` exit 0 against pinned ggen tip with `ggen-layout-court` present | In-process bun alone; hop-3b fence alone; `ggen-layout-court` **PRESENT** alone; `requireCleanRoom: false` exit 0; adapter exit 0 while foundry `--live` open |
 | **Path `ALIVE`** | Hops 1–5 all `ALIVE` with linked receipts | This ledger file; hop-3b presence alone |
 
@@ -228,7 +229,8 @@ cd /home/ubuntu/ggen_igniter && git diff --exit-code
 # tip dual-schema docs/rfc/v27.1.1/fixtures/fourth-watch.brand.toml
 #   → BrandTheme emit vs igniter test/fixtures/brand_theme/fourth-watch.brand.toml
 #   → git diff --exit-code on compare subject → 0
-# evidence: /tmp/cursor/igniter-real-cleanroom.md
+# evidence: /tmp/cursor/igniter-hop4-manufacture-alive.md (reconfirm @ 28c3f4d845)
+# prior: /tmp/cursor/igniter-real-cleanroom.md
 # antifalsifier: bare git diff --exit-code post-clone ≠ ALIVE
 # residual: mix ggen_igniter.sync --check (NIF) still BLOCKED
 
@@ -268,7 +270,12 @@ onto tip base `3ec8afd8538d1dd6b6d39b8efc41e3a7448166c7`: dual-schema tip
 `fourth-watch.brand.toml`; BrandTheme compare `git diff --exit-code` → **0**
 (`/tmp/cursor/igniter-real-cleanroom.md`; `bc-4861c787`); prior PARTIAL exit
 **2** `:no_primitive_space` closed; antifalsifier retained for bare post-clone;
-`mix sync` NIF residual **BLOCKED**. Path crown remains **PARTIAL**.
+`mix sync` NIF residual **BLOCKED**. Hop-4 manufacture **ALIVE** reconfirm
+2026-11-22 on `cursor/v2711-hop4-manufacture-alive-bc54` onto tip
+`28c3f4d84596fc1a0735d268f51bc2c74db526b5` (emitter `99255d53c` + dual-schema
+`88e84d545` ancestors): tip BrandTheme `exit=0`, canon `diff -rq=0`,
+compare-subject `git diff --exit-code=0` (`/tmp/cursor/igniter-hop4-manufacture-alive.md`;
+`bc-b528ad50`). Path crown remains **PARTIAL**.
 Pass-count footnotes (tip source): `shui` **4**, taffy **7**, brand **11**,
 ui-layout **11**. No path-crown `ALIVE` asserted.
 
