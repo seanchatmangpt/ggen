@@ -5,7 +5,7 @@
 | Document ID | `FOUNDRY-FINISH-STANDING` |
 | Companion to | `ECOSYSTEM-SPEC-27.1.1` (target GA **2027-01-01**) |
 | Status | STANDING LEDGER (not an execution receipt; not a Gate-1 rewrite) |
-| Observed tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `2c144954c75ca516bc9225b1c85ac3478e21275b` (foundry partial honesty retip `cursor/v2711-foundry-partial-retip-bc54` / `bc-42743036`; ⊇ Smalt RAID tip reconfirm absorb `2c144954c` + CASTLE wire retip3 `571571720` + igniter clean-room `2bee92cd6` + HITL action-card §8 `8629691f8`; prior foundry-finish honesty `77eb46fd0` / evidence `e7569893a`). See **Tip-pinned spine inventory** below. Zero-HITL / Foundry crown **PARTIAL** — **not** Foundry `ALIVE`. `--live` **BLOCKED_HITL**. Daily founder HITL **not** cleared. |
+| Observed tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `864ba13dce41ff3cd4432edcd7536aec88fb9602` (foundry HITL Retip3 `cursor/v2711-foundry-hitl-retip3-bc54` / `bc-6cdda390`; prior partial honesty `2c144954c` / `bc-42743036`; ⊇ tip `864ba13dc` + Smalt RAID + CASTLE wire + igniter + HITL §8). See **Tip-pinned spine inventory** below. Zero-HITL / Foundry crown **PARTIAL** — **not** Foundry `ALIVE`. `--live` **BLOCKED_HITL**. Daily founder HITL **not** cleared. |
 | Prior tip note | Was foundry-spine honesty pin @ `59c090984` (`97c613452+`; write_apply still **PENDING**; BRCE/R-01 tip-cargo **PENDING**). This retip absorbs tip evidence: r01+BRCE seat exact-tip **ALIVE** @ `e7569893a`; CCS `write_apply` **ALIVE** @ `cde02d1f2`; brand exact-tip **COMPILING**/lineage; OOR blockers held — without inventing zero-HITL `ALIVE`. |
 | Base (main) | `origin/main` @ `d173cad5792e837bd4fec730d120c582b9bc5d4c` |
 | Repo scope | `seanchatmangpt/ggen` names the spine; sibling planes are **tracked out-of-repo** |
@@ -289,6 +289,7 @@ FOUNDRY_FINISH = PARTIAL   # Zero-HITL crown PARTIAL — daily founder HITL not 
 | Smalt residual mix courts | 2026-11-22 — sidebranch `cursor/v2711-smalt-mix-courts-bc54` @ `7334aa971` (`bc-c700dafb`) tip-wins absorbed onto crown `79b64496b` via `cursor/v2711-smalt-mix-absorb-7abb`: smalt `91997da76f0f` treasury/tax/erp/rates exits **0,0,0,0** (8/8/8/7) ⇒ residual **ALIVE**; Smalt RAID / GA economic face **ALIVE**; Foundry / zero-HITL crown stays **PARTIAL** — **not** invented (RAID ALIVE ≠ Foundry zero-HITL ALIVE); OOR retip12 cos **503** / revops **NXDOMAIN** **BLOCKED** held; no cargo; no ManagePullRequest |
 | Founder HITL `--live` next-verifier tip-wins absorb | 2026-11-22 — tip-wins absorb `cursor/v2711-hitl-live-next-bc54` @ `723c3a14f` (`bc-ea2b3d10`) onto crown `00b53cec9` via `cursor/v2711-hitl-live-absorb-8df9` (⊇ Smalt residual mix / OOR retip12 / affidavit / BRCE V8+R01 / VW / CASTLE): pin foundry `--live` **BLOCKED_HITL** / **REFUSED** (`Model access is not configured`); owner **Founder HITL** + **zcode-cli**; falsifier `cd /agent/repos/zcode-cli && bun scripts/powl-foundry-loop.ts --live` → **foundry_exit=0**; **no** invented `--live` `ALIVE`; docs-only; no cargo; no ManagePullRequest — [`HITL-LIVE-NEXT-VERIFIER-STANDING.md`](./HITL-LIVE-NEXT-VERIFIER-STANDING.md) |
 | Foundry partial honesty retip | 2026-11-22 — sidebranch `cursor/v2711-foundry-partial-retip-bc54` (`bc-42743036`) from tip `2c144954c` (⊇ Smalt RAID tip reconfirm + CASTLE wire retip3 + igniter clean-room + HITL §8 action card): **Foundry remains PARTIAL**; `--live` remains **BLOCKED_HITL** (founder `/login`\|`/setup` required); **refuse** Foundry / hop-5 / zero-HITL `ALIVE`; spine ALIVE held where previously proven (igniter cleanroom, CASTLE wire, Smalt FinOps/RAID residual, zcode refusal tip-cargo); zero-HITL crown stays **PARTIAL**; exact next = HITL-LIVE §8 Founder HITL action card → `bun scripts/powl-foundry-loop.ts --live` → **foundry_exit=0**; docs-only; no cargo; **no crown absorb**; no ManagePullRequest; no force-push — [`HITL-LIVE-NEXT-VERIFIER-STANDING.md`](./HITL-LIVE-NEXT-VERIFIER-STANDING.md) §8 / §9 |
+| Foundry HITL action-card Retip3 | 2026-11-22 — sidebranch `cursor/v2711-foundry-hitl-retip3-bc54` (`bc-6cdda390`) from live crown tip `864ba13dc`: **Foundry remains PARTIAL**; `--live` remains **BLOCKED_HITL** (model access / `zcode /login` not configured this env); **refuse** Foundry / hop-5 / zero-HITL `ALIVE`; refusal-court PARTIAL ≠ Foundry ALIVE; VW size ALIVE ≠ Foundry; exact next = canonical `cd /agent/repos/zcode-cli` + `bun scripts/powl-foundry-loop.ts --live` (Path A condensed: `cd /agent/repos/zcode-cli && zcode /login && bun scripts/powl-foundry-loop.ts --live`) → **foundry_exit=0**; docs-only; no cargo; no ManagePullRequest; no force-push — [`HITL-LIVE-NEXT-VERIFIER-STANDING.md`](./HITL-LIVE-NEXT-VERIFIER-STANDING.md) §10 / this ledger §9 |
 
 ---
 
@@ -329,3 +330,40 @@ bun scripts/powl-foundry-loop.ts --live
 ```
 
 **Refuse:** promoting Foundry / zero-HITL / hop-5 to `ALIVE` from this docs retip, runtime PRESENT, adapter exit 0, dry-run PARTIAL, or in-repo refuse-path tip-cargo alone.
+
+---
+
+## 9. Foundry HITL action-card Retip3 (2026-11-22) — `cursor/v2711-foundry-hitl-retip3-bc54`
+
+| Field | Value |
+|-------|-------|
+| Tip base (write-time crown) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `864ba13dce41ff3cd4432edcd7536aec88fb9602` |
+| Branch | `cursor/v2711-foundry-hitl-retip3-bc54` |
+| Agent | `bc-6cdda390` (`https://cursor.com/agents/bc-6cdda390-b691-5059-af63-c4719b3ac498`) |
+| UTC | `2026-11-22T17:58Z` |
+| Cargo / tip-cargo | **NOT RUN** (docs-only; Gate1 tip6 courts own cargo thrash budget) |
+| Crown absorb | optional tip-wins FF if race-safe; else settle absorb — no ManagePullRequest; no force-push |
+
+### Standings held (this Retip3)
+
+| Claim | Standing | Note |
+|-------|----------|------|
+| **Foundry finish / zero-HITL crown** | **PARTIAL** | **Do not invent Foundry `ALIVE`** |
+| foundry `--live` (hop-5 / G2-9) | **BLOCKED_HITL** | model access / `zcode /login` not configured for founder in this environment; held `foundry_exit=1` |
+| zcode POWL/OCEL refusal-court | tip-cargo lineage **ALIVE** / retip6 honesty **PARTIAL** | **refusal-court PARTIAL ≠ Foundry ALIVE** |
+| `verify_witness` size measure | measure **ALIVE** (`wc -c` **28673**) | **VW size ALIVE does not promote Foundry** |
+| igniter / CASTLE wire / Smalt RAID | prior **ALIVE** held | ≠ Foundry / zero-HITL crown |
+| cos / revops / BRCE V8 | **BLOCKED** | OOR residuals held |
+
+### Exact next verifier
+
+Canonical path preserved from [`HITL-LIVE-NEXT-VERIFIER-STANDING.md`](./HITL-LIVE-NEXT-VERIFIER-STANDING.md) §3 / §8 (do **not** invent a third path). Path A condensed (same verifier; `/login` inlined):
+
+```bash
+cd /agent/repos/zcode-cli && zcode /login && bun scripts/powl-foundry-loop.ts --live
+# PASS only: foundry_exit=0
+# Until then: BLOCKED_HITL — refuse Foundry / hop-5 / zero-HITL ALIVE
+```
+
+**Refuse:** promoting Foundry / zero-HITL / hop-5 to `ALIVE` from this Retip3, from refusal-court PARTIAL/ALIVE, or from VW size ALIVE alone.
+
