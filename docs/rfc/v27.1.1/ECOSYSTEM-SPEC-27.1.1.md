@@ -188,9 +188,13 @@ Gate-1 in-repo slice (this land): **visual rhythm only** — px/rem primitives,
 inventing those token values here is still **REFUSED**.
 
 Standing: **PARTIAL_ALIVE** (rhythm schema + OEM stubs + Chicago court);
-token-inventory plane **UNSUPPORTED** until Gate 2+. **brand.toml hot-swap**
-is **ABSENT** / **UNSUPPORTED** on tip — rhythm admit courts are not a hot-swap
-capability and must not be labeled `ALIVE` as such.
+token-inventory plane **UNSUPPORTED** until Gate 2+.
+
+In-repo **brand.toml hot-swap** fence (`seed_hot_swap_slot` / `hot_swap_brand`
++ `brand_toml_hotswap_court`): **PARTIAL_ALIVE** only — admits Fourth Watch ↔
+CindyCat transitions under rhythm law; refuses unknown OEM ids / same-brand /
+rhythm failures. Does **not** authorize production runtime theme swap or CASTLE
+publish `ALIVE`.
 
 ---
 

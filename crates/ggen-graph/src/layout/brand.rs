@@ -5,6 +5,11 @@
 //! `cqi` slope law. Optional brand / patronage messaging slots are accepted as
 //! plain TOML strings (no private ontology namespaces). Full brand token
 //! inventories (color/type/CASTLE) remain Gate 2+.
+//!
+//! Also exposes an in-memory OEM **hot-swap** fence ([`seed_hot_swap_slot`] /
+//! [`hot_swap_brand`]) that admits Fourth Watch ↔ CindyCat transitions under
+//! rhythm law. Standing ceiling is [`HotSwapStanding::PartialAlive`] — never
+//! production runtime / CASTLE publish `ALIVE`.
 
 use serde::Deserialize;
 
@@ -354,4 +359,161 @@ fn is_on_grid(value_px: f32, grid_half_px: u32) -> bool {
     let half = grid_half_px as f32;
     let steps = (value_px / half).round();
     (value_px - steps * half).abs() <= f32::EPSILON * 8.0_f32.max(value_px.abs())
+}
+
+// ---------------------------------------------------------------------------
+// Brand.toml hot-swap fence (Gate-1 CONSTRUCT slot — PARTIAL_ALIVE ceiling)
+// ---------------------------------------------------------------------------
+//
+// Swaps the active admitted OEM `*.brand.toml` between already-admitted rhythm
+// stubs (Fourth Watch ↔ CindyCat). This is an in-memory admit/refuse surface
+// only: it does **not** claim production runtime theme swap, CASTLE publish,
+// full DTCG color/type inventory, or crown `ALIVE`. Mirror of the AS-01 seat
+// fence pattern — presence of a lawful swap receipt is not ambient DO.
+
+/// Closed Gate-1 OEM brand ids eligible for hot-swap (ECOSYSTEM-SPEC D4 stubs).
+pub const ADMITTED_OEM_BRAND_IDS: &[&str] = &["fourth-watch", "cindycat"];
+
+/// Standing ceiling for the in-repo hot-swap fence (never production `ALIVE`).
+pub const HOT_SWAP_STANDING_CEILING: &str = "PARTIAL_ALIVE";
+
+/// Standing recorded on a successful hot-swap / seed receipt.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum HotSwapStanding {
+    /// In-repo admit/swap fence passed — production hot-swap remains unsupported.
+    PartialAlive,
+}
+
+impl HotSwapStanding {
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::PartialAlive => HOT_SWAP_STANDING_CEILING,
+        }
+    }
+}
+
+/// Active brand slot holding one admitted manifest (hot-swap target).
+#[derive(Debug, Clone, PartialEq)]
+pub struct BrandHotSwapSlot {
+    active: BrandManifest,
+    receipt: BrandReceipt,
+}
+
+impl BrandHotSwapSlot {
+    /// Currently active OEM `brand_id`.
+    pub fn brand_id(&self) -> &str {
+        &self.active.brand_id
+    }
+
+    /// Last admit receipt for the active brand.
+    pub fn receipt(&self) -> &BrandReceipt {
+        &self.receipt
+    }
+
+    /// Borrow the active admitted manifest (rhythm + optional messaging).
+    pub fn manifest(&self) -> &BrandManifest {
+        &self.active
+    }
+}
+
+/// Machine-readable receipt for a successful seed or hot-swap transition.
+#[derive(Debug, Clone, PartialEq)]
+pub struct HotSwapReceipt {
+    /// Prior active brand id (`None` on first seed).
+    pub from_brand_id: Option<String>,
+    /// Newly active brand id.
+    pub to_brand_id: String,
+    /// Always [`HotSwapStanding::PartialAlive`] — never production `ALIVE`.
+    pub standing: HotSwapStanding,
+    /// Rhythm admit receipt for the new active brand.
+    pub to: BrandReceipt,
+}
+
+/// Typed refusals for brand.toml hot-swap (CONSTRUCT fence, not DO).
+#[derive(Debug, Clone, PartialEq)]
+pub enum BrandHotSwapRefusal {
+    /// Target failed Gate-1 rhythm admit.
+    Rhythm(BrandRefusal),
+    /// `brand_id` empty after parse.
+    EmptyBrandId,
+    /// `brand_id` is not in [`ADMITTED_OEM_BRAND_IDS`] (refuse inventing brands).
+    OemBrandUnsupported { brand_id: String },
+    /// Hot-swap target is the same as the active brand (no transition).
+    SameBrand { brand_id: String },
+}
+
+impl BrandHotSwapRefusal {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::Rhythm(_) => "REFUSED_BRAND_HOTSWAP_RHYTHM",
+            Self::EmptyBrandId => "REFUSED_BRAND_HOTSWAP_EMPTY_ID",
+            Self::OemBrandUnsupported { .. } => "REFUSED_BRAND_HOTSWAP_OEM",
+            Self::SameBrand { .. } => "REFUSED_BRAND_HOTSWAP_SAME",
+        }
+    }
+}
+
+fn is_admitted_oem_brand(brand_id: &str) -> bool {
+    ADMITTED_OEM_BRAND_IDS.iter().any(|id| *id == brand_id)
+}
+
+fn admit_oem_manifest(raw: &str) -> Result<(BrandManifest, BrandReceipt), BrandHotSwapRefusal> {
+    let manifest = parse_brand_toml(raw).map_err(BrandHotSwapRefusal::Rhythm)?;
+    if manifest.brand_id.trim().is_empty() {
+        return Err(BrandHotSwapRefusal::EmptyBrandId);
+    }
+    if !is_admitted_oem_brand(&manifest.brand_id) {
+        return Err(BrandHotSwapRefusal::OemBrandUnsupported {
+            brand_id: manifest.brand_id,
+        });
+    }
+    let receipt = admit_brand(&manifest).map_err(BrandHotSwapRefusal::Rhythm)?;
+    Ok((manifest, receipt))
+}
+
+/// Seed an empty hot-swap slot from an admitted OEM `*.brand.toml` body.
+///
+/// Standing on success is [`HotSwapStanding::PartialAlive`] only.
+pub fn seed_hot_swap_slot(
+    raw: &str,
+) -> Result<(BrandHotSwapSlot, HotSwapReceipt), BrandHotSwapRefusal> {
+    let (manifest, receipt) = admit_oem_manifest(raw)?;
+    let to_brand_id = receipt.brand_id.clone();
+    let slot = BrandHotSwapSlot {
+        active: manifest,
+        receipt: receipt.clone(),
+    };
+    let swap = HotSwapReceipt {
+        from_brand_id: None,
+        to_brand_id,
+        standing: HotSwapStanding::PartialAlive,
+        to: receipt,
+    };
+    Ok((slot, swap))
+}
+
+/// Hot-swap the active OEM brand to another admitted `*.brand.toml` body.
+///
+/// Refuses same-brand no-ops, unknown OEM ids, and rhythm law failures.
+/// Does not write files, publish CASTLE, or authorize production theme DO.
+pub fn hot_swap_brand(
+    slot: &mut BrandHotSwapSlot,
+    next_raw: &str,
+) -> Result<HotSwapReceipt, BrandHotSwapRefusal> {
+    let (manifest, receipt) = admit_oem_manifest(next_raw)?;
+    if manifest.brand_id == slot.active.brand_id {
+        return Err(BrandHotSwapRefusal::SameBrand {
+            brand_id: manifest.brand_id,
+        });
+    }
+    let from_brand_id = Some(slot.active.brand_id.clone());
+    let to_brand_id = receipt.brand_id.clone();
+    slot.active = manifest;
+    slot.receipt = receipt.clone();
+    Ok(HotSwapReceipt {
+        from_brand_id,
+        to_brand_id,
+        standing: HotSwapStanding::PartialAlive,
+        to: receipt,
+    })
 }
