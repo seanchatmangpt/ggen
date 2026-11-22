@@ -20,7 +20,7 @@ Standing vocabulary (AGENTS.md / ECOSYSTEM-SPEC):
 
 | Crown claim standing | Reason |
 |----------------------|--------|
-| **PARTIAL** | Zero-HITL crown remains **PARTIAL** on tip `d05a131c7`. Spine honesty: **ggen+Taffy PRESENT** (layout courts + `ggen-layout-court` on tip; **tip-cargo PENDING** — not tip exit 0); **zcode adapter PARTIAL** (default adapter exit **0**; foundry `--live` **foundry_exit=1** / **REFUSED** `ZCode runtime is missing` @ zcode `f32df08`); **CASTLE ALIVE** (sibling courts @ `2774039ea` / `bc-1bffb072` — ≠ Foundry crown); **Smalt ALIVE** (doctor/aws/gcp/azure/twilio exits **0** @ `875efbb87` + FinOps **ALIVE** @ `91997da76f0f` exit **0**/19 — ≠ Foundry crown); **revops/cos BLOCKED** (revops DNS fail; cos `/readyz` **503** `DB_UNAVAILABLE`). Founder HITL still required for: **cos DB**, **WebAuthn live** (BRCE V8/V9), **tip-cargo**, **foundry `--live`**. Clause-4 GA falsifiers in §1 would still fire today. **Do not invent crown `ALIVE`.** |
+| **PARTIAL** | Zero-HITL crown remains **PARTIAL** on tip `d05a131c7`. Spine honesty: **ggen+Taffy PRESENT** (layout courts + `ggen-layout-court` on tip; **tip-cargo PENDING** — not tip exit 0); **zcode adapter PARTIAL** (default adapter exit **0**; foundry `--live` **foundry_exit=1** / **REFUSED** `Model access is not configured` (runtime PRESENT) @ zcode `f32df08`); **CASTLE ALIVE** (sibling courts @ `2774039ea` / `bc-1bffb072` — ≠ Foundry crown); **Smalt ALIVE** (doctor/aws/gcp/azure/twilio exits **0** @ `875efbb87` + FinOps **ALIVE** @ `91997da76f0f` exit **0**/19 — ≠ Foundry crown); **revops/cos BLOCKED** (revops DNS fail; cos `/readyz` **503** `DB_UNAVAILABLE`). Founder HITL still required for: **cos DB**, **WebAuthn live** (BRCE V8/V9), **tip-cargo**, **foundry `--live`**. Clause-4 GA falsifiers in §1 would still fire today. **Do not invent crown `ALIVE`.** |
 
 Do not promote source presence, fleet-census rows, workflow definitions, or historical jira prose to crown `ALIVE`. ggen+Taffy **PRESENT** + ui-layout evidence `eaf0dad40` **ALIVE** ≠ tip-cargo / Foundry crown `ALIVE`. CASTLE sibling **ALIVE** ≠ digest-bound spine crown. Smalt 4-cloud+FinOps **ALIVE** ≠ zero-HITL / Foundry crown `ALIVE`. zcode adapter exit 0 ≠ foundry `--live` `ALIVE`.
 
@@ -65,7 +65,7 @@ Do not promote source presence, fleet-census rows, workflow definitions, or hist
 | ggen_igniter clean-room / manufacture | BrandTheme manufacture compare **ALIVE** (`diff_exit=0`; dual-schema tip brand); mount **PRESENT**; `mix` NIF / sync --check still **BLOCKED** [`IGNITER-CLEANROOM-STANDING.md`](./IGNITER-CLEANROOM-STANDING.md); hop ledger [`PHOTOLITHOGRAPHY-STANDING.md`](./PHOTOLITHOGRAPHY-STANDING.md) | Replay manufacture compare → 0; residual: `mix ggen_igniter.sync --check` → 0; in-repo: `cargo test -p ggen-sjira --test igniter_cleanroom_court` |
 | FM-PACK-001 `packs/gh-terraform-pack` | **PRESENT** / **PARTIAL_ALIVE** on tip (presence court; composed e2e SKIPPED) — [`REPO-INVENTORY-27.1.1.md`](./REPO-INVENTORY-27.1.1.md) | When loadavg &lt;10: `timeout 600s cargo test -p ggen-engine --test composed_packs_e2e -- --nocapture` → 0 |
 | cos (Gate-0 / Plane-5 adjacency) | **BLOCKED** — cos `/readyz` **HTTP 503** `DB_UNAVAILABLE`; none in ggen | `curl -sS -w '\nhttp=%{http_code}\n' https://cos.fnox.io/readyz` → HTTP **200** |
-| Live zcode POWL/OCEL / foundry | **PARTIAL_ALIVE** aggregate — adapter exit **0**; foundry `--live` **foundry_exit=1** / **REFUSED** (`ZCode runtime is missing`; executor wired @ zcode `f32df08`) — not crown `ALIVE` | Provision runtime then `bun scripts/powl-foundry-loop.ts --live` → 0; receipt `/tmp/cursor/hop5-foundry-live2-receipt.md` |
+| Live zcode POWL/OCEL / foundry | **PARTIAL_ALIVE** aggregate — adapter exit **0**; runtime PRESENT; foundry `--live` **foundry_exit=1** / **REFUSED** (`Model access is not configured`) — not crown `ALIVE` | Provision provider creds then `bun scripts/powl-foundry-loop.ts --live` → 0; receipt `/tmp/cursor/hop5-zcode-runtime-receipt.md` |
 | CCS authority matrix | Ledger **MATERIALIZED** [`CCS-AUTHORITY-STANDING.md`](./CCS-AUTHORITY-STANDING.md); Plane-5 DO still not ALIVE | See CCS next verifiers; do not promote from prose |
 
 ---
@@ -75,7 +75,7 @@ Do not promote source presence, fleet-census rows, workflow definitions, or hist
 | Residual class | Where it bites | Clearance condition |
 |----------------|----------------|---------------------|
 | tip-cargo PENDING | Gate-1 fences **PRESENT**/evidence-ALIVE but tip exit not reconfirmed on `d05a131c7` | Quiet `CARGO_BUILD_JOBS=1 cargo test -p ggen-graph --test ui_layout_court` → **0** |
-| foundry `--live` | hop-5 **PARTIAL_ALIVE**; **foundry_exit=1** / **REFUSED** `ZCode runtime is missing` | `bun run sync:local` → `bun scripts/powl-foundry-loop.ts --live` → **0** |
+| foundry `--live` | hop-5 **PARTIAL_ALIVE**; runtime PRESENT; **foundry_exit=1** / **REFUSED** `Model access is not configured` | provider creds → `bun scripts/powl-foundry-loop.ts --live` → **0** |
 | cos DB | cos `/readyz` **503** `DB_UNAVAILABLE` | `curl … https://cos.fnox.io/readyz` → HTTP **200** |
 | WebAuthn live | BRCE broker **BLOCKED**; production AS-01 ceremony open | BRCE **V8** then **V9** ([`BRCE-WEBAUTHN-STANDING.md`](./BRCE-WEBAUTHN-STANDING.md) §5) |
 | mix sync NIF | hop-4 residual **BLOCKED** | `CXX=g++-13` NIF → `mix ggen_igniter.sync --check` → **0** |
