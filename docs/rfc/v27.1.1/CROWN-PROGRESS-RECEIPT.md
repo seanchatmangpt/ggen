@@ -74,15 +74,15 @@ Detail binder: [`CCS-BRCE-STANDING.md`](./CCS-BRCE-STANDING.md) (honesty retip `
 | **CCS / BRCE slice crown** | **PARTIAL_ALIVE** |
 | CCS #1 AS-01 CONSTRUCT→DO | **PARTIAL_ALIVE** — V1 seat + V7 ES256 fixture land (**4 passed; exit 0** @ `fb6e7fc6e`); live WebAuthn **UNSUPPORTED**; broker **BLOCKED**; Plane-5 DO **BLOCKED** |
 | CCS #2 MCP `ggen_write_apply` + CP17 | **PARTIAL_ALIVE** (courts PRESENT; tip-cargo pending/spared) |
-| CCS #3 `construct_hash_gate` | **PARTIAL_ALIVE** — **PRESENT** on tip (PR **#901** / land `3ec8afd85`; tip **4** `#[test]`; absorb #932 docs-only retip); `lifecycle.rs` still **ABSENT**; tip-cargo **spared** (load high) |
+| CCS #3 `construct_hash_gate` | **ALIVE** tip-cargo — **4 passed; exit 0** @ `861a6e73a` (`cursor/v2711-ccs-brce-tipcargo-bc54`); `lifecycle.rs` still **ABSENT** |
 | CCS #5 SovereignLease Ed25519 | Fixture **ALIVE**; **UNSUPPORTED** as AS-01/`prime256v1` |
 | CCS #8 Plane-5 front doors | **BLOCKED** / **UNKNOWN** (revops DNS; cos `/readyz` **503**) |
 
 **Exact next verifiers**
 
-1. Live ladder: BRCE **V8** (broker AS-01 seat) → **V9** / OOR **G2-5** (Plane-5 DO probe).
-2. When tip-cargo free (locks spared this absorb): `CARGO_BUILD_JOBS=1 cargo test -p ggen-lsp --lib construct_hash_gate --target-dir /tmp/ggen-construct-hash-target`; `cargo test -p ggen-abb-sbb --test brce_as01_es256_assertion_court`; `… --test brce_as01_seat_court`.
-3. Residual: land/merge `lifecycle.rs` + package courts exit **0**.
+1. Live ladder: BRCE **V8** (broker AS-01 seat) → **V9** / OOR **G2-5** (Plane-5 DO probe) — **BLOCKED**; no V8 `ALIVE`.
+2. Clause-2 tip-cargo **done** @ `861a6e73a`: construct_hash + as01 V7/V1 **exit 0** (binder [`CCS-BRCE-STANDING.md`](./CCS-BRCE-STANDING.md)).
+3. Residual: `lifecycle.rs` + CCS #2 `write_apply` tip-cargo + package courts exit **0**.
 
 Fence / fixture exit 0 ≠ Plane-5 / CONSTRUCT→DO `ALIVE`.
 
