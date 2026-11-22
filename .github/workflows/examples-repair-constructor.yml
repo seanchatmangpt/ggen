@@ -304,7 +304,12 @@ jobs:
           GGEN_EXAMPLE_TIMEOUT_SECONDS: 120
         run: |
           set -o pipefail
-          scripts/validate-examples.sh 2>&1 | tee constructor-replay.log
+          scripts/validate-examples.sh --write 2>&1 | tee constructor-replay.log
+          git add examples/
+          if ! git diff --cached --quiet; then
+            git -c user.name='ggen repair constructor' -c user.email='actions@users.noreply.github.com' commit -m 'construct: validation replay fallout'
+          fi
+          scripts/validate-examples.sh 2>&1 | tee -a constructor-replay.log
 
       - name: Package candidate bytes and receipt
         if: always()

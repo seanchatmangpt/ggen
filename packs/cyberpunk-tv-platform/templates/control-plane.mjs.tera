@@ -287,7 +287,7 @@ async function telco(args = [], silent = false) {
 
 async function plan(args = [], silent = false) {
   const axes = byKind('axis').map(axis => ({ ...axis, values: csv(axis.values) }));
-  const constraints = new Set(args.filter(value => value.startsWith('--')).map(value => value.replace(/^--/, ''));
+  const constraints = new Set(args.filter(value => value.startsWith('--')).map(value => value.replace(/^--/, '')));
   const product = axes.reduce((count, axis) => count * axis.values.length, 1);
   const enabled = byKind('capability').filter(capability => capability.enabled);
   const optional = byKind('capability').filter(capability => !capability.enabled);
