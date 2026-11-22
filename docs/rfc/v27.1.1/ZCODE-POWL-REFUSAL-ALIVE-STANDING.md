@@ -35,3 +35,7 @@ Expect: **6 + 4 passed; exit 0**. Hop-5 crown / foundry `--live` remain non-ALIV
 ## Reconfirm (2026-11-22)
 
 Photolithography clause 1 / hop 5 refuse-path reconfirm on tip `df9597c18` (`cursor/v2711-zcode-refusal-reconfirm-bc54`): sjira **6** + bound **4**; both **exit 0** under exclusive `/home/ubuntu/zcode-powl-refusal-target`. Court sources unchanged since `cd7c2433b`. Standing remains **ALIVE(bounded_refusal)** only — `--live` still **BLOCKED_HITL**. Ledger: [`ZCODE-POWL-REFUSAL-RECONFIRM-STANDING.md`](./ZCODE-POWL-REFUSAL-RECONFIRM-STANDING.md). **refusal ALIVE ≠ `--live` ALIVE.** Tip-wins absorb via `cursor/v2711-zcode-alive-oor-absorb-2230`.
+
+## Path honesty cross-pin (2026-11-22)
+
+Lineage **ALIVE** above remains **held** through crown tip `83c954e5f` (`e24ce7a73+`). Tip-cargo honesty on that crown is separately **PARTIAL** (EXIT **137** @ retip6) — do **not** demote this lineage land, and do **not** invent tip EXIT 0 / Foundry `ALIVE` from it. Hop-5 autonomic remediations slice **PARTIAL**; `--live` **BLOCKED_HITL**. Path pin: [`ZCODE-POWL-PATH-STANDING.md`](./ZCODE-POWL-PATH-STANDING.md) (`cursor/v2711-zcode-path-retip-bc54` / `bc-3708a779`). Exact next tip-cargo → **6+4**/EXIT:**0**; founder `--live` → `cd /agent/repos/zcode-cli && zcode /login && bun scripts/powl-foundry-loop.ts --live` → **0**.

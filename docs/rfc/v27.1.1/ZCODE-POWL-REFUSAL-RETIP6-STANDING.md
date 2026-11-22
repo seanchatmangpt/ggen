@@ -55,4 +55,19 @@ CARGO_TARGET_DIR=/home/ubuntu/zcode-powl-refusal-target \
 # expect: 6 + 4 passed; EXIT 0  → then promote refusal ALIVE on a later retip
 ```
 
-Foundry `--live` remains out of scope until provider creds; see [`HOP5-ZCODE-RUNTIME-STANDING.md`](./HOP5-ZCODE-RUNTIME-STANDING.md).
+Foundry `--live` remains **BLOCKED_HITL** until provider creds; see
+[`HITL-LIVE-NEXT-VERIFIER-STANDING.md`](./HITL-LIVE-NEXT-VERIFIER-STANDING.md) §10 /
+[`HOP5-ZCODE-RUNTIME-STANDING.md`](./HOP5-ZCODE-RUNTIME-STANDING.md).
+
+## Path honesty cross-pin (2026-11-22)
+
+| Field | Value |
+|-------|-------|
+| Path pin | [`ZCODE-POWL-PATH-STANDING.md`](./ZCODE-POWL-PATH-STANDING.md) |
+| Branch | `cursor/v2711-zcode-path-retip-bc54` (`bc-3708a779`) |
+| Crown tip | `83c954e5fea4d454f3cc79410a368844a0469fb2` (`e24ce7a73+`) |
+| Held | tip-cargo **PARTIAL** (EXIT **137** this retip) vs lineage refusal **ALIVE** @ `cd7c2433b`; hop-5 autonomic remediations slice **PARTIAL**; **refusal ≠ Foundry ALIVE**; `--live` **BLOCKED_HITL** |
+| Cargo | **NOT RUN** on path pin (docs-only) |
+
+Exact next (unchanged): tip-cargo § above → **6+4**/EXIT:**0**; founder `--live`:
+`cd /agent/repos/zcode-cli && zcode /login && bun scripts/powl-foundry-loop.ts --live` → **0**.

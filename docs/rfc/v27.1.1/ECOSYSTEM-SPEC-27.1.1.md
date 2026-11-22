@@ -396,6 +396,8 @@ sibling courts, or Smalt 6-column spine `ALIVE` alone.
 | `docs/rfc/v27.1.1/BRAND-PRODUCTION-THEME.md` | brand.toml production theme `REFUSED_PRODUCTION` fence + next verifier (≠ hot-swap ALIVE) |
 | `docs/rfc/v27.1.1/IGNITER-CLEANROOM-STANDING.md` | ggen_igniter clean-room contract (hop 4) |
 | `docs/rfc/v27.1.1/ZCODE-POWL-OCEL-STANDING.md` | zcode POWL/OCEL bounded remediation (hop 5) |
+| `docs/rfc/v27.1.1/ZCODE-POWL-PATH-STANDING.md` | hop-5 path honesty @ `83c954e5f` — tip-cargo PARTIAL (EXIT 137) vs lineage ALIVE held; slice PARTIAL; `--live` BLOCKED_HITL; refusal ≠ Foundry ALIVE |
+| `docs/rfc/v27.1.1/ZCODE-POWL-REFUSAL-RETIP6-STANDING.md` | tip-cargo refuse-path honesty PARTIAL (EXIT 137 @ `2685119bd`) |
 | `docs/rfc/v27.1.1/CASTLE-SPINE-STANDING.md` | CASTLE publish / brand spine (Gate 2–3) |
 | `docs/rfc/v27.1.1/SMALT-RAID-STANDING.md` | Smalt 4-cloud RAID economic ops standing |
 | `docs/rfc/v27.1.1/REVOPS-COS-STANDING.md` | revops.fnox.io / cos.fnox.io Plane-5 standing |
@@ -445,7 +447,7 @@ Companion matrices: [`GATE-1-GAP-MATRIX.md`](./GATE-1-GAP-MATRIX.md); [`GATE-0-2
 | `ui_layout` digest consume | **PARTIAL_ALIVE** (retip6 EXIT:**124**; lineage **ALIVE** **11** @ `a508e6bae` held) | [`UILAYOUT-EXACT-RETIP6-STANDING.md`](./UILAYOUT-EXACT-RETIP6-STANDING.md) | exclusive `ui_layout_court` `--target-dir /tmp/ggen-uilayout-exact-retip6` → **11**/EXIT:**0** |
 | `curve25519-dalek` pin | **ALIVE** (pin court **6**/EXIT:**0** @ `bebea5dd0`) | [`CURVE25519-DALEK-PIN-STANDING.md`](./CURVE25519-DALEK-PIN-STANDING.md) | Replay: `cargo test -p ggen-config --test curve25519_dalek_pin_court` → **6**/EXIT:**0** |
 | VW size (&lt;250KB) | measure **ALIVE** (`wc -c` **28673**); tip-cargo court **PARTIAL** (EXIT:**137**); production runtime **UNSUPPORTED** | [`VERIFY-WITNESS-SIZE-RETIP3-STANDING.md`](./VERIFY-WITNESS-SIZE-RETIP3-STANDING.md) | Tip-cargo next: `cargo test -p ggen-graph --test verify_witness_size_court` → **8**/EXIT:**0**; prod: [`VERIFY-WITNESS-CI-WASM-NEXT-VERIFIER-STANDING.md`](./VERIFY-WITNESS-CI-WASM-NEXT-VERIFIER-STANDING.md) §3 |
-| zcode POWL refusal | **PARTIAL** (retip6 EXIT:**137**; prior refusal **ALIVE** historical only; ≠ Foundry) | [`ZCODE-POWL-REFUSAL-RETIP6-STANDING.md`](./ZCODE-POWL-REFUSAL-RETIP6-STANDING.md) | `cargo test -p ggen-sjira --test zcode_powl_ocel_court` + `… remediation_bound --lib` → **6+4**/EXIT:**0** |
+| zcode POWL refusal / hop-5 path | **PARTIAL** (retip6 EXIT:**137**; lineage refusal **ALIVE** held @ `cd7c2433b`; hop-5 slice **PARTIAL**; ≠ Foundry; `--live` **BLOCKED_HITL**) | [`ZCODE-POWL-PATH-STANDING.md`](./ZCODE-POWL-PATH-STANDING.md); [`ZCODE-POWL-REFUSAL-RETIP6-STANDING.md`](./ZCODE-POWL-REFUSAL-RETIP6-STANDING.md) | Tip-cargo: `cargo test -p ggen-sjira --test zcode_powl_ocel_court` + `… remediation_bound --lib` → **6+4**/EXIT:**0**. Live: `cd /agent/repos/zcode-cli && zcode /login && bun scripts/powl-foundry-loop.ts --live` → **0** |
 | igniter clean-room | **ALIVE** (`git diff --exit-code` → **0**; ≠ path / Foundry `--live`) | [`IGNITER-CLEANROOM-STANDING.md`](./IGNITER-CLEANROOM-STANDING.md) | Replay: `cd /home/ubuntu/ggen_igniter && git diff --exit-code` → **0** |
 
 ### 17.2 Ops
@@ -476,9 +478,10 @@ Companion matrices: [`GATE-1-GAP-MATRIX.md`](./GATE-1-GAP-MATRIX.md); [`GATE-0-2
 ```text
 Truex=ALIVE  shui=PARTIAL_ALIVE  Taffy=PARTIAL  brand.toml=PARTIAL_ALIVE
 ui_layout=PARTIAL_ALIVE  curve25519=ALIVE  VW_size=ALIVE(measure)/PARTIAL(court)/UNSUPPORTED(prod)
-zcode_POWL_refusal=PARTIAL  igniter_cleanroom=ALIVE
+zcode_POWL_refusal=PARTIAL(EXIT137)/lineage_ALIVE_held  hop5_slice=PARTIAL
+igniter_cleanroom=ALIVE
 Smalt_RAID=ALIVE  cos=BLOCKED  revops=UNKNOWN  brand_hotswap_prod=UNSUPPORTED
 BRCE_V8=BLOCKED  R01_R07_bodies=BLOCKED  WebAuthn_live=UNSUPPORTED  CASTLE_wire=ALIVE/WIRED
-Foundry=PARTIAL  --live=BLOCKED_HITL
-tip=9c56420dd  cargo=NOT_RUN  invented_ALIVE=none
+Foundry=PARTIAL  --live=BLOCKED_HITL  refusal≠Foundry_ALIVE
+tip=83c954e5f(path_pin)/9c56420dd(matrix)  cargo=NOT_RUN  invented_ALIVE=none
 ```

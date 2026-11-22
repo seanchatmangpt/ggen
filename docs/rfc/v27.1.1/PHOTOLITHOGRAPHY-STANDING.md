@@ -4,7 +4,7 @@
 |-------|-------|
 | Document ID | `PHOTOLITHOGRAPHY-STANDING-27.1.1` |
 | Companion | `ECOSYSTEM-SPEC-27.1.1.md`, `GATE-1-GAP-MATRIX.md`, `REPO-INVENTORY-27.1.1.md` |
-| Observed tip (this ledger) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `5a1129cc92d8971ea351238d630d6007085c871c` (igniter clean-room honesty retip3 `cursor/v2711-igniter-cleanroom-retip-bc54` / `bc-5cbc344a` — clean-room **ALIVE (lineage)** + cheap mount EXIT **0**; path crown **PARTIAL** held; ⊇ `2c69230f2`+; Jobs/C4 admitted `--check` **ALIVE**; hop-4 BrandTheme manufacture **ALIVE**; hop-5 **PARTIAL_ALIVE** foundry `--live` **BLOCKED_HITL**; path crown **PARTIAL** — not path-crown ALIVE; Foundry / zero-HITL crown **PARTIAL** — **no** Foundry `ALIVE`; clean-room ALIVE ≠ `--live` Foundry ALIVE) |
+| Observed tip (this ledger) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `83c954e5fea4d454f3cc79410a368844a0469fb2` (`83c954e5f`; ⊇ `e24ce7a73`+ / prior `5a1129cc9`) — zcode POWL path honesty `cursor/v2711-zcode-path-retip-bc54` / `bc-3708a779`: hop-5 autonomic remediations slice **PARTIAL**; bounded-refusal lineage **ALIVE** held @ `cd7c2433b`; tip-cargo honesty **PARTIAL** (EXIT **137**); `--live` **BLOCKED_HITL**; **refusal ≠ Foundry ALIVE**; path crown **PARTIAL** — [`ZCODE-POWL-PATH-STANDING.md`](./ZCODE-POWL-PATH-STANDING.md); igniter clean-room **ALIVE (lineage)** held; Foundry / zero-HITL crown **PARTIAL** — **no** Foundry `ALIVE` |
 | Hop-4 manufacture | 2026-11-22 — `cursor/v2711-hop4-manufacture-alive-bc54` + reconfirm `cursor/v2711-hop4-primitive-space-bc54` / `/tmp/cursor/igniter-hop4-manufacture-alive.md` (`bc-b528ad50`) — tip `fourth-watch.brand.toml` BrandTheme emit vs igniter fixture → **ALIVE** (`exit=0`, canon `diff -rq=0`, compare-subject `git diff --exit-code=0`); prior PARTIAL exit **2** `:no_primitive_space` closed by dual-schema + emitter ancestry; IGNITER manufacture row corrected REFUSED → **ALIVE** |
 | Hop-4 clean-room | 2026-11-22 — honesty retip3 `cursor/v2711-igniter-cleanroom-retip-bc54` / `bc-5cbc344a` on crown `5a1129cc9` (`/tmp/cursor/igniter-cleanroom-retip3.md`): **ALIVE (lineage)** + cheap mount `git diff --exit-code` → **0** @ `/home/ubuntu/ggen_igniter` `b5a15528…`; prior tip-wins absorb `5c6eae752` / `bc-17cf3ea2` onto `94ea8cf25` via `cursor/v2711-igniter-cleanroom-absorb-a038`; **igniter slice only** — path crown **PARTIAL** (perimeter→ttl/toml→ggen+Taffy→igniter→zcode **not** path-crown ALIVE); Foundry `--live` **BLOCKED_HITL** held; no cargo thrash |
 | Hop-5 mix SUBJECT | 2026-11-22 — `cursor/v2711-hop5-mix-subject-bc54` / [`HOP5-MIX-SUBJECT-STANDING.md`](./HOP5-MIX-SUBJECT-STANDING.md) — default adapter exit **0** after Taffy+Mode B PASS (not SUBJECT_MISSING) |
@@ -62,7 +62,7 @@ perimeter transducer
 | 3 | ggen + Taffy AOT pre-flight | **PARTIAL_ALIVE** path — in-repo fence tip-cargo **ALIVE** (**7 passed; exit 0** @ crown `19c08a3b0`; `/tmp/gate1-taffy`); consumer adapters **out-of-repo** still open | **In-repo** (`ggen-graph::layout::taffy_aot`); consumer adapters **out-of-repo** | Replay: `CARGO_BUILD_JOBS=1 CARGO_TARGET_DIR=/tmp/gate1-taffy cargo test -p ggen-graph --test taffy_aot_preflight_court --locked` | Six-width seal fails under WCAG 1.4.12 1.5×; overflow refusal omits failing width; claiming photolithography path crown `ALIVE` without consumer bind |
 | 3b | ggen `ui-layout` digest consume (D5 in-repo fence) | **ALIVE (exact tip-cargo)** — exclusive `/tmp/ggen-uilayout-exact-tip` → **11 passed; exit 0** @ cargo tip `a508e6bae` (`bc-70188ac3`; sources ≡ live tip; [`UILAYOUT-TIP-CARGO-STANDING.md`](./UILAYOUT-TIP-CARGO-STANDING.md)). Lineage prior: **11** @ `59c090984` / `ca52e9c16`; evidence `eaf0dad40` **8**; tip court land `7c0ba2a90`; tip source **11** `#[test]` | **In-repo** fence only; sibling `ui-layout-court.ts` remains **ABSENT** / **UNSUPPORTED** here | Replay: `CXX=g++ SCCACHE_DISABLE=1 RUSTC_WRAPPER= CARGO_BUILD_JOBS=1 cargo test -p ggen-graph --test ui_layout_court --locked --target-dir /tmp/ggen-uilayout-exact-tip --config build.jobs=1 -- --test-threads=1` | Court missing from tip; silent admit of missing/stale/mismatched digest; conflating with sibling `.ts`; inventing path-crown ALIVE from hop 3b alone |
 | 4 | ggen_igniter clean-room / manufacture | **ALIVE** — tip dual-schema `fourth-watch.brand.toml` (`[rhythm]` + DTCG `[primitive.space]`; emitter `99255d53c` on tip) → igniter `BrandTheme` emit vs igniter fixture CSS → `diff -rq` **0** + compare-subject `git diff --exit-code` → **0** (`/tmp/cursor/igniter-hop4-manufacture-alive.md`; tip `28c3f4d845`; prior `igniter-real-cleanroom.md` / `88e84d545`; reconfirm `cursor/v2711-hop4-primitive-space-bc54`; IGNITER manufacture row **ALIVE**). Clean-room crown **ALIVE** (evidence tip `f1492ed55` / `bc-53b0e099`: mount `git diff --exit-code` → **0**). Jobs/C4 residual **ALIVE** — NIF **ALIVE** + admitted `--pack-dir test/fixtures/sample-pack … --check` exit **0** (`/tmp/cursor/hop4-mix-check-alive-probe.md`; default PATH `mix` **ABSENT**; bare `--check` **REFUSED_INVOCATION** antifalsifier — [`HOP4-MIX-NIF-STANDING.md`](./HOP4-MIX-NIF-STANDING.md)). In-repo contract **PARTIAL_ALIVE**. | **Out-of-repo** sibling `seanchatmangpt/ggen_igniter` @ `/home/ubuntu/ggen_igniter` / `/agent/repos/ggen_igniter`. Fixtures: `docs/rfc/v27.1.1/fixtures/{fourth-watch,cindycat}.brand.toml`. In-repo: [`IGNITER-CLEANROOM-STANDING.md`](./IGNITER-CLEANROOM-STANDING.md) + `igniter_cleanroom_court`; residual ledger [`HOP4-MIX-NIF-STANDING.md`](./HOP4-MIX-NIF-STANDING.md) | **Replay:** BrandTheme emit tip brand + igniter `test/fixtures/brand_theme/fourth-watch.brand.toml` (canon path for Source header) → `diff -rq` **0**; `git diff --exit-code` on compare subject → **0**. **Jobs/C4 replay:** admitted `--pack-dir test/fixtures/sample-pack … --check` → **0**. Checkpoint: `cd /home/ubuntu/ggen_igniter && git diff --exit-code`. In-repo: `cargo test -p ggen-sjira --test igniter_cleanroom_court` | Claiming hop-4 `ALIVE` from bare post-clone `git diff --exit-code` alone; claiming Jobs/C4 `ALIVE` from NIF `.so` or bare exit-2 `REFUSED:INVOCATION`; conflating off-PATH `mix` PRESENT with Jobs/C4 ALIVE; conflating igniter-fixture-only idempotent emit with tip manufacture; re-opening `:no_primitive_space` by dropping DTCG surface from tip fixture |
-| 5 | zcode-cli POWL/OCEL remediations (bounded refusal) | **PARTIAL_ALIVE** — in-repo bounded-refusal tip-cargo **ALIVE** (sjira **6**/bound **4** @ `cd7c2433b`; reconfirm **exit 0** @ tip `df9597c18` / [`ZCODE-POWL-REFUSAL-RECONFIRM-STANDING.md`](./ZCODE-POWL-REFUSAL-RECONFIRM-STANDING.md); [`ZCODE-POWL-REFUSAL-ALIVE-STANDING.md`](./ZCODE-POWL-REFUSAL-ALIVE-STANDING.md)); in-process bun **ALIVE**; live `UiLayoutCourtAdapter` **ALIVE** (**exit 0**); `layout_court` exit **0**; foundry `--dry-run` **PARTIAL** (exit **2**); foundry `--live` **BLOCKED_HITL** / **foundry_exit=1** / **REFUSED** (`Model access is not configured`; runtime PRESENT) — **refusal ALIVE ≠ `--live` ALIVE** | **Out-of-repo** `zcode-cli` @ `f32df08`. Package `ggen-layout-court` **PRESENT**. Contract: [`ZCODE-POWL-OCEL-STANDING.md`](./ZCODE-POWL-OCEL-STANDING.md); mix: [`HOP5-MIX-SUBJECT-STANDING.md`](./HOP5-MIX-SUBJECT-STANDING.md); live2: [`HOP5-FOUNDRY-LIVE2-STANDING.md`](./HOP5-FOUNDRY-LIVE2-STANDING.md); runtime: [`HOP5-ZCODE-RUNTIME-STANDING.md`](./HOP5-ZCODE-RUNTIME-STANDING.md) | Exact next: provider `/login` or `~/.zcode/v2/provider_config.json` → `bun scripts/powl-foundry-loop.ts --live` → **0**. Replay tip-cargo refuse path → **0**. GA falsifier **2027-01-01** | Inventing hop-5 crown `ALIVE` while foundry_exit≠0; inventing live model `ALIVE` from bounded-refusal tip-cargo alone; inventing ALIVE from executor injection alone |
+| 5 | zcode-cli POWL/OCEL remediations (bounded refusal) | **PARTIAL** (autonomic remediations slice) / **PARTIAL_ALIVE** aggregate — bounded-refusal lineage tip-cargo **ALIVE** held (sjira **6**/bound **4** @ `cd7c2433b`; reconfirm **exit 0** @ `df9597c18`); tip-cargo honesty **PARTIAL** (EXIT **137** @ retip6 / [`ZCODE-POWL-REFUSAL-RETIP6-STANDING.md`](./ZCODE-POWL-REFUSAL-RETIP6-STANDING.md)); in-process bun **ALIVE**; live `UiLayoutCourtAdapter` **ALIVE** (**exit 0**); `layout_court` exit **0**; foundry `--dry-run` **PARTIAL** (exit **2**); foundry `--live` **BLOCKED_HITL** / **foundry_exit=1** / **REFUSED** (`Model access is not configured`; runtime PRESENT) — **refusal ≠ Foundry / `--live` ALIVE** — path pin [`ZCODE-POWL-PATH-STANDING.md`](./ZCODE-POWL-PATH-STANDING.md) | **Out-of-repo** `zcode-cli` @ `f32df08`. Package `ggen-layout-court` **PRESENT**. Contract: [`ZCODE-POWL-OCEL-STANDING.md`](./ZCODE-POWL-OCEL-STANDING.md); mix: [`HOP5-MIX-SUBJECT-STANDING.md`](./HOP5-MIX-SUBJECT-STANDING.md); live2: [`HOP5-FOUNDRY-LIVE2-STANDING.md`](./HOP5-FOUNDRY-LIVE2-STANDING.md); runtime: [`HOP5-ZCODE-RUNTIME-STANDING.md`](./HOP5-ZCODE-RUNTIME-STANDING.md) | Exact next tip-cargo: warm `zcode_powl_ocel_court` + `remediation_bound --lib` → **6+4**/EXIT:**0**. Exact next `--live`: `cd /agent/repos/zcode-cli && zcode /login && bun scripts/powl-foundry-loop.ts --live` → **0**. GA falsifier **2027-01-01** | Inventing hop-5 crown `ALIVE` while foundry_exit≠0; inventing live model `ALIVE` from bounded-refusal tip-cargo alone; inventing ALIVE from executor injection alone; collapsing tip-cargo PARTIAL with lineage ALIVE |
 
 **Path standing (aggregate):** **PARTIAL** — hops 1–3 **PARTIAL_ALIVE** (as prior), hop 3b
 ggen ui-layout **ALIVE** (**8 passed; exit 0** on evidence `eaf0dad40`; tip land
@@ -181,31 +181,37 @@ exit-2 `REFUSED:INVOCATION`.
 | `bun test test/powl-ocel-chicago.test.ts` | Exact hop-5 Chicago crown verifier (exit **0** required for live ALIVE) |
 | `pnpm test -- ui-layout-court` | Layout consume companion vs ggen `AotSealReceipt` (sibling `.ts`) |
 | `docs/rfc/v27.1.1/ZCODE-POWL-OCEL-STANDING.md` | Hop-5 standing ledger + GA ladder through **2027-01-01** |
+| `docs/rfc/v27.1.1/ZCODE-POWL-PATH-STANDING.md` | Path honesty pin @ tip `83c954e5f` — hop-5 slice **PARTIAL**; tip-cargo **PARTIAL** (EXIT **137**) vs lineage **ALIVE** held; `--live` **BLOCKED_HITL**; **refusal ≠ Foundry ALIVE** |
 | `crates/ggen-sjira/src/zcode_powl_ocel.rs` | IO-free typed refusal (`CheckoutUnmounted` / `SubjectMismatch` / court fail) |
-| `crates/ggen-sjira/tests/zcode_powl_ocel_court.rs` | Chicago in-repo contract court — **ALIVE** (tip-cargo **6 passed; exit 0** @ `cd7c2433b`) |
-| `crates/ggen-graph/src/layout/remediation_bound.rs` | Bound vocabulary stub — **ALIVE** (tip-cargo **4 passed; exit 0** @ `cd7c2433b`) |
-| `docs/rfc/v27.1.1/ZCODE-POWL-REFUSAL-ALIVE-STANDING.md` | Bounded-refusal tip-cargo land receipt |
+| `crates/ggen-sjira/tests/zcode_powl_ocel_court.rs` | Chicago in-repo contract court — lineage **ALIVE** (tip-cargo **6 passed; exit 0** @ `cd7c2433b`); tip honesty **PARTIAL** (EXIT **137**) |
+| `crates/ggen-graph/src/layout/remediation_bound.rs` | Bound vocabulary stub — lineage **ALIVE** (tip-cargo **4 passed; exit 0** @ `cd7c2433b`) |
+| `docs/rfc/v27.1.1/ZCODE-POWL-REFUSAL-ALIVE-STANDING.md` | Bounded-refusal tip-cargo land receipt (lineage held) |
+| `docs/rfc/v27.1.1/ZCODE-POWL-REFUSAL-RETIP6-STANDING.md` | Tip-cargo honesty **PARTIAL** (EXIT **137**) |
 | `docs/jira/v26.11.17/code-alignment.md` | Historical `~/zcode-cli/scripts/docs_v261117.py` pointer — not Gate-1 court |
 | `crates/ggen-graph/src/vocab/powl.rs` | In-repo POWL shapes for repair routes |
 | `crates/ggen-graph/src/vocab/ocel.rs` + `crates/ggen-graph/src/ocel/` | In-repo OCEL shapes / events |
 | `crates/ggen-graph/src/layout/taffy_aot.rs` (`AotSealReceipt`, `AotRefusal`) | Receipt the adapter must consume without re-implementing geometry |
 | `crates/ggen-graph/src/layout/ui_layout.rs` + `tests/ui_layout_court.rs` | In-repo D5 fence (hop 3b) — not hop-5 live ALIVE |
 
-Standing now: package **PRESENT** + `layout_court` exit **0**; default live
-adapter exit **0** (spatial **ALIVE**; Jobs/C4 deferred when `mix`/`ggen`
-ABSENT — not SUBJECT_MISSING); foundry `--live` still **open**/`BLOCKED`
-(prior exit **1** `live executor not configured`). Hop-5 aggregate
-**PARTIAL_ALIVE**. **Antifalsifier:** `requireCleanRoom: false` exit 0 ≠
-Jobs/C4 `ALIVE`; adapter exit 0 while foundry `--live` open ≠ hop-5 crown
-`ALIVE`; fold tip `3d9da101` false crown claim demoted. Bounded refusal
-means: missing, stale, or mismatched layout digests fail closed with a typed
-remediation refusal; POWL/OCEL remediations must not escalate to ambient DO
-or silent admit. Unmounted sibling checkout refuses ALIVE promotion
+Standing now: autonomic remediations slice **PARTIAL**; bounded refusal
+lineage **held** (sjira **6**/bound **4** @ `cd7c2433b`). Tip-cargo honesty
+**PARTIAL** (EXIT **137**). Package **PRESENT** + `layout_court` exit **0**;
+default live adapter exit **0** (spatial **ALIVE**; Jobs/C4 deferred when
+`mix`/`ggen` ABSENT — not SUBJECT_MISSING); foundry `--live` **BLOCKED_HITL**
+(**foundry_exit=1**; `Model access is not configured`). Hop-5 aggregate
+**PARTIAL_ALIVE**. **Antifalsifier:** tip-cargo PARTIAL ≠ lineage demotion;
+`requireCleanRoom: false` exit 0 ≠ Jobs/C4 `ALIVE`; adapter exit 0 while
+foundry `--live` open ≠ hop-5 crown `ALIVE`; refusal ALIVE ≠ Foundry /
+`--live` `ALIVE`; fold tip `3d9da101` false crown claim demoted. Bounded
+refusal means: missing, stale, or mismatched layout digests fail closed with a
+typed remediation refusal; POWL/OCEL remediations must not escalate to ambient
+DO or silent admit. Unmounted sibling checkout refuses ALIVE promotion
 (`REFUSED_ZCODE_CHECKOUT_UNMOUNTED`); wrong subject (including hop-4
 `ggen_igniter`) refuses retarget (`REFUSED_ZCODE_SUBJECT_MISMATCH`). Do
 **not** promote hop 5 / path crown to `ALIVE` from package presence,
 `layout_court` exit 0, or spatial-only adapter alone. Do **not** restate
-mix SUBJECT_MISSING after layout_court PRESENT + spatial PASS.
+mix SUBJECT_MISSING after layout_court PRESENT + spatial PASS. Path honesty:
+[`ZCODE-POWL-PATH-STANDING.md`](./ZCODE-POWL-PATH-STANDING.md).
 
 ---
 
@@ -378,3 +384,12 @@ ui-layout **11**. No path-crown `ALIVE` asserted.
 - Path crown stays **PARTIAL** (hop-5 `--live` open).
 - Exact next verifier: Founder HITL action card [`HITL-LIVE-NEXT-VERIFIER-STANDING.md`](./HITL-LIVE-NEXT-VERIFIER-STANDING.md) **§8** → `bun scripts/powl-foundry-loop.ts --live` → **foundry_exit=0**.
 - Docs-only; no cargo; **no crown absorb**; no ManagePullRequest; no force-push. Companion: [`FOUNDRY-FINISH-STANDING.md`](./FOUNDRY-FINISH-STANDING.md) §8.
+
+### Zcode POWL path honesty retip (`cursor/v2711-zcode-path-retip-bc54`)
+
+- Observed tip: `83c954e5fea4d454f3cc79410a368844a0469fb2` (`83c954e5f`; ⊇ `e24ce7a73`+); agent `bc-3708a779`.
+- Hop-5 autonomic remediations slice **PARTIAL**; bounded-refusal lineage **ALIVE** held @ `cd7c2433b`; tip-cargo honesty **PARTIAL** (EXIT **137** @ retip6).
+- `--live` **BLOCKED_HITL**; **refusal ≠ Foundry ALIVE**; path crown **PARTIAL**.
+- Exact next tip-cargo: warm `zcode_powl_ocel_court` + `remediation_bound --lib` → **6+4**/EXIT:**0**.
+- Exact next `--live`: `cd /agent/repos/zcode-cli && zcode /login && bun scripts/powl-foundry-loop.ts --live` → **0**.
+- Docs-only; no cargo; no invented Foundry `ALIVE`. Ledger: [`ZCODE-POWL-PATH-STANDING.md`](./ZCODE-POWL-PATH-STANDING.md).
