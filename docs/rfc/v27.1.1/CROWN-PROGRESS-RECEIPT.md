@@ -6,7 +6,7 @@
 | Status | **PROGRESS RECEIPT** (honest; **not** goal-complete; **not** crown `ALIVE`) |
 | Observed tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `32ced372a3d40ebf9c8b426d90a313879da907c6` (absorb igniter clean-room ALIVE; prior OOR honesty retip8 / Jobs/C4 ALIVE `97c613452`; residual honesty `008a81d21` / lifecycle tip-wins `ebf4e8d08`) |
 | Tip subject | residual honesty `cursor/v2711-ccs-residual-honesty-bc54` on tip `008a81d21`; prior absorbs: ui_layout @ `ca52e9c16`, CCS #3 @ `861a6e73a` (`cbeb11d44`) |
-| Ledger pins cited | Gate-1 / Photo / Foundry prior pins; CCS #3 construct_hash **ALIVE** @ `861a6e73a`; CCS #2 `write_apply` tip-cargo **PENDING**; `lifecycle.rs` **PRESENT** (tip `513704d04`; tip-cargo ALIVE 6/6 @ `acd9705c1`) (land `cursor/mcp-a2a-hands-free-lifecycle-bc54`); **V8**/**V9** OOR **BLOCKED** unchanged |
+| Ledger pins cited | Gate-1 / Photo / Foundry prior pins; CCS #3 construct_hash **ALIVE** @ `861a6e73a`; CCS #2 `write_apply` tip-cargo **ALIVE** @ `b5cb632c6` (7+1+1); `verify_witness` size tip-cargo **ALIVE** @ `c91b22561`; `lifecycle.rs` **PRESENT** (tip `513704d04`; tip-cargo ALIVE 6/6 @ `acd9705c1`); **V8**/**V9** OOR **BLOCKED** unchanged |
 | Cargo this receipt | **no** for taffy — tip-exclusive thrash; prior exclusive quiet `ui_layout_court` **11 passed; exit 0** @ `ca52e9c16` retained |
 | Goal standing | **INCOMPLETE** — do **not** claim ECOSYSTEM-SPEC-27.1.1 crown complete |
 
@@ -35,7 +35,7 @@ clause1=PARTIAL (igniter clean-room ALIVE @f1492ed55/bc-53b0e099; path crown sti
 clause2=PARTIAL_ALIVE (CCS#3 ALIVE @861a6e73a; CCS#2 write_apply tip-cargo PENDING; lifecycle.rs PRESENT/ALIVE @513704d04; V8/V9 BLOCKED)
 clause3=PARTIAL+BLOCKED
 clause4=PARTIAL
-gate1=PARTIAL (ui_layout tip-cargo ALIVE; construct_hash ALIVE @861a6e73a; write_apply PENDING; lifecycle PRESENT/ALIVE; taffy PRESENT tip-cargo PENDING; brand production UNSUPPORTED; BRCE V8 BLOCKED)
+gate1=PARTIAL (ui_layout tip-cargo ALIVE; construct_hash ALIVE @861a6e73a; write_apply ALIVE @b5cb632c6; verify_witness ALIVE @c91b22561; lifecycle PRESENT/ALIVE; taffy PRESENT tip-cargo PENDING; brand production UNSUPPORTED; BRCE V8 BLOCKED)
 blockers=foundry--live; remaining-fence-tip-cargo; cos/readyz; WebAuthn/BRCE-V8/V9; revops-DNS; R01-R07-bodies; verify_witness-prod; production-theme
 ```
 
@@ -71,7 +71,7 @@ Detail binder: [`CCS-BRCE-STANDING.md`](./CCS-BRCE-STANDING.md) (residual honest
 |-------|----------|
 | **CCS / BRCE slice crown** | **PARTIAL_ALIVE** |
 | CCS #1 AS-01 CONSTRUCT→DO | **PARTIAL_ALIVE** — V1 seat + V7 ES256 fixture land (**4 passed; exit 0** @ `fb6e7fc6e`); live WebAuthn **UNSUPPORTED**; broker **BLOCKED**; Plane-5 DO **BLOCKED** |
-| CCS #2 MCP `ggen_write_apply` + CP17 | **PARTIAL_ALIVE** — courts **PRESENT**; tip-cargo **PENDING** on tip `008a81d21` (exact next: §2 below + [`CCS-BRCE-STANDING.md`](./CCS-BRCE-STANDING.md) §2.1) |
+| CCS #2 MCP `ggen_write_apply` + CP17 | **ALIVE** — tip-cargo **7+1+1** exit **0** on tip `c91b22561` (evidence `b5cb632c6`; [`CCS-WRITE-APPLY-ALIVE-STANDING.md`](./CCS-WRITE-APPLY-ALIVE-STANDING.md)) |
 | CCS #3 `construct_hash_gate` | **ALIVE** tip-cargo — **4 passed; exit 0** @ `861a6e73a` (`cursor/v2711-ccs-brce-tipcargo-bc54` / absorb `cbeb11d44`) |
 | `lifecycle.rs` (A2A CP17 path) | **ABSENT** on tip `008a81d21` — land `cursor/mcp-a2a-hands-free-lifecycle-bc54` @ `05c6032f0` → `crates/ggen-lsp/src/a2a_mcp/lifecycle.rs` |
 | CCS #5 SovereignLease Ed25519 | Fixture **ALIVE**; **UNSUPPORTED** as AS-01/`prime256v1` |
@@ -81,7 +81,7 @@ Detail binder: [`CCS-BRCE-STANDING.md`](./CCS-BRCE-STANDING.md) (residual honest
 
 1. Live ladder: BRCE **V8** (broker AS-01 seat) → **V9** / OOR **G2-5** (Plane-5 DO probe) — **BLOCKED** unchanged; no V8 `ALIVE`.
 2. Clause-2 tip-cargo **done** @ `861a6e73a`: CCS #3 construct_hash + as01 V7/V1 **exit 0** (binder [`CCS-BRCE-STANDING.md`](./CCS-BRCE-STANDING.md)).
-3. CCS #2 **PENDING** (all exit **0**): `cargo test -p ggen-mcp --test write_apply_confirm_test`; `cargo test -p ggen-mcp --test pipeline_tools_test -- write_apply_refuses_a_fabricated_graph_hash_bypass`; `cargo test -p ggen-mcp --test pipeline_tools_test -- write_apply_accepts_a_real_dry_run_graph_hash`.
+3. CCS #2 tip-cargo **ALIVE** (replay): `cargo test -p ggen-mcp --test write_apply_confirm_test`; `cargo test -p ggen-mcp --test pipeline_tools_test -- write_apply_refuses_a_fabricated_graph_hash_bypass`; `cargo test -p ggen-mcp --test pipeline_tools_test -- write_apply_accepts_a_real_dry_run_graph_hash` → **7+1+1** exit **0** @ `b5cb632c6`.
 4. Land `lifecycle.rs` from `cursor/mcp-a2a-hands-free-lifecycle-bc54`; then A2A package courts exit **0**.
 
 Fence / fixture exit 0 ≠ Plane-5 / CONSTRUCT→DO `ALIVE`.
@@ -137,7 +137,7 @@ Do **not** invent zero daily founder HITL `ALIVE` from Gate-1 fence green, CASTL
 | FM-PACK-001 `packs/gh-terraform-pack` | **PRESENT** / **PARTIAL_ALIVE** (composed e2e SKIPPED) | loadavg&lt;10: `timeout 600s cargo test -p ggen-engine --test composed_packs_e2e` → **0** |
 | zcode POWL in-repo stub | **ALIVE** (bounded refusal tip-cargo **6+4**; exit 0 @ `cd7c2433b`) | Replay: `cargo test -p ggen-sjira --test zcode_powl_ocel_court`; `cargo test -p ggen-graph remediation_bound --lib`; live next: G2-9 foundry `--live` (**BLOCKED_HITL**) |
 | `curve25519-dalek` pin | **PARTIAL_ALIVE** (lock+doc; policy court open) | pin standing §5 policy court |
-| `verify_witness` size | **PARTIAL_ALIVE**; production WASM **UNSUPPORTED** | size court; prod: [`VERIFY-WITNESS-PRODUCTION.md`](./VERIFY-WITNESS-PRODUCTION.md) |
+| `verify_witness` size | **ALIVE** (tip-cargo **6** @ `c91b22561`); production WASM **UNSUPPORTED** | size court; prod: [`VERIFY-WITNESS-PRODUCTION.md`](./VERIFY-WITNESS-PRODUCTION.md) |
 | R-01…R-07 contract | **ALIVE** (contract); bodies **BLOCKED** | `cargo test -p ggen-graph --test r01_r07_resolution_court` |
 | Brand rhythm / hot-swap | **PARTIAL_ALIVE**; production theme **UNSUPPORTED** (`REFUSED_PRODUCTION`) | rhythm/hotswap courts; [`BRAND-PRODUCTION-THEME.md`](./BRAND-PRODUCTION-THEME.md) |
 | BRCE AS-01 seat fence | **PARTIAL_ALIVE** | `cargo test -p ggen-abb-sbb --test brce_as01_seat_court` |
