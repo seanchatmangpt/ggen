@@ -26,7 +26,7 @@ standing=PARTIAL_ALIVE (exact tip EXIT:0 not obtained; SIGKILL under pod thrash)
 | Prior exclusive attempt | same court → `CARGO_TARGET_DIR=/tmp/ggen-shui-exact-tip4` under `/tmp/ggen-tip-exclusive.lock` → flock wrapper **EXIT 137** (log `/tmp/cursor/shui-exact-tip4-court2.log`; reached `Compiling oxrocksdb-sys`) |
 | EXIT | **137** (SIGKILL) |
 | Diagnostic | Immediate SIGKILL on final retry (~1s wall; empty court3 log). Earlier exclusive attempt reached `oxrocksdb-sys` then SIGKILL. Concurrent tip-cargo thrash on shared pod (`gate1-exact-tip3/exclusive`, uilayout/brand/taffy/verify_witness/zcode). `dmesg` retains prior `oom-kill` of `cc1plus`/`rustc` in this workload cgroup. Status: `/tmp/cursor/shui-exact-tip4.status` → `EXIT:137`. **No** `test result:` line — do not invent `ALIVE`. |
-| Crown absorb | **not performed** (sidebranch honesty only) |
+| Crown absorb | tip-wins absorb via `cursor/v2711-ops-tipwins-absorb-e545` onto `origin/cursor/ecosystem-spec-27-1-1-bc54` |
 | ManagePullRequest | **not used** |
 | Force-push | **none** |
 | Foundry ALIVE | **not claimed** |

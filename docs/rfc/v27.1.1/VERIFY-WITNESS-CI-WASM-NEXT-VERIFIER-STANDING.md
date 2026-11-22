@@ -48,7 +48,7 @@ production_runtime=UNSUPPORTED (GGEN_VERIFY_WITNESS_WASM unset; CI mount ABSENT)
 size_court_cargo=BUILD_BROKEN (EXIT 137 tip-cargo exclusive SIGKILL)
 honesty=env_wire_PARTIAL_neq_affidavit_ALIVE_neq_production_ALIVE
 ManagePullRequest=not_used
-crown_push=REFUSED (sidebranch only)
+crown_push=tip_wins_absorb (ops tip-wins absorb-e545)
 Foundry=not_ALIVE
 ```
 
@@ -186,7 +186,7 @@ echo EXIT=$?
 | Field | Value |
 |-------|-------|
 | Agent | `bc-10c8f83c-8d4c-5129-afad-fd7222733773` |
-| Branch | `cursor/v2711-vw-ci-wasm-retip2-bc54` from live crown `893070836ef83ab711e657cfacc98bb4dc7ea369` (**no** crown absorb; no ManagePullRequest) |
+| Branch | tip-wins absorb `cursor/v2711-vw-ci-wasm-retip2-bc54` @ `4bd09059b` (probe `893070836`; absorb onto live crown; no ManagePullRequest) |
 | Observed ggen tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `893070836ef83ab711e657cfacc98bb4dc7ea369` |
 | Narrowest court (CI-wasm production falsifier) | CI-mounted real wasm + `export GGEN_VERIFY_WITNESS_WASM=…` + consume EXIT **0** |
 | CI mount probe | `GGEN_VERIFY_WITNESS_WASM` **UNSET**; CI-mounted gatekeeper wasm **ABSENT** this env |
