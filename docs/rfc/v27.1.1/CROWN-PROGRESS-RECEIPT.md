@@ -157,7 +157,7 @@ Recommended next Gate-1 falsifier (pick one): quiet tip-cargo reconfirm of remai
 | 3 | cos `/readyz` DB | **BLOCKED** (**503**) | curl → HTTP **200** |
 | 4 | Live WebAuthn / BRCE broker / Plane-5 DO | **UNSUPPORTED** / **BLOCKED** | BRCE **V8** → **V9** / OOR **G2-3…G2-5** |
 | 5 | revops.fnox.io DNS | **UNKNOWN**/**BLOCKED** | `getent hosts` ∧ `/readyz` **200** |
-| 6 | `mix ggen_igniter.sync` NIF | **BLOCKED** | `CXX=g++-13` → `mix … --check` → **0** |
+| 6 | `mix ggen_igniter.sync` NIF | **BLOCKED** ([`HOP4-MIX-NIF-STANDING.md`](./HOP4-MIX-NIF-STANDING.md); PATH `mix` **ABSENT**; off-PATH **PRESENT** w/o HITL) | quiet exclusive `CXX=g++-13` → `mix … --check` → **0** |
 | 7 | R-01…R-07 risk bodies | **BLOCKED** | typed receipt or `REFUSED_*` per ID |
 | 8 | production `verify_witness.wasm` | **UNSUPPORTED** | [`VERIFY-WITNESS-PRODUCTION.md`](./VERIFY-WITNESS-PRODUCTION.md) |
 | 9 | production brand theme / CASTLE inventory | **UNSUPPORTED** | [`BRAND-PRODUCTION-THEME.md`](./BRAND-PRODUCTION-THEME.md) / OOR G2-12/G2-13 |
