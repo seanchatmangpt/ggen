@@ -6,10 +6,10 @@
 | Companion | `ECOSYSTEM-SPEC-27.1.1` (Gate 2–3 CASTLE publish); `REPO-INVENTORY-27.1.1` |
 | Subject | `seanchatmangpt/castle` on spine `ggen → Taffy → zcode-cli → CASTLE → Smalt → revops` |
 | Materialized | 2026-11-22 |
-| Observed ggen tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `4b22529df2939412c41107fe5e9eea66ba6a4dad` |
-| Tip pin | 2026-11-22 — `cursor/v2711-castle-alive-bc54` after sibling CASTLE spine courts **ALIVE** @ `2774039ea` (`bc-1bffb072`; prior pin `4e6ca0e2e` / `cursor/v2711-castle-retip-bc54`) |
-| Observed castle tip | `main` @ `2774039ea81bad508c93785a59dd7a99198ae256` (live courts `bc-1bffb072`; not mounted in this ggen workspace) |
-| Repo scope of this land | `seanchatmangpt/ggen` (standing ledger only — no CASTLE runtime executed here) |
+| Observed ggen tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `60b15c7788ca7fb0c73ac19e7762759b61852603` (lineage through `c832cabdc` / `3ea41ffd0` / `a3b1c9410`) |
+| Tip pin | 2026-11-22 — absorb `cursor/v2711-castle-retip2-bc54` @ `371971c3a` (#923) onto tip `60b15c778` (prior retip2 vs `a3b1c9410+`; sibling courts **ALIVE** @ `2774039ea` / `bc-1bffb072` unchanged; tip-cargo spared; no cargo) |
+| Observed castle tip | `main` @ `2774039ea81bad508c93785a59dd7a99198ae256` (https://github.com/seanchatmangpt/castle/commit/2774039ea81bad508c93785a59dd7a99198ae256; live courts `bc-1bffb072`; not mounted in this ggen workspace) |
+| Repo scope of this land | `seanchatmangpt/ggen` (standing ledger only — no CASTLE runtime / no tip-cargo this retip) |
 
 Standing vocabulary: `UNKNOWN` | `PARTIAL_ALIVE` | `ALIVE` | `BLOCKED` | `BUILD_BROKEN` | `UNSUPPORTED` | `REFUSED_*`.
 
@@ -145,7 +145,7 @@ GA claims that **CASTLE is `ALIVE` on the horizontal spine** are **REFUSED** / f
 
 | Field | Value |
 |-------|-------|
-| Observed ggen tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `4b22529df2939412c41107fe5e9eea66ba6a4dad` |
+| Observed ggen tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `4b22529df2939412c41107fe5e9eea66ba6a4dad` (superseded by §9) |
 | Sibling `seanchatmangpt/castle` tip | `2774039ea81bad508c93785a59dd7a99198ae256` — §3.1 courts **ALIVE** via `bc-1bffb072` (not mounted in this workspace) |
 | In-ggen `rg 'castle publish\|RedactionCourt' crates packs` | empty → publish surface **UNSUPPORTED** remains honest |
 | Brand rhythm (non-substitute) | `brand_toml_rhythm_court` evidence `0478fde59` **4 passed; exit 0** — rhythm only, not CASTLE inventory |
@@ -160,3 +160,18 @@ GOAL SLICE: CASTLE in horizontal spine (`ggen+Taffy+zcode-cli+CASTLE+Smalt+revop
 Materialized as a ggen RFC ledger. Sibling spine courts promoted **ALIVE** from CASTLE live `bc-1bffb072` tip `2774039ea` (exits 0,0,0; publish_redaction_court 13/13; cli_publish_brand 6/6; spine-probe `redaction_court=ALIVE`). Tip pin on `cursor/v2711-castle-alive-bc54` against ggen tip `d0e3ba473`. Spine crown / zero-HITL / Foundry finish **not** promoted to `ALIVE`.
 
 Honesty retip 2026-11-22 (`cursor/v2711-foundry-honesty-bc54`) → ggen tip `4b22529df2939412c41107fe5e9eea66ba6a4dad`; sibling courts **ALIVE** @ `2774039ea` unchanged; spine crown **UNKNOWN**/row **PARTIAL**; no Foundry crown promotion.
+
+---
+
+## 9. Honesty retip2 vs tip `a3b1c9410+` (2026-11-22) — absorbed @ `60b15c778`
+
+| Field | Value |
+|-------|-------|
+| Branch | `cursor/v2711-castle-retip2-bc54` @ `371971c3a` absorbed onto tip (no cargo; tip-cargo spared; no ManagePullRequest) |
+| Observed ggen tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `60b15c7788ca7fb0c73ac19e7762759b61852603` (ancestors `c832cabdc` / `3ea41ffd0` / `a3b1c94103984e2d362c068deb61cd700615e158`) |
+| Stale pin repaired | Prior Observed tip `4b22529df` lagged tip `a3b1c9410+`; absorb retips Observed to `60b15c778` — standings held; pin only |
+| Sibling castle tip | still `2774039ea81bad508c93785a59dd7a99198ae256` on `main` ([commit](https://github.com/seanchatmangpt/castle/commit/2774039ea81bad508c93785a59dd7a99198ae256)) |
+| Sibling courts | **ALIVE** — last recorded verifiers (`bc-1bffb072` @ `2774039ea`): `cargo test --test publish_redaction_court` → **13/13** exit **0**; `cargo test --test cli_publish_brand` → **6/6** exit **0**; `./target/debug/castle publish post --subject spine-probe --public-anonymize --brand brands/fourth-watch.brand.toml` → exit **0** / `redaction_court=ALIVE` |
+| CASTLE on horizontal spine (crown wire) | **UNKNOWN** / digest-bind **PARTIAL** residual — sibling **ALIVE** ≠ ggen digest-bound spine crown |
+| Zero-HITL / Foundry crown | **PARTIAL** — CASTLE sibling **ALIVE** does **not** imply crown zero-HITL **ALIVE** |
+| Exact next verifier | Crown residual: bind admitted ggen layout/brand digest into CASTLE mint receipt, then in castle @ `2774039ea` replay §3.1 (`publish_redaction_court` → **0**; `cli_publish_brand` → **0**; spine-probe mint → **0** / `redaction_court=ALIVE`) with digest asserted on the receipt. LinkedIn AND-gate remains **BLOCKED** on cos `/readyz` **200** ∧ 2× durable LOW |

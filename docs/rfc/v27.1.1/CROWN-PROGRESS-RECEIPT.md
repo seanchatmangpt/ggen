@@ -4,10 +4,10 @@
 |-------|-------|
 | Document ID | `CROWN-PROGRESS-RECEIPT-27.1.1` |
 | Status | **PROGRESS RECEIPT** (honest; **not** goal-complete; **not** crown `ALIVE`) |
-| Observed tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `ca52e9c1679d66d38d6cf7e196195ee758bee597` |
-| Tip subject | `docs(rfc): retip CCS/BRCE standing after construct_hash + V7 land` |
-| Ledger pins cited | Gate-1 / Photo / Foundry / OOR still largely pin observed evidence at `d05a131c7+` (ancestor of tip); CCS/BRCE honesty retip lands at tip `ca52e9c16` |
-| Cargo this receipt | **none** (no cargo; inspection of tip ledgers only) |
+| Observed tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `60b15c7788ca7fb0c73ac19e7762759b61852603` |
+| Tip subject | absorb castle-retip2 (#923) onto tip past CCS/OOR absorb `60b15c778` / `c832cabdc` |
+| Ledger pins cited | OOR retip7 probe @ `a3b1c9410`; CCS/BRCE @ `16d3c2f08`; CASTLE retip2 @ `371971c3a`; tip `60b15c778` |
+| Cargo this receipt | **none** (no cargo; tip-cargo locks **spared**) |
 | Goal standing | **INCOMPLETE** — do **not** claim ECOSYSTEM-SPEC-27.1.1 crown complete |
 
 Standing vocabulary (`AGENTS.md` §2): `UNKNOWN` | `PARTIAL_ALIVE` | `ALIVE` |
@@ -30,12 +30,12 @@ FinOps: FOUNDRY/OOR **ALIVE** @ `91997da76f0f` vs older §13.3 FinOps
 Compact return line:
 
 ```text
-tip=ca52e9c1679d66d38d6cf7e196195ee758bee597
+tip=60b15c7788ca7fb0c73ac19e7762759b61852603
 clause1=PARTIAL
 clause2=PARTIAL_ALIVE
 clause3=PARTIAL+BLOCKED
 clause4=PARTIAL
-gate1=PARTIAL (mixed ALIVE/PARTIAL; tip-cargo PENDING)
+gate1=PARTIAL (mixed ALIVE/PARTIAL; tip-cargo PENDING/spared)
 blockers=foundry--live; tip-cargo; cos/readyz; WebAuthn/BRCE-V8/V9; revops-DNS; mix-NIF; R01-R07-bodies; verify_witness-prod; production-theme
 ```
 
