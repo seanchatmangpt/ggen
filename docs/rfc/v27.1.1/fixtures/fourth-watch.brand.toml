@@ -1,6 +1,7 @@
-# Fourth Watch — Gate-1 DTCG 2025.10 brand rhythm stub
-# Human-authored visual rhythm only (px/rem, 4px/8px grid, fluid clamp/cqi,
-# Material 48 / Apple 44 touch floors, 8px inter-target gap).
+# Fourth Watch — Gate-1 dual-surface brand fixture
+# Surface A (ggen rhythm court): [rhythm] / [[rhythm.spacing]] / [[rhythm.fluid]]
+# Surface B (ggen_igniter BrandTheme): DTCG [primitive.space] twin of
+#   ggen_igniter/test/fixtures/brand_theme/fourth-watch.brand.toml
 # Color / type / CASTLE inventories remain Gate 2+.
 
 dtcg_version = "2025.10"
@@ -70,3 +71,110 @@ min_px = 16
 preferred = "2.5cqi"
 max_px = 20
 slope_cqi = 2.5
+
+# --- DTCG BrandTheme surface (OI-15 / igniter twin) ---
+
+[meta]
+id = "fourth-watch"
+name = "Fourth Watch"
+dtcg = "2025.10"
+grid_base_px = 8
+grid_micro_px = 4
+
+[primitive.space]
+"$type" = "dimension"
+
+[primitive.space."0"]
+"$value" = "0px"
+
+[primitive.space."0_5"]
+"$value" = "4px"
+
+[primitive.space."1"]
+"$value" = "8px"
+
+[primitive.space."2"]
+"$value" = "16px"
+
+[primitive.fontSize]
+"$type" = "dimension"
+
+[primitive.fontSize.base]
+"$value" = "1rem"
+
+[primitive.fontSize.floor]
+"$value" = "16px"
+"$description" = "Hard floor: base ≥16"
+
+[primitive.touch]
+"$type" = "dimension"
+
+[primitive.touch.apple]
+"$value" = "44px"
+"$description" = "tap ≥44"
+
+[primitive.touch.material]
+"$value" = "48px"
+
+[primitive.touch.gap]
+"$value" = "8px"
+
+[semantic.space]
+"$type" = "dimension"
+
+[semantic.space.tight]
+"$value" = "{primitive.space.0_5}"
+
+[semantic.space.related]
+"$value" = "{primitive.space.1}"
+
+[semantic.space.fluid_inset]
+"$value" = "clamp(1rem, 0.5rem + 2.5cqi, 1.5rem)"
+
+[semantic.space.fluid_stack]
+"$value" = "clamp(0.5rem, 0.25rem + 1.25cqi, 1rem)"
+
+[semantic.touch]
+"$type" = "dimension"
+
+[semantic.touch.target_min]
+"$value" = "{primitive.touch.apple}"
+
+[semantic.touch.target_comfortable]
+"$value" = "{primitive.touch.material}"
+
+[semantic.touch.gap_min]
+"$value" = "{primitive.touch.gap}"
+
+[semantic.viewport]
+"$type" = "dimension"
+
+[semantic.viewport.height]
+"$value" = "100dvh"
+
+[semantic.viewport.prose_max]
+"$value" = "40rem"
+
+[semantic.viewport.container_max]
+"$value" = "65rem"
+
+[component.card]
+"$type" = "dimension"
+
+[component.card.padding]
+"$value" = "clamp(1rem, 0.333rem + 3.333cqi, 2rem)"
+
+[component.input]
+"$type" = "dimension"
+
+[component.input.font_size]
+"$value" = "max(16px, 1rem)"
+
+[extensions.ggen.invariants]
+no_property_on_cqi = true
+units_px_rem_only = true
+touch_floor_apple_px = 44
+touch_floor_material_px = 48
+font_base_min_px = 16
+no_shipping_120hz = true
+no_shipping_webgpu = true

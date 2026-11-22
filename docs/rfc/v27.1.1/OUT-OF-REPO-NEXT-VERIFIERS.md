@@ -9,8 +9,8 @@
 | Materialized | 2026-11-22 |
 | Hardened | 2026-11-22 — `cursor/v2711-oor-ledger-harden-bc54` |
 | Ops refresh | 2026-11-22 — `cursor/v2711-ops-standing-refresh-bc54` (tip pin + probe reconfirm; standings held) |
-| Tip pin | 2026-11-22 — `cursor/v2711-truex-merged-standing-bc54` — Truex admit-court **ALIVE** @ `truex@68d2d233` ([truex#6](https://github.com/seanchatmangpt/truex/pull/6) **MERGED** → `main` `b4672131`; vitest **6/6** exit **0** reconfirmed `/tmp/truex`); prior hop-4 manufacture **PARTIAL** + hop-5 honesty (default adapter exit **2**) + Smalt FinOps **ALIVE** + G2-12 **ALIVE** retained; Foundry crown stays **PARTIAL_ALIVE**; full RAID/`ALIVE` **not** invented |
-| Hop-4 evidence | `/tmp/cursor/igniter-real-cleanroom.md` (`bc-72d61d31`) — tip brand → BrandTheme exit **2** |
+| Tip pin | 2026-11-22 — `cursor/v2711-hop4-manufacture-bc54` — hop-4 BrandTheme manufacture **ALIVE** (`diff_exit=0` dual-schema; tip `3a69becce`); Truex admit-court **ALIVE** @ `truex@68d2d233` ([truex#6](https://github.com/seanchatmangpt/truex/pull/6) **MERGED**); hop-5 honesty (default adapter exit **2**) + Smalt FinOps **ALIVE** + G2-12 **ALIVE** retained; Foundry crown stays **PARTIAL_ALIVE**; full RAID/`ALIVE` **not** invented |
+| Hop-4 evidence | `/tmp/cursor/igniter-real-cleanroom.md` (`bc-4861c787`) — tip dual-schema BrandTheme manufacture compare `diff_exit=0` (**ALIVE**) |
 | Hop-5 evidence | `/tmp/cursor/hop5-live-after-884.md` (default `adapter_exit=2` / `layout_exit=0`; foundry_exit=1; prior false exit-0 PARTIAL_ALIVE demoted; prior `/tmp/cursor/hop5-crossmount.md`) |
 | Repo scope | `seanchatmangpt/ggen` — **tracks** sibling standing; does not execute sibling DO |
 
@@ -70,7 +70,7 @@ Photolithography / spine hops that require mounted siblings are included when ex
 | G2-7 | **Truex** admits W3C `shui:` shapes (D3 product) | **ALIVE** (admit-court) | Sibling Chicago admit-court **6/6 vitest exit 0** reconfirmed @ `truex@68d2d2331696f18949f4877b994320018b6365e5` ([truex#6](https://github.com/seanchatmangpt/truex/pull/6) **MERGED** → `main` merge `b4672131`; mount `/tmp/truex`; receipt `/tmp/cursor/truex-merged-admit-alive.md`): `shui:` **ADMITTED**; private `truex:` **REFUSED_PRIVATE**; unknown **REFUSED_UNKNOWN**. ggen prefix fence **ALIVE** on evidence ancestor `0478fde59` (tip source **4**; tip-cargo PENDING) — fence ≠ Truex product crown | Replay: `pnpm exec vitest run test/admit/admit-court.test.ts` → exit 0 @ `68d2d233`. Companion fence (non-substitute): `cargo test -p ggen-graph --test shui_public_prefix_court` | Admit-court **ALIVE** on merged tip; tip-sync ggen fence still valuable for RC-D3 aggregate |
 | G2-8 | **zcode-cli** `ui-layout-court.ts` / `UiLayoutCourtAdapter` (D5) | **PARTIAL** — in-process **ALIVE** + default live adapter **BLOCKED** (exit **2**) | Sibling mounted `/agent/repos/zcode-cli`; tip `704025461`; `ggen-layout-court` **PRESENT** (#884); bun **35/0**; `layout_court` exit **0**; default `UiLayoutCourtAdapter.verifyPostTransition` exit **2** (`mix` SUBJECT_MISSING). **Antifalsifier:** `requireCleanRoom:false` exit 0 ≠ default-adapter `ALIVE` / false `PARTIAL_ALIVE`. Foundry `--live` foundry_exit=1 | Exact next: install `mix`; default adapter → exit **0**; then `bun scripts/powl-foundry-loop.ts --live` → exit **0** (G2-9). Replay: `bun test test/ui-layout-court.test.ts` ([`PHOTOLITHOGRAPHY-STANDING.md`](./PHOTOLITHOGRAPHY-STANDING.md) hop 5) | Inventing default-adapter `ALIVE` / hop-5 `PARTIAL_ALIVE` from `requireCleanRoom:false` or `layout_court` exit 0 alone |
 | G2-9 | **zcode-cli** Chicago POWL/OCEL + foundry loop | **PARTIAL** / live **BLOCKED** | Mounted; foundry `--live` foundry_exit=1 (`live executor not configured (SUBJECT_MISSING)`); G2-8 default adapter exit **2**; Elixir/`mix` **ABSENT** | Exact next: after G2-8 default adapter → 0 + live executor: `bun scripts/powl-foundry-loop.ts --live` → exit **0**; `bun test test/powl-ocel-chicago.test.ts` → exit **0** ([`ZCODE-POWL-OCEL-STANDING.md`](./ZCODE-POWL-OCEL-STANDING.md)) | Unbounded remediation at GA → **REFUSED** per R-06 / ECOSYSTEM |
-| G2-10 | **ggen_igniter** clean-room / manufacture | **PARTIAL** — mount PRESENT + clean-tree + real BrandTheme manufacture exit **2** `REFUSED {:brand_theme_refused, :no_primitive_space}` (**not** `ALIVE`) | Tip `fourth-watch.brand.toml` uses `[rhythm]`; igniter BrandTheme requires DTCG `[primitive.space]` (sha256 tip `2c62d52a…` ≠ igniter `d6ece1d8…`); bare post-clone `git diff --exit-code` ≠ `ALIVE`; `mix`/NIF **BLOCKED** | **Next:** align tip brand to DTCG `[primitive.space]` **or** add rhythm→theme emitter; then BrandTheme emit tip vs igniter fixture → `diff -rq` / `git diff --exit-code` → exit **0** (`/tmp/cursor/igniter-real-cleanroom.md` §3 path A). Checkpoint: `cd /home/ubuntu/ggen_igniter && git diff --exit-code`. Contract: [`IGNITER-CLEANROOM-STANDING.md`](./IGNITER-CLEANROOM-STANDING.md); hop ledger [`PHOTOLITHOGRAPHY-STANDING.md`](./PHOTOLITHOGRAPHY-STANDING.md) | Claiming hop-4 `ALIVE` from bare post-clone diff or while tip still refuses `:no_primitive_space`; dirty/missing manufacture compare at GA blocks photolithography hop 4 |
+| G2-10 | **ggen_igniter** clean-room / manufacture | **ALIVE** — tip BrandTheme manufacture compare `git diff --exit-code` → **0** (dual-schema tip brand; `/tmp/cursor/igniter-real-cleanroom.md`) | Prior `:no_primitive_space` closed; bare post-clone `git diff --exit-code` ≠ `ALIVE` (antifalsifier); `mix`/NIF still **BLOCKED** | **Replay:** BrandTheme emit tip `docs/rfc/v27.1.1/fixtures/fourth-watch.brand.toml` + igniter fixture → `diff -rq` / `git diff --exit-code` → **0**. **Next residual:** NIF + `mix ggen_igniter.sync --check` → 0. Checkpoint: `cd /home/ubuntu/ggen_igniter && git diff --exit-code`. Contract: [`IGNITER-CLEANROOM-STANDING.md`](./IGNITER-CLEANROOM-STANDING.md); hop ledger [`PHOTOLITHOGRAPHY-STANDING.md`](./PHOTOLITHOGRAPHY-STANDING.md) | Claiming hop-4 `ALIVE` from bare post-clone diff; inventing `mix sync` ALIVE while NIF BLOCKED |
 | G2-11 | **verify_witness** production WASM &lt;250KB | **UNSUPPORTED** | Production build on affidavit/witness plane; ggen has placeholder size court only | Owner artifact: [`VERIFY-WITNESS-PRODUCTION.md`](./VERIFY-WITNESS-PRODUCTION.md). In affidavit/witness checkout: `rustup target add wasm32-unknown-unknown`; `cargo build --release --target wasm32-unknown-unknown -p verify_witness`; `wc -c verify_witness.wasm` → value **&lt; 262144**; optional hand-off `GGEN_VERIFY_WITNESS_WASM=/abs/path/to/verify_witness.wasm` | Placeholder court green ≠ production **ALIVE** at GA |
 
 ### 2.3 CASTLE / brand / commercial (Gate 2–3)
@@ -210,17 +210,16 @@ G2-4/G2-5 exact next verifiers retained; retip5 probe tip-wins; Foundry crown st
 present-pin ABSENT→PRESENT prose folded; Smalt FinOps **ALIVE** + G2-12 **ALIVE**
 + CCS/BRCE exact next verifiers tip-wins retained; Foundry stays
 **PARTIAL_ALIVE**. Tip pin retipped on `cursor/v2711-hop4-manufacture-bc54`
-onto tip `704025461` — G2-10 hop-4 manufacture **PARTIAL** exit **2**
-`REFUSED {:brand_theme_refused, :no_primitive_space}` (tip `[rhythm]` → igniter
-BrandTheme); next = align tip brand to DTCG `[primitive.space]` or rhythm→theme
-emitter then manufacture compare → exit **0**; evidence
-`/tmp/cursor/igniter-real-cleanroom.md`; no false hop-4 / path-crown `ALIVE`.
+onto tip `3a69becce` — G2-10 hop-4 BrandTheme manufacture **ALIVE** `diff_exit=0` (dual-schema; prior PARTIAL exit **2**
+`REFUSED {:brand_theme_refused, :no_primitive_space}` closed); evidence
+`/tmp/cursor/igniter-real-cleanroom.md` (`bc-4861c787`); residual = NIF/`mix sync --check`;
+antifalsifier: bare post-clone ≠ hop-4 `ALIVE`; no false path-crown `ALIVE`.
 Tip pin retipped on `cursor/v2711-truex-merged-standing-bc54` onto crown tip
 `99255d53c` — G2-7 / G3-2 Truex admit-court **ALIVE** @
 `truex@68d2d2331696f18949f4877b994320018b6365e5` ([truex#6](https://github.com/seanchatmangpt/truex/pull/6)
 **MERGED** → `main` merge `b4672131`; vitest **6/6** exit **0** reconfirmed on
-mount `/tmp/truex`; receipt `/tmp/cursor/truex-merged-admit-alive.md`); hop-4
-**PARTIAL** + hop-5 honesty (default adapter exit **2**) + G2-12 **ALIVE** +
+mount `/tmp/truex`; receipt `/tmp/cursor/truex-merged-admit-alive.md`); hop-4 BrandTheme manufacture
+**ALIVE** + hop-5 honesty (default adapter exit **2**) + G2-12 **ALIVE** +
 Smalt FinOps **ALIVE** retained; Foundry stays **PARTIAL_ALIVE**; no false
 path-crown / RAID `ALIVE`.
 Standings synthesized from existing v27.1.1 standing ledgers only plus this
