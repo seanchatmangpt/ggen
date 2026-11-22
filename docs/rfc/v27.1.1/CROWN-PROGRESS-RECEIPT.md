@@ -7,7 +7,7 @@
 | Observed tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `32ced372a3d40ebf9c8b426d90a313879da907c6` (absorb igniter clean-room ALIVE; prior OOR honesty retip8 / Jobs/C4 ALIVE `97c613452`; residual honesty `008a81d21` / lifecycle tip-wins `ebf4e8d08`) |
 | Tip subject | residual honesty `cursor/v2711-ccs-residual-honesty-bc54` on tip `008a81d21`; prior absorbs: ui_layout @ `ca52e9c16`, CCS #3 @ `861a6e73a` (`cbeb11d44`) |
 | Ledger pins cited | Gate-1 / Photo / Foundry prior pins; CCS #3 construct_hash **ALIVE** @ `861a6e73a`; CCS #2 `write_apply` tip-cargo **ALIVE** @ `b5cb632c6` (7+1+1); `verify_witness` size tip-cargo **ALIVE** @ `c91b22561`; `lifecycle.rs` **PRESENT** (tip `513704d04`; tip-cargo ALIVE 6/6 @ `acd9705c1`); **V8**/**V9** OOR **BLOCKED** unchanged |
-| Cargo this receipt | brand completeness+rhythm lineage tip-cargo **ALIVE** (**5+12** EXIT:0 @ `c91b22561` `/tmp/ggen-brand-toml-tip`); prior taffy/fluid/hotswap **ALIVE** @ `19c08a3b0`; production theme **UNSUPPORTED**; prior `ui_layout` **11** @ `ca52e9c16` retained |
+| Cargo this receipt | tip-exclusive `ui_layout_court` **ALIVE** reconfirm **11 passed; exit 0** @ evidence `59c090984` (sources ≡ tip `6e78d4347`; closed **BLOCKED_ENOSPC** @ `c329b7ee5`; `/tmp/cursor/uilayout-retry-9d4a.md`); brand completeness+rhythm lineage tip-cargo **ALIVE** (**5+12** EXIT:0 @ `c91b22561`); prior taffy/fluid/hotswap **ALIVE** @ `19c08a3b0`; production theme **UNSUPPORTED** |
 | Goal standing | **INCOMPLETE** — do **not** claim ECOSYSTEM-SPEC-27.1.1 crown complete |
 
 Standing vocabulary (`AGENTS.md` §2): `UNKNOWN` | `PARTIAL_ALIVE` | `ALIVE` |
@@ -49,7 +49,7 @@ blockers=foundry--live; remaining-fence-tip-cargo-BRCE-R01; cos/readyz; WebAuthn
 | Hop 1 perimeter (`shui:` fence + Truex admit) | Fence **PARTIAL_ALIVE**/evidence-**ALIVE** (tip-cargo PENDING); Truex admit-court **ALIVE** @ `truex@68d2d233` (merged) |
 | Hop 2 `.ttl`/`.toml` rhythm + dual-schema | **ALIVE** (lineage tip-cargo completeness **5** + rhythm **12** @ `c91b22561`; full DTCG/CASTLE inventory **UNSUPPORTED**) |
 | Hop 3 Taffy AOT six-width seal | In-repo fence tip-cargo **ALIVE** (**7 passed; exit 0** @ crown `19c08a3b0`); consumer bind open → path **PARTIAL_ALIVE** |
-| Hop 3b ggen `ui_layout` digest consume | **ALIVE** tip-cargo **11 passed; exit 0** @ `ca52e9c16` (≡ tip `120598fb3`); tip source **11**; prior evidence `eaf0dad40` |
+| Hop 3b ggen `ui_layout` digest consume | **ALIVE** tip-cargo **11 passed; exit 0** @ evidence `59c090984` (sources ≡ tip `6e78d4347`; closed ENOSPC); lineage `ca52e9c16` / `eaf0dad40`; tip source **11** |
 | Hop 4 ggen_igniter BrandTheme manufacture | **ALIVE** (`diff_exit=0` dual-schema tip brand vs igniter fixture); clean-room crown **ALIVE** evidence tip `f1492ed55` (`git diff --exit-code` → **0** @ `/home/ubuntu/ggen_igniter` / `bc-53b0e099`); NIF **ALIVE**; Jobs/C4 admitted `--check` **ALIVE** (exit **0**; bare `--check` **REFUSED_INVOCATION** antifalsifier) |
 | Hop 5 zcode POWL/OCEL / foundry | **PARTIAL_ALIVE** — in-repo bounded-refusal tip-cargo **ALIVE** (sjira **6**/bound **4** @ `cd7c2433b`); adapter exit **0**; Linux tip-matched runtime **PRESENT**; `--dry-run` exit **2** / **PARTIAL**; `--live` **BLOCKED_HITL** / **foundry_exit=1** / **REFUSED** (`Model access is not configured` @ zcode `f32df08`) |
 
@@ -133,7 +133,7 @@ Do **not** invent zero daily founder HITL `ALIVE` from Gate-1 fence green, CASTL
 | `shui:` public-prefix fence | **ALIVE** (tip-cargo **4 passed; exit 0** @ crown `008a81d21`; `/tmp/ggen-shui-prefix-target2`) | `CARGO_BUILD_JOBS=1 CARGO_TARGET_DIR=/tmp/ggen-shui-prefix-target2 cargo test -p ggen-graph --test shui_public_prefix_court --locked` |
 | Truex admits `shui:` | **ALIVE** @ `68d2d233` (merged) | `pnpm exec vitest run test/admit/admit-court.test.ts` → **0** |
 | Taffy AOT pre-flight | **ALIVE** tip-cargo (**7 passed; exit 0** @ crown `19c08a3b0`) | `CARGO_BUILD_JOBS=1 CARGO_TARGET_DIR=/tmp/gate1-taffy cargo test -p ggen-graph --test taffy_aot_preflight_court --locked` |
-| ggen `ui_layout_court` | **ALIVE** tip-cargo (**11 passed; exit 0** @ `ca52e9c16` ≡ tip `120598fb3`) | Replay: `CXX=g++ SCCACHE_DISABLE=1 CARGO_BUILD_JOBS=1 cargo test -p ggen-graph --test ui_layout_court --locked` |
+| ggen `ui_layout_court` | **ALIVE** tip-cargo (**11 passed; exit 0** @ `59c090984` ≡ tip `6e78d4347`) | Replay: `CXX=g++ SCCACHE_DISABLE=1 RUSTC_WRAPPER= CARGO_BUILD_JOBS=1 cargo test -p ggen-graph --test ui_layout_court --locked --target-dir /tmp/ggen-uilayout-retry-9d4a --config build.jobs=1 -- --test-threads=1` |
 | FM-PACK-001 `packs/gh-terraform-pack` | **PRESENT** / **PARTIAL_ALIVE** (composed e2e SKIPPED) | loadavg&lt;10: `timeout 600s cargo test -p ggen-engine --test composed_packs_e2e` → **0** |
 | zcode POWL in-repo stub | **ALIVE** (bounded refusal tip-cargo **6+4**; exit 0 @ `cd7c2433b`) | Replay: `cargo test -p ggen-sjira --test zcode_powl_ocel_court`; `cargo test -p ggen-graph remediation_bound --lib`; live next: G2-9 foundry `--live` (**BLOCKED_HITL**) |
 | `curve25519-dalek` pin | **PARTIAL_ALIVE** (lock+doc; policy court open) | pin standing §5 policy court |

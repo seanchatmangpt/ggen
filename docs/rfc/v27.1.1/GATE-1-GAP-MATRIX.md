@@ -31,9 +31,17 @@ Witness harness sources ≡ crown `513704d04` / `678a6c106`. Production WASM rem
 on same commit; production theme **UNSUPPORTED** — do **not** attribute brand rhythm tip-cargo to
 ancestor doc-only `27436608c` pre-fix).
 
+**Tip-exclusive ui_layout reconfirm (2026-11-22):** `cursor/uilayout-retry-alive-dbe1` /
+`bc-921ca9e3` — after reclaim of orphan `/tmp/ggen-uilayout-0ae8-protected` (62G; prior
+**BLOCKED_ENOSPC** @ `c329b7ee5`), quiet
+`CXX=g++ SCCACHE_DISABLE=1 RUSTC_WRAPPER= CARGO_BUILD_JOBS=1 cargo test -p ggen-graph --test ui_layout_court --locked --target-dir /tmp/ggen-uilayout-retry-9d4a --config build.jobs=1 -- --test-threads=1`
+on detached tip → **11 passed; 0 failed; exit 0** @ evidence `59c090984` (harness sources
+byte-identical through crown tip `6e78d4347`; receipt `/tmp/cursor/uilayout-retry-9d4a.md`).
+Not a standing demotion — ENOSPC was environmental.
+
 **Evidence refresh / ui_layout absorb:** `cursor/v2711-uilayout-tip-alive-bc54` @ `8090022f4` → lineage
 `120598fb3e395393d0ebe7fd86537bb499fc670d` … crown `678a6c106` (hop-5 runtime **PRESENT** / model access
-**REFUSED**; ui_layout tip-cargo **ALIVE** @ `ca52e9c16`).
+**REFUSED**; ui_layout tip-cargo **ALIVE** @ `ca52e9c16`; tip-exclusive reconfirm **ALIVE** @ `59c090984`).
 Truex+shui product admit → **ALIVE** (sibling **6/6 vitest exit 0** @
 `truex@68d2d2331696f18949f4877b994320018b6365e5` — [truex#6](https://github.com/seanchatmangpt/truex/pull/6)
 **MERGED** to `main` as `b4672131`; mount `/tmp/truex`; receipt
