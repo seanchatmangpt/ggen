@@ -108,14 +108,15 @@ fn wrong_subject_is_refused_not_silently_retargeted() {
     let result = adjudicate(&obs);
 
     // Assert
-    match result {
-        Err(ZcodeRemediationRefusal::SubjectMismatch { observed }) => {
+    let err = result.expect_err("wrong subject must refuse");
+    match &err {
+        ZcodeRemediationRefusal::SubjectMismatch { observed } => {
             assert_eq!(observed, "seanchatmangpt/ggen");
         }
         other => panic!("expected SubjectMismatch, got {other:?}"),
     }
     assert_eq!(standing_label(&obs), ZcodeRemediationStandingLabel::Unknown);
-    let msg = result.unwrap_err().to_string();
+    let msg = err.to_string();
     assert!(msg.starts_with("REFUSED_ZCODE_SUBJECT_MISMATCH:"));
     assert!(
         msg.contains(PREDECESSOR_IGNITER_VERIFIER),
