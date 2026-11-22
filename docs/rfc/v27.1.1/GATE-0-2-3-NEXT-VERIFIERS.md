@@ -172,3 +172,16 @@ ledger, BRCE V8 / WebAuthn live / HITL live / R01-R07 bodies / Smalt / CASTLE /
 VW pins. HTTP+DNS probe reconfirm at 09:00:45 PST — standings held; **25**
 tracked rows; **no** false `ALIVE`; docs-only; no cargo; no crown absorb; no
 ManagePullRequest.
+
+---
+
+## Retip matrix pin — tip `cc2a4ea66` (2026-11-22)
+
+| Field | Value |
+|-------|-------|
+| Branch | `cursor/v2711-ecospec-matrix-retip-bc54` (`bc-5b3b2915`) |
+| Observed tip | `cc2a4ea662b12b35ac90246b3a2bfbd89db615e4` (`cc2a4ea66`; ⊇ `2c69230f2` / `6f920670f`) |
+| Authority | Full Gate 0/1/2/3 honesty matrix → [`ECOSYSTEM-SPEC-27.1.1.md`](./ECOSYSTEM-SPEC-27.1.1.md) **§17** |
+| Cargo | **NOT RUN** (docs-only) |
+
+Standings held from tip companions (no invented `ALIVE`): Truex **ALIVE**; shui **PARTIAL_ALIVE**; Taffy **PARTIAL**; brand.toml **PARTIAL_ALIVE**; ui_layout **PARTIAL_ALIVE**; curve25519 **ALIVE**; VW size measure **ALIVE** / court **PARTIAL** / prod **UNSUPPORTED**; zcode POWL refusal **PARTIAL**; igniter clean-room **ALIVE**; Smalt RAID **ALIVE**; cos **BLOCKED** / revops **UNKNOWN**; brand production **UNSUPPORTED**; BRCE V8 **BLOCKED** / bodies **BLOCKED**; WebAuthn live **UNSUPPORTED**; CASTLE wire **ALIVE**/`WIRED`; Foundry **PARTIAL**; `--live` **BLOCKED_HITL**.
