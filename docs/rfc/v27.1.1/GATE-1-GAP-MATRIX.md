@@ -6,8 +6,8 @@ Companion to `ECOSYSTEM-SPEC-27.1.1.md` and `REPO-INVENTORY-27.1.1.md`.
 
 **Evidence refresh / live tip pin:** CindyCat dual-schema `[primitive.space]` from `[rhythm]` on `cursor/v2711-hop4-cindycat-space-bc54` (court `oem_fixtures_carry_dtcg_primitive_space_from_rhythm`).
 
-**Evidence refresh / live tip pin:** 2026-11-22 absorb #929 verify_witness size court **PRESENT** @ `34631db8a` onto tip
-`2fd8971414519f5a1c51f6b04c1f7a85831def52` (~`46a026ae9+`; tip-wins: hop-5 runtime **PRESENT** / model access **REFUSED**; ui_layout tip-cargo **ALIVE**; chicago mirror **PARTIAL_ALIVE**; Smalt 6-column spine **ALIVE**; verify_witness size court **PRESENT**).
+**Evidence refresh / live tip pin:** 2026-11-22 absorb #930 taffy_aot_preflight **PRESENT** @ `ef6fb84ed` + #931 photo hop-4 BrandTheme **ALIVE** @ `d191cf792` onto tip
+`89ca2da9c37d7ba61abd665fe5c8de176201ae33` (~`2fd897141+` / `46a026ae9+`; tip-wins: hop-5 runtime **PRESENT** / model access **REFUSED**; ui_layout tip-cargo **ALIVE**; chicago mirror **PARTIAL_ALIVE**; Smalt 6-column spine **ALIVE**; verify_witness size court **PRESENT**; taffy_aot_preflight **PRESENT**; photo hop-4 **ALIVE** reconfirm).
 Truex+shui product admit → **ALIVE** (sibling **6/6 vitest exit 0** @
 `truex@68d2d2331696f18949f4877b994320018b6365e5` — [truex#6](https://github.com/seanchatmangpt/truex/pull/6)
 **MERGED** to `main` as `b4672131`; mount `/tmp/truex`; receipt
@@ -22,8 +22,15 @@ after Linux tip-matched runtime **PRESENT**) —
 [`HOP5-MIX-SUBJECT-STANDING.md`](./HOP5-MIX-SUBJECT-STANDING.md);
 [`PHOTOLITHOGRAPHY-STANDING.md`](./PHOTOLITHOGRAPHY-STANDING.md)).
 **brand.toml hot-swap** → **PRESENT**; **production theme** → **UNSUPPORTED**.
-`taffy_aot_preflight_court` + `verify_witness_size_court` → **PRESENT** (tip
-source; not tip-cargo exit 0). **ui_layout tip-cargo ALIVE** — exclusive quiet `CXX=g++ SCCACHE_DISABLE=1 CARGO_BUILD_JOBS=1 cargo test -p ggen-graph --test ui_layout_court --locked` under flock `/tmp/ggen-uilayout-tip-alive-protected` →
+`taffy_aot_preflight_court` → **PRESENT** — `git ls-tree` confirms
+`crates/ggen-graph/tests/taffy_aot_preflight_court.rs` blob `d8923b07e` (**7** `#[test]`)
+on tip `89ca2da9c` / `2fd897141` / `120598fb3` / `a29e1cd92` / absorb head `27436608c`
+(`cursor/v2711-taffy-preflight-retip-bc54` / absorb #930). Tip-cargo **SKIPPED** this pass
+(tip-exclusive `ui_layout_court` / `ggen-layout-court` thrash) → **not** tip-cargo `ALIVE`.
+Historical evidence exit **0** @ `0478fde59` retained. `verify_witness_size_court` → **PRESENT**
+(tip source; not tip-cargo exit 0). Photo hop-4 BrandTheme → **ALIVE** reconfirm (#931;
+dual-schema + `emit_brand_theme_dtcg` PRESENT; prior `diff_exit=0`).
+**ui_layout tip-cargo ALIVE** — exclusive quiet `CXX=g++ SCCACHE_DISABLE=1 CARGO_BUILD_JOBS=1 cargo test -p ggen-graph --test ui_layout_court --locked` under flock `/tmp/ggen-uilayout-tip-alive-protected` →
 **11 passed; 0 failed; exit 0** on tip lineage `ca52e9c1679d66d38d6cf7e196195ee758bee597` (ui_layout sources
 byte-identical through live tip `120598fb3e395393d0ebe7fd86537bb499fc670d`; absorb branch `cursor/v2711-gate1-uilayout-alive-bc54` from `cursor/v2711-uilayout-tip-alive-bc54` @ `8090022f4`). Other Gate-1 fences
 remain tip-cargo PENDING. Ancestor evidence `eaf0dad40287a3347280a541766b3b16f3978cf8`
@@ -79,7 +86,7 @@ Do not promote any Gate 0 row to `ALIVE` from this repository.
 |-------------|--------------------------|-------------------|-------------------------------|-------|
 | Admit W3C `shui:` as public vocab (ggen fence) | **ALIVE** — `shui_public_prefix_court` **3 passed; exit 0** on evidence tip `0478fde59` (ancestor). Tip source has **4** `#[test]`. **Tip-cargo reconfirm PENDING** — not tip exit 0. Truex product admit is a separate row (**ALIVE**, sibling merged). | tip `120598fb3e395393d0ebe7fd86537bb499fc670d` (evidence `0478fde59`) | `cargo test -p ggen-graph --test shui_public_prefix_court` | **ggen** (fence) |
 | Truex runtime admits `shui:` shapes | **ALIVE** — sibling Chicago admit-court **6/6 vitest exit 0** reconfirmed on `seanchatmangpt/truex` @ `68d2d2331696f18949f4877b994320018b6365e5` ([truex#6](https://github.com/seanchatmangpt/truex/pull/6) **MERGED** → `main` merge `b4672131`; mount `/tmp/truex`): `shui:` → **ADMITTED**; private `truex:` → **REFUSED_PRIVATE**; unknown → **REFUSED_UNKNOWN**. ggen `shui:` fence remains a separate row (tip-cargo PENDING). | truex@`68d2d233` (merged; on `main` via `b4672131`) | Replay: `pnpm exec vitest run test/admit/admit-court.test.ts` → exit 0 @ `68d2d233`. Companion fence (non-substitute): `cargo test -p ggen-graph --test shui_public_prefix_court` | **truex** |
-| Taffy AOT pre-flight (widths 320/375/414/768/1024/1440 + WCAG 1.4.12 1.5×) | **PRESENT** — `taffy_aot_preflight_court` tip source **7** `#[test]`. Historical **6 passed; exit 0** on evidence tip `0478fde59` (ancestor). **Tip-cargo reconfirm PENDING**. Photolithography / zcode-cli consume still open as a separate hop → not claimed here. Hop: [`PHOTOLITHOGRAPHY-STANDING.md`](./PHOTOLITHOGRAPHY-STANDING.md). | tip `120598fb3e395393d0ebe7fd86537bb499fc670d` (evidence `0478fde59`) | `cargo test -p ggen-graph --test taffy_aot_preflight_court` | **ggen** |
+| Taffy AOT pre-flight (widths 320/375/414/768/1024/1440 + WCAG 1.4.12 1.5×) | **PRESENT** — `git ls-tree` tip subject `taffy_aot_preflight_court` blob `d8923b07e` (**7** `#[test]`) on `89ca2da9c`/`2fd897141`/`120598fb3`/`a29e1cd92`/`8090022f4`/`27436608c` (absorb #930). Historical **6 passed; exit 0** on evidence tip `0478fde59` (ancestor). Tip-cargo **SKIPPED** this pass (tip-exclusive thrash) → **PENDING** — not tip exit 0. Photolithography / zcode-cli consume still open as a separate hop → not claimed here. Hop: [`PHOTOLITHOGRAPHY-STANDING.md`](./PHOTOLITHOGRAPHY-STANDING.md). | tip `89ca2da9c` ≡ court sources of `120598fb3` (evidence `0478fde59`) | Quiet exclusive: `CARGO_BUILD_JOBS=1 cargo test -p ggen-graph --test taffy_aot_preflight_court --target-dir /tmp/ggen-taffy-preflight-target` | **ggen** |
 | ggen `ui-layout-court` (AotSealReceipt digest consume) | **ALIVE** (tip-cargo) — exclusive quiet `CXX=g++ SCCACHE_DISABLE=1 CARGO_BUILD_JOBS=1 cargo test -p ggen-graph --test ui_layout_court --locked` under `/tmp/ggen-uilayout-tip-alive-protected` → **11 passed; 0 failed; exit 0** on tip lineage `ca52e9c16` (sources identical through tip `120598fb3`). Prior evidence `eaf0dad40` (**8 passed; exit 0**); tip court land `7c0ba2a90`. Sibling `ui-layout-court.ts` remains out-of-repo / **UNSUPPORTED**. | tip `120598fb3` (cargo evidence `ca52e9c16`; absorb `8090022f4`) | Replay: `CXX=g++ SCCACHE_DISABLE=1 CARGO_BUILD_JOBS=1 cargo test -p ggen-graph --test ui_layout_court --locked`; next: `pnpm test -- ui-layout-court` in zcode-cli | **ggen** (in-repo fence); **zcode-cli** (TS adapter, separate) |
 | FM-PACK-001 `packs/gh-terraform-pack` | **PRESENT** — path on tip (`test -d packs/gh-terraform-pack` → **0**; tree `c7799cd6`); consumers retargeted. Crown `composed_packs_e2e` **SKIPPED** (loadavg ≥10) → not crown `ALIVE`. Inventory: [`REPO-INVENTORY-27.1.1.md`](./REPO-INVENTORY-27.1.1.md) | tip `120598fb3e395393d0ebe7fd86537bb499fc670d` (restore `5f28d0f90`) | When loadavg &lt;10: `timeout 600s cargo test -p ggen-engine --test composed_packs_e2e -- --nocapture` → exit **0** | **ggen** (pack presence); e2e for crown |
 | zcode POWL/OCEL bounded remediation (in-repo stub) | **PARTIAL_ALIVE** — standing + `remediation_bound` + `ggen-sjira` IO-free court on tip (integrate / [#862](https://github.com/seanchatmangpt/ggen/pull/862)). Live sibling Chicago court **UNKNOWN** / **UNSUPPORTED** (unmounted). Ledger: [`ZCODE-POWL-OCEL-STANDING.md`](./ZCODE-POWL-OCEL-STANDING.md) | tip `120598fb3e395393d0ebe7fd86537bb499fc670d` | In-repo: `cargo test -p ggen-sjira --test zcode_powl_ocel_court`. Live: `bun test test/powl-ocel-chicago.test.ts` in zcode-cli | **ggen** (contract); **zcode-cli** (execution) |
@@ -93,7 +100,7 @@ Do not promote any Gate 0 row to `ALIVE` from this repository.
 
 ### Command evidence log (this refresh)
 
-Live tip pin: `2fd8971414519f5a1c51f6b04c1f7a85831def52` (absorb #929 verify_witness **PRESENT** onto tip past #926/#927/#928 ui_layout **ALIVE** + chicago **PARTIAL** + Smalt **ALIVE**; sources ≡ tip).
+Live tip pin: `89ca2da9c37d7ba61abd665fe5c8de176201ae33` (absorb #930 taffy **PRESENT** + #931 photo hop-4 **ALIVE** onto tip past #929 verify_witness **PRESENT** / #926/#927/#928 ui_layout **ALIVE** + chicago **PARTIAL** + Smalt **ALIVE**; sources ≡ tip).
 Historical exit-0 evidence tip: `0478fde59644cccd60c5a88d64d444ec292e6a3c` (≥ `a54b9803`; ancestor).
 ui-layout ancestor ALIVE: `eaf0dad40287a3347280a541766b3b16f3978cf8`.
 **Tip-cargo `ui_layout` ALIVE** preserved this absorb: exclusive flock `/tmp/ggen-uilayout-tip-alive-protected`;
@@ -104,7 +111,7 @@ verify_witness / hot-swap remains **PRESENT** until those tip-cargo exits 0.
 | Subject | Command / binary | Result |
 |---------|------------------|--------|
 | `shui:` fence | `shui_public_prefix_court` warm court binary | evidence `3 passed; 0 failed` → exit **0** @ `0478fde59`; tip source **4** `#[test]`; tip-cargo PENDING |
-| `taffy_aot` | `taffy_aot_preflight_court` warm court binary | evidence `6 passed; 0 failed` → exit **0** @ `0478fde59`; tip source **7** `#[test]` → **PRESENT**; tip-cargo PENDING |
+| `taffy_aot` | `git ls-tree` + `taffy_aot_preflight_court` | tip blob `d8923b07e` **PRESENT** on `89ca2da9c`/`120598fb3`/`a29e1cd92`/`8090022f4`/`27436608c` (absorb #930); evidence `6 passed; 0 failed` → exit **0** @ `0478fde59`; tip source **7** `#[test]`; tip-cargo **SKIPPED**/PENDING (thrash) |
 | `brand.toml` rhythm | `brand_toml_rhythm_court` warm court binary | evidence `4 passed; 0 failed` → exit **0** @ `0478fde59`; tip source **12** `#[test]`; tip-cargo PENDING |
 | brand.toml hot-swap | `brand_toml_hotswap_court` + `seed_hot_swap_slot`/`hot_swap_brand` | tip source **6** `#[test]` → **PRESENT**; production `promote_production_theme` → **UNSUPPORTED** / `REFUSED_PRODUCTION` |
 | `verify_witness` size court | tip-synced `verify_witness_size_court` harness | evidence `6 passed; 0 failed` → exit **0** @ `0478fde59`; tip source **6** / placeholder **35** B → **PRESENT** @ `d48b763b8` (absorb #929 onto `2fd897141`/~`46a026ae9+`; flock HELD); tip-cargo PENDING |
