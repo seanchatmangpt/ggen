@@ -6,7 +6,8 @@
 | Companion | `ECOSYSTEM-SPEC-27.1.1` (Gate 2–3 CASTLE publish); `REPO-INVENTORY-27.1.1` |
 | Subject | `seanchatmangpt/castle` on spine `ggen → Taffy → zcode-cli → CASTLE → Smalt → revops` |
 | Materialized | 2026-11-22 |
-| Observed ggen tip | `origin/main` @ `d173cad5792e837bd4fec730d120c582b9bc5d4c` |
+| Observed ggen tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `4e6ca0e2e6e69bb6cd7582ec4ad50b58530d03d1` |
+| Tip pin | 2026-11-22 — `cursor/v2711-castle-retip-bc54` after crown tip `4e6ca0e2e` (standings held; no capability promotion; prior pin `7bf148d82`) |
 | Observed castle tip | `main` @ `2774039ea81bad508c93785a59dd7a99198ae256` (API; sibling not mounted) |
 | Repo scope of this land | `seanchatmangpt/ggen` (standing ledger only — no CASTLE runtime) |
 
@@ -134,15 +135,16 @@ GA claims that **CASTLE is `ALIVE` on the horizontal spine** are **REFUSED** / f
 
 | Field | Value |
 |-------|-------|
-| Observed ggen tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `7bf148d82e125589859d8830d29a3ce899d28f3f` |
+| Observed ggen tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `4e6ca0e2e6e69bb6cd7582ec4ad50b58530d03d1` |
 | Sibling `seanchatmangpt/castle` | **not mounted** → §3.1 courts **BLOCKED** / **UNKNOWN** |
 | In-ggen `rg 'castle publish\|RedactionCourt' crates packs` | empty → publish surface **UNSUPPORTED** remains honest |
-| Brand rhythm (non-substitute) | `brand_toml_rhythm_court` **4 passed; exit 0** on tip — rhythm only, not CASTLE inventory |
+| Brand rhythm (non-substitute) | `brand_toml_rhythm_court` evidence `0478fde59` **4 passed; exit 0** — rhythm only, not CASTLE inventory (tip-cargo PENDING quiet cgroup; not tip exit 0) |
 | Crown spine standing | **UNKNOWN** — **unchanged** |
+| False `ALIVE` | **none** — README mint ALIVE not collapsed into ggen; crown stays non-`ALIVE` |
 
 ---
 
 ## 8. Provenance
 
 GOAL SLICE: CASTLE in horizontal spine (`ggen+Taffy+zcode-cli+CASTLE+Smalt+revops`) standing.
-Materialized as a ggen RFC ledger only. No CASTLE binary, Smalt runtime, or revops front-door was executed in this workspace. Tip reconfirm 2026-11-22 on `7bf148d82` — standing labels held.
+Materialized as a ggen RFC ledger only. No CASTLE binary, Smalt runtime, or revops front-door was executed in this workspace. Tip reconfirm 2026-11-22 on `7bf148d82` — standing labels held. Tip pin retipped on `cursor/v2711-castle-retip-bc54` to live crown tip `4e6ca0e2e` (post–ui-layout evidence tidy `4e6ca0e2e`; standings held — no capability row promoted; no false `ALIVE`).
