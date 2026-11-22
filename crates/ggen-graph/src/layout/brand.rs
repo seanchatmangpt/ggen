@@ -128,13 +128,19 @@ pub struct BrandReceipt {
 #[derive(Debug, Clone, PartialEq)]
 pub enum BrandRefusal {
     Parse(String),
-    DtcgVersion { got: String, expected: String },
+    DtcgVersion {
+        got: String,
+        expected: String,
+    },
     TouchFloorTooSmall {
         platform: &'static str,
         value_px: f32,
         min_px: u32,
     },
-    GapTooSmall { gap_px: f32, min_px: u32 },
+    GapTooSmall {
+        gap_px: f32,
+        min_px: u32,
+    },
     OffGridSpacing {
         token: String,
         value_px: f32,
@@ -151,11 +157,19 @@ pub enum BrandRefusal {
         got: u32,
         expected: u32,
     },
-    RemBaseInvalid { rem_base_px: f32 },
+    RemBaseInvalid {
+        rem_base_px: f32,
+    },
     /// `slope_cqi` is non-finite or ≤ 0.
-    InvalidClampSlope { token: String, slope_cqi: f32 },
+    InvalidClampSlope {
+        token: String,
+        slope_cqi: f32,
+    },
     /// `preferred` is not a well-formed positive `<number>cqi` expression.
-    InvalidCqiPreferred { token: String, preferred: String },
+    InvalidCqiPreferred {
+        token: String,
+        preferred: String,
+    },
     /// Explicit `slope_cqi` disagrees with the coefficient of `preferred`.
     ClampSlopeMismatch {
         token: String,

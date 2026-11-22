@@ -30,7 +30,11 @@ fn oem_fixtures_encode_positive_matching_cqi_slopes() {
     assert!(fourth_ok.fluid_count >= 1);
     let fourth_parsed = parse_brand_toml(&fourth).expect("parse fourth-watch");
     for fluid in &fourth_parsed.rhythm.fluid {
-        assert!(fluid.slope_cqi > 0.0, "{} slope must be positive", fluid.name);
+        assert!(
+            fluid.slope_cqi > 0.0,
+            "{} slope must be positive",
+            fluid.name
+        );
         let preferred_cqi = parse_cqi_slope(&fluid.preferred).expect("Ncqi preferred");
         assert!((fluid.slope_cqi - preferred_cqi).abs() < 1e-5);
     }
@@ -47,8 +51,8 @@ fn oem_fixtures_encode_positive_matching_cqi_slopes() {
 #[test]
 fn non_positive_clamp_slope_is_refused() {
     // Arrange — zero slope is not a fluid clamp
-    let mut manifest = parse_brand_toml(&load_fixture("fourth-watch.brand.toml"))
-        .expect("valid fixture parses");
+    let mut manifest =
+        parse_brand_toml(&load_fixture("fourth-watch.brand.toml")).expect("valid fixture parses");
     manifest.rhythm.fluid[0].slope_cqi = 0.0;
 
     // Act
@@ -87,8 +91,8 @@ fn non_cqi_preferred_rhythm_is_refused() {
 #[test]
 fn clamp_slope_mismatch_is_refused() {
     // Arrange — explicit slope disagrees with preferred coefficient
-    let mut manifest = parse_brand_toml(&load_fixture("fourth-watch.brand.toml"))
-        .expect("valid fixture parses");
+    let mut manifest =
+        parse_brand_toml(&load_fixture("fourth-watch.brand.toml")).expect("valid fixture parses");
     manifest.rhythm.fluid[0].slope_cqi = 9.0;
 
     // Act
@@ -138,8 +142,8 @@ fn inverted_clamp_min_gt_max_is_refused() {
 #[test]
 fn off_grid_fluid_min_is_refused() {
     // Arrange — 6px is off the 4px/8px grid
-    let mut manifest = parse_brand_toml(&load_fixture("fourth-watch.brand.toml"))
-        .expect("valid fixture parses");
+    let mut manifest =
+        parse_brand_toml(&load_fixture("fourth-watch.brand.toml")).expect("valid fixture parses");
     manifest.rhythm.fluid[0].min_px = 6.0;
 
     // Act

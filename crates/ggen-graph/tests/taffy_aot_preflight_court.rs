@@ -297,7 +297,10 @@ fn layout_refusal_overlap_names_width_and_nodes() {
             a_id,
             b_id,
         }) => {
-            assert_eq!(viewport_width_px, 840, "Overlap must name the failing width");
+            assert_eq!(
+                viewport_width_px, 840,
+                "Overlap must name the failing width"
+            );
             assert!((text_spacing - WCAG_1412_TEXT_SPACING).abs() < f32::EPSILON);
             assert_eq!(a_id, "upper_card");
             assert_eq!(b_id, "lower_card");
