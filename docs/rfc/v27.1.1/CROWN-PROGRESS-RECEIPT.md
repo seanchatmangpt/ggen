@@ -32,7 +32,7 @@ Compact return line:
 ```text
 tip=32ced372a3d40ebf9c8b426d90a313879da907c6
 clause1=PARTIAL (igniter clean-room ALIVE @f1492ed55/bc-53b0e099; path crown still non-ALIVE)
-clause2=PARTIAL_ALIVE (CCS#3 ALIVE @861a6e73a; CCS#2 write_apply tip-cargo PENDING; lifecycle.rs PRESENT/ALIVE @513704d04; V8/V9 BLOCKED)
+clause2=PARTIAL_ALIVE (CCS#3 ALIVE @861a6e73a; CCS#2 write_apply tip-cargo ALIVE @b5cb632c6 EXIT=0; lifecycle.rs PRESENT/ALIVE @513704d04; V8/V9 BLOCKED)
 clause3=PARTIAL+BLOCKED
 clause4=PARTIAL
 gate1=PARTIAL (ui_layout tip-cargo ALIVE; construct_hash ALIVE @861a6e73a; write_apply ALIVE @b5cb632c6; verify_witness ALIVE @c91b22561; lifecycle PRESENT/ALIVE; taffy PRESENT tip-cargo PENDING; brand production UNSUPPORTED; BRCE V8 BLOCKED)

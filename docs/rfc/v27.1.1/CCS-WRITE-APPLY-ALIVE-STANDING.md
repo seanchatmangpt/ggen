@@ -27,7 +27,7 @@ Target dir: `/tmp/ggen-write-apply-target`. Jobs=1. `--locked`. Tip base `c91b22
 | 2 | `CARGO_BUILD_JOBS=1 cargo test -p ggen-mcp --test pipeline_tools_test --locked --config build.jobs=1 -- write_apply_refuses_a_fabricated_graph_hash_bypass --test-threads=1` | **1 passed; 10 filtered; exit 0** | **ALIVE** |
 | 3 | `CARGO_BUILD_JOBS=1 cargo test -p ggen-mcp --test pipeline_tools_test --locked --config build.jobs=1 -- write_apply_accepts_a_real_dry_run_graph_hash --test-threads=1` | **1 passed; 10 filtered; exit 0** | **ALIVE** |
 
-Log: `/tmp/cursor/write-apply-replay.out` (2026-11-22).
+Log: `/tmp/write-apply-tip-c91b.log` (2026-11-22 restart `bc-f8c0be78`; EXIT=0; EXIT1=0 EXIT2a=0 EXIT2b=0; warm target `/tmp/ggen-write-apply-target`; prior `/tmp/cursor/write-apply-replay.out` retained).
 
 Sources:
 
@@ -65,5 +65,6 @@ v1=write_apply_confirm_test 7_passed_exit_0
 v2a=write_apply_refuses_a_fabricated_graph_hash_bypass 1_passed_exit_0
 v2b=write_apply_accepts_a_real_dry_run_graph_hash 1_passed_exit_0
 landed=cursor/v2711-write-apply-alive-bc54
+restart=bc-f8c0be78 EXIT=0 log=/tmp/write-apply-tip-c91b.log
 next=lifecycle package courts / V8 V9 OOR BLOCKED; goal ACTIVE; OOR stays BLOCKED
 ```
