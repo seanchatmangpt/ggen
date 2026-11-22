@@ -46,5 +46,5 @@ cargo test -p ggen-graph --test taffy_aot_preflight_court
 
 Next **new** Gate-1 falsifier to author:
 
-1. Wire zcode-cli `ui-layout-court.ts` (or igniter) to consume `AotSealReceipt` without re-implementing geometry law — photolithography remains non-ALIVE until that boundary executes.
+1. Wire zcode-cli `ui-layout-court.ts` (or igniter) to consume `AotSealReceipt` without re-implementing geometry law — photolithography remains non-ALIVE until that boundary executes. Hop ledger: `docs/rfc/v27.1.1/PHOTOLITHOGRAPHY-STANDING.md`.
 2. Or advance sibling rows still open: Truex `shui:` product admit; `curve25519-dalek` Gate-1 pin doc; `verify_witness` WASM size court.
