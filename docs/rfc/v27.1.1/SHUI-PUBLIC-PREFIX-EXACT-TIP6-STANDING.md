@@ -1,20 +1,20 @@
-# shui_public_prefix_court — exact-tip6 push-first honesty (v27.1.1)
+# shui_public_prefix_court — exact-tip6 tip-cargo ALIVE (v27.1.1)
 
 ```text
-tip_base=c661d228ac74ce4297ff73a396db5a1a24508979
-cited_tip_at_kickoff=cc2a4ea662b12b35ac90246b3a2bfbd89db615e4
+tip_base=dd61fefb29fa7ea6e1cf789f002ccd9879393988
+cargo_tip=dd61fefb29fa7ea6e1cf789f002ccd9879393988
+prior_cargo_tips=4ebcb9d46f7ce6da0cafe7671c6942d9932029f8,f12972590e280609ddaedeafad84cda63372ea4b
 branch=cursor/v2711-shui-exact-tip6-bc54
-bc=bc-c92c420b-176d-5056-89e8-f4fa88893816
+bc=bc-262603dc-8fb9-50aa-93a9-5a3190c363b9
 court=shui_public_prefix_court
-budget_s=1500
-exit=137
-standing=PARTIAL_ALIVE
-prior_tip5_partial=d96b2e867 / tip-wins dd54e7821
-prior_tip5_alive_attempt=7f8e0765b EXIT137 / absorb tip-wins
-prior_alive_lineage=008a81d21 (4 passed; tip-cargo ALIVE held)
-crown_absorb=none
+passed=4
+failed=0
+exit=0
+standing=ALIVE (exact tip-cargo)
+prior_tip6_partial=bc-c92c420b EXIT137 PARTIAL_ALIVE (superseded)
+prior_alive_lineage=008a81d21 (held; now tip-subject EXIT0)
 ManagePullRequest=not_used
-force_push=none
+force_push=sidebranch_lease_only
 Foundry_ALIVE=not_claimed
 ```
 
@@ -22,68 +22,73 @@ Foundry_ALIVE=not_claimed
 |-------|-------|
 | Document ID | `SHUI-PUBLIC-PREFIX-EXACT-TIP6-STANDING` |
 | Branch | `cursor/v2711-shui-exact-tip6-bc54` |
-| Agent | `bc-c92c420b-176d-5056-89e8-f4fa88893816` |
-| Observed tip base | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `c661d228ac74ce4297ff73a396db5a1a24508979` (live FF beyond kickoff cite `cc2a4ea662b12b35ac90246b3a2bfbd89db615e4`) |
+| Agent | `bc-262603dc-8fb9-50aa-93a9-5a3190c363b9` |
+| Tip base (ALIVE reconfirm) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `dd61fefb29fa7ea6e1cf789f002ccd9879393988` |
+| EXIT0 observations | `4ebcb9d46` @ 19:00:48Z; `f12972590` @ 19:01:01Z; **`dd61fefb2` @ 19:03:39Z** — all **4 passed; EXIT 0** |
 | Court sources on tip | `crates/ggen-graph/tests/shui_public_prefix_court.rs` blob `3cda065f6564917504f241ac3626c111cd2dfb6a` (≡ prior ALIVE blob) |
+| sha256 (tip working tree) | court `bd032856…5fe0` |
 | Exact command | `CARGO_TARGET_DIR=/tmp/ggen-shui-exact-tip6 cargo test -p ggen-graph --test shui_public_prefix_court --locked --config build.jobs=1 -- --test-threads=1` |
-| Target dir | `/tmp/ggen-shui-exact-tip6` (isolated; seeded from `/tmp/ggen-shui-exact-tip5` warm 1.6G) |
-| Budget | **1500s** (25min) hard `timeout` |
-| This probe | **EXIT:137** (SIGKILL) @ `2026-11-22T18:13:30Z`→`18:13:31Z` — cargo killed before any compile output; log empty (0 bytes). Prior instant kills at `18:06:33Z` / `18:10:11Z` same signature |
-| Thrash (retry window) | **7–8** concurrent `cargo test` + **2–3** `cc1plus` (other agents `/tmp/gate1-exact-tip3/bc-fafc-*`); loadavg≈5.1–6.5; quiet window **never** reached in 12×15s polls |
-| Log / status | `/tmp/cursor/shui-exact-tip6.log` · `/tmp/cursor/shui-exact-tip6.status` → `SHUI_EXIT=137` |
-| Prior tip5 | `cursor/v2711-shui-exact-tip5-bc54` @ `d96b2e867` PARTIAL; tip5-alive `7f8e0765b` EXIT137 tip-wins absorb — see [`SHUI-PUBLIC-PREFIX-EXACT-TIP5-STANDING.md`](./SHUI-PUBLIC-PREFIX-EXACT-TIP5-STANDING.md) / [`SHUI-PUBLIC-PREFIX-EXACT-TIP5-ALIVE-STANDING.md`](./SHUI-PUBLIC-PREFIX-EXACT-TIP5-ALIVE-STANDING.md) |
-| Prior tip-cargo ALIVE (lineage) | **held** — 4 passed; EXIT 0 @ `008a81d21` (ancestor of tip; blob `3cda065f`) — **not** reconfirmed this tip6 |
-| Crown absorb | **none** (EXIT≠0; push-first sidebranch only) |
+| Target dir | `/tmp/ggen-shui-exact-tip6` (isolated; warm-seeded) |
+| Constraint | `CARGO_BUILD_JOBS=1`; `build.jobs=1`; `--test-threads=1`; `CXX=g++`; `SCCACHE_DISABLE=1`; `RUSTC_WRAPPER=` |
+| Prior tip6 PARTIAL | `bc-c92c420b` / tip_base `c661d228a` — EXIT **137** — **superseded** |
+| Prior tip-cargo ALIVE (lineage) | `008a81d21` — retained; tip-subject now **ALIVE** |
+| Log / status | `/tmp/cursor/shui-exact-tip6-court.log` · `/tmp/cursor/shui-exact-tip6.status` → `SHUI_EXIT=0` |
 | ManagePullRequest | **not used** |
-| Force-push | **none** |
+| Force-push | sidebranch `--force-with-lease` only (supersede PARTIAL); **no** crown force |
 | Foundry ALIVE | **not claimed** |
 
 Standing vocabulary: `UNKNOWN` | `PARTIAL_ALIVE` | `ALIVE` | `BLOCKED` | `BUILD_BROKEN` | `UNSUPPORTED` | `REFUSED_*`.
 
-**Authority.** Tip6 push-first honesty: exclusive tip-cargo did **not** obtain EXIT 0 under pod thrash → standing **PARTIAL_ALIVE**. Prior tip-cargo **ALIVE** @ `008a81d21` remains lineage evidence only. Do **not** invent tip-subject `ALIVE`, tip-wins crown absorb, or Foundry `ALIVE` from source presence / lineage alone. Prior tip5/tip5-alive pins remain **PARTIAL_ALIVE**.
+**Authority.** Exact tip-cargo EXIT **0** on live crown `dd61fefb2` (court blob `3cda065f`) promotes Gate-1 shui public-prefix fence to **ALIVE (exact tip-cargo)**. Do **not** invent Foundry zero-HITL `ALIVE` or photolithography path crown `ALIVE` from this fence alone.
 
 ---
 
-## Why PARTIAL (not ALIVE)
+## Tip-cargo evidence
 
-| Check | Result |
-|-------|--------|
-| Tip carries strengthened `shui_public_prefix_court` (4 tests) | **YES** |
-| Court blob ≡ prior ALIVE blob `3cda065f` | **YES** |
-| Exact isolated tip-cargo EXIT 0 @ live tip within 25min | **NO** — EXIT **137** (SIGKILL before first cargo log line; thrash n≈7–8) |
-| Lineage tip-cargo ALIVE @ `008a81d21` | **held** (ancestor; not a tip-subject substitute) |
+| Court | Target | Result | Exit | Standing |
+|-------|--------|--------|------|----------|
+| `shui_public_prefix_court` | `/tmp/ggen-shui-exact-tip6` | **4 passed; 0 failed** | **0** | **ALIVE (exact tip-cargo)** |
+
+Tests exercised (all **ok**):
+
+- `shui_namespace_is_w3c_shacl_ui_slash_iri`
+- `shui_prefix_is_admitted_and_private_prefixes_remain_refused`
+- `shui_ui_property_group_and_editor_iris_are_open_admitted`
+- `unknown_turtle_prefix_is_refused_unknown`
 
 ---
 
-## Exact next verifier
+## Prior PARTIAL (retained history)
+
+Tip6 push-first @ `c661d228a` (`bc-c92c420b`) recorded EXIT **137** (instant SIGKILL under thrash / sibling exclusive guardians). That pin is retained as history only; standing for tip-subject tip-cargo is now **ALIVE**.
+
+---
+
+## Replay (exact)
 
 ```bash
 git fetch origin cursor/ecosystem-spec-27-1-1-bc54
 git rev-parse origin/cursor/ecosystem-spec-27-1-1-bc54
-# expect tip ⊇ c661d228a (⊇ cc2a4ea66 ⊇ 008a81d21); court blob 3cda065f
-df -h /tmp
-# Prefer quiet tip (thrash_n→0 concurrent oxrocksdb/cargo); exclusive jobs=1
+# expect tip ⊇ dd61fefb2; court blob 3cda065f
 export CXX=g++ SCCACHE_DISABLE=1 RUSTC_WRAPPER= CARGO_BUILD_JOBS=1
 export CARGO_TARGET_DIR=/tmp/ggen-shui-exact-tip6
 cargo test -p ggen-graph --test shui_public_prefix_court --locked \
   --config build.jobs=1 -- --test-threads=1
-# expect: 4 passed; 0 failed; EXIT 0 → promote this doc to tip-cargo ALIVE
+# expect: 4 passed; EXIT 0
 ```
-
-Until that EXIT **0**, keep standing **PARTIAL_ALIVE** — lineage ALIVE @ `008a81d21` is **not** a substitute for tip reconfirm.
 
 ---
 
 ## Compact return
 
 ```text
-tip_base=c661d228ac74ce4297ff73a396db5a1a24508979
+tip_base=dd61fefb29fa7ea6e1cf789f002ccd9879393988
 branch=cursor/v2711-shui-exact-tip6-bc54
-bc=bc-c92c420b
-EXIT=137
-standing=PARTIAL_ALIVE
-diagnostic=SIGKILL_instant_under_thrash_n≈8
-next=CARGO_TARGET_DIR=/tmp/ggen-shui-exact-tip6 cargo test -p ggen-graph --test shui_public_prefix_court --locked --config build.jobs=1 -- --test-threads=1
-lineage_alive=008a81d21
-crown_absorb=none ManagePullRequest=not_used force_push=none Foundry_ALIVE=not_claimed
+bc=bc-262603dc
+EXIT=0
+standing=ALIVE (exact tip-cargo)
+passed=4
+prior_partial=bc-c92c420b EXIT137 superseded
+next=Foundry zero-HITL / path crown not ALIVE; absorb tip-wins onto crown
+ManagePullRequest=not_used crown_force_push=none Foundry_ALIVE=not_claimed
 ```
