@@ -5,11 +5,11 @@
 | Document ID | `OUT-OF-REPO-NEXT-VERIFIERS` |
 | Companion | `ECOSYSTEM-SPEC-27.1.1`, `GATE-0-STANDING`, `GATE-3-RELEASE-COURTS-STANDING`, `FOUNDRY-FINISH-STANDING` |
 | Target GA | **2027-01-01** |
-| Observed ggen tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `61311cb53626906b5cf624eb8b0fba864eef1d80` |
+| Observed ggen tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `5e00619a422a0d8e451029f0aaf8b7a63e27da46` |
 | Materialized | 2026-11-22 |
 | Hardened | 2026-11-22 — `cursor/v2711-oor-ledger-harden-bc54` |
 | Ops refresh | 2026-11-22 — `cursor/v2711-ops-standing-refresh-bc54` (tip pin + probe reconfirm; standings held) |
-| Tip pin | 2026-11-22 — `cursor/v2711-oor-retip3-bc54` after crown tip `61311cb53` (standings held; no capability promotion; prior pin `0ae8d8108`) |
+| Tip pin | 2026-11-22 — `cursor/v2711-oor-retip2-bc54` after crown tip `5e00619a4` (standings held; no capability promotion; prior pin `61311cb53`) |
 | Repo scope | `seanchatmangpt/ggen` — **tracks** sibling standing; does not execute sibling DO |
 
 Standing vocabulary: `UNKNOWN` | `PARTIAL_ALIVE` | `ALIVE` | `BLOCKED` | `BUILD_BROKEN` | `UNSUPPORTED` | `REFUSED_*`.
@@ -150,6 +150,10 @@ ui-layout ALIVE pin `eaf0dad40` exit 0 absorb commit; standings held — no
 capability row promoted; no false `ALIVE`). Tip pin retipped on
 `cursor/v2711-oor-retip3-bc54` to live crown tip `61311cb53` (post–CCS+BRCE
 standing retip `61311cb53` / fmt gate `f1639510e`; standings held — no
-capability row promoted; no false `ALIVE`). Standings synthesized from
+capability row promoted; no false `ALIVE`). Tip pin retipped on
+`cursor/v2711-oor-retip2-bc54` to live crown tip `5e00619a4` (post–
+ui-layout JSON fixture harness `6ab75e6a3` + rustfmt tip fmt gate
+`5e00619a4`; standings held — no capability row promoted; no false
+`ALIVE`). Standings synthesized from
 existing v27.1.1 standing ledgers only. No sibling court was executed in this
 workspace pass. No out-of-repo row is asserted `ALIVE`.
