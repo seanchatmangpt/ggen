@@ -64,9 +64,10 @@ remains **BLOCKED_HITL**.
 
 | subject | standing | exact next |
 |---------|----------|------------|
-| Taffy tip7 | **ALIVE** EXIT:**0** @ `63da993cc` / absorb `4ebcb9d46` | sealed — no tip7 reopen unless sources drift |
-| shui tip7 | **ALIVE** EXIT:**0** **4**/4 @ live tip `50cfb1280` (`/tmp/gate1-tip7-shui.log`) — prior EXIT:**101** thrash **superseded**; sealed tip-cargo @ `a4b3d3fb4` held | sealed — replay only if sources drift |
-| uilayout tip7 | **ALIVE** EXIT:**0** **11**/11 @ live tip `50cfb1280` (warm `/tmp/gate1-tip7-shui`; `/tmp/gate1-tip7-uilayout.log`) — prior open/in-flight **superseded**; sealed tip-cargo @ `2685119bd` held | sealed — replay only if sources drift |
+| Taffy tip7 | **ALIVE** EXIT:**0** **7**/7 @ live tip `b07cda77c` (`/tmp/gate1-tip7-taffy.log`); prior absorb `4ebcb9d46` held | sealed |
+| shui tip7 | **ALIVE** EXIT:**0** **4**/4 @ live tip (`/tmp/gate1-tip7-shui.log`) — prior EXIT:**101** thrash **superseded**; sealed tip-cargo @ `a4b3d3fb4` held | sealed |
+| uilayout tip7 | **ALIVE** EXIT:**0** **11**/11 @ live tip (`/tmp/gate1-tip7-uilayout.log`) — prior open/in-flight **superseded**; sealed tip-cargo @ `2685119bd` held | sealed |
+| brand tip7 (completeness+hotswap+rhythm) | **ALIVE** EXIT:**0** **5+6+12** @ live tip (`/tmp/gate1-tip7-brand.log`); sealed tip-cargo @ `cfd93c1cb`/`c4e757a14` held | sealed |
 
 Companion: [`GATE1-TIP7-LIVE-RECONFIRM-STANDING.md`](./GATE1-TIP7-LIVE-RECONFIRM-STANDING.md). **≠ Foundry / path-crown ALIVE.**
 
