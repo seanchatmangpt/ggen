@@ -17,6 +17,8 @@ pub mod delta;
 pub mod diagnostics;
 pub mod dialect;
 pub mod doctor;
+/// ECOSYSTEM-SPEC-27.1.1 §11 R-01…R-07 resolution contract (ungrounded-close fence).
+pub mod ecosystem_risk;
 pub mod graph;
 pub mod interchangeable;
 pub mod layout;

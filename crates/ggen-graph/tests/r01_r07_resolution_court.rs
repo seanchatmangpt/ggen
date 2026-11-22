@@ -1,0 +1,159 @@
+//! Chicago court: ECOSYSTEM-SPEC-27.1.1 §11 R-01…R-07 resolution contract.
+//!
+//! AAA, no mocks. Real on-disk RFC + standing docs; real typed stub.
+//! Falsifier: `cargo test -p ggen-graph --test r01_r07_resolution_court`
+
+use std::path::PathBuf;
+
+use ggen_graph::ecosystem_risk::{
+    current_body_standing, is_known_risk_id, resolve_closure, ClosureClaim, ResolutionRefusal,
+    RiskBodyStanding, NEXT_VERIFIER_RISK_REGISTER, RISK_IDS,
+};
+
+fn workspace_root() -> PathBuf {
+    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .expect("crates/")
+        .parent()
+        .expect("workspace root")
+        .to_path_buf()
+}
+
+#[test]
+fn risk_id_set_is_exactly_r01_through_r07() {
+    // Arrange
+    let expected = ["R-01", "R-02", "R-03", "R-04", "R-05", "R-06", "R-07"];
+
+    // Act / Assert
+    assert_eq!(RISK_IDS, expected);
+    for id in expected {
+        assert!(is_known_risk_id(id));
+    }
+    assert!(!is_known_risk_id("R-08"));
+    assert!(!is_known_risk_id("R-00"));
+}
+
+#[test]
+fn closed_without_admitted_body_is_refused_ungrounded_for_every_r() {
+    // Arrange
+    let claim = ClosureClaim::Closed {
+        evidence: "invented-closure".into(),
+    };
+
+    // Act / Assert — each R-* refuses ungrounded closed claims
+    for id in RISK_IDS {
+        let err = resolve_closure(id, claim.clone(), false).expect_err("must refuse");
+        assert!(
+            matches!(
+                &err,
+                ResolutionRefusal::Ungrounded { risk_id } if risk_id == id
+            ),
+            "expected REFUSED_UNGROUNDED for {id}, got {err:?}"
+        );
+        let msg = err.to_string();
+        assert!(
+            msg.contains("REFUSED_UNGROUNDED"),
+            "refusal display must carry REFUSED_UNGROUNDED; got {msg}"
+        );
+    }
+}
+
+#[test]
+fn open_claim_is_admitted_while_bodies_remain_blocked() {
+    // Arrange / Act / Assert
+    for id in RISK_IDS {
+        resolve_closure(id, ClosureClaim::Open, false).expect("open must be ok");
+        assert_eq!(
+            current_body_standing(id).expect("known id"),
+            RiskBodyStanding::Blocked
+        );
+    }
+}
+
+#[test]
+fn closed_with_admitted_body_clears_ungrounded_gate() {
+    // Arrange — body admitted (register present); evidence court is later
+    let claim = ClosureClaim::Closed {
+        evidence: "register-digest:example".into(),
+    };
+
+    // Act / Assert
+    resolve_closure("R-03", claim, true).expect("admitted body clears ungrounded fence");
+}
+
+#[test]
+fn unknown_risk_id_is_refused() {
+    // Arrange / Act
+    let err = resolve_closure("R-99", ClosureClaim::Open, false).expect_err("unknown");
+
+    // Assert
+    assert!(matches!(err, ResolutionRefusal::UnknownId(_)));
+    assert!(err.to_string().contains("REFUSED_UNKNOWN_RISK_ID"));
+}
+
+#[test]
+fn ecosystem_spec_pins_resolution_contract_and_refused_ungrounded() {
+    // Arrange — real RFC on disk
+    let path = workspace_root().join("docs/rfc/v27.1.1/ECOSYSTEM-SPEC-27.1.1.md");
+    let text = std::fs::read_to_string(&path).unwrap_or_else(|e| panic!("read {path:?}: {e}"));
+
+    // Act / Assert — §11 contract surface
+    assert!(
+        text.contains("## 11. Unresolved risks R-01 … R-07"),
+        "ECOSYSTEM-SPEC must retain §11 R-01…R-07 heading"
+    );
+    assert!(
+        text.contains("REFUSED_UNGROUNDED"),
+        "ECOSYSTEM-SPEC must pin REFUSED_UNGROUNDED for ungrounded closed claims"
+    );
+    assert!(
+        text.contains("typed receipt or typed refusal before GA"),
+        "ECOSYSTEM-SPEC must pin typed receipt/refusal closure rule"
+    );
+    for id in RISK_IDS {
+        assert!(
+            text.contains(id),
+            "ECOSYSTEM-SPEC must enumerate {id}"
+        );
+    }
+}
+
+#[test]
+fn standing_doc_records_each_r_as_blocked_with_next_verifier() {
+    // Arrange — real standing companion on disk
+    let path = workspace_root().join("docs/rfc/v27.1.1/R01-R07-STANDING.md");
+    let text = std::fs::read_to_string(&path).unwrap_or_else(|e| panic!("read {path:?}: {e}"));
+
+    // Act / Assert
+    assert!(
+        text.contains("Document ID"),
+        "standing doc must identify itself"
+    );
+    assert!(
+        text.contains(NEXT_VERIFIER_RISK_REGISTER)
+            || text.contains("Admit risk-register bodies"),
+        "standing doc must name the risk-register next verifier"
+    );
+    for id in RISK_IDS {
+        assert!(
+            text.contains(id),
+            "standing doc must list {id}"
+        );
+        // Each crown row must be BLOCKED (body out-of-repo / unmounted)
+        let needle = format!("| {id} |");
+        assert!(
+            text.contains(&needle),
+            "standing table must have a row for {id}"
+        );
+    }
+    // Contract fence itself is in-repo / PARTIAL_ALIVE
+    assert!(
+        text.contains("PARTIAL_ALIVE") && text.contains("REFUSED_UNGROUNDED"),
+        "standing doc must record the in-repo resolution-contract fence as PARTIAL_ALIVE"
+    );
+    assert!(
+        text.matches("| **BLOCKED** |").count() >= 7
+            || text.matches("| BLOCKED |").count() >= 7,
+        "standing doc must mark all seven R-* body rows BLOCKED"
+    );
+}
