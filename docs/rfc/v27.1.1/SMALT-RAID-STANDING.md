@@ -6,7 +6,7 @@
 | Companion | `ECOSYSTEM-SPEC-27.1.1` (economic-ops / Gate-0–Plane-5 adjacent) |
 | Target GA | **2027-01-01** |
 | Materialized | 2026-11-22 |
-| Observed ggen tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `79b64496b7cdf8a5db5782b0cdbe633f44ac4bbf` (tip-wins absorb of sidebranch `7334aa971` / `cursor/v2711-smalt-mix-courts-bc54`; crown ⊇ OOR retip12 `79b64496b` + affidavit size-court `7ddfd8b6e`/`41c09d019` + BRCE V8/R01 `1dbf1cc2e` + verify_witness prod `fe72be0fb` + Smalt GA residual `9173c6529`; smalt evidence pin held). |
+| Observed ggen tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `893070836ef83ab711e657cfacc98bb4dc7ea369` (exact-tip retip2 `cursor/v2711-smalt-raid-retip2-bc54`; smalt evidence pins held @ `875efbb87`/`91997da76f0f`; prior mix absorb `79b64496b` ⊆ tip). |
 | Observed smalt tip | FinOps `91997da76f0f356dc2be914bdb0a5b8227518719` on smalt `cursor/v2711-smalt-finops-test-bc54` (parent `875efbb87bde8422236cf9db7224412962dbc5a7` = smalt `main` @ probe; 4-cloud courts `bc-ad9ebffa` + residual mix courts `bc-c700dafb`) |
 | Crown standing (from ggen) | **ALIVE** (Smalt RAID / GA economic face) — **6-column spine ALIVE** (doctor/aws/gcp/azure/twilio **0,0,0,0,0** @ `875efbb87` + `fin_ops` **ALIVE** @ `91997da76f0f`) **and** §4.3 residual b4b courts **ALIVE** @ `91997da76f0f` (treasury/tax/erp/rates exits **0,0,0,0**). Foundry / zero-HITL crown **≠** this claim — do **not** invent Foundry `ALIVE`. |
 
@@ -321,3 +321,19 @@ affidavit size-court honesty, BRCE V8/R01 bodies, and verify_witness prod
 honesty; smalt pin `91997da76f0f` **held**; residual **ALIVE**; Smalt RAID /
 GA economic face **ALIVE**; Foundry / zero-HITL crown remains **PARTIAL** —
 **not** invented; no cargo; no ManagePullRequest.
+
+---
+
+## 8. Exact-tip retip2 vs tip `893070836` (2026-11-22)
+
+| Field | Value |
+|-------|-------|
+| Agent | `bc-10c8f83c-8d4c-5129-afad-fd7222733773` |
+| Branch | `cursor/v2711-smalt-raid-retip2-bc54` from live crown `893070836ef83ab711e657cfacc98bb4dc7ea369` (**no** crown absorb; no ManagePullRequest) |
+| Observed ggen tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `893070836ef83ab711e657cfacc98bb4dc7ea369` |
+| Observed smalt tips | `main` @ `875efbb87bde8422236cf9db7224412962dbc5a7`; FinOps branch @ `91997da76f0f356dc2be914bdb0a5b8227518719` (ls-remote reconfirm) |
+| Narrowest court this env | in-ggen RAID falsifier `rg` → **0** material hits outside rfc; FinOps blob `test/fin_ops_calculator_test.exs` **PRESENT** @ `91997da76f0f` (gh raw); mix/elixir **ABSENT**; smalt mount **ABSENT** |
+| EXIT | **0** (rg falsifier empty; fin_ops blob probe ok) — mix courts **not re-run** (UNSUPPORTED this env) |
+| Standing | Smalt RAID / GA economic face **ALIVE** **held** from sibling authority (`bc-ad9ebffa` 4-cloud exits **0,0,0,0,0** @ `875efbb87` + FinOps **ALIVE** @ `91997da76f0f` + residual **ALIVE** @ `bc-c700dafb`) — tip pin only; **not** a new Foundry claim |
+| Foundry / zero-HITL | **not** promoted — Smalt RAID ALIVE ≠ Foundry ALIVE |
+| Exact next verifier | In mounted smalt @ `91997da76f0f`: `just doctor` + `mix test test/aws|gcp|data_plane test/internal|twilio|fin_ops_calculator_test.exs` + residual treasury/tax/erp/rates → exits **0** |
