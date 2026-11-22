@@ -55,15 +55,18 @@ name = "space-fluid-sm"
 min_px = 8
 preferred = "2cqi"
 max_px = 16
+slope_cqi = 2.0
 
 [[rhythm.fluid]]
 name = "space-fluid-md"
 min_px = 16
 preferred = "4cqi"
 max_px = 32
+slope_cqi = 4.0
 
 [[rhythm.fluid]]
 name = "type-body-fluid"
 min_px = 16
 preferred = "2.5cqi"
 max_px = 20
+slope_cqi = 2.5

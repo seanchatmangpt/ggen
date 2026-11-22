@@ -1,10 +1,37 @@
-# CindyCat — Gate-1 DTCG 2025.10 brand rhythm stub
-# Human-authored visual rhythm only (px/rem, 4px/8px grid, fluid clamp/cqi,
-# Material 48 / Apple 44 touch floors, 8px inter-target gap).
-# Color / type / CASTLE inventories remain Gate 2+.
+# CindyCat — DTCG 2025.10 brand + CindyCat-first patronage messaging
+# Gate-1 rhythm court: px/rem, 4px/8px grid, fluid clamp/cqi + explicit slope_cqi,
+# Material 48 / Apple 44 touch floors, 8px inter-target gap.
+# Color / type / CASTLE inventories remain Gate 2+ (not invented here).
+# Messaging slots are plain TOML keys for castle publish + ggen —
+# no private ontology namespaces.
 
 dtcg_version = "2025.10"
 brand_id = "cindycat"
+
+[brand]
+id = "cindycat"
+name = "CindyCat"
+short_name = "CindyCat"
+tagline = "Reverse Gloo"
+house = "woman-owned house"
+
+[messaging.patronage]
+headline = "Her Patronage Restored"
+fair_pay = "Luke 10:7 fair pay"
+custody = "0% custody"
+skimming = "0.00% skimming"
+tagline = "Reverse Gloo"
+house = "woman-owned house"
+
+[messaging.commercial]
+custody_pct = 0.0
+skimming_pct = 0.0
+transaction_rent_pct = 0.0
+
+[tokens.dtcg]
+spec_version = "2025.10"
+surface_target = "css-theme-spacing"
+surface_target_note = "Gate-1 rhythm is the spacing token surface; color/type/CASTLE inventories Gate 2+."
 
 [rhythm]
 rem_base_px = 16
@@ -55,15 +82,18 @@ name = "space-fluid-sm"
 min_px = 4
 preferred = "1.5cqi"
 max_px = 12
+slope_cqi = 1.5
 
 [[rhythm.fluid]]
 name = "space-fluid-md"
 min_px = 12
 preferred = "3cqi"
 max_px = 24
+slope_cqi = 3.0
 
 [[rhythm.fluid]]
 name = "type-body-fluid"
 min_px = 16
 preferred = "2cqi"
 max_px = 20
+slope_cqi = 2.0

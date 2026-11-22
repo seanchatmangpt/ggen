@@ -5,7 +5,7 @@
 //! `cargo test -p ggen-graph --test taffy_aot_preflight_court -- six_width_seal_admits_valid_layout_under_1_5x`
 
 use ggen_graph::layout::taffy_aot::{
-    preflight_column, preflight_column_six_widths, AotColumn, AotLeaf, AotRefusal,
+    preflight_column, preflight_column_six_widths, AotColumn, AotLeaf, AotRefusal, LayoutRefusal,
     VIEWPORT_WIDTHS_PX, WCAG_1412_TEXT_SPACING,
 };
 
@@ -55,12 +55,18 @@ fn overflow_at_375_with_text_spacing_1_5x_is_refused() {
         "fixture must admit at 1.0× spacing; got {at_1x:?}"
     );
     match at_1_5x {
-        Err(AotRefusal::Overflow {
+        Err(LayoutRefusal::Overflow {
             viewport_width_px,
             text_spacing,
-            ..
+            leaf_id,
+            content_right_px,
         }) => {
-            assert_eq!(viewport_width_px, 375);
+            assert_eq!(
+                viewport_width_px, 375,
+                "Overflow must name the failing width"
+            );
+            assert_eq!(leaf_id, "hero_copy");
+            assert!(content_right_px > 375.0);
             assert!(
                 (text_spacing - 1.5).abs() < f32::EPSILON,
                 "expected 1.5× spacing, got {text_spacing}"
@@ -86,8 +92,8 @@ fn valid_layout_at_375_with_text_spacing_1_5x_is_admitted() {
 }
 
 #[test]
-fn touch_target_under_44px_is_refused() {
-    // Arrange
+fn layout_refusal_touch_target_too_small_names_width_and_node() {
+    // Arrange — interactive leaf below 44×44 floor at Gate-1 width 393
     let column = AotColumn {
         gap_px: 8.0,
         children: vec![AotLeaf {
@@ -100,11 +106,26 @@ fn touch_target_under_44px_is_refused() {
     };
 
     // Act
-    let result = preflight_column(&column, 375.0, WCAG_1412_TEXT_SPACING);
+    let result = preflight_column(&column, 393.0, WCAG_1412_TEXT_SPACING);
 
     // Assert
     match result {
-        Err(AotRefusal::TouchTargetTooSmall { min_px, .. }) => {
+        Err(LayoutRefusal::TouchTargetTooSmall {
+            viewport_width_px,
+            text_spacing,
+            leaf_id,
+            width_px,
+            height_px,
+            min_px,
+        }) => {
+            assert_eq!(
+                viewport_width_px, 393,
+                "TouchTargetTooSmall must name the failing width"
+            );
+            assert!((text_spacing - WCAG_1412_TEXT_SPACING).abs() < f32::EPSILON);
+            assert_eq!(leaf_id, "tiny_hit", "must name the failing node");
+            assert!(width_px + f32::EPSILON < 44.0);
+            assert!(height_px + f32::EPSILON < 44.0);
             assert_eq!(min_px, 44);
         }
         other => panic!("expected TouchTargetTooSmall, got {other:?}"),
@@ -112,8 +133,8 @@ fn touch_target_under_44px_is_refused() {
 }
 
 #[test]
-fn gap_under_8px_is_refused() {
-    // Arrange
+fn layout_refusal_gap_too_small_names_width() {
+    // Arrange — declared sibling gap 4 < 8 at Gate-1 width 600
     let column = AotColumn {
         gap_px: 4.0,
         children: vec![
@@ -135,11 +156,22 @@ fn gap_under_8px_is_refused() {
     };
 
     // Act
-    let result = preflight_column(&column, 375.0, WCAG_1412_TEXT_SPACING);
+    let result = preflight_column(&column, 600.0, WCAG_1412_TEXT_SPACING);
 
     // Assert
     match result {
-        Err(AotRefusal::GapTooSmall { min_px, .. }) => {
+        Err(LayoutRefusal::GapTooSmall {
+            viewport_width_px,
+            text_spacing,
+            gap_px,
+            min_px,
+        }) => {
+            assert_eq!(
+                viewport_width_px, 600,
+                "GapTooSmall must name the failing width"
+            );
+            assert!((text_spacing - WCAG_1412_TEXT_SPACING).abs() < f32::EPSILON);
+            assert!((gap_px - 4.0).abs() < f32::EPSILON);
             assert_eq!(min_px, 8);
         }
         other => panic!("expected GapTooSmall, got {other:?}"),
@@ -232,5 +264,44 @@ fn six_width_seal_refuses_overflow_only_at_320_naming_failing_width() {
             assert_eq!(leaf_id, "narrow_copy");
         }
         other => panic!("expected Overflow at 320 from six-width seal, got {other:?}"),
+    }
+}
+
+#[test]
+fn layout_refusal_overlap_names_width_and_nodes() {
+    // Arrange — negative gap stacks siblings into overlapping rects at 840
+    let column = AotColumn {
+        gap_px: -20.0,
+        children: vec![
+            AotLeaf {
+                id: "upper_card".into(),
+                width_px: 200.0,
+                height_px: 48.0,
+                is_text: false,
+                is_interactive: true,
+            },
+            AotLeaf {
+                id: "lower_card".into(),
+                width_px: 200.0,
+                height_px: 48.0,
+                is_text: false,
+                is_interactive: true,
+            },
+        ],
+    };
+    let result = preflight_column(&column, 840.0, WCAG_1412_TEXT_SPACING);
+    match result {
+        Err(LayoutRefusal::Overlap {
+            viewport_width_px,
+            text_spacing,
+            a_id,
+            b_id,
+        }) => {
+            assert_eq!(viewport_width_px, 840, "Overlap must name the failing width");
+            assert!((text_spacing - WCAG_1412_TEXT_SPACING).abs() < f32::EPSILON);
+            assert_eq!(a_id, "upper_card");
+            assert_eq!(b_id, "lower_card");
+        }
+        other => panic!("expected Overlap refusal naming nodes, got {other:?}"),
     }
 }

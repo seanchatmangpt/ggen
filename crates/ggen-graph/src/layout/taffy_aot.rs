@@ -85,6 +85,9 @@ impl AotSealReceipt {
 }
 
 /// Typed refusals for AOT geometry law failures.
+///
+/// Public surface name: [`LayoutRefusal`]. Every geometry variant carries
+/// `viewport_width_px` so courts fail closed naming the failing width.
 #[derive(Debug, Clone, PartialEq)]
 pub enum AotRefusal {
     Overflow {
@@ -117,6 +120,9 @@ pub enum AotRefusal {
     LayoutEngine { message: String },
 }
 
+/// Gate-1 layout typed-error surface (alias of [`AotRefusal`]).
+pub type LayoutRefusal = AotRefusal;
+
 /// Run Taffy AOT pre-flight for `column` at `viewport_width_px` under `text_spacing`.
 ///
 /// Text leaves have their preferred size multiplied by `text_spacing` before layout
@@ -128,7 +134,10 @@ pub fn preflight_column(
 ) -> Result<AotReceipt, AotRefusal> {
     let viewport_u = viewport_width_px.round() as u32;
 
-    if column.children.len() >= 2 && column.gap_px + f32::EPSILON < MIN_GAP_PX {
+    if column.children.len() >= 2
+        && column.gap_px >= 0.0
+        && column.gap_px + f32::EPSILON < MIN_GAP_PX
+    {
         return Err(AotRefusal::GapTooSmall {
             viewport_width_px: viewport_u,
             text_spacing,
@@ -175,7 +184,8 @@ pub fn preflight_column(
                 },
                 gap: Size {
                     width: LengthPercentage::length(0.0),
-                    height: LengthPercentage::length(column.gap_px.max(0.0)),
+                    // Preserve signed gap so negative fixtures can surface Overlap.
+                    height: LengthPercentage::length(column.gap_px),
                 },
                 ..Default::default()
             },
