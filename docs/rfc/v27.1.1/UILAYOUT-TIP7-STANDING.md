@@ -15,7 +15,7 @@ standing=ALIVE
 prior_exact_tip6=PARTIAL_then_absorbed_ALIVE@7b38c25b4
 prior_alive_lineage=a508e6bae / sealed 2685119bd (11 passed)
 shui_tip7_peer=ALIVE EXIT0 @ ae34bf4bc /tmp/tip7-serial
-crown_absorb=ABSORBED@ef3df3a8e→4dfbee817←97c162181
+crown_absorb=ABSORBED@ef3df3a8e→02942a9f1←97c162181
 ManagePullRequest=not_used
 force_push=none
 Foundry_ALIVE=not_claimed
@@ -37,7 +37,7 @@ Foundry_ALIVE=not_claimed
 | Log / status | `/tmp/cursor/uilayout-tip7-retry.log` · `/tmp/cursor/uilayout-tip7-retry.status` → `UILAYOUT_EXIT=0` |
 | Sibling `ui-layout-court.ts` | **UNSUPPORTED** |
 | Prior tip-cargo ALIVE (lineage) | **held** — **11 passed; EXIT 0** @ `2685119bd` / lineage `a508e6bae` |
-| Crown absorb | **PENDING** tip-wins onto `cursor/ecosystem-spec-27-1-1-bc54` |
+| Crown absorb | **ABSORBED** tip-wins onto `cursor/ecosystem-spec-27-1-1-bc54` @ pre-absorb `ef3df3a8e31b4ea49e3057d4b95cf21562fe5127` → absorb `02942a9f18086d5cdfa7994ab3d42513b28ef23d` (side `97c1621811c539d50dd3e1475d22a649a002d875`) |
 | ManagePullRequest | **not used** |
 | Force-push | **none** |
 | Foundry ALIVE | **not claimed** |
@@ -110,5 +110,5 @@ standing=ALIVE
 target=/tmp/tip7-serial
 shui_tip7=ALIVE
 lineage_alive=2685119bd/a508e6bae
-crown_absorb=ABSORBED@ef3df3a8e→4dfbee817←97c162181 ManagePullRequest=not_used force_push=none Foundry_ALIVE=not_claimed
+crown_absorb=ABSORBED@ef3df3a8e→02942a9f1←97c162181 ManagePullRequest=not_used force_push=none Foundry_ALIVE=not_claimed
 ```
