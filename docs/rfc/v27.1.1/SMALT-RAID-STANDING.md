@@ -6,7 +6,7 @@
 | Companion | `ECOSYSTEM-SPEC-27.1.1` (economic-ops / Gate-0–Plane-5 adjacent) |
 | Target GA | **2027-01-01** |
 | Materialized | 2026-11-22 |
-| Observed ggen tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `27436608c49224dfdc2e557a49f5030a1ab60e5e` (absorb #928 Clause-3 Smalt retip `89cf4807a` onto tip past #926; lineage ⊇ `a29e1cd92`/`60b15c778`) |
+| Observed ggen tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `1f335ea82cdd771215a9ede8b13393d847ed6b29` (honesty tip-pin after Gate-1 retip `1f335ea82`; lineage ⊇ `27436608c`/`e73bf686c`/`a508e6bae`; smalt evidence unchanged) |
 | Observed smalt tip | FinOps `91997da76f0f356dc2be914bdb0a5b8227518719` (parent `875efbb87bde8422236cf9db7224412962dbc5a7`; 4-cloud courts `bc-ad9ebffa` + retry `bc-1e876087`) |
 | Crown standing (from ggen) | **PARTIAL_ALIVE** (full RAID / remaining GA economic face / b4b still open) — **6-column spine ALIVE**: doctor/aws/gcp/azure/twilio exits **0,0,0,0,0** @ `875efbb87`; `fin_ops` **ALIVE** @ `91997da76f0f` (`mix test test/fin_ops_calculator_test.exs` → exit **0**, **19 passed**). Never invent full RAID / Foundry crown `ALIVE`. |
 
@@ -187,12 +187,12 @@ rg -i -n '\bRAID\b|4-cloud|economic.?ops' \
 
 | Field | Value |
 |-------|-------|
-| Observed ggen tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `27436608c49224dfdc2e557a49f5030a1ab60e5e` (⊇ `a29e1cd92`/`60b15c778`) |
+| Observed ggen tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `1f335ea82cdd771215a9ede8b13393d847ed6b29` (⊇ `27436608c`/`e73bf686c`) |
 | Observed smalt tip | `91997da76f0f` (FinOps) / parent `875efbb87` (4-cloud) via `bc-ad9ebffa` + `bc-1e876087` |
-| Sibling mount in this ggen workspace | probe checkout `/tmp/smalt-raid-probe` @ `875efbb87` (+ fetched `91997da76f0f` blob); mix/elixir **ABSENT** this env |
-| 4-cloud exits (authority) | doctor=**0** aws=**0** gcp=**0** azure=**0** twilio=**0** @ `875efbb87` (`bc-ad9ebffa`) |
-| FinOps (authority) | **ALIVE** @ `91997da76f0f` — `mix test test/fin_ops_calculator_test.exs` → exit **0**, **19 passed** |
-| This-env light probe | `python3 scripts/doctor.py` → exit **1** (`elixir` ABSENT + dev-certs/tmp-dirs); column paths aws/gcp/azure/twilio **PRESENT**; `fin_ops` test blob **PRESENT** @ `91997da76f0f` / **ABSENT** @ `875efbb87`; mix courts **UNSUPPORTED** here — does **not** demote sibling authority |
+| Sibling mount in this ggen workspace | **not mounted**; GitHub blob reconfirm `test/fin_ops_calculator_test.exs` **PRESENT** @ `91997da76f0f` (parent `875efbb87`); mix/elixir **ABSENT** this env |
+| 4-cloud exits (authority) | doctor=**0** aws=**0** gcp=**0** azure=**0** twilio=**0** @ `875efbb87` (`bc-ad9ebffa`) — retained; no new mix courts this pass |
+| FinOps (authority) | **ALIVE** @ `91997da76f0f` — `mix test test/fin_ops_calculator_test.exs` → exit **0**, **19 passed** — retained; blob **PRESENT** |
+| This-env light probe | mix courts **UNSUPPORTED** here (no cargo / no smalt mount; ui_layout owns oxrocksdb) — does **not** demote sibling authority |
 | 6-column spine standing | **ALIVE** (doctor/aws/gcp/azure/twilio/fin_ops) |
 | Ledger crown | **PARTIAL_ALIVE** — full RAID / remaining GA economic face / b4b / Foundry crown **not** `ALIVE` |
 | Next verifier | §4.3 remaining GA economic face / b4b courts |
@@ -218,3 +218,9 @@ stale `fin_ops` **PARTIAL**/`ABSENT` prose until Clause-3 ops retip
 header + ECOSYSTEM §13.3 aligned to 6-column spine **ALIVE**; full RAID
 ledger crown stays **PARTIAL_ALIVE**; Foundry / zero-HITL crown **not**
 invented; tip-cargo exclusive flock spared; no cargo.
+
+Honesty tip-pin 2026-11-22 on `cursor/v2711-smalt-raid-honesty-5517` onto live
+crown tip `1f335ea82` (post–Gate-1 honesty retip): Observed ggen tip advanced
+from stale `27436608c` → `1f335ea82`; smalt evidence pins **held** (`875efbb87`
+4-cloud + `91997da76f0f` FinOps); ledger crown remains **PARTIAL_ALIVE**; full
+RAID / Foundry crown `ALIVE` **not** invented; no cargo; no ManagePullRequest.
