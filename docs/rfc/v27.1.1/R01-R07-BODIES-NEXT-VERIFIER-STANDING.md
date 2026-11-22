@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|-------|
 | Document ID | `R01-R07-BODIES-NEXT-VERIFIER-STANDING-27.1.1` |
-| Branch | tip-wins absorb of `cursor/v2711-brce-bodies-next-bc54` @ `ba5d26903` (bodies pin `21e4cb941`) onto crown via `cursor/v2711-oor15-curve-absorb-ded8` |
+| Branch | tip-wins absorb of `cursor/v2711-brce-bodies-next-bc54` @ `4f9a3685e` (bodies pin `6e227c187`; prior absorb `ba5d26903`/`21e4cb941` content-≡) onto crown via `cursor/v2711-webauthn-bodies-absorb-edb4` |
 | Spec binding | `ECOSYSTEM-SPEC-27.1.1` §11 / D7; OOR **G3-5** / BRCE **V10** |
 | Companions | [`R01-R07-STANDING.md`](./R01-R07-STANDING.md) §2; [`R01-R07-TIP-CARGO-STANDING.md`](./R01-R07-TIP-CARGO-STANDING.md); [`BRCE-V8-NEXT-VERIFIER-STANDING.md`](./BRCE-V8-NEXT-VERIFIER-STANDING.md); [`BRCE-WEBAUTHN-STANDING.md`](./BRCE-WEBAUTHN-STANDING.md) §5 **V10**; [`CCS-BRCE-STANDING.md`](./CCS-BRCE-STANDING.md) §2; [`OUT-OF-REPO-NEXT-VERIFIERS.md`](./OUT-OF-REPO-NEXT-VERIFIERS.md) **G3-5** |
 | Observed ggen tip (side base) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `bebea5dd0d4c9af533457e04e0ed068ae8844f69` (⊇ HITL retip2 **BLOCKED_HITL** + zcode refusal **ALIVE** + OOR retip14) |
@@ -133,5 +133,9 @@ V8 residual (orthogonal): [`BRCE-V8-NEXT-VERIFIER-STANDING.md`](./BRCE-V8-NEXT-V
 | Event | Note |
 |-------|------|
 | Side-branch pin | 2026-11-22 — `cursor/v2711-brce-bodies-next-bc54` @ `21e4cb941` from crown tip `bebea5dd0` (`bc-6fa5335f`); docs-only; bodies **BLOCKED**; contract **ALIVE** retained; **no** V8/body `ALIVE`; no cargo; no ManagePullRequest; **no** crown push |
+| Content tip re-pin | 2026-11-22 — sidebranch tip `4f9a3685e` / bodies pin `6e227c187` (content-≡ prior `ba5d26903`/`21e4cb941`); bodies remain **BLOCKED** |
+| Tip-wins absorb (timer settle) | 2026-11-22 — `cursor/v2711-timer-settle-bb41` tip-wins cites `4f9a3685e` onto crown tip `a85bebfb2` (⊇ webauthn-retip2 **UNSUPPORTED** + OOR retip15 + curve + HITL/zcode); standing **BLOCKED** held; **no** body/`ALIVE`; no cargo; no ManagePullRequest; push `HEAD:cursor/ecosystem-spec-27-1-1-bc54` (no force) |
+| Content tip re-pin | 2026-11-22 — sidebranch tip `4f9a3685e` / bodies pin `6e227c187` (file blob content-≡ prior `ba5d26903`/`21e4cb941`); bodies remain **BLOCKED** |
+| Tip-wins absorb (content tip) | 2026-11-22 — tip-wins absorb `cursor/v2711-brce-bodies-next-bc54` @ `4f9a3685e` onto crown tip `a85bebfb2` (⊇ webauthn-retip2 **UNSUPPORTED** @ `7ac7fee56` content) via `cursor/v2711-webauthn-bodies-absorb-edb4`; bodies **BLOCKED** held; **no** invented body/V8 `ALIVE`; docs-only; no cargo; no ManagePullRequest; push `HEAD:cursor/ecosystem-spec-27-1-1-bc54` (no force) |
 | Prior evidence chain | `r01_r07_resolution_court` tip-cargo **ALIVE** @ `e7569893a` → R01-R07 standing bodies **BLOCKED** → BRCE-V8-NEXT bodies **BLOCKED** ahead of / parallel to V8 → OOR **G3-5** still open → this NEXT-VERIFIER honesty pin |
 | Replay | `test -f docs/rfc/v27.1.1/R01-R07-BODIES-NEXT-VERIFIER-STANDING.md` && `rg -n 'BLOCKED|REFUSED_UNGROUNDED|G3-5' docs/rfc/v27.1.1/R01-R07-BODIES-NEXT-VERIFIER-STANDING.md` |
