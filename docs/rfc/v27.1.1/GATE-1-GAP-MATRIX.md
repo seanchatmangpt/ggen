@@ -36,9 +36,18 @@ Witness harness sources ≡ crown `513704d04` / `678a6c106`. Production WASM rem
 on same commit; production theme **UNSUPPORTED** — do **not** attribute brand rhythm tip-cargo to
 ancestor doc-only `27436608c` pre-fix).
 
+**Tip-exclusive ui_layout reconfirm (2026-11-22):** `cursor/uilayout-retry-alive-dbe1` /
+`bc-921ca9e3` — after reclaim of orphan `/tmp/ggen-uilayout-0ae8-protected` (62G; prior
+**BLOCKED_ENOSPC** @ `c329b7ee5`), quiet
+`CXX=g++ SCCACHE_DISABLE=1 RUSTC_WRAPPER= CARGO_BUILD_JOBS=1 cargo test -p ggen-graph --test ui_layout_court --locked --target-dir /tmp/ggen-uilayout-retry-9d4a --config build.jobs=1 -- --test-threads=1`
+on detached tip → **11 passed; 0 failed; exit 0** @ evidence `59c090984` (harness sources
+byte-identical through crown tip `6e78d4347`; receipt `/tmp/cursor/uilayout-retry-9d4a.md`).
+Label **ALIVE (lineage tip-cargo)** — cargo SHA ⊆ live crown; exact-tip reconfirm deferred
+while r01 oxrocksdb exclusive. Not a standing demotion — ENOSPC was environmental.
+
 **Evidence refresh / ui_layout absorb:** `cursor/v2711-uilayout-tip-alive-bc54` @ `8090022f4` → lineage
 `120598fb3e395393d0ebe7fd86537bb499fc670d` … crown `678a6c106` (hop-5 runtime **PRESENT** / model access
-**REFUSED**; ui_layout tip-cargo **ALIVE** @ `ca52e9c16`).
+**REFUSED**; ui_layout tip-cargo **ALIVE** @ `ca52e9c16`; tip-exclusive reconfirm **ALIVE** (lineage tip-cargo) @ `59c090984`).
 Truex+shui product admit → **ALIVE** (sibling **6/6 vitest exit 0** @
 `truex@68d2d2331696f18949f4877b994320018b6365e5` — [truex#6](https://github.com/seanchatmangpt/truex/pull/6)
 **MERGED** to `main` as `b4672131`; mount `/tmp/truex`; receipt
@@ -59,14 +68,16 @@ crown `19c08a3b0`); **production theme** → **UNSUPPORTED**.
 **COMPILING** / **PARTIAL_ALIVE** — source/courts on tip; **no tip EXIT:0** this retip (do
 **not** crown-row tip-cargo `ALIVE` from ancestor `26256ca9d` / logic-twin alone).
 `verify_witness_size_court` tip-cargo **ALIVE** — **6 passed; exit 0** @ `c91b22561`;
-production WASM **UNSUPPORTED**. **ui_layout tip-cargo ALIVE** —
-exclusive quiet `CXX=g++ SCCACHE_DISABLE=1 CARGO_BUILD_JOBS=1 cargo test -p ggen-graph --test ui_layout_court --locked` under flock `/tmp/ggen-uilayout-tip-alive-protected` →
-**11 passed; 0 failed; exit 0** on tip lineage `ca52e9c1679d66d38d6cf7e196195ee758bee597`
-(absorb `8090022f4` / `cursor/v2711-uilayout-tip-alive-bc54`). Remaining Gate-1 fences
-(BRCE seat tip-cargo, R-01 tip EXIT:0, brand rhythm/completeness tip EXIT:0) stay
-**PENDING** / **COMPILING**. Ancestor evidence `eaf0dad40287a3347280a541766b3b16f3978cf8`
-retained. **FM-PACK-001** `packs/gh-terraform-pack` → **PRESENT** (presence only;
-composed e2e SKIPPED). Gate-0 **cos** → **BLOCKED** (external; `/readyz` **503**). Historical court exits remain on ancestor
+production WASM **UNSUPPORTED**. **ui_layout ALIVE (lineage tip-cargo)** —
+tip-exclusive reconfirm **11 passed; 0 failed; exit 0** @ evidence `59c090984`
+(`bc-921ca9e3`; sources ≡ tip `6e78d4347`; ENOSPC closed; absorb
+`cursor/uilayout-retry-alive-dbe1` @ `f774a3a0b`). Prior lineage **11** @
+`ca52e9c16` retained. Exact-tip reconfirm deferred while r01 oxrocksdb exclusive.
+Remaining Gate-1 fences (BRCE seat tip-cargo, R-01 tip EXIT:0, brand
+rhythm/completeness tip EXIT:0) stay **PENDING** / **COMPILING**. Ancestor
+evidence `eaf0dad40287a3347280a541766b3b16f3978cf8` retained. **FM-PACK-001**
+`packs/gh-terraform-pack` → **PRESENT** (presence only; composed e2e SKIPPED).
+Gate-0 **cos** → **BLOCKED** (external; `/readyz` **503**). Historical court exits remain on ancestor
 `0478fde59644cccd60c5a88d64d444ec292e6a3c` (≥ `a54b9803`) and prior ui-layout
 evidence `eaf0dad40287a3347280a541766b3b16f3978cf8` — both ancestors of tip.
 
@@ -124,7 +135,7 @@ Do not promote any Gate 0 row to `ALIVE` from this repository.
 | Admit W3C `shui:` as public vocab (ggen fence) | **ALIVE** (tip-cargo on crown) — **4 passed; exit 0** @ crown `008a81d21` (`CARGO_TARGET_DIR=/tmp/ggen-shui-prefix-target2`; `cursor/v2711-shui-prefix-alive-bc54`). Lineage evidence `26256ca9d` retained. Ancestor `0478fde59` (**3 passed**). Truex product admit is a separate row (**ALIVE**, sibling merged). | crown `008a81d21` (prior cargo `26256ca9d`) | `CARGO_BUILD_JOBS=1 CARGO_TARGET_DIR=/tmp/ggen-shui-prefix-target2 cargo test -p ggen-graph --test shui_public_prefix_court --locked` | **ggen** (fence) |
 | Truex runtime admits `shui:` shapes | **ALIVE** — sibling Chicago admit-court **6/6 vitest exit 0** on `seanchatmangpt/truex` @ `68d2d2331696f18949f4877b994320018b6365e5` ([truex#6](https://github.com/seanchatmangpt/truex/pull/6) **MERGED** → `main` merge `b4672131`; mount `/tmp/truex`; not re-run in this audit). ggen `shui:` fence tip-cargo **ALIVE** (lineage) @ `26256ca9d`. | truex@`68d2d233` (merged; on `main` via `b4672131`) | Replay: `pnpm exec vitest run test/admit/admit-court.test.ts` → exit 0 @ `68d2d233`. Companion fence (non-substitute): `cargo test -p ggen-graph --test shui_public_prefix_court` | **truex** |
 | Taffy AOT pre-flight (widths 320/375/414/768/1024/1440 + WCAG 1.4.12 1.5×) | **ALIVE** (exact tip-cargo) — **7 passed; exit 0** @ crown `19c08a3b0` absorb @ `cde02d1f2` (`cursor/v2711-taffy-brand-absorb-a77d`; `/tmp/gate1-taffy`). Lineage `26256ca9d` retained. Photolithography / zcode-cli consume still open → path **PARTIAL_ALIVE**. Hop: [`PHOTOLITHOGRAPHY-STANDING.md`](./PHOTOLITHOGRAPHY-STANDING.md). | absorb tip `fdcad534d` (cargo `19c08a3b0` / `cde02d1f2`) | `CARGO_BUILD_JOBS=1 CARGO_TARGET_DIR=/tmp/gate1-taffy cargo test -p ggen-graph --test taffy_aot_preflight_court --locked` | **ggen** |
-| ggen `ui-layout-court` (AotSealReceipt digest consume) | **ALIVE** (lineage tip-cargo) — exclusive quiet `CXX=g++ SCCACHE_DISABLE=1 CARGO_BUILD_JOBS=1 cargo test -p ggen-graph --test ui_layout_court --locked` under `/tmp/ggen-uilayout-tip-alive-protected` → **11 passed; 0 failed; exit 0** @ `ca52e9c16` (harness sources identical through tip `fdcad534d`). Prior evidence `eaf0dad40` (**8 passed; exit 0**); tip court land `7c0ba2a90`. Sibling `ui-layout-court.ts` remains out-of-repo / **UNSUPPORTED**. | tip `fdcad534d` (cargo evidence `ca52e9c16`; absorb `8090022f4`) | Replay: `CXX=g++ SCCACHE_DISABLE=1 CARGO_BUILD_JOBS=1 cargo test -p ggen-graph --test ui_layout_court --locked`; next: `pnpm test -- ui-layout-court` in zcode-cli | **ggen** (in-repo fence); **zcode-cli** (TS adapter, separate) |
+| ggen `ui-layout-court` (AotSealReceipt digest consume) | **ALIVE** (lineage tip-cargo) — tip-exclusive reconfirm **11 passed; 0 failed; exit 0** @ evidence `59c090984` (sources ≡ tip `6e78d4347`; `bc-921ca9e3`; closed **BLOCKED_ENOSPC** @ `c329b7ee5`; receipt `/tmp/cursor/uilayout-retry-9d4a.md`). Prior lineage **11** @ `ca52e9c16`; evidence `eaf0dad40` (**8 passed; exit 0**); tip court land `7c0ba2a90`. Exact-tip reconfirm deferred while r01 oxrocksdb exclusive. Sibling `ui-layout-court.ts` remains out-of-repo / **UNSUPPORTED**. | tip `0d8beafae` (cargo evidence `59c090984`; absorb `cursor/uilayout-retry-alive-dbe1` @ `f774a3a0b`) | Replay: `CXX=g++ SCCACHE_DISABLE=1 RUSTC_WRAPPER= CARGO_BUILD_JOBS=1 cargo test -p ggen-graph --test ui_layout_court --locked --target-dir /tmp/ggen-uilayout-retry-9d4a --config build.jobs=1 -- --test-threads=1`; next: `pnpm test -- ui-layout-court` in zcode-cli | **ggen** (in-repo fence); **zcode-cli** (TS adapter, separate) |
 | FM-PACK-001 `packs/gh-terraform-pack` | **PRESENT** — path on tip (`test -d packs/gh-terraform-pack` → **0**; tree `c7799cd6`); consumers retargeted. Crown `composed_packs_e2e` **SKIPPED** (loadavg ≥10) → not crown `ALIVE`. Inventory: [`REPO-INVENTORY-27.1.1.md`](./REPO-INVENTORY-27.1.1.md) | tip `120598fb3e395393d0ebe7fd86537bb499fc670d` (restore `5f28d0f90`) | When loadavg &lt;10: `timeout 600s cargo test -p ggen-engine --test composed_packs_e2e -- --nocapture` → exit **0** | **ggen** (pack presence); e2e for crown |
 | zcode POWL/OCEL bounded remediation (in-repo stub) | **ALIVE** (bounded-refusal tip-cargo) — `zcode_powl_ocel_court` **6 passed; exit 0** + `remediation_bound` **4 passed; exit 0** @ tip `cd7c2433b` (`cursor/v2711-zcode-powl-refusal-alive-bc54`). Foundry `--dry-run` **PARTIAL** (exit **2**). Live `--live` **BLOCKED_HITL**. Ledger: [`ZCODE-POWL-REFUSAL-ALIVE-STANDING.md`](./ZCODE-POWL-REFUSAL-ALIVE-STANDING.md) / [`ZCODE-POWL-OCEL-STANDING.md`](./ZCODE-POWL-OCEL-STANDING.md) | tip `cd7c2433b7e124db6606008a92081d23aa3727ce` | Replay: `SCCACHE_DISABLE=1 CARGO_BUILD_JOBS=1 CARGO_TARGET_DIR=/home/ubuntu/zcode-powl-refusal-target cargo test -p ggen-sjira --test zcode_powl_ocel_court`; `… remediation_bound --lib`. Live next: provider creds + `bun scripts/powl-foundry-loop.ts --live` → **0** | **ggen** (contract); **zcode-cli** (execution) |
 | `curve25519-dalek` v4 / cgap-aoq docs | **PARTIAL_ALIVE** (lock + pin doc) — `Cargo.lock` resolves **4.1.3** and **5.0.0**; policy recorded in [`CURVE25519-DALEK-PIN-STANDING.md`](./CURVE25519-DALEK-PIN-STANDING.md). Policy court that refuses undocumented major still absent → not crown `ALIVE`. | tip `120598fb3e395393d0ebe7fd86537bb499fc670d` (lock observation; prior evidence `0478fde59`) | `rg -n 'name = "curve25519-dalek"' -A2 Cargo.lock` (expect 4.1.3 + 5.0.0); next ALIVE: Gate-1 policy court per pin standing §5 | **ggen** (+ cgap-aoq docs owner) |
@@ -141,8 +152,7 @@ Observed crown tip: `fdcad534de05687c6c68196126ef7aac27a7a486` (honesty retip; w
 evidence `cde02d1f2` / `42c5b9ba4`; taffy/fluid/hotswap absorb `cde02d1f2`→`19c08a3b0`).
 Historical exit-0 evidence tip: `0478fde59644cccd60c5a88d64d444ec292e6a3c` (≥ `a54b9803`; ancestor).
 ui-layout ancestor ALIVE: `eaf0dad40287a3347280a541766b3b16f3978cf8`.
-**Tip-cargo `ui_layout` ALIVE** (lineage): exclusive flock `/tmp/ggen-uilayout-tip-alive-protected`;
-`CXX=g++ SCCACHE_DISABLE=1 CARGO_BUILD_JOBS=1 cargo test -p ggen-graph --test ui_layout_court --locked` → **11 passed; exit 0** @ `ca52e9c16` (harness sources identical through tip `fdcad534d`).
+**Tip-cargo `ui_layout` ALIVE** (lineage tip-cargo): tip-exclusive reconfirm → **11 passed; exit 0** @ evidence `59c090984` (sources ≡ tip `6e78d4347`; `bc-921ca9e3`; ENOSPC closed; receipt `/tmp/cursor/uilayout-retry-9d4a.md`). Prior lineage **11** @ `ca52e9c16` through tip `fdcad534d`/`0d8beafae`.
 Tip-cargo **ALIVE** retained: `taffy_aot` / fluid / hotswap @ `cde02d1f2`; `shui` lineage;
 `write_apply` **7+1+1** @ `cde02d1f2`; construct + lifecycle **ALIVE**. Brand rhythm /
 completeness + R-01 → **COMPILING** / **PARTIAL** (no tip EXIT:0). `verify_witness`
@@ -161,7 +171,7 @@ tip-cargo **ALIVE** @ `c91b22561`; BRCE **V8** **BLOCKED**.
 | R-01…R-07 contract | tip-synced `r01_r07_resolution_court` harness | **PARTIAL** / **COMPILING** — evidence `7 passed; exit 0` @ `0478fde59`; tip source **7**; **no tip EXIT:0** |
 | BRCE AS-01 seat | `cargo test -p ggen-abb-sbb --test brce_as01_seat_court` | evidence `6 passed; 0 failed` → exit **0** @ `0478fde59`; tip source **6**; tip-cargo PENDING |
 | zcode POWL stub | `zcode_powl_ocel_court` + `remediation_bound` tip-cargo | **ALIVE** (bounded refusal) — **6+4 passed; exit 0** @ tip `cd7c2433b`; live `--live` **BLOCKED_HITL** |
-| `ui-layout-court` | exclusive `CXX=g++ SCCACHE_DISABLE=1 CARGO_BUILD_JOBS=1 cargo test -p ggen-graph --test ui_layout_court --locked` (`/tmp/ggen-uilayout-tip-alive-protected`) | **ALIVE** (lineage) **11 passed; 0 failed; exit 0** @ `ca52e9c16` (sources ≡ crown `678a6c106`); prior evidence **8 passed; exit 0** @ `eaf0dad40`; tip source **11** `#[test]` |
+| `ui-layout-court` | tip-exclusive `CXX=g++ SCCACHE_DISABLE=1 RUSTC_WRAPPER= CARGO_BUILD_JOBS=1 cargo test -p ggen-graph --test ui_layout_court --locked --target-dir /tmp/ggen-uilayout-retry-9d4a --config build.jobs=1 -- --test-threads=1` | **ALIVE** (lineage tip-cargo) **11 passed; 0 failed; exit 0** @ `59c090984` (sources ≡ tip `6e78d4347`; `bc-921ca9e3`; ENOSPC closed); prior lineage **11** @ `ca52e9c16`; evidence **8** @ `eaf0dad40`; tip source **11** `#[test]` |
 | `ui-layout-court.ts` (contract stub) | `docs/rfc/v27.1.1/fixtures/ui-layout-court.ts` | stub PRESENT; zcode-cli runner still **UNSUPPORTED** |
 | `verify_witness.wasm` (production) | `find . \( -name 'verify_witness*' -o -name '*witness*.wasm' \)` | placeholder only → production **UNSUPPORTED** |
 | `curve25519-dalek` | `rg -n 'name = "curve25519-dalek"' -A2 Cargo.lock` + pin standing | versions **4.1.3** + **5.0.0** present; pin doc → **PARTIAL_ALIVE**; policy court still open |

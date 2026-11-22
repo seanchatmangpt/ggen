@@ -4,10 +4,10 @@
 |-------|-------|
 | Document ID | `CROWN-PROGRESS-RECEIPT-27.1.1` |
 | Status | **PROGRESS RECEIPT** (honest; **not** goal-complete; **not** crown `ALIVE`) |
-| Observed tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `fdcad534de05687c6c68196126ef7aac27a7a486` (Gate-1 honesty retip; write_apply evidence @ `cde02d1f2` / `42c5b9ba4`; taffy/fluid/hotswap absorb @ `cde02d1f2`→`19c08a3b0`) |
-| Tip subject | honesty retip `cursor/v2711-gate1-honesty-retip-5536` on tip `fdcad534d`; prior absorbs: write_apply @ `cde02d1f2`, taffy/fluid/hotswap @ `19c08a3b0`, ui_layout @ `ca52e9c16`, CCS #3 @ `861a6e73a` |
-| Ledger pins cited | Gate-1 / Photo / Foundry prior pins; CCS #3 construct_hash **ALIVE** @ `861a6e73a`; CCS #2 `write_apply` tip-cargo **ALIVE** **7+1+1** @ observed `cde02d1f2` (evidence `42c5b9ba4`; absorb tip `fdcad534d`); `verify_witness` size tip-cargo **ALIVE** @ `c91b22561`; `lifecycle.rs` **ALIVE** (**PRESENT** tip `513704d04`; tip-cargo 6/6 @ `acd9705c1`); brand rhythm/completeness **COMPILING**/**PARTIAL_ALIVE** (lineage @ `c91b22561`; no exact tip EXIT:0); `r01_r07` **PARTIAL**/**COMPILING**; **V8**/**V9** OOR **BLOCKED** unchanged |
-| Cargo this receipt | **no cargo** (docs-only honesty). Retained tip-cargo **ALIVE**: `taffy_aot` **7** + `brand_fluid_clamp` **6** + `brand_toml_hotswap` **6** EXIT:0 @ `cde02d1f2`/`19c08a3b0`; `write_apply` **7+1+1** @ `cde02d1f2`; production theme **UNSUPPORTED**; prior `ui_layout` **11** @ `ca52e9c16` retained |
+| Observed tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `0d8beafae83f8f5e315fa4aafa2a08a9d5adef77` (pre-absorb; Gate-1 honesty on `fdcad534d`; ui_layout lineage tip-cargo ALIVE @ `59c090984`/`bc-921ca9e3` absorbed tip-wins) |
+| Tip subject | tip-wins absorb `cursor/uilayout-retry-alive-dbe1` @ `f774a3a0b` (`bc-921ca9e3`) onto honesty tip `0d8beafae`; prior: honesty retip on `fdcad534d`; write_apply @ `cde02d1f2`; taffy/fluid/hotswap @ `19c08a3b0`; ui_layout lineage @ `59c090984` / `ca52e9c16`; CCS #3 @ `861a6e73a` |
+| Ledger pins cited | Gate-1 / Photo / Foundry prior pins; CCS #3 construct_hash **ALIVE** @ `861a6e73a`; CCS #2 `write_apply` tip-cargo **ALIVE** **7+1+1** @ observed `cde02d1f2` (evidence `42c5b9ba4`; absorb tip `fdcad534d`); `verify_witness` size tip-cargo **ALIVE** @ `c91b22561`; `lifecycle.rs` **ALIVE** (**PRESENT** tip `513704d04`; tip-cargo 6/6 @ `acd9705c1`); `ui_layout` **ALIVE** (lineage tip-cargo) @ `59c090984` (`bc-921ca9e3`; ENOSPC closed); brand rhythm/completeness **COMPILING**/**PARTIAL_ALIVE** (lineage @ `c91b22561`; no exact tip EXIT:0); `r01_r07` **PARTIAL**/**COMPILING**; **V8**/**V9** OOR **BLOCKED** unchanged |
+| Cargo this receipt | **no cargo** (docs-only tip-wins absorb). Retained: `ui_layout` **ALIVE** (lineage tip-cargo) **11** EXIT:0 @ evidence `59c090984` (sources ≡ `6e78d4347`; closed **BLOCKED_ENOSPC** @ `c329b7ee5`; `/tmp/cursor/uilayout-retry-9d4a.md`); `taffy_aot` **7** + `brand_fluid_clamp` **6** + `brand_toml_hotswap` **6** EXIT:0 @ `cde02d1f2`/`19c08a3b0`; `write_apply` **7+1+1** @ `cde02d1f2`; production theme **UNSUPPORTED** |
 | Goal standing | **INCOMPLETE** — do **not** claim ECOSYSTEM-SPEC-27.1.1 crown complete |
 
 Standing vocabulary (`AGENTS.md` §2): `UNKNOWN` | `PARTIAL_ALIVE` | `ALIVE` |
@@ -36,7 +36,7 @@ clause1=PARTIAL (igniter clean-room ALIVE @f1492ed55/bc-53b0e099; path crown sti
 clause2=PARTIAL_ALIVE (CCS#3 construct ALIVE @861a6e73a; CCS#2 write_apply tip-cargo ALIVE 7+1+1 @cde02d1f2; lifecycle ALIVE @513704d04/acd9705c1; V8/V9 BLOCKED)
 clause3=PARTIAL+BLOCKED (cos/readyz 503; revops NXDOMAIN)
 clause4=PARTIAL
-gate1=PARTIAL (ui_layout tip-cargo ALIVE; taffy/fluid/hotswap tip-cargo ALIVE @cde02d1f2/19c08a3b0; construct+lifecycle ALIVE; write_apply ALIVE @cde02d1f2; verify_witness ALIVE @c91b22561; brand rhythm/completeness COMPILING/PARTIAL_ALIVE; r01_r07 PARTIAL/COMPILING; brand production UNSUPPORTED; BRCE V8 BLOCKED)
+gate1=PARTIAL (ui_layout ALIVE lineage tip-cargo @59c090984/bc-921ca9e3 ENOSPC closed; taffy/fluid/hotswap tip-cargo ALIVE @cde02d1f2/19c08a3b0; construct+lifecycle ALIVE; write_apply ALIVE @cde02d1f2; verify_witness ALIVE @c91b22561; brand rhythm/completeness COMPILING/PARTIAL_ALIVE; r01_r07 PARTIAL/COMPILING; brand production UNSUPPORTED; BRCE V8 BLOCKED)
 blockers=foundry--live; brand-rhythm-completeness-tip-EXIT0; r01-tip-EXIT0; cos/readyz-503; WebAuthn/BRCE-V8/V9; revops-NXDOMAIN; R01-R07-bodies; verify_witness-prod; production-theme
 ```
 
@@ -50,7 +50,7 @@ blockers=foundry--live; brand-rhythm-completeness-tip-EXIT0; r01-tip-EXIT0; cos/
 | Hop 1 perimeter (`shui:` fence + Truex admit) | Fence **PARTIAL_ALIVE**/evidence-**ALIVE** (tip-cargo PENDING); Truex admit-court **ALIVE** @ `truex@68d2d233` (merged) |
 | Hop 2 `.ttl`/`.toml` rhythm + dual-schema | **COMPILING** / **PARTIAL_ALIVE** (rhythm/completeness no tip EXIT:0; full DTCG/CASTLE inventory **UNSUPPORTED**) |
 | Hop 3 Taffy AOT six-width seal | In-repo fence tip-cargo **ALIVE** (**7 passed; exit 0** @ crown `19c08a3b0` absorb @ `cde02d1f2`); consumer bind open → path **PARTIAL_ALIVE** |
-| Hop 3b ggen `ui_layout` digest consume | **ALIVE** tip-cargo **11 passed; exit 0** @ `ca52e9c16` (≡ tip `120598fb3`); tip source **11**; prior evidence `eaf0dad40` |
+| Hop 3b ggen `ui_layout` digest consume | **ALIVE** (lineage tip-cargo) **11 passed; exit 0** @ evidence `59c090984` (sources ≡ tip `6e78d4347`; `bc-921ca9e3`; closed ENOSPC); lineage `ca52e9c16` / `eaf0dad40`; tip source **11** |
 | Hop 4 ggen_igniter BrandTheme manufacture | **ALIVE** (`diff_exit=0` dual-schema tip brand vs igniter fixture); clean-room crown **ALIVE** evidence tip `f1492ed55` (`git diff --exit-code` → **0** @ `/home/ubuntu/ggen_igniter` / `bc-53b0e099`); NIF **ALIVE**; Jobs/C4 admitted `--check` **ALIVE** (exit **0**; bare `--check` **REFUSED_INVOCATION** antifalsifier) |
 | Hop 5 zcode POWL/OCEL / foundry | **PARTIAL_ALIVE** — in-repo bounded-refusal tip-cargo **ALIVE** (sjira **6**/bound **4** @ `cd7c2433b`); adapter exit **0**; Linux tip-matched runtime **PRESENT**; `--dry-run` exit **2** / **PARTIAL**; `--live` **BLOCKED_HITL** / **foundry_exit=1** / **REFUSED** (`Model access is not configured` @ zcode `f32df08`) |
 
@@ -134,7 +134,7 @@ Do **not** invent zero daily founder HITL `ALIVE` from Gate-1 fence green, CASTL
 | `shui:` public-prefix fence | **ALIVE** (tip-cargo **4 passed; exit 0** @ crown `008a81d21`; `/tmp/ggen-shui-prefix-target2`) | `CARGO_BUILD_JOBS=1 CARGO_TARGET_DIR=/tmp/ggen-shui-prefix-target2 cargo test -p ggen-graph --test shui_public_prefix_court --locked` |
 | Truex admits `shui:` | **ALIVE** @ `68d2d233` (merged) | `pnpm exec vitest run test/admit/admit-court.test.ts` → **0** |
 | Taffy AOT pre-flight | **ALIVE** tip-cargo (**7 passed; exit 0** @ crown `19c08a3b0`) | `CARGO_BUILD_JOBS=1 CARGO_TARGET_DIR=/tmp/gate1-taffy cargo test -p ggen-graph --test taffy_aot_preflight_court --locked` |
-| ggen `ui_layout_court` | **ALIVE** tip-cargo (**11 passed; exit 0** @ `ca52e9c16` ≡ tip `120598fb3`) | Replay: `CXX=g++ SCCACHE_DISABLE=1 CARGO_BUILD_JOBS=1 cargo test -p ggen-graph --test ui_layout_court --locked` |
+| ggen `ui_layout_court` | **ALIVE** (lineage tip-cargo) (**11 passed; exit 0** @ `59c090984` ≡ tip `6e78d4347`; `bc-921ca9e3`) | Replay: `CXX=g++ SCCACHE_DISABLE=1 RUSTC_WRAPPER= CARGO_BUILD_JOBS=1 cargo test -p ggen-graph --test ui_layout_court --locked --target-dir /tmp/ggen-uilayout-retry-9d4a --config build.jobs=1 -- --test-threads=1` |
 | FM-PACK-001 `packs/gh-terraform-pack` | **PRESENT** / **PARTIAL_ALIVE** (composed e2e SKIPPED) | loadavg&lt;10: `timeout 600s cargo test -p ggen-engine --test composed_packs_e2e` → **0** |
 | zcode POWL in-repo stub | **ALIVE** (bounded refusal tip-cargo **6+4**; exit 0 @ `cd7c2433b`) | Replay: `cargo test -p ggen-sjira --test zcode_powl_ocel_court`; `cargo test -p ggen-graph remediation_bound --lib`; live next: G2-9 foundry `--live` (**BLOCKED_HITL**) |
 | `curve25519-dalek` pin | **PARTIAL_ALIVE** (lock+doc; policy court open) | pin standing §5 policy court |
@@ -174,7 +174,7 @@ Recommended next Gate-1 falsifier (pick one): official `brand_toml_completeness`
 - CCS/BRCE Plane-5 DO is **not** `ALIVE`.
 - Ops / Gate-0 / revops/cos are **not** `ALIVE` from ggen.
 - Foundry zero-HITL is **not** `ALIVE`.
-- Tip-cargo `ui_layout` **ALIVE** @ `ca52e9c16`; taffy/fluid/hotswap tip-cargo **ALIVE** @ `cde02d1f2`/`19c08a3b0`; `write_apply` **ALIVE** **7+1+1** @ `cde02d1f2`; construct+lifecycle **ALIVE**. Production theme **UNSUPPORTED**. Rhythm/completeness **COMPILING**/**PARTIAL_ALIVE**; `r01_r07` **PARTIAL**/**COMPILING**; BRCE **V8** **BLOCKED**.
+- `ui_layout` **ALIVE** (lineage tip-cargo) @ `59c090984` (`bc-921ca9e3`; ENOSPC closed; exact-tip reconfirm deferred while r01 oxrocksdb exclusive); taffy/fluid/hotswap tip-cargo **ALIVE** @ `cde02d1f2`/`19c08a3b0`; `write_apply` **ALIVE** **7+1+1** @ `cde02d1f2`; construct+lifecycle **ALIVE**. Production theme **UNSUPPORTED**. Rhythm/completeness **COMPILING**/**PARTIAL_ALIVE**; `r01_r07` **PARTIAL**/**COMPILING**; BRCE **V8** **BLOCKED**.
 - Presence of this file is documentation standing only — never crown `ALIVE`.
 
 ---
