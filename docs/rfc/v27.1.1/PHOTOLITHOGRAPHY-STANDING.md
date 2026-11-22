@@ -4,7 +4,7 @@
 |-------|-------|
 | Document ID | `PHOTOLITHOGRAPHY-STANDING-27.1.1` |
 | Companion | `ECOSYSTEM-SPEC-27.1.1.md`, `GATE-1-GAP-MATRIX.md`, `REPO-INVENTORY-27.1.1.md` |
-| Observed tip (this ledger) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `c5c6e28aadd51d73abf2cca176525078d2ab8856` (matrix pin parent `cbfd94582`; land `479fc83a9`) |
+| Observed tip (this ledger) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `eaf0dad40287a3347280a541766b3b16f3978cf8` (ui-layout court **ALIVE** exit 0; land `479fc83a9`) |
 | Status | LEDGER (path standings; **not** a crown `ALIVE` receipt) |
 
 Standing vocabulary (`AGENTS.md` §2): `UNKNOWN` | `PARTIAL_ALIVE` | `ALIVE` |
@@ -14,8 +14,8 @@ Standing vocabulary (`AGENTS.md` §2): `UNKNOWN` | `PARTIAL_ALIVE` | `ALIVE` |
 `ALIVE`. Source presence, workflow definitions, IO-free contracts, and sibling
 repo names do not promote the path crown. Hop 4 (igniter) stays **BLOCKED**;
 hop 5 (live zcode) stays **UNSUPPORTED**. The in-repo ggen ui-layout fence is
-**PRESENT** / **ALIVE-for-presence** only — exclusive tip cargo exit-0 is
-**PENDING** (do not invent).
+**ALIVE** on tip `eaf0dad40` (**8 passed; exit 0**; Cloud VM4 `bc-88761271`) — that
+does **not** promote the path crown.
 
 ```text
 perimeter transducer
@@ -35,12 +35,12 @@ perimeter transducer
 | 1 | Perimeter transducer (O → O\* admission fence) | **PARTIAL_ALIVE** (prefix fence only) | **In-repo** fence; product perimeter **out-of-repo** (Truex / brand plane) | `cargo test -p ggen-graph --test shui_public_prefix_court` | Court fails; or `shui` dropped from `ADMITTED_TURTLE_PREFIXES`; or private prefix (`truex`, `gall`, …) admits |
 | 2 | `.ttl` / `.toml` law + brand rhythm | **PARTIAL_ALIVE** (rhythm + OCEL/POWL vocab); full DTCG inventory **UNSUPPORTED** | **In-repo** fixtures + vocabs; OEM token inventories Gate 2+ / brand plane | `cargo test -p ggen-graph --test brand_toml_rhythm_court` | Fixtures refuse or go missing; rhythm admits touch &lt;44 / gap &lt;8 / off-grid; Gate-2 tokens invented without source |
 | 3 | ggen + Taffy AOT pre-flight | **PARTIAL_ALIVE** (ggen six-width seal) | **In-repo** (`ggen-graph::layout::taffy_aot`); consumer adapters **out-of-repo** | `cargo test -p ggen-graph --test taffy_aot_preflight_court` | Six-width seal fails under WCAG 1.4.12 1.5×; overflow refusal omits failing width; silent drop of typed `AotRefusal` |
-| 3b | ggen `ui-layout` digest consume (D5 in-repo fence) | **PRESENT** / **ALIVE-for-presence** — `layout::ui_layout` + `tests/ui_layout_court.rs` on tip; exclusive tip cargo exit-0 **PENDING** (land `479fc83a9` recorded exit 0; **do not invent** tip exit 0) | **In-repo** fence only; sibling `ui-layout-court.ts` remains **ABSENT** / **UNSUPPORTED** here | Presence: `test -f crates/ggen-graph/tests/ui_layout_court.rs`. Replay: `cargo test -p ggen-graph --test ui_layout_court` | Court missing from tip; silent admit of missing/stale/mismatched digest; claiming exclusive tip exit 0 without running cargo; conflating with sibling `.ts` |
+| 3b | ggen `ui-layout` digest consume (D5 in-repo fence) | **ALIVE** — `layout::ui_layout` + `tests/ui_layout_court.rs` on tip `eaf0dad40`; **8 passed; exit 0** (Cloud VM4 `bc-88761271`; land `479fc83a9`) | **In-repo** fence only; sibling `ui-layout-court.ts` remains **ABSENT** / **UNSUPPORTED** here | Replay: `cargo test -p ggen-graph --test ui_layout_court` | Court missing from tip; silent admit of missing/stale/mismatched digest; conflating with sibling `.ts`; inventing path-crown ALIVE from hop 3b alone |
 | 4 | ggen_igniter clean-room | **BLOCKED** / **UNKNOWN**; in-repo contract **PARTIAL_ALIVE** | **Out-of-repo** sibling `seanchatmangpt/ggen_igniter` (not mounted). In-repo: [`IGNITER-CLEANROOM-STANDING.md`](./IGNITER-CLEANROOM-STANDING.md) + `igniter_cleanroom_court` — **not** live sibling crown | In-repo: `cargo test -p ggen-sjira --test igniter_cleanroom_court`. Live: in sibling checkout `git diff --exit-code` (exit **0** required). Optional: `just sjira-mutual-admit dry-run` | Sibling dirty tree (exit ≠ 0); claiming `ALIVE` from unmounted checkout; conflating `gall_observe_clean_room` with igniter crown |
 | 5 | zcode-cli POWL/OCEL remediations (bounded refusal) | **UNSUPPORTED** (live adapter); in-repo contract **PARTIAL_ALIVE**; live sibling **BLOCKED** | **Out-of-repo** `zcode-cli` Chicago POWL/OCEL + `ui-layout-court.ts`. **In-repo** typed refusal court + bound stub + POWL/OCEL vocab + ggen ui-layout fence — see [`ZCODE-POWL-OCEL-STANDING.md`](./ZCODE-POWL-OCEL-STANDING.md) | In-repo: `cargo test -p ggen-sjira --test zcode_powl_ocel_court`; `cargo test -p ggen-graph --test ui_layout_court`. Predecessor hop-4: in `ggen_igniter` `git diff --exit-code`. Live: in zcode-cli `bun test test/powl-ocel-chicago.test.ts` then `pnpm test -- ui-layout-court` vs ggen `AotSealReceipt` (fail closed; bounded refusal). GA falsifier **2027-01-01** | Adapter re-implements Taffy law; missing/stale receipt admits; unbounded remediation; claiming zcode `ALIVE` from ggen vocab / unmounted checkout; conflating hop-4 igniter clean-room with hop-5; conflating hop-3b ggen fence with live `.ts` |
 
 **Path standing (aggregate):** **PARTIAL** — hops 1–3 **PARTIAL_ALIVE**, hop 3b
-ggen ui-layout **PRESENT** / **ALIVE-for-presence** (tip cargo exit **PENDING**),
+ggen ui-layout **ALIVE** (**8 passed; exit 0** on tip `eaf0dad40`),
 hop 4 **BLOCKED**, hop 5 live consumer **UNSUPPORTED** → path crown
 **non-ALIVE** / incomplete until hops 4–5 execute on mounted siblings with typed
 receipts.
@@ -99,12 +99,11 @@ This hop does **not** prove zcode-cli or igniter consumption.
 | Path | Role |
 |------|------|
 | `crates/ggen-graph/src/layout/ui_layout.rs` | Consume `AotSealReceipt` digests; typed `UiLayoutRefusal` / standing |
-| `crates/ggen-graph/tests/ui_layout_court.rs` | Chicago court — **PRESENT** / **ALIVE-for-presence** on tip |
+| `crates/ggen-graph/tests/ui_layout_court.rs` | Chicago court — **ALIVE** on tip `eaf0dad40` (**8 passed; exit 0**) |
 | `crates/ggen-graph/src/layout/remediation_bound.rs` | Bound vocabulary stub (retry/write-scope caps) |
-| Land commit `479fc83a9` | Recorded court exit **0** (not re-claimed as exclusive tip cargo exit 0) |
+| Land commit `479fc83a9` | Introduced the fence; tip `eaf0dad40` reconfirmed **8 passed; exit 0** (Cloud VM4 `bc-88761271`) |
 
-Presence on tip `c5c6e28aa` (parent pin `cbfd94582`) is confirmed via
-`git cat-file -e …:crates/ggen-graph/tests/ui_layout_court.rs`. This hop is
+Court **ALIVE** on tip `eaf0dad40` via Cloud VM4 transcript (`cargo test -p ggen-graph --test ui_layout_court` → **8 passed; exit 0** after FF onto tip). This hop is
 **not** the sibling zcode-cli `ui-layout-court.ts` adapter.
 
 ### 4 — ggen_igniter clean-room
@@ -157,7 +156,7 @@ ambient DO or silent admit. Unmounted sibling checkout refuses ALIVE promotion
 |-------|-------------------|----------------|
 | Hop 1 `ALIVE` | Product perimeter + ggen fence both execute with typed admit/refuse | Vocab constants alone |
 | Hop 3 `ALIVE` as photolithography | ggen seal **and** consumer (zcode/igniter) consumes `AotSealReceipt` | `taffy_aot_preflight_court` green alone |
-| Hop 3b ALIVE-for-presence | `ui_layout_court.rs` PRESENT on tip (this ledger) | Inventing exclusive tip cargo exit 0 without running cargo |
+| Hop 3b `ALIVE` | `ui_layout_court` **8 passed; exit 0** on tip `eaf0dad40` (this ledger) | Presence alone; inventing exit 0 without cargo evidence |
 | Hop 4 `ALIVE` | Mounted `ggen_igniter` + `git diff --exit-code` exit 0 on that tip | GALL `gall_observe_clean_room`; docs citing the sibling |
 | Hop 5 `ALIVE` | zcode-cli court green against a real ggen receipt fixture | In-repo POWL/OCEL modules; ggen hop-3b fence alone |
 | **Path `ALIVE`** | Hops 1–5 all `ALIVE` with linked receipts | This ledger file; hop-3b presence alone |
@@ -197,7 +196,7 @@ pnpm test -- ui-layout-court
 ## Provenance
 
 Materialized as the Gate-1 photolithography standing ledger for
-ECOSYSTEM-SPEC-27.1.1. Refresh 2026-11-22 on tip `c5c6e28aa` (ui-layout
-PRESENT / ALIVE-for-presence; hop 4 **BLOCKED**; hop 5 **UNSUPPORTED**; path
-crown remains **PARTIAL**). No path-crown `ALIVE` asserted. Exclusive tip
-`ui_layout_court` cargo exit-0 not invented.
+ECOSYSTEM-SPEC-27.1.1. Refresh 2026-11-22 on tip `eaf0dad40` (ui-layout
+**ALIVE** — **8 passed; exit 0** via Cloud VM4 `bc-88761271`; hop 4 **BLOCKED**;
+hop 5 **UNSUPPORTED**; path crown remains **PARTIAL**). No path-crown `ALIVE`
+asserted.
