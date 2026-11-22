@@ -6,9 +6,9 @@
 | Companion | `ECOSYSTEM-SPEC-27.1.1` (economic-ops / Gate-0–Plane-5 adjacent) |
 | Target GA | **2027-01-01** |
 | Materialized | 2026-11-22 |
-| Observed ggen tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `f5f44571f9a331d46e2895657621b7efd7127f1b` (tip-wins absorb of sidebranch `cd28efed7` / `cursor/v2711-smalt-ga-residual-bc54`; crown ⊇ OOR retip11 `f5f44571f`/`96444e302` + CASTLE wire absorb `b01224bfa`/`05c4d69b5` + ui_layout `6a3a623ba` + Smalt tip-wins `a40338aea`/`1cedf8465`; smalt evidence pin held). |
-| Observed smalt tip | FinOps `91997da76f0f356dc2be914bdb0a5b8227518719` on smalt `cursor/v2711-smalt-finops-test-bc54` (parent `875efbb87bde8422236cf9db7224412962dbc5a7` = smalt `main` @ probe; 4-cloud courts `bc-ad9ebffa` + retry `bc-1e876087`) |
-| Crown standing (from ggen) | **PARTIAL_ALIVE** (full RAID / remaining GA economic face / b4b still open) — **6-column spine ALIVE**: doctor/aws/gcp/azure/twilio exits **0,0,0,0,0** @ `875efbb87`; `fin_ops` **ALIVE** @ `91997da76f0f` (`mix test test/fin_ops_calculator_test.exs` → exit **0**, **19 passed**). Never invent full RAID / Foundry crown `ALIVE`. |
+| Observed ggen tip | honesty sidebranch `cursor/v2711-smalt-mix-courts-bc54` from absorb tip `9173c65296cd8db544f6ae3544f3531a4bb9399c` (**no** crown push); prior crown absorb `f5f44571f` ⊇ OOR/CASTLE/Smalt GA residual |
+| Observed smalt tip | FinOps `91997da76f0f356dc2be914bdb0a5b8227518719` on smalt `cursor/v2711-smalt-finops-test-bc54` (parent `875efbb87bde8422236cf9db7224412962dbc5a7` = smalt `main` @ probe; 4-cloud courts `bc-ad9ebffa` + residual mix courts `bc-c700dafb`) |
+| Crown standing (from ggen) | **ALIVE** (Smalt RAID / GA economic face) — **6-column spine ALIVE** (doctor/aws/gcp/azure/twilio **0,0,0,0,0** @ `875efbb87` + `fin_ops` **ALIVE** @ `91997da76f0f`) **and** §4.3 residual b4b courts **ALIVE** @ `91997da76f0f` (treasury/tax/erp/rates exits **0,0,0,0**). Foundry / zero-HITL crown **≠** this claim — do **not** invent Foundry `ALIVE`. |
 
 Standing vocabulary: `UNKNOWN` | `PARTIAL_ALIVE` | `ALIVE` | `BLOCKED` | `BUILD_BROKEN` | `UNSUPPORTED` | `REFUSED_*`.
 
@@ -16,8 +16,9 @@ This document is a standing ledger, not an execution receipt. Source presence,
 cross-repo prose, marketplace pack names, and workflow definitions do **not**
 promote the crown claim to `ALIVE`. Sibling court exits recorded by Smalt live
 `bc-ad9ebffa` (4-cloud @ `875efbb87`) plus FinOps restore tip `91997da76f0f`
-(exit 0 / 19 passed) are the authority for the rows marked exit **0** / **ALIVE**
-below.
+(exit 0 / 19 passed) plus residual mix courts (`bc-c700dafb` @ `91997da76f0f`:
+treasury/tax/erp/rates exits **0,0,0,0**) are the authority for the rows marked
+exit **0** / **ALIVE** below.
 
 ---
 
@@ -69,9 +70,10 @@ rg -i -n '\bRAID\b|4-cloud|economic.?ops' \
 | Cross-repo smalt citations in ggen jira receipts / marketplace packs | present as **foreign** citations | not execution evidence — do not promote |
 | ECOSYSTEM Gate 0 / Plane 5 economic-ops DO | declared **OUT OF SCOPE** for ggen DO | **BLOCKED** from claiming `ALIVE` here |
 
-**Tracked crown from this repository: `PARTIAL_ALIVE`** (sibling 4-cloud exits
-**0** + FinOps court **ALIVE**; remaining GA economic face / b4b still open).
-Do **not** invent full RAID / Foundry crown `ALIVE`.
+**Tracked Smalt RAID crown from this repository: `ALIVE`** (sibling 4-cloud
+exits **0** + FinOps court **ALIVE** + residual b4b courts exits **0,0,0,0** @
+`91997da76f0f`). Foundry / zero-HITL crown remains **≠** Smalt RAID — do **not**
+invent Foundry `ALIVE`.
 
 ---
 
@@ -128,50 +130,40 @@ mix test test/fin_ops_calculator_test.exs
 # → exit 0 (19 passed) ⇒ standing ALIVE
 ```
 
-### 4.3 Next exact verifier (remaining GA economic face / b4b)
+### 4.3 Residual GA economic face / b4b — **ALIVE** @ `91997da76f0f`
 
-Register + module surface is **PRESENT** @ `91997da76f0f` (clone + GitHub
-blob probe 2026-11-22 on `cursor/v2711-smalt-ga-residual-bc54`). KD docs
-themselves still say **UNVERIFIED** / SOURCE-CHECK **PARTIAL** — do **not**
-promote from presence. Mix/Elixir **ABSENT** in the ggen cloud env → live
-b4b courts **UNSUPPORTED** here (exact next is the sibling mount below).
+Executed 2026-11-22 on clone HEAD `91997da76f0f356dc2be914bdb0a5b8227518719`
+(`cursor/v2711-smalt-finops-test-bc54`; siblings `ash_graphlaw` /
+`graphlaw/graphlaw_ex` / `ash_r2rml` mounted for path deps; Elixir 1.20.4 /
+OTP 29 via mise). Agent `bc-c700dafb`. KD author docs may still say
+**UNVERIFIED** — module courts below supersede presence-only prose.
 
-Admitted residual courts (GA economic face named by `docs/b4b/**`):
-
-| Plane | KD register | Module path | Module court | Register standing @ pin |
-|-------|-------------|-------------|--------------|-------------------------|
-| P1 Treasury | `docs/b4b/KD-P1-TREASURY.md` | `lib/smalt/treasury/**` **PRESENT** | `mix test test/treasury/treasury_test.exs` (+ vectors) | KD **UNVERIFIED** |
-| P3 Tax | `docs/b4b/KD-P3-TAX.md` | `lib/smalt/taxsanctions/**` **PRESENT** | `mix test test/taxsanctions/taxsanctions_test.exs` (+ vectors) | KD **UNVERIFIED** |
-| P5 ERP | `docs/b4b/KD-P5-ERP.md` | `lib/smalt/erp/**` **PRESENT** | `mix test test/erp/erp_test.exs` (+ vectors) | KD **UNVERIFIED** |
-| P10 Rates | `docs/b4b/KD-P10-RATES.md` | `lib/smalt/rates/**` **PRESENT** | `mix test test/rates/rates_test.exs` (+ vectors) | KD **UNVERIFIED** |
+| Plane | Command | HEAD | EXIT | Result | Standing |
+|-------|---------|------|------|--------|----------|
+| P1 Treasury | `mix test test/treasury/treasury_test.exs` | `91997da76f0f` | **0** | **8 passed** | **ALIVE** |
+| P3 Tax | `mix test test/taxsanctions/taxsanctions_test.exs` | `91997da76f0f` | **0** | **8 passed** | **ALIVE** |
+| P5 ERP | `mix test test/erp/erp_test.exs` | `91997da76f0f` | **0** | **8 passed** | **ALIVE** |
+| P10 Rates | `mix test test/rates/rates_test.exs` | `91997da76f0f` | **0** | **7 passed** | **ALIVE** |
 
 ```text
-cd /path/to/smalt   # tip 91997da76f0f356dc2be914bdb0a5b8227518719 (or newer HEAD that contains it)
-# Remaining GA economic face / b4b — each must exit 0 (or typed REFUSED_*):
-mix test test/treasury/treasury_test.exs
-mix test test/taxsanctions/taxsanctions_test.exs
-mix test test/erp/erp_test.exs
-mix test test/rates/rates_test.exs
-# Optional vector overlays (fixture-shape; loud [SKIP] only when module ABSENT):
-mix test test/treasury_vectors test/taxsanctions_vectors test/erp_vectors test/rates_vectors
-# Cite HEAD SHA + exit 0 / pass counts in this ledger before full RAID ALIVE
+cd /path/to/smalt   # tip 91997da76f0f356dc2be914bdb0a5b8227518719
+mix test test/treasury/treasury_test.exs      # → exit 0 (8 passed)
+mix test test/taxsanctions/taxsanctions_test.exs  # → exit 0 (8 passed)
+mix test test/erp/erp_test.exs                # → exit 0 (8 passed)
+mix test test/rates/rates_test.exs            # → exit 0 (7 passed)
 ```
 
-Promotion rule:
+Promotion rule (satisfied):
 
-1. Paste the real `mix test` summary lines (exit 0, counts) into the smalt
-   parity receipts with a pinned smalt HEAD SHA.
-2. Cite that receipt path + SHA from this ledger.
-3. Four-cloud exits **0** + FinOps **ALIVE** without remaining GA economic face =
-   **PARTIAL_ALIVE** only (FinOps closed; RAID crown not sealed).
-4. Full RAID / economic-ops `ALIVE` requires FinOps court exit **0** **and**
-   the four b4b plane courts above green (or typed `REFUSED_*`) — never from
-   ggen alone, never from module/`docs/b4b` presence alone.
+1. Real `mix test` summary lines + pinned smalt HEAD cited above.
+2. Four-cloud exits **0** + FinOps **ALIVE** + four b4b plane courts green ⇒
+   Smalt RAID / GA economic face **ALIVE**.
+3. Never from ggen alone, never from module/`docs/b4b` presence alone.
+4. Foundry / zero-HITL crown remains a separate claim — **not** sealed by
+   these courts.
 
-Until remaining GA economic face is green (or typed `REFUSED_*`), any ggen
-claim of full RAID / economic-ops `ALIVE` is `REFUSED_UNGROUNDED`. FinOps
-itself is **ALIVE** @ `91997da76f0f` and must not be demoted without a new
-failing court.
+Replay any single residual court at the pin; a new failing EXIT demotes that
+plane (and the RAID crown) until re-proven.
 
 ---
 
@@ -211,10 +203,10 @@ rg -i -n '\bRAID\b|4-cloud|economic.?ops' \
 | Sibling mount in this ggen workspace | **not mounted**; GitHub blob reconfirm `test/fin_ops_calculator_test.exs` **PRESENT** @ `91997da76f0f` (parent `875efbb87`); mix/elixir **ABSENT** this env |
 | 4-cloud exits (authority) | doctor=**0** aws=**0** gcp=**0** azure=**0** twilio=**0** @ `875efbb87` (`bc-ad9ebffa`) — retained; no new mix courts this pass |
 | FinOps (authority) | **ALIVE** @ `91997da76f0f` — `mix test test/fin_ops_calculator_test.exs` → exit **0**, **19 passed** — retained; blob **PRESENT** |
-| This-env light probe | mix courts **UNSUPPORTED** here (no cargo / no smalt mount; ui_layout owns oxrocksdb) — does **not** demote sibling authority |
+| This-env light probe (historical) | prior pass: mix **UNSUPPORTED** — superseded by §4.3 / §6b live courts |
 | 6-column spine standing | **ALIVE** (doctor/aws/gcp/azure/twilio/fin_ops) |
-| Ledger crown | **PARTIAL_ALIVE** — full RAID / remaining GA economic face / b4b / Foundry crown **not** `ALIVE` |
-| Next verifier | §4.3 four-plane b4b mix courts (treasury/tax/erp/rates) — residual courts **UNKNOWN**; mix **UNSUPPORTED** here |
+| Ledger crown | **ALIVE** (Smalt RAID / GA economic face) — Foundry / zero-HITL crown **not** `ALIVE` |
+| Next verifier | Replay §4.3 residual courts at pin; Foundry / zero-HITL remain separate |
 
 ---
 
@@ -235,12 +227,30 @@ GitHub + shallow clone (not a ggen workspace mount).
 | FinOps court file | `test/fin_ops_calculator_test.exs` **PRESENT** @ pin (prior **ALIVE** authority retained; not re-run) |
 | b4b register tree | `docs/b4b/{KD-P1-TREASURY,KD-P3-TAX,KD-P5-ERP,KD-P10-RATES,SOURCE-CHECK-P1-P3,SOURCE-CHECK-P5-P10}.md` **PRESENT** |
 | b4b modules | `lib/smalt/{treasury,taxsanctions,erp,rates,fin_ops}/**` **PRESENT** @ pin (KD prose that still says “module absent” is **stale relative to tree**) |
-| b4b module courts (source) | `test/treasury/treasury_test.exs` (8), `test/taxsanctions/taxsanctions_test.exs` (8), `test/erp/erp_test.exs` (6+), `test/rates/rates_test.exs` (7) — **PRESENT**; exit codes **UNKNOWN** (not executed) |
-| This-env mix/elixir | **ABSENT** → b4b court execution **UNSUPPORTED** here |
-| SOURCE-CHECK / KD standing (author docs) | SOURCE-CHECK **PARTIAL**; KD-P1/P3/P5/P10 **UNVERIFIED** — presence ≠ green court |
+| b4b module courts (source) | **PRESENT** — superseded by executed exits in §4.3 / §6b |
+| This-env mix/elixir (historical) | prior **ABSENT** → **UNSUPPORTED**; superseded by §6b |
+| SOURCE-CHECK / KD standing (author docs) | SOURCE-CHECK **PARTIAL**; KD prose may lag — courts **ALIVE** supersede |
 | 6-column spine | **ALIVE** retained (4-cloud @ `875efbb87` + FinOps @ `91997da76f0f`) |
-| Ledger crown | **PARTIAL_ALIVE** — full RAID / GA economic face / b4b **not** promoted; Foundry crown **not** invented |
-| Next verifier (crown absorb) | §4.3 four-plane mix courts → exit **0** at pinned HEAD; then cite receipts here |
+| Ledger crown | **ALIVE** (Smalt RAID / GA economic face) after §6b; Foundry crown **not** invented |
+| Next verifier (historical) | §4.3 executed — see §6b |
+
+---
+
+## 6b. Residual mix courts (2026-11-22 — §4.3 executed)
+
+| Field | Value |
+|-------|-------|
+| Agent | `bc-c700dafb` (Smalt mix residual courts probe) |
+| Honesty sidebranch | `cursor/v2711-smalt-mix-courts-bc54` from ggen tip `9173c6529` (**no** crown push) |
+| Smalt HEAD | `91997da76f0f356dc2be914bdb0a5b8227518719` |
+| Materialization | shallow clone + siblings `ash_graphlaw` / `graphlaw` / `ash_r2rml`; Elixir **1.20.4** / OTP **29** via mise |
+| treasury | EXIT **0** — **8 passed** → **ALIVE** |
+| taxsanctions | EXIT **0** — **8 passed** → **ALIVE** |
+| erp | EXIT **0** — **8 passed** → **ALIVE** |
+| rates | EXIT **0** — **7 passed** → **ALIVE** |
+| Residual standing | **ALIVE** (all four EXIT 0) |
+| Smalt RAID / GA economic face | **ALIVE** (spine + FinOps + residual) |
+| Foundry / zero-HITL | **not** promoted |
 
 ---
 
@@ -292,6 +302,12 @@ onto live crown tip `f5f44571f` (cherry-pick `cd28efed7` + tip rewrite):
 Observed ggen tip advanced `6a3a623ba` → `f5f44571f` while preserving OOR
 retip11 (`96444e302`/`f5f44571f`) and CASTLE crown-wire absorb
 (`05c4d69b5`/`b01224bfa`); smalt pin `91997da76f0f` **held**; b4b **PRESENT**;
-residual courts **UNKNOWN** (mix **UNSUPPORTED** here); ledger crown remains
-**PARTIAL_ALIVE**; full RAID / Foundry crown `ALIVE` **not** invented; no cargo;
+residual courts then still **UNKNOWN** (mix **UNSUPPORTED**); ledger crown was
+**PARTIAL_ALIVE**; Foundry crown `ALIVE` **not** invented; no cargo;
 no ManagePullRequest (parent owns #849).
+
+Residual mix courts 2026-11-22 on `cursor/v2711-smalt-mix-courts-bc54` from
+absorb tip `9173c6529` (**no** crown push; agent `bc-c700dafb`): smalt
+`91997da76f0f` — treasury/tax/erp/rates exits **0,0,0,0** (8/8/8/7 passed) ⇒
+residual **ALIVE**; Smalt RAID / GA economic face **ALIVE**; Foundry /
+zero-HITL crown **not** invented; no ManagePullRequest.
