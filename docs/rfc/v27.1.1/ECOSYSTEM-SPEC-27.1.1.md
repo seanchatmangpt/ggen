@@ -207,6 +207,12 @@ CindyCat transitions under rhythm law; refuses unknown OEM ids / same-brand /
 rhythm failures. Does **not** authorize production runtime theme swap or CASTLE
 publish `ALIVE`.
 
+Production theme promote (`promote_production_theme`) is fail-closed
+**UNSUPPORTED** → typed `REFUSED_PRODUCTION` on the Gate-1 path (lib court
+`layout::brand::production_theme_tests`). Exact next verifier to promote
+production theme: [`BRAND-PRODUCTION-THEME.md`](./BRAND-PRODUCTION-THEME.md)
+(G2-13 inventory → G2-12 CASTLE bind → production apply court).
+
 ---
 
 ## 9. zcode-cli ui-layout-court (D5)
@@ -296,6 +302,7 @@ Standing: **PARTIAL_ALIVE** (lock + pin doc present; policy court absent).
 | `docs/rfc/v27.1.1/CCS-AUTHORITY-STANDING.md` | SELECT≠CONSTRUCT≠DO authority edges + A2A/BRCE fence census |
 | `docs/rfc/v27.1.1/CURVE25519-DALEK-PIN-STANDING.md` | Gate-1 `curve25519-dalek` / `ed25519-dalek` lock pin + policy (PARTIAL_ALIVE) |
 | `docs/rfc/v27.1.1/VERIFY-WITNESS-PRODUCTION.md` | production `verify_witness` WASM build path (size court ≠ prod ALIVE) |
+| `docs/rfc/v27.1.1/BRAND-PRODUCTION-THEME.md` | brand.toml production theme `REFUSED_PRODUCTION` fence + next verifier (≠ hot-swap ALIVE) |
 | `docs/rfc/v27.1.1/IGNITER-CLEANROOM-STANDING.md` | ggen_igniter clean-room contract (hop 4) |
 | `docs/rfc/v27.1.1/ZCODE-POWL-OCEL-STANDING.md` | zcode POWL/OCEL bounded remediation (hop 5) |
 | `docs/rfc/v27.1.1/CASTLE-SPINE-STANDING.md` | CASTLE publish / brand spine (Gate 2–3) |

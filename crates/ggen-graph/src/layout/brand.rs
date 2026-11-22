@@ -9,7 +9,8 @@
 //! Also exposes an in-memory OEM **hot-swap** fence ([`seed_hot_swap_slot`] /
 //! [`hot_swap_brand`]) that admits Fourth Watch ↔ CindyCat transitions under
 //! rhythm law. Standing ceiling is [`HotSwapStanding::PartialAlive`] — never
-//! production runtime / CASTLE publish `ALIVE`.
+//! production runtime / CASTLE publish `ALIVE`. Production theme promote is
+//! fail-closed via [`promote_production_theme`] → [`REFUSED_PRODUCTION`].
 
 use serde::Deserialize;
 
@@ -515,4 +516,207 @@ pub fn hot_swap_brand(
         standing: HotSwapStanding::PartialAlive,
         to: receipt,
     })
+}
+
+// ---------------------------------------------------------------------------
+// Production theme promote fence (always REFUSED_PRODUCTION on Gate-1 path)
+// ---------------------------------------------------------------------------
+//
+// Hot-swap + fluid-clamp courts are PARTIAL_ALIVE CONSTRUCT fences. Production
+// runtime theme apply remains UNSUPPORTED until full DTCG inventory (Gate 2+)
+// and a dedicated apply court are admitted. This surface fail-closes any
+// attempt to promote a hot-swap receipt to production DO.
+
+/// Standing for production runtime theme apply (never `ALIVE` from Gate-1).
+pub const PRODUCTION_THEME_STANDING: &str = "UNSUPPORTED";
+
+/// Fail-closed refusal code when CONSTRUCT hot-swap tries to authorize
+/// production theme DO ([`promote_production_theme`]).
+pub const REFUSED_PRODUCTION: &str = "REFUSED_PRODUCTION";
+
+/// Standing vocabulary for the production theme surface.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ProductionThemeStanding {
+    /// Production runtime theme path is not admitted in this repository.
+    Unsupported,
+}
+
+impl ProductionThemeStanding {
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Unsupported => PRODUCTION_THEME_STANDING,
+        }
+    }
+}
+
+/// Typed refusal when production theme promote is attempted on Gate-1 path.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum ProductionThemeRefusal {
+    /// Hot-swap / rhythm receipts cannot authorize production theme DO.
+    ProductionUnsupported { brand_id: String, detail: String },
+}
+
+impl ProductionThemeRefusal {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::ProductionUnsupported { .. } => REFUSED_PRODUCTION,
+        }
+    }
+}
+
+/// Report production theme standing — always [`Unsupported`] on Gate-1 path.
+pub fn production_theme_standing() -> ProductionThemeStanding {
+    ProductionThemeStanding::Unsupported
+}
+
+/// Attempt to promote a hot-swap receipt to production runtime theme.
+///
+/// Fail-closed: Gate-1 OEM hot-swap is CONSTRUCT [`HotSwapStanding::PartialAlive`]
+/// only. Never returns `Ok` until a dedicated production theme path is admitted
+/// (full DTCG inventory + runtime apply court — see
+/// `docs/rfc/v27.1.1/BRAND-PRODUCTION-THEME.md`).
+pub fn promote_production_theme(
+    slot: &BrandHotSwapSlot,
+    _receipt: &HotSwapReceipt,
+) -> Result<ProductionThemeStanding, ProductionThemeRefusal> {
+    Err(ProductionThemeRefusal::ProductionUnsupported {
+        brand_id: slot.brand_id().to_string(),
+        detail: format!(
+            "brand.toml hot-swap standing is {HOT_SWAP_STANDING_CEILING}; \
+             production theme remains {PRODUCTION_THEME_STANDING} \
+             (see docs/rfc/v27.1.1/BRAND-PRODUCTION-THEME.md)"
+        ),
+    })
+}
+
+#[cfg(test)]
+mod production_theme_tests {
+    //! Lib-only Chicago fence: production theme promote always REFUSED_PRODUCTION.
+    //!
+    //! Falsifier (no oxrocksdb / integration harness):
+    //! `cargo test -p ggen-graph --lib layout::brand::production_theme_tests`
+
+    use super::*;
+
+    /// Minimal admitted Fourth Watch rhythm body (inline — no fixture IO).
+    const FOURTH_WATCH_MIN: &str = r#"
+dtcg_version = "2025.10"
+brand_id = "fourth-watch"
+
+[rhythm]
+rem_base_px = 16
+grid_base_px = 8
+grid_half_px = 4
+touch_floor_material_px = 48
+touch_floor_apple_px = 44
+inter_target_gap_px = 8
+
+[[rhythm.spacing]]
+name = "2"
+px = 8
+
+[[rhythm.fluid]]
+name = "space-fluid-sm"
+min_px = 8
+preferred = "2cqi"
+max_px = 16
+slope_cqi = 2.0
+"#;
+
+    const CINDYCAT_MIN: &str = r#"
+dtcg_version = "2025.10"
+brand_id = "cindycat"
+
+[rhythm]
+rem_base_px = 16
+grid_base_px = 8
+grid_half_px = 4
+touch_floor_material_px = 48
+touch_floor_apple_px = 44
+inter_target_gap_px = 8
+
+[[rhythm.spacing]]
+name = "2"
+px = 8
+
+[[rhythm.fluid]]
+name = "space-fluid-sm"
+min_px = 8
+preferred = "2cqi"
+max_px = 16
+slope_cqi = 2.0
+"#;
+
+    #[test]
+    fn production_theme_standing_is_unsupported() {
+        assert_eq!(
+            production_theme_standing(),
+            ProductionThemeStanding::Unsupported
+        );
+        assert_eq!(
+            production_theme_standing().as_str(),
+            PRODUCTION_THEME_STANDING
+        );
+        assert_ne!(production_theme_standing().as_str(), "ALIVE");
+        assert_ne!(production_theme_standing().as_str(), HOT_SWAP_STANDING_CEILING);
+    }
+
+    #[test]
+    fn promote_after_hot_swap_is_refused_production() {
+        // Arrange — PARTIAL hot-swap succeeds
+        let (mut slot, seed) =
+            seed_hot_swap_slot(FOURTH_WATCH_MIN).expect("fourth-watch must seed");
+        assert_eq!(seed.standing, HotSwapStanding::PartialAlive);
+        let swap = hot_swap_brand(&mut slot, CINDYCAT_MIN).expect("cindycat swap admits");
+        assert_eq!(swap.standing, HotSwapStanding::PartialAlive);
+        assert_eq!(slot.brand_id(), "cindycat");
+
+        // Act — production promote must fail closed
+        let result = promote_production_theme(&slot, &swap);
+
+        // Assert
+        match result {
+            Err(refused @ ProductionThemeRefusal::ProductionUnsupported { brand_id, detail }) => {
+                assert_eq!(brand_id, "cindycat");
+                assert_eq!(refused.code(), REFUSED_PRODUCTION);
+                assert!(
+                    detail.contains(PRODUCTION_THEME_STANDING)
+                        || detail.contains("UNSUPPORTED")
+                        || detail.contains("BRAND-PRODUCTION-THEME"),
+                    "detail must name production UNSUPPORTED: {detail}"
+                );
+                assert!(
+                    detail.contains(HOT_SWAP_STANDING_CEILING)
+                        || detail.contains("PARTIAL_ALIVE"),
+                    "detail must name hot-swap PARTIAL ceiling: {detail}"
+                );
+            }
+            Ok(standing) => panic!("expected REFUSED_PRODUCTION, got Ok({standing:?})"),
+        }
+    }
+
+    #[test]
+    fn promote_on_seed_alone_is_refused_production() {
+        // Arrange
+        let (slot, seed) = seed_hot_swap_slot(FOURTH_WATCH_MIN).expect("seed");
+
+        // Act
+        let result = promote_production_theme(&slot, &seed);
+
+        // Assert — seed receipt never elevates to production
+        match result {
+            Err(ProductionThemeRefusal::ProductionUnsupported { brand_id, .. }) => {
+                assert_eq!(brand_id, "fourth-watch");
+                assert_eq!(
+                    ProductionThemeRefusal::ProductionUnsupported {
+                        brand_id: "x".into(),
+                        detail: String::new(),
+                    }
+                    .code(),
+                    "REFUSED_PRODUCTION"
+                );
+            }
+            other => panic!("expected ProductionUnsupported, got {other:?}"),
+        }
+    }
 }

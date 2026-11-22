@@ -138,7 +138,7 @@ Observed in-repo (live crates + docs; ontology_catalogue noise excluded where no
 | SELECT≠CONSTRUCT≠DO | `AGENTS.md`; ECOSYSTEM-SPEC-27.1.1 §1.1 (companion PR); CROWN/GALL docs |
 | `corroborate_graph_hash` / `lifecycle.rs` / `construct_hash_gate.rs` | Feature branches only (§4.2); **ABSENT** on tip `750b8ef4a` |
 | confirm gates | `ggen_write_apply` + CP17 courts **PARTIAL_ALIVE** on observed tip (§4.1; tip cargo pending) |
-| brand.toml hot-swap | OEM hot-swap admit fence landed on tip lineage (`f6cb18f86`); crown still **PARTIAL_ALIVE** / not Plane-5 DO — see Gate-1 / ECOSYSTEM §8 |
+| brand.toml hot-swap | **PARTIAL_ALIVE** on tip (`brand_toml_hotswap_court` @ `f6cb18f86`); production theme **UNSUPPORTED** / `REFUSED_PRODUCTION` ([`BRAND-PRODUCTION-THEME.md`](./BRAND-PRODUCTION-THEME.md); Gate-1 / ECOSYSTEM §8) — not Plane-5 DO |
 | zero-HITL fab crown | **not** `ALIVE` — Foundry / ECOSYSTEM D1 remain incomplete until out-of-repo hops close |
 | Plane-5 DO | **BLOCKED** — exact next CCS #8 / BRCE **V9** / OOR **G2-5** probe ladder |
 
