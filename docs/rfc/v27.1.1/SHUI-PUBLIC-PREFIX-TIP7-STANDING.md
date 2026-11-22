@@ -17,7 +17,7 @@ prior_exact_tip7_partial=881f2ec16 EXIT137 (bc-7a87dbfb; EXACT-TIP7)
 prior_tip6_partial=c661d228a EXIT137
 prior_alive_lineage=008a81d21 (4 passed; tip-cargo ALIVE held)
 taffy_tip7=ALIVE EXIT0 @ 63da993cc / absorb 4ebcb9d46
-crown_absorb=ABSORBED@6f6ede8ac→c36ba9f47←cf0288b18
+crown_absorb=ABSORBED@1b42fa3e6→d35482374←cf0288b18
 ManagePullRequest=not_used
 force_push=none
 Foundry_ALIVE=not_claimed
@@ -43,7 +43,7 @@ Foundry_ALIVE=not_claimed
 | Prior tip6 | [`SHUI-PUBLIC-PREFIX-EXACT-TIP6-STANDING.md`](./SHUI-PUBLIC-PREFIX-EXACT-TIP6-STANDING.md) — PARTIAL EXIT:**137** |
 | Prior tip-cargo ALIVE (lineage) | **held** — 4 passed; EXIT 0 @ `008a81d21` (ancestor; blob `3cda065f`) — **not** reconfirmed this tip7 |
 | Taffy tip7 peer | [`TAFFY-AOT-PREFLIGHT-TIP7-STANDING.md`](./TAFFY-AOT-PREFLIGHT-TIP7-STANDING.md) — **ALIVE** EXIT:**0** @ `63da993cc` / absorb `4ebcb9d46` |
-| Crown absorb | **ABSORBED** tip-wins onto  @ pre-absorb  → absorb  (side ) |
+| Crown absorb | **ABSORBED** tip-wins onto `cursor/ecosystem-spec-27-1-1-bc54` @ pre-absorb `1b42fa3e68b031c94c4a68468fb97d0dca921f57` → absorb `d3548237420ea661c8c46bfa796c1e4b20fb21c4` (side `cf0288b188c922338e16ffb07897fdcbe79126cd`) |
 | ManagePullRequest | **not used** |
 | Force-push | **none** |
 | Foundry ALIVE | **not claimed** |
@@ -102,5 +102,5 @@ target=/tmp/gate1-tip7-shui
 lineage_alive=008a81d21
 taffy_tip7=ALIVE@4ebcb9d46
 prior_exact_tip7=PARTIAL@881f2ec16
-crown_absorb=ABSORBED@6f6ede8ac→c36ba9f47←cf0288b18 Foundry_ALIVE=not_claimed ManagePullRequest=not_used force_push=none
+crown_absorb=ABSORBED@1b42fa3e6→d35482374←cf0288b18 Foundry_ALIVE=not_claimed ManagePullRequest=not_used force_push=none
 ```
