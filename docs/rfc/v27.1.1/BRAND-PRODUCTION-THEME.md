@@ -5,13 +5,13 @@ Companion to `ECOSYSTEM-SPEC-27.1.1` §8 and Gate-1 gap matrix row
 
 ## Standing (this tip)
 
-Tip pin: absorb `98761f257e9b7a369001a3708148707ad581256d` (~`c11ea7f2a+` / mix-NIF `ba9824207`; `cursor/v2711-absorb-932-936-4b0b`; content from #933 @ `5c08f3312`).
+Tip pin: crown `bc97ceac9e9c1f39ee85163adaebfdd51e34d75a` (`cursor/v2711-taffy-brand-alive-bc54`; fluid+hotswap tip-cargo **ALIVE**; production **UNSUPPORTED**).
 
 | Surface | Standing | Evidence |
 |---------|----------|----------|
 | Rhythm schema + OEM stubs | **PARTIAL_ALIVE** | `brand_toml_rhythm_court` |
-| Fluid clamp / cqi slopes | **PARTIAL_ALIVE** | `brand_fluid_clamp_court` |
-| OEM hot-swap fence | **PARTIAL_ALIVE** | `seed_hot_swap_slot` / `hot_swap_brand` + `brand_toml_hotswap_court` |
+| Fluid clamp / cqi slopes | **ALIVE** (tip-cargo **6 passed; exit 0** @ crown `bc97ceac9`) | `brand_fluid_clamp_court` |
+| OEM hot-swap fence | **ALIVE** (tip-cargo **6 passed; exit 0** @ crown `bc97ceac9`) | `seed_hot_swap_slot` / `hot_swap_brand` + `brand_toml_hotswap_court` |
 | Production runtime theme | **UNSUPPORTED** | `promote_production_theme` → `ProductionThemeRefusal::ProductionUnsupported` (code `REFUSED_PRODUCTION`) |
 
 Hot-swap and fluid-clamp are CONSTRUCT fences with standing ceiling
