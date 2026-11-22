@@ -6,9 +6,9 @@
 | Companion | `ECOSYSTEM-SPEC-27.1.1` (economic-ops / Gate-0–Plane-5 adjacent) |
 | Target GA | **2027-01-01** |
 | Materialized | 2026-11-22 |
-| Observed ggen tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ tip-wins absorb of `99bd2938a` (`cursor/v2711-smalt-raid-retip-bc54`) onto crown `571571720` via `cursor/v2711-smalt-raid-retip-absorb-f21a` (exact-tip FinOps+treasury honesty reconfirm; crown lineage ⊇ CASTLE retip3 `571571720` + BRCE V8 / igniter / prior Smalt mix absorb `79b64496b` + residual `9173c6529`; smalt evidence pin held — see §6c). |
-| Observed smalt tip | FinOps `91997da76f0f356dc2be914bdb0a5b8227518719` on smalt `cursor/v2711-smalt-finops-test-bc54` (parent `875efbb87bde8422236cf9db7224412962dbc5a7` = smalt `main` @ probe; 4-cloud courts `bc-ad9ebffa` + residual mix courts `bc-c700dafb`; this-pass FinOps+treasury replay on clone HEAD match) |
-| Crown standing (from ggen) | **ALIVE** (Smalt RAID / GA economic face) — **held** (not newly promoted): 4-cloud doctor/aws/gcp/azure/twilio **0,0,0,0,0** retained @ `875efbb87` (`bc-ad9ebffa`; **not** re-run this pass) + `fin_ops` **ALIVE** reconfirmed EXIT **0** / **19 passed** @ `91997da76f0f` + §4.3 residual **ALIVE** (treasury reconfirm EXIT **0** / **8 passed**; tax/erp/rates retained). Foundry / zero-HITL crown **≠** this claim — do **not** invent Foundry `ALIVE`. |
+| Observed ggen tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `6f920670ffaa53ecb7cbd89524fa4375e087f1f7` (push-first honesty reconfirm `cursor/v2711-smalt-reconfirm-bc54` / `bc-b84e0135`; crown lineage ⊇ Smalt RAID tip-wins absorb `2c144954c` onto `571571720` + §6c FinOps+treasury EXIT **0** authority + OOR retip18 `eb28f0eb0` + ui_layout exact-retip6 `864ba13dc` + Foundry HITL retip3 `6f920670f`; smalt evidence pin held — see §6d). |
+| Observed smalt tip | FinOps `91997da76f0f356dc2be914bdb0a5b8227518719` on smalt `cursor/v2711-smalt-finops-test-bc54` (parent `875efbb87bde8422236cf9db7224412962dbc5a7` = smalt `main` @ probe; 4-cloud courts `bc-ad9ebffa` + residual mix courts `bc-c700dafb`; warm clone `/tmp/smalt-probe` HEAD match this pass — **no** new mix EXIT0) |
+| Crown standing (from ggen) | **ALIVE (lineage)** (Smalt RAID / GA economic face) — **held** (not newly promoted; no new tip-cargo / mix EXIT0 this pass): prior §6c FinOps EXIT **0** / **19 passed** + treasury EXIT **0** / **8 passed** @ `91997da76f0f` remain ancestors of crown tip `6f920670f` (absorb `2c144954c` / base `571571720`); 4-cloud doctor/aws/gcp/azure/twilio **0,0,0,0,0** retained @ `875efbb87` (`bc-ad9ebffa`); residual tax/erp/rates retained @ `91997da76f0f` (`bc-c700dafb`). Foundry / zero-HITL crown **≠** this claim — do **not** invent Foundry `ALIVE`. |
 
 Standing vocabulary: `UNKNOWN` | `PARTIAL_ALIVE` | `ALIVE` | `BLOCKED` | `BUILD_BROKEN` | `UNSUPPORTED` | `REFUSED_*`.
 
@@ -337,6 +337,15 @@ tip stable — no race reapply): FinOps EXIT **0** / **19 passed** + treasury EX
 GA economic face **ALIVE** **held**; Foundry / zero-HITL crown remains **PARTIAL** —
 **not** invented; no cargo; no ManagePullRequest.
 
+Push-first honesty reconfirm 2026-11-22 on `cursor/v2711-smalt-reconfirm-bc54`
+(`bc-b84e0135`) from live crown tip `6f920670f` (⊇ Smalt RAID absorb `2c144954c` /
+`571571720` + OOR retip18 `eb28f0eb0` + Foundry HITL retip3): docs + light probes
+only — warm `/tmp/smalt-probe` HEAD `91997da76f0f` (FinOps/treasury/calculator blobs
+**PRESENT**; `test "` count **19**); ggen falsifier outside `docs/rfc/**` → zero
+material hits; `mix` **ABSENT** / no new mix or tip-cargo EXIT0; prior ALIVE
+lineage **held** → standing **ALIVE (lineage)**; Foundry / zero-HITL crown **not**
+invented; no cargo; no ManagePullRequest. See §6d.
+
 ---
 
 ## 6c. Exact-tip honesty reconfirm (2026-11-22 — FinOps+treasury replay)
@@ -354,3 +363,25 @@ GA economic face **ALIVE** **held**; Foundry / zero-HITL crown remains **PARTIAL
 | Smalt RAID / GA economic face | **ALIVE** **held** (FinOps+treasury reconfirm + retained 4-cloud/residual authority) |
 | Foundry / zero-HITL | **not** promoted — RAID `ALIVE` ≠ Foundry crown `ALIVE` |
 | Crown absorb | tip-wins `cursor/v2711-smalt-raid-retip-absorb-f21a` onto crown `571571720` (side `99bd2938a` / `cursor/v2711-smalt-raid-retip-bc54`; no ManagePullRequest) |
+
+---
+
+## 6d. Push-first honesty reconfirm (2026-11-22 — docs + light probes; no mix/cargo)
+
+| Field | Value |
+|-------|-------|
+| Sidebranch | `cursor/v2711-smalt-reconfirm-bc54` from `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `6f920670ffaa53ecb7cbd89524fa4375e087f1f7` |
+| Agent | `bc-b84e0135` |
+| Observed ggen tip | `6f920670ffaa53ecb7cbd89524fa4375e087f1f7` (⊇ prior Smalt RAID tip-wins absorb `2c144954c` onto `571571720` + §6c FinOps+treasury authority; also ⊇ OOR retip18 `eb28f0eb0` + Foundry HITL retip3) |
+| Prior ALIVE lineage | **held** — `git merge-base --is-ancestor 571571720 HEAD` → **0**; `git merge-base --is-ancestor 2c144954c HEAD` → **0** |
+| Observed smalt tip | `91997da76f0f356dc2be914bdb0a5b8227518719` (warm `/tmp/smalt-probe` HEAD match; parent `875efbb87`) |
+| New mix / tip-cargo EXIT0 this pass | **none** — `mix` **ABSENT** this env; Gate1 tip6 owns cargo thrash — deliberately not re-run |
+| Light probe — FinOps court blob | `test/fin_ops_calculator_test.exs` **PRESENT** @ pin (`test "` count **19**; GitHub blob + warm clone) |
+| Light probe — calculator module | `lib/smalt/fin_ops/calculator.ex` **PRESENT** @ pin |
+| Light probe — treasury court blob | `test/treasury/treasury_test.exs` **PRESENT** @ pin |
+| Light probe — ggen falsifier | `rg` outside `docs/rfc/**` for `\bRAID\b\|4-cloud\|economic.?ops` → **zero** material hits (exit **1**) |
+| 4-cloud this pass | **not re-run** — doctor/aws/gcp/azure/twilio exits **0,0,0,0,0** **retained** @ `875efbb87` (`bc-ad9ebffa`) |
+| FinOps / residual authority | §6c EXIT **0** / **19** + treasury EXIT **0** / **8** + tax/erp/rates **0,0,0** **retained** @ `91997da76f0f` — not re-executed |
+| Smalt RAID / GA economic face | **ALIVE (lineage)** **held** — prior ALIVE lineage still on crown tip; do **not** invent a fresh tip-cargo / mix `ALIVE` without EXIT0 |
+| Foundry / zero-HITL | **not** promoted — RAID lineage `ALIVE` ≠ Foundry crown `ALIVE` |
+| Next exact verifier | Replay §4.2 FinOps at pin (narrowest): `cd /path/to/smalt # tip 91997da76f0f356dc2be914bdb0a5b8227518719` → `mix test test/fin_ops_calculator_test.exs` → exit **0** / **19 passed**; residual replay §4.3; 4-cloud §4.1 if columns drift |
