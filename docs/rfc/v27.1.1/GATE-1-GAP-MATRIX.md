@@ -237,7 +237,7 @@ construct + lifecycle **ALIVE**; `verify_witness` @ `c91b22561`.
 **OOR:** cos **503** / revops **NXDOMAIN** / `--live` **BLOCKED_HITL** / BRCE **V8** **BLOCKED** /
 R-01…R-07 bodies **BLOCKED**.
 
-- Truex product admit → **ALIVE** (sibling merged @ `truex@68d2d233` / `b4672131`; not re-run); ggen `shui:` fence → **ALIVE (lineage tip-cargo)** (**4** @ `008a81d21`; sources ≡ tip; **no tip EXIT:0** on live crown)
+- Truex product admit → **ALIVE** (reconfirm EXIT **0** / **6/6** @ `truex@68d2d233` on tip `a3e5d3109`; [`TRUEX-SHUI-EXACT-RETIP-STANDING.md`](./TRUEX-SHUI-EXACT-RETIP-STANDING.md)); ggen `shui:` fence → **PARTIAL_ALIVE** (lineage **ALIVE** **4** @ `008a81d21`; exact-tip EXIT **137**)
 - brand rhythm + completeness → **ALIVE (exact tip-cargo)** @ `77eb46fd0` (unchanged); fluid+hot-swap → **ALIVE** (exact tip **6+6** @ `19c08a3b0` / absorb `cde02d1f2`); production theme → **UNSUPPORTED** / `REFUSED_PRODUCTION` — [`BRAND-PRODUCTION-THEME.md`](./BRAND-PRODUCTION-THEME.md)
 - Taffy AOT six-width seal → **ALIVE** (exact tip-cargo **7** @ `19c08a3b0`; photolithography consume still open)
 - `write_apply` CCS #2 → **ALIVE** (**7+1+1** @ `cde02d1f2`); construct + lifecycle → **ALIVE**; BRCE **V8** → **BLOCKED**
