@@ -3,8 +3,8 @@
 | Field | Value |
 |-------|-------|
 | Spec binding | Construct core-team / repair example closure |
-| Tip (land) | crown `c0be492e1` (side `cursor/v2711-construct-receipt-exclude-bc54` / PR #952) |
-| Status | **IMPLEMENTED** in-tree; local pathspec **ALIVE**; CI Construct **PENDING_CI** until EXIT **0** |
+| Tip (land) | crown `50cfb1280` (receipt-exclude ⊇ `c0be492e1`) |
+| Status | **IMPLEMENTED** in-tree; local validate-examples **55/55 EXIT 0** **ALIVE**; CI Construct **PENDING_CI** until EXIT **0** |
 
 ## Finding
 
@@ -29,15 +29,16 @@ examples/
 
 Source projection drift (e.g. `src/*.py`) still fails closed. Receipt-only dirtiness is ignored.
 
-## Local proof (2026-11-22 2:10 PM PST)
+## Local proof (2026-11-22 2:10–2:20 PM PST)
 
 | Step | Result |
 |------|--------|
 | `ggen sync run --skip-ea-admission` ×2 in `examples/all-modules-coverage` | EXIT **0** / EXIT **0** |
 | `git diff --quiet` with DRIFT_PATHSPEC (excludes `**/.ggen-v2/**`) | EXIT **0** |
 | Same tree without exclude (`.ggen-v2` only) | EXIT **1** (receipt/log dirty — expected) |
+| `GGEN_BIN=target/debug/ggen scripts/validate-examples.sh` (check mode) | **ALIVE: 55/55**; EXIT **0** (`/tmp/local-construct-check.log`; ~48s) |
 
-Local pathspec **ALIVE** ≠ crown Construct CI `ALIVE` (still **PENDING_CI** on `c0be492e1`).
+Local Construct **55/55 ALIVE** ≠ crown Construct CI `ALIVE` (still **PENDING_CI** on tip `50cfb1280` — GitHub Actions job not yet started).
 
 ## Refuse
 
