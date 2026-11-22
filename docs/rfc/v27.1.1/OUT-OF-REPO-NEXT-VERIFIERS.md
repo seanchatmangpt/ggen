@@ -267,7 +267,7 @@ Tip pin retipped on `cursor/v2711-oor-retip11-fec0` onto tip `6a3a623ba` (`6a3a6
 Tip pin retipped on `cursor/v2711-oor-retip12-5958` onto tip `7ddfd8b6e` (`7ddfd8b6efd10ed21cd514f7bb17a5a63056a79c`) at 2026-11-22 07:58:41 PST — tip-wins after affidavit absorb race (probe base `1dbf1cc2e`); probe unchanged vs retip11: cos `/readyz` **503** `{"status":"DB_UNAVAILABLE"}`; `/healthz` **200** `{"status":"ok"}`; `dig` A/AAAA empty; `host` **NXDOMAIN**; `getent` exit **2**; `curl` exit **6** `http=000` → standings held (cos readiness **BLOCKED**; liveness **PARTIAL**; revops **UNKNOWN**); no cargo; no ManagePullRequest; no false `ALIVE`.
 Tip pin retipped on `cursor/v2711-oor-retip13-bc54` onto tip `f65434315` (`f654343155c902a003a852f61df345e986d98b5e`; parent `098f53ea8`) at 2026-11-22 08:13:20 PST — tip-wins vw-env-wire absorb; probe unchanged vs retip12: cos `/readyz` **503** `{"status":"DB_UNAVAILABLE"}`; `/healthz` **200** `{"status":"ok"}`; `dig` A/AAAA empty; `host` **NXDOMAIN**; `getent` exit **2**; `curl` exit **6** `http=000` → standings held (cos readiness **BLOCKED**; liveness **PARTIAL**; revops **UNKNOWN**); no cargo; no ManagePullRequest; no false `ALIVE`. See §16. Tip-wins absorb onto crown `cc2b344bc` (⊇ BRCE V8).
 Tip pin retipped on `cursor/v2711-oor-retip14-bc54` onto tip `df9597c18` (`df9597c1817313f8d5173f425af28aaf485d114c`; parent `7ea96a70d`) at 2026-11-22 08:29:02 PST — tip-wins HITL `--live` re-probe absorb; probe unchanged vs retip13: cos `/readyz` **503** `{"status":"DB_UNAVAILABLE"}`; `/healthz` **200** `{"status":"ok"}`; `dig` A/AAAA empty; `host` **NXDOMAIN**; `getent` exit **2**; `curl` exit **6** `http=000` → standings held (cos readiness **BLOCKED**; liveness **PARTIAL**; revops **UNKNOWN**); no cargo; no ManagePullRequest; no false `ALIVE`. See §17. Tip-wins absorb onto crown via `cursor/v2711-zcode-alive-oor-absorb-2230`.
-Tip pin retipped on `cursor/v2711-oor-retip15-bc54` onto tip `01eccfffb` (`01eccfffb56c1c59be67a220eadb5bd98783c806`; parent `1f10949a7`) at 2026-11-22 08:40:12 PST — tip-wins zcode refusal ALIVE + OOR retip14 absorb; probe unchanged vs retip14: cos `/readyz` **503** `{"status":"DB_UNAVAILABLE"}`; `/healthz` **200** `{"status":"ok"}`; `dig` A/AAAA empty; `host` **NXDOMAIN**; `getent` exit **2**; `curl` exit **6** `http=000` → standings held (cos readiness **BLOCKED**; liveness **PARTIAL**; revops **UNKNOWN**); no cargo; no ManagePullRequest; no false `ALIVE`. See §18. Sidebranch only — crown **not** pushed.
+Tip pin retipped on `cursor/v2711-oor-retip15-bc54` onto tip `01eccfffb` (`01eccfffb56c1c59be67a220eadb5bd98783c806`; parent `1f10949a7`) at 2026-11-22 08:40:12 PST — tip-wins zcode refusal ALIVE + OOR retip14 absorb; probe unchanged vs retip14: cos `/readyz` **503** `{"status":"DB_UNAVAILABLE"}`; `/healthz` **200** `{"status":"ok"}`; `dig` A/AAAA empty; `host` **NXDOMAIN**; `getent` exit **2**; `curl` exit **6** `http=000` → standings held (cos readiness **BLOCKED**; liveness **PARTIAL**; revops **UNKNOWN**); no cargo; no ManagePullRequest; no false `ALIVE`. See §18. Tip-wins absorb onto crown (content @ `ee2e8f63c` ⊇ `7bcf6cff2`; absorb honesty via `cursor/v2711-oor15-curve-absorb-ded8`).
 
 ---
 
@@ -328,12 +328,13 @@ the BLOCKED/PENDING table above (cos `/readyz` → **200**; revops DNS ∧ `/rea
 
 ## 18. Retip15 honesty probe (2026-11-22 08:40:12 PST)
 
-Branch `cursor/v2711-oor-retip15-bc54` @ `5c969ac05` from probe tip
-`01eccfffb56c1c59be67a220eadb5bd98783c806` (parent
+Branch `cursor/v2711-oor-retip15-bc54` @ `5c969ac05` (side tip `a6f90ea9b`)
+from probe tip `01eccfffb56c1c59be67a220eadb5bd98783c806` (parent
 `1f10949a78523348951f55583d94bdac7bf63c66`; prior retip14 pin `df9597c18` /
-`72662eeff`). **No cargo.** No ManagePullRequest on #849. Sidebranch only —
-crown **not** pushed. Standings **held**; no false `ALIVE`. ALIVE gate unmet
-(requires cos `/readyz` **200** ∧ revops `/readyz` **200**).
+`72662eeff`). **No cargo.** No ManagePullRequest on #849. Tip-wins absorb onto
+crown tip `bebea5dd0` via `cursor/v2711-oor15-curve-absorb-ded8`. Standings
+**held**; no false `ALIVE`. ALIVE gate unmet (requires cos `/readyz` **200** ∧
+revops `/readyz` **200**).
 
 Exact probes (America/Los_Angeles):
 

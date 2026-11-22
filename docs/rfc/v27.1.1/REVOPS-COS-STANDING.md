@@ -430,16 +430,17 @@ Crown: Plane-5 revops+cos product standing is **not** `ALIVE`. Labels in §1
 
 ## 18. Tip reconfirm (2026-11-22 08:40:12 PST) — retip15 `01eccfffb`
 
-Observed on branch `cursor/v2711-oor-retip15-bc54` @ `5c969ac05` from tip
-`01eccfffb56c1c59be67a220eadb5bd98783c806` (parent
+Observed on branch `cursor/v2711-oor-retip15-bc54` @ `5c969ac05` (side tip
+`a6f90ea9b`) from tip `01eccfffb56c1c59be67a220eadb5bd98783c806` (parent
 `1f10949a78523348951f55583d94bdac7bf63c66`; prior retip14 pin `df9597c18` /
-`72662eeff`). **No cargo.** Sidebranch only — crown **not** pushed. Probe
-unchanged vs §17: cos `/readyz` **503** `{"status":"DB_UNAVAILABLE"}`;
-`/healthz` **200** `{"status":"ok"}`; `dig +short revops.fnox.io A`/`AAAA`
-empty; `host` **NXDOMAIN**; `getent` exit **2**; `curl` exit **6** `http=000`.
-Labels **held** (cos readiness **BLOCKED**; liveness **PARTIAL**; revops
-**UNKNOWN**). No ManagePullRequest. No false `ALIVE`. ALIVE gate unmet
-(requires cos `/readyz` **200** ∧ revops `/readyz` **200**).
+`72662eeff`). **No cargo.** Tip-wins absorb onto crown tip `bebea5dd0` via
+`cursor/v2711-oor15-curve-absorb-ded8`. Probe unchanged vs §17: cos `/readyz`
+**503** `{"status":"DB_UNAVAILABLE"}`; `/healthz` **200** `{"status":"ok"}`;
+`dig +short revops.fnox.io A`/`AAAA` empty; `host` **NXDOMAIN**; `getent` exit
+**2**; `curl` exit **6** `http=000`. Labels **held** (cos readiness **BLOCKED**;
+liveness **PARTIAL**; revops **UNKNOWN**). No ManagePullRequest. No false
+`ALIVE`. ALIVE gate unmet (requires cos `/readyz` **200** ∧ revops `/readyz`
+**200**).
 
 Exact probe commands (this host, America/Los_Angeles):
 

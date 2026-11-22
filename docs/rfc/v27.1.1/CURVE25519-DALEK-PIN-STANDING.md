@@ -128,7 +128,7 @@ Lease path still Ed25519 (non-AS-01):
 cargo test -p ggen-sjira --test lease_epoch_test
 ```
 
-**ALIVE pinned:** court land on sidebranch `cursor/v2711-curve25519-court-bc54` against tip `bebea5dd0`. Replay the court command above. Silent major drift still fails closed via `REFUSED_UNDOCUMENTED_MAJOR` until this standing + gap-matrix bump in the same change. Crown aggregate Gate-1 remains separate — this subject does not mint crown crypto / AS-01 / Plane-5 `ALIVE`.
+**ALIVE pinned:** tip-wins absorb of `cursor/v2711-curve25519-court-bc54` @ `615b8cb7a` onto crown tip `bebea5dd0` via `cursor/v2711-oor15-curve-absorb-ded8`; absorb replay **6 passed; EXIT 0** (`/tmp/ggen-curve-absorb-court`). Silent major drift still fails closed via `REFUSED_UNDOCUMENTED_MAJOR` until this standing + gap-matrix bump in the same change. Crown aggregate Gate-1 remains separate — this subject does not mint crown crypto / AS-01 / Plane-5 `ALIVE`.
 
 ---
 
