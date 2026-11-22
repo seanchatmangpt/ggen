@@ -138,6 +138,7 @@ the companion standing doc for that subject before refreshing standings here.
 | Doc | Role |
 |-----|------|
 | [`FOUNDRY-FINISH-STANDING.md`](./FOUNDRY-FINISH-STANDING.md) | Horizontal spine HITL summary; points here for out-of-repo next verifiers |
+| [`GATE023-OOR-STANDING-MATRIX.md`](./GATE023-OOR-STANDING-MATRIX.md) | Push-first OOR honesty matrix (standing + evidence tip + next verifier + owner) |
 | [`GATE-0-STANDING.md`](./GATE-0-STANDING.md) | Gate 0 billing / cos / servengine / SOW stub citations |
 | [`BRCE-WEBAUTHN-STANDING.md`](./BRCE-WEBAUTHN-STANDING.md) | Gate 2 BRCE human seat + WebAuthn AS-01 production (V7–V9) |
 | [`GATE-2-CINDYCAT-FIRST.md`](./GATE-2-CINDYCAT-FIRST.md) | Commercial priority |

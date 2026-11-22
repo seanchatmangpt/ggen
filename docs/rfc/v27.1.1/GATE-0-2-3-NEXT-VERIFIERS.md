@@ -4,7 +4,7 @@
 |-------|-------|
 | Document ID | `GATE-0-2-3-NEXT-VERIFIERS-27.1.1` |
 | Binding | `ECOSYSTEM-SPEC-27.1.1` Gate 0 + Gate 2–3 out-of-repo legs |
-| Companion index | [`OUT-OF-REPO-NEXT-VERIFIERS.md`](./OUT-OF-REPO-NEXT-VERIFIERS.md) (full provenance + GA notes) |
+| Companion index | [`OUT-OF-REPO-NEXT-VERIFIERS.md`](./OUT-OF-REPO-NEXT-VERIFIERS.md) (full provenance + GA notes); push-first honesty matrix [`GATE023-OOR-STANDING-MATRIX.md`](./GATE023-OOR-STANDING-MATRIX.md) |
 | Target GA | **2027-01-01** |
 | Observed ggen tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ **`acd3b8c89e57d3e4ced125f5a6f9440eb74b86d3`** (`acd3b8c89`) |
 | Sidebranch | `cursor/v2711-gate023-next-retip-bc54` |
@@ -154,6 +154,7 @@ getent hosts revops.fnox.io; curl -sS -w '\nhttp=%{http_code}\n' --connect-timeo
 | Doc | Role |
 |-----|------|
 | [`OUT-OF-REPO-NEXT-VERIFIERS.md`](./OUT-OF-REPO-NEXT-VERIFIERS.md) | Full Gate 0/2/3 provenance + GA notes |
+| [`GATE023-OOR-STANDING-MATRIX.md`](./GATE023-OOR-STANDING-MATRIX.md) | Push-first OOR honesty matrix (standing + tip + verifier + owner) |
 | [`GATE-0-STANDING.md`](./GATE-0-STANDING.md) | Gate 0 stub citations |
 | [`GATE-2-CINDYCAT-FIRST.md`](./GATE-2-CINDYCAT-FIRST.md) | Commercial priority |
 | [`GATE-3-RELEASE-COURTS-STANDING.md`](./GATE-3-RELEASE-COURTS-STANDING.md) | D1–D7 release courts |

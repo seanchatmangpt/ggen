@@ -507,7 +507,7 @@ tip=83c954e5f(path_pin)/9c56420dd(matrix)  cargo=NOT_RUN  invented_ALIVE=none
 
 Standing vocabulary: `UNKNOWN` | `PARTIAL` | `PARTIAL_ALIVE` | `ALIVE` | `BLOCKED` | `BLOCKED_HITL` | `UNSUPPORTED` | `REFUSED_*`.
 
-Companion matrices: [`GATE-1-GAP-MATRIX.md`](./GATE-1-GAP-MATRIX.md); [`GATE-0-2-3-NEXT-VERIFIERS.md`](./GATE-0-2-3-NEXT-VERIFIERS.md); [`OUT-OF-REPO-NEXT-VERIFIERS.md`](./OUT-OF-REPO-NEXT-VERIFIERS.md). Prior matrix: §17 @ `9c56420dd` (superseded for tip citation; standings held where ledgers unchanged).
+Companion matrices: [`GATE-1-GAP-MATRIX.md`](./GATE-1-GAP-MATRIX.md); [`GATE-0-2-3-NEXT-VERIFIERS.md`](./GATE-0-2-3-NEXT-VERIFIERS.md); [`OUT-OF-REPO-NEXT-VERIFIERS.md`](./OUT-OF-REPO-NEXT-VERIFIERS.md); [`GATE023-OOR-STANDING-MATRIX.md`](./GATE023-OOR-STANDING-MATRIX.md). Prior matrix: §17 @ `9c56420dd` (superseded for tip citation; standings held where ledgers unchanged).
 
 ### 18.1 Gate 1 — in-repo / sibling
 
