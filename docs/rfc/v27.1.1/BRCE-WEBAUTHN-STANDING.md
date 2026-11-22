@@ -4,16 +4,27 @@
 |-------|-------|
 | Document ID | `BRCE-WEBAUTHN-STANDING` |
 | Spec binding | `ECOSYSTEM-SPEC-27.1.1` §1.1 / Plane 5 |
-| Observed base | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `ebdbd69de42624bb34ee651a7d68512cd441730f` (2026-11-22; prior pins `750b8ef4a` / `5e00619a4` / `f1639510e`) |
-| Tip pin | 2026-11-22 — `cursor/v2711-brce-v7-es256-bc54` (V7 ES256/`prime256v1` fixture court land; crypto-shape PARTIAL; Plane-5 / broker not promoted) |
+| Observed tip | tip lineage @ `d05a131c7521d5a6325ade2e8295fee650659d5a` (V7 land `fb6e7fc6e` is ancestor; prior pins `ebdbd69de` / `750b8ef4a` / `5e00619a4`) |
+| Tip pin | 2026-11-22 — `cursor/v2711-ccs-webauthn-retip-bc54` (honest retip: V7 fixture **PARTIAL**/fixture-court land exit 0; live WebAuthn crypto **UNSUPPORTED**; broker / Plane-5 **BLOCKED**; cargo not run) |
 | Live filename | `BRCE-WEBAUTHN-STANDING.md` (not `BRCE-AS01-STANDING.md`) |
 | Target GA | **2027-01-01** |
-| Slice standing | **PARTIAL_ALIVE** (doctrine + V1 presence fence + **V7 fixture crypto-shape** court — **4 passed; exit 0** on this branch); live BRCE broker / Plane-5 DO still **BLOCKED** / **UNSUPPORTED** — never claim Plane-5 `ALIVE` from this land |
+| Slice standing | **PARTIAL_ALIVE** (doctrine + V1 presence fence + **V7 fixture crypto-shape**); live BRCE broker / live WebAuthn ceremony / Plane-5 DO still **BLOCKED** / **UNSUPPORTED** — never claim Plane-5 `ALIVE` from this land |
 
 Standing vocabulary: `UNKNOWN` | `PARTIAL_ALIVE` | `ALIVE` | `BLOCKED` | `BUILD_BROKEN` | `UNSUPPORTED` | `REFUSED_*`.
 
 This record is inspection + typed fence evidence. It does **not** claim a live
 WebAuthn ceremony, BRCE broker runtime, or Plane-5 DO path as `ALIVE`.
+
+---
+
+## 0. Honesty matrix (this retip @ `d05a131c`)
+
+| Bucket | Subjects | Standing | Exact next verifier |
+|--------|----------|----------|---------------------|
+| **ALIVE (fixture courts)** | ABB/SBB `unauthorized_do_request_is_refused`; SovereignLease Ed25519 admit; V7 ES256/`prime256v1` fixture court land **4 passed; exit 0** @ `fb6e7fc6e`; V1 seat fence historical **6 passed; exit 0** @ `0478fde59` | Fixture / kernel only | Replay: `cargo test -p ggen-abb-sbb --test brce_as01_es256_assertion_court`; `… --test brce_as01_seat_court`; `… --test falsifiers unauthorized_do_request_is_refused`; `cargo test -p ggen-sjira --test lease_epoch_test` |
+| **PARTIAL_ALIVE** | Whole AS-01 CONSTRUCT→DO slice; doctrine / CI broker fences; V7 crypto-shape path (fixture ≠ hardware); ungated-DO presence fence on tip without tip-cargo this retip | Path ceiling | Tip-cargo replay of V1/V7; do not promote to live |
+| **BLOCKED** | Live BRCE broker (admit→actuate→receipt) | Broker unmounted | **V8** — mounted BRCE broker court: intent without AS-01 → `REFUSED_*`; with verified seat → execution receipt + replay digest → exit **0** |
+| **UNSUPPORTED** | Live WebAuthn / FIDO2 RP + hardware ceremony; full clientDataJSON / authenticatorData / RP-ID bind; Plane-5 DO from ggen alone | No RP deps; V7 is fixture ECDSA only | Production RP/hardware court (OOR G2-4 beyond fixture) + **V9** / OOR **G2-5** Plane-5 probe ladder |
 
 ---
 
@@ -40,13 +51,13 @@ AS-01 seat cryptography named by the mandate: **ECDSA P-256 / `:prime256v1`**
 | `REQUIRED_BROKER = "BRCE"` | `crates/ggen-architecture/src/lib.rs`; `canonical.rs`; `self_play.rs`; certification standards | **PARTIAL_ALIVE** | Nested workspace; manufactures `ArchitectureIntent` addressed to BRCE; **does not actuate** |
 | BRCE intent CI fences | `.github/workflows/{gbb-kernel,gbb-certification,fortune5-architecture,tai-enterprise-rebuild,ontostar-mustar-powlv2-agents,non-llm-safe-ea-self-play}.yml` | **PARTIAL_ALIVE** | Assert `requiredBroker`/`REQUIRED_BROKER`/`directActuation == false` |
 | Pack / sync BRCE ceiling | `crates/ggen-engine/src/pack.rs`, `pack_scope.rs`; `docs/pack_capabilities_guide.md` | **PARTIAL_ALIVE** | Caps never grant DO / bypass BRCE |
-| ABB/SBB refuses DO authority | `crates/ggen-abb-sbb` `Refusal::AuthorityExceeded` / `unauthorized_do_request_is_refused` | **ALIVE** (CONSTRUCT ceiling) | Authority clamp ≠ AS-01 seat |
-| SovereignLease (Ed25519 / `EdDSA`) | `crates/ggen-sjira/src/lease.rs` + `execute` lease gate; CLI `sjira` | **ALIVE** (lease admit) | Multi-party Ed25519; **not** WebAuthn AS-01 / `prime256v1` |
+| ABB/SBB refuses DO authority | `crates/ggen-abb-sbb` `Refusal::AuthorityExceeded` / `unauthorized_do_request_is_refused` | **ALIVE** (CONSTRUCT ceiling fixture) | Authority clamp ≠ AS-01 seat |
+| SovereignLease (Ed25519 / `EdDSA`) | `crates/ggen-sjira/src/lease.rs` + `execute` lease gate; CLI `sjira` | **ALIVE** (lease admit fixture) | Multi-party Ed25519; **not** WebAuthn AS-01 / `prime256v1` |
 | Ed25519 sync receipts | `crates/ggen-engine` pack install signing; `ggen-mcp` receipt verify when sig present | **PARTIAL_ALIVE** | Receipt integrity; not seat DO gate |
 | `ed25519-dalek` 3.x / `curve25519-dalek` 4.x+5.x | workspace `Cargo.toml` / `Cargo.lock`; [`CURVE25519-DALEK-PIN-STANDING.md`](./CURVE25519-DALEK-PIN-STANDING.md) | **PARTIAL_ALIVE** | Pin doc PRESENT; Gate-1 policy court still open |
 | WebAuthn class in ontologies | `marketplace/packages/identity-access-management/ontology/identity_access_management.ttl`; autofde registry | **UNSUPPORTED** (runtime) | Catalogue / registry labels only |
-| Ungated-DO-without-seat typed refusal (this slice) | `crates/ggen-abb-sbb/src/as01_seat.rs` + `tests/brce_as01_seat_court.rs` | **PARTIAL_ALIVE** | Presence/shape fence only. Historical Gate-1 evidence: **6 passed; exit 0** on `0478fde59` ([`GATE-1-GAP-MATRIX.md`](./GATE-1-GAP-MATRIX.md)). Fence ≠ path `ALIVE`. |
-| AS-01 ES256/`prime256v1` assertion fixture court (V7) | `crates/ggen-abb-sbb/src/as01_assertion.rs` + `tests/brce_as01_es256_assertion_court.rs`; admitted `p256` dep in `ggen-abb-sbb` | **PARTIAL_ALIVE** (crypto shape) | Court evidence: **4 passed; exit 0**. Known-good fixture admits; tampered → `REFUSED_AS01_SIGNATURE_INVALID`; alg≠ES256 → `REFUSED_AS01_ALG`. **Not** hardware ceremony / RP / broker / Plane-5 `ALIVE`. |
+| Ungated-DO-without-seat typed refusal (this slice) | `crates/ggen-abb-sbb/src/as01_seat.rs` + `tests/brce_as01_seat_court.rs` | **PARTIAL_ALIVE** (path) / fixture land **ALIVE** @ `0478fde59` (**6 passed; exit 0**) | Presence/shape fence. Fence ≠ path `ALIVE`. Tip-cargo not re-run this retip. |
+| AS-01 ES256/`prime256v1` assertion fixture court (V7) | `crates/ggen-abb-sbb/src/as01_assertion.rs` + `tests/brce_as01_es256_assertion_court.rs`; admitted `p256` dep in `ggen-abb-sbb` | **PARTIAL_ALIVE** (crypto-shape path) / fixture court land **ALIVE** @ `fb6e7fc6e` (**4 passed; exit 0**) | Known-good fixture admits; tampered → `REFUSED_AS01_SIGNATURE_INVALID`; alg≠ES256 → `REFUSED_AS01_ALG`. **Not** hardware ceremony / RP / broker / Plane-5 `ALIVE`. Live crypto remains **UNSUPPORTED**. |
 
 ---
 
@@ -59,12 +70,13 @@ AS-01 seat cryptography named by the mandate: **ECDSA P-256 / `:prime256v1`**
 | Live BRCE broker (admit intent → actuate → execution receipt) | **BLOCKED** / **UNKNOWN** | Doctrine + intent manufacture only; broker realization not mounted in this checkout — see §5 **V8** |
 | Plane 5 front doors (revops.fnox.io, cos/FinFab, Fourth Watch, CindyCat) DO | **BLOCKED** / **UNSUPPORTED** in ggen | ECOSYSTEM-SPEC: out of ggen DO; exact next §5 **V9** + OOR **G2-5** — must not claim `ALIVE` from this repo |
 | Equating SovereignLease Ed25519 with AS-01 P-256 | **REFUSED_UNGROUNDED** | Different algorithm, purpose, and authority surface |
+| Equating V7 fixture exit 0 with live WebAuthn crypto | **REFUSED_UNGROUNDED** | Fixture ECDSA ≠ RP/hardware ceremony |
 
 ---
 
 ## 4. What this slice seals (and what it does not)
 
-**Sealed (PARTIAL_ALIVE):**
+**Sealed (PARTIAL_ALIVE path / ALIVE fixture courts):**
 
 - Standing census of BRCE / AS-01 / lease / ed25519 vs WebAuthn/`prime256v1`.
 - A Chicago court that refuses **ungated DO** when no AS-01 seat claim is
@@ -79,7 +91,7 @@ AS-01 seat cryptography named by the mandate: **ECDSA P-256 / `:prime256v1`**
 - Hardware authenticator enrollment, attestation, or RP ID binding.
 - BRCE broker actuation or Plane-5 execution receipts.
 - Promotion of SovereignLease Ed25519 to AS-01 standing.
-- Promotion of V7 fixture exit 0 to Plane-5 / CONSTRUCT→DO `ALIVE`.
+- Promotion of V7 fixture exit 0 to Plane-5 / CONSTRUCT→DO / live-crypto `ALIVE`.
 
 ---
 
@@ -98,7 +110,7 @@ named claim.
 | V4 | SovereignLease remains Ed25519/`EdDSA` (non-AS-01) | `cargo test -p ggen-sjira --test lease_epoch_test` | **ggen** |
 | V5 | No silent `p256`/WebAuthn dep without docs | `rg -n 'p256|webauthn|web-authn|passkeys' Cargo.toml crates/*/Cargo.toml Cargo.lock` → empty **or** documented admit (this slice: `p256` in `crates/ggen-abb-sbb/Cargo.toml` for V7 only; no `webauthn`/`passkeys` RP) | **ggen** |
 | V6 | Gate-1 `curve25519-dalek` pin/docs court | pin doc [`CURVE25519-DALEK-PIN-STANDING.md`](./CURVE25519-DALEK-PIN-STANDING.md) PRESENT; next: policy court refusing undocumented major (see pin standing §5 / `GATE-1-GAP-MATRIX.md`) | **ggen** (+ cgap-aoq) |
-| V7 | WebAuthn AS-01 assertion verifies under `ES256`/`prime256v1` | `cargo test -p ggen-abb-sbb --test brce_as01_es256_assertion_court` — known-good → admit; tampered → `REFUSED_AS01_SIGNATURE_INVALID`; alg≠ES256 → `REFUSED_AS01_ALG` | **ggen** (in-repo adapter; crypto shape PARTIAL — not hardware/Plane-5 ALIVE) |
+| V7 | WebAuthn AS-01 assertion verifies under `ES256`/`prime256v1` | `cargo test -p ggen-abb-sbb --test brce_as01_es256_assertion_court` — known-good → admit; tampered → `REFUSED_AS01_SIGNATURE_INVALID`; alg≠ES256 → `REFUSED_AS01_ALG` | **ggen** (in-repo adapter; crypto-shape **PARTIAL**; fixture land exit 0 — **not** hardware/Plane-5 ALIVE; live ceremony still **UNSUPPORTED**) |
 
 ### Gate 2–3 (post Gate 1 → GA 2027-01-01)
 
@@ -113,10 +125,11 @@ named claim.
 
 | From | To | Requires |
 |------|-----|----------|
-| PARTIAL_ALIVE (this doc + V1) | PARTIAL_ALIVE (crypto shape) | V7 fixture court without claiming hardware ALIVE — **landed** this branch |
-| PARTIAL_ALIVE (crypto shape) | ALIVE (seat verify) | V7 + replay on CI tip (still open; tip-cargo may lag) |
+| PARTIAL_ALIVE (this doc + V1) | PARTIAL_ALIVE (crypto shape) | V7 fixture court without claiming hardware ALIVE — **landed** (`fb6e7fc6e`; ancestor of tip `d05a131c`) |
+| PARTIAL_ALIVE (crypto shape) | ALIVE (seat verify on tip) | V7 + tip-cargo replay exit 0 (still open this retip — cargo not run) |
 | ALIVE (seat) | ALIVE (CONSTRUCT→DO) | V8 broker receipt on exact tip |
 | any | Plane 5 ALIVE | V9 — **never** from ggen-only evidence |
+| any | Live WebAuthn ceremony ALIVE | RP/hardware court — V7 fixture alone is **REFUSED_UNGROUNDED** |
 
 ---
 
@@ -132,7 +145,7 @@ named claim.
 | `crates/ggen-abb-sbb/src/as01_assertion.rs` | V7 ES256/`prime256v1` assertion verify (crypto shape) |
 | `crates/ggen-abb-sbb/tests/brce_as01_es256_assertion_court.rs` | Chicago falsifier (V7) |
 | [`OUT-OF-REPO-NEXT-VERIFIERS.md`](./OUT-OF-REPO-NEXT-VERIFIERS.md) | G2-3/G2-4/G2-5 live broker / WebAuthn / Plane-5 DO |
-| [`CCS-AUTHORITY-STANDING.md`](./CCS-AUTHORITY-STANDING.md) | ~8 CCS ledger (CCS-1 / CCS-8) |
+| [`CCS-AUTHORITY-STANDING.md`](./CCS-AUTHORITY-STANDING.md) | ~8 CCS ledger (CCS-1 / CCS-3 / CCS-8) |
 
 ---
 
@@ -141,9 +154,11 @@ named claim.
 | Claim | Standing |
 |-------|----------|
 | Doctrine BRCE-only DO in-repo | **PARTIAL_ALIVE** |
-| SovereignLease Ed25519 | **ALIVE** (lease) / **UNSUPPORTED** as AS-01 |
-| WebAuthn AS-01 `:prime256v1` fixture verify (V7) | **PARTIAL_ALIVE** (crypto shape) — **4 passed; exit 0**; not hardware / RP ceremony |
-| Live BRCE broker / Plane 5 DO | **BLOCKED** / **UNSUPPORTED** (out of ggen) — exact next §5 **V8**/**V9** + OOR **G2-3**/**G2-5** |
-| Ungated DO without seat typed refusal | **PARTIAL_ALIVE** (V1 court) |
-| Whole AS-01 CONSTRUCT→DO path | **PARTIAL_ALIVE** → next falsifiers **V8–V11** + OOR **G2-3/G2-5** (G2-4 production still open beyond fixture) through GA |
-| Observed tip | branch `cursor/v2711-brce-v7-es256-bc54` on ecosystem tip `ebdbd69de+` |
+| SovereignLease Ed25519 | **ALIVE** (lease fixture) / **UNSUPPORTED** as AS-01 |
+| ABB/SBB DO-authority refuse | **ALIVE** (CONSTRUCT ceiling fixture) |
+| WebAuthn AS-01 `:prime256v1` fixture verify (V7) | Fixture court land **ALIVE** @ `fb6e7fc6e` (**4 passed; exit 0**); path **PARTIAL_ALIVE** (crypto shape) — not hardware / RP ceremony |
+| Live WebAuthn / FIDO2 crypto | **UNSUPPORTED** |
+| Live BRCE broker / Plane 5 DO | **BLOCKED** — exact next §5 **V8**/**V9** + OOR **G2-3**/**G2-5** |
+| Ungated DO without seat typed refusal | **PARTIAL_ALIVE** (path) / V1 fixture land **ALIVE** |
+| Whole AS-01 CONSTRUCT→DO path | **PARTIAL_ALIVE** → next falsifiers **V8–V11** + OOR **G2-3/G2-5** (G2-4 production still **UNSUPPORTED** beyond fixture) through GA |
+| Observed tip | `cursor/v2711-ccs-webauthn-retip-bc54` @ `d05a131c` (cargo not run) |
