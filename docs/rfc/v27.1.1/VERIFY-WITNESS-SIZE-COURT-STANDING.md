@@ -1,24 +1,29 @@
 # `verify_witness` size court standing (tip-cargo ALIVE)
 
 ```text
-exit=0 standing=ALIVE(size_court) passed=6 tip=58e61b3aab77d3423924867f1f58c56a6c3fc97d reconfirm=c91b225614a3ca0472303c05bab25601db1d51e1
+exit=0 standing=ALIVE(size_court) passed=6 tip=96444e302aae49e5e2c590160fcf4113db7c228a
+lineage=6a3a623bacd33efdc1ec7efccf6a35141662ca53
+prior_reconfirm=c91b225614a3ca0472303c05bab25601db1d51e1
+production=UNSUPPORTED
+honesty=size_court_ALIVE_neq_production_WASM_ALIVE
+side=cursor/v2711-verify-witness-prod-bc54
 ```
 
 | Field | Value |
 |-------|-------|
-| Branch | `cursor/v2711-verify-witness-tipalive-bc54` |
-| Ecosystem tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `58e61b3aab77d3423924867f1f58c56a6c3fc97d` (write_apply ALIVE absorb; witness sources ≡ reconfirm `c91b22561`) |
+| Branch (this honesty surface) | `cursor/v2711-verify-witness-prod-bc54` |
+| Ecosystem tip (base) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `96444e302aae49e5e2c590160fcf4113db7c228a` (OOR retip11 on lineage `6a3a623ba`) |
 | Court | `crates/ggen-graph/tests/verify_witness_size_court.rs` — **6** `#[test]` **PRESENT** |
 | API | `crates/ggen-graph/src/witness/mod.rs` **PRESENT** (`court_verify_witness_size`, budget `262_144`) |
-| Placeholder | `crates/ggen-graph/fixtures/witness/verify_witness.placeholder.wasm` **35** bytes (`< 262144` / &lt;250KB) |
-| Lock precondition | tip `59c090984` absorbed `Cargo.lock` `ggen-lsp` → `ggen-abb-sbb` path edge (`cursor/v2711-verify-witness-lock-alive-bc54`) so `--locked` resolves |
-| Tip-cargo (cold) | subject `cd7c2433b` — `set -o pipefail; cargo test -p ggen-graph --test verify_witness_size_court --locked --target-dir /tmp/ggen-verify-witness-tip-ebf4 --config build.jobs=1 -- --test-threads=1` → **6 passed; EXIT=0** (`/tmp/cursor/verify-witness-tip-cd7c-build.log`) |
-| Tip-cargo (reconfirm) | subject `c91b22561` (exact origin tip) — same command → **6 passed; EXIT=0** in **0.58s** (`/tmp/cursor/verify-witness-tip-c91b-reconfirm.log`) |
+| Placeholder | `crates/ggen-graph/fixtures/witness/verify_witness.placeholder.wasm` **35** bytes (`< 262144` / &lt;250KB); SHA-256 `720b97972e97693b197444d46578b75546cd0b0487e7061fc7e1ea45f2953034` |
+| Tip-cargo (this tip) | subject `96444e302` — warm target `/tmp/ggen-verify-witness-tip-ebf4` → **6 passed; EXIT=0** (`/tmp/cursor/verify-witness-prod-size-court-96444.log`) |
+| Tip-cargo (prior reconfirm) | subject `c91b22561` — **6 passed; EXIT=0** (`/tmp/cursor/verify-witness-tip-c91b-reconfirm.log`) |
+| Tip-cargo (cold) | subject `cd7c2433b` — **6 passed; EXIT=0** (`/tmp/cursor/verify-witness-tip-cd7c-build.log`) |
 | Ancestor cargo | `0478fde59` — **6 passed; exit 0** (retained) |
-| Prior non-tip EXIT:0 | `/workspace` / `/tmp/ggen-verify-witness-cargo.log` — **not** tip ALIVE (recorded; superseded) |
-| Standing (size court) | **ALIVE** (exact tip-cargo on `c91b22561`; size court only) |
-| Production WASM | **UNSUPPORTED** — [`VERIFY-WITNESS-PRODUCTION.md`](./VERIFY-WITNESS-PRODUCTION.md) — never production-artifact `ALIVE` from placeholder fence |
+| Standing (size court) | **ALIVE** (exact tip-cargo on `96444e302`; size court only) |
+| Production WASM | **UNSUPPORTED** in ggen — [`VERIFY-WITNESS-PRODUCTION.md`](./VERIFY-WITNESS-PRODUCTION.md). Sibling affidavit pin observed **28673** B remotely ≠ ggen production `ALIVE`. |
 | ManagePullRequest | not used |
+| Crown push | **not** performed (side branch only) |
 
 ## Replay
 
@@ -33,3 +38,17 @@ echo EXIT=$?
 ```
 
 Expect: **6 passed; exit 0** on tip witness sources (production path remains **UNSUPPORTED**).
+
+## Exact next verifier for production (crown absorb of prod claim)
+
+Owner: **affidavit** (`seanchatmangpt/affidavit`). See
+[`VERIFY-WITNESS-PRODUCTION.md`](./VERIFY-WITNESS-PRODUCTION.md):
+
+```bash
+# mounted affidavit @ 563eb322a (or tip retaining pin)
+just gatekeeper-wasm-size-court
+wc -c affidavit-gatekeeper-wasm/dist/affidavit_gatekeeper_verify_witness.wasm  # pin 28673
+```
+
+ggen crown absorb of **this honesty doc surface** does not require that
+verifier; absorb only records size-court `ALIVE` + production `UNSUPPORTED`.
