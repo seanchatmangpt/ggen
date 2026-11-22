@@ -163,6 +163,7 @@ fi
 
 if [[ "$MODE" == "check" ]]; then
     # Byte-identical gate covers manufactured source projections only.
+    # (Construct concurrency cancel-in-progress=false: docs retips must not thrash this gate.)
     # Exclude runtime receipt/evidence churn that changes every sync by design
     # (chained hashes, generation bumps, reflexive append) — same class as
     # publish-candidate.yml docs-sync DRIFT_PATHSPEC and ZD-135 tcps .ggen-v2.
