@@ -210,7 +210,7 @@ G2-4/G2-5 exact next verifiers retained; retip5 probe tip-wins; Foundry crown st
 present-pin ABSENT→PRESENT prose folded; Smalt FinOps **ALIVE** + G2-12 **ALIVE**
 + CCS/BRCE exact next verifiers tip-wins retained; Foundry stays
 **PARTIAL_ALIVE**. Tip pin retipped on `cursor/v2711-hop4-manufacture-bc54`
-onto tip `5f8f0c3a4` — G2-10 hop-4 manufacture **PARTIAL** exit **2**
+onto tip `704025461` — G2-10 hop-4 manufacture **PARTIAL** exit **2**
 `REFUSED {:brand_theme_refused, :no_primitive_space}` (tip `[rhythm]` → igniter
 BrandTheme); next = align tip brand to DTCG `[primitive.space]` or rhythm→theme
 emitter then manufacture compare → exit **0**; evidence
