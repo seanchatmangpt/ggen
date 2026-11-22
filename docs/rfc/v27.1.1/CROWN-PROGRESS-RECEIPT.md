@@ -4,10 +4,10 @@
 |-------|-------|
 | Document ID | `CROWN-PROGRESS-RECEIPT-27.1.1` |
 | Status | **PROGRESS RECEIPT** (honest; **not** goal-complete; **not** crown `ALIVE`) |
-| Observed tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `60b15c7788ca7fb0c73ac19e7762759b61852603` |
-| Tip subject | absorb castle-retip2 (#923) onto tip past CCS/OOR absorb `60b15c778` / `c832cabdc` |
-| Ledger pins cited | OOR retip7 probe @ `a3b1c9410`; CCS/BRCE @ `16d3c2f08`; CASTLE retip2 @ `371971c3a`; tip `60b15c778` |
-| Cargo this receipt | **none** (no cargo; tip-cargo locks **spared**) |
+| Observed tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `a29e1cd92fa1edc0cd0b744a3b628c871039e825` |
+| Tip subject | tip-cargo `ui_layout` ALIVE retip `cursor/v2711-uilayout-tip-alive-bc54` (cargo evidence `ca52e9c16`; tip pin `a29e1cd92`) |
+| Ledger pins cited | Gate-1 / Photo / Foundry retipped for tip-cargo ALIVE; OOR / CCS / BRCE / CASTLE retain prior absorb pins |
+| Cargo this receipt | **yes** — exclusive quiet `ui_layout_court` **11 passed; exit 0** @ `ca52e9c16` |
 | Goal standing | **INCOMPLETE** — do **not** claim ECOSYSTEM-SPEC-27.1.1 crown complete |
 
 Standing vocabulary (`AGENTS.md` §2): `UNKNOWN` | `PARTIAL_ALIVE` | `ALIVE` |
@@ -30,13 +30,13 @@ FinOps: FOUNDRY/OOR **ALIVE** @ `91997da76f0f` vs older §13.3 FinOps
 Compact return line:
 
 ```text
-tip=60b15c7788ca7fb0c73ac19e7762759b61852603
+tip=a29e1cd92fa1edc0cd0b744a3b628c871039e825
 clause1=PARTIAL
 clause2=PARTIAL_ALIVE
 clause3=PARTIAL+BLOCKED
 clause4=PARTIAL
-gate1=PARTIAL (mixed ALIVE/PARTIAL; tip-cargo PENDING/spared)
-blockers=foundry--live; tip-cargo; cos/readyz; WebAuthn/BRCE-V8/V9; revops-DNS; mix-NIF; R01-R07-bodies; verify_witness-prod; production-theme
+gate1=PARTIAL (mixed ALIVE/PARTIAL; ui_layout tip-cargo ALIVE)
+blockers=foundry--live; cos/readyz; WebAuthn/BRCE-V8/V9; revops-DNS; mix-NIF; R01-R07-bodies; verify_witness-prod; production-theme; remaining-fence-tip-cargo
 ```
 
 ---
@@ -49,14 +49,14 @@ blockers=foundry--live; tip-cargo; cos/readyz; WebAuthn/BRCE-V8/V9; revops-DNS; 
 | Hop 1 perimeter (`shui:` fence + Truex admit) | Fence **PARTIAL_ALIVE**/evidence-**ALIVE** (tip-cargo PENDING); Truex admit-court **ALIVE** @ `truex@68d2d233` (merged) |
 | Hop 2 `.ttl`/`.toml` rhythm + dual-schema | **PARTIAL_ALIVE** (full DTCG/CASTLE inventory **UNSUPPORTED**) |
 | Hop 3 Taffy AOT six-width seal | **PARTIAL_ALIVE** (evidence exit 0 ancestor; tip-cargo PENDING; consumer bind open) |
-| Hop 3b ggen `ui_layout` digest consume | **ALIVE** on evidence `eaf0dad40` (**8 passed; exit 0**); tip source **11**; **tip-cargo PENDING** |
+| Hop 3b ggen `ui_layout` digest consume | **ALIVE** tip-cargo **11 passed; exit 0** @ `ca52e9c16` (≡ tip `a29e1cd92`); tip source **11**; prior evidence `eaf0dad40` |
 | Hop 4 ggen_igniter BrandTheme manufacture | **ALIVE** (`diff_exit=0` dual-schema tip brand vs igniter fixture); `mix sync` NIF **BLOCKED** |
 | Hop 5 zcode POWL/OCEL / foundry | **PARTIAL_ALIVE** — adapter exit **0**; Linux tip-matched runtime **PRESENT**; `powl-foundry-loop --live` **foundry_exit=1** / **REFUSED** (`Model access is not configured` @ zcode `f32df08`) |
 
 **Exact next verifiers**
 
 1. provider `/login` or `~/.zcode/v2/provider_config.json` → `bun scripts/powl-foundry-loop.ts --live` → **0** ([`HOP5-ZCODE-RUNTIME-STANDING.md`](./HOP5-ZCODE-RUNTIME-STANDING.md); keys [`HOP5-MODEL-ACCESS-STANDING.md`](./HOP5-MODEL-ACCESS-STANDING.md)).
-2. Quiet tip-cargo: `CARGO_BUILD_JOBS=1 cargo test -p ggen-graph --test ui_layout_court` → **0** on tip (also `shui` / `taffy_aot` / `brand_toml_rhythm`).
+2. Remaining fence tip-cargo: quiet `CARGO_BUILD_JOBS=1` for `shui` / `taffy_aot` / `brand_toml_rhythm` (ui_layout already **ALIVE**).
 3. Residual: `CXX=g++-13` → `mix ggen_igniter.sync --check` → **0**.
 
 Antifalsifier: adapter exit 0 ≠ path crown `ALIVE`; runtime materialization alone ≠ hop-5 `ALIVE`; bare post-clone `git diff` ≠ hop-4 `ALIVE`.

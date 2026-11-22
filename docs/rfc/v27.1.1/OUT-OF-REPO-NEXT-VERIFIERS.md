@@ -5,11 +5,11 @@
 | Document ID | `OUT-OF-REPO-NEXT-VERIFIERS` |
 | Companion | `ECOSYSTEM-SPEC-27.1.1`, `GATE-0-STANDING`, `GATE-3-RELEASE-COURTS-STANDING`, `FOUNDRY-FINISH-STANDING` |
 | Target GA | **2027-01-01** |
-| Observed ggen tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `60b15c7788ca7fb0c73ac19e7762759b61852603` |
+| Observed ggen tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `a29e1cd92fa1edc0cd0b744a3b628c871039e825` |
 | Materialized | 2026-11-22 |
 | Hardened | 2026-11-22 — `cursor/v2711-oor-ledger-harden-bc54` |
 | Ops refresh | 2026-11-22 — `cursor/v2711-ops-standing-refresh-bc54` (tip pin + probe reconfirm; standings held) |
-| Tip pin | 2026-11-22 — absorb onto tip `93417d9f3+` (lineage `60b15c778`/`c832cabdc`): hop5-model-access @ `35522eff9` (#924) + gate1-standing-retip2 @ `6d6eb7812` (#925); prior #921/`16d3c2f08` + #922/`7532a71a7` + #923/`371971c3a` already on tip. Gate0/ops probe evidence retained from retip7 @ `a3b1c9410`: cos `/readyz` **503** `{"status":"DB_UNAVAILABLE"}` → cos readiness **BLOCKED**; `/healthz` **200** → liveness **PARTIAL** (≠ ALIVE); revops NXDOMAIN / curl exit **6** → **UNKNOWN**. WebAuthn live/production **UNSUPPORTED**. Hop5 `--live` tip-wins **BLOCKED**/**REFUSED** (model access). tip-cargo (`ui_layout`) **PENDING**/spared (exclusive locks untouched — no cargo). Spine tip-wins retained: hop-4 **ALIVE**; hop-5 aggregate **PARTIAL_ALIVE**; Smalt **ALIVE**; CASTLE sibling **ALIVE**; Truex admit-court **ALIVE**; Zero-HITL crown **PARTIAL**. No cargo. No ManagePullRequest. No false zero-HITL/`ALIVE` |
+| Tip pin | 2026-11-22 — absorb onto tip `93417d9f3+` (lineage `60b15c778`/`c832cabdc`): hop5-model-access @ `35522eff9` (#924) + gate1-standing-retip2 @ `6d6eb7812` (#925); prior #921/`16d3c2f08` + #922/`7532a71a7` + #923/`371971c3a` already on tip. Gate0/ops probe evidence retained from retip7 @ `a3b1c9410`: cos `/readyz` **503** `{"status":"DB_UNAVAILABLE"}` → cos readiness **BLOCKED**; `/healthz` **200** → liveness **PARTIAL** (≠ ALIVE); revops NXDOMAIN / curl exit **6** → **UNKNOWN**. WebAuthn live/production **UNSUPPORTED**. Hop5 `--live` tip-wins **BLOCKED**/**REFUSED** (model access). tip-cargo (`ui_layout`) **ALIVE** (**11 passed; exit 0** exclusive quiet @ `ca52e9c16` ≡ tip `a29e1cd92`; branch `cursor/v2711-uilayout-tip-alive-bc54`). Spine tip-wins retained: hop-4 **ALIVE**; hop-5 aggregate **PARTIAL_ALIVE**; Smalt **ALIVE**; CASTLE sibling **ALIVE**; Truex admit-court **ALIVE**; Zero-HITL crown **PARTIAL**. Tip-cargo exclusive quiet cargo this retip. No ManagePullRequest. No false zero-HITL/`ALIVE` |
 | Hop-4 evidence | `/tmp/cursor/igniter-real-cleanroom.md` (`bc-4861c787`) — tip dual-schema BrandTheme manufacture compare `diff_exit=0` (**ALIVE**) |
 | Hop-5 evidence | [`HOP5-MIX-SUBJECT-STANDING.md`](./HOP5-MIX-SUBJECT-STANDING.md) (`adapter_exit=0` / `layout_exit=0`; Chicago **31/0`); runtime **PRESENT** ([`HOP5-ZCODE-RUNTIME-STANDING.md`](./HOP5-ZCODE-RUNTIME-STANDING.md)); foundry `--live` **foundry_exit=1** / **REFUSED** `Model access is not configured` @ zcode `f32df08` |
 | Repo scope | `seanchatmangpt/ggen` — **tracks** sibling standing; does not execute sibling DO |
@@ -107,8 +107,8 @@ GA horizon for all courts: **2027-01-01**.
 
 | Subject | Standing | Exact next verifier |
 |---------|----------|---------------------|
-| Zero-HITL Foundry crown | **PARTIAL** | See [`FOUNDRY-FINISH-STANDING.md`](./FOUNDRY-FINISH-STANDING.md) §1a / §6 — founder HITL still needed for cos DB, WebAuthn live/production (**UNSUPPORTED**), tip-cargo, foundry `--live` (model access) |
-| tip-cargo (`ui_layout`) | **PENDING**/in-flight | `CARGO_BUILD_JOBS=1 cargo test -p ggen-graph --test ui_layout_court` → **0** on tip (spared — not run this absorb) |
+| Zero-HITL Foundry crown | **PARTIAL** | See [`FOUNDRY-FINISH-STANDING.md`](./FOUNDRY-FINISH-STANDING.md) §1a / §6 — founder HITL still needed for cos DB, WebAuthn live/production (**UNSUPPORTED**), foundry `--live` (model access); ui_layout tip-cargo **ALIVE** |
+| tip-cargo (`ui_layout`) | **ALIVE** | exclusive quiet `CXX=g++ SCCACHE_DISABLE=1 CARGO_BUILD_JOBS=1 cargo test -p ggen-graph --test ui_layout_court --locked` → **11 passed; exit 0** @ `ca52e9c16` (≡ tip `a29e1cd92`) |
 | foundry `--live` / model access (G2-9) | **BLOCKED**/**REFUSED** | Runtime **PRESENT**; registry/env **ABSENT**; keys in [`HOP5-MODEL-ACCESS-STANDING.md`](./HOP5-MODEL-ACCESS-STANDING.md) → `bun scripts/powl-foundry-loop.ts --live` → **0** |
 | `mix ggen_igniter.sync` NIF (G2-10 residual) | **BLOCKED** | exclusive `CXX=g++-13` → `mix ggen_igniter.sync --check` → **0** |
 | cos DB / `/readyz` (G0-2 / G2-2) | **BLOCKED** | `curl -sS -w '\nhttp=%{http_code}\n' https://cos.fnox.io/readyz` → HTTP **200** (retip7 observed **503** `DB_UNAVAILABLE`) |
