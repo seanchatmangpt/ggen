@@ -100,6 +100,7 @@ Jobs/C4 residual is **separate** (not this falsifier): admitted igniter pack `--
 | Prior evidence chain | hop5-foundry-live → live2 (`ZCode runtime is missing`) → zcode-runtime (vendor **PRESENT**; model access **ABSENT**) → model-access / secrets probe (registry/env **ABSENT**; MCP secret inventory **UNSUPPORTED**) → HITL next-verifier pin |
 | Re-probe retip | 2026-11-22 — `cursor/v2711-hitl-live-retip-bc54` @ `0364129c5` from `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `d2c919401` (⊇ CASTLE digest-bind wire); `bc-cdfdae43`; exact §3 command re-run; **foundry_exit=1**; **BLOCKED_HITL** held; **no** invented `--live` / hop-5 / Foundry crown `ALIVE`; sidebranch push only; no ManagePullRequest |
 | Tip-wins absorb (re-probe) | 2026-11-22 — §6 body already tip-wins via `7ea96a70d` (CI blank-EOF + HITL retip absorb of `0364129c5` / `bc-cdfdae43` onto `d2c919401`); `cursor/v2711-hitl-live-retip-absorb-d91a` finishes absorb honesty + CROWN pin onto live crown `7ea96a70d` (⊇ CASTLE digest-bind / VW CI-wasm / OOR retip13 / CI blank-EOF); standing remains **BLOCKED_HITL** / **REFUSED** (`foundry_exit=1`; Model access not configured); exact next `bun scripts/powl-foundry-loop.ts --live` → **foundry_exit=0**; **no** invented `--live` `ALIVE`; docs-only; no cargo; no ManagePullRequest; push `HEAD:cursor/ecosystem-spec-27-1-1-bc54` (no force) |
+| Re-probe retip2 | 2026-11-22 — `cursor/v2711-hitl-retip2-bc54` from `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `01eccfffb` (⊇ zcode refusal reconfirm ALIVE + OOR retip14); `bc-43dfbc3c`; exact §3 command re-run; **foundry_exit=1**; **BLOCKED_HITL** held; **no** invented `--live` / hop-5 / Foundry crown `ALIVE`; sidebranch push only; no ManagePullRequest; **no** crown push |
 
 ---
 
@@ -137,3 +138,41 @@ Jobs/C4 residual is **separate** (not this falsifier): admitted igniter pack `--
 | Exact next (unchanged) | Founder HITL provision (§3 A/B/C) → `bun scripts/powl-foundry-loop.ts --live` → **foundry_exit=0** |
 
 **Antifalsifiers held:** dry-run / runtime PRESENT / adapter exit 0 / in-repo tip-cargo ≠ `--live` `ALIVE`. Tip-wins absorb onto crown `7ea96a70d+` (body @ `7ea96a70d`; honesty this land) — standing **not** promoted.
+
+---
+
+## 7. Re-probe retip2 (2026-11-22) — `cursor/v2711-hitl-retip2-bc54`
+
+| Field | Value |
+|-------|-------|
+| Base | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `01eccfffb56c1c59be67a220eadb5bd98783c806` (`01eccfffb+`; tip-wins zcode refusal ALIVE + OOR retip14) |
+| Branch | `cursor/v2711-hitl-retip2-bc54` |
+| Agent | `bc-43dfbc3c` (`https://cursor.com/agents/bc-43dfbc3c-8e2c-59bc-be2a-e3ee3ee09020`) |
+| zcode-cli | `/agent/repos/zcode-cli` @ `f32df08cdc4b3b8e114a8d1de8cf81acb80e1f3a` |
+| Command | `cd /agent/repos/zcode-cli && bun scripts/powl-foundry-loop.ts --live` |
+| UTC | `2026-11-22T16:38:02Z` |
+| Cargo / tip-cargo | **NOT RUN** (docs-only retip2 + exact live probe) |
+
+### Observed
+
+| Probe | Result |
+|-------|--------|
+| `vendor/zcode.cjs` | **PRESENT** |
+| `~/.zcode/v2/provider_config.json` | **ABSENT** |
+| Host provider env names (`ANTHROPIC_*` / `ZCODE_*` / `ZAI_*` / `BIGMODEL_*` / `ZHIPU_*`) | **ABSENT** (`provider_env_count=0`) |
+| Model access configured | **NO** |
+| `foundry_exit` | **1** |
+| `aggregateStanding` | **REFUSED** |
+| `liveExecutor` | `createZcodeAgentExecutor` (injected; ≠ live pass) |
+| Diagnostic (WO-A / remediate-*) | `Model access is not configured. Run /login or /setup in zcode, or configure its API key before sending a prompt. No model request was sent.` |
+| Receipt artifacts | stdout `/tmp/cursor/hitl-retip2-stdout.txt`; exit `/tmp/cursor/hitl-retip2-exit.txt`; workspace `/tmp/zcode-foundry-vtJ3yM`; summary `/tmp/zcode-foundry-vtJ3yM/out/foundry-summary.json`; external logs `/tmp/zcode-foundry-live-logs-Pfs7fz/` |
+
+### Standing (this retip2)
+
+| Claim | Standing |
+|-------|----------|
+| Exact §3 verifier this probe | **BLOCKED_HITL** / **REFUSED** (`foundry_exit=1`; model access not configured) |
+| Hop-5 live / Foundry crown | **PARTIAL** — **not** promoted; do **not** invent `ALIVE` |
+| Exact next (unchanged) | Founder HITL provision (§3 A/B/C) → `bun scripts/powl-foundry-loop.ts --live` → **foundry_exit=0** |
+
+**Antifalsifiers held:** dry-run / runtime PRESENT / adapter exit 0 / in-repo refuse-path tip-cargo (reconfirm **ALIVE** @ `8bd3fe407` / `cd7c2433b`) ≠ `--live` `ALIVE`. Sidebranch only — **no** crown push; standing **not** promoted.
