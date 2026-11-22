@@ -95,16 +95,25 @@ cargo test -p ggen-sjira --test igniter_cleanroom_court
 |-------|----------|
 | Contract module + court in ggen | **PARTIAL_ALIVE** |
 | Sibling clean-room (`git diff --exit-code == 0`) | **PARTIAL** checkpoint — mount **PRESENT** `/home/ubuntu/ggen_igniter` @ `b5a15528…`; clean-tree exit **0** (≠ manufacture ALIVE) |
-| Tip BrandTheme manufacture | **PARTIAL** / **REFUSED** — tip `fourth-watch.brand.toml` → exit **2** `{:brand_theme_refused, :no_primitive_space}` (`/tmp/cursor/igniter-real-cleanroom.md`) |
+| Tip BrandTheme manufacture | **ALIVE** — tip dual-schema `fourth-watch.brand.toml` (`[rhythm]` + DTCG `[primitive.space]`) BrandTheme emit vs igniter fixture → `diff -rq` **0** + compare-subject `git diff --exit-code` → **0** (`/tmp/cursor/igniter-real-cleanroom.md`; reconfirm `cursor/v2711-hop4-primitive-space-bc54`). Rhythm-only probe still `REFUSED :no_primitive_space` (antifalsifier). |
 | Historical IG-1 dirty census as current truth | **UNSUPPORTED** as live evidence (stale lane prose) |
 
 ### 5b. Manufacture next verifier (hop-4 crown)
 
-Align tip `docs/rfc/v27.1.1/fixtures/fourth-watch.brand.toml` to DTCG
-`[primitive.space]` **or** add a ggen rhythm→theme emitter; then BrandTheme emit
-tip brand vs igniter `test/fixtures/brand_theme/fourth-watch.brand.toml` →
-`diff -rq` / `git diff --exit-code` → exit **0**. Do **not** promote hop-4
-`ALIVE` while tip brand refuses `:no_primitive_space`.
+**Closed for BrandTheme compare:** tip dual-schema fixture admits; replay:
+
+```bash
+# BrandTheme emit tip docs/rfc/v27.1.1/fixtures/fourth-watch.brand.toml
+# + igniter test/fixtures/brand_theme/fourth-watch.brand.toml (canon path)
+diff -rq from_tip.css from_igniter.css   # expect 0
+git diff --exit-code                     # compare subject → 0
+```
+
+**Residual (not hop-4 BrandTheme crown):** exclusive `CXX=g++-13` NIF →
+`mix ggen_igniter.sync --check` → 0. Do **not** invent `mix sync` `ALIVE`
+while NIF **BLOCKED**. Antifalsifier: bare post-clone `git diff --exit-code` ≠
+hop-4 manufacture `ALIVE`.
 
 Do not merge this document’s prose into a Plane-5 / release `ALIVE` without
-executing §4 (clean-tree) **and** §5b (manufacture compare) on the admitted tip.
+executing §4 (clean-tree) **and** replaying §5b BrandTheme compare on the
+admitted tip.
