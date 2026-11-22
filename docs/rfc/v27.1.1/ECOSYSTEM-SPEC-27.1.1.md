@@ -199,20 +199,22 @@ Gate-1 in-repo slice (this land): **visual rhythm only** — px/rem primitives,
 `docs/rfc/v27.1.1/fixtures/`. Full color/type/CASTLE inventories remain Gate 2+;
 inventing those token values here is still **REFUSED**.
 
-Standing: **ALIVE** (lineage tip-cargo) — completeness **5** + rhythm **12**
-EXIT **0** @ `c91b22561` (`/tmp/ggen-brand-toml-tip`; jobs=1; official
-`cursor/v2711-brand-toml-tip-dee5` / bc-7f0c72b7;
-[`BRAND-TOML-TIP-CARGO-STANDING.md`](./BRAND-TOML-TIP-CARGO-STANDING.md));
-hot-swap + fluid tip-cargo remain **ALIVE** (**6+6** @ `19c08a3b0`). Exact-tip
-reconfirm SCHEDULED. Full DTCG color/type/CASTLE token-inventory plane
-**UNSUPPORTED** until Gate 2+.
+Standing: completeness + rhythm **ALIVE (exact tip-cargo)** — **5+12** EXIT **0**
+@ `77eb46fd0` ([`BRAND-TOML-TIP-CARGO-STANDING.md`](./BRAND-TOML-TIP-CARGO-STANDING.md));
+fluid lineage tip-cargo **ALIVE** (**6** @ `19c08a3b0`); hot-swap exact tip →
+**COMPILING** / **PARTIAL_ALIVE** (EXIT **137** @ tip `cc2a4ea66`; lineage **ALIVE**
+**6** @ `19c08a3b0` / absorb `cde02d1f2` retained; sources ≡;
+[`BRAND-HOTSWAP-TIP-CARGO-STANDING.md`](./BRAND-HOTSWAP-TIP-CARGO-STANDING.md)).
+Full DTCG color/type/CASTLE token-inventory plane **UNSUPPORTED** until Gate 2+.
 
 In-repo **brand.toml hot-swap** fence (`seed_hot_swap_slot` / `hot_swap_brand`
-+ `brand_toml_hotswap_court`): **ALIVE** (lineage) — **6 passed; exit 0** @
-`26256ca9d` (sources ≡ crown `678a6c106`). Admits Fourth Watch ↔ CindyCat
-transitions under rhythm law; refuses unknown OEM ids / same-brand / rhythm
-failures. Does **not** authorize production runtime theme swap or CASTLE publish
-`ALIVE`.
++ `brand_toml_hotswap_court`): exact tip **COMPILING** / **PARTIAL_ALIVE** —
+command `cargo test -p ggen-graph --test brand_toml_hotswap_court` EXIT **137**
+(cgroup OOM) on tip `cc2a4ea66`; lineage **ALIVE** — **6 passed; exit 0** @
+`19c08a3b0` (sources ≡ tip). Fence receipt ceiling **PARTIAL_ALIVE** (never the
+string `ALIVE`). Admits Fourth Watch ↔ CindyCat transitions under rhythm law;
+refuses unknown OEM ids / same-brand / rhythm failures. Does **not** authorize
+production runtime theme swap or CASTLE publish `ALIVE`.
 
 Production theme promote (`promote_production_theme`) is fail-closed
 **UNSUPPORTED** → typed `REFUSED_PRODUCTION` on the Gate-1 path (lib court
