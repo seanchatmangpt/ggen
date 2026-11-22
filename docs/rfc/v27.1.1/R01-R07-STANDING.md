@@ -4,9 +4,9 @@
 |-------|-------|
 | Document ID | `R01-R07-STANDING-27.1.1` |
 | Spec binding | `ECOSYSTEM-SPEC-27.1.1.md` §11 (D7 hard GA gate) |
-| Observed base | `origin/cursor/ecosystem-spec-27-1-1-bc54` (absorb tip) |
-| Contract tip-cargo | **ALIVE (lineage tip-cargo)** — `r01_r07_resolution_court` **7 passed; exit 0** @ `cd7c2433b` (`/tmp/ggen-r01-r07-tip`) |
-| Exact-tip reconfirm | **SCHEDULED** (jobs=1 exclusive when cargo quiet) |
+| Observed base | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `e7569893a` |
+| Contract tip-cargo | **ALIVE** (exact tip-cargo) — `r01_r07_resolution_court` **7 passed; exit 0** @ `e7569893a` (`/tmp/ggen-gate1-brce-r01-target`); lineage `cd7c2433b` retained |
+| Exact-tip reconfirm | **DONE** — EXIT **0** @ `e7569893a` ([`R01-R07-TIP-CARGO-STANDING.md`](./R01-R07-TIP-CARGO-STANDING.md)) |
 | Target GA | **2027-01-01** |
 | Repo scope | `seanchatmangpt/ggen` — risk *bodies* are multi-repo; resolution *contract* is in-repo |
 
@@ -23,7 +23,7 @@ closure. “Closed” without an admitted risk-register body is `REFUSED_UNGROUN
 |---------|----------|----------|---------------------|
 | §11 enumeration R-01…R-07 | `ECOSYSTEM-SPEC-27.1.1.md` §11 table | **PARTIAL_ALIVE** (spec text) | Keep IDs stable; refuse invented R-08+ via court |
 | Closure rule: typed receipt **or** typed refusal before GA | Spec §11 “Closure rule” column | **PARTIAL_ALIVE** (doctrine) | Per-ID receipt/refusal after register admits body |
-| Ungrounded “closed” → `REFUSED_UNGROUNDED` | `ggen_graph::ecosystem_risk::resolve_closure` + Chicago court | **ALIVE** (lineage tip-cargo **7** @ `cd7c2433b`) | exact-tip reconfirm: `CARGO_BUILD_JOBS=1 cargo test -p ggen-graph --test r01_r07_resolution_court --locked -- --test-threads=1` |
+| Ungrounded “closed” → `REFUSED_UNGROUNDED` | `ggen_graph::ecosystem_risk::resolve_closure` + Chicago court | **ALIVE** (exact tip-cargo **7** @ `e7569893a`) | Replay: `CARGO_BUILD_JOBS=1 cargo test -p ggen-graph --test r01_r07_resolution_court --locked -- --test-threads=1` |
 | Risk-register prose for each R-* | **Not mounted** in this checkout | **UNSUPPORTED** (bodies) | Admit sovereign risk register; materialize bodies without invention |
 
 The executable court seals the **contract fence**, not per-risk closure.

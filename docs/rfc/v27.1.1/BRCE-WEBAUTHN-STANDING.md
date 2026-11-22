@@ -4,8 +4,8 @@
 |-------|-------|
 | Document ID | `BRCE-WEBAUTHN-STANDING` |
 | Spec binding | `ECOSYSTEM-SPEC-27.1.1` §1.1 / Plane 5 |
-| Observed tip | tip lineage @ `c832cabdcd3378ef528a4ee2ee387d5731d376a8` (V7 land `fb6e7fc6e` + construct_hash PR **#901** / `3ec8afd85` are ancestors; prior pin `a3b1c9410` / `d05a131c`) |
-| Tip pin | 2026-11-22 — absorb `cursor/v2711-ccs-brce-retip-ecd6` @ `16d3c2f08` onto tip `c832cabdc` (honest retip: V7 fixture **PARTIAL**/fixture-court land exit 0; live WebAuthn crypto **UNSUPPORTED**; broker / Plane-5 **BLOCKED**; cargo not run; tip-cargo locks **spared**) |
+| Observed tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `e7569893aba3bea6d3273bcf463b651bd94601d3` |
+| Tip pin | 2026-11-22 — `cursor/v2711-gate1-brce-r01-alive-bc54`: V1 seat fence tip-cargo **ALIVE** (**6 passed; exit 0** @ `e7569893a`; [`BRCE-AS01-SEAT-TIP-CARGO-STANDING.md`](./BRCE-AS01-SEAT-TIP-CARGO-STANDING.md)). V7 fixture land retained @ `fb6e7fc6e`. Live WebAuthn crypto **UNSUPPORTED**; broker **V8** / Plane-5 **BLOCKED**. |
 | Live filename | `BRCE-WEBAUTHN-STANDING.md` (AS-01 / V1–V11); Clause-2 crown binder [`CCS-BRCE-STANDING.md`](./CCS-BRCE-STANDING.md) |
 | Target GA | **2027-01-01** |
 | Slice standing | **PARTIAL_ALIVE** (doctrine + V1 presence fence + **V7 fixture crypto-shape**); live BRCE broker / live WebAuthn ceremony / Plane-5 DO still **BLOCKED** / **UNSUPPORTED** — never claim Plane-5 `ALIVE` from this land |
@@ -56,7 +56,7 @@ AS-01 seat cryptography named by the mandate: **ECDSA P-256 / `:prime256v1`**
 | Ed25519 sync receipts | `crates/ggen-engine` pack install signing; `ggen-mcp` receipt verify when sig present | **PARTIAL_ALIVE** | Receipt integrity; not seat DO gate |
 | `ed25519-dalek` 3.x / `curve25519-dalek` 4.x+5.x | workspace `Cargo.toml` / `Cargo.lock`; [`CURVE25519-DALEK-PIN-STANDING.md`](./CURVE25519-DALEK-PIN-STANDING.md) | **PARTIAL_ALIVE** | Pin doc PRESENT; Gate-1 policy court still open |
 | WebAuthn class in ontologies | `marketplace/packages/identity-access-management/ontology/identity_access_management.ttl`; autofde registry | **UNSUPPORTED** (runtime) | Catalogue / registry labels only |
-| Ungated-DO-without-seat typed refusal (this slice) | `crates/ggen-abb-sbb/src/as01_seat.rs` + `tests/brce_as01_seat_court.rs` | **PARTIAL_ALIVE** (path) / fixture land **ALIVE** @ `0478fde59` (**6 passed; exit 0**) | Presence/shape fence. Fence ≠ path `ALIVE`. Tip-cargo not re-run this retip. |
+| Ungated-DO-without-seat typed refusal (this slice) | `crates/ggen-abb-sbb/src/as01_seat.rs` + `tests/brce_as01_seat_court.rs` | **ALIVE** (exact tip-cargo fence **6** @ `e7569893a`) / fixture land @ `0478fde59` | Presence/shape fence tip-cargo **ALIVE**. Fence ≠ broker **V8** / Plane-5 `ALIVE`. |
 | AS-01 ES256/`prime256v1` assertion fixture court (V7) | `crates/ggen-abb-sbb/src/as01_assertion.rs` + `tests/brce_as01_es256_assertion_court.rs`; admitted `p256` dep in `ggen-abb-sbb` | **PARTIAL_ALIVE** (crypto-shape path) / fixture court land **ALIVE** @ `fb6e7fc6e` (**4 passed; exit 0**) | Known-good fixture admits; tampered → `REFUSED_AS01_SIGNATURE_INVALID`; alg≠ES256 → `REFUSED_AS01_ALG`. **Not** hardware ceremony / RP / broker / Plane-5 `ALIVE`. Live crypto remains **UNSUPPORTED**. |
 
 ---
