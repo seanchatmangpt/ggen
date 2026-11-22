@@ -21,7 +21,7 @@ is **ALIVE** (`git diff --exit-code` → **0** on tip dual-schema brand vs ignit
 fixture CSS; reconfirm evidence `/tmp/cursor/igniter-hop4-manufacture-alive.md`
 on tip `28c3f4d845`; prior `/tmp/cursor/igniter-real-cleanroom.md`). **Antifalsifier:**
 bare `git diff --exit-code` on a post-clone / virgin working tree ≠ hop-4
-`ALIVE`; `mix ggen_igniter.sync` NIF path remains **BLOCKED** (separate residual).
+`ALIVE`; Jobs/C4 bare `mix ggen_igniter.sync --check` is **REFUSED_INVOCATION** (NIF **ALIVE**; separate residual).
 Hop 5 aggregate is **PARTIAL_ALIVE** —
 in-process zcode bun courts **ALIVE** (35 passed; exit 0); `ggen-layout-court`
 **PRESENT** (#884 / tip `6fdcf4665`); `layout_court` subject **ALIVE** (exit **0**);
@@ -29,10 +29,10 @@ default `UiLayoutCourtAdapter.verifyPostTransition` **ALIVE** (exit **0** after
 mix-SUBJECT fix when layout_court PRESENT — Jobs/C4 deferred / ggen dry-run;
 see [`HOP5-MIX-SUBJECT-STANDING.md`](./HOP5-MIX-SUBJECT-STANDING.md)).
 `powl-foundry-loop --live` is **BLOCKED**/**REFUSED** (**foundry_exit=1**; executor wired @ zcode `f32df08`; Linux runtime **PRESENT**; exact failure `Model access is not configured` — [`HOP5-ZCODE-RUNTIME-STANDING.md`](./HOP5-ZCODE-RUNTIME-STANDING.md)).
-`mix ggen_igniter.sync` NIF remains **BLOCKED** (hop-4 residual). Jobs/C4 `mix` remains **ABSENT**.
+NIF **ALIVE**; bare `mix ggen_igniter.sync --check` **REFUSED_INVOCATION** (hop-4 residual). Jobs/C4 default PATH `mix` remains **ABSENT**.
 Do **not** invent hop-5 / path-crown `ALIVE` from adapter alone.
 Do **not** restate mix SUBJECT_MISSING after layout_court PRESENT + spatial PASS.
-Do **not** claim `mix sync` ALIVE while NIF remains **BLOCKED**. The in-repo ggen
+Do **not** claim Jobs/C4 `ALIVE` from NIF `.so` or exit-2 `REFUSED:INVOCATION`. The in-repo ggen
 ui-layout fence remains **ALIVE** on evidence tip `eaf0dad40` (**8 passed;
 exit 0**; `bc-c7c9d554`; ancestor of live tip `6fdcf4665`); tip court land
 `7c0ba2a90`; tip source **11** `#[test]`; **tip-cargo ALIVE** (**11 passed; exit 0** exclusive
@@ -147,7 +147,7 @@ Court **ALIVE** on evidence tip `eaf0dad40` (`bc-c7c9d554`: `cargo test -p ggen-
 | `docs/rfc/v27.1.1/fixtures/fourth-watch.brand.toml` | Dual-schema tip brand (`[rhythm]` + DTCG `[primitive.space]`) — BrandTheme manufacture input |
 | BrandTheme manufacture compare | **ALIVE** — tip emit vs igniter fixture CSS; compare-subject `git diff --exit-code` → **0** (`/tmp/cursor/igniter-hop4-manufacture-alive.md`; prior `igniter-real-cleanroom.md`) |
 | `git diff --exit-code` (bare mount) | Clean-tree **checkpoint** (exit **0**) — antifalsifier: alone ≠ hop-4 `ALIVE` |
-| `mix ggen_igniter.sync --check` | **BLOCKED** residual (NIF/oxrocksdb; default PATH `mix` **ABSENT**; see [`HOP4-MIX-NIF-STANDING.md`](./HOP4-MIX-NIF-STANDING.md)) |
+| `mix ggen_igniter.sync --check` | NIF **ALIVE**; bare `--check` **REFUSED_INVOCATION** exit **2** (default PATH `mix` **ABSENT**; see [`HOP4-MIX-NIF-STANDING.md`](./HOP4-MIX-NIF-STANDING.md)) |
 | `docs/reference/gate-conventions.md` | ggen vs ggen_igniter gate scoring orientation |
 | `crates/ggen-graph/src/bin/gall_observe_clean_room.rs` | In-repo GALL W3 clean-room **observe** — distinct subject |
 
