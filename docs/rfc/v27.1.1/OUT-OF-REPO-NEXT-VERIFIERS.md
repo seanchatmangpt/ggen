@@ -5,9 +5,10 @@
 | Document ID | `OUT-OF-REPO-NEXT-VERIFIERS` |
 | Companion | `ECOSYSTEM-SPEC-27.1.1`, `GATE-0-STANDING`, `GATE-3-RELEASE-COURTS-STANDING`, `FOUNDRY-FINISH-STANDING` |
 | Target GA | **2027-01-01** |
-| Observed ggen tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `14a3183fd6253dcfc5590fba5085463117315ca9` |
+| Observed ggen tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `7bf148d82e125589859d8830d29a3ce899d28f3f` |
 | Materialized | 2026-11-22 |
 | Hardened | 2026-11-22 — `cursor/v2711-oor-ledger-harden-bc54` |
+| Ops refresh | 2026-11-22 — `cursor/v2711-ops-standing-refresh-bc54` (tip pin + probe reconfirm; standings held) |
 | Repo scope | `seanchatmangpt/ggen` — **tracks** sibling standing; does not execute sibling DO |
 
 Standing vocabulary: `UNKNOWN` | `PARTIAL_ALIVE` | `ALIVE` | `BLOCKED` | `BUILD_BROKEN` | `UNSUPPORTED` | `REFUSED_*`.
@@ -135,6 +136,8 @@ Materialized on branch `cursor/v2711-gate023-next-verifiers-bc54` from ecosystem
 tip `a54b9803`. Hardened on `cursor/v2711-oor-ledger-harden-bc54` against tip
 `14a3183fd` — filled exact next-verifier command/URL/owner-artifact cells; named
 Gate 0 billing, Gate 2 BRCE human seat / WebAuthn production, Gate 3 release
-courts, and GA **2027-01-01**. Standings synthesized from existing v27.1.1
+courts, and GA **2027-01-01**. Ops tip pin refreshed on
+`cursor/v2711-ops-standing-refresh-bc54` against tip `7bf148d82` (HTTP + mount
+reconfirm; standings held). Standings synthesized from existing v27.1.1
 standing ledgers only. No sibling court was executed in this workspace pass. No
 out-of-repo row is asserted `ALIVE`.
