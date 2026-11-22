@@ -6,7 +6,7 @@
 | Companion | `ECOSYSTEM-SPEC-27.1.1` (economic-ops / Gate-0–Plane-5 adjacent) |
 | Target GA | **2027-01-01** |
 | Materialized | 2026-11-22 |
-| Observed ggen tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `a29e1cd92fa1edc0cd0b744a3b628c871039e825` (Clause-3 ops honesty retip `cursor/v2711-smalt-retip-bc54`; lineage ⊇ `60b15c778`) |
+| Observed ggen tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `27436608c49224dfdc2e557a49f5030a1ab60e5e` (absorb #928 Clause-3 Smalt retip `89cf4807a` onto tip past #926; lineage ⊇ `a29e1cd92`/`60b15c778`) |
 | Observed smalt tip | FinOps `91997da76f0f356dc2be914bdb0a5b8227518719` (parent `875efbb87bde8422236cf9db7224412962dbc5a7`; 4-cloud courts `bc-ad9ebffa` + retry `bc-1e876087`) |
 | Crown standing (from ggen) | **PARTIAL_ALIVE** (full RAID / remaining GA economic face / b4b still open) — **6-column spine ALIVE**: doctor/aws/gcp/azure/twilio exits **0,0,0,0,0** @ `875efbb87`; `fin_ops` **ALIVE** @ `91997da76f0f` (`mix test test/fin_ops_calculator_test.exs` → exit **0**, **19 passed**). Never invent full RAID / Foundry crown `ALIVE`. |
 
@@ -187,7 +187,7 @@ rg -i -n '\bRAID\b|4-cloud|economic.?ops' \
 
 | Field | Value |
 |-------|-------|
-| Observed ggen tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `a29e1cd92fa1edc0cd0b744a3b628c871039e825` (⊇ `60b15c778`) |
+| Observed ggen tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `27436608c49224dfdc2e557a49f5030a1ab60e5e` (⊇ `a29e1cd92`/`60b15c778`) |
 | Observed smalt tip | `91997da76f0f` (FinOps) / parent `875efbb87` (4-cloud) via `bc-ad9ebffa` + `bc-1e876087` |
 | Sibling mount in this ggen workspace | probe checkout `/tmp/smalt-raid-probe` @ `875efbb87` (+ fetched `91997da76f0f` blob); mix/elixir **ABSENT** this env |
 | 4-cloud exits (authority) | doctor=**0** aws=**0** gcp=**0** azure=**0** twilio=**0** @ `875efbb87` (`bc-ad9ebffa`) |
@@ -214,7 +214,7 @@ FinOps restore land (`cursor/v2711-smalt-finops-alive-bc54`) → canonical
 `test/fin_ops_calculator_test.exs` **ALIVE** @ `91997da76f0f` (exit **0**,
 **19 passed**); FOUNDRY/OOR spine rows **ALIVE**. Header honesty lag retained
 stale `fin_ops` **PARTIAL**/`ABSENT` prose until Clause-3 ops retip
-`cursor/v2711-smalt-retip-bc54` against tip `a29e1cd92` (⊇ `60b15c778`):
+`cursor/v2711-smalt-retip-bc54` @ `89cf4807a` absorbed onto tip `27436608c+` (⊇ `a29e1cd92`/`60b15c778`):
 header + ECOSYSTEM §13.3 aligned to 6-column spine **ALIVE**; full RAID
 ledger crown stays **PARTIAL_ALIVE**; Foundry / zero-HITL crown **not**
 invented; tip-cargo exclusive flock spared; no cargo.
