@@ -76,8 +76,11 @@ after Linux tip-matched runtime **PRESENT**) —
 [`HOP5-MODEL-ACCESS-STANDING.md`](./HOP5-MODEL-ACCESS-STANDING.md);
 [`HOP5-MIX-SUBJECT-STANDING.md`](./HOP5-MIX-SUBJECT-STANDING.md);
 [`PHOTOLITHOGRAPHY-STANDING.md`](./PHOTOLITHOGRAPHY-STANDING.md)).
-**brand.toml hot-swap** → tip-cargo **ALIVE** (**6 passed; exit 0** absorb @ `cde02d1f2` /
-crown `19c08a3b0`); **production theme** → **UNSUPPORTED**.
+**brand.toml hot-swap** → exact tip **COMPILING** / **PARTIAL_ALIVE** (EXIT **137** @
+`cc2a4ea66`; [`BRAND-HOTSWAP-TIP-CARGO-STANDING.md`](./BRAND-HOTSWAP-TIP-CARGO-STANDING.md));
+lineage tip-cargo **ALIVE** (**6 passed; exit 0** absorb @ `cde02d1f2` / crown
+`19c08a3b0`; sources ≡); fence ceiling **PARTIAL_ALIVE**; **production theme** →
+**UNSUPPORTED**.
 `taffy_aot_preflight_court` tip-cargo **ALIVE** + `shui_public_prefix_court` tip-cargo
 **ALIVE** (lineage) on tip. `brand_toml_rhythm_court` + `brand_toml_completeness_court` →
 **ALIVE (exact tip-cargo)** — **12+5** EXIT:0 @ `77eb46fd0` (unchanged;
@@ -181,7 +184,7 @@ BRCE seat fence **ALIVE** exact tip @ `e7569893a`. Brand rhythm/completeness →
 | `taffy_aot` | `taffy_aot_preflight_court` tip-cargo (`/tmp/gate1-taffy`) | **ALIVE** (exact tip) — **7 passed; exit 0** @ crown `19c08a3b0` absorb @ `cde02d1f2` |
 | `brand.toml` rhythm | `brand_toml_rhythm_court` exact tip-cargo (`/tmp/ggen-brand-exact-tip`) | **ALIVE (exact tip-cargo)** — **12 passed; exit 0** @ `77eb46fd0` (unchanged; [`BRAND-TOML-TIP-CARGO-STANDING.md`](./BRAND-TOML-TIP-CARGO-STANDING.md); land `a508e6bae`) |
 | brand.toml completeness | `brand_toml_completeness_court` exact tip-cargo (`/tmp/ggen-brand-exact-tip`) | **ALIVE (exact tip-cargo)** — **5 passed; exit 0** @ `77eb46fd0` (unchanged; land `a508e6bae`) |
-| brand.toml fluid / hot-swap | `brand_fluid_clamp_court` + `brand_toml_hotswap_court` tip-cargo (`/tmp/gate1-taffy`) | **ALIVE** — **6+6 passed; exit 0** absorb @ `cde02d1f2` / crown `19c08a3b0`; production `promote_production_theme` → **UNSUPPORTED** / `REFUSED_PRODUCTION` |
+| brand.toml fluid / hot-swap | `brand_fluid_clamp_court` + `brand_toml_hotswap_court` | fluid lineage **ALIVE** **6** @ `19c08a3b0`; hot-swap exact tip **COMPILING** / **PARTIAL_ALIVE** (EXIT **137** @ `cc2a4ea66`; lineage **ALIVE** **6** @ `19c08a3b0`; [`BRAND-HOTSWAP-TIP-CARGO-STANDING.md`](./BRAND-HOTSWAP-TIP-CARGO-STANDING.md)); production `promote_production_theme` → **UNSUPPORTED** / `REFUSED_PRODUCTION` |
 | `write_apply` CCS #2 | `write_apply_confirm_test` + pipeline CP17 courts | **ALIVE** — **7+1+1 passed; exit 0** @ observed `cde02d1f2` (evidence `42c5b9ba4`; absorb tip `fdcad534d`) |
 | construct + lifecycle | `construct_hash_gate` + `lifecycle.rs` tip-cargo | **ALIVE** — construct **4** @ `861a6e73a`; lifecycle **PRESENT**/tip-cargo **6/6** @ `513704d04`/`acd9705c1`; BRCE **V8** **BLOCKED** |
 | `verify_witness` size court | `verify_witness_size_court` tip-cargo (`/tmp/ggen-verify-witness-env-wire`) | **ALIVE** — **8 passed; EXIT=0** @ side `b2f6e12d2` / crown code `f65434315` (env wire + affidavit ceiling); prior **6** @ `f5f44571f`; affidavit pin **ALIVE** @ `563eb322a`; env wire **PARTIAL**; production runtime **UNSUPPORTED** |

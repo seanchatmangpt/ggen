@@ -149,7 +149,7 @@ Observed in-repo (live crates + docs; ontology_catalogue noise excluded where no
 | `construct_hash_gate.rs` | **PRESENT** on tip `008a81d21` (§4.1; PR **#901**); tip-cargo **ALIVE** **4 passed; exit 0** @ `861a6e73a` |
 | `lifecycle.rs` | **ALIVE** — **PRESENT**/tip-cargo **6/6** @ `513704d04`/`acd9705c1` |
 | confirm gates | `ggen_write_apply` + CP17 courts tip-cargo **ALIVE** **7+1+1 passed; exit 0** @ `42c5b9ba4` (§4.1) |
-| brand.toml hot-swap | **PARTIAL_ALIVE** on tip (`brand_toml_hotswap_court`); production theme **UNSUPPORTED** / `REFUSED_PRODUCTION` ([`BRAND-PRODUCTION-THEME.md`](./BRAND-PRODUCTION-THEME.md); Gate-1 / ECOSYSTEM §8) — not Plane-5 DO |
+| brand.toml hot-swap | **PARTIAL_ALIVE** / exact tip **COMPILING** (EXIT **137** @ `cc2a4ea66`; lineage **ALIVE** **6** @ `19c08a3b0`; fence ceiling **PARTIAL_ALIVE** — [`BRAND-HOTSWAP-TIP-CARGO-STANDING.md`](./BRAND-HOTSWAP-TIP-CARGO-STANDING.md)); production theme **UNSUPPORTED** / `REFUSED_PRODUCTION` ([`BRAND-PRODUCTION-THEME.md`](./BRAND-PRODUCTION-THEME.md); Gate-1 / ECOSYSTEM §8) — not Plane-5 DO |
 | zero-HITL fab crown | **not** `ALIVE` — Foundry / ECOSYSTEM D1 remain incomplete until out-of-repo hops close |
 | Plane-5 DO | **BLOCKED** — exact next CCS #8 / BRCE **V9** / OOR **G2-5** probe ladder |
 
