@@ -22,7 +22,7 @@ Compact return line:
 ```text
 exit=spared
 standing=PARTIAL_ALIVE
-tip=98761f257e9b7a369001a3708148707ad581256d
+tip=f7284ce6f6ca70816289bbe7fd5ef32283a9259c
 next=CARGO_BUILD_JOBS=1 --target-dir /tmp/ggen-construct-hash-target cargo test -p ggen-lsp --lib construct_hash_gate; then as01 V7/V1; then V8→V9/G2-5
 ```
 

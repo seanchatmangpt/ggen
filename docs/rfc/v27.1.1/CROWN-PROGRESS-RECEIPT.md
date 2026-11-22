@@ -4,7 +4,7 @@
 |-------|-------|
 | Document ID | `CROWN-PROGRESS-RECEIPT-27.1.1` |
 | Status | **PROGRESS RECEIPT** (honest; **not** goal-complete; **not** crown `ALIVE`) |
-| Observed tip | absorb tip `98761f257e9b7a369001a3708148707ad581256d` (~`f7284ce6f+` / `ba9824207+` / `c11ea7f2a+` / `89ca2da9c+`) |
+| Observed tip | absorb tip `f7284ce6f6ca70816289bbe7fd5ef32283a9259c` (~`ba9824207+` / `c11ea7f2a+` / `89ca2da9c+`) |
 | Tip subject | absorb #932 construct_hash_gate **PRESENT** @ `27f586390` + #933 brand hot-swap+fluid **PRESENT** / production **UNSUPPORTED** @ `5c08f3312` + #934 mix/NIF @ `ae2acc52b` + #935 ui_layout tip-cargo **ALIVE** retry9 @ `8cee4246f` + #936 crown-progress honesty @ `0e25df932` onto tip past `c11ea7f2a+`; tip-wins: ui_layout tip-cargo **ALIVE** preserved |
 | Ledger pins cited | Gate-1 / Photo / Foundry / CCS / Brand / HOP4-MIX-NIF retipped; construct_hash **PRESENT**; brand hot-swap+fluid **PRESENT**; mix/NIF residual **PRESENT**; ui_layout tip-cargo **ALIVE**; OOR / BRCE / CASTLE retain prior absorb pins |
 | Cargo this receipt | **no** this absorb — tip-exclusive thrash; prior exclusive quiet `ui_layout_court` **11 passed; exit 0** @ `ca52e9c16` + retry9 @ `60b15c778` retained (**ALIVE**) |
@@ -30,7 +30,7 @@ FinOps: FOUNDRY/OOR **ALIVE** @ `91997da76f0f` vs older §13.3 FinOps
 Compact return line:
 
 ```text
-tip=98761f257e9b7a369001a3708148707ad581256d
+tip=f7284ce6f6ca70816289bbe7fd5ef32283a9259c
 clause1=PARTIAL
 clause2=PARTIAL_ALIVE
 clause3=PARTIAL+BLOCKED
