@@ -5,8 +5,9 @@
 | Document ID | `FOUNDRY-FINISH-STANDING` |
 | Companion to | `ECOSYSTEM-SPEC-27.1.1` (target GA **2027-01-01**) |
 | Status | STANDING LEDGER (not an execution receipt; not a Gate-1 rewrite) |
-| Observed base | `origin/main` @ `d173cad5792e837bd4fec730d120c582b9bc5d4c` (2026-11-22) |
-| Gate-1 evidence tip | PR [#849](https://github.com/seanchatmangpt/ggen/pull/849) / `cursor/ecosystem-spec-27-1-1-bc54` (Taffy / brand / `shui:` PARTIAL_ALIVE) |
+| Observed tip | PR [#849](https://github.com/seanchatmangpt/ggen/pull/849) / `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `e5ff3f8221dce28056fe1ff03904f313a176f260` (2026-11-22 refresh) |
+| Prior tip note | Was `e5ff3f822` at last refresh window — **unchanged** after `git fetch` |
+| Base (main) | `origin/main` @ `d173cad5792e837bd4fec730d120c582b9bc5d4c` |
 | Repo scope | `seanchatmangpt/ggen` names the spine; sibling planes are **tracked out-of-repo** |
 
 Standing vocabulary (AGENTS.md / ECOSYSTEM-SPEC):
@@ -19,7 +20,7 @@ Standing vocabulary (AGENTS.md / ECOSYSTEM-SPEC):
 
 | Crown claim standing | Reason |
 |----------------------|--------|
-| **PARTIAL_ALIVE** | In-repo Gate-1 fences advancing on #849; photolithography consume, CASTLE publish, Smalt RAID, and Plane-5 revops remain out-of-repo / non-ALIVE. **Not complete** until Gate-1 aggregate is `ALIVE` **and** out-of-repo residual is tracked to typed receipts or typed refusals. |
+| **PARTIAL_ALIVE** | In-repo Gate-1 fences advanced on #849 tip (`shui:` / Taffy / brand / verify_witness / R-01…R-07 / BRCE AS-01 / zcode POWL stub). Photolithography consume (`ui-layout`), live igniter clean-room, live zcode Chicago court, CASTLE publish, Smalt RAID, and Plane-5 revops remain **ABSENT / BLOCKED / UNSUPPORTED / UNKNOWN**. Crown stays incomplete until Gate-1 `ui-layout` + out-of-repo hops close with typed receipts (or typed refusals). **Do not invent `ALIVE`.** |
 
 Do not promote source presence, fleet-census rows, workflow definitions, or historical jira prose to `ALIVE`.
 
@@ -29,12 +30,27 @@ Do not promote source presence, fleet-census rows, workflow definitions, or hist
 
 | Component | Role on spine | Standing | HITL residual (founder) | Next exact verifier | GA `2027-01-01` falsifier |
 |-----------|---------------|----------|-------------------------|---------------------|---------------------------|
-| **ggen** | Manufacture kernel (`μ`): packs, graphs, layout pre-flight, brand rhythm, public-prefix fences | **PARTIAL_ALIVE** — live workspace; Gate-1 `shui:` / Taffy / brand.toml fences land on #849 as PARTIAL; full zero-HITL fab not sealed | Daily merge/admission judgment across swarm PRs; R-01…R-07 still open; founder still gates “promote Gate-1 → GA” | In-repo: `cargo test -p ggen-graph --test taffy_aot_preflight_court`; `cargo test -p ggen-graph --test brand_toml_rhythm_court`; `cargo test -p ggen-graph --test shui_public_prefix_court` (on #849 tip); replay `just check` | If on **2027-01-01** a founder must still manually admit ordinary spine manufacture (SELECT/CONSTRUCT) that courts already cover, crown claim is **falsified** |
-| **Taffy** | AOT layout pre-flight (widths `320/375/393/600/840/1280` + WCAG 1.4.12 @ 1.5×) inside `ggen-graph::layout::taffy_aot` | **PARTIAL_ALIVE** — six-width seal court green on #849 (`preflight_column_six_widths`); photolithography not ALIVE until a consumer court binds the receipt | Founder still wires / retries zcode or igniter consume when receipt law drifts; no hands-free photolithography loop | `cargo test -p ggen-graph --test taffy_aot_preflight_court` | If on **2027-01-01** geometry law still requires founder-edited exceptions instead of typed `LayoutRefusal` / seal receipts, Taffy row is **falsified** |
-| **zcode-cli** | `ui-layout-court.ts` consumes ggen `AotSealReceipt`; fails closed on missing/stale digests | **UNSUPPORTED** in this repo (not a workspace member; no `ui-layout-court.ts` on disk) | Founder must author/land adapter in sibling repo and re-run courts; ggen cannot self-prove consume | In **zcode-cli**: `pnpm test -- ui-layout-court` (or that repo’s exact court runner) against a ggen layout-receipt fixture | If on **2027-01-01** UI courts still need founder to paste/override layout digests, zcode row is **falsified** |
+| **ggen** | Manufacture kernel (`μ`): packs, graphs, layout pre-flight, brand rhythm, public-prefix fences, witness size court, R-01…R-07 contract | **PARTIAL_ALIVE** — live workspace on tip `e5ff3f822`; `shui:` fence landed; Taffy / brand / verify_witness / R-01…R-07 courts **merged** (treat as PARTIAL until exit reconfirm on tip); full zero-HITL fab not sealed | Daily merge/admission judgment; founder still gates “promote Gate-1 → GA”; risk bodies R-01…R-07 still **BLOCKED** out-of-repo | Reconfirm on tip: `cargo test -p ggen-graph --test shui_public_prefix_court`; `… taffy_aot_preflight_court`; `… brand_toml_rhythm_court`; `… verify_witness_size_court`; `… r01_r07_resolution_court`; `just check` | If on **2027-01-01** a founder must still manually admit ordinary spine manufacture (SELECT/CONSTRUCT) that courts already cover, crown claim is **falsified** |
+| **Taffy** | AOT layout pre-flight (widths `320/375/393/600/840/1280` + WCAG 1.4.12 @ 1.5×) inside `ggen-graph::layout::taffy_aot` | **PARTIAL_ALIVE** — six-width seal court present on tip; photolithography not ALIVE until a consumer court binds the receipt | Founder still wires / retries zcode or igniter consume when receipt law drifts; no hands-free photolithography loop | `cargo test -p ggen-graph --test taffy_aot_preflight_court` | If on **2027-01-01** geometry law still requires founder-edited exceptions instead of typed `LayoutRefusal` / seal receipts, Taffy row is **falsified** |
+| **zcode-cli** | Consume ggen `AotSealReceipt` via `ui-layout-court.ts`; POWL/OCEL bounded autonomic remediations | **PARTIAL_ALIVE** (in-repo contract only) — [`ZCODE-POWL-OCEL-STANDING.md`](./ZCODE-POWL-OCEL-STANDING.md) + `remediation_bound` + `ggen-sjira` IO-free stub landed on tip (integrate of `cursor/v2711-zcode-powl-ocel-bc54` / [#862](https://github.com/seanchatmangpt/ggen/pull/862)). **`ui-layout-court.ts` ABSENT** in this tree → **UNSUPPORTED**. Live sibling Chicago court **UNKNOWN** / **UNSUPPORTED** (checkout unmounted) | Founder must land/run sibling `ui-layout` + `bun test test/powl-ocel-chicago.test.ts`; ggen cannot self-prove consume or live remediation | In-repo: `cargo test -p ggen-sjira --test zcode_powl_ocel_court`; `cargo test -p ggen-graph remediation_bound --lib`. Out-of-repo: `pnpm test -- ui-layout-court`; `bun test test/powl-ocel-chicago.test.ts` | If on **2027-01-01** UI courts still need founder to paste/override layout digests or remediations run unbounded, zcode row is **falsified** |
 | **CASTLE** | Consequence / publish plane (`CONSEQUENTIAL_ADMISSIBILITY`); Gate 2–3 public mint + brand inventory beyond Gate-1 rhythm stubs | **UNKNOWN** in ggen (no publish/court surface); sibling ledger [`CASTLE-SPINE-STANDING.md`](./CASTLE-SPINE-STANDING.md) tracks castle tip without promoting ALIVE | Founder still invents or hand-publishes token inventories without admitted CASTLE sources (explicitly **REFUSED** in ECOSYSTEM-SPEC non-goals) | CASTLE-plane `castle publish` / RedactionCourt replay (out of ggen DO); see CASTLE-SPINE-STANDING next verifier | If on **2027-01-01** CASTLE publish still depends on daily founder token edits with no receipt, CASTLE row is **falsified** |
 | **Smalt** | 4-cloud RAID / economic-ops substrate (Azure·AWS·GCP·Twilio/fnox) | **UNKNOWN** + **BLOCKED** from ggen (sibling not mounted); see [`SMALT-RAID-STANDING.md`](./SMALT-RAID-STANDING.md) | Founder still runs Smalt gate / KD / RAID waves by hand; no ggen-admitted hands-free RAID receipt | Out-of-repo: Smalt 4-cloud parity / economic-ops courts in `seanchatmangpt/smalt` (track tip SHA + exit 0); do not claim ALIVE from ggen jira citations alone | If on **2027-01-01** Smalt RAID still requires daily founder HITL to keep the membrane green, Smalt row is **falsified** |
-| **revops** | Plane-5 front door (`revops.fnox.io`) + cos adjacency — sole DO via **BRCE + WebAuthn AS-01** | **UNKNOWN** / **OUT OF SCOPE** for ggen DO — live probe: `revops.fnox.io` DNS fail (**UNKNOWN**); cos `/readyz` **BLOCKED** (`DB_UNAVAILABLE`) per [`REVOPS-COS-STANDING.md`](./REVOPS-COS-STANDING.md) | Founder still actuates Plane-5 without AS-01; BRCE doctrine is PARTIAL as text, runtime AS-01 **UNKNOWN** in ggen | Out-of-repo: revops / fnox Plane-5 court that proves BRCE+AS-01 admits DO and refuses ambient founder actuation; cos `/readyz` → 200 without founder DB HITL; never promote from ggen alone | If on **2027-01-01** Plane-5 still depends on daily founder HITL for ordinary DO, revops row (and crown claim) is **falsified** |
+| **revops** | Plane-5 front door (`revops.fnox.io`) + cos adjacency — sole DO via **BRCE + WebAuthn AS-01** | **UNKNOWN** / **OUT OF SCOPE** for ggen DO — live probe: `revops.fnox.io` DNS fail (**UNKNOWN**); cos `/readyz` **BLOCKED** (`DB_UNAVAILABLE`) per [`REVOPS-COS-STANDING.md`](./REVOPS-COS-STANDING.md). In-repo BRCE AS-01 ungated-DO fence is **PARTIAL_ALIVE** ([#861](https://github.com/seanchatmangpt/ggen/pull/861); [`BRCE-WEBAUTHN-STANDING.md`](./BRCE-WEBAUTHN-STANDING.md)); live BRCE broker **BLOCKED**; WebAuthn/`prime256v1` crypto **UNSUPPORTED** | Founder still actuates Plane-5 without AS-01 runtime; doctrine+fence ≠ live DO | In-repo: `cargo test -p ggen-abb-sbb --test brce_as01_seat_court`. Out-of-repo: revops / fnox Plane-5 court that proves BRCE+AS-01 admits DO and refuses ambient founder actuation; cos `/readyz` → 200 without founder DB HITL | If on **2027-01-01** Plane-5 still depends on daily founder HITL for ordinary DO, revops row (and crown claim) is **falsified** |
+
+---
+
+## 1b. Adjacent Gate-1 / authority fences (not spine members; block zero-HITL)
+
+| Subject | Standing on tip `e5ff3f822` | Next exact verifier |
+|---------|-----------------------------|---------------------|
+| BRCE + WebAuthn AS-01 ungated-DO refusal ([#861](https://github.com/seanchatmangpt/ggen/pull/861)) | **PARTIAL_ALIVE** (presence/shape fence); crypto verify **UNSUPPORTED**; live BRCE **BLOCKED** | `cargo test -p ggen-abb-sbb --test brce_as01_seat_court` |
+| `verify_witness` WASM &lt;250KB size court | **PARTIAL_ALIVE** (merged; exit reconfirm) — production WASM out-of-repo [`VERIFY-WITNESS-PRODUCTION.md`](./VERIFY-WITNESS-PRODUCTION.md) | `cargo test -p ggen-graph --test verify_witness_size_court` |
+| `shui:` public-prefix fence | **PARTIAL_ALIVE** until tip exit reconfirm (prior matrix recorded exit 0 on earlier tip) — Truex product admit remains **UNKNOWN** | `cargo test -p ggen-graph --test shui_public_prefix_court` |
+| R-01…R-07 resolution contract | **PARTIAL_ALIVE** (merged contract court); risk **bodies** **BLOCKED** / **UNSUPPORTED** [`R01-R07-STANDING.md`](./R01-R07-STANDING.md) | `cargo test -p ggen-graph --test r01_r07_resolution_court` |
+| `ui-layout-court.ts` / LayoutRefusal / fluid-clamp | **ABSENT** → **UNSUPPORTED** in this tree | Gate1 ui-layout agent / sibling `pnpm test -- ui-layout-court` |
+| ggen_igniter clean-room | **BLOCKED** (sibling unmounted) — in-repo contract **PARTIAL_ALIVE** [`IGNITER-CLEANROOM-STANDING.md`](./IGNITER-CLEANROOM-STANDING.md) | In sibling: `cd ggen_igniter && git diff --exit-code`; in-repo: `cargo test -p ggen-sjira --test igniter_cleanroom_court` |
+| Live zcode POWL/OCEL Chicago court | **UNKNOWN** / **UNSUPPORTED** (sibling not mounted) | `bun test test/powl-ocel-chicago.test.ts` in `seanchatmangpt/zcode-cli` |
+| CCS authority matrix | Ledger **MATERIALIZED** [`CCS-AUTHORITY-STANDING.md`](./CCS-AUTHORITY-STANDING.md); Plane-5 DO still not ALIVE | See CCS next verifiers; do not promote from prose |
 
 ---
 
@@ -42,11 +58,11 @@ Do not promote source presence, fleet-census rows, workflow definitions, or hist
 
 | Residual class | Where it bites | Clearance condition |
 |----------------|----------------|---------------------|
-| Gate-1 photolithography open | Taffy receipt not consumed by zcode-cli / igniter | Sibling `ui-layout-court` (or igniter) exit 0 on a pinned ggen receipt |
+| Gate-1 photolithography open | Taffy receipt not consumed — `ui-layout-court.ts` **ABSENT** in ggen; igniter hop **BLOCKED** | Sibling `ui-layout-court` (or igniter) exit 0 on a pinned ggen receipt; igniter `git diff --exit-code` → 0 |
+| Live zcode / live BRCE | Chicago POWL court unmounted; BRCE broker unmounted; AS-01 crypto **UNSUPPORTED** | Mounted sibling courts + BRCE+AS-01 runtime receipt — fence alone is not ALIVE |
 | Out-of-repo planes unmounted | CASTLE, Smalt, revops, Truex product admit | Tracked standing docs + exact sibling verifiers (see §4) |
-| Authority edge incomplete | BRCE + WebAuthn AS-01 runtime | CCS/BRCE standing ledger + runtime court — doctrine text alone is not ALIVE |
-| GA risk register open | R-01 … R-07 | Typed receipt or typed refusal per risk before GA |
-| Swarm merge HITL | Multiple Gate-1 slices → #849 | Merge coordinator lands courts without founder re-authoring law |
+| GA risk register open | R-01 … R-07 bodies | Typed receipt or typed refusal per risk before GA (contract fence ≠ body closure) |
+| Swarm merge HITL | Multiple Gate-1 slices → #849 | Merge coordinator lands courts without founder re-authoring law; tip exit reconfirm |
 
 Foundry finish is **not** “all crates compile.” It is **zero daily founder HITL** on the horizontal spine while preserving `SELECT ≠ CONSTRUCT ≠ DO`.
 
@@ -54,17 +70,25 @@ Foundry finish is **not** “all crates compile.” It is **zero daily founder H
 
 ## 3. Next aggregate verifier (this ledger)
 
-Replay cheapest high-information path first:
+Replay cheapest high-information path first (all against tip `e5ff3f822` or successor):
 
 ```text
-# Gate-1 in-repo fences (require #849 / ecosystem-spec tip, not bare main)
+# Gate-1 in-repo fences on #849 tip (exit reconfirm)
+cargo test -p ggen-graph --test shui_public_prefix_court
 cargo test -p ggen-graph --test taffy_aot_preflight_court
 cargo test -p ggen-graph --test brand_toml_rhythm_court
-cargo test -p ggen-graph --test shui_public_prefix_court
+cargo test -p ggen-graph --test verify_witness_size_court
+cargo test -p ggen-graph --test r01_r07_resolution_court
+cargo test -p ggen-abb-sbb --test brce_as01_seat_court
+cargo test -p ggen-sjira --test zcode_powl_ocel_court
+cargo test -p ggen-sjira --test igniter_cleanroom_court
 
 # This ledger’s presence / cross-link integrity (always)
 test -f docs/rfc/v27.1.1/FOUNDRY-FINISH-STANDING.md
-rg -n 'GA `2027-01-01` falsifier|HITL residual' docs/rfc/v27.1.1/FOUNDRY-FINISH-STANDING.md
+rg -n 'GA `2027-01-01` falsifier|HITL residual|PARTIAL_ALIVE' docs/rfc/v27.1.1/FOUNDRY-FINISH-STANDING.md
+
+# ABSENT check (must stay empty until ui-layout lands)
+find . -name 'ui-layout-court.ts' -not -path './target/*'
 ```
 
 Out-of-repo next verifiers remain owned by sibling ledgers; ggen must **track** them without claiming their ALIVE standing.
@@ -73,41 +97,29 @@ Out-of-repo next verifiers remain owned by sibling ledgers; ggen must **track** 
 
 ## 4. Cross-links (companions + swarm standing ledgers)
 
-### 4.1 Landed / in-flight on PR #849 tree
+### 4.1 On PR #849 tip `e5ff3f822` (materialized)
 
 | Path | Role vs this ledger |
 |------|---------------------|
 | [`ECOSYSTEM-SPEC-27.1.1.md`](./ECOSYSTEM-SPEC-27.1.1.md) | Requirements / architecture binding; defines GA **2027-01-01** and Gate schedule |
 | [`GATE-1-GAP-MATRIX.md`](./GATE-1-GAP-MATRIX.md) | Gate-1 requirement matrix — **not rewritten here**; Foundry finish is horizontal spine source |
 | [`REPO-INVENTORY-27.1.1.md`](./REPO-INVENTORY-27.1.1.md) | Path census + component standing seeds for Taffy / zcode / CASTLE / revops |
-
-Paths above materialize on `cursor/ecosystem-spec-27-1-1-bc54` / PR #849; this branch may land the Foundry ledger ahead of that merge. Broken relative links until merge are **expected**, not evidence of ALIVE.
-
-### 4.2 Parallel standing ledgers (swarm — observed 2026-11-22)
-
-Landed on sibling `cursor/v2711-*` branches (merge into #849 via integrator):
-
-| Path | Branch / PR | Spine / plane coverage |
-|------|-------------|------------------------|
-| [`PHOTOLITHOGRAPHY-STANDING.md`](./PHOTOLITHOGRAPHY-STANDING.md) | `cursor/v2711-photo-ledger-bc54` | Taffy → igniter → zcode consume path |
-| [`CASTLE-SPINE-STANDING.md`](./CASTLE-SPINE-STANDING.md) | `cursor/v2711-castle-spine-bc54` | CASTLE publish / consequential admissibility |
-| [`SMALT-RAID-STANDING.md`](./SMALT-RAID-STANDING.md) | `cursor/v2711-smalt-raid-bc54` | Smalt 4-cloud RAID / economic ops |
-| [`REVOPS-COS-STANDING.md`](./REVOPS-COS-STANDING.md) | `cursor/v2711-revops-cos-bc54` ([#851](https://github.com/seanchatmangpt/ggen/pull/851)) | revops + cos Plane-5 |
-| [`GATE-0-STANDING.md`](./GATE-0-STANDING.md) | `cursor/v2711-gate0-billing-bc54` ([#852](https://github.com/seanchatmangpt/ggen/pull/852)) | Gate 0 billing / cos / servengine / SOW |
-| [`GATE-3-RELEASE-COURTS-STANDING.md`](./GATE-3-RELEASE-COURTS-STANDING.md) | `cursor/v2711-gate3-release-courts-bc54` | Seven Gate-3 release courts (D1–D7) |
-
-Still expected when present (swarm in flight):
-
-| Expected path | Spine / plane coverage |
-|---------------|------------------------|
-| `ZCODE-POWL-OCEL-STANDING.md` (or `ZCODE-STANDING.md`) | zcode-cli courts / POWL·OCEL |
-| [`BRCE-WEBAUTHN-STANDING.md`](./BRCE-WEBAUTHN-STANDING.md) | DO authority edge (AS-01 `:prime256v1`) — landed this swarm |
-| `CCS-AUTHORITY-STANDING.md` | CCS authority matrix |
-| `GGEN-IGNITER-STANDING.md` | igniter clean-room consume |
+| [`PHOTOLITHOGRAPHY-STANDING.md`](./PHOTOLITHOGRAPHY-STANDING.md) | Taffy → igniter → zcode consume path |
+| [`CASTLE-SPINE-STANDING.md`](./CASTLE-SPINE-STANDING.md) | CASTLE publish / consequential admissibility |
+| [`SMALT-RAID-STANDING.md`](./SMALT-RAID-STANDING.md) | Smalt 4-cloud RAID / economic ops |
+| [`REVOPS-COS-STANDING.md`](./REVOPS-COS-STANDING.md) | revops + cos Plane-5 |
+| [`GATE-0-STANDING.md`](./GATE-0-STANDING.md) | Gate 0 billing / cos / servengine / SOW |
+| [`GATE-3-RELEASE-COURTS-STANDING.md`](./GATE-3-RELEASE-COURTS-STANDING.md) | Seven Gate-3 release courts (D1–D7) |
+| [`BRCE-WEBAUTHN-STANDING.md`](./BRCE-WEBAUTHN-STANDING.md) | DO authority edge (AS-01 `:prime256v1`) — **PARTIAL_ALIVE** fence on tip via [#861](https://github.com/seanchatmangpt/ggen/pull/861) |
+| [`ZCODE-POWL-OCEL-STANDING.md`](./ZCODE-POWL-OCEL-STANDING.md) | zcode-cli POWL·OCEL bounded refusal — **PARTIAL_ALIVE** in-repo on tip |
+| [`CCS-AUTHORITY-STANDING.md`](./CCS-AUTHORITY-STANDING.md) | CCS authority matrix |
+| [`IGNITER-CLEANROOM-STANDING.md`](./IGNITER-CLEANROOM-STANDING.md) | igniter clean-room contract; sibling crown **BLOCKED** |
+| [`VERIFY-WITNESS-PRODUCTION.md`](./VERIFY-WITNESS-PRODUCTION.md) | Production witness ownership (out of ggen) |
+| [`R01-R07-STANDING.md`](./R01-R07-STANDING.md) | R-01…R-07 resolution contract |
 
 If a sibling ledger disagrees with the spine table in §1, **do not silently merge standings**. Record the conflict as `UNKNOWN` / contradictory evidence until one court wins.
 
-### 4.3 Related in-repo doctrine (not spine ALIVE)
+### 4.2 Related in-repo doctrine (not spine ALIVE)
 
 | Path | Note |
 |------|------|
@@ -124,7 +136,9 @@ If a sibling ledger disagrees with the spine table in §1, **do not silently mer
 - Gate-0 (GCP billing, servengine M4, cos ledger, year-end SOW) is **OUT OF SCOPE** for ggen ALIVE claims.
 - Zero-DOM / WebGPU / FFB renderers are **UNSUPPORTED** inside ggen.
 - Truex product admission of `shui:` is a **sibling** claim; ggen fence PARTIAL ≠ Truex ALIVE.
-- Affidavit pack manufacture PARTIAL ≠ `verify_witness` WASM &lt;250KB ALIVE.
+- Affidavit pack manufacture / placeholder size court PARTIAL ≠ production `verify_witness` WASM &lt;250KB ALIVE.
+- BRCE AS-01 fence PARTIAL ≠ live BRCE broker ALIVE; Ed25519 SovereignLease ≠ WebAuthn `:prime256v1`.
+- zcode in-repo stub PARTIAL ≠ live `bun test` / `ui-layout-court` ALIVE.
 - This ledger’s existence is **PARTIAL_ALIVE** documentation standing only — not Foundry-finish crown `ALIVE`.
 
 ---
@@ -133,16 +147,18 @@ If a sibling ledger disagrees with the spine table in §1, **do not silently mer
 
 Promote Foundry-finish crown claim to `ALIVE` only when **all** hold:
 
-1. Gate-1 aggregate rows that own ggen fences are `ALIVE` (or typed `REFUSED_*` with remediation closed) per `GATE-1-GAP-MATRIX.md`.
+1. Gate-1 aggregate rows that own ggen fences are `ALIVE` (or typed `REFUSED_*` with remediation closed) per `GATE-1-GAP-MATRIX.md` — including `ui-layout` consume (today **ABSENT**).
 2. Every §1 spine component is either `ALIVE` or has an out-of-repo tracked standing doc with an exact next verifier and a dated receipt tip.
-3. Daily founder HITL is no longer required for ordinary spine SELECT/CONSTRUCT; Plane-5 DO is BRCE+AS-01 only.
+3. Daily founder HITL is no longer required for ordinary spine SELECT/CONSTRUCT; Plane-5 DO is BRCE+AS-01 only (live, not doctrine-only).
 4. GA date **2027-01-01** falsifiers in §1 would not fire if evaluated that day.
 
 Until then, overall goal standing remains:
 
 ```text
 FOUNDRY_FINISH = PARTIAL_ALIVE
-  ∧ ¬(Gate1 ALIVE)
+  ∧ ¬(Gate1 ui-layout ALIVE)      # ABSENT on tip e5ff3f822
+  ∧ ¬(igniter clean-room ALIVE)   # BLOCKED unmounted
+  ∧ ¬(live zcode / live BRCE ALIVE)
   ∧ ¬(out-of-repo residuals fully tracked to receipts)
 ⇒ crown claim incomplete
 ```
@@ -151,8 +167,8 @@ FOUNDRY_FINISH = PARTIAL_ALIVE
 
 ## 7. Provenance
 
-Materialized 2026-11-22 for the v27.1.1 Foundry-finish goal slice (branch
-`cursor/v2711-foundry-finish-bc54`). Evidence drawn from ECOSYSTEM-SPEC-27.1.1 /
-GATE-1-GAP-MATRIX / REPO-INVENTORY on the #849 tip, AGENTS.md standing vocabulary,
-fleet census naming of revops/truex, and explicit non-mount of Smalt/CASTLE/zcode-cli
-in this workspace. No Plane-5 / CASTLE / Smalt / zcode claim is asserted as `ALIVE`.
+| Event | Note |
+|-------|------|
+| Materialized | 2026-11-22 — branch `cursor/v2711-foundry-finish-bc54` |
+| Refresh | 2026-11-22 — branch `cursor/v2711-foundry-finish-refresh-bc54` against tip `e5ff3f822` |
+| Evidence | Tip log contains #861 BRCE AS-01 (`822b1fe13`), verify_witness / shui / R-01…R-07 courts, zcode POWL integrate (`e5ff3f822`); `find` → zero `ui-layout-court.ts`; igniter checkout unmounted → **BLOCKED**; no Plane-5 / CASTLE / Smalt / live zcode / live BRCE claim asserted as `ALIVE` |
