@@ -1,15 +1,15 @@
 # Photolithography path — push-first honesty ledger (v27.1.1)
 
 ```text
-tip=4af998e9be1804a5ea0ccf6b4f2e0de20493aaa4
+tip=7bb443e992486958ad2d2ebff246acf540ba7941
 path=perimeter → .ttl/.toml → ggen+Taffy AOT → igniter clean-room → zcode POWL/OCEL
 path_crown=PARTIAL (non-ALIVE)
 foundry=BLOCKED_HITL (no Foundry ALIVE)
-shui_hop=ALIVE(exact tip-cargo)@a4b3d3fb4 4/4 absorb edf2ec22a ≠ path_crown_ALIVE ≠ Foundry_ALIVE
-taffy_hop=ALIVE(exact tip-cargo)@2685119bd ≠ path_crown_ALIVE ≠ Foundry_ALIVE
-igniter_hop=ALIVE(lineage)+cheap EXIT0 @b5a15528 ≠ path_crown_ALIVE ≠ Foundry_ALIVE
-side=cursor/v2711-igniter-cheap-bc54
-agent=bc-b1fbe1c8-d810-5bcf-8451-bf3c8a8b191d
+tip7=ALIVE(shui4+uilayout11+brand23+taffy7) ≠ path_crown_ALIVE ≠ Foundry_ALIVE
+igniter_hop=ALIVE EXIT0 @b5a15528 ≠ path_crown_ALIVE ≠ Foundry_ALIVE
+construct=PENDING_CI@45081862735 (lock sync tip-wins; npm ci local EXIT0)
+side=cursor/v2711-oor-construct-retip-bc54
+agent=bc-c5848e85-7857-4989-9a23-d4416c85bc54
 ```
 
 | Field | Value |

@@ -369,6 +369,12 @@ jobs:
           cache: npm
           cache-dependency-path: examples/interview-assist/package-lock.json
 
+      - name: Refuse interview-assist package-lock drift
+        shell: bash
+        run: |
+          set -euo pipefail
+          node scripts/check-npm-lock-sync.mjs examples/interview-assist
+
       - name: Install Interview Assist dependencies
         working-directory: examples/interview-assist
         run: npm ci
