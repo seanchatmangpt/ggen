@@ -55,3 +55,84 @@ export GGEN_VERIFY_WITNESS_WASM=/abs/path/to/affidavit_gatekeeper_verify_witness
 
 ggen size-court `ALIVE` + env-wire `PARTIAL` + affidavit pin `ALIVE` ≠ ggen production
 runtime `ALIVE`.
+
+---
+
+## Size honesty retip vs tip `6f920670f` (2026-11-22) — `cursor/v2711-vw-size-retip-bc54`
+
+```text
+exit_measure=0 standing=ALIVE(size_measure) bytes=28673 tip=6f920670ffaa53ecb7cbd89524fa4375e087f1f7
+size_court_tip_cargo=EXIT_137/PARTIAL
+env_wire=PARTIAL production_runtime=UNSUPPORTED
+honesty=size_measure_ALIVE_neq_tip_cargo_PARTIAL_neq_production_ALIVE_neq_Foundry_ALIVE
+side=cursor/v2711-vw-size-retip-bc54
+agent=bc-6808d418-7fd9-50a2-879e-0d693c932a29
+prior_tip_cargo_ALIVE=b2f6e12d2 (sources ≡ tip; not reconfirmed under thrash)
+```
+
+| Field | Value |
+|-------|-------|
+| Branch | `cursor/v2711-vw-size-retip-bc54` |
+| Live tip base | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `6f920670ffaa53ecb7cbd89524fa4375e087f1f7` |
+| Agent | `bc-6808d418-7fd9-50a2-879e-0d693c932a29` |
+| UTC start / end | `2026-11-22T18:01:28Z` → `2026-11-22T18:01:29Z` (court kill); measure held |
+| Affidavit pin ledger | [`VERIFY-WITNESS-AFFIDAVIT-SIZE-COURT-STANDING.md`](./VERIFY-WITNESS-AFFIDAVIT-SIZE-COURT-STANDING.md) |
+| Crown absorb | **none** (sidebranch only; no ManagePullRequest; no force-push) |
+| Foundry | **not claimed** — **never** Foundry `ALIVE` on this subject |
+
+### Observed (this retip)
+
+| Probe | Result |
+|-------|--------|
+| Affidavit gatekeeper `wc -c` | **28673** @ `/tmp/affidavit/affidavit-gatekeeper-wasm/dist/affidavit_gatekeeper_verify_witness.wasm` (≡ `/tmp/cursor/verify-witness-prod/…`) — **MEASURE_EXIT=0** |
+| SHA-256 | `5faae4642ca23c503e96d2a2ab938c056caffdde14e77516054fe4492aed0c97` |
+| Marketing / spec bound | **&lt;250KB** — treat as **&lt;256000** (affidavit ceiling) and **&lt;250000** (decimal) — **28673** holds both |
+| Affidavit court bound | ≤ **256000** — held |
+| Gate-1 bound | &lt; **262144** — held |
+| ggen placeholder @ tip | **35** B (`720b97972e97693b197444d46578b75546cd0b0487e7061fc7e1ea45f2953034`) |
+| Witness sources vs prior tip-cargo ALIVE `b2f6e12d2` | **unchanged** (`git diff --stat` empty on `crates/ggen-graph/{src/witness,tests/verify_witness_size_court.rs,fixtures/witness}`) |
+| Tip-cargo size court (warm seed `/tmp/ggen-uilayout-exact-retip-warm` → `/tmp/ggen-vw-size-retip-final`) | **EXIT 137** (OOM-kill at start under sibling cargo thrash); log `/tmp/cursor/vw-size-retip-final.log` |
+| Prior cold attempt | **EXIT 101** (oxrocksdb-sys SIGTERM) `/tmp/cursor/vw-size-retip-court.log`; flock waiter **EXIT 137** `/tmp/cursor/vw-size-retip-court2.log` |
+
+### Standing (this retip)
+
+| Claim | Standing |
+|-------|----------|
+| Production pin bytes &lt;250KB (measure) | **ALIVE** — `wc -c` **28673**; `MEASURE_EXIT=0` |
+| Tip-cargo `verify_witness_size_court` this retip | **PARTIAL** — **EXIT 137**; court sources **PRESENT** (8 tests); lineage prior tip-cargo **ALIVE** @ `b2f6e12d2` held as historical, **not** reconfirmed this tip |
+| Env wire / production runtime | **PARTIAL** / **UNSUPPORTED** (unchanged) |
+| Foundry / hop-5 / crown | **not this subject** — **no** Foundry `ALIVE` |
+
+```text
+ALIVE(size_measure @ tip 6f920670ffaa53ecb7cbd89524fa4375e087f1f7)
+  ⇔  wc -c affidavit_gatekeeper_verify_witness.wasm = 28673
+  ∧  28673 < 250000 ∧ 28673 < 256000 ∧ 28673 < 262144
+  ∧  MEASURE_EXIT=0
+  ∧  this honesty retip cites tip + measure + sidebranch
+
+PARTIAL(size_court_tip_cargo @ tip 6f920670ffaa53ecb7cbd89524fa4375e087f1f7)
+  ⇔  tip-cargo EXIT 137 (OOM) within retip budget
+  ∧  exact next = warm size court EXIT 0 (8 passed)
+```
+
+**Honesty:** measure `ALIVE` ≠ tip-cargo size-court `ALIVE` this retip ≠ ggen production runtime `ALIVE` ≠ Foundry `ALIVE`.
+
+### Exact next verifier (tip-cargo size court)
+
+```bash
+export CARGO_BUILD_JOBS=1 CXX=g++ SCCACHE_DISABLE=1 RUSTC_WRAPPER=
+# Prefer a quiet host (no competing oxrocksdb builds). Warm seed optional.
+CARGO_TARGET_DIR=/tmp/ggen-vw-size-retip-final \
+  cargo test -p ggen-graph --test verify_witness_size_court --locked \
+  --config build.jobs=1 -- --test-threads=1
+# expect: 8 passed; EXIT 0 (when OOM thrash clears)
+```
+
+### Replay (measure — held)
+
+```bash
+wc -c /tmp/affidavit/affidavit-gatekeeper-wasm/dist/affidavit_gatekeeper_verify_witness.wasm
+# expect: 28673 ; MEASURE_EXIT=0 ; 28673 < 250000 / 256000 / 262144
+sha256sum /tmp/affidavit/affidavit-gatekeeper-wasm/dist/affidavit_gatekeeper_verify_witness.wasm
+# expect: 5faae4642ca23c503e96d2a2ab938c056caffdde14e77516054fe4492aed0c97
+```
