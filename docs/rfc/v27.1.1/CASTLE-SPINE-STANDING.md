@@ -130,7 +130,19 @@ GA claims that **CASTLE is `ALIVE` on the horizontal spine** are **REFUSED** / f
 
 ---
 
-## 7. Provenance
+## 7. Tip reconfirm (2026-11-22)
+
+| Field | Value |
+|-------|-------|
+| Observed ggen tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `7bf148d82e125589859d8830d29a3ce899d28f3f` |
+| Sibling `seanchatmangpt/castle` | **not mounted** → §3.1 courts **BLOCKED** / **UNKNOWN** |
+| In-ggen `rg 'castle publish\|RedactionCourt' crates packs` | empty → publish surface **UNSUPPORTED** remains honest |
+| Brand rhythm (non-substitute) | `brand_toml_rhythm_court` **4 passed; exit 0** on tip — rhythm only, not CASTLE inventory |
+| Crown spine standing | **UNKNOWN** — **unchanged** |
+
+---
+
+## 8. Provenance
 
 GOAL SLICE: CASTLE in horizontal spine (`ggen+Taffy+zcode-cli+CASTLE+Smalt+revops`) standing.
-Materialized as a ggen RFC ledger only. No CASTLE binary, Smalt runtime, or revops front-door was executed in this workspace.
+Materialized as a ggen RFC ledger only. No CASTLE binary, Smalt runtime, or revops front-door was executed in this workspace. Tip reconfirm 2026-11-22 on `7bf148d82` — standing labels held.

@@ -77,7 +77,7 @@ and standing.
 
 | Work | Owner | Notes |
 |------|-------|-------|
-| `curve25519-dalek` v4 / cgap-aoq docs | ggen (+ crypto docs surface) | lock already resolves dalek 4.x and 5.x transitive; document + pin policy |
+| `curve25519-dalek` v4 / cgap-aoq docs | ggen (+ crypto docs surface) | lock resolves 4.1.3 + 5.0.0; pin/policy doc [`CURVE25519-DALEK-PIN-STANDING.md`](./CURVE25519-DALEK-PIN-STANDING.md); policy court still open for `ALIVE` |
 | Admit **`shui:`** in Truex | truex | ggen aligns public-prefix fences so `shui:` is not refused as private |
 | Seal Rust/**Taffy** AOT pre-flight in ggen | **ggen** | widths + WCAG 1.4.12 1.5× |
 | `ui-layout-court.ts` in zcode-cli | zcode-cli | adapter consumes ggen pre-flight receipts |
@@ -241,11 +241,13 @@ when it is supplied; until then, treat “closed” claims as **REFUSED_UNGROUND
 
 - Workspace depends on `ed25519-dalek` 3.x; Cargo.lock resolves
   `curve25519-dalek` **4.1.3** and **5.0.0** transitively.
-- Gate 1 requires explicit **v4** policy docs for cgap-aoq consumers and a
-  single falsifier that refuses silent major drift on the admitted path.
+- Gate 1 pin/policy standing:
+  [`CURVE25519-DALEK-PIN-STANDING.md`](./CURVE25519-DALEK-PIN-STANDING.md)
+  (exact versions, dependents, refuse undocumented major).
+- Remaining falsifier for crown `ALIVE`: a policy court that refuses silent
+  major drift on the admitted path (see pin standing §5).
 
-Standing: **PARTIAL_ALIVE** (transitive present; dedicated Gate-1 doc/court
-absent at materialization).
+Standing: **PARTIAL_ALIVE** (lock + pin doc present; policy court absent).
 
 ---
 
@@ -268,6 +270,7 @@ absent at materialization).
 | `docs/rfc/v27.1.1/R01-R07-STANDING.md` | R-01…R-07 resolution contract standing + next verifiers |
 | `docs/rfc/v27.1.1/PHOTOLITHOGRAPHY-STANDING.md` | hop ledger: perimeter → ttl/toml → Taffy AOT → igniter clean-room → zcode POWL/OCEL (no fake ALIVE) |
 | `docs/rfc/v27.1.1/BRCE-WEBAUTHN-STANDING.md` | BRCE + WebAuthn AS-01 (`:prime256v1`) exists vs BLOCKED/UNSUPPORTED + GA verifiers |
+| `docs/rfc/v27.1.1/CURVE25519-DALEK-PIN-STANDING.md` | Gate-1 `curve25519-dalek` / `ed25519-dalek` lock pin + policy (PARTIAL_ALIVE) |
 
 ---
 

@@ -8,9 +8,9 @@
 //! `cargo test -p ggen-sjira --test zcode_powl_ocel_court`
 
 use ggen_sjira::zcode_powl_ocel::{
-    adjudicate, standing_label, PREDECESSOR_IGNITER_VERIFIER, SUBJECT_REPO, UI_LAYOUT_COURT_COMMAND,
-    VERIFIER_COMMAND, ZcodeRemediationObservation, ZcodeRemediationRefusal,
-    ZcodeRemediationStandingLabel,
+    adjudicate, standing_label, ZcodeRemediationObservation, ZcodeRemediationRefusal,
+    ZcodeRemediationStandingLabel, PREDECESSOR_IGNITER_VERIFIER, SUBJECT_REPO,
+    UI_LAYOUT_COURT_COMMAND, VERIFIER_COMMAND,
 };
 
 #[test]
@@ -71,7 +71,10 @@ fn court_nonzero_exit_is_refused() {
         Err(ZcodeRemediationRefusal::CourtFailed { exit_code }) => assert_eq!(exit_code, 1),
         other => panic!("expected CourtFailed(1), got {other:?}"),
     }
-    assert_eq!(standing_label(&obs), ZcodeRemediationStandingLabel::RefusedCourt);
+    assert_eq!(
+        standing_label(&obs),
+        ZcodeRemediationStandingLabel::RefusedCourt
+    );
     let msg = result.unwrap_err().to_string();
     assert!(msg.starts_with("REFUSED_ZCODE_COURT_FAILED:"));
 }
