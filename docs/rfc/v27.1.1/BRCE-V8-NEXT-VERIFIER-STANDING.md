@@ -3,19 +3,20 @@
 | Field | Value |
 |-------|-------|
 | Document ID | `BRCE-V8-NEXT-VERIFIER-STANDING-27.1.1` |
-| Branch | `cursor/v2711-brce-v8-next-bc54` (honesty sidebranch; **not** crown) |
+| Branch | tip-wins absorb `cursor/v2711-brce-v8-next-bc54` @ `d90d0189f` onto crown `8d761d8a1` (⊇ `f65434315` / `098f53ea8`) |
 | Spec binding | `ECOSYSTEM-SPEC-27.1.1` §13.2 Clause 2 — BRCE broker admits intent only with verified AS-01 seat |
 | Companions | [`BRCE-WEBAUTHN-STANDING.md`](./BRCE-WEBAUTHN-STANDING.md) §5 **V8**; [`CCS-BRCE-STANDING.md`](./CCS-BRCE-STANDING.md) §2; [`WEBAUTHN-LIVE-NEXT-VERIFIER-STANDING.md`](./WEBAUTHN-LIVE-NEXT-VERIFIER-STANDING.md) §3; [`R01-R07-STANDING.md`](./R01-R07-STANDING.md) §2; [`OUT-OF-REPO-NEXT-VERIFIERS.md`](./OUT-OF-REPO-NEXT-VERIFIERS.md) **G2-3** |
-| Observed ggen tip (side base) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `f654343155c902a003a852f61df345e986d98b5e` (`f65434315`; ⊇ `098f53ea8`) |
+| Observed ggen tip (absorb base) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `8d761d8a17925f19b2cee6bb7fbf1582bb4555a0` (`8d761d8a1`; ⊇ `f65434315` / `098f53ea8`) |
+| Prior tip observation | Sidebranch `d90d0189f` on `f65434315`; tip-wins absorb retains **BLOCKED** / **UNSUPPORTED** honesty — **no** V8 / body / live-crypto `ALIVE` |
 | Cargo / tip-cargo | **NOT RUN** (docs-only honesty pin) |
 | Status | LEDGER — **V8** broker **BLOCKED** (broker unmounted); R-01…R-07 bodies **BLOCKED** ahead of V8; live WebAuthn **UNSUPPORTED**; **no** V8 / body / live-crypto `ALIVE` |
 
 Standing vocabulary: `UNKNOWN` | `PARTIAL_ALIVE` | `ALIVE` | `BLOCKED` | `BUILD_BROKEN` | `UNSUPPORTED` | `REFUSED_*`.
 
 **Authority.** This document pins the **exact Founder HITL next verifier** for BRCE
-**V8** (OOR **G2-3**) so a later crown absorb can cite one closed broker court.
-It does **not** push crown. It does **not** promote V1 seat fence tip-cargo, V7
-fixture exit 0, CCS #2/#3 manufacture gates, or R-01…R-07 *contract* tip-cargo to
+**V8** (OOR **G2-3**) so crown can cite one closed broker court. Tip-wins absorb
+retains **BLOCKED** with this pin — it does **not** promote V1 seat fence tip-cargo,
+V7 fixture exit 0, CCS #2/#3 manufacture gates, or R-01…R-07 *contract* tip-cargo to
 broker / Plane-5 / body `ALIVE`.
 
 ---
@@ -94,10 +95,10 @@ Bodies residual: [`R01-R07-STANDING.md`](./R01-R07-STANDING.md) §2.
 
 ## 4. Explicit non-claims
 
-- This side branch does **not** push `cursor/ecosystem-spec-27-1-1-bc54`.
+- Tip-wins absorb onto crown retains **BLOCKED** / **UNSUPPORTED** honesty — it does **not** invent broker / body / live-crypto `ALIVE`.
 - This land does **not** claim BRCE **V8** `ALIVE`, live WebAuthn `ALIVE`, Plane-5 **V9** `ALIVE`, or R-01…R-07 body `ALIVE`/`CLOSED`.
 - V1 seat / V7 fixture / R01-*contract* tip-cargo do **not** close **G2-3**.
-- Do not absorb this ledger as crown `ALIVE` — absorb only after the §3 broker court exits **0**, or retain **BLOCKED** with this pin.
+- Retain **BLOCKED** with this pin until the §3 broker court exits **0** — docs absorb ≠ V8 `ALIVE`.
 - R-01…R-07 bodies remain **BLOCKED** ahead of V8; contract fence alone is **REFUSED_UNGROUNDED** as body closure.
 
 ---
@@ -106,6 +107,6 @@ Bodies residual: [`R01-R07-STANDING.md`](./R01-R07-STANDING.md) §2.
 
 | Event | Note |
 |-------|------|
-| Materialized | 2026-11-22 — side `cursor/v2711-brce-v8-next-bc54` on observed tip `f65434315` (⊇ `098f53ea8`); docs-only; **V8** **BLOCKED** (broker unmounted); R-01…R-07 bodies **BLOCKED** ahead of V8; live WebAuthn **UNSUPPORTED**; no cargo; no ManagePullRequest; no crown push |
+| Side-branch pin | 2026-11-22 — `cursor/v2711-brce-v8-next-bc54` @ `d90d0189f` on observed tip `f65434315` (⊇ `098f53ea8`); docs-only; **V8** **BLOCKED** (broker unmounted); R-01…R-07 bodies **BLOCKED** ahead of V8; live WebAuthn **UNSUPPORTED**; no cargo; no ManagePullRequest; no crown push (`bc-493b3e0e`) |
+| Tip-wins absorb | 2026-11-22 — re-apply side pin onto live crown `8d761d8a1` (⊇ `f65434315` / vw-env-wire honesty retip); standing remains **V8** **BLOCKED**, R-01…R-07 bodies **BLOCKED**, live WebAuthn **UNSUPPORTED**; cite §3 verbatim; **no** invented V8 / body / live-crypto `ALIVE`; docs-only; no cargo; no ManagePullRequest; push `HEAD:cursor/ecosystem-spec-27-1-1-bc54` (no force) |
 | Prior evidence chain | BRCE seat fence tip-cargo **ALIVE** @ `e7569893a` → V7 ES256 fixture land @ `fb6e7fc6e` → CCS-BRCE / BRCE-WEBAUTHN residual honesty (V8 **BLOCKED**) → WebAuthn live next-verifier (**UNSUPPORTED**) → OOR **G2-3** broker still open |
-| Absorb guidance | Tip-wins later onto crown when safe; cite §3 verbatim; standing **BLOCKED** until broker court exit **0** — do **not** invent V8 / body / live-crypto `ALIVE` |
