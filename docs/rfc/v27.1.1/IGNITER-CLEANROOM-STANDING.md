@@ -7,10 +7,10 @@
 | Subject | `seanchatmangpt/ggen_igniter` |
 | Crown claim | Working tree clean-room iff `git diff --exit-code` exits **0** |
 | Materialized | 2026-11-22 |
-| Tip pin (this land) | tip-wins absorb onto crown `d0fec2f2f` (`d0fec2f2f2a539852e3977216b8057e1d5b2bb8a`; ⊇ prior HITL tip `3a69a3d48` + Smalt mix ALIVE `00b53cec9` + OOR retip12 + affidavit); reconfirm probe base `1dbf1cc2e` (fe72be0fb+); prior ALIVE evidence tip `f1492ed5563b29c7065d188bceac6156c3397ce2`; absorb lineage `42717a7a0c8e2a67cdbeebdab259480eaf90138c` |
-| Land branch | tip-wins absorb `cursor/v2711-igniter-reconfirm-bc54` @ `ec079cc16` onto crown `d0fec2f2f` (via `cursor/v2711-igniter-reconfirm-absorb-3b1e`); prior land `cursor/v2711-igniter-cleanroom-alive-bc54` @ `49e986ee7` |
-| Evidence | `/tmp/cursor/igniter-cleanroom-reconfirm.md` (`bc-fd60df35`) — mount `git diff --exit-code` → **0**; prior `/tmp/cursor/igniter-cleanroom-alive-tip.md` (`bc-53b0e099`) |
-| Repo scope of this land | `seanchatmangpt/ggen` (typed contract + standing only; tip-wins crown absorb; path crown remains **PARTIAL**) |
+| Tip pin (this land) | exact-tip retip2 on live crown `893070836ef83ab711e657cfacc98bb4dc7ea369` (`cursor/v2711-igniter-cleanroom-retip2-bc54`); prior tip-wins absorb `d0fec2f2f` / probe `1dbf1cc2e` / ALIVE evidence `f1492ed55` held |
+| Land branch | `cursor/v2711-igniter-cleanroom-retip2-bc54` from `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `893070836` (sidebranch only; **no** crown absorb) |
+| Evidence | `/tmp/cursor/igniter-cleanroom-retip2.md` (`bc-10c8f83c`) — mount `git diff --exit-code` → **0**; prior `/tmp/cursor/igniter-cleanroom-retip.md` / reconfirm `bc-fd60df35` / ALIVE `bc-53b0e099` |
+| Repo scope of this land | `seanchatmangpt/ggen` (standing honesty retip2 only; path crown remains **PARTIAL**; Foundry `--live` **not** ALIVE) |
 
 Standing vocabulary: `UNKNOWN` | `PARTIAL_ALIVE` | `ALIVE` | `BLOCKED` | `BUILD_BROKEN` | `UNSUPPORTED` | `REFUSED_*`.
 
@@ -148,3 +148,21 @@ replaying §4 (clean-tree) **and** §5b BrandTheme compare on the admitted tip.
 | EXIT | **0** |
 | Standing | Clean-room crown **ALIVE** (reconfirmed); photolithography path crown **PARTIAL** (unchanged — **not** promoted) |
 | Exact next verifier | BrandTheme manufacture compare replay → `diff -rq`/`git diff --exit-code` **0**; or Jobs/C4 admitted `mix ggen_igniter.sync --pack-dir test/fixtures/sample-pack … --check` → **0** (default PATH `mix` **ABSENT** this env); path crown next open: `bun scripts/powl-foundry-loop.ts --live` → **0** (**BLOCKED_HITL**) |
+
+---
+
+## 7. Exact-tip retip2 vs tip `893070836` (2026-11-22)
+
+| Field | Value |
+|-------|-------|
+| Agent | `bc-10c8f83c-8d4c-5129-afad-fd7222733773` |
+| Branch | `cursor/v2711-igniter-cleanroom-retip2-bc54` from live crown `893070836ef83ab711e657cfacc98bb4dc7ea369` (**no** crown absorb; no ManagePullRequest) |
+| Observed ggen tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `893070836ef83ab711e657cfacc98bb4dc7ea369` |
+| Igniter mount | `/home/ubuntu/ggen_igniter` @ `b5a15528eb6792dd366fe744ca87f24a80cc46fc` |
+| Narrowest court | `cd /home/ubuntu/ggen_igniter && git diff --exit-code` |
+| EXIT | **0** (cached **0**; porcelain **0**) |
+| Standing | Clean-room crown **ALIVE** (reconfirmed on tip `893070836`) |
+| Path crown | photolithography path remains **PARTIAL** — **not** promoted |
+| Foundry / zero-HITL / `--live` | **BLOCKED_HITL** / **REFUSED** — clean-room EXIT:0 ≠ Foundry `ALIVE` |
+| Antifalsifier | bare post-clone alone ≠ BrandTheme manufacture ALIVE; clean-room EXIT:0 ≠ path crown ALIVE; clean-room EXIT:0 ≠ Foundry `--live` ALIVE |
+| Exact next verifier | BrandTheme manufacture compare replay → `diff -rq`/`git diff --exit-code` **0**; or Jobs/C4 admitted `mix ggen_igniter.sync --pack-dir test/fixtures/sample-pack … --check` → **0**; path crown: `bun scripts/powl-foundry-loop.ts --live` → **0** (**BLOCKED_HITL**) |
