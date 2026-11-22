@@ -11,6 +11,13 @@ Companion to `ECOSYSTEM-SPEC-27.1.1.md` and `REPO-INVENTORY-27.1.1.md`.
 byte-identical from evidence commits through this tip except where noted below; no `cargo` replay
 was run on `678a6c106` in this pass.
 
+**Tip-cargo reconfirm (2026-11-22):** `cursor/v2711-shui-prefix-alive-bc54` from crown
+`008a81d21f14d467be9da7951b39c8d655acb5f0` — quiet
+`CXX=g++ SCCACHE_DISABLE=1 CARGO_BUILD_JOBS=1 CARGO_TARGET_DIR=/tmp/ggen-shui-prefix-target2 cargo test -p ggen-graph --test shui_public_prefix_court --locked`
+→ **4 passed; 0 failed; exit 0** (`/tmp/cursor/shui-prefix-alive.status`;
+`/tmp/shui_public_prefix_court4.log`). Sources ≡ crown `008a81d21`. Prior lineage
+`26256ca9d` retained. Did not compete with ui_layout tip-exclusive target.
+
 **Crown absorb (2026-11-22):** onto `origin/cursor/ecosystem-spec-27-1-1-bc54` past `bc97ceac9` —
 `cursor/v2711-hop4-mix-nif2-bc54` @ `dc48630e2` / `fc0d449af`; `cursor/v2711-crown-progress2-bc54` @
 `0e25df932`; `cursor/v2711-gate1-next-courts-bc54` @ `26256ca9d413617f0e8b1418d101708ec4fbc2a3`
@@ -96,7 +103,7 @@ Do not promote any Gate 0 row to `ALIVE` from this repository.
 
 | Requirement | Standing + live evidence | Tip SHA (subject) | Next exact verifier / command | Owner |
 |-------------|--------------------------|-------------------|-------------------------------|-------|
-| Admit W3C `shui:` as public vocab (ggen fence) | **ALIVE** (lineage) — tip-cargo **4 passed; exit 0** @ evidence `26256ca9d` (`CARGO_BUILD_JOBS=1` `/tmp/gate1-next-shui`; [`GATE-1-NEXT-COURTS-STANDING.md`](./GATE-1-NEXT-COURTS-STANDING.md)); sources ≡ crown `678a6c106`. Ancestor evidence `0478fde59` (**3 passed**). Truex product admit is a separate row (**ALIVE**, sibling merged). | crown `678a6c106` (cargo evidence `26256ca9d`) | `CARGO_BUILD_JOBS=1 CARGO_TARGET_DIR=/tmp/gate1-next-shui cargo test -p ggen-graph --test shui_public_prefix_court --locked` | **ggen** (fence) |
+| Admit W3C `shui:` as public vocab (ggen fence) | **ALIVE** (tip-cargo on crown) — **4 passed; exit 0** @ crown `008a81d21` (`CARGO_TARGET_DIR=/tmp/ggen-shui-prefix-target2`; `cursor/v2711-shui-prefix-alive-bc54`). Lineage evidence `26256ca9d` retained. Ancestor `0478fde59` (**3 passed**). Truex product admit is a separate row (**ALIVE**, sibling merged). | crown `008a81d21` (prior cargo `26256ca9d`) | `CARGO_BUILD_JOBS=1 CARGO_TARGET_DIR=/tmp/ggen-shui-prefix-target2 cargo test -p ggen-graph --test shui_public_prefix_court --locked` | **ggen** (fence) |
 | Truex runtime admits `shui:` shapes | **ALIVE** — sibling Chicago admit-court **6/6 vitest exit 0** on `seanchatmangpt/truex` @ `68d2d2331696f18949f4877b994320018b6365e5` ([truex#6](https://github.com/seanchatmangpt/truex/pull/6) **MERGED** → `main` merge `b4672131`; mount `/tmp/truex`; not re-run in this audit). ggen `shui:` fence tip-cargo **ALIVE** (lineage) @ `26256ca9d`. | truex@`68d2d233` (merged; on `main` via `b4672131`) | Replay: `pnpm exec vitest run test/admit/admit-court.test.ts` → exit 0 @ `68d2d233`. Companion fence (non-substitute): `cargo test -p ggen-graph --test shui_public_prefix_court` | **truex** |
 | Taffy AOT pre-flight (widths 320/375/414/768/1024/1440 + WCAG 1.4.12 1.5×) | **ALIVE** (lineage) — tip-cargo **7 passed; exit 0** @ evidence `26256ca9d` (`CARGO_BUILD_JOBS=1` `/tmp/gate1-next-taffy`; [`GATE-1-NEXT-COURTS-STANDING.md`](./GATE-1-NEXT-COURTS-STANDING.md)); sources ≡ crown `678a6c106`. Ancestor evidence `0478fde59` (**6 passed**). Photolithography / zcode-cli consume still open as a separate hop → not claimed here. Hop: [`PHOTOLITHOGRAPHY-STANDING.md`](./PHOTOLITHOGRAPHY-STANDING.md). | crown `678a6c106` (cargo evidence `26256ca9d`) | `CARGO_BUILD_JOBS=1 CARGO_TARGET_DIR=/tmp/gate1-next-taffy cargo test -p ggen-graph --test taffy_aot_preflight_court --locked` | **ggen** |
 | ggen `ui-layout-court` (AotSealReceipt digest consume) | **ALIVE** (lineage tip-cargo) — exclusive quiet `CXX=g++ SCCACHE_DISABLE=1 CARGO_BUILD_JOBS=1 cargo test -p ggen-graph --test ui_layout_court --locked` under `/tmp/ggen-uilayout-tip-alive-protected` → **11 passed; 0 failed; exit 0** @ `ca52e9c16` (harness sources identical through crown `678a6c106`). Prior evidence `eaf0dad40` (**8 passed; exit 0**); tip court land `7c0ba2a90`. Sibling `ui-layout-court.ts` remains out-of-repo / **UNSUPPORTED**. | crown `678a6c106` (cargo evidence `ca52e9c16`; absorb `8090022f4`) | Replay: `CXX=g++ SCCACHE_DISABLE=1 CARGO_BUILD_JOBS=1 cargo test -p ggen-graph --test ui_layout_court --locked`; next: `pnpm test -- ui-layout-court` in zcode-cli | **ggen** (in-repo fence); **zcode-cli** (TS adapter, separate) |
@@ -123,7 +130,7 @@ Tip-cargo **ALIVE** (lineage) @ evidence `26256ca9d` for `shui` / `taffy` / bran
 
 | Subject | Command / binary | Result |
 |---------|------------------|--------|
-| `shui:` fence | `shui_public_prefix_court` tip-cargo (`/tmp/gate1-next-shui`) | **ALIVE** (lineage) — **4 passed; exit 0** @ evidence `26256ca9d` ([`GATE-1-NEXT-COURTS-STANDING.md`](./GATE-1-NEXT-COURTS-STANDING.md)); ancestor `0478fde59` |
+| `shui:` fence | `shui_public_prefix_court` tip-cargo (`/tmp/ggen-shui-prefix-target2`) | **ALIVE** (crown) — **4 passed; exit 0** @ crown `008a81d21` (`shui-prefix-alive.status`); lineage `26256ca9d`; ancestor `0478fde59` |
 | `taffy_aot` | `taffy_aot_preflight_court` tip-cargo (`/tmp/gate1-next-taffy`) | **ALIVE** (lineage) — **7 passed; exit 0** @ evidence `26256ca9d`; ancestor `0478fde59` |
 | `brand.toml` rhythm | `brand_toml_rhythm_court` tip-cargo (`/tmp/gate1-next-brand`) | **ALIVE** (lineage) — **12 passed; exit 0** @ evidence `26256ca9d` (`toml::Table` fix); pre-fix ancestor `27436608c` would **FAIL** |
 | brand.toml hot-swap | `brand_toml_hotswap_court` tip-cargo (`/tmp/gate1-next-hotswap`) | **ALIVE** — **6 passed; exit 0** on crown; production `promote_production_theme` → **UNSUPPORTED** / `REFUSED_PRODUCTION` |
