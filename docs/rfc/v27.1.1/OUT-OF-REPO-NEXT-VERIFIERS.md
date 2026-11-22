@@ -5,7 +5,7 @@
 | Document ID | `OUT-OF-REPO-NEXT-VERIFIERS` |
 | Companion | `ECOSYSTEM-SPEC-27.1.1`, `GATE-0-STANDING`, `GATE-3-RELEASE-COURTS-STANDING`, `FOUNDRY-FINISH-STANDING` |
 | Target GA | **2027-01-01** |
-| Observed ggen tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `d0fec2f2f2a539852e3977216b8057e1d5b2bb8a` (crown; tip-wins igniter clean-room reconfirm absorb onto HITL tip; ⊇ HITL BLOCKED_HITL + Smalt residual mix + OOR retip12 + affidavit) |
+| Observed ggen tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `13e0ddc9e240541260349b752e66947fdd1a6899` (crown; tip-wins CASTLE digest-bind @ `13e0ddc9e` + WebAuthn next-verifier @ `33a5420ad` onto `a7e190400`; ⊇ igniter reconfirm + HITL BLOCKED_HITL + Smalt residual mix + OOR retip12 + affidavit) — CASTLE crown wire **UNKNOWN**; live WebAuthn **UNSUPPORTED**; **V8** **BLOCKED** |
 | Materialized | 2026-11-22 |
 | Hardened | 2026-11-22 — `cursor/v2711-oor-ledger-harden-bc54` |
 | Ops refresh | 2026-11-22 — `cursor/v2711-ops-standing-refresh-bc54` (tip pin + probe reconfirm; standings held) |
