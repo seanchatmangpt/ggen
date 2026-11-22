@@ -173,16 +173,20 @@ in worktree sanitizers and ORIGINAL_REQUEST doctrine. That ban is about the
 Standing on tip:
 
 - Truex product admission of `shui:`: **ALIVE** — sibling Chicago admit-court
-  **6/6 vitest exit 0** on `seanchatmangpt/truex` @ `68d2d2331696f18949f4877b994320018b6365e5`
+  **6/6 vitest exit 0** reconfirmed @ `68d2d2331696f18949f4877b994320018b6365e5`
   ([truex#6](https://github.com/seanchatmangpt/truex/pull/6) **MERGED** → `main`
-  `b4672131`; mount `/tmp/truex`): `shui:` → **ADMITTED**; private `truex:` →
+  `b4672131`; mount `/tmp/truex`; sidebranch `cursor/v2711-truex-exact-retip-bc54`
+  on tip `a3e5d3109`): `shui:` → **ADMITTED**; private `truex:` →
   **REFUSED_PRIVATE**; unknown → **REFUSED_UNKNOWN**. Replay:
   `pnpm exec vitest run test/admit/admit-court.test.ts` → exit **0**. See
+  [`TRUEX-SHUI-EXACT-RETIP-STANDING.md`](./TRUEX-SHUI-EXACT-RETIP-STANDING.md) /
   [`GATE-1-GAP-MATRIX.md`](./GATE-1-GAP-MATRIX.md).
 - ggen public-prefix alignment: `vocab::shui` + `shui_public_prefix_court` —
-  **ALIVE** (lineage tip-cargo) — **4 passed; exit 0** @ evidence `26256ca9d`
-  (sources ≡ crown `678a6c106`; ancestor `0478fde59` **3 passed**). Fence ≠
-  Truex product crown alone. See [`GATE-1-GAP-MATRIX.md`](./GATE-1-GAP-MATRIX.md).
+  **PARTIAL_ALIVE** (lineage tip-cargo **ALIVE** — **4 passed; exit 0** @
+  evidence `008a81d21`; sources ≡ tip `a3e5d3109`). Exact-tip cargo EXIT **137**
+  (OOM) — **not** tip-subject fence `ALIVE`. Fence ≠ Truex product crown alone.
+  See [`TRUEX-SHUI-EXACT-RETIP-STANDING.md`](./TRUEX-SHUI-EXACT-RETIP-STANDING.md) /
+  [`GATE-1-GAP-MATRIX.md`](./GATE-1-GAP-MATRIX.md).
 
 ---
 
