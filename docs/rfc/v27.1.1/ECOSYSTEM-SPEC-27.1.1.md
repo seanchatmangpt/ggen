@@ -641,3 +641,87 @@ tip-cargo≠live-tip-reconfirm≠path-crown≠Foundry
 exact_next=shui_EXIT0 ; founder zcode_/login + foundry_--live
 tip=ab0a52362(⊇59b9fae1c+/2685119bd)  cargo=NOT_RUN  invented_ALIVE=none
 ```
+
+---
+
+## 20. Retip matrix — Gate1 closed tip-cargo ALIVE (`15eefb628`)
+
+| Field | Value |
+|-------|-------|
+| Retip branch | `cursor/v2711-ecospec-gate1-closed-bc54` (`bc-73d56bd6`) |
+| Observed tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ **`15eefb628368afcbb230d082d6ca00c286ca9d42`** (`15eefb628`; ⊇ Gate1 close pin; ⊇ tip-wins Gate1 exact-tip EXIT0 absorb `712cdfafb`; ⊇ shui fence ALIVE absorb `edf2ec22a` ← `a4b3d3fb4`; ⊇ brand tip6 `31b495a6a`/`cfd93c1cb`; ⊇ Taffy/uilayout `2685119bd`) |
+| Cargo / tip-cargo | **NOT RUN** (docs-only binder close; Gate1 in-repo tip-cargo falsifiers already EXIT:**0** sealed) |
+| Law | tip-cargo `ALIVE` ≠ live-tip reconfirm ≠ path-crown `ALIVE` ≠ Foundry `ALIVE`. **Never invent Foundry ALIVE.** |
+
+Standing vocabulary: `UNKNOWN` | `PARTIAL` | `PARTIAL_ALIVE` | `ALIVE` | `BLOCKED` | `BLOCKED_HITL` | `UNSUPPORTED` | `REFUSED_*`.
+
+Companion matrices: [`GATE1-REMAINING-FALSIFIERS.md`](./GATE1-REMAINING-FALSIFIERS.md); [`GATE1-EXACT-TIP-TIPWINS-ABSORB-STANDING.md`](./GATE1-EXACT-TIP-TIPWINS-ABSORB-STANDING.md); [`FOUNDRY-HITL-ACTION-CARD.md`](./FOUNDRY-HITL-ACTION-CARD.md); [`PHOTOLITHOGRAPHY-PATH-STANDING.md`](./PHOTOLITHOGRAPHY-PATH-STANDING.md); [`GATE-1-GAP-MATRIX.md`](./GATE-1-GAP-MATRIX.md); [`GATE023-OOR-STANDING-MATRIX.md`](./GATE023-OOR-STANDING-MATRIX.md). Prior matrices: §17–§19 retained (historical; tip citation superseded by this §20).
+
+### 20.1 Gate 1 — in-repo falsifiers (tip-cargo ALIVE closed)
+
+| Surface | Standing @ tip `15eefb628` (cargo seals noted) | Evidence ledger | Exact next verifier |
+|---------|------------------------------------------------|-----------------|---------------------|
+| Truex admit `shui:` | **ALIVE** (sibling admit-court **6/6** EXIT **0** @ `truex@68d2d233`; ≠ Foundry / path-crown) | [`TRUEX-SHUI-EXACT-RETIP-STANDING.md`](./TRUEX-SHUI-EXACT-RETIP-STANDING.md); [`TRUEX-ADMIT-EXACT-RETIP2-STANDING.md`](./TRUEX-ADMIT-EXACT-RETIP2-STANDING.md) | Replay only if disputed: `pnpm exec vitest run test/admit/admit-court.test.ts` → **6**/EXIT:**0** |
+| brand.toml completeness + rhythm | **ALIVE (exact tip-cargo)** **5+12**/EXIT:**0** @ `cfd93c1cb` — **≠ live-tip reconfirm** | [`BRAND-TOML-EXACT-TIP6-STANDING.md`](./BRAND-TOML-EXACT-TIP6-STANDING.md) | Sealed — replay only if sources drift |
+| brand.toml hot-swap tip-cargo | **ALIVE (exact tip-cargo)** **6**/EXIT:**0** @ `c4e757a14` (fence ceiling **PARTIAL_ALIVE**); production theme **UNSUPPORTED** | [`BRAND-HOTSWAP-TIP-CARGO-STANDING.md`](./BRAND-HOTSWAP-TIP-CARGO-STANDING.md); [`BRAND-PRODUCTION-THEME.md`](./BRAND-PRODUCTION-THEME.md) | Sealed — prod stays `REFUSED_PRODUCTION` |
+| Taffy AOT preflight | **ALIVE (exact tip-cargo)** **7**/EXIT:**0** @ `2685119bd` — **≠ live-tip reconfirm** ≠ path-crown / Foundry | [`TAFFY-AOT-PREFLIGHT-STANDING.md`](./TAFFY-AOT-PREFLIGHT-STANDING.md) | Sealed — replay only if sources drift |
+| `ui_layout` digest consume | **ALIVE (exact tip-cargo)** **11**/EXIT:**0** @ `2685119bd` — **≠ live-tip reconfirm**; sibling `.ts` **UNSUPPORTED** | [`UILAYOUT-EXACT-RETIP5-STANDING.md`](./UILAYOUT-EXACT-RETIP5-STANDING.md) | Sealed — replay only if sources drift |
+| `shui:` public-prefix fence | **ALIVE (exact tip-cargo)** **4**/EXIT:**0** @ `a4b3d3fb4` (absorb `edf2ec22a`; tip3 absorb held) — **≠ live-tip reconfirm** | [`SHUI-PUBLIC-PREFIX-ALIVE-STANDING.md`](./SHUI-PUBLIC-PREFIX-ALIVE-STANDING.md); [`GATE1-REMAINING-FALSIFIERS.md`](./GATE1-REMAINING-FALSIFIERS.md) | Sealed — tip6/tip7 PARTIAL superseded for tip-cargo class |
+| `curve25519-dalek` pin | **ALIVE** (pin court **6**/EXIT:**0** @ `bebea5dd0`) | [`CURVE25519-DALEK-PIN-STANDING.md`](./CURVE25519-DALEK-PIN-STANDING.md) | Replay: `cargo test -p ggen-config --test curve25519_dalek_pin_court` → **6**/EXIT:**0** |
+| VW size (&lt;250KB) | size court **ALIVE** (**8**/EXIT:**0** retip3); measure **ALIVE** (`wc -c` **28673**); production runtime **UNSUPPORTED** | [`VERIFY-WITNESS-CI-WASM-RETIP3-STANDING.md`](./VERIFY-WITNESS-CI-WASM-RETIP3-STANDING.md) | Production: CI consume EXIT:**0** path — stay **UNSUPPORTED** until then |
+| zcode POWL / hop-5 path | tip-cargo refusal **ALIVE** (**6+4**/EXIT:**0** retip4); path crown **PARTIAL**; `--live` **BLOCKED_HITL** — refusal ≠ Foundry | [`ZCODE-POWL-RETIP4-STANDING.md`](./ZCODE-POWL-RETIP4-STANDING.md); [`PHOTOLITHOGRAPHY-PATH-STANDING.md`](./PHOTOLITHOGRAPHY-PATH-STANDING.md) | **Exact next live:** founder `zcode /login` + `bun scripts/powl-foundry-loop.ts --live` → **foundry_exit=0** |
+| igniter clean-room | **ALIVE** (`git diff --exit-code` → **0**; ≠ path / Foundry `--live`) | [`IGNITER-CLEANROOM-STANDING.md`](./IGNITER-CLEANROOM-STANDING.md) | Replay: `cd /home/ubuntu/ggen_igniter && git diff --exit-code` → **0** |
+| Photolithography path crown | **PARTIAL** (non-ALIVE) — Gate1 tip-cargo green ≠ path crown | [`PHOTOLITHOGRAPHY-PATH-STANDING.md`](./PHOTOLITHOGRAPHY-PATH-STANDING.md) | Close hop residuals + Foundry `--live` before any path-crown promote |
+
+### 20.2 Ops
+
+| Surface | Standing @ tip `15eefb628` | Evidence ledger | Exact next verifier |
+|---------|----------------------------|-----------------|---------------------|
+| Smalt RAID / FinOps | **ALIVE** (lineage) — ≠ Foundry | [`SMALT-RAID-STANDING.md`](./SMALT-RAID-STANDING.md) | Replay FinOps + 4-cloud + residual |
+| cos | `/readyz` **BLOCKED** (**503** `DB_UNAVAILABLE`); `/healthz` **PARTIAL** | [`REVOPS-COS-STANDING.md`](./REVOPS-COS-STANDING.md) | `curl … https://cos.fnox.io/readyz` → **200** |
+| revops | **UNKNOWN** (**NXDOMAIN**) | [`REVOPS-COS-STANDING.md`](./REVOPS-COS-STANDING.md) | `getent hosts revops.fnox.io` ∧ `curl … https://revops.fnox.io/readyz` → DNS ∧ **200** |
+| brand production theme | **UNSUPPORTED** (`REFUSED_PRODUCTION`) | [`BRAND-PRODUCTION-THEME.md`](./BRAND-PRODUCTION-THEME.md) | Gate2+ / OOR until production falsifiers EXIT:**0** |
+
+### 20.3 CCS / BRCE / WebAuthn
+
+| Surface | Standing @ tip `15eefb628` | Evidence ledger | Exact next verifier |
+|---------|----------------------------|-----------------|---------------------|
+| Clause-2 CCS / BRCE + WebAuthn crown | **PARTIAL** / **PARTIAL_ALIVE** — **not** V8 / WebAuthn / Foundry `ALIVE` | [`CCS-BRCE-WEBAUTHN-STANDING.md`](./CCS-BRCE-WEBAUTHN-STANDING.md) | Close WebAuthn AS-01 → **V8** → bodies before crown promote |
+| BRCE **V8** + R-01…R-07 bodies | **BRCE V8 BLOCKED**; bodies **BLOCKED** | [`BRCE-V8-NEXT-VERIFIER-STANDING.md`](./BRCE-V8-NEXT-VERIFIER-STANDING.md); [`R01-R07-BODIES-NEXT-VERIFIER-STANDING.md`](./R01-R07-BODIES-NEXT-VERIFIER-STANDING.md) | Founder HITL mount BRCE broker — without AS-01 → `REFUSED_*`; with seat → receipt+replay → EXIT:**0**; admit risk-register → per-ID receipt/`REFUSED_*` |
+| WebAuthn AS-01 (live) | live **UNSUPPORTED**; V7 fixture / V1 seat ≠ live broker | [`WEBAUTHN-LIVE-NEXT-VERIFIER-STANDING.md`](./WEBAUTHN-LIVE-NEXT-VERIFIER-STANDING.md) §3 | Founder HITL: admit RP-ID → enroll hardware → live assertion court → EXIT:**0**; then **V8** |
+| CASTLE digest-bind wire | wire **ALIVE**/`WIRED`; spine crown **PARTIAL_ALIVE**; Foundry **PARTIAL** | [`CASTLE-SPINE-STANDING.md`](./CASTLE-SPINE-STANDING.md) | Replay digest-bind court; residual after cos `/readyz` **200** |
+
+### 20.4 Foundry / `--live` HITL
+
+| Surface | Standing @ tip `15eefb628` | Evidence ledger | Exact next verifier |
+|---------|----------------------------|-----------------|---------------------|
+| Foundry finish / zero-HITL crown | **PARTIAL** + **BLOCKED_HITL** residuals — **not** Foundry `ALIVE` | [`FOUNDRY-FINISH-STANDING.md`](./FOUNDRY-FINISH-STANDING.md); [`FOUNDRY-FINISH-SPINE-STANDING.md`](./FOUNDRY-FINISH-SPINE-STANDING.md) | Close HITL residuals (cos DB + WebAuthn + `--live`) before any crown promote |
+| foundry `--live` | **BLOCKED_HITL** (`foundry_exit=1` / `Model access is not configured`) | [`FOUNDRY-HITL-ACTION-CARD.md`](./FOUNDRY-HITL-ACTION-CARD.md); [`HITL-LIVE-NEXT-VERIFIER-STANDING.md`](./HITL-LIVE-NEXT-VERIFIER-STANDING.md) §10 | **Exact next:** `cd /agent/repos/zcode-cli && zcode /login && bun scripts/powl-foundry-loop.ts --live` → **foundry_exit=0** |
+
+### 20.5 Exact next (ordered)
+
+```text
+1. founder: zcode /login && bun scripts/powl-foundry-loop.ts --live → foundry_exit=0
+2. cos /readyz → 200 ; revops DNS ∧ /readyz → 200
+3. BRCE V8 bodies (broker + R-01…R-07 typed receipts/refusals)
+4. WebAuthn AS-01 live assertion court → EXIT:0 (then V8)
+```
+
+### 20.6 Compact surface→standing
+
+```text
+Gate1_inrepo_tip_cargo=ALIVE_CLOSED
+Truex=ALIVE@68d2d233
+brand=ALIVE(exact tip-cargo)@cfd93c1cb (5+12) hotswap=ALIVE@c4e757a14 prod=UNSUPPORTED
+Taffy=ALIVE(exact tip-cargo)@2685119bd (7)
+uilayout=ALIVE(exact tip-cargo)@2685119bd (11)
+shui_fence=ALIVE(exact tip-cargo)@a4b3d3fb4 (4)
+curve25519=ALIVE  VW_size=ALIVE(size court)/UNSUPPORTED(prod)
+zcode_refusal=ALIVE(retip4)  photolith_path=PARTIAL  igniter=ALIVE
+Smalt_RAID=ALIVE  cos=BLOCKED  revops=UNKNOWN
+CCS=PARTIAL  BRCE_V8=BLOCKED  WebAuthn_live=UNSUPPORTED  CASTLE_wire=ALIVE/WIRED
+Foundry_finish=PARTIAL  --live=BLOCKED_HITL  refusal≠Foundry_ALIVE
+tip-cargo≠live-tip-reconfirm≠path-crown≠Foundry
+exact_next=founder foundry_--live foundry_exit=0 ; cos/revops readyz 200 ; BRCE_V8 bodies ; WebAuthn_AS-01
+tip=15eefb628  cargo=NOT_RUN  invented_ALIVE=none  ManagePullRequest=not_used
+```
