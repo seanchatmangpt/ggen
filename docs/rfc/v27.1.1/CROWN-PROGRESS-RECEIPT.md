@@ -4,8 +4,8 @@
 |-------|-------|
 | Document ID | `CROWN-PROGRESS-RECEIPT-27.1.1` |
 | Status | **PROGRESS RECEIPT** (honest; **not** goal-complete; **not** crown `ALIVE`) |
-| Observed tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `46a026ae9f78052ae14529884cebdf47f29a4698` |
-| Tip subject | absorb #926 ui_layout tip-cargo **ALIVE** @ `8090022f4`/`27436608c` + #927 chicago @ `1b0072b6c`/`eeeb34319` + #928 Smalt @ `84f0d3eb2` (ALIVE supersedes PENDING; tip `46a026ae9f78052ae14529884cebdf47f29a4698`) |
+| Observed tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `2fd8971414519f5a1c51f6b04c1f7a85831def52` (~`46a026ae9+`) |
+| Tip subject | absorb #929 verify_witness size court **PRESENT** @ `34631db8a`/`d48b763b8` onto tip past #926 ui_layout tip-cargo **ALIVE** + #927 chicago **PARTIAL_ALIVE** + #928 Smalt **ALIVE** (ui_layout ALIVE preserved; tip `2fd8971414519f5a1c51f6b04c1f7a85831def52`) |
 | Ledger pins cited | Gate-1 / Photo / Foundry retipped for tip-cargo ALIVE; OOR / CCS / BRCE / CASTLE retain prior absorb pins |
 | Cargo this receipt | **yes** — exclusive quiet `ui_layout_court` **11 passed; exit 0** @ `ca52e9c16` |
 | Goal standing | **INCOMPLETE** — do **not** claim ECOSYSTEM-SPEC-27.1.1 crown complete |
@@ -30,12 +30,12 @@ FinOps: FOUNDRY/OOR **ALIVE** @ `91997da76f0f` vs older §13.3 FinOps
 Compact return line:
 
 ```text
-tip=522da1ee1755eede884aa6cca87d2195b7a6bba0
+tip=2fd8971414519f5a1c51f6b04c1f7a85831def52
 clause1=PARTIAL
 clause2=PARTIAL_ALIVE
 clause3=PARTIAL+BLOCKED
 clause4=PARTIAL
-gate1=PARTIAL (ui_layout tip-cargo ALIVE; brand production UNSUPPORTED; BRCE honesty-demoted)
+gate1=PARTIAL (ui_layout tip-cargo ALIVE; verify_witness PRESENT; brand production UNSUPPORTED; BRCE honesty-demoted)
 blockers=foundry--live; remaining-fence-tip-cargo; cos/readyz; WebAuthn/BRCE-V8/V9; revops-DNS; mix-NIF; R01-R07-bodies; verify_witness-prod; production-theme
 ```
 
