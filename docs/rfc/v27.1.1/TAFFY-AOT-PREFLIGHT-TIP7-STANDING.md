@@ -13,7 +13,7 @@ exit=0
 standing=ALIVE
 lineage_alive=19c08a3b0 / absorb cde02d1f2
 exact_tip_reconfirm=ALIVE (EXIT:0 @ 63da993cc)
-crown_absorb=ABSORBED tip-wins (this land)
+crown_absorb=ABSORBED@a4b3d3fb4→4ebcb9d46←ff0b27e9d
 ManagePullRequest=not_used
 force_push=none
 Foundry_ALIVE=not_claimed
@@ -34,7 +34,7 @@ Foundry_ALIVE=not_claimed
 | Lineage tip-cargo ALIVE | **held** — **7 passed; EXIT 0** @ `19c08a3b0` / absorb `cde02d1f2` |
 | Prior tip6 | `cursor/v2711-taffy-preflight-tip6-bc54` — **PARTIAL_ALIVE** EXIT:**137** under thrash — [`TAFFY-AOT-PREFLIGHT-TIP6-STANDING.md`](./TAFFY-AOT-PREFLIGHT-TIP6-STANDING.md) |
 | Peer exact-tip ALIVE | [`TAFFY-AOT-PREFLIGHT-STANDING.md`](./TAFFY-AOT-PREFLIGHT-STANDING.md) — EXIT:**0** @ `2685119bd` (ancestor of tip7 base; tip7 reconfirms on live tip) |
-| Crown absorb | **ABSORBED** tip-wins onto `cursor/ecosystem-spec-27-1-1-bc54` (pre-absorb tip below; side `ff0b27e9d`) |
+| Crown absorb | **ABSORBED** tip-wins onto `cursor/ecosystem-spec-27-1-1-bc54` @ pre-absorb `a4b3d3fb4` → absorb `4ebcb9d46` (side `ff0b27e9d`) |
 | ManagePullRequest | **not used** |
 | Force-push | **none** |
 | Foundry ALIVE | **not claimed** |
@@ -100,5 +100,5 @@ tests=7
 standing=ALIVE
 target=/tmp/gate1-tip7-taffy
 lineage_alive=19c08a3b0/cde02d1f2
-crown_absorb=ABSORBED ManagePullRequest=not_used force_push=none Foundry_ALIVE=not_claimed
+crown_absorb=ABSORBED@a4b3d3fb4→4ebcb9d46←ff0b27e9d ManagePullRequest=not_used force_push=none Foundry_ALIVE=not_claimed
 ```
