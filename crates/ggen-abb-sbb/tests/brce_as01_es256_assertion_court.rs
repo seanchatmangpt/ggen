@@ -9,6 +9,8 @@
 //!
 //! Falsifier: `cargo test -p ggen-abb-sbb --test brce_as01_es256_assertion_court`
 
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 use ggen_abb_sbb::as01_assertion::{admit_as01_assertion, As01Assertion, As01AssertionRefusal};
 use ggen_abb_sbb::as01_seat::{AS01_ALG, AS01_CURVE};
 use p256::ecdsa::signature::Signer;

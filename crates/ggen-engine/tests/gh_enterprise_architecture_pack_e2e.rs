@@ -16,7 +16,6 @@ fn packs_dir() -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR")).join("../../packs")
 }
 
-
 fn scaffold() -> (TempDir, PathBuf) {
     let dir = TempDir::new().expect("tempdir");
     for pack in ["gh-terraform-pack", "gh-enterprise-architecture-pack"] {
