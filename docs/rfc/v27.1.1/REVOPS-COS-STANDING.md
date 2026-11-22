@@ -155,20 +155,3 @@ curl -sS -w '\nhttp=%{http_code}\n' https://cos.fnox.io/readyz
 ```
 
 If any probe’s standing changes, amend this file with a new dated observation block; do not silently rewrite history.
-
----
-
-## 7. Tip reconfirm (2026-11-22)
-
-Observed on `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `7bf148d82e125589859d8830d29a3ce899d28f3f`.
-
-| Probe | Result | Standing |
-|-------|--------|----------|
-| `getent hosts revops.fnox.io` | empty | **UNKNOWN** |
-| `curl https://revops.fnox.io/` | exit 6 / `http=000` | **UNKNOWN** |
-| `curl https://cos.fnox.io/` | HTTP **404** `NOT_FOUND` | **PARTIAL** (edge) |
-| `curl https://cos.fnox.io/healthz` | HTTP **200** `{"status":"ok"}` | **PARTIAL** |
-| `curl https://cos.fnox.io/readyz` | HTTP **503** `{"status":"DB_UNAVAILABLE"}` | **BLOCKED** |
-| `curl https://cos.fnox.io/ledger` | HTTP **404** | **UNKNOWN** |
-
-Crown: Plane-5 revops+cos product standing is **not** `ALIVE`. Labels in §1 **held**. Next verifiers remain §4.

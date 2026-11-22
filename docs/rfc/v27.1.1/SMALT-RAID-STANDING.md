@@ -144,22 +144,9 @@ rg -i -n '\bRAID\b|4-cloud|economic.?ops' \
 
 ---
 
-## 6. Tip reconfirm (2026-11-22)
-
-| Field | Value |
-|-------|-------|
-| Observed ggen tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `7bf148d82e125589859d8830d29a3ce899d28f3f` |
-| Sibling mount | **not mounted** → courts **BLOCKED** |
-| In-repo falsifier `rg` | zero material RAID/4-cloud/economic-ops hits outside standing/rfc docs |
-| Crown standing | **UNKNOWN** + **BLOCKED** — **unchanged** (honest; no promotion) |
-| Next verifier | §4 (`just doctor`; `mix test test/aws|gcp|fin_ops_calculator_test.exs` in mounted smalt) |
-
----
-
-## 7. Provenance
+## 6. Provenance
 
 Materialized as the v27.1.1 goal-slice standing ledger for **Smalt 4-Cloud RAID
 / economic ops**. Evidence: in-repo ripgrep (empty), ECOSYSTEM-SPEC Gate-0 /
 Plane-5 doctrine, and read-only observation of `seanchatmangpt/smalt` parity +
-FinOps/b4b trees. No smalt court was executed from this workspace. Tip reconfirm
-2026-11-22 on `7bf148d82` — standing labels held.
+FinOps/b4b trees. No smalt court was executed from this workspace.
