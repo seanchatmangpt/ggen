@@ -5,8 +5,8 @@
 | Document ID | `CCS-WRITE-APPLY-ALIVE-STANDING` |
 | Branch | `cursor/v2711-write-apply-alive-bc54` |
 | Spec binding | `ECOSYSTEM-SPEC-27.1.1` §13.2 CCS #2 (`ggen_write_apply` + Gall CP17) |
-| Observed tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `cd7c2433b7e124db6606008a92081d23aa3727ce` |
-| Evidence land | `abdefd5c83114ab047e424b70abbdebf439ffefd` (FM-LAW-015 empty `ea.graph.json` fixture repair on tip) |
+| Observed tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `c91b225614a3ca0472303c05bab25601db1d51e1` |
+| Evidence land | `b5cb632c629538d8244432a82246dd302f695f1d` (FM-LAW-015 empty `ea.graph.json` fixture repair on tip) |
 | Repo | `seanchatmangpt/ggen` |
 | CCS #2 path (confirm + CP17 courts) | **ALIVE** |
 | Clause-2 / Plane-5 / BRCE crown | **PARTIAL_ALIVE** — **V8**/**V9** OOR **BLOCKED** unchanged |
@@ -19,7 +19,7 @@
 
 ## Tip-cargo evidence
 
-Target dir: `/tmp/ggen-write-apply-target`. Jobs=1. `--locked`. Tip base `cd7c2433b` + land `abdefd5c8`.
+Target dir: `/tmp/ggen-write-apply-target`. Jobs=1. `--locked`. Tip base `c91b22561` + land `b5cb632c6`.
 
 | # | Command | Result | Standing |
 |---|---------|--------|----------|
@@ -41,7 +41,7 @@ Sources:
 
 ```bash
 git fetch origin cursor/ecosystem-spec-27-1-1-bc54
-# tip @ cd7c2433b + land fixture abdefd5c8 (or successor absorb)
+# tip @ c91b22561 + land fixture b5cb632c6 (or successor absorb)
 export CARGO_TARGET_DIR=/tmp/ggen-write-apply-target
 export CARGO_BUILD_JOBS=1
 cargo test -p ggen-mcp --test write_apply_confirm_test --locked --config build.jobs=1 -- --test-threads=1
@@ -59,8 +59,8 @@ cargo test -p ggen-mcp --test pipeline_tools_test --locked --config build.jobs=1
 ## Compact return line
 
 ```text
-tip=cd7c2433b7e124db6606008a92081d23aa3727ce
-evidence=abdefd5c83114ab047e424b70abbdebf439ffefd
+tip=c91b225614a3ca0472303c05bab25601db1d51e1
+evidence=b5cb632c629538d8244432a82246dd302f695f1d
 v1=write_apply_confirm_test 7_passed_exit_0
 v2a=write_apply_refuses_a_fabricated_graph_hash_bypass 1_passed_exit_0
 v2b=write_apply_accepts_a_real_dry_run_graph_hash 1_passed_exit_0
