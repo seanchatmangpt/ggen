@@ -1,46 +1,37 @@
 # Gate1 remaining falsifiers ledger (v27.1.1)
 
 ```text
-crown_tip=ae34bf4bcafe1cc2a86fe9598d9769fe1b9dcdc4
-branch=cursor/v2711-gate1-remaining-retip-bc54
-utc=2026-11-22T19:42Z
-cargo=none (docs-only retip after photolith absorb @ 6cdb97492 + taffy tip6 @ 2e452873a + zcode retip5 @ ae34bf4bc)
-ManagePullRequest=not_used
+crown_tip=7bb443e992486958ad2d2ebff246acf540ba7941
+branch=cursor/v2711-oor-construct-retip-bc54
+utc=2026-11-22T23:13Z
+cargo=tip7 sealed ALIVE (shui4+uilayout11+brand23+taffy7); Construct PENDING_CI
+ManagePullRequest=PR955
 invented_ALIVE=none
 live_tip_ALIVE_invented=none
 Foundry_ALIVE_invented=none
 Foundry=BLOCKED_HITL
 path_crown=PARTIAL
-tip_cargo_neq_live_tip_reconfirm=held
-tip7_open=shui_PARTIAL_EXIT101 + uilayout_in_flight
-taffy_tip7=ALIVE@63da993cc/absorb_4ebcb9d46
-prior_close=700ff435e@31b495a6a
+tip7_CLOSED_ALIVE=held
+construct_lock_sync=7bb443e99
+construct_full_job=PENDING_CI@45081862735
 ```
 
 | Field | Value |
 |-------|-------|
 | Document ID | `GATE1-REMAINING-FALSIFIERS` |
-| Observed crown tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ **`ae34bf4bcafe1cc2a86fe9598d9769fe1b9dcdc4`** (`ae34bf4bc`; ⊇ zcode POWL retip5 `ae34bf4bc` / taffy tip6 absorb `2e452873a` / photolith founder-CLI honesty `6cdb97492` / Foundry HITL exact CLI `4af3c6ec5` / shui tip-cargo ALIVE absorb `edf2ec22a` ← `a4b3d3fb4` / shui tip7 PARTIAL absorb `d35482374` / brand tip6 `31b495a6a` / ui_layout `6f0f64611` / Taffy tip-cargo+tip7 `c93277719`+`4ebcb9d46`) |
-| Sidebranch | `cursor/v2711-gate1-remaining-retip-bc54` |
-| Cargo / tip-cargo | **NOT RUN** (docs-only honesty retip; tip7 diagnosis owns cargo; sealed tip-cargo EXIT:**0** held; **≠** live-tip reconfirm) |
+| Observed crown tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ **`7bb443e99`** (⊇ interview-assist lock sync + Gate1 tip7 live-tip ALIVE + Construct receipt-exclude + G2-11 Mount ALIVE) |
+| Sidebranch | `cursor/v2711-oor-construct-retip-bc54` (PR #955) |
+| Cargo / tip-cargo | tip7 live-tip **ALIVE** sealed (shui **4** + uilayout **11** + brand **23** + taffy **7**); Construct full job **PENDING_CI** on tip |
 | Spec bind | [`ECOSYSTEM-SPEC-27.1.1.md`](./ECOSYSTEM-SPEC-27.1.1.md) §6–§10 / §17–§20; companions [`GATE-1-GAP-MATRIX.md`](./GATE-1-GAP-MATRIX.md), [`GATE-1-REMAINING-COURTS-STANDING.md`](./GATE-1-REMAINING-COURTS-STANDING.md), [`PHOTOLITHOGRAPHY-PATH-STANDING.md`](./PHOTOLITHOGRAPHY-PATH-STANDING.md), [`SHUI-PUBLIC-PREFIX-ALIVE-STANDING.md`](./SHUI-PUBLIC-PREFIX-ALIVE-STANDING.md), [`SHUI-PUBLIC-PREFIX-TIP7-STANDING.md`](./SHUI-PUBLIC-PREFIX-TIP7-STANDING.md), [`TAFFY-AOT-PREFLIGHT-TIP7-STANDING.md`](./TAFFY-AOT-PREFLIGHT-TIP7-STANDING.md), [`FOUNDRY-HITL-ACTION-CARD.md`](./FOUNDRY-HITL-ACTION-CARD.md) |
 
 Standing vocabulary (`AGENTS.md` §2): `UNKNOWN` | `PARTIAL` | `PARTIAL_ALIVE` | `ALIVE` | `BLOCKED` | `BLOCKED_HITL` | `UNSUPPORTED` | `REFUSED_*`.
 
-**Law:** This ledger is a docs-only pin of Gate1 falsifier standings at live crown
-`ae34bf4bc` after photolith absorb (`6cdb97492`) + taffy tip6 (`2e452873a`) +
-zcode retip5. It does **not** run cargo (tip7 serial owns EXIT0 thrash). Exact
-tip-cargo `ALIVE` rows below are sealed at their cargo tips (`a4b3d3fb4` /
-`cfd93c1cb` brand tip6 / `2685119bd` / `c4e757a14` / …) — that is **≠** a
-live-tip (`ae34bf4bc`+) reconfirm unless a later EXIT:**0** on the live tip is
-recorded.
-**tip7 open (held):** shui tip7 thrash **PARTIAL_ALIVE** EXIT:**101** (≠ demote
-sealed tip-cargo ALIVE @ `a4b3d3fb4`); uilayout tip7 **open/in-flight**
-(`cursor/v2711-uilayout-exact-tip7-bc54`). Taffy tip7 **ALIVE** EXIT:**0** @
-`63da993cc` / absorb `4ebcb9d46`. Never invent tip-subject / live-tip `ALIVE`
-from blob identity, lineage alone, or this markdown file. Never invent Foundry /
-path-crown / production-theme `ALIVE`. Path crown remains **PARTIAL**. Foundry
-remains **BLOCKED_HITL**.
+**Law:** Gate1 tip7 live-tip reconfirm is **CLOSED/ALIVE** at tip `b07cda77c+`
+(shui **4** + uilayout **11** + brand **23** + taffy **7**). Exact tip-cargo
+`ALIVE` rows remain sealed at their cargo tips. tip7 thrash EXIT:**101** /
+uilayout-in-flight rows are **superseded**. Never invent Foundry / path-crown /
+production-theme / zero-HITL `ALIVE`. Path crown remains **PARTIAL**. Foundry
+remains **BLOCKED_HITL**. Construct full job **PENDING_CI** on `7bb443e99`.
 
 ---
 

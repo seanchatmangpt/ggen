@@ -6,8 +6,9 @@
 | Binding | `ECOSYSTEM-SPEC-27.1.1` §2 (D1–D7) + §3 Gate 2–3 (“7 release courts”) |
 | Target GA | **2027-01-01** |
 | Observed base | `origin/main` @ `d173cad5792e837bd4fec730d120c582b9bc5d4c` |
-| Companion tip (Gate-1 land) | `cursor/ecosystem-spec-27-1-1-bc54` @ `22d108f54fe78c9d66bb4ba1c3b24597a8e05e15` (PR #849) |
+| Companion tip (Gate-1 land) | `cursor/ecosystem-spec-27-1-1-bc54` @ `7bb443e99` (PR #849; tip7 live-tip ALIVE + Construct lock sync; Construct full job **PENDING_CI**) |
 | Materialized | 2026-11-22 |
+| Honesty retip | 2026-11-22 3:13 PM PST — RC-D3 Truex `#6` **MERGED**; Gate1 tip7 fences **ALIVE**; Foundry / Plane-5 / RC-D1 / RC-D7 **held** non-ALIVE |
 
 Standing vocabulary: `UNKNOWN` | `PARTIAL_ALIVE` | `ALIVE` | `BLOCKED` |
 `BUILD_BROKEN` | `UNSUPPORTED` | `REFUSED_*` | `OPEN / UNKNOWN`.
@@ -29,29 +30,31 @@ courts (see sibling R-01…R-07 resolution work).
 | Court | Subject (ECOSYSTEM-SPEC delta) | Standing | Evidence (observed) | Next exact verifier |
 |-------|--------------------------------|----------|---------------------|---------------------|
 | **RC-D1** | Zero-DOM WebGPU canvas Mode A + FFB Mode B (D1) | **UNSUPPORTED** | No live Zero-DOM / WebGPU / FFB crate surface under workspace members (`REPO-INVENTORY-27.1.1.md`) | Sibling UI-plane court that paints from an admitted Taffy AOT receipt and exits 0; refuse ambient DOM/DO without BRCE+AS-01 |
-| **RC-D2** | Taffy AOT pre-flight — widths `320/375/414/768/1024/1440` + WCAG 1.4.12 @ **1.5×** (D2) | **PARTIAL_ALIVE** | Gate-1 land on #849: `ggen-graph::layout::taffy_aot` six-width seal + `tests/taffy_aot_preflight_court.rs` present; photolithography / consumer boundary still open | `cargo test -p ggen-graph --test taffy_aot_preflight_court` (replay); then zcode-cli/igniter consume of `AotSealReceipt` for GA `ALIVE` |
-| **RC-D3** | Truex admits W3C SHACL 1.2 `shui:` (`http://www.w3.org/ns/shacl-ui/`) (D3) | **PARTIAL_ALIVE** (ggen fence) / **PARTIAL_ALIVE** (Truex product admit-court; not `main`) | ggen: `vocab::shui` + `shui_public_prefix_court` (evidence tip `0478fde59`); Truex sibling Chicago admit-court **6/6 vitest exit 0** @ `truex@e28e68300` (`cursor/v2711-truex-admit-court-bc54` / truex#6) — not full product `ALIVE` until merge to truex `main` + tip-sync ggen fence | ggen: `cargo test -p ggen-graph --test shui_public_prefix_court`; Truex: merge [#6](https://github.com/seanchatmangpt/truex/pull/6) → `main`; replay `pnpm exec vitest run test/admit/admit-court.test.ts` → exit 0 |
-| **RC-D4** | DTCG 2025.10 brand manifests — `fourth-watch.brand.toml`, `cindycat.brand.toml` (D4) | **PARTIAL_ALIVE** (rhythm) / **UNSUPPORTED** (full token+CASTLE inventory) | `layout::brand` + fixtures under `docs/rfc/v27.1.1/fixtures/` + `brand_toml_rhythm_court` on #849; color/type/CASTLE inventories not admitted | `cargo test -p ggen-graph --test brand_toml_rhythm_court`; Gate 2+ CASTLE/token inventory court once sources are admitted |
-| **RC-D5** | zcode-cli `ui-layout-court.ts` adapter (D5) | **PARTIAL** (in-process sibling **ALIVE**) / live **BLOCKED**; in-repo ggen fence **ALIVE** (evidence only) | In-repo: `ggen_graph::layout::ui_layout` + `ui_layout_court` (**8 passed; exit 0** evidence `eaf0dad40`); fixture stub `docs/rfc/v27.1.1/fixtures/ui-layout-court.ts`; `ggen-layout-court` package **PRESENT** on tip. Live `UiLayoutCourtAdapter` / foundry `--live` still open (see [`PHOTOLITHOGRAPHY-STANDING.md`](./PHOTOLITHOGRAPHY-STANDING.md) hop 5) | Live: `UiLayoutCourtAdapter.verifyPostTransition(/agent/repos/ggen)` → exit 0; in-process: `bun test test/ui-layout-court.test.ts` → exit 0; ggen fence replay: `cargo test -p ggen-graph --test ui_layout_court` |
-| **RC-D6** | Plane 5 front doors — `revops.fnox.io`, cos/FinFab, Fourth Watch + CindyCat (D6) | **UNKNOWN** / **OUT OF SCOPE** (ggen DO) | Fleet census names only; Plane 5 DO is BRCE+WebAuthn AS-01 only — not claimable from ggen evidence | External Plane-5 / hosting court with AS-01-gated DO receipt; do not promote from this repo |
-| **RC-D7** | Unresolved risks **R-01 … R-07** hard GA gate (D7) | **OPEN / UNKNOWN** (all seven) | Spec §11: risk bodies not mounted; “closed” without typed evidence is `REFUSED_UNGROUNDED` | Per-risk typed receipt **or** typed refusal before GA; materialize bodies from admitted risk register first (sibling R-01…R-07 resolution courts) |
+| **RC-D2** | Taffy AOT pre-flight — widths `320/375/414/768/1024/1440` + WCAG 1.4.12 @ **1.5×** (D2) | **ALIVE** (ggen tip7 fence) / GA consumer **PARTIAL** | tip7 live-tip **7**/EXIT:**0** @ `b07cda77c+` (`/tmp/gate1-tip7-taffy.log`); sealed tip-cargo @ `2685119bd`/`63da993cc`. Photolith / zcode-igniter `AotSealReceipt` consume still open for GA crown | Replay: `cargo test -p ggen-graph --test taffy_aot_preflight_court` → **7**/EXIT:**0**; then zcode/igniter consume for GA `ALIVE` |
+| **RC-D3** | Truex admits W3C SHACL 1.2 `shui:` (`http://www.w3.org/ns/shacl-ui/`) (D3) | **ALIVE** (Truex admit-court ≡ G2-7) / ggen fence tip7 **ALIVE** | Truex [#6](https://github.com/seanchatmangpt/truex/pull/6) **MERGED** `b4672131` @ `truex@68d2d233`; Chicago admit-court **6**/EXIT:**0**. ggen `shui_public_prefix_court` tip7 **4**/EXIT:**0**. ≠ Foundry / path-crown `ALIVE` | Replay: `pnpm exec vitest run test/admit/admit-court.test.ts` → **6**/EXIT:**0**; `cargo test -p ggen-graph --test shui_public_prefix_court` → **4**/EXIT:**0** |
+| **RC-D4** | DTCG 2025.10 brand manifests — `fourth-watch.brand.toml`, `cindycat.brand.toml` (D4) | **ALIVE** (completeness+rhythm+hotswap tip7) / **UNSUPPORTED** (full token+CASTLE inventory) | tip7 brand **5+6+12**/EXIT:**0** (`/tmp/gate1-tip7-brand.log`). Production theme **UNSUPPORTED**. Full DTCG/CASTLE inventory **UNSUPPORTED** | Replay brand courts → EXIT:**0**; Gate 2+ CASTLE/token inventory once sources admitted |
+| **RC-D5** | zcode-cli `ui-layout-court.ts` adapter (D5) | **PARTIAL** (ggen tip7 fence **ALIVE**; in-process sibling **ALIVE**) / live **BLOCKED_HITL** | ggen `ui_layout_court` tip7 **11**/EXIT:**0**. zcode POWL/OCEL Chicago replay **11**/EXIT:**0** @ 2026-11-22 3:13 PM PST (`/tmp/zcode-powl-ocel-replay.log`) ≠ foundry `--live`. Live `--live` **foundry_exit=1** | Live: `bun scripts/powl-foundry-loop.ts --live` → **foundry_exit=0** (Founder HITL); non-substitute: `bun test test/powl-ocel-chicago.test.ts` → **0** |
+| **RC-D6** | Plane 5 front doors — `revops.fnox.io`, cos/FinFab, Fourth Watch + CindyCat (D6) | **UNKNOWN** (revops NXDOMAIN) / cos **BLOCKED** (503) / **OUT OF SCOPE** (ggen DO) | Probe held: cos `/readyz` **503** `DB_UNAVAILABLE`; revops **NXDOMAIN**. Plane 5 DO is BRCE+WebAuthn AS-01 only | External Plane-5 / hosting court with AS-01-gated DO receipt; do not promote from this repo |
+| **RC-D7** | Unresolved risks **R-01 … R-07** hard GA gate (D7) | **BLOCKED** (all seven bodies); contract fence **ALIVE** **7** ≠ bodies | Spec §11: risk bodies not mounted; contract-only antifalsifier ≠ body close | Per-risk typed receipt **or** typed refusal before GA; Founder HITL admit register |
 
 ---
 
 ## Promotion rules (through GA)
 
-1. **RC-D2 / RC-D3 / RC-D4** may advance from `PARTIAL_ALIVE` → `ALIVE` only when
-   the named verifier exits 0 **and** the GA consumer boundary named in the
-   “Next exact verifier” cell also exits 0 (zcode/Truex/CASTLE as applicable).
+1. **RC-D2 / RC-D3 / RC-D4** fence rows may cite tip7 / Truex-merge `ALIVE` for
+   the named ggen/Truex verifier. GA consumer boundary (zcode/igniter consume,
+   full DTCG/CASTLE inventory) stays **PARTIAL** / **UNSUPPORTED** until that
+   boundary exits 0 — fence `ALIVE` ≠ Gate-3 crown `ALIVE`.
 2. **RC-D1** stays `UNSUPPORTED` until the UI-plane sibling mounts a court.
-   **RC-D5** may advance from `PARTIAL` → `ALIVE` only when live
-   `UiLayoutCourtAdapter` (or admitted foundry `--live`) exits 0 on the pinned
-   tip; in-repo ggen fence / in-process bun alone never promote RC-D5 crown.
+   **RC-D5** may advance from `PARTIAL` → live `ALIVE` only when foundry
+   `--live` exits 0 on the pinned tip; in-repo ggen fence / POWL-OCEL bun alone
+   never promote RC-D5 live crown. **≠ Foundry ALIVE invented.**
 3. **RC-D6** remains non-`ALIVE` from ggen forever unless a BRCE+AS-01 DO receipt
    is supplied by the Plane-5 owner and cited here with command + exit.
 4. **RC-D7** refuses silent closure: inventing R-0N prose is `REFUSED_UNGROUNDED`.
 5. Any claim of crown Gate-3 `ALIVE` while any row above is not `ALIVE` (or an
-   admitted typed refusal for that row) is **REFUSED**.
+   admitted typed refusal for that row) is **REFUSED**. Zero-HITL / Foundry /
+   path crowns stay **PARTIAL** while Foundry `--live` is **BLOCKED_HITL**.
 
 ---
 
