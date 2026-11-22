@@ -100,11 +100,7 @@ cargo test -p ggen-sjira --test igniter_cleanroom_court
 | Claim | Standing |
 |-------|----------|
 | Contract module + court in ggen | **PARTIAL_ALIVE** |
-<<<<<<< HEAD
 | Sibling clean-room (`git diff --exit-code == 0`) | **ALIVE** EXIT:**0** @ tip lineage `f1492ed55` — mount **PRESENT** `/home/ubuntu/ggen_igniter` @ `b5a15528…`; agent `bc-53b0e099` (`/tmp/cursor/igniter-cleanroom-alive-tip.md`). Clean-room crown ≠ BrandTheme manufacture `ALIVE` (already separate) ≠ Foundry zero-HITL crown |
-=======
-| Sibling clean-room (`git diff --exit-code == 0`) | **ALIVE** — tip `f1492ed5563b29c7065d188bceac6156c3397ce2`; mount `/home/ubuntu/ggen_igniter` @ `b5a15528…`; `EXIT:0` (`/tmp/cursor/igniter-cleanroom-alive-tip.md`; `bc-53b0e099`). Antifalsifier: this crown ≠ BrandTheme manufacture ALIVE (already separate). |
->>>>>>> aa8079108 (docs(rfc): tip-wins absorb igniter clean-room ALIVE onto crown)
 | Tip BrandTheme manufacture | **ALIVE** — tip dual-schema `fourth-watch.brand.toml` (`[rhythm]` + DTCG `[primitive.space]`) BrandTheme emit vs igniter fixture → `diff -rq` **0** + compare-subject `git diff --exit-code` → **0** (`/tmp/cursor/igniter-real-cleanroom.md`; reconfirm `cursor/v2711-hop4-primitive-space-bc54`). Rhythm-only probe still `REFUSED :no_primitive_space` (antifalsifier). |
 | Historical IG-1 dirty census as current truth | **UNSUPPORTED** as live evidence (stale lane prose) |
 | OOR | **BLOCKED** (unchanged; parent owns #849 body; OOR docs exclusive elsewhere) |
