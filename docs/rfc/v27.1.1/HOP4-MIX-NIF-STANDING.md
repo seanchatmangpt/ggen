@@ -3,18 +3,19 @@
 | Field | Value |
 |-------|-------|
 | Document ID | `HOP4-MIX-NIF-STANDING-27.1.1` |
-| Branch | `cursor/v2711-hop4-mix-nif-standing-bc54` (absorb from `cursor/v2711-hop4-mix-nif2-bc54` @ `77095a8d8`) |
+| Branch | `cursor/v2711-hop4-mix-check-alive-bc54` (prior nif2 `cursor/v2711-hop4-mix-nif2-bc54` @ `77095a8d8`) |
 | Companion | [`PHOTOLITHOGRAPHY-STANDING.md`](./PHOTOLITHOGRAPHY-STANDING.md) hop 4, [`IGNITER-CLEANROOM-STANDING.md`](./IGNITER-CLEANROOM-STANDING.md), [`OUT-OF-REPO-NEXT-VERIFIERS.md`](./OUT-OF-REPO-NEXT-VERIFIERS.md) G2-10 residual, [`HOP5-MIX-SUBJECT-STANDING.md`](./HOP5-MIX-SUBJECT-STANDING.md) |
-| Ecospec tip base | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `ebf4e8d08` (absorb tip-wins; nif2 land evidence @ `513704d04`+) |
+| Ecospec tip base | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `f1492ed55` (past nif2 absorb `ebf4e8d08` / `513704d04`) |
 | igniter mount | `/home/ubuntu/ggen_igniter` @ `b5a15528eb6792dd366fe744ca87f24a80cc46fc` |
 | Host | Linux x86_64 cloud VM |
-| Status | LEDGER (not path-crown `ALIVE`; hop-4 BrandTheme manufacture remains **ALIVE**; NIF build now **ALIVE**) |
-| Evidence | `/tmp/cursor/hop4-mix-nif2-probe.md`; log `/tmp/cursor/hop4-mix-nif2.log`; prior `/tmp/cursor/hop4-mix-nif-probe.md` |
+| Status | LEDGER — Jobs/C4 residual crown **ALIVE** (admitted `--pack-dir`/`--template` + `--check` exit **0**); hop-4 BrandTheme manufacture remains **ALIVE**; path crown still **PARTIAL** |
+| Evidence | `/tmp/cursor/hop4-mix-check-alive-probe.md`; log `/tmp/cursor/hop4-mix-check-alive.log`; prior nif2 `/tmp/cursor/hop4-mix-nif2-probe.md` |
 
 Standing vocabulary: `UNKNOWN` | `PARTIAL_ALIVE` | `ALIVE` | `BLOCKED` | `BUILD_BROKEN` | `UNSUPPORTED` | `REFUSED_*`.
 
 Source presence and off-PATH binaries are **never** promoted to Jobs/C4 `ALIVE`.
 NIF `.so` materialization alone is **never** promoted to Jobs/C4 `ALIVE`.
+Bare `--check` without `--pack`/`--template` remains a typed **REFUSED:INVOCATION** (exit 2) — not Jobs/C4 `ALIVE`.
 
 ---
 
@@ -24,100 +25,103 @@ NIF `.so` materialization alone is **never** promoted to Jobs/C4 `ALIVE`.
 ALIVE(mix ggen_igniter.sync --check)
   ⇔  observed: in checkout seanchatmangpt/ggen_igniter,
                exclusive CXX=g++-13 NIF build succeeds,
-               `mix ggen_igniter.sync --check` → exit 0
+               admitted --pack/--pack-dir/--template subject,
+               `mix ggen_igniter.sync … --check` → exit 0
 ```
 
 Hop-4 BrandTheme manufacture compare is a **separate** crown (already **ALIVE**).
-This ledger closes only the NIF / Jobs/C4 residual.
+This ledger closes the NIF / Jobs/C4 residual.
 
 ---
 
-## 2. Probe matrix (nif2 land — no tip-lock thrash)
+## 2. Probe matrix (check-alive land — reuse nif2 NIF)
 
 | Probe | Result | Standing contribution |
 |-------|--------|------------------------|
 | `command -v mix` / `elixir` on default PATH | **ABSENT** | Jobs/C4 default PATH **ABSENT** |
 | Export off-PATH `1.19.0-otp-27` + OTP `27.1.2` onto PATH | **PRESENT** (Mix 1.19.0 / OTP 27.1.2) | Toolchain materialization **SUPPORTED** |
-| `loadavg_1m` at start | **6.07** (≤8) | Attempt gate **PASS** |
 | Tip locks (`ggen-tip-exclusive` / `uilayout-tip-cargo`) | **Intact** (not killed) | No tip thrash |
-| Separate dirs | `CARGO_TARGET_DIR=/tmp/igniter-nif-cargo-target-gxx13-nif2`; `MIX_BUILD_PATH=/tmp/igniter-mix-build-nif2` | Isolated from tip targets |
-| `CXX=g++-13` + `CARGO_BUILD_JOBS=1` NIF | **ALIVE** — `priv/native/ggen_graph_nif.so` copied from release `libggen_graph_nif.so` | Closes prior oxrocksdb **SIGTERM** BLOCKED |
-| First `mix compile` | exit **1** (`Ash.PlugHelpers` race in `ash_json_api`) | Non-crown; sync path recompiled |
-| Bare `mix ggen_igniter.sync --check` | exit **2** `REFUSED:INVOCATION --template is required …` | Crown open — **REFUSED_INVOCATION** |
-| Pin `.tool-versions` `elixir 1.20.4-otp-29` | **ABSENT** on host | Pin drift vs materialization |
-| apt `elixir` 1.14 | Available | **UNSUPPORTED** vs `~> 1.17` |
+| Reuse dirs | `CARGO_TARGET_DIR=/tmp/igniter-nif-cargo-target-gxx13-nif2`; `MIX_BUILD_PATH=/tmp/igniter-mix-build-nif2`; `LD_LIBRARY_PATH=…/priv/native` | Warm NIF; isolated from tip cargo |
+| `CXX=g++-13` NIF `.so` | **ALIVE** / **PRESENT** (`priv/native/ggen_graph_nif.so`) | Prior nif2 close retained |
+| Bare `mix ggen_igniter.sync --check` | exit **2** `REFUSED:INVOCATION` (prior nif2) | Correct refusal — not crown |
+| Admitted `--pack-dir test/fixtures/sample-pack` sync write | exit **0** | Setup for clean check |
+| Admitted `--pack-dir test/fixtures/sample-pack … --check` | exit **0** `clean (0 drifted files)` | **Jobs/C4 ALIVE** |
+| Chicago explicit `--ontology/…/--template … --check` | exit **0** `clean (0 drifted files)` | Replay alt **ALIVE** |
 
 ---
 
-## 3. Is the NIF build path documented?
+## 3. Admitted invocation (Chicago)
 
-| Source | What it documents |
-|--------|-------------------|
-| `ggen_igniter` `CONTRIBUTING.md` / `CLAUDE.md` / `docs/contributing/dev-setup.md` | First `mix compile` builds Rustler NIF `native/ggen_graph_nif`; doctor checks 14–15 |
-| `ggen_igniter` `native/CLAUDE.md` + `native/ggen_graph_nif/Cargo.toml` | Rustler + oxigraph `=0.5.11` (pulls `oxrocksdb-sys`) |
-| ggen RFC residual (this family) | exclusive `CXX=g++-13` → `mix ggen_igniter.sync --check` → **0** |
-| `mix help ggen_igniter.sync` / Chicago `ggen_igniter_sync_check_test.exs` | `--check` still requires `--template` or `--pack`/`--pack-dir` with exactly one template |
-
-NIF path is **documented** and now **executed ALIVE** on this land.
-Bare `--check` without template/pack is a typed **REFUSED:INVOCATION** (exit 2) — not a missing NIF.
-
----
-
-## 4. Can Linux materialize `mix` without founder HITL?
-
-| Path | Standing | Notes |
-|------|----------|-------|
-| Export off-PATH elixir-install `bin` onto PATH | **SUPPORTED** / **executed** | No founder HITL |
-| `curl` elixir-lang `install.sh` → pin 1.20.4-otp-29 | **SUPPORTED** | Egress allow-all; no founder secret |
-| `sudo apt-get install elixir` (1.14) | **UNSUPPORTED** for this subject | Below `~> 1.17` |
-| Founder HITL for `mix` binary alone | **Not required** | Distinct from foundry model-access / WebAuthn HITL |
-
-Antifalsifier: materializing `mix` ≠ Jobs/C4 `ALIVE`. NIF `.so` ≠ Jobs/C4 `ALIVE`. Crown still needs `--check` exit **0**.
-
----
-
-## 5. Standing receipt
-
-| Claim | Standing |
-|-------|----------|
-| Default PATH `mix` / `elixir` | **ABSENT** |
-| Off-PATH elixir-install on PATH (1.19.0-otp-27) | **PRESENT** (exported this land) |
-| Pin `.tool-versions` 1.20.4-otp-29 | **ABSENT** (installable without HITL) |
-| apt elixir 1.14 as subject toolchain | **UNSUPPORTED** |
-| NIF build docs | **PRESENT** |
-| `CXX=g++-13` exclusive NIF build | **ALIVE** (`ggen_graph_nif.so` produced; tip locks untouched) |
-| Bare `mix ggen_igniter.sync --check` | **REFUSED_INVOCATION** (exit **2**; `--template`/`--pack` required) |
-| Hop-4 BrandTheme manufacture | **ALIVE** (unchanged; see [`IGNITER-CLEANROOM-STANDING.md`](./IGNITER-CLEANROOM-STANDING.md)) |
-| Jobs/C4 / mix sync residual crown | **REFUSED_INVOCATION** (NIF no longer BLOCKED; crown open) |
-
----
-
-## 6. Exact next verifier
-
-NIF is closed. Crown still needs an admitted sync subject:
+Bare `--check` alone is **REFUSED:INVOCATION**. Crown requires an admitted pack or template subject (exactly one template via `--pack`/`--pack-dir`, or explicit `--template`):
 
 ```bash
 export PATH="$HOME/.elixir-install/installs/elixir/1.19.0-otp-27/bin:$HOME/.elixir-install/installs/otp/27.1.2/bin:$PATH"
 cd /home/ubuntu/ggen_igniter   # @ b5a15528+
 export CXX=g++-13
-export CARGO_TARGET_DIR=/tmp/igniter-nif-cargo-target-gxx13-nif2   # reuse warm NIF
+export CARGO_TARGET_DIR=/tmp/igniter-nif-cargo-target-gxx13-nif2
 export MIX_BUILD_PATH=/tmp/igniter-mix-build-nif2
-# Admit a pack or explicit template (bare --check alone → REFUSED:INVOCATION):
-mix ggen_igniter.sync --pack <admitted-pack> --check
-# or: --ontology … --query … --template … --out … --check
-# expect: exit 0 for residual ALIVE
+export LD_LIBRARY_PATH="/home/ubuntu/ggen_igniter/priv/native:${LD_LIBRARY_PATH:-}"
+ROOT=/tmp/hop4-mix-check-alive-555967
+
+# Setup write (clean subject for --check):
+mix ggen_igniter.sync \
+  --pack-dir test/fixtures/sample-pack \
+  --out "$ROOT/out/resource.ex" \
+  --manifest-dir "$ROOT" \
+  --verify-cwd "$(pwd)"
+# sync_exit:0
+
+# Crown:
+set -o pipefail
+mix ggen_igniter.sync \
+  --pack-dir test/fixtures/sample-pack \
+  --out "$ROOT/out/resource.ex" \
+  --manifest-dir "$ROOT" \
+  --verify-cwd "$(pwd)" \
+  --check
+# check_exit:0 → "ggen_igniter.sync --check: clean (0 drifted files)"
 ```
 
-Do **not** invent Jobs/C4 `ALIVE` from NIF `.so` alone or from exit-2 `REFUSED:INVOCATION`.
-Do **not** kill tip exclusive locks to force a quieter window.
+Alt (Chicago `ggen_igniter_sync_check_test.exs` args): `--ontology` + four `--query` + `--template test/fixtures/extension.ex.eex` + `--out` + `--check` → **check2_exit:0**.
+
+---
+
+## 4. Standing receipt
+
+| Claim | Standing |
+|-------|----------|
+| Default PATH `mix` / `elixir` | **ABSENT** |
+| Off-PATH elixir-install on PATH (1.19.0-otp-27) | **PRESENT** (exported) |
+| `CXX=g++-13` exclusive NIF build | **ALIVE** (`ggen_graph_nif.so`) |
+| Bare `mix ggen_igniter.sync --check` | **REFUSED_INVOCATION** (exit **2**; antifalsifier) |
+| Admitted `--pack-dir sample-pack … --check` | **ALIVE** (exit **0**) |
+| Admitted `--template` Chicago `--check` | **ALIVE** (exit **0**) |
+| Hop-4 BrandTheme manufacture | **ALIVE** (unchanged) |
+| Jobs/C4 / mix sync residual crown | **ALIVE** |
+| Photolithography path crown | **PARTIAL** (hop-5 foundry `--live` still **REFUSED**) |
+| OOR (cos/billing/WebAuthn/Plane-5) | **BLOCKED** / **UNSUPPORTED** (unchanged; not this land) |
+
+---
+
+## 5. Exact next verifier
+
+This residual is **closed**. Replay only:
+
+```bash
+# same admitted pack-dir --check block in §3 → expect exit 0
+rg -n 'check_exit:0|check2_exit:0|clean \(0 drifted' /tmp/cursor/hop4-mix-check-alive.log
+```
+
+Path-crown / hop-5 next remains foundry `--live` → **0** after provider creds (not this residual).
+Do **not** invent path-crown or OOR `ALIVE` from Jobs/C4 close alone.
+Do **not** kill tip exclusive locks.
 
 ## Replay (honesty only)
 
 ```bash
 command -v mix; echo mix_default_exit:$?
 test -x "$HOME/.elixir-install/installs/elixir/1.19.0-otp-27/bin/mix"
-test -x /usr/bin/g++-13
 test -f /home/ubuntu/ggen_igniter/priv/native/ggen_graph_nif.so
 test -f docs/rfc/v27.1.1/HOP4-MIX-NIF-STANDING.md
-rg -n 'check_exit:2|REFUSED:INVOCATION|libggen_graph_nif.so' /tmp/cursor/hop4-mix-nif2.log
+rg -n 'check_exit:0|ALIVE' docs/rfc/v27.1.1/HOP4-MIX-NIF-STANDING.md
 ```

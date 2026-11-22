@@ -21,7 +21,9 @@ is **ALIVE** (`git diff --exit-code` → **0** on tip dual-schema brand vs ignit
 fixture CSS; reconfirm evidence `/tmp/cursor/igniter-hop4-manufacture-alive.md`
 on tip `28c3f4d845`; prior `/tmp/cursor/igniter-real-cleanroom.md`). **Antifalsifier:**
 bare `git diff --exit-code` on a post-clone / virgin working tree ≠ hop-4
-`ALIVE`; Jobs/C4 bare `mix ggen_igniter.sync --check` is **REFUSED_INVOCATION** (NIF **ALIVE**; separate residual).
+`ALIVE`; Jobs/C4 residual now **ALIVE** — admitted `--pack-dir`/`--template` +
+`mix ggen_igniter.sync … --check` → exit **0** (NIF **ALIVE**; bare `--check`
+remains **REFUSED_INVOCATION** antifalsifier — [`HOP4-MIX-NIF-STANDING.md`](./HOP4-MIX-NIF-STANDING.md)).
 Hop 5 aggregate is **PARTIAL_ALIVE** —
 in-process zcode bun courts **ALIVE** (35 passed; exit 0); `ggen-layout-court`
 **PRESENT** (#884 / tip `6fdcf4665`); `layout_court` subject **ALIVE** (exit **0**);
@@ -29,10 +31,10 @@ default `UiLayoutCourtAdapter.verifyPostTransition` **ALIVE** (exit **0** after
 mix-SUBJECT fix when layout_court PRESENT — Jobs/C4 deferred / ggen dry-run;
 see [`HOP5-MIX-SUBJECT-STANDING.md`](./HOP5-MIX-SUBJECT-STANDING.md)).
 `powl-foundry-loop --live` is **BLOCKED**/**REFUSED** (**foundry_exit=1**; executor wired @ zcode `f32df08`; Linux runtime **PRESENT**; exact failure `Model access is not configured` — [`HOP5-ZCODE-RUNTIME-STANDING.md`](./HOP5-ZCODE-RUNTIME-STANDING.md)).
-NIF **ALIVE**; bare `mix ggen_igniter.sync --check` **REFUSED_INVOCATION** (hop-4 residual). Jobs/C4 default PATH `mix` remains **ABSENT**.
-Do **not** invent hop-5 / path-crown `ALIVE` from adapter alone.
+NIF **ALIVE**; admitted mix `--check` **ALIVE** (hop-4 residual closed). Jobs/C4 default PATH `mix` remains **ABSENT**.
+Do **not** invent hop-5 / path-crown `ALIVE` from adapter or Jobs/C4 alone.
 Do **not** restate mix SUBJECT_MISSING after layout_court PRESENT + spatial PASS.
-Do **not** claim Jobs/C4 `ALIVE` from NIF `.so` or exit-2 `REFUSED:INVOCATION`. The in-repo ggen
+Do **not** claim Jobs/C4 `ALIVE` from NIF `.so` or bare exit-2 `REFUSED:INVOCATION`. The in-repo ggen
 ui-layout fence remains **ALIVE** on evidence tip `eaf0dad40` (**8 passed;
 exit 0**; `bc-c7c9d554`; ancestor of live tip `6fdcf4665`); tip court land
 `7c0ba2a90`; tip source **11** `#[test]`; **tip-cargo ALIVE** (**11 passed; exit 0** exclusive
@@ -58,17 +60,17 @@ perimeter transducer
 | 2 | `.ttl` / `.toml` law + brand rhythm | **PARTIAL_ALIVE** (rhythm + OCEL/POWL vocab + dual-schema `[primitive.space]` on Fourth Watch **and** CindyCat); full DTCG color/type/CASTLE **UNSUPPORTED** | **In-repo** fixtures + vocabs; OEM token inventories Gate 2+ / brand plane | `cargo test -p ggen-graph --test brand_toml_rhythm_court` (incl. `oem_fixtures_carry_dtcg_primitive_space_from_rhythm`) | Fixtures refuse or go missing; rhythm admits touch &lt;44 / gap &lt;8 / off-grid; Gate-2 tokens invented without source; dropping `[primitive.space]` from either OEM |
 | 3 | ggen + Taffy AOT pre-flight | **PARTIAL_ALIVE** — tip subject **PRESENT** (`git ls-tree` blob `d8923b07e` on `120598fb3+`); tip-cargo **PENDING**/SKIPPED thrash; consumer adapters **out-of-repo** | **In-repo** (`ggen-graph::layout::taffy_aot`); consumer adapters **out-of-repo** | Quiet exclusive: `CARGO_BUILD_JOBS=1 cargo test -p ggen-graph --test taffy_aot_preflight_court --target-dir /tmp/ggen-taffy-preflight-target` | Six-width seal fails under WCAG 1.4.12 1.5×; overflow refusal omits failing width; silent drop of typed `AotRefusal`; inventing tip-cargo `ALIVE` without quiet exit 0 |
 | 3b | ggen `ui-layout` digest consume (D5 in-repo fence) | **ALIVE** (tip-cargo) — exclusive quiet cargo **11 passed; exit 0** @ `ca52e9c16` (sources ≡ tip `120598fb3`); prior evidence `eaf0dad40` **8 passed; exit 0** (`bc-c7c9d554`); tip court land `7c0ba2a90`; tip source **11** `#[test]` | **In-repo** fence only; sibling `ui-layout-court.ts` remains **ABSENT** / **UNSUPPORTED** here | Replay: `CXX=g++ SCCACHE_DISABLE=1 CARGO_BUILD_JOBS=1 cargo test -p ggen-graph --test ui_layout_court --locked` | Court missing from tip; silent admit of missing/stale/mismatched digest; conflating with sibling `.ts`; inventing path-crown ALIVE from hop 3b alone |
-| 4 | ggen_igniter clean-room / manufacture | **ALIVE** — tip dual-schema `fourth-watch.brand.toml` (`[rhythm]` + DTCG `[primitive.space]`; emitter `99255d53c` on tip) → igniter `BrandTheme` emit vs igniter fixture CSS → `diff -rq` **0** + compare-subject `git diff --exit-code` → **0** (`/tmp/cursor/igniter-hop4-manufacture-alive.md`; tip `28c3f4d845`; prior `igniter-real-cleanroom.md` / `88e84d545`; reconfirm `cursor/v2711-hop4-primitive-space-bc54`; IGNITER manufacture row **ALIVE**). Mount **PRESENT**; clean-tree checkpoint also **0**. `mix ggen_igniter.sync` NIF path still **BLOCKED** (residual; default PATH `mix` **ABSENT**; off-PATH elixir-install **PRESENT** without HITL — [`HOP4-MIX-NIF-STANDING.md`](./HOP4-MIX-NIF-STANDING.md)). In-repo contract **PARTIAL_ALIVE**. | **Out-of-repo** sibling `seanchatmangpt/ggen_igniter` @ `/home/ubuntu/ggen_igniter` / `/agent/repos/ggen_igniter`. Fixtures: `docs/rfc/v27.1.1/fixtures/{fourth-watch,cindycat}.brand.toml`. In-repo: [`IGNITER-CLEANROOM-STANDING.md`](./IGNITER-CLEANROOM-STANDING.md) + `igniter_cleanroom_court`; residual ledger [`HOP4-MIX-NIF-STANDING.md`](./HOP4-MIX-NIF-STANDING.md) | **Replay:** BrandTheme emit tip brand + igniter `test/fixtures/brand_theme/fourth-watch.brand.toml` (canon path for Source header) → `diff -rq` **0**; `git diff --exit-code` on compare subject → **0**. **Next residual:** exclusive quiet `CXX=g++-13` NIF → `mix ggen_igniter.sync --check` → **0**. Checkpoint: `cd /home/ubuntu/ggen_igniter && git diff --exit-code`. In-repo: `cargo test -p ggen-sjira --test igniter_cleanroom_court` | Claiming hop-4 `ALIVE` from bare post-clone `git diff --exit-code` alone; claiming `mix sync` ALIVE while NIF **BLOCKED**; conflating off-PATH `mix` PRESENT with Jobs/C4 ALIVE; conflating igniter-fixture-only idempotent emit with tip manufacture; re-opening `:no_primitive_space` by dropping DTCG surface from tip fixture |
-| 5 | zcode-cli POWL/OCEL remediations (bounded refusal) | **PARTIAL_ALIVE** — in-process bun **ALIVE**; live `UiLayoutCourtAdapter` **ALIVE** (**exit 0** after mix-SUBJECT fix); `layout_court` exit **0**; foundry `--live` **foundry_exit=1** / **REFUSED** (`Model access is not configured`; runtime PRESENT) | **Out-of-repo** `zcode-cli` @ `f32df08`. Package `ggen-layout-court` **PRESENT**. Contract: [`ZCODE-POWL-OCEL-STANDING.md`](./ZCODE-POWL-OCEL-STANDING.md); mix: [`HOP5-MIX-SUBJECT-STANDING.md`](./HOP5-MIX-SUBJECT-STANDING.md); live2: [`HOP5-FOUNDRY-LIVE2-STANDING.md`](./HOP5-FOUNDRY-LIVE2-STANDING.md); runtime: [`HOP5-ZCODE-RUNTIME-STANDING.md`](./HOP5-ZCODE-RUNTIME-STANDING.md) | Exact next: provider `/login` or `~/.zcode/v2/provider_config.json` → `bun scripts/powl-foundry-loop.ts --live` → **0**; Jobs/C4 residual: `mix ggen_igniter.sync --check` → **0**. Replay adapter → **0**. GA falsifier **2027-01-01** | Inventing hop-5 crown `ALIVE` while foundry_exit≠0; inventing ALIVE from executor injection alone; restating `live executor not configured` after zcode `f32df08` |
+| 4 | ggen_igniter clean-room / manufacture | **ALIVE** — tip dual-schema `fourth-watch.brand.toml` (`[rhythm]` + DTCG `[primitive.space]`; emitter `99255d53c` on tip) → igniter `BrandTheme` emit vs igniter fixture CSS → `diff -rq` **0** + compare-subject `git diff --exit-code` → **0** (`/tmp/cursor/igniter-hop4-manufacture-alive.md`; tip `28c3f4d845`; prior `igniter-real-cleanroom.md` / `88e84d545`; reconfirm `cursor/v2711-hop4-primitive-space-bc54`; IGNITER manufacture row **ALIVE**). Mount **PRESENT**; clean-tree checkpoint also **0**. Jobs/C4 residual **ALIVE** — NIF **ALIVE** + admitted `--pack-dir test/fixtures/sample-pack … --check` exit **0** (`/tmp/cursor/hop4-mix-check-alive-probe.md`; default PATH `mix` **ABSENT**; bare `--check` **REFUSED_INVOCATION** antifalsifier — [`HOP4-MIX-NIF-STANDING.md`](./HOP4-MIX-NIF-STANDING.md)). In-repo contract **PARTIAL_ALIVE**. | **Out-of-repo** sibling `seanchatmangpt/ggen_igniter` @ `/home/ubuntu/ggen_igniter` / `/agent/repos/ggen_igniter`. Fixtures: `docs/rfc/v27.1.1/fixtures/{fourth-watch,cindycat}.brand.toml`. In-repo: [`IGNITER-CLEANROOM-STANDING.md`](./IGNITER-CLEANROOM-STANDING.md) + `igniter_cleanroom_court`; residual ledger [`HOP4-MIX-NIF-STANDING.md`](./HOP4-MIX-NIF-STANDING.md) | **Replay:** BrandTheme emit tip brand + igniter `test/fixtures/brand_theme/fourth-watch.brand.toml` (canon path for Source header) → `diff -rq` **0**; `git diff --exit-code` on compare subject → **0**. **Jobs/C4 replay:** admitted `--pack-dir test/fixtures/sample-pack … --check` → **0**. Checkpoint: `cd /home/ubuntu/ggen_igniter && git diff --exit-code`. In-repo: `cargo test -p ggen-sjira --test igniter_cleanroom_court` | Claiming hop-4 `ALIVE` from bare post-clone `git diff --exit-code` alone; claiming Jobs/C4 `ALIVE` from NIF `.so` or bare exit-2 `REFUSED:INVOCATION`; conflating off-PATH `mix` PRESENT with Jobs/C4 ALIVE; conflating igniter-fixture-only idempotent emit with tip manufacture; re-opening `:no_primitive_space` by dropping DTCG surface from tip fixture |
+| 5 | zcode-cli POWL/OCEL remediations (bounded refusal) | **PARTIAL_ALIVE** — in-process bun **ALIVE**; live `UiLayoutCourtAdapter` **ALIVE** (**exit 0** after mix-SUBJECT fix); `layout_court` exit **0**; foundry `--live` **foundry_exit=1** / **REFUSED** (`Model access is not configured`; runtime PRESENT) | **Out-of-repo** `zcode-cli` @ `f32df08`. Package `ggen-layout-court` **PRESENT**. Contract: [`ZCODE-POWL-OCEL-STANDING.md`](./ZCODE-POWL-OCEL-STANDING.md); mix: [`HOP5-MIX-SUBJECT-STANDING.md`](./HOP5-MIX-SUBJECT-STANDING.md); live2: [`HOP5-FOUNDRY-LIVE2-STANDING.md`](./HOP5-FOUNDRY-LIVE2-STANDING.md); runtime: [`HOP5-ZCODE-RUNTIME-STANDING.md`](./HOP5-ZCODE-RUNTIME-STANDING.md) | Exact next: provider `/login` or `~/.zcode/v2/provider_config.json` → `bun scripts/powl-foundry-loop.ts --live` → **0**. Jobs/C4 residual **closed** (replay pack-dir `--check` → **0**). Replay adapter → **0**. GA falsifier **2027-01-01** | Inventing hop-5 crown `ALIVE` while foundry_exit≠0; inventing ALIVE from executor injection alone; restating `live executor not configured` after zcode `f32df08` |
 
 **Path standing (aggregate):** **PARTIAL** — hops 1–3 **PARTIAL_ALIVE** (as prior), hop 3b
 ggen ui-layout **ALIVE** (**8 passed; exit 0** on evidence `eaf0dad40`; tip land
 `7c0ba2a90`), hop 4 BrandTheme manufacture compare **ALIVE** (`diff_exit=0` on tip
-dual-schema vs igniter fixture; antifalsifier: bare post-clone ≠ `ALIVE`; `mix
-sync` NIF still **BLOCKED**), hop 5 **PARTIAL_ALIVE** (in-process **ALIVE** + live
+dual-schema vs igniter fixture; antifalsifier: bare post-clone ≠ `ALIVE`; Jobs/C4
+admitted mix `--check` **ALIVE**), hop 5 **PARTIAL_ALIVE** (in-process **ALIVE** + live
 adapter **ALIVE** exit 0 after mix-SUBJECT fix; foundry `--live` **foundry_exit=1** /
 **REFUSED** (`Model access is not configured`; runtime **PRESENT**)) → path crown **non-ALIVE** until
-hop-5 foundry `--live` exit 0 (and optional `mix sync --check`) on pinned tip. Pass-count footnotes (tip source, not tip exit
+hop-5 foundry `--live` exit 0 on pinned tip. Pass-count footnotes (tip source, not tip exit
 0): hop-1 `shui` **4**; hop-2 brand **11**; hop-3 taffy **7**; hop-3b ui-layout
 **11**.
 
@@ -147,13 +149,14 @@ Court **ALIVE** on evidence tip `eaf0dad40` (`bc-c7c9d554`: `cargo test -p ggen-
 | `docs/rfc/v27.1.1/fixtures/fourth-watch.brand.toml` | Dual-schema tip brand (`[rhythm]` + DTCG `[primitive.space]`) — BrandTheme manufacture input |
 | BrandTheme manufacture compare | **ALIVE** — tip emit vs igniter fixture CSS; compare-subject `git diff --exit-code` → **0** (`/tmp/cursor/igniter-hop4-manufacture-alive.md`; prior `igniter-real-cleanroom.md`) |
 | `git diff --exit-code` (bare mount) | Clean-tree **checkpoint** (exit **0**) — antifalsifier: alone ≠ hop-4 `ALIVE` |
-| `mix ggen_igniter.sync --check` | NIF **ALIVE**; bare `--check` **REFUSED_INVOCATION** exit **2** (default PATH `mix` **ABSENT**; see [`HOP4-MIX-NIF-STANDING.md`](./HOP4-MIX-NIF-STANDING.md)) |
+| `mix ggen_igniter.sync --check` | Jobs/C4 **ALIVE** — admitted `--pack-dir sample-pack … --check` exit **0**; NIF **ALIVE**; bare `--check` **REFUSED_INVOCATION** exit **2** antifalsifier (default PATH `mix` **ABSENT**; see [`HOP4-MIX-NIF-STANDING.md`](./HOP4-MIX-NIF-STANDING.md)) |
 | `docs/reference/gate-conventions.md` | ggen vs ggen_igniter gate scoring orientation |
 | `crates/ggen-graph/src/bin/gall_observe_clean_room.rs` | In-repo GALL W3 clean-room **observe** — distinct subject |
 
-Standing now: BrandTheme manufacture compare **ALIVE** (`diff_exit=0`). Do
-**not** re-promote from bare post-clone `git diff --exit-code` alone
-(antifalsifier). Do **not** claim `mix sync` ALIVE while NIF remains **BLOCKED**.
+Standing now: BrandTheme manufacture compare **ALIVE** (`diff_exit=0`); Jobs/C4
+residual **ALIVE** (admitted `--check` exit **0**). Do **not** re-promote from
+bare post-clone `git diff --exit-code` alone (antifalsifier). Do **not** claim
+Jobs/C4 `ALIVE` from NIF `.so` or bare exit-2 `REFUSED:INVOCATION`.
 
 ### 5 — zcode-cli POWL/OCEL remediations (bounded refusal)
 
@@ -337,3 +340,10 @@ ui-layout **11**. No path-crown `ALIVE` asserted.
 - Default PATH `mix`/`elixir` **ABSENT**; off-PATH elixir-install `mix` **PRESENT** without founder HITL; apt 1.14 **UNSUPPORTED**; pin 1.20.4-otp-29 **ABSENT** (installable).
 - NIF docs **PRESENT**; exclusive `CXX=g++-13` → `mix ggen_igniter.sync --check` still **BLOCKED** (prior `oxrocksdb-sys` SIGTERM). No cargo thrash.
 - Exact next: quiet exclusive pod → `CXX=g++-13` NIF → `mix ggen_igniter.sync --check` → **0**.
+
+### Hop-4 mix --check ALIVE (`cursor/v2711-hop4-mix-check-alive-bc54`)
+
+- Base tip: `f1492ed55` (past nif2 absorb). Ledger: [`HOP4-MIX-NIF-STANDING.md`](./HOP4-MIX-NIF-STANDING.md). Evidence: `/tmp/cursor/hop4-mix-check-alive-probe.md`.
+- NIF **ALIVE** (reuse nif2 `ggen_graph_nif.so`); bare `--check` **REFUSED_INVOCATION** exit **2** retained as antifalsifier.
+- Admitted `--pack-dir test/fixtures/sample-pack … --check` → **check_exit:0**; Chicago `--template` alt → **check2_exit:0**.
+- Jobs/C4 / mix sync residual crown → **ALIVE**. Path crown still **PARTIAL** (hop-5 foundry `--live` **REFUSED**). OOR unchanged **BLOCKED**.

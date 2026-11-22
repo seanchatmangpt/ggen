@@ -36,7 +36,7 @@ clause2=PARTIAL_ALIVE (CCS#3 ALIVE @861a6e73a; CCS#2 write_apply tip-cargo PENDI
 clause3=PARTIAL+BLOCKED
 clause4=PARTIAL
 gate1=PARTIAL (ui_layout tip-cargo ALIVE; construct_hash ALIVE @861a6e73a; write_apply PENDING; lifecycle PRESENT/ALIVE; taffy PRESENT tip-cargo PENDING; brand production UNSUPPORTED; BRCE V8 BLOCKED)
-blockers=foundry--live; remaining-fence-tip-cargo; cos/readyz; WebAuthn/BRCE-V8/V9; revops-DNS; mix-NIF; R01-R07-bodies; verify_witness-prod; production-theme
+blockers=foundry--live; remaining-fence-tip-cargo; cos/readyz; WebAuthn/BRCE-V8/V9; revops-DNS; R01-R07-bodies; verify_witness-prod; production-theme
 ```
 
 ---
@@ -50,16 +50,16 @@ blockers=foundry--live; remaining-fence-tip-cargo; cos/readyz; WebAuthn/BRCE-V8/
 | Hop 2 `.ttl`/`.toml` rhythm + dual-schema | **PARTIAL_ALIVE** (full DTCG/CASTLE inventory **UNSUPPORTED**) |
 | Hop 3 Taffy AOT six-width seal | **PRESENT** tip subject (`git ls-tree` blob `d8923b07e` on `120598fb3+`); evidence exit 0 ancestor; tip-cargo **PENDING**/SKIPPED thrash; consumer bind open → path **PARTIAL_ALIVE** |
 | Hop 3b ggen `ui_layout` digest consume | **ALIVE** tip-cargo **11 passed; exit 0** @ `ca52e9c16` (≡ tip `120598fb3`); tip source **11**; prior evidence `eaf0dad40` |
-| Hop 4 ggen_igniter BrandTheme manufacture | **ALIVE** (`diff_exit=0` dual-schema tip brand vs igniter fixture); NIF **ALIVE**; bare `mix … --check` **REFUSED_INVOCATION** |
+| Hop 4 ggen_igniter BrandTheme manufacture | **ALIVE** (`diff_exit=0` dual-schema tip brand vs igniter fixture); NIF **ALIVE**; Jobs/C4 admitted `--check` **ALIVE** (exit **0**; bare `--check` **REFUSED_INVOCATION** antifalsifier) |
 | Hop 5 zcode POWL/OCEL / foundry | **PARTIAL_ALIVE** — adapter exit **0**; Linux tip-matched runtime **PRESENT**; `powl-foundry-loop --live` **foundry_exit=1** / **REFUSED** (`Model access is not configured` @ zcode `f32df08`) |
 
 **Exact next verifiers**
 
 1. provider `/login` or `~/.zcode/v2/provider_config.json` → `bun scripts/powl-foundry-loop.ts --live` → **0** ([`HOP5-ZCODE-RUNTIME-STANDING.md`](./HOP5-ZCODE-RUNTIME-STANDING.md); keys [`HOP5-MODEL-ACCESS-STANDING.md`](./HOP5-MODEL-ACCESS-STANDING.md)).
 2. Remaining fence tip-cargo: quiet `CARGO_BUILD_JOBS=1` for `shui` / `taffy_aot` / `brand_toml_rhythm` (ui_layout already **ALIVE**).
-3. Residual: `CXX=g++-13` → `mix ggen_igniter.sync --check` → **0**.
+3. Jobs/C4 residual **closed** — replay admitted `--pack-dir sample-pack … --check` → **0** ([`HOP4-MIX-NIF-STANDING.md`](./HOP4-MIX-NIF-STANDING.md)).
 
-Antifalsifier: adapter exit 0 ≠ path crown `ALIVE`; runtime materialization alone ≠ hop-5 `ALIVE`; bare post-clone `git diff` ≠ hop-4 `ALIVE`.
+Antifalsifier: adapter exit 0 ≠ path crown `ALIVE`; runtime materialization alone ≠ hop-5 `ALIVE`; bare post-clone `git diff` ≠ hop-4 `ALIVE`; NIF `.so` / bare exit-2 ≠ Jobs/C4 `ALIVE`.
 
 ---
 
@@ -141,7 +141,7 @@ Do **not** invent zero daily founder HITL `ALIVE` from Gate-1 fence green, CASTL
 | R-01…R-07 contract | **ALIVE** (contract); bodies **BLOCKED** | `cargo test -p ggen-graph --test r01_r07_resolution_court` |
 | Brand rhythm / hot-swap | **PARTIAL_ALIVE**; production theme **UNSUPPORTED** (`REFUSED_PRODUCTION`) | rhythm/hotswap courts; [`BRAND-PRODUCTION-THEME.md`](./BRAND-PRODUCTION-THEME.md) |
 | BRCE AS-01 seat fence | **PARTIAL_ALIVE** | `cargo test -p ggen-abb-sbb --test brce_as01_seat_court` |
-| ggen_igniter manufacture | **ALIVE** (BrandTheme compare); NIF **ALIVE**; bare `--check` **REFUSED_INVOCATION** | manufacture replay → **0**; admitted pack/template `mix … --check` → **0** |
+| ggen_igniter manufacture | **ALIVE** (BrandTheme compare); NIF **ALIVE**; Jobs/C4 admitted `--check` **ALIVE** | manufacture replay → **0**; Jobs/C4 replay pack/template `--check` → **0** |
 | Gate-0 cos | **BLOCKED** (external) | cos `/readyz` → **200** |
 
 **Gate-1 aggregate:** **PARTIAL** — `ui_layout` tip-cargo **ALIVE** (**11 passed; exit 0** @ `ca52e9c16` ≡ tip `120598fb3`); brand production **UNSUPPORTED**; BRCE honesty-demoted (fence ≠ broker `ALIVE`); other fences tip-cargo PENDING / tip-subject **PRESENT**. Zero-HITL fab / production WASM / production brand theme / live BRCE **not** `ALIVE`.
@@ -159,7 +159,7 @@ Recommended next Gate-1 falsifier (pick one): quiet tip-cargo reconfirm of remai
 | 3 | cos `/readyz` DB | **BLOCKED** (**503**) | curl → HTTP **200** |
 | 4 | Live WebAuthn / BRCE broker / Plane-5 DO | **UNSUPPORTED** / **BLOCKED** | BRCE **V8** → **V9** / OOR **G2-3…G2-5** |
 | 5 | revops.fnox.io DNS | **UNKNOWN**/**BLOCKED** | `getent hosts` ∧ `/readyz` **200** |
-| 6 | `mix ggen_igniter.sync` NIF | NIF **ALIVE**; bare `--check` **REFUSED_INVOCATION** exit **2** ([`HOP4-MIX-NIF-STANDING.md`](./HOP4-MIX-NIF-STANDING.md); PATH `mix` **ABSENT**; off-PATH **PRESENT**) | admitted `--pack`/`--template` + `mix … --check` → **0** |
+| 6 | `mix ggen_igniter.sync` NIF / Jobs/C4 | **ALIVE** (admitted `--check` exit **0**; bare `--check` **REFUSED_INVOCATION** antifalsifier — [`HOP4-MIX-NIF-STANDING.md`](./HOP4-MIX-NIF-STANDING.md)) | Replay pack/template `--check` → **0** (residual closed) |
 | 7 | R-01…R-07 risk bodies | **BLOCKED** | typed receipt or `REFUSED_*` per ID |
 | 8 | production `verify_witness.wasm` | **UNSUPPORTED** | [`VERIFY-WITNESS-PRODUCTION.md`](./VERIFY-WITNESS-PRODUCTION.md) |
 | 9 | production brand theme / CASTLE inventory | **UNSUPPORTED** | [`BRAND-PRODUCTION-THEME.md`](./BRAND-PRODUCTION-THEME.md) / OOR G2-12/G2-13 |
