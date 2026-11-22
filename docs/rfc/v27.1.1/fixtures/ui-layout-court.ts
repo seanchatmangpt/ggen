@@ -8,7 +8,7 @@
  * (`ggen_graph::layout::ui_layout_court`) admits. zcode-cli SHALL:
  *   1. emit LayoutCourtCase JSON (or equivalent) for candidate UI trees;
  *   2. consume AotSealReceipt + seal_digest without re-implementing geometry;
- *   3. fail closed on missing / stale / mismatched digests with typed LayoutRefusal;
+ *   3. fail closed on missing / stale / mismatched digests;
  *   4. never re-authorize DO.
  *
  * In-repo falsifier (ggen fence only):
@@ -21,13 +21,6 @@
 
 export const LAYOUT_COURT_NOUN = "ui-layout-court" as const;
 export const LAYOUT_COURT_SCHEMA_V1 = "ggen.layout.aot.column/v1" as const;
-
-/** Geometry refusal surface mirrored from ggen `LayoutRefusal` (= `AotRefusal`). */
-export type LayoutRefusal =
-  | { kind: "Overflow"; viewport_width_px: number; leaf_id: string }
-  | { kind: "Overlap"; viewport_width_px: number; a_id: string; b_id: string }
-  | { kind: "TouchTargetTooSmall"; viewport_width_px: number; leaf_id: string; min_px: number }
-  | { kind: "GapTooSmall"; viewport_width_px: number; gap_px: number; min_px: number };
 
 export type AotLeaf = {
   id: string;

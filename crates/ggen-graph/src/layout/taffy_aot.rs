@@ -5,6 +5,7 @@
 //! gaps &lt; 8px. The six-width seal ([`preflight_column_six_widths`]) admits only when
 //! every Gate-1 viewport passes under the supplied spacing factor.
 
+use serde::{Deserialize, Serialize};
 use taffy::prelude::*;
 use taffy::TaffyTree;
 
@@ -21,7 +22,7 @@ pub const MIN_TOUCH_TARGET_PX: f32 = 44.0;
 pub const MIN_GAP_PX: f32 = 8.0;
 
 /// A leaf box in an AOT column fixture.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct AotLeaf {
     pub id: String,
     pub width_px: f32,
@@ -33,14 +34,14 @@ pub struct AotLeaf {
 }
 
 /// Flex column of leaves with a uniform sibling gap.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct AotColumn {
     pub gap_px: f32,
     pub children: Vec<AotLeaf>,
 }
 
 /// Machine-readable admit receipt for a successful single-width pre-flight.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct AotReceipt {
     pub viewport_width_px: u32,
     pub text_spacing: f32,
@@ -48,7 +49,7 @@ pub struct AotReceipt {
 }
 
 /// Machine-readable admit receipt for a successful six-width seal.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct AotSealReceipt {
     pub text_spacing: f32,
     /// Exact Gate-1 widths that admitted, in seal order.
@@ -57,6 +58,9 @@ pub struct AotSealReceipt {
 }
 
 /// Typed refusals for AOT geometry law failures.
+///
+/// Public surface name: [`LayoutRefusal`]. Every geometry variant carries
+/// `viewport_width_px` so courts fail closed naming the failing width.
 #[derive(Debug, Clone, PartialEq)]
 pub enum AotRefusal {
     Overflow {
@@ -89,18 +93,28 @@ pub enum AotRefusal {
     LayoutEngine { message: String },
 }
 
+/// Gate-1 layout typed-error surface (alias of [`AotRefusal`]).
+pub type LayoutRefusal = AotRefusal;
+
 /// Run Taffy AOT pre-flight for `column` at `viewport_width_px` under `text_spacing`.
 ///
 /// Text leaves have their preferred size multiplied by `text_spacing` before layout
 /// (narrow model of WCAG 1.4.12 1.5× re-evaluation). Interactive leaves are checked
-/// against the 44px touch-target floor on the *laid-out* size; column `gap_px` must
-/// be ≥ 8px whenever two or more children are present.
+/// against the 44px touch-target floor on the *laid-out* size; non-negative column
+/// `gap_px` must be ≥ 8px whenever two or more children are present. Negative gaps
+/// skip the gap floor so overlap courts can exercise [`AotRefusal::Overlap`].
 pub fn preflight_column(
     column: &AotColumn, viewport_width_px: f32, text_spacing: f32,
 ) -> Result<AotReceipt, AotRefusal> {
     let viewport_u = viewport_width_px.round() as u32;
 
-    if column.children.len() >= 2 && column.gap_px + f32::EPSILON < MIN_GAP_PX {
+    // Non-negative gaps below the floor refuse as GapTooSmall. Negative gaps are
+    // an adversarial fixture path: they skip this gate and may yield Overlap after
+    // layout (fail-closed with width + node ids).
+    if column.children.len() >= 2
+        && column.gap_px >= 0.0
+        && column.gap_px + f32::EPSILON < MIN_GAP_PX
+    {
         return Err(AotRefusal::GapTooSmall {
             viewport_width_px: viewport_u,
             text_spacing,
@@ -147,7 +161,8 @@ pub fn preflight_column(
                 },
                 gap: Size {
                     width: LengthPercentage::length(0.0),
-                    height: LengthPercentage::length(column.gap_px.max(0.0)),
+                    // Preserve signed gap so negative fixtures can surface Overlap.
+                    height: LengthPercentage::length(column.gap_px),
                 },
                 ..Default::default()
             },

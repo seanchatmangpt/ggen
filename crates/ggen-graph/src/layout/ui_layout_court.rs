@@ -1,212 +1,164 @@
-//! Chicago court: ui-layout-court adapter feeds layout nodes into Taffy AOT.
+//! ui-layout-court adapter (ECOSYSTEM-SPEC-27.1.1 Gate 1 D5).
 //!
-//! ECOSYSTEM-SPEC-27.1.1 Gate 1 D5 — AAA, no mocks, state-based.
-//! zcode-cli live `ui-layout-court.ts` runner is out-of-repo; this court seals
-//! the ggen-side seam + anti-vacuity mutations (overflow / overlap / touch
-//! refuse with typed [`LayoutRefusal`]).
+//! **zcode-cli** owns the live `ui-layout-court.ts` runner and is **out of this
+//! workspace** (live TypeScript court standing: `UNSUPPORTED` / `BLOCKED`).
+//! This module is the **ggen-side contract surface**: it loads layout-node
+//! fixtures in the shape zcode-cli would hand across and feeds them into
+//! [`crate::layout::taffy_aot`] without re-implementing geometry law.
 //!
-//! Falsifier: `cargo test -p ggen-graph --test ui_layout_court`
+//! Photolithography stays non-crown-`ALIVE` until a mounted zcode-cli (or
+//! igniter) executes against an `AotSealReceipt`. Until then this adapter +
+//! Chicago court prove the in-repo seam: nodes → Taffy AOT → typed
+//! [`LayoutRefusal`] admit/refuse.
 
-use std::fs;
-use std::path::PathBuf;
+use serde::{Deserialize, Serialize};
 
-use ggen_graph::layout::taffy_aot::{LayoutRefusal, WCAG_1412_TEXT_SPACING};
-use ggen_graph::layout::ui_layout_court::{
-    parse_layout_court_case, run_layout_court, run_layout_court_json, seal_digest,
-    LayoutCourtRefusal, LayoutCourtStanding, LAYOUT_COURT_NOUN, LAYOUT_COURT_SCHEMA_V1,
+use super::taffy_aot::{
+    preflight_column_six_widths, AotColumn, AotSealReceipt, LayoutRefusal, WCAG_1412_TEXT_SPACING,
 };
 
-fn fixture(name: &str) -> PathBuf {
-    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("../../docs/rfc/v27.1.1/fixtures")
-        .join(name)
+/// Schema id zcode-cli / fixtures must declare for Gate-1 column trees.
+pub const LAYOUT_COURT_SCHEMA_V1: &str = "ggen.layout.aot.column/v1";
+
+/// Court noun mirrored from zcode-cli `ui-layout-court.ts`.
+pub const LAYOUT_COURT_NOUN: &str = "ui-layout-court";
+
+/// Wire fixture: layout nodes + optional expected seal digest.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct LayoutCourtCase {
+    pub court: String,
+    pub schema: String,
+    /// WCAG 1.4.12 spacing factor; Gate-1 courts use 1.5.
+    pub text_spacing: f32,
+    pub column: AotColumn,
+    /// When present, must match the blake3 hex digest of the seal receipt.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub expected_seal_digest: Option<String>,
 }
 
-fn load_fixture(name: &str) -> String {
-    let path = fixture(name);
-    fs::read_to_string(&path).unwrap_or_else(|e| {
-        panic!("expected layout-court fixture at {}: {e}", path.display())
+/// Admit receipt bound to a seal digest (consumable by zcode-cli).
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct LayoutCourtReceipt {
+    pub seal: AotSealReceipt,
+    /// Lowercase hex blake3 over the canonical seal payload.
+    pub seal_digest: String,
+}
+
+/// Typed refusals for the ui-layout-court adapter (fail-closed).
+#[derive(Debug, Clone, PartialEq)]
+pub enum LayoutCourtRefusal {
+    /// Geometry law refused via Taffy AOT ([`LayoutRefusal`]: overflow, overlap, touch, …).
+    Geometry(LayoutRefusal),
+    SchemaUnsupported { schema: String },
+    CourtMismatch { court: String },
+    DigestMismatch { expected: String, actual: String },
+    Parse { message: String },
+}
+
+/// Standing for one court run — never silent-pass on broken geometry.
+#[derive(Debug, Clone, PartialEq)]
+pub enum LayoutCourtStanding {
+    Admitted(LayoutCourtReceipt),
+    Refused(LayoutCourtRefusal),
+}
+
+impl LayoutCourtStanding {
+    pub fn is_admitted(&self) -> bool {
+        matches!(self, Self::Admitted(_))
+    }
+    pub fn is_refused(&self) -> bool {
+        matches!(self, Self::Refused(_))
+    }
+}
+
+pub fn parse_layout_court_case(json: &str) -> Result<LayoutCourtCase, LayoutCourtRefusal> {
+    serde_json::from_str(json).map_err(|e| LayoutCourtRefusal::Parse {
+        message: e.to_string(),
     })
 }
 
-fn admitted_baseline_case() -> ggen_graph::layout::ui_layout_court::LayoutCourtCase {
-    let json = load_fixture("ui-layout-valid.column.json");
-    let baseline = run_layout_court_json(&json);
-    assert!(
-        baseline.is_admitted(),
-        "anti-vacuity requires a green baseline; got {baseline:?}"
+pub fn seal_digest(seal: &AotSealReceipt) -> String {
+    let payload = format!(
+        "v1|spacing={:.6}|widths={}|leaves={}",
+        seal.text_spacing,
+        seal.widths_px.iter().map(|w| w.to_string()).collect::<Vec<_>>().join(","),
+        seal.leaf_count
     );
-    parse_layout_court_case(&json).expect("valid fixture parses")
+    hex::encode(blake3::hash(payload.as_bytes()).as_bytes())
 }
 
-#[test]
-fn valid_fixture_admits_via_adapter_into_taffy_aot() {
-    // Arrange — real on-disk fixture (zcode-cli wire shape), not an inline double
-    let json = load_fixture("ui-layout-valid.column.json");
-
-    // Act
-    let standing = run_layout_court_json(&json);
-
-    // Assert
-    match standing {
-        LayoutCourtStanding::Admitted(receipt) => {
-            assert!(
-                (receipt.seal.text_spacing - WCAG_1412_TEXT_SPACING).abs() < f32::EPSILON
-            );
-            assert_eq!(receipt.seal.widths_px, vec![320, 375, 393, 600, 840, 1280]);
-            assert_eq!(receipt.seal.leaf_count, 2);
-            assert_eq!(receipt.seal_digest, seal_digest(&receipt.seal));
-            assert_eq!(receipt.seal_digest.len(), 64);
+pub fn run_layout_court(case: &LayoutCourtCase) -> LayoutCourtStanding {
+    if case.court != LAYOUT_COURT_NOUN {
+        return LayoutCourtStanding::Refused(LayoutCourtRefusal::CourtMismatch {
+            court: case.court.clone(),
+        });
+    }
+    if case.schema != LAYOUT_COURT_SCHEMA_V1 {
+        return LayoutCourtStanding::Refused(LayoutCourtRefusal::SchemaUnsupported {
+            schema: case.schema.clone(),
+        });
+    }
+    let seal = match preflight_column_six_widths(&case.column, case.text_spacing) {
+        Ok(seal) => seal,
+        Err(refusal) => {
+            return LayoutCourtStanding::Refused(LayoutCourtRefusal::Geometry(refusal));
         }
-        other => panic!("valid fixture must admit via Taffy AOT adapter; got {other:?}"),
+    };
+    let digest = seal_digest(&seal);
+    if let Some(expected) = case.expected_seal_digest.as_deref() {
+        if expected != digest {
+            return LayoutCourtStanding::Refused(LayoutCourtRefusal::DigestMismatch {
+                expected: expected.to_string(),
+                actual: digest,
+            });
+        }
+    }
+    LayoutCourtStanding::Admitted(LayoutCourtReceipt { seal, seal_digest: digest })
+}
+
+pub fn run_layout_court_json(json: &str) -> LayoutCourtStanding {
+    match parse_layout_court_case(json) {
+        Ok(case) => run_layout_court(&case),
+        Err(refusal) => LayoutCourtStanding::Refused(refusal),
     }
 }
 
-#[test]
-fn ts_contract_stub_documents_zcode_cli_boundary() {
-    // Arrange — documented stub lives beside the JSON fixture
-    let stub = load_fixture("ui-layout-court.ts");
-
-    // Assert — contract nouns + BLOCKED standing are present (not executed here)
-    assert!(
-        stub.contains(LAYOUT_COURT_NOUN),
-        "TS stub must name the court noun"
-    );
-    assert!(
-        stub.contains(LAYOUT_COURT_SCHEMA_V1),
-        "TS stub must name the admitted schema"
-    );
-    assert!(
-        stub.contains("BLOCKED_ZCODE_CLI_OUT_OF_REPO"),
-        "TS stub must refuse ambient ALIVE while zcode-cli is unmounted"
-    );
-    assert!(
-        stub.contains("LayoutRefusal"),
-        "TS stub must name the typed geometry refusal surface"
-    );
+pub fn gate1_text_spacing() -> f32 {
+    WCAG_1412_TEXT_SPACING
 }
 
-#[test]
-fn mutation_overflow_refuses_with_typed_layout_refusal() {
-    // Arrange — start from admitted fixture, widen text so 220×1.5 overflows 320
-    let mut case = admitted_baseline_case();
-    let before = case.column.children[0].width_px;
-    case.column.children[0].width_px = 220.0;
-    assert_ne!(case.column.children[0].width_px, before);
+#[cfg(test)]
+mod unit {
+    use super::*;
+    use crate::layout::taffy_aot::AotLeaf;
 
-    // Act
-    let standing = run_layout_court(&case);
-
-    // Assert
-    match standing {
-        LayoutCourtStanding::Refused(LayoutCourtRefusal::Geometry(LayoutRefusal::Overflow {
-            viewport_width_px,
-            text_spacing,
-            leaf_id,
-            ..
-        })) => {
-            assert_eq!(viewport_width_px, 320);
-            assert!((text_spacing - WCAG_1412_TEXT_SPACING).abs() < f32::EPSILON);
-            assert_eq!(leaf_id, "body_copy");
-        }
-        other => panic!("mutated overflow must refuse LayoutRefusal::Overflow; got {other:?}"),
-    }
-}
-
-#[test]
-fn mutation_touch_target_refuses_with_typed_layout_refusal() {
-    // Arrange — shrink interactive CTA below 44×44 floor
-    let mut case = admitted_baseline_case();
-    case.column.children[1].width_px = 40.0;
-    case.column.children[1].height_px = 40.0;
-
-    // Act
-    let standing = run_layout_court(&case);
-
-    // Assert
-    match standing {
-        LayoutCourtStanding::Refused(LayoutCourtRefusal::Geometry(
-            LayoutRefusal::TouchTargetTooSmall {
-                leaf_id,
-                min_px,
-                width_px,
-                height_px,
-                ..
+    #[test]
+    fn unit_valid_column_admits_under_gate1_spacing() {
+        let case = LayoutCourtCase {
+            court: LAYOUT_COURT_NOUN.into(),
+            schema: LAYOUT_COURT_SCHEMA_V1.into(),
+            text_spacing: WCAG_1412_TEXT_SPACING,
+            column: AotColumn {
+                gap_px: 8.0,
+                children: vec![
+                    AotLeaf {
+                        id: "body".into(),
+                        width_px: 200.0,
+                        height_px: 32.0,
+                        is_text: true,
+                        is_interactive: false,
+                    },
+                    AotLeaf {
+                        id: "cta".into(),
+                        width_px: 120.0,
+                        height_px: 44.0,
+                        is_text: false,
+                        is_interactive: true,
+                    },
+                ],
             },
-        )) => {
-            assert_eq!(leaf_id, "primary_cta");
-            assert_eq!(min_px, 44);
-            assert!(width_px + f32::EPSILON < 44.0);
-            assert!(height_px + f32::EPSILON < 44.0);
-        }
-        other => {
-            panic!("mutated touch target must refuse LayoutRefusal::TouchTargetTooSmall; got {other:?}")
-        }
-    }
-}
-
-#[test]
-fn mutation_overlap_refuses_with_typed_layout_refusal() {
-    // Arrange — negative gap is the adversarial path that surfaces Overlap
-    let mut case = admitted_baseline_case();
-    case.column.gap_px = -20.0;
-
-    // Act
-    let standing = run_layout_court(&case);
-
-    // Assert
-    match standing {
-        LayoutCourtStanding::Refused(LayoutCourtRefusal::Geometry(LayoutRefusal::Overlap {
-            a_id,
-            b_id,
-            text_spacing,
-            ..
-        })) => {
-            assert_eq!(a_id, "body_copy");
-            assert_eq!(b_id, "primary_cta");
-            assert!((text_spacing - WCAG_1412_TEXT_SPACING).abs() < f32::EPSILON);
-        }
-        other => panic!("mutated overlap must refuse LayoutRefusal::Overlap; got {other:?}"),
-    }
-}
-
-#[test]
-fn mismatched_expected_seal_digest_is_refused() {
-    // Arrange
-    let mut case = admitted_baseline_case();
-    case.expected_seal_digest = Some("0".repeat(64));
-
-    // Act
-    let standing = run_layout_court(&case);
-
-    // Assert
-    match standing {
-        LayoutCourtStanding::Refused(LayoutCourtRefusal::DigestMismatch {
-            expected,
-            actual,
-        }) => {
-            assert_eq!(expected.len(), 64);
-            assert_eq!(actual.len(), 64);
-            assert_ne!(expected, actual);
-        }
-        other => panic!("expected DigestMismatch refusal, got {other:?}"),
-    }
-}
-
-#[test]
-fn unsupported_schema_is_refused() {
-    // Arrange
-    let mut case = admitted_baseline_case();
-    case.schema = "ggen.layout.aot.column/v0-experimental".into();
-
-    // Act
-    let standing = run_layout_court(&case);
-
-    // Assert
-    match standing {
-        LayoutCourtStanding::Refused(LayoutCourtRefusal::SchemaUnsupported { schema }) => {
-            assert!(schema.contains("v0-experimental"));
-        }
-        other => panic!("expected SchemaUnsupported, got {other:?}"),
+            expected_seal_digest: None,
+        };
+        assert!(run_layout_court(&case).is_admitted());
     }
 }
