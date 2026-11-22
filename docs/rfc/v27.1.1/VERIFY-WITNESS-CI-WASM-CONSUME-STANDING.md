@@ -11,7 +11,7 @@
 | Pin bytes / SHA | **28673** / `5faae4642ca23c503e96d2a2ab938c056caffdde14e77516054fe4492aed0c97` |
 | Affidavit tip | `563eb322a16d805ebc99b2c16f1165462244d7e2` |
 | CI workflow | `.github/workflows/verify-witness-ci-wasm.yml` |
-| Status | LAND — mount + court + workflow **PRESENT**; production-runtime ledger advance only after CI job EXIT **0** on this branch. API standing remains `PartialAlive` + `ExternalPath` (CONSTRUCT). **Never invent Foundry ALIVE.** |
+| Status | LAND — mount + court + workflow **PRESENT**; local tip-cargo **11 passed; EXIT 0** @ `2f826872b` (`/tmp/vw-ci-consume-court3.log`); production-runtime ledger advance only after CI job EXIT **0**. API standing remains `PartialAlive` + `ExternalPath` (CONSTRUCT). **Never invent Foundry ALIVE.** |
 
 Standing vocabulary: `UNKNOWN` | `PARTIAL` | `PARTIAL_ALIVE` | `ALIVE` | `BLOCKED` | `UNSUPPORTED` | `REFUSED_*`.
 
