@@ -9,7 +9,7 @@
 | Materialized | 2026-11-22 |
 | Hardened | 2026-11-22 — `cursor/v2711-oor-ledger-harden-bc54` |
 | Ops refresh | 2026-11-22 — `cursor/v2711-ops-standing-refresh-bc54` (tip pin + probe reconfirm; standings held) |
-| Tip pin | 2026-11-22 — `cursor/v2711-smalt-partial-bc54` after Smalt 4-cloud **PARTIAL_ALIVE** @ `smalt@875efbb87` (`bc-ad9ebffa`; prior OOR pin `cursor/v2711-oor-retip4-bc54` / tip `5480d7ada`; Foundry crown stays **PARTIAL_ALIVE**; G2-12 **ALIVE** retained; no RAID/`ALIVE` invented) |
+| Tip pin | 2026-11-22 — `cursor/v2711-smalt-partial-bc54` after Smalt RAID columns **ALIVE** + fin_ops **PARTIAL_ALIVE** @ `smalt@875efbb87` (`bc-ad9ebffa`/`bc-1e876087`; prior OOR pin `cursor/v2711-oor-retip4-bc54` / tip `5480d7ada`; Foundry crown stays **PARTIAL_ALIVE**; G2-12 **ALIVE** retained; no full RAID/`ALIVE` invented while FinOps non-canonical) |
 | Hop-5 evidence | `/tmp/cursor/hop5-crossmount.md` (`bc-be2c9600`) |
 | Repo scope | `seanchatmangpt/ggen` — **tracks** sibling standing; does not execute sibling DO |
 
@@ -60,7 +60,7 @@ Photolithography / spine hops that require mounted siblings are included when ex
 | G2-3 | **BRCE human seat broker** (live CONSTRUCT→DO) | **BLOCKED** | No broker runtime mounted; doctrine + intent manufacture only in ggen | Owner artifact: [`BRCE-WEBAUTHN-STANDING.md`](./BRCE-WEBAUTHN-STANDING.md) §5 **V8**. In mounted BRCE broker checkout: integration court — intent **without** verified AS-01 human seat → `REFUSED_*`; intent **with** verified seat → execution receipt + replay digest → exit 0. (In-repo fence only: `cargo test -p ggen-abb-sbb --test brce_as01_seat_court` — does **not** promote this row.) | AS-01 fence in ggen **PARTIAL** ≠ broker **ALIVE** at GA |
 | G2-4 | **WebAuthn AS-01 production** (human seat `:prime256v1` / ES256) | **UNSUPPORTED** | No `p256` / WebAuthn RP in ggen workspace members | Owner artifact: [`BRCE-WEBAUTHN-STANDING.md`](./BRCE-WEBAUTHN-STANDING.md) §5 **V7**. In BRCE/trust-plane (or future ggen adapter) checkout: dedicated court — (1) known-good ES256/`prime256v1` assertion fixture → admit; (2) tampered assertion → `REFUSED_*`; (3) alg ≠ ES256 → refuse → exit 0. Companion fence: `rg -n 'p256\|webauthn\|web-authn\|passkeys' Cargo.toml crates/*/Cargo.toml Cargo.lock` → empty or documented admit (V5). | Plane-5 DO without V7+V8 is **REFUSED** at GA |
 | G2-5 | **Plane 5 DO path** (aggregate; AS-01-gated) | **BLOCKED** | ggen constitutional OUT OF SCOPE; no AS-01 runtime receipt | Owner artifacts: BRCE **V9** + CCS #8 ([`CCS-AUTHORITY-STANDING.md`](./CCS-AUTHORITY-STANDING.md)). External host court: request **without** AS-01 → refuse; **with** AS-01 → BRCE receipt. Probe ladder: G2-1 + G2-2 curls green, then AS-01 session + BRCE intent for the named front-door change ([`REVOPS-COS-STANDING.md`](./REVOPS-COS-STANDING.md) §4 item 6). | Crown Foundry-finish falsifies if founder still actuates Plane-5 without BRCE+AS-01 |
-| G2-6 | **Smalt 4-cloud RAID** / economic ops | **PARTIAL_ALIVE** | Sibling tip `smalt@875efbb87` via `bc-ad9ebffa`: `just doctor`→**0**; `mix test test/aws`→**0**; `mix test test/gcp`→**0**; `mix test test/data_plane test/internal` (Azure)→**0**; `mix test test/twilio`→**0**. `test/fin_ops_calculator_test.exs` **ABSENT** → FinOps **UNSUPPORTED**. Not full RAID/`ALIVE`. ggen has zero in-repo RAID surface | Next: restore `test/fin_ops_calculator_test.exs` on smalt tip, then `mix test test/fin_ops_calculator_test.exs` → exit **0**; cite HEAD + exit in [`SMALT-RAID-STANDING.md`](./SMALT-RAID-STANDING.md). Replay 4-cloud: §4.1 commands at `875efbb87` | GA fails if any column or FinOps court lacks HEAD-pinned green receipt in smalt |
+| G2-6 | **Smalt 4-cloud RAID** / economic ops | RAID columns **ALIVE** + fin_ops **PARTIAL_ALIVE** (crown row **PARTIAL_ALIVE**) | Sibling tip `smalt@875efbb87` via `bc-ad9ebffa`: `just doctor`→**0**; `mix test test/aws`→**0**; `mix test test/gcp`→**0**; `mix test test/data_plane test/internal` (Azure)→**0**; `mix test test/twilio`→**0**. Retry `bc-1e876087`: burn-path `mix test docs/jira/v26.10.18/burn/test/fin_ops_calculator_test.exs`→**0** ⇒ fin_ops **PARTIAL_ALIVE**; canonical `test/fin_ops_calculator_test.exs` **ABSENT**. Not full RAID/`ALIVE`. ggen has zero in-repo RAID surface | Next: restore `test/fin_ops_calculator_test.exs` on smalt tip, then `mix test test/fin_ops_calculator_test.exs` → exit **0**; cite HEAD + exit in [`SMALT-RAID-STANDING.md`](./SMALT-RAID-STANDING.md). Replay columns: §4.1; burn FinOps: §4.2 | GA fails if any column or **canonical** FinOps court lacks HEAD-pinned green receipt in smalt |
 
 ### 2.2 Manufacture consumers (photolithography / UI / witness)
 
@@ -180,10 +180,12 @@ spine-probe `redaction_court=ALIVE`, exits 0,0,0); Foundry/zero-HITL crown
 ALIVE land `5480d7ada`; prior Observed pin `d0e3ba473`; standings held —
 G2-12 **ALIVE** retained; Foundry stays **PARTIAL_ALIVE**; no false
 promotion). Tip pin retipped on `cursor/v2711-smalt-partial-bc54` onto tip
-`8a68da481` — G2-6 Smalt 4-cloud **PARTIAL_ALIVE** @ `smalt@875efbb87`
-(`bc-ad9ebffa`: doctor/aws/gcp/azure/twilio exits 0,0,0,0,0; `fin_ops`
-**ABSENT/UNSUPPORTED**; next = restore `test/fin_ops_calculator_test.exs`);
-Foundry crown stays **PARTIAL_ALIVE**; RAID/`ALIVE` **not** invented.
+`8a68da481` — G2-6 Smalt RAID columns **ALIVE** + fin_ops **PARTIAL_ALIVE**
+@ `smalt@875efbb87` (`bc-ad9ebffa`: doctor/aws/gcp/azure/twilio exits
+0,0,0,0,0; retry `bc-1e876087`: burn-path FinOps exit 0; canonical
+`test/fin_ops_calculator_test.exs` **ABSENT** — restore still next);
+Foundry crown stays **PARTIAL_ALIVE**; full RAID/`ALIVE` **not** invented
+while FinOps is non-canonical.
 Standings synthesized from existing v27.1.1 standing ledgers only. Sibling
 CASTLE/Smalt courts executed on sibling live agents (not in this ggen
 workspace). Tracked rows remain
