@@ -60,13 +60,15 @@ remains **BLOCKED_HITL**.
 
 ---
 
-## tip7 open items (cargo owned by tip7 diagnosis)
+## tip7 live-tip reconfirm (closed 2026-11-22 2:35 PM PST)
 
-| subject | standing | exact next (tip7 owns cargo — this ledger does **not** run) |
-|---------|----------|-------------------------------------------------------------|
+| subject | standing | exact next |
+|---------|----------|------------|
 | Taffy tip7 | **ALIVE** EXIT:**0** @ `63da993cc` / absorb `4ebcb9d46` | sealed — no tip7 reopen unless sources drift |
-| shui tip7 | **PARTIAL_ALIVE** EXIT:**101** (target wiped mid-oxrocksdb; absorb `d35482374`) — sealed tip-cargo ALIVE @ `a4b3d3fb4` held / ≠ demoted | `CARGO_TARGET_DIR=/tmp/gate1-tip7-shui` … `shui_public_prefix_court` → **4**/EXIT:**0** |
-| uilayout tip7 | **open/in-flight** (`cursor/v2711-uilayout-exact-tip7-bc54`; gate waited on shui tip7 standing) | `CARGO_TARGET_DIR=/tmp/gate1-tip7-uilayout` … `ui_layout_court` → **11**/EXIT:**0** |
+| shui tip7 | **ALIVE** EXIT:**0** **4**/4 @ live tip `50cfb1280` (`/tmp/gate1-tip7-shui.log`) — prior EXIT:**101** thrash **superseded**; sealed tip-cargo @ `a4b3d3fb4` held | sealed — replay only if sources drift |
+| uilayout tip7 | **ALIVE** EXIT:**0** **11**/11 @ live tip `50cfb1280` (warm `/tmp/gate1-tip7-shui`; `/tmp/gate1-tip7-uilayout.log`) — prior open/in-flight **superseded**; sealed tip-cargo @ `2685119bd` held | sealed — replay only if sources drift |
+
+Companion: [`GATE1-TIP7-LIVE-RECONFIRM-STANDING.md`](./GATE1-TIP7-LIVE-RECONFIRM-STANDING.md). **≠ Foundry / path-crown ALIVE.**
 
 ---
 
