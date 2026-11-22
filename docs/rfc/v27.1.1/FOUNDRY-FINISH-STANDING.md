@@ -5,7 +5,7 @@
 | Document ID | `FOUNDRY-FINISH-STANDING` |
 | Companion to | `ECOSYSTEM-SPEC-27.1.1` (target GA **2027-01-01**) |
 | Status | STANDING LEDGER (not an execution receipt; not a Gate-1 rewrite) |
-| Observed tip | PR [#849](https://github.com/seanchatmangpt/ggen/pull/849) absorb tip past `c11ea7f2a+` / mix-NIF `ba9824207` (`cursor/v2711-absorb-932-936-4b0b`; no cargo). Horizontal spine: **ggen+Taffy PRESENT**; **zcode adapter PARTIAL**; **CASTLE ALIVE** (sibling @ `2774039ea`); **Smalt ALIVE** (4-cloud @ `875efbb87` + FinOps @ `91997da76f0f`); **revops/cos BLOCKED**. Photolithography: hops 1–3 as prior; hop-4 **ALIVE**; hop-5 **PARTIAL_ALIVE**; `mix sync` NIF **BLOCKED**. Zero-HITL crown **PARTIAL**. `ggen-layout-court` **PRESENT**; ui-layout tip-cargo **ALIVE** (**11 passed; exit 0** @ `ca52e9c16` + retry9 @ `60b15c778`); brand.toml hot-swap + fluid clamp **PRESENT**; production theme **UNSUPPORTED** (`REFUSED_PRODUCTION`) |
+| Observed tip | PR [#849](https://github.com/seanchatmangpt/ggen/pull/849) absorb tip `98761f257e9b7a369001a3708148707ad581256d` (~`c11ea7f2a+` / mix-NIF `ba9824207`) (`cursor/v2711-absorb-932-936-4b0b`; no cargo). Horizontal spine: **ggen+Taffy PRESENT**; **zcode adapter PARTIAL**; **CASTLE ALIVE** (sibling @ `2774039ea`); **Smalt ALIVE** (4-cloud @ `875efbb87` + FinOps @ `91997da76f0f`); **revops/cos BLOCKED**. Photolithography: hops 1–3 as prior; hop-4 **ALIVE**; hop-5 **PARTIAL_ALIVE**; `mix sync` NIF **BLOCKED**. Zero-HITL crown **PARTIAL**. `ggen-layout-court` **PRESENT**; ui-layout tip-cargo **ALIVE** (**11 passed; exit 0** @ `ca52e9c16` + retry9 @ `60b15c778`); brand.toml hot-swap + fluid clamp **PRESENT**; production theme **UNSUPPORTED** (`REFUSED_PRODUCTION`) |
 | Prior tip note | Was `d05a131c7` / foundry-standing retip with stale brand tip-source. This absorb retip aligns Observed tip past `c11ea7f2a+` and brand falsifiers (hot-swap/fluid **PRESENT**; production **UNSUPPORTED**) without inventing production theme / zero-HITL `ALIVE`; tip-wins ui_layout **ALIVE** + taffy **PRESENT**. |
 | Base (main) | `origin/main` @ `d173cad5792e837bd4fec730d120c582b9bc5d4c` |
 | Repo scope | `seanchatmangpt/ggen` names the spine; sibling planes are **tracked out-of-repo** |
@@ -53,7 +53,7 @@ Do not promote source presence, fleet-census rows, workflow definitions, or hist
 
 ## 1b. Adjacent Gate-1 / authority fences (not spine members; block zero-HITL)
 
-| Subject | Standing on tip past `c11ea7f2a+` / `ba9824207` (ui-layout tip-cargo **ALIVE** @ `ca52e9c16`+retry9; layout_court PRESENT @ `d37271961`) | Next exact verifier |
+| Subject | Standing on tip past `f7284ce6f` / `c11ea7f2a+` / `ba9824207` (ui-layout tip-cargo **ALIVE** @ `ca52e9c16`+retry9; layout_court PRESENT @ `d37271961`) | Next exact verifier |
 |---------|-----------------------------|---------------------|
 | BRCE + WebAuthn AS-01 ungated-DO refusal ([#861](https://github.com/seanchatmangpt/ggen/pull/861)) | **PARTIAL_ALIVE** (presence/shape fence; Gate-1 honesty demotion aligns matrix to PARTIAL + tip-cargo PENDING); crypto verify **UNSUPPORTED**; live BRCE **BLOCKED** | `cargo test -p ggen-abb-sbb --test brce_as01_seat_court` |
 | `verify_witness` WASM &lt;250KB size court | **PARTIAL_ALIVE** (offline size court; historical exit 0 on `0478fde59`; tip-cargo PENDING) — production WASM out-of-repo [`VERIFY-WITNESS-PRODUCTION.md`](./VERIFY-WITNESS-PRODUCTION.md) remains **UNSUPPORTED**; never production-artifact `ALIVE` | `cargo test -p ggen-graph --test verify_witness_size_court` |

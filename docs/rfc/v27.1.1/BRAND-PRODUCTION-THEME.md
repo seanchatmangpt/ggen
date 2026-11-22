@@ -5,7 +5,7 @@ Companion to `ECOSYSTEM-SPEC-27.1.1` §8 and Gate-1 gap matrix row
 
 ## Standing (this tip)
 
-Tip pin: absorb past `c11ea7f2a+` / mix-NIF `ba9824207` (`cursor/v2711-absorb-932-936-4b0b`; content from #933 @ `5c08f3312`).
+Tip pin: absorb `98761f257e9b7a369001a3708148707ad581256d` (~`c11ea7f2a+` / mix-NIF `ba9824207`; `cursor/v2711-absorb-932-936-4b0b`; content from #933 @ `5c08f3312`).
 
 | Surface | Standing | Evidence |
 |---------|----------|----------|

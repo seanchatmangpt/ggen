@@ -7,7 +7,7 @@ Companion to `ECOSYSTEM-SPEC-27.1.1.md` and `REPO-INVENTORY-27.1.1.md`.
 **Evidence refresh / live tip pin:** CindyCat dual-schema `[primitive.space]` from `[rhythm]` on `cursor/v2711-hop4-cindycat-space-bc54` (court `oem_fixtures_carry_dtcg_primitive_space_from_rhythm`).
 
 **Evidence refresh / live tip pin:** 2026-11-22 absorb #932 construct_hash **PRESENT** @ `27f586390` + #933 brand hot-swap/fluid **PRESENT** / production **UNSUPPORTED** @ `5c08f3312` + #934 mix/NIF @ `ae2acc52b` + #935 ui_layout tip-cargo **ALIVE** retry9 @ `8cee4246f` + #936 crown honesty @ `0e25df932` onto tip
-`ba9824207` (~`c11ea7f2a+` / `89ca2da9c+` / `2fd897141+`; tip-wins: hop-5 runtime **PRESENT** / model access **REFUSED**; ui_layout tip-cargo **ALIVE**; chicago mirror **PARTIAL_ALIVE**; Smalt 6-column spine **ALIVE**; verify_witness size court **PRESENT**; taffy_aot_preflight **PRESENT**; photo hop-4 **ALIVE** reconfirm; construct_hash_gate **PRESENT**; brand hot-swap+fluid **PRESENT**; production theme **UNSUPPORTED**; mix/NIF PATH **ABSENT** / off-PATH **PRESENT** / NIF **BLOCKED** — [`HOP4-MIX-NIF-STANDING.md`](./HOP4-MIX-NIF-STANDING.md)).
+`98761f257e9b7a369001a3708148707ad581256d` (~`c11ea7f2a+` / `89ca2da9c+` / `2fd897141+`; tip-wins: hop-5 runtime **PRESENT** / model access **REFUSED**; ui_layout tip-cargo **ALIVE**; chicago mirror **PARTIAL_ALIVE**; Smalt 6-column spine **ALIVE**; verify_witness size court **PRESENT**; taffy_aot_preflight **PRESENT**; photo hop-4 **ALIVE** reconfirm; construct_hash_gate **PRESENT**; brand hot-swap+fluid **PRESENT**; production theme **UNSUPPORTED**; mix/NIF PATH **ABSENT** / off-PATH **PRESENT** / NIF **BLOCKED** — [`HOP4-MIX-NIF-STANDING.md`](./HOP4-MIX-NIF-STANDING.md)).
 Truex+shui product admit → **ALIVE** (sibling **6/6 vitest exit 0** @
 `truex@68d2d2331696f18949f4877b994320018b6365e5` — [truex#6](https://github.com/seanchatmangpt/truex/pull/6)
 **MERGED** to `main` as `b4672131`; mount `/tmp/truex`; receipt
@@ -100,7 +100,7 @@ Do not promote any Gate 0 row to `ALIVE` from this repository.
 
 ### Command evidence log (this refresh)
 
-Live tip pin: absorb #932 @ `27f586390` + #933 @ `5c08f3312` + #934 @ `ae2acc52b` + #935 @ `8cee4246f` + #936 @ `0e25df932` onto tip past `c11ea7f2a+` / mix-NIF finish `ba9824207` (branch `cursor/v2711-absorb-932-936-4b0b`); taffy **PRESENT** + photo hop-4 **ALIVE** + #929 verify_witness **PRESENT** / #926/#927/#928 ui_layout **ALIVE** + chicago **PARTIAL** + Smalt **ALIVE**; construct_hash **PRESENT**; brand hot-swap+fluid **PRESENT** / production **UNSUPPORTED**; mix/NIF PATH **ABSENT** / off-PATH **PRESENT** / NIF **BLOCKED**; sources ≡ tip).
+Live tip pin: absorb #932 @ `27f586390` + #933 @ `5c08f3312` + #934 @ `ae2acc52b` + #935 @ `8cee4246f` + #936 @ `0e25df932` onto tip `98761f257e9b7a369001a3708148707ad581256d` (past `c11ea7f2a+` / mix-NIF finish `ba9824207`) (branch `cursor/v2711-absorb-932-936-4b0b`); taffy **PRESENT** + photo hop-4 **ALIVE** + #929 verify_witness **PRESENT** / #926/#927/#928 ui_layout **ALIVE** + chicago **PARTIAL** + Smalt **ALIVE**; construct_hash **PRESENT**; brand hot-swap+fluid **PRESENT** / production **UNSUPPORTED**; mix/NIF PATH **ABSENT** / off-PATH **PRESENT** / NIF **BLOCKED**; sources ≡ tip).
 Historical exit-0 evidence tip: `0478fde59644cccd60c5a88d64d444ec292e6a3c` (≥ `a54b9803`; ancestor).
 ui-layout ancestor ALIVE: `eaf0dad40287a3347280a541766b3b16f3978cf8`.
 **Tip-cargo `ui_layout` ALIVE** tip-wins + #935 retry9 reconfirm: exclusive flock `/tmp/ggen-uilayout-tip-alive-protected`;
