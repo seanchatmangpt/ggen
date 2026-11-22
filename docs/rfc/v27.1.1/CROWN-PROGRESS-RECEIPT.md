@@ -185,4 +185,4 @@ Recommended next Gate-1 falsifier (pick one): quiet tip-cargo reconfirm of remai
 | Absorb taffy+#929 | 2026-11-22 — `cursor/v2711-absorb-taffy-vw-2716`: `taffy@ef6fb84ed` **PRESENT** blob `d8923b07e` + #929 verify_witness **PRESENT** onto tip `2fd897141+`/`46a026ae9+`; **ui_layout tip-cargo ALIVE** retained (ALIVE supersedes PENDING); tip-cargo SKIPPED; no ManagePullRequest |
 | Absorb #931/#932/#933 | 2026-11-22 — `cursor/v2711-absorb-931-933-e6e5` onto tip `dd2822464+`: photo hop-4 **ALIVE** + construct_hash_gate **PRESENT** + brand hot-swap+fluid **PRESENT** / production **UNSUPPORTED**; tip-wins ui_layout **ALIVE**; no cargo; no ManagePullRequest |
 | Sources | GATE-1-GAP-MATRIX, PHOTOLITHOGRAPHY, FOUNDRY-FINISH, OUT-OF-REPO-NEXT-VERIFIERS, SMALT-RAID, CCS-AUTHORITY, BRCE-WEBAUTHN, ECOSYSTEM-SPEC §13 |
-| Method | Absorb tip-cargo ALIVE standing; no new cargo; no ManagePullRequest |
+| Method | Absorb tip-wins honesty (#931/#932/#933 onto `dd2822464+`); ui_layout **ALIVE** preserved; no cargo; no ManagePullRequest |
