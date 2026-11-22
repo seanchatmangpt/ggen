@@ -29,9 +29,8 @@ fn fixture(name: &str) -> PathBuf {
 
 fn load_fixture(name: &str) -> String {
     let path = fixture(name);
-    fs::read_to_string(&path).unwrap_or_else(|e| {
-        panic!("expected layout-court fixture at {}: {e}", path.display())
-    })
+    fs::read_to_string(&path)
+        .unwrap_or_else(|e| panic!("expected layout-court fixture at {}: {e}", path.display()))
 }
 
 fn valid_column() -> AotColumn {
@@ -340,8 +339,8 @@ fn anti_vacuity_mutation_widened_text_is_refused_not_vacuous_pass() {
             assert!((text_spacing - WCAG_1412_TEXT_SPACING).abs() < f32::EPSILON);
             assert_eq!(leaf_id, "body_copy");
         }
-        other => panic!(
-            "mutated layout must be REFUSED (Overflow@320), got {other:?} — vacuous pass"
-        ),
+        other => {
+            panic!("mutated layout must be REFUSED (Overflow@320), got {other:?} — vacuous pass")
+        }
     }
 }
