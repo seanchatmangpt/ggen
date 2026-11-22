@@ -9,7 +9,19 @@ lineage_alive_tip=77eb46fd05d5bc847050a8f0a9147e1133e52c83
 completeness_lineage=ALIVE (5)
 rhythm_lineage=ALIVE (12)
 exact_tip_reconfirm=PARTIAL (not EXIT:0 on tip_base)
+hotswap_prod_retip_tip=e6d1b839dabee76712cee9c57953626b77212826
+hotswap_court=PARTIAL_ALIVE (lineage ALIVE @ 19c08a3b0)
+production_theme=UNSUPPORTED
 ```
+
+**Hot-swap / production retip append** (`cursor/v2711-brand-hotswap-retip-bc54`
+/ `bc-77f1df1f-0499-5eae-9e4f-68342a2f5414`) on live tip
+`e6d1b839dabee76712cee9c57953626b77212826`: `brand_toml_hotswap_court`
+tip-subject **PARTIAL_ALIVE** (no cargo; Gate1 tip6 owns thrash) with lineage
+**ALIVE** (**6** @ `19c08a3b0`); production theme **UNSUPPORTED**. Pin:
+[`BRAND-TOML-HOTSWAP-PROD-RETIP-STANDING.md`](./BRAND-TOML-HOTSWAP-PROD-RETIP-STANDING.md).
+Completeness+rhythm exact-tip standing below is unchanged (still retip5
+**PARTIAL_ALIVE** / lineage **ALIVE** @ `77eb46fd0`).
 
 **Retip5 push-first honesty (bc-ec3bbaf0):** tip base
 `167352d0d22a6c90836fdf707a6eb3fbb2b1ee8f` on

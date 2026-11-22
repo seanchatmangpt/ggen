@@ -13,12 +13,21 @@ fluid lineage tip-cargo **ALIVE** @ `19c08a3b0`; production **UNSUPPORTED**.
 Receipt: [`BRAND-HOTSWAP-TIP-CARGO-STANDING.md`](./BRAND-HOTSWAP-TIP-CARGO-STANDING.md).
 Do **not** invent hot-swap tip-subject `ALIVE` without EXIT **0**.
 
+**Hot-swap / production honesty retip** (`cursor/v2711-brand-hotswap-retip-bc54` /
+`bc-77f1df1f-0499-5eae-9e4f-68342a2f5414`) onto live tip
+`e6d1b839dabee76712cee9c57953626b77212826`: hot-swap tip-subject court
+**PARTIAL_ALIVE** (docs-only; no cargo — Gate1 tip6 owns thrash) with lineage
+**ALIVE** (**6** @ `19c08a3b0` / absorb `cde02d1f2`; blob ≡ tip). Production
+theme / production hot-swap remains **UNSUPPORTED** (`REFUSED_PRODUCTION`) —
+do **not** invent `ALIVE`. Full pin:
+[`BRAND-TOML-HOTSWAP-PROD-RETIP-STANDING.md`](./BRAND-TOML-HOTSWAP-PROD-RETIP-STANDING.md).
+
 | Surface | Standing | Evidence |
 |---------|----------|----------|
 | Rhythm schema + OEM stubs | **ALIVE** (exact tip-cargo) | `brand_toml_rhythm_court` **12 passed; exit 0** @ `77eb46fd0` ([`BRAND-TOML-TIP-CARGO-STANDING.md`](./BRAND-TOML-TIP-CARGO-STANDING.md)) |
 | Completeness Incomplete refusals | **ALIVE** (exact tip-cargo) | `brand_toml_completeness_court` **5 passed; exit 0** @ `77eb46fd0` |
 | Fluid clamp / cqi slopes | **ALIVE** (lineage tip-cargo **6 passed; exit 0** @ crown `19c08a3b0`) | `brand_fluid_clamp_court` |
-| OEM hot-swap fence | **COMPILING** / **PARTIAL_ALIVE** (exact tip EXIT **137**); lineage **ALIVE** **6** @ `19c08a3b0`; fence ceiling **PARTIAL_ALIVE** | `seed_hot_swap_slot` / `hot_swap_brand` + `brand_toml_hotswap_court` — [`BRAND-HOTSWAP-TIP-CARGO-STANDING.md`](./BRAND-HOTSWAP-TIP-CARGO-STANDING.md) |
+| OEM hot-swap fence | **COMPILING** / **PARTIAL_ALIVE** (exact tip EXIT **137**); lineage **ALIVE** **6** @ `19c08a3b0`; fence ceiling **PARTIAL_ALIVE** | `seed_hot_swap_slot` / `hot_swap_brand` + `brand_toml_hotswap_court` — [`BRAND-HOTSWAP-TIP-CARGO-STANDING.md`](./BRAND-HOTSWAP-TIP-CARGO-STANDING.md); honesty retip [`BRAND-TOML-HOTSWAP-PROD-RETIP-STANDING.md`](./BRAND-TOML-HOTSWAP-PROD-RETIP-STANDING.md) |
 | Production runtime theme | **UNSUPPORTED** | `promote_production_theme` → `ProductionThemeRefusal::ProductionUnsupported` (code `REFUSED_PRODUCTION`) |
 
 Fluid clamp / rhythm tip-cargo and hot-swap **lineage** tip-cargo are Gate-1
