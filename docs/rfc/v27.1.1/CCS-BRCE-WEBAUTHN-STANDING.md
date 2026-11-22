@@ -268,3 +268,14 @@ Sequencing law (held): **WebAuthn §3** (**UNSUPPORTED**) → **V8** broker (**B
 
 **Exact next (held — do not invent):** WebAuthn §3 → V8 §3 → V9/G2-5; bodies G3-5.
 Push-first; tip-wins FF absorb if race-safe. No ManagePullRequest; no force-push; no cargo.
+
+## Retip5 (2026-11-22 11:20:22 PST)
+
+| Clause | Standing | Note |
+|--------|----------|------|
+| BRCE V8 / bodies | **BLOCKED** | held; Gate1 tip-cargo ALIVE ≠ CCS seal |
+| WebAuthn AS-01 | **UNSUPPORTED** | held |
+| SELECT≠CONSTRUCT≠DO | doctrine | humans only at ~8 CCS when sealed |
+| Foundry `--live` | **BLOCKED_HITL** | foundry_exit=1; ≠ Foundry ALIVE |
+
+Crown base at write: `6f6ede8ac5d1a0b9668d2a776e580dc928d605fd`. Exact next: WebAuthn AS-01 → BRCE V8 bodies → V9. Never invent ALIVE.
