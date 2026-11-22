@@ -18,6 +18,7 @@ bodies=BLOCKED
 | Lineage evidence | `cd7c2433b` — prior lineage tip-cargo (`/tmp/ggen-r01-r07-tip`) |
 | Constraint | `CARGO_BUILD_JOBS=1`; `build.jobs=1`; `--locked`; `--test-threads=1` |
 | Bodies | remain **BLOCKED** — contract fence ≠ body closure |
+| Residual honesty | 2026-11-22 — tip-wins absorb `cursor/v2711-brce-v8-bodies-bc54` @ `e54d58bac` onto crown `fe72be0fb` (⊇ VW/Smalt/OOR/CASTLE): bodies still **BLOCKED**; next = Founder HITL admit risk-register → per-ID typed receipt/`REFUSED_*` (OOR **G3-5**; [`R01-R07-STANDING.md`](./R01-R07-STANDING.md) §2) |
 
 **Law:** EXIT **0** seals the **contract** fence only.
 Do **not** invent body `ALIVE`/`CLOSED` from this receipt.

@@ -21,6 +21,7 @@ plane5=BLOCKED
 | Branch | `cursor/v2711-gate1-brce-r01-alive-bc54` |
 | V8 broker / Plane-5 DO | remain **BLOCKED** — fence ≠ broker `ALIVE` |
 | Live WebAuthn | **UNSUPPORTED** |
+| Residual honesty | 2026-11-22 — tip-wins absorb `cursor/v2711-brce-v8-bodies-bc54` @ `e54d58bac` onto crown `fe72be0fb` (⊇ VW/Smalt/OOR/CASTLE): seat **ALIVE** retained; **V8** still **BLOCKED** (owner **BRCE**; Founder HITL mount+WebAuthn; OOR **G2-3**) |
 
 **Law:** EXIT **0** on the seat fence seals tip-cargo fence `ALIVE` only.
 Do **not** invent BRCE **V8**, WebAuthn hardware, or Plane-5 DO `ALIVE` from this receipt.
