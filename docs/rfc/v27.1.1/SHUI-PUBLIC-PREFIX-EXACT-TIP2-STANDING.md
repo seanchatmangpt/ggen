@@ -1,7 +1,7 @@
 # shui_public_prefix_court — exact-tip2 honesty retip (v27.1.1)
 
 ```text
-ggen_tip_base=2d7b47b2ea5eb5108f52fa46682a68a1af7e0097
+ggen_tip_base=0c18b3d1a7aff7fd8e804743c61685ab0d428918
 branch=cursor/v2711-shui-exact-tip2-bc54
 court=shui_public_prefix_court
 prior_alive=008a81d21 (lineage tip-cargo) / 26256ca9d (gate1-next)
@@ -13,7 +13,7 @@ standing=PARTIAL_ALIVE (lineage ALIVE cited; tip EXIT:0 not obtained)
 |-------|-------|
 | Document ID | `SHUI-PUBLIC-PREFIX-EXACT-TIP2-STANDING` |
 | Branch | `cursor/v2711-shui-exact-tip2-bc54` |
-| Tip base | `2d7b47b2ea5eb5108f52fa46682a68a1af7e0097` (`origin/cursor/ecosystem-spec-27-1-1-bc54`) |
+| Tip base | `0c18b3d1a7aff7fd8e804743c61685ab0d428918` (`origin/cursor/ecosystem-spec-27-1-1-bc54`) |
 | Observed at | `2026-11-22T17:51:16Z` |
 | Court blob on tip | `3cda065f6564917504f241ac3626c111cd2dfb6a` (≡ prior ALIVE) |
 | Package tip-cargo | `CARGO_TARGET_DIR=/tmp/gate1-exact-tip2/shui-target` → **EXIT:137** (SIGKILL/OOM; cgroup peak hit `memory.max` ~15.7GB; `oom_kill` counter ≥37 on pod) |
@@ -40,7 +40,7 @@ cargo test -p ggen-graph --test shui_public_prefix_court --locked \
 ## Compact return
 
 ```text
-tip_base=2d7b47b2ea5eb5108f52fa46682a68a1af7e0097
+tip_base=0c18b3d1a7aff7fd8e804743c61685ab0d428918
 branch=cursor/v2711-shui-exact-tip2-bc54
 EXIT=137
 standing=PARTIAL_ALIVE
