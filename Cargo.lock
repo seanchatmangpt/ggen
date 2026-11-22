@@ -2672,6 +2672,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "ggen-layout-court"
+version = "26.11.5"
+dependencies = [
+ "ggen-graph",
+ "serde",
+ "serde_json",
+ "taffy",
+]
+
+[[package]]
 name = "ggen-lsp"
 version = "26.11.5"
 dependencies = [

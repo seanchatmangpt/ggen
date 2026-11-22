@@ -1,0 +1,28 @@
+[package]
+name = "ggen-layout-court"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+repository.workspace = true
+license.workspace = true
+description = "CLI court that consumes ui-layout / AotSealReceipt subjects for zcode-cli UiLayoutCourtAdapter (fail-closed on missing/stale)."
+publish = false
+readme = "README.md"
+keywords = ["layout", "taffy", "court", "aot", "ui"]
+categories = ["development-tools"]
+
+[lib]
+path = "src/lib.rs"
+
+[[bin]]
+name = "layout_court"
+path = "src/bin/layout_court.rs"
+
+[dependencies]
+ggen-graph = { path = "../ggen-graph" }
+serde = { workspace = true }
+serde_json = { workspace = true }
+taffy = { workspace = true }
+
+[lints]
+workspace = true
