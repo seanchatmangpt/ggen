@@ -209,7 +209,10 @@ Truex / witness plane; ggen may pack or document but must not claim runtime
 `ALIVE` without a size court receipt.
 
 Standing in ggen: **PARTIAL_ALIVE** for Affidavit *pack manufacture*
-(`packs/affidavit-pack`); **UNKNOWN** for the &lt;250KB WASM size court.
+(`packs/affidavit-pack`) and for the in-repo size court
+(`ggen_graph::witness` + `verify_witness_size_court`); production WASM
+runtime remains **UNSUPPORTED** until the out-of-repo build path in
+`VERIFY-WITNESS-PRODUCTION.md` yields a courted artifact.
 
 ---
 
