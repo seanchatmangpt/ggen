@@ -5,11 +5,11 @@
 | Document ID | `OUT-OF-REPO-NEXT-VERIFIERS` |
 | Companion | `ECOSYSTEM-SPEC-27.1.1`, `GATE-0-STANDING`, `GATE-3-RELEASE-COURTS-STANDING`, `FOUNDRY-FINISH-STANDING` |
 | Target GA | **2027-01-01** |
-| Observed ggen tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `f6cb18f86a0e02bda0f2dc8736813c2a197aedd3` |
+| Observed ggen tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `376b5c3092c821eec942a2e16489b6db45c0b726` |
 | Materialized | 2026-11-22 |
 | Hardened | 2026-11-22 — `cursor/v2711-oor-ledger-harden-bc54` |
 | Ops refresh | 2026-11-22 — `cursor/v2711-ops-standing-refresh-bc54` (tip pin + probe reconfirm; standings held) |
-| Tip pin | 2026-11-22 — `cursor/v2711-hop5-standing-bc54` after hop-5 cross-mount PARTIAL on crown tip `f6cb18f86` (evidence tip `07b689c97` / ancestor `c9e224d33`; standings: hop-5 **PARTIAL** in-process ALIVE + live BLOCKED; no false live ALIVE; prior OOR pin `4e6ca0e2e`; crown includes castle `32f2e316f` + hot-swap `f6cb18f86`) |
+| Tip pin | 2026-11-22 — `cursor/v2711-truex-unsupported-bc54` after crown tip `376b5c309` (Truex G2-7 **UNSUPPORTED**; admit-court ABSENT on `truex@6ba97bd6`; no false `ALIVE`; prior hop-5/OOR pins retained as history) |
 | Hop-5 evidence | `/tmp/cursor/hop5-crossmount.md` (`bc-be2c9600`) |
 | Repo scope | `seanchatmangpt/ggen` — **tracks** sibling standing; does not execute sibling DO |
 
@@ -66,7 +66,7 @@ Photolithography / spine hops that require mounted siblings are included when ex
 
 | ID | Subject | Standing | Blocker | Next exact verifier | GA note |
 |----|---------|----------|---------|---------------------|---------|
-| G2-7 | **Truex** admits W3C `shui:` shapes (D3 product) | **UNKNOWN** | Sibling `seanchatmangpt/truex` unmounted; ggen prefix fence **ALIVE** on evidence ancestor `0478fde59` (tip source **4** `#[test]`; **tip-cargo PENDING** quiet cgroup — not tip exit 0) — fence ≠ Truex product | In **truex**: admit-court loading a `shui:`-prefixed shape graph → exit 0; private `truex:` still refused. ggen non-substitute: `cargo test -p ggen-graph --test shui_public_prefix_court` | RC-D3 crown needs Truex **and** ggen fence green |
+| G2-7 | **Truex** admits W3C `shui:` shapes (D3 product) | **UNSUPPORTED** | admit-court **ABSENT** on `seanchatmangpt/truex` @ `6ba97bd658bb85f490e201bc2fef122ac41b9337` (connector tree: zero `admit-court` / `shui:` court paths); ggen prefix fence **ALIVE** on evidence ancestor `0478fde59` (tip source **4** `#[test]`; **tip-cargo PENDING** quiet cgroup — not tip exit 0) — fence ≠ Truex product | **Author** in **truex**: admit-court loading a `shui:`-prefixed shape graph → exit 0; private `truex:` still refused. ggen non-substitute: `cargo test -p ggen-graph --test shui_public_prefix_court` | RC-D3 crown needs Truex **and** ggen fence green |
 | G2-8 | **zcode-cli** `ui-layout-court.ts` / `UiLayoutCourtAdapter` (D5) | **PARTIAL** (in-process **ALIVE**) + live **BLOCKED** | Sibling mounted `/agent/repos/zcode-cli`; in-process bun **35 passed; exit 0**; live needs `ggen-layout-court` (**ABSENT** on tip `07b689c97`) — adapter exit **2** `SUBJECT_MISSING` | Exact next: land `cargo run -p ggen-layout-court --bin layout_court -- fixtures/...` on tip **or** retarget `taffy_cmd`; then `UiLayoutCourtAdapter.verifyPostTransition(/agent/repos/ggen)` → exit **0**. Replay in-process: `bun test test/ui-layout-court.test.ts` ([`PHOTOLITHOGRAPHY-STANDING.md`](./PHOTOLITHOGRAPHY-STANDING.md) hop 5) | Taffy **PARTIAL** without live consume → photolithography non-ALIVE at GA |
 | G2-9 | **zcode-cli** Chicago POWL/OCEL + foundry loop | **PARTIAL** / live **BLOCKED** | Mounted; `bun scripts/powl-foundry-loop.ts --live` exit **1**; `powl-ocel-chicago` 1 fail (fitness 0.75); needs `ggen-layout-court` + Elixir/`mix` for igniter sync | Exact next: after G2-8 live exit 0 + `mix` present: `bun scripts/powl-foundry-loop.ts --live` → exit **0**; `bun test test/powl-ocel-chicago.test.ts` → exit **0** ([`ZCODE-POWL-OCEL-STANDING.md`](./ZCODE-POWL-OCEL-STANDING.md)) | Unbounded remediation at GA → **REFUSED** per R-06 / ECOSYSTEM |
 | G2-10 | **ggen_igniter** clean-room crown | **PARTIAL_ALIVE** (mounted + clean `git diff`) / manufacture **BLOCKED** | Checkout at `/agent/repos/ggen_igniter` (`git diff --exit-code` **0**); `mix` **ABSENT** → cannot run Jobs/C4 `mix ggen_igniter.sync --check` | Exact next: install Elixir/`mix`; `cd /agent/repos/ggen_igniter && mix ggen_igniter.sync --check` → exit **0** ([`IGNITER-CLEANROOM-STANDING.md`](./IGNITER-CLEANROOM-STANDING.md) §4) | Dirty igniter / missing mix at GA blocks photolithography hop 4 |
@@ -93,7 +93,7 @@ GA horizon for all courts: **2027-01-01**.
 | ID | Court | Delta | Standing (out-of-repo leg) | Blocker | Next exact verifier | GA note |
 |----|-------|-------|----------------------------|---------|---------------------|---------|
 | G3-1 | **RC-D1** | Zero-DOM WebGPU + FFB (D1) | **UNSUPPORTED** | No UI-plane repo mounted in ggen | Owner artifacts: [`ECOSYSTEM-SPEC-27.1.1.md`](./ECOSYSTEM-SPEC-27.1.1.md) §5 Mode A/B; [`GATE-3-RELEASE-COURTS-STANDING.md`](./GATE-3-RELEASE-COURTS-STANDING.md) RC-D1. In mounted UI-plane (Zero-DOM WebGPU / FFB) checkout: court that loads admitted ggen `AotSealReceipt` → paints Mode A canvas (or Mode B FFB) → exit 0; ambient DOM DO without BRCE+AS-01 → `REFUSED_*` | D1 required for GA per ECOSYSTEM §2 |
-| G3-2 | **RC-D3** | Truex `shui:` product | **UNKNOWN** | Same as G2-7 | Same as G2-7 (`shui:` admit-court in truex + ggen `shui_public_prefix_court`) | RC-D3 **ALIVE** needs Truex court + ggen fence |
+| G3-2 | **RC-D3** | Truex `shui:` product | **UNSUPPORTED** | Same as G2-7 (admit-court ABSENT on `truex@6ba97bd6`) | Same as G2-7 (**author** `shui:` admit-court in truex → exit 0 + ggen `shui_public_prefix_court`) | RC-D3 **ALIVE** needs Truex court + ggen fence |
 | G3-3 | **RC-D5** | zcode `ui-layout-court.ts` / live adapter | **PARTIAL** + live **BLOCKED** | Same as G2-8 (`ggen-layout-court` ABSENT) | Same as G2-8 (`UiLayoutCourtAdapter.verifyPostTransition` → exit 0) | RC-D5 ties to photolithography crown |
 | G3-4 | **RC-D6** | Plane 5 front doors | **UNKNOWN** / OUT OF SCOPE | Same as G2-1, G2-2, G2-5 | Same probe ladder as G2-1 + G2-2 + G2-5 (DNS/`readyz` + AS-01-gated BRCE receipt); [`REVOPS-COS-STANDING.md`](./REVOPS-COS-STANDING.md) §3–§4 | Never promote from ggen evidence alone |
 | G3-5 | **RC-D7** | Risks **R-01 … R-07** (D7) | **BLOCKED** (all seven bodies) | Sovereign risk-register bodies not mounted | Owner artifact: [`R01-R07-STANDING.md`](./R01-R07-STANDING.md) §2 crown matrix. Per ID R-01…R-07: admit body from sovereign risk register (no invention) → typed receipt **or** typed `REFUSED_*` before **2027-01-01**. In-repo contract fence only: `cargo test -p ggen-graph --test r01_r07_resolution_court` (does not close any body). | Hard GA gate; silent closure → **REFUSED_UNGROUNDED** |
@@ -163,7 +163,11 @@ ui-layout JSON fixture harness `6ab75e6a3` + rustfmt tip fmt gate
 crown tip `4e6ca0e2e` (post–gate1-retip `c4dd9729c` + ui-layout
 expect-free/ALIVE/tidy `30b30d70c`/`07b689c97`/`4e6ca0e2e`; full
 standing retip content + newest Observed tip SHA; standings held — no
-capability row promoted; no false `ALIVE`). Tip pin retipped on `cursor/v2711-hop5-standing-bc54` onto live crown tip `f6cb18f86` (brand hot-swap `f6cb18f86` + castle `32f2e316f` + CCS/revops/oor ancestors); hop-5 **PARTIAL** evidence retained (in-process ALIVE + live BLOCKED; evidence tip `07b689c97`); standings held — no capability row promoted; no false `ALIVE`). Standings synthesized from
+capability row promoted; no false `ALIVE`). Tip pin retipped on `cursor/v2711-hop5-standing-bc54` onto live crown tip `f6cb18f86` (brand hot-swap `f6cb18f86` + castle `32f2e316f` + CCS/revops/oor ancestors); hop-5 **PARTIAL** evidence retained (in-process ALIVE + live BLOCKED; evidence tip `07b689c97`); standings held — no capability row promoted; no false `ALIVE`). Tip pin retipped on
+`cursor/v2711-truex-unsupported-bc54` to live crown tip `376b5c309`
+(Truex product admit G2-7 / Gate-1 row **UNSUPPORTED** — admit-court
+**ABSENT** on `truex@6ba97bd6`; next = author admit-court `shui:` graph
+exit 0; standings otherwise held — no false `ALIVE`). Standings synthesized from
 existing v27.1.1 standing ledgers only. No sibling court was executed in this
 workspace pass. No out-of-repo row is asserted `ALIVE`. Tracked rows remain
 **25** (`G0-1…4`, `G2-1…16`, `G3-1…5`).
