@@ -142,7 +142,7 @@ Court **ALIVE** on evidence tip `eaf0dad40` (`bc-c7c9d554`: `cargo test -p ggen-
 |------|------|
 | *(sibling)* `seanchatmangpt/ggen_igniter` | Clean-room / manufacture subject — **out-of-repo**; mount **PRESENT** at `/home/ubuntu/ggen_igniter` (HEAD `b5a15528…`) |
 | `docs/rfc/v27.1.1/fixtures/fourth-watch.brand.toml` | Dual-schema tip brand (`[rhythm]` + DTCG `[primitive.space]`) — BrandTheme manufacture input |
-| BrandTheme manufacture compare | **ALIVE** — tip emit vs igniter fixture CSS; compare-subject `git diff --exit-code` → **0** (`/tmp/cursor/igniter-real-cleanroom.md`) |
+| BrandTheme manufacture compare | **ALIVE** — tip emit vs igniter fixture CSS; compare-subject `git diff --exit-code` → **0** (`/tmp/cursor/igniter-hop4-manufacture-alive.md`; prior `igniter-real-cleanroom.md`) |
 | `git diff --exit-code` (bare mount) | Clean-tree **checkpoint** (exit **0**) — antifalsifier: alone ≠ hop-4 `ALIVE` |
 | `mix ggen_igniter.sync --check` | **BLOCKED** residual (NIF/oxrocksdb) |
 | `docs/reference/gate-conventions.md` | ggen vs ggen_igniter gate scoring orientation |
@@ -195,7 +195,7 @@ mix SUBJECT_MISSING after layout_court PRESENT + spatial PASS.
 | Hop 1 `ALIVE` | Product perimeter + ggen fence both execute with typed admit/refuse | Vocab constants alone |
 | Hop 3 `ALIVE` as photolithography | ggen seal **and** consumer (zcode/igniter) consumes `AotSealReceipt` | `taffy_aot_preflight_court` green alone |
 | Hop 3b `ALIVE` | `ui_layout_court` **8 passed; exit 0** on evidence `eaf0dad40` (this ledger; ancestor); tip land `7c0ba2a90`; tip source **11** `#[test]`; **tip-cargo PENDING** quiet cgroup on `5e00619a4` | Presence alone; inventing tip exit 0 without quiet cargo evidence |
-| Hop 4 `ALIVE` | Mounted `ggen_igniter` + **manufacture compare** (tip dual-schema BrandTheme emit vs igniter fixture) exit 0, then `git diff --exit-code` on that comparison subject — **met** 2026-11-22 (`diff_exit=0`; `/tmp/cursor/igniter-real-cleanroom.md`) | Bare post-clone `git diff --exit-code`; GALL `gall_observe_clean_room`; docs citing the sibling; clean-tree checkpoint alone; igniter-fixture-only idempotent emit |
+| Hop 4 `ALIVE` | Mounted `ggen_igniter` + **manufacture compare** (tip dual-schema BrandTheme emit vs igniter fixture) exit 0, then `git diff --exit-code` on that comparison subject — **met** 2026-11-22 (`diff_exit=0`; reconfirm `/tmp/cursor/igniter-hop4-manufacture-alive.md` @ `28c3f4d845`; prior `igniter-real-cleanroom.md`) | Bare post-clone `git diff --exit-code`; GALL `gall_observe_clean_room`; docs citing the sibling; clean-tree checkpoint alone; igniter-fixture-only idempotent emit |
 | Hop 5 `ALIVE` | Default live `UiLayoutCourtAdapter` exit 0 **and** `powl-foundry-loop --live` exit 0 against pinned ggen tip with `ggen-layout-court` present | In-process bun alone; hop-3b fence alone; `ggen-layout-court` **PRESENT** alone; `requireCleanRoom: false` exit 0; adapter exit 0 while foundry `--live` open |
 | **Path `ALIVE`** | Hops 1–5 all `ALIVE` with linked receipts | This ledger file; hop-3b presence alone |
 
@@ -229,7 +229,8 @@ cd /home/ubuntu/ggen_igniter && git diff --exit-code
 # tip dual-schema docs/rfc/v27.1.1/fixtures/fourth-watch.brand.toml
 #   → BrandTheme emit vs igniter test/fixtures/brand_theme/fourth-watch.brand.toml
 #   → git diff --exit-code on compare subject → 0
-# evidence: /tmp/cursor/igniter-real-cleanroom.md
+# evidence: /tmp/cursor/igniter-hop4-manufacture-alive.md (reconfirm @ 28c3f4d845)
+# prior: /tmp/cursor/igniter-real-cleanroom.md
 # antifalsifier: bare git diff --exit-code post-clone ≠ ALIVE
 # residual: mix ggen_igniter.sync --check (NIF) still BLOCKED
 
