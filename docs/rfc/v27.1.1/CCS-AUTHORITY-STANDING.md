@@ -6,9 +6,9 @@
 | Companion | `ECOSYSTEM-SPEC-27.1.1` (planes / Gate schedule); `AGENTS.md` §3 Manufacture and authority |
 | Status | MATERIALIZED standing ledger (not an execution receipt) |
 | Materialized | 2026-11-22 |
-| Observed tip | crown @ `fe72be0fbc8e37cff6db04e08f64732273b7c893` (`fe72be0fb` ⊇ VW+Smalt + OOR retip11 `f5f44571f`/`6a3a623ba`; clause-2 tip-wins absorb) |
+| Observed tip | crown @ `8a63c6e98db646a6388f85bc4acb9859a152ec2a` (`8a63c6e98`; ⊇ Foundry HITL Retip3 `6f920670f` + Gate honesty matrix; clause-2 Retip3) |
 | Base (main) | `origin/main` @ `d173cad5792e837bd4fec730d120c582b9bc5d4c` |
-| Tip pin | 2026-11-22 — tip-wins absorb `cursor/v2711-brce-v8-bodies-bc54` @ `e54d58bac` onto crown `fe72be0fb`: CCS #2/#3 tip-cargo **ALIVE** retained; seat fence **ALIVE** @ `e7569893a`; **V8**/**V9** OOR **BLOCKED** + R-01…R-07 bodies **BLOCKED** with owners/HITL; no cargo; no invented V8/`bodies` `ALIVE` |
+| Tip pin | 2026-11-22 — push-first Retip3 `cursor/v2711-brce-webauthn-retip3-bc54` (`bc-0c5da999`) from crown tip `8a63c6e98`: CCS #2/#3 tip-cargo **ALIVE** retained; seat fence **ALIVE** @ `e7569893a`; **V8**/**V9** OOR **BLOCKED** + live WebAuthn **UNSUPPORTED** + R-01…R-07 bodies **BLOCKED**; humans-only-at-~8-CCS remains **PARTIAL_ALIVE** until BRCE+WebAuthn seal EXIT **0**; CASTLE wire **ALIVE**/`WIRED` retained; no cargo; no invented V8/`bodies`/Foundry `ALIVE` |
 | Live filename | `CCS-AUTHORITY-STANDING.md` (~8 CCS ledger); Clause-2 crown binder [`CCS-BRCE-STANDING.md`](./CCS-BRCE-STANDING.md) |
 | Repo | `seanchatmangpt/ggen` |
 
@@ -181,3 +181,29 @@ held CCS #2 tip-cargo **PENDING**. **This land** `cursor/v2711-write-apply-alive
 CCS #3 `construct_hash_gate` **ALIVE** (retained); live WebAuthn **UNSUPPORTED**;
 live BRCE broker **BLOCKED** (**V8** unchanged); Plane-5 DO **BLOCKED** (**V9**/G2-5 unchanged).
 Clause-2 binder: [`CCS-BRCE-STANDING.md`](./CCS-BRCE-STANDING.md). Goal **ACTIVE**; OOR stays **BLOCKED**.
+
+---
+
+## 9. Honesty Retip3 (2026-11-22) — `cursor/v2711-brce-webauthn-retip3-bc54`
+
+| Field | Value |
+|-------|-------|
+| Base | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `8a63c6e98db646a6388f85bc4acb9859a152ec2a` (`8a63c6e98`) |
+| Sidebranch | `cursor/v2711-brce-webauthn-retip3-bc54` |
+| Agent | `bc-0c5da999` |
+| UTC | `2026-11-22T18:09:04Z` |
+| Cargo / tip-cargo | **NOT RUN** (docs-only; Gate1 tip6 owns thrash) |
+
+### Humans-only-at-~8-CCS claim (CCS #1 seal)
+
+**PARTIAL_ALIVE** — fences/fixtures tip-cargo **ALIVE** where previously proven (CCS #2/#3, V1 seat, V7 fixture). Live WebAuthn **UNSUPPORTED** + BRCE **V8** **BLOCKED** ⇒ the exclusive CONSTRUCT→DO seal is **not** sealed `ALIVE`. Do **not** promote humans-only-at-~8-CCS to sealed `ALIVE` until BRCE+WebAuthn courts exit **0**.
+
+| Claim | Standing |
+|-------|----------|
+| CCS #1 BRCE + WebAuthn AS-01 path | **PARTIAL_ALIVE** (not sealed) |
+| Live WebAuthn ceremony | **UNSUPPORTED** — [`WEBAUTHN-LIVE-NEXT-VERIFIER-STANDING.md`](./WEBAUTHN-LIVE-NEXT-VERIFIER-STANDING.md) §3 |
+| BRCE **V8** broker | **BLOCKED** — [`BRCE-V8-NEXT-VERIFIER-STANDING.md`](./BRCE-V8-NEXT-VERIFIER-STANDING.md) §3 |
+| CASTLE digest-bind wire | **ALIVE**/`WIRED` retained — ≠ CCS #1 seal |
+| Foundry / zero-HITL | **PARTIAL** — **no** Foundry `ALIVE` |
+
+**Exact next (held — do not invent):** WebAuthn §3 exit **0** → V8 §3 exit **0** → then CCS #1 may advance; until then **PARTIAL_ALIVE**. Push-first; tip-wins FF if race-safe. No ManagePullRequest; no force-push.

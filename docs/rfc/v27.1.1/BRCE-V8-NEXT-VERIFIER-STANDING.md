@@ -3,13 +3,13 @@
 | Field | Value |
 |-------|-------|
 | Document ID | `BRCE-V8-NEXT-VERIFIER-STANDING-27.1.1` |
-| Branch | tip-wins absorb `cursor/v2711-brce-v8-retip-bc54` @ `7a7581393` onto crown tip `2bee92cd6` via `cursor/v2711-brce-v8-retip-absorb-08f2` (⊇ HITL action-card `8629691f8` + perimeter path `2bee92cd6`; prior tip-wins absorb `d90d0189f` / `8d761d8a1`) |
+| Branch | push-first Retip3 `cursor/v2711-brce-webauthn-retip3-bc54` (`bc-0c5da999`) from crown tip `8a63c6e98` (⊇ Foundry HITL Retip3 `6f920670f` + Gate honesty matrix; prior tip-wins absorb `cursor/v2711-brce-v8-retip-absorb-08f2` / `7a7581393` retained) |
 | Spec binding | `ECOSYSTEM-SPEC-27.1.1` §13.2 Clause 2 — BRCE broker admits intent only with verified AS-01 seat |
-| Companions | [`BRCE-WEBAUTHN-STANDING.md`](./BRCE-WEBAUTHN-STANDING.md) §5 **V8**; [`CCS-BRCE-STANDING.md`](./CCS-BRCE-STANDING.md) §2; [`WEBAUTHN-LIVE-NEXT-VERIFIER-STANDING.md`](./WEBAUTHN-LIVE-NEXT-VERIFIER-STANDING.md) §3; [`R01-R07-STANDING.md`](./R01-R07-STANDING.md) §2; [`R01-R07-BODIES-NEXT-VERIFIER-STANDING.md`](./R01-R07-BODIES-NEXT-VERIFIER-STANDING.md); [`OUT-OF-REPO-NEXT-VERIFIERS.md`](./OUT-OF-REPO-NEXT-VERIFIERS.md) **G2-3** |
-| Observed ggen tip (absorb base) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `2bee92cd6827e77e4d8465dbeb834d43484eb675` (`2bee92cd6`; ⊇ HITL Founder action card §8 + perimeter→ttl/toml path honesty) |
+| Companions | [`BRCE-WEBAUTHN-STANDING.md`](./BRCE-WEBAUTHN-STANDING.md) §5 **V8**; [`CCS-BRCE-STANDING.md`](./CCS-BRCE-STANDING.md) §2; [`WEBAUTHN-LIVE-NEXT-VERIFIER-STANDING.md`](./WEBAUTHN-LIVE-NEXT-VERIFIER-STANDING.md) §3; [`R01-R07-STANDING.md`](./R01-R07-STANDING.md) §2; [`R01-R07-BODIES-NEXT-VERIFIER-STANDING.md`](./R01-R07-BODIES-NEXT-VERIFIER-STANDING.md); [`OUT-OF-REPO-NEXT-VERIFIERS.md`](./OUT-OF-REPO-NEXT-VERIFIERS.md) **G2-3**; [`CASTLE-SPINE-STANDING.md`](./CASTLE-SPINE-STANDING.md) §14 wire **ALIVE**/`WIRED` |
+| Observed ggen tip (Retip3 base) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `8a63c6e98db646a6388f85bc4acb9859a152ec2a` (`8a63c6e98`; ⊇ Foundry HITL Retip3 `6f920670f` + Gate honesty matrix @ `9c56420dd`) |
 | Prior tip observation | Sidebranch honesty retip on `893070836` @ `7a7581393` (`bc-4de06fe4`); tip-wins absorb retains **BLOCKED** / **UNSUPPORTED** honesty — **no** V8 / body / live-crypto `ALIVE` |
-| Cargo / tip-cargo | **NOT RUN** (docs-only honesty retip absorb) |
-| Status | LEDGER — **V8** broker **BLOCKED** until broker admit; R-01…R-07 bodies **BLOCKED**; live WebAuthn **UNSUPPORTED**; R-01…R-07 *contract* tip-cargo **ALIVE** retained (**7** @ `e7569893a`); **no** V8 / body / live-crypto `ALIVE` |
+| Cargo / tip-cargo | **NOT RUN** (docs-only honesty Retip3; Gate1 tip6 owns thrash) |
+| Status | LEDGER — **V8** broker **BLOCKED** until broker admit; R-01…R-07 bodies **BLOCKED**; live WebAuthn **UNSUPPORTED**; CASTLE wire **ALIVE**/`WIRED` retained; R-01…R-07 *contract* tip-cargo **ALIVE** retained (**7** @ `e7569893a`); **no** V8 / body / live-crypto / Foundry `ALIVE` |
 
 Standing vocabulary: `UNKNOWN` | `PARTIAL_ALIVE` | `ALIVE` | `BLOCKED` | `BUILD_BROKEN` | `UNSUPPORTED` | `REFUSED_*`.
 
@@ -177,3 +177,45 @@ CARGO_BUILD_JOBS=1 cargo test -p ggen-graph --test r01_r07_resolution_court \
 ```
 
 **Non-claims:** this retip / tip-wins absorb does **not** invent V8 / body / live-crypto / Plane-5 `ALIVE`. Tip-wins absorb onto crown via `cursor/v2711-brce-v8-retip-absorb-08f2` — standing **not** promoted (**V8** **BLOCKED**; bodies **BLOCKED**; WebAuthn **UNSUPPORTED**; contract **ALIVE** retained). No ManagePullRequest; no force-push.
+
+---
+
+## 7. Honesty Retip3 (2026-11-22) — `cursor/v2711-brce-webauthn-retip3-bc54`
+
+| Field | Value |
+|-------|-------|
+| Base (Retip3) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `8a63c6e98db646a6388f85bc4acb9859a152ec2a` (`8a63c6e98`; ⊇ Foundry HITL Retip3 `6f920670f`) |
+| Sidebranch | `cursor/v2711-brce-webauthn-retip3-bc54` |
+| Agent | `bc-0c5da999` (`https://cursor.com/agents/bc-0c5da999-1286-51bb-8305-5ed30272244d`) |
+| UTC | `2026-11-22T18:09:04Z` |
+| Cargo / tip-cargo | **NOT RUN** (docs-only honesty Retip3; Gate1 tip6 owns thrash) |
+
+### Standing (this Retip3) — no false `ALIVE`
+
+| Claim | Standing |
+|-------|----------|
+| **V8** BRCE broker (G2-3) | **BLOCKED** until Founder HITL mounts broker + completes live WebAuthn AS-01 admit (§3 court exit **0**) |
+| R-01…R-07 *bodies* (G3-5 / V10) | **BLOCKED** (sovereign risk-register unmounted) |
+| Live WebAuthn / FIDO2 RP + hardware (G2-4) | **UNSUPPORTED** |
+| CASTLE digest-bind wire | **ALIVE**/`WIRED` retained ([`CASTLE-SPINE-STANDING.md`](./CASTLE-SPINE-STANDING.md) §14 @ castle `e0d99c6`) — ≠ V8 / Foundry |
+| R-01…R-07 *contract* fence | tip-cargo **ALIVE** retained (**7** @ `e7569893a`) — contract ≠ body / V8 |
+| V1 seat fence / V7 ES256 fixture | tip-cargo / land **ALIVE** retained — fence ≠ broker `ALIVE` |
+| Humans-only-at-~8-CCS (CCS #1 seal) | **PARTIAL_ALIVE** until BRCE+WebAuthn seal EXIT **0** — **not** sealed `ALIVE` |
+| Plane-5 **V9** (G2-5) / Foundry crown | **BLOCKED** / **PARTIAL** — **no** Foundry `ALIVE` |
+
+### Exact next verifier commands (held; unchanged — do not invent)
+
+**V8 / G2-3 (broker admit — until then BLOCKED):** cite §3 verbatim — Founder HITL mounted BRCE broker court: intent without AS-01 → `REFUSED_*`; with verified seat → execution receipt + replay digest → exit **0**.
+
+**Live WebAuthn / G2-4 (until then UNSUPPORTED):** [`WEBAUTHN-LIVE-NEXT-VERIFIER-STANDING.md`](./WEBAUTHN-LIVE-NEXT-VERIFIER-STANDING.md) §3 ceremony court → exit **0**.
+
+**Bodies / G3-5 (until then BLOCKED):**
+
+```bash
+# Founder HITL — admit sovereign risk-register → per-ID typed receipt or REFUSED_*
+# In-repo contract replay only (non-substitute):
+CARGO_BUILD_JOBS=1 cargo test -p ggen-graph --test r01_r07_resolution_court \
+  --locked --config build.jobs=1 -- --test-threads=1
+```
+
+**Non-claims:** this Retip3 does **not** invent V8 / body / live-crypto / Plane-5 / Foundry `ALIVE`. Push-first sidebranch; tip-wins FF absorb if race-safe else leave for settle. No ManagePullRequest; no force-push; no cargo.

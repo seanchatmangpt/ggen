@@ -6,10 +6,10 @@
 | Branch | tip-wins absorb of `cursor/v2711-brce-bodies-next-bc54` @ `4f9a3685e` (bodies pin `6e227c187`; prior absorb `ba5d26903`/`21e4cb941` content-≡) onto crown via `cursor/v2711-timer-settle-bb41` |
 | Spec binding | `ECOSYSTEM-SPEC-27.1.1` §11 / D7; OOR **G3-5** / BRCE **V10** |
 | Companions | [`R01-R07-STANDING.md`](./R01-R07-STANDING.md) §2; [`R01-R07-TIP-CARGO-STANDING.md`](./R01-R07-TIP-CARGO-STANDING.md); [`BRCE-V8-NEXT-VERIFIER-STANDING.md`](./BRCE-V8-NEXT-VERIFIER-STANDING.md); [`BRCE-WEBAUTHN-STANDING.md`](./BRCE-WEBAUTHN-STANDING.md) §5 **V10**; [`CCS-BRCE-STANDING.md`](./CCS-BRCE-STANDING.md) §2; [`OUT-OF-REPO-NEXT-VERIFIERS.md`](./OUT-OF-REPO-NEXT-VERIFIERS.md) **G3-5** |
-| Observed ggen tip (side base) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `bebea5dd0d4c9af533457e04e0ed068ae8844f69` (⊇ HITL retip2 **BLOCKED_HITL** + zcode refusal **ALIVE** + OOR retip14) |
-| Honesty retip tip | `cursor/v2711-brce-v8-retip-bc54` @ `7a7581393` on `893070836` — companion absorb via `cursor/v2711-brce-v8-retip-absorb-08f2` onto crown tip `2bee92cd6` |
-| Probe id | `bc-6fa5335f` (pin); retip `bc-4de06fe4`; absorb `bc-172dc079` |
-| Cargo / tip-cargo | **NOT RUN** (docs-only honesty pin / retip absorb) |
+| Observed ggen tip (Retip3 base) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `8a63c6e98db646a6388f85bc4acb9859a152ec2a` (`8a63c6e98`; ⊇ Foundry HITL Retip3 `6f920670f` + Gate honesty matrix) |
+| Honesty retip tip | push-first Retip3 `cursor/v2711-brce-webauthn-retip3-bc54` (`bc-0c5da999`); prior `cursor/v2711-brce-v8-retip-bc54` @ `7a7581393` / absorb `2bee92cd6` retained in lineage |
+| Probe id | `bc-6fa5335f` (pin); retip `bc-4de06fe4`; absorb `bc-172dc079`; Retip3 `bc-0c5da999` |
+| Cargo / tip-cargo | **NOT RUN** (docs-only honesty Retip3; Gate1 tip6 owns thrash) |
 | Status | LEDGER — all seven *bodies* **BLOCKED** (sovereign risk-register unmounted); resolution *contract* tip-cargo **ALIVE** retained (**7** @ `e7569893a`); **no** body / V8 / live-ceremony `ALIVE` |
 
 Standing vocabulary: `UNKNOWN` | `PARTIAL_ALIVE` | `ALIVE` | `BLOCKED` | `BLOCKED_HITL` | `BUILD_BROKEN` | `UNSUPPORTED` | `REFUSED_*`.
@@ -170,3 +170,28 @@ V8 residual (orthogonal): [`BRCE-V8-NEXT-VERIFIER-STANDING.md`](./BRCE-V8-NEXT-V
 CARGO_BUILD_JOBS=1 cargo test -p ggen-graph --test r01_r07_resolution_court \
   --locked --config build.jobs=1 -- --test-threads=1
 ```
+
+---
+
+## 8. Honesty Retip3 (2026-11-22) — companion of `cursor/v2711-brce-webauthn-retip3-bc54`
+
+| Field | Value |
+|-------|-------|
+| Base (Retip3) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `8a63c6e98db646a6388f85bc4acb9859a152ec2a` (`8a63c6e98`) |
+| Sidebranch | `cursor/v2711-brce-webauthn-retip3-bc54` |
+| Agent | `bc-0c5da999` |
+| UTC | `2026-11-22T18:09:04Z` |
+| Cargo / tip-cargo | **NOT RUN** (docs-only; Gate1 tip6 owns thrash) |
+
+### Standing (this Retip3) — no false `ALIVE`
+
+| Claim | Standing |
+|-------|----------|
+| R-01…R-07 *bodies* | **BLOCKED** (all seven) — sovereign risk-register unmounted |
+| R-01…R-07 *contract* | tip-cargo **ALIVE** retained (**7** @ `e7569893a`) |
+| BRCE **V8** broker | **BLOCKED** (orthogonal; broker unmounted) |
+| Live WebAuthn | **UNSUPPORTED** |
+| CASTLE digest-bind wire | **ALIVE**/`WIRED` retained — ≠ body closure |
+| Humans-only-at-~8-CCS | **PARTIAL_ALIVE** until BRCE+WebAuthn seal EXIT **0** |
+
+**Exact next (bodies — §4 held unchanged):** Founder HITL admits sovereign risk-register → per-ID typed receipt or `REFUSED_*` before **2027-01-01**. Push-first; tip-wins FF if race-safe. No ManagePullRequest; no force-push; **no** body/`ALIVE`.

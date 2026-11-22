@@ -404,3 +404,27 @@ curl -sS -w '\nhttp=%{http_code}\n' https://cos.fnox.io/readyz   # need HTTP 200
 ```
 
 Do **not** promote Foundry / zero-HITL `ALIVE` from this retip or tip-wins absorb. Do **not** ManagePullRequest on #849.
+
+---
+
+## 15. Honesty Retip3 (2026-11-22) — companion of `cursor/v2711-brce-webauthn-retip3-bc54`
+
+| Field | Value |
+|-------|-------|
+| Base (ggen Retip3) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `8a63c6e98db646a6388f85bc4acb9859a152ec2a` (`8a63c6e98`) |
+| Sidebranch (ggen) | `cursor/v2711-brce-webauthn-retip3-bc54` |
+| Agent | `bc-0c5da999` |
+| UTC | `2026-11-22T18:09:04Z` |
+| Cargo / tip-cargo | **NOT RUN** (docs-only BRCE+WebAuthn honesty Retip3; Gate1 tip6 owns thrash) |
+
+### Standing held (CASTLE wire — this Retip3)
+
+| Claim | Standing |
+|-------|----------|
+| CASTLE digest-bind production wire | **ALIVE**/`WIRED` retained @ castle `e0d99c6` (§14 EXIT **0** held; not re-cargoed) |
+| Sibling mint / redaction / brand courts | **ALIVE** retained historical @ `2774039ea` / `bc-1bffb072` |
+| CASTLE horizontal-spine (crown) | **PARTIAL_ALIVE** (wire **ALIVE**/`WIRED`; Foundry crown still open) |
+| BRCE **V8** / live WebAuthn | **BLOCKED** / **UNSUPPORTED** (orthogonal — see BRCE/WebAuthn Retip3) |
+| Foundry / zero-HITL crown | **PARTIAL** — **not** promoted from wire or this Retip3 |
+
+**Exact next (held §14.2 — do not invent):** optional castle wire replay @ `e0d99c6` (`publish_digest_bind_court` → **6/6** exit **0**; spine-probe + `--ggen-layout-digest`); LinkedIn still **BLOCKED** on cos `/readyz` **200** ∧ 2× durable LOW. Do **not** invent Foundry `ALIVE`.

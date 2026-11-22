@@ -3,12 +3,12 @@
 | Field | Value |
 |-------|-------|
 | Document ID | `WEBAUTHN-LIVE-NEXT-VERIFIER-STANDING-27.1.1` |
-| Branch | tip-wins absorb of `cursor/v2711-webauthn-retip2-bc54` @ `7ac7fee56` via `cursor/v2711-bodies-tip-absorb-1d17` (prior tip-wins absorb `cursor/v2711-webauthn-next-bc54` @ `15854bbe2` → crown `33a5420ad` / `a7e190400` retained in lineage) |
+| Branch | push-first Retip3 `cursor/v2711-brce-webauthn-retip3-bc54` (`bc-0c5da999`) from crown tip `8a63c6e98` (prior tip-wins absorb of `cursor/v2711-webauthn-retip2-bc54` @ `7ac7fee56` via `cursor/v2711-bodies-tip-absorb-1d17` retained) |
 | Spec binding | `ECOSYSTEM-SPEC-27.1.1` §13.2 Clause 2 — CCS / BRCE + WebAuthn AS-01 |
 | Companions | [`BRCE-WEBAUTHN-STANDING.md`](./BRCE-WEBAUTHN-STANDING.md) §5 V7–V9; [`CCS-BRCE-STANDING.md`](./CCS-BRCE-STANDING.md); [`CCS-AUTHORITY-STANDING.md`](./CCS-AUTHORITY-STANDING.md) CCS #1; [`OUT-OF-REPO-NEXT-VERIFIERS.md`](./OUT-OF-REPO-NEXT-VERIFIERS.md) **G2-4** (→ **G2-3**/**G2-5**); [`BRCE-V8-NEXT-VERIFIER-STANDING.md`](./BRCE-V8-NEXT-VERIFIER-STANDING.md) |
-| Observed ggen tip (retip2 base) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `bebea5dd0d4c9af533457e04e0ed068ae8844f69` (`bebea5dd0`; ⊇ HITL retip2 BLOCKED_HITL absorb + zcode refusal ALIVE + OOR retip14) |
-| Prior tip observation | Sidebranch probe tip `d0fec2f2f`; tip-wins absorb `33a5420ad` on `a7e190400`; retip2 re-pins honesty on `bebea5dd0+` — live WebAuthn remains **UNSUPPORTED** |
-| Cargo / tip-cargo | **NOT RUN** (docs-only honesty pin / retip2) |
+| Observed ggen tip (Retip3 base) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `8a63c6e98db646a6388f85bc4acb9859a152ec2a` (`8a63c6e98`; ⊇ Foundry HITL Retip3 `6f920670f` + Gate honesty matrix) |
+| Prior tip observation | Sidebranch probe tip `d0fec2f2f`; tip-wins absorb `33a5420ad` on `a7e190400`; retip2 re-pins honesty on `bebea5dd0+` — live WebAuthn remains **UNSUPPORTED**; Retip3 re-pins on `8a63c6e98` — still **UNSUPPORTED** |
+| Cargo / tip-cargo | **NOT RUN** (docs-only honesty Retip3; Gate1 tip6 owns thrash) |
 | Status | LEDGER — live/production WebAuthn ceremony **UNSUPPORTED**; BRCE **V8** **BLOCKED** ahead of **V9**; **not** CONSTRUCT→DO / Plane-5 / live-crypto `ALIVE` |
 
 Standing vocabulary: `UNKNOWN` | `PARTIAL_ALIVE` | `ALIVE` | `BLOCKED` | `BUILD_BROKEN` | `UNSUPPORTED` | `REFUSED_*`.
@@ -177,3 +177,28 @@ Plane-5 probe detail: [`OUT-OF-REPO-NEXT-VERIFIERS.md`](./OUT-OF-REPO-NEXT-VERIF
 | R-01…R-07 *contract* | tip-cargo **ALIVE** retained (**7** @ `e7569893a`) |
 
 **Exact next (unchanged §3):** Founder HITL admit RP-ID → enroll hardware → live assertion court (`clientDataJSON` + `authenticatorData` + ES256/`prime256v1`) — known-good → exit **0**; tampered / missing RP-ID / alg≠ES256 → `REFUSED_*`. Then **V8** broker court ([`BRCE-V8-NEXT-VERIFIER-STANDING.md`](./BRCE-V8-NEXT-VERIFIER-STANDING.md) §3 / §6). Tip-wins absorb via `cursor/v2711-brce-v8-retip-absorb-08f2` — standing **not** promoted.
+
+---
+
+## 8. Honesty Retip3 (2026-11-22) — `cursor/v2711-brce-webauthn-retip3-bc54`
+
+| Field | Value |
+|-------|-------|
+| Base (Retip3) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `8a63c6e98db646a6388f85bc4acb9859a152ec2a` (`8a63c6e98`) |
+| Sidebranch | `cursor/v2711-brce-webauthn-retip3-bc54` |
+| Agent | `bc-0c5da999` |
+| UTC | `2026-11-22T18:09:04Z` |
+| Cargo / tip-cargo | **NOT RUN** (docs-only; Gate1 tip6 owns thrash) |
+
+### Standing (this Retip3) — no false `ALIVE`
+
+| Claim | Standing |
+|-------|----------|
+| Live WebAuthn / FIDO2 RP + hardware ceremony (G2-4) | **UNSUPPORTED** — **not** promoted; do **not** invent `ALIVE` |
+| BRCE **V8** broker (G2-3) | **BLOCKED** (broker unmounted; after §3) |
+| R-01…R-07 *bodies* | **BLOCKED** |
+| CASTLE digest-bind wire | **ALIVE**/`WIRED` retained — ≠ live WebAuthn / V8 |
+| Humans-only-at-~8-CCS (CCS #1) | **PARTIAL_ALIVE** until BRCE+WebAuthn seal EXIT **0** |
+| Plane-5 **V9** (G2-5) / Foundry | **BLOCKED** / **PARTIAL** — **no** Foundry `ALIVE` |
+
+**Exact next (unchanged §3):** Founder HITL admit RP-ID → enroll hardware → live assertion court (`clientDataJSON` + `authenticatorData` + ES256/`prime256v1`) — known-good → exit **0**; tampered / missing RP-ID / alg≠ES256 → `REFUSED_*`. Then **V8** ([`BRCE-V8-NEXT-VERIFIER-STANDING.md`](./BRCE-V8-NEXT-VERIFIER-STANDING.md) §3). Push-first; tip-wins FF if race-safe. No ManagePullRequest; no force-push; **no** invented live-crypto / V8 / Foundry `ALIVE`.

@@ -4,8 +4,8 @@
 |-------|-------|
 | Document ID | `BRCE-WEBAUTHN-STANDING` |
 | Spec binding | `ECOSYSTEM-SPEC-27.1.1` §1.1 / Plane 5 |
-| Observed tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `fe72be0fbc8e37cff6db04e08f64732273b7c893` (⊇ VW absorb `fe72be0fb` + Smalt `9173c6529` + OOR retip11 `f5f44571f`/`6a3a623ba`; seat exact tip-cargo evidence `e7569893a`) |
-| Tip pin | 2026-11-22 — tip-wins absorb `cursor/v2711-brce-v8-bodies-bc54` @ `e54d58bac` onto crown `fe72be0fb`: V1 seat fence tip-cargo **ALIVE** retained (**6 passed; exit 0** @ `e7569893a`; [`BRCE-AS01-SEAT-TIP-CARGO-STANDING.md`](./BRCE-AS01-SEAT-TIP-CARGO-STANDING.md)); V7 fixture land retained @ `fb6e7fc6e`. Live WebAuthn crypto **UNSUPPORTED**; broker **V8** **BLOCKED** (exact next §5; owner **BRCE**; Founder HITL); Plane-5 **V9** **BLOCKED**. **No** invented V8 `ALIVE`. |
+| Observed tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `8a63c6e98db646a6388f85bc4acb9859a152ec2a` (`8a63c6e98`; ⊇ Foundry HITL Retip3 `6f920670f` + Gate honesty matrix; prior VW/Smalt/OOR/CASTLE; seat exact tip-cargo evidence `e7569893a`) |
+| Tip pin | 2026-11-22 — push-first Retip3 `cursor/v2711-brce-webauthn-retip3-bc54` (`bc-0c5da999`) from crown tip `8a63c6e98`: V1 seat fence tip-cargo **ALIVE** retained (**6** @ `e7569893a`); V7 fixture land retained @ `fb6e7fc6e`; CASTLE wire **ALIVE**/`WIRED` retained. Live WebAuthn crypto **UNSUPPORTED**; broker **V8** **BLOCKED** (exact next §5; owner **BRCE**; Founder HITL); Plane-5 **V9** **BLOCKED**; humans-only-at-~8-CCS remains **PARTIAL_ALIVE**. **No** invented V8 / Foundry `ALIVE`. |
 | Live filename | `BRCE-WEBAUTHN-STANDING.md` (AS-01 / V1–V11); Clause-2 crown binder [`CCS-BRCE-STANDING.md`](./CCS-BRCE-STANDING.md) |
 | Target GA | **2027-01-01** |
 | Slice standing | **PARTIAL_ALIVE** (doctrine + V1 presence fence + **V7 fixture crypto-shape**); live BRCE broker / live WebAuthn ceremony / Plane-5 DO still **BLOCKED** / **UNSUPPORTED** — never claim Plane-5 `ALIVE` from this land |
@@ -164,4 +164,30 @@ named claim.
 | Ungated DO without seat typed refusal | V1 seat fence exact tip-cargo **ALIVE** (**6** @ `e7569893a`); path still ≠ broker |
 | R-01…R-07 bodies (V10) | **BLOCKED** — OOR **G3-5**; contract fence ≠ body closure |
 | Whole AS-01 CONSTRUCT→DO path | **PARTIAL_ALIVE** → next falsifiers **V8–V11** + OOR **G2-3/G2-5** (G2-4 production still **UNSUPPORTED** beyond fixture) through GA |
-| Observed tip | tip-wins absorb `cursor/v2711-brce-v8-bodies-bc54` @ `e54d58bac` onto crown `fe72be0fb` (⊇ VW/Smalt/OOR/CASTLE; docs-only; no cargo) |
+| Observed tip | push-first Retip3 `cursor/v2711-brce-webauthn-retip3-bc54` from crown `8a63c6e98` (⊇ Foundry HITL Retip3 + Gate honesty matrix + prior CASTLE; docs-only; no cargo) |
+
+---
+
+## 8. Honesty Retip3 (2026-11-22) — `cursor/v2711-brce-webauthn-retip3-bc54`
+
+| Field | Value |
+|-------|-------|
+| Base | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `8a63c6e98db646a6388f85bc4acb9859a152ec2a` (`8a63c6e98`) |
+| Sidebranch | `cursor/v2711-brce-webauthn-retip3-bc54` |
+| Agent | `bc-0c5da999` |
+| UTC | `2026-11-22T18:09:04Z` |
+| Cargo / tip-cargo | **NOT RUN** (docs-only; Gate1 tip6 owns thrash) |
+
+### Standing held (this Retip3)
+
+| Claim | Standing |
+|-------|----------|
+| Live BRCE broker (**V8**) | **BLOCKED** — §5 V8 court until exit **0** |
+| R-01…R-07 *bodies* (**V10**) | **BLOCKED** — OOR **G3-5** |
+| Live WebAuthn / FIDO2 AS-01 | **UNSUPPORTED** — [`WEBAUTHN-LIVE-NEXT-VERIFIER-STANDING.md`](./WEBAUTHN-LIVE-NEXT-VERIFIER-STANDING.md) §3 |
+| CASTLE digest-bind wire | **ALIVE**/`WIRED` retained ([`CASTLE-SPINE-STANDING.md`](./CASTLE-SPINE-STANDING.md) §14) |
+| V1 seat / V7 fixture / R01-contract | tip-cargo / land **ALIVE** retained — ≠ broker / body / live ceremony |
+| Humans-only-at-~8-CCS (CCS #1) | **PARTIAL_ALIVE** until BRCE+WebAuthn seal EXIT **0** — **not** sealed `ALIVE` |
+| Foundry / zero-HITL crown | **PARTIAL** — **no** Foundry `ALIVE` |
+
+**Exact next (held §5 — do not invent):** live WebAuthn §3 → **V8** broker admit → **V9**/G2-5; bodies OOR **G3-5**. Push-first; tip-wins FF if race-safe. No ManagePullRequest; no force-push.
