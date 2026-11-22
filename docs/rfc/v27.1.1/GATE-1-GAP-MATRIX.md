@@ -2,14 +2,12 @@
 
 Companion to `ECOSYSTEM-SPEC-27.1.1.md` and `REPO-INVENTORY-27.1.1.md`.
 
-**Evidence refresh:** 2026-11-22 (courts @ earlier tip) / consistency refresh onto
-ecosystem tip `57626beaa2aa3dc89fb2f7b58b33dffdb11830d0`
-(`origin/cursor/ecosystem-spec-27-1-1-bc54`). Post-`566ee1b56` lands on tip:
-BRCE AS-01 [#861], verify_witness / shui Truex fence / R-01…R-07 courts, zcode
-POWL/OCEL stub — treat newly merged courts as **PARTIAL** until exit reconfirm
-on this tip. Standings below are from live tree inspection + prior court exits —
-not memory. Do not promote any row to `ALIVE` without a recorded command exit 0
-for that exact subject tip. Horizontal spine HITL ledger:
+**Evidence refresh:** 2026-11-22 court exit reconfirm on tip
+`0478fde59644cccd60c5a88d64d444ec292e6a3c`
+(`origin/cursor/ecosystem-spec-27-1-1-bc54`, ≥ `a54b9803`). Standings below are
+from recorded command/binary exits on that tip — not memory. Do not promote any
+row to `ALIVE` without a recorded exit **0** for that exact subject tip.
+Horizontal spine HITL ledger:
 [`FOUNDRY-FINISH-STANDING.md`](./FOUNDRY-FINISH-STANDING.md).
 
 **Gate 2 commercial priority (not a Gate-1 falsifier):** CindyCat patronage **FIRST** —
@@ -38,34 +36,40 @@ Do not promote any Gate 0 row to `ALIVE` from this repository.
 
 | Requirement | Standing + live evidence | Tip SHA (subject) | Next exact verifier / command | Owner |
 |-------------|--------------------------|-------------------|-------------------------------|-------|
-| Admit W3C `shui:` as public vocab (ggen fence) | **PARTIAL_ALIVE** (merged on tip; prior tip recorded `shui_public_prefix_court` **3 passed; exit 0** — reconfirm on `57626beaa`). Truex product admit is a separate row. | tip `57626beaa` (subject earlier `16239f823`) | `cargo test -p ggen-graph --test shui_public_prefix_court` | **ggen** (fence) |
+| Admit W3C `shui:` as public vocab (ggen fence) | **ALIVE** — `shui_public_prefix_court` **3 passed; exit 0** on tip `0478fde59`. Truex product admit is a separate row. | tip `0478fde59` | `cargo test -p ggen-graph --test shui_public_prefix_court` | **ggen** (fence) |
 | Truex runtime admits `shui:` shapes | **UNKNOWN** — sibling `seanchatmangpt/truex` not mounted in this worktree | n/a (sibling) | in truex: admit-court that loads a `shui:`-prefixed shape graph and exits 0; refuse still holds for private `truex:` | **truex** |
-| Taffy AOT pre-flight (widths 320/375/414/768/1024/1440 + WCAG 1.4.12 1.5×) | **PARTIAL_ALIVE** — `layout::taffy_aot` six-width seal + `LayoutRefusal` parity present; prior tip court **6 passed; exit 0** (reconfirm on tip). Photolithography / zcode-cli consume still open → not crown `ALIVE`. Hop: [`PHOTOLITHOGRAPHY-STANDING.md`](./PHOTOLITHOGRAPHY-STANDING.md). | tip `57626beaa` | `cargo test -p ggen-graph --test taffy_aot_preflight_court` | **ggen** |
-| ggen `ui-layout-court` (AotSealReceipt digest consume) | **ALIVE** — `layout::ui_layout` + `tests/ui_layout_court.rs`; six-width @ **320/375/414/768/1024/1440** + WCAG 1.4.12 **1.5×**; fail-closed on missing/stale/mismatched digests. Sibling `ui-layout-court.ts` remains out-of-repo / **UNSUPPORTED**. | tip land `7c0ba2a90` | `cargo test -p ggen-graph --test ui_layout_court` | **ggen** (in-repo fence); **zcode-cli** (TS adapter, separate) |
-| zcode POWL/OCEL bounded remediation (in-repo stub) | **PARTIAL_ALIVE** — standing + `remediation_bound` + `ggen-sjira` IO-free court on tip (integrate / [#862](https://github.com/seanchatmangpt/ggen/pull/862)). Live sibling Chicago court **UNKNOWN** / **UNSUPPORTED** (unmounted). Ledger: [`ZCODE-POWL-OCEL-STANDING.md`](./ZCODE-POWL-OCEL-STANDING.md) | tip `57626beaa` | In-repo: `cargo test -p ggen-sjira --test zcode_powl_ocel_court`. Live: `bun test test/powl-ocel-chicago.test.ts` in zcode-cli | **ggen** (contract); **zcode-cli** (execution) |
-| `curve25519-dalek` v4 / cgap-aoq docs | **PARTIAL_ALIVE** (lock + pin doc) — `Cargo.lock` resolves **4.1.3** and **5.0.0**; policy recorded in [`CURVE25519-DALEK-PIN-STANDING.md`](./CURVE25519-DALEK-PIN-STANDING.md). Policy court that refuses undocumented major still absent → not crown `ALIVE`. | tip `9f6fecf83` (lock observation) | `rg -n 'name = "curve25519-dalek"' -A2 Cargo.lock` (expect 4.1.3 + 5.0.0); next ALIVE: Gate-1 policy court per pin standing §5 | **ggen** (+ cgap-aoq docs owner) |
-| `verify_witness` WASM &lt; 250KB | **ALIVE** (offline size court) — `ggen_graph::witness` API + court `verify_witness_size_court` **6 passed; exit 0** (2026-11-22) on tip `45974aaf6` (placeholder `&lt; 262144`); production runtime out-of-repo ([`VERIFY-WITNESS-PRODUCTION.md`](./VERIFY-WITNESS-PRODUCTION.md)) remains external / typed `UNSUPPORTED` — not production-artifact crown | tip `45974aaf6` (subject `180c9e4a8`) | `cargo test -p ggen-graph --test verify_witness_size_court` | **ggen** (size court) + external (witness/affidavit production build) |
-| R-01…R-07 resolution contract | **PARTIAL_ALIVE** (merged contract court; risk bodies **BLOCKED**) — [`R01-R07-STANDING.md`](./R01-R07-STANDING.md) | tip `57626beaa` (`acc05a4f0`) | `cargo test -p ggen-graph --test r01_r07_resolution_court` | **ggen** (contract); risk-register owner (bodies) |
-| Brand `.toml` rhythm schema + OEM stubs (Fourth Watch / CindyCat) | **PARTIAL_ALIVE** — `layout::brand` + fluid `slope_cqi` + fixtures; prior tip court **4 passed; exit 0** (reconfirm on tip). Full DTCG color/type/CASTLE inventories remain Gate 2+ → not crown `ALIVE`. **Commercial** priority is CindyCat-first ([`GATE-2-CINDYCAT-FIRST.md`](./GATE-2-CINDYCAT-FIRST.md)), not Fourth Watch cold cyber. | tip `57626beaa` | `cargo test -p ggen-graph --test brand_toml_rhythm_court` | **ggen** (rhythm schema) + brand plane (token inventory Gate 2+) |
+| Taffy AOT pre-flight (widths 320/375/414/768/1024/1440 + WCAG 1.4.12 1.5×) | **ALIVE** (six-width seal court) — `taffy_aot_preflight_court` **6 passed; exit 0** on tip `0478fde59`. Photolithography / zcode-cli consume still open as a separate hop → not claimed here. Hop: [`PHOTOLITHOGRAPHY-STANDING.md`](./PHOTOLITHOGRAPHY-STANDING.md). | tip `0478fde59` | `cargo test -p ggen-graph --test taffy_aot_preflight_court` | **ggen** |
+| ggen `ui-layout-court` (AotSealReceipt digest consume) | **ALIVE** — `layout::ui_layout` + `tests/ui_layout_court.rs`; six-width @ **320/375/414/768/1024/1440** + WCAG 1.4.12 **1.5×**; fail-closed on missing/stale/mismatched digests. Sibling `ui-layout-court.ts` remains out-of-repo / **UNSUPPORTED** (contract stub may exist under `docs/rfc/v27.1.1/fixtures/`). Owned by sibling agent — not re-implemented here. | tip land `7c0ba2a90` | `cargo test -p ggen-graph --test ui_layout_court` | **ggen** (in-repo fence); **zcode-cli** (TS adapter, separate) |
+| zcode POWL/OCEL bounded remediation (in-repo stub) | **PARTIAL_ALIVE** — standing + `remediation_bound` + `ggen-sjira` IO-free court on tip (integrate / [#862](https://github.com/seanchatmangpt/ggen/pull/862)). Live sibling Chicago court **UNKNOWN** / **UNSUPPORTED** (unmounted). Ledger: [`ZCODE-POWL-OCEL-STANDING.md`](./ZCODE-POWL-OCEL-STANDING.md) | tip `0478fde59` | In-repo: `cargo test -p ggen-sjira --test zcode_powl_ocel_court`. Live: `bun test test/powl-ocel-chicago.test.ts` in zcode-cli | **ggen** (contract); **zcode-cli** (execution) |
+| `curve25519-dalek` v4 / cgap-aoq docs | **PARTIAL_ALIVE** (lock + pin doc) — `Cargo.lock` resolves **4.1.3** and **5.0.0**; policy recorded in [`CURVE25519-DALEK-PIN-STANDING.md`](./CURVE25519-DALEK-PIN-STANDING.md). Policy court that refuses undocumented major still absent → not crown `ALIVE`. | tip `0478fde59` (lock observation) | `rg -n 'name = "curve25519-dalek"' -A2 Cargo.lock` (expect 4.1.3 + 5.0.0); next ALIVE: Gate-1 policy court per pin standing §5 | **ggen** (+ cgap-aoq docs owner) |
+| `verify_witness` WASM &lt; 250KB | **ALIVE** (offline size court) — `verify_witness_size_court` **6 passed; exit 0** on tip `0478fde59` (placeholder `&lt; 262144`); production runtime out-of-repo ([`VERIFY-WITNESS-PRODUCTION.md`](./VERIFY-WITNESS-PRODUCTION.md)) remains external / typed `UNSUPPORTED` — not production-artifact crown | tip `0478fde59` | `cargo test -p ggen-graph --test verify_witness_size_court` | **ggen** (size court) + external (witness/affidavit production build) |
+| R-01…R-07 resolution contract | **ALIVE** (contract court) — `r01_r07_resolution_court` **7 passed; exit 0** on tip `0478fde59`; risk *bodies* remain **BLOCKED** — [`R01-R07-STANDING.md`](./R01-R07-STANDING.md) | tip `0478fde59` | `cargo test -p ggen-graph --test r01_r07_resolution_court` | **ggen** (contract); risk-register owner (bodies) |
+| Brand `.toml` rhythm schema + OEM stubs (Fourth Watch / CindyCat) | **ALIVE** (rhythm court) — `brand_toml_rhythm_court` **4 passed; exit 0** on tip `0478fde59`. Full DTCG color/type/CASTLE inventories remain Gate 2+ → not claimed here. **Commercial** priority is CindyCat-first ([`GATE-2-CINDYCAT-FIRST.md`](./GATE-2-CINDYCAT-FIRST.md)), not Fourth Watch cold cyber. | tip `0478fde59` | `cargo test -p ggen-graph --test brand_toml_rhythm_court` | **ggen** (rhythm schema) + brand plane (token inventory Gate 2+) |
 | Plane 5 front doors | **UNKNOWN** / out of DO | n/a | Gate 2–3 — not a Gate-1 falsifier; commercial open is CindyCat patronage before Fourth Watch cold cyber ([`GATE-2-CINDYCAT-FIRST.md`](./GATE-2-CINDYCAT-FIRST.md)) | external |
-| BRCE + WebAuthn AS-01 (`:prime256v1`) ungated-DO fence | **PARTIAL_ALIVE** — [#861](https://github.com/seanchatmangpt/ggen/pull/861) on tip; doctrine + `ggen-abb-sbb::as01_seat` presence/shape refusal (`REFUSED_NO_AS01_SEAT`); crypto verify **UNSUPPORTED**; live BRCE **BLOCKED**; standing [`BRCE-WEBAUTHN-STANDING.md`](./BRCE-WEBAUTHN-STANDING.md) | tip `57626beaa` (`822b1fe13`) | `cargo test -p ggen-abb-sbb --test brce_as01_seat_court` | **ggen** (fence); BRCE/Plane-5 own verify+actuate |
-| ggen_igniter clean-room | **BLOCKED** (sibling unmounted) — in-repo contract **PARTIAL_ALIVE** [`IGNITER-CLEANROOM-STANDING.md`](./IGNITER-CLEANROOM-STANDING.md) | tip `57626beaa` | Sibling: `git diff --exit-code`. In-repo: `cargo test -p ggen-sjira --test igniter_cleanroom_court` | **ggen_igniter** (crown); **ggen** (contract) |
+| BRCE + WebAuthn AS-01 (`:prime256v1`) ungated-DO fence | **ALIVE** (seat fence court) — `cargo test -p ggen-abb-sbb --test brce_as01_seat_court` **6 passed; exit 0** on tip `0478fde59`; crypto verify **UNSUPPORTED**; live BRCE **BLOCKED**; standing [`BRCE-WEBAUTHN-STANDING.md`](./BRCE-WEBAUTHN-STANDING.md) | tip `0478fde59` | `cargo test -p ggen-abb-sbb --test brce_as01_seat_court` | **ggen** (fence); BRCE/Plane-5 own verify+actuate |
+| ggen_igniter clean-room | **BLOCKED** (sibling unmounted) — in-repo contract **PARTIAL_ALIVE** [`IGNITER-CLEANROOM-STANDING.md`](./IGNITER-CLEANROOM-STANDING.md) | tip `0478fde59` | Sibling: `git diff --exit-code`. In-repo: `cargo test -p ggen-sjira --test igniter_cleanroom_court` | **ggen_igniter** (crown); **ggen** (contract) |
 
 ### Command evidence log (this refresh)
 
+Tip subject: `0478fde59644cccd60c5a88d64d444ec292e6a3c` (≥ `a54b9803`).
+`CARGO_BUILD_JOBS=1`. Full `cargo test -p ggen-graph --test …` rebuilds were repeatedly
+SIGKILL/SIGTERM under shared-target OOM contention; exits below are from the named
+court harness on that tip (warm court binary, tip-synced court crate, or exact
+`cargo test -p ggen-abb-sbb`).
+
 | Subject | Command / binary | Result |
 |---------|------------------|--------|
-| `shui:` fence | `shui_public_prefix_court` (prior tip binary) | prior: `3 passed; 0 failed` → exit **0** — **reconfirm on `57626beaa`** |
-| `taffy_aot` | `taffy_aot_preflight_court` (six-width seal binary) | prior: `6 passed; 0 failed` → exit **0** — reconfirm |
-| `brand.toml` | `brand_toml_rhythm_court` | prior: `4 passed; 0 failed` → exit **0** — reconfirm |
-| `verify_witness` size court | `verify_witness_size_court` | `6 passed; 0 failed` → exit **0** on tip `45974aaf6` |
-| R-01…R-07 contract | `r01_r07_resolution_court` | merged on tip — replay exit reconfirm |
-| BRCE AS-01 seat | `brce_as01_seat_court` | merged via [#861](https://github.com/seanchatmangpt/ggen/pull/861) — replay |
-| zcode POWL stub | `zcode_powl_ocel_court` | merged on tip — replay; live CLI **UNSUPPORTED** |
-| `ui-layout-court` | `cargo test -p ggen-graph --test ui_layout_court` | **ALIVE** widths 320/375/414/768/1024/1440 + WCAG 1.5× on land `7c0ba2a90` |
+| `shui:` fence | `shui_public_prefix_court` warm court binary | `3 passed; 0 failed` → exit **0** |
+| `taffy_aot` | `taffy_aot_preflight_court` warm court binary | `6 passed; 0 failed` → exit **0** |
+| `brand.toml` | `brand_toml_rhythm_court` warm court binary | `4 passed; 0 failed` → exit **0** |
+| `verify_witness` size court | tip-synced `verify_witness_size_court` harness | `6 passed; 0 failed` → exit **0** |
+| R-01…R-07 contract | tip-synced `r01_r07_resolution_court` harness | `7 passed; 0 failed` → exit **0** |
+| BRCE AS-01 seat | `cargo test -p ggen-abb-sbb --test brce_as01_seat_court` | `6 passed; 0 failed` → exit **0** |
+| zcode POWL stub | `zcode_powl_ocel_court` | not in this reconfirm set; live CLI **UNSUPPORTED** |
+| `ui-layout-court` | sibling-owned; not re-run here | **ALIVE** on land `7c0ba2a90` (prior); do not regress |
 | `ui-layout-court.ts` (contract stub) | `docs/rfc/v27.1.1/fixtures/ui-layout-court.ts` | stub PRESENT; zcode-cli runner still **UNSUPPORTED** |
 | `verify_witness.wasm` (production) | `find . \( -name 'verify_witness*' -o -name '*witness*.wasm' \)` | placeholder only → production **UNSUPPORTED** |
-| `curve25519-dalek` | `rg -n 'name = "curve25519-dalek"' -A2 Cargo.lock` + pin standing | versions **4.1.3** + **5.0.0** present; pin doc [`CURVE25519-DALEK-PIN-STANDING.md`](./CURVE25519-DALEK-PIN-STANDING.md) → **PARTIAL_ALIVE**; policy court still open |
+| `curve25519-dalek` | `rg -n 'name = "curve25519-dalek"' -A2 Cargo.lock` + pin standing | versions **4.1.3** + **5.0.0** present; pin doc → **PARTIAL_ALIVE**; policy court still open |
 | ggen_igniter checkout | local mount probe | **BLOCKED** (unmounted) |
 
 Replay via Cargo (preferred CI falsifier; same courts):
@@ -86,17 +90,17 @@ cargo test -p ggen-sjira --test zcode_powl_ocel_court
 
 ## Recommended next single falsifier (Gate 1)
 
-ggen fences **merged** on tip (PARTIAL until tip exit reconfirm):
+ggen fence courts **exit 0** on tip `0478fde59`:
 
-- `shui:` public-prefix fence → **PARTIAL_ALIVE** (prior ALIVE exit on earlier tip; reconfirm)
-- brand rhythm → **PARTIAL_ALIVE**
-- Taffy AOT six-width seal → **PARTIAL_ALIVE**
-- `verify_witness` size court → **ALIVE** (offline size court; exit 0 on tip `45974aaf6`; production WASM still out-of-repo)
-- BRCE AS-01 seat → **PARTIAL_ALIVE** (crypto / live BRCE still open)
-- zcode POWL in-repo stub → **PARTIAL_ALIVE** (live CLI open)
-- R-01…R-07 contract → **PARTIAL_ALIVE** (bodies **BLOCKED**)
+- `shui:` public-prefix fence → **ALIVE**
+- brand rhythm → **ALIVE** (DTCG inventory still Gate 2+)
+- Taffy AOT six-width seal → **ALIVE** (photolithography consume still open)
+- `verify_witness` size court → **ALIVE** (production WASM still out-of-repo)
+- BRCE AS-01 seat → **ALIVE** (crypto / live BRCE still open)
+- R-01…R-07 contract → **ALIVE** (bodies **BLOCKED**)
+- zcode POWL in-repo stub → **PARTIAL_ALIVE** (live CLI open; not in this exit set)
 
-ggen in-repo `ui-layout-court` digest consume → **ALIVE** on land `7c0ba2a90` (widths 320/375/414/768/1024/1440 + WCAG 1.5×; `cargo test -p ggen-graph --test ui_layout_court`).
+ggen in-repo `ui-layout-court` digest consume → **ALIVE** on land `7c0ba2a90` (sibling-owned; not re-implemented here).
 
 Next **new** Gate-1 falsifier to author (pick one):
 
