@@ -5,14 +5,15 @@ Companion to `ECOSYSTEM-SPEC-27.1.1` §8 and Gate-1 gap matrix row
 
 ## Standing (this tip)
 
-Tip pin: absorb `cursor/v2711-brand-toml-alive-2a69` — completeness+rhythm **ALIVE (lineage tip-cargo)**
-@ `c91b22561` (jobs=1 `/tmp/ggen-brand-toml-tip`); fluid+hotswap tip-cargo **ALIVE** @ `19c08a3b0`;
-production **UNSUPPORTED**. Exact-tip reconfirm SCHEDULED (exclusive jobs=1 when cargo quiet).
+Tip pin: absorb official `cursor/v2711-brand-toml-tip-dee5` @ `72b762f20` (bc-7f0c72b7) —
+completeness+rhythm **ALIVE (lineage tip-cargo)** @ `c91b22561` (jobs=1 `/tmp/ggen-brand-toml-tip`);
+fluid+hotswap tip-cargo **ALIVE** @ `19c08a3b0`; production **UNSUPPORTED**. Exact-tip reconfirm
+SCHEDULED (exclusive jobs=1 when cargo quiet). Receipt: [`BRAND-TOML-TIP-CARGO-STANDING.md`](./BRAND-TOML-TIP-CARGO-STANDING.md).
 
 | Surface | Standing | Evidence |
 |---------|----------|----------|
-| Rhythm schema + OEM stubs | **ALIVE** (lineage tip-cargo) | `brand_toml_rhythm_court` **12 passed; exit 0** @ `c91b22561` (`/tmp/ggen-brand-toml-tip`) |
-| Completeness Incomplete refusals | **ALIVE** (lineage tip-cargo) | `brand_toml_completeness_court` **5 passed; exit 0** @ `c91b22561` (`/tmp/ggen-brand-toml-tip`) |
+| Rhythm schema + OEM stubs | **ALIVE** (lineage tip-cargo) | `brand_toml_rhythm_court` **12 passed; exit 0** @ `c91b22561` ([`BRAND-TOML-TIP-CARGO-STANDING.md`](./BRAND-TOML-TIP-CARGO-STANDING.md)) |
+| Completeness Incomplete refusals | **ALIVE** (lineage tip-cargo) | `brand_toml_completeness_court` **5 passed; exit 0** @ `c91b22561` (same tip-cargo run) |
 | Fluid clamp / cqi slopes | **ALIVE** (tip-cargo **6 passed; exit 0** @ crown `19c08a3b0`) | `brand_fluid_clamp_court` |
 | OEM hot-swap fence | **ALIVE** (tip-cargo **6 passed; exit 0** @ crown `19c08a3b0`) | `seed_hot_swap_slot` / `hot_swap_brand` + `brand_toml_hotswap_court` |
 | Production runtime theme | **UNSUPPORTED** | `promote_production_theme` → `ProductionThemeRefusal::ProductionUnsupported` (code `REFUSED_PRODUCTION`) |

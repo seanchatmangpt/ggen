@@ -200,10 +200,12 @@ Gate-1 in-repo slice (this land): **visual rhythm only** — px/rem primitives,
 inventing those token values here is still **REFUSED**.
 
 Standing: **ALIVE** (lineage tip-cargo) — completeness **5** + rhythm **12**
-EXIT **0** @ `c91b22561` (`/tmp/ggen-brand-toml-tip`; jobs=1); hot-swap + fluid
-tip-cargo remain **ALIVE** (**6+6** @ `19c08a3b0`). Exact-tip reconfirm SCHEDULED.
-`brand_fluid_clamp_court` tip-cargo **ALIVE**; full DTCG color/type/CASTLE
-token-inventory plane **UNSUPPORTED** until Gate 2+.
+EXIT **0** @ `c91b22561` (`/tmp/ggen-brand-toml-tip`; jobs=1; official
+`cursor/v2711-brand-toml-tip-dee5` / bc-7f0c72b7;
+[`BRAND-TOML-TIP-CARGO-STANDING.md`](./BRAND-TOML-TIP-CARGO-STANDING.md));
+hot-swap + fluid tip-cargo remain **ALIVE** (**6+6** @ `19c08a3b0`). Exact-tip
+reconfirm SCHEDULED. Full DTCG color/type/CASTLE token-inventory plane
+**UNSUPPORTED** until Gate 2+.
 
 In-repo **brand.toml hot-swap** fence (`seed_hot_swap_slot` / `hot_swap_brand`
 + `brand_toml_hotswap_court`): **ALIVE** (lineage) — **6 passed; exit 0** @

@@ -139,7 +139,7 @@ Do **not** invent zero daily founder HITL `ALIVE` from Gate-1 fence green, CASTL
 | `curve25519-dalek` pin | **PARTIAL_ALIVE** (lock+doc; policy court open) | pin standing §5 policy court |
 | `verify_witness` size | **ALIVE** (tip-cargo **6** @ `c91b22561`); production WASM **UNSUPPORTED** | size court; prod: [`VERIFY-WITNESS-PRODUCTION.md`](./VERIFY-WITNESS-PRODUCTION.md) |
 | R-01…R-07 contract | **ALIVE** (contract); bodies **BLOCKED** | `cargo test -p ggen-graph --test r01_r07_resolution_court` |
-| Brand rhythm / completeness / hot-swap | completeness+rhythm lineage tip-cargo **ALIVE** (**5+12** @ `c91b22561`); fluid+hot-swap tip-cargo **ALIVE** (**6+6** @ `19c08a3b0`); production **UNSUPPORTED** (`REFUSED_PRODUCTION`) | completeness/rhythm/fluid/hotswap courts; [`BRAND-PRODUCTION-THEME.md`](./BRAND-PRODUCTION-THEME.md) |
+| Brand rhythm / completeness / hot-swap | completeness+rhythm lineage tip-cargo **ALIVE** (**5+12** @ `c91b22561`; bc-7f0c72b7); fluid+hot-swap tip-cargo **ALIVE** (**6+6** @ `19c08a3b0`); production **UNSUPPORTED** (`REFUSED_PRODUCTION`) | [`BRAND-TOML-TIP-CARGO-STANDING.md`](./BRAND-TOML-TIP-CARGO-STANDING.md); [`BRAND-PRODUCTION-THEME.md`](./BRAND-PRODUCTION-THEME.md) |
 | BRCE AS-01 seat fence | **PARTIAL_ALIVE** | `cargo test -p ggen-abb-sbb --test brce_as01_seat_court` |
 | ggen_igniter manufacture | **ALIVE** (BrandTheme compare); clean-room crown **ALIVE** (`bc-53b0e099`); NIF **ALIVE**; Jobs/C4 admitted `--check` **ALIVE** | clean-room replay `git diff --exit-code` → **0**; manufacture replay → **0**; Jobs/C4 replay pack/template `--check` → **0** |
 | Gate-0 cos | **BLOCKED** (external) | cos `/readyz` → **200** |
