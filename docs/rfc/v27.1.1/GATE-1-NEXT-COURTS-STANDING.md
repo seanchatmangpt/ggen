@@ -19,7 +19,8 @@ standing=ALIVE
 
 | Court | Target dir | Result | Exit | Standing |
 |-------|------------|--------|------|----------|
-| `shui_public_prefix_court` | `/tmp/gate1-next-shui` | **4 passed; 0 failed** | **0** | **ALIVE** |
+| `shui_public_prefix_court` | `/tmp/gate1-next-shui` | **4 passed; 0 failed** | **0** | **ALIVE** (lineage `26256ca9d`) |
+| `shui_public_prefix_court` (crown reconfirm) | `/tmp/ggen-shui-prefix-target2` | **4 passed; 0 failed** | **0** | **ALIVE** @ crown `008a81d21` (`cursor/v2711-shui-prefix-alive-bc54`) |
 | `taffy_aot_preflight_court` | `/tmp/gate1-next-taffy` | **7 passed; 0 failed** | **0** | **ALIVE** |
 | `brand_toml_rhythm_court` | `/tmp/gate1-next-brand` | **12 passed; 0 failed** | **0** | **ALIVE** |
 
