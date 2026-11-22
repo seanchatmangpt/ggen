@@ -4,7 +4,9 @@
 |-------|-------|
 | Document ID | `R01-R07-STANDING-27.1.1` |
 | Spec binding | `ECOSYSTEM-SPEC-27.1.1.md` §11 (D7 hard GA gate) |
-| Observed base | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `22d108f54` (2026-11-22) |
+| Observed base | `origin/cursor/ecosystem-spec-27-1-1-bc54` (absorb tip) |
+| Contract tip-cargo | **ALIVE (lineage tip-cargo)** — `r01_r07_resolution_court` **7 passed; exit 0** @ `cd7c2433b` (`/tmp/ggen-r01-r07-tip`) |
+| Exact-tip reconfirm | **SCHEDULED** (jobs=1 exclusive when cargo quiet) |
 | Target GA | **2027-01-01** |
 | Repo scope | `seanchatmangpt/ggen` — risk *bodies* are multi-repo; resolution *contract* is in-repo |
 
@@ -21,7 +23,7 @@ closure. “Closed” without an admitted risk-register body is `REFUSED_UNGROUN
 |---------|----------|----------|---------------------|
 | §11 enumeration R-01…R-07 | `ECOSYSTEM-SPEC-27.1.1.md` §11 table | **PARTIAL_ALIVE** (spec text) | Keep IDs stable; refuse invented R-08+ via court |
 | Closure rule: typed receipt **or** typed refusal before GA | Spec §11 “Closure rule” column | **PARTIAL_ALIVE** (doctrine) | Per-ID receipt/refusal after register admits body |
-| Ungrounded “closed” → `REFUSED_UNGROUNDED` | `ggen_graph::ecosystem_risk::resolve_closure` + Chicago court | **PARTIAL_ALIVE** | `cargo test -p ggen-graph --test r01_r07_resolution_court` |
+| Ungrounded “closed” → `REFUSED_UNGROUNDED` | `ggen_graph::ecosystem_risk::resolve_closure` + Chicago court | **ALIVE** (lineage tip-cargo **7** @ `cd7c2433b`) | exact-tip reconfirm: `CARGO_BUILD_JOBS=1 cargo test -p ggen-graph --test r01_r07_resolution_court --locked -- --test-threads=1` |
 | Risk-register prose for each R-* | **Not mounted** in this checkout | **UNSUPPORTED** (bodies) | Admit sovereign risk register; materialize bodies without invention |
 
 The executable court seals the **contract fence**, not per-risk closure.
@@ -54,11 +56,11 @@ Do **not** promote any crown row to `ALIVE` from this repository while bodies ar
 
 ## 3. What this slice seals (and what it does not)
 
-**Sealed (PARTIAL_ALIVE):**
+**Sealed (contract fence ALIVE lineage tip-cargo; bodies BLOCKED):**
 
-- Standing census that R-01…R-07 remain open GA gates.
+- Standing census that R-01…R-07 remain open GA gates (bodies).
 - Typed stub `ecosystem_risk` that refuses ungrounded closed claims.
-- Chicago court binding stub ↔ ECOSYSTEM-SPEC §11 ↔ this standing file.
+- Chicago court binding stub ↔ ECOSYSTEM-SPEC §11 ↔ this standing file — tip-cargo **7 passed; exit 0** @ `cd7c2433b` (`/tmp/ggen-r01-r07-tip`; PID 1095281). Exact-tip reconfirm SCHEDULED.
 
 **Explicitly not sealed:**
 
@@ -101,3 +103,22 @@ cargo test -p ggen-graph --test r01_r07_resolution_court
 Materialized as the R-01…R-07 resolution companion to ECOSYSTEM-SPEC-27.1.1 §11.
 In-repo falsifier covers the resolution contract only; crown body rows stay
 `BLOCKED` with the shared risk-register next verifier until admitted prose lands.
+
+---
+
+## 8. Tip-cargo receipt (2026-11-22)
+
+| Field | Value |
+|-------|-------|
+| Subject SHA | `cd7c2433b` (ancestor of live crown) |
+| Target | `/tmp/ggen-r01-r07-tip` |
+| Result | **7 passed; 0 failed; EXIT:0** |
+| Standing | **ALIVE (lineage tip-cargo)** |
+| Bodies | still **BLOCKED** (do not invent closure) |
+| Kill log | dual thrash PID 1065550 SIGTERM — `/cursor/stores/self/r01-dual-thrash-kill-20261122.md` |
+| Receipt | `/tmp/cursor/r01-r07-tip-cargo-result.md` |
+
+```bash
+CARGO_BUILD_JOBS=1 CARGO_TARGET_DIR=/tmp/ggen-r01-r07-tip \
+  cargo test -p ggen-graph --test r01_r07_resolution_court --locked --config build.jobs=1 -- --test-threads=1
+```
