@@ -71,9 +71,7 @@ pub enum WitnessRefusal {
     /// Bytes are empty or missing WASM magic — fail closed.
     InvalidWasmMagic,
     /// Production toolchain / built artifact absent; placeholder may still court.
-    Unsupported {
-        reason: String,
-    },
+    Unsupported { reason: String },
 }
 
 /// Court the byte length of a `verify_witness` artifact against the Gate-1 budget.
@@ -81,8 +79,7 @@ pub enum WitnessRefusal {
 /// Admits when `artifact.len() < VERIFY_WITNESS_SIZE_BUDGET_BYTES`.
 /// Refuses with [`WitnessRefusal::OverBudget`] otherwise.
 pub fn court_verify_witness_size(
-    artifact: &[u8],
-    provenance: ArtifactProvenance,
+    artifact: &[u8], provenance: ArtifactProvenance,
 ) -> Result<SizeCourtReceipt, WitnessRefusal> {
     let size_bytes = artifact.len();
     if size_bytes >= VERIFY_WITNESS_SIZE_BUDGET_BYTES {
@@ -110,8 +107,7 @@ pub fn court_verify_witness_size(
 /// This is **CONSTRUCT / verify**, not DO. Cryptographic witness adequacy and
 /// runtime execution live on the out-of-repo production path.
 pub fn verify_witness(
-    artifact: &[u8],
-    provenance: ArtifactProvenance,
+    artifact: &[u8], provenance: ArtifactProvenance,
 ) -> Result<VerifyWitnessReceipt, WitnessRefusal> {
     if artifact.len() < 4 || &artifact[..4] != WASM_MAGIC.as_slice() {
         return Err(WitnessRefusal::InvalidWasmMagic);
@@ -125,8 +121,7 @@ pub fn verify_witness(
 
 /// Resolve the in-repo placeholder path (relative to this crate's `fixtures/`).
 pub fn placeholder_artifact_path() -> PathBuf {
-    Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("fixtures/witness/verify_witness.placeholder.wasm")
+    Path::new(env!("CARGO_MANIFEST_DIR")).join("fixtures/witness/verify_witness.placeholder.wasm")
 }
 
 /// Load the in-repo placeholder and run [`verify_witness`].

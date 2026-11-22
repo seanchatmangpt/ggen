@@ -111,10 +111,7 @@ fn ecosystem_spec_pins_resolution_contract_and_refused_ungrounded() {
         "ECOSYSTEM-SPEC must pin typed receipt/refusal closure rule"
     );
     for id in RISK_IDS {
-        assert!(
-            text.contains(id),
-            "ECOSYSTEM-SPEC must enumerate {id}"
-        );
+        assert!(text.contains(id), "ECOSYSTEM-SPEC must enumerate {id}");
     }
 }
 
@@ -130,15 +127,11 @@ fn standing_doc_records_each_r_as_blocked_with_next_verifier() {
         "standing doc must identify itself"
     );
     assert!(
-        text.contains(NEXT_VERIFIER_RISK_REGISTER)
-            || text.contains("Admit risk-register bodies"),
+        text.contains(NEXT_VERIFIER_RISK_REGISTER) || text.contains("Admit risk-register bodies"),
         "standing doc must name the risk-register next verifier"
     );
     for id in RISK_IDS {
-        assert!(
-            text.contains(id),
-            "standing doc must list {id}"
-        );
+        assert!(text.contains(id), "standing doc must list {id}");
         // Each crown row must be BLOCKED (body out-of-repo / unmounted)
         let needle = format!("| {id} |");
         assert!(
@@ -152,8 +145,7 @@ fn standing_doc_records_each_r_as_blocked_with_next_verifier() {
         "standing doc must record the in-repo resolution-contract fence as PARTIAL_ALIVE"
     );
     assert!(
-        text.matches("| **BLOCKED** |").count() >= 7
-            || text.matches("| BLOCKED |").count() >= 7,
+        text.matches("| **BLOCKED** |").count() >= 7 || text.matches("| BLOCKED |").count() >= 7,
         "standing doc must mark all seven R-* body rows BLOCKED"
     );
 }

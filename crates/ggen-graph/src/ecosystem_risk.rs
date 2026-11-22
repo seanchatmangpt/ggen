@@ -39,9 +39,7 @@ pub enum ResolutionRefusal {
     #[error("REFUSED_UNKNOWN_RISK_ID: {0}")]
     UnknownId(String),
     /// “Closed” asserted without an admitted risk-register body.
-    #[error(
-        "REFUSED_UNGROUNDED: closed claim for {risk_id} without admitted risk-register body"
-    )]
+    #[error("REFUSED_UNGROUNDED: closed claim for {risk_id} without admitted risk-register body")]
     Ungrounded { risk_id: String },
 }
 
@@ -63,9 +61,7 @@ pub fn is_known_risk_id(id: &str) -> bool {
 /// mounted prose for this ID. Until then, [`ClosureClaim::Closed`] yields
 /// [`ResolutionRefusal::Ungrounded`].
 pub fn resolve_closure(
-    risk_id: &str,
-    claim: ClosureClaim,
-    risk_body_admitted: bool,
+    risk_id: &str, claim: ClosureClaim, risk_body_admitted: bool,
 ) -> Result<(), ResolutionRefusal> {
     if !is_known_risk_id(risk_id) {
         return Err(ResolutionRefusal::UnknownId(risk_id.to_string()));

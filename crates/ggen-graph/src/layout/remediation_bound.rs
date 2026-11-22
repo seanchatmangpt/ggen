@@ -20,9 +20,7 @@ pub const DEFAULT_FOUNDRY_SAME_SIGNATURE_RETRIES: u32 = 2;
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum RemediationBoundRefusal {
     /// `max_attempts == 0` or bound omitted where a positive bound is required.
-    UnboundedRemediation {
-        detail: &'static str,
-    },
+    UnboundedRemediation { detail: &'static str },
     /// Attempt index exhausted the declared budget.
     RetryBudgetExhausted {
         attempts: u32,
@@ -30,15 +28,9 @@ pub enum RemediationBoundRefusal {
         signature: &'static str,
     },
     /// Unordered mutating write scopes overlap (maps to zcode `WRITE_SCOPE_CONFLICT`).
-    WriteScopeConflict {
-        a: &'static str,
-        b: &'static str,
-    },
+    WriteScopeConflict { a: &'static str, b: &'static str },
     /// Autonomic cycle index exceeded `max_cycles`.
-    MaxCyclesExceeded {
-        cycle: u32,
-        max_cycles: u32,
-    },
+    MaxCyclesExceeded { cycle: u32, max_cycles: u32 },
 }
 
 /// Machine-stable refusal code strings (parity with zcode OCEL / court standing).
@@ -69,9 +61,7 @@ pub fn admit_remediation_bound(max_attempts: u32) -> Result<u32, RemediationBoun
 /// Returns `Ok(remaining)` when `attempts_used < max_attempts`, else the typed
 /// exhausted refusal. Does not perform I/O or call zcode-cli.
 pub fn record_remediation_attempt(
-    attempts_used: u32,
-    max_attempts: u32,
-    signature: &'static str,
+    attempts_used: u32, max_attempts: u32, signature: &'static str,
 ) -> Result<u32, RemediationBoundRefusal> {
     let max = admit_remediation_bound(max_attempts)?;
     if attempts_used >= max {

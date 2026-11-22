@@ -18,8 +18,9 @@ pub const ADMITTED_TURTLE_PREFIXES: &[&str] = &[
 ];
 
 /// Project-private / banned prefix tokens (must remain refused).
-pub const REFUSED_PRIVATE_PREFIXES: &[&str] =
-    &["gall", "ggen", "gg", "kh", "pcst", "truex", "doc", "doctest"];
+pub const REFUSED_PRIVATE_PREFIXES: &[&str] = &[
+    "gall", "ggen", "gg", "kh", "pcst", "truex", "doc", "doctest",
+];
 
 /// Typed fence standing for a Turtle `@prefix` name.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

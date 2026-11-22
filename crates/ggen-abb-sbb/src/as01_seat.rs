@@ -50,9 +50,7 @@ impl As01SeatClaim {
 #[derive(Debug, Clone, PartialEq, Eq, Error)]
 pub enum As01SeatRefusal {
     /// No seat claim was presented — ambient / ungated DO.
-    #[error(
-        "REFUSED_NO_AS01_SEAT: ungated DO without WebAuthn AS-01 seat (broker={broker})"
-    )]
+    #[error("REFUSED_NO_AS01_SEAT: ungated DO without WebAuthn AS-01 seat (broker={broker})")]
     NoSeat { broker: String },
     /// Broker is not the admitted BRCE broker.
     #[error("REFUSED_WRONG_BROKER: DO requires broker BRCE, got {got}")]
@@ -111,8 +109,8 @@ mod tests {
 
     #[test]
     fn ungated_do_without_seat_is_refused() {
-        let err = admit_do_with_as01_seat(REQUIRED_BROKER, None)
-            .expect_err("ungated DO must refuse");
+        let err =
+            admit_do_with_as01_seat(REQUIRED_BROKER, None).expect_err("ungated DO must refuse");
         assert_eq!(
             err,
             As01SeatRefusal::NoSeat {

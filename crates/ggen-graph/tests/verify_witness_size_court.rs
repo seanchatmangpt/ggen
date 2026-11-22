@@ -6,8 +6,8 @@
 
 use ggen_graph::witness::{
     court_verify_witness_size, load_production_verify_witness, production_build_standing,
-    verify_placeholder_witness, verify_witness, ArtifactProvenance, VERIFY_WITNESS_SIZE_BUDGET_BYTES,
-    WASM_MAGIC, WitnessRefusal, WitnessStanding,
+    verify_placeholder_witness, verify_witness, ArtifactProvenance, WitnessRefusal,
+    WitnessStanding, VERIFY_WITNESS_SIZE_BUDGET_BYTES, WASM_MAGIC,
 };
 
 #[test]

@@ -26,8 +26,6 @@ pub mod ocel;
 pub mod prelude;
 pub mod receipt;
 pub mod rwr;
-/// Offline `verify_witness` WASM size-budget stub (ECOSYSTEM-SPEC-27.1.1 Gate 1).
-pub mod witness;
 /// SHACL validation for this crate's own callers — **authoritative** for every
 /// non-law consumer (LSP diagnostics, `ggen sync`/`doctor`).
 ///
@@ -48,6 +46,8 @@ pub mod witness;
 pub mod shacl;
 pub mod sparql;
 pub mod vocab;
+/// Offline `verify_witness` WASM size-budget stub (ECOSYSTEM-SPEC-27.1.1 Gate 1).
+pub mod witness;
 
 pub use coherence::{
     CoherenceChecker, CoherenceDrift, CoherenceReport, DriftKind, Pole, PoleState,

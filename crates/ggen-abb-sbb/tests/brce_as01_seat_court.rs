@@ -59,8 +59,8 @@ fn wrong_broker_is_refused_even_with_seat() {
     let seat = As01SeatClaim::declared("seat:as01:fixture-001");
 
     // Act
-    let err = admit_do_with_as01_seat("NOT-BRCE", Some(&seat))
-        .expect_err("non-BRCE broker must refuse");
+    let err =
+        admit_do_with_as01_seat("NOT-BRCE", Some(&seat)).expect_err("non-BRCE broker must refuse");
 
     // Assert
     assert_eq!(
