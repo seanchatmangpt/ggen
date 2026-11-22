@@ -5,11 +5,11 @@
 | Document ID | `OUT-OF-REPO-NEXT-VERIFIERS` |
 | Companion | `ECOSYSTEM-SPEC-27.1.1`, `GATE-0-STANDING`, `GATE-3-RELEASE-COURTS-STANDING`, `FOUNDRY-FINISH-STANDING` |
 | Target GA | **2027-01-01** |
-| Observed ggen tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `58a93a94f688dbd5c3827d09dcc817d290ceda4d` |
+| Observed ggen tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `d0e3ba473dcaf26a90d963a767e4fa3f0600912f` |
 | Materialized | 2026-11-22 |
 | Hardened | 2026-11-22 — `cursor/v2711-oor-ledger-harden-bc54` |
 | Ops refresh | 2026-11-22 — `cursor/v2711-ops-standing-refresh-bc54` (tip pin + probe reconfirm; standings held) |
-| Tip pin | 2026-11-22 — `cursor/v2711-truex-admit-standing-bc54` after Truex product admit **PARTIAL_ALIVE** on crown tip `58a93a94f` (≥ `376b5c309`; sibling admit-court **6/6 vitest exit 0** @ `truex@e28e68300` / [truex#6](https://github.com/seanchatmangpt/truex/pull/6); not full `ALIVE` until merge to truex `main` + tip-sync ggen fence parity; hop-4 demotion to **PARTIAL_ALIVE** retained from `cursor/v2711-photo-hop4-partial-bc54`; hop-5 **PARTIAL** retained) |
+| Tip pin | 2026-11-22 — `cursor/v2711-castle-alive-bc54` after CASTLE sibling spine courts **ALIVE** @ `2774039ea` (`bc-1bffb072`; prior Truex pin `cursor/v2711-truex-admit-standing-bc54` / tip `d0e3ba473`; Foundry crown stays **PARTIAL_ALIVE**) |
 | Hop-5 evidence | `/tmp/cursor/hop5-crossmount.md` (`bc-be2c9600`) |
 | Repo scope | `seanchatmangpt/ggen` — **tracks** sibling standing; does not execute sibling DO |
 
@@ -76,7 +76,7 @@ Photolithography / spine hops that require mounted siblings are included when ex
 
 | ID | Subject | Standing | Blocker | Next exact verifier | GA note |
 |----|---------|----------|---------|---------------------|---------|
-| G2-12 | **CASTLE publish** / RedactionCourt (spine) | **UNKNOWN** | `seanchatmangpt/castle` unmounted; no in-ggen publish surface | In **castle**: `cargo test --test publish_redaction_court`; `cargo test --test cli_publish_brand`; `castle publish post --subject spine-probe --public-anonymize --brand brands/fourth-watch.brand.toml` ([`CASTLE-SPINE-STANDING.md`](./CASTLE-SPINE-STANDING.md) §3.1) | README mint claims ≠ spine **ALIVE** without ggen digest bind |
+| G2-12 | **CASTLE publish** / RedactionCourt (spine) | **ALIVE** (sibling courts @ `2774039ea`) | Spine crown still lacks ggen layout/brand digest bind; LinkedIn send still **BLOCKED** on G2-2; in-ggen publish **UNSUPPORTED** | Replay in **castle** @ `2774039ea` (`bc-1bffb072`): `cargo test --test publish_redaction_court` → **13/13** exit **0**; `cargo test --test cli_publish_brand` → **6/6** exit **0**; `./target/debug/castle publish post --subject spine-probe --public-anonymize --brand brands/fourth-watch.brand.toml` → exit **0** / `redaction_court=ALIVE`. Next crown: bind ggen digest into mint ([`CASTLE-SPINE-STANDING.md`](./CASTLE-SPINE-STANDING.md) §3) | Sibling court **ALIVE** ≠ Foundry/zero-HITL **ALIVE**; ≠ LinkedIn send |
 | G2-13 | **Full DTCG brand inventory** (Fourth Watch / CindyCat) | **UNSUPPORTED** | Rhythm stubs in ggen only; color/type/CASTLE tokens Gate 2+ | Owner: brand plane + CASTLE. Admit OEM token sources (do not invent in ggen); then in **castle**/brand checkout: inventory court that loads admitted `brands/fourth-watch.brand.toml` + `brands/cindycat.brand.toml` full DTCG color/type/CASTLE sets → exit 0. ggen non-substitute: `cargo test -p ggen-graph --test brand_toml_rhythm_court` ([`GATE-2-CINDYCAT-FIRST.md`](./GATE-2-CINDYCAT-FIRST.md)) | Inventing tokens in ggen → **REFUSED** (ECOSYSTEM non-goal) |
 | G2-14 | **CASTLE CindyCat public mint** (commercial) | **UNKNOWN** | No mint receipt | In **castle**: `castle publish post --subject cindycat-mint-probe --public-anonymize --brand brands/cindycat.brand.toml` + `cargo test --test publish_redaction_court` ([`CASTLE-SPINE-STANDING.md`](./CASTLE-SPINE-STANDING.md)); depends G2-2 AND-gate for outbound send | Commercial mint **UNKNOWN** until castle + cos ready |
 | G2-15 | **Event #1** patronage (CindyCat-first) | **UNKNOWN** | No external acknowledgment in ggen | Owner artifact: ops/commercial register entry — written acknowledgment with **0% custody**, named third-party payer, amount **&gt;$250** ([`GATE-2-CINDYCAT-FIRST.md`](./GATE-2-CINDYCAT-FIRST.md) §3). Verify presence on ops host; do not fabricate receipt text here. | Deal crown stays **UNKNOWN** at GA without external receipt |
@@ -171,8 +171,11 @@ admit-court **6/6 vitest exit 0** @ `truex@e28e68300` on
 `truex:` REFUSED_PRIVATE / unknown REFUSED_UNKNOWN; next = merge truex
 PR + tip-sync ggen fence parity; **not** full `ALIVE` until truex
 `main`; hop-4 **PARTIAL_ALIVE** retained; no false product `ALIVE`).
-Standings synthesized from existing v27.1.1 standing ledgers only.
-Sibling court was **not** re-executed in this ggen workspace pass
-(standing cites truex feature tip exit 0). No out-of-repo row is
-asserted `ALIVE`. Tracked rows remain
+Tip pin retipped on `cursor/v2711-castle-alive-bc54` onto tip `d0e3ba473`
+— G2-12 CASTLE sibling spine courts **ALIVE** @ castle `2774039ea`
+(`bc-1bffb072`: `publish_redaction_court` 13/13, `cli_publish_brand` 6/6,
+spine-probe `redaction_court=ALIVE`, exits 0,0,0); Foundry/zero-HITL crown
+**not** promoted; spine crown wire remains **UNKNOWN**. Standings synthesized from
+existing v27.1.1 standing ledgers only. Sibling CASTLE courts executed on CASTLE live
+`bc-1bffb072` (not in this ggen workspace). Tracked rows remain
 **25** (`G0-1…4`, `G2-1…16`, `G3-1…5`).

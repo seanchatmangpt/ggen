@@ -6,14 +6,14 @@
 | Companion | `ECOSYSTEM-SPEC-27.1.1` (Gate 2–3 CASTLE publish); `REPO-INVENTORY-27.1.1` |
 | Subject | `seanchatmangpt/castle` on spine `ggen → Taffy → zcode-cli → CASTLE → Smalt → revops` |
 | Materialized | 2026-11-22 |
-| Observed ggen tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `4e6ca0e2e6e69bb6cd7582ec4ad50b58530d03d1` |
-| Tip pin | 2026-11-22 — `cursor/v2711-castle-retip-bc54` after crown tip `4e6ca0e2e` (standings held; no capability promotion; prior pin `7bf148d82`) |
-| Observed castle tip | `main` @ `2774039ea81bad508c93785a59dd7a99198ae256` (API; sibling not mounted) |
-| Repo scope of this land | `seanchatmangpt/ggen` (standing ledger only — no CASTLE runtime) |
+| Observed ggen tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `d0e3ba473dcaf26a90d963a767e4fa3f0600912f` |
+| Tip pin | 2026-11-22 — `cursor/v2711-castle-alive-bc54` after sibling CASTLE spine courts **ALIVE** @ `2774039ea` (`bc-1bffb072`; prior pin `4e6ca0e2e` / `cursor/v2711-castle-retip-bc54`) |
+| Observed castle tip | `main` @ `2774039ea81bad508c93785a59dd7a99198ae256` (live courts `bc-1bffb072`; not mounted in this ggen workspace) |
+| Repo scope of this land | `seanchatmangpt/ggen` (standing ledger only — no CASTLE runtime executed here) |
 
 Standing vocabulary: `UNKNOWN` | `PARTIAL_ALIVE` | `ALIVE` | `BLOCKED` | `BUILD_BROKEN` | `UNSUPPORTED` | `REFUSED_*`.
 
-Source presence, README prose, and remote tip SHA are **never** promoted to `ALIVE`.
+Source presence, README prose, and remote tip SHA are **never** promoted to `ALIVE`. Sibling court exits recorded by CASTLE live `bc-1bffb072` are the authority for the rows below marked **ALIVE**.
 
 ---
 
@@ -53,38 +53,45 @@ Intake host of record for CASTLE publish honesty: **`cos.fnox.io`**. Do not inve
 | CASTLE named on ECOSYSTEM Gate 2–3 (“CASTLE publish”) | doctrine present (companion / this ledger) | ECOSYSTEM-SPEC Gate schedule |
 | In-ggen publish / court surface | **UNSUPPORTED** | No `castle publish` crate path; inventory: “no publish/court surface in-repo” |
 | In-ggen CASTLE / brand-token inventory | **UNKNOWN** → Gate 2+ | Rhythm fixtures only; inventing CASTLE tokens → **REFUSED** |
-| Sibling `seanchatmangpt/castle` mounted in this workspace | **BLOCKED** | Checkout unmounted |
-| Sibling Typst/JSON mint (castle README) | **UNKNOWN** from ggen (not executed here) | Remote docs claim mint ALIVE; no local court exit |
-| Sibling RedactionCourt / brand CLI courts | **UNKNOWN** from ggen | Next verifier §3 |
+| Sibling `seanchatmangpt/castle` mounted in this workspace | **BLOCKED** | Checkout unmounted here; courts ran on CASTLE live agent |
+| Sibling Typst/JSON mint (`spine-probe`) | **ALIVE** | `bc-1bffb072` @ `2774039ea`: `castle publish post --subject spine-probe --public-anonymize --brand brands/fourth-watch.brand.toml` → exit **0**, `redaction_court=ALIVE` |
+| Sibling RedactionCourt / brand CLI courts | **ALIVE** | `bc-1bffb072` @ `2774039ea`: `cargo test --test publish_redaction_court` → **13/13** exit **0**; `cargo test --test cli_publish_brand` → **6/6** exit **0** |
 | LinkedIn / blast send on Jobs AND-gate | **BLOCKED** / stop-worked (per castle publish README) | `/readyz` ∧ 2× LOW not observed |
-| Spine wire: ggen brand/layout receipt → CASTLE `--brand` admit → Smalt → revops DO | **UNKNOWN** | No cross-repo court executed |
-| **CASTLE on horizontal spine (crown)** | **UNKNOWN** | Sibling unmounted; no spine integration receipt |
+| Spine wire: ggen brand/layout receipt → CASTLE `--brand` admit → Smalt → revops DO | **UNKNOWN** | No cross-repo digest-bind receipt |
+| **CASTLE on horizontal spine (crown)** | **UNKNOWN** | Sibling courts **ALIVE** ≠ spine crown; no ggen layout/brand digest bind into mint |
 
-Do **not** collapse sibling README “Typst mint ALIVE” into ggen `ALIVE`. Do **not** claim Plane-5 / revops / cos DO `ALIVE` from this repository.
+Do **not** collapse sibling court **ALIVE** into Foundry-finish / zero-HITL / spine-crown `ALIVE`. Do **not** claim Plane-5 / revops / cos DO `ALIVE` from this repository.
 
 ---
 
-## 3. Next verifier
+## 3. Verifiers
 
-### 3.1 Spine-facing (preferred next falsifier)
+### 3.1 Sibling spine courts (ALIVE — replay)
 
-In a mounted `seanchatmangpt/castle` checkout, admit a public post against an explicit OEM brand twin (Fourth Watch or CindyCat), fail-closed without flags:
+Exact commands that exited **0,0,0** on CASTLE tip `2774039ea81bad508c93785a59dd7a99198ae256` (`bc-1bffb072`):
 
 ```bash
-cd /path/to/castle
+cd /path/to/castle   # tip 2774039ea
 cargo test --test publish_redaction_court
+# → 13 passed; 0 failed; exit 0
 cargo test --test cli_publish_brand
+# → 6 passed; 0 failed; exit 0
 ./target/debug/castle publish post \
   --subject spine-probe \
   --public-anonymize \
   --brand brands/fourth-watch.brand.toml
+# → exit 0; redaction_court=ALIVE on mint receipt
 # omit --public-anonymize → REFUSED_NO_PUBLIC_ANONYMIZE / REFUSED_NO_AUTHORITY (exit 2)
 # omit --brand → REFUSED_BRAND (exit 2)
 ```
 
-Promotion rule: exit 0 with RedactionCourt collaborator on the mint receipt → may lift **sibling mint** to `PARTIAL_ALIVE` / `ALIVE` for that subject only. Spine crown stays non-`ALIVE` until a receipt binds a ggen layout/brand digest into that mint.
+Promotion applied: sibling mint + RedactionCourt/brand CLI courts → **ALIVE** for subject `spine-probe` only. Spine crown stays non-`ALIVE` until a receipt binds a ggen layout/brand digest into that mint. Zero-HITL / Foundry crown stay non-`ALIVE`.
 
-### 3.2 In-ggen (non-substitutes)
+### 3.2 Next falsifier (spine crown / digest bind)
+
+Bind an admitted ggen layout/brand digest into a CASTLE mint receipt, then replay §3.1 with that bind asserted on the receipt. Until then crown remains **UNKNOWN**.
+
+### 3.3 In-ggen (non-substitutes)
 
 | Check | Command / probe | What it proves |
 |-------|-----------------|----------------|
@@ -103,6 +110,7 @@ GA claims that **CASTLE is `ALIVE` on the horizontal spine** are **REFUSED** / f
 4. **Host fabrication** — CASTLE publish host asserted as `revops.fnox.io` (honest host remains `cos.fnox.io`).
 5. **Ambient DO** — CASTLE CONSTRUCT / planner / model output treated as Plane-5 DO without BRCE + WebAuthn AS-01.
 6. **Prose promotion** — spine `ALIVE` asserted from this standing ledger, fleet census, or castle README alone without §3 verifier exit 0 on the admitted subjects.
+7. **Sibling≠crown** — claiming horizontal-spine crown `ALIVE` from §3.1 sibling court exits alone (no ggen digest bind).
 
 ---
 
@@ -114,7 +122,8 @@ GA claims that **CASTLE is `ALIVE` on the horizontal spine** are **REFUSED** / f
 | `seanchatmangpt/castle` README + `src/publish/README.md` | Role = consequential admissibility + gated public mint |
 | castle `docs/sjira/v26.9.28/repos.ttl` | Owns `CONSEQUENTIAL_ADMISSIBILITY`; zcode-cli WRAP as `EXTERNAL_WORKER_PROVIDER` |
 | ECOSYSTEM-SPEC-27.1.1 (companion PR) | CASTLE publish = Gate 2–3; inventing inventories REFUSED |
-| Smalt / revops / zcode-cli | Sibling repos named; not mounted; spine edges **UNKNOWN** |
+| CASTLE live `bc-1bffb072` @ `2774039ea` | `publish_redaction_court` 13/13; `cli_publish_brand` 6/6; spine-probe mint `redaction_court=ALIVE`; exits 0,0,0 |
+| Smalt / revops / zcode-cli | Sibling repos named; spine edges beyond CASTLE courts remain **UNKNOWN** / **BLOCKED** |
 
 ---
 
@@ -123,10 +132,11 @@ GA claims that **CASTLE is `ALIVE` on the horizontal spine** are **REFUSED** / f
 | Claim | Standing |
 |-------|----------|
 | Role of CASTLE on horizontal spine | Documented (§1) |
-| Crown spine integration | **UNKNOWN** |
+| Crown spine integration | **UNKNOWN** (no ggen digest bind) |
 | In-ggen CASTLE publish surface | **UNSUPPORTED** |
-| Sibling mint / redaction courts | **UNKNOWN** (unmounted) — next verifier §3.1 |
+| Sibling mint / redaction / brand CLI courts | **ALIVE** @ `2774039ea` (`bc-1bffb072`; §3.1) |
 | LinkedIn blast send | **BLOCKED** (AND-gate) |
+| Zero-HITL / Foundry crown | **not ALIVE** — Foundry stays **PARTIAL_ALIVE** |
 | GA readiness for CASTLE spine | **OPEN** — falsifiers §4 |
 
 ---
@@ -135,16 +145,16 @@ GA claims that **CASTLE is `ALIVE` on the horizontal spine** are **REFUSED** / f
 
 | Field | Value |
 |-------|-------|
-| Observed ggen tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `4e6ca0e2e6e69bb6cd7582ec4ad50b58530d03d1` |
-| Sibling `seanchatmangpt/castle` | **not mounted** → §3.1 courts **BLOCKED** / **UNKNOWN** |
+| Observed ggen tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `d0e3ba473dcaf26a90d963a767e4fa3f0600912f` |
+| Sibling `seanchatmangpt/castle` tip | `2774039ea81bad508c93785a59dd7a99198ae256` — §3.1 courts **ALIVE** via `bc-1bffb072` (not mounted in this workspace) |
 | In-ggen `rg 'castle publish\|RedactionCourt' crates packs` | empty → publish surface **UNSUPPORTED** remains honest |
-| Brand rhythm (non-substitute) | `brand_toml_rhythm_court` evidence `0478fde59` **4 passed; exit 0** — rhythm only, not CASTLE inventory (tip-cargo PENDING quiet cgroup; not tip exit 0) |
-| Crown spine standing | **UNKNOWN** — **unchanged** |
-| False `ALIVE` | **none** — README mint ALIVE not collapsed into ggen; crown stays non-`ALIVE` |
+| Brand rhythm (non-substitute) | `brand_toml_rhythm_court` evidence `0478fde59` **4 passed; exit 0** — rhythm only, not CASTLE inventory |
+| Crown spine standing | **UNKNOWN** — **unchanged** (sibling ALIVE ≠ crown) |
+| False Foundry / zero-HITL `ALIVE` | **none** |
 
 ---
 
 ## 8. Provenance
 
 GOAL SLICE: CASTLE in horizontal spine (`ggen+Taffy+zcode-cli+CASTLE+Smalt+revops`) standing.
-Materialized as a ggen RFC ledger only. No CASTLE binary, Smalt runtime, or revops front-door was executed in this workspace. Tip reconfirm 2026-11-22 on `7bf148d82` — standing labels held. Tip pin retipped on `cursor/v2711-castle-retip-bc54` to live crown tip `4e6ca0e2e` (post–ui-layout evidence tidy `4e6ca0e2e`; standings held — no capability row promoted; no false `ALIVE`).
+Materialized as a ggen RFC ledger. Sibling spine courts promoted **ALIVE** from CASTLE live `bc-1bffb072` tip `2774039ea` (exits 0,0,0; publish_redaction_court 13/13; cli_publish_brand 6/6; spine-probe `redaction_court=ALIVE`). Tip pin on `cursor/v2711-castle-alive-bc54` against ggen tip `d0e3ba473`. Spine crown / zero-HITL / Foundry finish **not** promoted to `ALIVE`.
