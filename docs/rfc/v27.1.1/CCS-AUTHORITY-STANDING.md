@@ -23,7 +23,7 @@ Source presence is never promoted to path `ALIVE` without tip-cargo exit 0. Fixt
 | Bucket | Subjects | Standing |
 |--------|----------|----------|
 | **ALIVE (fixture courts)** | ABB/SBB `unauthorized_do_request_is_refused`; SovereignLease Ed25519 admit; V7 ES256/`prime256v1` fixture court land **4 passed; exit 0** @ `fb6e7fc6e`; V1 ungated-DO seat fence historical **6 passed; exit 0** @ `0478fde59` | Fixture / kernel only — **never** Plane-5 DO |
-| **PARTIAL_ALIVE** | CCS #1–#7 path slices; MCP CP17 `write_apply` courts **PRESENT** — tip-cargo **PENDING** (§4.1); full A2A lifecycle **ABSENT** — `lifecycle.rs` missing on tip `008a81d21`; land `cursor/mcp-a2a-hands-free-lifecycle-bc54` | Crown / broker rows still open |
+| **PARTIAL_ALIVE** | CCS #1–#7 path slices (CCS #2+#3 tip-cargo **ALIVE** subset); full A2A lifecycle package courts still open; land `cursor/mcp-a2a-hands-free-lifecycle-bc54` | Crown / broker rows still open |
 | **ALIVE (tip-cargo subset)** | CCS #3 `construct_hash_gate` **4 passed; exit 0** @ `861a6e73a`; V7/V1 fixture tip replay **exit 0** | Fixture + CCS #3 fence — **not** Plane-5 DO |
 | **BLOCKED** / **UNSUPPORTED** | Live WebAuthn / FIDO2 RP+hardware (**UNSUPPORTED**); live BRCE broker (**BLOCKED** → **V8**); Plane-5 front-door DO (**BLOCKED** → **V9** / OOR **G2-5**); `lifecycle.rs` still **ABSENT** | Exact next: [`CCS-BRCE-STANDING.md`](./CCS-BRCE-STANDING.md) §2; [`BRCE-WEBAUTHN-STANDING.md`](./BRCE-WEBAUTHN-STANDING.md) §5 |
 
@@ -148,7 +148,7 @@ Observed in-repo (live crates + docs; ontology_catalogue noise excluded where no
 | SELECT≠CONSTRUCT≠DO | `AGENTS.md`; ECOSYSTEM-SPEC-27.1.1 §1.1 (companion PR); CROWN/GALL docs |
 | `construct_hash_gate.rs` | **PRESENT** on tip `008a81d21` (§4.1; PR **#901**); tip-cargo **ALIVE** **4 passed; exit 0** @ `861a6e73a` |
 | `lifecycle.rs` | **ABSENT** on tip `008a81d21` (§4.2); land `cursor/mcp-a2a-hands-free-lifecycle-bc54` |
-| confirm gates | `ggen_write_apply` + CP17 courts **PRESENT**; tip-cargo **PENDING** (§4.1) |
+| confirm gates | `ggen_write_apply` + CP17 courts tip-cargo **ALIVE** **7+1+1 passed; exit 0** @ `abdefd5c8` (§4.1) |
 | brand.toml hot-swap | **PARTIAL_ALIVE** on tip (`brand_toml_hotswap_court`); production theme **UNSUPPORTED** / `REFUSED_PRODUCTION` ([`BRAND-PRODUCTION-THEME.md`](./BRAND-PRODUCTION-THEME.md); Gate-1 / ECOSYSTEM §8) — not Plane-5 DO |
 | zero-HITL fab crown | **not** `ALIVE` — Foundry / ECOSYSTEM D1 remain incomplete until out-of-repo hops close |
 | Plane-5 DO | **BLOCKED** — exact next CCS #8 / BRCE **V9** / OOR **G2-5** probe ladder |
@@ -174,8 +174,10 @@ Honesty retip 2026-11-22 on `cursor/v2711-ccs-ops-honesty-bc54` against crown
 `750b8ef4a` (V7 then still **ABSENT**). CCS3 land `3ec8afd85` (PR **#901**) +
 V7 land `fb6e7fc6e` absorbed onto tip lineage. Prior webauthn retip pinned
 `d05a131c`. Prior absorbs through `cursor/v2711-ccs-brce-tipcargo-bc54` @ `cbeb11d44` (CCS #3 **ALIVE** @ `861a6e73a`).
-**This retip** `cursor/v2711-ccs-residual-honesty-bc54` on crown tip `008a81d21`:
-CCS #3 `construct_hash_gate` **ALIVE** (retained); CCS #2 `write_apply` tip-cargo **PENDING** (§4.1 exact commands);
-`lifecycle.rs` **PRESENT** (tip `513704d04`; tip-cargo ALIVE 6/6 @ `acd9705c1`) — land `cursor/mcp-a2a-hands-free-lifecycle-bc54` @ `05c6032f0`; live WebAuthn **UNSUPPORTED**;
-live BRCE broker **BLOCKED** (**V8** unchanged); Plane-5 DO **BLOCKED** (**V9**/G2-5 unchanged). Clause-2 binder:
-[`CCS-BRCE-STANDING.md`](./CCS-BRCE-STANDING.md). Cargo **not** run. No ManagePullRequest.
+Prior residual honesty `cursor/v2711-ccs-residual-honesty-bc54` on tip `008a81d21`
+held CCS #2 tip-cargo **PENDING**. **This land** `cursor/v2711-write-apply-alive-bc54`
+@ `e1039c6bc` on tip `cd7c2433b`: CCS #2 `write_apply` tip-cargo **ALIVE**
+(**7+1+1 passed; exit 0** @ `abdefd5c8`; [`CCS-WRITE-APPLY-ALIVE-STANDING.md`](./CCS-WRITE-APPLY-ALIVE-STANDING.md));
+CCS #3 `construct_hash_gate` **ALIVE** (retained); live WebAuthn **UNSUPPORTED**;
+live BRCE broker **BLOCKED** (**V8** unchanged); Plane-5 DO **BLOCKED** (**V9**/G2-5 unchanged).
+Clause-2 binder: [`CCS-BRCE-STANDING.md`](./CCS-BRCE-STANDING.md). Goal **ACTIVE**; OOR stays **BLOCKED**.
