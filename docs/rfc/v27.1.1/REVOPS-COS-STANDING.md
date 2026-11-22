@@ -172,3 +172,20 @@ Observed on `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `7bf148d82e125589859d88
 | `curl https://cos.fnox.io/ledger` | HTTP **404** | **UNKNOWN** |
 
 Crown: Plane-5 revops+cos product standing is **not** `ALIVE`. Labels in §1 **held**. Next verifiers remain §4.
+
+---
+
+## 8. Tip reconfirm (2026-11-22) — crown `5f7c755a6`
+
+Observed on `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `5f7c755a61634bf1c0370f8552d43bf7803ccc17` (post–CCS ops honesty demotion FF; prior pins `c9e224d33` / `7bf148d82` remain historical in §7). Probe standings **held**; no capability promotion; no false `ALIVE`. Honesty demotions on tip (CCS/ops BRCE/brand/`verify_witness` → **PARTIAL_ALIVE**) do not promote Plane-5 revops+cos.
+
+| Probe | Result | Standing |
+|-------|--------|----------|
+| `getent hosts revops.fnox.io` | empty | **UNKNOWN** |
+| `curl https://revops.fnox.io/` | exit 6 / `http=000` | **UNKNOWN** |
+| `curl https://cos.fnox.io/` | HTTP **404** `NOT_FOUND` | **PARTIAL** (edge) |
+| `curl https://cos.fnox.io/healthz` | HTTP **200** `{"status":"ok"}` | **PARTIAL** |
+| `curl https://cos.fnox.io/readyz` | HTTP **503** `{"status":"DB_UNAVAILABLE"}` | **BLOCKED** |
+| `curl https://cos.fnox.io/ledger` | HTTP **404** | **UNKNOWN** |
+
+Crown: Plane-5 revops+cos product standing is **not** `ALIVE`. Labels in §1 **held**. Next verifiers remain §4.
