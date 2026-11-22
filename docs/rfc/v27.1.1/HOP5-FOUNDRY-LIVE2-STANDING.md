@@ -35,33 +35,38 @@ separate residual (`mix` **ABSENT** on this host).
 | `bun scripts/powl-foundry-loop.ts --live` @ zcode `f32df08` | **foundry_exit=1** |
 | `liveExecutor` | `createZcodeAgentExecutor` (configured — prior SUBJECT_MISSING closed) |
 | `aggregateStanding` | **REFUSED** |
-| Exact failure | `ZCode runtime is missing. Reinstall the package or run bun run sync:local` |
-| Runtime lock | `zcode-runtime.lock.json` = **darwin/arm64** → Linux VM **UNSUPPORTED** for `sync:locked` |
+| Exact failure (live2) | `ZCode runtime is missing. Reinstall the package or run bun run sync:local` |
+| Runtime lock (committed) | `zcode-runtime.lock.json` = **darwin/arm64** → Linux **UNSUPPORTED** for `sync:locked` / `sync:local` |
 | Jobs/C4 | `mix` **ABSENT** (Gall spine `ui_layout` disabled; igniter check stubbed dry-run only) |
 
 Receipt: `/tmp/cursor/hop5-foundry-live2-receipt.md`.
+
+**Successor (runtime land):** Linux tip-matched `.deb` materialization closed runtime ABSENT;
+`--live` now fails on provider/model access — see [`HOP5-ZCODE-RUNTIME-STANDING.md`](./HOP5-ZCODE-RUNTIME-STANDING.md).
 
 ## Standing
 
 | Claim | Standing |
 |-------|----------|
 | Live executor **configured** in Gall `--live` | **ALIVE** (injection present @ `f32df08`) |
-| Live foundry converge / hop-5 crown | **BLOCKED** / **REFUSED** — ZCode runtime **ABSENT**; exit **1**; **not** `ALIVE` |
+| Live foundry converge / hop-5 crown (live2 snapshot) | **BLOCKED** / **REFUSED** — ZCode runtime **ABSENT** at live2; exit **1**; **not** `ALIVE` |
 | Jobs/C4 (`mix ggen_igniter.sync --check`) | **BLOCKED** (`mix` ABSENT) |
 | Hop-5 aggregate / path / Foundry crown | **PARTIAL_ALIVE** / **PARTIAL** — do **not** invent crown `ALIVE` |
 
 ## Exact next verifier
 
+Superseded by [`HOP5-ZCODE-RUNTIME-STANDING.md`](./HOP5-ZCODE-RUNTIME-STANDING.md):
+
 ```bash
-# On a host with ZCode runtime (macOS ZCode.app → bun run sync:local,
-# or supported-platform sync:locked) + provider credentials:
-cd /agent/repos/zcode-cli   # @ f32df08 or successor
+# Runtime PRESENT on Linux (tip-matched lock); provider credentials required:
+cd /agent/repos/zcode-cli   # @ f32df08+; vendor/zcode.cjs PRESENT
 bun scripts/powl-foundry-loop.ts --live
-# expect: foundry_exit=0 / aggregateStanding=ALIVE for hop-5 live crown
+# expect: foundry_exit=0 after model access configured
 
 # Jobs/C4 residual (separate):
 mix ggen_igniter.sync --check   # → 0 in igniter workspace
 ```
 
 Antifalsifier: executor injection alone ≠ hop-5 / path-crown `ALIVE`;
-`foundry_exit=1` with runtime ABSENT is typed **BLOCKED**/**REFUSED**, not silent pass.
+`foundry_exit=1` with runtime ABSENT (live2) or model access ABSENT (runtime land)
+is typed **BLOCKED**/**REFUSED**, not silent pass.
