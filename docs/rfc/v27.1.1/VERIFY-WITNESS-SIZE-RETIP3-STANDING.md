@@ -1,20 +1,20 @@
 # `verify_witness` size retip3 — measure vs &lt;250KB (push-first)
 
 ```text
-exit=measure_0 standing=ALIVE(size_measure) bytes=28673 tip=c2cd54f562f1fe675d9ea5fabf989b89a9f8a796
-size_court_tip_cargo=TIMEOUT(170s)/PARTIAL
+exit=measure_0 standing=ALIVE(size_measure) bytes=28673 tip=2685119bd92e607cdb93d3dafdbb80cd9da0447d
+size_court_tip_cargo=KILLED(137)/PARTIAL
 env_wire=PARTIAL production_runtime=UNSUPPORTED
 honesty=size_measure_ALIVE_neq_tip_cargo_PARTIAL_neq_production_ALIVE_neq_Foundry_ALIVE
 side=cursor/v2711-vw-size-retip3-bc54
-agent=bc-cf179f93-ea03-5661-841d-7d083467b897
+agent=bc-37e9fbe6-cd76-5497-a2ec-0f639d95f4d1
 ```
 
 | Field | Value |
 |-------|-------|
 | Branch | `cursor/v2711-vw-size-retip3-bc54` |
-| Live tip base | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `c2cd54f562f1fe675d9ea5fabf989b89a9f8a796` (≈ `167352d0d+`; tip-wins Taffy retip7 PARTIAL) |
-| Agent | `bc-cf179f93-ea03-5661-841d-7d083467b897` |
-| UTC | `2026-11-22T17:46:03Z` |
+| Live tip base | `origin/cursor/ecosystem-spec-27-1-1-bc54` lineage @ `2685119bd92e607cdb93d3dafdbb80cd9da0447d` (tip-wins ui_layout exact-retip5 PARTIAL) |
+| Agent | `bc-37e9fbe6-cd76-5497-a2ec-0f639d95f4d1` |
+| UTC | `2026-11-22T17:48:30Z` |
 | Prior size court ledger | [`VERIFY-WITNESS-SIZE-COURT-STANDING.md`](./VERIFY-WITNESS-SIZE-COURT-STANDING.md) |
 | Affidavit pin ledger | [`VERIFY-WITNESS-AFFIDAVIT-SIZE-COURT-STANDING.md`](./VERIFY-WITNESS-AFFIDAVIT-SIZE-COURT-STANDING.md) |
 | Crown absorb | **none** (sidebranch only; no ManagePullRequest; no force-push) |
@@ -30,7 +30,7 @@ agent=bc-cf179f93-ea03-5661-841d-7d083467b897
 | Affidavit court bound | ≤ **256000** — held |
 | Gate-1 bound | &lt; **262144** — held |
 | ggen placeholder | **35** B @ tip (`720b97972e97693b197444d46578b75546cd0b0487e7061fc7e1ea45f2953034`) |
-| Tip-cargo size court | `cargo test -p ggen-graph --test verify_witness_size_court` → **EXIT 124** / timeout **170s** cold (`/tmp/ggen-vw-size-retip3-court`); warm retry **EXIT 124** / **90s** — thrash; log `/tmp/cursor/vw-size-retip3-court.log` |
+| Tip-cargo size court | `cargo test -p ggen-graph --test verify_witness_size_court` → **EXIT 137** (OOM/killed @ ~11s) under host thrash; log `/tmp/cursor/vw-size-retip3-court.log` |
 | Status | `/tmp/cursor/vw-size-retip3-measure.status` → `AFF_BYTES=28673` |
 
 ## Standing
@@ -38,18 +38,18 @@ agent=bc-cf179f93-ea03-5661-841d-7d083467b897
 | Claim | Standing |
 |-------|----------|
 | Production pin bytes &lt;250KB (measure) | **ALIVE** — `wc -c` **28673** |
-| Tip-cargo `verify_witness_size_court` this retip | **PARTIAL** — timeout under cargo thrash; court sources **PRESENT** (8 tests) unchanged vs prior ALIVE land |
+| Tip-cargo `verify_witness_size_court` this retip | **PARTIAL** — EXIT 137 under thrash; court sources **PRESENT** (8 tests) |
 | Env wire / production runtime | **PARTIAL** / **UNSUPPORTED** (unchanged) |
 | Foundry / hop-5 | **not this subject** |
 
 ```text
-ALIVE(size_measure @ tip c2cd54f562f1fe675d9ea5fabf989b89a9f8a796)
+ALIVE(size_measure @ tip 2685119bd92e607cdb93d3dafdbb80cd9da0447d)
   ⇔  wc -c affidavit_gatekeeper_verify_witness.wasm = 28673
   ∧  28673 < 250000
   ∧  this honesty retip cites tip + measure + sidebranch
 
-PARTIAL(size_court_tip_cargo @ tip c2cd54f562f1fe675d9ea5fabf989b89a9f8a796)
-  ⇔  tip-cargo timeout within retip budget
+PARTIAL(size_court_tip_cargo @ tip 2685119bd92e607cdb93d3dafdbb80cd9da0447d)
+  ⇔  tip-cargo killed/timeout within retip budget
   ∧  next verifier = warm size court EXIT 0
 ```
 
