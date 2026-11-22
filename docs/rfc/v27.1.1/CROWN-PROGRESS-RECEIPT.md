@@ -4,7 +4,7 @@
 |-------|-------|
 | Document ID | `CROWN-PROGRESS-RECEIPT-27.1.1` |
 | Status | **PROGRESS RECEIPT** (honest; **not** goal-complete; **not** crown `ALIVE`) |
-| Observed tip | absorb tip `TIPSHA_FINISH` (~`15ae6ef16+` / `ef94ca963+` / `c11ea7f2a+`) |
+| Observed tip | absorb tip `3ec33983528ae0c168ffbd56f80cbd6df5353dff` (~`15ae6ef16+` / `ef94ca963+` / `c11ea7f2a+`) |
 | Tip subject | absorb #936 crown-progress2 honesty @ `0e25df932`/`0f62a0548` + #937 Gate-1 post-uilayout audit @ `7b1120d6e` onto tip `15ae6ef16+` (past #932/#933 construct_hash **PRESENT** + brand honesty; #930 taffy **PRESENT**; #931 photo hop-4 **ALIVE**; #929 verify_witness **PRESENT**). Tip-wins: ui_layout tip-cargo **ALIVE** preserved (**11 passed; exit 0** @ `ca52e9c16`). Clause-1 hop-4 **ALIVE** / hop-5 **PARTIAL** / `--live` HITL **BLOCKED**; Clause-2 `construct_hash` **PRESENT** / WebAuthn **UNSUPPORTED** / V8 **BLOCKED**; Clause-3 Smalt **ALIVE** / cos **503** / revops NXDOMAIN / `verify_witness` **PRESENT**; Clause-4 Foundry **PARTIAL** (CASTLE/Smalt sibling **ALIVE** ≠ zero-HITL); Gate-1 **PARTIAL** (Truex+shui **ALIVE**; Taffy **PRESENT**; brand hot-swap+fluid **PRESENT** / production **UNSUPPORTED**; ui_layout tip-cargo **ALIVE**) |
 | Ledger pins cited | Gate-1 four-falsifier audit + crown-progress2 honesty; ui_layout **ALIVE** tip-wins; taffy **PRESENT**; verify_witness **PRESENT**; hop-4 BrandTheme **ALIVE**; brand hot-swap+fluid **PRESENT** / production **UNSUPPORTED**; construct_hash **PRESENT**; OOR / CCS / BRCE / CASTLE retain prior absorb pins |
 | Cargo this receipt | **no** — tip-cargo skipped; prior exclusive quiet `ui_layout_court` **11 passed; exit 0** @ `ca52e9c16` retained (**ALIVE**) |
@@ -30,7 +30,7 @@ FinOps: FOUNDRY/OOR **ALIVE** @ `91997da76f0f` vs older §13.3 FinOps
 Compact return line:
 
 ```text
-tip=TIPSHA_FINISH
+tip=3ec33983528ae0c168ffbd56f80cbd6df5353dff
 clause1=PARTIAL
 clause2=PARTIAL_ALIVE
 clause3=PARTIAL+BLOCKED

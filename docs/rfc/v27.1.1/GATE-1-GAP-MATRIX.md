@@ -7,7 +7,7 @@ Companion to `ECOSYSTEM-SPEC-27.1.1.md` and `REPO-INVENTORY-27.1.1.md`.
 **Evidence refresh / live tip pin:** CindyCat dual-schema `[primitive.space]` from `[rhythm]` on `cursor/v2711-hop4-cindycat-space-bc54` (court `oem_fixtures_carry_dtcg_primitive_space_from_rhythm`).
 
 **Evidence refresh / live tip pin:** 2026-11-22 absorb #936 crown-progress2 + #937 Gate-1 post-uilayout audit onto tip
-`TIPSHA_FINISH` (~`15ae6ef16+` / `ef94ca963+` / `c11ea7f2a+`; tip-wins: hop-5 runtime **PRESENT** / model access **REFUSED**; ui_layout tip-cargo **ALIVE**; chicago mirror **PARTIAL_ALIVE**; Smalt 6-column spine **ALIVE**; verify_witness size court **PRESENT**; taffy_aot_preflight **PRESENT**; photo hop-4 **ALIVE** reconfirm; brand hot-swap+fluid **PRESENT**; production theme **UNSUPPORTED**; construct_hash **PRESENT**).
+`3ec33983528ae0c168ffbd56f80cbd6df5353dff` (~`15ae6ef16+` / `ef94ca963+` / `c11ea7f2a+`; tip-wins: hop-5 runtime **PRESENT** / model access **REFUSED**; ui_layout tip-cargo **ALIVE**; chicago mirror **PARTIAL_ALIVE**; Smalt 6-column spine **ALIVE**; verify_witness size court **PRESENT**; taffy_aot_preflight **PRESENT**; photo hop-4 **ALIVE** reconfirm; brand hot-swap+fluid **PRESENT**; production theme **UNSUPPORTED**; construct_hash **PRESENT**).
 Receipt `/tmp/cursor/gate1-post-uilayout-audit.md` (source #937 @ `7b1120d6e`) + crown-progress2 honesty (#936 @ `0f62a0548`).
 **Four in-repo falsifiers (this audit):**
 - **Truex+shui** → product **ALIVE** @ `truex@68d2d233` / merge `b4672131`
@@ -93,7 +93,7 @@ Do not promote any Gate 0 row to `ALIVE` from this repository.
 
 ### Command evidence log (this refresh)
 
-Live tip pin: `TIPSHA_FINISH` (~`15ae6ef16+` / `ef94ca963+`; absorb #936/#937 onto tip past #932/#933/#930/#931/#929; ui_layout tip-cargo **ALIVE** + chicago **PARTIAL** + Smalt **ALIVE**; sources ≡ tip).
+Live tip pin: `3ec33983528ae0c168ffbd56f80cbd6df5353dff` (~`15ae6ef16+` / `ef94ca963+`; absorb #936/#937 onto tip past #932/#933/#930/#931/#929; ui_layout tip-cargo **ALIVE** + chicago **PARTIAL** + Smalt **ALIVE**; sources ≡ tip).
 Historical exit-0 evidence tip: `0478fde59644cccd60c5a88d64d444ec292e6a3c` (≥ `a54b9803`; ancestor).
 ui-layout ancestor ALIVE: `eaf0dad40287a3347280a541766b3b16f3978cf8`.
 **Tip-cargo `ui_layout` ALIVE** preserved this absorb: exclusive flock `/tmp/ggen-uilayout-tip-alive-protected`;

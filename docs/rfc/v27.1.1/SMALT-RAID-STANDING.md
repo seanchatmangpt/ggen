@@ -6,7 +6,7 @@
 | Companion | `ECOSYSTEM-SPEC-27.1.1` (economic-ops / Gate-0–Plane-5 adjacent) |
 | Target GA | **2027-01-01** |
 | Materialized | 2026-11-22 |
-| Observed ggen tip | absorb tip `TIPSHA_FINISH` (~`15ae6ef16+`; absorb #936/#937 onto tip past #928 Clause-3 Smalt retip; lineage ⊇ `27436608c`/`a29e1cd92`/`60b15c778`) |
+| Observed ggen tip | absorb tip `3ec33983528ae0c168ffbd56f80cbd6df5353dff` (~`15ae6ef16+`; absorb #936/#937 onto tip past #928 Clause-3 Smalt retip; lineage ⊇ `27436608c`/`a29e1cd92`/`60b15c778`) |
 | Observed smalt tip | FinOps `91997da76f0f356dc2be914bdb0a5b8227518719` (parent `875efbb87bde8422236cf9db7224412962dbc5a7`; 4-cloud courts `bc-ad9ebffa` + retry `bc-1e876087`) |
 | Crown standing (from ggen) | **PARTIAL_ALIVE** (full RAID / remaining GA economic face / b4b still open) — **6-column spine ALIVE**: doctor/aws/gcp/azure/twilio exits **0,0,0,0,0** @ `875efbb87`; `fin_ops` **ALIVE** @ `91997da76f0f` (`mix test test/fin_ops_calculator_test.exs` → exit **0**, **19 passed**). Never invent full RAID / Foundry crown `ALIVE`. |
 
@@ -187,7 +187,7 @@ rg -i -n '\bRAID\b|4-cloud|economic.?ops' \
 
 | Field | Value |
 |-------|-------|
-| Observed ggen tip | absorb tip `TIPSHA_FINISH` (~`15ae6ef16+`; ⊇ `27436608c`/`a29e1cd92`/`60b15c778`) |
+| Observed ggen tip | absorb tip `3ec33983528ae0c168ffbd56f80cbd6df5353dff` (~`15ae6ef16+`; ⊇ `27436608c`/`a29e1cd92`/`60b15c778`) |
 | Observed smalt tip | `91997da76f0f` (FinOps) / parent `875efbb87` (4-cloud) via `bc-ad9ebffa` + `bc-1e876087` |
 | Sibling mount in this ggen workspace | probe checkout `/tmp/smalt-raid-probe` @ `875efbb87` (+ fetched `91997da76f0f` blob); mix/elixir **ABSENT** this env |
 | 4-cloud exits (authority) | doctor=**0** aws=**0** gcp=**0** azure=**0** twilio=**0** @ `875efbb87` (`bc-ad9ebffa`) |
