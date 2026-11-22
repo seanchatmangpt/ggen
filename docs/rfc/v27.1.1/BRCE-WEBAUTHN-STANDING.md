@@ -4,9 +4,9 @@
 |-------|-------|
 | Document ID | `BRCE-WEBAUTHN-STANDING` |
 | Spec binding | `ECOSYSTEM-SPEC-27.1.1` §1.1 / Plane 5 |
-| Observed tip | tip lineage @ `d05a131c7521d5a6325ade2e8295fee650659d5a` (V7 land `fb6e7fc6e` is ancestor; prior pins `ebdbd69de` / `750b8ef4a` / `5e00619a4`) |
-| Tip pin | 2026-11-22 — `cursor/v2711-ccs-webauthn-retip-bc54` (honest retip: V7 fixture **PARTIAL**/fixture-court land exit 0; live WebAuthn crypto **UNSUPPORTED**; broker / Plane-5 **BLOCKED**; cargo not run) |
-| Live filename | `BRCE-WEBAUTHN-STANDING.md` (not `BRCE-AS01-STANDING.md`) |
+| Observed tip | tip lineage @ `a3b1c94103984e2d362c068deb61cd700615e158` (V7 land `fb6e7fc6e` + construct_hash PR **#901** / `3ec8afd85` are ancestors; prior pin `d05a131c`) |
+| Tip pin | 2026-11-22 — `cursor/v2711-ccs-brce-retip-ecd6` (honest retip: V7 fixture **PARTIAL**/fixture-court land exit 0; live WebAuthn crypto **UNSUPPORTED**; broker / Plane-5 **BLOCKED**; cargo not run; tip-cargo locks **spared**) |
+| Live filename | `BRCE-WEBAUTHN-STANDING.md` (AS-01 / V1–V11); Clause-2 crown binder [`CCS-BRCE-STANDING.md`](./CCS-BRCE-STANDING.md) |
 | Target GA | **2027-01-01** |
 | Slice standing | **PARTIAL_ALIVE** (doctrine + V1 presence fence + **V7 fixture crypto-shape**); live BRCE broker / live WebAuthn ceremony / Plane-5 DO still **BLOCKED** / **UNSUPPORTED** — never claim Plane-5 `ALIVE` from this land |
 
@@ -17,13 +17,13 @@ WebAuthn ceremony, BRCE broker runtime, or Plane-5 DO path as `ALIVE`.
 
 ---
 
-## 0. Honesty matrix (this retip @ `d05a131c`)
+## 0. Honesty matrix (this retip @ `a3b1c9410`)
 
 | Bucket | Subjects | Standing | Exact next verifier |
 |--------|----------|----------|---------------------|
-| **ALIVE (fixture courts)** | ABB/SBB `unauthorized_do_request_is_refused`; SovereignLease Ed25519 admit; V7 ES256/`prime256v1` fixture court land **4 passed; exit 0** @ `fb6e7fc6e`; V1 seat fence historical **6 passed; exit 0** @ `0478fde59` | Fixture / kernel only | Replay: `cargo test -p ggen-abb-sbb --test brce_as01_es256_assertion_court`; `… --test brce_as01_seat_court`; `… --test falsifiers unauthorized_do_request_is_refused`; `cargo test -p ggen-sjira --test lease_epoch_test` |
-| **PARTIAL_ALIVE** | Whole AS-01 CONSTRUCT→DO slice; doctrine / CI broker fences; V7 crypto-shape path (fixture ≠ hardware); ungated-DO presence fence on tip without tip-cargo this retip | Path ceiling | Tip-cargo replay of V1/V7; do not promote to live |
-| **BLOCKED** | Live BRCE broker (admit→actuate→receipt) | Broker unmounted | **V8** — mounted BRCE broker court: intent without AS-01 → `REFUSED_*`; with verified seat → execution receipt + replay digest → exit **0** |
+| **ALIVE (fixture courts)** | ABB/SBB `unauthorized_do_request_is_refused`; SovereignLease Ed25519 admit; V7 ES256/`prime256v1` fixture court land **4 passed; exit 0** @ `fb6e7fc6e`; V1 seat fence historical **6 passed; exit 0** @ `0478fde59` | Fixture / kernel only | Replay (when tip-cargo free): `cargo test -p ggen-abb-sbb --test brce_as01_es256_assertion_court`; `… --test brce_as01_seat_court`; `… --test falsifiers unauthorized_do_request_is_refused`; `cargo test -p ggen-sjira --test lease_epoch_test` |
+| **PARTIAL_ALIVE** | Whole AS-01 CONSTRUCT→DO slice; doctrine / CI broker fences; V7 crypto-shape path (fixture ≠ hardware); ungated-DO presence fence on tip without tip-cargo this retip | Path ceiling | Tip-cargo replay of V1/V7 when free (locks **spared** this retip); do not promote to live |
+| **BLOCKED** | Live BRCE broker (admit→actuate→receipt) | Broker unmounted | **V8** — mounted BRCE broker court: intent without AS-01 → `REFUSED_*`; with verified seat → execution receipt + replay digest → exit **0** → then **V9**/G2-5 |
 | **UNSUPPORTED** | Live WebAuthn / FIDO2 RP + hardware ceremony; full clientDataJSON / authenticatorData / RP-ID bind; Plane-5 DO from ggen alone | No RP deps; V7 is fixture ECDSA only | Production RP/hardware court (OOR G2-4 beyond fixture) + **V9** / OOR **G2-5** Plane-5 probe ladder |
 
 ---
@@ -146,6 +146,7 @@ named claim.
 | `crates/ggen-abb-sbb/tests/brce_as01_es256_assertion_court.rs` | Chicago falsifier (V7) |
 | [`OUT-OF-REPO-NEXT-VERIFIERS.md`](./OUT-OF-REPO-NEXT-VERIFIERS.md) | G2-3/G2-4/G2-5 live broker / WebAuthn / Plane-5 DO |
 | [`CCS-AUTHORITY-STANDING.md`](./CCS-AUTHORITY-STANDING.md) | ~8 CCS ledger (CCS-1 / CCS-3 / CCS-8) |
+| [`CCS-BRCE-STANDING.md`](./CCS-BRCE-STANDING.md) | Clause-2 crown honesty binder (tip pin + next V8→V9/G2-5) |
 
 ---
 
@@ -161,4 +162,4 @@ named claim.
 | Live BRCE broker / Plane 5 DO | **BLOCKED** — exact next §5 **V8**/**V9** + OOR **G2-3**/**G2-5** |
 | Ungated DO without seat typed refusal | **PARTIAL_ALIVE** (path) / V1 fixture land **ALIVE** |
 | Whole AS-01 CONSTRUCT→DO path | **PARTIAL_ALIVE** → next falsifiers **V8–V11** + OOR **G2-3/G2-5** (G2-4 production still **UNSUPPORTED** beyond fixture) through GA |
-| Observed tip | `cursor/v2711-ccs-webauthn-retip-bc54` @ `d05a131c` (cargo not run) |
+| Observed tip | `cursor/v2711-ccs-brce-retip-ecd6` @ `a3b1c9410` (cargo not run; tip-cargo locks spared) |

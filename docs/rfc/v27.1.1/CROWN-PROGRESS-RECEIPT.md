@@ -64,19 +64,21 @@ Antifalsifier: adapter exit 0 ≠ path crown `ALIVE`; bare post-clone `git diff`
 
 ## Clause 2 — CCS / BRCE + WebAuthn AS-01 (§13.2)
 
+Detail binder: [`CCS-BRCE-STANDING.md`](./CCS-BRCE-STANDING.md) @ tip `a3b1c9410`.
+
 | Claim | Standing |
 |-------|----------|
 | **CCS / BRCE slice crown** | **PARTIAL_ALIVE** |
 | CCS #1 AS-01 CONSTRUCT→DO | **PARTIAL_ALIVE** — V1 seat + V7 ES256 fixture land (**4 passed; exit 0** @ `fb6e7fc6e`); live WebAuthn **UNSUPPORTED**; broker **BLOCKED**; Plane-5 DO **BLOCKED** |
-| CCS #2 MCP `ggen_write_apply` + CP17 | **PARTIAL_ALIVE** (courts PRESENT; tip-cargo pending) |
-| CCS #3 `construct_hash_gate` | **PARTIAL_ALIVE** — **PRESENT** on tip (land `3ec8afd85`); `lifecycle.rs` still **ABSENT** |
+| CCS #2 MCP `ggen_write_apply` + CP17 | **PARTIAL_ALIVE** (courts PRESENT; tip-cargo pending/spared) |
+| CCS #3 `construct_hash_gate` | **PARTIAL_ALIVE** — **PRESENT** on tip (PR **#901** / land `3ec8afd85`); `lifecycle.rs` still **ABSENT**; tip-cargo **spared** |
 | CCS #5 SovereignLease Ed25519 | Fixture **ALIVE**; **UNSUPPORTED** as AS-01/`prime256v1` |
 | CCS #8 Plane-5 front doors | **BLOCKED** / **UNKNOWN** (revops DNS; cos `/readyz` **503**) |
 
 **Exact next verifiers**
 
-1. Tip-cargo: `cargo test -p ggen-abb-sbb --test brce_as01_es256_assertion_court`; `… --test brce_as01_seat_court`; `cargo test -p ggen-lsp --lib construct_hash_gate`.
-2. Live ladder: BRCE **V8** (broker AS-01 seat) → **V9** / OOR **G2-5** (Plane-5 DO probe).
+1. Live ladder: BRCE **V8** (broker AS-01 seat) → **V9** / OOR **G2-5** (Plane-5 DO probe).
+2. When tip-cargo free (locks spared this retip): `cargo test -p ggen-lsp --lib construct_hash_gate`; `cargo test -p ggen-abb-sbb --test brce_as01_es256_assertion_court`; `… --test brce_as01_seat_court`.
 3. Residual: land/merge `lifecycle.rs` + package courts exit **0**.
 
 Fence / fixture exit 0 ≠ Plane-5 / CONSTRUCT→DO `ALIVE`.
