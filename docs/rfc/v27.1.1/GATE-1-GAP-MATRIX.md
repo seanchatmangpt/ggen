@@ -5,13 +5,14 @@ Remaining-courts ledger: [`GATE-1-REMAINING-COURTS-STANDING.md`](./GATE-1-REMAIN
 Companion to `ECOSYSTEM-SPEC-27.1.1.md` and `REPO-INVENTORY-27.1.1.md`.
 
 **Evidence refresh / live tip pin:** 2026-11-22 tip-pin on
-`cursor/v2711-truex-admit-standing-bc54` to
-`58a93a94f688dbd5c3827d09dcc817d290ceda4d`
-(`origin/cursor/ecosystem-spec-27-1-1-bc54`). Truex product admit →
-**PARTIAL_ALIVE** (sibling admit-court **6/6 vitest exit 0** @
-`truex@e28e68300` on `cursor/v2711-truex-admit-court-bc54`; not crown
-`ALIVE` until PR merged to truex `main` + tip-sync ggen fence parity).
-Historical court exits remain on ancestor
+`cursor/v2711-hop4-manufacture-bc54` to
+`5f8f0c3a4e8cf4c487d61f6560876b05728eeff0`
+(`origin/cursor/ecosystem-spec-27-1-1-bc54`). Hop-4 igniter manufacture →
+**PARTIAL** exit **2** `REFUSED :no_primitive_space` (tip brand `[rhythm]` →
+BrandTheme; evidence `/tmp/cursor/igniter-real-cleanroom.md`). Truex product
+admit remains **PARTIAL_ALIVE** (sibling admit-court **6/6 vitest exit 0** @
+`truex@e28e68300`; not crown `ALIVE` until truex `main` + tip-sync). Historical
+court exits remain on ancestor
 `0478fde59644cccd60c5a88d64d444ec292e6a3c` (≥ `a54b9803`) and ui-layout
 evidence `eaf0dad40287a3347280a541766b3b16f3978cf8` — both ancestors of tip.
 **Tip-cargo reconfirm PENDING** (quiet cgroup) — not tip exit 0.
@@ -70,7 +71,7 @@ Do not promote any Gate 0 row to `ALIVE` from this repository.
 | Brand `.toml` rhythm schema + OEM stubs (Fourth Watch / CindyCat) | **PARTIAL_ALIVE** (rhythm court) — historical `brand_toml_rhythm_court` **4 passed; exit 0** on evidence `0478fde59` (ancestor). Tip source has **11** `#[test]` (+ `brand_fluid_clamp_court` PRESENT); tip-cargo PENDING. Full DTCG color/type/CASTLE inventories remain Gate 2+. **brand.toml hot-swap** fence → **PARTIAL_ALIVE** (`seed_hot_swap_slot`/`hot_swap_brand` + `brand_toml_hotswap_court`; standing ceiling PARTIAL). **Production theme** → **UNSUPPORTED** (`promote_production_theme` → `REFUSED_PRODUCTION`; lib court `layout::brand::production_theme_tests`). Never production theme/CASTLE `ALIVE` from Gate-1 fences. **Commercial** priority is CindyCat-first ([`GATE-2-CINDYCAT-FIRST.md`](./GATE-2-CINDYCAT-FIRST.md)), not Fourth Watch cold cyber. | tip `5e00619a422a0d8e451029f0aaf8b7a63e27da46` (evidence `0478fde59`); hot-swap + production refuse on tip | Rhythm: `cargo test -p ggen-graph --test brand_toml_rhythm_court`; `cargo test -p ggen-graph --test brand_fluid_clamp_court`. Hot-swap: `cargo test -p ggen-graph --test brand_toml_hotswap_court`. Production refuse (lib-only): `cargo test -p ggen-graph --lib layout::brand::production_theme_tests`. Next promote: [`BRAND-PRODUCTION-THEME.md`](./BRAND-PRODUCTION-THEME.md) (G2-13 inventory → G2-12 CASTLE bind → production apply court). Full inventory: OOR **G2-13** / **G2-12** | **ggen** (rhythm + hot-swap + REFUSED_PRODUCTION fence) + brand plane (token inventory Gate 2+) |
 | Plane 5 front doors | **UNKNOWN** / out of DO | n/a | Gate 2–3 — not a Gate-1 falsifier; commercial open is CindyCat patronage before Fourth Watch cold cyber ([`GATE-2-CINDYCAT-FIRST.md`](./GATE-2-CINDYCAT-FIRST.md)) | external |
 | BRCE + WebAuthn AS-01 (`:prime256v1`) ungated-DO fence | **PARTIAL_ALIVE** (seat fence court) — historical `brce_as01_seat_court` **6 passed; exit 0** on evidence `0478fde59` (ancestor); tip source still **6** `#[test]`; tip-cargo PENDING. Crypto verify **UNSUPPORTED**; live BRCE **BLOCKED**; fence ≠ broker `ALIVE`. Standing [`BRCE-WEBAUTHN-STANDING.md`](./BRCE-WEBAUTHN-STANDING.md) | tip `5e00619a422a0d8e451029f0aaf8b7a63e27da46` (evidence `0478fde59`) | Fence replay: `cargo test -p ggen-abb-sbb --test brce_as01_seat_court`. Crypto/live: BRCE **V7/V8/V9** + OOR **G2-3/G2-4/G2-5** | **ggen** (fence); BRCE/Plane-5 own verify+actuate |
-| ggen_igniter clean-room | **PARTIAL_ALIVE** — mount **PRESENT** (`/home/ubuntu/ggen_igniter`, HEAD `b5a15528…`); clean-tree checkpoint `git diff --exit-code` → **0** only. Manufacture compare (ggen tip AOT vs igniter expected) **still open** — do **not** promote to `ALIVE`. **Antifalsifier:** bare post-clone `git diff --exit-code` ≠ `ALIVE`. In-repo contract **PARTIAL_ALIVE** [`IGNITER-CLEANROOM-STANDING.md`](./IGNITER-CLEANROOM-STANDING.md); hop ledger [`PHOTOLITHOGRAPHY-STANDING.md`](./PHOTOLITHOGRAPHY-STANDING.md) | tip `376b5c3092c821eec942a2e16489b6db45c0b726` (mount/clean-tree evidence; prior fence tip `5e00619a4`) | **Next (manufacture compare — open):** on tip `376b5c309` run admitted ggen+Taffy AOT manufacture targeting igniter-expected artifacts; byte-compare vs igniter expected; then `git diff --exit-code` on **that** subject → exit **0**. Checkpoint only: `cd /home/ubuntu/ggen_igniter && git diff --exit-code`. In-repo: `cargo test -p ggen-sjira --test igniter_cleanroom_court` | **ggen_igniter** (crown); **ggen** (contract) |
+| ggen_igniter clean-room / manufacture | **PARTIAL** — mount **PRESENT** (`/home/ubuntu/ggen_igniter` @ `b5a15528…`); clean-tree `git diff --exit-code` → **0**; real BrandTheme manufacture on tip brand → exit **2** `REFUSED {:brand_theme_refused, :no_primitive_space}` (tip `[rhythm]` ≠ DTCG `[primitive.space]`). Do **not** promote to `ALIVE`. Evidence: `/tmp/cursor/igniter-real-cleanroom.md`. In-repo contract **PARTIAL_ALIVE** [`IGNITER-CLEANROOM-STANDING.md`](./IGNITER-CLEANROOM-STANDING.md); hop ledger [`PHOTOLITHOGRAPHY-STANDING.md`](./PHOTOLITHOGRAPHY-STANDING.md) | tip `5f8f0c3a4e8cf4c487d61f6560876b05728eeff0` (manufacture evidence tip; mount/clean-tree prior `376b5c309`) | **Next:** align tip `fourth-watch.brand.toml` to DTCG `[primitive.space]` **or** add rhythm→theme emitter; BrandTheme emit tip vs igniter fixture → `diff -rq` / `git diff --exit-code` → exit **0**. Checkpoint: `cd /home/ubuntu/ggen_igniter && git diff --exit-code`. In-repo: `cargo test -p ggen-sjira --test igniter_cleanroom_court` | **ggen_igniter** (crown); **ggen** (contract + tip brand schema) |
 
 ### Command evidence log (this refresh)
 
@@ -97,7 +98,7 @@ honesty-demoted to **PARTIAL_ALIVE** (see header).
 | `ui-layout-court.ts` (contract stub) | `docs/rfc/v27.1.1/fixtures/ui-layout-court.ts` | stub PRESENT; zcode-cli runner still **UNSUPPORTED** |
 | `verify_witness.wasm` (production) | `find . \( -name 'verify_witness*' -o -name '*witness*.wasm' \)` | placeholder only → production **UNSUPPORTED** |
 | `curve25519-dalek` | `rg -n 'name = "curve25519-dalek"' -A2 Cargo.lock` + pin standing | versions **4.1.3** + **5.0.0** present; pin doc → **PARTIAL_ALIVE**; policy court still open |
-| ggen_igniter checkout | local mount probe `/home/ubuntu/ggen_igniter` + `git diff --exit-code` | mount **PRESENT**; clean-tree exit **0** → hop-4 **PARTIAL_ALIVE** only (manufacture compare open; bare post-clone diff ≠ `ALIVE`) |
+| ggen_igniter checkout / manufacture | local mount + `git diff --exit-code` + BrandTheme.from_brand(tip brand) | mount **PRESENT**; clean-tree exit **0**; manufacture exit **2** `:no_primitive_space` → hop-4 **PARTIAL** (not `ALIVE`; bare post-clone diff ≠ `ALIVE`) |
 
 Replay via Cargo (preferred CI falsifier; same courts; tip-cargo PENDING until quiet exclusive exit 0):
 
