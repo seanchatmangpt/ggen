@@ -4,7 +4,7 @@
 |-------|-------|
 | Document ID | `CROWN-PROGRESS-RECEIPT-27.1.1` |
 | Status | **PROGRESS RECEIPT** (honest; **not** goal-complete; **not** crown `ALIVE`) |
-| Observed tip | absorb tip `8cee4246f8939a84f75427f6468284f7932880e0` (~`8cee4246f+` / `f350cb78e+`) |
+| Observed tip | absorb tip `8955b592183a2907749a50ece1ebbfd194fb2ad5` (~`8cee4246f+` / `f350cb78e+`) |
 | Tip subject | absorb #934 hop-4 mix/NIF residual honesty @ `ae2acc52b` + #936 crown-progress2 honesty @ `0e25df932`/`0f62a0548` onto tip `8cee4246f+`; PATH `mix` **ABSENT** / off-PATH **PRESENT** / NIF **BLOCKED**; Clause-1 hop-4 **ALIVE** / hop-5 **PARTIAL** / `--live` HITL **BLOCKED**; Clause-2 `construct_hash` **PRESENT** / WebAuthn **UNSUPPORTED** / V8 **BLOCKED**; Clause-3 Smalt **ALIVE** / cos **503** / revops NXDOMAIN / `verify_witness` **PRESENT**; Clause-4 Foundry **PARTIAL**; Gate-1 **PARTIAL** (`ui_layout` tip-cargo **ALIVE** 11/exit0 preserved; Truex **ALIVE**; brand hot-swap **PRESENT** / production **UNSUPPORTED**; taffy **PRESENT**) |
 | Ledger pins cited | Gate-1 / Photo / Foundry / HOP4-MIX-NIF / VERIFY-WITNESS-SIZE retipped; ui_layout **ALIVE** retained; mix/NIF residual ledger **PRESENT**; OOR / CCS / BRCE / CASTLE retain prior absorb pins |
 | Cargo this receipt | **no** for #934/#936 — tip-exclusive thrash; prior exclusive quiet `ui_layout_court` **11 passed; exit 0** @ `ca52e9c16` retained (**ALIVE**) |

@@ -7,7 +7,7 @@ exit=skipped standing=PRESENT size=35 tip=8955b592183a2907749a50ece1ebbfd194fb2a
 | Field | Value |
 |-------|-------|
 | Branch | `cursor/v2711-absorb-934-936-9130` (source `cursor/v2711-crown-progress2-bc54` / verify_witness ledger @ `0e25df932`) |
-| Ecosystem tip | absorb onto tip `8cee4246f8939a84f75427f6468284f7932880e0` (~`8cee4246f+ / f350cb78e+`; tip-wins: ui_layout tip-cargo **ALIVE** @ `ca52e9c16`; chicago mirror evidence `f350cb78e`) |
+| Ecosystem tip | absorb tip `8955b592183a2907749a50ece1ebbfd194fb2ad5` (~`8cee4246f+` / `f350cb78e+`; tip-wins: ui_layout tip-cargo **ALIVE** @ `ca52e9c16`; chicago mirror evidence `f350cb78e`) |
 | Court | `crates/ggen-graph/tests/verify_witness_size_court.rs` — **6** `#[test]` **PRESENT** |
 | API | `crates/ggen-graph/src/witness/mod.rs` **PRESENT** (`court_verify_witness_size`, budget `262_144`) |
 | Placeholder | `fixtures/witness/verify_witness.placeholder.wasm` **35** bytes (`< 262144` / &lt;250KB) |

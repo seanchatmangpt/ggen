@@ -18,7 +18,7 @@ Prior absorb `8090022f4` / evidence `ca52e9c1679d66d38d6cf7e196195ee758bee597` r
 Pinned on tip `8cee4246f8939a84f75427f6468284f7932880e0` (`8cee4246f`).
 
 **Evidence refresh / live tip pin:** 2026-11-22 absorb #934 hop-4 mix/NIF residual honesty @ `ae2acc52b` + #936 crown-progress2 honesty @ `0e25df932`/`0f62a0548` onto tip
-`8cee4246f8939a84f75427f6468284f7932880e0` (~`8cee4246f+ / f350cb78e+`; tip-wins: ui_layout tip-cargo **ALIVE** @ `ca52e9c16`; chicago mirror **PARTIAL_ALIVE** / evidence `f350cb78e`; Smalt spine **ALIVE**; photo hop-4 **ALIVE**; verify_witness size court **PRESENT**; taffy_aot_preflight **PRESENT**; mix/NIF PATH **ABSENT** / off-PATH **PRESENT** / NIF **BLOCKED** — [`HOP4-MIX-NIF-STANDING.md`](./HOP4-MIX-NIF-STANDING.md); crown goal **INCOMPLETE**). Truex+shui → **ALIVE** @
+`8955b592183a2907749a50ece1ebbfd194fb2ad5` (~`8cee4246f+ / f350cb78e+`; tip-wins: ui_layout tip-cargo **ALIVE** @ `ca52e9c16`; chicago mirror **PARTIAL_ALIVE** / evidence `f350cb78e`; Smalt spine **ALIVE**; photo hop-4 **ALIVE**; verify_witness size court **PRESENT**; taffy_aot_preflight **PRESENT**; mix/NIF PATH **ABSENT** / off-PATH **PRESENT** / NIF **BLOCKED** — [`HOP4-MIX-NIF-STANDING.md`](./HOP4-MIX-NIF-STANDING.md); crown goal **INCOMPLETE**). Truex+shui → **ALIVE** @
 `truex@68d2d233` ([truex#6](https://github.com/seanchatmangpt/truex/pull/6) **MERGED**).
 Hop-4 manufacture → **ALIVE** (`diff_exit=0`). Hop-5 → **PARTIAL** (adapter **0**;
 `--live` HITL **BLOCKED**/**REFUSED**). brand hot-swap **PRESENT**; production theme **UNSUPPORTED**.
@@ -85,7 +85,7 @@ Do not promote any Gate 0 row to `ALIVE` from this repository.
 
 ### Command evidence log (this refresh)
 
-Live tip pin: `8cee4246f8939a84f75427f6468284f7932880e0` (absorb #934/#936 onto tip `8cee4246f+` / `f350cb78e+`; ui_layout tip-cargo **ALIVE** @ `ca52e9c16` preserved; mix/NIF PATH **ABSENT** / off-PATH **PRESENT** / NIF **BLOCKED**; crown-progress2 honesty; sources ≡ tip).
+Live tip pin: `8955b592183a2907749a50ece1ebbfd194fb2ad5` (absorb #934/#936 onto tip `8cee4246f+` / `f350cb78e+`; ui_layout tip-cargo **ALIVE** @ `ca52e9c16` preserved; mix/NIF PATH **ABSENT** / off-PATH **PRESENT** / NIF **BLOCKED**; crown-progress2 honesty; sources ≡ tip).
 Historical exit-0 evidence tip: `0478fde59644cccd60c5a88d64d444ec292e6a3c` (≥ `a54b9803`; ancestor).
 ui-layout ancestor ALIVE: `eaf0dad40287a3347280a541766b3b16f3978cf8`.
 **Tip-cargo `ui_layout` ALIVE** reconfirmed: exclusive flock `/tmp/ggen-uilayout-tip-alive-protected`;
