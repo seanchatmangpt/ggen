@@ -77,7 +77,7 @@ and standing.
 
 | Work | Owner | Notes |
 |------|-------|-------|
-| `curve25519-dalek` v4 / cgap-aoq docs | ggen (+ crypto docs surface) | lock resolves 4.1.3 + 5.0.0; pin/policy doc [`CURVE25519-DALEK-PIN-STANDING.md`](./CURVE25519-DALEK-PIN-STANDING.md); policy court still open for `ALIVE` |
+| `curve25519-dalek` v4 / cgap-aoq docs | ggen (+ crypto docs surface) | lock resolves 4.1.3 + 5.0.0; pin/policy doc + court [`CURVE25519-DALEK-PIN-STANDING.md`](./CURVE25519-DALEK-PIN-STANDING.md) → **ALIVE** (`curve25519_dalek_pin_court` EXIT 0 @ `bebea5dd0`) |
 | Admit **`shui:`** in Truex | truex | ggen aligns public-prefix fences so `shui:` is not refused as private |
 | Seal Rust/**Taffy** AOT pre-flight in ggen | **ggen** | widths + WCAG 1.4.12 1.5× |
 | `ui-layout-court.ts` in zcode-cli | zcode-cli | adapter consumes ggen pre-flight receipts |
@@ -279,10 +279,11 @@ when it is supplied; until then, treat “closed” claims as **REFUSED_UNGROUND
 - Gate 1 pin/policy standing:
   [`CURVE25519-DALEK-PIN-STANDING.md`](./CURVE25519-DALEK-PIN-STANDING.md)
   (exact versions, dependents, refuse undocumented major).
-- Remaining falsifier for crown `ALIVE`: a policy court that refuses silent
-  major drift on the admitted path (see pin standing §5).
+- Policy court present: `cargo test -p ggen-config --test curve25519_dalek_pin_court`
+  refuses silent major drift (`REFUSED_UNDOCUMENTED_MAJOR`; see pin standing §5).
 
-Standing: **PARTIAL_ALIVE** (lock + pin doc present; policy court absent).
+Standing: **ALIVE** (lock + pin doc + policy court EXIT 0 @ tip `bebea5dd0`).
+  Crown crypto / AS-01 / Plane-5 remain **UNSUPPORTED** from this pin.
 
 ---
 
@@ -380,7 +381,7 @@ sibling courts, or Smalt 6-column spine `ALIVE` alone.
 | `docs/rfc/v27.1.1/OUT-OF-REPO-NEXT-VERIFIERS.md` | Gate 0/2/3 exact next external verifiers |
 | `docs/rfc/v27.1.1/BRCE-WEBAUTHN-STANDING.md` | BRCE + WebAuthn AS-01 (`:prime256v1`) exists vs BLOCKED/UNSUPPORTED + GA verifiers |
 | `docs/rfc/v27.1.1/CCS-AUTHORITY-STANDING.md` | SELECT≠CONSTRUCT≠DO authority edges + A2A/BRCE fence census |
-| `docs/rfc/v27.1.1/CURVE25519-DALEK-PIN-STANDING.md` | Gate-1 `curve25519-dalek` / `ed25519-dalek` lock pin + policy (PARTIAL_ALIVE) |
+| `docs/rfc/v27.1.1/CURVE25519-DALEK-PIN-STANDING.md` | Gate-1 `curve25519-dalek` / `ed25519-dalek` lock pin + policy court (**ALIVE** @ tip `bebea5dd0`) |
 | `docs/rfc/v27.1.1/VERIFY-WITNESS-PRODUCTION.md` | production `verify_witness` WASM build path (affidavit pin ALIVE ≠ ggen prod ALIVE) |
 | `docs/rfc/v27.1.1/VERIFY-WITNESS-AFFIDAVIT-SIZE-COURT-STANDING.md` | affidavit gatekeeper size court ALIVE @ `563eb322a` (ggen wire UNSUPPORTED) |
 | `docs/rfc/v27.1.1/VERIFY-WITNESS-SIZE-COURT-STANDING.md` | ggen placeholder size court tip-cargo ALIVE (≠ production) |
