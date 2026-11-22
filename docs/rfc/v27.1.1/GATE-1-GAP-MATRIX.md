@@ -6,23 +6,32 @@ Companion to `ECOSYSTEM-SPEC-27.1.1.md` and `REPO-INVENTORY-27.1.1.md`.
 
 **Evidence refresh / live tip pin:** CindyCat dual-schema `[primitive.space]` from `[rhythm]` on `cursor/v2711-hop4-cindycat-space-bc54` (court `oem_fixtures_carry_dtcg_primitive_space_from_rhythm`).
 
-**Evidence refresh / live tip pin:** 2026-11-22 tip-cargo reconfirm `uilayout-tip-retry9`
-on branch `cursor/v2711-gate1-uilayout-alive-bc54` from tip
-`2fd8971414519f5a1c51f6b04c1f7a85831def52` — exclusive flock
-`/tmp/ggen-uilayout-tip-alive-protected` +
-`CXX=g++ SCCACHE_DISABLE=1 CARGO_BUILD_JOBS=1 CARGO_TARGET_DIR=/tmp/ggen-uilayout-tip-alive-target cargo test -p ggen-graph --test ui_layout_court --locked`
-→ **11 passed; 0 failed; exit 0** (`/tmp/cursor/uilayout-tip-retry9.status`);
-cargo subject `60b15c7788ca7fb0c73ac19e7762759b61852603` (ui_layout sources
-byte-identical through tip `2fd897141`); `/tmp/uilayout-0ae8.lock` preserved HELD.
-Prior absorb `8090022f4` / evidence `ca52e9c1679d66d38d6cf7e196195ee758bee597` retained.
-Tip-wins: hop-5 runtime **PRESENT** / model access **REFUSED**; ui_layout tip-cargo **ALIVE**;
-chicago **PARTIAL_ALIVE**; Smalt spine **ALIVE**; photo hop-4 **ALIVE**; verify_witness /
-taffy_aot_preflight **PRESENT** (tip-cargo PENDING). Truex+shui → **ALIVE** @
-`truex@68d2d233` ([truex#6](https://github.com/seanchatmangpt/truex/pull/6) **MERGED**).
-Hop-4 manufacture → **ALIVE** (`diff_exit=0`). Hop-5 → **PARTIAL_ALIVE** (adapter **0**;
-`--live` **REFUSED**). brand hot-swap **PRESENT**; production theme **UNSUPPORTED**.
-Other Gate-1 fences tip-cargo PENDING. Ancestor `eaf0dad40` retained. **FM-PACK-001**
-**PRESENT**. Gate-0 cos **BLOCKED**.
+**Evidence refresh / live tip pin:** 2026-11-22 Gate-1 post-`ui_layout` audit on
+`cursor/v2711-gate1-post-uilayout-bc54` of tip `8cee4246f8939a84f75427f6468284f7932880e0` (past `120598fb3` / ~`a29e1cd92+`; tip-cargo reconfirm
+`uilayout-tip-retry9` / absorb `8090022f4` / evidence `ca52e9c16` retained).
+Receipt `/tmp/cursor/gate1-post-uilayout-audit.md`.
+**Four in-repo falsifiers (this audit):**
+- **Truex+shui** → product **ALIVE** @ `truex@68d2d233` / merge `b4672131`
+  (`pnpm exec vitest run test/admit/admit-court.test.ts` → **6/6 exit 0**; mount
+  `/tmp/truex`; receipt `/tmp/cursor/truex-merged-admit-alive.md`). ggen `shui:`
+  fence → evidence **ALIVE** @ `0478fde59` (**3 passed; exit 0**); tip source **4**;
+  tip-cargo **PENDING**.
+- **Taffy AOT pre-flight** → tip-subject **PRESENT** (tip source **7**
+  `#[test]`); historical **6 passed; exit 0** @ `0478fde59`; tip-cargo **PENDING**.
+- **brand.toml** → hot-swap **PRESENT** (tip source `brand_toml_hotswap_court`
+  **6**); production theme **UNSUPPORTED** / `REFUSED_PRODUCTION` (lib
+  `layout::brand::production_theme_tests`); rhythm **PARTIAL_ALIVE**.
+- **ui-layout-court** → tip-cargo **ALIVE** — exclusive quiet
+  `CXX=g++ SCCACHE_DISABLE=1 CARGO_BUILD_JOBS=1 cargo test -p ggen-graph --test ui_layout_court --locked`
+  under `/tmp/ggen-uilayout-tip-alive-protected` → **11 passed; 0 failed; exit 0**
+  (tip-cargo reconfirm exit 0; sources ≡ tip `8cee4246f`; prior evidence
+  `ca52e9c16` / `eaf0dad40`). Sibling `ui-layout-court.ts` **UNSUPPORTED** in ggen.
+Hop-4 BrandTheme manufacture → **ALIVE** (`diff_exit=0`). Hop-5 → **PARTIAL_ALIVE**.
+Chicago mirror → **PARTIAL_ALIVE**. Smalt 6-column spine → **ALIVE** (≠ Foundry crown).
+`verify_witness_size_court` → **PRESENT**. **FM-PACK-001** → **PRESENT**. Gate-0
+**cos** → **BLOCKED**. **Gate-1 aggregate stays PARTIAL** (brand production
+**UNSUPPORTED** expected honesty; remaining fence tip-cargo PENDING). No new crown
+`ALIVE`. This audit did **not** re-run cargo.
 
 **Honesty demotion (`cursor/v2711-ccs-ops-honesty-bc54` + retip2):** BRCE seat /
 brand rhythm / prior over-promotions demoted to match dedicated standings
@@ -84,7 +93,7 @@ Do not promote any Gate 0 row to `ALIVE` from this repository.
 
 ### Command evidence log (this refresh)
 
-Live tip pin: `2fd8971414519f5a1c51f6b04c1f7a85831def52` (retry9 tip-cargo reconfirm on `cursor/v2711-gate1-uilayout-alive-bc54`).
+Live tip pin: `8cee4246f8939a84f75427f6468284f7932880e0` (Gate-1 post-uilayout audit on `cursor/v2711-gate1-post-uilayout-bc54`; ui_layout tip-cargo ALIVE @ `ca52e9c16`).
 Historical exit-0 evidence tip: `0478fde59644cccd60c5a88d64d444ec292e6a3c` (≥ `a54b9803`; ancestor).
 ui-layout ancestor ALIVE: `eaf0dad40287a3347280a541766b3b16f3978cf8`.
 **Tip-cargo `ui_layout` ALIVE** reconfirmed: exclusive flock `/tmp/ggen-uilayout-tip-alive-protected`;
@@ -127,6 +136,10 @@ cargo test -p ggen-sjira --test zcode_powl_ocel_court
 ```
 
 ---
+
+**Gate-1 aggregate standing:** **PARTIAL** — ui_layout tip-cargo **ALIVE** does
+**not** promote Gate-1 crown. Brand production **UNSUPPORTED**, Taffy/shui/brand
+tip-cargo **PENDING**, production WASM **UNSUPPORTED**, zero-HITL **not** `ALIVE`.
 
 ## Recommended next single falsifier (Gate 1)
 

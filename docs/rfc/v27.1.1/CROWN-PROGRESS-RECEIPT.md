@@ -4,10 +4,10 @@
 |-------|-------|
 | Document ID | `CROWN-PROGRESS-RECEIPT-27.1.1` |
 | Status | **PROGRESS RECEIPT** (honest; **not** goal-complete; **not** crown `ALIVE`) |
-| Observed tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `46a026ae9f78052ae14529884cebdf47f29a4698` |
-| Tip subject | absorb #926 ui_layout tip-cargo **ALIVE** @ `8090022f4`/`27436608c` + #927 chicago @ `1b0072b6c`/`eeeb34319` + #928 Smalt @ `84f0d3eb2` (ALIVE supersedes PENDING; tip `46a026ae9f78052ae14529884cebdf47f29a4698`) |
+| Observed tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `8cee4246f8939a84f75427f6468284f7932880e0` |
+| Tip subject | Gate-1 post-uilayout audit `cursor/v2711-gate1-post-uilayout-bc54` (ui_layout tip-cargo ALIVE @ `ca52e9c16`; tip `8cee4246f`) |
 | Ledger pins cited | Gate-1 / Photo / Foundry retipped for tip-cargo ALIVE; OOR / CCS / BRCE / CASTLE retain prior absorb pins |
-| Cargo this receipt | **yes** — exclusive quiet `ui_layout_court` **11 passed; exit 0** @ `ca52e9c16` |
+| Cargo this receipt | **none this land** — absorbs prior exclusive quiet `ui_layout_court` **11 passed; exit 0** @ `ca52e9c16` |
 | Goal standing | **INCOMPLETE** — do **not** claim ECOSYSTEM-SPEC-27.1.1 crown complete |
 
 Standing vocabulary (`AGENTS.md` §2): `UNKNOWN` | `PARTIAL_ALIVE` | `ALIVE` |
@@ -30,12 +30,12 @@ FinOps: FOUNDRY/OOR **ALIVE** @ `91997da76f0f` vs older §13.3 FinOps
 Compact return line:
 
 ```text
-tip=522da1ee1755eede884aa6cca87d2195b7a6bba0
+tip=8cee4246f8939a84f75427f6468284f7932880e0
 clause1=PARTIAL
 clause2=PARTIAL_ALIVE
 clause3=PARTIAL+BLOCKED
 clause4=PARTIAL
-gate1=PARTIAL (ui_layout tip-cargo ALIVE; brand production UNSUPPORTED; BRCE honesty-demoted)
+gate1=PARTIAL (Truex+shui ALIVE; Taffy PRESENT; brand hot-swap PRESENT/production UNSUPPORTED; ui_layout tip-cargo ALIVE)
 blockers=foundry--live; remaining-fence-tip-cargo; cos/readyz; WebAuthn/BRCE-V8/V9; revops-DNS; mix-NIF; R01-R07-bodies; verify_witness-prod; production-theme
 ```
 
@@ -130,19 +130,19 @@ Do **not** invent zero daily founder HITL `ALIVE` from Gate-1 fence green, CASTL
 |-------------|----------|---------------------|
 | `shui:` public-prefix fence | **ALIVE** (evidence `0478fde59`); tip-cargo **PENDING** | `cargo test -p ggen-graph --test shui_public_prefix_court` |
 | Truex admits `shui:` | **ALIVE** @ `68d2d233` (merged) | `pnpm exec vitest run test/admit/admit-court.test.ts` → **0** |
-| Taffy AOT pre-flight | **ALIVE** (evidence); tip-cargo **PENDING** | `cargo test -p ggen-graph --test taffy_aot_preflight_court` |
-| ggen `ui_layout_court` | **ALIVE** tip-cargo (**11 passed; exit 0** @ `ca52e9c16` ≡ tip `120598fb3`) | Replay: `CXX=g++ SCCACHE_DISABLE=1 CARGO_BUILD_JOBS=1 cargo test -p ggen-graph --test ui_layout_court --locked` |
+| Taffy AOT pre-flight | **PRESENT** (tip source **7**; evidence exit 0 @ `0478fde59`); tip-cargo **PENDING** | `cargo test -p ggen-graph --test taffy_aot_preflight_court` |
+| ggen `ui_layout_court` | **ALIVE** tip-cargo (**11 passed; exit 0** @ `ca52e9c16` ≡ tip `8cee4246f`) | Replay: `CXX=g++ SCCACHE_DISABLE=1 CARGO_BUILD_JOBS=1 cargo test -p ggen-graph --test ui_layout_court --locked` |
 | FM-PACK-001 `packs/gh-terraform-pack` | **PRESENT** / **PARTIAL_ALIVE** (composed e2e SKIPPED) | loadavg&lt;10: `timeout 600s cargo test -p ggen-engine --test composed_packs_e2e` → **0** |
 | zcode POWL in-repo stub | **PARTIAL_ALIVE** | `cargo test -p ggen-sjira --test zcode_powl_ocel_court`; live: G2-9 foundry `--live` |
 | `curve25519-dalek` pin | **PARTIAL_ALIVE** (lock+doc; policy court open) | pin standing §5 policy court |
 | `verify_witness` size | **PARTIAL_ALIVE**; production WASM **UNSUPPORTED** | size court; prod: [`VERIFY-WITNESS-PRODUCTION.md`](./VERIFY-WITNESS-PRODUCTION.md) |
 | R-01…R-07 contract | **ALIVE** (contract); bodies **BLOCKED** | `cargo test -p ggen-graph --test r01_r07_resolution_court` |
-| Brand rhythm / hot-swap | **PARTIAL_ALIVE**; production theme **UNSUPPORTED** (`REFUSED_PRODUCTION`) | rhythm/hotswap courts; [`BRAND-PRODUCTION-THEME.md`](./BRAND-PRODUCTION-THEME.md) |
+| Brand rhythm / hot-swap | rhythm **PARTIAL_ALIVE**; hot-swap **PRESENT**; production **UNSUPPORTED** (`REFUSED_PRODUCTION`) | rhythm/hotswap courts; [`BRAND-PRODUCTION-THEME.md`](./BRAND-PRODUCTION-THEME.md) |
 | BRCE AS-01 seat fence | **PARTIAL_ALIVE** | `cargo test -p ggen-abb-sbb --test brce_as01_seat_court` |
 | ggen_igniter manufacture | **ALIVE** (BrandTheme compare); mix NIF **BLOCKED** | manufacture replay → **0**; `mix … --check` → **0** |
 | Gate-0 cos | **BLOCKED** (external) | cos `/readyz` → **200** |
 
-**Gate-1 aggregate:** **PARTIAL** — `ui_layout` tip-cargo **ALIVE** (**11 passed; exit 0** @ `ca52e9c16` ≡ tip `120598fb3`); brand production **UNSUPPORTED**; BRCE honesty-demoted (fence ≠ broker `ALIVE`); other fences tip-cargo PENDING / tip-subject **PRESENT**. Zero-HITL fab / production WASM / production brand theme / live BRCE **not** `ALIVE`.
+**Gate-1 aggregate:** **PARTIAL** — Truex+shui product **ALIVE** @ `68d2d233`; Taffy tip-subject **PRESENT**; brand hot-swap **PRESENT** / production **UNSUPPORTED**; `ui_layout` tip-cargo **ALIVE** (**11 passed; exit 0** @ `ca52e9c16` ≡ tip `8cee4246f`); remaining fence tip-cargo **PENDING**. Zero-HITL fab / production WASM / live BRCE **not** `ALIVE`.
 
 Recommended next Gate-1 falsifier (pick one): quiet tip-cargo reconfirm of remaining `shui`/`taffy`/`brand`; **or** hop-5 foundry `--live` → **0** (provider keys).
 
