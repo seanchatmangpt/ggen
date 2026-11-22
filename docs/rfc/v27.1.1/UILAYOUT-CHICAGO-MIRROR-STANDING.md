@@ -23,7 +23,7 @@ package cargo.
 | Claim | Standing |
 |-------|----------|
 | Tip-synced `ui_layout_court` Chicago court via oxigraph-free harness | **PARTIAL_ALIVE** (**11 passed; exit 0**) |
-| Package `cargo test -p ggen-graph --test ui_layout_court` on tip | **ALIVE** via #926 absorb @ tip `27436608c` (exclusive quiet @ `ca52e9c16`) — **not** from this mirror |
+| Package `cargo test -p ggen-graph --test ui_layout_court` on tip | **ALIVE (exact tip-cargo)** @ `a508e6bae` (`bc-70188ac3`; `/tmp/ggen-uilayout-exact-tip`) — **not** from this mirror; lineage `ca52e9c16` / `59c090984` |
 | Did not take tip exclusive flock | **ALIVE** (observation: flock **HELD** by tip-cargo during mirror; mirror used separate target) |
 
 **Antifalsifier:** this mirror alone never promotes Gate-1 / hop-3b / path-crown
