@@ -248,3 +248,90 @@ pub fn preflight_column_six_widths(
         leaf_count: column.children.len(),
     })
 }
+
+/// Gate-1 width list as `u32` (consumer SoT; mirrors [`VIEWPORT_WIDTHS_PX`]).
+pub fn gate1_widths_u32() -> Vec<u32> {
+    VIEWPORT_WIDTHS_PX.iter().map(|w| w.round() as u32).collect()
+}
+
+/// Stable BLAKE3 hex digest of an admitted [`AotSealReceipt`].
+///
+/// Canonical payload: `text_spacing` bits LE, then each width as u32 LE, then
+/// `leaf_count` as u64 LE. Consumers (zcode-cli `ui-layout-court.ts` / in-repo
+/// court) match this digest without re-running Taffy geometry.
+pub fn seal_digest(receipt: &AotSealReceipt) -> String {
+    let mut hasher = blake3::Hasher::new();
+    hasher.update(&receipt.text_spacing.to_bits().to_le_bytes());
+    for &w in &receipt.widths_px {
+        hasher.update(&w.to_le_bytes());
+    }
+    hasher.update(&(receipt.leaf_count as u64).to_le_bytes());
+    hasher.finalize().to_hex().to_string()
+}
+
+/// Typed refusals for **consuming** an [`AotSealReceipt`] (not geometry law).
+#[derive(Debug, Clone, PartialEq)]
+pub enum UiLayoutConsumeRefusal {
+    /// No seal present — fail closed (zcode missing-digest path).
+    MissingReceipt,
+    /// Width list is not the exact Gate-1 six-width order.
+    WidthMismatch {
+        expected: Vec<u32>,
+        observed: Vec<u32>,
+    },
+    /// Text spacing is not WCAG 1.4.12 1.5×.
+    TextSpacingMismatch { expected: f32, observed: f32 },
+    /// Pinned digest does not match the seal (stale / tampered fixture).
+    StaleDigest {
+        expected: String,
+        observed: String,
+    },
+}
+
+/// Machine-readable admit receipt for a successful seal consume.
+#[derive(Debug, Clone, PartialEq)]
+pub struct UiLayoutConsumeReceipt {
+    pub digest: String,
+    pub widths_px: Vec<u32>,
+    pub text_spacing: f32,
+    pub leaf_count: usize,
+}
+
+/// Consume an [`AotSealReceipt`] without re-implementing Taffy geometry.
+///
+/// Verifies Gate-1 structural invariants (exactly the six widths under
+/// [`WCAG_1412_TEXT_SPACING`]) and optionally a pinned digest. Geometry law
+/// remains owned by [`preflight_column_six_widths`].
+pub fn consume_aot_seal(
+    receipt: Option<&AotSealReceipt>, expected_digest: Option<&str>,
+) -> Result<UiLayoutConsumeReceipt, UiLayoutConsumeRefusal> {
+    let receipt = receipt.ok_or(UiLayoutConsumeRefusal::MissingReceipt)?;
+    let expected_widths = gate1_widths_u32();
+    if receipt.widths_px != expected_widths {
+        return Err(UiLayoutConsumeRefusal::WidthMismatch {
+            expected: expected_widths,
+            observed: receipt.widths_px.clone(),
+        });
+    }
+    if (receipt.text_spacing - WCAG_1412_TEXT_SPACING).abs() >= f32::EPSILON {
+        return Err(UiLayoutConsumeRefusal::TextSpacingMismatch {
+            expected: WCAG_1412_TEXT_SPACING,
+            observed: receipt.text_spacing,
+        });
+    }
+    let digest = seal_digest(receipt);
+    if let Some(expected) = expected_digest {
+        if digest != expected {
+            return Err(UiLayoutConsumeRefusal::StaleDigest {
+                expected: expected.to_string(),
+                observed: digest,
+            });
+        }
+    }
+    Ok(UiLayoutConsumeReceipt {
+        digest,
+        widths_px: receipt.widths_px.clone(),
+        text_spacing: receipt.text_spacing,
+        leaf_count: receipt.leaf_count,
+    })
+}
