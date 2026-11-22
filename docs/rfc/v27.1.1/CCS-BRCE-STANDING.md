@@ -4,7 +4,7 @@
 |-------|-------|
 | Document ID | `CCS-BRCE-STANDING` |
 | Spec binding | `ECOSYSTEM-SPEC-27.1.1` §13.2 (Clause 2 — CCS / BRCE + WebAuthn AS-01) |
-| Companions | [`CCS-AUTHORITY-STANDING.md`](./CCS-AUTHORITY-STANDING.md) (~8 CCS ledger); [`BRCE-WEBAUTHN-STANDING.md`](./BRCE-WEBAUTHN-STANDING.md) (AS-01 / V1–V11); [`OUT-OF-REPO-NEXT-VERIFIERS.md`](./OUT-OF-REPO-NEXT-VERIFIERS.md) (G2-3…G2-5) |
+| Companions | [`CCS-AUTHORITY-STANDING.md`](./CCS-AUTHORITY-STANDING.md) (~8 CCS ledger); [`CCS-CONSTRUCT-ALIVE-STANDING.md`](./CCS-CONSTRUCT-ALIVE-STANDING.md) (CCS #3 tip-cargo **ALIVE**; correct `--features a2a` filter); [`BRCE-WEBAUTHN-STANDING.md`](./BRCE-WEBAUTHN-STANDING.md) (AS-01 / V1–V11); [`OUT-OF-REPO-NEXT-VERIFIERS.md`](./OUT-OF-REPO-NEXT-VERIFIERS.md) (G2-3…G2-5) |
 | Observed tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `008a81d21f14d467be9da7951b39c8d655acb5f0` (`c329b7ee5+` / absorb `cbeb11d44` lineage) |
 | Tip pin | 2026-11-22 — residual honesty `cursor/v2711-ccs-residual-honesty-bc54` on tip `008a81d21` (prior absorb `cursor/v2711-ccs-brce-tipcargo-bc54` @ `cbeb11d44`; evidence `861a6e73a`: construct_hash **4** / es256 **4** / seat **6** **exit 0**). CCS #2 `write_apply` tip-cargo **PENDING**; `lifecycle.rs` **PRESENT** (tip `513704d04`; tip-cargo ALIVE 6/6 @ `acd9705c1`) — land from `cursor/mcp-a2a-hands-free-lifecycle-bc54` |
 | Repo | `seanchatmangpt/ggen` |
@@ -38,7 +38,7 @@ next=CCS#2: cargo test -p ggen-mcp --test write_apply_confirm_test; cargo test -
 
 | Subject | Evidence on tip `861a6e73a10864eecacae83de88099a83f176a64` | Standing |
 |---------|-----------------------------|----------|
-| **CCS #3 `construct_hash_gate`** | `CARGO_BUILD_JOBS=1 cargo test -p ggen-lsp --features a2a --lib construct_hash_gate --target-dir /tmp/ggen-construct-hash-target --locked` → **4 passed; exit 0**. Land `3ec8afd85` (PR **#901**). `lifecycle.rs` still **ABSENT**. | **ALIVE** (tip-cargo) |
+| **CCS #3 `construct_hash_gate`** | `CARGO_BUILD_JOBS=1 cargo test -p ggen-lsp --features a2a --lib a2a_mcp::construct_hash_gate::tests --target-dir /tmp/ggen-ccs-construct-alive-601f-target` → **4 passed; exit 0** (see [`CCS-CONSTRUCT-ALIVE-STANDING.md`](./CCS-CONSTRUCT-ALIVE-STANDING.md)). Land `3ec8afd85` (PR **#901**). | **ALIVE** (tip-cargo) |
 | **V7 ES256 / `:prime256v1` fixture court** | `cargo test -p ggen-abb-sbb --test brce_as01_es256_assertion_court` (same target-dir) → **4 passed; exit 0**. Land `fb6e7fc6e` ancestor. | Fixture court land **ALIVE** @ `fb6e7fc6e`; path **ALIVE** (tip-cargo replay); live ceremony **UNSUPPORTED** |
 | **V1 ungated-DO seat fence** | `cargo test -p ggen-abb-sbb --test brce_as01_seat_court` (same target-dir) → **6 passed; exit 0**. Land @ `0478fde59`. | Fence path **ALIVE** (tip-cargo replay) |
 | **Live WebAuthn / FIDO2 RP + hardware** | `rg` free of `webauthn` / `web-authn` / `passkeys` RP deps in workspace `Cargo.toml` / `crates/*/Cargo.toml`. V7 is fixture ECDSA only. | **UNSUPPORTED** |
