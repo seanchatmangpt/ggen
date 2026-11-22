@@ -1,13 +1,14 @@
 # FOUNDRY-FINISH-SPINE-STANDING — push-first honesty (v27.1.1)
 
 ```text
-tip_base=6f0f646111e91830cb1b2a18db18f67049cfe90d
-branch=cursor/v2711-foundry-finish-honesty-bc54
-agent=bc-94d5f431-76af-5467-b369-49fbcc2fcc82
-utc=2026-11-22T19:03Z
+tip_base=15eefb628368afcbb230d082d6ca00c286ca9d42
+branch=cursor/v2711-foundry-live-retip-bc54
+agent=bc-23737a65-4398-52e6-a180-afd65acfa8f3
+utc=2026-11-22T19:11Z
 spine=ggen → Taffy → zcode-cli → CASTLE → Smalt → revops
 foundry_finish=PARTIAL
 spine_daily_HITL_free=PARTIAL (not daily-HITL-free)
+foundry_exit=1
 gate1_trio_ALIVE≠Foundry_ALIVE≠zero_HITL_ALIVE
 photolith_path_crown=PARTIAL
 --live=BLOCKED_HITL
@@ -18,14 +19,14 @@ refuse=Foundry_ALIVE
 | Field | Value |
 |-------|-------|
 | Document ID | `FOUNDRY-FINISH-SPINE-STANDING-27.1.1` |
-| Branch | `cursor/v2711-foundry-finish-honesty-bc54` (prior spine pin `cursor/v2711-foundry-spine-honesty-bc54`) |
-| Agent | `bc-94d5f431-76af-5467-b369-49fbcc2fcc82`; prior spine `bc-14b0377a` |
+| Branch | `cursor/v2711-foundry-live-retip-bc54` (prior finish honesty `cursor/v2711-foundry-finish-honesty-bc54`; prior spine pin `cursor/v2711-foundry-spine-honesty-bc54`) |
+| Agent | `bc-23737a65-4398-52e6-a180-afd65acfa8f3`; prior finish honesty `bc-94d5f431`; prior spine `bc-14b0377a` |
 | Spec binding | `ECOSYSTEM-SPEC-27.1.1` §13.4 Foundry finish (horizontal spine) |
-| Companions | [`FOUNDRY-HITL-ACTION-CARD.md`](./FOUNDRY-HITL-ACTION-CARD.md) §5; [`FOUNDRY-FINISH-STANDING.md`](./FOUNDRY-FINISH-STANDING.md); [`HITL-LIVE-NEXT-VERIFIER-STANDING.md`](./HITL-LIVE-NEXT-VERIFIER-STANDING.md); [`PHOTOLITHOGRAPHY-PATH-STANDING.md`](./PHOTOLITHOGRAPHY-PATH-STANDING.md); [`TAFFY-AOT-PREFLIGHT-STANDING.md`](./TAFFY-AOT-PREFLIGHT-STANDING.md); [`ZCODE-POWL-PATH-STANDING.md`](./ZCODE-POWL-PATH-STANDING.md); [`CASTLE-SPINE-STANDING.md`](./CASTLE-SPINE-STANDING.md); [`SMALT-RAID-STANDING.md`](./SMALT-RAID-STANDING.md); [`REVOPS-COS-STANDING.md`](./REVOPS-COS-STANDING.md) |
-| Observed tip (write-time) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `d85104a02606ac77408cbea028a94c67c6382af1` (`d85104a02`; ⊇ Gate1 ALIVE trio @ `2685119bd` / Taffy tip7 `4ebcb9d46` / prior spine pin `3d13c19e9`) |
+| Companions | [`FOUNDRY-HITL-ACTION-CARD.md`](./FOUNDRY-HITL-ACTION-CARD.md) §5 / §6; [`FOUNDRY-FINISH-STANDING.md`](./FOUNDRY-FINISH-STANDING.md); [`HITL-LIVE-NEXT-VERIFIER-STANDING.md`](./HITL-LIVE-NEXT-VERIFIER-STANDING.md); [`PHOTOLITHOGRAPHY-PATH-STANDING.md`](./PHOTOLITHOGRAPHY-PATH-STANDING.md); [`TAFFY-AOT-PREFLIGHT-STANDING.md`](./TAFFY-AOT-PREFLIGHT-STANDING.md); [`ZCODE-POWL-PATH-STANDING.md`](./ZCODE-POWL-PATH-STANDING.md); [`CASTLE-SPINE-STANDING.md`](./CASTLE-SPINE-STANDING.md); [`SMALT-RAID-STANDING.md`](./SMALT-RAID-STANDING.md); [`REVOPS-COS-STANDING.md`](./REVOPS-COS-STANDING.md) |
+| Observed tip (write-time) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `15eefb628368afcbb230d082d6ca00c286ca9d42` (`15eefb628`; ⊇ Gate1 close pin / tip-wins Gate1 EXIT0 absorb `712cdfafb` / Foundry finish honesty `436767a39`) |
 | zcode-cli | `/agent/repos/zcode-cli` @ `f32df08cdc4b3b8e114a8d1de8cf81acb80e1f3a` — `scripts/powl-foundry-loop.ts` **PRESENT**; `~/.zcode/v2/provider_config.json` **ABSENT** this env |
-| Cargo / tip-cargo | **NOT RUN** (docs-only push-first honesty retip) |
-| Status | LEDGER — Foundry finish / horizontal spine **PARTIAL** (not daily-HITL-free); `--live` **BLOCKED_HITL**; Gate1 trio **ALIVE** ≠ Foundry **ALIVE**; photolith path crown **PARTIAL**; **never invent Foundry `ALIVE`** |
+| Cargo / tip-cargo | **NOT RUN** (live `--live` re-probe + honesty append) |
+| Status | LEDGER — live re-probe **foundry_exit=1** → `--live` **BLOCKED_HITL**; Foundry finish / horizontal spine **PARTIAL** (not daily-HITL-free); Gate1 trio **ALIVE** ≠ Foundry **ALIVE**; photolith path crown **PARTIAL**; **never invent Foundry `ALIVE`** |
 
 Standing vocabulary: `UNKNOWN` | `PARTIAL` | `PARTIAL_ALIVE` | `ALIVE` | `BLOCKED` | `BLOCKED_HITL` | `UNSUPPORTED` | `REFUSED_*`.
 
@@ -115,7 +116,20 @@ cd /agent/repos/zcode-cli && zcode /login && bun scripts/powl-foundry-loop.ts --
 
 Held this env (2026-11-22T19:03Z): provider registry **ABSENT**; prior probes
 **foundry_exit=1** @ zcode `f32df08` — standing **BLOCKED_HITL** unchanged
-(docs-only; live probe not re-run this land).
+(docs-only; live probe not re-run that land).
+
+**Live re-probe (2026-11-22T19:11Z)** @ zcode `f32df08` — **re-ran**:
+
+```bash
+cd /agent/repos/zcode-cli && bun scripts/powl-foundry-loop.ts --live
+# → foundry_exit=1
+# → aggregateStanding=REFUSED
+# → Model access is not configured. Run /login or /setup …
+# log: /tmp/foundry-live-retip.txt
+```
+
+Standing remains **BLOCKED_HITL**. Foundry finish / spine remain **PARTIAL**.
+**Refuse** Foundry `ALIVE`. See [`FOUNDRY-HITL-ACTION-CARD.md`](./FOUNDRY-HITL-ACTION-CARD.md) §6.
 
 Path B/C (registry JSON / env names) remain documented in HITL-LIVE §8 — same
 falsifier command after provision.
@@ -124,7 +138,8 @@ falsifier command after provision.
 
 ## 4. Explicit non-claims
 
-- This land does **not** run cargo, mix, or `--live`.
+- This land **re-ran** `--live` (EXIT **1**) and does **not** run cargo or mix.
+- Live EXIT **1** / docs pin / tip-wins absorb do **not** invent Foundry `ALIVE`.
 - This land does **not** ManagePullRequest or force-push.
 - Sibling CASTLE/Smalt `ALIVE` does **not** clear daily founder HITL.
 - Gate1 tip-cargo ALIVE trio does **not** clear Foundry finish / zero-HITL.
@@ -141,3 +156,4 @@ falsifier command after provision.
 | Companions read | `FOUNDRY-FINISH-STANDING` §1/§9; `HITL-LIVE` §10; `CASTLE-SPINE` §13–§14; `SMALT-RAID` §6; `REVOPS-COS` §1; `TAFFY-AOT-PREFLIGHT`; `ZCODE-POWL-PATH` |
 | Exact next (live) | §3 Founder card → **foundry_exit=0** |
 | Finish honesty retip | 2026-11-22T19:03Z — `cursor/v2711-foundry-finish-honesty-bc54` from crown tip `d85104a02`; agent `bc-94d5f431`; Gate1 trio **ALIVE** ≠ Foundry ≠ zero-HITL; Taffy tip-cargo **ALIVE**; CASTLE **WIRED**; Smalt **ALIVE**; revops **UNKNOWN**; Foundry **BLOCKED_HITL** ⇒ spine **PARTIAL** / not daily-HITL-free; photolith path crown **PARTIAL**; companion [`FOUNDRY-HITL-ACTION-CARD.md`](./FOUNDRY-HITL-ACTION-CARD.md) §5; docs-only; no cargo; no ManagePullRequest; no Foundry `ALIVE` |
+| Live re-probe retip | 2026-11-22T19:11Z — `cursor/v2711-foundry-live-retip-bc54` from crown tip `15eefb628`; agent `bc-23737a65`; **foundry_exit=1** (`Model access is not configured`); `--live` **BLOCKED_HITL**; Foundry finish / spine **PARTIAL**; companion action card §6; tip-wins; no cargo; no ManagePullRequest; no Foundry `ALIVE` |

@@ -112,7 +112,8 @@ Runtime PRESENT: [`HOP5-ZCODE-RUNTIME-STANDING.md`](./HOP5-ZCODE-RUNTIME-STANDIN
 
 ## 3. Explicit non-claims
 
-- This land does **not** run cargo, mix, or `--live` (docs-only honesty retip).
+- Live re-probe land (§6) **re-ran** `--live` (EXIT **1**) and does **not** run cargo or mix.
+- Live EXIT **1** / docs pin do **not** invent Foundry / hop-5 / zero-HITL `ALIVE`.
 - This land does **not** ManagePullRequest or force-push.
 - Sibling CASTLE/Smalt `ALIVE` does **not** clear daily founder HITL.
 - Gate1 tip-cargo ALIVE trio does **not** close G2-9 / Foundry finish.
@@ -129,6 +130,7 @@ Runtime PRESENT: [`HOP5-ZCODE-RUNTIME-STANDING.md`](./HOP5-ZCODE-RUNTIME-STANDIN
 | Companions read | `FOUNDRY-FINISH-SPINE-STANDING` §1–§3; `HITL-LIVE-NEXT-VERIFIER-STANDING` §3 / §8 / §10; `FOUNDRY-FINISH-STANDING` §1a / §9 |
 | Exact next (live) | §2 / §5.3 Founder card → **foundry_exit=0**; else keep **BLOCKED_HITL** |
 | Finish honesty retip | 2026-11-22T19:03Z — `cursor/v2711-foundry-finish-honesty-bc54` from crown tip `d85104a02`; agent `bc-94d5f431`; §5 Gate1-trio ≠ Foundry ≠ zero-HITL; spine **PARTIAL**; photolith path crown **PARTIAL**; `--live` **BLOCKED_HITL**; docs-only; no cargo; no ManagePullRequest; no force-push; no Foundry `ALIVE` |
+| Live re-probe retip | 2026-11-22T19:11Z — `cursor/v2711-foundry-live-retip-bc54` from crown tip `15eefb628`; agent `bc-23737a65`; §6 live **foundry_exit=1** (`Model access is not configured`); `--live` **BLOCKED_HITL**; Foundry finish **PARTIAL**; tip-wins; no cargo; no ManagePullRequest; no Foundry `ALIVE` |
 
 ---
 
@@ -202,3 +204,51 @@ cd /agent/repos/zcode-cli && zcode /login && bun scripts/powl-foundry-loop.ts --
 
 Held this env (2026-11-22T19:03Z): provider registry **ABSENT**; docs-only — live
 probe **not** re-run; standing **BLOCKED_HITL** unchanged.
+
+---
+
+## 6. Live re-probe — foundry_exit=1 → BLOCKED_HITL (2026-11-22T19:11Z)
+
+Push-first tip-wins land from crown tip `15eefb628`. **Re-ran** the live verifier.
+**Do not invent Foundry `ALIVE`.**
+
+| Field | Value |
+|-------|-------|
+| Branch | `cursor/v2711-foundry-live-retip-bc54` |
+| Agent | `bc-23737a65-4398-52e6-a180-afd65acfa8f3` |
+| Crown tip (base) | `15eefb628368afcbb230d082d6ca00c286ca9d42` |
+| zcode-cli | `/agent/repos/zcode-cli` @ `f32df08cdc4b3b8e114a8d1de8cf81acb80e1f3a` |
+| Provider registry | **ABSENT** (`~/.zcode/v2/provider_config.json`) |
+| Command | `cd /agent/repos/zcode-cli && bun scripts/powl-foundry-loop.ts --live` |
+| Log | `/tmp/foundry-live-retip.txt` |
+| **foundry_exit** | **1** |
+| `aggregateStanding` | **REFUSED** |
+| `liveExecutor` | `createZcodeAgentExecutor` (configured ≠ live pass) |
+| Exact failure | `Model access is not configured. Run /login or /setup in zcode, or configure its API key before sending a prompt. No model request was sent.` |
+| Standing | **BLOCKED_HITL** (login / model access required) |
+| Foundry finish / spine | **PARTIAL** (not daily-HITL-free) |
+| Refuse | Foundry `ALIVE` / zero-HITL closed-loop `ALIVE` / hop-5 crown `ALIVE` |
+
+```text
+foundry_exit=1
+  ∧ Model access is not configured
+  ∧ provider_config.json ABSENT
+⇒ --live = BLOCKED_HITL
+⇒ Foundry finish = PARTIAL
+⇒ never invent Foundry ALIVE
+```
+
+### 6.1 Exact next verifier (unchanged)
+
+```bash
+cd /agent/repos/zcode-cli && zcode /login && bun scripts/powl-foundry-loop.ts --live
+# PASS only if foundry_exit=0
+# FAIL / foundry_exit=1 → keep BLOCKED_HITL
+```
+
+| Result | Standing |
+|--------|----------|
+| **foundry_exit=0** | `--live` gate may advance; still do **not** invent zero-HITL Foundry crown `ALIVE` from this card alone without spine §1 closure |
+| **foundry_exit=1** (this probe) | keep **BLOCKED_HITL**; Foundry finish / spine stay **PARTIAL** |
+
+Provenance: 2026-11-22T19:11Z — live re-probe EXIT:**1**; tip-wins absorb base `15eefb628`; companion spine §6; no cargo; no ManagePullRequest; no force-push; no Foundry `ALIVE`.
