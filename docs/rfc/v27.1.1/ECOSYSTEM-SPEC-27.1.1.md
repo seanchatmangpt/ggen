@@ -263,6 +263,7 @@ absent at materialization).
 | `docs/rfc/v27.1.1/GATE-0-STANDING.md` | Gate 0 billing / cos / servengine / SOW standing + stub citations |
 | `docs/rfc/v27.1.1/GATE-1-GAP-MATRIX.md` | requirement → evidence → verifier → owner |
 | `docs/rfc/v27.1.1/PHOTOLITHOGRAPHY-STANDING.md` | hop ledger: perimeter → ttl/toml → Taffy AOT → igniter clean-room → zcode POWL/OCEL (no fake ALIVE) |
+| `docs/rfc/v27.1.1/BRCE-WEBAUTHN-STANDING.md` | BRCE + WebAuthn AS-01 (`:prime256v1`) exists vs BLOCKED/UNSUPPORTED + GA verifiers |
 
 ---
 

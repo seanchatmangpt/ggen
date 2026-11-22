@@ -101,7 +101,7 @@ Still expected when present (swarm in flight):
 | Expected path | Spine / plane coverage |
 |---------------|------------------------|
 | `ZCODE-POWL-OCEL-STANDING.md` (or `ZCODE-STANDING.md`) | zcode-cli courts / POWL·OCEL |
-| `BRCE-WEBAUTHN-AS01-STANDING.md` | DO authority edge |
+| [`BRCE-WEBAUTHN-STANDING.md`](./BRCE-WEBAUTHN-STANDING.md) | DO authority edge (AS-01 `:prime256v1`) — landed this swarm |
 | `CCS-AUTHORITY-STANDING.md` | CCS authority matrix |
 | `GGEN-IGNITER-STANDING.md` | igniter clean-room consume |
 

@@ -18,7 +18,7 @@ Standing labels: ALIVE | PARTIAL_ALIVE | UNKNOWN | UNSUPPORTED | BLOCKED.
 | CASTLE | no publish/court surface in-repo | **UNKNOWN** | Gate 2–3 |
 | Affidavit | `packs/affidavit-pack/**`; `examples/affidavit-verify/` (when present on tip); `ontology_catalogue/affidavit` | **PARTIAL_ALIVE** | Pack manufacture + reference port; not Plane-5 DO |
 | `.aod` | no `*.aod` files in tree | **UNSUPPORTED** | |
-| BRCE / AS-01 doctrine | `AGENTS.md`; `docs/architecture/*TAI*`; `docs/architecture/CI-CD-ARD-PRD-v26.7.31.md` | **PARTIAL_ALIVE** | Doctrine ALIVE as text; WebAuthn AS-01 runtime **UNKNOWN** in ggen |
+| BRCE / AS-01 doctrine | `AGENTS.md`; `docs/architecture/*TAI*`; `docs/architecture/CI-CD-ARD-PRD-v26.7.31.md`; `docs/rfc/v27.1.1/BRCE-WEBAUTHN-STANDING.md`; `ggen-abb-sbb::as01_seat` presence fence | **PARTIAL_ALIVE** | Doctrine + ungated-DO refusal court; WebAuthn/`prime256v1` verify **UNSUPPORTED**; broker/Plane-5 DO **BLOCKED**/out of ggen |
 | `curve25519-dalek` | `Cargo.lock` 4.1.3 + 5.0.0; `ed25519-dalek` workspace 3.0 | **PARTIAL_ALIVE** | Transitive; Gate-1 pin/docs court missing |
 | `verify_witness` WASM &lt;250KB | `ORIGINAL_REQUEST.md` mentions `gall_verify_witness_adequacy`; no size court | **UNKNOWN** | |
 | Plane 5 / revops / cos / GCP | fleet census names only | **UNKNOWN** / **OUT OF SCOPE** | Do not claim ALIVE |
