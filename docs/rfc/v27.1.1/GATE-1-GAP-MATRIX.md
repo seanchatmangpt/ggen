@@ -4,6 +4,8 @@ Remaining-courts ledger: [`GATE-1-REMAINING-COURTS-STANDING.md`](./GATE-1-REMAIN
 
 Companion to `ECOSYSTEM-SPEC-27.1.1.md` and `REPO-INVENTORY-27.1.1.md`.
 
+**Evidence refresh / live tip pin:** CindyCat dual-schema `[primitive.space]` from `[rhythm]` on `cursor/v2711-hop4-cindycat-space-bc54` (court `oem_fixtures_carry_dtcg_primitive_space_from_rhythm`).
+
 **Evidence refresh / live tip pin:** 2026-11-22 tip-pin on
 `cursor/v2711-gate1-standing-retip-bc54` to
 `28c3f4d84596fc1a0735d268f51bc2c74db526b5`
