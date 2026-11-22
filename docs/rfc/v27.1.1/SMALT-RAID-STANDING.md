@@ -6,8 +6,8 @@
 | Companion | `ECOSYSTEM-SPEC-27.1.1` (economic-ops / Gate-0–Plane-5 adjacent) |
 | Target GA | **2027-01-01** |
 | Materialized | 2026-11-22 |
-| Observed base | `origin/main` @ `d173cad5792e837bd4fec730d120c582b9bc5d4c` |
-| Crown standing (from ggen) | **UNKNOWN** (capability not observed in-repo) + **BLOCKED** (DO owner is out-of-repo; smalt not mounted) |
+| Observed base | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `5e00619a422a0d8e451029f0aaf8b7a63e27da46` (2026-11-22 honesty pin; prior `origin/main` @ `d173cad5792e837bd4fec730d120c582b9bc5d4c`) |
+| Crown standing (from ggen) | **UNKNOWN** (capability not observed in-repo) + **BLOCKED** (DO owner is out-of-repo; smalt not mounted) — never `ALIVE` from ggen |
 
 Standing vocabulary: `UNKNOWN` | `PARTIAL_ALIVE` | `ALIVE` | `BLOCKED` | `BUILD_BROKEN` | `UNSUPPORTED` | `REFUSED_*`.
 
@@ -148,10 +148,10 @@ rg -i -n '\bRAID\b|4-cloud|economic.?ops' \
 
 | Field | Value |
 |-------|-------|
-| Observed ggen tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `7bf148d82e125589859d8830d29a3ce899d28f3f` |
+| Observed ggen tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `5e00619a422a0d8e451029f0aaf8b7a63e27da46` |
 | Sibling mount | **not mounted** → courts **BLOCKED** |
 | In-repo falsifier `rg` | zero material RAID/4-cloud/economic-ops hits outside standing/rfc docs |
-| Crown standing | **UNKNOWN** + **BLOCKED** — **unchanged** (honest; no promotion) |
+| Crown standing | **UNKNOWN** + **BLOCKED** — **unchanged** (honest; no promotion; never ggen `ALIVE`) |
 | Next verifier | §4 (`just doctor`; `mix test test/aws|gcp|fin_ops_calculator_test.exs` in mounted smalt) |
 
 ---
@@ -161,5 +161,6 @@ rg -i -n '\bRAID\b|4-cloud|economic.?ops' \
 Materialized as the v27.1.1 goal-slice standing ledger for **Smalt 4-Cloud RAID
 / economic ops**. Evidence: in-repo ripgrep (empty), ECOSYSTEM-SPEC Gate-0 /
 Plane-5 doctrine, and read-only observation of `seanchatmangpt/smalt` parity +
-FinOps/b4b trees. No smalt court was executed from this workspace. Tip reconfirm
-2026-11-22 on `7bf148d82` — standing labels held.
+FinOps/b4b trees. No smalt court was executed from this workspace. Honesty tip
+pin 2026-11-22 on `5e00619a4` (`cursor/v2711-ccs-ops-honesty-bc54`) — standing
+labels held (**UNKNOWN**+**BLOCKED**).

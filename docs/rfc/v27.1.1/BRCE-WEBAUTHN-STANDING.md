@@ -4,10 +4,11 @@
 |-------|-------|
 | Document ID | `BRCE-WEBAUTHN-STANDING` |
 | Spec binding | `ECOSYSTEM-SPEC-27.1.1` §1.1 / Plane 5 |
-| Observed base | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `f1639510e0e699a525bd1527e89fe81d6ca7d9c3` (2026-11-22; prior pin `1b793c12d`) |
-| Tip pin | 2026-11-22 — `cursor/v2711-ccs-retip-bc54` (standings held; crypto/live Plane-5 not promoted; cargo not run) |
+| Observed base | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `5e00619a422a0d8e451029f0aaf8b7a63e27da46` (2026-11-22; prior pin `f1639510e0e699a525bd1527e89fe81d6ca7d9c3`) |
+| Tip pin | 2026-11-22 — `cursor/v2711-ccs-ops-honesty-bc54` (standings held PARTIAL; crypto/live Plane-5 not promoted; cargo not run) |
+| Live filename | `BRCE-WEBAUTHN-STANDING.md` (not `BRCE-AS01-STANDING.md`) |
 | Target GA | **2027-01-01** |
-| Slice standing | **PARTIAL_ALIVE** (doctrine + presence-only ungated-DO refusal; V1 court evidence **6 passed; exit 0** on `0478fde59` — fence only); WebAuthn/`prime256v1` verify **UNSUPPORTED** in-repo; live BRCE / Plane-5 DO **BLOCKED** |
+| Slice standing | **PARTIAL_ALIVE** (doctrine + presence-only ungated-DO refusal; V1 court historical evidence **6 passed; exit 0** on `0478fde59` — fence only; tip-cargo pending on `5e00619a4`); WebAuthn/`prime256v1` verify **UNSUPPORTED** in-repo; live BRCE / Plane-5 DO **BLOCKED** |
 
 Standing vocabulary: `UNKNOWN` | `PARTIAL_ALIVE` | `ALIVE` | `BLOCKED` | `BUILD_BROKEN` | `UNSUPPORTED` | `REFUSED_*`.
 
@@ -44,7 +45,7 @@ AS-01 seat cryptography named by the mandate: **ECDSA P-256 / `:prime256v1`**
 | Ed25519 sync receipts | `crates/ggen-engine` pack install signing; `ggen-mcp` receipt verify when sig present | **PARTIAL_ALIVE** | Receipt integrity; not seat DO gate |
 | `ed25519-dalek` 3.x / `curve25519-dalek` 4.x+5.x | workspace `Cargo.toml` / `Cargo.lock`; [`CURVE25519-DALEK-PIN-STANDING.md`](./CURVE25519-DALEK-PIN-STANDING.md) | **PARTIAL_ALIVE** | Pin doc PRESENT; Gate-1 policy court still open |
 | WebAuthn class in ontologies | `marketplace/packages/identity-access-management/ontology/identity_access_management.ttl`; autofde registry | **UNSUPPORTED** (runtime) | Catalogue / registry labels only |
-| Ungated-DO-without-seat typed refusal (this slice) | `crates/ggen-abb-sbb/src/as01_seat.rs` + `tests/brce_as01_seat_court.rs` | **PARTIAL_ALIVE** | Presence/shape fence only — **no crypto verify**. Gate-1 evidence: **6 passed; exit 0** on tip `0478fde59` ([`GATE-1-GAP-MATRIX.md`](./GATE-1-GAP-MATRIX.md)); this retip did **not** re-run cargo on `f1639510e`. Fence exit 0 ≠ path `ALIVE`. |
+| Ungated-DO-without-seat typed refusal (this slice) | `crates/ggen-abb-sbb/src/as01_seat.rs` + `tests/brce_as01_seat_court.rs` | **PARTIAL_ALIVE** | Presence/shape fence only — **no crypto verify**. Historical Gate-1 evidence: **6 passed; exit 0** on `0478fde59` ([`GATE-1-GAP-MATRIX.md`](./GATE-1-GAP-MATRIX.md)); tip-cargo pending on `5e00619a4`. Fence exit 0 on ancestor ≠ tip-subject path `ALIVE`. |
 
 ---
 
@@ -135,6 +136,6 @@ named claim.
 | SovereignLease Ed25519 | **ALIVE** (lease) / **UNSUPPORTED** as AS-01 |
 | WebAuthn AS-01 `:prime256v1` verify | **UNSUPPORTED** |
 | Live BRCE broker / Plane 5 DO | **BLOCKED** / **UNSUPPORTED** (out of ggen) |
-| Ungated DO without seat typed refusal | **PARTIAL_ALIVE** (V1 court; evidence exit 0 on `0478fde59`) |
+| Ungated DO without seat typed refusal | **PARTIAL_ALIVE** (V1 court; historical evidence exit 0 on `0478fde59`; tip-cargo pending on `5e00619a4`) |
 | Whole AS-01 CONSTRUCT→DO path | **PARTIAL_ALIVE** → next falsifiers **V7–V11** (crypto/live) + OOR **G2-3/G2-4/G2-5** through GA |
-| Observed tip | `f1639510e0e699a525bd1527e89fe81d6ca7d9c3` (retip; prior `1b793c12d`) |
+| Observed tip | `5e00619a422a0d8e451029f0aaf8b7a63e27da46` (honesty retip; prior `f1639510e`) |

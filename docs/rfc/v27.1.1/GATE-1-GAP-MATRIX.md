@@ -7,11 +7,17 @@ Companion to `ECOSYSTEM-SPEC-27.1.1.md` and `REPO-INVENTORY-27.1.1.md`.
 `5e00619a422a0d8e451029f0aaf8b7a63e27da46`
 (`origin/cursor/ecosystem-spec-27-1-1-bc54`). Historical court exits remain on
 ancestor `0478fde59644cccd60c5a88d64d444ec292e6a3c` (≥ `a54b9803`) and ui-layout
-evidence `eaf0dad40287a3347280a541766b3b16f3978cf8` — both ancestors of tip →
-**ALIVE retained** (not demoted for thrash/OOM). **Tip-cargo reconfirm PENDING**
-(quiet cgroup) — this retip is **not** tip exit 0. Do not invent new `ALIVE`.
-Do not promote any row to tip-subject `ALIVE` without a recorded exit **0** for
-that exact tip. Horizontal spine HITL ledger:
+evidence `eaf0dad40287a3347280a541766b3b16f3978cf8` — both ancestors of tip.
+**Tip-cargo reconfirm PENDING** (quiet cgroup) — not tip exit 0.
+
+**Honesty demotion (`cursor/v2711-ccs-ops-honesty-bc54`):** BRCE seat / brand
+rhythm / `verify_witness` size fence demoted **ALIVE → PARTIAL_ALIVE** to match
+dedicated standings ([`BRCE-WEBAUTHN-STANDING.md`](./BRCE-WEBAUTHN-STANDING.md),
+ECOSYSTEM §8/§10, [`VERIFY-WITNESS-PRODUCTION.md`](./VERIFY-WITNESS-PRODUCTION.md)).
+Preserve historical exit-0 SHAs as PARTIAL evidence. Production WASM / brand.toml
+hot-swap / zero-HITL remain **UNSUPPORTED** / **not ALIVE**. Do not invent new
+`ALIVE`. Do not promote any row to tip-subject `ALIVE` without a recorded exit
+**0** for that exact tip. Horizontal spine HITL ledger:
 [`FOUNDRY-FINISH-STANDING.md`](./FOUNDRY-FINISH-STANDING.md).
 
 **Pass-count footnotes (tip source `#[test]` counts; not tip-cargo exit 0):**
@@ -52,11 +58,11 @@ Do not promote any Gate 0 row to `ALIVE` from this repository.
 | ggen `ui-layout-court` (AotSealReceipt digest consume) | **ALIVE** — `layout::ui_layout` + expect-free `tests/ui_layout_court.rs` (Chicago match/panic; no `expect`/`expect_err`); six-width @ **320/375/414/768/1024/1440** + WCAG 1.4.12 **1.5×**; fail-closed on missing/stale/mismatched digests. Subject tip `30b30d70c` (expect-free anti-vacuity parse). Sibling `ui-layout-court.ts` remains out-of-repo / **UNSUPPORTED**. | tip `30b30d70c` | `CARGO_TARGET_DIR=/tmp/ggen-uilayout-wt CARGO_BUILD_JOBS=1 cargo test -p ggen-graph --test ui_layout_court`; next: `pnpm test -- ui-layout-court` in zcode-cli | **ggen** (in-repo fence); **zcode-cli** (TS adapter, separate) |
 | zcode POWL/OCEL bounded remediation (in-repo stub) | **PARTIAL_ALIVE** — standing + `remediation_bound` + `ggen-sjira` IO-free court on tip (integrate / [#862](https://github.com/seanchatmangpt/ggen/pull/862)). Live sibling Chicago court **UNKNOWN** / **UNSUPPORTED** (unmounted). Ledger: [`ZCODE-POWL-OCEL-STANDING.md`](./ZCODE-POWL-OCEL-STANDING.md) | tip `5e00619a422a0d8e451029f0aaf8b7a63e27da46` | In-repo: `cargo test -p ggen-sjira --test zcode_powl_ocel_court`. Live: `bun test test/powl-ocel-chicago.test.ts` in zcode-cli | **ggen** (contract); **zcode-cli** (execution) |
 | `curve25519-dalek` v4 / cgap-aoq docs | **PARTIAL_ALIVE** (lock + pin doc) — `Cargo.lock` resolves **4.1.3** and **5.0.0**; policy recorded in [`CURVE25519-DALEK-PIN-STANDING.md`](./CURVE25519-DALEK-PIN-STANDING.md). Policy court that refuses undocumented major still absent → not crown `ALIVE`. | tip `5e00619a422a0d8e451029f0aaf8b7a63e27da46` (lock observation; prior evidence `0478fde59`) | `rg -n 'name = "curve25519-dalek"' -A2 Cargo.lock` (expect 4.1.3 + 5.0.0); next ALIVE: Gate-1 policy court per pin standing §5 | **ggen** (+ cgap-aoq docs owner) |
-| `verify_witness` WASM &lt; 250KB | **ALIVE** (offline size court) — `verify_witness_size_court` **6 passed; exit 0** on evidence tip `0478fde59` (ancestor; placeholder `&lt; 262144`); tip source still **6** `#[test]`. **Tip-cargo reconfirm PENDING** (quiet cgroup). Production runtime out-of-repo ([`VERIFY-WITNESS-PRODUCTION.md`](./VERIFY-WITNESS-PRODUCTION.md)) remains external / typed `UNSUPPORTED` — not production-artifact crown | tip `5e00619a422a0d8e451029f0aaf8b7a63e27da46` (evidence `0478fde59`) | `cargo test -p ggen-graph --test verify_witness_size_court` | **ggen** (size court) + external (witness/affidavit production build) |
+| `verify_witness` WASM &lt; 250KB | **PARTIAL_ALIVE** (offline size court) — historical `verify_witness_size_court` **6 passed; exit 0** on evidence `0478fde59` (ancestor; placeholder `&lt; 262144`); tip source still **6** `#[test]`; tip-cargo PENDING. Production WASM ([`VERIFY-WITNESS-PRODUCTION.md`](./VERIFY-WITNESS-PRODUCTION.md)) remains **UNSUPPORTED** — never production-artifact `ALIVE` from the size fence | tip `5e00619a422a0d8e451029f0aaf8b7a63e27da46` (evidence `0478fde59`) | Size: `cargo test -p ggen-graph --test verify_witness_size_court`. Production: `cargo build --release --target wasm32-unknown-unknown -p verify_witness`; `wc -c verify_witness.wasm` → **&lt; 262144** | **ggen** (size court) + external (witness/affidavit production build) |
 | R-01…R-07 resolution contract | **ALIVE** (contract court) — `r01_r07_resolution_court` **7 passed; exit 0** on evidence tip `0478fde59` (ancestor); tip source still **7** `#[test]`. **Tip-cargo reconfirm PENDING** (quiet cgroup). Risk *bodies* remain **BLOCKED** — [`R01-R07-STANDING.md`](./R01-R07-STANDING.md) | tip `5e00619a422a0d8e451029f0aaf8b7a63e27da46` (evidence `0478fde59`) | `cargo test -p ggen-graph --test r01_r07_resolution_court` | **ggen** (contract); risk-register owner (bodies) |
-| Brand `.toml` rhythm schema + OEM stubs (Fourth Watch / CindyCat) | **ALIVE** (rhythm court) — `brand_toml_rhythm_court` **4 passed; exit 0** on evidence tip `0478fde59` (ancestor). Tip source has **11** `#[test]` (+ `brand_fluid_clamp_court` PRESENT). **Tip-cargo reconfirm PENDING** (quiet cgroup). Full DTCG color/type/CASTLE inventories remain Gate 2+ → not claimed here. **Commercial** priority is CindyCat-first ([`GATE-2-CINDYCAT-FIRST.md`](./GATE-2-CINDYCAT-FIRST.md)), not Fourth Watch cold cyber. | tip `5e00619a422a0d8e451029f0aaf8b7a63e27da46` (evidence `0478fde59`) | `cargo test -p ggen-graph --test brand_toml_rhythm_court` | **ggen** (rhythm schema) + brand plane (token inventory Gate 2+) |
+| Brand `.toml` rhythm schema + OEM stubs (Fourth Watch / CindyCat) | **PARTIAL_ALIVE** (rhythm court) — historical `brand_toml_rhythm_court` **4 passed; exit 0** on evidence `0478fde59` (ancestor). Tip source has **11** `#[test]` (+ `brand_fluid_clamp_court` PRESENT); tip-cargo PENDING. Full DTCG color/type/CASTLE inventories remain Gate 2+. **brand.toml hot-swap** is **ABSENT** / **UNSUPPORTED** (rhythm admit ≠ hot-swap). **Commercial** priority is CindyCat-first ([`GATE-2-CINDYCAT-FIRST.md`](./GATE-2-CINDYCAT-FIRST.md)), not Fourth Watch cold cyber. | tip `5e00619a422a0d8e451029f0aaf8b7a63e27da46` (evidence `0478fde59`) | Rhythm: `cargo test -p ggen-graph --test brand_toml_rhythm_court`; `cargo test -p ggen-graph --test brand_fluid_clamp_court`. Hot-swap: none — do not invent. Full inventory: OOR **G2-13** / **G2-12** | **ggen** (rhythm schema) + brand plane (token inventory Gate 2+) |
 | Plane 5 front doors | **UNKNOWN** / out of DO | n/a | Gate 2–3 — not a Gate-1 falsifier; commercial open is CindyCat patronage before Fourth Watch cold cyber ([`GATE-2-CINDYCAT-FIRST.md`](./GATE-2-CINDYCAT-FIRST.md)) | external |
-| BRCE + WebAuthn AS-01 (`:prime256v1`) ungated-DO fence | **ALIVE** (seat fence court) — `cargo test -p ggen-abb-sbb --test brce_as01_seat_court` **6 passed; exit 0** on evidence tip `0478fde59` (ancestor); tip source still **6** `#[test]`. **Tip-cargo reconfirm PENDING** (quiet cgroup). Crypto verify **UNSUPPORTED**; live BRCE **BLOCKED**; standing [`BRCE-WEBAUTHN-STANDING.md`](./BRCE-WEBAUTHN-STANDING.md) | tip `5e00619a422a0d8e451029f0aaf8b7a63e27da46` (evidence `0478fde59`) | `cargo test -p ggen-abb-sbb --test brce_as01_seat_court` | **ggen** (fence); BRCE/Plane-5 own verify+actuate |
+| BRCE + WebAuthn AS-01 (`:prime256v1`) ungated-DO fence | **PARTIAL_ALIVE** (seat fence court) — historical `brce_as01_seat_court` **6 passed; exit 0** on evidence `0478fde59` (ancestor); tip source still **6** `#[test]`; tip-cargo PENDING. Crypto verify **UNSUPPORTED**; live BRCE **BLOCKED**; fence ≠ broker `ALIVE`. Standing [`BRCE-WEBAUTHN-STANDING.md`](./BRCE-WEBAUTHN-STANDING.md) | tip `5e00619a422a0d8e451029f0aaf8b7a63e27da46` (evidence `0478fde59`) | Fence replay: `cargo test -p ggen-abb-sbb --test brce_as01_seat_court`. Crypto/live: BRCE **V7/V8/V9** + OOR **G2-3/G2-4/G2-5** | **ggen** (fence); BRCE/Plane-5 own verify+actuate |
 | ggen_igniter clean-room | **BLOCKED** (sibling unmounted) — in-repo contract **PARTIAL_ALIVE** [`IGNITER-CLEANROOM-STANDING.md`](./IGNITER-CLEANROOM-STANDING.md) | tip `5e00619a422a0d8e451029f0aaf8b7a63e27da46` | Sibling: `git diff --exit-code`. In-repo: `cargo test -p ggen-sjira --test igniter_cleanroom_court` | **ggen_igniter** (crown); **ggen** (contract) |
 
 ### Command evidence log (this refresh)
@@ -67,8 +73,9 @@ Historical exit-0 evidence tip: `0478fde59644cccd60c5a88d64d444ec292e6a3c` (≥ 
 SIGKILL/SIGTERM under shared-target OOM contention; exits below are from the named
 court harness on the **evidence** tip (warm court binary, tip-synced court crate, or exact
 `cargo test -p ggen-abb-sbb`). **Tip-cargo reconfirm PENDING** (quiet cgroup) on live tip —
-do **not** read this log as tip exit 0. ALIVE retained because evidence SHAs are
-ancestors of tip (not demoted for thrash/OOM).
+do **not** read this log as tip exit 0. Historical exit-0 SHAs are ancestors of
+tip and are preserved as PARTIAL evidence; BRCE / brand / verify_witness rows are
+honesty-demoted to **PARTIAL_ALIVE** (see header).
 
 | Subject | Command / binary | Result |
 |---------|------------------|--------|
@@ -104,16 +111,18 @@ cargo test -p ggen-sjira --test zcode_powl_ocel_court
 ## Recommended next single falsifier (Gate 1)
 
 ggen fence courts **exit 0** on evidence tip `0478fde59` (ancestor of live tip
-`5e00619a422a0d8e451029f0aaf8b7a63e27da46`); **ALIVE retained**; **tip-cargo
-reconfirm PENDING** (quiet cgroup) — not tip exit 0:
+`5e00619a422a0d8e451029f0aaf8b7a63e27da46`); **tip-cargo reconfirm PENDING**
+(quiet cgroup) — not tip exit 0. Honesty: BRCE / brand / verify_witness demoted
+to **PARTIAL_ALIVE** (dedicated standings win over matrix over-promotion):
 
-- `shui:` public-prefix fence → **ALIVE** (evidence 3; tip source **4**)
-- brand rhythm → **ALIVE** (evidence 4; tip source **11**; DTCG inventory still Gate 2+)
+- `shui:` public-prefix fence → **ALIVE** (evidence 3; tip source **4**; tip-cargo PENDING)
+- brand rhythm → **PARTIAL_ALIVE** (evidence 4; tip source **11**; DTCG Gate 2+; **hot-swap ABSENT/UNSUPPORTED**)
 - Taffy AOT six-width seal → **ALIVE** (evidence 6; tip source **7**; photolithography consume still open)
-- `verify_witness` size court → **ALIVE** (production WASM still out-of-repo)
-- BRCE AS-01 seat → **ALIVE** (crypto / live BRCE still open)
-- R-01…R-07 contract → **ALIVE** (bodies **BLOCKED**)
+- `verify_witness` size court → **PARTIAL_ALIVE** (production WASM **UNSUPPORTED**)
+- BRCE AS-01 seat → **PARTIAL_ALIVE** (crypto / live BRCE still open; fence ≠ path `ALIVE`)
+- R-01…R-07 contract → **ALIVE** (bodies **BLOCKED**; tip-cargo PENDING)
 - zcode POWL in-repo stub → **PARTIAL_ALIVE** (live CLI open; not in this exit set)
+- zero-HITL fab / production WASM / brand hot-swap → **not** `ALIVE`
 
 ggen in-repo `ui-layout-court` digest consume → **ALIVE** on tested tip `eaf0dad40` (**8 passed; exit 0**; `bc-c7c9d554`; ancestor). Tip court land `7c0ba2a90`; tip source **11** `#[test]` → **tip-cargo reconfirm PENDING** (quiet cgroup) (`cargo test -p ggen-graph --test ui_layout_court`).
 

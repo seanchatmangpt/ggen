@@ -6,9 +6,10 @@
 | Companion | `ECOSYSTEM-SPEC-27.1.1` (planes / Gate schedule); `AGENTS.md` §3 Manufacture and authority |
 | Status | MATERIALIZED standing ledger (not an execution receipt) |
 | Materialized | 2026-11-22 |
-| Observed tip | PR [#849](https://github.com/seanchatmangpt/ggen/pull/849) / `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `f1639510e0e699a525bd1527e89fe81d6ca7d9c3` (2026-11-22; prior pin was `origin/main` @ `d173cad5792e837bd4fec730d120c582b9bc5d4c`) |
+| Observed tip | PR [#849](https://github.com/seanchatmangpt/ggen/pull/849) / `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `5e00619a422a0d8e451029f0aaf8b7a63e27da46` (2026-11-22; prior pin `f1639510e0e699a525bd1527e89fe81d6ca7d9c3`) |
 | Base (main) | `origin/main` @ `d173cad5792e837bd4fec730d120c582b9bc5d4c` |
-| Tip pin | 2026-11-22 — `cursor/v2711-ccs-retip-bc54` after crown tip `f1639510e` (standings held; no crypto/Plane-5 promotion; cargo not run) |
+| Tip pin | 2026-11-22 — `cursor/v2711-ccs-ops-honesty-bc54` after crown tip `5e00619a4` (CP17 demoted PARTIAL; no crypto/Plane-5/hot-swap/zero-HITL promotion; cargo not run) |
+| Live filename | `CCS-AUTHORITY-STANDING.md` (not `CCS-BRCE-STANDING.md`) |
 | Repo | `seanchatmangpt/ggen` |
 
 Standing vocabulary: `UNKNOWN` | `PARTIAL_ALIVE` | `ALIVE` | `BLOCKED` | `BUILD_BROKEN` | `UNSUPPORTED` | `REFUSED_*`.
@@ -62,8 +63,8 @@ not onto PR comments, and not onto generated artifacts.
 | # | Name | Plane | Seal mechanism | Standing | Next verifier |
 |---|------|-------|----------------|----------|---------------|
 | 1 | **BRCE + WebAuthn AS-01** | Plane 5 — Front doors / constitutional DO | **BRCE + WebAuthn AS-01 `:prime256v1`** — exclusive CONSTRUCT→DO broker | **PARTIAL_ALIVE** — doctrine + in-repo ungated-DO seat fence on tip (`as01_seat` / `brce_as01_seat_court`; Gate-1 evidence **6 passed; exit 0** on `0478fde59`). WebAuthn/`prime256v1` crypto verify **UNSUPPORTED**; live BRCE broker **BLOCKED**. Slice is **not** CONSTRUCT→DO `ALIVE`. | In-repo replay (no promote): `cargo test -p ggen-abb-sbb --test brce_as01_seat_court`. Crypto/live next: BRCE §5 **V7** (ES256/`prime256v1` assertion court), **V8** (broker admits only with verified seat), **V9** / OOR **G2-5** (Plane-5 front-door DO). Do not claim path `ALIVE` from fence alone. |
-| 2 | **MCP `ggen_write_apply`** | Plane 1 — Manufacture (local write) | `confirm: true` **and** Gall **CP17** `expected_graph_hash` (independent dry-run corroboration). Not BRCE; cannot grant Plane-5 DO. | **ALIVE** (CP17 courts present on observed tip; see §4.1) | `cargo test -p ggen-mcp --test write_apply_confirm_test`; `cargo test -p ggen-mcp --test pipeline_tools_test -- write_apply_refuses_a_fabricated_graph_hash_bypass` |
-| 3 | **A2A construct / lifecycle apply** | Plane 1 — Manufacture (A2A/MCP lifecycle) | `confirm: true` + `corroborate_graph_hash` / `construct_hash_gate` (CP17 parity with write_apply) | **PARTIAL_ALIVE** — landed on feature branches (`cursor/mcp-a2a-hands-free-lifecycle-bc54`, `cursor/a2a-construct-hash-gate-bc54`); **`construct_hash_gate.rs` ABSENT** on observed tip `f1639510e` | Merge onto crown + `cargo test -p ggen-lsp --features a2a` (or branch court covering `corroborate_graph_hash` / `construct_hash_gate`); until merge, standing stays PARTIAL |
+| 2 | **MCP `ggen_write_apply`** | Plane 1 — Manufacture (local write) | `confirm: true` **and** Gall **CP17** `expected_graph_hash` (independent dry-run corroboration). Not BRCE; cannot grant Plane-5 DO. | **PARTIAL_ALIVE** — CP17 courts **PRESENT** on tip `5e00619a4`; cargo **not** re-run on this tip (inspection ≠ `ALIVE`; see §4.1) | `cargo test -p ggen-mcp --test write_apply_confirm_test`; `cargo test -p ggen-mcp --test pipeline_tools_test -- write_apply_refuses_a_fabricated_graph_hash_bypass` |
+| 3 | **A2A construct / lifecycle apply** | Plane 1 — Manufacture (A2A/MCP lifecycle) | `confirm: true` + `corroborate_graph_hash` / `construct_hash_gate` (CP17 parity with write_apply) | **PARTIAL_ALIVE** — landed on feature branches (`cursor/mcp-a2a-hands-free-lifecycle-bc54`, `cursor/a2a-construct-hash-gate-bc54`); **`construct_hash_gate.rs` ABSENT** and **`lifecycle.rs` ABSENT** on observed tip `5e00619a4` | Merge onto crown + `cargo test -p ggen-lsp --features a2a` (or branch court covering `corroborate_graph_hash` / `construct_hash_gate`); until merge, standing stays PARTIAL |
 | 4 | **Sync receipt verify** | Plane 2 — Trust | BLAKE3 receipt chain over `{graph_hash, outputs}`; `ggen receipt verify` (zero args → `.ggen-v2/receipt.json`) | **PARTIAL_ALIVE** — verb + handler live; proves consequence identity, not DO grant | `ggen receipt verify` after a real sync; `cargo test -p ggen-engine --test receipt_chain_e2e` (or package receipt courts) |
 | 5 | **SovereignLease** | Plane 2 — Trust / authority | ed25519-dalek multi-sig lease admission (`ggen-sjira`); IO-free kernel. Distinct from WebAuthn P-256 AS-01 — does not open Plane-5 DO. | **PARTIAL_ALIVE** (lease admit path); **UNSUPPORTED** as AS-01 / `:prime256v1` | `cargo test -p ggen-sjira --test lease_epoch_test --test execute_lease_test` |
 | 6 | **ABB/SBB Stage 2c admission** | Plane 1 — Manufacture admission | `admit()` / `plan()` / depgraph (cycle + unbound-port refusal); Stage 2c gate into ggen-engine. Emits admitted structure only — no DO. | **PARTIAL_ALIVE** | `cargo test -p ggen-abb-sbb --test falsifiers` |
@@ -88,21 +89,24 @@ Gall checkpoint **CP17**: `confirm: true` is never sufficient. Apply/construct m
 independently recompute the current graph hash via dry-run and refuse fabricated
 or stale `expected_graph_hash` without touching the filesystem.
 
-### 4.1 On observed tip — cite as ALIVE / PARTIAL_ALIVE with commands
+### 4.1 On observed tip — cite as PARTIAL_ALIVE (tip-cargo pending)
+
+Courts are **PRESENT** on tip `5e00619a4`. Honesty law: source presence without a
+recorded exit **0** on the admitted tip is **PARTIAL_ALIVE**, not `ALIVE`.
 
 | Court | Path | Claim | Command |
 |-------|------|-------|---------|
-| Confirm + CP17 behavioral court | `crates/ggen-mcp/tests/write_apply_confirm_test.rs` | **ALIVE** — confirm-first refusal; empty hash refusal; real dry-run hash accepted (courts present on tip `f1639510e`; this retip did **not** re-run cargo) | `cargo test -p ggen-mcp --test write_apply_confirm_test` |
-| Fabricated-hash bypass court | `crates/ggen-mcp/tests/pipeline_tools_test.rs` (`write_apply_refuses_a_fabricated_graph_hash_bypass`) | **ALIVE** — fabricated hash → `Unsupported`, filesystem untouched | `cargo test -p ggen-mcp --test pipeline_tools_test -- write_apply_refuses_a_fabricated_graph_hash_bypass` |
-| Legitimate CP17 path | same file (`write_apply_accepts_a_real_dry_run_graph_hash`) | **ALIVE** — real `ggen_sync_dry_run` hash accepted | `cargo test -p ggen-mcp --test pipeline_tools_test -- write_apply_accepts_a_real_dry_run_graph_hash` |
+| Confirm + CP17 behavioral court | `crates/ggen-mcp/tests/write_apply_confirm_test.rs` | **PARTIAL_ALIVE** — confirm-first / empty-hash / real dry-run hash courts **PRESENT** on tip `5e00619a4`; tip cargo **not** re-run | `cargo test -p ggen-mcp --test write_apply_confirm_test` |
+| Fabricated-hash bypass court | `crates/ggen-mcp/tests/pipeline_tools_test.rs` (`write_apply_refuses_a_fabricated_graph_hash_bypass`) | **PARTIAL_ALIVE** — fabricated hash → `Unsupported`, filesystem untouched (presence only until tip exit 0) | `cargo test -p ggen-mcp --test pipeline_tools_test -- write_apply_refuses_a_fabricated_graph_hash_bypass` |
+| Legitimate CP17 path | same file (`write_apply_accepts_a_real_dry_run_graph_hash`) | **PARTIAL_ALIVE** — real `ggen_sync_dry_run` hash accepted (presence only until tip exit 0) | `cargo test -p ggen-mcp --test pipeline_tools_test -- write_apply_accepts_a_real_dry_run_graph_hash` |
 | Implementation | `crates/ggen-mcp/src/tools/write_apply.rs` | CP17 preflight dry-run before write | (covered by courts above) |
 
-### 4.2 Feature-branch only — cite as PARTIAL_ALIVE
+### 4.2 Feature-branch only — cite as PARTIAL_ALIVE / ABSENT on tip
 
 | Court / surface | Branch evidence | Standing |
 |-----------------|-----------------|----------|
-| `corroborate_graph_hash` | `cursor/mcp-a2a-hands-free-lifecycle-bc54` → `crates/ggen-lsp/src/a2a_mcp/lifecycle.rs` | **PARTIAL_ALIVE** (**ABSENT** on observed tip `f1639510e`) |
-| `construct_hash_gate` / `corroborate_expected_graph_hash` | `cursor/a2a-construct-hash-gate-bc54` → `crates/ggen-lsp/src/a2a_mcp/construct_hash_gate.rs` | **PARTIAL_ALIVE** (**ABSENT** on observed tip `f1639510e`) |
+| `corroborate_graph_hash` / `lifecycle.rs` | `cursor/mcp-a2a-hands-free-lifecycle-bc54` → `crates/ggen-lsp/src/a2a_mcp/lifecycle.rs` | **PARTIAL_ALIVE** (**ABSENT** on observed tip `5e00619a4`) |
+| `construct_hash_gate` / `corroborate_expected_graph_hash` | `cursor/a2a-construct-hash-gate-bc54` → `crates/ggen-lsp/src/a2a_mcp/construct_hash_gate.rs` | **PARTIAL_ALIVE** (**ABSENT** on observed tip `5e00619a4`) |
 
 Do not claim A2A CP17 `ALIVE` until those gates merge and their package courts exit 0 on the admitted tip.
 
@@ -132,8 +136,10 @@ Observed in-repo (live crates + docs; ontology_catalogue noise excluded where no
 | `:prime256v1` | Named as AS-01 WebAuthn COSE/ES256 curve binding; no in-ggen WebAuthn verifier |
 | CCS | This document crystallizes the standing set; prior prose used “control surface” loosely |
 | SELECT≠CONSTRUCT≠DO | `AGENTS.md`; ECOSYSTEM-SPEC-27.1.1 §1.1 (companion PR); CROWN/GALL docs |
-| `corroborate_graph_hash` | Feature branches only (§4.2); **ABSENT** on tip `f1639510e` |
-| confirm gates | `ggen_write_apply` + CP17 courts **ALIVE** on observed tip (§4.1) |
+| `corroborate_graph_hash` / `lifecycle.rs` / `construct_hash_gate.rs` | Feature branches only (§4.2); **ABSENT** on tip `5e00619a4` |
+| confirm gates | `ggen_write_apply` + CP17 courts **PARTIAL_ALIVE** on observed tip (§4.1; tip cargo pending) |
+| brand.toml hot-swap | **ABSENT** / **UNSUPPORTED** on tip (rhythm admit courts only — see Gate-1 / ECOSYSTEM §8) |
+| zero-HITL fab crown | **not** `ALIVE` — Foundry / ECOSYSTEM D1 remain incomplete until out-of-repo hops close |
 
 ---
 
@@ -149,9 +155,10 @@ Observed in-repo (live crates + docs; ontology_catalogue noise excluded where no
 ## 8. Provenance
 
 Materialized for GOAL SLICE: SELECT≠CONSTRUCT≠DO + ~8 CCS standing.
-Retipped 2026-11-22 on `cursor/v2711-ccs-retip-bc54` against crown
-`origin/cursor/ecosystem-spec-27-1-1-bc54` @ `f1639510e0e699a525bd1527e89fe81d6ca7d9c3`
-(prior pin `origin/main` @ `d173cad5792e837bd4fec730d120c582b9bc5d4c`).
-A2A CP17 gates remain feature-branch-only. Cargo **not** re-run (protect
-`/tmp/ggen-uilayout-0ae8`). No Plane-5 / cos / GCP / WebAuthn-crypto DO claim
-is asserted as `ALIVE`.
+Honesty retip 2026-11-22 on `cursor/v2711-ccs-ops-honesty-bc54` against crown
+`origin/cursor/ecosystem-spec-27-1-1-bc54` @ `5e00619a422a0d8e451029f0aaf8b7a63e27da46`
+(prior pin `f1639510e0e699a525bd1527e89fe81d6ca7d9c3`). CP17 courts demoted
+**ALIVE → PARTIAL_ALIVE** (presence without tip cargo). A2A
+`construct_hash_gate.rs` / `lifecycle.rs` remain **ABSENT** on tip. Cargo
+**not** re-run. No Plane-5 / cos / GCP / WebAuthn-crypto / brand hot-swap /
+production WASM / zero-HITL crown claim is asserted as `ALIVE`.

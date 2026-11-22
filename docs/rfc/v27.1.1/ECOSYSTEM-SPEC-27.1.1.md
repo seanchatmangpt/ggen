@@ -123,7 +123,9 @@ Do **not** claim Plane 5 / cos / GCP billing `ALIVE` from ggen evidence.
 - Must not bypass Mode A’s admission or BRCE/AS-01.
 
 Standing in this repo at materialization: **UNKNOWN** (no Zero-DOM / WebGPU / FFB
-implementation under live crates; see inventory).
+implementation under live crates; see inventory). Deterministic **zero-HITL**
+is a GA requirement, not an earned `ALIVE` standing — do not promote D1 / Mode A
+to `ALIVE` from doctrine prose.
 
 ---
 
@@ -186,7 +188,9 @@ Gate-1 in-repo slice (this land): **visual rhythm only** — px/rem primitives,
 inventing those token values here is still **REFUSED**.
 
 Standing: **PARTIAL_ALIVE** (rhythm schema + OEM stubs + Chicago court);
-token-inventory plane **UNSUPPORTED** until Gate 2+.
+token-inventory plane **UNSUPPORTED** until Gate 2+. **brand.toml hot-swap**
+is **ABSENT** / **UNSUPPORTED** on tip — rhythm admit courts are not a hot-swap
+capability and must not be labeled `ALIVE` as such.
 
 ---
 
