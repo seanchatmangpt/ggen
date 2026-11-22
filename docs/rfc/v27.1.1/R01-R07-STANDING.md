@@ -4,9 +4,11 @@
 |-------|-------|
 | Document ID | `R01-R07-STANDING-27.1.1` |
 | Spec binding | `ECOSYSTEM-SPEC-27.1.1.md` §11 (D7 hard GA gate) |
-| Observed base | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `e7569893a` |
+| Observed base | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `f5f44571f` (`6a3a623ba` + OOR retip11; contract evidence tip `e7569893a`) |
+| Tip pin | 2026-11-22 — residual honesty `cursor/v2711-brce-v8-bodies-bc54`: contract tip-cargo **ALIVE** retained; all seven *bodies* **BLOCKED** with owner/HITL next verifiers; **no** invented body `ALIVE`/`CLOSED` |
 | Contract tip-cargo | **ALIVE** (exact tip-cargo) — `r01_r07_resolution_court` **7 passed; exit 0** @ `e7569893a` (`/tmp/ggen-gate1-brce-r01-target`); lineage `cd7c2433b` retained |
 | Exact-tip reconfirm | **DONE** — EXIT **0** @ `e7569893a` ([`R01-R07-TIP-CARGO-STANDING.md`](./R01-R07-TIP-CARGO-STANDING.md)) |
+| Bodies standing | **BLOCKED** (all seven) — OOR **G3-5** / RC-D7 |
 | Target GA | **2027-01-01** |
 | Repo scope | `seanchatmangpt/ggen` — risk *bodies* are multi-repo; resolution *contract* is in-repo |
 
@@ -24,9 +26,10 @@ closure. “Closed” without an admitted risk-register body is `REFUSED_UNGROUN
 | §11 enumeration R-01…R-07 | `ECOSYSTEM-SPEC-27.1.1.md` §11 table | **PARTIAL_ALIVE** (spec text) | Keep IDs stable; refuse invented R-08+ via court |
 | Closure rule: typed receipt **or** typed refusal before GA | Spec §11 “Closure rule” column | **PARTIAL_ALIVE** (doctrine) | Per-ID receipt/refusal after register admits body |
 | Ungrounded “closed” → `REFUSED_UNGROUNDED` | `ggen_graph::ecosystem_risk::resolve_closure` + Chicago court | **ALIVE** (exact tip-cargo **7** @ `e7569893a`) | Replay: `CARGO_BUILD_JOBS=1 cargo test -p ggen-graph --test r01_r07_resolution_court --locked -- --test-threads=1` |
-| Risk-register prose for each R-* | **Not mounted** in this checkout | **UNSUPPORTED** (bodies) | Admit sovereign risk register; materialize bodies without invention |
+| Risk-register prose for each R-* | **Not mounted** in this checkout | **UNSUPPORTED** (bodies) / crown rows **BLOCKED** | §2 — Founder HITL admits sovereign risk register; then per-ID typed receipt or `REFUSED_*` |
 
 The executable court seals the **contract fence**, not per-risk closure.
+Contract tip-cargo **ALIVE** ≠ any R-* body `ALIVE`/`CLOSED`.
 
 ```text
 cargo test -p ggen-graph --test r01_r07_resolution_court
@@ -40,17 +43,18 @@ Exact risk prose was **not** mounted as a sibling artifact (ECOSYSTEM-SPEC §11)
 Each ID therefore stays **BLOCKED** for body closure until the admitted register
 lands. Inventing bodies here would be `REFUSED_UNGROUNDED`.
 
-| ID | Body standing | In-repo falsifiable? | Next exact verifier (through GA 2027-01-01) |
-|----|---------------|----------------------|-----------------------------------------------|
-| R-01 | **BLOCKED** | No (body unmounted) | Admit risk-register bodies for R-01…R-07 from the sovereign risk register (do not invent prose), then per-ID typed receipt or typed REFUSED_* before GA 2027-01-01 |
-| R-02 | **BLOCKED** | No (body unmounted) | Admit risk-register bodies for R-01…R-07 from the sovereign risk register (do not invent prose), then per-ID typed receipt or typed REFUSED_* before GA 2027-01-01 |
-| R-03 | **BLOCKED** | No (body unmounted) | Admit risk-register bodies for R-01…R-07 from the sovereign risk register (do not invent prose), then per-ID typed receipt or typed REFUSED_* before GA 2027-01-01 |
-| R-04 | **BLOCKED** | No (body unmounted) | Admit risk-register bodies for R-01…R-07 from the sovereign risk register (do not invent prose), then per-ID typed receipt or typed REFUSED_* before GA 2027-01-01 |
-| R-05 | **BLOCKED** | No (body unmounted) | Admit risk-register bodies for R-01…R-07 from the sovereign risk register (do not invent prose), then per-ID typed receipt or typed REFUSED_* before GA 2027-01-01 |
-| R-06 | **BLOCKED** | No (body unmounted) | Admit risk-register bodies for R-01…R-07 from the sovereign risk register (do not invent prose), then per-ID typed receipt or typed REFUSED_* before GA 2027-01-01 |
-| R-07 | **BLOCKED** | No (body unmounted) | Admit risk-register bodies for R-01…R-07 from the sovereign risk register (do not invent prose), then per-ID typed receipt or typed REFUSED_* before GA 2027-01-01 |
+| ID | Body standing | In-repo falsifiable? | Next exact verifier (through GA 2027-01-01) | Owner / HITL |
+|----|---------------|----------------------|-----------------------------------------------|--------------|
+| R-01 | **BLOCKED** | No (body unmounted) | (1) Founder HITL admits sovereign risk-register path (do **not** invent prose). (2) Materialize R-01 body under that admitted path. (3) File typed receipt **or** typed `REFUSED_*` before **2027-01-01**. Contract replay alone does **not** close: `cargo test -p ggen-graph --test r01_r07_resolution_court`. OOR **G3-5**. | Risk-register owner (multi-repo); **Founder HITL** |
+| R-02 | **BLOCKED** | No (body unmounted) | Same ladder as R-01 for ID **R-02** (admit → typed receipt/`REFUSED_*`; no invention). | Risk-register owner; **Founder HITL** |
+| R-03 | **BLOCKED** | No (body unmounted) | Same ladder as R-01 for ID **R-03**. | Risk-register owner; **Founder HITL** |
+| R-04 | **BLOCKED** | No (body unmounted) | Same ladder as R-01 for ID **R-04**. | Risk-register owner; **Founder HITL** |
+| R-05 | **BLOCKED** | No (body unmounted) | Same ladder as R-01 for ID **R-05**. | Risk-register owner; **Founder HITL** |
+| R-06 | **BLOCKED** | No (body unmounted) | Same ladder as R-01 for ID **R-06**. | Risk-register owner; **Founder HITL** |
+| R-07 | **BLOCKED** | No (body unmounted) | Same ladder as R-01 for ID **R-07**. | Risk-register owner; **Founder HITL** |
 
 Do **not** promote any crown row to `ALIVE` from this repository while bodies are absent.
+Silent “closed” without admitted body → `REFUSED_UNGROUNDED`.
 
 ---
 
@@ -60,7 +64,7 @@ Do **not** promote any crown row to `ALIVE` from this repository while bodies ar
 
 - Standing census that R-01…R-07 remain open GA gates (bodies).
 - Typed stub `ecosystem_risk` that refuses ungrounded closed claims.
-- Chicago court binding stub ↔ ECOSYSTEM-SPEC §11 ↔ this standing file — tip-cargo **7 passed; exit 0** @ `cd7c2433b` (`/tmp/ggen-r01-r07-tip`; PID 1095281). Exact-tip reconfirm SCHEDULED.
+- Chicago court binding stub ↔ ECOSYSTEM-SPEC §11 ↔ this standing file — tip-cargo **7 passed; exit 0** @ `e7569893a` (lineage `cd7c2433b`). Exact-tip reconfirm **DONE**. Bodies still **BLOCKED**.
 
 **Explicitly not sealed:**
 

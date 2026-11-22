@@ -4,8 +4,8 @@
 |-------|-------|
 | Document ID | `BRCE-WEBAUTHN-STANDING` |
 | Spec binding | `ECOSYSTEM-SPEC-27.1.1` §1.1 / Plane 5 |
-| Observed tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `e7569893aba3bea6d3273bcf463b651bd94601d3` |
-| Tip pin | 2026-11-22 — `cursor/v2711-gate1-brce-r01-alive-bc54`: V1 seat fence tip-cargo **ALIVE** (**6 passed; exit 0** @ `e7569893a`; [`BRCE-AS01-SEAT-TIP-CARGO-STANDING.md`](./BRCE-AS01-SEAT-TIP-CARGO-STANDING.md)). V7 fixture land retained @ `fb6e7fc6e`. Live WebAuthn crypto **UNSUPPORTED**; broker **V8** / Plane-5 **BLOCKED**. |
+| Observed tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `f5f44571f9a331d46e2895657621b7efd7127f1b` (OOR retip11 on `6a3a623ba`; seat exact tip-cargo evidence `e7569893a`) |
+| Tip pin | 2026-11-22 — residual honesty `cursor/v2711-brce-v8-bodies-bc54` on crown `f5f44571f`: V1 seat fence tip-cargo **ALIVE** retained (**6 passed; exit 0** @ `e7569893a`; [`BRCE-AS01-SEAT-TIP-CARGO-STANDING.md`](./BRCE-AS01-SEAT-TIP-CARGO-STANDING.md)); V7 fixture land retained @ `fb6e7fc6e`. Live WebAuthn crypto **UNSUPPORTED**; broker **V8** **BLOCKED** (exact next §5; owner **BRCE**; Founder HITL); Plane-5 **V9** **BLOCKED**. **No** invented V8 `ALIVE`. |
 | Live filename | `BRCE-WEBAUTHN-STANDING.md` (AS-01 / V1–V11); Clause-2 crown binder [`CCS-BRCE-STANDING.md`](./CCS-BRCE-STANDING.md) |
 | Target GA | **2027-01-01** |
 | Slice standing | **PARTIAL_ALIVE** (doctrine + V1 presence fence + **V7 fixture crypto-shape**); live BRCE broker / live WebAuthn ceremony / Plane-5 DO still **BLOCKED** / **UNSUPPORTED** — never claim Plane-5 `ALIVE` from this land |
@@ -17,13 +17,13 @@ WebAuthn ceremony, BRCE broker runtime, or Plane-5 DO path as `ALIVE`.
 
 ---
 
-## 0. Honesty matrix (this retip @ `a3b1c9410`)
+## 0. Honesty matrix (residual honesty @ `f5f44571f` / `6a3a623ba+`)
 
 | Bucket | Subjects | Standing | Exact next verifier |
 |--------|----------|----------|---------------------|
-| **ALIVE (fixture courts)** | ABB/SBB `unauthorized_do_request_is_refused`; SovereignLease Ed25519 admit; V7 ES256/`prime256v1` fixture court land **4 passed; exit 0** @ `fb6e7fc6e`; V1 seat fence historical **6 passed; exit 0** @ `0478fde59` | Fixture / kernel only | Replay (when tip-cargo free): `cargo test -p ggen-abb-sbb --test brce_as01_es256_assertion_court`; `… --test brce_as01_seat_court`; `… --test falsifiers unauthorized_do_request_is_refused`; `cargo test -p ggen-sjira --test lease_epoch_test` |
-| **PARTIAL_ALIVE** | Whole AS-01 CONSTRUCT→DO slice; doctrine / CI broker fences; V7 crypto-shape path (fixture ≠ hardware); ungated-DO presence fence on tip without tip-cargo this retip | Path ceiling | Tip-cargo replay of V1/V7 when free (locks **spared** this retip); do not promote to live |
-| **BLOCKED** | Live BRCE broker (admit→actuate→receipt) | Broker unmounted | **V8** — mounted BRCE broker court: intent without AS-01 → `REFUSED_*`; with verified seat → execution receipt + replay digest → exit **0** → then **V9**/G2-5 |
+| **ALIVE (fixture / tip-cargo courts)** | ABB/SBB `unauthorized_do_request_is_refused`; SovereignLease Ed25519 admit; V7 ES256/`prime256v1` fixture court land **4 passed; exit 0** @ `fb6e7fc6e`; V1 seat fence exact tip-cargo **6 passed; exit 0** @ `e7569893a` | Fixture / kernel / seat fence only | Replay: `cargo test -p ggen-abb-sbb --test brce_as01_es256_assertion_court`; `… --test brce_as01_seat_court`; `… --test falsifiers unauthorized_do_request_is_refused`; `cargo test -p ggen-sjira --test lease_epoch_test` |
+| **PARTIAL_ALIVE** | Whole AS-01 CONSTRUCT→DO slice; doctrine / CI broker fences; V7 crypto-shape path (fixture ≠ hardware) | Path ceiling | Seat fence **ALIVE** ≠ broker **ALIVE**; do not promote to live |
+| **BLOCKED** | Live BRCE broker (admit→actuate→receipt) — **V8** | Broker unmounted | **V8** — In mounted BRCE broker checkout: intent without AS-01 → `REFUSED_*`; with verified seat → execution receipt + replay digest → exit **0** → then **V9**/G2-5. Owner: **BRCE**. **HITL:** Founder mounts broker + live WebAuthn before V8 `ALIVE`. In-repo seat/V7 fences do **not** close. OOR **G2-3** |
 | **UNSUPPORTED** | Live WebAuthn / FIDO2 RP + hardware ceremony; full clientDataJSON / authenticatorData / RP-ID bind; Plane-5 DO from ggen alone | No RP deps; V7 is fixture ECDSA only | Production RP/hardware court (OOR G2-4 beyond fixture) + **V9** / OOR **G2-5** Plane-5 probe ladder |
 
 ---
@@ -116,9 +116,9 @@ named claim.
 
 | # | Claim to advance | Standing now | Exact next verifier | Owner |
 |---|------------------|--------------|---------------------|-------|
-| V8 | BRCE broker admits intent only with verified AS-01 seat | **BLOCKED** (broker unmounted) | In mounted BRCE broker checkout: intent **without** verified AS-01 seat → `REFUSED_*`; intent **with** verified seat → execution receipt + replay digest → exit **0**. In-repo fence `cargo test -p ggen-abb-sbb --test brce_as01_seat_court` / V7 fixture court do **not** close this row. | **BRCE** (out of ggen unless adapter mounted) |
-| V9 | Plane 5 front-door DO path | **BLOCKED** | Probe ladder (all required): (a) OOR **G2-1** `getent hosts revops.fnox.io` ∧ `curl -sS -w '\nhttp=%{http_code}\n' https://revops.fnox.io/readyz` → DNS ∧ HTTP **200**; (b) OOR **G2-2** `curl -sS -w '\nhttp=%{http_code}\n' https://cos.fnox.io/readyz` → HTTP **200** (not `DB_UNAVAILABLE`); (c) external host court: request **without** AS-01 → refuse; **with** AS-01 → BRCE receipt for the named front-door change ([`REVOPS-COS-STANDING.md`](./REVOPS-COS-STANDING.md) §4 item 6; OOR **G2-5**). Never promote from ggen fence alone. | Plane 5 / revops / cos |
-| V10 | R-01…R-07 closed | **BLOCKED** (bodies) | typed receipt or typed refusal per risk register (ECOSYSTEM-SPEC §11) | multi-repo |
+| V8 | BRCE broker admits intent only with verified AS-01 seat | **BLOCKED** (broker unmounted) | In mounted BRCE broker checkout: intent **without** verified AS-01 seat → `REFUSED_*`; intent **with** verified seat → execution receipt + replay digest → exit **0**. In-repo fence `cargo test -p ggen-abb-sbb --test brce_as01_seat_court` / V7 fixture court do **not** close this row. **HITL:** Founder mounts broker runtime + live WebAuthn AS-01 ceremony before claiming V8 `ALIVE`. | **BRCE** (out of ggen unless adapter mounted); Founder HITL |
+| V9 | Plane 5 front-door DO path | **BLOCKED** | Probe ladder (all required): (a) OOR **G2-1** `getent hosts revops.fnox.io` ∧ `curl -sS -w '\nhttp=%{http_code}\n' https://revops.fnox.io/readyz` → DNS ∧ HTTP **200**; (b) OOR **G2-2** `curl -sS -w '\nhttp=%{http_code}\n' https://cos.fnox.io/readyz` → HTTP **200** (not `DB_UNAVAILABLE`); (c) external host court: request **without** AS-01 → refuse; **with** AS-01 → BRCE receipt for the named front-door change ([`REVOPS-COS-STANDING.md`](./REVOPS-COS-STANDING.md) §4 item 6; OOR **G2-5**). Never promote from ggen fence alone. **HITL:** after **V8**. | Plane 5 / revops / cos; Founder HITL |
+| V10 | R-01…R-07 closed | **BLOCKED** (bodies) | Admit sovereign risk-register bodies (no invention) → per-ID typed receipt **or** typed `REFUSED_*` before GA (ECOSYSTEM-SPEC §11; OOR **G3-5**; [`R01-R07-STANDING.md`](./R01-R07-STANDING.md) §2). Contract fence `r01_r07_resolution_court` does **not** close. **HITL:** Founder admits register. | multi-repo risk-register owner; Founder HITL |
 | V11 | GA crown | open | aggregate standing: V1–V10 green; no ungated DO; F=0 | release governance |
 
 ### Promotion law
@@ -159,7 +159,8 @@ named claim.
 | ABB/SBB DO-authority refuse | **ALIVE** (CONSTRUCT ceiling fixture) |
 | WebAuthn AS-01 `:prime256v1` fixture verify (V7) | Fixture court land **ALIVE** @ `fb6e7fc6e` (**4 passed; exit 0**); path **PARTIAL_ALIVE** (crypto shape) — not hardware / RP ceremony |
 | Live WebAuthn / FIDO2 crypto | **UNSUPPORTED** |
-| Live BRCE broker / Plane 5 DO | **BLOCKED** — exact next §5 **V8**/**V9** + OOR **G2-3**/**G2-5** |
-| Ungated DO without seat typed refusal | **PARTIAL_ALIVE** (path) / V1 fixture land **ALIVE** |
+| Live BRCE broker / Plane 5 DO | **BLOCKED** — exact next §5 **V8**/**V9** + OOR **G2-3**/**G2-5** (Founder HITL; **no** V8 `ALIVE`) |
+| Ungated DO without seat typed refusal | V1 seat fence exact tip-cargo **ALIVE** (**6** @ `e7569893a`); path still ≠ broker |
+| R-01…R-07 bodies (V10) | **BLOCKED** — OOR **G3-5**; contract fence ≠ body closure |
 | Whole AS-01 CONSTRUCT→DO path | **PARTIAL_ALIVE** → next falsifiers **V8–V11** + OOR **G2-3/G2-5** (G2-4 production still **UNSUPPORTED** beyond fixture) through GA |
-| Observed tip | `cursor/v2711-ccs-brce-retip-ecd6` @ `a3b1c9410` (cargo not run; tip-cargo locks spared) |
+| Observed tip | residual honesty `cursor/v2711-brce-v8-bodies-bc54` on crown `f5f44571f` (`6a3a623ba+`; docs-only; no cargo) |
