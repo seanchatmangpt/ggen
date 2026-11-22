@@ -398,3 +398,13 @@ invented; no cargo; no ManagePullRequest. See §6d.
 | Standing | Smalt RAID FinOps replay **ALIVE** at pin — **≠ Foundry / zero-HITL / path `ALIVE`** |
 | Construct | full job still **PENDING_CI** on ggen tip `7bb443e99` |
 
+### b4b residual replay (same session)
+
+| Court | Result |
+|-------|--------|
+| treasury | **8**/EXIT:**0** |
+| taxsanctions | **8**/EXIT:**0** |
+| erp | **8**/EXIT:**0** |
+| rates | **7**/EXIT:**0** |
+
+Logs: `/tmp/smalt-treasury2.log`, `/tmp/smalt-b4b3.log`. ≠ Foundry.

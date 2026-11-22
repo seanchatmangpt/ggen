@@ -54,3 +54,16 @@ Local `npm ci` **ALIVE** ≠ full Construct CI `ALIVE` (still **PENDING_CI** on 
 
 - Inventing full Construct CI `ALIVE` before core-team + repair EXIT **0** on tip `7bb443e99+`.
 - Equating receipt-exclude / 55/55 / lock sync with Foundry / cos / revops / WebAuthn `ALIVE`.
+
+## CI Construct residual — pytest ABSENT (2026-11-22 3:55–4:00 PM PST)
+
+| Field | Value |
+|-------|-------|
+| Run | [`45081862735`](https://github.com/seanchatmangpt/ggen/actions/runs/45081862735) on tip `7bb443e99` |
+| validate-examples | **55/55** (prior) held; `npm ci` **EXIT 0** (lock sync worked) |
+| Failure | Interview Assist `npm test` — **11** vitest fails; `expected '' to match /1 failed/` / exitCode **1** vs **0** |
+| Root cause | Construct pip installed `rdflib` only — **`pytest` ABSENT** on runner → empty pytest stdout |
+| Local antifalsifier | without pytest: visible-tests **FAIL**; `pip install pytest` → visible-tests **2**/EXIT:**0** |
+| Fix | workflow installs `pytest==9.1.1` before `npm test` |
+
+≠ Foundry / cos / revops `ALIVE`.

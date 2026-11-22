@@ -388,7 +388,10 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          python3 -m pip install --disable-pip-version-check rdflib==7.1.4
+          # pytest required by Interview Assist run_pytest sandbox courts
+          # (rdflib alone left CI with empty pytest stdout → 11 vitest fails).
+          python3 -m pip install --disable-pip-version-check rdflib==7.1.4 pytest==9.1.1
+          python3 -m pytest --version
           npm run typecheck
           npm test
           npm run build
