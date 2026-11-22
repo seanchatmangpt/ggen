@@ -5,11 +5,11 @@
 | Document ID | `OUT-OF-REPO-NEXT-VERIFIERS` |
 | Companion | `ECOSYSTEM-SPEC-27.1.1`, `GATE-0-STANDING`, `GATE-3-RELEASE-COURTS-STANDING`, `FOUNDRY-FINISH-STANDING` |
 | Target GA | **2027-01-01** |
-| Observed ggen tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `38b27737e37e85d7deef3df86737487c1fcca62b` |
+| Observed ggen tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `6b66659c43560a626df8137a80992d010d98eadf` |
 | Materialized | 2026-11-22 |
 | Hardened | 2026-11-22 — `cursor/v2711-oor-ledger-harden-bc54` |
 | Ops refresh | 2026-11-22 — `cursor/v2711-ops-standing-refresh-bc54` (tip pin + probe reconfirm; standings held) |
-| Tip pin | 2026-11-22 — `cursor/oor-tip-pin-f857` after dalek pin tip `38b27737e` (standings held; no capability promotion) |
+| Tip pin | 2026-11-22 — `cursor/v2711-oor-retip-bc54` after crown tip `6b66659c4` (standings held; no capability promotion; prior pin `38b27737e`) |
 | Repo scope | `seanchatmangpt/ggen` — **tracks** sibling standing; does not execute sibling DO |
 
 Standing vocabulary: `UNKNOWN` | `PARTIAL_ALIVE` | `ALIVE` | `BLOCKED` | `BUILD_BROKEN` | `UNSUPPORTED` | `REFUSED_*`.
@@ -141,6 +141,9 @@ courts, and GA **2027-01-01**. Ops tip pin refreshed on
 `cursor/v2711-ops-standing-refresh-bc54` against tip `7bf148d82` (HTTP + mount
 reconfirm; standings held). Tip pin retipped on `cursor/oor-tip-pin-f857` to
 crown tip `38b27737e` (post–curve25519-dalek Gate-1 pin standing; standings
-held — no capability row promoted). Standings synthesized from existing v27.1.1
-standing ledgers only. No sibling court was executed in this workspace pass. No
-out-of-repo row is asserted `ALIVE`.
+held — no capability row promoted). Tip pin retipped again on
+`cursor/v2711-oor-retip-bc54` to live crown tip `6b66659c4` (post–Gate-1
+reconfirm merge `43e8541c8` + `ggen-sjira` subject-mismatch court fix;
+standings held — no capability row promoted; no false `ALIVE`). Standings
+synthesized from existing v27.1.1 standing ledgers only. No sibling court was
+executed in this workspace pass. No out-of-repo row is asserted `ALIVE`.
