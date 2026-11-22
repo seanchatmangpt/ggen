@@ -135,8 +135,16 @@ for manifest in "${MANIFESTS[@]}"; do
     # silent). The examples closure exercises generation, not architecture
     # admission; the three examples that DO carry ea.graph.json still admit
     # (the flag only covers absence), so no admission is bypassed here.
+    #
+    # tcps-generated: ggen-verify-pack FM-PACK-013 freshness gate binds
+    # ver:verifiedGraphHash to the latest sync graphHash. Emit immediately
+    # before sync (≡ `just verify-tcps`) so constructor regenerate→replay
+    # double-syncs do not refuse on a one-sync lag.
     if (
         cd "$example_dir"
+        if [[ "$(basename "$example_dir")" == "tcps-generated" && -f scripts/verify.sh ]]; then
+            bash scripts/verify.sh >/tmp/tcps-validate-emit.log 2>&1 || true
+        fi
         "${TIMEOUT_CMD[@]}" "${GGEN_CMD[@]}" sync run --skip-ea-admission >/dev/null
     ); then
         echo "ALIVE"
@@ -154,14 +162,23 @@ if [[ "$failures" -ne 0 ]]; then
 fi
 
 if [[ "$MODE" == "check" ]]; then
-    if ! git diff --quiet -- examples/; then
+    # Emit-before-sync for tcps refreshes evidence/receipts by design; exclude
+    # that churn from the byte-identical projection gate (other examples must
+    # stay clean).
+    if ! git diff --quiet -- examples/ \
+        ':(exclude)examples/tcps-generated/evidence/' \
+        ':(exclude)examples/tcps-generated/receipts/inspection-receipt.json' \
+        ':(exclude)examples/tcps-generated/receipts/EVIDENCE_SNAPSHOT.md' \
+        ':(exclude)examples/tcps-generated/receipts/EVIDENCE_NOTE.md'; then
         echo
         echo "BUILD_BROKEN: ggen sync run changed tracked example projections:" >&2
         git status --short -- examples/ >&2
         exit 1
     fi
 
-    untracked="$(git ls-files --others --exclude-standard -- examples/)"
+    untracked="$(git ls-files --others --exclude-standard -- examples/ \
+        ':(exclude)examples/tcps-generated/evidence/' \
+        ':(exclude)examples/tcps-generated/receipts/')"
     if [[ -n "$untracked" ]]; then
         echo
         echo "BUILD_BROKEN: ggen sync run created untracked example projections:" >&2
