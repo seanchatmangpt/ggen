@@ -140,7 +140,7 @@ Do **not** invent zero daily founder HITL `ALIVE` from Gate-1 fence green, CASTL
 | FM-PACK-001 `packs/gh-terraform-pack` | **ALIVE** (lineage tip-cargo absorbed @ crown `e73bf686c`; `composed_packs_e2e` **2 passed; exit 0** @ evidence `19c08a3b0` / court tip `a508e6bae`; sources ≡ absorb tip) | Replay: `CARGO_BUILD_JOBS=1 cargo test -p ggen-engine --test composed_packs_e2e --target-dir /tmp/ggen-fm-pack-001-alive-target --config build.jobs=1 -- --nocapture` → **0**; ledger [`FM-PACK-001-ALIVE-STANDING.md`](./FM-PACK-001-ALIVE-STANDING.md) |
 | zcode POWL in-repo stub | **ALIVE** (bounded refusal tip-cargo **6+4**; exit 0 @ `cd7c2433b`) | Replay: `cargo test -p ggen-sjira --test zcode_powl_ocel_court`; `cargo test -p ggen-graph remediation_bound --lib`; live next: G2-9 foundry `--live` (**BLOCKED_HITL**) |
 | `curve25519-dalek` pin | **PARTIAL_ALIVE** (lock+doc; policy court open) | pin standing §5 policy court |
-| `verify_witness` size | **ALIVE** (tip-cargo **6** @ `c91b22561`); production WASM **UNSUPPORTED** | size court; prod: [`VERIFY-WITNESS-PRODUCTION.md`](./VERIFY-WITNESS-PRODUCTION.md) |
+| `verify_witness` size | **ALIVE** (tip-cargo **6** @ `96444e302`; prior `c91b22561`); production WASM **UNSUPPORTED** (affidavit pin **28673** B observed ≠ ggen ALIVE) | size court; prod: [`VERIFY-WITNESS-PRODUCTION.md`](./VERIFY-WITNESS-PRODUCTION.md) |
 | R-01…R-07 contract | **ALIVE** (exact tip-cargo **7** @ `e7569893a`); bodies **BLOCKED** | Replay: `cargo test -p ggen-graph --test r01_r07_resolution_court` → EXIT **0** |
 | Brand rhythm / hot-swap | fluid+hot-swap tip-cargo **ALIVE** (**6+6** @ `cde02d1f2`/`19c08a3b0`); rhythm+completeness **ALIVE (exact tip-cargo)** (**5+12** @ `77eb46fd0`, unchanged); production **UNSUPPORTED** (`REFUSED_PRODUCTION`) | Replay brand exact tip; [`BRAND-PRODUCTION-THEME.md`](./BRAND-PRODUCTION-THEME.md) / [`BRAND-TOML-TIP-CARGO-STANDING.md`](./BRAND-TOML-TIP-CARGO-STANDING.md) |
 | BRCE AS-01 seat fence | **ALIVE** (exact tip-cargo **6** @ `e7569893a`); **V8** **BLOCKED** | Replay: `cargo test -p ggen-abb-sbb --test brce_as01_seat_court`; next **V8** |
@@ -164,7 +164,7 @@ Recommended next Gate-1 falsifier: hop-5 foundry `--live` → **0** (provider ke
 | 5 | revops.fnox.io DNS | **UNKNOWN**/**BLOCKED** (**NXDOMAIN**) | `getent hosts` ∧ `/readyz` **200** |
 | 6 | `mix ggen_igniter.sync` NIF / Jobs/C4 | **ALIVE** (admitted `--check` exit **0**; bare `--check` **REFUSED_INVOCATION** antifalsifier — [`HOP4-MIX-NIF-STANDING.md`](./HOP4-MIX-NIF-STANDING.md)) | Replay pack/template `--check` → **0** (residual closed) |
 | 7 | R-01…R-07 risk bodies | **BLOCKED** | typed receipt or `REFUSED_*` per ID |
-| 8 | production `verify_witness.wasm` | **UNSUPPORTED** | [`VERIFY-WITNESS-PRODUCTION.md`](./VERIFY-WITNESS-PRODUCTION.md) |
+| 8 | production `verify_witness.wasm` | **UNSUPPORTED** | Mounted affidavit: `just gatekeeper-wasm-size-court` → **0**; [`VERIFY-WITNESS-PRODUCTION.md`](./VERIFY-WITNESS-PRODUCTION.md) |
 | 9 | production brand theme / CASTLE inventory | **UNSUPPORTED** | [`BRAND-PRODUCTION-THEME.md`](./BRAND-PRODUCTION-THEME.md) / OOR G2-12/G2-13 |
 
 ---
