@@ -3,14 +3,14 @@
 | Field | Value |
 |-------|-------|
 | Document ID | `VERIFY-WITNESS-CI-WASM-NEXT-VERIFIER-STANDING-27.1.1` |
-| Branch | side `cursor/v2711-vw-ci-wasm-next-bc54` from `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `cc2b344bc` |
+| Branch | side `cursor/v2711-vw-ci-wasm-retip2-bc54` from `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `893070836` |
 | Spec binding | `ECOSYSTEM-SPEC-27.1.1` §10 / Gate-1 gap row `verify_witness WASM < 250KB`; OOR **G2-11** |
 | Companions | [`VERIFY-WITNESS-PRODUCTION.md`](./VERIFY-WITNESS-PRODUCTION.md); [`VERIFY-WITNESS-AFFIDAVIT-SIZE-COURT-STANDING.md`](./VERIFY-WITNESS-AFFIDAVIT-SIZE-COURT-STANDING.md); [`VERIFY-WITNESS-SIZE-COURT-STANDING.md`](./VERIFY-WITNESS-SIZE-COURT-STANDING.md); [`OUT-OF-REPO-NEXT-VERIFIERS.md`](./OUT-OF-REPO-NEXT-VERIFIERS.md) **G2-11**; [`GATE-1-GAP-MATRIX.md`](./GATE-1-GAP-MATRIX.md); [`CROWN-PROGRESS-RECEIPT.md`](./CROWN-PROGRESS-RECEIPT.md) |
-| Observed ggen tip (side base) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `cc2b344bc30604fd0801c532b9748b073222af97` (`cc2b344bc`; ⊇ BRCE V8 next-verifier absorb) |
-| Env-wire evidence | tip-wins `b2f6e12d2` / crown code `f65434315` — Chicago **8/8** EXIT **0**; `AFFIDAVIT_VERIFY_WITNESS_SIZE_BUDGET_BYTES=256_000` |
-| Affidavit pin evidence | `563eb322a16d805ebc99b2c16f1165462244d7e2` — `just gatekeeper-wasm-size-court` EXIT **0**; `wc -c` **28673**; SHA-256 `5faae464…`; probe `bc-5f5786ff` |
-| Cargo / tip-cargo | **NOT RUN** (docs-only honesty pin) |
-| Status | LEDGER — env wire **PARTIAL**; affidavit pin size court **ALIVE**; production runtime **UNSUPPORTED** until CI mounts real wasm + consume EXIT **0**; **not** production `ALIVE` |
+| Observed ggen tip (side base) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `893070836ef83ab711e657cfacc98bb4dc7ea369` (exact-tip retip2; ⊇ prior `cc2b344bc` / env-wire / affidavit) |
+| Env-wire evidence | tip-wins `b2f6e12d2` / crown code `f65434315` — Chicago **8/8** EXIT **0** held; `AFFIDAVIT_VERIFY_WITNESS_SIZE_BUDGET_BYTES=256_000` |
+| Affidavit pin evidence | `563eb322a16d805ebc99b2c16f1165462244d7e2` — `wc -c` **28673**; SHA-256 `5faae4642ca23c503e96d2a2ab938c056caffdde14e77516054fe4492aed0c97` reconfirmed this retip at `/tmp/affidavit/.../affidavit_gatekeeper_verify_witness.wasm` |
+| Cargo / tip-cargo | size-court cargo **BUILD_BROKEN** this retip — tip-cargo exclusive guardian SIGKILL (**EXIT 137**); prior lineage **8/8** held; **not** a production substitute |
+| Status | LEDGER — env wire **PARTIAL**; affidavit pin size court **ALIVE** (bytes held); CI mount **ABSENT** (`GGEN_VERIFY_WITNESS_WASM` **UNSET**); production runtime **UNSUPPORTED**; **not** production `ALIVE`; Foundry **not** promoted |
 
 Standing vocabulary: `UNKNOWN` | `PARTIAL_ALIVE` | `ALIVE` | `BLOCKED` | `BUILD_BROKEN` | `UNSUPPORTED` | `REFUSED_*`.
 
@@ -40,15 +40,16 @@ affidavit pin size-court **ALIVE** to ggen production runtime `ALIVE`.
 | **ggen production `verify_witness` runtime** | **UNSUPPORTED** | this pin — §3; no CI-mounted real wasm + consume EXIT **0** |
 
 ```text
-base=origin/cursor/ecosystem-spec-27-1-1-bc54@cc2b344bc
-side=cursor/v2711-vw-ci-wasm-next-bc54
-env_wire=PARTIAL (GGEN_VERIFY_WITNESS_WASM + 256KB budget; court 8/8)
-affidavit_pin=ALIVE (28673B @ 563eb322a; bc-5f5786ff)
-production_runtime=UNSUPPORTED (no CI-mounted real wasm)
+base=origin/cursor/ecosystem-spec-27-1-1-bc54@893070836
+side=cursor/v2711-vw-ci-wasm-retip2-bc54
+env_wire=PARTIAL (GGEN_VERIFY_WITNESS_WASM + 256KB budget; lineage court 8/8 held)
+affidavit_pin=ALIVE (28673B SHA 5faae464… reconfirmed; pin 563eb322a)
+production_runtime=UNSUPPORTED (GGEN_VERIFY_WITNESS_WASM unset; CI mount ABSENT)
+size_court_cargo=BUILD_BROKEN (EXIT 137 tip-cargo exclusive SIGKILL)
 honesty=env_wire_PARTIAL_neq_affidavit_ALIVE_neq_production_ALIVE
-cargo=NOT_RUN
 ManagePullRequest=not_used
 crown_push=REFUSED (sidebranch only)
+Foundry=not_ALIVE
 ```
 
 ---
@@ -177,3 +178,22 @@ echo EXIT=$?
 | Side-branch pin | 2026-11-22 — `cursor/v2711-vw-ci-wasm-next-bc54` from crown tip `cc2b344bc`; docs-only; env wire **PARTIAL**; affidavit pin **ALIVE** (**28673** B @ `563eb322a`); production runtime **UNSUPPORTED**; exact next = CI mount real wasm + `GGEN_VERIFY_WITNESS_WASM` + consume EXIT **0**; **no** invented production `ALIVE`; no cargo; no ManagePullRequest; **no crown push** |
 | Prior evidence chain | placeholder size court tip-cargo → env-wire PARTIAL (`b2f6e12d2` / `f65434315`, **8/8**, 256KB) → affidavit pin size court ALIVE (`563eb322a`, probe `bc-5f5786ff`) → CI-wasm next verifier (this pin; production still **UNSUPPORTED**) |
 | Absorb guidance | Tip-wins later onto crown when safe; cite §3 verbatim; standing **UNSUPPORTED** until CI mount + consume EXIT **0** — do **not** invent production `ALIVE` from PARTIAL / pin / docs alone |
+
+---
+
+## 6. Exact-tip retip2 vs tip `893070836` (2026-11-22)
+
+| Field | Value |
+|-------|-------|
+| Agent | `bc-10c8f83c-8d4c-5129-afad-fd7222733773` |
+| Branch | `cursor/v2711-vw-ci-wasm-retip2-bc54` from live crown `893070836ef83ab711e657cfacc98bb4dc7ea369` (**no** crown absorb; no ManagePullRequest) |
+| Observed ggen tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `893070836ef83ab711e657cfacc98bb4dc7ea369` |
+| Narrowest court (CI-wasm production falsifier) | CI-mounted real wasm + `export GGEN_VERIFY_WITNESS_WASM=…` + consume EXIT **0** |
+| CI mount probe | `GGEN_VERIFY_WITNESS_WASM` **UNSET**; CI-mounted gatekeeper wasm **ABSENT** this env |
+| Affidavit bytes (held, not CI-mounted) | **28673**; SHA `5faae4642ca23c503e96d2a2ab938c056caffdde14e77516054fe4492aed0c97` @ `/tmp/affidavit/affidavit-gatekeeper-wasm/dist/affidavit_gatekeeper_verify_witness.wasm` |
+| Size-court cargo attempt | `cargo test -p ggen-graph --test verify_witness_size_court` → **EXIT 137** (SIGKILL) under tip-cargo exclusive contention (`/tmp/gate1-exact-tip3/guardian.py`); log `/tmp/cursor/vw-ci-wasm-retip2-court.log` |
+| EXIT (production CI-wasm court) | **not runnable** (fail-closed) — mount ABSENT / env UNSET |
+| EXIT (size-court cargo) | **137** → **BUILD_BROKEN** this retip (lineage **8/8** PARTIAL held; antifalsifier only) |
+| Standing | production runtime **UNSUPPORTED**; env wire **PARTIAL**; affidavit pin **ALIVE** (bytes); size-court cargo **BUILD_BROKEN** this pass |
+| Honesty law (held) | `size_court ≠ env_wire_PARTIAL ≠ affidavit_ALIVE ≠ production_ALIVE`; do **not** invent production / Foundry `ALIVE` |
+| Exact next verifier | §3 verbatim: CI mount real gatekeeper wasm + `GGEN_VERIFY_WITNESS_WASM` + `cargo test -p ggen-graph --test verify_witness_size_court` consume EXIT **0** |
