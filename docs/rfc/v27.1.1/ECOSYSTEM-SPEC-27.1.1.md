@@ -311,6 +311,7 @@ perimeter → .ttl/.toml → ggen+Taffy AOT → ui-layout digest consume
 
 | Binding | Source of truth |
 |---------|-----------------|
+| Path hop ledger (honesty) | [`PHOTOLITHOGRAPHY-PATH-STANDING.md`](./PHOTOLITHOGRAPHY-PATH-STANDING.md) |
 | Hop table + falsifiers | [`PHOTOLITHOGRAPHY-STANDING.md`](./PHOTOLITHOGRAPHY-STANDING.md) |
 | Hop 4 contract | [`IGNITER-CLEANROOM-STANDING.md`](./IGNITER-CLEANROOM-STANDING.md) |
 | Hop 5 contract | [`ZCODE-POWL-OCEL-STANDING.md`](./ZCODE-POWL-OCEL-STANDING.md) |
