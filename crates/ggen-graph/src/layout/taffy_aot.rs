@@ -4,22 +4,16 @@
 //! multiplier. Emits typed refusals for overflow, overlap, touch targets &lt; 44px, and
 //! gaps &lt; 8px. The six-width seal ([`preflight_column_six_widths`]) admits only when
 //! every Gate-1 viewport passes under the supplied spacing factor.
-//!
-//! Seal receipts carry a domain-separated BLAKE3 digest consumable by
-//! [`super::ui_layout`] / zcode-cli `ui-layout-court` without re-deriving geometry.
 
 use serde::{Deserialize, Serialize};
 use taffy::prelude::*;
 use taffy::TaffyTree;
 
 /// Viewport widths required by ECOSYSTEM-SPEC-27.1.1 §6 (CSS px).
-pub const VIEWPORT_WIDTHS_PX: &[f32] = &[320.0, 375.0, 414.0, 768.0, 1024.0, 1440.0];
+pub const VIEWPORT_WIDTHS_PX: &[f32] = &[320.0, 375.0, 393.0, 600.0, 840.0, 1280.0];
 
 /// WCAG 1.4.12 text-spacing re-evaluation factor used by Gate-1 courts.
 pub const WCAG_1412_TEXT_SPACING: f32 = 1.5;
-
-/// Domain separation key for [`AotSealReceipt`] digests.
-pub const AOT_SEAL_DIGEST_DOMAIN: &str = "ggen.layout.aot_seal.v1";
 
 /// Minimum interactive touch target (CSS px) enforced by this stub.
 pub const MIN_TOUCH_TARGET_PX: f32 = 44.0;
@@ -47,7 +41,7 @@ pub struct AotColumn {
 }
 
 /// Machine-readable admit receipt for a successful single-width pre-flight.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct AotReceipt {
     pub viewport_width_px: u32,
     pub text_spacing: f32,
@@ -55,34 +49,12 @@ pub struct AotReceipt {
 }
 
 /// Machine-readable admit receipt for a successful six-width seal.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct AotSealReceipt {
     pub text_spacing: f32,
     /// Exact Gate-1 widths that admitted, in seal order.
     pub widths_px: Vec<u32>,
     pub leaf_count: usize,
-    /// Domain-separated BLAKE3 hex digest over spacing + widths + leaf_count.
-    pub digest: String,
-}
-
-/// Compute the canonical seal digest for a six-width admit (consumable by ui-layout).
-pub fn aot_seal_digest(text_spacing: f32, widths_px: &[u32], leaf_count: usize) -> String {
-    let key = blake3::derive_key(AOT_SEAL_DIGEST_DOMAIN, &[]);
-    let mut hasher = blake3::Hasher::new_keyed(&key);
-    hasher.update(&text_spacing.to_bits().to_le_bytes());
-    hasher.update(&(widths_px.len() as u32).to_le_bytes());
-    for width in widths_px {
-        hasher.update(&width.to_le_bytes());
-    }
-    hasher.update(&(leaf_count as u64).to_le_bytes());
-    hasher.finalize().to_hex().to_string()
-}
-
-impl AotSealReceipt {
-    /// Recompute the digest from sealed fields (integrity check for consumers).
-    pub fn recompute_digest(&self) -> String {
-        aot_seal_digest(self.text_spacing, &self.widths_px, self.leaf_count)
-    }
 }
 
 /// Typed refusals for AOT geometry law failures.
@@ -128,13 +100,17 @@ pub type LayoutRefusal = AotRefusal;
 ///
 /// Text leaves have their preferred size multiplied by `text_spacing` before layout
 /// (narrow model of WCAG 1.4.12 1.5× re-evaluation). Interactive leaves are checked
-/// against the 44px touch-target floor on the *laid-out* size; column `gap_px` must
-/// be ≥ 8px whenever two or more children are present.
+/// against the 44px touch-target floor on the *laid-out* size; non-negative column
+/// `gap_px` must be ≥ 8px whenever two or more children are present. Negative gaps
+/// skip the gap floor so overlap courts can exercise [`AotRefusal::Overlap`].
 pub fn preflight_column(
     column: &AotColumn, viewport_width_px: f32, text_spacing: f32,
 ) -> Result<AotReceipt, AotRefusal> {
     let viewport_u = viewport_width_px.round() as u32;
 
+    // Non-negative gaps below the floor refuse as GapTooSmall. Negative gaps are
+    // an adversarial fixture path: they skip this gate and may yield Overlap after
+    // layout (fail-closed with width + node ids).
     if column.children.len() >= 2
         && column.gap_px >= 0.0
         && column.gap_px + f32::EPSILON < MIN_GAP_PX
@@ -281,12 +257,9 @@ pub fn preflight_column_six_widths(
         let receipt = preflight_column(column, width, text_spacing)?;
         widths_px.push(receipt.viewport_width_px);
     }
-    let leaf_count = column.children.len();
-    let digest = aot_seal_digest(text_spacing, &widths_px, leaf_count);
     Ok(AotSealReceipt {
         text_spacing,
         widths_px,
-        leaf_count,
-        digest,
+        leaf_count: column.children.len(),
     })
 }
