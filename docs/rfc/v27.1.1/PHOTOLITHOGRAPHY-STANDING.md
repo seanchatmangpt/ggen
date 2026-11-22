@@ -4,8 +4,8 @@
 |-------|-------|
 | Document ID | `PHOTOLITHOGRAPHY-STANDING-27.1.1` |
 | Companion | `ECOSYSTEM-SPEC-27.1.1.md`, `GATE-1-GAP-MATRIX.md`, `REPO-INVENTORY-27.1.1.md` |
-| Observed tip (this ledger) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `4b22529df2939412c41107fe5e9eea66ba6a4dad` (`ggen-layout-court` **PRESENT** @ `d37271961`; ui-layout **ALIVE** evidence `eaf0dad40` exit 0 / 8 passed — ancestor; tip court land `7c0ba2a90`; tip source **11**; **tip-cargo PENDING**; live hop-5 tip-exit **PENDING**; hop-4 demotion antifalsifier retained) |
-| Hop-5 cross-mount | 2026-11-22 — `cursor/v2711-hop5-standing-bc54` / `/tmp/cursor/hop5-crossmount.md` |
+| Observed tip (this ledger) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `4b22529df2939412c41107fe5e9eea66ba6a4dad` (hop-5 live after layout-court [#884](https://github.com/seanchatmangpt/ggen/pull/884) / land `d37271961`/`6a89beb38`; `ggen-layout-court` **PRESENT**; ui-layout **ALIVE** evidence `eaf0dad40` exit 0 / 8 passed — ancestor; tip court land `7c0ba2a90`; tip source **11** `#[test]`; **tip-cargo reconfirm PENDING** quiet cgroup — not tip exit 0; hop-4 demotion antifalsifier retained) |
+| Hop-5 live | 2026-11-22 — `cursor/v2711-hop5-live-bc54` / `/tmp/cursor/hop5-live-after-884.md` (prior cross-mount `/tmp/cursor/hop5-crossmount.md`) |
 | Status | LEDGER (path standings; **not** a crown `ALIVE` receipt) |
 
 Standing vocabulary (`AGENTS.md` §2): `UNKNOWN` | `PARTIAL_ALIVE` | `ALIVE` |
@@ -18,11 +18,15 @@ repo names do not promote the path crown. Hop 4 (igniter) is **PARTIAL_ALIVE**
 open; **not** `ALIVE`; `mix` **ABSENT**). **Antifalsifier:** bare
 `git diff --exit-code` on a post-clone / virgin working tree ≠ hop-4 `ALIVE`
 (independent verify demoted claim-agent `ALIVE` → `PARTIAL_ALIVE`; VM agent
-bare-diff `ALIVE` must **not** re-promote). Hop 5 aggregate is **PARTIAL** —
-in-process zcode bun courts **ALIVE** (exit 0); live `UiLayoutCourtAdapter` /
-`powl-foundry-loop --live` tip-exit **PENDING** (`ggen-layout-court` **PRESENT** @ `d37271961` — do not invent live `ALIVE`).
-The in-repo ggen ui-layout fence remains **ALIVE** on evidence tip `eaf0dad40`
-(**8 passed; exit 0**; `bc-c7c9d554`; ancestor of live tip `376b5c309`); tip
+bare-diff `ALIVE` must **not** re-promote). Hop 5 aggregate is **PARTIAL_ALIVE** —
+in-process zcode bun courts **ALIVE** (35 passed; exit 0); live
+`UiLayoutCourtAdapter.verifyPostTransition` **ALIVE** (exit **0**; tip
+`4b22529df`; `ggen-layout-court` **PRESENT** via #884; `layout_court` exit **0**;
+no new cargo under host load&gt;10 — used prebuilt `target/debug/layout_court`).
+`powl-foundry-loop --live` remains **open** (prior exit **1**; not re-run this
+pass). Do **not** invent hop-5 / path-crown `ALIVE` from adapter alone. The
+in-repo ggen ui-layout fence remains **ALIVE** on evidence tip `eaf0dad40`
+(**8 passed; exit 0**; `bc-c7c9d554`; ancestor of live tip `4b22529df`); tip
 court land `7c0ba2a90`; tip source **11** `#[test]`; **tip-cargo reconfirm
 PENDING** (quiet cgroup) — not tip exit 0; ALIVE retained (not demoted for
 thrash/OOM). That does **not** promote the path crown.
@@ -47,18 +51,18 @@ perimeter transducer
 | 3 | ggen + Taffy AOT pre-flight | **PARTIAL_ALIVE** (ggen six-width seal) | **In-repo** (`ggen-graph::layout::taffy_aot`); consumer adapters **out-of-repo** | `cargo test -p ggen-graph --test taffy_aot_preflight_court` | Six-width seal fails under WCAG 1.4.12 1.5×; overflow refusal omits failing width; silent drop of typed `AotRefusal` |
 | 3b | ggen `ui-layout` digest consume (D5 in-repo fence) | **ALIVE** — `layout::ui_layout` + `tests/ui_layout_court.rs`; evidence tip `eaf0dad40` **8 passed; exit 0** (`bc-c7c9d554`; ancestor); tip court land `7c0ba2a90`; tip source **11** `#[test]`; **tip-cargo PENDING** (quiet cgroup) | **In-repo** fence only; sibling `ui-layout-court.ts` remains **ABSENT** / **UNSUPPORTED** here | Replay: `cargo test -p ggen-graph --test ui_layout_court` | Court missing from tip; silent admit of missing/stale/mismatched digest; conflating with sibling `.ts`; inventing path-crown ALIVE from hop 3b alone; inventing tip exit 0 without quiet cargo |
 | 4 | ggen_igniter clean-room | **PARTIAL_ALIVE** — mount **PRESENT** (`/home/ubuntu/ggen_igniter`, HEAD `b5a15528…`; also `/agent/repos/ggen_igniter`); clean-tree checkpoint `git diff --exit-code` → **0** only. Manufacture crown **open**; `mix` **ABSENT** → live `mix ggen_igniter.sync --check` **BLOCKED**. In-repo contract **PARTIAL_ALIVE**. Do **not** promote to `ALIVE`. | **Out-of-repo** sibling `seanchatmangpt/ggen_igniter` (mounted via public `gh` clone; env.repos still ggen-only). In-repo: [`IGNITER-CLEANROOM-STANDING.md`](./IGNITER-CLEANROOM-STANDING.md) + `igniter_cleanroom_court` — **not** manufacture crown | **Next (manufacture compare — still open):** on tip `376b5c309` (or pinned tip) run admitted ggen+Taffy AOT manufacture targeting igniter-expected artifacts; byte-compare manufacture output vs igniter expected; then `git diff --exit-code` (or documented byte-identity verifier) on **that** comparison subject → exit **0**. **Antifalsifier:** bare `git diff --exit-code` post-clone ≠ `ALIVE`. Checkpoint only: `cd /home/ubuntu/ggen_igniter && git diff --exit-code`. Live next (after mix): `mix ggen_igniter.sync --check` (exit **0**/`4`). In-repo: `cargo test -p ggen-sjira --test igniter_cleanroom_court` | Claiming `ALIVE` from bare post-clone `git diff --exit-code` (FALSE ALIVE / demoted); virgin-clone hygiene as manufacture proof; conflating clean-tree checkpoint with ggen tip AOT vs igniter expected; conflating `gall_observe_clean_room` with igniter crown; treating `git diff --exit-code` as Jobs/C4 refuse gate |
-| 5 | zcode-cli POWL/OCEL remediations (bounded refusal) | **PARTIAL** — in-process bun `ui-layout-court` **ALIVE** (**35 passed; exit 0**); `ggen-layout-court` **PRESENT** @ `d37271961`; live adapter / foundry `--live` tip-exit **PENDING** (historical ABSENT: adapter exit **2**; foundry live exit **1** — do **not** invent live `ALIVE`) | **Out-of-repo** `zcode-cli` @ `/agent/repos/zcode-cli` (mounted). Package **PRESENT** on tip `4b22529df`. In-repo: [`ZCODE-POWL-OCEL-STANDING.md`](./ZCODE-POWL-OCEL-STANDING.md) | Exact next: `cargo run -p ggen-layout-court --bin layout_court -- fixtures/ui-layout-court/product-subject.json` → 0; then `UiLayoutCourtAdapter.verifyPostTransition(/agent/repos/ggen)` → 0; `bun scripts/powl-foundry-loop.ts --live` → 0 | Inventing live `ALIVE` from package presence or in-process bun alone |
+| 5 | zcode-cli POWL/OCEL remediations (bounded refusal) | **PARTIAL_ALIVE** — in-process bun `ui-layout-court` **ALIVE** (**35 passed; exit 0**); live `UiLayoutCourtAdapter` **ALIVE** (**exit 0**; tip `4b22529df`; `ggen-layout-court` **PRESENT** #884; `layout_court` exit **0**; DEFAULT_TAFFY_CMD resolve → built bin, no cargo); foundry `--live` still **open** (prior exit **1**; not re-run under load&gt;10) | **Out-of-repo** `zcode-cli` @ `/agent/repos/zcode-cli` @ `02a9d86e5`. Package `ggen-layout-court` **PRESENT** on tip (`crates/ggen-layout-court` + bin `layout_court`). In-repo contract: [`ZCODE-POWL-OCEL-STANDING.md`](./ZCODE-POWL-OCEL-STANDING.md) | Exact next: `bun scripts/powl-foundry-loop.ts --live` → exit **0** (needs `mix` for igniter sync); `bun test test/powl-ocel-chicago.test.ts` → exit **0**. Replay live adapter: `UiLayoutCourtAdapter.verifyPostTransition(<ggen tip>)` with `target/debug/layout_court` + `fixtures/ui-layout-court/product-subject.json` → exit **0**. Replay in-process: `bun test test/ui-layout-court.test.ts test/ui-layout-court-chicago.test.ts`. GA falsifier **2027-01-01** | Inventing hop-5 / path-crown `ALIVE` from adapter alone while foundry `--live` open; inventing tip-cargo ALIVE under load&gt;10; conflating hop-3b fence with live `layout_court` bin |
 
 **Path standing (aggregate):** **PARTIAL** — hops 1–3 **PARTIAL_ALIVE**, hop 3b
 ggen ui-layout **ALIVE** (**8 passed; exit 0** on evidence `eaf0dad40`; tip land
-`7c0ba2a90` on tip `07b689c97` / ancestor `c9e224d33`),
+`7c0ba2a90`; tip pin `4b22529df`),
 hop 4 **PARTIAL_ALIVE** (mount PRESENT + clean-tree only; manufacture compare
 open — **not** `ALIVE`; antifalsifier: bare post-clone `git diff --exit-code` ≠
-`ALIVE`), hop 5 **PARTIAL** (in-process **ALIVE**; live **BLOCKED** on ABSENT
-`ggen-layout-court`) → path crown **non-ALIVE** / incomplete until hop-4
-manufacture compare and live hop-5 exit 0 on pinned tip. Pass-count footnotes
-(tip source, not tip exit 0): hop-1 `shui` **4**; hop-2 brand **11**; hop-3
-taffy **7**; hop-3b ui-layout **11**.
+`ALIVE`), hop 5 **PARTIAL_ALIVE** (in-process **ALIVE** + live adapter **ALIVE**
+exit 0; foundry `--live` still open) → path crown **non-ALIVE** / incomplete
+until hop-4 manufacture compare and foundry `--live` exit 0 on pinned tip.
+Pass-count footnotes (tip source, not tip exit 0): hop-1 `shui` **4**; hop-2
+brand **11**; hop-3 taffy **7**; hop-3b ui-layout **11**.
 
 
 ---
@@ -178,7 +182,7 @@ ambient DO or silent admit. Unmounted sibling checkout refuses ALIVE promotion
 | Hop 3 `ALIVE` as photolithography | ggen seal **and** consumer (zcode/igniter) consumes `AotSealReceipt` | `taffy_aot_preflight_court` green alone |
 | Hop 3b `ALIVE` | `ui_layout_court` **8 passed; exit 0** on evidence `eaf0dad40` (this ledger; ancestor); tip land `7c0ba2a90`; tip source **11** `#[test]`; **tip-cargo PENDING** quiet cgroup on `5e00619a4` | Presence alone; inventing tip exit 0 without quiet cargo evidence |
 | Hop 4 `ALIVE` | Mounted `ggen_igniter` + **manufacture compare** (ggen tip AOT output vs igniter expected) exit 0, then `git diff --exit-code` on that comparison subject | Bare post-clone `git diff --exit-code`; GALL `gall_observe_clean_room`; docs citing the sibling; clean-tree checkpoint alone |
-| Hop 5 `ALIVE` | zcode-cli court green against a real ggen receipt fixture | In-repo POWL/OCEL modules; ggen hop-3b fence alone |
+| Hop 5 `ALIVE` | Live `UiLayoutCourtAdapter` exit 0 **and** `powl-foundry-loop --live` exit 0 against pinned ggen tip with `ggen-layout-court` present | In-process bun alone; hop-3b fence alone; adapter exit 0 while foundry `--live` open |
 | **Path `ALIVE`** | Hops 1–5 all `ALIVE` with linked receipts | This ledger file; hop-3b presence alone |
 
 ---
@@ -240,12 +244,16 @@ remains **PARTIAL**. Pass-count footnotes (tip source): `shui` **4**, taffy
 
 - Observed tip: `376b5c3092c821eec942a2e16489b6db45c0b726` (hop-5 evidence tip `07b689c97` / ancestor `c9e224d33`; prior pin `f6cb18f86`).
 - In-process: `bun test test/ui-layout-court*.ts` → **35 passed; exit 0** (**ALIVE** observation).
-- Live: `ggen-layout-court` **ABSENT**; `cargo run -p ggen-layout-court --bin layout_court` → exit **101**; `UiLayoutCourtAdapter.verifyPostTransition` → exit **2** `BLOCKED`/`SUBJECT_MISSING`; `bun scripts/powl-foundry-loop.ts --live` → exit **1**.
+- Live (pre-#884): `ggen-layout-court` **ABSENT**; `cargo run -p ggen-layout-court --bin layout_court` → exit **101**; `UiLayoutCourtAdapter.verifyPostTransition` → exit **2** `BLOCKED`/`SUBJECT_MISSING`; `bun scripts/powl-foundry-loop.ts --live` → exit **1**.
 - Receipt: `/tmp/cursor/hop5-crossmount.md`. No path-crown `ALIVE`.
 
-### Honesty retip (`cursor/v2711-foundry-honesty-bc54`)
+### Hop-5 live after layout-court #884 (`cursor/v2711-hop5-live-bc54`)
 
-- Observed tip: `4b22529df2939412c41107fe5e9eea66ba6a4dad`.
-- `ggen-layout-court` **PRESENT** @ `d37271961`.
-- Live hop-5 tip-exit **PENDING** (no cargo this audit) — package land ≠ live `ALIVE`.
-- Path crown remains **PARTIAL**.
+- Observed tip: `4b22529df2939412c41107fe5e9eea66ba6a4dad` (`ggen-layout-court` **PRESENT**; land `d37271961` / merge `6a89beb38` / PR #884).
+- Host load &gt;10 → **no new cargo**; used prebuilt `target/debug/layout_court`.
+- `layout_court` + `fixtures/ui-layout-court/product-subject.json` → exit **0**.
+- In-process: `bun test test/ui-layout-court*.ts` → **35 passed; exit 0** (**ALIVE**).
+- Live: `UiLayoutCourtAdapter.verifyPostTransition` → exit **0** standing **ALIVE** (explicit bin + DEFAULT_TAFFY_CMD resolve to built bin).
+- Foundry `--live` **not** re-run (prior exit 1; `mix` still required) → hop-5 aggregate **PARTIAL_ALIVE**, not hop-5 / path-crown `ALIVE`.
+- Receipt: `/tmp/cursor/hop5-live-after-884.md`.
+
