@@ -16,7 +16,7 @@ construct_tip=ALIVE@45086131007 (full EXIT0 on 43d6301bb; tip-wins #956; ≠ Fou
 ia_portable=ALIVE tip-wins (#956)
 vw_mount=ALIVE (G2-11 Step A+C @45073805083)
 cargo=foundry_reprobe_exit1
-cos=503_DB_UNAVAILABLE
+cos=503_false_DB_UNAVAILABLE (L10 SELECT1 OK; billing→JWKS→migrate→redeploy)
 revops_host=UNSUPPORTED_MISSING (fnox GTM; function=cos.fnox.io)
 ```
 
