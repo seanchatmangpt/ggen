@@ -6,9 +6,9 @@
 | Binding | `ECOSYSTEM-SPEC-27.1.1` Gate 0 + Gate 2–3 out-of-repo legs; GA **2027-01-01** |
 | Companion index | [`OUT-OF-REPO-NEXT-VERIFIERS.md`](./OUT-OF-REPO-NEXT-VERIFIERS.md); [`GATE-0-2-3-NEXT-VERIFIERS.md`](./GATE-0-2-3-NEXT-VERIFIERS.md) |
 | Sidebranch | `cursor/v2711-construct-alive-retip-bc54` (matrix origin `cursor/v2711-gate023-oor-matrix-bc54`) |
-| Observed ggen tip (write base) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ **`c19ad401d`** (⊇ Construct full **ALIVE** @ `45086131007` + IA portable tip-wins #956 + Gate1 tip7 + G2-11 Mount); Foundry `--live` BLOCKED_HITL / cos BLOCKED / revops UNKNOWN **held** |
-| Probe time | 2026-11-22 4:25:00 PM PST / `2026-11-23T00:25Z` (retip28) |
-| Cargo / tip-cargo | Gate1 tip7 **ALIVE** (shui **4** + uilayout **11** + brand **23** + taffy **7**); Construct full job **ALIVE** @ [`45086131007`](https://github.com/seanchatmangpt/ggen/actions/runs/45086131007); Foundry `--live` **foundry_exit=1** |
+| Observed ggen tip (write base) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ **`59c399935`** (⊇ cos DB pin + Construct **ALIVE** + Gate1 tip7 + G2-11); Foundry BLOCKED_HITL / cos BLOCKED / **revops host UNSUPPORTED (MISSING)** |
+| Probe time | 2026-11-22 4:35:00 PM PST / `2026-11-23T00:35Z` (retip30) |
+| Cargo / tip-cargo | Gate1 tip7 **ALIVE**; Construct **ALIVE** @ `45086131007`; Foundry `--live` **foundry_exit=1**; fnox GTM: `revops.fnox.io` **MISSING** |
 | Crown absorb | tip-wins onto `origin/cursor/ecosystem-spec-27-1-1-bc54` (no force; parent owns ManagePullRequest) |
 | Companion retip | [`CONSTRUCT-RECEIPT-EXCLUDE-STANDING.md`](./CONSTRUCT-RECEIPT-EXCLUDE-STANDING.md); [`VERIFY-WITNESS-CI-WASM-CONSUME-STANDING.md`](./VERIFY-WITNESS-CI-WASM-CONSUME-STANDING.md) |
 
@@ -36,8 +36,8 @@ Task probe hosts `*.ggen.dev` are **NXDOMAIN** aliases (not the tracked Plane-5 
 |-------|--------|----------|
 | `curl … https://cos.fnox.io/readyz` | **503** `{"status":"DB_UNAVAILABLE"}` | **BLOCKED** |
 | `curl … https://cos.fnox.io/healthz` | **200** `{"status":"ok"}` | **PARTIAL** (liveness ≠ readiness) |
-| `getent hosts revops.fnox.io` / `host` | exit **2** / **NXDOMAIN** | **UNKNOWN** |
-| `curl … https://revops.fnox.io/` (and `/readyz`) | exit **6** / `http=000` | **UNKNOWN** |
+| `getent hosts revops.fnox.io` / `dig +short` | empty / **NXDOMAIN** | **UNSUPPORTED** (host MISSING — fnox GTM; not a DNS-restore subject) |
+| `curl … https://revops.fnox.io/` (and `/readyz`) | exit **6** / `http=000` | **UNSUPPORTED** (do not invent host) |
 | `curl … https://cos.ggen.dev/readyz` | exit **6** / `http=000` (**NXDOMAIN**) | alias **UNKNOWN** (≠ readiness claim) |
 | `host revops.ggen.dev` / `curl … https://revops.ggen.dev/` | **NXDOMAIN** / exit **6** | alias **UNKNOWN** |
 
@@ -60,8 +60,8 @@ curl -sS -w '\nhttp=%{http_code}\n' --connect-timeout 10 https://revops.fnox.io/
 | **ALIVE** | **6** | G2-6, G2-7, G2-10, G2-11, G2-12, G3-2 |
 | **PARTIAL** / **PARTIAL_ALIVE** | **3** | G2-8, G2-9, G3-3 |
 | **BLOCKED** | **8** | G0-1, G0-2, G0-3, G2-2, G2-3, G2-5, G2-16, G3-5 |
-| **UNSUPPORTED** | **3** | G2-4, G2-13, G3-1 |
-| **UNKNOWN** | **5** | G0-4, G2-1, G2-14, G2-15, G3-4 |
+| **UNSUPPORTED** | **4** | G2-1, G2-4, G2-13, G3-1 |
+| **UNKNOWN** | **4** | G0-4, G2-14, G2-15, G3-4 |
 | **Total tracked** | **25** | G0-1…4 + G2-1…16 + G3-1…5 |
 
 Named companion crowns (not extra G-rows): Foundry zero-HITL **PARTIAL**; foundry `--live` **BLOCKED_HITL**; BRCE **V8** **BLOCKED**; R-01…R-07 bodies **BLOCKED**; live WebAuthn **UNSUPPORTED**; CASTLE wire **ALIVE**/`WIRED` (≡ G2-12 facet); Smalt RAID **ALIVE** (≡ G2-6).
@@ -75,7 +75,7 @@ Named companion crowns (not extra G-rows): Foundry zero-HITL **PARTIAL**; foundr
 | **Foundry `--live`** / hop-5 (G2-9) | **BLOCKED_HITL** / **REFUSED** (`foundry_exit=1`; `Model access is not configured` @ zcode `f32df08`) — Foundry crown **PARTIAL** ≠ `--live` `ALIVE` | tip `4060f9d6b`; pins [`HITL-LIVE-NEXT-VERIFIER-STANDING.md`](./HITL-LIVE-NEXT-VERIFIER-STANDING.md) §10; [`FOUNDRY-FINISH-STANDING.md`](./FOUNDRY-FINISH-STANDING.md) §1a/§9; [`HOP5-MODEL-ACCESS-STANDING.md`](./HOP5-MODEL-ACCESS-STANDING.md) | `cd /agent/repos/zcode-cli && export PATH="/home/ubuntu/.bun/bin:$PATH" && bun bin/zcode.js login && bun scripts/powl-foundry-loop.ts --live` → **foundry_exit=0** | **Founder HITL** (+ zcode-cli surface) |
 | **Zero-HITL Foundry crown** | **PARTIAL** — **not** Foundry `ALIVE` | tip `4060f9d6b`; [`FOUNDRY-FINISH-STANDING.md`](./FOUNDRY-FINISH-STANDING.md) | Close HITL residuals: cos DB + WebAuthn live + `--live` → **0** before any crown promote | **Founder HITL** (residuals) / **Agent** (replay fences only) |
 | **cos** readiness + ledger (G0-2 / G2-2) | **BLOCKED** (`/readyz` **503** `DB_UNAVAILABLE` = Repo `SELECT 1` fail); `/healthz` **PARTIAL** ≠ ALIVE | tip `0acd7d586`; [`COS-DB-UNAVAILABLE-NEXT-VERIFIER-STANDING.md`](./COS-DB-UNAVAILABLE-NEXT-VERIFIER-STANDING.md); fnox `HealthController` pin; [`REVOPS-COS-STANDING.md`](./REVOPS-COS-STANDING.md) | Founder: restore Cloud SQL + `DATABASE_URL` → `/readyz` **200** `{"status":"ready"}`; then `just cos-ledger-verify` → **0** | **Founder HITL** (GCP DB) / **Agent** (probe + ledger once ready) |
-| **revops.fnox.io** front door (G2-1 / D6) | **UNKNOWN** (**NXDOMAIN**; curl exit **6**) | tip `dd61fefb2`; probe 11:02 PST retip19; [`REVOPS-COS-STANDING.md`](./REVOPS-COS-STANDING.md) §22 | `getent hosts revops.fnox.io`; `curl -sS -w '\nhttp=%{http_code}\n' https://revops.fnox.io/readyz` → DNS **and** HTTP **200** | **Founder HITL** (DNS/hosting) / **Agent** (probe) |
+| **revops.fnox.io** front door (G2-1 / D6) | **UNSUPPORTED** (host **MISSING**; NXDOMAIN intentional) | tip `59c399935`; fnox `cos/docs/gtm/JOBS-LOCK-NOV21-RUNBOOK.md`; [`REVOPS-HOST-MISSING-STANDING.md`](./REVOPS-HOST-MISSING-STANDING.md) | Do **not** invent DNS. RevOps *function* → cos `/readyz` **200** (G2-2) | **Refuse invent** / **Founder** (cos DB only) |
 | **BRCE V8** broker (G2-3) | **BLOCKED** (broker unmounted; V1/V7 fences ≠ V8) | tip `4060f9d6b`; [`BRCE-V8-NEXT-VERIFIER-STANDING.md`](./BRCE-V8-NEXT-VERIFIER-STANDING.md) §3; [`BRCE-WEBAUTHN-STANDING.md`](./BRCE-WEBAUTHN-STANDING.md) §5 | After live WebAuthn §3 exit **0**: in mounted BRCE broker — intent **without** AS-01 → `REFUSED_*`; **with** verified seat → execution receipt + replay digest → exit **0** | **Founder HITL** (mount + seat) / **Agent** (court once mounted) |
 | **R-01…R-07 bodies** (G3-5 / RC-D7) | **BLOCKED** (all seven; contract fence **ALIVE** **7** @ `e7569893a` ≠ bodies) | tip `4060f9d6b`; [`R01-R07-BODIES-NEXT-VERIFIER-STANDING.md`](./R01-R07-BODIES-NEXT-VERIFIER-STANDING.md) | Admit sovereign risk-register → per-ID typed receipt **or** typed `REFUSED_*` before **2027-01-01**. Contract-only antifalsifier: `cargo test -p ggen-graph --test r01_r07_resolution_court` | **Founder HITL** (register admit) |
 | **WebAuthn AS-01** live/production (G2-4) | **UNSUPPORTED** (live); V7 fixture **PARTIAL_ALIVE** / land **ALIVE** @ `fb6e7fc6e` ≠ live | tip `4060f9d6b`; [`WEBAUTHN-LIVE-NEXT-VERIFIER-STANDING.md`](./WEBAUTHN-LIVE-NEXT-VERIFIER-STANDING.md) §3 | Founder HITL: admit RP-ID → enroll hardware → live assertion (`clientDataJSON` + `authenticatorData` + ES256/`prime256v1`) — known-good → exit **0**; tampered/missing RP-ID/alg≠ES256 → `REFUSED_*`. Then **V8** → **V9**. Non-substitute: `cargo test -p ggen-abb-sbb --test brce_as01_es256_assertion_court` | **Founder HITL** |
@@ -104,11 +104,11 @@ Detail: [`GATE-0-STANDING.md`](./GATE-0-STANDING.md).
 
 | ID | Subject | Standing | Evidence tip | Exact next verifier | Owner |
 |----|---------|----------|--------------|---------------------|-------|
-| **G2-1** | revops.fnox.io | **UNKNOWN** | tip `dd61fefb2`; NXDOMAIN / curl exit **6** (retip19) | `getent hosts revops.fnox.io`; `curl … https://revops.fnox.io/readyz` → DNS ∧ **200** | **Founder HITL** / **Agent** (probe) |
+| **G2-1** | revops.fnox.io | **UNSUPPORTED** (MISSING) | tip `59c399935`; fnox GTM forbids host; [`REVOPS-HOST-MISSING-STANDING.md`](./REVOPS-HOST-MISSING-STANDING.md) | Function path = cos G2-2 → `/readyz` **200**; refuse inventing `revops.fnox.io` | **Refuse invent** |
 | **G2-2** | cos.fnox.io readiness + ledger | **BLOCKED** (readiness = DB connection); healthz **PARTIAL** | tip `0acd7d586`; fnox `HealthController` — `DB_UNAVAILABLE` ≠ `MIGRATIONS_PENDING`; [`COS-DB-UNAVAILABLE-NEXT-VERIFIER-STANDING.md`](./COS-DB-UNAVAILABLE-NEXT-VERIFIER-STANDING.md) | Founder Cloud SQL restore → `/readyz` **200**; then ledger court | **Founder HITL** / **Agent** (probe) |
 | **G2-3** | BRCE human seat broker (**V8**) | **BLOCKED** | tip `4060f9d6b`; [`BRCE-V8-NEXT-VERIFIER-STANDING.md`](./BRCE-V8-NEXT-VERIFIER-STANDING.md) | Live WebAuthn first → mounted broker refuse/admit court → exit **0** | **Founder HITL** |
 | **G2-4** | WebAuthn AS-01 production | **UNSUPPORTED** (live); V7 **PARTIAL** ≠ live | tip `4060f9d6b`; [`WEBAUTHN-LIVE-NEXT-VERIFIER-STANDING.md`](./WEBAUTHN-LIVE-NEXT-VERIFIER-STANDING.md) | Founder HITL RP + hardware ceremony → exit **0**; then **V8** | **Founder HITL** |
-| **G2-5** | Plane 5 DO path (aggregate) | **BLOCKED** | tip `4060f9d6b` | Ladder: G2-1 DNS∧**200** → G2-2 **200** → AS-01 host court (BRCE **V9**) | **Founder HITL** |
+| **G2-5** | Plane 5 DO path (aggregate) | **BLOCKED** | tip `59c399935`; G2-1 host **UNSUPPORTED** | Ladder: G2-2 cos `/readyz` **200** → AS-01 host court on **cos** (BRCE **V9**) — **not** revops DNS | **Founder HITL** |
 | **G2-6** | Smalt 4-cloud RAID / FinOps | **ALIVE** — ≠ Foundry / zero-HITL | tip-wins lineage; smalt `875efbb87` + `91997da76f0f`; [`SMALT-RAID-STANDING.md`](./SMALT-RAID-STANDING.md) | Replay FinOps + 4-cloud + residual §4.3 → exits **0** | **Agent** (replay) |
 
 ### Manufacture / CASTLE / commercial
@@ -137,7 +137,7 @@ Detail: [`GATE-3-RELEASE-COURTS-STANDING.md`](./GATE-3-RELEASE-COURTS-STANDING.m
 | **G3-1** | **RC-D1** Zero-DOM WebGPU + FFB | **UNSUPPORTED** | tip `4060f9d6b`; UI-plane unmounted | Mounted UI-plane court: admitted `AotSealReceipt` → Mode A/B paint → exit **0**; ambient DOM DO without BRCE+AS-01 → `REFUSED_*` | **Founder HITL** / UI plane |
 | **G3-2** | **RC-D3** Truex `shui:` product | **ALIVE** (admit-court; ≡ G2-7); fence **PARTIAL** | `truex@68d2d233` | Same as G2-7 replay | **Agent** (replay) |
 | **G3-3** | **RC-D5** zcode ui-layout live | **PARTIAL** (≡ G2-8; foundry_exit=1) | tip `4060f9d6b` | `powl-foundry-loop --live` → **0** (G2-9 / HITL) | **Founder HITL** |
-| **G3-4** | **RC-D6** Plane 5 front doors | **UNKNOWN** / OUT OF SCOPE from ggen | tip `dd61fefb2`; revops NXDOMAIN; cos **503** (retip19) | Same ladder as G2-1 + G2-2 + G2-5 | **Founder HITL** |
+| **G3-4** | **RC-D6** Plane 5 front doors | **PARTIAL** / OUT OF SCOPE from ggen | tip `59c399935`; revops host **UNSUPPORTED**; cos **503** | Ladder: G2-2 cos **200** → G2-5 AS-01 on cos (G2-1 not a DNS restore) | **Founder HITL** |
 | **G3-5** | **RC-D7** R-01…R-07 bodies | **BLOCKED** (all seven) | tip `4060f9d6b`; [`R01-R07-BODIES-NEXT-VERIFIER-STANDING.md`](./R01-R07-BODIES-NEXT-VERIFIER-STANDING.md) | Admit sovereign risk-register → per-ID receipt/`REFUSED_*` before **2027-01-01** | **Founder HITL** |
 
 **RC-D2 / RC-D4** in-repo legs (Taffy seal, brand rhythm): tracked in Gate-1 matrices — not duplicated as OOR DO; consumer / inventory legs remain G2-8 / G2-13 for GA `ALIVE`.
@@ -152,7 +152,7 @@ Detail: [`GATE-3-RELEASE-COURTS-STANDING.md`](./GATE-3-RELEASE-COURTS-STANDING.m
 | **2** | cos `/readyz` (G0-2 / G2-2) | **BLOCKED** | `curl -sS -w '\nhttp=%{http_code}\n' https://cos.fnox.io/readyz` → HTTP **200** (not `DB_UNAVAILABLE`) |
 | **3** | WebAuthn AS-01 live → BRCE **V8** | **UNSUPPORTED** → **BLOCKED** | [`WEBAUTHN-LIVE-NEXT-VERIFIER-STANDING.md`](./WEBAUTHN-LIVE-NEXT-VERIFIER-STANDING.md) §3 ceremony → exit **0**; then [`BRCE-V8-NEXT-VERIFIER-STANDING.md`](./BRCE-V8-NEXT-VERIFIER-STANDING.md) §3 broker court → exit **0** |
 
-Honorable mention (DNS): `getent hosts revops.fnox.io` ∧ `curl … https://revops.fnox.io/readyz` → DNS ∧ **200** (G2-1 **UNKNOWN**).
+Honorable mention: G2-1 `revops.fnox.io` is **UNSUPPORTED**/MISSING (fnox GTM) — do **not** chase DNS ALIVE; close cos G2-2 instead.
 
 ---
 
@@ -257,4 +257,8 @@ Tip **`c19ad401d`** (subject Construct tip `43d6301bb` + tip-wins #956). Constru
 
 ## Retip29 (2026-11-22 4:30:00 PM PST) — cos DB_UNAVAILABLE root-cause pin from fnox
 
-Tip absorb of this land. Cloned `seanchatmangpt/fnox`; pinned cause of live `/readyz` **503** `DB_UNAVAILABLE` to `FnoxCos.Repo` `SELECT 1` failure (`cos/lib/fnox_cos_web/controllers/health_controller.ex`) — distinct from `MIGRATIONS_PENDING` / `DB_PRIVILEGE`. Agent **UNSUPPORTED** for GCP restore (no `gcloud` auth). Exact Founder next: restore Cloud SQL + `DATABASE_URL` → `/readyz` **200** `ready`. Foundry **BLOCKED_HITL** / revops **NXDOMAIN** / Construct **ALIVE** held. Detail: [`COS-DB-UNAVAILABLE-NEXT-VERIFIER-STANDING.md`](./COS-DB-UNAVAILABLE-NEXT-VERIFIER-STANDING.md).
+Tip absorb of this land. Cloned `seanchatmangpt/fnox`; pinned cause of live `/readyz` **503** `DB_UNAVAILABLE` to `FnoxCos.Repo` `SELECT 1` failure (`cos/lib/fnox_cos_web/controllers/health_controller.ex`) — distinct from `MIGRATIONS_PENDING` / `DB_PRIVILEGE`. Agent **UNSUPPORTED** for GCP restore (no `gcloud` auth). Exact Founder next: restore Cloud SQL + `DATABASE_URL` → `/readyz` **200** `ready`. Foundry **BLOCKED_HITL** / Construct **ALIVE** held. Detail: [`COS-DB-UNAVAILABLE-NEXT-VERIFIER-STANDING.md`](./COS-DB-UNAVAILABLE-NEXT-VERIFIER-STANDING.md).
+
+## Retip30 (2026-11-22 4:35:00 PM PST) — revops.fnox.io host MISSING (fnox GTM)
+
+Cloned `seanchatmangpt/revops` + re-read fnox GTM (`JOBS-LOCK-NOV21-RUNBOOK.md`): `revops.fnox.io` is **MISSING** (`infra/gcp/revops` absent); do **not** publish/CTA there; RevOps *function* host of record is **`cos.fnox.io` only**. Prior G2-1 **UNKNOWN**/“restore DNS” framing **superseded** → **UNSUPPORTED**. DNS empty reconfirmed (`dig +short` empty; cos/arcus/smalt resolve). Plane-5 ladder corrected: G2-2 cos readiness → AS-01 on cos (not invent revops DNS). Foundry **BLOCKED_HITL** held. Detail: [`REVOPS-HOST-MISSING-STANDING.md`](./REVOPS-HOST-MISSING-STANDING.md).

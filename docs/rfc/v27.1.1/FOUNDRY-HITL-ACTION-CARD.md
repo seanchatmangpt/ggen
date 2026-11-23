@@ -17,7 +17,7 @@ ia_portable=ALIVE tip-wins (#956)
 vw_mount=ALIVE (G2-11 Step A+C @45073805083)
 cargo=foundry_reprobe_exit1
 cos=503_DB_UNAVAILABLE
-revops=NXDOMAIN
+revops_host=UNSUPPORTED_MISSING (fnox GTM; function=cos.fnox.io)
 ```
 
 | Field | Value |

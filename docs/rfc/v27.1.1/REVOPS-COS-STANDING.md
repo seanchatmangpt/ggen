@@ -27,7 +27,7 @@ failure is never rewritten as success.
 
 | Subject | Standing | Evidence observed 2026-11-22 | Owner / plane |
 |---------|----------|------------------------------|---------------|
-| `revops.fnox.io` front door | **UNKNOWN** | `getent` empty; `curl https://revops.fnox.io/` → exit 6 *Could not resolve host* (`http_code=000`). No TLS handshake. | Plane 5 / revops·fnox |
+| `revops.fnox.io` front door | **UNSUPPORTED** (host **MISSING**) | `getent`/`dig` empty (NXDOMAIN). fnox GTM: do **not** invent host — RevOps *function* is `cos.fnox.io` only (`JOBS-LOCK-NOV21-RUNBOOK.md`). [`REVOPS-HOST-MISSING-STANDING.md`](./REVOPS-HOST-MISSING-STANDING.md). | Plane 5 — refuse invent |
 | `cos.fnox.io` edge presence | **PARTIAL** | DNS → `34.8.148.142`; TLS terminates (`server: Google Frontend`). Root `GET /` → **HTTP 404** typed HTML `data-code="NOT_FOUND"` (not a product page). | Plane 5 / cos·fnox |
 | `cos.fnox.io` liveness `/healthz` | **PARTIAL** | `GET https://cos.fnox.io/healthz` → **HTTP 200** body `{"status":"ok"}`. Process/edge up; does **not** prove ledger or product readiness. | cos |
 | `cos.fnox.io` readiness `/readyz` | **BLOCKED** | `GET https://cos.fnox.io/readyz` → **HTTP 503** body `{"status":"DB_UNAVAILABLE"}`. Explicit readiness refusal. | cos (DB dependency) |
