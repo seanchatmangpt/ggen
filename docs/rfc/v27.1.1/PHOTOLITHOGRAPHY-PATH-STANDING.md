@@ -1,29 +1,32 @@
 # Photolithography path — push-first honesty ledger (v27.1.1)
 
 ```text
-tip=7bb443e992486958ad2d2ebff246acf540ba7941
+tip=43d6301bb (pytest+lock; prior 7bb443e99)
 path=perimeter → .ttl/.toml → ggen+Taffy AOT → igniter clean-room → zcode POWL/OCEL
 path_crown=PARTIAL (non-ALIVE)
-foundry=BLOCKED_HITL (no Foundry ALIVE)
+foundry=BLOCKED_HITL foundry_exit=1 (no Foundry ALIVE)
 tip7=ALIVE(shui4+uilayout11+brand23+taffy7) ≠ path_crown_ALIVE ≠ Foundry_ALIVE
 igniter_hop=ALIVE EXIT0 @b5a15528 ≠ path_crown_ALIVE ≠ Foundry_ALIVE
-construct=PENDING_CI@45081862735 (lock sync tip-wins; npm ci local EXIT0)
-side=cursor/v2711-oor-construct-retip-bc54
+construct=IN_PROGRESS@45086131007 (IA core-team ladder; tip frozen)
+ia_portable=ALIVE_173_pass on #956 (tip-wins after Construct EXIT0)
+cos=503_DB_UNAVAILABLE healthz=200
+revops=NXDOMAIN
+side=cursor/v2711-construct-pytest-retip-bc54
 agent=bc-c5848e85-7857-4989-9a23-d4416c85bc54
 ```
 
 | Field | Value |
 |-------|-------|
 | Document ID | `PHOTOLITHOGRAPHY-PATH-STANDING-27.1.1` |
-| Branch | `cursor/v2711-igniter-cheap-bc54` |
+| Branch | `cursor/v2711-construct-pytest-retip-bc54` |
 | Spec binding | `ECOSYSTEM-SPEC-27.1.1` §13.1 hop chain |
-| Companions | [`PHOTOLITHOGRAPHY-STANDING.md`](./PHOTOLITHOGRAPHY-STANDING.md); [`PERIMETER-TTL-TOML-PATH-STANDING.md`](./PERIMETER-TTL-TOML-PATH-STANDING.md); [`SHUI-PUBLIC-PREFIX-ALIVE-STANDING.md`](./SHUI-PUBLIC-PREFIX-ALIVE-STANDING.md); [`TAFFY-AOT-PREFLIGHT-STANDING.md`](./TAFFY-AOT-PREFLIGHT-STANDING.md); [`IGNITER-CLEANROOM-STANDING.md`](./IGNITER-CLEANROOM-STANDING.md); [`ZCODE-POWL-PATH-STANDING.md`](./ZCODE-POWL-PATH-STANDING.md); [`FOUNDRY-HITL-ACTION-CARD.md`](./FOUNDRY-HITL-ACTION-CARD.md); [`GATE1-REMAINING-FALSIFIERS.md`](./GATE1-REMAINING-FALSIFIERS.md) |
-| Observed crown tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `4af998e9be1804a5ea0ccf6b4f2e0de20493aaa4` (`4af998e9b`; past uilayout exact-tip6 absorb / photolith founder-CLI `6cdb97492` / `4af3c6ec5`; ⊇ Foundry HITL exact CLI / shui absorb `edf2ec22a` / brand tip6 `31b495a6a` / ui_layout `6f0f64611` / Taffy `c93277719`+tip7 `4ebcb9d46` / zcode retip4 `491801669`) |
-| Agent | `bc-b1fbe1c8-d810-5bcf-8451-bf3c8a8b191d` |
-| UTC | `2026-11-22T19:37Z` |
-| Cargo | **NOT RUN** (docs-only cheap retip; Gate1 tip7 serial owns cargo; shui fence sealed EXIT:**0** **4**/4 @ `a4b3d3fb4`; Taffy/brand/uilayout sealed EXIT:**0** @ `2685119bd`) |
-| Cheap probe | igniter mount `git diff --exit-code` → **0** @ `/home/ubuntu/ggen_igniter` `b5a15528…` (`/tmp/cursor/igniter-cheap.md`); zcode mount **PRESENT** `/agent/repos/zcode-cli` @ `f32df08`; `bin/zcode.js` **PRESENT**; `zcode` **not on PATH**; provider registry **ABSENT**; `~/.zcode/cli/setup-pending` **PRESENT** |
-| Status | LEDGER — shui hop **ALIVE (exact tip-cargo)** **4**/4 @ `a4b3d3fb4` / absorb `edf2ec22a`; Taffy/uilayout/igniter **ALIVE**; hop-5 **PARTIAL** / Foundry **BLOCKED_HITL**; path crown **PARTIAL** / **non-ALIVE**; exact founder CLI = `bun bin/zcode.js login` (**not** `zcode /login`); **never invent Foundry `ALIVE`** |
+| Companions | [`PHOTOLITHOGRAPHY-STANDING.md`](./PHOTOLITHOGRAPHY-STANDING.md); [`PERIMETER-TTL-TOML-PATH-STANDING.md`](./PERIMETER-TTL-TOML-PATH-STANDING.md); [`SHUI-PUBLIC-PREFIX-ALIVE-STANDING.md`](./SHUI-PUBLIC-PREFIX-ALIVE-STANDING.md); [`TAFFY-AOT-PREFLIGHT-STANDING.md`](./TAFFY-AOT-PREFLIGHT-STANDING.md); [`IGNITER-CLEANROOM-STANDING.md`](./IGNITER-CLEANROOM-STANDING.md); [`ZCODE-POWL-PATH-STANDING.md`](./ZCODE-POWL-PATH-STANDING.md); [`FOUNDRY-HITL-ACTION-CARD.md`](./FOUNDRY-HITL-ACTION-CARD.md); [`GATE1-REMAINING-FALSIFIERS.md`](./GATE1-REMAINING-FALSIFIERS.md); [`INTERVIEW-ASSIST-PORTABLE-PATH-STANDING.md`](./INTERVIEW-ASSIST-PORTABLE-PATH-STANDING.md) |
+| Observed crown tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `43d6301bb6e3d6d715d19bea3bc08a4952780e91` (pytest tip-wins; lock sync `7bb443e99`; Gate1 tip7 ALIVE; G2-11 Mount ALIVE; Construct full job **IN_PROGRESS**) |
+| Agent | `bc-c5848e85-7857-4989-9a23-d4416c85bc54` |
+| UTC | `2026-11-23T00:20Z` |
+| Cargo | **NOT RUN** this retip (docs + OOR probe; Gate1 tip7 sealed; Foundry `--live` re-probe **exit 1** held) |
+| Cheap probe | igniter `git diff --exit-code` → **0** @ `/home/ubuntu/ggen_igniter`; cos `/readyz` **503** `DB_UNAVAILABLE`; `/healthz` **200**; revops **NXDOMAIN**; Foundry `--live` **foundry_exit=1**; IA portable local **173/7 EXIT0** on #956 |
+| Status | LEDGER — shui/Taffy/uilayout/brand/igniter **ALIVE**; hop-5 **PARTIAL** / Foundry **BLOCKED_HITL**; path crown **PARTIAL** / **non-ALIVE**; Construct **IN_PROGRESS** @ `45086131007`; **never invent Foundry `ALIVE`** |
 
 Standing vocabulary: `UNKNOWN` | `PARTIAL` | `PARTIAL_ALIVE` | `ALIVE` | `BLOCKED` | `BLOCKED_HITL` | `BUILD_BROKEN` | `UNSUPPORTED` | `REFUSED_*`.
 

@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'node:url';
 // Chicago TDD: real rdflib-equivalent re-derivation, not a hardcoded constant.
 // Runs the *actual* SPARQL query against the *actual* ontology file via a
 // child rdflib process, and compares against the generated capability.ts
@@ -6,7 +7,7 @@ import { execFileSync } from "node:child_process";
 import assert from "node:assert/strict";
 import { CAPABILITY_IDS, CAPABILITY_COUNT } from "../capability.ts";
 
-const PACK = "/Users/sac/ggen/packs/wasm4pm-interview-assist-pack";
+const PACK = fileURLToPath(new URL("../../../../../packs/wasm4pm-interview-assist-pack/", import.meta.url));
 
 const py = `
 import sys

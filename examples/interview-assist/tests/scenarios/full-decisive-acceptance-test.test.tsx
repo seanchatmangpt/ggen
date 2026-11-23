@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'node:url';
 /**
  * TICKET-053: THE DECISIVE ACCEPTANCE TEST.
  *
@@ -52,8 +53,8 @@ import {
 } from "./fixtures/session-log";
 import { resolveExecutablePath, renderComposedSessionPage, auditAccessibility, chromium } from "./fixtures/accessibility-audit";
 
-const PACK_ROOT = "/Users/sac/ggen/packs/wasm4pm-interview-assist-pack";
-const REPO_ROOT = "/Users/sac/ggen";
+const PACK_ROOT = fileURLToPath(new URL("../../../../packs/wasm4pm-interview-assist-pack/", import.meta.url));
+const EXAMPLE_ROOT = fileURLToPath(new URL("../../", import.meta.url));
 
 interface AcceptanceStepRow {
   step: string;
@@ -134,7 +135,7 @@ describe("TICKET-053 THE DECISIVE ACCEPTANCE TEST (real composed evidence, all 1
   it(
     `acceptance-step/1 (${"build the system"}): real tsc type-check passes; real 'next build' succeeds (checksum-adapter node:module regression repaired via next.config serverExternalPackages; re-pinned 2026-11-04 after the fix landed -- premise rot, not a relaxation)`,
     () => {
-      const tsc = execFileSync("npx", ["tsc", "--noEmit"], { cwd: REPO_ROOT + "/examples/interview-assist", encoding: "utf8" });
+      const tsc = execFileSync("npx", ["tsc", "--noEmit"], { cwd: EXAMPLE_ROOT, encoding: "utf8" });
       expect(tsc).toBe(""); // real: zero type errors, zero stdout
 
       // Real, reproduced fact (re-verified 2026-11-04 on next 16.4.5): the
@@ -143,7 +144,7 @@ describe("TICKET-053 THE DECISIVE ACCEPTANCE TEST (real composed evidence, all 1
       // prior assertion (build must FAIL) pinned the disclosed regression
       // after its fix landed; re-pinned to the new lawful behavior.
       execFileSync("npx", ["next", "build"], {
-        cwd: REPO_ROOT + "/examples/interview-assist",
+        cwd: EXAMPLE_ROOT,
         encoding: "utf8",
         timeout: 120_000,
         stdio: "pipe",

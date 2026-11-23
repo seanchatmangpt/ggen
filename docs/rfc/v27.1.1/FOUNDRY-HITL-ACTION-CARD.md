@@ -1,9 +1,9 @@
 # FOUNDRY-HITL-ACTION-CARD — Founder `--live` action card (v27.1.1)
 
 ```text
-tip_base=7bb443e992486958ad2d2ebff246acf540ba7941
-branch=cursor/v2711-oor-construct-retip-bc54
-utc=2026-11-22T23:11Z
+tip_base=43d6301bb (pytest tip-wins; prior lock sync 7bb443e99)
+branch=cursor/v2711-construct-pytest-retip-bc54
+utc=2026-11-23T00:16Z
 standing=BLOCKED_HITL
 foundry_exit=1
 foundry_finish=PARTIAL
@@ -12,7 +12,8 @@ photolith_path_crown=PARTIAL
 gate1_tip7_ALIVE≠Foundry_ALIVE≠zero_HITL_ALIVE
 --live=BLOCKED_HITL
 refuse=Foundry_ALIVE
-construct_tip=7bb443e99 (55/55 CI ALIVE; npm lock synced; full job PENDING_CI)
+construct_tip=43d6301bb (55/55 local ALIVE; pytest+lock on tip; full job 45086131007 IN_PROGRESS @ byte-identical replay)
+ia_portable=ALIVE_173_pass (#956; tip-wins after Construct EXIT0)
 vw_mount=ALIVE (G2-11 Step A+C @45073805083)
 cargo=foundry_reprobe_exit1
 cos=503_DB_UNAVAILABLE
@@ -22,13 +23,13 @@ revops=NXDOMAIN
 | Field | Value |
 |-------|-------|
 | Document ID | `FOUNDRY-HITL-ACTION-CARD-27.1.1` |
-| Branch | `cursor/v2711-foundry-live-retip-bc54` (prior finish honesty `cursor/v2711-foundry-finish-honesty-bc54`; prior card land `cursor/v2711-foundry-hitl-action-retip-bc54`) |
-| Agent | `bc-23737a65-4398-52e6-a180-afd65acfa8f3` (`https://cursor.com/agents/bc-23737a65-4398-52e6-a180-afd65acfa8f3`); prior finish honesty `bc-94d5f431`; prior card `bc-64334001` |
+| Branch | `cursor/v2711-construct-pytest-retip-bc54` (prior foundry live retip `cursor/v2711-foundry-live-retip-bc54`; prior finish honesty `cursor/v2711-foundry-finish-honesty-bc54`) |
+| Agent | `bc-c5848e85-7857-4989-9a23-d4416c85bc54` (`https://cursor.com/agents/bc-c5848e85-7857-4989-9a23-d4416c85bc54`); prior `bc-23737a65` |
 | Spec binding | `ECOSYSTEM-SPEC-27.1.1` §13.4 Foundry finish; OOR **G2-9** |
-| Companions | [`FOUNDRY-FINISH-SPINE-STANDING.md`](./FOUNDRY-FINISH-SPINE-STANDING.md); [`FOUNDRY-FINISH-STANDING.md`](./FOUNDRY-FINISH-STANDING.md); [`HITL-LIVE-NEXT-VERIFIER-STANDING.md`](./HITL-LIVE-NEXT-VERIFIER-STANDING.md) §3 / §8 / §10; [`PHOTOLITHOGRAPHY-PATH-STANDING.md`](./PHOTOLITHOGRAPHY-PATH-STANDING.md) |
-| Observed tip (write-time) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `7bb443e992486958ad2d2ebff246acf540ba7941` (lock sync; Gate1 tip7 ALIVE; G2-11 Mount ALIVE; `--live` still BLOCKED_HITL) |
+| Companions | [`FOUNDRY-FINISH-SPINE-STANDING.md`](./FOUNDRY-FINISH-SPINE-STANDING.md); [`FOUNDRY-FINISH-STANDING.md`](./FOUNDRY-FINISH-STANDING.md); [`HITL-LIVE-NEXT-VERIFIER-STANDING.md`](./HITL-LIVE-NEXT-VERIFIER-STANDING.md) §3 / §8 / §10; [`PHOTOLITHOGRAPHY-PATH-STANDING.md`](./PHOTOLITHOGRAPHY-PATH-STANDING.md); [`INTERVIEW-ASSIST-PORTABLE-PATH-STANDING.md`](./INTERVIEW-ASSIST-PORTABLE-PATH-STANDING.md) |
+| Observed tip (write-time) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `43d6301bb` (pytest + lock sync; Gate1 tip7 ALIVE; G2-11 Mount ALIVE; IA portable on #956; `--live` still BLOCKED_HITL) |
 | zcode-cli | `/agent/repos/zcode-cli` @ `f32df08cdc4b3b8e114a8d1de8cf81acb80e1f3a` — `scripts/powl-foundry-loop.ts` **PRESENT**; `~/.zcode/v2/provider_config.json` **ABSENT** this env |
-| Cargo / tip-cargo | Live `--live` re-probe **foundry_exit=1** @ 2026-11-22T23:11Z (`Model access is not configured`); log `/tmp/foundry-live-retip27.log`; cos `/readyz` **503**; revops **NXDOMAIN**; Construct validate **55/55** CI ALIVE; full Construct **PENDING_CI**; VW Mount **ALIVE** |
+| Cargo / tip-cargo | Live `--live` re-probe **foundry_exit=1** @ 2026-11-23T00:16Z (`Model access is not configured`); log `/tmp/foundry-live-reprobe.log`; Construct validate **55/55** local ALIVE; full Construct **45086131007 IN_PROGRESS**; VW Mount **ALIVE**; IA portable **173/7 EXIT0** |
 | Status | ACTION CARD — live re-probe **foundry_exit=1** → `--live` **BLOCKED_HITL**; Foundry finish / horizontal spine **PARTIAL**; photolith path crown **PARTIAL**; **never invent Foundry `ALIVE`** |
 
 Standing vocabulary: `UNKNOWN` | `PARTIAL` | `PARTIAL_ALIVE` | `ALIVE` | `BLOCKED` | `BLOCKED_HITL` | `UNSUPPORTED` | `REFUSED_*`.
