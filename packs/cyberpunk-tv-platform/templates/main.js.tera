@@ -28,20 +28,34 @@ const loadText = async path => {
   return response.text();
 };
 
-await initWasm();
-const [world, capabilityLedger, projectionCatalog, runtimeConfig, governanceSource, rights, graphText, diagramSource, settlementQuery] = await Promise.all([
-  loadJson('./world.json'),
-  loadJson('./capabilities.json'),
-  loadJson('./projections.json'),
-  loadJson('./runtime-config.json'),
-  loadJson('./governance.json'),
-  loadJson('./rights.json'),
-  loadText('./world.ttl'),
-  loadText('./system.mmd'),
-  loadText('./settlement.rq')
-]);
-
-document.getElementById('wasm-state').textContent = `${platform_identity()} / WASM READY`;
+let world;
+let capabilityLedger;
+let projectionCatalog;
+let runtimeConfig;
+let governanceSource;
+let rights;
+let graphText;
+let diagramSource;
+let settlementQuery;
+try {
+  await initWasm();
+  [world, capabilityLedger, projectionCatalog, runtimeConfig, governanceSource, rights, graphText, diagramSource, settlementQuery] = await Promise.all([
+    loadJson('./world.json'),
+    loadJson('./capabilities.json'),
+    loadJson('./projections.json'),
+    loadJson('./runtime-config.json'),
+    loadJson('./governance.json'),
+    loadJson('./rights.json'),
+    loadText('./world.ttl'),
+    loadText('./system.mmd'),
+    loadText('./settlement.rq')
+  ]);
+  document.getElementById('wasm-state').textContent = `${platform_identity()} / WASM READY`;
+} catch (error) {
+  const message = error instanceof Error ? error.message : String(error);
+  document.getElementById('wasm-state').textContent = `WASM REFUSED:${message}`;
+  throw error;
+}
 
 const store = createStore();
 store.load(graphText, { format: 'turtle', baseIRI: BASE });

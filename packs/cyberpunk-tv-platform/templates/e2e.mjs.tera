@@ -32,7 +32,18 @@ try {
   page.on('pageerror', error => consoleErrors.push(error.message));
 
   await page.goto('http://127.0.0.1:4173/?device=living-room-tv', { waitUntil: 'networkidle' });
-  await page.waitForFunction(() => document.querySelector('#wasm-state')?.textContent?.includes('WASM READY'));
+  try {
+    await page.waitForFunction(
+      () => document.querySelector('#wasm-state')?.textContent?.includes('WASM READY'),
+      { timeout: 90000 }
+    );
+  } catch (error) {
+    const wasmState = await page.locator('#wasm-state').textContent().catch(() => '<missing>');
+    const graphSize = await page.locator('#graph-size').textContent().catch(() => '<missing>');
+    throw new Error(
+      `WASM_READY_BLOCKED:state=${wasmState};graph=${graphSize};console=${consoleErrors.join(' | ') || '<none>'};cause=${error instanceof Error ? error.message : String(error)}`
+    );
+  }
   await page.waitForFunction(() => Number.parseInt(document.querySelector('#graph-size')?.textContent ?? '0', 10) > 0);
 
   const modeButtons = page.locator('#modes button');
