@@ -5,15 +5,13 @@ tip=43d6301bb (pytest+lock; prior 7bb443e99)
 path=perimeter → .ttl/.toml → ggen+Taffy AOT → igniter clean-room → zcode POWL/OCEL
 path_crown=PARTIAL (non-ALIVE)
 foundry=BLOCKED_HITL foundry_exit=1 (no Foundry ALIVE)
-tip7=ALIVE(shui4+uilayout11+brand23+taffy7) ≠ path_crown_ALIVE ≠ Foundry_ALIVE
+gate1_live_tip=ALIVE_45 (shui4+uilayout11+taffy7+brand23) ≠ path_crown_ALIVE ≠ Foundry_ALIVE
+vw_live_tip=ALIVE_11 ≠ Foundry_ALIVE
 igniter_hop=ALIVE EXIT0 @b5a15528 ≠ path_crown_ALIVE ≠ Foundry_ALIVE
-construct=ALIVE@45086131007 (full job EXIT0 on tip 43d6301bb; ≠ Foundry ALIVE)
-ia_portable=ALIVE tip-wins (#956; source fileURLToPath; refuse-grep green)
-cos=503_DB_UNAVAILABLE healthz=200
-revops=NXDOMAIN
-side=cursor/v2711-construct-pytest-retip-bc54
-agent=bc-c5848e85-7857-4989-9a23-d4416c85bc54
-```
+construct=ALIVE@45093580438 (tip d6c04b390 EXIT0; tip-wins 99514910c; ≠ Foundry ALIVE)
+r02=CLOSED r03=PARTIAL r06=CLOSED
+--live=BLOCKED_HITL
+
 
 | Field | Value |
 |-------|-------|
@@ -21,12 +19,12 @@ agent=bc-c5848e85-7857-4989-9a23-d4416c85bc54
 | Branch | `cursor/v2711-construct-pytest-retip-bc54` |
 | Spec binding | `ECOSYSTEM-SPEC-27.1.1` §13.1 hop chain |
 | Companions | [`PHOTOLITHOGRAPHY-STANDING.md`](./PHOTOLITHOGRAPHY-STANDING.md); [`PERIMETER-TTL-TOML-PATH-STANDING.md`](./PERIMETER-TTL-TOML-PATH-STANDING.md); [`SHUI-PUBLIC-PREFIX-ALIVE-STANDING.md`](./SHUI-PUBLIC-PREFIX-ALIVE-STANDING.md); [`TAFFY-AOT-PREFLIGHT-STANDING.md`](./TAFFY-AOT-PREFLIGHT-STANDING.md); [`IGNITER-CLEANROOM-STANDING.md`](./IGNITER-CLEANROOM-STANDING.md); [`ZCODE-POWL-PATH-STANDING.md`](./ZCODE-POWL-PATH-STANDING.md); [`FOUNDRY-HITL-ACTION-CARD.md`](./FOUNDRY-HITL-ACTION-CARD.md); [`GATE1-REMAINING-FALSIFIERS.md`](./GATE1-REMAINING-FALSIFIERS.md); [`INTERVIEW-ASSIST-PORTABLE-PATH-STANDING.md`](./INTERVIEW-ASSIST-PORTABLE-PATH-STANDING.md) |
-| Observed crown tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` tip-wins absorb of #956 (Construct **ALIVE** @ `45086131007` on subject `43d6301bb`; IA portable + honesty) |
+| Observed crown tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ **`99514910c`** (Construct tip **ALIVE** @ [`45093580438`](https://github.com/seanchatmangpt/ggen/actions/runs/45093580438) on `d6c04b390`; Gate1 live-tip **45**/EXIT:**0**; R-02 CLOSED; R-03 PARTIAL) |
 | Agent | `bc-c5848e85-7857-4989-9a23-d4416c85bc54` |
 | UTC | `2026-11-23T00:22Z` |
 | Cargo | **NOT RUN** this retip (Construct CI is the admitted Construct verifier; Gate1 tip7 sealed; Foundry `--live` **exit 1** held) |
 | Cheap probe | Construct run `45086131007` **success** (all steps incl. IA ladder + refuse workstation paths); igniter EXIT **0**; cos `/readyz` **503**; revops **NXDOMAIN**; Foundry `--live` **foundry_exit=1** |
-| Status | LEDGER — Construct **ALIVE** @ `45086131007` ≠ Foundry **ALIVE**; shui/Taffy/uilayout/brand/igniter **ALIVE**; hop-5 **PARTIAL** / Foundry **BLOCKED_HITL**; path crown **PARTIAL** / **non-ALIVE**; **never invent Foundry `ALIVE`** |
+| Status | LEDGER — Construct tip **ALIVE** @ `45093580438` ≠ Foundry **ALIVE**; Gate1 live-tip **45**/EXIT:**0**; hop-5 **PARTIAL** / Foundry **BLOCKED_HITL**; path crown **PARTIAL** / **non-ALIVE**; **never invent Foundry `ALIVE`** |
 
 Standing vocabulary: `UNKNOWN` | `PARTIAL` | `PARTIAL_ALIVE` | `ALIVE` | `BLOCKED` | `BLOCKED_HITL` | `BUILD_BROKEN` | `UNSUPPORTED` | `REFUSED_*`.
 
