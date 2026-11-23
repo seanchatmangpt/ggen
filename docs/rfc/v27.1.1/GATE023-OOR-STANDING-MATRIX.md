@@ -263,6 +263,10 @@ Tip absorb of this land. Cloned `seanchatmangpt/fnox`; pinned cause of live `/re
 
 Cloned `seanchatmangpt/revops` + re-read fnox GTM (`JOBS-LOCK-NOV21-RUNBOOK.md`): `revops.fnox.io` is **MISSING** (`infra/gcp/revops` absent); do **not** publish/CTA there; RevOps *function* host of record is **`cos.fnox.io` only**. Prior G2-1 **UNKNOWN**/“restore DNS” framing **superseded** → **UNSUPPORTED**. DNS empty reconfirmed (`dig +short` empty; cos/arcus/smalt resolve). Plane-5 ladder corrected: G2-2 cos readiness → AS-01 on cos (not invent revops DNS). Foundry **BLOCKED_HITL** held. Detail: [`REVOPS-HOST-MISSING-STANDING.md`](./REVOPS-HOST-MISSING-STANDING.md).
 
+## Retip32 (2026-11-22 4:45:00 PM PST) — OOR ledger honesty sync
+
+Synced [`OUT-OF-REPO-NEXT-VERIFIERS.md`](./OUT-OF-REPO-NEXT-VERIFIERS.md) to tip evidence: G2-1 **UNSUPPORTED** (MISSING); G2-2/G0-2 Founder AND-gate; G2-5 ladder drops invent-revops-DNS; G2-11 **ALIVE** (CI consume `45073805083`); G3-4 **BLOCKED**. Foundry **BLOCKED_HITL** / WebAuthn **UNSUPPORTED** / V8 **BLOCKED** held. Live re-probe: cos healthz **200** / readyz **503**; foundry_exit=1 model access.
+
 ## Retip31 (2026-11-22 4:40:00 PM PST) — cos operator AND-gate (false-DB_UNAVAILABLE)
 
 Refined cos pin from fnox L10 + `OPERATOR-AND-GATE-readyz.md`: live `/readyz` **503** can be **false-`DB_UNAVAILABLE`** after **SELECT 1 OK** when CREATE `schema_migrations` runs under `fnox_cos_app`. On-disk fix `skip_table_creation: true` must be on live revision. Operator sequence **billing hold `018FD7…` → JWKS → cos-migrate → redeploy → readyz 200**. Agents must not clear billing. Foundry **BLOCKED_HITL** / revops host **UNSUPPORTED** held. Detail: [`COS-DB-UNAVAILABLE-NEXT-VERIFIER-STANDING.md`](./COS-DB-UNAVAILABLE-NEXT-VERIFIER-STANDING.md).
