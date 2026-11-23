@@ -46,7 +46,7 @@ cargo test -p ggen-graph --test r01_r07_resolution_court
 |----|---------------|---------|-----------------------------------------------|--------------|
 | R-01 | **ADMITTED** | **OPEN** | cos 6 ledger fixes + eliminate `--seed 7` race + 2× LOW-only skeptic waves ([`COS-DB-UNAVAILABLE-NEXT-VERIFIER-STANDING.md`](./COS-DB-UNAVAILABLE-NEXT-VERIFIER-STANDING.md) AND-gate first) | Founder HITL / fnox cos |
 | R-02 | **ADMITTED** | **CLOSED** | repop `24a5041e1` / [repop#1](https://github.com/seanchatmangpt/repop/pull/1): court **10**/EXIT:**0** + soak **1**/EXIT:**0** (250k×128 B through `allocFixedWorkerArena`; peak ≤ 32 MiB; grow refused). Honesty: synthetic row pressure (no product FFB ingest on disk). ≠ Foundry ALIVE | sealed (repop) |
-| R-03 | **ADMITTED** | **OPEN** | repop tip `92ea8af68`: WebTransport/`h3`/`aoq/1`/UDP-443 **ABSENT** (deferred E9 prose only). Nearby: cgap `aq/1` ≠ `aoq/1`; smalt docs ≠ wire. Exact next: pin ALPN + Chicago UDP-443 court + drop WebTransport/`h3` dependency ([R-03 WebTransport probe](bc-b77c4702-1449-546a-b6ca-3ba0e99edcc3)) | UI-plane / FFB / cgap owner |
+| R-03 | **ADMITTED** | **OPEN** (PARTIAL) | Native Quinn ALPN **`aoq/1`** pinned + court **5**/EXIT:**0** @ cgap `c525c7a4f` / [cgap#2](https://github.com/seanchatmangpt/cgap/pull/2). UDP-443 **BLOCKED** (PermissionDenied). WebTransport/`h3` edge still deferred. Exact next: privileged UDP-443 court ([R-03 ALPN aoq/1 court](bc-f4417b0a-1e35-559a-9ba5-2261573c1883)) | cgap / UI-plane |
 | R-04 | **ADMITTED** | **OPEN** (PARTIAL) | SessionActor **PRESENT** (`ash_a2a` `:gen_statem`); WebCrypto `extractable:false` / IndexedDB / channel-bind **ABSENT** in repop/FFB. Exact next: chromium court bind→verify→zero-cookie reconnect ([R-04 WebCrypto probe](bc-28d585dc-9cf5-56d2-a1f2-92c1d5724d22)) | UI-plane / FFB / ash_a2a owner |
 | R-05 | **ADMITTED** | **OPEN** (PARTIAL) | Main `563eb32`: BLAKE3 `pqc_seal[248]` stand-in only. Stack tip `99412a7` ([affidavit#154](https://github.com/seanchatmangpt/affidavit/pull/154)): `aod_refusal_court` **16**/EXIT:**0** (includes `e50c_pqc_seal` + `e509` stride + `e50d` lease) — **≠ main CLOSED**. Exact next: merge `#154` stack → `main`, then reconfirm `cargo test --test aod_refusal_court` → **0** on main | Affidavit / Founder HITL merge |
 | R-06 | **ADMITTED** | **CLOSED** | Evidence: zcode commits `0cff19a`/`7b2c181` **PRESENT**; `bun test test/powl-ocel-chicago.test.ts` → **11**/EXIT:**0** @ `f32df08`; `DEFAULT_MAX_REMEDIATION_ATTEMPTS=3` | sealed (zcode-cli) |
@@ -71,18 +71,19 @@ fixed `initial === maximum` + 250k-row-equivalent soak under 32 MiB.
 | Load honesty | Synthetic 250_000×128 B through real arena; product FFB ingest **ABSENT** on disk — still closes R-02 arena/OOM risk |
 | ≠ Foundry / zero-HITL / path crown ALIVE | held |
 
-### R-03 (repop / cgap / smalt) — **OPEN**
+### R-03 (cgap native Quinn) — PARTIAL; closure **OPEN**
 
-Independent probe ([R-03 WebTransport probe](bc-b77c4702-1449-546a-b6ca-3ba0e99edcc3)): risk surface
-(WebTransport `h3` edge-proxy → native `ALPN: aoq/1` + UDP-443) **ABSENT** in
-repop — deferred E9 prose only; no court. Do **not** invent CLOSED.
+[R-03 ALPN aoq/1 court](bc-f4417b0a-1e35-559a-9ba5-2261573c1883) + independent reconfirm: ALPN risk-body
+string locked on native Quinn; UDP-443 typed BLOCKED; WebTransport/`h3` not invented.
+Do **not** invent CLOSED.
 
 | Probe | Result |
 |-------|--------|
-| repop tip | `92ea8af68` — zero `ALPN`/`aoq/1`/`UDP-443`/`edge-proxy` hits; uplink = Null/PostMessage/Ring only |
-| cgap (nearby) | `aq/1` + ephemeral UDP — **≠** `aoq/1` / UDP-443 / WebTransport |
-| smalt (nearby) | docs claim `aoq/1`; wraps cgap — docs ≠ wire |
-| Exact next | Pin ALPN id → Chicago UDP-443 court (mutate-ALPN refuse) → assert no WebTransport/`h3` edge path |
+| cgap tip | `c525c7a4f` / [cgap#2](https://github.com/seanchatmangpt/cgap/pull/2) — `AOQ_ALPN = b"aoq/1"` |
+| `cargo test -p cgap-beam --features quic --test aoq_alpn_native_court` | **5**/EXIT:**0** (this lane) |
+| UDP-443 | **BLOCKED** `PermissionDenied` (unprivileged) |
+| WebTransport/`h3` edge | still deferred E9 — **OPEN** |
+| Exact next | Privileged/`CAP_NET_BIND_SERVICE` UDP-443 listen+connect court → LOCKED |
 
 ### R-04 (FFB Auth / SessionActor) — PARTIAL; closure **OPEN**
 
@@ -130,7 +131,7 @@ R-05=ADMITTED_OPEN (main PARTIAL; #154 tip 99412a7 refusal16+pqc6 EXIT0 ≠ main
 R-06=CLOSED (0cff19a+7b2c181; chicago 11/EXIT0)
 R-01+R-07=ADMITTED_OPEN
 R-02=CLOSED (repop@24a5041e1 court10+soak1 EXIT0; synthetic≠product-FFB; ≠Foundry)
-R-03=ADMITTED_OPEN (repop ABSENT; cgap aq/1≠aoq/1; no court)
+R-03=ADMITTED_OPEN_PARTIAL (cgap#2 aoq/1 court5 EXIT0; UDP-443 BLOCKED; WT/h3 OPEN)
 R-04=ADMITTED_OPEN_PARTIAL (SessionActor PRESENT; WebCrypto bind ABSENT)
 contract_fence=ALIVE
 ungrounded_closed=REFUSED_UNGROUNDED
