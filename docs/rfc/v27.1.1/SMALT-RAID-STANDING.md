@@ -408,3 +408,17 @@ invented; no cargo; no ManagePullRequest. See §6d.
 | rates | **7**/EXIT:**0** |
 
 Logs: `/tmp/smalt-treasury2.log`, `/tmp/smalt-b4b3.log`. ≠ Foundry.
+
+## Retip — 4-cloud column replay (2026-11-22 4:10 PM PST)
+
+| Column | Result |
+|--------|--------|
+| Doctor | EXIT **0** (prior) |
+| AWS `mix test test/aws` | **36**/EXIT:**0** (`/tmp/smalt-aws.log`) |
+| GCP `mix test test/gcp` | **70**/EXIT:**0** |
+| Azure `mix test test/data_plane test/internal` | **TIMEOUT**/exit **124** (httpc econnrefused to local substrate mid-suite) — **PARTIAL** this env |
+| Twilio `mix test test/twilio` | **9**/EXIT:**0** |
+| FinOps | **19**/EXIT:**0** held |
+| b4b | treasury/tax/erp/rates **8+8+8+7**/EXIT:**0** held |
+
+4-cloud aggregate this env: **PARTIAL_ALIVE** (Azure timeout ≠ demote prior ALIVE lineage @ `875efbb87`). ≠ Foundry / path / zero-HITL `ALIVE`.
