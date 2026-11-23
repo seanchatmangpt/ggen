@@ -275,7 +275,7 @@ receipt or typed refusal before GA 2027-01-01.
 | R-02 | **ADMITTED** (FFB Web Worker SAB arena) | **OPEN** | Lock `SharedArrayBuffer` `initial === maximum` |
 | R-03 | **ADMITTED** (FFB Transport WebTransport/QUIC) | **OPEN** | Align `h3` edge-proxy to `ALPN: aoq/1` + UDP-443 |
 | R-04 | **ADMITTED** (FFB Auth WebCrypto channel-bind) | **OPEN** | Non-extractable WebCrypto ↔ SessionActor |
-| R-05 | **ADMITTED** (Affidavit ML-DSA / PQC seal stride) | **CLOSED** | Evidence: `AOD_PQC_SEAL_LEN=248` + lease/stride aod courts **15**/EXIT:**0** @ affidavit `563eb32` (`cd affidavit-core && cargo test --lib aod::`) |
+| R-05 | **ADMITTED** (Affidavit ML-DSA / PQC seal stride) | **OPEN** (PARTIAL surface) | Main `AOD_PQC_SEAL_LEN=248` is BLAKE3 stand-in; aod **15**/EXIT:**0** ≠ ML-DSA-65/FFOR lock. Next: land affidavit `#154` (`aod_refusal_court` / `pqc_seal`) → EXIT **0** |
 | R-06 | **ADMITTED** (`zcode-cli` bounded remediation) | **CLOSED** | Evidence: commits `0cff19a`/`7b2c181` + `bun test test/powl-ocel-chicago.test.ts` → **11**/EXIT:**0** @ zcode `f32df08` |
 | R-07 | **ADMITTED** (Billing rails / hold `018FD7…`) | **OPEN** | Clear GCP billing hold; stand up Stripe/Mercury/Brex rails |
 

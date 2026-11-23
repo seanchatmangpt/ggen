@@ -7,7 +7,7 @@
 | Observed tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` ⊇ body-admit land |
 | Admitted register | [`fixtures/r01-r07-sovereign-risk-register.md`](./fixtures/r01-r07-sovereign-risk-register.md) (verbatim zcode-cli ecospec §4 @ `f32df08cdc4b3b8e114a8d1de8cf81acb80e1f3a`) |
 | Contract tip-cargo | **ALIVE** — `r01_r07_resolution_court` (ungrounded fence + admit mount) |
-| Bodies | **ADMITTED** (all seven); closure **CLOSED** for **R-05** + **R-06**; **OPEN** for R-01…R-04, R-07 |
+| Bodies | **ADMITTED** (all seven); closure **CLOSED** for **R-06** only; **OPEN** for R-01…R-05, R-07 (R-05 aod surface PARTIAL ≠ CLOSED) |
 | Target GA | **2027-01-01** |
 | Repo scope | `seanchatmangpt/ggen` — bodies multi-repo; contract + mount in-repo |
 
@@ -48,7 +48,7 @@ cargo test -p ggen-graph --test r01_r07_resolution_court
 | R-02 | **ADMITTED** | **OPEN** | Lock FFB `SharedArrayBuffer` `initial === maximum` before 250k-row mobile OOM | UI-plane / FFB owner |
 | R-03 | **ADMITTED** | **OPEN** | Align WebTransport `h3` edge-proxy → native `ALPN: aoq/1` + UDP-443 | UI-plane / FFB owner |
 | R-04 | **ADMITTED** | **OPEN** | Non-extractable WebCrypto channel-bind ↔ `:gen_statem` SessionActor | UI-plane / FFB owner |
-| R-05 | **ADMITTED** | **CLOSED** | Evidence: `AOD_PQC_SEAL_LEN=248` (`AodShadow.pqc_seal`); `expected_byte_length` + lease burn live-gate; `cargo test --lib aod::` in `affidavit-core` → **15**/EXIT:**0** @ `563eb32` | sealed (affidavit) |
+| R-05 | **ADMITTED** | **OPEN** (PARTIAL) | Main `pqc_seal[248]` = BLAKE3 stand-in (≠ ML-DSA-65 3309 B); FFOR + detached PQC trailer on unmerged `#154`. Replay aod surface (non-substitute): `cd affidavit-core && cargo test --lib aod::` → **15**/EXIT:**0** @ `563eb32`. Exact next: land `#154` then `cargo test --test aod_refusal_court` → **0** | Affidavit / Founder HITL merge |
 | R-06 | **ADMITTED** | **CLOSED** | Evidence: zcode commits `0cff19a`/`7b2c181` **PRESENT**; `bun test test/powl-ocel-chicago.test.ts` → **11**/EXIT:**0** @ `f32df08`; `DEFAULT_MAX_REMEDIATION_ATTEMPTS=3` | sealed (zcode-cli) |
 | R-07 | **ADMITTED** | **OPEN** | Clear GCP billing hold `018FD7-382078-0D52EF`; stand up Stripe Billing + Mercury/Brex | Founder HITL / billing |
 
@@ -57,19 +57,23 @@ without admitted body → `REFUSED_UNGROUNDED`.
 
 ---
 
-## 3. CLOSED receipts (evidence)
+## 3. CLOSED / PARTIAL receipts (evidence)
 
-### R-05 (affidavit)
+### R-05 (affidavit) — PARTIAL surface; closure **OPEN**
+
+Independent probe ([R-05 affidavit stride probe](bc-765cfa69-642a-51b1-9007-b361b7502805)): main tip
+`563eb322a` locks fixed-stride + BLAKE3 `pqc_seal[248]` stand-in only. `ML_DSA_65_SIG_LEN=3309`
+exists in `sealed.rs` but is **not** wired into main `.aod` seal. FFOR / detached
+`pk‖sig` trailer live on unmerged `#154` — **do not invent R-05 CLOSED**.
 
 | Probe | Result |
 |-------|--------|
 | Tip | `affidavit@563eb32` |
-| `AOD_PQC_SEAL_LEN` | **248** (`affidavit-core/src/aod/layout.rs`) |
-| Shadow layout court | `shadow_len_is_352` (32+8+32+32+248) |
-| Lease + fixed-stride | `seal_live_witness_round_trip`, `mutation_court_*`, live `expected_byte_length`, refuse `0xE509` |
-| `cd affidavit-core && cargo test --lib aod::` | **15 pass / EXIT 0** |
+| `AOD_PQC_SEAL_LEN` | **248** (BLAKE3 commitment stand-in) |
+| `cd affidavit-core && cargo test --lib aod::` | **15 pass / EXIT 0** (surface ≠ contract close) |
+| Exact next | Land `#154` → `cargo test --test aod_refusal_court` → **0** |
 
-### R-06 (zcode-cli)
+### R-06 (zcode-cli) — **CLOSED**
 
 | Probe | Result |
 |-------|--------|
@@ -86,9 +90,10 @@ without admitted body → `REFUSED_UNGROUNDED`.
 ```text
 bodies=ADMITTED@fixtures/r01-r07-sovereign-risk-register.md
 provenance=zcode-cli@f32df08 §4
-R-05=CLOSED (affidavit@563eb32; AOD_PQC_SEAL_LEN=248; aod::15/EXIT0)
+R-05=ADMITTED_OPEN (PARTIAL aod surface; #154 required for CLOSED)
 R-06=CLOSED (0cff19a+7b2c181; chicago 11/EXIT0)
 R-01..R-04+R-07=ADMITTED_OPEN
+R-02=OPEN (repop: no initial===maximum court)
 contract_fence=ALIVE
 ungrounded_closed=REFUSED_UNGROUNDED
 Foundry=not_ALIVE

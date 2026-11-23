@@ -95,17 +95,18 @@ pub fn resolve_closure(
 /// Current body standing for a known R-* ID.
 ///
 /// Bodies are admitted from [`ADMITTED_RISK_REGISTER_REL`].
-/// - **R-05 Closed**: affidavit `AOD_PQC_SEAL_LEN=248` + lease/stride aod courts
-///   **15**/EXIT:**0** @ `563eb32` (`cargo test --lib aod::` in `affidavit-core`).
 /// - **R-06 Closed**: zcode commits `0cff19a`/`7b2c181` + Chicago
 ///   `powl-ocel-chicago` **11**/EXIT:**0** @ `f32df08`.
+/// - **R-05** stays [`RiskBodyStanding::AdmittedOpen`]: main `AOD_PQC_SEAL_LEN=248`
+///   is a BLAKE3 stand-in; ML-DSA-65 / FFOR / detached Epoch Lease lock is on
+///   unmerged affidavit `#154` — aod lib **15**/EXIT:**0** ≠ R-05 CLOSED.
 /// Other IDs remain [`RiskBodyStanding::AdmittedOpen`].
 pub fn current_body_standing(risk_id: &str) -> Result<RiskBodyStanding, ResolutionRefusal> {
     if !is_known_risk_id(risk_id) {
         return Err(ResolutionRefusal::UnknownId(risk_id.to_string()));
     }
     Ok(match risk_id {
-        "R-05" | "R-06" => RiskBodyStanding::Closed,
+        "R-06" => RiskBodyStanding::Closed,
         _ => RiskBodyStanding::AdmittedOpen,
     })
 }

@@ -61,26 +61,22 @@ fn closed_without_admitted_body_is_refused_ungrounded_for_every_r() {
 }
 
 #[test]
-fn admitted_bodies_open_except_closed_ids() {
-    // Arrange / Act / Assert — register admits all; R-05 + R-06 closed
+fn admitted_bodies_open_except_r06_closed() {
+    // Arrange / Act / Assert — register admits all; only R-06 closed
+    // (R-05 aod 15/EXIT0 is PARTIAL surface — BLAKE3 stand-in ≠ ML-DSA lock)
     for id in RISK_IDS {
         resolve_closure(id, ClosureClaim::Open, true).expect("open must be ok");
         let standing = current_body_standing(id).expect("known id");
-        if id == "R-05" || id == "R-06" {
+        if id == "R-06" {
             assert_eq!(standing, RiskBodyStanding::Closed);
-            let evidence = if id == "R-05" {
-                "affidavit@563eb32;AOD_PQC_SEAL_LEN=248;aod::lib:15/EXIT0"
-            } else {
-                "zcode-cli@0cff19a+7b2c181;powl-ocel-chicago:11/EXIT0"
-            };
             resolve_closure(
                 id,
                 ClosureClaim::Closed {
-                    evidence: evidence.into(),
+                    evidence: "zcode-cli@0cff19a+7b2c181;powl-ocel-chicago:11/EXIT0".into(),
                 },
                 true,
             )
-            .expect("closed with admitted body");
+            .expect("R-06 closed with admitted body");
         } else {
             assert_eq!(standing, RiskBodyStanding::AdmittedOpen);
         }
@@ -165,7 +161,7 @@ fn ecosystem_spec_pins_resolution_contract_and_refused_ungrounded() {
 }
 
 #[test]
-fn standing_doc_records_admitted_bodies_and_closed_ids() {
+fn standing_doc_records_admitted_bodies_and_r06_closed() {
     // Arrange — real standing companion on disk
     let path = workspace_root().join("docs/rfc/v27.1.1/R01-R07-STANDING.md");
     let text = std::fs::read_to_string(&path).unwrap_or_else(|e| panic!("read {path:?}: {e}"));
@@ -193,12 +189,15 @@ fn standing_doc_records_admitted_bodies_and_closed_ids() {
         "standing doc must record the in-repo resolution-contract fence as PARTIAL_ALIVE"
     );
     assert!(
-        text.contains("| **CLOSED** |"),
-        "standing doc must mark closed body rows with **CLOSED**"
+        text.contains("R-06") && (text.contains("**CLOSED**") || text.contains("| **CLOSED** |")),
+        "standing doc must mark R-06 body CLOSED with evidence"
     );
     assert!(
-        text.contains("R-05") && text.contains("R-06"),
-        "standing doc must list R-05 and R-06"
+        text.contains("R-05")
+            && (text.contains("ADMITTED_OPEN")
+                || text.contains("**ADMITTED**")
+                || text.contains("PARTIAL")),
+        "standing doc must keep R-05 ADMITTED/open (aod surface ≠ CLOSED)"
     );
     assert!(
         text.contains("AdmittedOpen")
