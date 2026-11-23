@@ -48,7 +48,7 @@ cargo test -p ggen-graph --test r01_r07_resolution_court
 | R-02 | **ADMITTED** | **CLOSED** | repop `24a5041e1` / [repop#1](https://github.com/seanchatmangpt/repop/pull/1): court **10**/EXIT:**0** + soak **1**/EXIT:**0** (250k×128 B through `allocFixedWorkerArena`; peak ≤ 32 MiB; grow refused). Honesty: synthetic row pressure (no product FFB ingest on disk). ≠ Foundry ALIVE | sealed (repop) |
 | R-03 | **ADMITTED** | **OPEN** (PARTIAL) | Native Quinn ALPN **`aoq/1`** pinned + court **5**/EXIT:**0** @ cgap `c525c7a4f` / [cgap#2](https://github.com/seanchatmangpt/cgap/pull/2). UDP-443 **BLOCKED** (PermissionDenied). WebTransport/`h3` edge still deferred. Exact next: privileged UDP-443 court ([R-03 ALPN aoq/1 court](bc-f4417b0a-1e35-559a-9ba5-2261573c1883)) | cgap / UI-plane |
 | R-04 | **ADMITTED** | **OPEN** (PARTIAL) | SessionActor **PRESENT** (`ash_a2a` `:gen_statem`); WebCrypto `extractable:false` / IndexedDB / channel-bind **ABSENT** in repop/FFB. Exact next: chromium court bind→verify→zero-cookie reconnect ([R-04 WebCrypto probe](bc-28d585dc-9cf5-56d2-a1f2-92c1d5724d22)) | UI-plane / FFB / ash_a2a owner |
-| R-05 | **ADMITTED** | **OPEN** (PARTIAL) | Main `563eb32`: BLAKE3 `pqc_seal[248]` stand-in only. Stack tip `99412a7` ([affidavit#154](https://github.com/seanchatmangpt/affidavit/pull/154)): `aod_refusal_court` **16**/EXIT:**0** (includes `e50c_pqc_seal` + `e509` stride + `e50d` lease) — **≠ main CLOSED**. Exact next: merge `#154` stack → `main`, then reconfirm `cargo test --test aod_refusal_court` → **0** on main | Affidavit / Founder HITL merge |
+| R-05 | **ADMITTED** | **OPEN** (PARTIAL) | Main `563eb32`: BLAKE3 `pqc_seal[248]` stand-in only. Stack tip `99412a7` ([affidavit#154](https://github.com/seanchatmangpt/affidavit/pull/154), base `cursor/pqc-context-string-seal-ffa4` @ `4de0dbb` — **behind main by 7**, no open parent PR): `aod_refusal_court` **16**/EXIT:**0** — **≠ main CLOSED**. `#154` vs main: **diverged** (ahead 37 / behind 4; MERGEABLE checks green). Exact next: Founder HITL retarget/rebase `#154` → `main`, merge, then `cargo test --test aod_refusal_court` → **0** on main | Affidavit / Founder HITL merge |
 | R-06 | **ADMITTED** | **CLOSED** | Evidence: zcode commits `0cff19a`/`7b2c181` **PRESENT**; `bun test test/powl-ocel-chicago.test.ts` → **11**/EXIT:**0** @ `f32df08`; `DEFAULT_MAX_REMEDIATION_ATTEMPTS=3` | sealed (zcode-cli) |
 | R-07 | **ADMITTED** | **OPEN** | Clear GCP billing hold `018FD7-382078-0D52EF`; stand up Stripe Billing + Mercury/Brex | Founder HITL / billing |
 
@@ -101,14 +101,16 @@ Do **not** invent CLOSED from SESS courts alone.
 
 Independent probe ([R-05 affidavit stride probe](bc-765cfa69-642a-51b1-9007-b361b7502805)): main tip
 `563eb322a` = BLAKE3 `pqc_seal[248]` stand-in only. Stack tip `99412a7`
-([affidavit#154](https://github.com/seanchatmangpt/affidavit/pull/154), base not yet
-`main`): refusal + PQC seal courts green — still **≠** main CLOSED.
+([affidavit#154](https://github.com/seanchatmangpt/affidavit/pull/154), base
+`cursor/pqc-context-string-seal-ffa4` @ `4de0dbb` — **behind main by 7**, no open
+parent PR; tip vs main **diverged** ahead 37 / behind 4; CI MERGEABLE green):
+refusal + PQC seal courts green — still **≠** main CLOSED.
 
 | Probe | Result |
 |-------|--------|
 | Main tip | `563eb32` — BLAKE3 stand-in; aod lib **15**/EXIT:**0** |
 | Stack tip `#154` | `99412a7` — `aod_refusal_court` **16**/EXIT:**0**; `aod::pqc_seal` **6**/EXIT:**0** |
-| Exact next | Merge `#154` stack → `main`; reconfirm both courts on main → **0** |
+| Exact next | Founder HITL: retarget/rebase `#154` → `main`, merge; reconfirm both courts on main → **0** |
 
 ### R-06 (zcode-cli) — **CLOSED**
 

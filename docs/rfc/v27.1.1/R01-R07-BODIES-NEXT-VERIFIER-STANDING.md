@@ -15,7 +15,7 @@ Standing vocabulary: `UNKNOWN` | `PARTIAL_ALIVE` | `ALIVE` | `BLOCKED` | `UNSUPP
 | Claim | Standing | Evidence |
 |-------|----------|----------|
 | Sovereign risk-register mount | **ADMITTED** | Fixture mount + provenance |
-| R-01, R-03…R-05, R-07 body closure | **OPEN** (`AdmittedOpen`) | R-02 **CLOSED**. R-03 **PARTIAL** [cgap#2](https://github.com/seanchatmangpt/cgap/pull/2) `aoq/1` court**5**/EXIT:**0** — next UDP-443 privileged. R-04: chromium WebCrypto↔SessionActor bind. R-05: `#154` → main. Others: Mandatory Resolution Contract |
+| R-01, R-03…R-05, R-07 body closure | **OPEN** (`AdmittedOpen`) | R-02 **CLOSED**. R-03 **PARTIAL** [cgap#2](https://github.com/seanchatmangpt/cgap/pull/2) `aoq/1` court**5**/EXIT:**0** — next UDP-443 privileged. R-04: chromium WebCrypto↔SessionActor bind ([agent](bc-9589ff95-17ad-5fb8-b804-89725457e51e) RUNNING). R-05: [affidavit#154](https://github.com/seanchatmangpt/affidavit/pull/154) retarget/rebase → main (base branch behind; diverged). Others: Mandatory Resolution Contract |
 | R-06 body closure | **CLOSED** | `0cff19a`/`7b2c181` + chicago **11**/EXIT:**0** |
 | Ungrounded “closed” | **REFUSED_UNGROUNDED** | `resolve_closure(..., false)` |
 | Contract fence | tip-cargo **ALIVE** | `r01_r07_resolution_court` |
