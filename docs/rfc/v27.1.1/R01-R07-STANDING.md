@@ -47,7 +47,7 @@ cargo test -p ggen-graph --test r01_r07_resolution_court
 | R-01 | **ADMITTED** | **OPEN** | cos 6 ledger fixes + eliminate `--seed 7` race + 2× LOW-only skeptic waves ([`COS-DB-UNAVAILABLE-NEXT-VERIFIER-STANDING.md`](./COS-DB-UNAVAILABLE-NEXT-VERIFIER-STANDING.md) AND-gate first) | Founder HITL / fnox cos |
 | R-02 | **ADMITTED** | **CLOSED** | repop `24a5041e1` / [repop#1](https://github.com/seanchatmangpt/repop/pull/1): court **10**/EXIT:**0** + soak **1**/EXIT:**0** (250k×128 B through `allocFixedWorkerArena`; peak ≤ 32 MiB; grow refused). Honesty: synthetic row pressure (no product FFB ingest on disk). ≠ Foundry ALIVE | sealed (repop) |
 | R-03 | **ADMITTED** | **OPEN** | repop tip `92ea8af68`: WebTransport/`h3`/`aoq/1`/UDP-443 **ABSENT** (deferred E9 prose only). Nearby: cgap `aq/1` ≠ `aoq/1`; smalt docs ≠ wire. Exact next: pin ALPN + Chicago UDP-443 court + drop WebTransport/`h3` dependency ([R-03 WebTransport probe](bc-b77c4702-1449-546a-b6ca-3ba0e99edcc3)) | UI-plane / FFB / cgap owner |
-| R-04 | **ADMITTED** | **OPEN** | Non-extractable WebCrypto channel-bind ↔ `:gen_statem` SessionActor | UI-plane / FFB owner |
+| R-04 | **ADMITTED** | **OPEN** (PARTIAL) | SessionActor **PRESENT** (`ash_a2a` `:gen_statem`); WebCrypto `extractable:false` / IndexedDB / channel-bind **ABSENT** in repop/FFB. Exact next: chromium court bind→verify→zero-cookie reconnect ([R-04 WebCrypto probe](bc-28d585dc-9cf5-56d2-a1f2-92c1d5724d22)) | UI-plane / FFB / ash_a2a owner |
 | R-05 | **ADMITTED** | **OPEN** (PARTIAL) | Main `563eb32`: BLAKE3 `pqc_seal[248]` stand-in only. Stack tip `99412a7` ([affidavit#154](https://github.com/seanchatmangpt/affidavit/pull/154)): `aod_refusal_court` **16**/EXIT:**0** (includes `e50c_pqc_seal` + `e509` stride + `e50d` lease) — **≠ main CLOSED**. Exact next: merge `#154` stack → `main`, then reconfirm `cargo test --test aod_refusal_court` → **0** on main | Affidavit / Founder HITL merge |
 | R-06 | **ADMITTED** | **CLOSED** | Evidence: zcode commits `0cff19a`/`7b2c181` **PRESENT**; `bun test test/powl-ocel-chicago.test.ts` → **11**/EXIT:**0** @ `f32df08`; `DEFAULT_MAX_REMEDIATION_ATTEMPTS=3` | sealed (zcode-cli) |
 | R-07 | **ADMITTED** | **OPEN** | Clear GCP billing hold `018FD7-382078-0D52EF`; stand up Stripe Billing + Mercury/Brex | Founder HITL / billing |
@@ -84,6 +84,18 @@ repop — deferred E9 prose only; no court. Do **not** invent CLOSED.
 | smalt (nearby) | docs claim `aoq/1`; wraps cgap — docs ≠ wire |
 | Exact next | Pin ALPN id → Chicago UDP-443 court (mutate-ALPN refuse) → assert no WebTransport/`h3` edge path |
 
+### R-04 (FFB Auth / SessionActor) — PARTIAL; closure **OPEN**
+
+Independent probe ([R-04 WebCrypto probe](bc-28d585dc-9cf5-56d2-a1f2-92c1d5724d22)): BEAM SessionActor
+exists; non-extractable WebCrypto channel-bind and the bind itself are **ABSENT**.
+Do **not** invent CLOSED from SESS courts alone.
+
+| Probe | Result |
+|-------|--------|
+| `AshA2A.Session.Statem` | **PRESENT** — `:gen_statem` court (SESS) ≠ R-04 bind |
+| WebCrypto / IndexedDB / `extractable:false` / channel-bind | **ABSENT** (repop/zcode/smalt/fnox SIGN≠WebCrypto) |
+| Exact next | Chromium: ECDSA P-256 non-extractable → IDB → refuse export → SessionActor verifies Wi-Fi↔cellular reconnect (zero cookie/token) EXIT **0** |
+
 ### R-05 (affidavit) — PARTIAL; closure **OPEN** on main
 
 Independent probe ([R-05 affidavit stride probe](bc-765cfa69-642a-51b1-9007-b361b7502805)): main tip
@@ -116,9 +128,10 @@ bodies=ADMITTED@fixtures/r01-r07-sovereign-risk-register.md
 provenance=zcode-cli@f32df08 §4
 R-05=ADMITTED_OPEN (main PARTIAL; #154 tip 99412a7 refusal16+pqc6 EXIT0 ≠ main CLOSED)
 R-06=CLOSED (0cff19a+7b2c181; chicago 11/EXIT0)
-R-01+R-04+R-07=ADMITTED_OPEN
+R-01+R-07=ADMITTED_OPEN
 R-02=CLOSED (repop@24a5041e1 court10+soak1 EXIT0; synthetic≠product-FFB; ≠Foundry)
 R-03=ADMITTED_OPEN (repop ABSENT; cgap aq/1≠aoq/1; no court)
+R-04=ADMITTED_OPEN_PARTIAL (SessionActor PRESENT; WebCrypto bind ABSENT)
 contract_fence=ALIVE
 ungrounded_closed=REFUSED_UNGROUNDED
 Foundry=not_ALIVE
