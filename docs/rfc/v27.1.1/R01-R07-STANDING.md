@@ -7,7 +7,7 @@
 | Observed tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` ⊇ body-admit land |
 | Admitted register | [`fixtures/r01-r07-sovereign-risk-register.md`](./fixtures/r01-r07-sovereign-risk-register.md) (verbatim zcode-cli ecospec §4 @ `f32df08cdc4b3b8e114a8d1de8cf81acb80e1f3a`) |
 | Contract tip-cargo | **ALIVE** — `r01_r07_resolution_court` (ungrounded fence + admit mount) |
-| Bodies | **ADMITTED** (all seven); closure **CLOSED** for **R-06** only; **OPEN** for R-01…R-05, R-07 |
+| Bodies | **ADMITTED** (all seven); closure **CLOSED** for **R-05** + **R-06**; **OPEN** for R-01…R-04, R-07 |
 | Target GA | **2027-01-01** |
 | Repo scope | `seanchatmangpt/ggen` — bodies multi-repo; contract + mount in-repo |
 
@@ -48,7 +48,7 @@ cargo test -p ggen-graph --test r01_r07_resolution_court
 | R-02 | **ADMITTED** | **OPEN** | Lock FFB `SharedArrayBuffer` `initial === maximum` before 250k-row mobile OOM | UI-plane / FFB owner |
 | R-03 | **ADMITTED** | **OPEN** | Align WebTransport `h3` edge-proxy → native `ALPN: aoq/1` + UDP-443 | UI-plane / FFB owner |
 | R-04 | **ADMITTED** | **OPEN** | Non-extractable WebCrypto channel-bind ↔ `:gen_statem` SessionActor | UI-plane / FFB owner |
-| R-05 | **ADMITTED** | **OPEN** | Lock Epoch Lease anchor + `expected_byte_length` stride in `#![no_std]` affidavit crate | Affidavit owner |
+| R-05 | **ADMITTED** | **CLOSED** | Evidence: `AOD_PQC_SEAL_LEN=248` (`AodShadow.pqc_seal`); `expected_byte_length` + lease burn live-gate; `cargo test --lib aod::` in `affidavit-core` → **15**/EXIT:**0** @ `563eb32` | sealed (affidavit) |
 | R-06 | **ADMITTED** | **CLOSED** | Evidence: zcode commits `0cff19a`/`7b2c181` **PRESENT**; `bun test test/powl-ocel-chicago.test.ts` → **11**/EXIT:**0** @ `f32df08`; `DEFAULT_MAX_REMEDIATION_ATTEMPTS=3` | sealed (zcode-cli) |
 | R-07 | **ADMITTED** | **OPEN** | Clear GCP billing hold `018FD7-382078-0D52EF`; stand up Stripe Billing + Mercury/Brex | Founder HITL / billing |
 
@@ -57,14 +57,25 @@ without admitted body → `REFUSED_UNGROUNDED`.
 
 ---
 
-## 3. R-06 CLOSED receipt (evidence)
+## 3. CLOSED receipts (evidence)
+
+### R-05 (affidavit)
 
 | Probe | Result |
 |-------|--------|
-| `git -C /agent/repos/zcode-cli cat-file -t 0cff19a` | `commit` |
-| `git -C /agent/repos/zcode-cli cat-file -t 7b2c181` | `commit` |
-| `bun test test/powl-ocel-chicago.test.ts` @ zcode `f32df08` | **11 pass / 0 fail / EXIT 0** |
-| Cap | `DEFAULT_MAX_REMEDIATION_ATTEMPTS = 3` in `ui-layout-court.ts` |
+| Tip | `affidavit@563eb32` |
+| `AOD_PQC_SEAL_LEN` | **248** (`affidavit-core/src/aod/layout.rs`) |
+| Shadow layout court | `shadow_len_is_352` (32+8+32+32+248) |
+| Lease + fixed-stride | `seal_live_witness_round_trip`, `mutation_court_*`, live `expected_byte_length`, refuse `0xE509` |
+| `cd affidavit-core && cargo test --lib aod::` | **15 pass / EXIT 0** |
+
+### R-06 (zcode-cli)
+
+| Probe | Result |
+|-------|--------|
+| `git cat-file -t 0cff19a` / `7b2c181` | `commit` / `commit` |
+| `bun test test/powl-ocel-chicago.test.ts` @ `f32df08` | **11 pass / EXIT 0** |
+| Cap | `DEFAULT_MAX_REMEDIATION_ATTEMPTS = 3` |
 
 **≠** Foundry `--live` ALIVE; **≠** zero-HITL ALIVE; **≠** path crown ALIVE.
 
@@ -75,8 +86,9 @@ without admitted body → `REFUSED_UNGROUNDED`.
 ```text
 bodies=ADMITTED@fixtures/r01-r07-sovereign-risk-register.md
 provenance=zcode-cli@f32df08 §4
+R-05=CLOSED (affidavit@563eb32; AOD_PQC_SEAL_LEN=248; aod::15/EXIT0)
 R-06=CLOSED (0cff19a+7b2c181; chicago 11/EXIT0)
-R-01..R-05+R-07=ADMITTED_OPEN
+R-01..R-04+R-07=ADMITTED_OPEN
 contract_fence=ALIVE
 ungrounded_closed=REFUSED_UNGROUNDED
 Foundry=not_ALIVE

@@ -6,7 +6,7 @@
 | Spec binding | `ECOSYSTEM-SPEC-27.1.1` §11 / D7; OOR **G3-5** / RC-D7 |
 | Companions | [`R01-R07-STANDING.md`](./R01-R07-STANDING.md); [`fixtures/r01-r07-sovereign-risk-register.md`](./fixtures/r01-r07-sovereign-risk-register.md) |
 | Admitted register | Verbatim zcode-cli `docs/ecosystem-spec-27.1.1.md` §4 @ `f32df08cdc4b3b8e114a8d1de8cf81acb80e1f3a` |
-| Status | Bodies **ADMITTED**; **R-06 CLOSED**; R-01…R-05+R-07 **OPEN**; contract fence **ALIVE**; **no** Foundry `ALIVE` |
+| Status | Bodies **ADMITTED**; **R-05**+**R-06 CLOSED**; R-01…R-04+R-07 **OPEN**; contract fence **ALIVE**; **no** Foundry `ALIVE` |
 
 Standing vocabulary: `UNKNOWN` | `PARTIAL_ALIVE` | `ALIVE` | `BLOCKED` | `UNSUPPORTED` | `REFUSED_*`.
 
@@ -15,7 +15,8 @@ Standing vocabulary: `UNKNOWN` | `PARTIAL_ALIVE` | `ALIVE` | `BLOCKED` | `UNSUPP
 | Claim | Standing | Evidence |
 |-------|----------|----------|
 | Sovereign risk-register mount | **ADMITTED** | Fixture mount + provenance |
-| R-01…R-05, R-07 body closure | **OPEN** (`AdmittedOpen`) | Contracts not yet EXIT 0 |
+| R-01…R-04, R-07 body closure | **OPEN** (`AdmittedOpen`) | Contracts not yet EXIT 0 |
+| R-05 body closure | **CLOSED** | affidavit `AOD_PQC_SEAL_LEN=248` + aod **15**/EXIT:**0** @ `563eb32` |
 | R-06 body closure | **CLOSED** | `0cff19a`/`7b2c181` + chicago **11**/EXIT:**0** |
 | Ungrounded “closed” | **REFUSED_UNGROUNDED** | `resolve_closure(..., false)` |
 | Contract fence | tip-cargo **ALIVE** | `r01_r07_resolution_court` |
