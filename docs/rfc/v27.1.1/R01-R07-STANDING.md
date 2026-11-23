@@ -48,7 +48,7 @@ cargo test -p ggen-graph --test r01_r07_resolution_court
 | R-02 | **ADMITTED** | **OPEN** | Lock FFB `SharedArrayBuffer` `initial === maximum` before 250k-row mobile OOM | UI-plane / FFB owner |
 | R-03 | **ADMITTED** | **OPEN** | Align WebTransport `h3` edge-proxy → native `ALPN: aoq/1` + UDP-443 | UI-plane / FFB owner |
 | R-04 | **ADMITTED** | **OPEN** | Non-extractable WebCrypto channel-bind ↔ `:gen_statem` SessionActor | UI-plane / FFB owner |
-| R-05 | **ADMITTED** | **OPEN** (PARTIAL) | Main `pqc_seal[248]` = BLAKE3 stand-in (≠ ML-DSA-65 3309 B); FFOR + detached PQC trailer on unmerged `#154`. Replay aod surface (non-substitute): `cd affidavit-core && cargo test --lib aod::` → **15**/EXIT:**0** @ `563eb32`. Exact next: land `#154` then `cargo test --test aod_refusal_court` → **0** | Affidavit / Founder HITL merge |
+| R-05 | **ADMITTED** | **OPEN** (PARTIAL) | Main `563eb32`: BLAKE3 `pqc_seal[248]` stand-in only. Stack tip `99412a7` ([affidavit#154](https://github.com/seanchatmangpt/affidavit/pull/154)): `aod_refusal_court` **16**/EXIT:**0** (includes `e50c_pqc_seal` + `e509` stride + `e50d` lease) — **≠ main CLOSED**. Exact next: merge `#154` stack → `main`, then reconfirm `cargo test --test aod_refusal_court` → **0** on main | Affidavit / Founder HITL merge |
 | R-06 | **ADMITTED** | **CLOSED** | Evidence: zcode commits `0cff19a`/`7b2c181` **PRESENT**; `bun test test/powl-ocel-chicago.test.ts` → **11**/EXIT:**0** @ `f32df08`; `DEFAULT_MAX_REMEDIATION_ATTEMPTS=3` | sealed (zcode-cli) |
 | R-07 | **ADMITTED** | **OPEN** | Clear GCP billing hold `018FD7-382078-0D52EF`; stand up Stripe Billing + Mercury/Brex | Founder HITL / billing |
 
@@ -59,19 +59,18 @@ without admitted body → `REFUSED_UNGROUNDED`.
 
 ## 3. CLOSED / PARTIAL receipts (evidence)
 
-### R-05 (affidavit) — PARTIAL surface; closure **OPEN**
+### R-05 (affidavit) — PARTIAL; closure **OPEN** on main
 
 Independent probe ([R-05 affidavit stride probe](bc-765cfa69-642a-51b1-9007-b361b7502805)): main tip
-`563eb322a` locks fixed-stride + BLAKE3 `pqc_seal[248]` stand-in only. `ML_DSA_65_SIG_LEN=3309`
-exists in `sealed.rs` but is **not** wired into main `.aod` seal. FFOR / detached
-`pk‖sig` trailer live on unmerged `#154` — **do not invent R-05 CLOSED**.
+`563eb322a` = BLAKE3 `pqc_seal[248]` stand-in only. Stack tip `99412a7`
+([affidavit#154](https://github.com/seanchatmangpt/affidavit/pull/154), base not yet
+`main`): refusal + PQC seal courts green — still **≠** main CLOSED.
 
 | Probe | Result |
 |-------|--------|
-| Tip | `affidavit@563eb32` |
-| `AOD_PQC_SEAL_LEN` | **248** (BLAKE3 commitment stand-in) |
-| `cd affidavit-core && cargo test --lib aod::` | **15 pass / EXIT 0** (surface ≠ contract close) |
-| Exact next | Land `#154` → `cargo test --test aod_refusal_court` → **0** |
+| Main tip | `563eb32` — BLAKE3 stand-in; aod lib **15**/EXIT:**0** |
+| Stack tip `#154` | `99412a7` — `aod_refusal_court` **16**/EXIT:**0**; `aod::pqc_seal` **6**/EXIT:**0** |
+| Exact next | Merge `#154` stack → `main`; reconfirm both courts on main → **0** |
 
 ### R-06 (zcode-cli) — **CLOSED**
 
@@ -90,7 +89,7 @@ exists in `sealed.rs` but is **not** wired into main `.aod` seal. FFOR / detache
 ```text
 bodies=ADMITTED@fixtures/r01-r07-sovereign-risk-register.md
 provenance=zcode-cli@f32df08 §4
-R-05=ADMITTED_OPEN (PARTIAL aod surface; #154 required for CLOSED)
+R-05=ADMITTED_OPEN (main PARTIAL; #154 tip 99412a7 refusal16+pqc6 EXIT0 ≠ main CLOSED)
 R-06=CLOSED (0cff19a+7b2c181; chicago 11/EXIT0)
 R-01..R-04+R-07=ADMITTED_OPEN
 R-02=OPEN (repop: no initial===maximum court)

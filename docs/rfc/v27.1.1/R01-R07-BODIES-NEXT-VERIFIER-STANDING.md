@@ -15,7 +15,7 @@ Standing vocabulary: `UNKNOWN` | `PARTIAL_ALIVE` | `ALIVE` | `BLOCKED` | `UNSUPP
 | Claim | Standing | Evidence |
 |-------|----------|----------|
 | Sovereign risk-register mount | **ADMITTED** | Fixture mount + provenance |
-| R-01…R-05, R-07 body closure | **OPEN** (`AdmittedOpen`) | R-05: land affidavit `#154` then `aod_refusal_court` → **0**; others: Mandatory Resolution Contract |
+| R-01…R-05, R-07 body closure | **OPEN** (`AdmittedOpen`) | R-05: `#154` tip `99412a7` already **16+6**/EXIT:**0** off-main — merge stack → `main` then reconfirm; others: Mandatory Resolution Contract |
 | R-06 body closure | **CLOSED** | `0cff19a`/`7b2c181` + chicago **11**/EXIT:**0** |
 | Ungrounded “closed” | **REFUSED_UNGROUNDED** | `resolve_closure(..., false)` |
 | Contract fence | tip-cargo **ALIVE** | `r01_r07_resolution_court` |
