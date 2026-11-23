@@ -38,7 +38,12 @@ let graphText;
 let diagramSource;
 let settlementQuery;
 try {
-  await initWasm();
+  await Promise.race([
+    initWasm(),
+    new Promise((_, reject) => {
+      setTimeout(() => reject(new Error('INIT_WASM_TIMEOUT')), 45000);
+    })
+  ]);
   [world, capabilityLedger, projectionCatalog, runtimeConfig, governanceSource, rights, graphText, diagramSource, settlementQuery] = await Promise.all([
     loadJson('./world.json'),
     loadJson('./capabilities.json'),

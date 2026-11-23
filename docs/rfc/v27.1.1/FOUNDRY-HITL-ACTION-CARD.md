@@ -1,18 +1,18 @@
 # FOUNDRY-HITL-ACTION-CARD — Founder `--live` action card (v27.1.1)
 
 ```text
-tip_base=d6c04b390 (crown; feature ahead with Gate1+VW live-tip)
-utc=2026-11-23T01:58Z
+tip_base=fe0a8acd6 (crown post tip-wins #958; Construct successor queued)
+utc=2026-11-23T03:10Z
 standing=BLOCKED_HITL
 foundry_exit=1
 aggregateStanding=REFUSED
 detail=Model access is not configured
 provider_config=ABSENT
 keys=ABSENT
-log=/tmp/foundry-live-retip34b.log
-zcode=f32df08 (/home/ubuntu/zcode-cli)
-construct_tip=ALIVE@45091416189 (reconfirm; tip Construct Manufacture in_progress)
-gate1_live_tip=ALIVE_45 (shui+uilayout+taffy+brand)
+log=/tmp/foundry-live.log
+zcode=f32df08 (/agent/repos/zcode-cli)
+construct_tip=ALIVE@45098816614 (prior tip 99514910c); successor 45103837357 queued@fe0a8acd6
+gate1_live_tip=ALIVE_45
 vw_live_tip=ALIVE_11
 foundry_finish=PARTIAL
 spine=PARTIAL (not daily-HITL-free)
