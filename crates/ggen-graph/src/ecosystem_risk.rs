@@ -73,9 +73,7 @@ pub fn is_known_risk_id(id: &str) -> bool {
 /// mounted prose for this ID. Until then, [`ClosureClaim::Closed`] yields
 /// [`ResolutionRefusal::Ungrounded`].
 pub fn resolve_closure(
-    risk_id: &str,
-    claim: ClosureClaim,
-    risk_body_admitted: bool,
+    risk_id: &str, claim: ClosureClaim, risk_body_admitted: bool,
 ) -> Result<(), ResolutionRefusal> {
     if !is_known_risk_id(risk_id) {
         return Err(ResolutionRefusal::UnknownId(risk_id.to_string()));
