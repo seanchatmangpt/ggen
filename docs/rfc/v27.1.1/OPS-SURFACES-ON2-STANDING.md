@@ -154,3 +154,12 @@ Clone `/tmp/smalt-raid` @ `91997da76f0f` (FinOps pin). Elixir **ABSENT** this VM
 
 `just doctor` EXIT **0**; `mix test test/fin_ops_calculator_test.exs` → **19**/EXIT:**0** @ smalt `91997da76f0f` (mise elixir 1.20.5-otp-29). TS FinOps **9**/EXIT:**0** held. Smalt RAID lineage replay **ALIVE** ≠ Foundry/path. Construct **PENDING_CI** on `7bb443e99`.
 
+## Retip — brand hot-swap + VW size tip replay (2026-11-22 4:12 PM PST)
+
+| Subject | Result |
+|---------|--------|
+| `brand_toml_hotswap_court` | **6**/EXIT:**0** (`/tmp/brand-hotswap-replay.log`) |
+| `verify_witness_size_court` | **11**/EXIT:**0**; pin **28673** / SHA `5faae464…` (`/tmp/vw-size-replay.log`) |
+| Construct | **in_progress** build on tip `43d6301bb` (run `45086131007`) |
+
+≠ Foundry / path / zero-HITL `ALIVE`.
