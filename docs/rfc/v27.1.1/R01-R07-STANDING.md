@@ -95,6 +95,8 @@ Do **not** invent CLOSED from SESS courts alone.
 |-------|--------|
 | `AshA2A.Session.Statem` | **PRESENT** — `:gen_statem` court (SESS) ≠ R-04 bind |
 | WebCrypto / IndexedDB / `extractable:false` / channel-bind | **ABSENT** (repop/zcode/smalt/fnox SIGN≠WebCrypto) |
+| Prior court agent | [R-04 WebCrypto bind court](bc-9589ff95-17ad-5fb8-b804-89725457e51e) → **ERROR** `resource_exhausted`; empty transcript; **no** branch/PR — **≠** progress |
+| Relaunch | Fresh ash_a2a court agent after empty exhaustion (see compact return / bodies next-verifier) |
 | Exact next | Chromium: ECDSA P-256 non-extractable → IDB → refuse export → SessionActor verifies Wi-Fi↔cellular reconnect (zero cookie/token) EXIT **0** |
 
 ### R-05 (affidavit) — PARTIAL; closure **OPEN** on main
@@ -134,7 +136,7 @@ R-06=CLOSED (0cff19a+7b2c181; chicago 11/EXIT0)
 R-01+R-07=ADMITTED_OPEN
 R-02=CLOSED (repop@24a5041e1 court10+soak1 EXIT0; synthetic≠product-FFB; ≠Foundry)
 R-03=ADMITTED_OPEN_PARTIAL (cgap#2 aoq/1 court5 EXIT0; UDP-443 BLOCKED; WT/h3 OPEN)
-R-04=ADMITTED_OPEN_PARTIAL (SessionActor PRESENT; WebCrypto bind ABSENT)
+R-04=ADMITTED_OPEN_PARTIAL (SessionActor PRESENT; WebCrypto bind ABSENT; agent bc-9589ff95 ERROR resource_exhausted empty≠progress)
 contract_fence=ALIVE
 ungrounded_closed=REFUSED_UNGROUNDED
 Foundry=not_ALIVE
