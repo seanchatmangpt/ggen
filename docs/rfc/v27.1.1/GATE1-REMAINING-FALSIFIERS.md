@@ -1,11 +1,11 @@
 # Gate1 remaining falsifiers ledger (v27.1.1)
 
 ```text
-crown_tip=7bb443e992486958ad2d2ebff246acf540ba7941
-branch=cursor/v2711-oor-construct-retip-bc54
-utc=2026-11-22T23:13Z
-cargo=tip7 sealed ALIVE (shui4+uilayout11+brand23+taffy7); Construct PENDING_CI
-ManagePullRequest=PR955
+crown_tip=c19ad401d (⊇ Construct ALIVE tip-wins #956)
+branch=cursor/v2711-construct-alive-retip-bc54
+utc=2026-11-23T00:25Z
+cargo=tip7 sealed ALIVE (shui4+uilayout11+brand23+taffy7); Construct ALIVE@45086131007
+ManagePullRequest=PR849
 invented_ALIVE=none
 live_tip_ALIVE_invented=none
 Foundry_ALIVE_invented=none
@@ -13,25 +13,25 @@ Foundry=BLOCKED_HITL
 path_crown=PARTIAL
 tip7_CLOSED_ALIVE=held
 construct_lock_sync=7bb443e99
-construct_full_job=PENDING_CI@45081862735
+construct_full_job=ALIVE@45086131007 (≠ Foundry ALIVE)
 ```
 
 | Field | Value |
 |-------|-------|
 | Document ID | `GATE1-REMAINING-FALSIFIERS` |
-| Observed crown tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ **`7bb443e99`** (⊇ interview-assist lock sync + Gate1 tip7 live-tip ALIVE + Construct receipt-exclude + G2-11 Mount ALIVE) |
-| Sidebranch | `cursor/v2711-oor-construct-retip-bc54` (PR #955) |
-| Cargo / tip-cargo | tip7 live-tip **ALIVE** sealed (shui **4** + uilayout **11** + brand **23** + taffy **7**); Construct full job **PENDING_CI** on tip |
-| Spec bind | [`ECOSYSTEM-SPEC-27.1.1.md`](./ECOSYSTEM-SPEC-27.1.1.md) §6–§10 / §17–§20; companions [`GATE-1-GAP-MATRIX.md`](./GATE-1-GAP-MATRIX.md), [`GATE-1-REMAINING-COURTS-STANDING.md`](./GATE-1-REMAINING-COURTS-STANDING.md), [`PHOTOLITHOGRAPHY-PATH-STANDING.md`](./PHOTOLITHOGRAPHY-PATH-STANDING.md), [`SHUI-PUBLIC-PREFIX-ALIVE-STANDING.md`](./SHUI-PUBLIC-PREFIX-ALIVE-STANDING.md), [`SHUI-PUBLIC-PREFIX-TIP7-STANDING.md`](./SHUI-PUBLIC-PREFIX-TIP7-STANDING.md), [`TAFFY-AOT-PREFLIGHT-TIP7-STANDING.md`](./TAFFY-AOT-PREFLIGHT-TIP7-STANDING.md), [`FOUNDRY-HITL-ACTION-CARD.md`](./FOUNDRY-HITL-ACTION-CARD.md) |
+| Observed crown tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ **`c19ad401d`** (⊇ Construct full **ALIVE** @ `45086131007` + IA portable + Gate1 tip7 + G2-11 Mount) |
+| Sidebranch | `cursor/v2711-construct-alive-retip-bc54` |
+| Cargo / tip-cargo | tip7 live-tip **ALIVE** sealed (shui **4** + uilayout **11** + brand **23** + taffy **7**); Construct full job **ALIVE** @ [`45086131007`](https://github.com/seanchatmangpt/ggen/actions/runs/45086131007) — **≠** Foundry ALIVE |
+| Spec bind | [`ECOSYSTEM-SPEC-27.1.1.md`](./ECOSYSTEM-SPEC-27.1.1.md) §6–§10 / §17–§20; companions [`GATE-1-GAP-MATRIX.md`](./GATE-1-GAP-MATRIX.md), [`CONSTRUCT-FULL-ALIVE-STANDING.md`](./CONSTRUCT-FULL-ALIVE-STANDING.md), [`PHOTOLITHOGRAPHY-PATH-STANDING.md`](./PHOTOLITHOGRAPHY-PATH-STANDING.md), [`FOUNDRY-HITL-ACTION-CARD.md`](./FOUNDRY-HITL-ACTION-CARD.md) |
 
 Standing vocabulary (`AGENTS.md` §2): `UNKNOWN` | `PARTIAL` | `PARTIAL_ALIVE` | `ALIVE` | `BLOCKED` | `BLOCKED_HITL` | `UNSUPPORTED` | `REFUSED_*`.
 
 **Law:** Gate1 tip7 live-tip reconfirm is **CLOSED/ALIVE** at tip `b07cda77c+`
 (shui **4** + uilayout **11** + brand **23** + taffy **7**). Exact tip-cargo
-`ALIVE` rows remain sealed at their cargo tips. tip7 thrash EXIT:**101** /
-uilayout-in-flight rows are **superseded**. Never invent Foundry / path-crown /
-production-theme / zero-HITL `ALIVE`. Path crown remains **PARTIAL**. Foundry
-remains **BLOCKED_HITL**. Construct full job **PENDING_CI** on `7bb443e99`.
+`ALIVE` rows remain sealed at their cargo tips. Construct full job is **ALIVE**
+@ `45086131007` on subject `43d6301bb` — **≠** Foundry / path-crown / zero-HITL
+`ALIVE`. Never invent Foundry / path-crown / production-theme / zero-HITL
+`ALIVE`. Path crown remains **PARTIAL**. Foundry remains **BLOCKED_HITL**.
 
 ---
 
@@ -47,7 +47,8 @@ remains **BLOCKED_HITL**. Construct full job **PENDING_CI** on `7bb443e99`.
 | ui_layout digest (`ui_layout_court`) | **ALIVE (exact tip-cargo)** @ `2685119bd` (**11**; also `376d0d283`) + tip7 **open/in-flight** | EXIT:**0**; **11 passed** @ tip `2685119bd` / reconfirm `376d0d283`; tip-wins absorb `6f0f64611`; [`UILAYOUT-EXACT-RETIP5-STANDING.md`](./UILAYOUT-EXACT-RETIP5-STANDING.md) / [`UILAYOUT-TIP-CARGO-STANDING.md`](./UILAYOUT-TIP-CARGO-STANDING.md). Tip7 side `cursor/v2711-uilayout-exact-tip7-bc54` / `bc-404c8bbd` — **open/in-flight** (no tip7 EXIT:**0** standing yet; tip7 diagnosis owns cargo). **≠ live-tip (`ae34bf4bc`+) reconfirm**. Sibling `ui-layout-court.ts` **UNSUPPORTED**. | **tip7 open:** `CXX=g++ SCCACHE_DISABLE=1 RUSTC_WRAPPER= CARGO_BUILD_JOBS=1 CARGO_TARGET_DIR=/tmp/gate1-tip7-uilayout cargo test -p ggen-graph --test ui_layout_court --locked --config build.jobs=1 -- --test-threads=1` → **11**/EXIT:**0** (serial after shui tip7 quiet; tip7 diagnosis owns cargo) |
 | brand.toml completeness + rhythm | **ALIVE (exact tip-cargo)** @ `cfd93c1cb` tip6 (**5+12**; lineage `2685119bd`) | EXIT:**0**; completeness **5** + rhythm **12** @ tip `cfd93c1cb` (`/tmp/ggen-brand-exact-tip6`); tip-wins absorb `31b495a6a`; [`BRAND-TOML-EXACT-TIP6-STANDING.md`](./BRAND-TOML-EXACT-TIP6-STANDING.md); lineage [`BRAND-TOML-TIP-CARGO-STANDING.md`](./BRAND-TOML-TIP-CARGO-STANDING.md). **≠ live-tip (`ae34bf4bc`+) reconfirm** — sealed at `cfd93c1cb` only. Full DTCG/CASTLE inventory **UNSUPPORTED**. Production theme **UNSUPPORTED**. | sealed at `cfd93c1cb` — replay only if sources drift: `CXX=g++ SCCACHE_DISABLE=1 CARGO_BUILD_JOBS=1 cargo test -p ggen-graph --test brand_toml_completeness_court --test brand_toml_rhythm_court --locked --target-dir /tmp/ggen-brand-exact-tip6 --config build.jobs=1 -- --test-threads=1` → **5+12**/EXIT:**0** |
 | Photolithography path crown | **PARTIAL** (non-ALIVE) | Gate1 tip-cargo green ≠ path crown; hop-5 **PARTIAL** / Foundry `--live` **BLOCKED_HITL**; [`PHOTOLITHOGRAPHY-PATH-STANDING.md`](./PHOTOLITHOGRAPHY-PATH-STANDING.md) (photolith absorb `6cdb97492`). | Close hop-5 `--live` → **0** before any path-crown promote — **never invent path-crown ALIVE** |
-| Foundry finish / `--live` (horizontal spine) | **BLOCKED_HITL** | Spine **PARTIAL**; foundry `--live` **BLOCKED_HITL** (`Model access is not configured`); [`FOUNDRY-HITL-ACTION-CARD.md`](./FOUNDRY-HITL-ACTION-CARD.md); [`FOUNDRY-FINISH-SPINE-STANDING.md`](./FOUNDRY-FINISH-SPINE-STANDING.md). Gate1 tip-cargo `ALIVE` ≠ Foundry `ALIVE`. **Never invent Foundry ALIVE.** | Founder HITL exact CLI: `cd /agent/repos/zcode-cli && export PATH="/home/ubuntu/.bun/bin:$PATH" && bun bin/zcode.js login && bun scripts/powl-foundry-loop.ts --live` → **foundry_exit=0** (**not** `zcode /login`); plus cos DB / WebAuthn / revops residuals |
+| Construct core-team full job | **ALIVE** | Run [`45086131007`](https://github.com/seanchatmangpt/ggen/actions/runs/45086131007) EXIT **0** on `43d6301bb`; tip-wins #956 @ `c19ad401d`; [`CONSTRUCT-FULL-ALIVE-STANDING.md`](./CONSTRUCT-FULL-ALIVE-STANDING.md). **≠** Foundry / path-crown `ALIVE`. | sealed — replay only if Construct workflow / IA sources drift |
+| Foundry finish / `--live` (horizontal spine) | **BLOCKED_HITL** | Spine **PARTIAL**; foundry `--live` **BLOCKED_HITL** (`Model access is not configured`; provider_config **ABSENT**; no model API keys this env); [`FOUNDRY-HITL-ACTION-CARD.md`](./FOUNDRY-HITL-ACTION-CARD.md); [`FOUNDRY-FINISH-SPINE-STANDING.md`](./FOUNDRY-FINISH-SPINE-STANDING.md). Construct/Gate1 `ALIVE` ≠ Foundry `ALIVE`. **Never invent Foundry ALIVE.** | Founder HITL exact CLI: `cd /agent/repos/zcode-cli && export PATH="/home/ubuntu/.bun/bin:$PATH" && bun bin/zcode.js login && bun scripts/powl-foundry-loop.ts --live` → **foundry_exit=0** (**not** `zcode /login`; Linux needs Z.AI Coding Plan API Key / `/login`); plus cos DB / WebAuthn / revops residuals |
 
 ---
 

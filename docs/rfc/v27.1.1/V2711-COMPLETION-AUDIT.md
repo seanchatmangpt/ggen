@@ -1,22 +1,21 @@
 # V2711-COMPLETION-AUDIT — requirement-by-requirement standing vs objective
 
-> **Retip21** `2026-11-22T20:36Z` (America/Los_Angeles 12:36) @ crown **`6ae116c31636cddf8d7674c6012fe34bdcabfd07`**
-> After: Construct preempt (sjira/tcps) `e568bef1d` · wasm-opt bulk-memory `6ae116c31` · Gate1 tip-cargo **CLOSED/ALIVE** held · Foundry `--live` **BLOCKED_HITL** · cos **503** / revops **NXDOMAIN**.
-> Goal **NOT COMPLETE**. Never invent Foundry ALIVE. tip-cargo ALIVE ≠ live-tip reconfirm ≠ path crown ≠ Foundry ALIVE.
-> Companion: [`OOR-RETIP21-CONSTRUCT-PREEMPT-STANDING.md`](./OOR-RETIP21-CONSTRUCT-PREEMPT-STANDING.md).
+> **Retip28** `2026-11-23T00:25Z` (America/Los_Angeles 4:25 PM) @ crown **`c19ad401d`**
+> After: Construct full job **ALIVE** @ [`45086131007`](https://github.com/seanchatmangpt/ggen/actions/runs/45086131007) · tip-wins #956 · Gate1 tip7 **ALIVE** · G2-11 Mount **ALIVE** · Foundry `--live` **BLOCKED_HITL** · cos **503** / revops **NXDOMAIN**.
+> Goal **NOT COMPLETE**. Construct ALIVE ≠ Foundry ALIVE ≠ path crown ALIVE ≠ zero-HITL ALIVE.
+> Companion: [`CONSTRUCT-FULL-ALIVE-STANDING.md`](./CONSTRUCT-FULL-ALIVE-STANDING.md).
 
 
 ```text
-crown_tip=7646bce35803f99dfb97707382054f74aa872631
-pre_absorb_write=15eefb628368afcbb230d082d6ca00c286ca9d42
-absorb_land=bc481a111829c2cab4c08451ccf3239c018c6c34
-side=cursor/v2711-completion-audit-bc54@2df0c478b
-branch=cursor/v2711-completion-audit-bc54
-utc=2026-11-22T19:14Z
-cargo=none (docs-only audit; standings held from companion ledgers)
-ManagePullRequest=not_used
+crown_tip=c19ad401d
+side=cursor/v2711-construct-alive-retip-bc54
+branch=cursor/v2711-construct-alive-retip-bc54
+utc=2026-11-23T00:25Z
+cargo=none (docs-only audit; Construct CI ALIVE@45086131007 cited)
+ManagePullRequest=PR849
 invented_ALIVE=none
 Foundry_ALIVE=not_claimed
+construct=ALIVE_45086131007
 goal=NOT_COMPLETE
 ```
 
@@ -24,9 +23,9 @@ goal=NOT_COMPLETE
 |-------|-------|
 | Document ID | `V2711-COMPLETION-AUDIT-27.1.1` |
 | Objective | Close `ECOSYSTEM-SPEC-27.1.1` crown (photo + CCS/BRCE + ops O(N²) + Foundry zero-HITL + Gate1 + Gate0/2/3 OOR through **2027-01-01** GA) |
-| Observed crown tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ **`6ae116c31636cddf8d7674c6012fe34bdcabfd07`** (Construct+wasm preempt; Gate1 tip-cargo CLOSED/ALIVE held; Foundry BLOCKED_HITL) |
-| Sidebranch | `cursor/v2711-oor-construct-retip-bc54` |
-| Cargo / tip-cargo | **NOT RUN** (docs-only; evidence from companion ledgers only) |
+| Observed crown tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ **`c19ad401d`** (Construct **ALIVE**; Gate1 tip7 ALIVE; Foundry BLOCKED_HITL) |
+| Sidebranch | `cursor/v2711-construct-alive-retip-bc54` |
+| Cargo / tip-cargo | Construct CI **ALIVE** @ `45086131007`; Gate1 tip7 sealed; Foundry `--live` **exit1** held |
 | Goal standing | **NOT COMPLETE** — Foundry **BLOCKED_HITL** ∧ BRCE **V8 BLOCKED** ∧ WebAuthn **UNSUPPORTED** ∧ cos **BLOCKED** ∧ revops **UNKNOWN** ∧ path crown **PARTIAL** |
 
 Standing vocabulary (`AGENTS.md` §2): `UNKNOWN` | `PARTIAL` | `PARTIAL_ALIVE` | `ALIVE` | `BLOCKED` | `BLOCKED_HITL` | `UNSUPPORTED` | `REFUSED_*`.
@@ -121,11 +120,12 @@ Source ledgers: [`OPS-SURFACES-ON2-STANDING.md`](./OPS-SURFACES-ON2-STANDING.md)
 | O2 | brand.toml production theme / production hot-swap DO | **UNSUPPORTED** | `REFUSED_PRODUCTION`; [`BRAND-PRODUCTION-THEME.md`](./BRAND-PRODUCTION-THEME.md). tip-cargo ALIVE ≠ production ALIVE. | Gate2+ production falsifiers all EXIT:**0** (not claimed) | Inventing production ALIVE from tip-cargo hot-swap |
 | O3 | Smalt 4-cloud RAID / FinOps / GA economic face | **ALIVE (lineage)** | smalt `91997da76f0f` (FinOps **19**) + `875efbb87` (4-cloud **0,0,0,0,0**); [`SMALT-RAID-STANDING.md`](./SMALT-RAID-STANDING.md). ≠ Foundry. | Replay FinOps + 4-cloud + residual mix @ `91997da76f0f` → EXIT:**0** | — |
 | O4 | `verify_witness` size court (&lt;250KB) | **ALIVE** | retip3 **8**/EXIT:**0** @ tip `f3b0d1a49` / side `4e7d0ad47`; measure **28673** B; [`VERIFY-WITNESS-CI-WASM-RETIP3-STANDING.md`](./VERIFY-WITNESS-CI-WASM-RETIP3-STANDING.md) | sealed size court → **8**/EXIT:**0**; `wc -c` → **28673** | — |
-| O5 | `verify_witness` production runtime (CI consume) | **PENDING_CI** (was **UNSUPPORTED**) | pin fixture + workflow land [`VERIFY-WITNESS-CI-WASM-CONSUME-STANDING.md`](./VERIFY-WITNESS-CI-WASM-CONSUME-STANDING.md) on `cursor/v2711-vw-ci-consume-bc54`; env wire **PARTIAL**; promote to ledger **ALIVE** only after workflow EXIT:**0** | `GGEN_VERIFY_WITNESS_WASM=…/affidavit_gatekeeper_verify_witness.pin.wasm` + `cargo test -p ggen-graph --test verify_witness_size_court` → **11**/EXIT:**0** on CI | size ALIVE ≠ production ALIVE; docs alone ≠ ALIVE |
-| O6 | cos.fnox.io `/readyz` readiness | **BLOCKED** | retip19 probe **503** `DB_UNAVAILABLE` @ tip `dd61fefb2`⊆`15eefb628`; `/healthz` **200** PARTIAL ≠ readiness; [`OOR-RETIP19-COS-REVOPS-STANDING.md`](./OOR-RETIP19-COS-REVOPS-STANDING.md) | `curl -sS -w '\nhttp=%{http_code}\n' --connect-timeout 10 https://cos.fnox.io/readyz` → **200** (not `DB_UNAVAILABLE`) | Inventing cos ALIVE from `/healthz` 200 |
-| O7 | revops.fnox.io front door | **UNKNOWN** | **NXDOMAIN** / curl exit **6**; same retip19; [`REVOPS-COS-STANDING.md`](./REVOPS-COS-STANDING.md) | `getent hosts revops.fnox.io` → non-empty; `curl … https://revops.fnox.io/readyz` → DNS ∧ **200** | Inventing revops ALIVE / rewriting NXDOMAIN as success |
+| O5 | `verify_witness` production runtime (CI consume / G2-11 Mount) | **ALIVE** | CI run [`45073805083`](https://github.com/seanchatmangpt/ggen/actions/runs/45073805083) EXIT **0** (Step A+C); [`VERIFY-WITNESS-CI-WASM-CONSUME-STANDING.md`](./VERIFY-WITNESS-CI-WASM-CONSUME-STANDING.md). size **ALIVE** ≠ Foundry. | sealed — replay Mount workflow / size court only if pin drifts | — |
+| O5b | Construct core-team full job | **ALIVE** | [`45086131007`](https://github.com/seanchatmangpt/ggen/actions/runs/45086131007) EXIT **0** on `43d6301bb`; tip-wins #956 @ `c19ad401d`; [`CONSTRUCT-FULL-ALIVE-STANDING.md`](./CONSTRUCT-FULL-ALIVE-STANDING.md). **≠** Foundry ALIVE. | sealed — replay Construct only if IA/workflow sources drift | Inventing Foundry ALIVE from Construct EXIT0 |
+| O6 | cos.fnox.io `/readyz` readiness | **BLOCKED** | re-probe 2026-11-23T00:25Z **503** `DB_UNAVAILABLE`; `/healthz` **200** PARTIAL ≠ readiness; [`GATE023-OOR-STANDING-MATRIX.md`](./GATE023-OOR-STANDING-MATRIX.md) retip28 | `curl -sS -w '\nhttp=%{http_code}\n' --connect-timeout 10 https://cos.fnox.io/readyz` → **200** (not `DB_UNAVAILABLE`) | Inventing cos ALIVE from `/healthz` 200 |
+| O7 | revops.fnox.io front door | **UNKNOWN** | **NXDOMAIN** reconfirm 2026-11-23T00:25Z; [`REVOPS-COS-STANDING.md`](./REVOPS-COS-STANDING.md) | `getent hosts revops.fnox.io` → non-empty; `curl … https://revops.fnox.io/readyz` → DNS ∧ **200** | Inventing revops ALIVE / rewriting NXDOMAIN as success |
 
-**Section standing:** ops aggregate **PARTIAL + BLOCKED** — brand/Smalt/VW-size closed; cos/revops/production **open**.
+**Section standing:** ops aggregate **PARTIAL + BLOCKED** — brand/Smalt/VW-size/VW-Mount/Construct closed; cos/revops/production **open**.
 
 ---
 
@@ -217,7 +217,7 @@ Matrix tracked **25** OOR rows — counts held (no re-probe this audit):
 |--------|--------------------------------------:|-----:|---------|
 | §1 Photolith | 7 | 2 | closed P1–P7; open P8–P9 |
 | §2 CCS/BRCE/WebAuthn | 5 | 6 | closed C2–C5,C8; open C1,C6,C7,C9–C11 |
-| §3 Ops O(N²) | 3 | 4 | closed O1,O3,O4; open O2,O5–O7 |
+| §3 Ops O(N²) | 5 | 3 | closed O1,O3,O4,O5,O5b; open O2,O6,O7 |
 | §4 Foundry spine | 1 | 3 | closed F3 wire; open F1,F2,F4 |
 | §5 Ecospec | 1 | 1 | closed E1; open E2 |
 | §6 Gate1 named | 6 | 2 | closed G1–G6; open G7–G8 |

@@ -5,10 +5,10 @@
 | Document ID | `GATE023-OOR-STANDING-MATRIX-27.1.1` |
 | Binding | `ECOSYSTEM-SPEC-27.1.1` Gate 0 + Gate 2–3 out-of-repo legs; GA **2027-01-01** |
 | Companion index | [`OUT-OF-REPO-NEXT-VERIFIERS.md`](./OUT-OF-REPO-NEXT-VERIFIERS.md); [`GATE-0-2-3-NEXT-VERIFIERS.md`](./GATE-0-2-3-NEXT-VERIFIERS.md) |
-| Sidebranch | `cursor/v2711-oor-retip19-bc54` (`bc-f83f4cbf`; matrix origin `cursor/v2711-gate023-oor-matrix-bc54` / `bc-0754e974`) |
-| Observed ggen tip (write base) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ **`7bb443e99`** (⊇ interview-assist lock sync + Gate1 tip7 + Construct receipt-exclude + G2-11 Mount ALIVE); Foundry `--live` BLOCKED_HITL / cos BLOCKED / revops UNKNOWN **held** |
-| Probe time | 2026-11-22 2:39:00 PM PST / `2026-11-22T22:39Z` (retip26) |
-| Cargo / tip-cargo | Gate1 tip7 **ALIVE** (shui **4** + uilayout **11** + brand **23** + taffy **7**); Construct local+CI validate **55/55**; Foundry `--live` **foundry_exit=1**; CI Construct full job **PENDING_CI** on `7bb443e99` |
+| Sidebranch | `cursor/v2711-construct-alive-retip-bc54` (matrix origin `cursor/v2711-gate023-oor-matrix-bc54`) |
+| Observed ggen tip (write base) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ **`c19ad401d`** (⊇ Construct full **ALIVE** @ `45086131007` + IA portable tip-wins #956 + Gate1 tip7 + G2-11 Mount); Foundry `--live` BLOCKED_HITL / cos BLOCKED / revops UNKNOWN **held** |
+| Probe time | 2026-11-22 4:25:00 PM PST / `2026-11-23T00:25Z` (retip28) |
+| Cargo / tip-cargo | Gate1 tip7 **ALIVE** (shui **4** + uilayout **11** + brand **23** + taffy **7**); Construct full job **ALIVE** @ [`45086131007`](https://github.com/seanchatmangpt/ggen/actions/runs/45086131007); Foundry `--live` **foundry_exit=1** |
 | Crown absorb | tip-wins onto `origin/cursor/ecosystem-spec-27-1-1-bc54` (no force; parent owns ManagePullRequest) |
 | Companion retip | [`CONSTRUCT-RECEIPT-EXCLUDE-STANDING.md`](./CONSTRUCT-RECEIPT-EXCLUDE-STANDING.md); [`VERIFY-WITNESS-CI-WASM-CONSUME-STANDING.md`](./VERIFY-WITNESS-CI-WASM-CONSUME-STANDING.md) |
 
@@ -250,3 +250,7 @@ Tip **`b07cda77c`**. Gate1 tip7 live-tip reconfirm **ALIVE**: shui **4**/EXIT:**
 ## Retip27 (2026-11-22 3:11:00 PM PST) — interview-assist lock sync + Foundry re-probe held
 
 Tip **`7bb443e99`**. CI Construct validate-examples **55/55 EXIT 0** on `b07cda77c` (run [`45078869386`](https://github.com/seanchatmangpt/ggen/actions/runs/45078869386)), then **failed** at Interview Assist `npm ci` (lock vs `package.json` next/vitest drift). Lock regenerated (`npm install --package-lock-only`); tip-wins `7bb443e99`. Full Construct job **PENDING_CI** (run [`45081862735`](https://github.com/seanchatmangpt/ggen/actions/runs/45081862735)). Foundry `--live` re-probe **foundry_exit=1** / `REFUSED` / provider **ABSENT** → **BLOCKED_HITL** (`/tmp/foundry-live-retip27.log`). cos `/readyz` **503** `DB_UNAVAILABLE` (**BLOCKED**); `/healthz` **200** (**PARTIAL**); revops **NXDOMAIN** (**UNKNOWN**). G2-11 Mount **ALIVE** / Gate1 tip7 **ALIVE** held. Path crown **PARTIAL**. **No invented Foundry / zero-HITL / path ALIVE.**
+
+## Retip28 (2026-11-22 4:25:00 PM PST) — Construct full ALIVE + OOR held
+
+Tip **`c19ad401d`** (subject Construct tip `43d6301bb` + tip-wins #956). Construct full job **ALIVE** — run [`45086131007`](https://github.com/seanchatmangpt/ggen/actions/runs/45086131007) EXIT **0** (byte-identical replay, lock refuse, IA ladder, workstation-path refuse). pytest tip-wins `43d6301bb`; IA portable `fileURLToPath` tip-wins. Foundry `--live` re-probe **foundry_exit=1** / provider **ABSENT** / no model API keys → **BLOCKED_HITL**. cos `/readyz` **503** `DB_UNAVAILABLE` (**BLOCKED**); `/healthz` **200** (**PARTIAL**); revops **NXDOMAIN** (**UNKNOWN**). Gate1 tip7 **ALIVE** / G2-11 Mount **ALIVE** held. Path crown **PARTIAL**. Zero-HITL fab **NOT COMPLETE**. **Construct ALIVE ≠ Foundry ALIVE.** Detail: [`CONSTRUCT-FULL-ALIVE-STANDING.md`](./CONSTRUCT-FULL-ALIVE-STANDING.md).

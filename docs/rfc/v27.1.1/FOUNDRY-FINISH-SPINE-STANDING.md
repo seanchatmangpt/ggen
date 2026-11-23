@@ -1,14 +1,15 @@
 # FOUNDRY-FINISH-SPINE-STANDING — push-first honesty (v27.1.1)
 
 ```text
-tip_base=b960245cf647ebfadb3fbc4d16bbc53852ba159f
-branch=cursor/v2711-foundry-live-retip-bc54
-agent=bc-23737a65-4398-52e6-a180-afd65acfa8f3
-utc=2026-11-22T19:13Z
+tip_base=c19ad401d (Construct ALIVE@45086131007 tip-wins)
+branch=cursor/v2711-construct-alive-retip-bc54
+agent=bc-c5848e85-7857-4989-9a23-d4416c85bc54
+utc=2026-11-23T00:25Z
 spine=ggen → Taffy → zcode-cli → CASTLE → Smalt → revops
 foundry_finish=PARTIAL
 spine_daily_HITL_free=PARTIAL (not daily-HITL-free)
 foundry_exit=1
+construct=ALIVE@45086131007 ≠ Foundry_ALIVE
 gate1_trio_ALIVE≠Foundry_ALIVE≠zero_HITL_ALIVE
 photolith_path_crown=PARTIAL
 --live=BLOCKED_HITL
@@ -19,14 +20,14 @@ refuse=Foundry_ALIVE
 | Field | Value |
 |-------|-------|
 | Document ID | `FOUNDRY-FINISH-SPINE-STANDING-27.1.1` |
-| Branch | `cursor/v2711-foundry-live-retip-bc54` (prior finish honesty `cursor/v2711-foundry-finish-honesty-bc54`; prior spine pin `cursor/v2711-foundry-spine-honesty-bc54`) |
-| Agent | `bc-23737a65-4398-52e6-a180-afd65acfa8f3`; prior finish honesty `bc-94d5f431`; prior spine `bc-14b0377a` |
+| Branch | `cursor/v2711-construct-alive-retip-bc54` (prior foundry live retip `cursor/v2711-foundry-live-retip-bc54`) |
+| Agent | `bc-c5848e85-7857-4989-9a23-d4416c85bc54`; prior `bc-23737a65` |
 | Spec binding | `ECOSYSTEM-SPEC-27.1.1` §13.4 Foundry finish (horizontal spine) |
-| Companions | [`FOUNDRY-HITL-ACTION-CARD.md`](./FOUNDRY-HITL-ACTION-CARD.md) §5 / §6; [`FOUNDRY-FINISH-STANDING.md`](./FOUNDRY-FINISH-STANDING.md); [`HITL-LIVE-NEXT-VERIFIER-STANDING.md`](./HITL-LIVE-NEXT-VERIFIER-STANDING.md); [`PHOTOLITHOGRAPHY-PATH-STANDING.md`](./PHOTOLITHOGRAPHY-PATH-STANDING.md); [`TAFFY-AOT-PREFLIGHT-STANDING.md`](./TAFFY-AOT-PREFLIGHT-STANDING.md); [`ZCODE-POWL-PATH-STANDING.md`](./ZCODE-POWL-PATH-STANDING.md); [`CASTLE-SPINE-STANDING.md`](./CASTLE-SPINE-STANDING.md); [`SMALT-RAID-STANDING.md`](./SMALT-RAID-STANDING.md); [`REVOPS-COS-STANDING.md`](./REVOPS-COS-STANDING.md) |
-| Observed tip (write-time) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `b960245cf647ebfadb3fbc4d16bbc53852ba159f` (`b960245cf`; ⊇ live re-probe `51cbe7830` / Gate1 close absorb / Foundry finish honesty) |
-| zcode-cli | `/agent/repos/zcode-cli` @ `f32df08cdc4b3b8e114a8d1de8cf81acb80e1f3a` — `scripts/powl-foundry-loop.ts` **PRESENT**; `~/.zcode/v2/provider_config.json` **ABSENT** this env |
-| Cargo / tip-cargo | **NOT RUN** (live `--live` re-probe + honesty append) |
-| Status | LEDGER — live re-probe **foundry_exit=1** → `--live` **BLOCKED_HITL**; Foundry finish / horizontal spine **PARTIAL** (not daily-HITL-free); Gate1 trio **ALIVE** ≠ Foundry **ALIVE**; photolith path crown **PARTIAL**; **never invent Foundry `ALIVE`** |
+| Companions | [`FOUNDRY-HITL-ACTION-CARD.md`](./FOUNDRY-HITL-ACTION-CARD.md) §5 / §6; [`FOUNDRY-FINISH-STANDING.md`](./FOUNDRY-FINISH-STANDING.md); [`CONSTRUCT-FULL-ALIVE-STANDING.md`](./CONSTRUCT-FULL-ALIVE-STANDING.md); [`PHOTOLITHOGRAPHY-PATH-STANDING.md`](./PHOTOLITHOGRAPHY-PATH-STANDING.md); [`CASTLE-SPINE-STANDING.md`](./CASTLE-SPINE-STANDING.md); [`SMALT-RAID-STANDING.md`](./SMALT-RAID-STANDING.md); [`REVOPS-COS-STANDING.md`](./REVOPS-COS-STANDING.md) |
+| Observed tip (write-time) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `c19ad401d` (Construct **ALIVE** tip-wins; Gate1 tip7 ALIVE; Foundry `--live` still BLOCKED_HITL) |
+| zcode-cli | `/agent/repos/zcode-cli` @ `f32df08cdc4b3b8e114a8d1de8cf81acb80e1f3a` — `scripts/powl-foundry-loop.ts` **PRESENT**; `~/.zcode/v2/provider_config.json` **ABSENT** this env; no model API keys in env |
+| Cargo / tip-cargo | Construct CI **ALIVE** @ `45086131007`; Foundry `--live` re-probe **foundry_exit=1** held |
+| Status | LEDGER — Construct **ALIVE** ≠ Foundry **ALIVE**; `--live` **BLOCKED_HITL**; Foundry finish / horizontal spine **PARTIAL** (not daily-HITL-free); path crown **PARTIAL**; **never invent Foundry `ALIVE`** |
 
 Standing vocabulary: `UNKNOWN` | `PARTIAL` | `PARTIAL_ALIVE` | `ALIVE` | `BLOCKED` | `BLOCKED_HITL` | `UNSUPPORTED` | `REFUSED_*`.
 
