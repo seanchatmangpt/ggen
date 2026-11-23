@@ -263,6 +263,10 @@ Tip absorb of this land. Cloned `seanchatmangpt/fnox`; pinned cause of live `/re
 
 Cloned `seanchatmangpt/revops` + re-read fnox GTM (`JOBS-LOCK-NOV21-RUNBOOK.md`): `revops.fnox.io` is **MISSING** (`infra/gcp/revops` absent); do **not** publish/CTA there; RevOps *function* host of record is **`cos.fnox.io` only**. Prior G2-1 **UNKNOWN**/“restore DNS” framing **superseded** → **UNSUPPORTED**. DNS empty reconfirmed (`dig +short` empty; cos/arcus/smalt resolve). Plane-5 ladder corrected: G2-2 cos readiness → AS-01 on cos (not invent revops DNS). Foundry **BLOCKED_HITL** held. Detail: [`REVOPS-HOST-MISSING-STANDING.md`](./REVOPS-HOST-MISSING-STANDING.md).
 
+## Retip33 (2026-11-22 4:50:00 PM PST) — R-01…R-07 bodies admitted; R-06 CLOSED
+
+Mounted admitted risk-register fixture from `zcode-cli` ecospec §4 @ `f32df08`. Bodies **ADMITTED** (not invented). **R-06 CLOSED** on commits `0cff19a`/`7b2c181` + chicago **11**/EXIT:**0**. R-01…R-05+R-07 remain **ADMITTED_OPEN**. Contract fence + ungrounded refuse held. Foundry / cos / WebAuthn **not** promoted. Detail: [`R01-R07-STANDING.md`](./R01-R07-STANDING.md); [`fixtures/r01-r07-sovereign-risk-register.md`](./fixtures/r01-r07-sovereign-risk-register.md).
+
 ## Retip32 (2026-11-22 4:45:00 PM PST) — OOR ledger honesty sync
 
 Synced [`OUT-OF-REPO-NEXT-VERIFIERS.md`](./OUT-OF-REPO-NEXT-VERIFIERS.md) to tip evidence: G2-1 **UNSUPPORTED** (MISSING); G2-2/G0-2 Founder AND-gate; G2-5 ladder drops invent-revops-DNS; G2-11 **ALIVE** (CI consume `45073805083`); G3-4 **BLOCKED**. Foundry **BLOCKED_HITL** / WebAuthn **UNSUPPORTED** / V8 **BLOCKED** held. Live re-probe: cos healthz **200** / readyz **503**; foundry_exit=1 model access.

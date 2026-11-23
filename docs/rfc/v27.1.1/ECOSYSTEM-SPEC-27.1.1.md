@@ -261,22 +261,25 @@ runtime remains **UNSUPPORTED** until the out-of-repo build path in
 
 ## 11. Unresolved risks R-01 … R-07
 
-These identifiers are **hard GA gates**. Exact prose for each risk was not
-mounted as a sibling artifact in this checkout; they remain **OPEN / UNKNOWN**
-and must be closed with typed evidence before GA 2027-01-01.
+These identifiers are **hard GA gates**. Body prose is **admitted** from the
+sovereign risk-register mount
+[`fixtures/r01-r07-sovereign-risk-register.md`](./fixtures/r01-r07-sovereign-risk-register.md)
+(verbatim §4 of `zcode-cli` `docs/ecosystem-spec-27.1.1.md` @ `f32df08cdc4b3b8e114a8d1de8cf81acb80e1f3a`).
+Do not invent risk bodies. “Closed” without an admitted body is
+**REFUSED_UNGROUNDED**. Body admission ≠ closure — open rows still need typed
+receipt or typed refusal before GA 2027-01-01.
 
-| ID | Standing | Closure rule |
-|----|----------|--------------|
-| R-01 | OPEN / UNKNOWN | typed receipt or typed refusal before GA |
-| R-02 | OPEN / UNKNOWN | typed receipt or typed refusal before GA |
-| R-03 | OPEN / UNKNOWN | typed receipt or typed refusal before GA |
-| R-04 | OPEN / UNKNOWN | typed receipt or typed refusal before GA |
-| R-05 | OPEN / UNKNOWN | typed receipt or typed refusal before GA |
-| R-06 | OPEN / UNKNOWN | typed receipt or typed refusal before GA |
-| R-07 | OPEN / UNKNOWN | typed receipt or typed refusal before GA |
+| ID | Body | Closure standing | Closure rule (from admitted register) |
+|----|------|------------------|----------------------------------------|
+| R-01 | **ADMITTED** (`cos.fnox.io` ledger + `--seed 7`) | **OPEN** | Close 6 ledger fixes + seed race; 2× LOW-only skeptic waves |
+| R-02 | **ADMITTED** (FFB Web Worker SAB arena) | **OPEN** | Lock `SharedArrayBuffer` `initial === maximum` |
+| R-03 | **ADMITTED** (FFB Transport WebTransport/QUIC) | **OPEN** | Align `h3` edge-proxy to `ALPN: aoq/1` + UDP-443 |
+| R-04 | **ADMITTED** (FFB Auth WebCrypto channel-bind) | **OPEN** | Non-extractable WebCrypto ↔ SessionActor |
+| R-05 | **ADMITTED** (Affidavit ML-DSA / PQC seal stride) | **OPEN** | Lock Epoch Lease anchor + `expected_byte_length` |
+| R-06 | **ADMITTED** (`zcode-cli` bounded remediation) | **CLOSED** | Evidence: commits `0cff19a`/`7b2c181` + `bun test test/powl-ocel-chicago.test.ts` → **11**/EXIT:**0** @ zcode `f32df08` |
+| R-07 | **ADMITTED** (Billing rails / hold `018FD7…`) | **OPEN** | Clear GCP billing hold; stand up Stripe/Mercury/Brex rails |
 
-Do not invent risk bodies. Materialize risk text from the admitted risk register
-when it is supplied; until then, treat “closed” claims as **REFUSED_UNGROUNDED**.
+Treat invented “closed” claims as **REFUSED_UNGROUNDED**. typed receipt or typed refusal before GA remains the closure rule for every **OPEN** row.
 
 ---
 
