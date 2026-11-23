@@ -7,7 +7,7 @@
 | Observed tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` ⊇ body-admit land |
 | Admitted register | [`fixtures/r01-r07-sovereign-risk-register.md`](./fixtures/r01-r07-sovereign-risk-register.md) (verbatim zcode-cli ecospec §4 @ `f32df08cdc4b3b8e114a8d1de8cf81acb80e1f3a`) |
 | Contract tip-cargo | **ALIVE** — `r01_r07_resolution_court` (ungrounded fence + admit mount) |
-| Bodies | **ADMITTED** (all seven); closure **CLOSED** for **R-06** only; **OPEN** for R-01…R-05, R-07 (R-05 aod surface PARTIAL ≠ CLOSED) |
+| Bodies | **ADMITTED** (all seven); closure **CLOSED** for **R-02** + **R-06**; **OPEN** for R-01/R-03…R-05/R-07 (R-05 aod surface PARTIAL ≠ CLOSED) |
 | Target GA | **2027-01-01** |
 | Repo scope | `seanchatmangpt/ggen` — bodies multi-repo; contract + mount in-repo |
 
@@ -45,7 +45,7 @@ cargo test -p ggen-graph --test r01_r07_resolution_court
 | ID | Body standing | Closure | Next exact verifier (through GA 2027-01-01) | Owner / HITL |
 |----|---------------|---------|-----------------------------------------------|--------------|
 | R-01 | **ADMITTED** | **OPEN** | cos 6 ledger fixes + eliminate `--seed 7` race + 2× LOW-only skeptic waves ([`COS-DB-UNAVAILABLE-NEXT-VERIFIER-STANDING.md`](./COS-DB-UNAVAILABLE-NEXT-VERIFIER-STANDING.md) AND-gate first) | Founder HITL / fnox cos |
-| R-02 | **ADMITTED** | **OPEN** (PARTIAL) | Fixed-memory court **LOCKED** @ repop `825751aa8` / [repop#1](https://github.com/seanchatmangpt/repop/pull/1): `fixedSharedMemory` **10**/EXIT:**0** + ring **28**/EXIT:**0**. Exact next: 250k-row soak ≤ 32 MiB EXIT **0** (does **not** CLOSED from court alone) | UI-plane / FFB owner |
+| R-02 | **ADMITTED** | **CLOSED** | repop `24a5041e1` / [repop#1](https://github.com/seanchatmangpt/repop/pull/1): court **10**/EXIT:**0** + soak **1**/EXIT:**0** (250k×128 B through `allocFixedWorkerArena`; peak ≤ 32 MiB; grow refused). Honesty: synthetic row pressure (no product FFB ingest on disk). ≠ Foundry ALIVE | sealed (repop) |
 | R-03 | **ADMITTED** | **OPEN** | Align WebTransport `h3` edge-proxy → native `ALPN: aoq/1` + UDP-443 | UI-plane / FFB owner |
 | R-04 | **ADMITTED** | **OPEN** | Non-extractable WebCrypto channel-bind ↔ `:gen_statem` SessionActor | UI-plane / FFB owner |
 | R-05 | **ADMITTED** | **OPEN** (PARTIAL) | Main `563eb32`: BLAKE3 `pqc_seal[248]` stand-in only. Stack tip `99412a7` ([affidavit#154](https://github.com/seanchatmangpt/affidavit/pull/154)): `aod_refusal_court` **16**/EXIT:**0** (includes `e50c_pqc_seal` + `e509` stride + `e50d` lease) — **≠ main CLOSED**. Exact next: merge `#154` stack → `main`, then reconfirm `cargo test --test aod_refusal_court` → **0** on main | Affidavit / Founder HITL merge |
@@ -59,16 +59,17 @@ without admitted body → `REFUSED_UNGROUNDED`.
 
 ## 3. CLOSED / PARTIAL receipts (evidence)
 
-### R-02 (repop) — PARTIAL; closure **OPEN**
+### R-02 (repop) — **CLOSED**
 
-Branch `cursor/v2711-r02-fixed-memory-bc54` tip `825751aa8` ([repop#1](https://github.com/seanchatmangpt/repop/pull/1)):
-admits `initial === maximum`, refuses growable shared Memory, caps arena ≤ 32 MiB.
+Branch `cursor/v2711-r02-fixed-memory-bc54` tip `24a5041e1` ([repop#1](https://github.com/seanchatmangpt/repop/pull/1)):
+fixed `initial === maximum` + 250k-row-equivalent soak under 32 MiB.
 
 | Probe | Result |
 |-------|--------|
 | `pnpm --filter @repop/worker exec vitest run src/ring/fixedSharedMemory.test.ts` | **10**/EXIT:**0** |
-| `pnpm --filter @repop/worker exec vitest run src/ring` | **28**/EXIT:**0** |
-| 250k-row soak under mobile ceiling | **UNVERIFIED** — exact next; **≠ CLOSED** |
+| `pnpm --filter @repop/worker exec vitest run src/ring/fixedSharedMemory.soak.test.ts` | **1**/EXIT:**0** (independent reconfirm this lane) |
+| Load honesty | Synthetic 250_000×128 B through real arena; product FFB ingest **ABSENT** on disk — still closes R-02 arena/OOM risk |
+| ≠ Foundry / zero-HITL / path crown ALIVE | held |
 
 ### R-05 (affidavit) — PARTIAL; closure **OPEN** on main
 
@@ -103,7 +104,7 @@ provenance=zcode-cli@f32df08 §4
 R-05=ADMITTED_OPEN (main PARTIAL; #154 tip 99412a7 refusal16+pqc6 EXIT0 ≠ main CLOSED)
 R-06=CLOSED (0cff19a+7b2c181; chicago 11/EXIT0)
 R-01..R-04+R-07=ADMITTED_OPEN
-R-02=ADMITTED_OPEN_PARTIAL (repop#1 court 10+28 EXIT0; soak UNVERIFIED ≠ CLOSED)
+R-02=CLOSED (repop@24a5041e1 court10+soak1 EXIT0; synthetic≠product-FFB; ≠Foundry)
 contract_fence=ALIVE
 ungrounded_closed=REFUSED_UNGROUNDED
 Foundry=not_ALIVE

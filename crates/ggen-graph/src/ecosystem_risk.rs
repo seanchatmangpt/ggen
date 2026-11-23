@@ -95,6 +95,10 @@ pub fn resolve_closure(
 /// Current body standing for a known R-* ID.
 ///
 /// Bodies are admitted from [`ADMITTED_RISK_REGISTER_REL`].
+/// - **R-02 Closed**: repop `24a5041e1` / [repop#1](https://github.com/seanchatmangpt/repop/pull/1)
+///   — `fixedSharedMemory` court **10**/EXIT:**0** + soak **1**/EXIT:**0**
+///   (250_000×128 B through real `allocFixedWorkerArena`; peak ≤ 32 MiB).
+///   Honesty: synthetic row pressure (product FFB ingest ABSENT on disk).
 /// - **R-06 Closed**: zcode commits `0cff19a`/`7b2c181` + Chicago
 ///   `powl-ocel-chicago` **11**/EXIT:**0** @ `f32df08`.
 /// - **R-05** stays [`RiskBodyStanding::AdmittedOpen`]: main `AOD_PQC_SEAL_LEN=248`
@@ -106,7 +110,7 @@ pub fn current_body_standing(risk_id: &str) -> Result<RiskBodyStanding, Resoluti
         return Err(ResolutionRefusal::UnknownId(risk_id.to_string()));
     }
     Ok(match risk_id {
-        "R-06" => RiskBodyStanding::Closed,
+        "R-02" | "R-06" => RiskBodyStanding::Closed,
         _ => RiskBodyStanding::AdmittedOpen,
     })
 }
