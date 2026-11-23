@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'node:url';
 // TICKET-022: event-routing.ts real-query-backed test. Chicago TDD: the
 // "15 entries" expectation is not a hardcoded constant here -- it is
 // re-derived by running the *actual* SPARQL query (queries/event-families.rq)
@@ -9,7 +10,7 @@ import { execFileSync } from "node:child_process";
 import { ALL_EVENT_FAMILIES } from "../../lib/domain/event-family";
 import { EVENT_ROUTING, EVENT_ROUTING_ENTRY_COUNT } from "../../lib/domain/event-routing";
 
-const PACK = "/Users/sac/ggen/packs/wasm4pm-interview-assist-pack";
+const PACK = fileURLToPath(new URL("../../../../packs/wasm4pm-interview-assist-pack/", import.meta.url));
 
 function liveEventFamilyCount(): number {
   const py = `
