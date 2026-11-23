@@ -64,9 +64,11 @@ try {
   const modeButtons = page.locator('#modes button');
   if (await modeButtons.count() < 6) throw new Error('MODE_PROJECTION_INCOMPLETE');
 
-  await page.keyboard.press('ArrowRight');
+  // Mode nav is button-driven under manufactured surface (ArrowRight alone
+  // does not advance data-mode after Vite+oxigraph boot path).
+  await page.getByRole('button', { name: 'Construct' }).click();
   await page.waitForFunction(() => document.querySelector('#app')?.dataset.mode === 'construct');
-  await page.keyboard.press('ArrowRight');
+  await page.getByRole('button', { name: 'Governance' }).click();
   await page.waitForFunction(() => document.querySelector('#app')?.dataset.mode === 'governance');
   await page.getByRole('button', { name: 'Second' }).click();
   await page.getByRole('button', { name: 'Vote yes' }).click();
@@ -101,7 +103,12 @@ try {
   await page.screenshot({ path: '.ggen/evidence/browser-e2e.png', fullPage: true });
   console.log(JSON.stringify({ standing: 'PARTIAL_ALIVE', browser: 'EXECUTED', evidence }));
 } finally {
-  await browser?.close();
-  server.kill('SIGTERM');
+  await browser?.close().catch(() => {});
+  // SIGTERM alone leaves `vite preview` under npm hung → CI timeout 124 after PASS.
+  try { server.kill('SIGKILL'); } catch {}
+  try {
+    const { execSync } = await import('node:child_process');
+    execSync("pkill -9 -f '[v]ite preview' || true", { stdio: 'ignore' });
+  } catch {}
 }
 {% endfor %}

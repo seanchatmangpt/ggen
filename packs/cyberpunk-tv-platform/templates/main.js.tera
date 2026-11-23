@@ -1,7 +1,7 @@
 {% for row in sparql_results %}
 import { Deck } from '@deck.gl/core';
 import { ArcLayer, ScatterplotLayer, TextLayer } from '@deck.gl/layers';
-import { createStore } from '@unrdf/oxigraph';
+import initOxigraph, { Store } from 'oxigraph';
 import mermaid from 'mermaid';
 import initWasm, {
   blake3_hex,
@@ -11,49 +11,38 @@ import initWasm, {
   platform_identity,
   projection_admitted
 } from './wasm/cyberpunk_tv_wasm.js';
+// Vite-bundled static imports — `new URL(path, import.meta.url)` fetch breaks
+// under `vite preview` because the module URL is `/assets/*.js` and sibling
+// JSON/TTL assets are not emitted next to the chunk (HTML 404 → JSON parse fail).
+import world from './world.json';
+import capabilityLedger from './capabilities.json';
+import projectionCatalog from './projections.json';
+import runtimeConfig from './runtime-config.json';
+import governanceSource from './governance.json';
+import rights from './rights.json';
+import graphText from './world.ttl?raw';
+import diagramSource from './system.mmd?raw';
+import settlementQuery from './settlement.rq?raw';
 
 const PLATFORM = {{ row["title"] | json_encode() }};
 const VERSION = {{ row["version"] | json_encode() }};
 const BASE = 'https://ggen.dev/ontology/cyberpunk-tv#';
 const instanceId = crypto.randomUUID();
 
-const loadJson = async path => {
-  const response = await fetch(new URL(path, import.meta.url));
-  if (!response.ok) throw new Error(`ASSET_LOAD_REFUSED:${path}:${response.status}`);
-  return response.json();
-};
-const loadText = async path => {
-  const response = await fetch(new URL(path, import.meta.url));
-  if (!response.ok) throw new Error(`ASSET_LOAD_REFUSED:${path}:${response.status}`);
-  return response.text();
-};
+const withTimeout = (promise, label, ms = 45000) => Promise.race([
+  promise,
+  new Promise((_, reject) => {
+    setTimeout(() => reject(new Error(`${label}_TIMEOUT`)), ms);
+  })
+]);
 
-let world;
-let capabilityLedger;
-let projectionCatalog;
-let runtimeConfig;
-let governanceSource;
-let rights;
-let graphText;
-let diagramSource;
-let settlementQuery;
 try {
-  await Promise.race([
-    initWasm(),
-    new Promise((_, reject) => {
-      setTimeout(() => reject(new Error('INIT_WASM_TIMEOUT')), 45000);
-    })
-  ]);
-  [world, capabilityLedger, projectionCatalog, runtimeConfig, governanceSource, rights, graphText, diagramSource, settlementQuery] = await Promise.all([
-    loadJson('./world.json'),
-    loadJson('./capabilities.json'),
-    loadJson('./projections.json'),
-    loadJson('./runtime-config.json'),
-    loadJson('./governance.json'),
-    loadJson('./rights.json'),
-    loadText('./world.ttl'),
-    loadText('./system.mmd'),
-    loadText('./settlement.rq')
+  // Browser oxigraph is `web.js` (named Store + default init). `@unrdf/oxigraph`'s
+  // `import oxigraph from 'oxigraph'` + `new oxigraph.Store` breaks under Vite
+  // (`Store is not a constructor`). Init both WASMs, then construct Store.
+  await Promise.all([
+    withTimeout(initWasm(), 'INIT_WASM'),
+    withTimeout(initOxigraph(), 'INIT_OXIGRAPH')
   ]);
   document.getElementById('wasm-state').textContent = `${platform_identity()} / WASM READY`;
 } catch (error) {
@@ -62,8 +51,8 @@ try {
   throw error;
 }
 
-const store = createStore();
-store.load(graphText, { format: 'turtle', baseIRI: BASE });
+const store = new Store();
+store.load(graphText, { format: 'text/turtle', base_iri: BASE });
 
 document.getElementById('graph-size').textContent = `${store.size} QUADS`;
 
@@ -139,17 +128,35 @@ const remoteBindings = new Map(
   runtimeConfig.entries.filter(entry => entry.kind === 'remote').map(entry => [entry.id, entry.value])
 );
 
+// SPARQL × settlement cartesian product duplicates constructs; pick distinct
+// Party A/B texts so blake3 digests diverge (settlement requires digestA != digestB).
+const distinctProposalRows = [];
+{
+  const seen = new Set();
+  for (const row of governanceSource.rows ?? []) {
+    const construct = row?.construct;
+    if (!construct || seen.has(construct)) continue;
+    seen.add(construct);
+    distinctProposalRows.push(row);
+  }
+}
+const proposalRowA = distinctProposalRows[0];
+const proposalRowB = distinctProposalRows[1] ?? distinctProposalRows[0];
+// Interactive session must start introducible — rows[0] is often fixture `adopted`.
+const motionSeed = (governanceSource.rows ?? []).find(row => row?.state === 'introduced')
+  ?? governanceSource.rows?.[0];
+
 const state = {
   mode: modeOrder.includes('matrix') ? 'matrix' : modeOrder[0],
   selectedNode: nodes[0]?.id ?? '',
   proposals: { a: '', b: '', digestA: '', digestB: '' },
   governance: {
-    motionId: governanceSource.rows[0]?.motionId ?? 'RuntimeMotion',
-    title: governanceSource.rows[0]?.title ?? 'Governed settlement',
-    state: governanceSource.rows[0]?.state ?? 'introduced',
-    quorum: Number(governanceSource.rows[0]?.quorum ?? 2),
-    yes: Number(governanceSource.rows[0]?.yes ?? 0),
-    no: Number(governanceSource.rows[0]?.no ?? 0),
+    motionId: motionSeed?.motionId ?? 'RuntimeMotion',
+    title: motionSeed?.title ?? 'Governed settlement',
+    state: 'introduced',
+    quorum: Number(motionSeed?.quorum ?? 2),
+    yes: Number(motionSeed?.yes ?? 0),
+    no: Number(motionSeed?.no ?? 0),
     decision: 'candidate'
   },
   session: {
@@ -166,7 +173,8 @@ const receiptChain = {
   receipts: [],
   append(subject, operation, payload) {
     this.sequence += 1;
-    const encoded = chain_event(this.previous, subject, operation, JSON.stringify(payload), this.sequence);
+    // wasm-bindgen expects bigint for sequence (JS number 1 → "Cannot convert 1 to a BigInt").
+    const encoded = chain_event(this.previous, subject, operation, JSON.stringify(payload), BigInt(this.sequence));
     const receipt = JSON.parse(encoded);
     this.previous = receipt.receipt_digest;
     this.receipts.push(receipt);
@@ -321,8 +329,13 @@ const handlers = {
     state.session.positionMillis = Math.round(media.currentTime * 1000);
   },
   async 'governance'(payload) {
-    if (payload.action === 'second' && state.governance.state === 'introduced') state.governance.state = 'seconded';
-    else if (payload.action === 'yes') { state.governance.yes += 1; state.governance.state = 'voting'; }
+    if (payload.action === 'second') {
+      // Idempotent second: fixture seeds may already be seconded/voting.
+      if (state.governance.state === 'introduced') state.governance.state = 'seconded';
+      else if (!['seconded', 'voting'].includes(state.governance.state)) {
+        throw new Error(`MOTION_ACTION_REFUSED:second:${state.governance.state}`);
+      }
+    } else if (payload.action === 'yes') { state.governance.yes += 1; state.governance.state = 'voting'; }
     else if (payload.action === 'no') { state.governance.no += 1; state.governance.state = 'voting'; }
     else if (payload.action === 'adjourn') state.governance.state = 'adjourned';
     else throw new Error(`MOTION_ACTION_REFUSED:${payload.action}`);
@@ -343,8 +356,8 @@ const handlers = {
 tv:RuntimeMotion a tv:Motion ; tv:quorumRequired ${state.governance.quorum} ; tv:yesVotes ${state.governance.yes} ; tv:noVotes ${state.governance.no} ; tv:hasProposal tv:RuntimeProposalA, tv:RuntimeProposalB .
 tv:RuntimeProposalA a tv:EscrowProposal ; tv:proposalDigest "${state.proposals.digestA}" .
 tv:RuntimeProposalB a tv:EscrowProposal ; tv:proposalDigest "${state.proposals.digestB}" .`;
-    const decisionStore = createStore();
-    decisionStore.load(facts, { format: 'turtle', baseIRI: BASE });
+    const decisionStore = new Store();
+    decisionStore.load(facts, { format: 'text/turtle', base_iri: BASE });
     const decisionRows = bindingsFrom(decisionStore.query(settlementQuery));
     const decision = bindingValue(decisionRows[0], 'decision') || 'refused-not-admitted';
     state.governance.decision = decision;
@@ -396,8 +409,10 @@ const { svg } = await mermaid.render('ggen-tv-system', diagramSource);
 document.getElementById('diagram').innerHTML = svg;
 document.getElementById('sparql-readout').textContent = semanticNodeQuery.trim();
 
-document.getElementById('proposal-a').value = governanceSource.rows[0]?.construct ?? 'CONSTRUCT { ?settlement a <https://ggen.dev/ontology/cyberpunk-tv#Settlement> . } WHERE { }';
-document.getElementById('proposal-b').value = governanceSource.rows[1]?.construct ?? 'CONSTRUCT { ?settlement <https://ggen.dev/ontology/cyberpunk-tv#standing> "candidate" . } WHERE { }';
+document.getElementById('proposal-a').value = proposalRowA?.construct
+  ?? 'CONSTRUCT { ?settlement a <https://ggen.dev/ontology/cyberpunk-tv#Settlement> . } WHERE { }';
+document.getElementById('proposal-b').value = proposalRowB?.construct
+  ?? 'CONSTRUCT { ?settlement <https://ggen.dev/ontology/cyberpunk-tv#standing> "candidate" . } WHERE { }';
 
 document.getElementById('media-file').addEventListener('change', event => {
   const file = event.target.files?.[0];
