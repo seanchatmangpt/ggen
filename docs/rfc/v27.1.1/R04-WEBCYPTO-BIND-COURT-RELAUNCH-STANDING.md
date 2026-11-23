@@ -9,8 +9,8 @@
 | Branch | `cursor/r04-webcrypto-channel-bind-bc54` @ `ff08fc06` |
 | Court | `mix test test/ash_a2a/session/r04_webcrypto_channel_bind_court_test.exs --only serial_solo` → **2**/EXIT:**0**; with SESS → **9**/EXIT:**0** |
 | Claim | Chrome CDP + `AshA2A.Session.ChannelBind` / `Statem.bind_channel/2` + `verify_reconnect/2` — non-extractable WebCrypto channel-bind **ALIVE** (local court) |
-| PR | **ABSENT** — `gh pr create --draft` → **403** (`Resource not accessible by integration`) |
-| Body closure | still **OPEN** until draft PR + CI green on ash_a2a |
+| PR | [ash_a2a#125](https://github.com/seanchatmangpt/ash_a2a/pull/125) (draft) opened by parent after court-agent **403** |
+| Body closure | still **OPEN** until CI green on [ash_a2a#125](https://github.com/seanchatmangpt/ash_a2a/pull/125) |
 | Foundry / zero-HITL | **NOT** promoted |
 
-**Exact next:** Founder/parent opens draft PR from `ff08fc06`; CI green; replay court command above.
+**Exact next:** CI green on [ash_a2a#125](https://github.com/seanchatmangpt/ash_a2a/pull/125); replay court command above.
