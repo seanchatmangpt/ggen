@@ -7,8 +7,8 @@ path_crown=PARTIAL (non-ALIVE)
 foundry=BLOCKED_HITL foundry_exit=1 (no Foundry ALIVE)
 tip7=ALIVE(shui4+uilayout11+brand23+taffy7) ≠ path_crown_ALIVE ≠ Foundry_ALIVE
 igniter_hop=ALIVE EXIT0 @b5a15528 ≠ path_crown_ALIVE ≠ Foundry_ALIVE
-construct=IN_PROGRESS@45086131007 (IA core-team ladder; tip frozen)
-ia_portable=ALIVE_173_pass on #956 (tip-wins after Construct EXIT0)
+construct=ALIVE@45086131007 (full job EXIT0 on tip 43d6301bb; ≠ Foundry ALIVE)
+ia_portable=ALIVE tip-wins (#956; source fileURLToPath; refuse-grep green)
 cos=503_DB_UNAVAILABLE healthz=200
 revops=NXDOMAIN
 side=cursor/v2711-construct-pytest-retip-bc54
@@ -21,12 +21,12 @@ agent=bc-c5848e85-7857-4989-9a23-d4416c85bc54
 | Branch | `cursor/v2711-construct-pytest-retip-bc54` |
 | Spec binding | `ECOSYSTEM-SPEC-27.1.1` §13.1 hop chain |
 | Companions | [`PHOTOLITHOGRAPHY-STANDING.md`](./PHOTOLITHOGRAPHY-STANDING.md); [`PERIMETER-TTL-TOML-PATH-STANDING.md`](./PERIMETER-TTL-TOML-PATH-STANDING.md); [`SHUI-PUBLIC-PREFIX-ALIVE-STANDING.md`](./SHUI-PUBLIC-PREFIX-ALIVE-STANDING.md); [`TAFFY-AOT-PREFLIGHT-STANDING.md`](./TAFFY-AOT-PREFLIGHT-STANDING.md); [`IGNITER-CLEANROOM-STANDING.md`](./IGNITER-CLEANROOM-STANDING.md); [`ZCODE-POWL-PATH-STANDING.md`](./ZCODE-POWL-PATH-STANDING.md); [`FOUNDRY-HITL-ACTION-CARD.md`](./FOUNDRY-HITL-ACTION-CARD.md); [`GATE1-REMAINING-FALSIFIERS.md`](./GATE1-REMAINING-FALSIFIERS.md); [`INTERVIEW-ASSIST-PORTABLE-PATH-STANDING.md`](./INTERVIEW-ASSIST-PORTABLE-PATH-STANDING.md) |
-| Observed crown tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `43d6301bb6e3d6d715d19bea3bc08a4952780e91` (pytest tip-wins; lock sync `7bb443e99`; Gate1 tip7 ALIVE; G2-11 Mount ALIVE; Construct full job **IN_PROGRESS**) |
+| Observed crown tip | `origin/cursor/ecosystem-spec-27-1-1-bc54` tip-wins absorb of #956 (Construct **ALIVE** @ `45086131007` on subject `43d6301bb`; IA portable + honesty) |
 | Agent | `bc-c5848e85-7857-4989-9a23-d4416c85bc54` |
-| UTC | `2026-11-23T00:20Z` |
-| Cargo | **NOT RUN** this retip (docs + OOR probe; Gate1 tip7 sealed; Foundry `--live` re-probe **exit 1** held) |
-| Cheap probe | igniter `git diff --exit-code` → **0** @ `/home/ubuntu/ggen_igniter`; cos `/readyz` **503** `DB_UNAVAILABLE`; `/healthz` **200**; revops **NXDOMAIN**; Foundry `--live` **foundry_exit=1**; IA portable local **173/7 EXIT0** on #956 |
-| Status | LEDGER — shui/Taffy/uilayout/brand/igniter **ALIVE**; hop-5 **PARTIAL** / Foundry **BLOCKED_HITL**; path crown **PARTIAL** / **non-ALIVE**; Construct **IN_PROGRESS** @ `45086131007`; **never invent Foundry `ALIVE`** |
+| UTC | `2026-11-23T00:22Z` |
+| Cargo | **NOT RUN** this retip (Construct CI is the admitted Construct verifier; Gate1 tip7 sealed; Foundry `--live` **exit 1** held) |
+| Cheap probe | Construct run `45086131007` **success** (all steps incl. IA ladder + refuse workstation paths); igniter EXIT **0**; cos `/readyz` **503**; revops **NXDOMAIN**; Foundry `--live` **foundry_exit=1** |
+| Status | LEDGER — Construct **ALIVE** @ `45086131007` ≠ Foundry **ALIVE**; shui/Taffy/uilayout/brand/igniter **ALIVE**; hop-5 **PARTIAL** / Foundry **BLOCKED_HITL**; path crown **PARTIAL** / **non-ALIVE**; **never invent Foundry `ALIVE`** |
 
 Standing vocabulary: `UNKNOWN` | `PARTIAL` | `PARTIAL_ALIVE` | `ALIVE` | `BLOCKED` | `BLOCKED_HITL` | `BUILD_BROKEN` | `UNSUPPORTED` | `REFUSED_*`.
 

@@ -8,7 +8,7 @@
 | Observed tip (parent) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `43d6301bb` (pytest + lock-sync tip-wins) |
 | Repo | `seanchatmangpt/ggen` |
 | Portable path standing | **ALIVE** (source-level; Construct ephemeral rewrite becomes no-op) |
-| Full Construct CI | **OPEN** — waiting `45086131007` on tip `43d6301bb` (this change tip-wins after EXIT0) |
+| Full Construct CI | **ALIVE** — `45086131007` EXIT0 on tip `43d6301bb`; portable paths tip-wins on absorb |
 | Foundry / zero-HITL fab | **NOT** promoted — Construct ALIVE ≠ Foundry ALIVE |
 
 **Law:** Hardcoded `/Users/sac/ggen/...` in Interview Assist domain/scenario tests is workstation contamination. Portable `fileURLToPath(new URL(...))` relative to `import.meta.url` is the admitted repair. Construct's runtime rewrite remains belt-and-suspenders until tip-wins land; the refuse-grep step must see zero workstation paths in source after tip-wins.
@@ -38,8 +38,8 @@ Falsifier: reintroducing `/Users/sac/ggen` into those three files → Construct 
 ## Compact return line
 
 ```text
-ia_portable=ALIVE_173_pass_7_skip
-construct_ci=OPEN_45086131007
-foundry=NOT_PROMOTED
-next=Construct EXIT0 on 43d6301bb then tip-wins this PR (#956)
+ia_portable=ALIVE_tipwins
+construct_ci=ALIVE_45086131007
+foundry=BLOCKED_HITL_exit1
+zero_hitl=NOT_COMPLETE
 ```

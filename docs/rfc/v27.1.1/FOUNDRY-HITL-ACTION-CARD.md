@@ -12,8 +12,8 @@ photolith_path_crown=PARTIAL
 gate1_tip7_ALIVE≠Foundry_ALIVE≠zero_HITL_ALIVE
 --live=BLOCKED_HITL
 refuse=Foundry_ALIVE
-construct_tip=43d6301bb (55/55 local ALIVE; pytest+lock on tip; full job 45086131007 IN_PROGRESS @ byte-identical replay)
-ia_portable=ALIVE_173_pass (#956; tip-wins after Construct EXIT0)
+construct_tip=ALIVE@45086131007 (full EXIT0 on 43d6301bb; tip-wins #956; ≠ Foundry ALIVE)
+ia_portable=ALIVE tip-wins (#956)
 vw_mount=ALIVE (G2-11 Step A+C @45073805083)
 cargo=foundry_reprobe_exit1
 cos=503_DB_UNAVAILABLE
@@ -29,7 +29,7 @@ revops=NXDOMAIN
 | Companions | [`FOUNDRY-FINISH-SPINE-STANDING.md`](./FOUNDRY-FINISH-SPINE-STANDING.md); [`FOUNDRY-FINISH-STANDING.md`](./FOUNDRY-FINISH-STANDING.md); [`HITL-LIVE-NEXT-VERIFIER-STANDING.md`](./HITL-LIVE-NEXT-VERIFIER-STANDING.md) §3 / §8 / §10; [`PHOTOLITHOGRAPHY-PATH-STANDING.md`](./PHOTOLITHOGRAPHY-PATH-STANDING.md); [`INTERVIEW-ASSIST-PORTABLE-PATH-STANDING.md`](./INTERVIEW-ASSIST-PORTABLE-PATH-STANDING.md) |
 | Observed tip (write-time) | `origin/cursor/ecosystem-spec-27-1-1-bc54` @ `43d6301bb` (pytest + lock sync; Gate1 tip7 ALIVE; G2-11 Mount ALIVE; IA portable on #956; `--live` still BLOCKED_HITL) |
 | zcode-cli | `/agent/repos/zcode-cli` @ `f32df08cdc4b3b8e114a8d1de8cf81acb80e1f3a` — `scripts/powl-foundry-loop.ts` **PRESENT**; `~/.zcode/v2/provider_config.json` **ABSENT** this env |
-| Cargo / tip-cargo | Live `--live` re-probe **foundry_exit=1** @ 2026-11-23T00:16Z (`Model access is not configured`); log `/tmp/foundry-live-reprobe.log`; Construct validate **55/55** local ALIVE; full Construct **45086131007 IN_PROGRESS**; VW Mount **ALIVE**; IA portable **173/7 EXIT0** |
+| Cargo / tip-cargo | Live `--live` re-probe **foundry_exit=1** @ 2026-11-23T00:16Z (`Model access is not configured`); log `/tmp/foundry-live-reprobe.log`; Construct full job **ALIVE** @ `45086131007` (EXIT0 on `43d6301bb`; tip-wins #956) — **≠** Foundry ALIVE; VW Mount **ALIVE**; IA portable tip-wins |
 | Status | ACTION CARD — live re-probe **foundry_exit=1** → `--live` **BLOCKED_HITL**; Foundry finish / horizontal spine **PARTIAL**; photolith path crown **PARTIAL**; **never invent Foundry `ALIVE`** |
 
 Standing vocabulary: `UNKNOWN` | `PARTIAL` | `PARTIAL_ALIVE` | `ALIVE` | `BLOCKED` | `BLOCKED_HITL` | `UNSUPPORTED` | `REFUSED_*`.
