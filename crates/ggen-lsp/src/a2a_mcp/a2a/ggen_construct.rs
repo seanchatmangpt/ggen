@@ -69,7 +69,7 @@
 //! }
 //! ```
 
-use ggen_engine::sync::{SyncOptions, RECEIPT_REL_PATH};
+use ggen_engine::sync::RECEIPT_REL_PATH;
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 use std::time::Instant;
@@ -96,6 +96,11 @@ pub struct GgenConstructInput {
     /// Artifact packaging format.
     #[serde(default)]
     pub output_format: String,
+
+    /// Graph hash from a prior dry-run (CCS construct / CP17 seal).
+    /// Empty or mismatched values refuse without writing.
+    #[serde(default)]
+    pub expected_graph_hash: String,
 }
 
 /// Proof gate result (pass/fail).
@@ -185,9 +190,13 @@ pub fn tool_definition() -> serde_json::Value {
                     "type": "string",
                     "enum": ["source", "wasm", "docker"],
                     "description": "Artifact packaging format (default: source)"
+                },
+                "expected_graph_hash": {
+                    "type": "string",
+                    "description": "Graph hash from a prior dry-run sync (CP17 / CCS construct seal; parity with ggen_write_apply)"
                 }
             },
-            "required": ["task_id", "jtbd", "avatar", "ontology_uri"]
+            "required": ["task_id", "jtbd", "avatar", "ontology_uri", "expected_graph_hash"]
         }
     })
 }
@@ -283,13 +292,13 @@ pub fn execute(input: GgenConstructInput) -> GgenConstructOutput {
         );
     }
 
-    // Real μ₁–μ₅ actuation: load ggen.toml + ontology, enrich/extract, render
-    // via Tera, write outputs, and chain a receipt (graphlaw-backed since
-    // the praxis-core retirement, SJIRA-15) over the
-    // payload at `.ggen-v2/receipt.json`. Same engine entrypoint as the
-    // MCP-side handler — one route engine, two transports, no drift.
+    // CCS construct plane / CP17: corroborate expected_graph_hash via dry-run
+    // before real μ₁–μ₅ write. Fail-closed — empty/mismatched hash never writes.
     let sync_started = Instant::now();
-    let report = match ggen_engine::sync::sync(&base_path, SyncOptions::default()) {
+    let report = match crate::a2a_mcp::construct_hash_gate::sync_write_after_corroboration(
+        &base_path,
+        &input.expected_graph_hash,
+    ) {
         Ok(r) => r,
         Err(e) => {
             tracing::warn!(
@@ -299,9 +308,9 @@ pub fn execute(input: GgenConstructInput) -> GgenConstructOutput {
                 invoker = %input.avatar,
                 duration_ms = start.elapsed().as_millis() as u64,
                 status = "error",
-                "ggen.construct pipeline failed"
+                "ggen.construct refused or pipeline failed"
             );
-            return error_output(input, format!("Generation pipeline failed: {e}"));
+            return error_output(input, e);
         }
     };
     let generation_time_ms = sync_started.elapsed().as_millis() as u64;
@@ -381,6 +390,7 @@ fn error_output(input: GgenConstructInput, message: String) -> GgenConstructOutp
 /// Test module: unwrap()/expect() acceptable after validating JSON structure in tests.
 mod tests {
     use super::*;
+    use crate::a2a_mcp::construct_hash_gate::dry_run_graph_hash_hex;
 
     #[test]
     fn test_tool_definition_valid_schema() {
@@ -393,6 +403,9 @@ mod tests {
         assert_eq!(schema["type"], "object");
         assert!(schema["properties"]["task_id"].get("type").is_some());
         assert!(schema["properties"]["ontology_uri"].get("type").is_some());
+        assert!(schema["properties"]["expected_graph_hash"]
+            .get("type")
+            .is_some());
 
         let required = &schema["required"];
         assert!(required.as_array().unwrap().contains(&"task_id".into()));
@@ -400,6 +413,10 @@ mod tests {
             .as_array()
             .unwrap()
             .contains(&"ontology_uri".into()));
+        assert!(required
+            .as_array()
+            .unwrap()
+            .contains(&"expected_graph_hash".into()));
     }
 
     /// Scaffold a minimal real ggen project in a tempdir: ggen.toml +
@@ -427,7 +444,7 @@ mod tests {
         (dir, root)
     }
 
-    fn input_for(ontology_uri: String) -> GgenConstructInput {
+    fn input_for(ontology_uri: String, expected_graph_hash: String) -> GgenConstructInput {
         GgenConstructInput {
             task_id: "123e4567-e89b-12d3-a456-426614174000".to_string(),
             jtbd: "Generate a greeting artifact".to_string(),
@@ -435,6 +452,7 @@ mod tests {
             ontology_uri,
             target_language: "rust".to_string(),
             output_format: "source".to_string(),
+            expected_graph_hash,
         }
     }
 
@@ -445,8 +463,9 @@ mod tests {
     fn test_execute_real_pipeline_generates_and_hashes_artifact() {
         let (_dir, root) = scaffold_project();
         let ontology_uri = root.join("ontology.ttl").display().to_string();
+        let hash = dry_run_graph_hash_hex(&root).expect("dry_run");
 
-        let output = execute(input_for(ontology_uri));
+        let output = execute(input_for(ontology_uri, hash));
 
         assert_eq!(output.status, "success", "message: {}", output.message);
         let result = output.result.expect("success must carry a result payload");
@@ -483,7 +502,10 @@ mod tests {
     /// generation and never a crash.
     #[test]
     fn test_execute_remote_ontology_uri_is_typed_refusal() {
-        let output = execute(input_for("https://example.com/ontology.ttl".to_string()));
+        let output = execute(input_for(
+            "https://example.com/ontology.ttl".to_string(),
+            "unused".into(),
+        ));
 
         assert_eq!(output.status, "error");
         assert!(output.result.is_none());
@@ -502,7 +524,7 @@ mod tests {
         let ttl = dir.path().join("ontology.ttl");
         std::fs::write(&ttl, "@prefix ex: <http://example.com/ns#> .\n").expect("write ttl");
 
-        let output = execute(input_for(ttl.display().to_string()));
+        let output = execute(input_for(ttl.display().to_string(), String::new()));
 
         assert_eq!(output.status, "error");
         assert!(output.result.is_none());
@@ -513,10 +535,45 @@ mod tests {
         );
     }
 
+    /// Chicago: missing expected_graph_hash refuses before any write (CCS construct).
+    #[test]
+    fn test_execute_no_hash_refuses_without_write() {
+        let (_dir, root) = scaffold_project();
+        let ontology_uri = root.join("ontology.ttl").display().to_string();
+        let output = execute(input_for(ontology_uri, String::new()));
+        assert_eq!(output.status, "error");
+        assert!(
+            output
+                .message
+                .contains("REFUSED:MISSING_EXPECTED_GRAPH_HASH"),
+            "{}",
+            output.message
+        );
+        assert!(!root.join("generated/hello.txt").exists());
+    }
+
+    /// Chicago: fabricated hash refuses; filesystem untouched.
+    #[test]
+    fn test_execute_fabricated_hash_refuses_without_write() {
+        let (_dir, root) = scaffold_project();
+        let ontology_uri = root.join("ontology.ttl").display().to_string();
+        let output = execute(input_for(ontology_uri, "deadbeef".into()));
+        assert_eq!(output.status, "error");
+        assert!(
+            output.message.contains("REFUSED:GRAPH_HASH_MISMATCH"),
+            "{}",
+            output.message
+        );
+        assert!(!root.join("generated/hello.txt").exists());
+    }
+
     /// An unreadable ontology path is a typed refusal, not a panic.
     #[test]
     fn test_execute_unreadable_ontology_is_typed_refusal() {
-        let output = execute(input_for("/nonexistent/a2a/ontology.ttl".to_string()));
+        let output = execute(input_for(
+            "/nonexistent/a2a/ontology.ttl".to_string(),
+            "unused".into(),
+        ));
 
         assert_eq!(output.status, "error");
         assert!(output.result.is_none());
@@ -543,13 +600,19 @@ mod tests {
         let ttl = root.join("ontology.ttl");
         std::fs::write(&ttl, "").expect("write empty ttl so root-resolution passes");
 
-        let output = execute(input_for(ttl.display().to_string()));
+        // Empty hash refuses at the CCS gate before the broken ontology is loaded.
+        let output = execute(input_for(ttl.display().to_string(), String::new()));
 
         assert_eq!(output.status, "error");
         assert!(output.result.is_none());
         assert!(
-            output.message.contains("Generation pipeline failed"),
-            "pipeline error must surface: {}",
+            output.message.contains("Generation pipeline failed")
+                || output.message.contains("REFUSED:GRAPH_HASH_MISMATCH")
+                || output.message.contains("REFUSED:PREFLIGHT_FAILED")
+                || output
+                    .message
+                    .contains("REFUSED:MISSING_EXPECTED_GRAPH_HASH"),
+            "pipeline or hash gate error must surface: {}",
             output.message
         );
     }
@@ -563,6 +626,7 @@ mod tests {
             ontology_uri: ".specify/myapp.ttl".to_string(),
             target_language: "rust".to_string(),
             output_format: "source".to_string(),
+            expected_graph_hash: "x".into(),
         };
 
         let output = execute(input);
@@ -581,6 +645,7 @@ mod tests {
             ontology_uri: "".to_string(),
             target_language: "rust".to_string(),
             output_format: "source".to_string(),
+            expected_graph_hash: "x".into(),
         };
 
         let output = execute(input);
@@ -596,7 +661,8 @@ mod tests {
     fn test_execute_defaults_run_real_pipeline() {
         let (_dir, root) = scaffold_project();
         let ontology_uri = root.join("ontology.ttl").display().to_string();
-        let mut input = input_for(ontology_uri);
+        let hash = dry_run_graph_hash_hex(&root).expect("dry_run");
+        let mut input = input_for(ontology_uri, hash);
         input.target_language = String::new();
         input.output_format = String::new();
 

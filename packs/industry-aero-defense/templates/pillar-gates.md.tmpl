@@ -1,0 +1,25 @@
+---
+to: "output/pillar-gates.md"
+sparql:
+  row: |
+    PREFIX ad: <https://seanchatmangpt.github.io/packs/industry-aero-defense#>
+    SELECT ?contribution ?mutation ?judge WHERE {
+      ?contribution a ad:AIContribution ;
+                    ad:proposes ?mutation ;
+                    ad:adjudicatedBy ?judge .
+      ?judge a ad:JudgeActivity .
+    } ORDER BY ?contribution
+---
+# Aero/defense pillar manifest
+
+P3 proposer-judge — adjudicated AI contributions over the air-gapped
+classified surface (gate 070):
+
+| AI contribution | proposes | adjudicated by |
+|---|---|---|
+{% for r in row %}| {{ r.contribution }} | {{ r.mutation }} | {{ r.judge }} |
+{% endfor %}
+
+Authority: SELECT-only projection of the P3 proposer-judge law
+(gates/070_proposer_judge.rq); generated artifact claims NONE, standing
+UNKNOWN until a consumer court admits it.

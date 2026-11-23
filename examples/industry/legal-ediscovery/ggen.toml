@@ -8,7 +8,7 @@ license = "MIT"
 [ontology]
 source = "ontology.ttl"
 imports = [
-  "../../../../ggen-marketplace/packs/industry-legal-ediscovery/ontology.ttl",
+  "../../../packs/industry-legal-ediscovery/ontology.ttl",
 ]
 
 [ontology.prefixes]

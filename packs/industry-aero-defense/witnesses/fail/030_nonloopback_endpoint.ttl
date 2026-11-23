@@ -1,0 +1,7 @@
+@prefix ex: <https://example.org/aero-defense#> .
+# FAIL witness 030: one non-loopback endpoint renders into the config -> refusal.
+@prefix ad: <https://seanchatmangpt.github.io/packs/industry-aero-defense#> .
+
+ex:leaky-boundary a ad:AirGapBoundary ;
+    ad:endpoint "http://127.0.0.1:9443" ;
+    ad:endpoint "https://smalt.corp.cloud.example:9444" .

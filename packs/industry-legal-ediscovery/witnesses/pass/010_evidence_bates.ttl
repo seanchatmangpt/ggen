@@ -1,0 +1,14 @@
+@prefix lex: <https://seanchatmangpt.github.io/packs/industry-legal-ediscovery#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# PASS witness for gate 010: all evidence carries bates ids.
+lex:matter-p1 a lex:Matter ;
+    rdfs:label "In re: Pass Fixture" ;
+    lex:retentionPolicy "hold-7y-then-purge" .
+
+lex:custodian-p1 a lex:Custodian .
+
+lex:doc-p1 a lex:EvidenceDocument ;
+    lex:batesId "SMALT0000001" ;
+    lex:hasCustodian lex:custodian-p1 ;
+    lex:collectedIn lex:matter-p1 .

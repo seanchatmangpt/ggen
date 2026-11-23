@@ -1,0 +1,6 @@
+# Walkthrough bindings: stations and example work orders from the ontology.
+PREFIX dflss: <https://seanchatmangpt.github.io/packs/industry-manufacturing-dflss#>
+SELECT ?station ?workOrder WHERE {
+  ?station a dflss:Station .
+  ?workOrder a dflss:WorkOrder .
+} ORDER BY ?station ?workOrder

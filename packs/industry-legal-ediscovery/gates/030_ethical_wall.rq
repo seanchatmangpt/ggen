@@ -1,0 +1,10 @@
+# MESSAGE: ethical-wall breach.
+# A custodian walled away from a matter (lex:conflictedMatter) must not hold
+# evidence collected in that matter; ASK true = refusal.
+PREFIX lex: <https://seanchatmangpt.github.io/packs/industry-legal-ediscovery#>
+ASK WHERE {
+  ?doc a lex:EvidenceDocument ;
+       lex:hasCustodian ?custodian ;
+       lex:collectedIn ?matter .
+  ?custodian lex:conflictedMatter ?matter .
+}

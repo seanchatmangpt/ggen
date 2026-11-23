@@ -1,0 +1,14 @@
+# MESSAGE: unadjudicated AI-proposed mutation — P3 proposer-judge.
+# Every AI-generated contribution (ad:AIContribution) that ad:proposes a
+# mutation MUST be ad:adjudicatedBy an ad:JudgeActivity before the mutation
+# commits; unadjudicated AI proposals refuse. ASK true = refusal.
+# (Mirrors industry-legal-ediscovery gate 060, lex:JudgeActivity.)
+PREFIX ad: <https://seanchatmangpt.github.io/packs/industry-aero-defense#>
+ASK WHERE {
+  ?contribution a ad:AIContribution ;
+                ad:proposes ?mutation .
+  FILTER NOT EXISTS {
+    ?contribution ad:adjudicatedBy ?judge .
+    ?judge a ad:JudgeActivity .
+  }
+}

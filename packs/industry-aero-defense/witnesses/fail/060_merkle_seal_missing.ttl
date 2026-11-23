@@ -1,0 +1,13 @@
+# FAIL witness 060 (P5 Merkle self-auth): classified artifact with no seal —
+# the 060 law is the ONLY law broken (complete artifact; every other gate silent).
+@prefix ex: <https://example.org/aero-defense#> .
+@prefix ad: <https://seanchatmangpt.github.io/packs/industry-aero-defense#> .
+
+ex:analyst-060f a ad:Principal ;
+    ad:clearanceLevel ad:Secret .
+
+ex:artifact-060f a ad:ClassifiedArtifact ;
+    ad:classification ad:Secret ; ad:caveat "NOFORN" ;
+    ad:needToKnowPrincipal ex:analyst-060f .
+
+    # no ad:hasSeal — the refusal

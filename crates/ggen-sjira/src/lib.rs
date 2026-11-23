@@ -42,6 +42,7 @@ pub mod epoch;
 pub mod execute;
 pub mod frontier;
 pub mod generated;
+pub mod igniter_cleanroom;
 pub mod lease;
 pub mod ledger;
 pub mod pack_health;
@@ -51,6 +52,7 @@ pub mod reconcile;
 pub mod shacl;
 pub mod target_pack;
 pub mod work_order;
+pub mod zcode_powl_ocel;
 
 pub use admit::{admit_work_order, AdmittedWorkOrder, Refusal};
 pub use authority::{

@@ -1,0 +1,14 @@
+# FAIL witness G1: ex:door2 has NO bot:hasElement membership from any bot:Storey; expect exactly 1 refusal row.
+@prefix bot:  <https://w3id.org/bot#> .
+@prefix cad:  <https://seanchatmangpt.github.io/packs/industry-semantic-cad-bim#> .
+@prefix ex:   <https://example.invalid/cad/> .
+
+ex:site1 a bot:Site ; bot:hasBuilding ex:bldg1 .
+ex:bldg1 a bot:Building ;
+    bot:hasStorey ex:storey1 ;
+    bot:hasElement ex:wall1 , ex:door2 .
+
+ex:storey1 a bot:Storey ; bot:hasElement ex:wall1 .
+
+# ex:door2: typed element, but no bot:Storey carries bot:hasElement ex:door2 — refusal.
+ex:door2 a bot:Element .

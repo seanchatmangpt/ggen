@@ -1,0 +1,16 @@
+@prefix lex: <https://seanchatmangpt.github.io/packs/industry-legal-ediscovery#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# FAIL witness for gate 030: custodian-f3 is walled away from matter-f3 yet
+# holds evidence collected in it — the wall breach gate 030 exists to refuse.
+lex:matter-f3 a lex:Matter ;
+    rdfs:label "In re: Fail Fixture 3" ;
+    lex:retentionPolicy "hold-7y-then-purge" .
+
+lex:custodian-f3 a lex:Custodian ;
+    lex:conflictedMatter lex:matter-f3 .
+
+lex:doc-f3 a lex:EvidenceDocument ;
+    lex:batesId "SMALT0000103" ;
+    lex:hasCustodian lex:custodian-f3 ;
+    lex:collectedIn lex:matter-f3 .

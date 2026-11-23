@@ -1,0 +1,13 @@
+# MESSAGE: sealed record without attested SKR provenance.
+# P2 BYOK/SKR: a decrypted/sealed record must carry prov:wasGeneratedBy an
+# activity bound to a valid attestation measurement fingerprint (the AZ-2 SKR
+# shape: token measurement_digest == expected fingerprint). ASK true = refusal.
+PREFIX lex: <https://seanchatmangpt.github.io/packs/industry-legal-ediscovery#>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+ASK WHERE {
+  ?rec a lex:SealedRecord .
+  FILTER NOT EXISTS {
+    ?rec prov:wasGeneratedBy ?act .
+    ?act lex:attestationFingerprint ?fp .
+  }
+}

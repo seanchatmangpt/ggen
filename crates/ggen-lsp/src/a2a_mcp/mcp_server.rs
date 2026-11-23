@@ -14,6 +14,9 @@ pub struct ConstructParams {
     pub task_id: String,
     pub jtbd: String,
     pub avatar: String,
+    /// Graph hash from a prior dry-run (CCS construct / CP17 seal).
+    #[serde(default)]
+    pub expected_graph_hash: String,
 }
 
 #[derive(Debug, Clone)]
@@ -68,20 +71,15 @@ impl GgenMcpServer {
             ));
         }
 
-        // 2. Run the ggen-engine sync pipeline (T049: replaces the retired
-        // ggen-core ManifestParser::parse_and_validate + GenerationPipeline
-        // chain). `ggen_engine::sync::sync` loads `ggen.toml` and the ontology
-        // itself and handles BOTH the frontmatter-per-template schema and the
-        // `[[generation.rules]]` declarative schema automatically (T070), so
-        // the separate manifest-parse step is subsumed, not preserved.
+        // 2. CCS construct / CP17: corroborate expected_graph_hash via dry-run,
+        // then run the real ggen-engine write sync. Fail-closed — empty or
+        // mismatched hash never writes (parity with ggen_write_apply).
         let sync_started = std::time::Instant::now();
-        let report = ggen_engine::sync::sync(&base_path, ggen_engine::sync::SyncOptions::default())
-            .map_err(|e| {
-                rmcp::model::ErrorData::internal_error(
-                    format!("Generation pipeline failed: {}", e),
-                    None,
-                )
-            })?;
+        let report = crate::a2a_mcp::construct_hash_gate::sync_write_after_corroboration(
+            &base_path,
+            &params.expected_graph_hash,
+        )
+        .map_err(|e| rmcp::model::ErrorData::internal_error(e, None))?;
         let duration_ms = sync_started.elapsed().as_millis();
 
         // NOTE: no LLM-service hook here. The old handler connected an
@@ -290,6 +288,79 @@ impl GgenMcpServer {
         let value = crate::a2a_mcp::mcp_packs::remove_result(params)
             .map_err(crate::a2a_mcp::mcp_packs::mcp_err)?;
         Ok(crate::a2a_mcp::mcp_packs::mcp_ok(value))
+    }
+
+    #[tool(
+        name = "ggen.lifecycle.dry_run",
+        description = "Sync dry-run: graph_hash and decisions (writes nothing)."
+    )]
+    async fn lifecycle_dry_run(
+        &self, Parameters(params): Parameters<crate::a2a_mcp::mcp_lifecycle::LifecycleDryRunParams>,
+    ) -> Result<CallToolResult, rmcp::model::ErrorData> {
+        crate::a2a_mcp::mcp_lifecycle::ocel_invoked("ggen.lifecycle.dry_run", &params.root);
+        let value = crate::a2a_mcp::mcp_lifecycle::dry_run_result(params)
+            .map_err(crate::a2a_mcp::mcp_lifecycle::mcp_err)?;
+        Ok(crate::a2a_mcp::mcp_lifecycle::mcp_ok(value))
+    }
+
+    #[tool(
+        name = "ggen.lifecycle.apply",
+        description = "Sync apply: requires confirm:true and expected_graph_hash from dry_run."
+    )]
+    async fn lifecycle_apply(
+        &self, Parameters(params): Parameters<crate::a2a_mcp::mcp_lifecycle::LifecycleApplyParams>,
+    ) -> Result<CallToolResult, rmcp::model::ErrorData> {
+        crate::a2a_mcp::mcp_lifecycle::ocel_invoked("ggen.lifecycle.apply", &params.root);
+        let value = crate::a2a_mcp::mcp_lifecycle::apply_result(params)
+            .map_err(crate::a2a_mcp::mcp_lifecycle::mcp_err)?;
+        Ok(crate::a2a_mcp::mcp_lifecycle::mcp_ok(value))
+    }
+
+    #[tool(
+        name = "ggen.lifecycle.receipt_verify",
+        description = "Verify .ggen-v2/receipt.json for the project root."
+    )]
+    async fn lifecycle_receipt_verify(
+        &self,
+        Parameters(params): Parameters<crate::a2a_mcp::mcp_lifecycle::LifecycleReceiptVerifyParams>,
+    ) -> Result<CallToolResult, rmcp::model::ErrorData> {
+        crate::a2a_mcp::mcp_lifecycle::ocel_invoked("ggen.lifecycle.receipt_verify", &params.root);
+        let value = crate::a2a_mcp::mcp_lifecycle::receipt_verify_result(params)
+            .map_err(crate::a2a_mcp::mcp_lifecycle::mcp_err)?;
+        Ok(crate::a2a_mcp::mcp_lifecycle::mcp_ok(value))
+    }
+
+    #[tool(
+        name = "ggen.lifecycle.ea_plan",
+        description = "ABB/SBB kernel plan over an EA graph."
+    )]
+    async fn lifecycle_ea_plan(
+        &self, Parameters(params): Parameters<crate::a2a_mcp::mcp_lifecycle::LifecycleEaPlanParams>,
+    ) -> Result<CallToolResult, rmcp::model::ErrorData> {
+        crate::a2a_mcp::mcp_lifecycle::ocel_invoked(
+            "ggen.lifecycle.ea_plan",
+            params.graph.as_deref().unwrap_or("ea.graph.json"),
+        );
+        let value = crate::a2a_mcp::mcp_lifecycle::ea_plan_result(params)
+            .map_err(crate::a2a_mcp::mcp_lifecycle::mcp_err)?;
+        Ok(crate::a2a_mcp::mcp_lifecycle::mcp_ok(value))
+    }
+
+    #[tool(
+        name = "ggen.lifecycle.ea_admit",
+        description = "ABB/SBB kernel admission over an EA graph."
+    )]
+    async fn lifecycle_ea_admit(
+        &self,
+        Parameters(params): Parameters<crate::a2a_mcp::mcp_lifecycle::LifecycleEaAdmitParams>,
+    ) -> Result<CallToolResult, rmcp::model::ErrorData> {
+        crate::a2a_mcp::mcp_lifecycle::ocel_invoked(
+            "ggen.lifecycle.ea_admit",
+            params.sbb.as_deref().unwrap_or("sbb:ingest-0000"),
+        );
+        let value = crate::a2a_mcp::mcp_lifecycle::ea_admit_result(params)
+            .map_err(crate::a2a_mcp::mcp_lifecycle::mcp_err)?;
+        Ok(crate::a2a_mcp::mcp_lifecycle::mcp_ok(value))
     }
 }
 

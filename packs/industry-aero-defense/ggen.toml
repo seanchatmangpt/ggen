@@ -1,0 +1,36 @@
+# industry-aero-defense generation contract (project profile).
+# Queries SELECT; templates render candidate Turtle + the air-gapped client
+# walkthrough. Nothing here grants DO authority.
+[project]
+name = "industry-aero-defense"
+version = "26.10.22"
+
+[ontology]
+source = "ontology.ttl"
+
+[generation]
+output_dir = "."
+
+[[generation.rules]]
+name = "rendered-shacl"
+query = { file = "queries/artifacts.rq" }
+template = { file = "templates/rendered-shacl.ttl.tera" }
+output_file = "generated/aero-defense/rendered-shacl.ttl"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "air-gap-config"
+query = { file = "queries/endpoints.rq" }
+template = { file = "templates/air-gap-config.ttl.tera" }
+output_file = "generated/aero-defense/air-gap-config.ttl"
+skip_empty = false
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "client-walkthrough"
+query = { file = "queries/endpoints.rq" }
+template = { file = "templates/client-walkthrough.md.tera" }
+output_file = "generated/aero-defense/client-walkthrough.md"
+skip_empty = false
+mode = "Overwrite"

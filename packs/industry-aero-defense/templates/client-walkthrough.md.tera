@@ -1,0 +1,34 @@
+# Air-Gapped Client Walkthrough (generated — do not hand-edit)
+
+Zero-egress by construction. Network faces are deliberately ABSENT: the only
+lawful endpoints are loopback, and gate 030 refuses anything else.
+
+## Faces used (all local)
+
+{% for row in results %}- `{{ row.endpoint }}` — inside `{{ row.boundary }}`
+{% endfor %}
+## Path of a classified artifact
+
+1. **Sovereign console** (smalt `workspace/`, air-gapped Next.js): every network
+   call rides `smaltFetch` + `assertLocalUrl` (loopback-only, `lib/smalt.ts:11,22`);
+   ESLint bans raw `fetch` literals and http clients (`just ws-lint`).
+2. **Local Blob WORM** (immutability policy): certified artifact lands under an
+   immutabilityPolicy container (`egress_router.ex:1313/1563/2282` faces) —
+   write-once inside the retention window.
+3. **Local Confidential Ledger**: attestation-backed tamper-evident record
+   (`lib/smalt/security/attestation.ex`, `lib/smalt/enclave/`).
+4. **Custody signing**: KV PS256 (`lib/smalt/data_plane/kv_pss.ex:1-8`).
+   PQC position, typed honestly: **GAP(kv-pqc-keyface)** — PQC primitives exist
+   off-wire only (`lib/smalt/tls.ex`, `lib/smalt/trust_profile/trust_profile.ex`,
+   `lib/smalt/hw/frame.ex`); no ML-DSA/ML-KEM `kty` on the KV create/sign wire
+   face (`KvRoutes.ex:28,147-207`).
+5. **Verifiable execution proof**: `ad:VerifiableExecutionProof` binds the artifact
+   digest (`ad:proofDigest`) to its PROV-O generation activity — replayable, local.
+
+## Refusals this pack encodes
+
+- artifact without classification/caveat/cleared principal (gate 010 + SHACL minCount)
+- cross-level flow, target more restrictive than source (gate 020)
+- non-loopback endpoint in any rendered config (gate 030) — the air-gap IS the gate
+
+Nothing leaves loopback.

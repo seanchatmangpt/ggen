@@ -1,0 +1,22 @@
+# FAIL witness 040 (P1 ledger isolation): entry bound to a pathless store —
+# the per-account journal path law is the ONLY law broken (balanced legs,
+# accounts declared, id unique, all other gates silent).
+@prefix fin: <https://ggen.io/ontology/financial-ledger#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+fin:acct-1001 a fin:Account ; fin:accountNumber "1001" .
+fin:acct-2002 a fin:Account ; fin:accountNumber "2002" .
+
+fin:store-1001 a fin:LedgerStore .  # no fin:journalPath — pathless arm
+
+fin:je-040x a fin:JournalEntry ;
+    fin:entryId "je-2026-0499" ;
+    fin:casEtag "0000000d-0000-0100-0000-0000000000499" ;
+    fin:isolatedStore fin:store-1001 ;
+    fin:hasPosting fin:p-040x-1, fin:p-040x-2 .
+
+fin:p-040x-1 a fin:Posting ; fin:account fin:acct-1001 ;
+    fin:debitAmount "75.00"^^xsd:decimal .
+
+fin:p-040x-2 a fin:Posting ; fin:account fin:acct-2002 ;
+    fin:creditAmount "75.00"^^xsd:decimal .

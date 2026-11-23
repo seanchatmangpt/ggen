@@ -1035,9 +1035,7 @@ fn harness_path_aliases(manifest: &GgenManifest) -> Vec<(String, String)> {
             .to_string();
         let joined = join_output_dir(&manifest.generation.output_dir, &static_prefix);
         let path = Path::new(&joined);
-        let is_ts = path
-            .extension()
-            .is_some_and(|e| e == "ts" || e == "tsx");
+        let is_ts = path.extension().is_some_and(|e| e == "ts" || e == "tsx");
         if !is_ts {
             continue;
         }

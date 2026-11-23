@@ -1,0 +1,25 @@
+---
+to: "output/pillar-gates.md"
+sparql:
+  row: |
+    PREFIX cad: <https://seanchatmangpt.github.io/packs/industry-semantic-cad-bim#>
+    SELECT ?path ?artifact ?digest WHERE {
+      ?store a cad:ProjectStore ;
+             cad:journalPath ?path .
+      ?artifact a cad:DesignArtifact ;
+                cad:storedIn ?store ;
+                cad:artifactDigest ?digest .
+    } ORDER BY ?path ?artifact
+---
+# Semantic CAD/BIM pillar manifest
+
+P1 design isolation — per-project store law (gate 040):
+
+| project journal path | artifact | digest |
+|---|---|---|
+{% for r in row %}| `{{ r.path }}` | {{ r.artifact }} | `{{ r.digest }}` |
+{% endfor %}
+
+Authority: SELECT-only projection of the P1 design-isolation law
+(gates/040_design_isolation.rq); generated artifact claims NONE, standing UNKNOWN
+until a consumer court admits it.

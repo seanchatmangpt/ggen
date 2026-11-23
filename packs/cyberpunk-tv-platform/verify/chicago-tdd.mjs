@@ -46,7 +46,12 @@ for (const capability of capabilities) {
   assertContract(`capability:${capability.id}:reversible`, typeof capability.reversible === 'boolean', 'reversibility must be explicit');
   assertContract(`capability:${capability.id}:enabled`, typeof capability.enabled === 'boolean', 'default selection must be explicit');
   if (capability.requires) {
-    assertContract(`capability:${capability.id}:dependency`, [...capabilityIds].some(id => capability.requires.endsWith(id)), `requires=${capability.requires}`);
+    // Accept capabilityId ("doctor"), fragment (#doctor), or legacy Cap* IRI suffix.
+    const depOk = [...capabilityIds].some(id => {
+      const req = String(capability.requires);
+      return req === id || req.endsWith(`#${id}`) || req.endsWith(id);
+    });
+    assertContract(`capability:${capability.id}:dependency`, depOk, `requires=${capability.requires}`);
   }
 }
 

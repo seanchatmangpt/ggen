@@ -10,18 +10,11 @@ publish = false
 
 [dependencies]
 blake3 = "1.8"
-clap-noun-verb = "=26.8.22"
-clap-noun-verb-macros = "=26.8.22"
+clap-noun-verb = "=26.7.4"
+clap-noun-verb-macros = "=26.7.4"
 linkme = "0.3"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-# Every generated CLI gets an OCEL 2.0 event log for free with zero setup
-# (default path .clap-noun-verb/ocel.json, override with CLAP_NOUN_VERB_OCEL_PATH).
-# Optional: also serve this CLI over MCP/HTTP (including its OCEL log at GET
-# /ocel and the clap-noun-verb://ocel MCP resource), or project it to a
-# Kubernetes manifest / OCI Dockerfile, without touching the generated
-# routing/handler code above. Uncomment to opt in:
-# clap-noun-verb-deploy = { version = "=26.8.22", features = ["mcp", "http", "kubernetes", "container"] }
 
 [[bin]]
 name = "sjira"

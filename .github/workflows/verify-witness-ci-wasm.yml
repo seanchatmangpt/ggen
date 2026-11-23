@@ -1,0 +1,80 @@
+# G2-11 — mount real affidavit gatekeeper pin + consume via GGEN_VERIFY_WITNESS_WASM.
+# Companion: docs/rfc/v27.1.1/VERIFY-WITNESS-CI-WASM-NEXT-VERIFIER-STANDING.md §3
+name: verify_witness CI-wasm consume
+
+on:
+  pull_request:
+    paths:
+      - 'crates/ggen-graph/src/witness/**'
+      - 'crates/ggen-graph/fixtures/witness/**'
+      - 'crates/ggen-graph/tests/verify_witness_size_court.rs'
+      - 'crates/ggen-graph/Cargo.toml'
+      - '.github/workflows/verify-witness-ci-wasm.yml'
+      - 'docs/rfc/v27.1.1/VERIFY-WITNESS*.md'
+      - 'docs/rfc/v27.1.1/GATE023-OOR-STANDING-MATRIX.md'
+  push:
+    branches: [main, 'cursor/ecosystem-spec-27-1-1-bc54']
+    paths:
+      - 'crates/ggen-graph/src/witness/**'
+      - 'crates/ggen-graph/fixtures/witness/**'
+      - 'crates/ggen-graph/tests/verify_witness_size_court.rs'
+      - '.github/workflows/verify-witness-ci-wasm.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  # Do not cancel: honesty docs retips were thrashing the consume court before it started.
+  group: vw-ci-wasm-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: '1'
+  RUSTC_WRAPPER: ''
+  SCCACHE_DISABLE: '1'
+  CARGO_BUILD_JOBS: '1'
+
+jobs:
+  consume:
+    name: Mount pin + production consume court
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - name: Checkout exact head
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Step A — prove mounted pin identity (fail-closed)
+        shell: bash
+        run: |
+          set -euo pipefail
+          PIN="crates/ggen-graph/fixtures/witness/affidavit_gatekeeper_verify_witness.pin.wasm"
+          test -f "$PIN"
+          BYTES="$(wc -c < "$PIN" | tr -d ' ')"
+          DIGEST="$(sha256sum "$PIN" | awk '{print $1}')"
+          echo "bytes=$BYTES"
+          echo "sha256=$DIGEST"
+          test "$BYTES" = "28673"
+          test "$DIGEST" = "5faae4642ca23c503e96d2a2ab938c056caffdde14e77516054fe4492aed0c97"
+          # refuse fat affidavit-wasm mis-cite
+          test "$BYTES" -lt 256000
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Step C — ggen consume court with GGEN_VERIFY_WITNESS_WASM set
+        shell: bash
+        env:
+          GGEN_VERIFY_WITNESS_WASM: ${{ github.workspace }}/crates/ggen-graph/fixtures/witness/affidavit_gatekeeper_verify_witness.pin.wasm
+          CARGO_TARGET_DIR: /tmp/ggen-verify-witness-ci-wasm
+        run: |
+          set -euo pipefail
+          test -f "$GGEN_VERIFY_WITNESS_WASM"
+          echo "GGEN_VERIFY_WITNESS_WASM=$GGEN_VERIFY_WITNESS_WASM"
+          cargo test -p ggen-graph --test verify_witness_size_court --locked \
+            --config build.jobs=1 -- --test-threads=1
+          echo "EXIT=$?"

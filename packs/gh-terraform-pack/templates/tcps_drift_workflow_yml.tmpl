@@ -1,0 +1,10 @@
+---
+to: .github/workflows/tcps-drift.yml
+sparql:
+  row: |
+    PREFIX ghtf: <http://seanchatmangpt.github.io/packs/gh-terraform#>
+    SELECT ?body WHERE {
+      ghtf:TcpsDriftWorkflow ghtf:workflowBody ?body .
+    } ORDER BY ?body
+---
+{{ row[0].body }}

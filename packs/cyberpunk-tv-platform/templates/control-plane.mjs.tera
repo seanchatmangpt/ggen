@@ -151,7 +151,10 @@ async function doctor(args = [], silent = false) {
 
 function resolveDependency(capability) {
   if (!capability?.requires) return null;
-  return byKind('capability').find(candidate => capability.requires.endsWith(`#${candidate.id}`) || capability.requires.endsWith(candidate.id)) ?? null;
+  const req = String(capability.requires);
+  return byKind('capability').find(candidate =>
+    req === candidate.id || req.endsWith(`#${candidate.id}`) || req.endsWith(candidate.id)
+  ) ?? null;
 }
 
 async function explain(args = [], silent = false) {
@@ -287,7 +290,7 @@ async function telco(args = [], silent = false) {
 
 async function plan(args = [], silent = false) {
   const axes = byKind('axis').map(axis => ({ ...axis, values: csv(axis.values) }));
-  const constraints = new Set(args.filter(value => value.startsWith('--')).map(value => value.replace(/^--/, ''));
+  const constraints = new Set(args.filter(value => value.startsWith('--')).map(value => value.replace(/^--/, '')));
   const product = axes.reduce((count, axis) => count * axis.values.length, 1);
   const enabled = byKind('capability').filter(capability => capability.enabled);
   const optional = byKind('capability').filter(capability => !capability.enabled);

@@ -1,0 +1,46 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dflss: <https://seanchatmangpt.github.io/packs/industry-manufacturing-dflss#> .
+
+# Mirror of the three refusal laws as SHACL. These shapes are also the
+# template-rendered consumer artifact (templates/shacl-manufacturing-shapes.ttl.tmpl);
+# the pack-local copy is what runners/semantic_runner.py judges pass witnesses against.
+
+dflss:WorkOrderShape a sh:NodeShape ;
+    sh:targetClass dflss:WorkOrder ;
+    sh:property [
+        sh:path dflss:hasGateOutcome ;
+        sh:minCount 1 ;
+        sh:class dflss:QualityGateOutcome ;
+        sh:message "work order MUST have a quality-gate outcome (gate 010)" ;
+    ] .
+
+dflss:AndonSignalShape a sh:NodeShape ;
+    sh:targetClass dflss:AndonSignal ;
+    sh:property [
+        sh:path dflss:signalLevel ;
+        sh:datatype xsd:string ;
+        sh:in ( "green" "yellow" "red" ) ;
+    ] ;
+    sh:sparql [
+        sh:message "red-Andon MUST have containment (gate 020)" ;
+        sh:select """
+            PREFIX dflss: <https://seanchatmangpt.github.io/packs/industry-manufacturing-dflss#>
+            SELECT $this WHERE {
+                $this dflss:signalLevel "red" .
+                FILTER NOT EXISTS {
+                    $this dflss:triggersContainment ?c .
+                    ?c a dflss:Containment .
+                }
+            }
+        """ ;
+    ] .
+
+dflss:DefectShape a sh:NodeShape ;
+    sh:targetClass dflss:Defect ;
+    sh:property [
+        sh:path dflss:tracedToLot ;
+        sh:minCount 1 ;
+        sh:class dflss:SupplierLot ;
+        sh:message "defect MUST trace to a supplier lot (gate 030)" ;
+    ] .

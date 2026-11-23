@@ -1,0 +1,59 @@
+{
+  "root": "product",
+  "hard_fail_undersize": false,
+  "nodes": [
+    {
+      "id": "btn_a",
+      "interactive": true,
+      "style": {
+        "size": { "width": { "px": 44 }, "height": { "px": 44 } },
+        "flex_grow": 0,
+        "flex_shrink": 0
+      }
+    },
+    {
+      "id": "btn_b",
+      "interactive": true,
+      "style": {
+        "size": { "width": { "px": 44 }, "height": { "px": 44 } },
+        "flex_grow": 0,
+        "flex_shrink": 0
+      }
+    },
+    {
+      "id": "controls",
+      "style": {
+        "display": "flex",
+        "flex_direction": "row",
+        "gap": { "column": 12, "row": 0 },
+        "size": { "width": { "percent": 1.0 }, "height": { "px": 44 } }
+      },
+      "children": ["btn_a", "btn_b"]
+    },
+    {
+      "id": "label",
+      "style": {
+        "size": { "width": { "px": 200 }, "height": { "px": 24 } },
+        "flex_grow": 0,
+        "flex_shrink": 0
+      },
+      "text": {
+        "font_size": 16,
+        "line_count": 1,
+        "paragraph_count": 1,
+        "char_count": 12,
+        "word_count": 3
+      }
+    },
+    {
+      "id": "product",
+      "style": {
+        "display": "flex",
+        "flex_direction": "column",
+        "gap": { "column": 0, "row": 16 },
+        "size": { "width": { "percent": 1.0 }, "height": { "px": 84 } }
+      },
+      "children": ["controls", "label"]
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+# RENDERED via ggen (industry-aero-defense). DO NOT hand-edit.
+# Shape projection: one row per admitted classified artifact — classification,
+# caveat, cleared need-to-know principal. Gates 010/020/030 fence the result.
+@prefix ad: <https://seanchatmangpt.github.io/packs/industry-aero-defense#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+
+{% for row in results %}<{{ row.artifact }}> a ad:ClassifiedArtifact ;
+    ad:classification <{{ row.level }}> ;
+    ad:caveat "{{ row.caveat }}" ;
+    ad:needToKnowPrincipal <{{ row.principal }}> .
+{% endfor %}

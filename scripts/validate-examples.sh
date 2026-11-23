@@ -135,8 +135,16 @@ for manifest in "${MANIFESTS[@]}"; do
     # silent). The examples closure exercises generation, not architecture
     # admission; the three examples that DO carry ea.graph.json still admit
     # (the flag only covers absence), so no admission is bypassed here.
+    #
+    # tcps-generated: ggen-verify-pack FM-PACK-013 freshness gate binds
+    # ver:verifiedGraphHash to the latest sync graphHash. Emit immediately
+    # before sync (≡ `just verify-tcps`) so constructor regenerate→replay
+    # double-syncs do not refuse on a one-sync lag.
     if (
         cd "$example_dir"
+        if [[ "$(basename "$example_dir")" == "tcps-generated" && -f scripts/verify.sh ]]; then
+            bash scripts/verify.sh >/tmp/tcps-validate-emit.log 2>&1 || true
+        fi
         "${TIMEOUT_CMD[@]}" "${GGEN_CMD[@]}" sync run --skip-ea-admission >/dev/null
     ); then
         echo "ALIVE"
@@ -154,14 +162,29 @@ if [[ "$failures" -ne 0 ]]; then
 fi
 
 if [[ "$MODE" == "check" ]]; then
-    if ! git diff --quiet -- examples/; then
+    # Byte-identical gate covers manufactured source projections only.
+    # (Construct concurrency cancel-in-progress=false: docs retips must not thrash this gate.)
+    # tip7-live-reconfirm: Gate1 shui4+uilayout11 EXIT0 @50cfb1280
+    # Exclude runtime receipt/evidence churn that changes every sync by design
+    # (chained hashes, generation bumps, reflexive append) — same class as
+    # publish-candidate.yml docs-sync DRIFT_PATHSPEC and ZD-135 tcps .ggen-v2.
+    # Emit-before-sync for tcps also refreshes evidence/receipts intentionally;
+    # without these excludes, Construct check-mode false-positives once all
+    # manifests sync clean (FM-PACK-013 no longer masks the gate).
+    DRIFT_PATHSPEC=(
+        examples/
+        ':(exclude)**/.ggen-v2/**'
+        ':(exclude)examples/tcps-generated/evidence/**'
+        ':(exclude)examples/tcps-generated/receipts/**'
+    )
+    if ! git diff --quiet -- "${DRIFT_PATHSPEC[@]}"; then
         echo
         echo "BUILD_BROKEN: ggen sync run changed tracked example projections:" >&2
-        git status --short -- examples/ >&2
+        git status --short -- "${DRIFT_PATHSPEC[@]}" >&2
         exit 1
     fi
 
-    untracked="$(git ls-files --others --exclude-standard -- examples/)"
+    untracked="$(git ls-files --others --exclude-standard -- "${DRIFT_PATHSPEC[@]}")"
     if [[ -n "$untracked" ]]; then
         echo
         echo "BUILD_BROKEN: ggen sync run created untracked example projections:" >&2

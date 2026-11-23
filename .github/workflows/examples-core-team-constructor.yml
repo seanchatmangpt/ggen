@@ -18,8 +18,11 @@ permissions:
   contents: read
 
 concurrency:
+  # Docs / standing retips on the crown tip must not thrash a 45–60m
+  # Construct cold-compile mid-flight (same class as verify-witness-ci-wasm).
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
+  # retrig-954c: keep Construct attached to tip after docs-only tip-wins
 
 jobs:
   construct:
@@ -165,7 +168,16 @@ jobs:
           replacement = '''\n      const buildOutput = execFileSync("npm", ["run", "build"], {\n        cwd: EXAMPLE_ROOT,\n        encoding: "utf8",\n        timeout: 180_000,\n      });\n      expect(typeof buildOutput).toBe("string");'''
           s, n = pattern.subn(replacement, s)
           if n == 0:
-              assert 'npm", ["run", "build"]' in s, 'acceptance build block not updated'
+              # Idempotent when the acceptance court already expects a real
+              # succeeding production build (npm run build OR npx next build
+              # without the old buildFailed/node:module regression pin).
+              assert (
+                  'npm", ["run", "build"]' in s
+                  or (
+                      '["next", "build"]' in s
+                      and 'expect(buildFailed)' not in s
+                  )
+              ), 'acceptance build block not updated'
           s = s.replace('100_000,\n  );', '190_000,\n  );', 1)
           p.write_text(s)
 
@@ -297,8 +309,8 @@ jobs:
             (cd examples/interview-sandbox && "$GGEN_BIN" receipt history)
           fi
 
-          # TCPS: its own verifier is the authority that refreshes graph-bound evidence.
-          (cd examples/tcps-generated && bash scripts/verify.sh) | tee tcps-verify-refresh.log
+          # TCPS evidence refresh moved into scripts/validate-examples.sh
+          # (emit-before-sync) so regenerate/replay cannot bind unsynced hashes.
 
       - name: Manufacture generated repairs
         shell: bash
@@ -326,6 +338,16 @@ jobs:
             git -c user.name='ggen core-team constructor' -c user.email='actions@users.noreply.github.com' commit -m 'construct: regenerate example projections'
           fi
 
+      - name: Refresh tcps verification evidence after regenerate
+        shell: bash
+        run: |
+          set -euo pipefail
+          (cd examples/tcps-generated && bash scripts/verify.sh) | tee tcps-verify-post-regen.log
+          git add examples/tcps-generated/evidence examples/tcps-generated/receipts
+          if ! git diff --cached --quiet; then
+            git -c user.name='ggen core-team constructor' -c user.email='actions@users.noreply.github.com' commit -m 'construct: refresh tcps evidence after regenerate'
+          fi
+
       - name: Verify byte-identical ggen replay
         shell: bash
         env:
@@ -333,7 +355,12 @@ jobs:
           GGEN_EXAMPLE_TIMEOUT_SECONDS: 180
         run: |
           set -o pipefail
-          scripts/validate-examples.sh 2>&1 | tee constructor-replay.log
+          scripts/validate-examples.sh --write 2>&1 | tee constructor-replay.log
+          git add examples/
+          if ! git diff --cached --quiet; then
+            git -c user.name='ggen core-team constructor' -c user.email='actions@users.noreply.github.com' commit -m 'construct: validation replay fallout'
+          fi
+          scripts/validate-examples.sh 2>&1 | tee -a constructor-replay.log
 
       - name: Install Node 22
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
@@ -341,6 +368,12 @@ jobs:
           node-version: 22
           cache: npm
           cache-dependency-path: examples/interview-assist/package-lock.json
+
+      - name: Refuse interview-assist package-lock drift
+        shell: bash
+        run: |
+          set -euo pipefail
+          node scripts/check-npm-lock-sync.mjs examples/interview-assist
 
       - name: Install Interview Assist dependencies
         working-directory: examples/interview-assist
@@ -355,7 +388,10 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          python3 -m pip install --disable-pip-version-check rdflib==7.1.4
+          # pytest required by Interview Assist run_pytest sandbox courts
+          # (rdflib alone left CI with empty pytest stdout → 11 vitest fails).
+          python3 -m pip install --disable-pip-version-check rdflib==7.1.4 pytest==9.1.1
+          python3 -m pytest --version
           npm run typecheck
           npm test
           npm run build

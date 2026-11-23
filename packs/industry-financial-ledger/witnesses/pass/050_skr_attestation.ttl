@@ -1,0 +1,11 @@
+# PASS witness 050 (P2 BYOK/SKR): settlement-stage completions bound to
+# attestation fingerprints (AZ-2 shape); all gates silent.
+@prefix fin: <https://ggen.io/ontology/financial-ledger#> .
+
+fin:capture-done a fin:SettlementCompletion ;
+    fin:completesStage fin:Capture ;
+    fin:attestationFingerprint "smq1:9f2c...a17b" .
+
+fin:settle-done a fin:SettlementCompletion ;
+    fin:completesStage fin:Settle ;
+    fin:attestationFingerprint "smq1:c41d...9e02" .

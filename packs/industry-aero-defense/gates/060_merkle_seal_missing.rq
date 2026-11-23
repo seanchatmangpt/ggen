@@ -1,0 +1,14 @@
+# MESSAGE: P5 Merkle seal gate — classified artifact without a sealed root.
+# Every ad:ClassifiedArtifact must reference an ad:Seal carrying a sha256
+# ad:sealedRoot. A row is a refusal.
+PREFIX ad: <https://seanchatmangpt.github.io/packs/industry-aero-defense#>
+SELECT ?artifact WHERE {
+  ?artifact a ad:ClassifiedArtifact .
+  FILTER NOT EXISTS {
+    ?artifact ad:hasSeal ?seal .
+    ?seal a ad:Seal ;
+          ad:sealedRoot ?root .
+    FILTER(STRSTARTS(STR(?root), "sha256:"))
+  }
+}
+ORDER BY ?artifact

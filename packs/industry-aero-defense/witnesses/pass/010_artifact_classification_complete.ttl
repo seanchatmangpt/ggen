@@ -1,0 +1,20 @@
+@prefix ex: <https://example.org/aero-defense#> .
+# PASS witness 010: a complete classified artifact (classification + caveat + cleared principal).
+@prefix ad: <https://seanchatmangpt.github.io/packs/industry-aero-defense#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+
+ex: a ad:AirGapBoundary ;
+    ad:endpoint "http://127.0.0.1:9443" .
+
+ex:analyst-j-doe a ad:Principal , prov:Agent ;
+    ad:clearanceLevel ad:Secret .
+
+ex:flight-ctrl-swd a ad:ClassifiedArtifact , prov:Entity ;
+    ad:classification ad:Secret ;
+    ad:caveat "NOFORN" ;
+    ad:needToKnowPrincipal ex:analyst-j-doe .
+
+ex:flight-ctrl-swd ad:hasSeal ex:seal-060 .
+
+ex:seal-060 a ad:Seal ;
+    ad:sealedRoot "sha256:6b4e2f10a9c8d7e6f5a4b3c2d1e0f9a8b7c6d5e4f3a2b1c0d9e8f7a6b5c4d3e2" .

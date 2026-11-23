@@ -1,0 +1,11 @@
+# MESSAGE: classified artifact missing classification, caveat, or need-to-know principal.
+# Every ad:ClassifiedArtifact MUST carry classification + caveat + at least one
+# cleared need-to-know principal; a row is a refusal.
+PREFIX ad: <https://seanchatmangpt.github.io/packs/industry-aero-defense#>
+SELECT ?artifact ?missing WHERE {
+  ?artifact a ad:ClassifiedArtifact .
+  BIND(IF(NOT EXISTS{?artifact ad:classification ?c}, "classification",
+       IF(NOT EXISTS{?artifact ad:caveat ?v}, "caveat",
+       IF(NOT EXISTS{?artifact ad:needToKnowPrincipal ?p}, "principal", ""))) AS ?missing)
+  FILTER (?missing != "")
+}

@@ -1,0 +1,11 @@
+# MESSAGE: mixed-classification storage — P1 classification isolation
+# (storage-segregation law). One ad:Store holding artifacts of two distinct
+# classification levels is a refusal; a row per offending store pair.
+PREFIX ad: <https://seanchatmangpt.github.io/packs/industry-aero-defense#>
+SELECT ?store ?levelA ?levelB WHERE {
+  ?store a ad:Store .
+  ?artifactA a ad:ClassifiedArtifact ; ad:storedIn ?store ; ad:classification ?levelA .
+  ?artifactB a ad:ClassifiedArtifact ; ad:storedIn ?store ; ad:classification ?levelB .
+  FILTER(STR(?levelA) < STR(?levelB))
+}
+ORDER BY ?store ?levelA ?levelB

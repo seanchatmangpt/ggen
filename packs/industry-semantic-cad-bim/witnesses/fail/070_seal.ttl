@@ -1,0 +1,12 @@
+@prefix bot:  <https://w3id.org/bot#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix cad:  <https://seanchatmangpt.github.io/packs/industry-semantic-cad-bim#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix ex:   <https://example.invalid/cad/> .
+
+# FAIL witness G7 (P5): root revision with NO cad:sealedRoot; expect exactly 1 refusal row.
+# No DesignRevision-typed individuals, so gate 050 stays silent (exactly-one-law).
+ex:rev0 a cad:RootRevision ;
+    cad:revisionIndex 0 .
+
+# ex:sealX (absent): no MerkleSeal is referenced — unsealed root — refusal.

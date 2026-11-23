@@ -1,0 +1,8 @@
+# FAIL witness 050 (P2 BYOK/SKR): a settlement completion without an
+# attestation fingerprint — the 050 law is the ONLY law broken
+# (no entries, batches, or stores; every other gate silent).
+@prefix fin: <https://ggen.io/ontology/financial-ledger#> .
+
+fin:enrich-done a fin:SettlementCompletion ;
+    fin:completesStage fin:Enrich .
+    # no fin:attestationFingerprint — the refusal

@@ -17,8 +17,11 @@ pub mod delta;
 pub mod diagnostics;
 pub mod dialect;
 pub mod doctor;
+/// ECOSYSTEM-SPEC-27.1.1 §11 R-01…R-07 resolution contract (ungrounded-close fence).
+pub mod ecosystem_risk;
 pub mod graph;
 pub mod interchangeable;
+pub mod layout;
 pub mod ocel;
 pub mod prelude;
 pub mod receipt;
@@ -43,6 +46,8 @@ pub mod rwr;
 pub mod shacl;
 pub mod sparql;
 pub mod vocab;
+/// Offline `verify_witness` WASM size-budget stub (ECOSYSTEM-SPEC-27.1.1 Gate 1).
+pub mod witness;
 
 pub use coherence::{
     CoherenceChecker, CoherenceDrift, CoherenceReport, DriftKind, Pole, PoleState,

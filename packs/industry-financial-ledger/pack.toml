@@ -1,0 +1,25 @@
+[pack]
+name = "industry-financial-ledger"
+version = "0.1.0"
+description = """
+Industry pack (financial services & banking): FINREC-style double-entry
+ledger vocabulary over the smalt emulator faces. Models JournalEntry,
+Posting (debit/credit legs), Account, the ETag-CAS concurrency law
+(every committed entry carries the Cosmos _etag it CAS'd on), and the
+SB settlement workflow stages (each stage binds a Service Bus queue and
+an EH audit telemetry topic). Ships:
+  templates/  SHACL shapes for ledger entries (balanced = sum(debits) ==
+              sum(credits) as an ASK gate; account-ref and entry-id
+              cardinalities) and a browser-console client walkthrough
+              (smaltFetch -> Cosmos ETag-CAS entry commit -> SB
+              settlement queues -> EH audit telemetry);
+  gates/      SPARQL refusal gates: unbalanced entry, missing/dangling
+              account ref, duplicate entry id;
+  witnesses/  pass/fail TTL fixtures proving each gate can fire and can
+              stay silent.
+Routing: browser -> smaltFetch -> cosmos/kv/appconfig REST (smalt
+8443); SB workflow legs and EH audit ingest via MCP 9545 / relay.
+"""
+
+[capabilities]
+provides = ["urn:ggen:pack:industry-financial-ledger"]

@@ -49,9 +49,13 @@ jobs:
         working-directory: packs/rwr-level5-foundation-pack
         run: |
           set -euo pipefail
-          ../../target/debug/ggen sync run
+          # --skip-ea-admission: FM-LAW-015 disclosed opt-out (ZD-125 pattern).
+          # This pack's authored surface is ontology/templates/gates only — no
+          # ea.graph.json is admitted here. Skip is loud: the receipt records
+          # the gate was not evaluated.
+          ../../target/debug/ggen sync run --skip-ea-admission
           first="$(find consumer/rwr-level5-foundation -type f -print0 | sort -z | xargs -0 sha256sum | sha256sum)"
-          ../../target/debug/ggen sync run
+          ../../target/debug/ggen sync run --skip-ea-admission
           second="$(find consumer/rwr-level5-foundation -type f -print0 | sort -z | xargs -0 sha256sum | sha256sum)"
           test "$first" = "$second"
 

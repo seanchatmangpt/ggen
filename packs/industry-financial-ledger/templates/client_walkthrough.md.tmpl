@@ -1,0 +1,82 @@
+{# Rendered from the industry-financial-ledger ontology (FINREC-style
+   double-entry vocabulary over the smalt emulator faces).
+   Regenerate via ggen sync run; hand edits are drift. #}
+# Financial-ledger client walkthrough (smalt emulator)
+
+Browser console → smaltFetch → Cosmos ETag-CAS entry commit →
+Service Bus settlement queues → Event Hubs audit telemetry.
+
+## 0. Endpoints (smalt)
+
+| Face | Endpoint | Source |
+|---|---|---|
+| Cosmos REST (data plane) | `https://localhost:8443` | `lib/smalt/egress/CosmosRoutes.ex:18` (`POST /app/transactions`), `:61-205` |
+| ETag CAS | `If-Match` on document writes | `lib/smalt/data_plane/cosmos.ex:133` |
+| Service Bus (settlement queues) | AMQP `localhost:5672` | `lib/smalt/messaging/amqp` |
+| Event Hubs (audit telemetry) | AMQP `localhost:5673` | `lib/smalt/messaging/event_hubs/listener.ex:3` |
+| MCP tool surface | `https://localhost:9545` | `lib/smalt/mcp/` |
+
+## 1. Browser console — commit one balanced entry (Cosmos ETag-CAS)
+
+Paste in the browser console of the Sovereign Console (networking only
+through `lib/smalt.ts` `smaltFetch` — raw `fetch` is ESLint-banned):
+
+```js
+// The account document holds the running balance; its _etag is the CAS token.
+const acct = await smaltFetch("/app/dbs/ledgerdb/colls/accounts/docs/acct-1001");
+const debitLeg  = { account: "acct-1001", debitAmount: 250.00, creditAmount: null };
+const creditLeg = { account: "acct-2002", debitAmount: null, creditAmount: 250.00 };
+
+const entry = {
+  id: "je-2026-0001",                  // fin:entryId — idempotency key (duplicates refuse)
+  entryId: "je-2026-0001",
+  postedAt: new Date().toISOString(),
+  casEtag: acct._etag,                 // concurrency law: commit only via If-Match CAS
+  postings: [debitLeg, creditLeg],     // sum(debits) must equal sum(credits)
+};
+
+// ETag-CAS commit: second writer with a stale _etag gets 412 Precondition Failed.
+const res = await smaltFetch("/app/dbs/ledgerdb/colls/entries/docs", {
+  method: "POST",
+  headers: { "If-Match": entry.casEtag },
+  body: JSON.stringify(entry),
+});
+console.log(res.status);               // 201 created, or 412 = concurrent writer won
+```
+
+An unbalanced entry (debits 250 / credits 240) or a duplicate `entryId`
+is refused by the pack gates (gates/010, gates/030) at graph admission —
+before any CAS commit is attempted.
+
+## 2. Service Bus — settlement workflow queues
+
+Each settlement stage owns one queue; entries flow stage→stage; SQL
+filter rules route by stage index (SB 5672):
+
+```
+settle-capture (stage 1) -> settle-enrich (stage 2) -> settle-settle (stage 3) -> settle-audit (stage 4)
+```
+
+Stage individuals in the ontology (`fin:Capture`, `fin:Enrich`,
+`fin:Settle`, `fin:Audit`) bind `fin:queueName` per stage; forward
+leg via MCP 9545 or an AMQP client pointed at loopback 5672.
+
+## 3. Event Hubs — audit telemetry
+
+Every stage transition emits an audit event to `eh-audit-ledger`
+(EH 5673); consumer groups replay it for the audit trail:
+
+```
+POST /app/transactions            (Cosmos batch commit)
+  -> SB settle-capture            (stage 1 enqueued)
+  -> SB settle-enrich / settle    (workflow advances)
+  -> EH eh-audit-ledger           (per-stage audit telemetry)
+```
+
+## 4. Gate contract
+
+| Gate | Refuses when |
+|---|---|
+| `gates/010_unbalanced_entry.rq` | sum(debit) != sum(credit) on any entry |
+| `gates/020_missing_account_ref.rq` | posting w/o account, dangling account, <2 legs |
+| `gates/030_duplicate_entry_id.rq` | duplicate fin:entryId across entries |

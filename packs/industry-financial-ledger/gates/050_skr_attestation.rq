@@ -1,0 +1,9 @@
+# MESSAGE: settlement completion without an attestation fingerprint — P2 BYOK/SKR.
+# AZ-2 shape (mirrors industry-legal-ediscovery gate 050, smalt
+# lib/smalt/attestation/maa.ex secure_key_release/3): every settlement-stage
+# completion must bind an attestation fingerprint. ASK true = refusal.
+PREFIX fin: <https://ggen.io/ontology/financial-ledger#>
+ASK WHERE {
+  ?c a fin:SettlementCompletion .
+  FILTER NOT EXISTS { ?c fin:attestationFingerprint ?fp . }
+}

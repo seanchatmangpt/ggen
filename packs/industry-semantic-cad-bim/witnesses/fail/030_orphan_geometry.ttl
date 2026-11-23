@@ -1,0 +1,14 @@
+# FAIL witness G3: ex:geom3 attached to NO element; expect exactly 1 refusal row.
+# The element is otherwise fully lawful (storey membership present), so the
+# ONLY law broken is the orphan-geometry law (no 010 cross-fire; EXPL2 F2).
+@prefix bot:  <https://w3id.org/bot#> .
+@prefix cad:  <https://seanchatmangpt.github.io/packs/industry-semantic-cad-bim#> .
+@prefix ex:   <https://example.invalid/cad/> .
+
+ex:storey1 a bot:Storey ; bot:hasElement ex:wall1 .
+
+ex:wall1 a bot:Element ; cad:hasGeometry ex:geom1 .
+ex:geom1 a cad:Geometry ; cad:geometryFormat "IFC-STEP" .
+
+# ex:geom3: exists, but no element claims it — orphan — refusal.
+ex:geom3 a cad:Geometry ; cad:geometryFormat "obj" .

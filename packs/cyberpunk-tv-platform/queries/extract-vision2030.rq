@@ -4,7 +4,12 @@ SELECT ?kind ?id ?title ?group ?order ?requires ?provides ?verifier ?repair ?cos
 WHERE {
   {
     ?subject a tv:PhaseCapability ; tv:capabilityId ?id ; dct:title ?title ; tv:capabilityGroup ?group ; tv:capabilityOrder ?order ; tv:provides ?provides ; tv:verifier ?verifier ; tv:costClass ?cost ; tv:reversible ?reversible ; tv:defaultEnabled ?enabled .
-    OPTIONAL { ?subject tv:requires ?required . BIND(STR(?required) AS ?requires) }
+    # Bind the dependency's capabilityId (e.g. "doctor"), not the CapDoctor IRI —
+    # chicago-tdd + control-plane resolve requires against capability.id.
+    OPTIONAL {
+      ?subject tv:requires ?requiredNode .
+      ?requiredNode tv:capabilityId ?requires .
+    }
     OPTIONAL { ?subject tv:command ?command }
     BIND("capability" AS ?kind)
   }

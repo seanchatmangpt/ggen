@@ -1,0 +1,160 @@
+@prefix ad: <https://seanchatmangpt.github.io/packs/industry-aero-defense#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+ad: a owl:Ontology ;
+    owl:imports <http://www.w3.org/ns/prov-o#> ;
+    rdfs:label "industry-aero-defense ontology" ;
+    rdfs:comment "Minimal classified-artifact vocabulary grounded in PROV-O for air-gapped aerospace/defense/government-intelligence work. Grants no execution authority; all classification facts are synthetic admitted inputs." .
+
+# --- Classes ---------------------------------------------------------------
+
+ad:ClassifiedArtifact a owl:Class ;
+    rdfs:subClassOf prov:Entity ;
+    rdfs:label "ClassifiedArtifact" ;
+    rdfs:comment "An artifact carrying a classification level." .
+
+ad:ClassificationLevel a owl:Class ;
+    rdfs:label "ClassificationLevel" ;
+    rdfs:comment "An ordered classification tier; ad:levelOrder (xsd:integer, higher = more restrictive)." .
+
+ad:Principal a owl:Class ;
+    rdfs:subClassOf prov:Agent ;
+    rdfs:label "Principal" ;
+    rdfs:comment "A need-to-know principal (a PROV-O Agent)." .
+
+ad:AirGapBoundary a owl:Class ;
+    rdfs:label "AirGapBoundary" ;
+    rdfs:comment "A zero-egress boundary; only loopback endpoints are lawful inside it." .
+
+ad:VerifiableExecutionProof a owl:Class ;
+    rdfs:subClassOf prov:Entity ;
+    rdfs:label "VerifiableExecutionProof" ;
+    rdfs:comment "A verifiable-execution proof binding an artifact to an admission (digest + provenance)." .
+
+# --- Properties ------------------------------------------------------------
+
+ad:classification a owl:ObjectProperty ;
+    rdfs:domain ad:ClassifiedArtifact ;
+    rdfs:range ad:ClassificationLevel ;
+    rdfs:label "classification" .
+
+ad:caveat a owl:DatatypeProperty ;
+    rdfs:domain ad:ClassifiedArtifact ;
+    rdfs:range xsd:string ;
+    rdfs:label "caveat" .
+
+ad:needToKnowPrincipal a owl:ObjectProperty ;
+    rdfs:domain ad:ClassifiedArtifact ;
+    rdfs:range ad:Principal ;
+    rdfs:label "needToKnowPrincipal" .
+
+ad:clearanceLevel a owl:ObjectProperty ;
+    rdfs:domain ad:Principal ;
+    rdfs:range ad:ClassificationLevel ;
+    rdfs:label "clearanceLevel" .
+
+ad:levelOrder a owl:DatatypeProperty ;
+    rdfs:domain ad:ClassificationLevel ;
+    rdfs:range xsd:integer ;
+    rdfs:label "levelOrder" .
+
+ad:endpoint a owl:DatatypeProperty ;
+    rdfs:domain ad:AirGapBoundary ;
+    rdfs:range xsd:string ;
+    rdfs:label "endpoint" .
+
+ad:proofDigest a owl:DatatypeProperty ;
+    rdfs:domain ad:VerifiableExecutionProof ;
+    rdfs:range xsd:string ;
+    rdfs:label "proofDigest" .
+
+ad:provesArtifact a owl:ObjectProperty ;
+    rdfs:domain ad:VerifiableExecutionProof ;
+    rdfs:range ad:ClassifiedArtifact ;
+    rdfs:label "provesArtifact" .
+
+ad:dataFlow a owl:ObjectProperty ;
+    rdfs:domain ad:ClassifiedArtifact ;
+    rdfs:range ad:ClassifiedArtifact ;
+    rdfs:label "dataFlow" .
+
+# --- P1 / P2 / P5 pillar vocabulary (IND-4, 5-pillar spec) ------------------
+#
+# P1 storage segregation: artifacts of different classifications MUST sit in
+# distinct ad:Store individuals. P2 attestation: every ad:VerifiableExecutionProof
+# MUST bind the air-gap attestor's measurement (AZ-2 shape: mirrors
+# industry-legal-ediscovery gate 050 / smalt lib/smalt/attestation/maa.ex
+# secure_key_release/3). P5 seal: every artifact MUST reference a sealed root
+# (shape mirrors industry-pharma-21cfr gate 080).
+
+ad:Store a owl:Class ;
+    rdfs:label "Store" ;
+    rdfs:comment "A storage location (per-classification segregation cell); holds artifacts of exactly one classification level (gate 040)." .
+
+ad:storedIn a owl:ObjectProperty ;
+    rdfs:domain ad:ClassifiedArtifact ;
+    rdfs:range ad:Store ;
+    rdfs:label "storedIn" ;
+    rdfs:comment "Links a ClassifiedArtifact to the ad:Store holding it (P1, gate 040)." .
+
+ad:measurementFingerprint a owl:DatatypeProperty ;
+    rdfs:domain ad:VerifiableExecutionProof ;
+    rdfs:range xsd:string ;
+    rdfs:label "measurementFingerprint" ;
+    rdfs:comment "The air-gap attestor's measurement bound into the proof (AZ-2 shape: token measurement_digest == expected fingerprint). Required on every VerifiableExecutionProof (P2, gate 050). Face: smalt lib/smalt/attestation/maa.ex." .
+
+ad:Seal a owl:Class ;
+    rdfs:label "Seal" ;
+    rdfs:comment "A sealed Merkle root over an artifact (P5 Merkle self-auth)." .
+
+ad:hasSeal a owl:ObjectProperty ;
+    rdfs:domain ad:ClassifiedArtifact ;
+    rdfs:range ad:Seal ;
+    rdfs:label "hasSeal" ;
+    rdfs:comment "Links a ClassifiedArtifact to its seal (P5, gate 060)." .
+
+ad:sealedRoot a owl:DatatypeProperty ;
+    rdfs:domain ad:Seal ;
+    rdfs:range xsd:string ;
+    rdfs:label "sealedRoot" ;
+    rdfs:comment "Sealed Merkle root (sha256:...) carried by an ad:Seal (P5, gate 060)." .
+
+# --- P3 proposer-judge vocabulary (IND-4, 5-pillar spec) --------------------
+#
+# P3 proposer-judge: every AI-generated contribution that proposes a mutation
+# MUST be adjudicated by an ad:JudgeActivity before the mutation commits.
+# Mirrors industry-legal-ediscovery gate 060 (lex:JudgeActivity /
+# prov:wasGeneratedBy) at IND-4's mutation shape (ad:proposes /
+# ad:adjudicatedBy).
+
+ad:AIContribution a owl:Class ;
+    rdfs:subClassOf prov:Entity ;
+    rdfs:label "AIContribution" ;
+    rdfs:comment "An AI-generated contribution proposing a mutation to an artifact (P3 proposer-judge, gate 070)." .
+
+ad:JudgeActivity a owl:Class ;
+    rdfs:subClassOf prov:Activity ;
+    rdfs:label "JudgeActivity" ;
+    rdfs:comment "A human- or sieve-adjudicated judging activity; the only lawful path to commit for an AI-proposed mutation (proposer-judge law, gate 070)." .
+
+ad:proposes a owl:ObjectProperty ;
+    rdfs:domain ad:AIContribution ;
+    rdfs:range prov:Entity ;
+    rdfs:label "proposes" ;
+    rdfs:comment "Links an AIContribution to the mutation (artifact/annotation) it proposes (P3, gate 070)." .
+
+ad:adjudicatedBy a owl:ObjectProperty ;
+    rdfs:domain ad:AIContribution ;
+    rdfs:range ad:JudgeActivity ;
+    rdfs:label "adjudicatedBy" ;
+    rdfs:comment "Links an AIContribution to the ad:JudgeActivity that adjudicated it before its mutation commits (P3, gate 070)." .
+
+# --- Classification level individuals (ordered, synthetic) -----------------
+
+ad:Unclassified a ad:ClassificationLevel ; ad:levelOrder 0 .
+ad:Confidential a ad:ClassificationLevel ; ad:levelOrder 1 .
+ad:Secret a ad:ClassificationLevel ; ad:levelOrder 2 .
+ad:TopSecret a ad:ClassificationLevel ; ad:levelOrder 3 .

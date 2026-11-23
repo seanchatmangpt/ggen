@@ -1,0 +1,15 @@
+# PASS witness G7 (P5): root sealed with a 320-byte (640-hex) receipt digest; expect 0 rows.
+# Root typed ONLY cad:RootRevision (pack convention: no rdfs entailment in the
+# SPARQL gates, so gate 050 stays silent); the SHACL leg does apply subclass
+# closure (G5 targets the root as a DesignRevision), so an attested generator
+# is present to keep the pass witness SHACL-clean.
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix cad:  <https://seanchatmangpt.github.io/packs/industry-semantic-cad-bim#> .
+@prefix ex:   <https://example.invalid/cad/> .
+
+ex:seal0 a cad:MerkleSeal ; cad:receiptDigest "c038f74f169af79201dcb0a4a85c48b1c78897baa23cedf7e09b2ab8e1533db3c038f74f169af79201dcb0a4a85c48b1c78897baa23cedf7e09b2ab8e1533db3c038f74f169af79201dcb0a4a85c48b1c78897baa23cedf7e09b2ab8e1533db3c038f74f169af79201dcb0a4a85c48b1c78897baa23cedf7e09b2ab8e1533db3c038f74f169af79201dcb0a4a85c48b1c78897baa23cedf7e09b2ab8e1533db3c038f74f169af79201dcb0a4a85c48b1c78897baa23cedf7e09b2ab8e1533db3c038f74f169af79201dcb0a4a85c48b1c78897baa23cedf7e09b2ab8e1533db3c038f74f169af79201dcb0a4a85c48b1c78897baa23cedf7e09b2ab8e1533db3c038f74f169af79201dcb0a4a85c48b1c78897baa23cedf7e09b2ab8e1533db3c038f74f169af79201dcb0a4a85c48b1c78897baa23cedf7e09b2ab8e1533db3" .
+ex:act0 a cad:AttestedActivity ; cad:attestationFingerprint "sha256:dd" .
+ex:rev0 a cad:RootRevision ;
+    cad:revisionIndex 0 ;
+    cad:sealedRoot ex:seal0 ;
+    prov:wasGeneratedBy ex:act0 .

@@ -1,0 +1,180 @@
+# industry-semantic-cad-bim ontology.
+# Spatial structure: BOT (Building Topology Ontology, w3id.org/bot).
+# Revision chain: PROV-O (w3.org/ns/prov). cad: extends, never redeclares.
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix cad:  <https://seanchatmangpt.github.io/packs/industry-semantic-cad-bim#> .
+@prefix bot:  <https://w3id.org/bot#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+
+<https://seanchatmangpt.github.io/packs/industry-semantic-cad-bim> a owl:Ontology ;
+    rdfs:label "Semantic CAD/BIM design-revision ontology" ;
+    rdfs:comment "Event-sourced temporal KG for building designs: BOT spatial structure, PROV-O revision chain. Rendered artifacts are projections; authority NONE." ;
+    owl:imports <https://w3id.org/bot> , <http://www.w3.org/ns/prov#> ;
+    rdfs:seeAlso <https://w3id.org/bot> , <https://www.w3.org/TR/prov-o/> .
+
+## Design artifacts: the Blob WORM face (immutable design artifacts).
+cad:DesignArtifact a rdfs:Class ;
+    rdfs:label "Design artifact" ;
+    rdfs:comment "Immutable content-addressed design artifact; stored in Blob under WORM immutability policy; the prov:Entity side of the design ledger." ;
+    rdfs:subClassOf prov:Entity .
+
+cad:artifactDigest a rdf:Property ;
+    rdfs:label "artifact digest" ;
+    rdfs:comment "Content digest of artifact bytes in Blob, e.g. sha256:... Identical bytes = identical digest." ;
+    rdfs:domain cad:DesignArtifact ;
+    rdfs:range xsd:string .
+
+cad:blobUrl a rdf:Property ;
+    rdfs:label "blob url" ;
+    rdfs:comment "Loopback data-plane URL of the artifact in the Blob container." ;
+    rdfs:domain cad:DesignArtifact ;
+    rdfs:range xsd:string .
+
+## Design revisions: the time-travel axis.
+cad:DesignRevision a rdfs:Class ;
+    rdfs:label "Design revision" ;
+    rdfs:comment "A revision of the design graph. Non-root revisions MUST carry prov:wasRevisionOf to their predecessor; the root revision is typed cad:RootRevision and is exempt." ;
+    rdfs:subClassOf prov:Entity .
+
+cad:RootRevision a rdfs:Class ;
+    rdfs:label "Root revision" ;
+    rdfs:comment "The first revision in a chain; exempt from the predecessor gate." ;
+    rdfs:subClassOf cad:DesignRevision .
+
+cad:revisionIndex a rdf:Property ;
+    rdfs:label "revision index" ;
+    rdfs:comment "Monotone integer index of the revision in its chain (0 = root)." ;
+    rdfs:domain cad:DesignRevision ;
+    rdfs:range xsd:integer .
+
+cad:revisionOfArtifact a rdf:Property ;
+    rdfs:label "revision of artifact" ;
+    rdfs:comment "The DesignArtifact this revision decodes from (Blob face)." ;
+    rdfs:domain cad:DesignRevision ;
+    rdfs:range cad:DesignArtifact .
+
+## Geometry: never orphan.
+cad:Geometry a rdfs:Class ;
+    rdfs:label "Geometry" ;
+    rdfs:comment "Decoded geometry payload. Every Geometry MUST be the object of cad:hasGeometry from some element (bot:Element or subclass); a Geometry attachable to no element is an orphan and is refused." ;
+    rdfs:subClassOf prov:Entity .
+
+cad:hasGeometry a rdf:Property ;
+    rdfs:label "has geometry" ;
+    rdfs:comment "Links a design element to its decoded geometry." ;
+    rdfs:domain bot:Element ;
+    rdfs:range cad:Geometry .
+
+cad:geometryFormat a rdf:Property ;
+    rdfs:label "geometry format" ;
+    rdfs:comment "Decode format of the geometry payload, e.g. IFC-STEP, obj, gltf." ;
+    rdfs:domain cad:Geometry ;
+    rdfs:range xsd:string .
+
+## Cosmos KG face: temporal documents, bitemporal versioning.
+cad:kgDocument a rdf:Property ;
+    rdfs:label "KG document" ;
+    rdfs:comment "Cosmos document id holding the valid-time-bounded projection of this revision." ;
+    rdfs:domain cad:DesignRevision ;
+    rdfs:range xsd:string .
+
+cad:validFrom a rdf:Property ;
+    rdfs:label "valid from" ;
+    rdfs:comment "Valid-time lower bound of the revision's KG documents." ;
+    rdfs:domain cad:DesignRevision ;
+    rdfs:range xsd:dateTime .
+
+cad:validUntil a rdf:Property ;
+    rdfs:label "valid until" ;
+    rdfs:comment "Valid-time upper bound of the revision's KG documents; open when absent." ;
+    rdfs:domain cad:DesignRevision ;
+    rdfs:range xsd:dateTime .
+
+## Bot supersedes nothing: BOT element membership is the storey-membership law
+## (storey -> element, bot:hasElement; BOT 0.3.x defines no containedIn term).
+## Refusal laws (enforced as gates + SHACL):
+##   G1 every bot:Element is bot:hasElement-object of some bot:Storey
+##   G2 every cad:DesignRevision has prov:wasRevisionOf some cad:DesignRevision,
+##      except cad:RootRevision
+##   G3 every cad:Geometry is cad:hasGeometry-object of some bot:Element
+##   G4 (P1) every cad:DesignArtifact is cad:storedIn a cad:ProjectStore whose
+##      cad:journalPath matches ^/data/smalt/journal/project_[^/]+/
+##   G5 (P2) every cad:DesignRevision is prov:wasGeneratedBy an activity bound
+##      to a cad:attestationFingerprint (the AZ-2 SKR shape)
+##   G6 (P3) every cad:AIContribution that cad:mutatesElement is
+##      cad:adjudicatedBy a cad:JudgeActivity (proposer-judge law)
+##   G7 (P5) every cad:RootRevision is cad:sealedRoot a cad:MerkleSeal whose
+##      cad:receiptDigest matches ^[0-9a-f]{640}$ (the 320-byte receipt digest)
+
+## P1 design isolation: per-project stores (mirrors legal matter-scoping).
+cad:ProjectStore a rdfs:Class ;
+    rdfs:label "Project store" ;
+    rdfs:comment "Per-project isolated journal/store. P1 design isolation: every cad:DesignArtifact must be cad:storedIn a cad:ProjectStore whose cad:journalPath matches ^/data/smalt/journal/project_[^/]+/ (gate 040); a cross-project path is a refusal. Mirrors industry-legal-ediscovery P1 matter isolation (lex:MatterStore, gate 040)." .
+
+cad:storedIn a rdf:Property ;
+    rdfs:label "stored in" ;
+    rdfs:comment "The cad:ProjectStore an artifact lives in. Required on every cad:DesignArtifact (gate 040)." ;
+    rdfs:domain cad:DesignArtifact ;
+    rdfs:range cad:ProjectStore .
+
+cad:journalPath a rdf:Property ;
+    rdfs:label "journal path" ;
+    rdfs:comment "Filesystem path of a ProjectStore's append-only journal. Must match ^/data/smalt/journal/project_[^/]+/ (gate 040). Face: smalt append-only journal layout." ;
+    rdfs:domain cad:ProjectStore ;
+    rdfs:range xsd:string .
+
+## P2 BYOK/SKR attestation: revision commits are attested.
+cad:AttestedActivity a rdfs:Class ;
+    rdfs:label "Attested activity" ;
+    rdfs:comment "A commit activity bound to an MAA attestation measurement fingerprint. The only lawful generator of a cad:DesignRevision under P2 (gate 050). Face: smalt lib/smalt/attestation/maa.ex secure_key_release/3 — token measurement_digest == expected fingerprint (AZ-2, BK-128/KD-168)." ;
+    rdfs:subClassOf prov:Activity .
+
+cad:attestationFingerprint a rdf:Property ;
+    rdfs:label "attestation fingerprint" ;
+    rdfs:comment "The MAA measurement fingerprint an activity was attested under (SKR shape: token measurement_digest == expected fingerprint). Required on the generating activity of every cad:DesignRevision (gate 050). Face: smalt lib/smalt/attestation/maa.ex." ;
+    rdfs:domain cad:AttestedActivity ;
+    rdfs:range xsd:string .
+
+## P3 no-training / proposer-judge: AI contributions are adjudicated.
+cad:AIContribution a rdfs:Class ;
+    rdfs:label "AI contribution" ;
+    rdfs:comment "AI-generated geometry or annotation proposed against a design. P3 proposer-judge: an AIContribution that cad:mutatesElement an element must be cad:adjudicatedBy a cad:JudgeActivity before the mutation is lawful (gate 060); unadjudicated proposals refuse." ;
+    rdfs:subClassOf prov:Entity .
+
+cad:JudgeActivity a rdfs:Class ;
+    rdfs:label "Judge activity" ;
+    rdfs:comment "A human- or sieve-adjudicated judging activity; the only lawful approver of AI-contribution element mutations (proposer-judge law, gate 060)." ;
+    rdfs:subClassOf prov:Activity .
+
+cad:mutatesElement a rdf:Property ;
+    rdfs:label "mutates element" ;
+    rdfs:comment "The bot:Element an AIContribution proposes to mutate." ;
+    rdfs:domain cad:AIContribution ;
+    rdfs:range bot:Element .
+
+cad:adjudicatedBy a rdf:Property ;
+    rdfs:label "adjudicated by" ;
+    rdfs:comment "The cad:JudgeActivity that adjudicated this AIContribution. Required before cad:mutatesElement is lawful (gate 060)." ;
+    rdfs:domain cad:AIContribution ;
+    rdfs:range cad:JudgeActivity .
+
+## P5 Merkle self-authentication: sealed roots.
+cad:MerkleSeal a rdfs:Class ;
+    rdfs:label "Merkle seal" ;
+    rdfs:comment "A sealed Merkle root over a design-revision chain. P5: every cad:RootRevision must be cad:sealedRoot a cad:MerkleSeal carrying a 320-byte receipt digest (gate 070)." ;
+    rdfs:subClassOf prov:Entity .
+
+cad:sealedRoot a rdf:Property ;
+    rdfs:label "sealed root" ;
+    rdfs:comment "The cad:MerkleSeal anchoring this root revision. Required on every cad:RootRevision (gate 070)." ;
+    rdfs:domain cad:RootRevision ;
+    rdfs:range cad:MerkleSeal .
+
+cad:receiptDigest a rdf:Property ;
+    rdfs:label "receipt digest" ;
+    rdfs:comment "The 320-byte receipt digest, hex-encoded (640 hex chars, ^[0-9a-f]{640}$). Required on every cad:MerkleSeal (gate 070). Face: smalt receipt digest." ;
+    rdfs:domain cad:MerkleSeal ;
+    rdfs:range xsd:string .

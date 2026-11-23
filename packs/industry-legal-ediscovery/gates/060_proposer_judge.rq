@@ -1,0 +1,13 @@
+# MESSAGE: unadjudicated AI annotation.
+# P3 no-model-training / proposer-judge: every AI-derived annotation must
+# carry prov:wasGeneratedBy a lex:JudgeActivity (human- or sieve-adjudicated);
+# unadjudicated AI proposals refuse. ASK true = refusal.
+PREFIX lex: <https://seanchatmangpt.github.io/packs/industry-legal-ediscovery#>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+ASK WHERE {
+  ?ann a lex:AIAnnotation .
+  FILTER NOT EXISTS {
+    ?ann prov:wasGeneratedBy ?act .
+    ?act a lex:JudgeActivity .
+  }
+}

@@ -1,0 +1,9 @@
+# Law 3: a defect MUST trace to a supplier lot. SELECT rows = violations.
+PREFIX dflss: <https://seanchatmangpt.github.io/packs/industry-manufacturing-dflss#>
+SELECT ?defect WHERE {
+  ?defect a dflss:Defect .
+  FILTER NOT EXISTS {
+    ?defect dflss:tracedToLot ?lot .
+    ?lot a dflss:SupplierLot .
+  }
+}

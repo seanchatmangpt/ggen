@@ -1,0 +1,23 @@
+@prefix bot:  <https://w3id.org/bot#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix cad:  <https://seanchatmangpt.github.io/packs/industry-semantic-cad-bim#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix ex:   <https://example.invalid/cad/> .
+
+# FAIL witness G5 (P2): ex:rev1's generator has NO attestation fingerprint;
+# expect exactly 1 refusal row. Root is sealed (G7 satisfied) so no cross-fire.
+ex:seal0 a cad:MerkleSeal ; cad:receiptDigest "c038f74f169af79201dcb0a4a85c48b1c78897baa23cedf7e09b2ab8e1533db3c038f74f169af79201dcb0a4a85c48b1c78897baa23cedf7e09b2ab8e1533db3c038f74f169af79201dcb0a4a85c48b1c78897baa23cedf7e09b2ab8e1533db3c038f74f169af79201dcb0a4a85c48b1c78897baa23cedf7e09b2ab8e1533db3c038f74f169af79201dcb0a4a85c48b1c78897baa23cedf7e09b2ab8e1533db3c038f74f169af79201dcb0a4a85c48b1c78897baa23cedf7e09b2ab8e1533db3c038f74f169af79201dcb0a4a85c48b1c78897baa23cedf7e09b2ab8e1533db3c038f74f169af79201dcb0a4a85c48b1c78897baa23cedf7e09b2ab8e1533db3c038f74f169af79201dcb0a4a85c48b1c78897baa23cedf7e09b2ab8e1533db3c038f74f169af79201dcb0a4a85c48b1c78897baa23cedf7e09b2ab8e1533db3" .
+
+ex:act0 a cad:AttestedActivity ; cad:attestationFingerprint "sha256:dd" .
+
+ex:rev0 a cad:DesignRevision, cad:RootRevision ;
+    cad:revisionIndex 0 ;
+    cad:sealedRoot ex:seal0 ;
+    prov:wasGeneratedBy ex:act0 .
+
+ex:rev1 a cad:DesignRevision ;
+    cad:revisionIndex 1 ;
+    prov:wasRevisionOf ex:rev0 ;
+    prov:wasGeneratedBy ex:act1 .
+
+# ex:act1: typed activity but carries NO cad:attestationFingerprint — refusal.

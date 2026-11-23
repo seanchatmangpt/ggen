@@ -1,0 +1,29 @@
+# MESSAGE: entry not bound to an isolated ledger store — P1 ledger isolation.
+# Arms (any row = refusal):
+#   1. a JournalEntry with no fin:isolatedStore (missing arm);
+#   2. an entry whose fin:isolatedStore does not resolve to a fin:LedgerStore
+#      individual (dangling arm);
+#   3. a fin:LedgerStore with no fin:journalPath (per-account journal path
+#      law: a store without its per-account journal path is not isolated).
+PREFIX fin: <https://ggen.io/ontology/financial-ledger#>
+
+SELECT ?subject ?problem
+WHERE {
+  {
+    ?e a fin:JournalEntry .
+    FILTER NOT EXISTS { ?e fin:isolatedStore ?any }
+    BIND(?e AS ?subject)
+    BIND("missing: JournalEntry has no fin:isolatedStore" AS ?problem)
+  } UNION {
+    ?e a fin:JournalEntry ; fin:isolatedStore ?s .
+    FILTER NOT EXISTS { ?s a fin:LedgerStore }
+    BIND(?e AS ?subject)
+    BIND(CONCAT("dangling: ", STR(?s), " is not a fin:LedgerStore") AS ?problem)
+  } UNION {
+    ?s a fin:LedgerStore .
+    FILTER NOT EXISTS { ?s fin:journalPath ?any }
+    BIND(?s AS ?subject)
+    BIND("pathless: LedgerStore has no fin:journalPath" AS ?problem)
+  }
+}
+ORDER BY ?subject ?problem

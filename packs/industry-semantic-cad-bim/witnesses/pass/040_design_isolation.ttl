@@ -1,0 +1,15 @@
+@prefix bot:  <https://w3id.org/bot#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix cad:  <https://seanchatmangpt.github.io/packs/industry-semantic-cad-bim#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix ex:   <https://example.invalid/cad/> .
+
+# PASS witness G4 (P1): artifacts in lawful per-project stores; expect 0 rows.
+# Only artifact/store individuals present — other gates are silent by
+# construction (no revisions/geometry/AI contributions).
+ex:projA a cad:ProjectStore ;
+    cad:journalPath "/data/smalt/journal/project_alpha/journal.log" .
+
+ex:art1 a cad:DesignArtifact ;
+    cad:artifactDigest "sha256:1111" ;
+    cad:storedIn ex:projA .

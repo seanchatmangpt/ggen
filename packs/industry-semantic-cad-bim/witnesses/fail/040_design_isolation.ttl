@@ -1,0 +1,15 @@
+@prefix bot:  <https://w3id.org/bot#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix cad:  <https://seanchatmangpt.github.io/packs/industry-semantic-cad-bim#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix ex:   <https://example.invalid/cad/> .
+
+# FAIL witness G4 (P1): cross-project journal path; expect exactly 1 refusal row.
+ex:projB a cad:ProjectStore ;
+    cad:journalPath "/data/smalt/journal/matter_0143/journal.log" .
+
+# ex:art2: stored in a store whose journalPath violates
+# ^/data/smalt/journal/project_[^/]+/ — cross-project isolation breach.
+ex:art2 a cad:DesignArtifact ;
+    cad:artifactDigest "sha256:2222" ;
+    cad:storedIn ex:projB .

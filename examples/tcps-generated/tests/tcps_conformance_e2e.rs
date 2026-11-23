@@ -85,25 +85,25 @@ fn scaffold() -> (TempDir, PathBuf) {
             .unwrap_or_else(|e| panic!("copy {name}: {e}"));
     }
     copy_tree(&this_crate.join("schema"), &project.join("schema"));
-    // The consumer-local evidence mini-pack (ggen.toml wires `evidence` as a
-    // path pack). Deliberately NOT copied from the live checkout: live
-    // evidence records whatever reality was at last verify.sh run, and if
-    // that includes "this test suite was red," copying it here would make
-    // the suite unable to ever go green (the gate would refuse the scaffold
-    // sync because the suite was red because the gate refused...). The e2e
-    // exercises pack/template machinery under a controlled green fixture;
-    // the evidence-gate refusal paths are proven by their own dedicated
-    // cases with controlled red/missing fixtures.
-    std::fs::create_dir_all(project.join("evidence")).expect("mkdir evidence");
-    std::fs::copy(
-        this_crate.join("evidence/pack.toml"),
-        project.join("evidence/pack.toml"),
-    )
-    .expect("copy evidence pack.toml");
+    // ggen.toml wires `tcps-evidence = { path = "evidence-pack" }`. Copy the
+    // pack shell (pack.toml + templates) from the committed evidence-pack/,
+    // but seed `evidence/ontology.ttl` as a controlled green fixture for
+    // `imports = ["evidence/ontology.ttl"]` — do NOT copy live verify.sh
+    // emissions (red evidence would refuse the scaffold sync forever).
+    // Evidence-gate refusal paths use dedicated red/missing fixtures.
+    std::fs::create_dir_all(project.join("evidence-pack")).expect("mkdir evidence-pack");
+    for name in ["pack.toml", "ontology.ttl"] {
+        std::fs::copy(
+            this_crate.join("evidence-pack").join(name),
+            project.join("evidence-pack").join(name),
+        )
+        .unwrap_or_else(|e| panic!("copy evidence-pack/{name}: {e}"));
+    }
     copy_tree(
-        &this_crate.join("evidence/templates"),
-        &project.join("evidence/templates"),
+        &this_crate.join("evidence-pack/templates"),
+        &project.join("evidence-pack/templates"),
     );
+    std::fs::create_dir_all(project.join("evidence")).expect("mkdir evidence");
     std::fs::write(
         project.join("evidence/ontology.ttl"),
         "@prefix ver: <http://seanchatmangpt.github.io/packs/ggen-verify#> .\n\
@@ -113,6 +113,14 @@ fn scaffold() -> (TempDir, PathBuf) {
          ver:check-bi a ver:Check ; ver:name \"byte-identity\" ; ver:exitCode 0 .\n",
     )
     .expect("seed evidence");
+    // FM-LAW-015: sync refuses when ea.graph.json is absent. Seed the same
+    // minimal empty-graph fixture used by MCP/lifecycle courts (zero candidate
+    // SBBs) — this suite proves pack/template manufacture, not EA admission.
+    std::fs::write(
+        project.join("ea.graph.json"),
+        r#"{"schema":"ggen.ea.graph.v1","strategy":{"id":"s","title":"t"},"capabilities":[],"abbs":[],"contracts":[],"candidate_sbbs":[],"qualifications":[],"packs":[]}"#,
+    )
+    .expect("seed ea.graph.json");
     std::fs::create_dir_all(project.join("templates")).expect("mkdir templates");
     std::fs::create_dir_all(project.join("src")).expect("mkdir src");
     // Seed lib.rs the way the checked-in scaffold starts out (before

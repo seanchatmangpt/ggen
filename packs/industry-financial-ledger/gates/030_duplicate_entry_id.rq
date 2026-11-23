@@ -1,0 +1,13 @@
+# MESSAGE: Duplicate entry id refused — idempotency law.
+# Two JournalEntries sharing a fin:entryId fire one row per extra entry.
+# (Cosmos partition key + id would reject the second write; this gate
+# refuses it at the graph admission layer, before the CAS commit.)
+PREFIX fin: <https://ggen.io/ontology/financial-ledger#>
+
+SELECT ?id ?entryA ?entryB
+WHERE {
+  ?entryA a fin:JournalEntry ; fin:entryId ?id .
+  ?entryB a fin:JournalEntry ; fin:entryId ?id .
+  FILTER(STR(?entryA) < STR(?entryB))
+}
+ORDER BY ?id ?entryA ?entryB

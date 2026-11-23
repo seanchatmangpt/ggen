@@ -1,0 +1,32 @@
+# MESSAGE: Missing/dangling account ref refused — referential integrity.
+# Arms (any row = refusal):
+#   1. a Posting with no fin:account (missing arm);
+#   2. a Posting whose fin:account does not resolve to a fin:Account
+#      individual (dangling arm);
+#   3. a JournalEntry with fewer than two legs (degenerate double-entry).
+PREFIX fin: <https://ggen.io/ontology/financial-ledger#>
+
+SELECT ?subject ?problem
+WHERE {
+  {
+    ?p a fin:Posting .
+    FILTER NOT EXISTS { ?p fin:account ?any }
+    BIND(?p AS ?subject)
+    BIND("missing: Posting has no fin:account" AS ?problem)
+  } UNION {
+    ?p a fin:Posting ; fin:account ?a .
+    FILTER NOT EXISTS { ?a a fin:Account }
+    BIND(?p AS ?subject)
+    BIND(CONCAT("dangling: ", STR(?a), " is not a fin:Account") AS ?problem)
+  } UNION {
+    ?e a fin:JournalEntry ;
+       fin:entryId ?id .
+    FILTER NOT EXISTS {
+      ?e fin:hasPosting ?p1, ?p2 .
+      FILTER(?p1 != ?p2)
+    }
+    BIND(?e AS ?subject)
+    BIND(CONCAT("degenerate: entry ", STR(?id), " has fewer than two posting legs") AS ?problem)
+  }
+}
+ORDER BY ?subject ?problem

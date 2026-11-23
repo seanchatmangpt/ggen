@@ -1,0 +1,27 @@
+[pack]
+name = "industry-legal-ediscovery"
+version = "0.1.0"
+description = """
+Legal / e-discovery industry pack: chain-of-custody RDF over real
+vocabularies (PROV-O for provenance, a minimal legal evidence vocabulary
+for bates numbering, custodians, matters, and ethical walls), SHACL
+shapes for evidence documents, and a client-side walkthrough template
+binding the evidence plane to the smalt emulator's Azure faces — Blob
+WORM (legal hold / immutability policy, smalt
+lib/smalt/data_plane/blob_storage.ex:273/:305/:516, blob_service.ex:105-106,
+201-222), Cosmos ETag-CAS case-file documents (cosmos.ex:133), and KV
+PS256 seals (kv_pss.ex, KD-105/KD-119). Routing per the BK-117 legal row:
+browser -> smaltFetch -> 8443 blob/cosmos/appconfig REST + Confidential
+Ledger custody chain (AttestRoutes.ex:38-58).
+
+Gates refuse (ASK true = violation): evidence without a bates id,
+custodian-missing evidence, and ethical-wall breaches (an evidence
+document whose custodian has a conflictedMatter link to the document's
+matter).
+
+Grants no execution authority.
+"""
+
+[capabilities]
+provides = ["urn:ggen:pack:industry-legal-ediscovery"]
+requires = []

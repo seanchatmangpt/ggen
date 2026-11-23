@@ -26,6 +26,8 @@ hex = { workspace = true }
 uuid = { workspace = true }
 urlencoding = { workspace = true }
 tracing = { workspace = true }
+taffy = { workspace = true }
+toml = { workspace = true }
 
 [dev-dependencies]
 ed25519-dalek = { workspace = true }

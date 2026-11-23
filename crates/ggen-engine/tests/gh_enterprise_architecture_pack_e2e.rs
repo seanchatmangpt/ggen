@@ -16,20 +16,11 @@ fn packs_dir() -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR")).join("../../packs")
 }
 
-fn marketplace_packs_dir() -> PathBuf {
-    Path::new(env!("CARGO_MANIFEST_DIR")).join("../../../ggen-marketplace/packs")
-}
-
 fn scaffold() -> (TempDir, PathBuf) {
     let dir = TempDir::new().expect("tempdir");
-    copy_tree(
-        &marketplace_packs_dir().join("gh-terraform-pack"),
-        &dir.path().join("gh-terraform-pack"),
-    );
-    copy_tree(
-        &packs_dir().join("gh-enterprise-architecture-pack"),
-        &dir.path().join("gh-enterprise-architecture-pack"),
-    );
+    for pack in ["gh-terraform-pack", "gh-enterprise-architecture-pack"] {
+        copy_tree(&packs_dir().join(pack), &dir.path().join(pack));
+    }
 
     let project = dir.path().join("consumer");
     std::fs::create_dir_all(project.join("templates")).expect("mkdir templates");

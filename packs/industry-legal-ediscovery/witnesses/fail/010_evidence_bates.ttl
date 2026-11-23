@@ -1,0 +1,13 @@
+@prefix lex: <https://seanchatmangpt.github.io/packs/industry-legal-ediscovery#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# FAIL witness for gate 010: doc-p1 has no lex:batesId.
+lex:matter-f1 a lex:Matter ;
+    rdfs:label "In re: Fail Fixture" ;
+    lex:retentionPolicy "hold-7y-then-purge" .
+
+lex:custodian-f1 a lex:Custodian .
+
+lex:doc-f1 a lex:EvidenceDocument ;
+    lex:hasCustodian lex:custodian-f1 ;
+    lex:collectedIn lex:matter-f1 .

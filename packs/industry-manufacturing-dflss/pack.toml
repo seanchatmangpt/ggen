@@ -1,0 +1,21 @@
+[pack]
+name = "industry-manufacturing-dflss"
+version = "26.10.0"
+description = """
+Manufacturing & industrial supply chain (DfLSS + OCEL 2.0 + Andon) industry pack:
+ontology from the real OCEL 2.0 vocabulary (event/object/relation — the vocabulary
+smalt's Smalt.Telemetry.OcelNdjson writes, lib/smalt/telemetry/ocel_ndjson.ex) plus a
+minimal DfLSS vocabulary (WorkOrder, AndonSignal green/yellow/red, QualityGateOutcome,
+Defect, Containment, CorrectiveAction, SupplierLot). Gates refuse: work order without
+a quality-gate outcome, red-Andon without containment, defect without supplier-lot
+trace. Templates render SHACL shapes mirroring the three laws and a client walkthrough
+(browser console → EH telemetry ingest → SB containment queue → OCEL event log sealed
+per batch) grounded in the smalt matrix row (docs/jira/v26.10.22/azure-industry-matrix.md
+§5) and unrdf's @unrdf/otel OCEL export as the browser-side complement. Grants no
+execution authority.
+"""
+# Relationship (FM-PACK-014): consumes OCEL 2.0 by inline prefix (http://w3id.org/ocel/schema/),
+# not by a cross-pack dependency edge.
+
+[capabilities]
+provides = ["urn:ggen:pack:industry-manufacturing-dflss"]

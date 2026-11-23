@@ -1,0 +1,10 @@
+# Law 2: a red Andon signal MUST trigger containment. SELECT rows = violations.
+PREFIX dflss: <https://seanchatmangpt.github.io/packs/industry-manufacturing-dflss#>
+SELECT ?signal WHERE {
+  ?signal a dflss:AndonSignal ;
+          dflss:signalLevel "red" .
+  FILTER NOT EXISTS {
+    ?signal dflss:triggersContainment ?c .
+    ?c a dflss:Containment .
+  }
+}

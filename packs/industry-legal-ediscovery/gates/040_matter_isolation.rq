@@ -1,0 +1,12 @@
+# MESSAGE: cross-matter custody path.
+# P1 sovereignty/matter isolation: every EvidenceDocument custody path must
+# reference a MatterStore whose journalPath matches
+# ^/data/smalt/journal/matter_<id>/ — a cross-matter path is a refusal.
+# ASK true = refusal.
+PREFIX lex: <https://seanchatmangpt.github.io/packs/industry-legal-ediscovery#>
+ASK WHERE {
+  ?doc a lex:EvidenceDocument ;
+       lex:custodyStoredIn ?store .
+  ?store lex:journalPath ?path .
+  FILTER (!REGEX(STR(?path), "^/data/smalt/journal/matter_[^/]+/"))
+}

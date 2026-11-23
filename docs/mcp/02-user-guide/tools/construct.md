@@ -30,18 +30,21 @@ interface — verify against the source above before relying on any field not li
 | `task_id` | string | Yes | Caller-supplied identifier, echoed back verbatim in the response. Not interpreted or validated by the tool. |
 | `jtbd` | string | Yes | Free-text "job to be done" description, echoed into the response's text body. Not parsed or acted on. |
 | `avatar` | string | Yes | Accepted by the tool's parameter schema but currently **unused** by the handler — it has no effect on generation. Documented honestly here rather than implying behavior that doesn't exist; may become load-bearing in a future revision. |
+| `expected_graph_hash` | string | Yes | Graph hash from a prior dry-run sync (CP17 parity with `ggen_write_apply`). Empty or mismatched values refuse without writing. |
 
 ## Behavior
 
 1. Resolves the server process's current working directory as the project root.
 2. Confirms `ggen.toml` exists there — if not, returns an error (see below) rather than
    searching parent directories or accepting an explicit path parameter.
-3. Runs `ggen_engine::sync::sync(base_path, SyncOptions::default())` — the same five-stage
+3. Recomputes graph hash via dry-run; refuses on empty `expected_graph_hash` or mismatch
+   (`construct_hash_gate` — CCS construct plane fail-closed seal).
+4. Runs `ggen_engine::sync::sync(base_path, SyncOptions::default())` — the same five-stage
    pipeline behind the `ggen sync run` CLI command, handling both the frontmatter-per-template
    and `[[generation.rules]]` declarative `ggen.toml` schemas automatically. There is no LLM
    injection point on this path (the old `ggen-core`-era handler had one; it had zero
    production callers and was not ported).
-4. On success, returns a human-readable text summary (files written, one per line) plus a
+5. On success, returns a human-readable text summary (files written, one per line) plus a
    structured `meta.ggen_result` JSON payload (see below).
 
 ## Example Usage
@@ -52,7 +55,8 @@ interface — verify against the source above before relying on any field not li
   "arguments": {
     "task_id": "task-42",
     "jtbd": "Generate the REST handlers for the invoicing ontology",
-    "avatar": "backend-agent"
+    "avatar": "backend-agent",
+    "expected_graph_hash": "<from prior dry_run>"
   }
 }
 ```
@@ -127,7 +131,10 @@ failed quality gate):
 |-------|-------|----------|
 | `ggen.toml not found in current directory` | The MCP server's CWD is not a ggen project root | Start the server from (or `cd` the caller's context into) a directory containing `ggen.toml` |
 | `Generation pipeline failed: ...` | Ontology/template/schema error surfaced by `ggen_engine::sync::sync` | Inspect the underlying message; the same failure is reproducible via `ggen sync run` from a terminal in the same directory |
+| `REFUSED:MISSING_EXPECTED_GRAPH_HASH` | Hash omitted or blank | Run dry-run first; pass its `graph_hash` |
+| `REFUSED:GRAPH_HASH_MISMATCH` | Stale or fabricated hash | Re-run dry-run and pass the fresh hash |
 
 ## Related Tools
 
+- `ggen_sync_dry_run` / dry-run sync — obtain `graph_hash` for construct/apply
 - `hello` — trivial demo tool in the same server, exercises the tool-router wiring only.

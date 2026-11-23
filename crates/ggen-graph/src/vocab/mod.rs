@@ -5,11 +5,19 @@ pub mod ocel;
 pub mod owl;
 pub mod powl;
 pub mod prov;
+pub mod public_prefixes;
 pub mod rdf;
 pub mod rdfs;
 pub mod shacl;
+pub mod shui;
 pub mod skos;
 pub mod xsd;
+
+pub use public_prefixes::{
+    is_admitted_turtle_prefix, is_open_admitted_namespace_iri, is_refused_private_prefix,
+    turtle_prefix_standing, TurtlePrefixStanding, ADMITTED_TURTLE_PREFIXES,
+    REFUSED_PRIVATE_PREFIXES,
+};
 
 /// RDF Namespace Constant
 pub const RDF: &str = rdf::NAMESPACE;
@@ -59,6 +67,13 @@ pub const SHACL: &str = shacl::NAMESPACE;
 pub use shacl as Shacl;
 /// SHACL module alias (UPPERCASE)
 pub use shacl as SHACL;
+
+/// SHACL UI (`shui:`) Namespace Constant — W3C SHACL 1.2 UI
+pub const SHUI: &str = shui::NAMESPACE;
+/// SHACL UI module alias (TitleCase)
+pub use shui as Shui;
+/// SHACL UI module alias (UPPERCASE)
+pub use shui as SHUI;
 
 /// OCEL Namespace Constant
 pub const OCEL: &str = ocel::NAMESPACE;

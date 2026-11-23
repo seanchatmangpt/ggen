@@ -12,13 +12,26 @@ on:
       - 'Cargo.toml'
       - 'Cargo.lock'
       - 'rust-toolchain.toml'
+  push:
+    paths:
+      - '.github/workflows/examples-repair-constructor.yml'
+      - 'examples/**'
+      - 'packs/**'
+      - 'scripts/validate-examples.sh'
+      - 'scripts/regenerate-examples.sh'
+      - 'crates/ggen-cli/**'
+      - 'Cargo.toml'
+      - 'Cargo.lock'
+      - 'rust-toolchain.toml'
+  workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
+  # Keep long Construct runs from being cancelled by crown docs retips.
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   construct:
@@ -31,19 +44,20 @@ jobs:
       RUSTC_WRAPPER: ""
       CARGO_INCREMENTAL: 0
     steps:
-      - name: Checkout exact PR head
+      - name: Checkout exact subject
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{ github.event.pull_request.head.sha }}
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
 
       - name: Record admitted subject
         run: |
           set -euo pipefail
-          echo "EXPECTED=${{ github.event.pull_request.head.sha }}"
+          EXPECTED="${{ github.event.pull_request.head.sha || github.sha }}"
+          echo "EXPECTED=${EXPECTED}"
           echo "OBSERVED=$(git rev-parse HEAD)"
-          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha }}"
-          echo "${{ github.event.pull_request.head.sha }}" > /tmp/original-head
+          test "$(git rev-parse HEAD)" = "${EXPECTED}"
+          echo "${EXPECTED}" > /tmp/original-head
 
       - name: Apply source/config repairs
         shell: bash
@@ -128,10 +142,14 @@ jobs:
               '      - name: Checkout exact subject\n        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1\n        with:\n          ref: ${{ github.event.pull_request.head.sha || github.sha }}\n          fetch-depth: 0\n\n      - name: Verify checkout identity\n        if: github.event_name == \'pull_request\'\n        run: test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha }}"\n',
               # The exact-subject checkout repair has LANDED in the tree
               # (live-examples.yml already carries it). Recognize the landed
-              # state idempotently via markers that avoid `${{ ... }}` --
-              # Actions substitutes those expressions inside run: scripts
-              # before the heredoc executes, so any pinned string containing
-              # them rots on every run (premise-rot class, XD-18). The
+              # state idempotently via markers that avoid Actions
+              # dollar-curly expressions (do NOT write a literal
+              # dollar-brace-brace token in this run script — Actions
+              # substitutes those inside run: scripts before the heredoc
+              # executes, so any pinned string containing them rots on
+              # every run (premise-rot class, XD-18), and an invalid
+              # placeholder token fails workflow parse → 0-job push
+              # failures even when on: is pull_request-only). The
               # markers below are expression-free.
               applied_markers=('Checkout exact subject', 'Verify checkout identity'),
           )
@@ -265,6 +283,20 @@ jobs:
             git -c user.name='ggen repair constructor' -c user.email='actions@users.noreply.github.com' commit -m 'construct: regenerated example projections'
           fi
 
+      - name: Refresh tcps verification evidence after regenerate
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          # regenerate rewires tcps-generated's receipt graphHash; committed
+          # evidence must be re-emitted before validate-examples or
+          # FM-PACK-013 (030_evidence_fresh.rq) refuses.
+          (cd examples/tcps-generated && bash scripts/verify.sh)
+          git add examples/tcps-generated/evidence examples/tcps-generated/receipts
+          if ! git diff --cached --quiet; then
+            git -c user.name='ggen repair constructor' -c user.email='actions@users.noreply.github.com' commit -m 'construct: refresh tcps evidence after regenerate'
+          fi
+
       - name: Verify byte-identical replay
         if: success()
         shell: bash
@@ -273,7 +305,12 @@ jobs:
           GGEN_EXAMPLE_TIMEOUT_SECONDS: 120
         run: |
           set -o pipefail
-          scripts/validate-examples.sh 2>&1 | tee constructor-replay.log
+          scripts/validate-examples.sh --write 2>&1 | tee constructor-replay.log
+          git add examples/
+          if ! git diff --cached --quiet; then
+            git -c user.name='ggen repair constructor' -c user.email='actions@users.noreply.github.com' commit -m 'construct: validation replay fallout'
+          fi
+          scripts/validate-examples.sh 2>&1 | tee -a constructor-replay.log
 
       - name: Package candidate bytes and receipt
         if: always()

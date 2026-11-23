@@ -1,0 +1,29 @@
+# PASS witness 040 (P1 storage segregation): two stores, each holding
+# artifacts of exactly one classification level; all gates silent.
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix ex: <https://example.org/aero-defense#> .
+@prefix ad: <https://seanchatmangpt.github.io/packs/industry-aero-defense#> .
+
+ex:analyst-040 a ad:Principal ;
+    ad:clearanceLevel ad:Secret .
+
+ex:store-secret a ad:Store ;
+    rdfs:label "Secret vault" .
+
+ex:store-conf a ad:Store ;
+    rdfs:label "Confidential vault" .
+
+ex:secret-doc a ad:ClassifiedArtifact ;
+    ad:classification ad:Secret ; ad:caveat "NOFORN" ;
+    ad:needToKnowPrincipal ex:analyst-040 ;
+    ad:storedIn ex:store-secret ;
+    ad:hasSeal ex:seal-040 .
+
+ex:conf-doc a ad:ClassifiedArtifact ;
+    ad:classification ad:Confidential ; ad:caveat "REL-ID" ;
+    ad:needToKnowPrincipal ex:analyst-040 ;
+    ad:storedIn ex:store-conf ;
+    ad:hasSeal ex:seal-040 .
+
+ex:seal-040 a ad:Seal ;
+    ad:sealedRoot "sha256:11112f10a9c8d7e6f5a4b3c2d1e0f9a8b7c6d5e4f3a2b1c0d9e8f7a6b5c4d3e2" .

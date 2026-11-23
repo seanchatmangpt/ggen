@@ -1,0 +1,7 @@
+# All endpoints admitted inside air-gap boundaries (loopback-only, gate 030 fences).
+PREFIX ad: <https://seanchatmangpt.github.io/packs/industry-aero-defense#>
+SELECT ?boundary ?endpoint WHERE {
+  ?boundary a ad:AirGapBoundary ;
+            ad:endpoint ?endpoint .
+}
+ORDER BY ?boundary ?endpoint
