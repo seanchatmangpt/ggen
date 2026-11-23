@@ -271,6 +271,10 @@ Mounted admitted risk-register fixture from `zcode-cli` ecospec §4 @ `f32df08`.
 
 Construct full job **ALIVE** reconfirm — run [`45091416189`](https://github.com/seanchatmangpt/ggen/actions/runs/45091416189) EXIT **0** on subject `65c6a8034` (≠ Foundry). R-02 fixed-memory court **PARTIAL** @ repop `825751aa8` / [repop#1](https://github.com/seanchatmangpt/repop/pull/1) (**10+28**/EXIT:**0**; soak UNVERIFIED ≠ CLOSED). R-05 `#154` tip courts **16+6**/EXIT:**0** off-main (≠ main CLOSED). Tip-wins #957 honesty/R-body absorb onto crown after this pin. Foundry **BLOCKED_HITL** / cos **BLOCKED** / revops **UNSUPPORTED** / WebAuthn **UNSUPPORTED** / zero-HITL **NOT COMPLETE** held. Detail: [`CONSTRUCT-FULL-ALIVE-STANDING.md`](./CONSTRUCT-FULL-ALIVE-STANDING.md); [`R01-R07-STANDING.md`](./R01-R07-STANDING.md).
 
+## Retip35 (2026-11-22 6:09:00 PM PST) — Construct tip ALIVE @ d6c04b390 + tip-wins #957
+
+Construct tip-subject **ALIVE** — run [`45093580438`](https://github.com/seanchatmangpt/ggen/actions/runs/45093580438) EXIT **0** on tip `d6c04b390` (full ladder incl. Manufacture + IA + workstation refuse). Tip-wins #957: **R-02 CLOSED** (soak), R-03/R-04 OPEN honesty, Gate1 live-tip **45**/EXIT:**0**, VW **11**/EXIT:**0**, Foundry `--live` **foundry_exit=1** held. **≠ Foundry / zero-HITL / path crown ALIVE.** Detail: [`CONSTRUCT-FULL-ALIVE-STANDING.md`](./CONSTRUCT-FULL-ALIVE-STANDING.md).
+
 ## Retip32 (2026-11-22 4:45:00 PM PST) — OOR ledger honesty sync
 
 Synced [`OUT-OF-REPO-NEXT-VERIFIERS.md`](./OUT-OF-REPO-NEXT-VERIFIERS.md) to tip evidence: G2-1 **UNSUPPORTED** (MISSING); G2-2/G0-2 Founder AND-gate; G2-5 ladder drops invent-revops-DNS; G2-11 **ALIVE** (CI consume `45073805083`); G3-4 **BLOCKED**. Foundry **BLOCKED_HITL** / WebAuthn **UNSUPPORTED** / V8 **BLOCKED** held. Live re-probe: cos healthz **200** / readyz **503**; foundry_exit=1 model access.
