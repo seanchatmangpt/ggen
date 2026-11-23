@@ -92,11 +92,13 @@ fn scaffold() -> (TempDir, PathBuf) {
     // emissions (red evidence would refuse the scaffold sync forever).
     // Evidence-gate refusal paths use dedicated red/missing fixtures.
     std::fs::create_dir_all(project.join("evidence-pack")).expect("mkdir evidence-pack");
-    std::fs::copy(
-        this_crate.join("evidence-pack/pack.toml"),
-        project.join("evidence-pack/pack.toml"),
-    )
-    .expect("copy evidence-pack pack.toml");
+    for name in ["pack.toml", "ontology.ttl"] {
+        std::fs::copy(
+            this_crate.join("evidence-pack").join(name),
+            project.join("evidence-pack").join(name),
+        )
+        .unwrap_or_else(|e| panic!("copy evidence-pack/{name}: {e}"));
+    }
     copy_tree(
         &this_crate.join("evidence-pack/templates"),
         &project.join("evidence-pack/templates"),
@@ -111,6 +113,14 @@ fn scaffold() -> (TempDir, PathBuf) {
          ver:check-bi a ver:Check ; ver:name \"byte-identity\" ; ver:exitCode 0 .\n",
     )
     .expect("seed evidence");
+    // FM-LAW-015: sync refuses when ea.graph.json is absent. Seed the same
+    // minimal empty-graph fixture used by MCP/lifecycle courts (zero candidate
+    // SBBs) — this suite proves pack/template manufacture, not EA admission.
+    std::fs::write(
+        project.join("ea.graph.json"),
+        r#"{"schema":"ggen.ea.graph.v1","strategy":{"id":"s","title":"t"},"capabilities":[],"abbs":[],"contracts":[],"candidate_sbbs":[],"qualifications":[],"packs":[]}"#,
+    )
+    .expect("seed ea.graph.json");
     std::fs::create_dir_all(project.join("templates")).expect("mkdir templates");
     std::fs::create_dir_all(project.join("src")).expect("mkdir src");
     // Seed lib.rs the way the checked-in scaffold starts out (before
